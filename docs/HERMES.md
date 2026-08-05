@@ -18,6 +18,18 @@ Read this file at the start of **every** session, before doing anything else.
 
 ---
 
+## 1a. Two ways a session can start
+
+Every Hermes session begins one of two ways. Check which before doing anything else.
+
+**A — Direct instruction.** The founder pasted a prompt naming a specific ticket. Follow it — read `docs/RULES.md`, then this file, then `docs/TASKS.md`, then do exactly that one ticket.
+
+**B — Scheduled trigger (cron).** No specific ticket was named — you were woken on a timer. In this case: **read `docs/QUEUE.md` first, before this file, before anything else.** It tells you whether there is work queued (`Status: READY`) or nothing to do (`Status: WAITING`, `IN_PROGRESS`, or `NEEDS_REVIEW` — all mean: exit immediately, this is normal). `docs/QUEUE.md` explains the full protocol, including where to write your report.
+
+In both cases, the work itself — one ticket, one commit, the report format in §6 — is identical. Only how you learned what to do, and where your report goes, differs.
+
+---
+
 ## 2. Read these before your first line of code
 
 In this order:
