@@ -37,7 +37,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-001: Shared UI primitives**
       Spec: Create `components/ui/` containing `Button.tsx`, `Card.tsx`, `Pill.tsx`, `Toggle.tsx`, `Input.tsx`, `ProgressBar.tsx`. Match the Components panel at the bottom of `design-reference/MVP Screens.dc.html` and the specs in `docs/DESIGN.md` §4 exactly — read the inline styles in that file for precise padding, radius and colour values. Button variants: `primary` (midnight), `purchase` (gold), `progress` (emerald), `secondary` (white + `line-strong` border), `disabled`. Pill variants: the five package statuses plus `risk` and `grounded`. All must use Tailwind tokens from `tailwind.config.ts` — **never a hard-coded hex value**. Every interactive element has a minimum 44px touch target.
-      Depends on: TASK-000 · Status: in progress
+      Depends on: TASK-000 · Status: done
 
 - [ ] **TASK-002: Landing page**
       Spec: Replace `app/page.tsx` with the real landing page, converted from `design-reference/Landing Page.dc.html`. That file is hand-written HTML with the final approved design — **convert it to React + Tailwind; do not redesign it.** Every section: nav, hero with before/after card, "where applications die", Western-vs-Gulf CV comparison, how-it-works (4 steps), what-we-change/never-touch, founder story, pricing, FAQ, closing CTA, footer. Replace inline styles with Tailwind tokens. Use `[Product Name]` as the literal brand string. Founder photo slots become plain placeholder divs. Must be fully responsive: verify at 390px, 768px and 1280px.
