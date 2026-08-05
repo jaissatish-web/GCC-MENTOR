@@ -9,11 +9,39 @@ before anything else, before `docs/HERMES.md`.**
 
 ---
 
-## Status: WAITING
+## Status: READY
 
 ## Queued task
 
-*(empty — nothing queued)*
+Execute TASK-005, and only TASK-005. Do not start, plan, or partially
+implement any other ticket.
+
+Key things `docs/HERMES.md` will tell you, stated here so there is no doubt:
+
+- `design-reference/` contains the approved mockups as working HTML with the
+  final design. Convert the mockup to React with Tailwind tokens for the
+  auth pages' visual style. If your output differs from the mockup's design
+  system, the mockup is right.
+- `reference/` is read-only donor code from an older, different product. Use
+  it for wiring patterns only. NEVER copy an AI prompt from it.
+- The login method is an open decision (`docs/RULES.md` §5) — build email +
+  password now, and structure the page so an OAuth button or an OTP flow can
+  be added without restructuring. Do not hard-code a single provider
+  assumption. Do not build Mobile+OTP.
+- Do not modify `middleware.ts` or `app/auth/callback/route.ts` — both are
+  protected files and this ticket does not authorize touching them.
+- Never use a hard-coded hex colour. Always use the tokens in
+  `tailwind.config.ts`.
+- The product name is undecided. Use the literal string `[Product Name]`.
+- Do NOT install shadcn/ui or run any shadcn command. That path was tried
+  and reverted — it overwrote `lib/utils.ts`, `app/globals.css`,
+  `app/layout.tsx` and `components/ui/Button.tsx` with its own unrelated
+  design system despite flags meant to prevent that. Build every component
+  by hand, the same way `components/ui/` was built in TASK-001.
+
+Write your report to `docs/reports/TASK-005.md` using the exact format in
+`docs/HERMES.md` §6, including the literal output of `npm run build` and
+`npm run lint`. Then set Status back to `NEEDS_REVIEW` in this file and stop.
 
 ---
 
