@@ -33,7 +33,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
         --fetch-timeout=1800000
       ```
       Set `PUPPETEER_SKIP_DOWNLOAD=true` first — Chromium is ~150MB and is not needed until TASK-030. If the install fails, **retry up to three times before reporting a blocker**; npm rolls `node_modules` back to empty on failure, so a partial state is expected between attempts. Then run `npm run build` and `npm run dev`, open `http://localhost:3000`, and confirm the scaffold-check page renders with all three fonts and all seven colour swatches visible. Record the outcome in `docs/BOOT_REPORT.md`: install attempts needed, build output, and what you actually saw in the browser. **Change no application code in this ticket.**
-      Status: not started
+      Status: in progress
 
 - [ ] **TASK-001: Shared UI primitives**
       Spec: Create `components/ui/` containing `Button.tsx`, `Card.tsx`, `Pill.tsx`, `Toggle.tsx`, `Input.tsx`, `ProgressBar.tsx`. Match the Components panel at the bottom of `design-reference/MVP Screens.dc.html` and the specs in `docs/DESIGN.md` §4 exactly — read the inline styles in that file for precise padding, radius and colour values. Button variants: `primary` (midnight), `purchase` (gold), `progress` (emerald), `secondary` (white + `line-strong` border), `disabled`. Pill variants: the five package statuses plus `risk` and `grounded`. All must use Tailwind tokens from `tailwind.config.ts` — **never a hard-coded hex value**. Every interactive element has a minimum 44px touch target.
