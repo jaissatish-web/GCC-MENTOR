@@ -42,5 +42,8 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
     return { success: 'Check your inbox to confirm your email, then sign in.' }
   }
 
-  redirect('/dashboard')
+  // A fresh signup has no Career Profile yet - send them straight into
+  // onboarding rather than an empty dashboard. Login (returning users)
+  // still goes to /dashboard - see app/login/actions.ts.
+  redirect('/onboarding')
 }
