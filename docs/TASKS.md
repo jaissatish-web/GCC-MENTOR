@@ -57,7 +57,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-006: Migrations folder setup**
       Spec: Create `supabase/migrations/README.md` documenting: migrations are numbered (`010_`, `011_`, …), applied manually by the founder in the Supabase SQL Editor, additive by default, and every new table must have RLS enabled with an owner-only policy before it is considered complete. Include a copy-paste checklist the founder follows when applying one. No SQL in this ticket.
-      Status: not started
+      Status: done
 
 ### B — Data layer  ⚠️ every ticket in this section is Needs Review
 
