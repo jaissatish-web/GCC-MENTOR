@@ -34,6 +34,11 @@ before `docs/RULES.md`, before `docs/HERMES.md`, before anything else.**
    f. Change line 1 to `STATE: NEEDS_REVIEW` and save this file.
    g. Stop. Do not start another task. Do not touch this file again until it next says `READY`.
 
+   **If you hit any of the ten hard-stop conditions in `docs/HERMES.md` §4 at any point during step (d)** — an ambiguous spec, a needed protected-file change, anything you'd normally stop and ask about — **do not halt silently and do not leave this file at `IN_PROGRESS`.** You have no live chat with the founder or the CTO in this session; this file is the only channel you have. So:
+   - Skip straight to step (e). Write whatever report you can, with `Status: blocked` or `Status: needs decision` (per `docs/HERMES.md` §6), and put your exact question or blocker in the **Questions for CTO** section — written completely self-contained, since neither the CTO nor you will remember this conversation by the time it's read.
+   - Then complete steps (f) and (g) exactly as if you'd finished successfully.
+   - **`IN_PROGRESS` with no report ever written is the one state this protocol cannot recover from automatically** — it looks identical to "still working" and "silently died" from the outside. Never leave it that way.
+
 ### If you are the CTO, checking in
 
 1. If `STATE` is `NEEDS_REVIEW`: read `handoff/RESULTS/TASK-0NN.md`, review the actual code exactly as before — never approve on the report's word alone.

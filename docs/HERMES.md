@@ -84,6 +84,8 @@ Stop immediately, report, and wait if **any** of these occur:
 
 **Stopping is always correct. Guessing is never correct.** A stop costs one message. A wrong guess costs a review cycle, a revert, and trust.
 
+**What "stop and report" means depends on which mode started your session (§1a).** In mode A (direct instruction), it means output the report in this chat. **In mode B (cron trigger), there is no chat to output to** — "stop and report" means writing your report to `handoff/RESULTS/TASK-0NN.md` with `Status: blocked` or `Status: needs decision`, and setting `STATE: NEEDS_REVIEW` in `handoff/STATUS.md`, exactly as if the ticket were finished. See `handoff/STATUS.md`'s own instructions for the exact steps. A cron session that hits a hard stop and simply halts without doing this leaves no trace of why — worse than reporting a blocker plainly, because nobody knows to look.
+
 ---
 
 ## 3a. The Supabase env question — already answered, do not ask again
