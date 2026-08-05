@@ -25,7 +25,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 > `app/auth/callback/`. `app/page.tsx` is a temporary scaffold-check page and is
 > replaced in TASK-002.
 
-- [ ] **TASK-000: Install dependencies and verify the scaffold boots**
+- [x] **TASK-000: Install dependencies and verify the scaffold boots**
       Spec: Check whether `node_modules/` exists and contains `node_modules/.bin/next`. If not, install dependencies. **This machine has a slow, unstable connection to the npm registry — two normal installs already failed with `ECONNRESET` and `EIDLETIMEOUT`.** Use reduced concurrency and long timeouts:
       ```
       npm install --no-audit --no-fund --maxsockets=3 --fetch-retries=10 \
@@ -33,27 +33,27 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
         --fetch-timeout=1800000
       ```
       Set `PUPPETEER_SKIP_DOWNLOAD=true` first — Chromium is ~150MB and is not needed until TASK-030. If the install fails, **retry up to three times before reporting a blocker**; npm rolls `node_modules` back to empty on failure, so a partial state is expected between attempts. Then run `npm run build` and `npm run dev`, open `http://localhost:3000`, and confirm the scaffold-check page renders with all three fonts and all seven colour swatches visible. Record the outcome in `docs/BOOT_REPORT.md`: install attempts needed, build output, and what you actually saw in the browser. **Change no application code in this ticket.**
-      Status: in progress
+      Status: done
 
-- [ ] **TASK-001: Shared UI primitives**
+- [x] **TASK-001: Shared UI primitives**
       Spec: Create `components/ui/` containing `Button.tsx`, `Card.tsx`, `Pill.tsx`, `Toggle.tsx`, `Input.tsx`, `ProgressBar.tsx`. Match the Components panel at the bottom of `design-reference/MVP Screens.dc.html` and the specs in `docs/DESIGN.md` §4 exactly — read the inline styles in that file for precise padding, radius and colour values. Button variants: `primary` (midnight), `purchase` (gold), `progress` (emerald), `secondary` (white + `line-strong` border), `disabled`. Pill variants: the five package statuses plus `risk` and `grounded`. All must use Tailwind tokens from `tailwind.config.ts` — **never a hard-coded hex value**. Every interactive element has a minimum 44px touch target.
       Depends on: TASK-000 · Status: done
 
-- [ ] **TASK-002: Landing page**
+- [x] **TASK-002: Landing page**
       Spec: Replace `app/page.tsx` with the real landing page, converted from `design-reference/Landing Page.dc.html`. That file is hand-written HTML with the final approved design — **convert it to React + Tailwind; do not redesign it.** Every section: nav, hero with before/after card, "where applications die", Western-vs-Gulf CV comparison, how-it-works (4 steps), what-we-change/never-touch, founder story, pricing, FAQ, closing CTA, footer. Replace inline styles with Tailwind tokens. Use `[Product Name]` as the literal brand string. Founder photo slots become plain placeholder divs. Must be fully responsive: verify at 390px, 768px and 1280px.
       Depends on: TASK-001 · Status: done
 
-- [ ] **TASK-003: Navigable route skeleton**
+- [x] **TASK-003: Navigable route skeleton**
       Spec: Create placeholder pages for every MVP route so the whole product is clickable end to end before any logic exists: `/onboarding`, `/profile`, `/profile/visibility`, `/optimize/target`, `/optimize/setup`, `/optimize/preview/[packageId]`, `/optimize/pay/[packageId]`, `/package/[id]`, `/dashboard`, `/settings`, `/admin`. Each page renders its screen title, its ticket number, and a link to the next screen in the flow. No data, no forms, no API calls. **Purpose: the founder can walk the entire flow and confirm the structure before logic is built.** Route names must match `docs/USER_FLOW.md` exactly.
       Depends on: TASK-001 · Status: done
 
-- [ ] **TASK-004: App shell**
+- [x] **TASK-004: App shell**
       Spec: Create `app/dashboard/layout.tsx` with the desktop sidebar (`components/layout/Sidebar.tsx`) and mobile bottom nav (`components/layout/MobileBottomNav.tsx`), matching screens D1 and D2 in `design-reference/MVP Screens.dc.html`. Sidebar items: Dashboard, Library, Career Profile, Payments, Settings — plus the "Need help? Email the founder" card. Bottom nav: Home, Library, Profile. **Do not add nav entries for ATS score, cover letter, interview Q&A or mock interview** — those are Phase 2–4 and appear only as locked cards on the dashboard (TASK-034).
       Depends on: TASK-001 · Status: done
 
 - [ ] **TASK-005: Auth pages**
       Spec: Create `/login` and `/signup` styled to the new design system. Use the existing Supabase SSR client in `lib/supabase/`. **The login method is an open decision (`docs/RULES.md` §5)** — build email + password now, and structure the page so an OAuth button or an OTP flow can be added without restructuring. **Do not hard-code a single provider assumption. Do not build Mobile+OTP.** Do not modify `middleware.ts` or `app/auth/callback/route.ts`.
-      Depends on: TASK-001 · Status: done
+      Depends on: TASK-001 · Status: not started
 
 - [ ] **TASK-006: Migrations folder setup**
       Spec: Create `supabase/migrations/README.md` documenting: migrations are numbered (`010_`, `011_`, …), applied manually by the founder in the Supabase SQL Editor, additive by default, and every new table must have RLS enabled with an owner-only policy before it is considered complete. Include a copy-paste checklist the founder follows when applying one. No SQL in this ticket.
