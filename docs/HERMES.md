@@ -72,6 +72,23 @@ Stop immediately, report, and wait if **any** of these occur:
 
 ---
 
+## 3a. The Supabase env question — already answered, do not ask again
+
+**No `.env.local` exists, and none is needed until TASK-007.** This is expected,
+not a blocker.
+
+Every ticket through TASK-006 is verified at the build, lint, and
+compiled-CSS-token level. Routes protected by `middleware.ts` will correctly
+return 503 or redirect without a live session — that is the middleware working
+as designed, not something to fix or route around.
+
+**Do not report the missing `.env.local` as a blocker or a question before
+TASK-007.** If your ticket's spec explicitly requires an authenticated browser
+check, note in your report that it is deferred until Supabase is configured
+and move on — do not stop the whole ticket for it.
+
+---
+
 ## 5. Absolute prohibitions
 
 | Never | Why |
