@@ -24,7 +24,9 @@ Every Hermes session begins one of two ways. Check which before doing anything e
 
 **A — Direct instruction.** The founder pasted a prompt naming a specific ticket. Follow it — read `docs/RULES.md`, then this file, then `docs/TASKS.md`, then do exactly that one ticket.
 
-**B — Scheduled trigger (cron).** No specific ticket was named — you were woken on a timer. In this case: **read `docs/QUEUE.md` first, before this file, before anything else.** It tells you whether there is work queued (`Status: READY`) or nothing to do (`Status: WAITING`, `IN_PROGRESS`, or `NEEDS_REVIEW` — all mean: exit immediately, this is normal). `docs/QUEUE.md` explains the full protocol, including where to write your report.
+**B — Scheduled trigger (cron).** No specific ticket was named — you were woken on your schedule. In this case: **read `handoff/STATUS.md` first, before this file, before anything else.** Line 1 tells you whether there is work queued (`STATE: READY`) or nothing to do (`WAITING`, `IN_PROGRESS`, or `NEEDS_REVIEW` — all mean: exit immediately, this is normal). `handoff/STATUS.md` explains the full protocol, including where to write your report (`handoff/RESULTS/`).
+
+**Each scheduled run starts a fresh session with no memory of any prior run.** `handoff/STATUS.md` and this file must together contain everything you need — never assume context from "last time."
 
 In both cases, the work itself — one ticket, one commit, the report format in §6 — is identical. Only how you learned what to do, and where your report goes, differs.
 
