@@ -45,7 +45,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-003: Navigable route skeleton**
       Spec: Create placeholder pages for every MVP route so the whole product is clickable end to end before any logic exists: `/onboarding`, `/profile`, `/profile/visibility`, `/optimize/target`, `/optimize/setup`, `/optimize/preview/[packageId]`, `/optimize/pay/[packageId]`, `/package/[id]`, `/dashboard`, `/settings`, `/admin`. Each page renders its screen title, its ticket number, and a link to the next screen in the flow. No data, no forms, no API calls. **Purpose: the founder can walk the entire flow and confirm the structure before logic is built.** Route names must match `docs/USER_FLOW.md` exactly.
-      Depends on: TASK-001 · Status: not started
+      Depends on: TASK-001 · Status: in progress
 
 - [ ] **TASK-004: App shell**
       Spec: Create `app/dashboard/layout.tsx` with the desktop sidebar (`components/layout/Sidebar.tsx`) and mobile bottom nav (`components/layout/MobileBottomNav.tsx`), matching screens D1 and D2 in `design-reference/MVP Screens.dc.html`. Sidebar items: Dashboard, Library, Career Profile, Payments, Settings — plus the "Need help? Email the founder" card. Bottom nav: Home, Library, Profile. **Do not add nav entries for ATS score, cover letter, interview Q&A or mock interview** — those are Phase 2–4 and appear only as locked cards on the dashboard (TASK-034).
