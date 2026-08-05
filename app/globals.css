@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Headlines use Instrument Serif at weight 400 — docs/DESIGN.md §3 */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-instrument-serif), Georgia, serif;
+    font-weight: 400;
+    text-wrap: pretty;
+  }
+}

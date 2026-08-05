@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#EFEAE1; font-family:'Plus Jakarta Sans',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:#0E5C4A; text-decoration:none; }
+  a:hover { color:#C79A3C; }
+  * { box-sizing:border-box; }
+  @keyframes sweep { 0%{transform:translateX(-100%)} 100%{transform:translateX(220%)} }
+</style>
+</helmet>
+
+<section style="padding:56px 56px 90px;display:flex;flex-direction:column;gap:26px;background:#E7E1D6;border-bottom:1px solid #DDD5C6">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="padding:5px 10px;border:1px solid #C79A3C;border-radius:999px;font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.1em;text-transform:uppercase;color:#8A6A1C;background:#F7EFDC">2a</div>
+      <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.18em;text-transform:uppercase;color:#8A7A5F">Dashboard hub + the full service set</div>
+    </div>
+    <h2 style="margin:0;font:400 40px/1.06 'Instrument Serif',serif;color:#0A1A2F;max-width:840px;text-wrap:pretty">The dashboard as a service hub — and every service that lives inside it</h2>
+    <p style="margin:0;max-width:760px;font:400 15px/1.6 'Plus Jakarta Sans';color:#5B6675;text-wrap:pretty">Same visual language as <a href="#1a">1a</a>. The dashboard now leads with the service grid, so the Library and the five services sit side by side. Each service card and screen carries its phase badge — <strong style="color:#0A1A2F">MVP ships only resume optimization</strong>; ATS score (Phase 2), cover letter (Phase 3), Q&amp;A study and mock interview (Phase 4) are shown here as locked/coming-soon states so the shell is designed once and filled in later.</p>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start">
+
+    <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">D1 · Dashboard (mobile)</div><div style="padding:3px 8px;border-radius:5px;background:#0E5C4A;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#FBF9F5">MVP</div></div>
+      <div style="width:390px;height:940px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+        <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+        <div style="padding:4px 22px 18px;display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;flex-direction:column;gap:3px"><span style="font:400 25px/1.1 'Instrument Serif',serif;color:#0A1A2F">Hello, Rahul</span><span style="font:400 11.5px/1 'Plus Jakarta Sans';color:#93805F">Targeting Commissioning Engineer · Qatar</span></div>
+          <div style="position:relative;width:48px;height:48px">
+            <svg viewBox="0 0 100 100" style="width:48px;height:48px;transform:rotate(-90deg)"><circle cx="50" cy="50" r="43" fill="none" stroke="#EDE3D2" stroke-width="10"></circle><circle cx="50" cy="50" r="43" fill="none" stroke="#C79A3C" stroke-width="10" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="68"></circle></svg>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#0A1A2F">75</div>
+          </div>
+        </div>
+        <div style="padding:0 22px 8px;font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Services</div>
+        <div style="padding:0 22px 16px;display:grid;grid-template-columns:1fr 1fr;gap:9px">
+          <div style="grid-column:span 2;padding:16px;border-radius:14px;background:#0A1A2F;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font:700 14px/1 'Plus Jakarta Sans';color:#FBF9F5">Optimize resume for a job</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.62)">₹499 · about 2 minutes</span></div>
+            <span style="width:32px;height:32px;border-radius:9px;background:#C79A3C;display:flex;align-items:center;justify-content:center;font:700 16px/1 'Plus Jakarta Sans';color:#0A1A2F">+</span>
+          </div>
+          <div style="padding:14px;border-radius:13px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:6px;min-height:96px">
+            <span style="font-size:15px;color:#0E5C4A">◑</span>
+            <span style="font:700 12.5px/1.25 'Plus Jakarta Sans';color:#0A1A2F">ATS score check</span>
+            <span style="margin-top:auto;padding:3px 7px;align-self:flex-start;border-radius:5px;background:#EAF3EF;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#0E5C4A">Free · Phase 2</span>
+          </div>
+          <div style="padding:14px;border-radius:13px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:6px;min-height:96px">
+            <span style="font-size:15px;color:#8A6A1C">✎</span>
+            <span style="font:700 12.5px/1.25 'Plus Jakarta Sans';color:#0A1A2F">Cover letter</span>
+            <span style="margin-top:auto;padding:3px 7px;align-self:flex-start;border-radius:5px;background:#F7EFDC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A6A1C">Phase 3</span>
+          </div>
+          <div style="padding:14px;border-radius:13px;background:#F4F1EA;border:1px dashed #DDD5C6;display:flex;flex-direction:column;gap:6px;min-height:96px">
+            <span style="font-size:15px;color:#A0997F">?</span>
+            <span style="font:700 12.5px/1.25 'Plus Jakarta Sans';color:#5B6675">Interview Q&amp;A study</span>
+            <span style="margin-top:auto;padding:3px 7px;align-self:flex-start;border-radius:5px;background:#EDE7DC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A7A5F">Phase 4</span>
+          </div>
+          <div style="padding:14px;border-radius:13px;background:#F4F1EA;border:1px dashed #DDD5C6;display:flex;flex-direction:column;gap:6px;min-height:96px">
+            <span style="font-size:15px;color:#A0997F">◉</span>
+            <span style="font:700 12.5px/1.25 'Plus Jakarta Sans';color:#5B6675">Mock interview</span>
+            <span style="margin-top:auto;padding:3px 7px;align-self:flex-start;border-radius:5px;background:#EDE7DC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A7A5F">Phase 4</span>
+          </div>
+        </div>
+        <div style="padding:0 22px;flex:1;display:flex;flex-direction:column;gap:9px;overflow:hidden">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Library · 3 packages</span><span style="font:500 11px/1 'Plus Jakarta Sans';color:#0E5C4A">See all</span></div>
+          <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:3px"><span style="font:700 13px/1.25 'Plus Jakarta Sans';color:#0A1A2F">Commissioning Engineer (I&amp;C)</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#6B7A8D">QatarEnergy · Qatar · 5 Aug</span></div><span style="padding:5px 9px;border-radius:99px;background:#F7EFDC;border:1px solid #E3C77E;font:600 10px/1 'Plus Jakarta Sans';color:#8A6A1C">Shortlisted ▾</span></div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap"><span style="padding:5px 8px;border-radius:6px;background:#EAF3EF;font:600 9.5px/1 'Plus Jakarta Sans';color:#0E5C4A">CV ✓</span><span style="padding:5px 8px;border-radius:6px;background:#F4F1EA;font:600 9.5px/1 'Plus Jakarta Sans';color:#A0997F">ATS —</span><span style="padding:5px 8px;border-radius:6px;background:#F4F1EA;font:600 9.5px/1 'Plus Jakarta Sans';color:#A0997F">Letter —</span><span style="padding:5px 8px;border-radius:6px;background:#F4F1EA;font:600 9.5px/1 'Plus Jakarta Sans';color:#A0997F">Q&amp;A —</span></div>
+            <div style="display:flex;gap:14px"><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Open</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Re-optimize</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#A0562F">Delete</span></div>
+          </div>
+          <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:3px"><span style="font:700 13px/1.25 'Plus Jakarta Sans';color:#0A1A2F">Instrumentation Supervisor</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#6B7A8D">ADNOC · UAE · 28 Jul</span></div><span style="padding:5px 9px;border-radius:99px;background:#F4F1EA;border:1px solid #DDD5C6;font:600 10px/1 'Plus Jakarta Sans';color:#5B6675">Applied ▾</span></div>
+            <div style="display:flex;gap:6px"><span style="padding:5px 8px;border-radius:6px;background:#EAF3EF;font:600 9.5px/1 'Plus Jakarta Sans';color:#0E5C4A">CV ✓</span><span style="padding:5px 8px;border-radius:6px;background:#F4F1EA;font:600 9.5px/1 'Plus Jakarta Sans';color:#A0997F">No JD</span></div>
+          </div>
+          <div style="padding:14px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 12.5px/1 'Plus Jakarta Sans';color:#0A1A2F">Career Profile</span><span style="font:400 10.5px/1.3 'Plus Jakarta Sans';color:#93805F">3 items left · powers every service</span></div><span style="font:600 12px/1 'Plus Jakarta Sans';color:#0E5C4A">→</span></div>
+        </div>
+        <div style="padding:12px 22px 20px;border-top:1px solid #EDE7DC;display:flex;justify-content:space-around">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font:600 10px/1 'Plus Jakarta Sans';color:#0A1A2F"><span style="font-size:15px">◆</span>Home</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font:500 10px/1 'Plus Jakarta Sans';color:#93805F"><span style="font-size:15px">▤</span>Library</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font:500 10px/1 'Plus Jakarta Sans';color:#93805F"><span style="font-size:15px">◔</span>Profile</div>
+        </div>
+      </div>
+      <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Services grid first, Library second. Locked services stay visible but clearly dated — they preview the roadmap without pretending to work. Package chips show which artefacts exist per package (CV ✓ / ATS — / Letter — / Q&amp;A —), matching the schema slots.</div>
+    </div>
+
+    <div style="width:1120px;flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">D2 · Dashboard (desktop)</div><div style="font:400 12px/1 'Plus Jakarta Sans';color:#93805F">Same hierarchy, two columns</div></div>
+      <div style="width:1120px;background:#FBF9F5;border:1px solid #DDD5C6;border-radius:22px;overflow:hidden;box-shadow:0 30px 70px rgba(10,26,47,.14);display:flex">
+        <div style="width:224px;flex:none;background:#0A1A2F;padding:24px 18px;display:flex;flex-direction:column;gap:26px">
+          <div style="display:flex;align-items:center;gap:9px"><div style="width:26px;height:26px;border-radius:7px;background:#C79A3C;display:flex;align-items:center;justify-content:center;font:400 14px/1 'Instrument Serif',serif;color:#0A1A2F">P</div><div style="font:600 13px/1 'Plus Jakarta Sans';color:#FBF9F5">[Product Name]</div></div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="padding:11px 12px;border-radius:9px;background:rgba(251,249,245,.1);font:600 12.5px/1 'Plus Jakarta Sans';color:#FBF9F5">Dashboard</div>
+            <div style="padding:11px 12px;border-radius:9px;font:500 12.5px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.66)">Library</div>
+            <div style="padding:11px 12px;border-radius:9px;font:500 12.5px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.66)">Career Profile</div>
+            <div style="padding:11px 12px;border-radius:9px;font:500 12.5px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.66)">Payments</div>
+            <div style="padding:11px 12px;border-radius:9px;font:500 12.5px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.66)">Settings</div>
+          </div>
+          <div style="margin-top:auto;padding:14px;border-radius:12px;background:rgba(251,249,245,.06);border:1px solid rgba(237,227,210,.14);display:flex;flex-direction:column;gap:6px">
+            <div style="font:600 11px/1.3 'Plus Jakarta Sans';color:#E3C77E">Need help?</div>
+            <div style="font:400 10.5px/1.5 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">Email the founder — replies within a day.</div>
+          </div>
+        </div>
+        <div style="flex:1;padding:28px 30px;display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="display:flex;flex-direction:column;gap:5px"><div style="font:400 30px/1.1 'Instrument Serif',serif;color:#0A1A2F">Hello, Rahul</div><div style="font:400 12.5px/1 'Plus Jakarta Sans';color:#93805F">Targeting Commissioning Engineer (I&amp;C) · Qatar · QatarEnergy</div></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:14px;background:#FFF;border:1px solid #E4DED2">
+              <div style="position:relative;width:44px;height:44px"><svg viewBox="0 0 100 100" style="width:44px;height:44px;transform:rotate(-90deg)"><circle cx="50" cy="50" r="43" fill="none" stroke="#EDE3D2" stroke-width="10"></circle><circle cx="50" cy="50" r="43" fill="none" stroke="#C79A3C" stroke-width="10" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="68"></circle></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#0A1A2F">75</div></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F">Profile readiness</span><span style="font:400 10.5px/1.3 'Plus Jakarta Sans';color:#93805F">3 items left · never blocks you</span></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:12px">
+            <div style="padding:20px;border-radius:16px;background:#0A1A2F;display:flex;flex-direction:column;gap:10px">
+              <span style="font:700 16px/1.2 'Plus Jakarta Sans';color:#FBF9F5">Optimize resume for a job</span>
+              <span style="font:400 12px/1.5 'Plus Jakarta Sans';color:rgba(251,249,245,.65)">Profile already saved — no re-upload. Pick a target, choose blocks, done in ~2 min.</span>
+              <div style="margin-top:auto;align-self:flex-start;padding:11px 16px;border-radius:10px;background:#C79A3C;font:700 12.5px/1 'Plus Jakarta Sans';color:#0A1A2F">Start · ₹499</div>
+            </div>
+            <div style="padding:18px;border-radius:16px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:8px">
+              <span style="font-size:16px;color:#0E5C4A">◑</span>
+              <span style="font:700 13px/1.25 'Plus Jakarta Sans';color:#0A1A2F">ATS score check</span>
+              <span style="font:400 11px/1.5 'Plus Jakarta Sans';color:#6B7A8D">Free keyword match against a posting.</span>
+              <span style="margin-top:auto;padding:4px 8px;align-self:flex-start;border-radius:5px;background:#EAF3EF;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#0E5C4A">Phase 2</span>
+            </div>
+            <div style="padding:18px;border-radius:16px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:8px">
+              <span style="font-size:16px;color:#8A6A1C">✎</span>
+              <span style="font:700 13px/1.25 'Plus Jakarta Sans';color:#0A1A2F">Cover letter</span>
+              <span style="font:400 11px/1.5 'Plus Jakarta Sans';color:#6B7A8D">Written from the same profile.</span>
+              <span style="margin-top:auto;padding:4px 8px;align-self:flex-start;border-radius:5px;background:#F7EFDC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A6A1C">Phase 3</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="padding:18px;border-radius:16px;background:#F4F1EA;border:1px dashed #DDD5C6;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;flex-direction:column;gap:4px"><span style="font:700 13px/1 'Plus Jakarta Sans';color:#5B6675">Interview Q&amp;A study pack</span><span style="font:400 11px/1.4 'Plus Jakarta Sans';color:#93805F">Questions built from the claims in your own CV.</span></div><span style="padding:4px 8px;border-radius:5px;background:#EDE7DC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A7A5F">Phase 4</span></div>
+            <div style="padding:18px;border-radius:16px;background:#F4F1EA;border:1px dashed #DDD5C6;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;flex-direction:column;gap:4px"><span style="font:700 13px/1 'Plus Jakarta Sans';color:#5B6675">Mock interview</span><span style="font:400 11px/1.4 'Plus Jakarta Sans';color:#93805F">Speak your answers, get a senior review.</span></div><span style="padding:4px 8px;border-radius:5px;background:#EDE7DC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A7A5F">Phase 4</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Library · 3 packages</span><span style="font:500 11.5px/1 'Plus Jakarta Sans';color:#0E5C4A">See all</span></div>
+            <div style="border-radius:14px;border:1px solid #E4DED2;background:#FFF;overflow:hidden">
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr 90px;padding:11px 16px;background:#F7F5F0;border-bottom:1px solid #EDE7DC;font:600 9.5px/1 'Plus Jakarta Sans';letter-spacing:.1em;text-transform:uppercase;color:#8A7A5F"><span>Target</span><span>Country</span><span>Level</span><span>Status</span><span></span></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr 90px;padding:14px 16px;align-items:center;border-bottom:1px solid #F1EEE8"><div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 12.5px/1.2 'Plus Jakarta Sans';color:#0A1A2F">Commissioning Engineer (I&amp;C)</span><span style="font:400 10.5px/1 'Plus Jakarta Sans';color:#93805F">QatarEnergy · 5 Aug</span></div><span style="font:400 12px/1 'Plus Jakarta Sans';color:#5B6675">Qatar</span><span style="font:400 12px/1 'Plus Jakarta Sans';color:#5B6675">Moderate</span><span style="justify-self:start;padding:5px 9px;border-radius:99px;background:#F7EFDC;border:1px solid #E3C77E;font:600 10px/1 'Plus Jakarta Sans';color:#8A6A1C">Shortlisted ▾</span><span style="font:600 11.5px/1 'Plus Jakarta Sans';color:#0E5C4A">Open</span></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr 90px;padding:14px 16px;align-items:center;border-bottom:1px solid #F1EEE8"><div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 12.5px/1.2 'Plus Jakarta Sans';color:#0A1A2F">Instrumentation Supervisor</span><span style="font:400 10.5px/1 'Plus Jakarta Sans';color:#93805F">ADNOC · 28 Jul</span></div><span style="font:400 12px/1 'Plus Jakarta Sans';color:#5B6675">UAE</span><span style="font:400 12px/1 'Plus Jakarta Sans';color:#5B6675">Easy</span><span style="justify-self:start;padding:5px 9px;border-radius:99px;background:#F4F1EA;border:1px solid #DDD5C6;font:600 10px/1 'Plus Jakarta Sans';color:#5B6675">Applied ▾</span><span style="font:600 11.5px/1 'Plus Jakarta Sans';color:#0E5C4A">Open</span></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr 90px;padding:14px 16px;align-items:center"><div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 12.5px/1.2 'Plus Jakarta Sans';color:#0A1A2F">Control Systems Engineer</span><span style="font:400 10.5px/1 'Plus Jakarta Sans';color:#93805F">No company · 14 Jul</span></div><span style="font:400 12px/1 'Plus Jakarta Sans';color:#5B6675">Generic Gulf</span><span style="font:400 12px/1 'Plus Jakarta Sans';color:#5B6675">High</span><span style="justify-self:start;padding:5px 9px;border-radius:99px;background:#EAF3EF;border:1px solid #C9E0D6;font:600 10px/1 'Plus Jakarta Sans';color:#0E5C4A">Interview ▾</span><span style="font:600 11.5px/1 'Plus Jakarta Sans';color:#0E5C4A">Open</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Desktop turns the Library into a table with the status dropdown inline — the same data model, denser presentation.</div>
+    </div>
+
+    <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">S1 · ATS score</div><div style="padding:3px 8px;border-radius:5px;background:#EAF3EF;border:1px solid #C9E0D6;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#0E5C4A">Phase 2 · free</div></div>
+      <div style="width:390px;height:940px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+        <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+        <div style="padding:4px 22px 16px;display:flex;flex-direction:column;gap:6px">
+          <div style="font:500 20px/1 'Plus Jakarta Sans';color:#0A1A2F">←</div>
+          <h3 style="margin:0;font:400 27px/1.15 'Instrument Serif',serif;color:#0A1A2F">Your ATS score</h3>
+          <p style="margin:0;font:400 12.5px/1.6 'Plus Jakarta Sans';color:#5B6675">Against the QatarEnergy posting you pasted. Free — no payment needed.</p>
+        </div>
+        <div style="padding:0 22px;display:flex;flex-direction:column;gap:12px;flex:1;overflow:hidden">
+          <div style="padding:22px;border-radius:16px;background:#0A1A2F;display:flex;gap:20px;align-items:center">
+            <div style="position:relative;width:104px;height:104px;flex:none">
+              <svg viewBox="0 0 100 100" style="width:104px;height:104px;transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(237,227,210,.18)" stroke-width="8"></circle><circle cx="50" cy="50" r="42" fill="none" stroke="#C79A3C" stroke-width="8" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="103"></circle></svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:500;color:#FBF9F5">61</div><div style="font:600 8px/1 'Plus Jakarta Sans';letter-spacing:.12em;text-transform:uppercase;color:rgba(251,249,245,.5)">of 100</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div style="font:400 17px/1.25 'Instrument Serif',serif;color:#FBF9F5">Competitive, not yet strong</div>
+              <div style="font:400 11.5px/1.55 'Plus Jakarta Sans';color:rgba(251,249,245,.66)">You match the core discipline but miss the posting's exact commissioning vocabulary in 6 places.</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Breakdown</div>
+            <div style="padding:14px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:11px">
+              <div style="display:flex;flex-direction:column;gap:5px"><div style="display:flex;justify-content:space-between;font:500 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>Keyword match</span><span style="font-family:'IBM Plex Mono',monospace;color:#8A6A1C">58%</span></div><div style="height:5px;border-radius:99px;background:#F1EEE8;overflow:hidden"><div style="width:58%;height:100%;background:#C79A3C"></div></div></div>
+              <div style="display:flex;flex-direction:column;gap:5px"><div style="display:flex;justify-content:space-between;font:500 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>Title alignment</span><span style="font-family:'IBM Plex Mono',monospace;color:#0E5C4A">82%</span></div><div style="height:5px;border-radius:99px;background:#F1EEE8;overflow:hidden"><div style="width:82%;height:100%;background:#0E5C4A"></div></div></div>
+              <div style="display:flex;flex-direction:column;gap:5px"><div style="display:flex;justify-content:space-between;font:500 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>Gulf format compliance</span><span style="font-family:'IBM Plex Mono',monospace;color:#A0562F">40%</span></div><div style="height:5px;border-radius:99px;background:#F1EEE8;overflow:hidden"><div style="width:40%;height:100%;background:#A0562F"></div></div></div>
+              <div style="display:flex;flex-direction:column;gap:5px"><div style="display:flex;justify-content:space-between;font:500 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>Parseability</span><span style="font-family:'IBM Plex Mono',monospace;color:#0E5C4A">95%</span></div><div style="height:5px;border-radius:99px;background:#F1EEE8;overflow:hidden"><div style="width:95%;height:100%;background:#0E5C4A"></div></div></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Missing from your CV</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span style="padding:7px 11px;border-radius:99px;background:#FCF3E8;border:1px solid #E8C79A;font:500 11px/1 'Plus Jakarta Sans';color:#7A4A24">loop folder</span>
+              <span style="padding:7px 11px;border-radius:99px;background:#FCF3E8;border:1px solid #E8C79A;font:500 11px/1 'Plus Jakarta Sans';color:#7A4A24">SAT witness</span>
+              <span style="padding:7px 11px;border-radius:99px;background:#FCF3E8;border:1px solid #E8C79A;font:500 11px/1 'Plus Jakarta Sans';color:#7A4A24">punch clearance</span>
+              <span style="padding:7px 11px;border-radius:99px;background:#FCF3E8;border:1px solid #E8C79A;font:500 11px/1 'Plus Jakarta Sans';color:#7A4A24">P&amp;ID markup</span>
+              <span style="padding:7px 11px;border-radius:99px;background:#FCF3E8;border:1px solid #E8C79A;font:500 11px/1 'Plus Jakarta Sans';color:#7A4A24">MC dossier</span>
+            </div>
+            <div style="font:400 11px/1.55 'Plus Jakarta Sans';color:#93805F">We only surface terms your real experience can support — nothing here asks you to claim something you haven't done.</div>
+          </div>
+        </div>
+        <div style="padding:14px 22px 22px;display:flex;flex-direction:column;gap:9px">
+          <div style="padding:17px;border-radius:13px;background:#C79A3C;text-align:center;font:700 15px/1 'Plus Jakarta Sans';color:#0A1A2F">Fix this with an optimized CV — ₹499</div>
+          <div style="text-align:center;font:400 11px/1.4 'Plus Jakarta Sans';color:#93805F">Free score. Paid fix. No auto-charge.</div>
+        </div>
+      </div>
+      <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">The free top-of-funnel hook: score → named gaps → paid fix. Same ring language as readiness, different accent semantics.</div>
+    </div>
+
+    <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">S2 · Cover letter</div><div style="padding:3px 8px;border-radius:5px;background:#F7EFDC;border:1px solid #E3C77E;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#8A6A1C">Phase 3</div></div>
+      <div style="width:390px;height:940px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+        <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+        <div style="padding:4px 22px 16px;display:flex;flex-direction:column;gap:6px">
+          <div style="font:500 20px/1 'Plus Jakarta Sans';color:#0A1A2F">←</div>
+          <h3 style="margin:0;font:400 27px/1.15 'Instrument Serif',serif;color:#0A1A2F">Cover letter</h3>
+          <p style="margin:0;font:400 12.5px/1.6 'Plus Jakarta Sans';color:#5B6675">Generated from the same profile — written as a senior recruiter arguing your case.</p>
+        </div>
+        <div style="padding:0 22px;display:flex;flex-direction:column;gap:11px;flex:1;overflow:hidden">
+          <div style="padding:13px 14px;border-radius:12px;background:#F4F1EA;border:1px solid #E4DED2;display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F">From package</span><span style="font:400 10.5px/1.3 'Plus Jakarta Sans';color:#93805F">Commissioning Engineer (I&amp;C) · QatarEnergy</span></div>
+            <span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Change</span>
+          </div>
+          <div style="display:flex;gap:7px">
+            <div style="flex:1;padding:11px 8px;border-radius:10px;background:#0A1A2F;text-align:center;font:600 11.5px/1 'Plus Jakarta Sans';color:#FBF9F5">Formal</div>
+            <div style="flex:1;padding:11px 8px;border-radius:10px;background:#FFF;border:1px solid #E4DED2;text-align:center;font:500 11.5px/1 'Plus Jakarta Sans';color:#5B6675">Direct</div>
+            <div style="flex:1;padding:11px 8px;border-radius:10px;background:#FFF;border:1px solid #E4DED2;text-align:center;font:500 11.5px/1 'Plus Jakarta Sans';color:#5B6675">Warm</div>
+          </div>
+          <div style="padding:18px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:10px;flex:1;overflow:hidden">
+            <div style="font:400 9.5px/1.4 'Plus Jakarta Sans';color:#93805F">To the Hiring Manager, QatarEnergy — Doha</div>
+            <div style="height:1px;background:#EDE7DC"></div>
+            <div style="font:400 10.5px/1.75 'Plus Jakarta Sans';color:#3E4A59">Dear Hiring Manager,<br><br>I am writing regarding the Commissioning Engineer (I&amp;C) opening in Doha. Over seven years across upstream gas and LNG projects in Saudi Arabia and the UAE, I have delivered <span style="background:#D3E8DE;border-radius:3px;padding:0 3px">pre-commissioning and loop-check campaigns</span> on facilities of comparable scope to your Ras Laffan operations.<br><br>At L&amp;T Energy I executed pre-commissioning of over 400 field instruments across three gas trains, closing punch items under client QA/QC witness — the same discipline your posting asks for in <span style="background:#D3E8DE;border-radius:3px;padding:0 3px">MC dossier and SAT sign-off</span>.<br><br>My Iqama is transferable and I am available on 30 days' notice.<br><br>Sincerely,<br>Rahul Menon</div>
+          </div>
+          <div style="padding:12px 14px;border-radius:11px;background:#EAF3EF;border:1px solid #C9E0D6;display:flex;gap:9px;align-items:flex-start"><span style="color:#0E5C4A">✓</span><div style="font:400 11px/1.5 'Plus Jakarta Sans';color:#0E5C4A">Every claim traced to your profile. Highlighted phrases came from the job description.</div></div>
+        </div>
+        <div style="padding:14px 22px 22px;display:flex;gap:9px">
+          <div style="flex:1;padding:16px;border-radius:12px;background:#FFF;border:1px solid #DDD5C6;text-align:center;font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Regenerate</div>
+          <div style="flex:1.3;padding:16px;border-radius:12px;background:#0A1A2F;text-align:center;font:700 13px/1 'Plus Jakarta Sans';color:#FBF9F5">Download</div>
+        </div>
+      </div>
+      <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Repeatable inside one package (generation count logged from day one). Tone selector is the only new control.</div>
+    </div>
+
+    <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">S3 · JD-based re-optimization</div><div style="padding:3px 8px;border-radius:5px;background:#0E5C4A;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#FBF9F5">MVP</div></div>
+      <div style="width:390px;height:940px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+        <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+        <div style="padding:4px 22px 16px;display:flex;flex-direction:column;gap:6px">
+          <div style="font:500 20px/1 'Plus Jakarta Sans';color:#0A1A2F">←</div>
+          <h3 style="margin:0;font:400 27px/1.15 'Instrument Serif',serif;color:#0A1A2F">New posting, same profile</h3>
+          <p style="margin:0;font:400 12.5px/1.6 'Plus Jakarta Sans';color:#5B6675">Paste the job description. We show what it demands before you spend anything.</p>
+        </div>
+        <div style="padding:0 22px;display:flex;flex-direction:column;gap:12px;flex:1;overflow:hidden">
+          <div style="padding:14px;border-radius:12px;background:#FFF;border:1.5px solid #0A1A2F;display:flex;flex-direction:column;gap:8px">
+            <div style="font:600 11px/1 'Plus Jakarta Sans';color:#5B6675">Job description</div>
+            <div style="font:400 11px/1.65 'Plus Jakarta Sans';color:#3E4A59">…responsible for pre-commissioning, loop checking and SAT of instrumentation and control systems, preparation of MC dossiers, punch clearance with client representatives, and P&amp;ID markup for as-built handover…</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:4px;border-top:1px solid #F1EEE8"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#93805F">1,240 characters</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Upload PDF instead</span></div>
+          </div>
+          <div style="padding:16px;border-radius:14px;background:#0A1A2F;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.1em;text-transform:uppercase;color:#E3C77E">What this JD asks for</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(251,249,245,.6)">14 terms</span></div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span style="padding:6px 10px;border-radius:99px;background:rgba(79,191,154,.16);border:1px solid rgba(79,191,154,.4);font:500 10.5px/1 'Plus Jakarta Sans';color:#7FDCBB">loop checking ✓</span>
+              <span style="padding:6px 10px;border-radius:99px;background:rgba(79,191,154,.16);border:1px solid rgba(79,191,154,.4);font:500 10.5px/1 'Plus Jakarta Sans';color:#7FDCBB">pre-commissioning ✓</span>
+              <span style="padding:6px 10px;border-radius:99px;background:rgba(79,191,154,.16);border:1px solid rgba(79,191,154,.4);font:500 10.5px/1 'Plus Jakarta Sans';color:#7FDCBB">SAT ✓</span>
+              <span style="padding:6px 10px;border-radius:99px;background:rgba(199,154,60,.18);border:1px solid rgba(199,154,60,.45);font:500 10.5px/1 'Plus Jakarta Sans';color:#E3C77E">MC dossier ○</span>
+              <span style="padding:6px 10px;border-radius:99px;background:rgba(199,154,60,.18);border:1px solid rgba(199,154,60,.45);font:500 10.5px/1 'Plus Jakarta Sans';color:#E3C77E">punch clearance ○</span>
+              <span style="padding:6px 10px;border-radius:99px;background:rgba(199,154,60,.18);border:1px solid rgba(199,154,60,.45);font:500 10.5px/1 'Plus Jakarta Sans';color:#E3C77E">P&amp;ID markup ○</span>
+            </div>
+            <div style="font:400 10.5px/1.55 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">✓ already in your CV · ○ present in your experience but not yet phrased this way</div>
+          </div>
+          <div style="padding:14px 15px;border-radius:13px;background:#F7EFDC;border:1px dashed #E3C77E;display:flex;flex-direction:column;gap:6px">
+            <span style="font:600 12px/1.3 'Plus Jakarta Sans';color:#0A1A2F">You already have a “Commissioning Engineer” package</span>
+            <span style="font:400 11px/1.5 'Plus Jakarta Sans';color:#7A6440">Re-optimize it for this posting (overwrites its current text), or keep it and start fresh?</span>
+            <div style="display:flex;gap:8px;margin-top:2px"><span style="padding:9px 12px;border-radius:9px;background:#0A1A2F;font:600 11px/1 'Plus Jakarta Sans';color:#FBF9F5">Re-optimize existing</span><span style="padding:9px 12px;border-radius:9px;background:#FFF;border:1px solid #DDD5C6;font:600 11px/1 'Plus Jakarta Sans';color:#0A1A2F">New package</span></div>
+          </div>
+          <div style="padding:13px 14px;border-radius:11px;background:#F4F1EA;border:1px solid #E4DED2;font:400 11px/1.55 'Plus Jakarta Sans';color:#5B6675">Re-optimizing replaces this package's generated text. Keeping past versions arrives in Phase 2.</div>
+        </div>
+        <div style="padding:14px 22px 22px"><div style="padding:17px;border-radius:13px;background:#0E5C4A;text-align:center;font:700 15px/1 'Plus Jakarta Sans';color:#FBF9F5">Continue to optimization level</div></div>
+      </div>
+      <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">JD parse shown as a coverage map, not a score — sets up the paid run and makes the reuse-detection prompt concrete.</div>
+    </div>
+
+    <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">S4 · Interview Q&amp;A study</div><div style="padding:3px 8px;border-radius:5px;background:#EDE7DC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#8A7A5F">Phase 4</div></div>
+      <div style="width:390px;height:940px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+        <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+        <div style="padding:4px 22px 14px;display:flex;flex-direction:column;gap:6px">
+          <div style="font:500 20px/1 'Plus Jakarta Sans';color:#0A1A2F">←</div>
+          <h3 style="margin:0;font:400 26px/1.15 'Instrument Serif',serif;color:#0A1A2F">Questions from your own CV</h3>
+          <p style="margin:0;font:400 12.5px/1.6 'Plus Jakarta Sans';color:#5B6675">Each one is tied to a claim you made. If you can answer these, you can defend the resume you sent.</p>
+        </div>
+        <div style="padding:0 22px 12px;display:flex;gap:7px">
+          <span style="padding:9px 12px;border-radius:9px;background:#0A1A2F;font:600 11.5px/1 'Plus Jakarta Sans';color:#FBF9F5">From my claims (9)</span>
+          <span style="padding:9px 12px;border-radius:9px;background:#FFF;border:1px solid #E4DED2;font:500 11.5px/1 'Plus Jakarta Sans';color:#5B6675">From the JD (5)</span>
+        </div>
+        <div style="padding:0 22px;display:flex;flex-direction:column;gap:10px;flex:1;overflow:hidden">
+          <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:9px">
+            <div style="padding:8px 10px;border-radius:8px;background:#F7F5F0;border-left:2px solid #C79A3C;font:400 10.5px/1.5 'Plus Jakarta Sans';color:#6B7A8D">Your claim: “pre-commissioning of 400+ field instruments across 3 gas trains”</div>
+            <div style="font:600 13px/1.5 'Plus Jakarta Sans';color:#0A1A2F">Walk me through your loop-check sequence on those trains. Where did you hold the line when the schedule pushed back?</div>
+            <div style="display:flex;gap:8px;align-items:center"><span style="padding:4px 8px;border-radius:5px;background:#FCF3E8;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#7A4A24">Hard</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Show answer outline</span></div>
+          </div>
+          <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:9px">
+            <div style="padding:8px 10px;border-radius:8px;background:#F7F5F0;border-left:2px solid #C79A3C;font:400 10.5px/1.5 'Plus Jakarta Sans';color:#6B7A8D">Your claim: “closing punch items with client QA/QC witness”</div>
+            <div style="font:600 13px/1.5 'Plus Jakarta Sans';color:#0A1A2F">Give me an example of a punch item the client refused to sign. How did you resolve it?</div>
+            <div style="display:flex;gap:8px;align-items:center"><span style="padding:4px 8px;border-radius:5px;background:#F7EFDC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A6A1C">Medium</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Show answer outline</span></div>
+          </div>
+          <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:9px">
+            <div style="padding:8px 10px;border-radius:8px;background:#EAF3EF;border-left:2px solid #0E5C4A;font:400 10.5px/1.5 'Plus Jakarta Sans';color:#0E5C4A">Answer outline — your facts only</div>
+            <div style="font:400 11.5px/1.7 'Plus Jakarta Sans';color:#3E4A59">• Scope: 3 trains, 400+ instruments, ESD &amp; F&amp;G in scope<br>• Sequence you used: loop folder → field verification → SAT with witness<br>• Your named example: punch closure under client QA/QC at L&amp;T Energy<br>• Close with the outcome you actually recorded</div>
+          </div>
+          <div style="padding:13px 14px;border-radius:11px;background:#F4F1EA;border:1px solid #E4DED2;font:400 11px/1.55 'Plus Jakarta Sans';color:#5B6675">Outlines prompt you with your own facts — they never write an answer containing something you didn't do.</div>
+        </div>
+        <div style="padding:14px 22px 22px;display:flex;gap:9px">
+          <div style="flex:1;padding:16px;border-radius:12px;background:#FFF;border:1px solid #DDD5C6;text-align:center;font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Save as PDF</div>
+          <div style="flex:1.3;padding:16px;border-radius:12px;background:#0A1A2F;text-align:center;font:700 13px/1 'Plus Jakarta Sans';color:#FBF9F5">Practise out loud →</div>
+        </div>
+      </div>
+      <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Claim-extraction made visible: the claim is shown above every question, so the study pack reads as a defence rehearsal, not a question bank.</div>
+    </div>
+
+    <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">S5 · Mock interview</div><div style="padding:3px 8px;border-radius:5px;background:#EDE7DC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#8A7A5F">Phase 4</div></div>
+      <div style="width:390px;height:940px;border-radius:34px;overflow:hidden;background:#0A1A2F;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.18);display:flex;flex-direction:column">
+        <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.8)"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+        <div style="padding:4px 22px 18px;display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.12em;text-transform:uppercase;color:#E3C77E">Mock interview · QatarEnergy</span><span style="font:400 11.5px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">Senior I&amp;C hiring manager · Question 3 of 8</span></div>
+          <span style="font:500 18px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">✕</span>
+        </div>
+        <div style="padding:0 22px;flex:1;display:flex;flex-direction:column;gap:16px">
+          <div style="height:4px;border-radius:99px;background:rgba(237,227,210,.16);overflow:hidden"><div style="width:37%;height:100%;background:#C79A3C"></div></div>
+          <div style="padding:20px;border-radius:16px;background:rgba(251,249,245,.06);border:1px solid rgba(237,227,210,.14);display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="font:600 9.5px/1 'Plus Jakarta Sans';letter-spacing:.12em;text-transform:uppercase;color:#E3C77E">Interviewer</div>
+              <div style="font:400 17px/1.5 'Instrument Serif',serif;color:#FBF9F5">You mentioned closing punch items under client QA/QC witness. Tell me about one the client refused to sign — and what you did next.</div>
+              <div style="display:flex;gap:8px;align-items:center"><span style="padding:4px 8px;border-radius:5px;background:rgba(199,154,60,.18);font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#E3C77E">From your CV</span><span style="font:500 11px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.55)">Replay question ↻</span></div>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+            <div style="display:flex;align-items:flex-end;gap:4px;height:64px">
+              <div style="width:5px;height:22px;border-radius:99px;background:rgba(199,154,60,.5)"></div>
+              <div style="width:5px;height:40px;border-radius:99px;background:rgba(199,154,60,.7)"></div>
+              <div style="width:5px;height:58px;border-radius:99px;background:#C79A3C"></div>
+              <div style="width:5px;height:34px;border-radius:99px;background:rgba(199,154,60,.7)"></div>
+              <div style="width:5px;height:50px;border-radius:99px;background:#C79A3C"></div>
+              <div style="width:5px;height:26px;border-radius:99px;background:rgba(199,154,60,.6)"></div>
+              <div style="width:5px;height:44px;border-radius:99px;background:rgba(199,154,60,.8)"></div>
+              <div style="width:5px;height:18px;border-radius:99px;background:rgba(199,154,60,.45)"></div>
+              <div style="width:5px;height:36px;border-radius:99px;background:rgba(199,154,60,.7)"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:7px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;color:#FBF9F5">01:12</div>
+              <div style="font:400 11.5px/1.5 'Plus Jakarta Sans';color:rgba(251,249,245,.55);text-align:center;max-width:250px">Speak naturally. Aim for 90 seconds — the same length a real interviewer will give you.</div>
+            </div>
+            <div style="width:82px;height:82px;border-radius:99px;background:#C79A3C;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 10px rgba(199,154,60,.16)"><div style="width:26px;height:26px;border-radius:6px;background:#0A1A2F"></div></div>
+            <div style="font:600 11px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">Tap to stop</div>
+          </div>
+          <div style="padding:13px 15px;border-radius:12px;background:rgba(251,249,245,.05);border:1px solid rgba(237,227,210,.12);display:flex;gap:9px;align-items:flex-start"><span style="color:#E3C77E">◈</span><div style="font:400 10.5px/1.55 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">Audio is processed to produce your review, then deleted. Nothing is shared with employers.</div></div>
+        </div>
+        <div style="padding:14px 22px 22px;display:flex;gap:9px">
+          <div style="flex:1;padding:15px;border-radius:12px;border:1px solid rgba(237,227,210,.25);text-align:center;font:600 13px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.8)">Skip</div>
+          <div style="flex:1.3;padding:15px;border-radius:12px;background:#FBF9F5;text-align:center;font:700 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Next question</div>
+        </div>
+      </div>
+      <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Dark, single-focus room: one question, one waveform, one button. Recording privacy is stated on the screen where it matters.</div>
+    </div>
+
+    <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">S6 · Mock interview review</div><div style="padding:3px 8px;border-radius:5px;background:#EDE7DC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#8A7A5F">Phase 4</div></div>
+      <div style="width:390px;height:940px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+        <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+        <div style="padding:6px 22px 16px;display:flex;flex-direction:column;gap:6px">
+          <h3 style="margin:0;font:400 26px/1.15 'Instrument Serif',serif;color:#0A1A2F">Your review</h3>
+          <p style="margin:0;font:400 12.5px/1.6 'Plus Jakarta Sans';color:#5B6675">8 questions · 11 minutes · reviewed as a senior I&amp;C hiring manager would.</p>
+        </div>
+        <div style="padding:0 22px;display:flex;flex-direction:column;gap:12px;flex:1;overflow:hidden">
+          <div style="padding:18px;border-radius:16px;background:#FFF;border:1px solid #E4DED2;display:flex;gap:18px;align-items:center">
+            <div style="position:relative;width:88px;height:88px;flex:none"><svg viewBox="0 0 100 100" style="width:88px;height:88px;transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="#EDE3D2" stroke-width="8"></circle><circle cx="50" cy="50" r="42" fill="none" stroke="#0E5C4A" stroke-width="8" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="53"></circle></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:#0E5C4A">80</div><div style="font:600 8px/1 'Plus Jakarta Sans';letter-spacing:.12em;text-transform:uppercase;color:#93805F">Overall</div></div></div>
+            <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+              <div style="display:flex;justify-content:space-between;font:500 11.5px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>Technical depth</span><span style="font-family:'IBM Plex Mono',monospace;color:#0E5C4A">88</span></div>
+              <div style="display:flex;justify-content:space-between;font:500 11.5px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>Structure</span><span style="font-family:'IBM Plex Mono',monospace;color:#8A6A1C">72</span></div>
+              <div style="display:flex;justify-content:space-between;font:500 11.5px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>Clarity &amp; pace</span><span style="font-family:'IBM Plex Mono',monospace;color:#8A6A1C">76</span></div>
+              <div style="display:flex;justify-content:space-between;font:500 11.5px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>Claim defence</span><span style="font-family:'IBM Plex Mono',monospace;color:#0E5C4A">85</span></div>
+            </div>
+          </div>
+          <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px/1 'Plus Jakarta Sans';color:#0A1A2F">Q3 · Punch item refused</span><span style="padding:4px 8px;border-radius:5px;background:#FCF3E8;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#7A4A24">Weakest</span></div>
+            <div style="font:400 11.5px/1.65 'Plus Jakarta Sans';color:#3E4A59">You gave the technical fix but never said what you escalated or who signed it off. A hiring manager reads that as unclear ownership.</div>
+            <div style="padding:11px;border-radius:9px;background:#EAF3EF;border-left:2px solid #0E5C4A;font:400 11px/1.6 'Plus Jakarta Sans';color:#0E5C4A">Try: situation → what the client objected to → your escalation → who signed → what changed in the dossier.</div>
+            <div style="display:flex;gap:12px;padding-top:2px"><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Play my answer ▶</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Retry this question</span></div>
+          </div>
+          <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px/1 'Plus Jakarta Sans';color:#0A1A2F">Q1 · Loop-check sequence</span><span style="padding:4px 8px;border-radius:5px;background:#EAF3EF;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#0E5C4A">Strongest</span></div>
+            <div style="font:400 11.5px/1.65 'Plus Jakarta Sans';color:#3E4A59">Clear sequence, real numbers, and you held the schedule line without sounding rigid. Use this structure everywhere else.</div>
+          </div>
+          <div style="padding:13px 14px;border-radius:11px;background:#F4F1EA;border:1px solid #E4DED2;font:400 11px/1.55 'Plus Jakarta Sans';color:#5B6675">Saved to the QatarEnergy package. Run this again any time — each run is kept separately.</div>
+        </div>
+        <div style="padding:14px 22px 22px;display:flex;gap:9px">
+          <div style="flex:1;padding:16px;border-radius:12px;background:#FFF;border:1px solid #DDD5C6;text-align:center;font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Back to package</div>
+          <div style="flex:1.2;padding:16px;border-radius:12px;background:#0E5C4A;text-align:center;font:700 13px/1 'Plus Jakarta Sans';color:#FBF9F5">Run again</div>
+        </div>
+      </div>
+      <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Review names the weakest answer first and gives a structure to fix it — coaching, not a grade. Every run attaches to the package.</div>
+    </div>
+
+  </div>
+</section>
+
+<section style="padding:56px 56px 24px;display:flex;flex-direction:column;gap:8px">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="width:34px;height:34px;border-radius:9px;background:#0A1A2F;display:flex;align-items:center;justify-content:center;font:600 15px/1 'Instrument Serif',serif;color:#E3C77E">P</div>
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.18em;text-transform:uppercase;color:#8A7A5F">[Product Name] · MVP screen set · v1</div>
+    <div style="padding:5px 10px;border:1px solid #C79A3C;border-radius:999px;font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.1em;text-transform:uppercase;color:#8A6A1C;background:#F7EFDC">1a</div>
+  </div>
+  <h1 style="margin:6px 0 0;font:400 46px/1.05 'Instrument Serif',serif;color:#0A1A2F;max-width:820px;text-wrap:pretty">Visual direction &amp; flow for the paid optimization journey</h1>
+  <p style="margin:0;max-width:720px;font:400 15px/1.6 'Plus Jakarta Sans';color:#5B6675;text-wrap:pretty">Mobile-first at 390px — every screen designed at phone width first. Trust signals sit above the fold, the two wow moments (before/after diff, readiness ring) get equal weight, and pre-payment preview content is marked as a placeholder per the open decision.</p>
+</section>
+
+<section style="padding:0 56px 40px">
+  <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+    <div style="display:flex;gap:0;border-radius:12px;overflow:hidden;border:1px solid #DDD5C6">
+      <div style="width:64px;height:52px;background:#0A1A2F"></div>
+      <div style="width:64px;height:52px;background:#12283F"></div>
+      <div style="width:64px;height:52px;background:#0E5C4A"></div>
+      <div style="width:64px;height:52px;background:#C79A3C"></div>
+      <div style="width:64px;height:52px;background:#EDE3D2"></div>
+      <div style="width:64px;height:52px;background:#FBF9F5"></div>
+    </div>
+    <div style="font:400 13px/1.6 'Plus Jakarta Sans';color:#5B6675">Midnight navy · Deep navy · Deep emerald · Arabian gold · Desert sand · White marble</div>
+    <div style="width:1px;height:36px;background:#DDD5C6"></div>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <div style="font:400 22px/1.1 'Instrument Serif',serif;color:#0A1A2F">Instrument Serif — headlines</div>
+      <div style="font:500 13px/1.2 'Plus Jakarta Sans';color:#0A1A2F">Plus Jakarta Sans — UI &amp; body · <span style="font-family:'IBM Plex Mono',monospace">IBM Plex Mono — scores</span></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:0 56px 90px;display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start">
+
+  <div style="width:1120px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">01 · Landing (desktop)</div>
+      <div style="font:400 12px/1 'Plus Jakarta Sans';color:#93805F">Trust first: price stated in the hero, founder story, payment security</div>
+    </div>
+    <div style="width:1120px;background:#0A1A2F;border-radius:22px;overflow:hidden;box-shadow:0 30px 70px rgba(10,26,47,.22)">
+      <div style="height:60px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(237,227,210,.12)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:26px;height:26px;border-radius:7px;background:#C79A3C;display:flex;align-items:center;justify-content:center;font:400 14px/1 'Instrument Serif',serif;color:#0A1A2F">P</div>
+          <div style="font:600 13px/1 'Plus Jakarta Sans';letter-spacing:.02em;color:#FBF9F5">[Product Name]</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:26px">
+          <div style="font:500 13px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.72)">How it works</div>
+          <div style="font:500 13px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.72)">Pricing</div>
+          <div style="font:500 13px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.72)">Why us</div>
+          <div style="padding:9px 16px;border:1px solid rgba(199,154,60,.55);border-radius:9px;font:600 13px/1 'Plus Jakarta Sans';color:#E3C77E">Sign in</div>
+        </div>
+      </div>
+      <div style="padding:64px 56px 56px;display:grid;grid-template-columns:1fr 400px;gap:56px;align-items:center">
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <div style="display:inline-flex;align-self:flex-start;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(14,92,74,.28);border:1px solid rgba(199,154,60,.35)">
+            <div style="width:6px;height:6px;border-radius:99px;background:#C79A3C"></div>
+            <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#E3C77E">Built for Saudi · UAE · Qatar · Oman · Kuwait · Bahrain</div>
+          </div>
+          <h2 style="margin:0;font:400 58px/1.03 'Instrument Serif',serif;color:#FBF9F5;max-width:620px;text-wrap:pretty">Optimize my resume for the Gulf job market</h2>
+          <p style="margin:0;max-width:530px;font:400 17px/1.65 'Plus Jakarta Sans';color:rgba(251,249,245,.74);text-wrap:pretty">Applications don't fail because you aren't qualified. They fail because a generic resume never reaches a human. We rebuild yours in Gulf format, reframed for the exact role you're targeting — using only facts you already have.</p>
+          <div style="display:flex;align-items:center;gap:16px;margin-top:6px">
+            <div style="padding:16px 26px;border-radius:12px;background:#C79A3C;font:700 15px/1 'Plus Jakarta Sans';color:#0A1A2F">Optimize my resume — ₹499</div>
+            <div style="font:400 13px/1.5 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">One-time. No subscription.<br>No hidden fees.</div>
+          </div>
+          <div style="display:flex;gap:26px;margin-top:16px;padding-top:22px;border-top:1px solid rgba(237,227,210,.14)">
+            <div style="display:flex;align-items:center;gap:8px;font:500 12px/1.3 'Plus Jakarta Sans';color:rgba(251,249,245,.66)"><span style="color:#C79A3C">◈</span> Razorpay secured payment</div>
+            <div style="display:flex;align-items:center;gap:8px;font:500 12px/1.3 'Plus Jakarta Sans';color:rgba(251,249,245,.66)"><span style="color:#C79A3C">◈</span> Your passport &amp; visa data encrypted</div>
+            <div style="display:flex;align-items:center;gap:8px;font:500 12px/1.3 'Plus Jakarta Sans';color:rgba(251,249,245,.66)"><span style="color:#C79A3C">◈</span> Nothing invented — ever</div>
+          </div>
+        </div>
+        <div style="background:#FBF9F5;border-radius:16px;padding:22px;box-shadow:0 24px 50px rgba(0,0,0,.3)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Before → after</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#0E5C4A">JD match 91%</div>
+          </div>
+          <div style="padding:12px;border-radius:10px;background:#F4F1EA;border:1px solid #E4DED2;margin-bottom:10px">
+            <div style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.1em;text-transform:uppercase;color:#A0562F;margin-bottom:6px">Before</div>
+            <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#6B7A8D">Responsible for instrumentation works and coordination with other departments on site.</div>
+          </div>
+          <div style="padding:12px;border-radius:10px;background:#EAF3EF;border:1px solid #C9E0D6">
+            <div style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.1em;text-transform:uppercase;color:#0E5C4A;margin-bottom:6px">After</div>
+            <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#0A1A2F">Led <span style="background:#D8EBE2;border-radius:3px;padding:0 3px">pre-commissioning and commissioning</span> of field instrumentation across a 3-train gas facility, interfacing daily with <span style="background:#D8EBE2;border-radius:3px;padding:0 3px">EPC and client QA/QC</span> teams.</div>
+          </div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px dashed #E4DED2;display:flex;gap:10px;align-items:center">
+            <div style="width:32px;height:32px;border-radius:99px;background:#EDE3D2;border:1px solid #DDD5C6"></div>
+            <div style="font:400 11px/1.5 'Plus Jakarta Sans';color:#5B6675">“I spent 12 years commissioning on Gulf megaprojects. I built this because I watched good engineers get filtered out by formatting.” <span style="color:#0A1A2F;font-weight:600">— Founder</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F;max-width:820px">Price appears in the hero, not behind a funnel. Founder story and the “never invents facts” grounding promise are treated as primary trust copy, not footer content.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">01b · Landing (mobile)</div>
+    <div style="width:390px;height:780px;border-radius:34px;overflow:hidden;background:#0A1A2F;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.18);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.8)"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:0 22px 22px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:24px;height:24px;border-radius:7px;background:#C79A3C;display:flex;align-items:center;justify-content:center;font:400 13px/1 'Instrument Serif',serif;color:#0A1A2F">P</div>
+          <div style="font:600 13px/1 'Plus Jakarta Sans';color:#FBF9F5">[Product Name]</div>
+        </div>
+        <div style="font:600 12px/1 'Plus Jakarta Sans';color:#E3C77E">Sign in</div>
+      </div>
+      <div style="padding:8px 22px 0;display:flex;flex-direction:column;gap:16px;flex:1">
+        <div style="display:inline-flex;align-self:flex-start;padding:6px 11px;border-radius:999px;background:rgba(14,92,74,.3);border:1px solid rgba(199,154,60,.35);font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.08em;text-transform:uppercase;color:#E3C77E">Gulf-format CV · 6 countries</div>
+        <h2 style="margin:0;font:400 38px/1.06 'Instrument Serif',serif;color:#FBF9F5;text-wrap:pretty">Optimize my resume for the Gulf job market</h2>
+        <p style="margin:0;font:400 14px/1.6 'Plus Jakarta Sans';color:rgba(251,249,245,.72);text-wrap:pretty">Rebuilt in Gulf format and reframed for the exact role you're targeting — using only facts already in your resume.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <div style="padding:17px;border-radius:13px;background:#C79A3C;text-align:center;font:700 15px/1 'Plus Jakarta Sans';color:#0A1A2F">Optimize my resume — ₹499</div>
+          <div style="text-align:center;font:400 12px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.55)">One-time payment · no subscription</div>
+        </div>
+        <div style="margin-top:10px;padding:16px;border-radius:14px;background:rgba(251,249,245,.06);border:1px solid rgba(237,227,210,.14);display:flex;flex-direction:column;gap:11px">
+          <div style="display:flex;gap:9px;align-items:flex-start;font:500 12px/1.45 'Plus Jakarta Sans';color:rgba(251,249,245,.78)"><span style="color:#C79A3C">◈</span> Razorpay secured payment — we never see your card</div>
+          <div style="display:flex;gap:9px;align-items:flex-start;font:500 12px/1.45 'Plus Jakarta Sans';color:rgba(251,249,245,.78)"><span style="color:#C79A3C">◈</span> Passport, visa and contact data encrypted at rest</div>
+          <div style="display:flex;gap:9px;align-items:flex-start;font:500 12px/1.45 'Plus Jakarta Sans';color:rgba(251,249,245,.78)"><span style="color:#C79A3C">◈</span> The AI never invents a fact you didn't give us</div>
+        </div>
+        <div style="margin-top:auto;margin-bottom:18px;padding:14px;border-radius:14px;background:#FBF9F5;display:flex;gap:11px;align-items:center">
+          <div style="width:36px;height:36px;flex:none;border-radius:99px;background:#EDE3D2;border:1px solid #DDD5C6"></div>
+          <div style="font:400 11px/1.5 'Plus Jakarta Sans';color:#5B6675">“12 years commissioning Gulf megaprojects. I built this because good engineers get filtered out by formatting.”</div>
+        </div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Hero, price, and all three trust signals fit above the first scroll on a 390px viewport.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">02 · Choose how to start</div>
+    <div style="width:390px;height:780px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:6px 22px 18px;display:flex;align-items:center;gap:14px">
+        <div style="font:500 20px/1 'Plus Jakarta Sans';color:#0A1A2F">←</div>
+        <div style="flex:1;height:4px;border-radius:99px;background:#EDE3D2;overflow:hidden"><div style="width:20%;height:100%;background:#0E5C4A"></div></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B7A8D">1/5</div>
+      </div>
+      <div style="padding:0 22px;display:flex;flex-direction:column;gap:8px">
+        <h3 style="margin:0;font:400 30px/1.12 'Instrument Serif',serif;color:#0A1A2F;text-wrap:pretty">Let's build your Career Profile</h3>
+        <p style="margin:0 0 6px;font:400 14px/1.6 'Plus Jakarta Sans';color:#5B6675;text-wrap:pretty">Built once, reused for every future application. Choose whichever is easiest — all three end up in the same place.</p>
+      </div>
+      <div style="padding:12px 22px 0;display:flex;flex-direction:column;gap:12px">
+        <div style="padding:18px;border-radius:16px;background:#FFFFFF;border:1.5px solid #0E5C4A;box-shadow:0 8px 22px rgba(14,92,74,.1);display:flex;gap:14px;align-items:flex-start">
+          <div style="width:40px;height:40px;flex:none;border-radius:11px;background:#EAF3EF;display:flex;align-items:center;justify-content:center;font-size:17px;color:#0E5C4A">↑</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font:700 15px/1 'Plus Jakarta Sans';color:#0A1A2F">Upload a file</span><span style="padding:3px 7px;border-radius:5px;background:#F7EFDC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.08em;text-transform:uppercase;color:#8A6A1C">Fastest</span></div>
+            <div style="font:400 12px/1.5 'Plus Jakarta Sans';color:#6B7A8D">Resume PDF/DOCX, or your LinkedIn profile export. We read it and fill in everything we can.</div>
+          </div>
+        </div>
+        <div style="padding:18px;border-radius:16px;background:#FFFFFF;border:1px solid #E4DED2;display:flex;gap:14px;align-items:flex-start">
+          <div style="width:40px;height:40px;flex:none;border-radius:11px;background:#F4F1EA;display:flex;align-items:center;justify-content:center;font-size:16px;color:#5B6675">¶</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="font:700 15px/1 'Plus Jakarta Sans';color:#0A1A2F">Paste your resume text</div>
+            <div style="font:400 12px/1.5 'Plus Jakarta Sans';color:#6B7A8D">No file handy? Paste the text straight in.</div>
+          </div>
+        </div>
+        <div style="padding:18px;border-radius:16px;background:#FFFFFF;border:1px solid #E4DED2;display:flex;gap:14px;align-items:flex-start">
+          <div style="width:40px;height:40px;flex:none;border-radius:11px;background:#F4F1EA;display:flex;align-items:center;justify-content:center;font-size:16px;color:#5B6675">✎</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="font:700 15px/1 'Plus Jakarta Sans';color:#0A1A2F">Start from scratch</div>
+            <div style="font:400 12px/1.5 'Plus Jakarta Sans';color:#6B7A8D">Fill it in yourself. Good if you don't have a resume yet.</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:auto;padding:18px 22px 24px;display:flex;flex-direction:column;gap:12px">
+        <div style="padding:13px 15px;border-radius:12px;background:#F4F1EA;border:1px solid #E4DED2;display:flex;gap:10px;align-items:flex-start">
+          <span style="color:#0E5C4A;font-size:13px">⌾</span>
+          <div style="font:400 11px/1.5 'Plus Jakarta Sans';color:#5B6675">Your file is used only to build your profile. Passport, visa and contact fields are encrypted and never shown publicly.</div>
+        </div>
+        <div style="padding:17px;border-radius:13px;background:#0A1A2F;text-align:center;font:700 15px/1 'Plus Jakarta Sans';color:#FBF9F5">Continue</div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Three input paths (§4e) converge on one profile editor. 44px+ hit targets throughout.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">03 · Extracting (transient)</div>
+    <div style="width:390px;height:780px;border-radius:34px;overflow:hidden;background:#0A1A2F;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.18);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.8)"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="flex:1;padding:0 26px;display:flex;flex-direction:column;justify-content:center;gap:26px">
+        <div style="align-self:center;width:96px;height:96px;border-radius:26px;border:1px solid rgba(199,154,60,.4);background:rgba(251,249,245,.05);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
+          <div style="font:400 34px/1 'Instrument Serif',serif;color:#E3C77E">CV</div>
+          <div style="position:absolute;inset:0;width:40%;background:linear-gradient(90deg,transparent,rgba(199,154,60,.35),transparent);animation:sweep 1.8s linear infinite"></div>
+        </div>
+        <div style="text-align:center;display:flex;flex-direction:column;gap:8px">
+          <div style="font:400 27px/1.15 'Instrument Serif',serif;color:#FBF9F5">Reading your resume</div>
+          <div style="font:400 13px/1.6 'Plus Jakarta Sans';color:rgba(251,249,245,.62)">Usually takes about 20 seconds.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:16px;background:rgba(251,249,245,.06);border:1px solid rgba(237,227,210,.13)">
+          <div style="display:flex;gap:10px;align-items:center;font:500 13px/1 'Plus Jakarta Sans';color:#FBF9F5"><span style="color:#4FBF9A">✓</span> Contact &amp; identity fields</div>
+          <div style="display:flex;gap:10px;align-items:center;font:500 13px/1 'Plus Jakarta Sans';color:#FBF9F5"><span style="color:#4FBF9A">✓</span> 4 work experience entries</div>
+          <div style="display:flex;gap:10px;align-items:center;font:500 13px/1 'Plus Jakarta Sans';color:#E3C77E"><span>◍</span> Skills &amp; certifications</div>
+          <div style="display:flex;gap:10px;align-items:center;font:500 13px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.4)"><span>○</span> Education</div>
+        </div>
+        <div style="text-align:center;font:400 11px/1.6 'Plus Jakarta Sans';color:rgba(251,249,245,.45)">You'll get to review and correct everything on the next screen — nothing is saved until you confirm.</div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Progress is itemised rather than a spinner, so the wait reads as work being done.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">04 · Career Profile review</div><div style="padding:3px 8px;border-radius:5px;background:#0A1A2F;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#E3C77E">Wow #2</div></div>
+    <div style="width:390px;height:1010px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:4px 22px 20px;background:#0A1A2F;padding-top:14px;display:flex;gap:18px;align-items:center">
+        <div style="position:relative;width:86px;height:86px;flex:none">
+          <svg viewBox="0 0 100 100" style="width:86px;height:86px;transform:rotate(-90deg)">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(237,227,210,.18)" stroke-width="8"></circle>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#C79A3C" stroke-width="8" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="66"></circle>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:#FBF9F5">75</div>
+            <div style="font:600 8px/1 'Plus Jakarta Sans';letter-spacing:.12em;text-transform:uppercase;color:rgba(251,249,245,.5)">Ready</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font:400 20px/1.2 'Instrument Serif',serif;color:#FBF9F5">Almost there, Rahul</div>
+          <div style="font:400 12px/1.5 'Plus Jakarta Sans';color:rgba(251,249,245,.66)">3 items left. Profiles like yours — <span style="color:#E3C77E">currently in the Gulf</span> — get shortlisted more often when visa details are complete.</div>
+        </div>
+      </div>
+      <div style="padding:14px 22px 0;display:flex;flex-direction:column;gap:9px">
+        <div style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Finish these to reach 100</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="padding:13px 14px;border-radius:11px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between"><span style="font:500 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Photo <span style="font-weight:400;color:#93805F">· +8 points</span></span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Upload →</span></div>
+          <div style="padding:13px 14px;border-radius:11px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between"><span style="font:500 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Iqama transferability</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Add →</span></div>
+          <div style="padding:13px 14px;border-radius:11px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between"><span style="font:500 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Notice period</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Add →</span></div>
+          <div style="padding:13px 14px;border-radius:11px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between"><span style="font:500 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Passport validity date</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Add →</span></div>
+        </div>
+      </div>
+      <div style="padding:18px 22px 0;display:flex;flex-direction:column;gap:9px;flex:1;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Extracted — please confirm</div>
+          <div style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Edit all</div>
+        </div>
+        <div style="padding:14px;border-radius:13px;background:#FFF;border:1.5px solid #C79A3C;display:flex;gap:13px;align-items:center">
+          <div style="width:58px;height:70px;flex:none;border-radius:7px;background:#EDE3D2;border:1px dashed #C79A3C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+            <span style="font-size:16px;color:#8A6A1C">◔</span>
+            <span style="font:600 8px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A6A1C">Add</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;flex:1">
+            <div style="display:flex;align-items:center;gap:7px"><span style="font:700 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Photo</span><span style="padding:3px 7px;border-radius:5px;background:#F7EFDC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A6A1C">Expected in Gulf CVs</span></div>
+            <div style="font:400 11px/1.5 'Plus Jakarta Sans';color:#6B7A8D">Passport-style, plain background. Counts toward your readiness score.</div>
+            <div style="display:flex;gap:8px;margin-top:2px"><span style="padding:8px 12px;border-radius:8px;background:#0A1A2F;font:600 11px/1 'Plus Jakarta Sans';color:#FBF9F5">Upload photo</span><span style="padding:8px 12px;border-radius:8px;background:#FFF;border:1px solid #DDD5C6;font:600 11px/1 'Plus Jakarta Sans';color:#0A1A2F">Take one now</span></div>
+          </div>
+        </div>
+        <div style="padding:14px;border-radius:13px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><div style="font:700 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Work experience</div><div style="padding:3px 7px;border-radius:5px;background:#EAF3EF;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#0E5C4A">4 found</div></div>
+          <div style="padding-left:11px;border-left:2px solid #C79A3C;display:flex;flex-direction:column;gap:2px">
+            <div style="font:600 12px/1.3 'Plus Jakarta Sans';color:#0A1A2F">Sr. I&amp;C Commissioning Engineer</div>
+            <div style="font:400 11px/1.3 'Plus Jakarta Sans';color:#6B7A8D">L&amp;T Energy · Jubail, KSA · 2022 — present</div>
+          </div>
+          <div style="padding-left:11px;border-left:2px solid #E4DED2;display:flex;flex-direction:column;gap:2px">
+            <div style="font:600 12px/1.3 'Plus Jakarta Sans';color:#0A1A2F">Instrumentation Engineer</div>
+            <div style="font:400 11px/1.3 'Plus Jakarta Sans';color:#6B7A8D">Petrofac · Abu Dhabi, UAE · 2019 — 2022</div>
+          </div>
+          <div style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">+ 2 more</div>
+        </div>
+        <div style="padding:14px;border-radius:13px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><div style="font:700 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Additional information</div><div style="font:400 10px/1 'Plus Jakarta Sans';color:#93805F">AI-labelled · rename</div></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <div style="padding:6px 10px;border-radius:99px;background:#F4F1EA;border:1px solid #E4DED2;font:500 11px/1 'Plus Jakarta Sans';color:#5B6675">Languages: English, Hindi, Arabic (basic)</div>
+            <div style="padding:6px 10px;border-radius:99px;background:#F4F1EA;border:1px solid #E4DED2;font:500 11px/1 'Plus Jakarta Sans';color:#5B6675">Award: Aramco HSE Recognition 2023</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:14px 22px 22px;background:linear-gradient(to top,#FBF9F5 60%,rgba(251,249,245,0));display:flex;gap:10px">
+        <div style="flex:1;padding:16px;border-radius:12px;border:1px solid #DDD5C6;text-align:center;font:600 14px/1 'Plus Jakarta Sans';color:#0A1A2F">Save &amp; exit</div>
+        <div style="flex:1.4;padding:16px;border-radius:12px;background:#0E5C4A;text-align:center;font:700 14px/1 'Plus Jakarta Sans';color:#FBF9F5">Confirm profile</div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Readiness ring is the header, not a widget — weighted by auto-detected category (§4f) and tappable straight into the missing field. Never gates anything.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">04b · Field visibility &amp; PII</div>
+    <div style="width:390px;height:780px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:4px 22px 16px;display:flex;flex-direction:column;gap:6px">
+        <div style="font:500 20px/1 'Plus Jakarta Sans';color:#0A1A2F">←</div>
+        <h3 style="margin:0;font:400 27px/1.15 'Instrument Serif',serif;color:#0A1A2F">What appears on your CV</h3>
+        <p style="margin:0;font:400 13px/1.6 'Plus Jakarta Sans';color:#5B6675;text-wrap:pretty">Gulf employers expect some of these; others you may prefer to hide. Hiding a field never deletes it — the template closes the gap cleanly.</p>
+      </div>
+      <div style="padding:0 22px;display:flex;flex-direction:column;gap:8px;flex:1;overflow:hidden">
+        <div style="padding:14px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:11px">
+            <div style="width:34px;height:42px;flex:none;border-radius:5px;background:#EDE3D2;border:1px solid #DDD5C6"></div>
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Photo</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">Expected in KSA &amp; Qatar · <span style="color:#0E5C4A;font-weight:600">Replace</span></span></div>
+          </div>
+          <div style="width:46px;height:27px;border-radius:99px;background:#0E5C4A;padding:3px;display:flex;justify-content:flex-end"><div style="width:21px;height:21px;border-radius:99px;background:#FFF"></div></div>
+        </div>
+        <div style="padding:14px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Nationality</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">Standard on Gulf CVs</span></div>
+          <div style="width:46px;height:27px;border-radius:99px;background:#0E5C4A;padding:3px;display:flex;justify-content:flex-end"><div style="width:21px;height:21px;border-radius:99px;background:#FFF"></div></div>
+        </div>
+        <div style="padding:14px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Passport number</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#A0562F">Hidden — most roles don't need it</span></div>
+          <div style="width:46px;height:27px;border-radius:99px;background:#DDD5C6;padding:3px;display:flex;justify-content:flex-start"><div style="width:21px;height:21px;border-radius:99px;background:#FFF"></div></div>
+        </div>
+        <div style="padding:14px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Date of birth</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">Shown</span></div>
+          <div style="width:46px;height:27px;border-radius:99px;background:#0E5C4A;padding:3px;display:flex;justify-content:flex-end"><div style="width:21px;height:21px;border-radius:99px;background:#FFF"></div></div>
+        </div>
+        <div style="padding:14px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">WhatsApp number</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">Same as phone</span></div>
+          <div style="width:46px;height:27px;border-radius:99px;background:#0E5C4A;padding:3px;display:flex;justify-content:flex-end"><div style="width:21px;height:21px;border-radius:99px;background:#FFF"></div></div>
+        </div>
+        <div style="padding:14px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Additional information</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">Whole block · 2 items</span></div>
+          <div style="width:46px;height:27px;border-radius:99px;background:#0E5C4A;padding:3px;display:flex;justify-content:flex-end"><div style="width:21px;height:21px;border-radius:99px;background:#FFF"></div></div>
+        </div>
+        <div style="margin-top:6px;padding:14px;border-radius:12px;background:#F4F1EA;border:1px solid #E4DED2;display:flex;gap:10px;align-items:flex-start">
+          <span style="color:#0E5C4A;font-size:13px">⌾</span>
+          <div style="font:400 11px/1.55 'Plus Jakarta Sans';color:#5B6675">Passport and visa fields are encrypted. Every internal access is logged. You can delete your profile and all packages at any time from Settings.</div>
+        </div>
+      </div>
+      <div style="padding:14px 22px 22px"><div style="padding:16px;border-radius:12px;background:#0A1A2F;text-align:center;font:700 14px/1 'Plus Jakarta Sans';color:#FBF9F5">Done</div></div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Each toggle carries country context — the reason to show or hide, not just the switch (§4b).</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">05 · Target selection</div>
+    <div style="width:390px;height:780px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:4px 22px 16px;display:flex;align-items:center;gap:14px">
+        <div style="font:500 20px/1 'Plus Jakarta Sans';color:#0A1A2F">←</div>
+        <div style="flex:1;height:4px;border-radius:99px;background:#EDE3D2;overflow:hidden"><div style="width:60%;height:100%;background:#0E5C4A"></div></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B7A8D">3/5</div>
+      </div>
+      <div style="padding:0 22px 14px"><h3 style="margin:0;font:400 27px/1.15 'Instrument Serif',serif;color:#0A1A2F">Who are we targeting?</h3></div>
+      <div style="padding:0 22px;display:flex;flex-direction:column;gap:16px;flex:1;overflow:hidden">
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.06em;color:#5B6675">Target job title <span style="color:#A0562F">*</span></div>
+          <div style="padding:15px;border-radius:12px;background:#FFF;border:1.5px solid #0A1A2F;font:500 14px/1 'Plus Jakarta Sans';color:#0A1A2F">Commissioning Engineer (I&amp;C)</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.06em;color:#5B6675">Target country <span style="color:#A0562F">*</span> <span style="font-weight:400;color:#93805F">— sets CV format conventions</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px">
+            <div style="padding:10px 14px;border-radius:99px;background:#0A1A2F;font:600 12px/1 'Plus Jakarta Sans';color:#FBF9F5">Qatar</div>
+            <div style="padding:10px 14px;border-radius:99px;background:#FFF;border:1px solid #E4DED2;font:500 12px/1 'Plus Jakarta Sans';color:#5B6675">Saudi Arabia</div>
+            <div style="padding:10px 14px;border-radius:99px;background:#FFF;border:1px solid #E4DED2;font:500 12px/1 'Plus Jakarta Sans';color:#5B6675">UAE</div>
+            <div style="padding:10px 14px;border-radius:99px;background:#FFF;border:1px solid #E4DED2;font:500 12px/1 'Plus Jakarta Sans';color:#5B6675">Oman</div>
+            <div style="padding:10px 14px;border-radius:99px;background:#FFF;border:1px solid #E4DED2;font:500 12px/1 'Plus Jakarta Sans';color:#5B6675">Kuwait</div>
+            <div style="padding:10px 14px;border-radius:99px;background:#FFF;border:1px solid #E4DED2;font:500 12px/1 'Plus Jakarta Sans';color:#5B6675">Bahrain</div>
+            <div style="padding:10px 14px;border-radius:99px;background:#FFF;border:1px solid #E4DED2;font:500 12px/1 'Plus Jakarta Sans';color:#5B6675">Generic Gulf</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.06em;color:#5B6675">Target company <span style="font-weight:400;color:#93805F">— optional, sharpens framing</span></div>
+          <div style="padding:15px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;justify-content:space-between;align-items:center"><span style="font:500 14px/1 'Plus Jakarta Sans';color:#0A1A2F">QatarEnergy</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">any employer</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.06em;color:#5B6675">Job description <span style="font-weight:400;color:#93805F">— optional</span></div>
+            <div style="padding:4px 8px;border-radius:5px;background:#F7EFDC;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#8A6A1C">Best results</div>
+          </div>
+          <div style="padding:15px;border-radius:12px;background:#FFF;border:1px dashed #C79A3C;display:flex;flex-direction:column;gap:6px">
+            <div style="font:500 13px/1.4 'Plus Jakarta Sans';color:#0A1A2F">Paste the posting, or upload the PDF</div>
+            <div style="font:400 11px/1.5 'Plus Jakarta Sans';color:#6B7A8D">With a JD we match the employer's exact wording. Without one, we optimize to your title, industry and country.</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:14px 22px 22px;display:flex;flex-direction:column;gap:9px">
+        <div style="text-align:center;font:400 11px/1.4 'Plus Jakarta Sans';color:#93805F">Still free — you'll see what changes before you pay.</div>
+        <div style="padding:17px;border-radius:13px;background:#0E5C4A;text-align:center;font:700 15px/1 'Plus Jakarta Sans';color:#FBF9F5">Choose what to optimize</div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Country as chips (always required); JD framed as an upgrade, never a blocker.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">06 · Optimization setup</div>
+    <div style="width:390px;height:780px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:4px 22px 14px;display:flex;flex-direction:column;gap:6px">
+        <div style="font:500 20px/1 'Plus Jakarta Sans';color:#0A1A2F">←</div>
+        <h3 style="margin:0;font:400 27px/1.15 'Instrument Serif',serif;color:#0A1A2F">What should we sharpen?</h3>
+        <p style="margin:0;font:400 12px/1.6 'Plus Jakarta Sans';color:#5B6675">Your dates, employers, titles and certifications are never touched. Only framing changes.</p>
+      </div>
+      <div style="padding:0 22px;display:flex;flex-direction:column;gap:8px;flex:1;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Blocks</div>
+          <div style="padding:7px 12px;border-radius:8px;background:#F7EFDC;border:1px solid #E3C77E;font:600 11px/1 'Plus Jakarta Sans';color:#8A6A1C">Optimize all</div>
+        </div>
+        <div style="padding:13px 14px;border-radius:11px;background:#FFF;border:1.5px solid #0E5C4A;display:flex;align-items:center;gap:11px">
+          <div style="width:20px;height:20px;border-radius:6px;background:#0E5C4A;display:flex;align-items:center;justify-content:center;font-size:11px;color:#FFF">✓</div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Professional summary</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">Rewritten for this target</span></div>
+        </div>
+        <div style="padding:13px 14px;border-radius:11px;background:#FFF;border:1.5px solid #0E5C4A;display:flex;align-items:center;gap:11px">
+          <div style="width:20px;height:20px;border-radius:6px;background:#0E5C4A;display:flex;align-items:center;justify-content:center;font-size:11px;color:#FFF">✓</div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">L&amp;T Energy — Sr. I&amp;C Engineer</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">5 bullets</span></div>
+        </div>
+        <div style="padding:13px 14px;border-radius:11px;background:#FFF;border:1px solid #E4DED2;display:flex;align-items:center;gap:11px">
+          <div style="width:20px;height:20px;border-radius:6px;border:1.5px solid #DDD5C6"></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Petrofac — Instrumentation Engineer</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">Already strong — leave as is</span></div>
+        </div>
+        <div style="padding:13px 14px;border-radius:11px;background:#F4F1EA;border:1px solid #E4DED2;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Skills &amp; certifications</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#93805F">Reordered by relevance — never reworded</span></div>
+          <span style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#0E5C4A">Automatic</span>
+        </div>
+        <div style="margin-top:10px;font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Optimization level</div>
+        <div style="display:flex;gap:7px">
+          <div style="flex:1;padding:13px 8px;border-radius:11px;background:#FFF;border:1px solid #E4DED2;text-align:center;display:flex;flex-direction:column;gap:3px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Easy</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#93805F">75-80%</span></div>
+          <div style="flex:1;padding:13px 8px;border-radius:11px;background:#0A1A2F;border:1.5px solid #0A1A2F;text-align:center;display:flex;flex-direction:column;gap:3px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#FBF9F5">Moderate</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#E3C77E">80-90%</span></div>
+          <div style="flex:1;padding:13px 8px;border-radius:11px;background:#FFF;border:1px solid #E4DED2;text-align:center;display:flex;flex-direction:column;gap:3px"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">High</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#93805F">90-100%</span></div>
+        </div>
+        <div style="padding:13px 14px;border-radius:11px;background:#FCF3E8;border:1px solid #E8C79A;display:flex;gap:10px;align-items:flex-start">
+          <span style="color:#A0562F;font-size:13px">△</span>
+          <div style="font:400 11px/1.55 'Plus Jakarta Sans';color:#7A4A24">A closer match raises the bar in the interview. Everything stays factual — but be ready to talk confidently about every line at this level.</div>
+        </div>
+      </div>
+      <div style="padding:14px 22px 22px"><div style="padding:17px;border-radius:13px;background:#C79A3C;text-align:center;font:700 15px/1 'Plus Jakarta Sans';color:#0A1A2F">Optimize for QatarEnergy</div></div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Risk indicator appears only at Moderate/High (§4a). CTA names the target company — personalization touch.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">07 · Optimizing (&lt;60s)</div>
+    <div style="width:390px;height:780px;border-radius:34px;overflow:hidden;background:#0A1A2F;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.18);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.8)"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="flex:1;padding:0 26px;display:flex;flex-direction:column;justify-content:center;gap:28px">
+        <div style="text-align:center;display:flex;flex-direction:column;gap:10px">
+          <div style="font:400 30px/1.15 'Instrument Serif',serif;color:#FBF9F5">Optimizing for<br><span style="color:#E3C77E">QatarEnergy</span></div>
+          <div style="font:400 13px/1.6 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">Reviewed as a senior I&amp;C hiring manager would.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;padding:22px;border-radius:18px;background:rgba(251,249,245,.06);border:1px solid rgba(237,227,210,.13)">
+          <div style="display:flex;gap:11px;align-items:center;font:500 13px/1.3 'Plus Jakarta Sans';color:#FBF9F5"><span style="color:#4FBF9A">✓</span> Matched JD language for I&amp;C commissioning</div>
+          <div style="display:flex;gap:11px;align-items:center;font:500 13px/1.3 'Plus Jakarta Sans';color:#FBF9F5"><span style="color:#4FBF9A">✓</span> Reframed your summary</div>
+          <div style="display:flex;gap:11px;align-items:center;font:500 13px/1.3 'Plus Jakarta Sans';color:#E3C77E"><span>◍</span> Rewriting L&amp;T Energy bullets</div>
+          <div style="display:flex;gap:11px;align-items:center;font:500 13px/1.3 'Plus Jakarta Sans';color:rgba(251,249,245,.4)"><span>○</span> Reordering skills by relevance</div>
+          <div style="display:flex;gap:11px;align-items:center;font:500 13px/1.3 'Plus Jakarta Sans';color:rgba(251,249,245,.4)"><span>○</span> Applying Qatar CV format</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="height:5px;border-radius:99px;background:rgba(237,227,210,.16);overflow:hidden"><div style="width:58%;height:100%;background:#C79A3C"></div></div>
+          <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(251,249,245,.55)"><span>58%</span><span>~22s left</span></div>
+        </div>
+        <div style="text-align:center;font:400 11px/1.6 'Plus Jakarta Sans';color:rgba(251,249,245,.45)">Only facts already in your profile are used. Nothing is invented.</div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Named steps make 60 seconds feel like craft rather than latency.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:baseline;gap:10px"><div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">08 · Before / after preview</div><div style="padding:3px 8px;border-radius:5px;background:#0A1A2F;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.09em;text-transform:uppercase;color:#E3C77E">Wow #1</div></div>
+    <div style="width:390px;height:900px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:6px 22px 14px;display:flex;flex-direction:column;gap:10px">
+        <h3 style="margin:0;font:400 26px/1.15 'Instrument Serif',serif;color:#0A1A2F">Here's what changed</h3>
+        <div style="display:flex;gap:8px">
+          <div style="padding:9px 13px;border-radius:9px;background:#0A1A2F;font:600 12px/1 'Plus Jakarta Sans';color:#FBF9F5">Changes (7)</div>
+          <div style="padding:9px 13px;border-radius:9px;background:#FFF;border:1px solid #E4DED2;font:500 12px/1 'Plus Jakarta Sans';color:#5B6675">Full CV</div>
+        </div>
+      </div>
+      <div style="padding:0 22px;display:flex;flex-direction:column;gap:11px;flex:1;overflow:hidden">
+        <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:11px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px/1 'Plus Jakarta Sans';color:#0A1A2F">Professional summary</span><span style="padding:3px 7px;border-radius:5px;background:#EAF3EF;font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#0E5C4A">Rewritten</span></div>
+          <div style="padding:11px;border-radius:9px;background:#F7F5F0;border-left:2px solid #C8A9A0">
+            <div style="font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.1em;text-transform:uppercase;color:#A0562F;margin-bottom:5px">Before</div>
+            <div style="font:400 11.5px/1.6 'Plus Jakarta Sans';color:#6B7A8D">Instrumentation engineer with 7 years of experience in oil and gas projects looking for a challenging role in a reputed organization.</div>
+          </div>
+          <div style="padding:11px;border-radius:9px;background:#EAF3EF;border-left:2px solid #0E5C4A">
+            <div style="font:600 9px/1 'Plus Jakarta Sans';letter-spacing:.1em;text-transform:uppercase;color:#0E5C4A;margin-bottom:5px">After</div>
+            <div style="font:400 11.5px/1.6 'Plus Jakarta Sans';color:#0A1A2F">I&amp;C commissioning engineer with 7 years across <span style="background:#D3E8DE;border-radius:3px;padding:0 3px">upstream gas and LNG</span> projects in KSA and UAE, delivering <span style="background:#D3E8DE;border-radius:3px;padding:0 3px">loop checking, SAT and pre-commissioning</span> to <span style="background:#D3E8DE;border-radius:3px;padding:0 3px">client-witnessed standards</span>.</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center"><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Edit this text</span><span style="font:400 10px/1 'Plus Jakarta Sans';color:#93805F">· any generated line</span></div>
+        </div>
+        <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px/1 'Plus Jakarta Sans';color:#0A1A2F">L&amp;T Energy — bullet 1 of 5</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#93805F">+3 JD terms</span></div>
+          <div style="font:400 11.5px/1.6 'Plus Jakarta Sans';color:#0A1A2F"><span style="text-decoration:line-through;color:#A89A8A">Handled instrumentation activities at site.</span> → Executed <span style="background:#D3E8DE;border-radius:3px;padding:0 3px">pre-commissioning</span> of 400+ field instruments across 3 gas trains, closing punch items with <span style="background:#D3E8DE;border-radius:3px;padding:0 3px">client QA/QC</span> witness.</div>
+        </div>
+        <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:9px">
+          <div style="font:700 12px/1 'Plus Jakarta Sans';color:#0A1A2F">Skills reordered</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <div style="padding:6px 10px;border-radius:99px;background:#EAF3EF;border:1px solid #C9E0D6;font:500 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Loop checking ↑1</div>
+            <div style="padding:6px 10px;border-radius:99px;background:#EAF3EF;border:1px solid #C9E0D6;font:500 11px/1 'Plus Jakarta Sans';color:#0E5C4A">SAT/FAT ↑2</div>
+            <div style="padding:6px 10px;border-radius:99px;background:#F4F1EA;border:1px solid #E4DED2;font:500 11px/1 'Plus Jakarta Sans';color:#6B7A8D">AutoCAD ↓4</div>
+          </div>
+        </div>
+        <div style="padding:13px 15px;border-radius:12px;background:#F4F1EA;border:1px dashed #C79A3C;font:400 11px/1.55 'Plus Jakarta Sans';color:#7A6440"><strong style="color:#8A6A1C">Placeholder — open decision.</strong> Exactly how much shows before payment (change list vs. blurred full CV) is undecided; the gate is built, the content is not locked.</div>
+      </div>
+      <div style="padding:14px 22px 22px;display:flex;flex-direction:column;gap:9px;background:linear-gradient(to top,#FBF9F5 65%,rgba(251,249,245,0))">
+        <div style="padding:17px;border-radius:13px;background:#C79A3C;text-align:center;font:700 15px/1 'Plus Jakarta Sans';color:#0A1A2F">Unlock full CV — ₹499</div>
+        <div style="text-align:center;font:400 11px/1.4 'Plus Jakarta Sans';color:#93805F">One-time · PDF + Word · saved to your Library</div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Diff is per-block with word-level highlighting and strike-through — visual, not a text dump. Generated text is user-editable; fixed fields are not.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">09 · Payment</div>
+    <div style="width:390px;height:780px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:4px 22px 18px;display:flex;flex-direction:column;gap:6px">
+        <div style="font:500 20px/1 'Plus Jakarta Sans';color:#0A1A2F">←</div>
+        <h3 style="margin:0;font:400 27px/1.15 'Instrument Serif',serif;color:#0A1A2F">One payment. No surprises.</h3>
+      </div>
+      <div style="padding:0 22px;display:flex;flex-direction:column;gap:12px;flex:1">
+        <div style="padding:18px;border-radius:16px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Optimized Gulf CV</span><span style="font-family:'IBM Plex Mono',monospace;font-size:15px;color:#0A1A2F">₹499</span></div>
+          <div style="font:400 11px/1.5 'Plus Jakarta Sans';color:#6B7A8D">Commissioning Engineer (I&amp;C) · QatarEnergy · Qatar format</div>
+          <div style="height:1px;background:#EDE7DC"></div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div style="display:flex;gap:9px;font:400 12px/1.4 'Plus Jakarta Sans';color:#5B6675"><span style="color:#0E5C4A">✓</span> PDF and Word download</div>
+            <div style="display:flex;gap:9px;font:400 12px/1.4 'Plus Jakarta Sans';color:#5B6675"><span style="color:#0E5C4A">✓</span> Edit and re-download anytime</div>
+            <div style="display:flex;gap:9px;font:400 12px/1.4 'Plus Jakarta Sans';color:#5B6675"><span style="color:#0E5C4A">✓</span> Saved to your Library forever</div>
+          </div>
+          <div style="height:1px;background:#EDE7DC"></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:700 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Total today</span><span style="font-family:'IBM Plex Mono',monospace;font-size:19px;color:#0A1A2F">₹499</span></div>
+          <div style="font:400 10.5px/1.5 'Plus Jakarta Sans';color:#93805F">No subscription. No auto-renewal. Taxes included.</div>
+        </div>
+        <div style="padding:16px;border-radius:14px;background:#0A1A2F;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:3px"><span style="font:600 12px/1 'Plus Jakarta Sans';color:#FBF9F5">Pay securely with Razorpay</span><span style="font:400 10.5px/1.4 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">UPI · Card · Netbanking · Wallet</span></div>
+          <span style="font:600 11px/1 'Plus Jakarta Sans';color:#E3C77E">🔒</span>
+        </div>
+        <div style="padding:14px;border-radius:13px;background:#F4F1EA;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:9px;align-items:flex-start;font:400 11px/1.5 'Plus Jakarta Sans';color:#5B6675"><span style="color:#0E5C4A">◈</span> We never see or store your card details.</div>
+          <div style="display:flex;gap:9px;align-items:flex-start;font:400 11px/1.5 'Plus Jakarta Sans';color:#5B6675"><span style="color:#0E5C4A">◈</span> Something went wrong with your order? Email the founder directly — replies within a day.</div>
+        </div>
+      </div>
+      <div style="padding:14px 22px 22px;display:flex;flex-direction:column;gap:9px">
+        <div style="padding:17px;border-radius:13px;background:#0E5C4A;text-align:center;font:700 15px/1 'Plus Jakarta Sans';color:#FBF9F5">Pay ₹499 &amp; unlock</div>
+        <div style="text-align:center;font:400 11px/1.4 'Plus Jakarta Sans';color:#93805F">Refund policy · Terms · Privacy</div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Flagged “Needs Review” per §9 — visual only, no payment wiring.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">10 · Results &amp; download</div>
+    <div style="width:390px;height:940px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:8px 22px 16px;display:flex;flex-direction:column;gap:7px">
+        <div style="display:inline-flex;align-self:flex-start;align-items:center;gap:7px;padding:6px 11px;border-radius:99px;background:#EAF3EF;border:1px solid #C9E0D6;font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.07em;text-transform:uppercase;color:#0E5C4A">✓ Unlocked &amp; saved to Library</div>
+        <h3 style="margin:0;font:400 26px/1.15 'Instrument Serif',serif;color:#0A1A2F">Your Gulf CV is ready, Rahul</h3>
+      </div>
+      <div style="padding:0 22px;flex:1;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+        <div style="border-radius:12px;border:1px solid #E4DED2;background:#FFF;padding:16px;box-shadow:0 12px 30px rgba(10,26,47,.08);flex:none;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:10px;border-bottom:2px solid #0A1A2F">
+            <div style="width:46px;height:56px;border-radius:4px;background:#EDE3D2;border:1px solid #DDD5C6;flex:none"></div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <div style="font:400 17px/1.1 'Instrument Serif',serif;color:#0A1A2F">Rahul Menon</div>
+              <div style="font:600 9.5px/1.3 'Plus Jakarta Sans';letter-spacing:.05em;text-transform:uppercase;color:#8A6A1C">Commissioning Engineer — I&amp;C</div>
+              <div style="font:400 8.5px/1.5 'Plus Jakarta Sans';color:#6B7A8D">Indian · Doha, Qatar · Transferable Iqama<br>+974 •••• ••55 · rahul@mail.com</div>
+            </div>
+          </div>
+          <div style="font:600 8.5px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Professional summary</div>
+          <div style="font:400 8.5px/1.6 'Plus Jakarta Sans';color:#3E4A59">I&amp;C commissioning engineer with 7 years across upstream gas and LNG projects in KSA and UAE, delivering loop checking, SAT and pre-commissioning to client-witnessed standards.</div>
+          <div style="font:600 8.5px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Experience</div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div style="display:flex;justify-content:space-between"><span style="font:600 9.5px/1.2 'Plus Jakarta Sans';color:#0A1A2F">Sr. I&amp;C Commissioning Engineer</span><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6B7A8D">2022—now</span></div>
+            <div style="font:400 8.5px/1.3 'Plus Jakarta Sans';color:#6B7A8D">L&amp;T Energy · Jubail, KSA</div>
+            <div style="font:400 8.5px/1.6 'Plus Jakarta Sans';color:#3E4A59;margin-top:2px">• Executed pre-commissioning of 400+ field instruments across 3 gas trains, closing punch items with client QA/QC witness.<br>• Led loop-check campaigns and SAT for ESD and F&amp;G systems.</div>
+          </div>
+          <div style="font:600 8.5px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Key skills</div>
+          <div style="font:400 8.5px/1.6 'Plus Jakarta Sans';color:#3E4A59">Loop checking · SAT/FAT · ESD &amp; F&amp;G · DCS/PLC · Punch management · AutoCAD</div>
+          <div style="font:600 8.5px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Certifications</div>
+          <div style="font:400 8.5px/1.6 'Plus Jakarta Sans';color:#3E4A59">NEBOSH IGC (2023) · Aramco Approved I&amp;C Engineer · H2S / Confined Space</div>
+          <div style="font:600 8.5px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Education</div>
+          <div style="display:flex;justify-content:space-between"><span style="font:400 8.5px/1.4 'Plus Jakarta Sans';color:#3E4A59">B.E. Instrumentation &amp; Control — Anna University</span><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6B7A8D">2015—2019</span></div>
+          <div style="font:600 8.5px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Additional information</div>
+          <div style="font:400 8.5px/1.6 'Plus Jakarta Sans';color:#3E4A59">Languages: English, Hindi, Arabic (basic) · Award: Aramco HSE Recognition 2023</div>
+        </div>
+        <div style="display:flex;gap:9px">
+          <div style="flex:1;padding:15px;border-radius:12px;background:#0A1A2F;text-align:center;font:700 13px/1 'Plus Jakarta Sans';color:#FBF9F5">Download PDF</div>
+          <div style="flex:1;padding:15px;border-radius:12px;background:#FFF;border:1px solid #DDD5C6;text-align:center;font:600 13px/1 'Plus Jakarta Sans';color:#0A1A2F">Word (.docx)</div>
+        </div>
+        <div style="display:flex;gap:9px">
+          <div style="flex:1;padding:14px;border-radius:12px;background:#EAF3EF;border:1px solid #C9E0D6;text-align:center;font:600 12px/1 'Plus Jakarta Sans';color:#0E5C4A">Share to WhatsApp</div>
+          <div style="flex:1;padding:14px;border-radius:12px;background:#F4F1EA;border:1px solid #E4DED2;text-align:center;font:600 12px/1 'Plus Jakarta Sans';color:#5B6675">Edit text</div>
+        </div>
+      </div>
+      <div style="padding:14px 22px 22px"><div style="padding:14px;border-radius:12px;background:#F7EFDC;border:1px solid #E3C77E;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F">Applying somewhere else?</span><span style="font:400 10.5px/1.3 'Plus Jakarta Sans';color:#7A6440">Your profile is saved — next one takes a minute.</span></div><span style="font:600 12px/1 'Plus Jakarta Sans';color:#8A6A1C">→</span></div></div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">One premium template, conditionally rendered. WhatsApp share sits alongside download. Repeat-purchase prompt closes the loop.</div>
+  </div>
+
+  <div style="width:390px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">11 · Dashboard &amp; Library</div>
+    <div style="width:390px;height:780px;border-radius:34px;overflow:hidden;background:#FBF9F5;border:1px solid #DDD5C6;box-shadow:0 24px 60px rgba(10,26,47,.14);display:flex;flex-direction:column">
+      <div style="height:44px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F"><span>9:41</span><span style="letter-spacing:.14em">▮▮▮</span></div>
+      <div style="padding:4px 22px 16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;flex-direction:column;gap:3px"><span style="font:400 24px/1.1 'Instrument Serif',serif;color:#0A1A2F">Hello, Rahul</span><span style="font:400 11.5px/1 'Plus Jakarta Sans';color:#93805F">Profile 75% ready · Qatar target</span></div>
+        <div style="position:relative;width:44px;height:44px">
+          <svg viewBox="0 0 100 100" style="width:44px;height:44px;transform:rotate(-90deg)"><circle cx="50" cy="50" r="43" fill="none" stroke="#EDE3D2" stroke-width="10"></circle><circle cx="50" cy="50" r="43" fill="none" stroke="#C79A3C" stroke-width="10" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="68"></circle></svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#0A1A2F">75</div>
+        </div>
+      </div>
+      <div style="padding:0 22px 16px"><div style="padding:17px;border-radius:14px;background:#0A1A2F;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;flex-direction:column;gap:3px"><span style="font:700 14px/1 'Plus Jakarta Sans';color:#FBF9F5">Optimize for a new job</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:rgba(251,249,245,.6)">₹499 · about 2 minutes</span></div><span style="font:600 15px/1 'Plus Jakarta Sans';color:#E3C77E">+</span></div></div>
+      <div style="padding:0 22px 14px;display:flex;gap:9px">
+        <div style="flex:1;padding:13px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:3px"><span style="font:600 12px/1 'Plus Jakarta Sans';color:#0A1A2F">Career Profile</span><span style="font:400 10px/1.3 'Plus Jakarta Sans';color:#93805F">3 items to finish</span></div>
+        <div style="flex:1;padding:13px;border-radius:12px;background:#F4F1EA;border:1px dashed #DDD5C6;display:flex;flex-direction:column;gap:3px"><span style="font:600 12px/1 'Plus Jakarta Sans';color:#A0997F">ATS score</span><span style="font:400 10px/1.3 'Plus Jakarta Sans';color:#A0997F">Coming soon</span></div>
+      </div>
+      <div style="padding:0 22px;flex:1;display:flex;flex-direction:column;gap:9px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.14em;text-transform:uppercase;color:#8A7A5F">Your Library · 3 packages</span><span style="font:500 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Sort</span></div>
+        <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:3px"><span style="font:700 13px/1.25 'Plus Jakarta Sans';color:#0A1A2F">Commissioning Engineer (I&amp;C)</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#6B7A8D">QatarEnergy · Qatar · 5 Aug</span></div><span style="padding:5px 9px;border-radius:99px;background:#F7EFDC;border:1px solid #E3C77E;font:600 10px/1 'Plus Jakarta Sans';color:#8A6A1C">Shortlisted ▾</span></div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap"><span style="padding:5px 9px;border-radius:7px;background:#F4F1EA;font:500 10px/1 'Plus Jakarta Sans';color:#5B6675">JD attached</span><span style="padding:5px 9px;border-radius:7px;background:#F4F1EA;font:500 10px/1 'Plus Jakarta Sans';color:#5B6675">Moderate</span><span style="padding:5px 9px;border-radius:7px;background:#EAF3EF;font:500 10px/1 'Plus Jakarta Sans';color:#0E5C4A">PDF · DOCX</span></div>
+            <div style="display:flex;gap:14px;padding-top:2px"><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Open</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Re-optimize</span><span style="font:600 11px/1 'Plus Jakarta Sans';color:#A0562F">Delete</span></div>
+          </div>
+        </div>
+        <div style="padding:15px;border-radius:14px;background:#FFF;border:1px solid #E4DED2;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:3px"><span style="font:700 13px/1.25 'Plus Jakarta Sans';color:#0A1A2F">Instrumentation Supervisor</span><span style="font:400 11px/1 'Plus Jakarta Sans';color:#6B7A8D">ADNOC · UAE · 28 Jul</span></div><span style="padding:5px 9px;border-radius:99px;background:#F4F1EA;border:1px solid #DDD5C6;font:600 10px/1 'Plus Jakarta Sans';color:#5B6675">Applied ▾</span></div>
+          <div style="display:flex;gap:7px"><span style="padding:5px 9px;border-radius:7px;background:#F4F1EA;font:500 10px/1 'Plus Jakarta Sans';color:#5B6675">No JD</span><span style="padding:5px 9px;border-radius:7px;background:#F4F1EA;font:500 10px/1 'Plus Jakarta Sans';color:#5B6675">Easy</span></div>
+        </div>
+        <div style="padding:14px 15px;border-radius:13px;background:#F7EFDC;border:1px dashed #E3C77E;display:flex;flex-direction:column;gap:6px">
+          <span style="font:600 12px/1.3 'Plus Jakarta Sans';color:#0A1A2F">You already have a “Commissioning Engineer” package</span>
+          <span style="font:400 11px/1.5 'Plus Jakarta Sans';color:#7A6440">Reuse it for this new posting, or start a fresh package?</span>
+          <div style="display:flex;gap:8px;margin-top:2px"><span style="padding:8px 12px;border-radius:9px;background:#0A1A2F;font:600 11px/1 'Plus Jakarta Sans';color:#FBF9F5">Use existing</span><span style="padding:8px 12px;border-radius:9px;background:#FFF;border:1px solid #DDD5C6;font:600 11px/1 'Plus Jakarta Sans';color:#0A1A2F">New package</span></div>
+        </div>
+      </div>
+      <div style="padding:12px 22px 20px;border-top:1px solid #EDE7DC;display:flex;justify-content:space-around">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font:600 10px/1 'Plus Jakarta Sans';color:#0A1A2F"><span style="font-size:15px">◆</span>Home</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font:500 10px/1 'Plus Jakarta Sans';color:#93805F"><span style="font-size:15px">▤</span>Library</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font:500 10px/1 'Plus Jakarta Sans';color:#93805F"><span style="font-size:15px">◔</span>Profile</div>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Library packages carry status, level and JD state at a glance. Reuse-detection prompt is a rule-based title match (MVP-lite).</div>
+  </div>
+
+  <div style="width:820px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="font:600 11px/1 'Plus Jakarta Sans';letter-spacing:.16em;text-transform:uppercase;color:#8A7A5F">Components</div>
+    <div style="width:820px;background:#FBF9F5;border:1px solid #DDD5C6;border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:24px;box-shadow:0 24px 60px rgba(10,26,47,.1)">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+        <div style="padding:16px 22px;border-radius:12px;background:#0A1A2F;font:700 14px/1 'Plus Jakarta Sans';color:#FBF9F5">Primary — navy</div>
+        <div style="padding:16px 22px;border-radius:12px;background:#C79A3C;font:700 14px/1 'Plus Jakarta Sans';color:#0A1A2F">Purchase — gold</div>
+        <div style="padding:16px 22px;border-radius:12px;background:#0E5C4A;font:700 14px/1 'Plus Jakarta Sans';color:#FBF9F5">Progress — emerald</div>
+        <div style="padding:16px 22px;border-radius:12px;background:#FFF;border:1px solid #DDD5C6;font:600 14px/1 'Plus Jakarta Sans';color:#0A1A2F">Secondary</div>
+        <div style="padding:16px 22px;border-radius:12px;background:#F1EEE8;font:600 14px/1 'Plus Jakarta Sans';color:#A8A093">Disabled</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <span style="padding:6px 11px;border-radius:99px;background:#F4F1EA;border:1px solid #DDD5C6;font:600 11px/1 'Plus Jakarta Sans';color:#5B6675">Applied</span>
+        <span style="padding:6px 11px;border-radius:99px;background:#F7EFDC;border:1px solid #E3C77E;font:600 11px/1 'Plus Jakarta Sans';color:#8A6A1C">Shortlisted</span>
+        <span style="padding:6px 11px;border-radius:99px;background:#EAF3EF;border:1px solid #C9E0D6;font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">Interview</span>
+        <span style="padding:6px 11px;border-radius:99px;background:#E9EEF4;border:1px solid #C6D3E0;font:600 11px/1 'Plus Jakarta Sans';color:#2C4A6B">Visa processing</span>
+        <span style="padding:6px 11px;border-radius:99px;background:#0E5C4A;font:600 11px/1 'Plus Jakarta Sans';color:#FBF9F5">Offer</span>
+        <div style="width:1px;height:24px;background:#E4DED2"></div>
+        <span style="padding:6px 11px;border-radius:7px;background:#FCF3E8;border:1px solid #E8C79A;font:600 11px/1 'Plus Jakarta Sans';color:#7A4A24">△ Interview-readiness risk</span>
+        <span style="padding:6px 11px;border-radius:7px;background:#EAF3EF;border:1px solid #C9E0D6;font:600 11px/1 'Plus Jakarta Sans';color:#0E5C4A">✓ Grounded in your facts</span>
+      </div>
+      <div style="display:flex;gap:26px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="width:46px;height:27px;border-radius:99px;background:#0E5C4A;padding:3px;display:flex;justify-content:flex-end"><div style="width:21px;height:21px;border-radius:99px;background:#FFF"></div></div>
+          <div style="width:46px;height:27px;border-radius:99px;background:#DDD5C6;padding:3px;display:flex;justify-content:flex-start"><div style="width:21px;height:21px;border-radius:99px;background:#FFF"></div></div>
+          <div style="font:400 12px/1.4 'Plus Jakarta Sans';color:#93805F">Field visibility</div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:center">
+          <div style="position:relative;width:56px;height:56px"><svg viewBox="0 0 100 100" style="width:56px;height:56px;transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="#EDE3D2" stroke-width="9"></circle><circle cx="50" cy="50" r="42" fill="none" stroke="#C79A3C" stroke-width="9" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="185"></circle></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#0A1A2F">30</div></div>
+          <div style="position:relative;width:56px;height:56px"><svg viewBox="0 0 100 100" style="width:56px;height:56px;transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="#EDE3D2" stroke-width="9"></circle><circle cx="50" cy="50" r="42" fill="none" stroke="#C79A3C" stroke-width="9" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="66"></circle></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#0A1A2F">75</div></div>
+          <div style="position:relative;width:56px;height:56px"><svg viewBox="0 0 100 100" style="width:56px;height:56px;transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="#EDE3D2" stroke-width="9"></circle><circle cx="50" cy="50" r="42" fill="none" stroke="#0E5C4A" stroke-width="9" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="0"></circle></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#0E5C4A">100</div></div>
+          <div style="font:400 12px/1.4 'Plus Jakarta Sans';color:#93805F">Readiness ring<br>(gold → emerald at 100)</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:240px;padding:15px;border-radius:12px;background:#FFF;border:1.5px solid #0A1A2F;font:500 14px/1 'Plus Jakarta Sans';color:#0A1A2F">Focused input</div>
+        <div style="flex:1;min-width:240px;padding:15px;border-radius:12px;background:#FFF;border:1px solid #E4DED2;font:500 14px/1 'Plus Jakarta Sans';color:#A8A093">Placeholder text</div>
+        <div style="flex:1;min-width:240px;padding:15px;border-radius:12px;background:#FFF;border:1.5px solid #A0562F;font:500 14px/1 'Plus Jakarta Sans';color:#0A1A2F">Error state</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;font:400 12px/1.5 'Plus Jakarta Sans';color:#5B6675">
+        <span style="background:#D3E8DE;border-radius:3px;padding:1px 4px;color:#0A1A2F">added JD language</span>
+        <span style="text-decoration:line-through;color:#A89A8A">removed weak phrasing</span>
+        <span style="padding:4px 8px;border-radius:5px;background:#EAF3EF;font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#0E5C4A">Rewritten</span>
+        <span style="padding:4px 8px;border-radius:5px;background:#F4F1EA;font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#5B6675">Reordered</span>
+        <span style="padding:4px 8px;border-radius:5px;background:#E9EEF4;font:600 10px/1 'Plus Jakarta Sans';letter-spacing:.06em;text-transform:uppercase;color:#2C4A6B">Fixed — never rewritten</span>
+      </div>
+    </div>
+    <div style="font:400 12px/1.6 'Plus Jakarta Sans';color:#93805F">Colour carries meaning consistently: navy = action, gold = purchase &amp; readiness, emerald = verified progress, terracotta = caution. Two background tones only (marble, navy).</div>
+  </div>
+
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}"></script>
+</body>
+</html>

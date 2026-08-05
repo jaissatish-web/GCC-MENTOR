@@ -1,0 +1,183 @@
+# TASKS.md — Phase 1 Execution Backlog
+
+**If it is not written here, it does not happen.** (`docs/RULES.md` §1)
+
+Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
+
+## How to use this file
+
+- Work tickets **in order**. Respect `Depends on`.
+- Set `Status: in progress` when you start, `Status: done` when the Definition of Done in `docs/RULES.md` §7 is met.
+- Commit with the ticket ID in the message: `TASK-012: add profile CRUD API`.
+- **One ticket per commit.** Do not batch.
+- Tickets in **Blocked / Needs Review** are never self-assigned. Do not start them.
+- Found a bug outside your ticket? Add it to §Unplanned at the bottom. Do not fix it.
+
+---
+
+## Backlog
+
+### A — Foundation & UI shell
+
+> **Already done by the CTO — do not redo:** repository scaffold, `package.json`,
+> `tailwind.config.ts` design tokens, the three Google fonts in `app/layout.tsx`,
+> `lib/utils.ts`, `.env.example`, and a verified-booting Next.js skeleton.
+> `app/page.tsx` is a temporary scaffold-check page and is replaced in TASK-002.
+
+- [ ] **TASK-001: Shared UI primitives**
+      Spec: Create `components/ui/` containing `Button.tsx`, `Card.tsx`, `Pill.tsx`, `Toggle.tsx`, `Input.tsx`, `ProgressBar.tsx`. Match the Components panel at the bottom of `design-reference/MVP Screens.dc.html` and the specs in `docs/DESIGN.md` §4 exactly — read the inline styles in that file for precise padding, radius and colour values. Button variants: `primary` (midnight), `purchase` (gold), `progress` (emerald), `secondary` (white + `line-strong` border), `disabled`. Pill variants: the five package statuses plus `risk` and `grounded`. All must use Tailwind tokens from `tailwind.config.ts` — **never a hard-coded hex value**. Every interactive element has a minimum 44px touch target.
+      Status: not started
+
+- [ ] **TASK-002: Landing page**
+      Spec: Replace `app/page.tsx` with the real landing page, converted from `design-reference/Landing Page.dc.html`. That file is hand-written HTML with the final approved design — **convert it to React + Tailwind; do not redesign it.** Every section: nav, hero with before/after card, "where applications die", Western-vs-Gulf CV comparison, how-it-works (4 steps), what-we-change/never-touch, founder story, pricing, FAQ, closing CTA, footer. Replace inline styles with Tailwind tokens. Use `[Product Name]` as the literal brand string. Founder photo slots become plain placeholder divs. Must be fully responsive: verify at 390px, 768px and 1280px.
+      Depends on: TASK-001 · Status: not started
+
+- [ ] **TASK-003: Navigable route skeleton**
+      Spec: Create placeholder pages for every MVP route so the whole product is clickable end to end before any logic exists: `/onboarding`, `/profile`, `/profile/visibility`, `/optimize/target`, `/optimize/setup`, `/optimize/preview/[packageId]`, `/optimize/pay/[packageId]`, `/package/[id]`, `/dashboard`, `/settings`, `/admin`. Each page renders its screen title, its ticket number, and a link to the next screen in the flow. No data, no forms, no API calls. **Purpose: the founder can walk the entire flow and confirm the structure before logic is built.** Route names must match `docs/USER_FLOW.md` exactly.
+      Depends on: TASK-001 · Status: not started
+
+- [ ] **TASK-004: App shell**
+      Spec: Create `app/dashboard/layout.tsx` with the desktop sidebar (`components/layout/Sidebar.tsx`) and mobile bottom nav (`components/layout/MobileBottomNav.tsx`), matching screens D1 and D2 in `design-reference/MVP Screens.dc.html`. Sidebar items: Dashboard, Library, Career Profile, Payments, Settings — plus the "Need help? Email the founder" card. Bottom nav: Home, Library, Profile. **Do not add nav entries for ATS score, cover letter, interview Q&A or mock interview** — those are Phase 2–4 and appear only as locked cards on the dashboard (TASK-034).
+      Depends on: TASK-001 · Status: not started
+
+- [ ] **TASK-005: Auth pages**
+      Spec: Create `/login` and `/signup` styled to the new design system. Use the existing Supabase SSR client in `lib/supabase/`. **The login method is an open decision (`docs/RULES.md` §5)** — build email + password now, and structure the page so an OAuth button or an OTP flow can be added without restructuring. **Do not hard-code a single provider assumption. Do not build Mobile+OTP.** Do not modify `middleware.ts` or `app/auth/callback/route.ts`.
+      Depends on: TASK-001 · Status: not started
+
+- [ ] **TASK-006: Migrations folder setup**
+      Spec: Create `supabase/migrations/README.md` documenting: migrations are numbered (`010_`, `011_`, …), applied manually by the founder in the Supabase SQL Editor, additive by default, and every new table must have RLS enabled with an owner-only policy before it is considered complete. Include a copy-paste checklist the founder follows when applying one. No SQL in this ticket.
+      Status: not started
+
+### B — Data layer  ⚠️ every ticket in this section is Needs Review
+
+- [ ] **TASK-007: Migration — `career_profiles`** ⚠️ *Needs Review*
+      Spec: Create `supabase/migrations/010_career_profiles.sql` implementing the `career_profiles` table exactly as specified in `docs/CAREER_PROFILE.md` §2, including the `field_visibility` JSONB column with its documented defaults. Enable RLS with a policy restricting all operations to `user_id = auth.uid()`. **Do not add a passport number column — ever.** Do not drop or alter any existing table.
+      Depends on: TASK-003 · Status: not started
+
+- [ ] **TASK-008: Migration — profile child tables** ⚠️ *Needs Review*
+      Spec: Create `supabase/migrations/011_profile_children.sql` implementing `profile_work_experience`, `profile_skills`, `profile_certifications`, `profile_education` and `profile_additional_information` exactly as specified in `docs/CAREER_PROFILE.md` §3. Every table: UUID PK, `profile_id` FK with `ON DELETE CASCADE`, `sort_order`, `created_at` timestamptz, RLS enabled with an owner-only policy.
+      Depends on: TASK-007 · Status: not started
+
+- [ ] **TASK-009: Migration — `packages`** ⚠️ *Needs Review*
+      Spec: Create `supabase/migrations/012_packages.sql` implementing `packages` exactly as specified in `docs/DASHBOARD_LIBRARY.md` §2 — **including the four nullable Phase 2–4 columns** (`ats_score_card`, `cover_letters`, `interview_questions`, `mock_interview_runs`). Those columns are schema reservations: create them, leave them null, build no UI for them. RLS owner-only. Add no constraint that assumes one payment equals one package — that is an open decision.
+      Depends on: TASK-007 · Status: not started
+
+- [ ] **TASK-010: Migration — operational tables** ⚠️ *Needs Review*
+      Spec: Create `supabase/migrations/013_operations.sql` implementing `rate_limits` and `ai_usage_log` (`docs/ADMIN.md` §5) and `pii_access_log` (`docs/ADMIN.md` §4). `pii_access_log` must be **append-only**: grant insert and select, and explicitly no update or delete, to any role including admin. Add `is_admin boolean not null default false` to `profiles`.
+      Depends on: TASK-003 · Status: not started
+
+- [ ] **TASK-011: TypeScript types for the new schema**
+      Spec: Create `types/careerProfile.ts` and `types/package.ts` with interfaces matching TASK-007 through TASK-009 exactly. Export a `ReadinessCategory` union and an `OptimizationLevel` union (`'easy' | 'moderate' | 'high'`). Do not modify `types/index.ts` — the old types stay for parked code.
+      Depends on: TASK-009 · Status: not started
+
+- [ ] **TASK-012: Profile CRUD API** ⚠️ *Needs Review*
+      Spec: Create `app/api/profile/route.ts` with `GET` (returns the caller's profile plus all child rows) and `PUT` (upserts profile and children in a transaction). Auth check first; 401 when absent. Validate every field against `types/careerProfile.ts` before writing. **Never log field values** — log profile ID and field names only. Return 404, never another user's row.
+      Depends on: TASK-011 · Status: not started
+
+- [ ] **TASK-013: Field visibility API** ⚠️ *Needs Review*
+      Spec: Create `app/api/profile/visibility/route.ts` with `PUT`, accepting a partial `field_visibility` map and merging it into the stored JSONB. Reject unknown field keys with 400. Hiding a field must never delete underlying data — assert this with a test case in the PR description.
+      Depends on: TASK-012 · Status: not started
+
+- [ ] **TASK-014: Readiness score calculation**
+      Spec: Create `lib/readiness.ts` exporting `deriveCategory(profile)` and `calculateReadiness(profile)`. Implement the detection order and the weighting table in `docs/CAREER_PROFILE.md` §5 exactly. Pure functions, no database access, no side effects. `calculateReadiness` returns `{ score, category, missing: [{ field, label, points }] }`. **Do not include ATS scores or resume counts** — completeness only. Call it from TASK-012's `PUT` and persist the result.
+      Depends on: TASK-012 · Status: not started
+
+### C — AI layer
+
+- [ ] **TASK-015: Model provider interface**
+      Spec: Create `lib/ai/provider.ts` exporting a single `generate({ system, user, maxTokens, temperature })` returning `{ text, inputTokens, outputTokens }`. Implement it with the Anthropic SDK using `claude-sonnet-5` and `process.env.ANTHROPIC_API_KEY`. Add `@anthropic-ai/sdk` to dependencies. **No API route may import an SDK directly** — every model call goes through this function. Wrap in try/catch; on failure throw a typed `AIProviderError`. Do not modify the parked OpenAI routes.
+      Status: not started
+
+- [ ] **TASK-016: Grounding constant**
+      Spec: Create `lib/ai/grounding.ts` exporting `GROUNDING_INSTRUCTION` as a const string containing the block in `docs/PROMPTS.md` §2 **character for character**. Do not paraphrase, shorten, reformat or "improve" it. Add a file-header comment: `// SAFETY-CRITICAL. Changing this text requires founder + CTO approval. See docs/RULES.md §2.`
+      Status: not started
+
+- [ ] **TASK-017: Persona library**
+      Spec: Create `lib/ai/personas.ts` exporting `PERSONAS` keyed by industry and `getPersona(industry)`. Include the four personas in `docs/PROMPTS.md` §3 verbatim. `getPersona` returns `generic_gulf_professional` for any unknown industry — it must **never** throw, never return empty. Add no personas beyond the four specified.
+      Status: not started
+
+- [ ] **TASK-018: Optimization prompt builder**
+      Spec: Create `lib/ai/buildOptimizationPrompt.ts` assembling the prompt in the exact order in `docs/PROMPTS.md` §6. Inject the profile as structured labelled sections, never a flattened blob. Mark fixed fields as read-only context with an explicit do-not-rewrite instruction. Include the level instruction from §4 and the Gulf format conventions for `target_country`. **Never inject the raw uploaded file. Never inject prior AI output as source truth.** Return `{ system, user }`.
+      Depends on: TASK-016, TASK-017 · Status: not started
+
+- [ ] **TASK-019: Grounding validator**
+      Spec: Create `lib/ai/validateGrounding.ts` exporting `validateGrounding(profile, output)` returning `{ valid, failures[] }`. Implement all four checks in `docs/PROMPTS.md` §7: fixed-field mutation is a hard failure; unsourced numerics are flagged; the skills array must be a permutation of the profile's set with no additions, removals or edits; malformed JSON is a failure and must not be repaired by guessing.
+      Depends on: TASK-011 · Status: not started
+
+- [ ] **TASK-020: Rewrite extraction to the Career Profile schema**
+      Spec: Replace the bodies of `app/api/parse/upload/route.ts` and `app/api/parse/text/route.ts` so they call `lib/ai/provider.ts` and return data shaped to `types/careerProfile.ts`. Keep the existing PDF/DOCX parsing (`pdf-parse`, `mammoth`) and file size limits. Unmapped content goes into `additional_information` with an AI-suggested label. **Nothing is written to the database** — extraction returns a draft for the review screen. Enforce the rate limit (TASK-038) before the model call. Log usage to `ai_usage_log`.
+      Depends on: TASK-015, TASK-011 · Status: not started
+
+- [ ] **TASK-021: Optimization route**
+      Spec: Create `app/api/optimize/route.ts`. Accepts `{ profileId, targetFields, jobDescription?, selectedBlocks[], level }`. Loads the profile server-side, builds the prompt via TASK-018, calls the provider, parses JSON, runs TASK-019's validator. **On validation failure retry once with a corrective instruction; on second failure return an error and log the incident (IDs and reason only, never PII values). Never return unvalidated output.** On success create a `packages` row with `is_paid = false`, populate `optimized_content` per `docs/DASHBOARD_LIBRARY.md` §4 **including the `claims` array**, and `skills_order`. Log usage.
+      Depends on: TASK-018, TASK-019, TASK-009 · Status: not started
+
+### D — Profile UI
+
+- [ ] **TASK-022: Onboarding path chooser** — screen 02, `/onboarding`. Three options per `docs/USER_FLOW.md` §2, 44px+ targets, privacy note. Depends on: TASK-003 · Status: not started
+- [ ] **TASK-023: Extraction progress screen** — screen 03. Itemised named steps, not a spinner. "Nothing is saved until you confirm." Depends on: TASK-020, TASK-022 · Status: not started
+- [ ] **TASK-024: Career Profile review screen** — screen 04, `/profile`. Readiness ring as header, "finish these" list tapping through to fields, extracted sections, Additional Information with renameable labels. **One editor UI serving all three onboarding paths.** Depends on: TASK-012, TASK-014, TASK-026 · Status: not started
+- [ ] **TASK-025: Field visibility screen** — screen 04b. Toggle per field, each with country context copy. Encryption + access-log + deletion note in footer. Depends on: TASK-013 · Status: not started
+- [ ] **TASK-026: Readiness ring component** — `components/ui/ReadinessRing.tsx`. SVG per `docs/DESIGN.md` §4, gold below 100 → emerald at 100, animates on change. Props: `score`, `size`, `label`. Copy the SVG geometry from the rings in `design-reference/MVP Screens.dc.html`. Depends on: TASK-001 · Status: not started
+
+### E — Optimization flow UI
+
+- [ ] **TASK-027: Target selection screen** — screen 05. Title + industry + country (required chips) + company + JD. JD framed as an upgrade, never a blocker. Fires reuse detection (TASK-036). Depends on: TASK-024 · Status: not started
+- [ ] **TASK-028: Optimization setup screen** — screen 06. Block checkboxes + "Optimize all"; skills row shown as automatic, not selectable; three level cards with match ranges; **risk indicator rendered only at Moderate and High**; CTA names the target company. Depends on: TASK-027 · Status: not started
+- [ ] **TASK-029: Optimizing progress screen** — screen 07. Named steps, target under 60s, "Nothing is invented" footer. Depends on: TASK-021, TASK-028 · Status: not started
+
+### F — Output
+
+- [ ] **TASK-030: Repoint the PDF pipeline at packages**
+      Spec: Create `app/api/packages/[id]/pdf/route.ts` and `app/package-render/[id]/page.tsx`, using `reference/pdf-route.reference.ts` and `reference/resume-render.reference.tsx` as wiring guides only. Render a `packages` row: fixed fields read live from `career_profiles`, generated text from `optimized_content`, honouring `field_visibility_snapshot`. Chromium is **not** installed yet — run `npx puppeteer browsers install chrome` first and note the download size in your report. Then load-test: render 5 PDFs concurrently and record peak memory in `docs/BOOT_REPORT.md`. If it exceeds 1GB, **stop and report** — the VPS may need resizing or rendering may need to move to a dedicated service.
+      Depends on: TASK-031 · Status: not started
+
+- [ ] **TASK-031: Build the single MVP template**
+      Spec: Create `components/templates/GulfPremium.tsx` — the **one** template for MVP, matching mockup screen 10 in `design-reference/MVP Screens.dc.html` and `docs/DESIGN.md`. Sections: photo + name + target title header, identity line, professional summary, experience, key skills, certifications, education, additional information. It must render correctly for **every** combination of shown/hidden fields — no empty gaps, no broken alignment, layout closes cleanly. Harvest conditional-rendering patterns from `reference/templates/`; **do not use any of those three as-is**. Create `lib/templates.ts` exposing only this one template.
+      Depends on: TASK-001, TASK-011 · Status: not started
+
+- [ ] **TASK-032: DOCX export** — `app/api/packages/[id]/docx/route.ts`, reading the **same** structured data the PDF renderer reads. Same data, different format — not a second content pipeline. Add a DOCX library and note it in the PR. Depends on: TASK-030 · Status: not started
+- [ ] **TASK-033: Before/after diff + results screens** — screens 08 and 10. Per-block diff with word-level highlighting and strike-through, "+N JD terms", skills movement chips. Generated text inline-editable; fixed fields not. Results screen adds PDF / DOCX / WhatsApp share / Edit text and the repeat-purchase prompt. **Pre-payment preview content renders from one swappable component with a clearly-marked placeholder — see TASK-044.** Depends on: TASK-030, TASK-032 · Status: not started
+
+### G — Library & dashboard
+
+- [ ] **TASK-034: Dashboard** — screens D1/D2. Service grid first, Library second. Only resume optimization live; ATS/cover letter/Q&A/mock interview visible but locked with honest phase badges and no dead links. Readiness ring in header. Depends on: TASK-026, TASK-035 · Status: not started
+- [ ] **TASK-035: Library** — screen 11. Mobile cards / desktop table per `docs/DASHBOARD_LIBRARY.md` §8. Status dropdown, artifact chips reading the Phase 2–4 slots (dashed when null), Open / Re-optimize / Delete. Depends on: TASK-009 · Status: not started
+- [ ] **TASK-036: Reuse detection** — `lib/reuseDetection.ts`, rule-based title comparison only (normalise case/whitespace, strip punctuation, compare tokens). Prompt to re-optimize or create new, stating that re-optimizing overwrites and history arrives in Phase 2. **No automated %-matching — that is Phase 2.** Depends on: TASK-035 · Status: not started
+- [ ] **TASK-037: Data deletion** — Settings action hard-deleting profile, all children, all packages and all storage objects. Two-step confirmation. Must be a real delete, not a soft flag. ⚠️ *Needs Review* Depends on: TASK-009 · Status: not started
+
+### H — Operations
+
+- [ ] **TASK-038: Rate limiting** — `lib/rateLimit.ts` enforced **server-side in the route, before the model call**. Default 5 extraction attempts/day via env var. Secondary keying on phone/email. Clear reset-time message on limit hit, never a silent failure. Depends on: TASK-010 · Status: not started
+- [ ] **TASK-039: AI usage logging** — write to `ai_usage_log` on every provider call, inside `lib/ai/provider.ts` so no route can forget. Depends on: TASK-010, TASK-015 · Status: not started
+- [ ] **TASK-040: Admin panel** ⚠️ *Needs Review* — `/admin`, single screen, server-side `is_admin` check in both the route handler and middleware. Users list (server-side search), read-only payments view, rate-limit override, PII access log viewer. **No refund button, no impersonation, no analytics, no bulk actions.** Depends on: TASK-041 · Status: not started
+- [ ] **TASK-041: PII access logging** ⚠️ *Needs Review* — every admin read of profile or package data writes to `pii_access_log` **before** returning data; a read that fails to log fails closed. Log resource identifiers only, never values. Depends on: TASK-010 · Status: not started
+
+---
+
+## Blocked / Needs Review
+
+*Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
+
+- [ ] **TASK-042: Razorpay integration** — BLOCKED on KYC approval. Server-side order creation, signature verification, webhook handling. `is_paid` set **only** by verified server-side confirmation — never a client-side callback. Webhooks must be idempotent. Never log card data or webhook secrets.
+- [ ] **TASK-043: Payment gate** — screen 09. Gate download and full-CV access behind `is_paid`. Enforce **server-side**; a client-side gate is not a gate. On success mark the package paid, set status `applied`, save to Library.
+- [ ] **TASK-044: Pre-payment preview content** — BLOCKED on an open decision (change-summary list vs. watermarked/blurred full CV). Build the swappable component and the placeholder only. **Do not choose an answer.**
+- [ ] **TASK-045: Manual credit grant** — admin action granting one free optimization, checked by the optimize flow before requiring payment. Every grant logged with admin ID, target user, timestamp and reason.
+
+---
+
+## Unplanned findings
+
+*Bugs discovered while working on something else. Record here; do not fix outside a ticket.*
+
+| # | Found in | Issue | Severity |
+|---|---|---|---|
+| 1 | `lib/utils.ts` vs `CONTEXT.md` | Pricing tiers disagree (₹399/₹899 in code, ₹499/₹999 in docs). Both superseded by one-time ₹499 in `docs/MVP.md` §7 | LOW — parked code |
+| 2 | `lib/templates.ts` | Registry and the template UI disagree on how many templates exist | LOW — resolved by TASK-031 |
+| 3 | `app/dashboard/page.tsx` | Queries tables that may not exist in the live database; may crash on load | MEDIUM — resolved by TASK-034 |
+
+---
+
+## Done
+
+*(empty)*
