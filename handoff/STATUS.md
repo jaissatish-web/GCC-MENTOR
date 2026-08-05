@@ -12,32 +12,55 @@ before `docs/RULES.md`, before `docs/HERMES.md`, before anything else.**
 
 ---
 
+## ⚠️ If STATE is READY: your first tool call, before reading any other file
+
+**Do not read `docs/RULES.md`. Do not read `docs/HERMES.md`. Do not read
+ahead to gather context first.** Your very first action this run, before
+anything else, is a single write: change line 1 of this file to
+
+```
+STATE: IN_PROGRESS since <current UTC timestamp>
+```
+
+Get the timestamp from your own terminal (whatever your environment's clock
+command is), not from memory or estimation. Save the file. **Only after that
+write has completed** do you read `docs/RULES.md`, then `docs/HERMES.md`,
+then the **Queued task** section below.
+
+This exists because an earlier run read two other files first and never
+completed this write at all — the run ended before it happened, and because
+nothing was written, nothing was lost, but it also means this single write
+is the entire reason overlapping runs don't double-start each other. Treat
+it as step zero, not step one of a list.
+
+---
+
 ## States
 
 | STATE | Meaning | Who acts |
 |---|---|---|
 | `WAITING` | Nothing queued. Do nothing. | Nobody |
 | `READY` | A task is queued below, not yet started | **Hermes** picks it up |
-| `IN_PROGRESS` | Hermes is currently working on the queued task | Nobody — wait |
+| `IN_PROGRESS since <time>` | Hermes is currently working on the queued task | Nobody, unless stale — see below |
 | `NEEDS_REVIEW` | Hermes finished and wrote a report. Awaiting CTO review | **CTO** picks it up |
 
 ### If you are Hermes, triggered by your scheduler
 
 1. Read this file.
 2. If **`STATE` is anything other than `READY`** — do nothing else. Exit immediately, quietly. This is normal, not an error.
-3. If **`STATE` is `READY`**:
-   a. Immediately change line 1 to `STATE: IN_PROGRESS` and save this file. Do this before anything else, so an overlapping trigger cannot double-start the same task.
-   b. Read `docs/RULES.md`, then `docs/HERMES.md`, then the **Queued task** section below in this file — it is your full instruction for this round.
-   c. Work **only** inside `D:\claude work\GCCSAAS`. Your `workdir` setting anchors you here by default but does not enforce it — treat this as a hard rule regardless.
-   d. Execute exactly that task, exactly as `docs/HERMES.md` describes. One ticket, one commit, nothing more.
-   e. Write your report — the exact format from `docs/HERMES.md` §6 — to `handoff/RESULTS/TASK-0NN.md` (matching the ticket number, not a timestamp — the CTO looks these up by ticket, not by when they ran).
-   f. Change line 1 to `STATE: NEEDS_REVIEW` and save this file.
-   g. Stop. Do not start another task. Do not touch this file again until it next says `READY`.
+3. If **`STATE` is `READY`**: do the `IN_PROGRESS` write described above **first, before any other action**. Then:
+   a. Read `docs/RULES.md`, then `docs/HERMES.md`, then the **Queued task** section below in this file — it is your full instruction for this round.
+   b. Work **only** inside `D:\claude work\GCCSAAS`. Your `workdir` setting anchors you here by default but does not enforce it — treat this as a hard rule regardless.
+   c. Execute exactly that task, exactly as `docs/HERMES.md` describes. One ticket, one commit, nothing more.
+   d. Write your report — the exact format from `docs/HERMES.md` §6 — to `handoff/RESULTS/TASK-0NN.md` (matching the ticket number, not a timestamp — the CTO looks these up by ticket, not by when they ran).
+   e. Change line 1 to `STATE: NEEDS_REVIEW` and save this file.
+   f. Stop. Do not start another task. Do not touch this file again until it next says `READY`.
 
-   **If you hit any of the ten hard-stop conditions in `docs/HERMES.md` §4 at any point during step (d)** — an ambiguous spec, a needed protected-file change, anything you'd normally stop and ask about — **do not halt silently and do not leave this file at `IN_PROGRESS`.** You have no live chat with the founder or the CTO in this session; this file is the only channel you have. So:
-   - Skip straight to step (e). Write whatever report you can, with `Status: blocked` or `Status: needs decision` (per `docs/HERMES.md` §6), and put your exact question or blocker in the **Questions for CTO** section — written completely self-contained, since neither the CTO nor you will remember this conversation by the time it's read.
-   - Then complete steps (f) and (g) exactly as if you'd finished successfully.
-   - **`IN_PROGRESS` with no report ever written is the one state this protocol cannot recover from automatically** — it looks identical to "still working" and "silently died" from the outside. Never leave it that way.
+   **If you hit any of the ten hard-stop conditions in `docs/HERMES.md` §4 at any point during step (c)** — an ambiguous spec, a needed protected-file change, anything you'd normally stop and ask about — **do not halt silently and do not leave this file at `IN_PROGRESS`.** You have no live chat with the founder or the CTO in this session; this file is the only channel you have. So:
+   - Skip straight to step (d). Write whatever report you can, with `Status: blocked` or `Status: needs decision` (per `docs/HERMES.md` §6), and put your exact question or blocker in the **Questions for CTO** section — written completely self-contained, since neither the CTO nor you will remember this conversation by the time it's read.
+   - Then complete steps (e) and (f) exactly as if you'd finished successfully.
+
+   **If your run is killed by an inactivity timeout or crash while `IN_PROGRESS`, before you reach step (d):** there is nothing you can do about this from inside the run — an abrupt kill does not let you run cleanup code. **This is expected and handled on the CTO's side, not yours.** Do not try to build workarounds for it. Confirmed from Hermes's own scheduler source: interrupted runs are never auto-retried and never auto-resumed by the platform, and file writes that already completed are permanent — nothing gets rolled back.
 
 ### If you are the CTO, checking in
 
@@ -45,11 +68,18 @@ before `docs/RULES.md`, before `docs/HERMES.md`, before anything else.**
    - **Approved:** write the next task into **Queued task** below, set `STATE: READY`.
    - **Needs a fix:** write the fix instructions into **Queued task** (same ticket, corrective spec), set `STATE: READY`.
    - **A founder decision is needed** (an open decision, a Needs-Review-gated ticket, anything `docs/RULES.md` §5 covers): set `STATE: WAITING`, raise it with the founder directly in conversation — **never** resolve it by writing to this file.
-2. If `STATE` is `WAITING` or `IN_PROGRESS`: nothing to do. Check again later.
+2. If `STATE` is `WAITING`: nothing to do. Check again later.
+3. If `STATE` is `IN_PROGRESS since <time>`: **check the timestamp.** A normal run should reach `NEEDS_REVIEW` well within 20–30 minutes.
+   - **Under ~30 minutes old:** still working, or waiting for the next tick to pick it up. Nothing to do yet.
+   - **Over ~30 minutes old:** the run that set this almost certainly died without finishing — the platform will not retry or resume it on its own, so nothing will happen here until you act. **Investigate before resetting anything:**
+     a. Check `git status` and `git log` for any partial, uncommitted, or half-applied work from that run.
+     b. If the tree is clean (most likely case — see the note above about writes only landing once completed) — it's safe to reset line 1 to `STATE: READY` with the same **Queued task** still in place, so the next tick retries cleanly.
+     c. If there's messy partial state — clean it up yourself first (the same review discipline as any other round), then reset to `READY`.
+     d. Never leave a stale `IN_PROGRESS` sitting once you've noticed it — an unrecovered wedge here means the whole pipeline silently stops, with nothing telling either of you it happened.
 
 ### The one rule that keeps this safe
 
-**Only the CTO writes `READY`. Only Hermes writes `IN_PROGRESS` and `NEEDS_REVIEW`.** A ticket from `docs/TASKS.md`'s "Blocked / Needs Review" section is never queued here without the founder having explicitly signed off in conversation first.
+**Only the CTO writes `READY`. Only Hermes writes `IN_PROGRESS` and `NEEDS_REVIEW` — except when the CTO is recovering a confirmed-stale `IN_PROGRESS` per the rule above.** A ticket from `docs/TASKS.md`'s "Blocked / Needs Review" section is never queued here without the founder having explicitly signed off in conversation first.
 
 ---
 
