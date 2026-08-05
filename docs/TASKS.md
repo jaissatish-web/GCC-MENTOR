@@ -49,7 +49,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-004: App shell**
       Spec: Create `app/dashboard/layout.tsx` with the desktop sidebar (`components/layout/Sidebar.tsx`) and mobile bottom nav (`components/layout/MobileBottomNav.tsx`), matching screens D1 and D2 in `design-reference/MVP Screens.dc.html`. Sidebar items: Dashboard, Library, Career Profile, Payments, Settings — plus the "Need help? Email the founder" card. Bottom nav: Home, Library, Profile. **Do not add nav entries for ATS score, cover letter, interview Q&A or mock interview** — those are Phase 2–4 and appear only as locked cards on the dashboard (TASK-034).
-      Depends on: TASK-001 · Status: not started
+      Depends on: TASK-001 · Status: done
 
 - [ ] **TASK-005: Auth pages**
       Spec: Create `/login` and `/signup` styled to the new design system. Use the existing Supabase SSR client in `lib/supabase/`. **The login method is an open decision (`docs/RULES.md` §5)** — build email + password now, and structure the page so an OAuth button or an OTP flow can be added without restructuring. **Do not hard-code a single provider assumption. Do not build Mobile+OTP.** Do not modify `middleware.ts` or `app/auth/callback/route.ts`.
