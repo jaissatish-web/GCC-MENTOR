@@ -18,5 +18,6 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "// exclude note": "reference/ is read-only donor code from an earlier build. It is never imported, built or deployed, and it references packages this project deliberately does not install (e.g. openai). It must stay out of type-checking. See reference/README.md.",
+  "exclude": ["node_modules", "reference"]
 }
