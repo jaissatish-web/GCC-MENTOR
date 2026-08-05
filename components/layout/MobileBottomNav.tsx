@@ -7,20 +7,22 @@ import { cn } from '@/lib/utils'
 /**
  * Mobile bottom nav — app shell (TASK-004), matching screen D1 in
  * design-reference/MVP Screens.dc.html. Home / Library / Profile.
- * Library is a section of the /dashboard shell (docs/USER_FLOW.md step 11).
- * Only visible below the lg breakpoint; the desktop sidebar replaces it.
+ * Library is at /dashboard/library (TASK-035). Only visible below the lg
+ * breakpoint; the desktop sidebar replaces it.
  */
 const NAV_ITEMS = [
   { label: 'Home', href: '/dashboard', glyph: '◆' },
-  { label: 'Library', href: '/dashboard', glyph: '▤' },
+  { label: 'Library', href: '/dashboard/library', glyph: '▤' },
   { label: 'Profile', href: '/profile', glyph: '◔' },
 ]
 
 export function MobileBottomNav() {
   const pathname = usePathname()
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(`${href}/`)
+  // Exact match so each screen highlights exactly one nav item — avoids
+  // prefix-matching false positives (e.g. /dashboard/library would otherwise
+  // light "Home" too).
+  const isActive = (href: string) => pathname === href
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-line bg-marble px-4 pb-4 pt-2 lg:hidden">

@@ -9,23 +9,25 @@ import { cn } from '@/lib/utils'
  * design-reference/MVP Screens.dc.html. Dark midnight rail, 224px, brand
  * mark, the five Phase-1 nav sections and a pinned "Need help?" card.
  *
- * Library lives inside the /dashboard shell per docs/USER_FLOW.md step 11,
- * and there is no dedicated /payments route in Phase 1 — both link to
- * /dashboard to avoid dead links until their own screens exist.
+ * Each item points to a distinct route so the active state is unambiguous:
+ * Library lives at /dashboard/library (TASK-035), Payments at /payments
+ * (not yet ticketed — see docs/TASKS.md).
  */
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Library', href: '/dashboard' },
+  { label: 'Library', href: '/dashboard/library' },
   { label: 'Career Profile', href: '/profile' },
-  { label: 'Payments', href: '/dashboard' },
+  { label: 'Payments', href: '/payments' },
   { label: 'Settings', href: '/settings' },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(`${href}/`)
+  // Exact match so each screen highlights exactly one nav item — avoids
+  // prefix-matching false positives (e.g. /dashboard/library would otherwise
+  // light "Dashboard" too).
+  const isActive = (href: string) => pathname === href
 
   return (
     <aside className="hidden w-[224px] flex-none flex-col gap-[26px] bg-midnight px-[18px] py-6 lg:flex">
