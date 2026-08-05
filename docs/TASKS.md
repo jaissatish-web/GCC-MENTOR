@@ -21,12 +21,23 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 > **Already done by the CTO — do not redo:** repository scaffold, `package.json`,
 > `tailwind.config.ts` design tokens, the three Google fonts in `app/layout.tsx`,
-> `lib/utils.ts`, `.env.example`, and a verified-booting Next.js skeleton.
-> `app/page.tsx` is a temporary scaffold-check page and is replaced in TASK-002.
+> `lib/utils.ts`, `.env.example`, `lib/supabase/`, `middleware.ts`,
+> `app/auth/callback/`. `app/page.tsx` is a temporary scaffold-check page and is
+> replaced in TASK-002.
+
+- [ ] **TASK-000: Install dependencies and verify the scaffold boots**
+      Spec: Check whether `node_modules/` exists and contains `node_modules/.bin/next`. If not, install dependencies. **This machine has a slow, unstable connection to the npm registry — two normal installs already failed with `ECONNRESET` and `EIDLETIMEOUT`.** Use reduced concurrency and long timeouts:
+      ```
+      npm install --no-audit --no-fund --maxsockets=3 --fetch-retries=10 \
+        --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=300000 \
+        --fetch-timeout=1800000
+      ```
+      Set `PUPPETEER_SKIP_DOWNLOAD=true` first — Chromium is ~150MB and is not needed until TASK-030. If the install fails, **retry up to three times before reporting a blocker**; npm rolls `node_modules` back to empty on failure, so a partial state is expected between attempts. Then run `npm run build` and `npm run dev`, open `http://localhost:3000`, and confirm the scaffold-check page renders with all three fonts and all seven colour swatches visible. Record the outcome in `docs/BOOT_REPORT.md`: install attempts needed, build output, and what you actually saw in the browser. **Change no application code in this ticket.**
+      Status: not started
 
 - [ ] **TASK-001: Shared UI primitives**
       Spec: Create `components/ui/` containing `Button.tsx`, `Card.tsx`, `Pill.tsx`, `Toggle.tsx`, `Input.tsx`, `ProgressBar.tsx`. Match the Components panel at the bottom of `design-reference/MVP Screens.dc.html` and the specs in `docs/DESIGN.md` §4 exactly — read the inline styles in that file for precise padding, radius and colour values. Button variants: `primary` (midnight), `purchase` (gold), `progress` (emerald), `secondary` (white + `line-strong` border), `disabled`. Pill variants: the five package statuses plus `risk` and `grounded`. All must use Tailwind tokens from `tailwind.config.ts` — **never a hard-coded hex value**. Every interactive element has a minimum 44px touch target.
-      Status: not started
+      Depends on: TASK-000 · Status: not started
 
 - [ ] **TASK-002: Landing page**
       Spec: Replace `app/page.tsx` with the real landing page, converted from `design-reference/Landing Page.dc.html`. That file is hand-written HTML with the final approved design — **convert it to React + Tailwind; do not redesign it.** Every section: nav, hero with before/after card, "where applications die", Western-vs-Gulf CV comparison, how-it-works (4 steps), what-we-change/never-touch, founder story, pricing, FAQ, closing CTA, footer. Replace inline styles with Tailwind tokens. Use `[Product Name]` as the literal brand string. Founder photo slots become plain placeholder divs. Must be fully responsive: verify at 390px, 768px and 1280px.
