@@ -55,7 +55,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
       Spec: Create `/login` and `/signup` styled to the new design system. Use the existing Supabase SSR client in `lib/supabase/`. **The login method is an open decision (`docs/RULES.md` §5)** — build email + password now, and structure the page so an OAuth button or an OTP flow can be added without restructuring. **Do not hard-code a single provider assumption. Do not build Mobile+OTP.** Do not modify `middleware.ts` or `app/auth/callback/route.ts`.
       Depends on: TASK-001 · Status: done
 
-- [ ] **TASK-006: Migrations folder setup**
+- [x] **TASK-006: Migrations folder setup**
       Spec: Create `supabase/migrations/README.md` documenting: migrations are numbered (`010_`, `011_`, …), applied manually by the founder in the Supabase SQL Editor, additive by default, and every new table must have RLS enabled with an owner-only policy before it is considered complete. Include a copy-paste checklist the founder follows when applying one. No SQL in this ticket.
       Status: done
 
