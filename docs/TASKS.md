@@ -41,7 +41,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-002: Landing page**
       Spec: Replace `app/page.tsx` with the real landing page, converted from `design-reference/Landing Page.dc.html`. That file is hand-written HTML with the final approved design — **convert it to React + Tailwind; do not redesign it.** Every section: nav, hero with before/after card, "where applications die", Western-vs-Gulf CV comparison, how-it-works (4 steps), what-we-change/never-touch, founder story, pricing, FAQ, closing CTA, footer. Replace inline styles with Tailwind tokens. Use `[Product Name]` as the literal brand string. Founder photo slots become plain placeholder divs. Must be fully responsive: verify at 390px, 768px and 1280px.
-      Depends on: TASK-001 · Status: in progress
+      Depends on: TASK-001 · Status: done
 
 - [ ] **TASK-003: Navigable route skeleton**
       Spec: Create placeholder pages for every MVP route so the whole product is clickable end to end before any logic exists: `/onboarding`, `/profile`, `/profile/visibility`, `/optimize/target`, `/optimize/setup`, `/optimize/preview/[packageId]`, `/optimize/pay/[packageId]`, `/package/[id]`, `/dashboard`, `/settings`, `/admin`. Each page renders its screen title, its ticket number, and a link to the next screen in the flow. No data, no forms, no API calls. **Purpose: the founder can walk the entire flow and confirm the structure before logic is built.** Route names must match `docs/USER_FLOW.md` exactly.
