@@ -71,7 +71,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-009: Migration — `packages`** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/012_packages.sql` implementing `packages` exactly as specified in `docs/DASHBOARD_LIBRARY.md` §2 — **including the four nullable Phase 2–4 columns** (`ats_score_card`, `cover_letters`, `interview_questions`, `mock_interview_runs`). Those columns are schema reservations: create them, leave them null, build no UI for them. RLS owner-only. Add no constraint that assumes one payment equals one package — that is an open decision.
-      Depends on: TASK-007 · Status: in progress
+      Depends on: TASK-007 · Status: done
 
 - [ ] **TASK-010: Migration — operational tables** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/013_operations.sql` implementing `rate_limits` and `ai_usage_log` (`docs/ADMIN.md` §5) and `pii_access_log` (`docs/ADMIN.md` §4). `pii_access_log` must be **append-only**: grant insert and select, and explicitly no update or delete, to any role including admin. Add `is_admin boolean not null default false` to `profiles`.
