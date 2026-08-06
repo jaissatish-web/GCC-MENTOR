@@ -137,7 +137,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 ### D — Profile UI
 
 - [ ] **TASK-022: Onboarding path chooser** — screen 02, `/onboarding`. Three options per `docs/USER_FLOW.md` §2, 44px+ targets, privacy note. Depends on: TASK-003 · Status: in progress
-- [ ] **TASK-023: Extraction progress screen** — screen 03. Itemised named steps, not a spinner. "Nothing is saved until you confirm." Depends on: TASK-020, TASK-022 · Status: not started
+- [ ] **TASK-023: Extraction progress screen** — screen 03. Itemised named steps, not a spinner. "Nothing is saved until you confirm." Depends on: TASK-020, TASK-022 · Status: done
 - [ ] **TASK-024: Career Profile review screen** — screen 04, `/profile`. Readiness ring as header, "finish these" list tapping through to fields, extracted sections, Additional Information with renameable labels. **One editor UI serving all three onboarding paths.** Depends on: TASK-012, TASK-014, TASK-026 · Status: not started
 - [ ] **TASK-025: Field visibility screen** — screen 04b. Toggle per field, each with country context copy. Encryption + access-log + deletion note in footer. Depends on: TASK-013 · Status: not started
 - [x] **TASK-026: Readiness ring component** — `components/ui/ReadinessRing.tsx`. SVG per `docs/DESIGN.md` §4, gold below 100 → emerald at 100, animates on change. Props: `score`, `size`, `label`. Copy the SVG geometry from the rings in `design-reference/MVP Screens.dc.html`. Depends on: TASK-001 · Status: done — **APPROVED.** CTO cross-checked geometry (r=42, stroke-width=8, dasharray=264) directly against design-reference/MVP Screens.dc.html line 170 (the "Profile readiness" widget) — exact match, not fabricated. Tokens confirmed present in compiled CSS.
