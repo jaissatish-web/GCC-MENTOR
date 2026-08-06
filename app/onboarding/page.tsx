@@ -78,11 +78,18 @@ export default function OnboardingPage() {
   const [path, setPath] = useState<OnboardingPath | null>(null)
 
   const continueLink = () => {
-    // Paths 1 & 2 normally proceed to the extraction screen (TASK-023); that
-    // screen has no route yet, so both advance to /profile for now. Path 3
-    // goes straight to the review screen.
-    router.push('/profile')
-  }
+      // Upload & paste go to the transient extraction screen (TASK-023), which
+      // collects the payload and runs POST /api/parse/upload or /api/parse/text.
+      // "Start from scratch" skips extraction and goes straight to the Career
+      // Profile review screen (/profile, TASK-024).
+      if (path === 'upload') {
+        router.push('/onboarding/extracting?path=upload')
+      } else if (path === 'paste') {
+        router.push('/onboarding/extracting?path=paste')
+      } else {
+        router.push('/profile')
+      }
+    }
 
   return (
     <main className="flex min-h-dvh flex-col bg-marble">
