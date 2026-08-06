@@ -26,8 +26,8 @@ Three options, all with 44px+ hit targets:
 
 | Option | Badge | Next |
 |---|---|---|
-| Upload a file (resume PDF/DOCX or LinkedIn export) | "Fastest" | `POST /api/profile/extract/upload` |
-| Paste your resume text | — | `POST /api/profile/extract/text` |
+| Upload a file (resume PDF/DOCX or LinkedIn export) | "Fastest" | `POST /api/parse/upload` |
+| Paste your resume text | — | `POST /api/parse/text` |
 | Start from scratch | — | straight to Step 4 |
 
 Privacy note on screen: the file is used only to build the profile; passport, visa and contact fields are encrypted and never shown publicly.
