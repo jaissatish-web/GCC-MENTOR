@@ -11,6 +11,8 @@ import type {
   ProfileWorkExperience,
   TargetCountry,
 } from '@/types/careerProfile'
+import { calculateReadiness } from '@/lib/readiness'
+import type { ReadinessInput } from '@/lib/readiness'
 
 /**
  * Profile CRUD API — TASK-012.
@@ -308,6 +310,22 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   }
   // user_id is always the caller; never taken from the body.
   profileRow.user_id = user.id
+
+  // Compute readiness (TASK-014) from the submitted data and persist it.
+  // readiness_category/score are ALWAYS computed here — never taken from the
+  // request body. Completeness only (docs/CAREER_PROFILE.md §5).
+  const readinessInput: ReadinessInput = profileRow as unknown as ReadinessInput
+  readinessInput.work_experience = Array.isArray(body.work_experience)
+    ? (body.work_experience as Array<{ start_date: string; end_date?: string | null }>)
+    : []
+  readinessInput.education = Array.isArray(body.education) ? (body.education as unknown[]) : []
+  readinessInput.certifications = Array.isArray(body.certifications)
+    ? (body.certifications as unknown[])
+    : []
+  readinessInput.skills = Array.isArray(body.skills) ? (body.skills as unknown[]) : []
+  const readiness = calculateReadiness(readinessInput)
+  profileRow.readiness_category = readiness.category
+  profileRow.readiness_score = readiness.score
 
   // Upsert the profile row (one table = one atomic operation via Supabase).
   const { data: upserted, error: upsertError } = await supabase

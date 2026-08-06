@@ -91,7 +91,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-014: Readiness score calculation**
       Spec: Create `lib/readiness.ts` exporting `deriveCategory(profile)` and `calculateReadiness(profile)`. Implement the detection order and the weighting table in `docs/CAREER_PROFILE.md` §5 exactly. Pure functions, no database access, no side effects. `calculateReadiness` returns `{ score, category, missing: [{ field, label, points }] }`. **Do not include ATS scores or resume counts** — completeness only. Call it from TASK-012's `PUT` and persist the result.
-      Depends on: TASK-012 · Status: not started
+      Depends on: TASK-012 · Status: done
 
 - [ ] **TASK-046: Migration — `professional_summary`** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/014_profile_summary.sql` adding a single nullable `professional_summary text` column to `career_profiles`, per `docs/CAREER_PROFILE.md` §2 "Professional summary". Additive only — `ADD COLUMN IF NOT EXISTS`, no other column touched, no RLS change (it inherits the table's existing owner-only policy). Then add `professional_summary: string | null` to the `CareerProfile` interface in `types/careerProfile.ts`. **Do not add a `field_visibility` key for it** — the summary is core resume content, not a disclosure decision, and the spec states it gets no toggle. **Do not write AI output into this column, ever** — it is the source side of the diff; the generated version belongs in `packages.optimized_content`.
