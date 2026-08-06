@@ -159,7 +159,13 @@ export async function getRateLimitStatus(opts: {
 /**
  * Record one attempt against the caller's own rate_limits row for today.
  * Call AFTER the action consumes a slot (e.g. after a paid/consumed attempt).
- * Upserts on the (user_id, action, window_start) primary key.
+ *
+ * ATOMIC: the increment is a single Postgres statement inside the
+ * `increment_rate_limit` RPC (migration 016):
+ *   INSERT ... ON CONFLICT (user_id, action, window_start)
+ *   DO UPDATE SET count = rate_limits.count + 1
+ * so it is a single round trip and safe under concurrency. It is never a
+ * read-then-write, which would drop increments under rapid concurrent calls.
  */
 export async function incrementRateLimit(opts: {
   userId: string
@@ -167,25 +173,11 @@ export async function incrementRateLimit(opts: {
 }): Promise<void> {
   const supabase = createServiceRoleClient()
 
-  const { data: existing } = await supabase
-    .from('rate_limits')
-    .select('count')
-    .eq('user_id', opts.userId)
-    .eq('action', opts.action)
-    .eq('window_start', windowStart())
-    .maybeSingle()
-
-  const next = ((existing?.count as number | undefined) ?? 0) + 1
-
-  const { error } = await supabase.from('rate_limits').upsert(
-    {
-      user_id: opts.userId,
-      action: opts.action,
-      window_start: windowStart(),
-      count: next,
-    },
-    { onConflict: 'user_id,action,window_start' },
-  )
+  const { error } = await supabase.rpc('increment_rate_limit', {
+    p_user_id: opts.userId,
+    p_action: opts.action,
+    p_window_start: windowStart(),
+  })
 
   if (error) {
     // A failed increment must not crash the caller; log it. The count simply
