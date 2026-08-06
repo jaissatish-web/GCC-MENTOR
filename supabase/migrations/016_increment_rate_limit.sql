@@ -44,7 +44,17 @@ END;
 $$;
 
 -- The function runs as its owner (postgres / migration role), which bypasses
--- RLS. No role should be able to invoke it from a normal session: it is only
--- reachable through the service-role client (server-side), which already holds
--- bypass-RLS. Empirically safe either way — RLS on rate_limits is owner-only
--- (user_id = auth.uid()), and the function itself never reads/returns PII.
+-- RLS. Because it is SECURITY DEFINER, EXECUTE must be locked down explicitly —
+-- Postgres grants EXECUTE on new functions to PUBLIC by default (functions are
+-- opt-out, unlike tables which are opt-in), and Supabase/PostgREST exposes any
+-- function a caller's role can execute as an RPC endpoint. Without a REVOKE,
+-- any authenticated (even anonymous) role could call it directly with an
+-- arbitrary p_user_id — a working IDOR that lets a stranger manipulate or
+-- exhaust another user's rate limit under elevated privilege.
+--
+-- Restrict to service_role only, matching the explicit-REVOKE-then-GRANT
+-- pattern already used for pii_access_log (migration 013) and ai_usage_log
+-- (migration 015). The function is only ever invoked server-side via the
+-- service-role client, so no other role needs EXECUTE.
+REVOKE EXECUTE ON FUNCTION public.increment_rate_limit(uuid, text, date) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.increment_rate_limit(uuid, text, date) TO service_role;
