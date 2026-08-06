@@ -21,7 +21,21 @@ import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 
 export const LIMIT_ACTION_EXTRACTION = 'profile_extraction'
 
+/**
+ * TASK-021 addition. docs/ADMIN.md §5 says only free actions need a limit —
+ * "profile extraction attempts... Paid actions are self-limiting." That
+ * reasoning assumes payment gates the expensive call. It does not:
+ * docs/USER_FLOW.md's screen order is Optimizing (07) -> Before/after
+ * preview (08, real generated content, user-editable) -> Payment (09).
+ * generate() fires and a packages row is created BEFORE any money changes
+ * hands, so "self-limiting" does not hold for this action. Added the same
+ * way extraction already works — no changes needed to the functions below,
+ * they were already action-generic.
+ */
+export const LIMIT_ACTION_OPTIMIZATION = 'optimization'
+
 const DEFAULT_EXTRACTIONS_PER_DAY = 5
+const DEFAULT_OPTIMIZATIONS_PER_DAY = 20
 
 /** Keys are local-calendar dates; the window resets at the next midnight. */
 function windowStart(): string {
@@ -38,14 +52,19 @@ function resetAtIso(): string {
   return d.toISOString()
 }
 
-/** The daily cap for an action. Env-driven; only extraction is defined today. */
+function parsePositiveEnvInt(v: string | undefined): number | null {
+  if (!v) return null
+  const n = Number.parseInt(v, 10)
+  return Number.isFinite(n) && n >= 0 ? n : null
+}
+
+/** The daily cap for an action. Env-driven. */
 export function getDefaultDailyLimit(action: string): number {
   if (action === LIMIT_ACTION_EXTRACTION) {
-    const v = process.env.RATE_LIMIT_EXTRACTIONS_PER_DAY
-    if (v) {
-      const n = Number.parseInt(v, 10)
-      if (Number.isFinite(n) && n >= 0) return n
-    }
+    return parsePositiveEnvInt(process.env.RATE_LIMIT_EXTRACTIONS_PER_DAY) ?? DEFAULT_EXTRACTIONS_PER_DAY
+  }
+  if (action === LIMIT_ACTION_OPTIMIZATION) {
+    return parsePositiveEnvInt(process.env.RATE_LIMIT_OPTIMIZATIONS_PER_DAY) ?? DEFAULT_OPTIMIZATIONS_PER_DAY
   }
   return DEFAULT_EXTRACTIONS_PER_DAY
 }
