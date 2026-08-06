@@ -123,7 +123,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-020: Rewrite extraction to the Career Profile schema**
       Spec: Replace the bodies of `app/api/parse/upload/route.ts` and `app/api/parse/text/route.ts` so they call `lib/ai/provider.ts` and return data shaped to `types/careerProfile.ts`. Keep the existing PDF/DOCX parsing (`pdf-parse`, `mammoth`) and file size limits. Unmapped content goes into `additional_information` with an AI-suggested label. **Nothing is written to the database** — extraction returns a draft for the review screen. Enforce the rate limit (TASK-038) before the model call. Log usage to `ai_usage_log`.
-      Depends on: TASK-015, TASK-011 · Status: not started
+      Depends on: TASK-015, TASK-011, TASK-038, TASK-039 · Status: not started — dependency corrected by CTO: the spec text requires the TASK-038 rate limiter and TASK-039's usage logging, but neither was listed. Build 038+039 first.
 
 - [ ] **TASK-021: Optimization route**
       Spec: Create `app/api/optimize/route.ts`. Accepts `{ profileId, targetFields, jobDescription?, selectedBlocks[], level }`. Loads the profile server-side, builds the prompt via TASK-018, calls the provider, parses JSON, runs TASK-019's validator. **On validation failure retry once with a corrective instruction; on second failure return an error and log the incident (IDs and reason only, never PII values). Never return unvalidated output.** On success create a `packages` row with `is_paid = false`, populate `optimized_content` per `docs/DASHBOARD_LIBRARY.md` §4 **including the `claims` array**, and `skills_order`. Log usage.
