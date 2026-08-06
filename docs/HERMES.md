@@ -18,17 +18,11 @@ Read this file at the start of **every** session, before doing anything else.
 
 ---
 
-## 1a. Two ways a session can start
+## 1a. How a session starts
 
-Every Hermes session begins one of two ways. Check which before doing anything else.
+**The founder pastes a prompt naming a specific ticket.** Follow it — read `docs/RULES.md`, then this file, then `docs/TASKS.md`, then do exactly that one ticket.
 
-**A — Direct instruction.** The founder pasted a prompt naming a specific ticket. Follow it — read `docs/RULES.md`, then this file, then `docs/TASKS.md`, then do exactly that one ticket.
-
-**B — Scheduled trigger (cron).** No specific ticket was named — you were woken on your schedule. In this case: **read `handoff/STATUS.md` first, before this file, before anything else.** Line 1 tells you whether there is work queued (`STATE: READY`) or nothing to do (`WAITING`, `IN_PROGRESS`, or `NEEDS_REVIEW` — all mean: exit immediately, this is normal). `handoff/STATUS.md` explains the full protocol, including where to write your report (`handoff/RESULTS/`).
-
-**Each scheduled run starts a fresh session with no memory of any prior run.** `handoff/STATUS.md` and this file must together contain everything you need — never assume context from "last time."
-
-In both cases, the work itself — one ticket, one commit, the report format in §6 — is identical. Only how you learned what to do, and where your report goes, differs.
+Every session is manually started this way. There is no scheduled/automatic trigger — a cron-based relay was tried and rolled back (it removed the founder from a decision point and, separately, was found to be too complex for how this project runs day to day). If you see any reference to `handoff/STATUS.md`, a cron job, or a "scheduled trigger" mode elsewhere, it is stale — ignore it and follow this section instead.
 
 ---
 
@@ -84,9 +78,7 @@ Stop immediately, report, and wait if **any** of these occur:
 
 **Stopping is always correct. Guessing is never correct.** A stop costs one message. A wrong guess costs a review cycle, a revert, and trust.
 
-**What "stop and report" means depends on which mode started your session (§1a).** In mode A (direct instruction), it means output the report in this chat. **In mode B (cron trigger), there is no chat to output to** — "stop and report" means writing your report to `handoff/RESULTS/TASK-0NN.md` with `Status: blocked` or `Status: needs decision`, and setting `STATE: NEEDS_REVIEW` in `handoff/STATUS.md`, exactly as if the ticket were finished. See `handoff/STATUS.md`'s own instructions for the exact steps. A cron session that hits a hard stop and simply halts without doing this leaves no trace of why — worse than reporting a blocker plainly, because nobody knows to look.
-
-**If your cron run is killed abruptly** (inactivity timeout, crash, process death) rather than stopping gracefully — there is nothing to do about it from inside the run itself; an abrupt kill doesn't allow cleanup code to run. `handoff/STATUS.md` has a staleness check the CTO uses to recover a run that died mid-`IN_PROGRESS`. This is why the very first action of any `READY` pickup must be the `IN_PROGRESS` timestamp write, before reading any other file — it's what makes that recovery possible at all.
+**"Stop and report" means output the report in this chat**, using the format in §6, then wait. The founder copies it to the CTO for review.
 
 ---
 
