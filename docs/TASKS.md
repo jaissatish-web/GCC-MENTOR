@@ -83,7 +83,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-012: Profile CRUD API** ⚠️ *Needs Review*
       Spec: Create `app/api/profile/route.ts` with `GET` (returns the caller's profile plus all child rows) and `PUT` (upserts profile and children in a transaction). Auth check first; 401 when absent. Validate every field against `types/careerProfile.ts` before writing. **Never log field values** — log profile ID and field names only. Return 404, never another user's row.
-      Depends on: TASK-011 · Status: in progress
+      Depends on: TASK-011 · Status: done
 
 - [ ] **TASK-013: Field visibility API** ⚠️ *Needs Review*
       Spec: Create `app/api/profile/visibility/route.ts` with `PUT`, accepting a partial `field_visibility` map and merging it into the stored JSONB. Reject unknown field keys with 400. Hiding a field must never delete underlying data — assert this with a test case in the PR description.
