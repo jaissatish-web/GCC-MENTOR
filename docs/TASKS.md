@@ -187,6 +187,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 | 2 | `lib/templates.ts` | Registry and the template UI disagree on how many templates exist | LOW — resolved by TASK-031 |
 | 3 | `app/dashboard/page.tsx` | Queries tables that may not exist in the live database; may crash on load | MEDIUM — resolved by TASK-034 |
 | 4 | `docs/TASKS.md` + mockup sidebar | The mockup's sidebar shows a **Payments** item, but no ticket in `docs/TASKS.md` builds a user-facing payment-history page — only the admin-only read-only view (TASK-040). `/payments` placeholder created in TASK-004 with note for founder decision | LOW — flagged for founder decision |
+| 5 | `supabase/migrations/012_packages.sql` | RLS `WITH CHECK` on `packages` only verifies `user_id = auth.uid()` — it does not verify `profile_id` belongs to that same user's `career_profiles` row. An authenticated user could insert a package row referencing another user's `profile_id`. Not a read leak (RLS still scopes reads to their own rows), but an integrity gap. Should be closed by ownership validation in TASK-012's API layer, or a stricter `WITH CHECK` subquery | LOW — resolved by TASK-012 (confirm before closing) |
 
 ---
 
