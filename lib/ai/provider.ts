@@ -34,20 +34,30 @@ const MODEL_NAME = 'claude-sonnet-5';
 // TASK-039 moves unit-cost logging INSIDE the provider so no route can forget
 // to log. generate() writes one row to ai_usage_log on every successful call.
 //
-// This uses the SERVICE-ROLE client (server-only, bypasses RLS) rather than a
-// per-request session client: only userId + route are passed through, the
-// caller does not hand us a logged-in client, and the cost figure is internal
-// unit economics (docs/ADMIN.md §5) that must not be readable by a normal
-// session either. provider.ts itself is server-only by construction (it holds
-// ANTHROPIC_API_KEY), so this is consistent with docs/RULES.md §6.
+// This uses the SERVICE-ROLE client (server-only, bypasses RLS). As of this
+// commit, migration 015 also restricts ai_usage_log's SELECT/INSERT grants
+// to service_role only (matching pii_access_log's model) — cost data is
+// internal business information with no end-user use case, so the original
+// owner-readable RLS from migration 013 was tightened rather than relied on
+// as-is. provider.ts is server-only by construction (it holds
+// ANTHROPIC_API_KEY), consistent with docs/RULES.md §6.
 //
-// COST RATE NOTE: the per-1k-token INR rates are env-configurable with the
-// defaults below. No authoritative per-model price is pinned anywhere in docs/
-// — these are plausible starting values and MUST be confirmed by the CTO before
-// launch, since they drive the ₹30-vs-₹499 unit-economics check.
-
-const DEFAULT_INR_PER_1K_INPUT = Number(process.env.AI_INR_PER_1K_INPUT ?? 0.20);
-const DEFAULT_INR_PER_1K_OUTPUT = Number(process.env.AI_INR_PER_1K_OUTPUT ?? 1.0);
+// COST RATE NOTE (CTO-verified 2026-08-06): no per-model INR price was
+// pinned anywhere in docs/. Sourced from Anthropic's published pricing for
+// claude-sonnet-5: introductory $2/$10 per million input/output tokens
+// through 2026-08-31, standard $3/$15 per million thereafter. Using the
+// STANDARD rate as the default since the introductory window expires within
+// days of this commit and this product has not launched yet — it will run
+// under standard pricing almost immediately. Converted at an approximate
+// ₹84/USD; both the rate and the FX assumption are env-overridable and
+// should be revisited once real production volume gives an actual figure.
+const INR_PER_USD = 84;
+const DEFAULT_INR_PER_1K_INPUT = Number(
+  process.env.AI_INR_PER_1K_INPUT ?? (3 / 1000) * INR_PER_USD, // ₹0.252/1k input
+);
+const DEFAULT_INR_PER_1K_OUTPUT = Number(
+  process.env.AI_INR_PER_1K_OUTPUT ?? (15 / 1000) * INR_PER_USD, // ₹1.26/1k output
+);
 
 function estimateCostInr(inputTokens: number, outputTokens: number): number {
   const inr =
