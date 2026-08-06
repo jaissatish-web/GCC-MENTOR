@@ -95,9 +95,9 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 ### C — AI layer
 
-- [ ] **TASK-015: Model provider interface**
+- [x] **TASK-015: Model provider interface**
       Spec: Create `lib/ai/provider.ts` exporting a single `generate({ system, user, maxTokens, temperature })` returning `{ text, inputTokens, outputTokens }`. Implement it with the Anthropic SDK using `claude-sonnet-5` and `process.env.ANTHROPIC_API_KEY`. Add `@anthropic-ai/sdk` to dependencies. **No API route may import an SDK directly** — every model call goes through this function. Wrap in try/catch; on failure throw a typed `AIProviderError`. Do not modify the parked OpenAI routes.
-      Status: not started
+      Status: done — implemented directly by CTO (Claude Code), not Hermes. `@anthropic-ai/sdk` was already in package.json/node_modules, no install needed. TASK-039 will later add ai_usage_log logging inside this file — not in scope here.
 
 - [x] **TASK-016: Grounding constant**
       Spec: Create `lib/ai/grounding.ts` exporting `GROUNDING_INSTRUCTION` as a const string containing the block in `docs/PROMPTS.md` §2 **character for character**. Do not paraphrase, shorten, reformat or "improve" it. Add a file-header comment: `// SAFETY-CRITICAL. Changing this text requires founder + CTO approval. See docs/RULES.md §2.`
