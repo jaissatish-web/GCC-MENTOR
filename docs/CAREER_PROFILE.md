@@ -62,6 +62,34 @@ One row per user. `user_id` is unique.
 >
 > `passport_type` (ECR / Non-ECR) is India-specific emigration clearance status. It materially affects Gulf hiring for Indian nationals. It is not in the founding brief but is retained from the existing build as genuine domain knowledge.
 
+### Professional summary
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `professional_summary` | text | no | The user's **own** summary — the source, never AI output |
+
+This is the user's existing summary, captured on the upload and paste paths and
+editable by hand. It is nullable: the manual and fresher paths often have none.
+
+**It is the source side of an AI-rewritten block, exactly like work-description
+bullets.** The AI's rewrite lives in `packages.optimized_content.summary.generated`
+(`docs/DASHBOARD_LIBRARY.md` §4). This field is that block's
+`source_profile_summary` — the "before" the diff renders against.
+
+> **Never write generated text back into this column.** Doing so destroys the
+> "before" permanently and makes the diff impossible on every later run. That is
+> the exact failure the previous build shipped — see `docs/DASHBOARD_LIBRARY.md` §4.
+> The profile holds what the user wrote; the package holds what the AI produced.
+
+Two consequences worth stating explicitly:
+
+- **No visibility toggle.** Unlike the identity and contact fields, the summary
+  is core resume content, not a disclosure decision. It is not in
+  `field_visibility` and does not get a toggle.
+- **When it is null there is no "before."** First-run output for these users is
+  new content, not a diff. The results screen must degrade to a plain
+  "new content" state rather than rendering an empty left-hand side.
+
 ### Structured lists (separate tables, see §3)
 
 `work_experience`, `skills`, `certifications`, `education`, `additional_information`
