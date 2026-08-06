@@ -87,7 +87,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-013: Field visibility API** ⚠️ *Needs Review*
       Spec: Create `app/api/profile/visibility/route.ts` with `PUT`, accepting a partial `field_visibility` map and merging it into the stored JSONB. Reject unknown field keys with 400. Hiding a field must never delete underlying data — assert this with a test case in the PR description.
-      Depends on: TASK-012 · Status: not started
+      Depends on: TASK-012 · Status: in progress
 
 - [ ] **TASK-014: Readiness score calculation**
       Spec: Create `lib/readiness.ts` exporting `deriveCategory(profile)` and `calculateReadiness(profile)`. Implement the detection order and the weighting table in `docs/CAREER_PROFILE.md` §5 exactly. Pure functions, no database access, no side effects. `calculateReadiness` returns `{ score, category, missing: [{ field, label, points }] }`. **Do not include ATS scores or resume counts** — completeness only. Call it from TASK-012's `PUT` and persist the result.
