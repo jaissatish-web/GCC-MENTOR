@@ -89,6 +89,11 @@ export interface CareerProfile {
   email: string
   linkedin_url: string | null
 
+  // Professional summary — the user's OWN summary, the source side of the
+  // diff. Never holds AI output; the rewrite lives on the package.
+  // Null on the manual/fresher paths, meaning "no before" (not empty).
+  professional_summary: string | null
+
   // Visibility storage
   field_visibility: FieldVisibility
 

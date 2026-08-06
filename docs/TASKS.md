@@ -96,7 +96,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 - [ ] **TASK-046: Migration — `professional_summary`** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/014_profile_summary.sql` adding a single nullable `professional_summary text` column to `career_profiles`, per `docs/CAREER_PROFILE.md` §2 "Professional summary". Additive only — `ADD COLUMN IF NOT EXISTS`, no other column touched, no RLS change (it inherits the table's existing owner-only policy). Then add `professional_summary: string | null` to the `CareerProfile` interface in `types/careerProfile.ts`. **Do not add a `field_visibility` key for it** — the summary is core resume content, not a disclosure decision, and the spec states it gets no toggle. **Do not write AI output into this column, ever** — it is the source side of the diff; the generated version belongs in `packages.optimized_content`.
       Raised by the CTO while building TASK-019: `optimized_content.summary.source_profile_summary` was specified with no backing field anywhere in the schema, so extraction had nowhere correct to put a parsed summary (it would have landed in `additional_information` and rendered as a custom section). See §Unplanned #6.
-      Depends on: TASK-007, TASK-011 · Status: not started
+      Depends on: TASK-007, TASK-011 · Status: done — implemented directly by CTO (Claude Code), not Hermes. Too small to be worth a delegation round trip, and the CTO wrote the spec it implements. **Note for TASK-012:** `CareerProfile` now has one more required property (`professional_summary: string | null`), so the PUT validator must account for it.
 
 ### C — AI layer
 
