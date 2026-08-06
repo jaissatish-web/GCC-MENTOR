@@ -1,0 +1,87 @@
+/**
+ * Package schema types (TASK-011).
+ *
+ * Mirrors migration 012 (packages) exactly — every column, correct
+ * nullability, and the same value sets as the Postgres enums created in
+ * supabase/migrations/012_packages.sql.
+ *
+ * Nullability rule: NOT NULL columns are required; nullable columns are
+ * optional (`?`). The four Phase 2–4 slots are optional schema reservations.
+ */
+
+import type { TargetCountry, FieldVisibility } from './careerProfile'
+
+// ---- Enums (value sets match the DB enums from migration 012) --------------
+
+/** public.optimization_level_enum */
+export type OptimizationLevel = 'easy' | 'moderate' | 'high'
+
+/** public.package_status_enum */
+export type PackageStatus =
+  | 'applied'
+  | 'shortlisted'
+  | 'interview'
+  | 'visa_processing'
+  | 'offer'
+
+// ---- optimized_content (JSONB, docs/DASHBOARD_LIBRARY.md §4) ---------------
+
+export interface OptimizedSummary {
+  generated: string
+  user_edited?: string | null // null if untouched
+  source_profile_summary: string // the before, for the diff
+}
+
+export interface ExperienceBlock {
+  profile_experience_id: string
+  was_optimized: boolean
+  generated_bullets?: string[] | null
+  user_edited_bullets?: string[] | null
+  source_bullets: string[] // the before, for the diff
+  claims: string[] // extracted facts, e.g. "400+ field instruments"
+}
+
+export interface OptimizedContent {
+  summary: OptimizedSummary
+  experience_blocks: ExperienceBlock[]
+}
+
+// ---- packages (migration 012) ----------------------------------------------
+
+export interface Package {
+  id: string
+  user_id: string // RLS key
+  profile_id: string // source of truth for fixed fields
+
+  // Target
+  target_job_title: string
+  target_country: TargetCountry
+  target_company?: string
+  target_industry: string // persona selection
+  job_description?: string // the JD it was optimized against, if provided
+
+  // Optimization
+  optimization_level: OptimizationLevel
+  status: PackageStatus
+
+  // Output (structured, never a flat file)
+  optimized_content: OptimizedContent
+  skills_order: string[] // relevance-ordered skill IDs for this target
+  field_visibility_snapshot: FieldVisibility
+
+  // Payment
+  is_paid: boolean // gates download
+  payment_id?: string // Razorpay reference
+
+  // Metadata
+  generation_count: number // incremented on re-optimize
+  created_at: string // timestamptz
+  updated_at: string // timestamptz
+
+  // Phase 2–4 slots — schema reservations only. Created now, left null, no
+  // UI. Docs/DASHBOARD_LIBRARY.md §2.
+  ats_score_card?: unknown | null // Phase 2; jsonb
+  cover_letters?: unknown[] | null // Phase 3; jsonb[]
+  interview_questions?: unknown | null // Phase 4; jsonb
+  mock_interview_runs?: unknown[] | null // Phase 4; jsonb[]
+}

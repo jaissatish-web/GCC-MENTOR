@@ -79,7 +79,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-011: TypeScript types for the new schema**
       Spec: Create `types/careerProfile.ts` and `types/package.ts` with interfaces matching TASK-007 through TASK-009 exactly. Export a `ReadinessCategory` union and an `OptimizationLevel` union (`'easy' | 'moderate' | 'high'`). Do not modify `types/index.ts` — the old types stay for parked code.
-      Depends on: TASK-009 · Status: in progress
+      Depends on: TASK-009 · Status: done
 
 - [ ] **TASK-012: Profile CRUD API** ⚠️ *Needs Review*
       Spec: Create `app/api/profile/route.ts` with `GET` (returns the caller's profile plus all child rows) and `PUT` (upserts profile and children in a transaction). Auth check first; 401 when absent. Validate every field against `types/careerProfile.ts` before writing. **Never log field values** — log profile ID and field names only. Return 404, never another user's row.
@@ -99,13 +99,13 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
       Spec: Create `lib/ai/provider.ts` exporting a single `generate({ system, user, maxTokens, temperature })` returning `{ text, inputTokens, outputTokens }`. Implement it with the Anthropic SDK using `claude-sonnet-5` and `process.env.ANTHROPIC_API_KEY`. Add `@anthropic-ai/sdk` to dependencies. **No API route may import an SDK directly** — every model call goes through this function. Wrap in try/catch; on failure throw a typed `AIProviderError`. Do not modify the parked OpenAI routes.
       Status: not started
 
-- [ ] **TASK-016: Grounding constant**
+- [x] **TASK-016: Grounding constant**
       Spec: Create `lib/ai/grounding.ts` exporting `GROUNDING_INSTRUCTION` as a const string containing the block in `docs/PROMPTS.md` §2 **character for character**. Do not paraphrase, shorten, reformat or "improve" it. Add a file-header comment: `// SAFETY-CRITICAL. Changing this text requires founder + CTO approval. See docs/RULES.md §2.`
-      Status: not started
+      Status: done — implemented directly by CTO (Claude Code), not Hermes. Verified byte-for-byte against docs/PROMPTS.md §2 programmatically.
 
-- [ ] **TASK-017: Persona library**
+- [x] **TASK-017: Persona library**
       Spec: Create `lib/ai/personas.ts` exporting `PERSONAS` keyed by industry and `getPersona(industry)`. Include the four personas in `docs/PROMPTS.md` §3 verbatim. `getPersona` returns `generic_gulf_professional` for any unknown industry — it must **never** throw, never return empty. Add no personas beyond the four specified.
-      Status: not started
+      Status: done — implemented directly by CTO (Claude Code), not Hermes. All four persona strings verified byte-for-byte against docs/PROMPTS.md §3 programmatically.
 
 - [ ] **TASK-018: Optimization prompt builder**
       Spec: Create `lib/ai/buildOptimizationPrompt.ts` assembling the prompt in the exact order in `docs/PROMPTS.md` §6. Inject the profile as structured labelled sections, never a flattened blob. Mark fixed fields as read-only context with an explicit do-not-rewrite instruction. Include the level instruction from §4 and the Gulf format conventions for `target_country`. **Never inject the raw uploaded file. Never inject prior AI output as source truth.** Return `{ system, user }`.
