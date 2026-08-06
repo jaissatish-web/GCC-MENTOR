@@ -75,7 +75,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-010: Migration — operational tables** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/013_operations.sql` implementing `rate_limits` and `ai_usage_log` (`docs/ADMIN.md` §5) and `pii_access_log` (`docs/ADMIN.md` §4). `pii_access_log` must be **append-only**: grant insert and select, and explicitly no update or delete, to any role including admin. Add `is_admin boolean not null default false` to `profiles`.
-      Depends on: TASK-003 · Status: not started
+      Depends on: TASK-003 · Status: in progress
 
 - [ ] **TASK-011: TypeScript types for the new schema**
       Spec: Create `types/careerProfile.ts` and `types/package.ts` with interfaces matching TASK-007 through TASK-009 exactly. Export a `ReadinessCategory` union and an `OptimizationLevel` union (`'easy' | 'moderate' | 'high'`). Do not modify `types/index.ts` — the old types stay for parked code.
