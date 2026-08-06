@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Pill } from '@/components/ui/Pill'
+import { getPrice, formatInr } from '@/lib/pricing'
 
 // Landing page — converted 1:1 from design-reference/Landing Page.dc.html.
 // Product name is an open decision; it ships as the literal string
@@ -142,7 +143,13 @@ function Kicker({ children, light = false }: { children: React.ReactNode; light?
   )
 }
 
-export default function Home() {
+export default async function Home() {
+  // No price is ever hard-coded (founder request) — the pricing table is the
+  // single source of truth, editable directly in the Supabase Table Editor.
+  // See lib/pricing.ts.
+  const { amountInr } = await getPrice('resume_optimization')
+  const price = formatInr(amountInr)
+
   return (
     <div className="w-full max-w-[1280px] mx-auto bg-marble">
       {/* ─── Nav ─────────────────────────────────────────────── */}
@@ -166,7 +173,7 @@ export default function Home() {
             ))}
           </nav>
           <Button variant="purchase" className="px-5">
-            Start — ₹499
+            Start — {price}
           </Button>
         </div>
       </header>
@@ -190,7 +197,7 @@ export default function Home() {
           </p>
           <div className="mt-1 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-[18px]">
             <Button variant="purchase" className="px-7">
-              Optimize my resume — ₹499
+              Optimize my resume — {price}
             </Button>
             <div className="text-[13px] leading-snug text-marble/60">
               One-time. No subscription.
@@ -657,7 +664,7 @@ export default function Home() {
                 <span className="text-xs text-marble/60">Per job target</span>
               </div>
               <div className="flex flex-col items-end">
-                <span className="font-mono text-[34px] leading-none text-gold-light">₹499</span>
+                <span className="font-mono text-[34px] leading-none text-gold-light">{price}</span>
                 <span className="text-[11px] text-marble/55">one time</span>
               </div>
             </div>
@@ -673,7 +680,7 @@ export default function Home() {
               ))}
             </div>
             <Button variant="purchase" className="w-full">
-              Start now — ₹499
+              Start now — {price}
             </Button>
             <div className="text-center text-[11px] leading-snug text-marble/55">
               Razorpay · UPI, card, netbanking. Taxes included. No card stored.
@@ -741,7 +748,7 @@ export default function Home() {
           Build your profile once. Two minutes per application after that.
         </p>
         <Button variant="purchase" className="px-9">
-          Optimize my resume — ₹499
+          Optimize my resume — {price}
         </Button>
         <div className="mt-2 flex w-full flex-wrap items-center justify-center gap-[22px] border-t border-sand/15 pt-6">
           <span className="text-xs text-marble/50">© [Product Name]</span>
