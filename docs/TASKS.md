@@ -79,7 +79,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-011: TypeScript types for the new schema**
       Spec: Create `types/careerProfile.ts` and `types/package.ts` with interfaces matching TASK-007 through TASK-009 exactly. Export a `ReadinessCategory` union and an `OptimizationLevel` union (`'easy' | 'moderate' | 'high'`). Do not modify `types/index.ts` — the old types stay for parked code.
-      Depends on: TASK-009 · Status: not started
+      Depends on: TASK-009 · Status: in progress
 
 - [ ] **TASK-012: Profile CRUD API** ⚠️ *Needs Review*
       Spec: Create `app/api/profile/route.ts` with `GET` (returns the caller's profile plus all child rows) and `PUT` (upserts profile and children in a transaction). Auth check first; 401 when absent. Validate every field against `types/careerProfile.ts` before writing. **Never log field values** — log profile ID and field names only. Return 404, never another user's row.
@@ -187,7 +187,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 | 2 | `lib/templates.ts` | Registry and the template UI disagree on how many templates exist | LOW — resolved by TASK-031 |
 | 3 | `app/dashboard/page.tsx` | Queries tables that may not exist in the live database; may crash on load | MEDIUM — resolved by TASK-034 |
 | 4 | `docs/TASKS.md` + mockup sidebar | The mockup's sidebar shows a **Payments** item, but no ticket in `docs/TASKS.md` builds a user-facing payment-history page — only the admin-only read-only view (TASK-040). `/payments` placeholder created in TASK-004 with note for founder decision | LOW — flagged for founder decision |
-| 5 | `supabase/migrations/012_packages.sql` | RLS `WITH CHECK` on `packages` only verifies `user_id = auth.uid()` — it does not verify `profile_id` belongs to that same user's `career_profiles` row. An authenticated user could insert a package row referencing another user's `profile_id`. Not a read leak (RLS still scopes reads to their own rows), but an integrity gap. Should be closed by ownership validation in TASK-012's API layer, or a stricter `WITH CHECK` subquery | LOW — resolved by TASK-012 (confirm before closing) |
+| 5 | `supabase/migrations/012_packages.sql` | RLS `WITH CHECK` on `packages` only verifies `user_id = auth.uid()` — it does not verify `profile_id` belongs to that same user's `career_profiles` row. An authenticated user could insert a package row referencing another user's `profile_id`. Not a read leak (RLS still scopes reads to their own rows), but an integrity gap. **Correction:** not TASK-012 (career_profiles CRUD never touches `packages.profile_id`) — the actual write path is TASK-021 (`app/api/optimize/route.ts`), which accepts a client-supplied `profileId` and creates the `packages` row. Close it there: after loading the profile server-side, assert `profile.user_id === session.user.id` before creating the package | LOW — resolved by TASK-021 (confirm before closing) |
 
 ---
 
