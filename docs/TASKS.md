@@ -67,7 +67,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-008: Migration — profile child tables** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/011_profile_children.sql` implementing `profile_work_experience`, `profile_skills`, `profile_certifications`, `profile_education` and `profile_additional_information` exactly as specified in `docs/CAREER_PROFILE.md` §3. Every table: UUID PK, `profile_id` FK with `ON DELETE CASCADE`, `sort_order`, `created_at` timestamptz, RLS enabled with an owner-only policy.
-      Depends on: TASK-007 · Status: not started
+      Depends on: TASK-007 · Status: in progress
 
 - [ ] **TASK-009: Migration — `packages`** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/012_packages.sql` implementing `packages` exactly as specified in `docs/DASHBOARD_LIBRARY.md` §2 — **including the four nullable Phase 2–4 columns** (`ats_score_card`, `cover_letters`, `interview_questions`, `mock_interview_runs`). Those columns are schema reservations: create them, leave them null, build no UI for them. RLS owner-only. Add no constraint that assumes one payment equals one package — that is an open decision.
