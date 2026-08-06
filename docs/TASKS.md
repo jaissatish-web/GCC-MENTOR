@@ -165,7 +165,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 ### H — Operations
 
-- [ ] **TASK-038: Rate limiting** — `lib/rateLimit.ts` enforced **server-side in the route, before the model call**. Default 5 extraction attempts/day via env var. Secondary keying on phone/email. Clear reset-time message on limit hit, never a silent failure. Depends on: TASK-010 · Status: not started
+- [ ] **TASK-038: Rate limiting** — `lib/rateLimit.ts` enforced **server-side in the route, before the model call**. Default 5 extraction attempts/day via env var. Secondary keying on phone/email. Clear reset-time message on limit hit, never a silent failure. Depends on: TASK-010 · Status: in progress
 - [ ] **TASK-039: AI usage logging** — write to `ai_usage_log` on every provider call, inside `lib/ai/provider.ts` so no route can forget. Depends on: TASK-010, TASK-015 · Status: not started
 - [ ] **TASK-040: Admin panel** ⚠️ *Needs Review* — `/admin`, single screen, server-side `is_admin` check in both the route handler and middleware. Users list (server-side search), read-only payments view, rate-limit override, PII access log viewer. **No refund button, no impersonation, no analytics, no bulk actions.** Depends on: TASK-041 · Status: not started
 - [ ] **TASK-041: PII access logging** ⚠️ *Needs Review* — every admin read of profile or package data writes to `pii_access_log` **before** returning data; a read that fails to log fails closed. Log resource identifiers only, never values. Depends on: TASK-010 · Status: not started
