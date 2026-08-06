@@ -10,7 +10,7 @@ A guided platform that helps Gulf-focused job seekers get shortlisted, by rebuil
 
 **Phase 1 (MVP) — in development.** Career Profile data layer + resume optimizer.
 
-Scaffold in place: Next.js 14, TypeScript strict, Tailwind with the approved design tokens, Supabase clients, auth middleware. Work starts at **TASK-001** in [docs/TASKS.md](docs/TASKS.md).
+**👉 [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) — read this first.** It has the current ticket progress, what's next, and the working process. This README stays static; that file is the living snapshot.
 
 ---
 
@@ -18,6 +18,7 @@ Scaffold in place: Next.js 14, TypeScript strict, Tailwind with the approved des
 
 | # | Document | Why |
 |---|---|---|
+| 0 | **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** | **Current state — start here, especially in a fresh session** |
 | 1 | **[docs/PIPELINE.md](docs/PIPELINE.md)** | **How this project gets built, in plain English. Start here — no coding knowledge needed.** |
 | 2 | **[docs/RULES.md](docs/RULES.md)** | **Non-negotiable constraints. Nothing overrides this file.** |
 | 3 | [docs/HERMES.md](docs/HERMES.md) | Operating instructions for the build agent |
