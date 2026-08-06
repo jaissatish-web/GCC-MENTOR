@@ -178,3 +178,87 @@ export interface CareerProfileFull extends CareerProfile {
   education: ProfileEducation[]
   additional_information: ProfileAdditionalInformation[]
 }
+
+// ---- Extraction draft (TASK-020) -------------------------------------------
+//
+// CareerProfileFull is the shape of a SAVED row — it has an id, a user_id,
+// timestamps, a field_visibility default, and a derived readiness score.
+// None of that exists yet when a resume has just been parsed. This type is
+// what extraction actually returns: a draft for the review screen
+// (TASK-024), nothing persisted, nothing invented.
+//
+// Two categories of field are deliberately absent, not merely optional:
+//
+// 1. DB-owned / derived — id, user_id, created_at, updated_at,
+//    field_visibility, readiness_category, readiness_score. These have no
+//    meaning before a save. TASK-024 supplies field_visibility's documented
+//    default; TASK-012's PUT computes readiness via TASK-014 on save.
+//
+// 2. Status & target — currently_in_gulf, current_employer, current_project,
+//    target_job_title, target_industry, target_country, target_company. A
+//    resume describes the PAST; these are the user's current situation and
+//    forward-looking intent, not resume facts. The manual-entry onboarding
+//    path already collects these with zero AI involvement — extraction
+//    staying silent on them keeps all three onboarding paths consistent,
+//    and avoids a wrong guess here silently shifting deriveCategory's
+//    readiness-category classification (docs/CAREER_PROFILE.md §5) before
+//    the user ever sees the number.
+//
+// Every remaining field is OPTIONAL, not required-per-CareerProfile.
+// docs/CAREER_PROFILE.md §4: "Extraction will be roughly 85% accurate...
+// the review screen is the safety net." A field extraction could not find
+// is simply absent — never a fabricated placeholder, never an invented "".
+//
+// Child list items carry the same treatment: no id / profile_id / created_at
+// (they don't exist pre-save), but DO carry sort_order — assigned as the
+// item's position in extraction order, which is a real fact (the order the
+// resume presented them in), not an invention.
+
+export type CareerProfileDraftFields = Partial<
+  Pick<
+    CareerProfile,
+    | 'full_name'
+    | 'photo_url'
+    | 'nationality'
+    | 'date_of_birth'
+    | 'passport_type'
+    | 'passport_validity_date'
+    | 'visa_status'
+    | 'visa_transferable'
+    | 'notice_period'
+    | 'current_location'
+    | 'phone'
+    | 'whatsapp'
+    | 'email'
+    | 'linkedin_url'
+    | 'professional_summary'
+  >
+>
+
+export type DraftWorkExperience = Partial<
+  Omit<ProfileWorkExperience, 'id' | 'profile_id' | 'created_at' | 'sort_order'>
+> & { sort_order: number }
+
+export type DraftSkill = Partial<Omit<ProfileSkill, 'id' | 'profile_id' | 'created_at' | 'sort_order'>> & {
+  sort_order: number
+}
+
+export type DraftCertification = Partial<
+  Omit<ProfileCertification, 'id' | 'profile_id' | 'created_at' | 'sort_order'>
+> & { sort_order: number }
+
+export type DraftEducation = Partial<
+  Omit<ProfileEducation, 'id' | 'profile_id' | 'created_at' | 'sort_order'>
+> & { sort_order: number }
+
+export type DraftAdditionalInformation = Partial<
+  Omit<ProfileAdditionalInformation, 'id' | 'profile_id' | 'created_at' | 'sort_order'>
+> & { sort_order: number }
+
+export interface CareerProfileDraft extends CareerProfileDraftFields {
+  work_experience: DraftWorkExperience[]
+  skills: DraftSkill[]
+  certifications: DraftCertification[]
+  education: DraftEducation[]
+  additional_information: DraftAdditionalInformation[]
+}
