@@ -56,9 +56,9 @@ export interface Package {
   // Target
   target_job_title: string
   target_country: TargetCountry
-  target_company?: string
+  target_company: string | null
   target_industry: string // persona selection
-  job_description?: string // the JD it was optimized against, if provided
+  job_description: string | null // the JD it was optimized against, if provided
 
   // Optimization
   optimization_level: OptimizationLevel
@@ -71,7 +71,7 @@ export interface Package {
 
   // Payment
   is_paid: boolean // gates download
-  payment_id?: string // Razorpay reference
+  payment_id: string | null // Razorpay reference
 
   // Metadata
   generation_count: number // incremented on re-optimize
@@ -79,9 +79,10 @@ export interface Package {
   updated_at: string // timestamptz
 
   // Phase 2–4 slots — schema reservations only. Created now, left null, no
-  // UI. Docs/DASHBOARD_LIBRARY.md §2.
-  ats_score_card?: unknown | null // Phase 2; jsonb
-  cover_letters?: unknown[] | null // Phase 3; jsonb[]
-  interview_questions?: unknown | null // Phase 4; jsonb
-  mock_interview_runs?: unknown[] | null // Phase 4; jsonb[]
+  // UI. Docs/DASHBOARD_LIBRARY.md §2. (Required keys: the column is always
+  // present in a returned row, just null.)
+  ats_score_card: unknown // Phase 2; jsonb
+  cover_letters: unknown[] // Phase 3; jsonb[]
+  interview_questions: unknown // Phase 4; jsonb
+  mock_interview_runs: unknown[] // Phase 4; jsonb[]
 }

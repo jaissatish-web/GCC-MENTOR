@@ -64,37 +64,37 @@ export interface CareerProfile {
 
   // Status
   currently_in_gulf: boolean
-  current_employer?: string
-  current_project?: string
+  current_employer: string | null
+  current_project: string | null
 
   // Target
   target_job_title: string
   target_industry: string
   target_country: TargetCountry
-  target_company?: string
+  target_company: string | null
 
   // Identity & contact
   full_name: string
-  photo_url?: string
-  nationality?: string
-  date_of_birth?: string // date
-  passport_type?: PassportType
-  passport_validity_date?: string // date
-  visa_status?: string
-  visa_transferable?: boolean
-  notice_period?: string
-  current_location?: string
+  photo_url: string | null
+  nationality: string | null
+  date_of_birth: string | null // date
+  passport_type: PassportType | null
+  passport_validity_date: string | null // date
+  visa_status: string | null
+  visa_transferable: boolean | null
+  notice_period: string | null
+  current_location: string | null
   phone: string
-  whatsapp?: string
+  whatsapp: string | null
   email: string
-  linkedin_url?: string
+  linkedin_url: string | null
 
   // Visibility storage
   field_visibility: FieldVisibility
 
   // Derived / metadata
-  readiness_category?: ReadinessCategory
-  readiness_score?: number // 0–100
+  readiness_category: ReadinessCategory | null
+  readiness_score: number | null // 0–100
   created_at: string // timestamptz
   updated_at: string // timestamptz
 }
@@ -107,10 +107,10 @@ export interface ProfileWorkExperience {
   company: string
   role: string
   start_date: string // date
-  end_date?: string // date; null = current role
-  location?: string
-  description?: string
-  highlights?: string[]
+  end_date: string | null // date; null = current role
+  location: string | null
+  description: string | null
+  highlights: string[] | null
   sort_order: number
   created_at: string
 }
@@ -131,9 +131,9 @@ export interface ProfileCertification {
   id: string
   profile_id: string
   name: string
-  issuer?: string
-  issue_date?: string // date
-  expiry_date?: string // date
+  issuer: string | null
+  issue_date: string | null // date
+  expiry_date: string | null // date
   sort_order: number // user's canonical order; never mutated by AI
   created_at: string
 }
@@ -145,9 +145,9 @@ export interface ProfileEducation {
   profile_id: string
   degree: string
   institution: string
-  field_of_study?: string
-  start_year?: number
-  end_year?: number
+  field_of_study: string | null
+  start_year: number | null
+  end_year: number | null
   sort_order: number
   created_at: string
 }
