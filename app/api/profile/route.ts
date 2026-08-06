@@ -102,6 +102,7 @@ function validateProfile(p: Record<string, unknown>): string | null {
     'current_employer', 'current_project', 'target_company', 'photo_url',
     'nationality', 'date_of_birth', 'passport_validity_date', 'visa_status',
     'notice_period', 'current_location', 'whatsapp', 'linkedin_url',
+    'professional_summary',
   )
   if (optionalStrErr) return optionalStrErr
 
@@ -299,7 +300,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     'full_name', 'photo_url', 'nationality', 'date_of_birth', 'passport_type',
     'passport_validity_date', 'visa_status', 'visa_transferable', 'notice_period',
     'current_location', 'phone', 'whatsapp', 'email', 'linkedin_url',
-    'field_visibility', 'readiness_category', 'readiness_score',
+    'professional_summary', 'field_visibility', 'readiness_category', 'readiness_score',
   ]
   const profileRow: Record<string, unknown> = {}
   for (const k of allowedProfileKeys) {
@@ -325,36 +326,77 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 
-  // Replace the child rows for this profile. Each table's replace is its own
-  // atomic op, but the set of five is NOT atomic as a group (no JS-client
-  // cross-table transaction). See ATOMICITY NOTE above.
-  const replaceChildren = (
+  // Reconcile the child rows for this profile — UPSERT-BY-ID per table.
+  // Referential integrity (packages.optimized_content.experience_blocks frozen
+  // by profile_experience_id, and packages.skills_order) must never depend on
+  // the client sending ids back: ids preserve row identity and survive re-save.
+  //   - Rows arriving WITH an id: upsert on id; the id is never changed.
+  //   - Rows arriving WITHOUT an id: insert; the DB generates the id.
+  //   - Rows in the DB whose id is ABSENT from the incoming set: delete those
+  //     and only those. Never a blanket delete.
+  // profile_id is FORCED to the caller's profile id on every write path, never
+  // taken from the request body (ownership verification).
+  // Each table is its own Supabase op; the five are NOT atomic as a group (no
+  // JS-client cross-table transaction) — but with upsert-by-id a partial
+  // failure is recoverable rather than data-losing. Keep the try/catch + 500.
+  const reconcileChildren = async (
     table: (typeof CHILD_TABLES)[number],
-    rows: unknown[] | undefined
-  ): Promise<unknown> => {
-    if (!Array.isArray(rows)) return Promise.resolve()
-    const seeded = (rows as { sort_order?: number }[]).map((r) => ({
-      ...r,
-      profile_id: profileId,
-    }))
-    // Delete extant rows for this profile, then insert the incoming set.
-    return (async () => {
-      const { error: delErr } = await supabase.from(table).delete().eq('profile_id', profileId)
-      if (delErr) throw delErr
-      if (seeded.length > 0) {
-        const { error: insErr } = await supabase.from(table).insert(seeded)
-        if (insErr) throw insErr
-      }
-    })()
+    rows: unknown[] | undefined,
+  ): Promise<void> => {
+    if (!Array.isArray(rows)) return
+
+    const incoming = rows.filter(isObject).map((r): Record<string, unknown> => {
+      const { profile_id: _ignored, ...rest } = r
+      return { ...rest, profile_id: profileId } // force ownership; never body value
+    })
+
+    const withId = incoming.filter((r) => typeof r.id === 'string' && String(r.id).trim() !== '')
+    const withoutId = incoming.filter((r) => r.id === undefined || r.id === null || String(r.id).trim() === '')
+
+    // Existing ids for THIS profile (ownership-scoped, never a blanket read).
+    const { data: existing } = await supabase
+      .from(table)
+      .select('id')
+      .eq('profile_id', profileId)
+    if (existing === null) {
+      throw new Error('SELECT id returned null for ' + table)
+    }
+    const existingIds = (existing as { id: string | null }[])
+      .map((x) => (x.id != null ? String(x.id) : ''))
+      .filter(Boolean)
+
+    // Upsert rows that carry an id. The id is the key and is never changed.
+    if (withId.length > 0) {
+      const { error } = await supabase.from(table).upsert(withId, { onConflict: 'id' })
+      if (error) throw error
+    }
+
+    // Insert rows with no id; let the DB generate one.
+    if (withoutId.length > 0) {
+      const { error } = await supabase.from(table).insert(withoutId)
+      if (error) throw error
+    }
+
+    // Delete rows whose id is absent from the incoming set — ONLY those.
+    const keepIds = new Set(withId.map((r) => String(r.id)))
+    const stale = existingIds.filter((id) => !keepIds.has(id))
+    if (stale.length > 0) {
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq('profile_id', profileId)
+        .in('id', stale)
+      if (error) throw error
+    }
   }
 
   try {
     await Promise.all([
-      replaceChildren('profile_work_experience', body.work_experience as unknown[] | undefined),
-      replaceChildren('profile_skills', body.skills as unknown[] | undefined),
-      replaceChildren('profile_certifications', body.certifications as unknown[] | undefined),
-      replaceChildren('profile_education', body.education as unknown[] | undefined),
-      replaceChildren('profile_additional_information', body.additional_information as unknown[] | undefined),
+      reconcileChildren('profile_work_experience', body.work_experience as unknown[] | undefined),
+      reconcileChildren('profile_skills', body.skills as unknown[] | undefined),
+      reconcileChildren('profile_certifications', body.certifications as unknown[] | undefined),
+      reconcileChildren('profile_education', body.education as unknown[] | undefined),
+      reconcileChildren('profile_additional_information', body.additional_information as unknown[] | undefined),
     ])
   } catch (e) {
     const msg: string = typeof e === 'object' && e !== null && 'message' in e ? String((e as { message: unknown }).message) : ''
