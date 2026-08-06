@@ -63,7 +63,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-007: Migration — `career_profiles`** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/010_career_profiles.sql` implementing the `career_profiles` table exactly as specified in `docs/CAREER_PROFILE.md` §2, including the `field_visibility` JSONB column with its documented defaults. Enable RLS with a policy restricting all operations to `user_id = auth.uid()`. **Do not add a passport number column — ever.** Do not drop or alter any existing table.
-      Depends on: TASK-003 · Status: in progress
+      Depends on: TASK-003 · Status: done
 
 - [ ] **TASK-008: Migration — profile child tables** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/011_profile_children.sql` implementing `profile_work_experience`, `profile_skills`, `profile_certifications`, `profile_education` and `profile_additional_information` exactly as specified in `docs/CAREER_PROFILE.md` §3. Every table: UUID PK, `profile_id` FK with `ON DELETE CASCADE`, `sort_order`, `created_at` timestamptz, RLS enabled with an owner-only policy.
