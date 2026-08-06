@@ -56,7 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!limit.allowed) {
     return NextResponse.json(
       { error: limit.message ?? 'Daily limit reached' },
-      { status: 403 },
+      { status: 429 },
     )
   }
 
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const result = await generate({
       system: EXTRACTION_SYSTEM_PROMPT,
       user: `Extract from this resume text:\n\n${extractedText}`,
-      maxTokens: 4096,
+      maxTokens: 8192,
       temperature: 0.1,
       userId: user.id,
       route: '/api/parse/upload',
