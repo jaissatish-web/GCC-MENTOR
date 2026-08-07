@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-07 (TASK-028 approved)
+**Last updated:** 2026-08-07 (TASK-029 approved — Section E complete)
 
 ---
 
@@ -96,7 +96,7 @@ visible, even if slower, is the standing preference.
 
 ## Current progress
 
-**Phase 1 (MVP). ~31 of 47 tickets done and reviewed.** For the exact live
+**Phase 1 (MVP). ~32 of 47 tickets done and reviewed.** For the exact live
 status of every ticket — including every review round, every rejection
 reason, and every fix — `docs/TASKS.md` is authoritative; this section is
 a summary only.
@@ -107,17 +107,20 @@ a summary only.
 | B — Data layer, migrations (007–013, 046) | **All done and approved**, Needs Review tickets included (TASK-012/013 closed out 2026-08-07 — implemented earlier but approval had lagged). |
 | C — AI layer (011, 014–021, 038–039) | **All done and approved.** Extraction, prompt-building, grounding validation, the optimization route, rate limiting, and usage logging are all live in code (not yet live against a real database — see "Before this actually works" below). |
 | D — Profile UI (022–026) | **All done and approved.** TASK-022/023/024/025/026 complete — the full Career Profile editor + field visibility screen. |
-| E — Optimization flow UI (027–029) | **In progress.** TASK-027/028 done and approved — target selection through to a real `POST /api/optimize` call. TASK-028's "Optimizing…" state is a minimal spinner by design; TASK-029 replaces it with the real named-steps animation (screen 07 has no dedicated route — it's a transient state on `/optimize/setup`). TASK-029 not started. |
+| E — Optimization flow UI (027–029) | **All done and approved.** Target selection → setup → the real named-steps "Optimizing…" animation, all wired to the live `POST /api/optimize` (TASK-021). The before/after preview screen itself is TASK-033 (section F below), still not started — it also needs TASK-044's open decision resolved first (how much shows pre-payment). |
 | F — Output: PDF/DOCX/diff (030–033) | TASK-031 (the resume template itself) done. TASK-030/032/033 not started. |
 | G — Library & dashboard (034–037) | TASK-037 (hard delete) done. TASK-034/035/036 not started. |
 | H — Operations (038–041) | **All done and approved.** TASK-040 (admin panel), built directly by the CTO, approved 2026-08-07. |
 | Blocked (042–045) | 042 (Razorpay) on founder KYC; 043 depends on 042; 044 is an explicit open product decision (change-summary vs. blurred preview) — do not resolve it unilaterally. TASK-045 (manual credit grant) is no longer blocked — its dependency, TASK-040, is done and approved. |
 | TASK-047 (pricing config, ad hoc) | **Done.** Not a pre-written ticket — founder requested it mid-session; added to `docs/TASKS.md` per the project's own "everything lives in TASKS.md" rule. |
 
-**Next up:** TASK-029 (optimizing progress screen — the real named-steps
-animation, replacing TASK-028's placeholder spinner on the same
-`/optimize/setup` page). TASK-045 (manual credit grant) is also
-unblocked and could be picked up in parallel.
+**Next up:** TASK-030 (repoint the PDF pipeline at packages) is
+unblocked once TASK-031 is (it already is — done). TASK-033 (the
+before/after diff + results screens) needs TASK-030 and TASK-032
+first, and separately needs TASK-044's open decision resolved
+(change-summary vs. blurred preview — a founder call, not the CTO's
+to make). TASK-045 (manual credit grant) is also unblocked and could
+be picked up in parallel.
 
 ## Before this actually works end-to-end
 
