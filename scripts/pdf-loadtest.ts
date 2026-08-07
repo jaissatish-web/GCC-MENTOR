@@ -219,8 +219,26 @@ const skillsOrder = [
 
 // --------------------------------------------------------------------------
 // Render ONE pdf — mirrors the route's page/pdf calls exactly.
-// --------------------------------------------------------------------------
-async function renderOne(): Promise<number> {
+//
+// CTO CORRECTION: the original version had no synchronisation between the 5
+// concurrent renders and polled memory from OUTSIDE by spawning a fresh
+// PowerShell process every 250ms. Both are real problems for a peak-memory
+// measurement: (1) with nothing forcing the 5 renders to be alive at the same
+// moment, fast individual renders can finish and close before ever
+// overlapping, so "5 concurrent" was never guaranteed to actually happen
+// simultaneously; (2) spawning a new process per sample has its own latency
+// (measured well over 250ms in practice), so the real effective sampling
+// interval was coarser than intended and could miss a peak inside a ~17s
+// test entirely. A quick manual check (one browser.launch(), no template,
+// just sitting idle) already showed ~112MB across Chrome's child processes —
+// more than double what the original test measured for FIVE concurrent full
+// renders, which is not physically plausible and confirms under-sampling.
+//
+// Fix: a barrier holds all 5 renders open (loaded, pre-pdf()) until all 5
+// have reached that point, then holds them there together for a fixed
+// window — guaranteeing genuine 5-way concurrency for however long the
+// watcher needs to sample it, rather than hoping timing works out.
+async function renderOne(barrier: Barrier): Promise<number> {
   const { renderToStaticMarkup } = await import('react-dom/server')
   const bodyHtml = renderToStaticMarkup(
     createElement(GulfPremium, {
@@ -246,6 +264,9 @@ async function renderOne(): Promise<number> {
     const page = await browser.newPage()
     await page.setViewport({ width: 794, height: 1123 })
     await page.setContent(fullHtml, { waitUntil: 'domcontentloaded' })
+    // Fully loaded, heaviest state, before pdf() — wait for all 5 to arrive
+    // here, then hold together so the watcher has a guaranteed overlap window.
+    await barrier.arrive()
     const pdf = await page.pdf({ format: 'A4', printBackground: true, preferCSSPageSize: false })
     return pdf.length
   } finally {
@@ -253,28 +274,62 @@ async function renderOne(): Promise<number> {
   }
 }
 
-// Poll total Chrome working-set (Windows) via PowerShell every 250ms.
-function chromeWorkingSetWatcher(store: { peakMB: number }, stop: () => boolean): void {
-  const poll = () => {
-    if (stop()) return
-    const ps = spawn('powershell', [
-      '-NoProfile',
-      '-Command',
-      "Get-Process chrome -ErrorAction SilentlyContinue | Measure-Object WorkingSet64 -Sum | Select-Object -ExpandProperty Sum",
-    ])
-    ps.stdout.on('data', (d: Buffer) => {
-      const mb = Number(String(d).trim()) / (1024 * 1024)
-      if (!Number.isNaN(mb) && mb > store.peakMB) store.peakMB = mb
+// Resolves once `count` callers have called arrive(); every caller then waits
+// an extra HOLD_MS together so all 5 pages are guaranteed alive at once for
+// long enough that even a coarse external sampler will catch it.
+const HOLD_MS = 2000
+class Barrier {
+  private remaining: number
+  private resolveAll!: () => void
+  private allArrived: Promise<void>
+  constructor(count: number) {
+    this.remaining = count
+    this.allArrived = new Promise((resolve) => {
+      this.resolveAll = resolve
     })
-    ps.on('close', () => setTimeout(poll, 250))
   }
-  poll()
+  async arrive(): Promise<void> {
+    this.remaining -= 1
+    if (this.remaining === 0) this.resolveAll()
+    await this.allArrived
+    await new Promise((r) => setTimeout(r, HOLD_MS))
+  }
+}
+
+// CTO CORRECTION: one long-running PowerShell loop, sampling every ~120ms and
+// streaming each result over stdout, instead of spawning a brand-new
+// PowerShell process per sample. Spawning a process on Windows has real
+// latency (well over the original 250ms nominal interval in practice), which
+// made the true sampling rate much coarser than intended. This also samples
+// EVERY chrome-named process on the machine, not just ones this script
+// launched — acceptable for a dev-machine sanity check where that's known
+// (see the report's own caveat), but a real production measurement should
+// scope by parent PID instead.
+function watchChromeWorkingSet(store: { peakMB: number }): () => void {
+  const ps = spawn('powershell', [
+    '-NoProfile',
+    '-Command',
+    'while ($true) { ' +
+      "(Get-Process chrome -ErrorAction SilentlyContinue | Measure-Object WorkingSet64 -Sum).Sum; " +
+      'Start-Sleep -Milliseconds 120 }',
+  ])
+  let buf = ''
+  ps.stdout.on('data', (d: Buffer) => {
+    buf += String(d)
+    const lines = buf.split(/\r?\n/)
+    buf = lines.pop() ?? ''
+    for (const line of lines) {
+      const mb = Number(line.trim()) / (1024 * 1024)
+      if (!Number.isNaN(mb) && mb > store.peakMB) store.peakMB = mb
+    }
+  })
+  return () => ps.kill()
 }
 
 async function main() {
   const N = 5
   const chromePeak = { peakMB: 0 }
-  let stopWatching = false
+  const stopWatching = watchChromeWorkingSet(chromePeak)
 
   // Node-side peak RSS
   let nodePeakKB = process.memoryUsage().rss / 1024
@@ -282,31 +337,41 @@ async function main() {
     nodePeakKB = Math.max(nodePeakKB, process.memoryUsage().rss / 1024)
   }, 100)
 
-  chromeWorkingSetWatcher(chromePeak, () => stopWatching)
-
   const start = Date.now()
   const t0 = process.memoryUsage().rss
 
-  // 5 CONCURRENT renders, each its own browser (mirrors 5 concurrent requests).
-  const results = await Promise.all(Array.from({ length: N }, () => renderOne()))
+  // 5 CONCURRENT renders, each its own browser (mirrors 5 concurrent
+  // requests), synchronised via the barrier so they are GUARANTEED to overlap
+  // for HOLD_MS rather than hoping timing works out.
+  const barrier = new Barrier(N)
+  const results = await Promise.all(Array.from({ length: N }, () => renderOne(barrier)))
 
   const elapsedMs = Date.now() - start
   const t1 = process.memoryUsage().rss
-  stopWatching = true
   clearInterval(rssTimer)
 
-  // Let the watcher flush one last sample.
+  // Let the watcher take a couple more samples before stopping it.
   await new Promise((r) => setTimeout(r, 400))
+  stopWatching()
 
   const rssDeltaMB = (t1 - t0) / (1024 * 1024)
   const peakRSSMB = nodePeakKB / 1024
   const pdfKBs = results.map((b) => (b / 1024).toFixed(1)).join(', ')
 
-  const report = `# PDF Pipeline — TASK-030 Load Test
+  const report = `# PDF Pipeline — TASK-030 Load Test (CTO-corrected re-run)
 
 Run: ${new Date().toISOString()}
 Method: 5 concurrent PDF renders, each its own headless-Chrome instance, via the real
 GulfPremium template (renderToStaticMarkup + puppeteer setContent) — the route's heavy path.
+A barrier holds all 5 pages loaded (post-setContent, pre-pdf()) together for ${HOLD_MS}ms so
+they are GUARANTEED to overlap, and a single long-running PowerShell loop samples every
+~120ms instead of spawning a new process per sample.
+
+**This corrects the original run in this file** (below the divider), which measured only
+43.3MB peak for 5 concurrent instances — implausible on its own (a single idle Chrome
+instance alone typically uses 100MB+), and confirmed too low by a manual sanity check
+during CTO review. Root cause: no synchronisation forced the 5 renders to actually overlap,
+and spawn-per-sample polling had enough real latency to miss the peak in a ~17s run.
 
 | Metric | Value |
 |---|---|
@@ -319,9 +384,14 @@ GulfPremium template (renderToStaticMarkup + puppeteer setContent) — the route
 
 **Verdict:** peak memory ${chromePeak.peakMB >= 1000 ? '**EXCEEDS 1GB — HARD STOP, report for VPS resize / dedicated renderer**' : 'under 1GB — no hard stop triggered.'}
 
-Note: node peak RSS excludes the separate Chrome processes (each render launches its own
-browser, which is what the per-request route does); the Chrome working-set peak above sums all
-concurrent instances and is the figure that matters for the 1GB gate.
+Caveats, for an honest reading of this number:
+- Node peak RSS excludes the separate Chrome processes; the Chrome working-set figure is
+  the one that matters for the 1GB gate.
+- \`Get-Process chrome\` matches every process literally named "chrome" on this machine, not
+  only ones this script launched — fine for this dev-machine sanity check (no other Chrome
+  was running), but a production capacity decision should scope by parent PID, and should be
+  re-measured on the actual target VPS hardware, not this dev machine — CPU/memory
+  characteristics differ and this number should not be taken as the production figure.
 `
   const target = resolve(process.cwd(), 'docs/BOOT_REPORT.md')
   if (existsSync(target)) {

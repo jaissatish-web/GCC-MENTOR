@@ -110,10 +110,16 @@ export async function GET(
   }
 
   // ---- Load the LIVE profile (fixed fields) + all five child tables ----------
+  // Scoped to BOTH id and user_id, same as the package lookup above. By
+  // construction packages.profile_id already belongs to this caller (verified
+  // at INSERT time in app/api/optimize/route.ts, Unplanned #5) — but that
+  // invariant lives in a different ticket's app code, not a DB constraint or
+  // RLS WITH CHECK. Never trust profile_id alone here either.
   const { data: profileRow, error: profileError } = await supabase
     .from('career_profiles')
     .select('*')
     .eq('id', pkg.profile_id)
+    .eq('user_id', user.id)
     .maybeSingle()
 
   if (profileError) {
