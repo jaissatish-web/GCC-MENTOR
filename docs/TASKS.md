@@ -81,9 +81,9 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
       Spec: Create `types/careerProfile.ts` and `types/package.ts` with interfaces matching TASK-007 through TASK-009 exactly. Export a `ReadinessCategory` union and an `OptimizationLevel` union (`'easy' | 'moderate' | 'high'`). Do not modify `types/index.ts` — the old types stay for parked code.
       Depends on: TASK-009 · Status: done
 
-- [ ] **TASK-012: Profile CRUD API** ⚠️ *Needs Review*
+- [x] **TASK-012: Profile CRUD API** ⚠️ *Needs Review*
       Spec: Create `app/api/profile/route.ts` with `GET` (returns the caller's profile plus all child rows) and `PUT` (upserts profile and children in a transaction). Auth check first; 401 when absent. Validate every field against `types/careerProfile.ts` before writing. **Never log field values** — log profile ID and field names only. Return 404, never another user's row.
-      Depends on: TASK-011 · Status: done
+      Depends on: TASK-011 · Status: done — **APPROVED**, founder sign-off given in conversation 2026-08-07 per `docs/RULES.md` §4 (PII-storage ticket). Went through one review-and-fix round (commit `a0bacd5`: upsert-by-id children, `profile_id` forced server-side, `professional_summary` added) that was never formally closed out until now. CTO re-reviewed the current code: auth checked first on every route, every field validated before any write, 400s name the offending field only — never its value, `user_id`/`profile_id` always forced server-side and never trusted from the request body, child-row reconciliation is upsert-by-id (never a blanket delete) which protects `packages` referential integrity, and RLS on the child tables (migration 011) is owner-only via the parent profile with both `USING` and `WITH CHECK` correctly scoped. **Not yet verified against a live database** — no migrations are applied and no `.env.local` exists; this is a code-correctness review only, re-check once migrations 010–017 are applied.
 
 - [ ] **TASK-013: Field visibility API** ⚠️ *Needs Review*
       Spec: Create `app/api/profile/visibility/route.ts` with `PUT`, accepting a partial `field_visibility` map and merging it into the stored JSONB. Reject unknown field keys with 400. Hiding a field must never delete underlying data — assert this with a test case in the PR description.
