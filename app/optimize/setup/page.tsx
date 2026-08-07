@@ -75,6 +75,7 @@ function SetupScreen() {
   const [level, setLevel] = useState<OptimizationLevel>('moderate')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -121,9 +122,13 @@ function SetupScreen() {
         setExpOn(allOn)
       })
       .catch(() => {
-        // Non-fatal loading: leave blocks empty; the CTA still works for the
-        // summary-only path, but the server will 404 if profileId is missing.
+        // FATAL for this screen, not non-fatal: the CTA is disabled whenever
+        // profileId is null (POST /api/optimize requires it and 404s
+        // otherwise), so a failed load must not leave the user staring at a
+        // fully-rendered form with a permanently disabled button and no
+        // explanation. Surface a visible error with a way back instead.
         setProfileId(null)
+        setLoadError('Could not load your profile. Please go back and try again.')
       })
   }, [router])
 
@@ -219,6 +224,15 @@ function SetupScreen() {
           Your dates, employers, titles and certifications are never touched. Only framing changes.
         </p>
       </div>
+
+      {loadError ? (
+        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-xl border border-terracotta/30 bg-state-terra-bg px-3.5 py-3">
+          <p className="text-[12px] text-state-terra-text">{loadError}</p>
+          <Button variant="secondary" className="w-full" onClick={() => router.push('/optimize/target')}>
+            Back to choose target
+          </Button>
+        </div>
+      ) : null}
 
       {/* Body */}
       <div className="flex flex-1 flex-col gap-2.5 overflow-y-auto px-5">
