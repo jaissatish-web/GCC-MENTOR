@@ -66,14 +66,44 @@ Source: Founding Brief §5, §5a–§5e.
 
 ---
 
+## 2a. Phase 2 pulled forward — founder decision 2026-08-07
+
+**Two Phase 2 items are now active, in parallel with finishing Phase 1** (not
+waiting for Phase 1 to ship first, a deliberate change from this file's
+original sequencing). Founder's own words: users should be able to run the
+free ATS/Gulf-readiness scanner **without logging in** from the homepage;
+optimizing still requires login as before. Everything else in Phase 1 stays
+exactly as speced — this is additive, not a re-scope of the paid flow.
+
+- **Free ATS Score tool, no login required.** Upload a resume, get an
+  ATS/Gulf-readiness score. Archived code exists at
+  `D:\Hire Circuit\app\api\ats-check\` — **must be rewritten against
+  `docs/PROMPTS.md`'s grounding rule before reuse; it was built without one**
+  (§4 below still applies). New wrinkle this introduces: **no-login means no
+  `user_id` to rate-limit against** — `lib/rateLimit.ts` is keyed on
+  authenticated users today. Needs an IP-based (or similar) limit for this
+  one anonymous path; do not just skip rate-limiting because the mechanism
+  doesn't fit yet.
+- **Multiple selectable templates.** Today only `GulfPremium` exists
+  (TASK-031, one-template-by-design). Archived templates exist at
+  `D:\Hire Circuit\components\templates\` — port their layout/visuals, but
+  every template must go through the SAME `lib/resumeDocument.ts` derivation
+  TASK-032 already built (that's the whole point of that refactor: one
+  derivation, N renderers, never N re-derivations). Do not copy a template's
+  original data-shaping logic along with its visuals.
+
+Not pulled forward: automated %-match ranking against a JD stays OUT (needs
+the ATS engine's scoring logic to exist first, and is a separate, harder
+feature than the basic score check above — see `docs/ROADMAP.md`).
+
+---
+
 ## 3. OUT — do not build
 
 | Feature | Phase |
 |---|---|
-| Free ATS Score tool | 2 |
 | Resume version history within a package | 2 |
 | Automated %-match ranking against a JD | 2 |
-| Multiple selectable templates | 2 |
 | Per-field toggles inside Additional Information | 2 |
 | Cover letter generator | 3 |
 | Blog / content engine, salary calculator, EOSB calculator | 3+ |

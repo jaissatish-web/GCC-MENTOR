@@ -195,6 +195,16 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 ---
 
+### I — Phase 2 pulled forward (founder decision 2026-08-07, docs/MVP.md §2a)
+
+*Not pre-written tickets — added here per docs/RULES.md §1 ("every task lives in docs/TASKS.md"), same as TASK-047. Full reasoning in docs/MVP.md §2a; this is the ticket-level breakdown only.*
+
+- [ ] **TASK-048: Anonymous rate limiting** — `lib/rateLimit.ts` is keyed on `user_id` today; the ATS scanner (TASK-049) has no logged-in user to key against. Add an IP-based (or equivalent anonymous-identity) limiting path alongside the existing user-keyed one — do not weaken or replace the existing mechanism, add a second path for the no-login case. Depends on: none (extends existing migration 013 table/016 function if the shape fits; new migration only if it doesn't) · Status: not started
+- [ ] **TASK-049: Free ATS/Gulf-readiness scanner, no login required** — public route, upload a resume, get a score. Reuses the extraction pipeline's parsing where possible (TASK-020) but the SCORING/feedback logic is new. **Archived code at `D:\Hire Circuit\app\api\ats-check\` was built without the grounding rule (docs/PROMPTS.md) — must be rewritten against it before reuse, per docs/MVP.md §4's standing warning, not switched on as-is.** Depends on: TASK-048 · Status: not started
+- [ ] **TASK-050: Multiple selectable templates** — today only `GulfPremium` exists (TASK-031). Port visuals from `D:\Hire Circuit\components\templates\`, but every template MUST consume the shared `lib/resumeDocument.ts` derivation (TASK-032) — do not port a template's own data-shaping logic alongside its visuals; that would reintroduce the exact drift risk TASK-032 was built to eliminate. Needs a template-selection UI surface (where in the flow the user picks one — not yet speced, flag if ambiguous rather than guessing). Depends on: TASK-032 · Status: not started
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
