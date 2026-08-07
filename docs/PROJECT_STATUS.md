@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-07 (TASK-032 approved — DOCX export live via shared derivation module; TASK-045 also committed)
+**Last updated:** 2026-08-07 (TASK-034/035/036 approved — Dashboard, Library, and reuse detection all live. Everything buildable in Phase 1 is now done; what's left is entirely blocked on the founder — see "Next up" below.)
 
 ---
 
@@ -96,7 +96,7 @@ visible, even if slower, is the standing preference.
 
 ## Current progress
 
-**Phase 1 (MVP). ~35 of 47 tickets done and reviewed.** For the exact live
+**Phase 1 (MVP). 43 of 47 tickets done and reviewed. The remaining 4 are all blocked on the founder, not on building.** For the exact live
 status of every ticket — including every review round, every rejection
 reason, and every fix — `docs/TASKS.md` is authoritative; this section is
 a summary only.
@@ -109,16 +109,24 @@ a summary only.
 | D — Profile UI (022–026) | **All done and approved.** TASK-022/023/024/025/026 complete — the full Career Profile editor + field visibility screen. |
 | E — Optimization flow UI (027–029) | **All done and approved.** Target selection → setup → the real named-steps "Optimizing…" animation, all wired to the live `POST /api/optimize` (TASK-021). The before/after preview screen itself is TASK-033 (section F below), still not started — it also needs TASK-044's open decision resolved first (how much shows pre-payment). |
 | F — Output: PDF/DOCX/diff (030–033) | TASK-031/030/032 done and approved. TASK-032 (DOCX export) extracted the resume derivation into `lib/resumeDocument.ts`, shared by both the PDF (`GulfPremium.tsx`) and DOCX (`lib/resumeDocx.ts`) renderers so they can't drift — verified independently (32,768-permutation no-regression check re-run fresh, build/lint/tsc clean). **⚠️ VPS memory note:** a corrected load test (the shipped one was wrong by ~17x, see TASK-030's notes) measured 730MB peak for 5 concurrent PDF renders on a dev machine — under the 1GB gate, but re-measure on the actual target VPS before finalizing its specs. TASK-033 not started (blocked on TASK-044). |
-| G — Library & dashboard (034–037) | TASK-037 (hard delete) done. TASK-034/035/036 not started. |
+| G — Library & dashboard (034–037) | **All done and approved.** TASK-034 (Dashboard, D1/D2), TASK-035 (Library, mobile cards + desktop table + list/status/delete API), TASK-036 (reuse detection — rule-based title match, re-optimize overwrites the old package only after the new one is confirmed created), TASK-037 (hard delete). |
 | H — Operations (038–041) | **All done and approved.** TASK-040 (admin panel), built directly by the CTO, approved 2026-08-07. |
-| Blocked (042–045) | 042 (Razorpay) on founder KYC; 043 depends on 042; 044 is an explicit open product decision (change-summary vs. blurred preview) — do not resolve it unilaterally. TASK-045 (manual credit grant) done and committed. |
+| Blocked (042–045) | 042 (Razorpay) on founder KYC; 043 depends on 042; 044 is an explicit open product decision (change-summary vs. blurred preview) — founder has deferred this, do not resolve it unilaterally. TASK-045 (manual credit grant) done and committed. |
 | TASK-047 (pricing config, ad hoc) | **Done.** Not a pre-written ticket — founder requested it mid-session; added to `docs/TASKS.md` per the project's own "everything lives in TASKS.md" rule. |
 
-**Next up:** TASK-033 (the before/after diff + results screens) is the
-next natural piece of section F, but it needs TASK-044's open decision
-resolved first (change-summary vs. blurred preview — a founder call,
-not the CTO's to make). Otherwise the library/dashboard tickets
-(TASK-034/035/036) are unblocked and available.
+**Next up: nothing is buildable right now without the founder.** The
+only 4 open tickets are TASK-033 (blocked on TASK-044), TASK-042/043
+(blocked on Razorpay KYC), and TASK-044 itself (explicit founder
+decision, deferred once already — see conversation 2026-08-07).
+Everything else in Phase 1 is done. The real remaining blocker to a
+working end-to-end product is applying the 9 approved migrations and
+creating `.env.local` — see "Before this actually works" below — which
+is also on the founder, not a ticket. Separately, the founder has
+indicated interest in a Phase 2 freemium pivot (free ATS check tier,
+free manual builder, plan/limits "control center") — deliberately
+sequenced to start only after Phase 1 ships and gets real sales
+signal; do not start that work from a ticket alone without founder
+confirmation it's time.
 
 ## Before this actually works end-to-end
 
