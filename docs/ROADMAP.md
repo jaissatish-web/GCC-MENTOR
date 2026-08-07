@@ -46,6 +46,8 @@ Tickets exist for **Phase 1 only** (`docs/TASKS.md`). Phases 2–4 are recorded 
 
 **Revisit at this point:** the pricing model. Once cover letter generation is a repeatable per-package action, one-time-per-optimization pricing may no longer fit. See `docs/RULES.md` §5.
 
+**Founder request, 2026-08-07 — recorded here, not built:** an admin-configurable, token-based multi-package system — define arbitrary services in the admin panel, assign each a token cost, bundle into packages, and have that configuration alone drive what users can buy. Explicitly deferred to this revisit point rather than built during Phase 1, for two reasons: (1) `docs/MVP.md` §7 already commits to "no subscription tier yet — introduce only after Phase 1 proves conversion... validate after the first 10 sales," and this is exactly that model arriving early, before any real sale exists to validate against; (2) the Phase 1 payment screen's copy (`docs/USER_FLOW.md` Step 9) promises users "No subscription. No auto-renewal" — a token/credit system is functionally a wallet and would mean walking that promise back before it ships. Founder chose to finish Phase 1 first. When this is picked up for real: it needs a proper spec (token/entitlement schema, admin package-builder UI, payment-flow changes, and a decision on how the "no subscription" user-facing promise should change), not a bolt-on to the existing single-row pricing table from TASK-047.
+
 ---
 
 ## Phase 4 — Month 2–3+, funded by revenue from Phases 1–3
