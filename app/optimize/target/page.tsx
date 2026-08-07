@@ -83,9 +83,17 @@ function TargetScreen() {
         throw new Error(String(res.status))
       })
       .then((data) => {
+        // target_industry on /profile (TASK-024) is FREE TEXT, not a persona
+        // value — only prefill this select if it exactly matches one of
+        // PERSONA_INDUSTRIES' values, otherwise leave it empty so the select
+        // shows its placeholder and the user picks a real persona-driving
+        // value (a stray free-text value here would silently pass the
+        // required-field check without actually selecting a valid persona).
+        const rawIndustry = typeof data?.target_industry === 'string' ? data.target_industry : ''
+        const matchedIndustry = PERSONA_INDUSTRIES.some((i) => i.value === rawIndustry) ? rawIndustry : ''
         setDraft({
           target_job_title: data?.target_job_title ?? '',
-          target_industry: data?.target_industry ?? '',
+          target_industry: matchedIndustry,
           target_country: data?.target_country ?? '',
           target_company: data?.target_company ?? '',
           job_description: '',
