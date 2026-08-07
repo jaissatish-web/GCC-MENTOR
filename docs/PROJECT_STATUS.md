@@ -104,7 +104,7 @@ a summary only.
 | Section | Status |
 |---|---|
 | A — Foundation & UI shell (000–006) | **All done.** |
-| B — Data layer, migrations (007–010, 046) | **All done and approved**, Needs Review tickets included. |
+| B — Data layer, migrations (007–013, 046) | **All done and approved**, Needs Review tickets included (TASK-012/013 closed out 2026-08-07 — implemented earlier but approval had lagged). |
 | C — AI layer (011, 014–021, 038–039) | **All done and approved.** Extraction, prompt-building, grounding validation, the optimization route, rate limiting, and usage logging are all live in code (not yet live against a real database — see "Before this actually works" below). |
 | D — Profile UI (022–026) | **In progress.** TASK-022, 023, 024 (Career Profile review screen — the big one) and TASK-026 all done and approved. TASK-025 (field visibility screen, 04b) not started. |
 | E — Optimization flow UI (027–029) | Not started. TASK-027 (target selection) now unblocked — its dependency, TASK-024, is done and approved. |
