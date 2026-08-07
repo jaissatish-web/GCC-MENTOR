@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-07 (TASK-034/035/036 approved — Dashboard, Library, and reuse detection all live. Everything buildable in Phase 1 is now done; what's left is entirely blocked on the founder — see "Next up" below.)
+**Last updated:** 2026-08-07 (Database is live: all 10 migrations applied to a fresh Supabase project and independently verified — 14 tables, RLS confirmed on all of them. `.env.local` configured. AI provider now runs on OpenRouter, admin-panel-configurable — see Unplanned #16/#17 in `docs/TASKS.md`.)
 
 ---
 
@@ -118,10 +118,7 @@ a summary only.
 only 4 open tickets are TASK-033 (blocked on TASK-044), TASK-042/043
 (blocked on Razorpay KYC), and TASK-044 itself (explicit founder
 decision, deferred once already — see conversation 2026-08-07).
-Everything else in Phase 1 is done. The real remaining blocker to a
-working end-to-end product is applying the 9 approved migrations and
-creating `.env.local` — see "Before this actually works" below — which
-is also on the founder, not a ticket. Separately, the founder has
+Everything else in Phase 1 is done. Separately, the founder has
 indicated interest in a Phase 2 freemium pivot (free ATS check tier,
 free manual builder, plan/limits "control center") — deliberately
 sequenced to start only after Phase 1 ships and gets real sales
@@ -130,22 +127,23 @@ confirmation it's time.
 
 ## Before this actually works end-to-end
 
-**Nine migrations are written, reviewed, and approved, but NONE are
-applied to a live database.** `supabase/migrations/010` through `018`,
-in that order, need the founder to run them by hand in the Supabase SQL
-Editor (checklist: `supabase/migrations/README.md`). Nothing that touches
-the database — profile save, package creation, rate limiting, PII
-logging, pricing, credit grants — works against real data until this
-happens. Also:
-**no `.env.local` exists yet.** Protected routes correctly 503 until it's
-created (this is documented, expected behavior per `docs/HERMES.md` §3a,
-not a bug).
+**Resolved 2026-08-07.** `.env.local` exists (Supabase URL/keys/DB
+connection string; no Anthropic key needed anymore, see Unplanned #16).
+All migrations — `010` through `019`, plus `020_profiles_base.sql`
+(a gap found and fixed applying to a genuinely fresh project, see
+Unplanned #17) — are applied to a real, fresh Supabase project (not the
+old HireCircuit one; confirmed empty before starting, confirmed correct
+schema after). Verified independently against the live database, not
+just success messages: 14 tables exist, RLS enabled on all 14, no
+exceptions. The AI provider itself (OpenRouter key/model) still needs
+to be set from `/admin` once the founder can sign in and reach it — see
+Unplanned #16 — but the database layer is live.
 
 ## Key decisions made along the way (the non-obvious ones)
 
 Full reasoning for all of these is in `docs/TASKS.md`, either inline on
 the ticket or in the "Unplanned findings" table at the bottom of that
-file (12 entries as of this writing — worth skimming, several are real
+file (17 entries as of this writing — worth skimming, several are real
 gaps the spec itself had, not code bugs).
 
 - **`career_profiles.professional_summary`** (TASK-046) was added
