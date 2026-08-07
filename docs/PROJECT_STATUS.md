@@ -8,7 +8,23 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-07 (TASK-033 approved — before/after diff + results screens, resolving TASK-044's Option B decision. Phase 1 is functionally complete except Razorpay. Three Phase 2 tickets — TASK-048/049/050 — added per founder decision to start the free tier now, in parallel.)
+**Last updated:** 2026-08-07 (TASK-033 approved. Phase 1 functionally complete except Razorpay — founder is in Saudi Arabia and cannot complete Razorpay's India-only KYC, so launch strategy is now a promo-code bypass instead, TASK-051. TASK-051's code is written and reviewed but **NOT yet applied to the database or live-tested — do this FIRST in a new session**, see "Immediate next step" below.)
+
+## Immediate next step — do this before anything else
+
+**TASK-051 (promo-code payment bypass) needs `supabase/migrations/021_promo_codes.sql`
+applied to the live database, then an end-to-end redemption test.** The code
+is written and passed build/lint/tsc, but a browser-automation tool failure
+mid-session (the tool lost its visible browser window; nothing broke on the
+Supabase side) meant the migration was never actually run. Nothing is
+inconsistent or half-applied — it simply hasn't happened yet. See
+`docs/TASKS.md` TASK-051's status note for the full detail. Apply that one
+file (same manual process as `supabase/migrations/README.md`, or via the
+browser-automation approach used for migrations 010-020 earlier in this
+project's history, if that tool is working in this session), then verify —
+independently, not by trusting the on-screen message — that `promo_codes`
+and `redeem_promo_code` actually exist, and that a real redemption actually
+flips a test package's `is_paid`.
 
 ---
 

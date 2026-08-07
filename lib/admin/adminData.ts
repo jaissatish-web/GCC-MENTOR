@@ -1,6 +1,11 @@
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 import { withPiiAccessLog } from '@/lib/admin/piiAccessLog'
-import { windowStart, LIMIT_ACTION_EXTRACTION, LIMIT_ACTION_OPTIMIZATION } from '@/lib/rateLimit'
+import {
+  windowStart,
+  LIMIT_ACTION_EXTRACTION,
+  LIMIT_ACTION_OPTIMIZATION,
+  LIMIT_ACTION_PROMO_REDEMPTION,
+} from '@/lib/rateLimit'
 import type { PackageStatus } from '@/types/package'
 
 /**
@@ -196,7 +201,11 @@ export async function listPackages(
 // non-PII admin mutations (matches TASK-039/041 style).
 // ---------------------------------------------------------------------------
 
-export const RATE_LIMIT_ACTIONS = [LIMIT_ACTION_EXTRACTION, LIMIT_ACTION_OPTIMIZATION] as const
+export const RATE_LIMIT_ACTIONS = [
+  LIMIT_ACTION_EXTRACTION,
+  LIMIT_ACTION_OPTIMIZATION,
+  LIMIT_ACTION_PROMO_REDEMPTION,
+] as const
 
 export interface RateLimitRow {
   action: string

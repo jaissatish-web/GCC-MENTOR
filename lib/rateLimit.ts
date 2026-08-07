@@ -34,8 +34,19 @@ export const LIMIT_ACTION_EXTRACTION = 'profile_extraction'
  */
 export const LIMIT_ACTION_OPTIMIZATION = 'optimization'
 
+/**
+ * TASK-051 addition. A promo code is a guessable string — without a limit on
+ * redemption ATTEMPTS (not just successes), someone could brute-force a
+ * short/simple code by trying strings against the (unauthenticated-feeling
+ * but actually login-required) redeem endpoint. Deliberately generous
+ * (attempts, not successes) so a beta tester fat-fingering their own code
+ * twice never gets blocked.
+ */
+export const LIMIT_ACTION_PROMO_REDEMPTION = 'promo_redemption'
+
 const DEFAULT_EXTRACTIONS_PER_DAY = 5
 const DEFAULT_OPTIMIZATIONS_PER_DAY = 20
+const DEFAULT_PROMO_REDEMPTIONS_PER_DAY = 10
 
 /**
  * Keys are local-calendar dates; the window resets at the next midnight.
@@ -71,6 +82,9 @@ export function getDefaultDailyLimit(action: string): number {
   }
   if (action === LIMIT_ACTION_OPTIMIZATION) {
     return parsePositiveEnvInt(process.env.RATE_LIMIT_OPTIMIZATIONS_PER_DAY) ?? DEFAULT_OPTIMIZATIONS_PER_DAY
+  }
+  if (action === LIMIT_ACTION_PROMO_REDEMPTION) {
+    return parsePositiveEnvInt(process.env.RATE_LIMIT_PROMO_REDEMPTIONS_PER_DAY) ?? DEFAULT_PROMO_REDEMPTIONS_PER_DAY
   }
   return DEFAULT_EXTRACTIONS_PER_DAY
 }

@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/admin/adminAuth'
 import { setRateLimitOverride } from '@/lib/admin/adminData'
 import { grantOptimizationCredit } from '@/lib/admin/credits'
 import { getProviderConfig, setProviderConfig } from '@/lib/ai/providerConfig'
+import { createPromoCode, deactivatePromoCode } from '@/lib/admin/promoCodes'
 
 /**
  * Admin Server Actions — TASK-040.
@@ -114,4 +115,49 @@ export async function updateProviderConfigAction(formData: FormData): Promise<vo
   }
 
   redirect('/admin?providerSaved=1')
+}
+
+/**
+ * Create a promo code — TASK-051 (Razorpay payment bypass, blocked on the
+ * founder's Saudi Arabia residency / India-only KYC).
+ *
+ * Payment-adjacent, so it re-verifies is_admin independently, same reasoning
+ * as every other action in this file. The creating admin's identity comes
+ * from requireAdmin(), never a form field.
+ */
+export async function createPromoCodeAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+
+  const code = String(formData.get('code') ?? '').trim()
+  const description = String(formData.get('description') ?? '').trim()
+  const rawMax = String(formData.get('maxRedemptions') ?? '').trim()
+  const rawExpires = String(formData.get('expiresAt') ?? '').trim()
+
+  const maxRedemptions = rawMax === '' ? null : Number.parseInt(rawMax, 10)
+  // datetime-local input has no timezone; treat as a wall-clock deadline.
+  const expiresAt = rawExpires === '' ? null : new Date(rawExpires).toISOString()
+
+  const result = await createPromoCode({
+    code,
+    description,
+    maxRedemptions,
+    expiresAt,
+    adminUserId: admin.id,
+  })
+
+  if (!result.ok) {
+    redirect(`/admin?promoError=${encodeURIComponent(result.error)}`)
+  }
+
+  redirect('/admin?promoSaved=1')
+}
+
+/** Deactivate a promo code — "stop this one right now" (e.g. it leaked). */
+export async function deactivatePromoCodeAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  const code = String(formData.get('code') ?? '').trim()
+  if (code) {
+    await deactivatePromoCode(code, admin.id)
+  }
+  redirect('/admin?promoSaved=1')
 }
