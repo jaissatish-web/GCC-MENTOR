@@ -37,8 +37,14 @@ export const LIMIT_ACTION_OPTIMIZATION = 'optimization'
 const DEFAULT_EXTRACTIONS_PER_DAY = 5
 const DEFAULT_OPTIMIZATIONS_PER_DAY = 20
 
-/** Keys are local-calendar dates; the window resets at the next midnight. */
-function windowStart(): string {
+/**
+ * Keys are local-calendar dates; the window resets at the next midnight.
+ * Exported for TASK-040 (admin rate-limit override), which must target the
+ * exact same window row this module reads/increments — a locally
+ * reimplemented copy could drift (e.g. across a DST boundary) and silently
+ * write an override to a row nothing ever reads.
+ */
+export function windowStart(): string {
   const d = new Date()
   const mm = String(d.getMonth() + 1).padStart(2, '0')
   const dd = String(d.getDate()).padStart(2, '0')

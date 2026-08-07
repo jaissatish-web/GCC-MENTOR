@@ -95,6 +95,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
+  // Admin gate (docs/ADMIN.md §1): "Check is_admin server-side in the route
+  // handler AND in middleware." This is the first of the two independent
+  // checks — lib/admin/adminAuth.ts's requireAdmin() is the second, run
+  // inside the page/action itself. Never rely on a client-side check, and
+  // never reveal /admin's existence to a non-admin: redirect to /dashboard,
+  // the same place any other non-matching route sends a logged-in user.
+  if (pathname.startsWith('/admin') && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (!profile || profile.is_admin !== true) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
   return supabaseResponse
 }
 
