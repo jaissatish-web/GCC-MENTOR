@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Suspense,
@@ -17,6 +18,7 @@ import { Toggle } from '@/components/ui/Toggle'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY } from '@/lib/onboardingDraft'
+import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import { calculateReadiness, type ReadinessResult } from '@/lib/readiness'
 import type { ReadinessCategory, PassportType } from '@/types/careerProfile'
 import type { CareerProfileDraft, CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
@@ -142,26 +144,6 @@ interface EditorData {
   certifications: EditableCert[]
   education: EditableEdu[]
   additional_information: EditableAdditional[]
-}
-
-// Field-visibility default per docs/CAREER_PROFILE.md §2: true everywhere
-// except date_of_birth and passport_type, which default to false.
-const DEFAULT_FIELD_VISIBILITY: FieldVisibility = {
-  full_name: true,
-  photo: true,
-  nationality: true,
-  date_of_birth: false,
-  passport_type: false,
-  passport_validity: true,
-  visa_status: true,
-  visa_transferable: true,
-  notice_period: true,
-  current_location: true,
-  phone: true,
-  whatsapp: true,
-  email: true,
-  linkedin_url: true,
-  additional_information: true,
 }
 
 // ---------------------------------------------------------------------------
@@ -814,8 +796,20 @@ function ProfileScreen() {
           </div>
         </CardSection>
 
-        {/* IDENTITY & CONTACT */}
-        <CardSection id="sec_identity" title="Identity & contact">
+        {/* IDENTITY & CONTACT — the card header links to /profile/visibility
+            (TASK-025 screen 04b), the per-field "what appears on your CV" view. */}
+        <CardSection
+          id="sec_identity"
+          title="Identity & contact"
+          action={
+            <Link
+              href="/profile/visibility"
+              className="text-[11px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+            >
+              What appears on your CV →
+            </Link>
+          }
+        >
           <div className="grid gap-3">
             <Input
               id="f_full_name"
