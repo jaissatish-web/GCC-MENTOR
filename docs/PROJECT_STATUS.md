@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-06 (TASK-022 approved)
+**Last updated:** 2026-08-07 (TASK-023 approved)
 
 ---
 
@@ -96,7 +96,7 @@ visible, even if slower, is the standing preference.
 
 ## Current progress
 
-**Phase 1 (MVP). ~25 of 47 tickets done and reviewed.** For the exact live
+**Phase 1 (MVP). ~26 of 47 tickets done and reviewed.** For the exact live
 status of every ticket — including every review round, every rejection
 reason, and every fix — `docs/TASKS.md` is authoritative; this section is
 a summary only.
@@ -106,7 +106,7 @@ a summary only.
 | A — Foundation & UI shell (000–006) | **All done.** |
 | B — Data layer, migrations (007–010, 046) | **All done and approved**, Needs Review tickets included. |
 | C — AI layer (011, 014–021, 038–039) | **All done and approved.** Extraction, prompt-building, grounding validation, the optimization route, rate limiting, and usage logging are all live in code (not yet live against a real database — see "Before this actually works" below). |
-| D — Profile UI (022–026) | **In progress.** TASK-026 (readiness ring) and TASK-022 (onboarding chooser) both done and approved. TASK-023/024/025 not started. |
+| D — Profile UI (022–026) | **In progress.** TASK-026, TASK-022, and TASK-023 (extraction progress screen) all done and approved. TASK-024/025 not started. |
 | E — Optimization flow UI (027–029) | Not started. Depends on TASK-024/027 landing first. |
 | F — Output: PDF/DOCX/diff (030–033) | TASK-031 (the resume template itself) done. TASK-030/032/033 not started. |
 | G — Library & dashboard (034–037) | TASK-037 (hard delete) done. TASK-034/035/036 not started. |
@@ -114,10 +114,10 @@ a summary only.
 | Blocked (042–045) | Genuinely blocked, not just unstarted: 042 (Razorpay) on founder KYC; 043 depends on 042; 044 is an explicit open product decision (change-summary vs. blurred preview) — do not resolve it unilaterally; 045 depends on 040. |
 | TASK-047 (pricing config, ad hoc) | **Done.** Not a pre-written ticket — founder requested it mid-session; added to `docs/TASKS.md` per the project's own "everything lives in TASKS.md" rule. |
 
-**Next up, in order:** TASK-023 (extraction progress screen) →
-TASK-024 (the big one — "one editor UI serving all three
-onboarding paths," the actual product experience) → TASK-025. TASK-040
-(admin panel) is also unblocked and could be picked up in parallel.
+**Next up, in order:** TASK-024 (the big one — "one editor UI serving
+all three onboarding paths," the actual product experience) → TASK-025.
+TASK-040 (admin panel) is also unblocked and could be picked up in
+parallel.
 
 ## Before this actually works end-to-end
 
