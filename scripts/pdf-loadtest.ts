@@ -16,6 +16,7 @@
  * exceeds 1GB, report it — the VPS may need resizing or rendering may need to
  * move to a dedicated service.
  */
+import './resolve-paths'
 import { createElement } from 'react'
 import * as React from 'react'
 import { spawn } from 'node:child_process'

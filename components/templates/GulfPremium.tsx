@@ -1,9 +1,7 @@
-import type {
-  CareerProfileFull,
-  FieldVisibility,
-} from '@/types/careerProfile'
+import type { CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { OptimizedContent } from '@/types/package'
 import { T, PAGE, SIZE } from './tokens'
+import { buildResumeDocument } from '@/lib/resumeDocument'
 
 /**
  * GulfPremium — the single MVP resume template (TASK-031).
@@ -15,6 +13,16 @@ import { T, PAGE, SIZE } from './tokens'
  * renders this with renderToStaticMarkup and no stylesheet. See ./tokens.ts
  * for the full reasoning. All colours/sizes come from there, never inline
  * literals.
+ *
+ * RENDERING ONLY (refactored for TASK-032). This component is now purely a
+ * renderer: every "what the document says" decision — the visibility filtering,
+ * the dangling-separator-safe joins, the visa/transferability folding, the
+ * summary user-edited ?? generated precedence, the skills_order relevance
+ * ordering with omitted skills appended, the date-range "Present" handling, the
+ * certification/education display strings — lives in ONE shared, render-agnostic
+ * module, lib/resumeDocument.ts (`buildResumeDocument`), which the PDF renderer
+ * (this component) and the DOCX renderer (app/api/packages/[id]/docx/route.ts)
+ * both consume. Two formats, one derivation — they can never drift.
  *
  * DATA CONTRACT (docs/DASHBOARD_LIBRARY.md §4):
  *   - Fixed fields (name, contact, employers, titles, dates, education,
@@ -28,7 +36,9 @@ import { T, PAGE, SIZE } from './tokens'
  *
  * THE HARD REQUIREMENT — "must render correctly for every combination of
  * shown/hidden fields; no empty gaps, no broken alignment, layout closes
- * cleanly." Achieved structurally, not by patching special cases:
+ * cleanly." Achieved structurally, not by patching special cases (and verified
+ * by the TASK-031 2^15-permutation test against a golden baseline, which this
+ * refactor must keep byte-identical — see scripts/verify-resume.ts):
  *   1. Every joined line is built by filtering an array then joining, so a
  *      hidden field can never leave a dangling " · " separator.
  *   2. Every section renders only when it has content — the heading is
@@ -45,32 +55,6 @@ export interface GulfPremiumProps {
   skillsOrder?: string[]
   /** The package's visibility snapshot. Omitted => every field shown. */
   fieldVisibility?: Partial<FieldVisibility> | null
-}
-
-/** Hidden only when explicitly false — an absent key means visible. */
-function visible(fv: Partial<FieldVisibility> | null | undefined, key: keyof FieldVisibility): boolean {
-  return fv?.[key] !== false
-}
-
-/** Join non-empty parts with a separator. Prevents dangling separators. */
-function joinParts(parts: Array<string | null | undefined | false>, sep = ' · '): string {
-  return parts.filter((p): p is string => typeof p === 'string' && p.trim() !== '').join(sep)
-}
-
-/** "2019-03-01" -> "Mar 2019". Falls back to the raw value if unparseable. */
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-function formatMonthYear(d: string | null | undefined): string {
-  if (!d) return ''
-  const m = /^(\d{4})-(\d{2})/.exec(d)
-  if (!m) return d
-  return `${MONTHS[Number(m[2]) - 1] ?? ''} ${m[1]}`.trim()
-}
-
-function dateRange(start: string | null | undefined, end: string | null | undefined): string {
-  const s = formatMonthYear(start)
-  if (!s) return ''
-  // A null end_date means "current" (docs/CAREER_PROFILE.md §3).
-  return `${s} — ${end ? formatMonthYear(end) : 'Present'}`
 }
 
 const sectionLabelStyle: React.CSSProperties = {
@@ -107,107 +91,15 @@ export default function GulfPremium({
   skillsOrder,
   fieldVisibility,
 }: GulfPremiumProps) {
-  const fv = fieldVisibility
-
-  // ---- Header -------------------------------------------------------------
-  const showPhoto = visible(fv, 'photo') && Boolean(profile.photo_url)
-  const showName = visible(fv, 'full_name')
-  const displayName = showName ? profile.full_name : ''
-
-  // Identity line 1: nationality · location · visa (+ transferability).
-  //
-  // Transferability is folded into the visa item rather than listed
-  // separately: a visa_status of "Transferable Iqama" alongside a separate
-  // "Transferable visa" item reads as duplicated text on the finished CV.
-  // Only stated independently when it is not already implied by the status.
-  const showVisaStatus = visible(fv, 'visa_status') && Boolean(profile.visa_status)
-  const showTransferable =
-    visible(fv, 'visa_transferable') &&
-    profile.visa_transferable !== null &&
-    profile.visa_transferable !== undefined
-  const statusMentionsTransfer = /transferab/i.test(profile.visa_status ?? '')
-
-  const visaItem = showVisaStatus
-    ? showTransferable && !statusMentionsTransfer
-      ? `${profile.visa_status} (${profile.visa_transferable ? 'transferable' : 'not transferable'})`
-      : profile.visa_status
-    : showTransferable
-      ? profile.visa_transferable
-        ? 'Transferable visa'
-        : 'Visa not transferable'
-      : null
-
-  const identityPrimary = joinParts([
-    visible(fv, 'nationality') && profile.nationality,
-    visible(fv, 'current_location') && profile.current_location,
-    visaItem,
-  ])
-
-  // Identity line 2: contact
-  const identityContact = joinParts([
-    visible(fv, 'phone') && profile.phone,
-    visible(fv, 'whatsapp') && profile.whatsapp && `WhatsApp ${profile.whatsapp}`,
-    visible(fv, 'email') && profile.email,
-    visible(fv, 'linkedin_url') && profile.linkedin_url,
-  ])
-
-  // Identity line 3: the Gulf-specific readiness fields
-  const identityGulf = joinParts([
-    visible(fv, 'date_of_birth') && profile.date_of_birth && `DOB ${profile.date_of_birth}`,
-    visible(fv, 'passport_type') && profile.passport_type && `Passport ${profile.passport_type}`,
-    visible(fv, 'passport_validity') &&
-      profile.passport_validity_date &&
-      `Passport valid to ${profile.passport_validity_date}`,
-    visible(fv, 'notice_period') && profile.notice_period && `Notice ${profile.notice_period}`,
-  ])
-
-  const hasAnyIdentity = Boolean(identityPrimary || identityContact || identityGulf)
-  const hasHeaderText = Boolean(displayName || profile.target_job_title || hasAnyIdentity)
-
-  // ---- Summary ------------------------------------------------------------
-  const summary =
-    optimizedContent.summary?.user_edited?.trim() ||
-    optimizedContent.summary?.generated?.trim() ||
-    ''
-
-  // ---- Experience ---------------------------------------------------------
-  // Fixed facts live on the profile; only the bullets come from the package.
-  const blocksById = new Map(
-    (optimizedContent.experience_blocks ?? []).map((b) => [b.profile_experience_id, b]),
-  )
-  const experience = (profile.work_experience ?? [])
-    .slice()
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map((entry) => {
-      const block = blocksById.get(entry.id)
-      const bullets =
-        block?.user_edited_bullets ??
-        block?.generated_bullets ??
-        entry.highlights ??
-        []
-      return { entry, bullets: bullets.filter((b) => b && b.trim() !== '') }
-    })
-
-  // ---- Skills -------------------------------------------------------------
-  // skills_order holds relevance-ordered ids. Anything the order omits is
-  // appended in the user's own order so a skill can never silently vanish.
-  const skillsById = new Map((profile.skills ?? []).map((s) => [s.id, s]))
-  const orderedSkills = (skillsOrder ?? [])
-    .map((id) => skillsById.get(id))
-    .filter((s): s is NonNullable<typeof s> => Boolean(s))
-  const orderedIds = new Set(orderedSkills.map((s) => s.id))
-  const remainingSkills = (profile.skills ?? [])
-    .filter((s) => !orderedIds.has(s.id))
-    .sort((a, b) => a.sort_order - b.sort_order)
-  const skills = [...orderedSkills, ...remainingSkills]
-
-  const certifications = (profile.certifications ?? [])
-    .slice()
-    .sort((a, b) => a.sort_order - b.sort_order)
-  const education = (profile.education ?? []).slice().sort((a, b) => a.sort_order - b.sort_order)
-  const additional = visible(fv, 'additional_information')
-    ? (profile.additional_information ?? []).slice().sort((a, b) => a.sort_order - b.sort_order)
-    : []
+  const {
+    header,
+    summary,
+    experience,
+    skills,
+    certifications,
+    education,
+    additional,
+  } = buildResumeDocument({ profile, optimizedContent, skillsOrder, fieldVisibility })
 
   return (
     <div
@@ -224,17 +116,17 @@ export default function GulfPremium({
       }}
     >
       {/* ── HEADER ── photo + name + target title + identity lines ── */}
-      {hasHeaderText || showPhoto ? (
+      {header.hasHeaderText || header.showPhoto ? (
         <div
           style={{
             display: 'flex',
-            gap: showPhoto ? '18px' : '0',
+            gap: header.showPhoto ? '18px' : '0',
             alignItems: 'flex-start',
             paddingBottom: '14px',
             borderBottom: `2px solid ${T.midnight}`,
           }}
         >
-          {showPhoto ? (
+          {header.showPhoto ? (
             <div
               style={{
                 width: '78px',
@@ -251,15 +143,15 @@ export default function GulfPremium({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={profile.photo_url ?? ''}
-                alt={displayName ? `${displayName}, profile photo` : 'Profile photo'}
+                src={header.photoUrl ?? ''}
+                alt={header.displayName ? `${header.displayName}, profile photo` : 'Profile photo'}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
           ) : null}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0 }}>
-            {displayName ? (
+            {header.displayName ? (
               <div
                 style={{
                   fontFamily: T.serif,
@@ -268,11 +160,11 @@ export default function GulfPremium({
                   color: T.midnight,
                 }}
               >
-                {displayName}
+                {header.displayName}
               </div>
             ) : null}
 
-            {profile.target_job_title ? (
+            {header.targetJobTitle ? (
               <div
                 style={{
                   fontFamily: T.sans,
@@ -283,11 +175,11 @@ export default function GulfPremium({
                   color: T.goldText,
                 }}
               >
-                {profile.target_job_title}
+                {header.targetJobTitle}
               </div>
             ) : null}
 
-            {hasAnyIdentity ? (
+            {header.hasAnyIdentity ? (
               <div
                 style={{
                   fontFamily: T.sans,
@@ -297,9 +189,9 @@ export default function GulfPremium({
                   marginTop: '2px',
                 }}
               >
-                {identityPrimary ? <div>{identityPrimary}</div> : null}
-                {identityContact ? <div>{identityContact}</div> : null}
-                {identityGulf ? <div>{identityGulf}</div> : null}
+                {header.identityPrimary ? <div>{header.identityPrimary}</div> : null}
+                {header.identityContact ? <div>{header.identityContact}</div> : null}
+                {header.identityGulf ? <div>{header.identityGulf}</div> : null}
               </div>
             ) : null}
           </div>
@@ -316,9 +208,7 @@ export default function GulfPremium({
       {/* ── EXPERIENCE ── */}
       {experience.length > 0 ? (
         <Section title="Experience">
-          {experience.map(({ entry, bullets }) => {
-            const range = dateRange(entry.start_date, entry.end_date)
-            const companyLine = joinParts([entry.company, entry.location])
+          {experience.map(({ entry, bullets, range, companyLine }) => {
             return (
               <div key={entry.id} style={{ marginBottom: '11px', pageBreakInside: 'avoid' }}>
                 <div
@@ -401,14 +291,7 @@ export default function GulfPremium({
       {certifications.length > 0 ? (
         <Section title="Certifications">
           <div style={bodyTextStyle}>
-            {certifications
-              .map((c) => {
-                const year = c.issue_date ? /^(\d{4})/.exec(c.issue_date)?.[1] : null
-                const label = joinParts([c.name, c.issuer], ' — ')
-                return year ? `${label} (${year})` : label
-              })
-              .filter(Boolean)
-              .join(' · ')}
+            {certifications.map((c) => c.display).filter(Boolean).join(' · ')}
           </div>
         </Section>
       ) : null}
@@ -416,47 +299,34 @@ export default function GulfPremium({
       {/* ── EDUCATION ── */}
       {education.length > 0 ? (
         <Section title="Education">
-          {education.map((ed) => {
-            // "B.E. Instrumentation & Control — Anna University", matching
-            // the mockup's education line (screen 10).
-            const qualification = joinParts([ed.degree, ed.field_of_study], ' ')
-            const years =
-              ed.start_year && ed.end_year
-                ? `${ed.start_year}—${ed.end_year}`
-                : ed.end_year
-                  ? String(ed.end_year)
-                  : ed.start_year
-                    ? String(ed.start_year)
-                    : ''
-            return (
-              <div
-                key={ed.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'baseline',
-                  gap: '12px',
-                  marginBottom: '3px',
-                  pageBreakInside: 'avoid',
-                }}
-              >
-                <span style={bodyTextStyle}>{joinParts([qualification, ed.institution], ' — ')}</span>
-                {years ? (
-                  <span
-                    style={{
-                      fontFamily: T.mono,
-                      fontSize: SIZE.date,
-                      color: T.inkMuted,
-                      whiteSpace: 'nowrap',
-                      flex: 'none',
-                    }}
-                  >
-                    {years}
-                  </span>
-                ) : null}
-              </div>
-            )
-          })}
+          {education.map((ed) => (
+            <div
+              key={ed.entry.id}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
+                gap: '12px',
+                marginBottom: '3px',
+                pageBreakInside: 'avoid',
+              }}
+            >
+              <span style={bodyTextStyle}>{ed.line}</span>
+              {ed.years ? (
+                <span
+                  style={{
+                    fontFamily: T.mono,
+                    fontSize: SIZE.date,
+                    color: T.inkMuted,
+                    whiteSpace: 'nowrap',
+                    flex: 'none',
+                  }}
+                >
+                  {ed.years}
+                </span>
+              ) : null}
+            </div>
+          ))}
         </Section>
       ) : null}
 
@@ -464,7 +334,7 @@ export default function GulfPremium({
       {additional.length > 0 ? (
         <Section title="Additional information">
           <div style={bodyTextStyle}>
-            {additional.map((a) => joinParts([a.label, a.value], ': ')).filter(Boolean).join(' · ')}
+            {additional.map((a) => a.display).filter(Boolean).join(' · ')}
           </div>
         </Section>
       ) : null}
