@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-07 (Database is live: all 10 migrations applied to a fresh Supabase project and independently verified — 14 tables, RLS confirmed on all of them. `.env.local` configured. AI provider now runs on OpenRouter, admin-panel-configurable — see Unplanned #16/#17 in `docs/TASKS.md`.)
+**Last updated:** 2026-08-07 (TASK-033 approved — before/after diff + results screens, resolving TASK-044's Option B decision. Phase 1 is functionally complete except Razorpay. Three Phase 2 tickets — TASK-048/049/050 — added per founder decision to start the free tier now, in parallel.)
 
 ---
 
@@ -96,7 +96,7 @@ visible, even if slower, is the standing preference.
 
 ## Current progress
 
-**Phase 1 (MVP). 43 of 47 tickets done and reviewed. The remaining 4 are all blocked on the founder, not on building.** For the exact live
+**Phase 1 (MVP). 45 of 47 tickets done and reviewed. The remaining 2 (Razorpay) are blocked on the founder's KYC, not on building.** Three ad-hoc Phase 2 tickets (TASK-048/049/050) are additionally queued — see below. For the exact live
 status of every ticket — including every review round, every rejection
 reason, and every fix — `docs/TASKS.md` is authoritative; this section is
 a summary only.
@@ -107,23 +107,19 @@ a summary only.
 | B — Data layer, migrations (007–013, 046) | **All done and approved**, Needs Review tickets included (TASK-012/013 closed out 2026-08-07 — implemented earlier but approval had lagged). |
 | C — AI layer (011, 014–021, 038–039) | **All done and approved.** Extraction, prompt-building, grounding validation, the optimization route, rate limiting, and usage logging are all live in code (not yet live against a real database — see "Before this actually works" below). |
 | D — Profile UI (022–026) | **All done and approved.** TASK-022/023/024/025/026 complete — the full Career Profile editor + field visibility screen. |
-| E — Optimization flow UI (027–029) | **All done and approved.** Target selection → setup → the real named-steps "Optimizing…" animation, all wired to the live `POST /api/optimize` (TASK-021). The before/after preview screen itself is TASK-033 (section F below), still not started — it also needs TASK-044's open decision resolved first (how much shows pre-payment). |
-| F — Output: PDF/DOCX/diff (030–033) | TASK-031/030/032 done and approved. TASK-032 (DOCX export) extracted the resume derivation into `lib/resumeDocument.ts`, shared by both the PDF (`GulfPremium.tsx`) and DOCX (`lib/resumeDocx.ts`) renderers so they can't drift — verified independently (32,768-permutation no-regression check re-run fresh, build/lint/tsc clean). **⚠️ VPS memory note:** a corrected load test (the shipped one was wrong by ~17x, see TASK-030's notes) measured 730MB peak for 5 concurrent PDF renders on a dev machine — under the 1GB gate, but re-measure on the actual target VPS before finalizing its specs. TASK-033 not started (blocked on TASK-044). |
+| E — Optimization flow UI (027–029) | **All done and approved.** Target selection → setup → the real named-steps "Optimizing…" animation, all wired to the live `POST /api/optimize` (TASK-021). |
+| F — Output: PDF/DOCX/diff (030–033) | **All done and approved.** TASK-032 (DOCX export) extracted the resume derivation into `lib/resumeDocument.ts`, shared by both the PDF (`GulfPremium.tsx`) and DOCX (`lib/resumeDocx.ts`) renderers so they can't drift. TASK-033 (before/after diff + results screens) resolved TASK-044's decision (Option B) — the pre-payment "Full CV" preview is a server-rendered blurred/watermarked PNG (blur baked into the HTML before the Puppeteer screenshot, not a client-side CSS filter — verified this can't be defeated via devtools). The "Changes" diff tab is ungated by design (matches TASK-021's original data-flow), generated text is user-editable via a new owner-scoped `PATCH /api/packages/[id]`. **⚠️ VPS memory note:** a corrected load test (the shipped one was wrong by ~17x, see TASK-030's notes) measured 730MB peak for 5 concurrent PDF renders on a dev machine — under the 1GB gate, but re-measure on the actual target VPS before finalizing its specs. |
 | G — Library & dashboard (034–037) | **All done and approved.** TASK-034 (Dashboard, D1/D2), TASK-035 (Library, mobile cards + desktop table + list/status/delete API), TASK-036 (reuse detection — rule-based title match, re-optimize overwrites the old package only after the new one is confirmed created), TASK-037 (hard delete). |
 | H — Operations (038–041) | **All done and approved.** TASK-040 (admin panel), built directly by the CTO, approved 2026-08-07. |
-| Blocked (042–045) | 042 (Razorpay) on founder KYC; 043 depends on 042; 044 is an explicit open product decision (change-summary vs. blurred preview) — founder has deferred this, do not resolve it unilaterally. TASK-045 (manual credit grant) done and committed. |
+| Blocked (042–043) | 042 (Razorpay) on founder KYC; 043 depends on 042. Only remaining Phase 1 gap. |
+| TASK-044 (pre-payment preview decision) | **Resolved 2026-08-07 — Option B (blurred/watermarked full CV).** Built as part of TASK-033. |
+| TASK-045 (manual credit grant) | Done. |
 | TASK-047 (pricing config, ad hoc) | **Done.** Not a pre-written ticket — founder requested it mid-session; added to `docs/TASKS.md` per the project's own "everything lives in TASKS.md" rule. |
+| TASK-048/049/050 (Phase 2 pulled forward, ad hoc) | **Not started.** Founder decision 2026-08-07 to start the free ATS scanner + multiple templates now, in parallel, rather than waiting for Phase 1 sales signal — see `docs/MVP.md` §2a. TASK-048 (anonymous rate limiting) is the natural first hand-off — small, self-contained, and TASK-049 (the scanner itself) depends on it. |
 
-**Next up: nothing is buildable right now without the founder.** The
-only 4 open tickets are TASK-033 (blocked on TASK-044), TASK-042/043
-(blocked on Razorpay KYC), and TASK-044 itself (explicit founder
-decision, deferred once already — see conversation 2026-08-07).
-Everything else in Phase 1 is done. Separately, the founder has
-indicated interest in a Phase 2 freemium pivot (free ATS check tier,
-free manual builder, plan/limits "control center") — deliberately
-sequenced to start only after Phase 1 ships and gets real sales
-signal; do not start that work from a ticket alone without founder
-confirmation it's time.
+**Phase 1 is functionally complete except Razorpay** (blocked on the
+founder's KYC, not on building). **Next up:** TASK-048, to unblock the
+Phase 2 work now underway in parallel.
 
 ## Before this actually works end-to-end
 
