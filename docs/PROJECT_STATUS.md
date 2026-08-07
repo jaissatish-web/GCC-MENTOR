@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-07 (TASK-040 approved)
+**Last updated:** 2026-08-07 (TASK-027 approved)
 
 ---
 
@@ -96,7 +96,7 @@ visible, even if slower, is the standing preference.
 
 ## Current progress
 
-**Phase 1 (MVP). ~29 of 47 tickets done and reviewed.** For the exact live
+**Phase 1 (MVP). ~30 of 47 tickets done and reviewed.** For the exact live
 status of every ticket — including every review round, every rejection
 reason, and every fix — `docs/TASKS.md` is authoritative; this section is
 a summary only.
@@ -107,16 +107,17 @@ a summary only.
 | B — Data layer, migrations (007–013, 046) | **All done and approved**, Needs Review tickets included (TASK-012/013 closed out 2026-08-07 — implemented earlier but approval had lagged). |
 | C — AI layer (011, 014–021, 038–039) | **All done and approved.** Extraction, prompt-building, grounding validation, the optimization route, rate limiting, and usage logging are all live in code (not yet live against a real database — see "Before this actually works" below). |
 | D — Profile UI (022–026) | **All done and approved.** TASK-022/023/024/025/026 complete — the full Career Profile editor + field visibility screen. |
-| E — Optimization flow UI (027–029) | Not started. TASK-027 (target selection) unblocked — its dependency, TASK-024, is done and approved. |
+| E — Optimization flow UI (027–029) | **In progress.** TASK-027 (target selection) done and approved. TASK-028 (optimization setup) is next — TASK-027 hands off via `sessionStorage` (`OPTIMIZATION_TARGET_DRAFT_KEY`), same pattern as TASK-023→024. TASK-029 not started. |
 | F — Output: PDF/DOCX/diff (030–033) | TASK-031 (the resume template itself) done. TASK-030/032/033 not started. |
 | G — Library & dashboard (034–037) | TASK-037 (hard delete) done. TASK-034/035/036 not started. |
 | H — Operations (038–041) | **All done and approved.** TASK-040 (admin panel), built directly by the CTO, approved 2026-08-07. |
 | Blocked (042–045) | 042 (Razorpay) on founder KYC; 043 depends on 042; 044 is an explicit open product decision (change-summary vs. blurred preview) — do not resolve it unilaterally. TASK-045 (manual credit grant) is no longer blocked — its dependency, TASK-040, is done and approved. |
 | TASK-047 (pricing config, ad hoc) | **Done.** Not a pre-written ticket — founder requested it mid-session; added to `docs/TASKS.md` per the project's own "everything lives in TASKS.md" rule. |
 
-**Next up:** TASK-027 (target selection, screen 05) is the next screen
-in the main product flow. TASK-045 (manual credit grant) is also
-unblocked and could be picked up in parallel.
+**Next up:** TASK-028 (optimization setup, screen 06) is the next screen
+in the main product flow — reads and clears the `OPTIMIZATION_TARGET_DRAFT_KEY`
+session handoff TASK-027 just built. TASK-045 (manual credit grant) is
+also unblocked and could be picked up in parallel.
 
 ## Before this actually works end-to-end
 
