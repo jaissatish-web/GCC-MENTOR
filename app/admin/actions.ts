@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin/adminAuth'
 import { setRateLimitOverride } from '@/lib/admin/adminData'
 import { grantOptimizationCredit } from '@/lib/admin/credits'
+import { getProviderConfig, setProviderConfig } from '@/lib/ai/providerConfig'
 
 /**
  * Admin Server Actions — TASK-040.
@@ -63,4 +64,54 @@ export async function grantCreditAction(formData: FormData): Promise<void> {
   if (targetUserId) params.set('user', targetUserId)
   const suffix = params.toString()
   redirect(`/admin${suffix ? `?${suffix}` : ''}`)
+}
+
+/**
+ * Update the AI provider configuration (migration 019) — founder request,
+ * 2026-08-07. Not a pre-written ticket; same standing as TASK-047's pricing
+ * config, added to docs/TASKS.md as an Unplanned entry.
+ *
+ * Re-verifies is_admin independently, same reasoning as every other action
+ * in this file. The api_key field is left BLANK on the page after a save
+ * (never round-tripped back into the form) — leaving it blank on submit
+ * means "keep the existing key," so the founder isn't forced to re-paste a
+ * secret just to change the model string.
+ */
+export async function updateProviderConfigAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+
+  const provider = String(formData.get('provider') ?? '').trim()
+  const model = String(formData.get('model') ?? '').trim()
+  const rawFallback = String(formData.get('fallbackModel') ?? '').trim()
+  const rawApiKey = String(formData.get('apiKey') ?? '').trim()
+
+  if (!provider || !model) {
+    redirect('/admin?providerError=Provider+and+model+are+required')
+  }
+
+  let apiKey = rawApiKey
+  if (!apiKey) {
+    // Blank submission = keep the existing key. Read it back rather than
+    // trusting a hidden form field, so a crafted POST can't smuggle in a
+    // stale or forged key value.
+    const existing = await getProviderConfig()
+    if (!existing) {
+      redirect('/admin?providerError=API+key+is+required+the+first+time')
+    }
+    apiKey = existing.apiKey
+  }
+
+  const result = await setProviderConfig({
+    provider,
+    model,
+    fallbackModel: rawFallback || null,
+    apiKey,
+    adminId: admin.id,
+  })
+
+  if (!result.ok) {
+    redirect(`/admin?providerError=${encodeURIComponent(result.error)}`)
+  }
+
+  redirect('/admin?providerSaved=1')
 }

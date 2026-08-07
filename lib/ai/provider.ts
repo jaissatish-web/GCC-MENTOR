@@ -1,8 +1,23 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
+import { getProviderConfig } from '@/lib/ai/providerConfig'
 
 // Every model call in this product goes through generate() below.
-// No API route may import the Anthropic SDK directly (docs/TASKS.md TASK-015).
+// No API route may call an AI provider directly (docs/TASKS.md TASK-015).
+//
+// PROVIDER SWITCH (founder request, 2026-08-07, docs/TASKS.md "Unplanned"):
+// this used to call the Anthropic SDK directly with a hard-coded model and
+// an env-var key. It now calls OpenRouter's OpenAI-compatible chat
+// completions endpoint (plain fetch, no new dependency — OpenRouter's API
+// needs nothing the Anthropic SDK gave us) using provider/model/key read
+// live from ai_provider_config (migration 019, editable from /admin). The
+// founder wanted to change model or key from the admin panel without a
+// redeploy, and OpenRouter's own `models` + `route: 'fallback'` retry
+// feature covers the "fall back to a different model" want for v2 without
+// custom fallback logic here — fallback_model is wired through now, unused
+// until the founder sets one.
+//
+// No hard-coded model/key ANYWHERE in this file — see AI_PROVIDER_ERROR
+// below for what happens when ai_provider_config has no row yet.
 
 export class AIProviderError extends Error {
   constructor(message: string, readonly cause?: unknown) {
@@ -28,7 +43,7 @@ interface GenerateResult {
   outputTokens: number;
 }
 
-const MODEL_NAME = 'claude-sonnet-5';
+const OPENROUTER_CHAT_COMPLETIONS_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // ---- ai_usage_log (TASK-039) ----------------------------------------------
 // TASK-039 moves unit-cost logging INSIDE the provider so no route can forget
@@ -39,8 +54,8 @@ const MODEL_NAME = 'claude-sonnet-5';
 // to service_role only (matching pii_access_log's model) — cost data is
 // internal business information with no end-user use case, so the original
 // owner-readable RLS from migration 013 was tightened rather than relied on
-// as-is. provider.ts is server-only by construction (it holds
-// ANTHROPIC_API_KEY), consistent with docs/RULES.md §6.
+// as-is. provider.ts is server-only by construction (it reads the provider
+// API key via the service-role client), consistent with docs/RULES.md §6.
 //
 // COST RATE NOTE (CTO-verified 2026-08-06): no per-model INR price was
 // pinned anywhere in docs/. Sourced from Anthropic's published pricing for
@@ -70,6 +85,7 @@ function estimateCostInr(inputTokens: number, outputTokens: number): number {
 async function logUsage(opts: {
   userId: string;
   route: string;
+  model: string;
   inputTokens: number;
   outputTokens: number;
 }): Promise<void> {
@@ -78,7 +94,7 @@ async function logUsage(opts: {
     const { error } = await supabase.from('ai_usage_log').insert({
       user_id: opts.userId,
       route: opts.route,
-      model: MODEL_NAME,
+      model: opts.model,
       input_tokens: opts.inputTokens,
       output_tokens: opts.outputTokens,
       estimated_cost_inr: estimateCostInr(opts.inputTokens, opts.outputTokens),
@@ -99,7 +115,13 @@ async function logUsage(opts: {
   }
 }
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+// OpenRouter's chat-completions response shape (OpenAI-compatible) — only the
+// fields this file actually reads, not the full spec.
+interface OpenRouterResponse {
+  choices?: Array<{ message?: { content?: string | null } }>;
+  usage?: { prompt_tokens?: number; completion_tokens?: number };
+  error?: { message?: string };
+}
 
 export async function generate({
   system,
@@ -109,31 +131,68 @@ export async function generate({
   userId,
   route,
 }: GenerateParams): Promise<GenerateResult> {
+  const config = await getProviderConfig();
+  if (!config) {
+    // No guessed default — there is no safe default for a live API key.
+    // The founder configures this once from /admin (migration 019).
+    throw new AIProviderError('AI provider is not configured. Set it in /admin first.');
+  }
+
+  // OpenRouter's own fallback-routing feature (models[] + route: 'fallback')
+  // covers "retry with a different model on failure" — no custom retry loop
+  // needed here. Falls back to a single `model` field when no fallback_model
+  // is set, which is the plain single-model request shape.
+  const body: Record<string, unknown> = {
+    messages: [
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ],
+    max_tokens: maxTokens,
+    temperature,
+  };
+  if (config.fallbackModel) {
+    body.models = [config.model, config.fallbackModel];
+    body.route = 'fallback';
+  } else {
+    body.model = config.model;
+  }
+
   try {
-    const response = await client.messages.create({
-      model: MODEL_NAME,
-      max_tokens: maxTokens,
-      temperature,
-      system,
-      messages: [{ role: 'user', content: user }],
+    const res = await fetch(OPENROUTER_CHAT_COMPLETIONS_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json',
+        // Optional app-identification headers OpenRouter's docs recommend —
+        // no functional effect on the response, safe to omit if wrong.
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+        'X-Title': '[Product Name]',
+      },
+      body: JSON.stringify(body),
     });
 
-    const textBlock = response.content.find((block) => block.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
-      throw new AIProviderError('Model response contained no text block');
+    const json = (await res.json().catch(() => null)) as OpenRouterResponse | null;
+
+    if (!res.ok) {
+      // Never log config.apiKey or the request body (it's in closure, not
+      // referenced here) — only the provider's own error message, if any.
+      throw new AIProviderError(
+        `OpenRouter request failed (${res.status}): ${json?.error?.message ?? res.statusText}`
+      );
     }
 
-    const inputTokens = response.usage.input_tokens;
-    const outputTokens = response.usage.output_tokens;
+    const text = json?.choices?.[0]?.message?.content;
+    if (!text) {
+      throw new AIProviderError('Model response contained no text content');
+    }
+
+    const inputTokens = json?.usage?.prompt_tokens ?? 0;
+    const outputTokens = json?.usage?.completion_tokens ?? 0;
 
     // Fire-and-forget the usage log so it never slows or blocks the response.
-    void logUsage({ userId, route, inputTokens, outputTokens });
+    void logUsage({ userId, route, model: config.model, inputTokens, outputTokens });
 
-    return {
-      text: textBlock.text,
-      inputTokens,
-      outputTokens,
-    };
+    return { text, inputTokens, outputTokens };
   } catch (error) {
     if (error instanceof AIProviderError) throw error;
     throw new AIProviderError('AI provider call failed', error);

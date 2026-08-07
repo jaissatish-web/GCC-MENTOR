@@ -6,12 +6,19 @@ import {
   getTodayRateLimits,
   listPiiAccessLog,
 } from '@/lib/admin/adminData'
-import { overrideRateLimitAction, grantCreditAction } from '@/app/admin/actions'
+import { overrideRateLimitAction, grantCreditAction, updateProviderConfigAction } from '@/app/admin/actions'
 import { listCreditsForUser } from '@/lib/admin/credits'
+import { getProviderConfig } from '@/lib/ai/providerConfig'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Pill } from '@/components/ui/Pill'
+
+/** Never render a full secret into the page HTML — a short masked hint only. */
+function maskSecret(secret: string): string {
+  if (secret.length <= 8) return '••••••••'
+  return `${secret.slice(0, 4)}••••${secret.slice(-4)}`
+}
 
 /**
  * Admin panel — TASK-040. ONE screen (docs/ADMIN.md §1: "deliberately
@@ -43,10 +50,10 @@ function readableCategory(cat: string | null): string {
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: { q?: string; user?: string }
+  searchParams: { q?: string; user?: string; providerSaved?: string; providerError?: string }
 }) {
   const admin = await requireAdmin()
-  const { q, user: selectedUserId } = searchParams
+  const { q, user: selectedUserId, providerSaved, providerError } = searchParams
 
   const results = q ? await searchUsers(q) : []
   const selectedPackages = selectedUserId
@@ -55,6 +62,7 @@ export default async function AdminPage({
   const selectedRateLimits = selectedUserId ? await getTodayRateLimits(selectedUserId) : []
   const selectedCredits = selectedUserId ? await listCreditsForUser(selectedUserId) : []
   const recentAccessLog = await listPiiAccessLog(50)
+  const providerConfig = await getProviderConfig()
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8">
@@ -62,6 +70,83 @@ export default async function AdminPage({
         <h1 className="font-serif text-2xl text-midnight">Admin</h1>
         <p className="text-sm text-ink-muted">Signed in as {admin.email ?? admin.id}</p>
       </div>
+
+      {/* ---- AI provider config (migration 019, founder request 2026-08-07) */}
+      <Card className="flex flex-col gap-4 p-5">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">
+          AI provider
+        </h2>
+        <p className="text-[12px] text-ink-muted">
+          Controls which AI service and model every optimization/extraction call uses —
+          change it here any time, no redeploy needed. Leave the API key blank to keep the
+          key already saved; only fill it in to change it.
+        </p>
+
+        {providerSaved ? (
+          <div className="rounded-xl border border-state-emerald-line bg-state-emerald-bg px-3.5 py-2.5 text-[12px] text-emerald">
+            Saved.
+          </div>
+        ) : null}
+        {providerError ? (
+          <div className="rounded-xl border border-terracotta/30 bg-state-terra-bg px-3.5 py-2.5 text-[12px] text-state-terra-text">
+            {providerError}
+          </div>
+        ) : null}
+
+        {providerConfig ? (
+          <p className="text-[12px] text-ink-faint">
+            Currently: <span className="font-semibold text-ink-body">{providerConfig.provider}</span> ·{' '}
+            <span className="font-mono">{providerConfig.model}</span>
+            {providerConfig.fallbackModel ? (
+              <>
+                {' '}
+                (fallback: <span className="font-mono">{providerConfig.fallbackModel}</span>)
+              </>
+            ) : null}{' '}
+            · key <span className="font-mono">{maskSecret(providerConfig.apiKey)}</span> · last
+            updated {providerConfig.updatedAt.slice(0, 10)}
+          </p>
+        ) : (
+          <p className="text-[12px] text-state-terra-text">
+            Not configured yet — no AI calls will work until this is saved.
+          </p>
+        )}
+
+        <form action={updateProviderConfigAction} className="flex flex-col gap-3">
+          <div className="flex flex-wrap gap-2">
+            <Input
+              name="provider"
+              label="Provider"
+              defaultValue={providerConfig?.provider ?? 'openrouter'}
+              required
+              className="w-[160px]"
+            />
+            <Input
+              name="model"
+              label="Model"
+              defaultValue={providerConfig?.model ?? ''}
+              placeholder="e.g. anthropic/claude-sonnet-4.5"
+              required
+              className="flex-1 min-w-[220px]"
+            />
+          </div>
+          <Input
+            name="fallbackModel"
+            label="Fallback model (optional — v2)"
+            defaultValue={providerConfig?.fallbackModel ?? ''}
+            placeholder="e.g. openai/gpt-5.2 — leave blank to disable"
+          />
+          <Input
+            name="apiKey"
+            type="password"
+            label={providerConfig ? 'New API key (leave blank to keep current)' : 'API key (required)'}
+            placeholder={providerConfig ? '••••••••' : 'sk-or-...'}
+          />
+          <Button type="submit" variant="primary" className="self-start">
+            Save AI provider
+          </Button>
+        </form>
+      </Card>
 
       {/* ---- Users list (docs/ADMIN.md §2.1) --------------------------- */}
       <Card className="flex flex-col gap-4 p-5">
