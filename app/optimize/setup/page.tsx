@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
-import { OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
+import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
 import type { OptimizationLevel } from '@/types/package'
 
 /**
@@ -204,7 +204,21 @@ function SetupScreen() {
         return
       }
       if (responseBody?.success && responseBody?.packageId) {
-        router.push(`/optimize/preview/${(responseBody.packageId as string).replace(/[^a-zA-Z0-9-]/g, '')}`)
+        const newPackageId = (responseBody.packageId as string).replace(/[^a-zA-Z0-9-]/g, '')
+        // Reuse-detection re-optimize (TASK-036): delete the OLD package ONLY
+        // now that the new package is confirmed created — never before, so a
+        // failed generation can't destroy the user's existing content for
+        // nothing. Best-effort: never block navigation on this cleanup.
+        const replaceId = window.sessionStorage.getItem(OPTIMIZATION_REPLACE_PACKAGE_KEY)
+        window.sessionStorage.removeItem(OPTIMIZATION_REPLACE_PACKAGE_KEY)
+        if (replaceId) {
+          await fetch(`/api/packages/${encodeURIComponent(replaceId)}`, { method: 'DELETE' }).catch(
+            () => {
+              /* swallow — the new resume exists; old-package cleanup is best-effort */
+            }
+          )
+        }
+        router.push(`/optimize/preview/${newPackageId}`)
         return
       }
       setError('Unexpected response from the server.')

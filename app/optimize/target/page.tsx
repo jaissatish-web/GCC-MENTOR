@@ -1,12 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { cn, GULF_COUNTRIES, PERSONA_INDUSTRIES } from '@/lib/utils'
-import { OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
+import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
+import { findSimilarPackage } from '@/lib/reuseDetection'
+import type { Package } from '@/types/package'
 
 /**
  * Target selection — screen 05 (TASK-027), route /optimize/target.
@@ -36,9 +38,13 @@ import { OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
  * document; no such route exists or is speced). Whoever builds JD-PDF text
  * extraction should wire the real upload here. No upload API is invented.
  *
- * REUSE DETECTION (contract #5): lib/reuseDetection.ts is TASK-036 (depends on
- * TASK-035 Library), not built. Deferred entirely — no fake "you already have
- * a package" prompt. Revisit when TASK-036 lands.
+ * REUSE DETECTION (TASK-036): once the user types a target title, if a
+ * similar-titled package exists in their Library (GET /api/packages) a prompt
+ * offers "re-optimize" (overwrites its text) or "start fresh"; choosing
+ * re-optimize carries the old package's id forward via
+ * OPTIMIZATION_REPLACE_PACKAGE_KEY so /optimize/setup deletes it only after the
+ * new one is confirmed created. Pure rule-based title matching — no
+ * automated %-matching (that is Phase 2).
  *
  * HANDOFF (contract #6): /optimize/setup (TASK-028) does not exist yet either —
  * it is still the TASK-003 placeholder and there is nothing to POST to. On
@@ -69,6 +75,9 @@ function TargetScreen() {
   const [draft, setDraft] = useState<TargetDraft>(EMPTY)
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [existingPackages, setExistingPackages] = useState<Package[] | null>(null)
+  const [replacingId, setReplacingId] = useState<string | null>(null)
+  const [dismissed, setDismissed] = useState(false)
   const didInit = useRef(false)
 
   // Prefill from the profile's target defaults on mount (contract #2).
@@ -105,11 +114,39 @@ function TargetScreen() {
         setLoadError('Could not load your profile defaults.')
         setLoaded(true)
       })
+
+    // Load existing packages (TASK-035) for reuse detection (TASK-036).
+    fetch('/api/packages', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json().catch(() => null) : null))
+      .then((data) => {
+        if (Array.isArray(data?.packages)) {
+          setExistingPackages(data.packages as Package[])
+        } else {
+          setExistingPackages([])
+        }
+      })
+      .catch(() => setExistingPackages([]))
   }, [])
 
   const set = useCallback(<K extends keyof TargetDraft>(key: K, value: TargetDraft[K]) => {
     setDraft((d) => ({ ...d, [key]: value }))
   }, [])
+
+  // Reuse detection (TASK-036): rule-based title comparison against the user's
+  // existing packages, evaluated live as the target title is typed.
+  const similar = useMemo(() => {
+    if (!existingPackages) return null
+    return findSimilarPackage(draft.target_job_title.trim(), existingPackages)
+  }, [draft.target_job_title, existingPackages])
+
+  // If the match disappears (title edited, packages change), reset the choice so
+  // the prompt can re-offer it.
+  useEffect(() => {
+    if (!similar) {
+      setReplacingId(null)
+      setDismissed(false)
+    }
+  }, [similar])
 
   // Title, industry and country are required; company and JD are not.
   const canContinue =
@@ -121,8 +158,15 @@ function TargetScreen() {
     if (!canContinue) return
     // Handoff to /optimize/setup (TASK-028 reads + clears this).
     window.sessionStorage.setItem(OPTIMIZATION_TARGET_DRAFT_KEY, JSON.stringify(draft))
+    // Carry forward which existing package (if any) this run replaces, so setup
+    // can delete it ONLY after a confirmed successful new package is created.
+    if (replacingId) {
+      window.sessionStorage.setItem(OPTIMIZATION_REPLACE_PACKAGE_KEY, replacingId)
+    } else {
+      window.sessionStorage.removeItem(OPTIMIZATION_REPLACE_PACKAGE_KEY)
+    }
     router.push('/optimize/setup')
-  }, [canContinue, draft, router])
+  }, [canContinue, draft, replacingId, router])
 
   if (!loaded) {
     return (
@@ -180,6 +224,57 @@ function TargetScreen() {
             placeholder="e.g. Commissioning Engineer (I&C)"
           />
         </div>
+
+        {/* Reuse detection prompt (TASK-036) — fires when a similar-titled
+            package already exists */}
+        {similar && !dismissed ? (
+          <div className="rounded-xl border border-state-gold-line bg-state-gold-bg p-3.5">
+            <p className="text-[12px] leading-snug text-state-gold-text">
+              You already have a &ldquo;{similar.title}&rdquo; package — re-optimize it (overwrites its
+              current text), or start fresh?
+            </p>
+            <p className="mt-0.5 text-[10.5px] text-ink-muted">Keeping past versions arrives in Phase 2.</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setReplacingId(similar.id)
+                  setDismissed(true)
+                }}
+                className="min-h-11 rounded-lg bg-midnight px-3.5 py-2 text-[11px] font-semibold text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+              >
+                Re-optimize
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setReplacingId(null)
+                  setDismissed(true)
+                }}
+                className="min-h-11 rounded-lg border border-line-strong bg-white px-3.5 py-2 text-[11px] font-semibold text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+              >
+                Start fresh
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {similar && replacingId ? (
+          <div className="rounded-xl border border-emerald/30 bg-state-emerald-bg px-3.5 py-3 text-[11.5px] leading-snug text-emerald">
+            Will re-optimize your existing &ldquo;{similar.title}&rdquo; package — its current text will be
+            replaced.{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setReplacingId(null)
+                setDismissed(false)
+              }}
+              className="font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+            >
+              Change
+            </button>
+          </div>
+        ) : null}
 
         <div className="flex flex-col gap-2">
           <label htmlFor="f_target_industry" className="text-[11px] font-semibold tracking-wide text-ink-body">
