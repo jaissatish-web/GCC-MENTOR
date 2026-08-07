@@ -1,9 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { cn } from '@/lib/utils'
+import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
 import type { OptimizationLevel } from '@/types/package'
 
@@ -36,10 +36,13 @@ import type { OptimizationLevel } from '@/types/package'
  * with a way back (429 rate limit, 502 grounding/AI failure, etc. all return a
  * real {error}).
  *
- * TRANSIENT LOADING (contract #7): screen 07 (named-steps animation) is
- * TASK-029, a separate ticket. While POSTing we show a minimal honest
- * "Optimizing…" spinner with the CTA disabled — not the full animation. TASK-029
- * will replace this on the same page (screen 07 has no dedicated route).
+ * TRANSIENT STATE — screen 07 (TASK-029): while POSTing, the whole screen
+ * swaps to the dark-navy named-steps "Optimizing…" layout (no dedicated route;
+ * it is a transient state on this same page, per docs/USER_FLOW.md Step 7
+ * having no Route: line). Steps are dynamic from what was selected; progress is
+ * a client-side timer paced at 60s, since POST /api/optimize is single-shot
+ * (no server-sent per-step progress). On success we still navigate to the
+ * preview; on error we return to the form with the server's message.
  */
 
 interface TargetDraft {
@@ -52,8 +55,27 @@ interface TargetDraft {
 
 interface ExperienceRow {
   id: string
+  company: string
   label: string
   bullets: number
+}
+
+// Short display labels derived from each persona's actual ROLE framing in
+// lib/ai/personas.ts (TASK-018/019) — the full persona strings are AI
+// system-prompt paragraphs, never rendered verbatim. Anything without a
+// dedicated persona (incl. "other" and free-text industries) uses the generic
+// Gulf specialist framing, matching getPersona's fallback.
+function personaLabel(industry: string): string {
+  switch (industry) {
+    case 'engineering_technical':
+      return 'a senior I&C hiring manager'
+    case 'construction_site':
+      return 'a senior Construction Manager'
+    case 'it_tech':
+      return 'a senior Engineering Manager'
+    default:
+      return 'a senior Gulf-market recruitment specialist'
+  }
 }
 
 const LEVELS: ReadonlyArray<{ value: OptimizationLevel; label: string; range: string }> = [
@@ -112,6 +134,7 @@ function SetupScreen() {
           .filter((e) => typeof e.id === 'string' && e.id !== '')
           .map((e) => ({
             id: e.id as string,
+            company: e.company ?? '',
             label: [e.company, e.role].filter(Boolean).join(' — '),
             bullets: Array.isArray(e.highlights) ? e.highlights.length : 0,
           }))
@@ -192,11 +215,118 @@ function SetupScreen() {
     }
   }, [draft, profileId, submitting, summaryOn, experiences, expOn, level, router])
 
+  // ---- Screen 07 "Optimizing…" transient state (TASK-029) -----------------
+  // Dynamic named steps, built ONLY from what was actually selected — never
+  // claiming work that isn't happening (the grounding ethos applies to this UI
+  // too). JD-match step appears only when a JD was pasted; summary step only
+  // when summaryOn; one "Rewriting {company} bullets" per checked experience;
+  // skills + country steps are always on (server always reorders skills —
+  // TASK-021). If nothing but the two always-on steps is selected, that is
+  // fine — no special case (Unplanned #15).
+  const [elapsedMs, setElapsedMs] = useState(0)
+
+  const steps = useMemo(() => {
+    if (!draft) return []
+    const list: string[] = []
+    if (draft.job_description.trim() !== '') {
+      list.push(`Matched JD language for ${draft.target_job_title}`)
+    }
+    if (summaryOn) list.push('Reframed your summary')
+    for (const e of experiences) if (expOn[e.id]) list.push(`Rewriting ${e.company} bullets`)
+    list.push('Reordering skills by relevance')
+    const cc = GULF_COUNTRIES.find((c) => c.value === draft.target_country)
+    list.push(`Applying ${cc ? cc.label : 'Gulf'} CV format`)
+    return list
+  }, [draft, summaryOn, experiences, expOn])
+
+  // Non-streaming reality (same as TASK-023): POST /api/optimize is single-shot,
+  // no per-step server progress. Advance the steps client-side, paced at
+  // 60s/stepCount. The interval is cleared when submitting resets (error) or on
+  // unmount (success → navigation), so it never leaks.
+  useEffect(() => {
+    if (!submitting) return
+    const start = Date.now()
+    setElapsedMs(0)
+    const id = window.setInterval(() => setElapsedMs(Date.now() - start), 200)
+    return () => window.clearInterval(id)
+  }, [submitting])
+
+  const stepMs = steps.length > 0 ? 60000 / steps.length : 60000
+  const activeIndex = Math.min(steps.length - 1, Math.floor(elapsedMs / stepMs))
+  const percent = Math.min(100, Math.round((elapsedMs / 60000) * 100))
+  const secsLeft = Math.max(0, Math.round((60000 - elapsedMs) / 1000))
+
   // Waiting for the draft handoff / profile load.
   if (!draft) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-marble">
         <p className="font-mono text-sm text-ink-muted">Loading…</p>
+      </main>
+    )
+  }
+
+  // Screen 07 — full dark-navy stage swap while POSTing (replaces the old
+  // CTA-text change). Same in-one-file stage-swap pattern TASK-023 used for
+  // collect → extracting. On success the onSubmit navigation unmounts this;
+  // on error it resets submitting → back to the form below.
+  if (submitting) {
+    return (
+      <main className="flex min-h-dvh flex-col bg-midnight">
+        {/* Status bar */}
+        <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-marble/80">
+          <span>9:41</span>
+          <span className="tracking-[0.14em]">▮▮▮</span>
+        </header>
+
+        <div className="flex flex-1 flex-col justify-center gap-6 px-6">
+          <div className="flex flex-col gap-2.5 text-center">
+            <h1 className="font-serif text-[30px] leading-tight text-marble">
+              Optimizing for
+              <span className="block text-gold-light">{ctaName}</span>
+            </h1>
+            <p className="text-[13px] leading-relaxed text-marble/60">
+              Reviewed as {personaLabel(draft.target_industry)} would.
+            </p>
+          </div>
+
+          {/* Named steps — dynamic, only what was selected */}
+          <div className="flex flex-col gap-3.5 rounded-2xl border border-line/10 bg-white/5 p-5">
+            {steps.map((s, i) => {
+              const isDone = i < activeIndex
+              const isActive = i === activeIndex
+              const icon = isDone ? '✓' : isActive ? '◍' : '○'
+              const iconColor = isDone
+                ? 'text-state-emerald-line'
+                : isActive
+                  ? 'text-gold-light'
+                  : 'text-marble/40'
+              return (
+                <div key={s} className="flex items-center gap-3 text-[13px] font-medium">
+                  <span className={cn('w-4 shrink-0 text-center', iconColor)}>{icon}</span>
+                  <span className={isDone || isActive ? 'text-marble' : 'text-marble/40'}>{s}</span>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Progress: % and ~Ns left from elapsed vs the 60s target */}
+          <div className="flex flex-col gap-2">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-sand/10">
+              <div
+                className="h-full rounded-full bg-gold transition-[width] duration-300"
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+            <div className="flex justify-between font-mono text-[11px] text-marble/55">
+              <span>{percent}%</span>
+              <span>~{secsLeft}s left</span>
+            </div>
+          </div>
+
+          <p className="text-center text-[11px] leading-relaxed text-marble/45">
+            Only facts already in your profile are used. Nothing is invented.
+          </p>
+        </div>
       </main>
     )
   }
