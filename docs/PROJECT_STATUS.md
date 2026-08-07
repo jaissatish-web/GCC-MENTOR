@@ -124,12 +124,13 @@ be picked up in parallel.
 
 ## Before this actually works end-to-end
 
-**Eight migrations are written, reviewed, and approved, but NONE are
-applied to a live database.** `supabase/migrations/010` through `017`,
+**Nine migrations are written, reviewed, and approved, but NONE are
+applied to a live database.** `supabase/migrations/010` through `018`,
 in that order, need the founder to run them by hand in the Supabase SQL
 Editor (checklist: `supabase/migrations/README.md`). Nothing that touches
 the database — profile save, package creation, rate limiting, PII
-logging, pricing — works against real data until this happens. Also:
+logging, pricing, credit grants — works against real data until this
+happens. Also:
 **no `.env.local` exists yet.** Protected routes correctly 503 until it's
 created (this is documented, expected behavior per `docs/HERMES.md` §3a,
 not a bug).

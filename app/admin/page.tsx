@@ -6,7 +6,8 @@ import {
   getTodayRateLimits,
   listPiiAccessLog,
 } from '@/lib/admin/adminData'
-import { overrideRateLimitAction } from '@/app/admin/actions'
+import { overrideRateLimitAction, grantCreditAction } from '@/app/admin/actions'
+import { listCreditsForUser } from '@/lib/admin/credits'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -52,6 +53,7 @@ export default async function AdminPage({
     ? await listPackages({ userId: selectedUserId, limit: 50 }, admin)
     : []
   const selectedRateLimits = selectedUserId ? await getTodayRateLimits(selectedUserId) : []
+  const selectedCredits = selectedUserId ? await listCreditsForUser(selectedUserId) : []
   const recentAccessLog = await listPiiAccessLog(50)
 
   return (
@@ -147,6 +149,50 @@ export default async function AdminPage({
                   </div>
                 ))}
               </div>
+            )}
+          </Card>
+
+          {/* ---- Manual credit grant (docs/ADMIN.md §2.3) ---------------- */}
+          <Card className="flex flex-col gap-4 p-5">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">
+              Grant a free optimization (docs/ADMIN.md §2.3)
+            </h2>
+            <p className="text-[12px] text-ink-muted">
+              The fix for &ldquo;I paid but something broke&rdquo;. One grant = one free
+              optimization; it is applied automatically the next time this user optimizes.
+              Every grant is logged with your admin ID, the reason, and the timestamp.
+            </p>
+            <form action={grantCreditAction} className="flex flex-wrap items-end gap-2">
+              <input type="hidden" name="userId" value={selectedUserId} />
+              <input type="hidden" name="q" value={q ?? ''} />
+              <Input name="reason" label="Reason (required)" required className="flex-1" />
+              <Button type="submit" variant="secondary">
+                Grant credit
+              </Button>
+            </form>
+
+            {selectedCredits.length > 0 ? (
+              <div className="flex flex-col gap-1.5">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-warm">
+                  Grant history
+                </div>
+                {selectedCredits.map((c) => (
+                  <div
+                    key={c.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-[12px]"
+                  >
+                    <span className="text-ink-body">
+                      {c.grantedAt.slice(0, 10)} · {c.reason}
+                    </span>
+                    <Pill
+                      variant={c.consumedAt ? 'applied' : 'shortlisted'}
+                      label={c.consumedAt ? `Used ${c.consumedAt.slice(0, 10)}` : 'Available'}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[12px] text-ink-faint">No credits granted to this user yet.</p>
             )}
           </Card>
 

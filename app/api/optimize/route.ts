@@ -11,6 +11,7 @@ import {
   incrementRateLimit,
   LIMIT_ACTION_OPTIMIZATION,
 } from '@/lib/rateLimit'
+import { consumeOptimizationCredit } from '@/lib/admin/credits'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -392,11 +393,60 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Could not save your optimized resume. Please try again.' }, { status: 500 })
   }
 
+  const packageId = created.id as string
+
+  // ---- Manual credit grant (TASK-045, docs/ADMIN.md §2.3) --------------------
+  // "Insert a credit row the optimize flow checks BEFORE requiring payment."
+  // This is that check. If the founder granted this user a free optimization
+  // (the §6 support loop: "I paid but it broke" -> grant -> user re-runs at no
+  // cost), consume it and mark this package paid so the download gate in
+  // app/api/packages/[id]/pdf|docx lets them through without paying again.
+  //
+  // ORDER MATTERS: the package is created first, unpaid, then a credit is
+  // consumed and the row flipped to paid. The credit ledger records which
+  // package it paid for, so the package id must exist to attribute it. If the
+  // flip below fails, the package simply stays unpaid — recoverable (the
+  // founder can grant again), and it never marks something paid on an error
+  // path. Consumption itself is atomic in Postgres, not here (migration 018) —
+  // a JS read-then-write would let a double-click spend one credit twice.
+  let creditApplied = false
+  try {
+    creditApplied = await consumeOptimizationCredit(user.id, packageId)
+    if (creditApplied) {
+      const { error: paidError } = await supabase
+        .from('packages')
+        .update({ is_paid: true })
+        .eq('id', packageId)
+        .eq('user_id', user.id)
+      if (paidError) {
+        // Credit is spent but the package didn't flip. Log loudly with ids —
+        // this is the one state a human needs to resolve, and it is strictly
+        // better than the alternative (flipping first, then failing to record
+        // consumption, which would hand out unlimited free optimizations).
+        console.error(
+          'optimize: credit consumed but is_paid flip FAILED — needs manual fix. user=' +
+            user.id + ' package=' + packageId,
+          paidError.message,
+        )
+        creditApplied = false
+      }
+    }
+  } catch (e) {
+    console.error(
+      'optimize: credit check failed (package left unpaid) user=' + user.id + ' package=' + packageId,
+      e instanceof Error ? e.message : String(e),
+    )
+    creditApplied = false
+  }
+
   // Usage logging happens inside generate() (TASK-039) — do not add a second
   // call. Only a fully successful run consumes a rate-limit slot — same
   // accepted tradeoff as extraction's Unplanned #12: a failed/retried
   // attempt that produced nothing for the user should not cost them a try.
   await incrementRateLimit({ userId: user.id, action: LIMIT_ACTION_OPTIMIZATION })
 
-  return NextResponse.json({ success: true, packageId: created.id as string })
+  // creditApplied tells the client this run was covered by an admin-granted
+  // free optimization, so the payment step can be skipped. It is derived
+  // server-side and never trusted from the request.
+  return NextResponse.json({ success: true, packageId, creditApplied })
 }
