@@ -8,9 +8,15 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-08 (TASK-048 done — anonymous rate limiting, built directly by the CTO, not Hermes: new migration (`023_anonymous_rate_limits.sql`), new `SECURITY DEFINER` RPC, and rate-limit grants are exactly the security-critical category reserved for CTO-direct builds. Migration is written and passing build/lint/typecheck but **not yet applied** to the live database — needs the founder to apply it via `supabase/migrations/README.md`'s checklist before TASK-049 (the scanner) can actually use it. See `docs/TASKS.md` TASK-048 for the full writeup.)
+**Last updated:** 2026-08-08 (TASK-053 done, built by Hermes and approved — every authenticated route now shares the sidebar/nav shell and a max-width cap, not just `/dashboard`. Review turned up a real follow-up: three pages (`/profile`, `/profile/visibility`, `/package/[id]`) predate the dark redesign and now visually clash inside the new shell — queued as **TASK-055**. Also: this machine has ~4GB RAM and `npm run build` can OOM if other processes are competing for it — see "Known state of the tooling" below, this is environmental, not a code defect, and shouldn't be re-flagged as a ticket blocker each time. TASK-054 (homepage photography, specific pre-sourced images) is written and ready for Hermes whenever the founder wants it. See `docs/TASKS.md` TASK-053/054/055 for full writeups.)
 
 ## What just happened — read this before starting new work
+
+**TASK-053 is done — consistent app shell across every authenticated route.** Founder reported "mobile looks fine, desktop doesn't" on 2026-08-08. Root cause: only `/dashboard` and `/dashboard/library` had the sidebar/nav shell (`app/dashboard/layout.tsx`, TASK-004) — every other logged-in page (`/profile`, `/profile/visibility`, `/settings`, `/package/[id]`) rendered alone with no persistent nav and no width cap, so content ran full-bleed on wide screens. Built by Hermes: `components/layout/AppShell.tsx` (new, extracted from the exact existing dashboard shell JSX) now wraps all four; width capped at `max-w-5xl` on the three new ones, `/settings`' existing `max-w-2xl` left alone. Verified directly against the code, not the report: extraction is byte-identical to spec, all four pages wrapped correctly, excluded routes (the optimize wizard, onboarding, auth, admin — deliberately nav-free) correctly left alone.
+
+**Hermes's report flagged the ticket Blocked on an `npm run build` OOM crash.** Reproduced it independently, then found the real cause: this machine only has ~4GB RAM, and the build was competing with other processes (a dev server the CTO had left running) for it — not a code defect. Killed the stray processes, reran clean, all 24 routes built successfully. This is a recurring environment constraint on this machine, not a per-ticket blocker — see "Known state of the tooling" below for the standing rule now in place for it.
+
+**One real defect found on review, not from the report — `/profile`, `/profile/visibility`, `/package/[id]` are still the OLD light theme.** They predate the 2026-08-07 dark redesign that `/dashboard`, `/settings`, and the homepage all got. Now wrapped in the new dark `AppShell`, they read as a bright light panel inside a dark sidebar — a visible clash. Hermes wasn't wrong to leave this alone (TASK-053's own spec said "do not restyle... page content") — this was a scoping gap in how the CTO wrote the ticket, not a Hermes error. Queued as **TASK-055** with an explicit old→new color-token mapping table so it isn't ambiguous. Also fixed directly (too small for a Hermes round trip): a stale code comment on `/settings` and a redundant duplicate wrapper `div`.
 
 **TASK-048 is done, migration not yet applied.** `supabase/migrations/023_anonymous_rate_limits.sql`
 adds a separate table + atomic RPC for rate-limiting callers with no logged-in
@@ -173,10 +179,16 @@ a summary only.
 | TASK-047 (pricing config, ad hoc) | **Done.** Not a pre-written ticket — founder requested it mid-session; added to `docs/TASKS.md` per the project's own "everything lives in TASKS.md" rule. |
 | TASK-048/049/050 (Phase 2 pulled forward, ad hoc) | Founder decision 2026-08-07 to start the free ATS scanner + multiple templates now, in parallel, rather than waiting for Phase 1 sales signal — see `docs/MVP.md` §2a. **TASK-048 done 2026-08-08** (migration written, not yet applied — see above). TASK-049/050 not started; TASK-049 (the scanner) depends on TASK-048's migration being applied first. |
 | TASK-051 (promo-code payment bypass) | **Done, 2026-08-07.** Migration 021 applied and end-to-end tested against the live database. See "What just happened" above for the security fix that came out of testing it. |
+| TASK-053 (desktop app shell, ad hoc) | **Done, approved, 2026-08-08.** Built by Hermes. See "What just happened" above. |
+| TASK-054 (homepage photography, ad hoc) | **Written, not started.** Specific photos pre-sourced by the CTO; ready to hand to Hermes whenever the founder wants it — not urgent, no dependency on anything else. |
+| TASK-055 (dark-theme port for 3 pages, ad hoc) | **Written, not started.** Found during TASK-053's review — see "What just happened" above. Higher priority than TASK-054 if desktop polish is still the founder's main concern, since this is the visible clash left over after TASK-053. |
 
 **Phase 1 is functionally complete except Razorpay** (blocked on the
 founder's KYC, not on building). **Next up:** founder applies migration
-`023_anonymous_rate_limits.sql`, then TASK-049 (the ATS scanner) can start.
+`023_anonymous_rate_limits.sql` (unblocks TASK-049), and separately can hand
+TASK-055 (theme port) or TASK-054 (photography) to Hermes whenever ready —
+recommend TASK-055 first since it's fixing a visible defect, TASK-054 is
+additive polish.
 
 ## Before this actually works end-to-end
 
@@ -265,7 +277,20 @@ RLS, reason about what a caller with the LEAST privilege could still do.
 
 - `npm run build` and `npm run lint` both pass clean as of the last
   commit on `main` — verify against current `git log` since this drifts.
-- No `.env.local` exists yet (see "Before this actually works" above).
+- `.env.local` exists (see "Before this actually works" above).
+- **This dev machine has ~4GB total RAM.** `npm run build` runs a memory-
+  hungry static-generation pass and can hit `FATAL ERROR: ... out of memory`
+  if anything else (a `next dev` server, another build, a stray node
+  process) is running at the same time — seen twice now (TASK-052's review,
+  TASK-053's Hermes report), reproduced independently both times and
+  confirmed to be pure memory pressure, not a code defect: `npx tsc --noEmit`
+  and `npm run lint` stayed clean throughout, and the build passed once
+  competing processes were killed (`taskkill`/`Stop-Process` on stray `node`
+  processes) and `NODE_OPTIONS=--max-old-space-size` was set to 3000–4000.
+  **Standing rule: if `npm run build` OOMs, check for other running node
+  processes and free memory before treating it as a real failure** — don't
+  block a ticket on this alone if `tsc`/`lint` are clean and the actual code
+  diff looks correct.
 - The old HireCircuit codebase remains archived, untouched, at
   `D:\Hire Circuit` — not part of this repo, referenced only for donor
   patterns in `reference/`. **Never copy its AI prompts** — it was built

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { AppShell } from '@/components/layout/AppShell'
 import { Toggle } from '@/components/ui/Toggle'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import type { FieldVisibility } from '@/types/careerProfile'
@@ -135,14 +136,14 @@ function VisibilityScreen() {
 
   if (!loaded || !vis) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-marble">
+      <main className="mx-auto flex min-h-dvh w-full max-w-5xl items-center justify-center bg-marble">
         <p className="font-mono text-sm text-ink-muted">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-marble">
+    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-marble">
       {/* Status bar */}
       <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-midnight">
         <span>9:41</span>
@@ -208,8 +209,10 @@ function VisibilityScreen() {
 // next.js CSR-bailout during static generation.
 export default function ProfileVisibilityPage() {
   return (
-    <Suspense>
-      <VisibilityScreen />
-    </Suspense>
+    <AppShell>
+      <Suspense>
+        <VisibilityScreen />
+      </Suspense>
+    </AppShell>
   )
 }

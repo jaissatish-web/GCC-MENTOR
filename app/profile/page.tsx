@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react'
 import { Button } from '@/components/ui/Button'
+import { AppShell } from '@/components/layout/AppShell'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import ReadinessRing from '@/components/ui/ReadinessRing'
@@ -671,14 +672,14 @@ function ProfileScreen() {
 
   if (!loaded || !editor) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-marble">
+      <main className="mx-auto flex min-h-dvh w-full max-w-5xl items-center justify-center bg-marble">
         <p className="font-mono text-sm text-ink-muted">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-marble">
+    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-marble">
       {/* Readiness header — the ring IS the header, on dark navy */}
       <header className="flex flex-col gap-4 bg-midnight px-5 pb-6 pt-4">
         <div className="flex h-11 items-center justify-between text-[12px] font-semibold text-marble/80">
@@ -1302,8 +1303,10 @@ function ProfileScreen() {
 // next.js CSR-bailout during static generation.
 export default function ProfilePage() {
   return (
-    <Suspense>
-      <ProfileScreen />
-    </Suspense>
+    <AppShell>
+      <Suspense>
+        <ProfileScreen />
+      </Suspense>
+    </AppShell>
   )
 }

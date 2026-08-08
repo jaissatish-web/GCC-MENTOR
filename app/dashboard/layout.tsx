@@ -1,5 +1,4 @@
-import { Sidebar } from '@/components/layout/Sidebar'
-import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
+import { AppShell } from '@/components/layout/AppShell'
 
 /**
  * App shell for the authenticated area (TASK-004).
@@ -14,10 +13,6 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen bg-marble">
-      <Sidebar />
-      <main className="min-h-screen flex-1 pb-24 lg:pb-0">{children}</main>
-      <MobileBottomNav />
-    </div>
+    <AppShell>{children}</AppShell>
   )
 }

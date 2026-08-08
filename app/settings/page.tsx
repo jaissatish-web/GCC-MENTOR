@@ -1,24 +1,32 @@
 import { DeleteDataSection } from '@/components/settings/DeleteDataSection'
+import { AppShell } from '@/components/layout/AppShell'
 
 /**
  * Settings (TASK-037). Data deletion is the one settings action currently
  * specified (docs/RULES.md §3) — nothing else in docs/TASKS.md builds
  * further settings content yet, so this page stays scoped to that.
  *
- * NOTE: like /profile, /optimize/*, /package/* and every other route besides
- * /dashboard itself, this page is not wrapped in the Sidebar/MobileBottomNav
- * shell — TASK-004 only wired that shell to app/dashboard/layout.tsx. That
- * is a pre-existing gap across all of these routes, not something specific
- * to this ticket to silently fix.
+ * Dark visual system redesign (2026-08-07), matching app/dashboard/page.tsx.
+ * Wrapped in AppShell (TASK-053) — previously this page (like /profile,
+ * /optimize/*, /package/*) had no Sidebar/MobileBottomNav shell at all,
+ * since TASK-004 only ever wired it to app/dashboard/layout.tsx.
  */
 export default function SettingsPage() {
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-6 px-6 py-16">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-warm">/settings</p>
-        <h1 className="mt-3 text-4xl text-midnight">Settings</h1>
+    <AppShell>
+      <div className="px-6 py-16 md:px-8 lg:px-12">
+        <div className="mx-auto w-full max-w-2xl space-y-8">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-marble/40">
+              /settings
+            </p>
+            <h1 className="mt-3 font-serif text-4xl leading-tight text-marble sm:text-[40px]">
+              Settings
+            </h1>
+          </div>
+          <DeleteDataSection />
+        </div>
       </div>
-      <DeleteDataSection />
-    </main>
+    </AppShell>
   )
 }

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import GulfPremium from '@/components/templates/GulfPremium'
+import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package } from '@/types/package'
 
@@ -83,7 +84,7 @@ function PackageScreenInner({ id }: { id: string }) {
   const waUrl = `https://wa.me/?text=${whatsappText}`
 
   return (
-    <main className="flex min-h-dvh flex-col bg-marble">
+    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-marble">
       {/* Status bar */}
       <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-midnight">
         <span>9:41</span>
@@ -165,8 +166,10 @@ function PackageScreenInner({ id }: { id: string }) {
 export default function PackagePage({ params }: { params: { id: string } }) {
   const id = params.id
   return (
-    <Suspense>
-      <PackageScreenInner id={id} />
-    </Suspense>
+    <AppShell>
+      <Suspense>
+        <PackageScreenInner id={id} />
+      </Suspense>
+    </AppShell>
   )
 }

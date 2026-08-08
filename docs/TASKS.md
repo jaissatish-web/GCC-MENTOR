@@ -244,7 +244,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` 0 errors, `npm run lint` PASS. Verified live against the running dev server, not just build output: no console errors on a fresh tab, `document.documentElement.scrollWidth === window.innerWidth` at mobile width (no horizontal overflow), every nav/dropdown/card link resolves to a real route or a real on-page anchor (checked via DOM inspection, not assumed from the JSX), the desktop "Platform" dropdown and mobile hamburger menu both open and list all 7 items with correct Live/Soon state. One tooling note: the browser-automation `computer` click tool timed out twice on the mobile hamburger button for environment reasons (not reproducible via a dispatched click event, which worked and is the same code path a real click takes) — noted here rather than silently worked around.
 
-- [ ] **TASK-053: Consistent desktop app shell across every authenticated route** — founder-reported 2026-08-08: mobile view looks fine, desktop/laptop looks unprofessional. Root-caused by the CTO before writing this ticket (source read, not guessed): `app/dashboard/layout.tsx` (TASK-004) only ever wired the `Sidebar`/`MobileBottomNav` shell to `/dashboard` and `/dashboard/library`. Every other authenticated route — `/profile`, `/profile/visibility`, `/settings`, `/package/[id]` — renders standalone with **no persistent nav at all**, and (except `/settings`, which already has its own `max-w-2xl` wrapper) **no max-width cap either** — content stretches full-bleed edge to edge on a wide screen. `/settings/page.tsx`'s own code comment already flags this as "a pre-existing gap across all of these routes, not something specific to this ticket to silently fix" — TASK-004 simply never scoped beyond `/dashboard`. This ticket closes that gap.
+- [x] **TASK-053: Consistent desktop app shell across every authenticated route** — founder-reported 2026-08-08: mobile view looks fine, desktop/laptop looks unprofessional. Root-caused by the CTO before writing this ticket (source read, not guessed): `app/dashboard/layout.tsx` (TASK-004) only ever wired the `Sidebar`/`MobileBottomNav` shell to `/dashboard` and `/dashboard/library`. Every other authenticated route — `/profile`, `/profile/visibility`, `/settings`, `/package/[id]` — renders standalone with **no persistent nav at all**, and (except `/settings`, which already has its own `max-w-2xl` wrapper) **no max-width cap either** — content stretches full-bleed edge to edge on a wide screen. `/settings/page.tsx`'s own code comment already flags this as "a pre-existing gap across all of these routes, not something specific to this ticket to silently fix" — TASK-004 simply never scoped beyond `/dashboard`. This ticket closes that gap.
 
       **Spec:**
       1. Extract a new `components/layout/AppShell.tsx` client-or-server component containing exactly the JSX `app/dashboard/layout.tsx` already has: `<div className="dark-scope flex min-h-screen bg-void"><Sidebar /><main className="min-h-screen flex-1 pb-24 lg:pb-0">{children}</main><MobileBottomNav /></div>`. Update `app/dashboard/layout.tsx` to use it. **This must not change how `/dashboard` or `/dashboard/library` look or behave** — it's a pure extraction, not a redesign.
@@ -255,7 +255,38 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       **Do not restyle Sidebar, MobileBottomNav, or any of the wrapped pages' own content** — this ticket is the shell + width cap only, not a visual redesign of what's inside.
 
-      Depends on: TASK-004 (done) · Status: not started
+      Depends on: TASK-004 (done) · Status: **done — APPROVED, built by Hermes, 2026-08-08.** `components/layout/AppShell.tsx` verified byte-for-byte identical to the spec'd extraction; `app/dashboard/layout.tsx` reduced to a one-line `<AppShell>{children}</AppShell>`, confirmed behavior-preserving. All four target pages wrapped correctly; width caps applied exactly as spec'd (`max-w-5xl` on the three new ones, `/settings`' existing `max-w-2xl` left untouched). Excluded routes correctly left alone. `npx tsc --noEmit` and `npm run lint` both independently re-run, both clean.
+
+      **Hermes reported `npm run build` failing with an out-of-memory crash during static generation and flagged the ticket Blocked.** Reproduced the identical failure independently, then root-caused it: this machine has ~4GB total RAM, and the build was competing with other processes (including a dev server the CTO had left running) for it — not a defect in Hermes's code. Killed the stray processes and re-ran clean: `npm run build` **passes**, all 24 routes generate, `/profile` / `/profile/visibility` / `/package/[id]` / `/settings` all present at their expected sizes. Build memory pressure on this machine is a known, recurring environment constraint (documented in `docs/PROJECT_STATUS.md`), not something to keep re-flagging as a ticket blocker going forward — a passing `tsc`/`lint` plus a clean build once memory is free is sufficient.
+
+      **One real defect found on independent review (not in the report, not something Hermes was wrong to leave alone — its own ticket said "do not restyle... page content").** `/profile`, `/profile/visibility`, and `/package/[id]` are still on the **old light theme** (`bg-marble`, `text-midnight`, `border-line`, etc. — pre-2026-08-07 redesign), never ported when `/dashboard`, `/settings`, and the homepage were. Now that they're nested inside the new dark `AppShell`, the result is a bright light content panel sitting inside a dark sidebar shell — a visible clash, not a fix. This is a scoping miss in how the CTO wrote this ticket (assumed, without checking, that every non-dashboard route had already gotten the dark pass — `/settings` had, these three hadn't), not a Hermes error. Follow-up: **TASK-055**.
+
+      Also fixed directly by the CTO while reviewing (too small for a Hermes round trip): `/settings`' own code comment still said "not wrapped in the Sidebar/MobileBottomNav shell," now false; and its content wrapper had redundant `min-h-screen`/`bg-void`/`dark-scope` classes AppShell already provides one level up. Both cleaned up, `npx tsc --noEmit` re-confirmed clean after.
+
+- [ ] **TASK-055: Port `/profile`, `/profile/visibility`, `/package/[id]` to the dark theme** — found during TASK-053 review: these three pages predate the 2026-08-07 dark redesign (`/dashboard`, `/settings`, the homepage all got it; these didn't) and are now visibly clashing inside the new `AppShell` — a light `bg-marble` content panel inside a dark sidebar. **Recolor only. Do not change layout, structure, copy, or behavior** — every element stays exactly where and what it is, only its Tailwind color classes change.
+
+      **The shared UI primitives these pages already use — `Button`, `Card`, `Input`, `Toggle`, `ProgressBar`, `ReadinessRing` — are already dark-themed** (confirmed: all six already reference `bg-void`/`bg-surface`/`text-marble`/`border-hairline`). This ticket is about the pages' own raw wrapper `div`s and utility classes, not the components they render.
+
+      **Token mapping (old light → new dark), the same substitution used when `/dashboard`/`/settings` were ported — use this, don't invent new colors, and never write a new hex — every color must already exist in `tailwind.config.ts`'s dark section:**
+      | Old (light) | New (dark) |
+      |---|---|
+      | `bg-marble` (page/panel background) | `bg-void` |
+      | `text-midnight` (primary text) | `text-marble` |
+      | `text-ink-body` | `text-marble/70` |
+      | `text-ink-muted` | `text-marble/55` |
+      | `text-ink-warm` | `text-marble/60` |
+      | `text-ink-faint` | `text-marble/40` |
+      | `border-line`, `border-line-strong` | `border-hairline` (add `/60`–`/70` opacity to taste, matching how `/settings` and `/dashboard` already use it) |
+      | `bg-fill-subtle`, `bg-fill-warm` | `bg-surface` or `bg-surface-2` (pick whichever the equivalent card/panel uses on `/dashboard` or `/settings`) |
+      | `bg-midnight`, `border-midnight` (dark accent block on an otherwise-light page) | `bg-surface` (the page itself is dark now, so this no longer needs to be the one dark element on the page) |
+      | `bg-sand` | `bg-surface-2`, or `bg-gold/10` if it was marking something gold-accented — check what the element represents before picking |
+      | `text-marble` (old meaning: white text ON a dark accent block) | now the page-wide default — no change needed for text that was already `text-marble` |
+
+      For any element where the right mapping genuinely isn't clear from this table, match the closest equivalent already built on `/dashboard/page.tsx` or `/settings/page.tsx` (status pills, cards, form rows) rather than inventing a new treatment. If still ambiguous, stop and ask — same rule as always.
+
+      `/profile/page.tsx` is the large one (~1,300 lines, ~50 of the ~90 total legacy-token occurrences across all three files) — expect this to be most of the work. `/profile/visibility/page.tsx` and `/package/[id]/page.tsx` are much shorter and should be quick once the pattern is established on `/profile`.
+
+      Depends on: TASK-053 (done) · Status: not started
 
 - [ ] **TASK-054: Homepage photography pass** — founder request 2026-08-08, alongside TASK-053, to make the site look more "designed" rather than purely icon/typography-driven. **CTO pre-sourced the actual images before writing this ticket** (per the founder's own stated preference: exact copy-paste-ready specs, not vague direction Hermes would have to guess at or stop on) — three free, commercially-licensed photos, all verified live (HTTP 200) and confirmed NOT Unsplash+ (paid) at sourcing time:
 
