@@ -62,7 +62,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
   if (error) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-marble px-5">
+      <div className="flex min-h-dvh items-center justify-center bg-void px-5">
         <p className="text-sm text-state-terra-text">{error}</p>
       </div>
     )
@@ -71,8 +71,8 @@ function PackageScreenInner({ id }: { id: string }) {
   if (!pkg) {
     // While checking is_paid we show nothing but a loader — never content.
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-marble">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+      <div className="flex min-h-dvh items-center justify-center bg-void">
+        <p className="font-mono text-sm text-marble/55">Loading…</p>
       </div>
     )
   }
@@ -84,9 +84,9 @@ function PackageScreenInner({ id }: { id: string }) {
   const waUrl = `https://wa.me/?text=${whatsappText}`
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-marble">
+    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-void">
       {/* Status bar */}
-      <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-midnight">
+      <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-marble">
         <span>9:41</span>
         <span className="tracking-[0.14em]">▮▮▮</span>
       </header>
@@ -96,7 +96,7 @@ function PackageScreenInner({ id }: { id: string }) {
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-lg text-[20px] leading-none text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-lg text-[20px] leading-none text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
         >
           ←
         </button>
@@ -104,21 +104,21 @@ function PackageScreenInner({ id }: { id: string }) {
         <span className="self-start rounded-[5px] bg-state-emerald-bg px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-emerald">
           ✓ Unlocked &amp; saved to Library
         </span>
-        <h1 className="font-serif text-[27px] leading-tight text-midnight">Your Gulf CV is ready, {firstName}</h1>
+        <h1 className="font-serif text-[27px] leading-tight text-marble">Your Gulf CV is ready, {firstName}</h1>
 
         {/* Actions */}
         <div className="mt-1 flex flex-wrap gap-2">
           <a
             href={pdfUrl}
             onClick={() => setDownloaded(true)}
-            className="min-h-11 rounded-lg bg-midnight px-4 py-3 text-[12.5px] font-bold text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+            className="min-h-11 rounded-lg bg-surface px-4 py-3 text-[12.5px] font-bold text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
           >
             Download PDF
           </a>
           <a
             href={docxUrl}
             onClick={() => setDownloaded(true)}
-            className="min-h-11 rounded-lg border border-line-strong bg-white px-4 py-3 text-[12.5px] font-semibold text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+            className="min-h-11 rounded-lg border border-hairline/70 bg-surface px-4 py-3 text-[12.5px] font-semibold text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
           >
             Word (.docx)
           </a>
@@ -126,13 +126,13 @@ function PackageScreenInner({ id }: { id: string }) {
             href={waUrl}
             target="_blank"
             rel="noreferrer"
-            className="min-h-11 rounded-lg border border-line-strong bg-white px-4 py-3 text-[12.5px] font-semibold text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+            className="min-h-11 rounded-lg border border-hairline/70 bg-surface px-4 py-3 text-[12.5px] font-semibold text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
           >
             Share to WhatsApp
           </a>
           <Link
             href={`/optimize/preview/${encodeURIComponent(id)}`}
-            className="min-h-11 rounded-lg border border-line-strong bg-white px-4 py-3 text-[12.5px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2"
+            className="min-h-11 rounded-lg border border-hairline/70 bg-surface px-4 py-3 text-[12.5px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2"
           >
             Edit text
           </Link>
@@ -146,7 +146,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
         {/* Inline full resume preview (paid owner's own document) */}
         {profile ? (
-          <div className="mt-1 overflow-hidden rounded-2xl border border-line bg-white">
+          <div className="mt-1 overflow-hidden rounded-2xl border border-hairline/60 bg-surface">
             <GulfPremium
               profile={profile}
               optimizedContent={(pkg.optimized_content ?? {

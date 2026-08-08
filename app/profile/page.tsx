@@ -459,7 +459,7 @@ const CATEGORY_COPY: Record<ReadinessCategory, { highlight: string; rest: string
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-warm">
+    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-marble/60">
       {children}
     </div>
   )
@@ -481,7 +481,7 @@ function CardSection({
   return (
     <Card id={id} className="flex flex-col gap-3.5 p-4">
       <div className="flex items-center justify-between gap-3">
-        <div className="text-[15px] font-bold text-midnight">{title}</div>
+        <div className="text-[15px] font-bold text-marble">{title}</div>
         {badge ? (
           <span className="rounded-[5px] bg-state-gold-bg px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-state-gold-text">
             {badge}
@@ -496,10 +496,10 @@ function CardSection({
 }
 
 const selectClass =
-  'min-h-11 w-full rounded-lg border border-line bg-white px-[15px] py-[13px] text-sm font-medium text-midnight outline-none transition-colors focus:border-midnight focus:ring-2 focus:ring-midnight/20'
+  'min-h-11 w-full rounded-lg border border-hairline/60 bg-surface px-[15px] py-[13px] text-sm font-medium text-marble outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/20'
 
 const textareaClass =
-  'min-h-11 w-full resize-none rounded-lg border border-line bg-white px-[15px] py-[13px] text-sm font-medium text-midnight outline-none transition-colors placeholder:text-ink-faint focus:border-midnight focus:ring-2 focus:ring-midnight/20'
+  'min-h-11 w-full resize-none rounded-lg border border-hairline/60 bg-surface px-[15px] py-[13px] text-sm font-medium text-marble outline-none transition-colors placeholder:text-marble/40 focus:border-gold focus:ring-2 focus:ring-gold/20'
 
 function ConfirmToggle({
   id,
@@ -517,8 +517,8 @@ function ConfirmToggle({
   return (
     <div id={id} className="flex items-start justify-between gap-3 py-1">
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-midnight">{label}</span>
-        {hint ? <span className="text-[12px] text-ink-muted">{hint}</span> : null}
+        <span className="text-sm font-medium text-marble">{label}</span>
+        {hint ? <span className="text-[12px] text-marble/55">{hint}</span> : null}
       </div>
       <Toggle checked={checked} onCheckedChange={onChange} aria-label={label} />
     </div>
@@ -672,16 +672,16 @@ function ProfileScreen() {
 
   if (!loaded || !editor) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-5xl items-center justify-center bg-marble">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+      <main className="mx-auto flex min-h-dvh w-full max-w-5xl items-center justify-center bg-void">
+        <p className="font-mono text-sm text-marble/55">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-marble">
+    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-void">
       {/* Readiness header — the ring IS the header, on dark navy */}
-      <header className="flex flex-col gap-4 bg-midnight px-5 pb-6 pt-4">
+      <header className="flex flex-col gap-4 bg-surface px-5 pb-6 pt-4">
         <div className="flex h-11 items-center justify-between text-[12px] font-semibold text-marble/80">
           <span>9:41</span>
           <span className="tracking-[0.14em]">▮▮▮</span>
@@ -720,10 +720,10 @@ function ProfileScreen() {
                 key={m.field}
                 type="button"
                 onClick={() => focusField(m.field)}
-                className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-line-strong bg-white px-3.5 py-3 text-left transition-colors hover:bg-fill-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+                className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-hairline/70 bg-surface px-3.5 py-3 text-left transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void"
               >
-                <span className="text-[13px] font-medium text-midnight">
-                  {m.label} <span className="font-normal text-ink-warm">· +{m.points} points</span>
+                <span className="text-[13px] font-medium text-marble">
+                  {m.label} <span className="font-normal text-marble/60">· +{m.points} points</span>
                 </span>
                 <span className="shrink-0 text-[11px] font-semibold text-emerald">Add →</span>
               </button>
@@ -769,7 +769,7 @@ function ProfileScreen() {
               onChange={(e) => setField({ target_industry: e.target.value })}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_target_country" className="text-sm font-medium text-midnight">
+              <label htmlFor="f_target_country" className="text-sm font-medium text-marble">
                 Target country (required)
               </label>
               <select
@@ -866,7 +866,7 @@ function ProfileScreen() {
               onChange={(e) => setField({ date_of_birth: e.target.value })}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_passport_type" className="text-sm font-medium text-midnight">
+              <label htmlFor="f_passport_type" className="text-sm font-medium text-marble">
                 Passport type
               </label>
               <select
@@ -919,7 +919,7 @@ function ProfileScreen() {
             onChange={(e) => setField({ professional_summary: e.target.value })}
             placeholder="A short summary of who you are and what you bring."
           />
-          <p className="text-[11px] leading-snug text-ink-muted">
+          <p className="text-[11px] leading-snug text-marble/55">
             This is your own summary — the AI never writes back into it. It is the &ldquo;before&rdquo; the
             optimizer diffs against.
           </p>
@@ -927,18 +927,18 @@ function ProfileScreen() {
 
         {/* PHOTO — STUB. No Storage/upload API exists yet (see header note). */}
         <Card id="sec_photo" className="flex gap-3.5 border-[1.5px] border-gold p-4">
-          <div className="flex h-[70px] w-[58px] shrink-0 flex-col items-center justify-center gap-1 rounded-[7px] border border-dashed border-gold bg-sand">
+          <div className="flex h-[70px] w-[58px] shrink-0 flex-col items-center justify-center gap-1 rounded-[7px] border border-dashed border-gold bg-surface-2">
             <span className="text-base text-state-gold-text">◔</span>
             <span className="text-[8px] font-semibold uppercase tracking-wider text-state-gold-text">Add</span>
           </div>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-[13px] font-bold text-midnight">Photo</span>
+              <span className="text-[13px] font-bold text-marble">Photo</span>
               <span className="rounded-[5px] bg-state-gold-bg px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-state-gold-text">
                 Expected in Gulf CVs
               </span>
             </div>
-            <p className="text-[11px] leading-snug text-ink-muted">
+            <p className="text-[11px] leading-snug text-marble/55">
               Passport-style, plain background. Counts toward your readiness score.
             </p>
             <div className="mt-1 flex gap-2">
@@ -953,7 +953,7 @@ function ProfileScreen() {
                 type="button"
                 disabled
                 title="Photo upload coming soon"
-                className="min-h-11 cursor-not-allowed rounded-lg bg-midnight px-3 py-3 text-[11px] font-semibold text-marble opacity-50"
+                className="min-h-11 cursor-not-allowed rounded-lg bg-surface px-3 py-3 text-[11px] font-semibold text-marble opacity-50"
               >
                 Upload photo
               </button>
@@ -961,12 +961,12 @@ function ProfileScreen() {
                 type="button"
                 disabled
                 title="Photo upload coming soon"
-                className="min-h-11 cursor-not-allowed rounded-lg border border-line-strong bg-white px-3 py-3 text-[11px] font-semibold text-midnight opacity-50"
+                className="min-h-11 cursor-not-allowed rounded-lg border border-hairline/70 bg-surface px-3 py-3 text-[11px] font-semibold text-marble opacity-50"
               >
                 Take one now
               </button>
             </div>
-            <p className="text-[10px] text-ink-faint">Photo upload is coming soon.</p>
+            <p className="text-[10px] text-marble/40">Photo upload is coming soon.</p>
           </div>
         </Card>
 
@@ -1008,9 +1008,9 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-4">
             {editor.work_experience.map((w, i) => (
-              <div key={w.key} className="flex flex-col gap-2.5 border border-line rounded-xl p-3">
+              <div key={w.key} className="flex flex-col gap-2.5 border border-hairline/60 rounded-xl p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-ink-muted">#{i + 1}</span>
+                  <span className="font-mono text-[11px] text-marble/55">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1035,7 +1035,7 @@ function ProfileScreen() {
                   <Input label="End (blank = current)" type="date" value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
                 </div>
                 <Input label="Location" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-midnight">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-marble">
                   Description
                   <textarea
                     rows={3}
@@ -1044,8 +1044,8 @@ function ProfileScreen() {
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { description: e.target.value }) }))}
                   />
                 </label>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-midnight">
-                  Highlights <span className="text-[11px] font-normal text-ink-muted">one per line</span>
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-marble">
+                  Highlights <span className="text-[11px] font-normal text-marble/55">one per line</span>
                   <textarea
                     rows={3}
                     className={textareaClass}
@@ -1094,9 +1094,9 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.education.map((x, i) => (
-              <div key={x.key} className="flex flex-col gap-2.5 border border-line rounded-xl p-3">
+              <div key={x.key} className="flex flex-col gap-2.5 border border-hairline/60 rounded-xl p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-ink-muted">#{i + 1}</span>
+                  <span className="font-mono text-[11px] text-marble/55">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1139,7 +1139,7 @@ function ProfileScreen() {
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
-                <span className="font-mono text-[11px] text-ink-muted">{i + 1}</span>
+                <span className="font-mono text-[11px] text-marble/55">{i + 1}</span>
                 <Input
                   value={s.name}
                   aria-label={`Skill ${i + 1}`}
@@ -1189,9 +1189,9 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.certifications.map((c, i) => (
-              <div key={c.key} className="flex flex-col gap-2.5 border border-line rounded-xl p-3">
+              <div key={c.key} className="flex flex-col gap-2.5 border border-hairline/60 rounded-xl p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-ink-muted">#{i + 1}</span>
+                  <span className="font-mono text-[11px] text-marble/55">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1230,12 +1230,12 @@ function ProfileScreen() {
             </button>
           }
         >
-          <p className="text-[11px] leading-snug text-ink-muted">
+          <p className="text-[11px] leading-snug text-marble/55">
             AI-labelled · you can rename the label on each item.
           </p>
           <div className="flex flex-col gap-3">
             {editor.additional_information.map((a) => (
-              <div key={a.key} className="flex flex-col gap-2.5 border border-line rounded-xl p-3">
+              <div key={a.key} className="flex flex-col gap-2.5 border border-hairline/60 rounded-xl p-3">
                 <div className="flex gap-2">
                   <Input
                     label="Label"
@@ -1255,7 +1255,7 @@ function ProfileScreen() {
                     </button>
                   </div>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-midnight">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-marble">
                   Value
                   <textarea
                     rows={2}

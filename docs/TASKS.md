@@ -286,7 +286,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `/profile/page.tsx` is the large one (~1,300 lines, ~50 of the ~90 total legacy-token occurrences across all three files) — expect this to be most of the work. `/profile/visibility/page.tsx` and `/package/[id]/page.tsx` are much shorter and should be quick once the pattern is established on `/profile`.
 
-      Depends on: TASK-053 (done) · Status: not started
+      Depends on: TASK-053 (done) · Status: done — built by Hermes, 2026-08-08. Replaced only the legacy light-theme tokens in `/profile`, `/profile/visibility`, and `/package/[id]` with the specified dark token mappings; layout, structure, copy, and behavior were unchanged. Legacy-token searches across all three pages returned no remaining matches. `npx tsc --noEmit`, `npm run lint`, and `npm run build` all pass.
 
 - [ ] **TASK-054: Homepage photography pass** — founder request 2026-08-08, alongside TASK-053, to make the site look more "designed" rather than purely icon/typography-driven. **CTO pre-sourced the actual images before writing this ticket** (per the founder's own stated preference: exact copy-paste-ready specs, not vague direction Hermes would have to guess at or stop on) — three free, commercially-licensed photos, all verified live (HTTP 200) and confirmed NOT Unsplash+ (paid) at sourcing time:
 
