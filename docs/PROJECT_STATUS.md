@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-08 (TASK-053 and TASK-055 both done and approved — every authenticated route now shares the sidebar/nav shell + a width cap, and the three pages that were still on the old light theme are now correctly dark. Big one: **TASK-056 queued** — the founder provided a full creative brief for a complete homepage rewrite ("GCC MENTOR" as the real product name now, light theme for the marketing site specifically, a real 3-tier ₹399/₹1,499/₹2,499 pricing structure). All three of those were open decisions per `docs/RULES.md` §5 — confirmed directly with the founder before writing the ticket, now locked in and reflected in RULES.md. **TASK-056 supersedes TASK-052** (the homepage that shipped 2 days ago) and **supersedes TASK-054** (photography — its 3 sourced photos carried forward into TASK-056 instead of wasted). This machine's ~4GB RAM can still OOM `npm run build` under load — see "Known state of the tooling" below, this is environmental, not a code defect. See `docs/TASKS.md` TASK-053/054/055/056 for full writeups.)
+**Last updated:** 2026-08-08 (TASK-053, TASK-055, and now **TASK-056 all done and approved.** TASK-056 is the big one: the homepage was fully rewritten as "GCC MENTOR" — real product name, light theme (marketing site only; the authenticated app stays dark per TASK-053/055), and a 3-tier ₹399/₹1,499/₹2,499 pricing display with an honest disclaimer that checkout still only supports the current single product. Approved with a **deliberately narrowed scope** — six sections from the founder's original brief (Problem, Solution diagram, Product Showcase, Comparison table, Interview Demo, Testimonials) were not built; founder chose to ship the core now rather than hold for everything at once. Deferred sections are **TASK-057**. TASK-056 supersedes TASK-052 (the homepage from 2 days ago) and TASK-054 (photography, its photos carried forward). This machine's ~4GB RAM can still OOM `npm run build` under load — see "Known state of the tooling" below, environmental, not a code defect. See `docs/TASKS.md` TASK-053/054/055/056/057 for full writeups.)
 
 ## What just happened — read this before starting new work
 
@@ -182,13 +182,14 @@ a summary only.
 | TASK-053 (desktop app shell, ad hoc) | **Done, approved, 2026-08-08.** Built by Hermes. See "What just happened" above. |
 | TASK-054 (homepage photography, ad hoc) | **Superseded by TASK-056**, not built — see below. |
 | TASK-055 (dark-theme port for 3 pages, ad hoc) | **Done, approved, 2026-08-08.** Built by Hermes (commit `0ebf703`), independently reviewed by CTO against the actual diff — every legacy light-theme token replaced correctly, zero remaining, `tsc`/`lint`/`build` all clean. |
-| TASK-056 (full homepage rewrite — "GCC MENTOR," light theme, 3-tier pricing, ad hoc) | **Written, not started.** Founder-provided full creative brief, 2026-08-08. Supersedes TASK-052 and TASK-054. Product name, marketing-site-only theme reversal to light, and 3-tier pricing (₹399/₹1,499/₹2,499) all confirmed directly with the founder before writing this ticket — see `docs/RULES.md` §5. **Pricing is marketing-copy-only for now** — the live `pricing` table and checkout still only support the current single ₹499 product; a separate backend ticket is needed before the other two tiers are actually purchasable. Flag this to the founder before treating the site as launch-ready once this ships. |
+| TASK-056 (full homepage rewrite — "GCC MENTOR," light theme, 3-tier pricing, ad hoc) | **Done, approved (narrowed scope), 2026-08-08.** Built by Hermes, independently verified by CTO (tsc/lint clean, live-checked against the dev server: no console errors, no horizontal overflow, mobile menu and FAQ accordion both work, all CTAs real routes). **Pricing is marketing-copy-only** — the live `pricing` table and checkout still only support the current single ₹499 product; the page itself now honestly discloses this in its own copy. Six brief sections deferred to **TASK-057** by founder decision, to ship the core sooner. |
+| TASK-057 (remaining homepage sections — Problem/Solution/Showcase/Comparison/Interview Demo/Testimonials, ad hoc) | **Written, not started.** Deferred out of TASK-056 — see above. |
 
 **Phase 1 is functionally complete except Razorpay** (blocked on the
 founder's KYC, not on building). **Next up:** founder applies migration
-`023_anonymous_rate_limits.sql` (unblocks TASK-049), and separately can hand
-TASK-056 to Hermes — it's the largest ticket in the queue, likely multiple
-review rounds given its size (comparable to or bigger than TASK-052).
+`023_anonymous_rate_limits.sql` (unblocks TASK-049); TASK-057 (homepage
+storytelling sections) can go to Hermes whenever the founder wants the
+fuller version — not urgent, TASK-056 already shipped a working homepage.
 
 ## Before this actually works end-to-end
 
