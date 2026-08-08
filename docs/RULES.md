@@ -89,8 +89,8 @@ The following are undecided. Build the surrounding structure so that **neither a
 |---|---|---|
 | **Pre-payment preview content** (change-summary list vs. blurred full CV) | OPEN | Build the payment gate. Render preview content from a single component with a placeholder. |
 | **Package / batch rules** (one payment = one package, or batch multi-target) | OPEN | Do not add DB constraints that assume either answer. |
-| **Pricing model evolution** (one-time vs. usage vs. subscription) | OPEN — founder deferred | MVP ships one-time ₹499 per §7. Keep `packages` and payment records model-neutral so tiers can be added without migration. |
-| **Product name** | OPEN | Use the literal string `[Product Name]` in all UI copy and docs. Do not invent a name. Do not use "HireCircuit" in new user-facing copy. |
+| **Pricing model evolution** (one-time vs. usage vs. subscription) | **DECIDED 2026-08-08 — 3-tier: ₹399 / ₹1,499 / ₹2,499** (TASK-056). Founder-confirmed real amounts, not placeholders. **Marketing-copy-only for now** — the live `pricing` table (migration 017) and the actual `/optimize/pay` checkout flow still charge the old single ₹499 price. Do not treat the homepage showing 3 tiers as proof the backend supports them — it doesn't yet. A backend ticket (new `pricing` rows / plan concept + checkout wiring) is required before any tier besides the current one is actually purchasable. Flag this gap to the founder before launch, don't let it go unnoticed. |
+| **Product name** | **DECIDED 2026-08-08 — "GCC MENTOR"** (founder-confirmed, TASK-056). Replaces the `[Product Name]` placeholder going forward — new copy should use the real name. Existing `[Product Name]` occurrences don't need a special find-replace pass; update them naturally as their pages are touched, no need to hunt down every instance in one sweep. Do not use "HireCircuit" in new user-facing copy. |
 | **Login method** (Mobile+OTP vs. Google vs. Email+OTP) | OPEN | Keep the auth layer provider-agnostic. Do not hard-code one provider. |
 | Razorpay KYC timeline, Privacy/Terms/Refund policy content | OPEN | Leave as clearly-marked placeholders. |
 

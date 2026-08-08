@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-08 (TASK-053 done, built by Hermes and approved — every authenticated route now shares the sidebar/nav shell and a max-width cap, not just `/dashboard`. Review turned up a real follow-up: three pages (`/profile`, `/profile/visibility`, `/package/[id]`) predate the dark redesign and now visually clash inside the new shell — queued as **TASK-055**. Also: this machine has ~4GB RAM and `npm run build` can OOM if other processes are competing for it — see "Known state of the tooling" below, this is environmental, not a code defect, and shouldn't be re-flagged as a ticket blocker each time. TASK-054 (homepage photography, specific pre-sourced images) is written and ready for Hermes whenever the founder wants it. See `docs/TASKS.md` TASK-053/054/055 for full writeups.)
+**Last updated:** 2026-08-08 (TASK-053 and TASK-055 both done and approved — every authenticated route now shares the sidebar/nav shell + a width cap, and the three pages that were still on the old light theme are now correctly dark. Big one: **TASK-056 queued** — the founder provided a full creative brief for a complete homepage rewrite ("GCC MENTOR" as the real product name now, light theme for the marketing site specifically, a real 3-tier ₹399/₹1,499/₹2,499 pricing structure). All three of those were open decisions per `docs/RULES.md` §5 — confirmed directly with the founder before writing the ticket, now locked in and reflected in RULES.md. **TASK-056 supersedes TASK-052** (the homepage that shipped 2 days ago) and **supersedes TASK-054** (photography — its 3 sourced photos carried forward into TASK-056 instead of wasted). This machine's ~4GB RAM can still OOM `npm run build` under load — see "Known state of the tooling" below, this is environmental, not a code defect. See `docs/TASKS.md` TASK-053/054/055/056 for full writeups.)
 
 ## What just happened — read this before starting new work
 
@@ -180,15 +180,15 @@ a summary only.
 | TASK-048/049/050 (Phase 2 pulled forward, ad hoc) | Founder decision 2026-08-07 to start the free ATS scanner + multiple templates now, in parallel, rather than waiting for Phase 1 sales signal — see `docs/MVP.md` §2a. **TASK-048 done 2026-08-08** (migration written, not yet applied — see above). TASK-049/050 not started; TASK-049 (the scanner) depends on TASK-048's migration being applied first. |
 | TASK-051 (promo-code payment bypass) | **Done, 2026-08-07.** Migration 021 applied and end-to-end tested against the live database. See "What just happened" above for the security fix that came out of testing it. |
 | TASK-053 (desktop app shell, ad hoc) | **Done, approved, 2026-08-08.** Built by Hermes. See "What just happened" above. |
-| TASK-054 (homepage photography, ad hoc) | **Written, not started.** Specific photos pre-sourced by the CTO; ready to hand to Hermes whenever the founder wants it — not urgent, no dependency on anything else. |
+| TASK-054 (homepage photography, ad hoc) | **Superseded by TASK-056**, not built — see below. |
 | TASK-055 (dark-theme port for 3 pages, ad hoc) | **Done, approved, 2026-08-08.** Built by Hermes (commit `0ebf703`), independently reviewed by CTO against the actual diff — every legacy light-theme token replaced correctly, zero remaining, `tsc`/`lint`/`build` all clean. |
+| TASK-056 (full homepage rewrite — "GCC MENTOR," light theme, 3-tier pricing, ad hoc) | **Written, not started.** Founder-provided full creative brief, 2026-08-08. Supersedes TASK-052 and TASK-054. Product name, marketing-site-only theme reversal to light, and 3-tier pricing (₹399/₹1,499/₹2,499) all confirmed directly with the founder before writing this ticket — see `docs/RULES.md` §5. **Pricing is marketing-copy-only for now** — the live `pricing` table and checkout still only support the current single ₹499 product; a separate backend ticket is needed before the other two tiers are actually purchasable. Flag this to the founder before treating the site as launch-ready once this ships. |
 
 **Phase 1 is functionally complete except Razorpay** (blocked on the
 founder's KYC, not on building). **Next up:** founder applies migration
 `023_anonymous_rate_limits.sql` (unblocks TASK-049), and separately can hand
-TASK-055 (theme port) or TASK-054 (photography) to Hermes whenever ready —
-recommend TASK-055 first since it's fixing a visible defect, TASK-054 is
-additive polish.
+TASK-056 to Hermes — it's the largest ticket in the queue, likely multiple
+review rounds given its size (comparable to or bigger than TASK-052).
 
 ## Before this actually works end-to-end
 
