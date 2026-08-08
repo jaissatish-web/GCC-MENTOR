@@ -341,6 +341,9 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 - [ ] **TASK-057: Homepage — remaining storytelling sections from the GCC MENTOR brief** — deferred out of TASK-056 by founder decision 2026-08-08, to ship the core rewrite sooner rather than hold for everything at once. Add these to `app/page.tsx`, matching the light theme, tokens, and section-pattern TASK-056 already established (`Kicker`, badge components, the `max-w-[1280px]` container rhythm) — do not introduce a second visual language.
 
+      **Round 1 (2026-08-08) correctly reported itself blocked rather than faking completion** — Hermes added four of the six sections' data arrays (`failurePatterns`, `ecosystemSteps`, `comparisonRows`, `showcasePanels`) but could not insert the actual JSX, reporting "the attempted patch did not match the existing compact JSX structure." CTO verified this directly: `app/page.tsx` from TASK-056 is written as extremely dense single-line JSX (whole sections on one line each) — genuinely hard to patch into safely, not an excuse. **Step 0 below fixes the actual blocker.** The four data arrays already added are correctly shaped and still needed — keep them, just get them into JSX now. `Testimonials` and `Interview Demo` data weren't started yet either; still needed per items 5–6.
+
+      0. **Reformat `app/page.tsx` to normal multi-line JSX first** (one JSX element/attribute per line, standard React formatting — the same style TASK-052's original version used, and the same style the rest of this codebase uses everywhere else). Pure formatting, zero behavior change, verify by confirming the rendered page is pixel-identical before adding anything new. This is what unblocks the rest of the ticket.
       1. **Problem section** ("Applying More Isn't Always the Answer") — the common failure patterns: high application volume with no response, Western-style resumes used for Gulf jobs, generic resumes sent everywhere, poor ATS/JD alignment, weak interview prep, no structured feedback. Visual storytelling over a text wall, per the brief's own §11.
       2. **Solution/ecosystem section** ("One Career Profile. Multiple Ways to Prepare.") — a visual flow: Career Profile → Job Matching → Resume Optimization → Cover Letter → Q&A Prep → Mock Interview → Evaluation → Improvement. **Label every non-built step "Coming Soon"** — same honesty rule as the rest of the page. Today only Career Profile → Resume Optimization is real.
       3. **Product Showcase** — layered UI panels demonstrating real GCC MENTOR concepts (Gulf Readiness Score, Target Role, Job Match, Resume status, Interview Readiness). The brief's own instruction applies: "every visualization must correspond to an actual concept," not a fake meaningless chart. Interview Readiness / Job Match panels should read as illustrative previews, not live data — no wiring to a real endpoint.
@@ -350,7 +353,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       **Frontend-only, same constraints as TASK-056:** no backend/auth/API/payment changes, any illustrative data stays local to its component, never wired to a real endpoint. `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass — if `build` OOMs, see `docs/PROJECT_STATUS.md`'s known-environment-constraint note before treating it as a real failure.
 
-      Depends on: TASK-056 (done) · Status: not started
+      Depends on: TASK-056 (done) · Status: **in progress — round 1 blocked (see above), round 2 queued with step 0 added**
 
 ---
 

@@ -30,6 +30,42 @@ const faq = [
   ['Can I see changes before paying?', 'Yes. The current flow shows the changes before payment so you can review what was generated.'],
 ]
 
+const failurePatterns = [
+  ['01', 'More applications, no response', 'Volume cannot fix a CV that is not landing clearly.'],
+  ['02', 'Western CV used for a Gulf role', 'The format and context do not match what the market expects.'],
+  ['03', 'One generic resume everywhere', 'A single version misses the role, country and employer signal.'],
+  ['04', 'Weak JD alignment', 'Good experience gets buried when the relevant language is missing.'],
+  ['05', 'Interview preparation starts too late', 'A polished CV is only one part of being ready.'],
+  ['06', 'No structured feedback', 'Without a clear review loop, the same gaps repeat.'],
+] as const
+
+const ecosystemSteps = [
+  ['Career Profile', 'Your grounded facts', true],
+  ['Job Matching', 'Find the right target', false],
+  ['Resume Optimization', 'Reframe your application', true],
+  ['Cover Letter', 'Connect your story', false],
+  ['Q&A Prep', 'Prepare your answers', false],
+  ['Mock Interview', 'Practice the conversation', false],
+  ['Evaluation', 'See where to improve', false],
+  ['Improvement', 'Build the next version', false],
+] as const
+
+const comparisonRows = [
+  ['Starting point', 'Generic advice', 'Your real career profile'],
+  ['Format', 'Western templates', 'Gulf-focused presentation'],
+  ['Relevance', 'One resume for every role', 'Job-specific framing'],
+  ['Safety', 'May embellish claims', 'Nothing invented — ever'],
+  ['Direction', 'Output without context', 'A connected preparation journey'],
+] as const
+
+const showcasePanels = [
+  ['Gulf Readiness Score', '75%', 'Complete your contact, target and career details'],
+  ['Target Role', 'I&C Commissioning Engineer', 'Saudi Arabia · Target company'],
+  ['Job Match', 'Preview', 'Role-specific alignment is coming soon'],
+  ['Resume status', 'Ready to review', 'Before and after lines remain in your control'],
+  ['Interview Readiness', 'Coming soon', 'Practice and evaluation will follow'],
+] as const
+
 function Kicker({ children }: { children: React.ReactNode }) {
   return <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">{children}</p>
 }
