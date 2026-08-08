@@ -257,6 +257,22 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       Depends on: TASK-004 (done) · Status: not started
 
+- [ ] **TASK-054: Homepage photography pass** — founder request 2026-08-08, alongside TASK-053, to make the site look more "designed" rather than purely icon/typography-driven. **CTO pre-sourced the actual images before writing this ticket** (per the founder's own stated preference: exact copy-paste-ready specs, not vague direction Hermes would have to guess at or stop on) — three free, commercially-licensed photos, all verified live (HTTP 200) and confirmed NOT Unsplash+ (paid) at sourcing time:
+
+      1. `https://images.unsplash.com/photo-1672748341520-6a839e6c05bb` — industrial worker in a hard hat and jacket (Mina Rad).
+      2. `https://images.unsplash.com/photo-1652707228067-25672fa0b082` — city skyline at night from a high floor (PhotoHound). **Do not caption or alt-text this as a specific named city (e.g. "Dubai") — it was not confirmed to be one.** Use neutral copy like "City skyline at night."
+      3. `https://images.unsplash.com/photo-1503387762-592deb58ef4e` — hands drafting on a blueprint with pencil and ruler (Daniel McCullough). Sourced but **not required to be used** — only implement #1 and #2 below; keep this one in reserve, flag to the founder if a third placement seems worth it rather than inventing one.
+
+      All three are under the Unsplash License (free for commercial use, no permission or attribution legally required — see unsplash.com/license). Use the direct `images.unsplash.com` hotlink URLs above with query params for sizing (Unsplash's own resize API, not a separate download+rehost step): append `?auto=format&fit=crop&w=<width>&q=80`, choosing `<width>` to roughly match the rendered slot (e.g. `w=1600` for a full-bleed section banner, `w=800` for a smaller accent image). Load through `next/image`, not a raw `<img>`, matching the rest of this codebase's pattern.
+
+      **Spec:**
+      1. `next.config.js`: add `images.unsplash.com` to `images.remotePatterns` (same additive pattern already used for `*.supabase.co` — do not remove or modify that existing entry).
+      2. In `app/page.tsx`, section `id="gulf-careers"` (~line 869, "Six countries. One optimizer that already knows each one."): add photo #2 (skyline) as a banner/background image for the section — dark gradient overlay between the photo and the text (matching the existing `bg-glow-radial-sm` overlay pattern already used elsewhere on this page) so the heading and country cards stay fully legible against it. This is the single most literal "Gulf" visual on the page today — it has none.
+      3. In `app/page.tsx`, section header for "Beyond the CV" (~line 789) or the persona-picker section (~line 813) — pick whichever reads better once built — add photo #1 (hard hat worker) as a supporting image next to the section heading, sized to not compete with the heading's visual weight.
+      4. Keep every other section exactly as TASK-052 built it. **This is additive photography in two specific spots, not a redesign** — do not touch the hero, the service cards, the pricing section, or anything not named above.
+
+      Depends on: TASK-052 (done) · Status: not started
+
 ---
 
 ## Blocked / Needs Review
