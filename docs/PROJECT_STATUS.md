@@ -181,7 +181,7 @@ a summary only.
 | TASK-051 (promo-code payment bypass) | **Done, 2026-08-07.** Migration 021 applied and end-to-end tested against the live database. See "What just happened" above for the security fix that came out of testing it. |
 | TASK-053 (desktop app shell, ad hoc) | **Done, approved, 2026-08-08.** Built by Hermes. See "What just happened" above. |
 | TASK-054 (homepage photography, ad hoc) | **Written, not started.** Specific photos pre-sourced by the CTO; ready to hand to Hermes whenever the founder wants it — not urgent, no dependency on anything else. |
-| TASK-055 (dark-theme port for 3 pages, ad hoc) | **Written, not started.** Found during TASK-053's review — see "What just happened" above. Higher priority than TASK-054 if desktop polish is still the founder's main concern, since this is the visible clash left over after TASK-053. |
+| TASK-055 (dark-theme port for 3 pages, ad hoc) | **Done, approved, 2026-08-08.** Built by Hermes (commit `0ebf703`), independently reviewed by CTO against the actual diff — every legacy light-theme token replaced correctly, zero remaining, `tsc`/`lint`/`build` all clean. |
 
 **Phase 1 is functionally complete except Razorpay** (blocked on the
 founder's KYC, not on building). **Next up:** founder applies migration
