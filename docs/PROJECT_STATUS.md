@@ -8,23 +8,63 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-07 (TASK-033 approved. Phase 1 functionally complete except Razorpay — founder is in Saudi Arabia and cannot complete Razorpay's India-only KYC, so launch strategy is now a promo-code bypass instead, TASK-051. TASK-051's code is written and reviewed but **NOT yet applied to the database or live-tested — do this FIRST in a new session**, see "Immediate next step" below.)
+**Last updated:** 2026-08-08 (TASK-048 done — anonymous rate limiting, built directly by the CTO, not Hermes: new migration (`023_anonymous_rate_limits.sql`), new `SECURITY DEFINER` RPC, and rate-limit grants are exactly the security-critical category reserved for CTO-direct builds. Migration is written and passing build/lint/typecheck but **not yet applied** to the live database — needs the founder to apply it via `supabase/migrations/README.md`'s checklist before TASK-049 (the scanner) can actually use it. See `docs/TASKS.md` TASK-048 for the full writeup.)
 
-## Immediate next step — do this before anything else
+## What just happened — read this before starting new work
 
-**TASK-051 (promo-code payment bypass) needs `supabase/migrations/021_promo_codes.sql`
-applied to the live database, then an end-to-end redemption test.** The code
-is written and passed build/lint/tsc, but a browser-automation tool failure
-mid-session (the tool lost its visible browser window; nothing broke on the
-Supabase side) meant the migration was never actually run. Nothing is
-inconsistent or half-applied — it simply hasn't happened yet. See
-`docs/TASKS.md` TASK-051's status note for the full detail. Apply that one
-file (same manual process as `supabase/migrations/README.md`, or via the
-browser-automation approach used for migrations 010-020 earlier in this
-project's history, if that tool is working in this session), then verify —
-independently, not by trusting the on-screen message — that `promo_codes`
-and `redeem_promo_code` actually exist, and that a real redemption actually
-flips a test package's `is_paid`.
+**TASK-048 is done, migration not yet applied.** `supabase/migrations/023_anonymous_rate_limits.sql`
+adds a separate table + atomic RPC for rate-limiting callers with no logged-in
+user (the ATS scanner, TASK-049, needs this — it has no `user_id` to key
+against). Learned from the last ticket's mistake: both `REVOKE EXECUTE ...
+FROM PUBLIC` and `REVOKE EXECUTE ... FROM anon, authenticated` are in this
+migration from the start, not added as a follow-up fix. `npx tsc --noEmit`,
+`npm run lint`, `npm run build` all pass. **Next step: founder applies
+migration 023** (same manual process as every migration), then TASK-049 can
+build against it.
+
+**TASK-051 is done.** `supabase/migrations/021_promo_codes.sql` is applied to
+the live database (verified independently: table exists, RLS enabled, policy
+present). A full end-to-end test ran against real rows (a throwaway test
+user/profile/package, all deleted afterward): redemption returns `true` once,
+correctly flips `is_paid` / sets `payment_id = 'promo:<code>'` / sets
+`status = 'applied'`, increments `redemption_count`, and correctly returns
+`false` on replay against an already-paid package. Database confirmed back to
+0 rows in every table afterward — no test data left behind.
+
+**While verifying it, a real, live security hole was found and fixed — not just in the new code, but in two already-shipped, already-reviewed functions.**
+The pattern: this Supabase project grants `EXECUTE` on newly created
+functions directly to `anon`/`authenticated` (a project-level default
+privilege), which is a *separate* grant from `PUBLIC`. Every `SECURITY
+DEFINER` RPC function in this project up to now was locked down with
+`REVOKE EXECUTE ... FROM PUBLIC`, believing that closed it — it did not. Any
+client, authenticated or not, could call these directly via Supabase's
+auto-exposed REST RPC with arbitrary arguments, bypassing every app-level
+ownership/rate-limit check. Confirmed exploitable, then fixed with an
+additional `REVOKE EXECUTE ... FROM anon, authenticated`, on:
+
+- `redeem_promo_code` (migration 021, today) — could have unlocked *any*
+  user's package for free, bypassing the redemption-attempt rate limit
+  entirely.
+- `increment_rate_limit` (migration 016) — could have let anyone manipulate
+  any other user's rate-limit counters.
+- `consume_optimization_credit` (migration 018 / TASK-045) — could have let
+  anyone burn another user's optimization credit or flip `is_paid` on a
+  package they don't own.
+
+All three now verified (`information_schema.routine_privileges`) to grant
+`EXECUTE` only to `service_role` and the owner. `handle_new_user_profile` and
+`set_updated_at` were also flagged by the same audit query but are
+trigger-only functions with no arguments — Postgres refuses to execute those
+outside trigger context regardless of grants, so they were left alone.
+
+**Lesson for next time a `SECURITY DEFINER` function is added:** `REVOKE
+EXECUTE ... FROM PUBLIC` is not sufficient on this project. Always also
+`REVOKE EXECUTE ... FROM anon, authenticated` explicitly, then verify with:
+```sql
+SELECT grantee, privilege_type FROM information_schema.routine_privileges
+WHERE routine_schema='public' AND routine_name='<fn>';
+```
+This should be added to `supabase/migrations/README.md`'s checklist.
 
 ---
 
@@ -112,7 +152,7 @@ visible, even if slower, is the standing preference.
 
 ## Current progress
 
-**Phase 1 (MVP). 45 of 47 tickets done and reviewed. The remaining 2 (Razorpay) are blocked on the founder's KYC, not on building.** Three ad-hoc Phase 2 tickets (TASK-048/049/050) are additionally queued — see below. For the exact live
+**Phase 1 (MVP). 46 of 47 tickets done and reviewed. The remaining 1 (Razorpay) is blocked on the founder's KYC, not on building.** Three ad-hoc Phase 2 tickets (TASK-048/049/050) are additionally queued — see below. For the exact live
 status of every ticket — including every review round, every rejection
 reason, and every fix — `docs/TASKS.md` is authoritative; this section is
 a summary only.
@@ -131,25 +171,36 @@ a summary only.
 | TASK-044 (pre-payment preview decision) | **Resolved 2026-08-07 — Option B (blurred/watermarked full CV).** Built as part of TASK-033. |
 | TASK-045 (manual credit grant) | Done. |
 | TASK-047 (pricing config, ad hoc) | **Done.** Not a pre-written ticket — founder requested it mid-session; added to `docs/TASKS.md` per the project's own "everything lives in TASKS.md" rule. |
-| TASK-048/049/050 (Phase 2 pulled forward, ad hoc) | **Not started.** Founder decision 2026-08-07 to start the free ATS scanner + multiple templates now, in parallel, rather than waiting for Phase 1 sales signal — see `docs/MVP.md` §2a. TASK-048 (anonymous rate limiting) is the natural first hand-off — small, self-contained, and TASK-049 (the scanner itself) depends on it. |
+| TASK-048/049/050 (Phase 2 pulled forward, ad hoc) | Founder decision 2026-08-07 to start the free ATS scanner + multiple templates now, in parallel, rather than waiting for Phase 1 sales signal — see `docs/MVP.md` §2a. **TASK-048 done 2026-08-08** (migration written, not yet applied — see above). TASK-049/050 not started; TASK-049 (the scanner) depends on TASK-048's migration being applied first. |
+| TASK-051 (promo-code payment bypass) | **Done, 2026-08-07.** Migration 021 applied and end-to-end tested against the live database. See "What just happened" above for the security fix that came out of testing it. |
 
 **Phase 1 is functionally complete except Razorpay** (blocked on the
-founder's KYC, not on building). **Next up:** TASK-048, to unblock the
-Phase 2 work now underway in parallel.
+founder's KYC, not on building). **Next up:** founder applies migration
+`023_anonymous_rate_limits.sql`, then TASK-049 (the ATS scanner) can start.
 
 ## Before this actually works end-to-end
 
 **Resolved 2026-08-07.** `.env.local` exists (Supabase URL/keys/DB
 connection string; no Anthropic key needed anymore, see Unplanned #16).
-All migrations — `010` through `019`, plus `020_profiles_base.sql`
-(a gap found and fixed applying to a genuinely fresh project, see
-Unplanned #17) — are applied to a real, fresh Supabase project (not the
+All migrations — `010` through `019`, plus `020_profiles_base.sql` (a gap
+found and fixed applying to a genuinely fresh project, see Unplanned #17),
+plus `021_promo_codes.sql` (TASK-051), plus
+`022_lock_down_security_definer_execute.sql` (the three `REVOKE` statements
+from "What just happened" above, captured as a migration file for
+reproducibility — already applied directly, this file just documents it) —
+are applied to a real, fresh Supabase project (not the
 old HireCircuit one; confirmed empty before starting, confirmed correct
 schema after). Verified independently against the live database, not
 just success messages: 14 tables exist, RLS enabled on all 14, no
 exceptions. The AI provider itself (OpenRouter key/model) still needs
 to be set from `/admin` once the founder can sign in and reach it — see
 Unplanned #16 — but the database layer is live.
+
+**`023_anonymous_rate_limits.sql` (TASK-048) is written and passes
+build/lint/typecheck but is NOT yet applied** — queued behind the founder's
+usual manual-apply-via-SQL-Editor process. Nothing in the app calls it yet
+(no anonymous route exists until TASK-049), so this doesn't block anything
+currently live.
 
 ## Key decisions made along the way (the non-obvious ones)
 
