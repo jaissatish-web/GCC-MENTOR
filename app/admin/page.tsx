@@ -21,6 +21,7 @@ import { getProviderConfig } from '@/lib/ai/providerConfig'
 import { listPromoCodes } from '@/lib/admin/promoCodes'
 import { getAllPromptTemplates } from '@/lib/ai/promptTemplates'
 import { listServicePackages } from '@/lib/admin/servicePackages'
+import { ServicePackageItemsFields } from '@/components/admin/ServicePackageItemsFields'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -368,13 +369,7 @@ export default async function AdminPage({
           <div className="flex flex-col gap-2">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-warm">Quota line items</div>
             <p className="text-[11px] text-ink-faint">The service package is only available for purchase from here.</p>
-            <div className="flex flex-col gap-2" id="service-items">
-              <div className="flex items-end gap-2">
-                <Input name="service_key_0" label="Service key" placeholder="e.g. resume_optimization" list="known-services" required className="flex-1" />
-                <Input name="quota_0" type="number" min={1} label="Quota" placeholder="e.g. 3" required className="w-[100px]" />
-              </div>
-            </div>
-            <datalist id="known-services"><option value="resume_optimization" /><option value="cover_letter" /></datalist>
+            <ServicePackageItemsFields />
           </div>
           <Button type="submit" variant="primary" className="self-start">
             Create package
