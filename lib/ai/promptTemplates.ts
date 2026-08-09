@@ -35,6 +35,30 @@ export async function getPromptTemplate(key: string): Promise<string | null> {
 }
 
 /**
+ * List ALL prompt templates, ordered by key — for the admin list view.
+ */
+export async function getAllPromptTemplates(): Promise<
+  { key: string; description: string | null; content: string; updatedBy: string | null; updatedAt: string | null }[]
+> {
+  const supabase = createServiceRoleClient()
+  const { data, error } = await supabase
+    .from('prompt_templates')
+    .select('key, description, content, updated_by, updated_at')
+    .order('key')
+  if (error) {
+    console.error('prompt_templates list error:', error.message)
+    return []
+  }
+  return (data ?? []).map((row: Record<string, unknown>) => ({
+    key: row.key as string,
+    description: (row.description as string | null) ?? null,
+    content: (row.content as string) ?? '',
+    updatedBy: (row.updated_by as string | null) ?? null,
+    updatedAt: (row.updated_at as string | null) ?? null,
+  }))
+}
+
+/**
  * Upsert a template. Validation (non-empty content) is the caller's
  * responsibility (the admin server action) — this is a dumb write, same
  * division of labour as lib/ai/providerConfig.ts's setProviderConfig.

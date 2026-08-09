@@ -6,6 +6,7 @@ import { setRateLimitOverride } from '@/lib/admin/adminData'
 import { grantOptimizationCredit } from '@/lib/admin/credits'
 import { getProviderConfig, setProviderConfig } from '@/lib/ai/providerConfig'
 import { createPromoCode, deactivatePromoCode } from '@/lib/admin/promoCodes'
+import { setPromptTemplate } from '@/lib/ai/promptTemplates'
 
 /**
  * Admin Server Actions — TASK-040.
@@ -160,4 +161,22 @@ export async function deactivatePromoCodeAction(formData: FormData): Promise<voi
     await deactivatePromoCode(code, admin.id)
   }
   redirect('/admin?promoSaved=1')
+}
+
+/**
+ * Update a prompt template — TASK-059. Re-verifies is_admin independently
+ * (Server Actions bypass the page's middleware gate).
+ */
+export async function updatePromptTemplateAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  const key = String(formData.get('key') ?? '').trim()
+  const content = String(formData.get('content') ?? '').trim()
+  if (!key || !content) {
+    redirect('/admin?promptError=Key+and+content+are+required')
+  }
+  const result = await setPromptTemplate({ key, content, adminId: admin.id })
+  if (!result.ok) {
+    redirect(`/admin?promptError=${encodeURIComponent(result.error)}`)
+  }
+  redirect('/admin?promptSaved=1')
 }

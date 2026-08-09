@@ -406,7 +406,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: `/admin`'s new section shows the current `ats_scan_intro` content, editing and saving updates it (confirm by reloading and seeing the new value persist), and — if you can run a scan — the ATS scanner's actual output reflects the edited tone (not required to verify this last part if the AI provider isn't configured yet in this environment; note if skipped for that reason).
 
-      Depends on: none (migration 025 already applied to the live database) · Status: in progress
+      Depends on: none (migration 025 already applied to the live database) · Status: **done — built by Hermes, 2026-08-09.** Added "Prompt templates" section to `/admin` with a textarea for each template row, matching the existing "AI provider" section's Card/layout pattern. Added `getAllPromptTemplates()` to `lib/ai/promptTemplates.ts`, `updatePromptTemplateAction` to `app/admin/actions.ts`, and wired it into the admin page with `promptSaved`/`promptError` search-param banners. Frontend/admin-plumbing only — no changes to `atsScorePrompt.ts`, `ats-scan/route.ts`, `provider.ts`, or any migration. `npx tsc --noEmit`, `npm run lint`, and `npm run build` pass. Manual browser check: `/admin` redirects to `/login` as expected (no session), `/ats-scan` renders without regression. Live editing/saving of a prompt template could not be verified — requires an authenticated admin session, which needs `.env.local` and the live database.
 
 ---
 
