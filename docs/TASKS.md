@@ -406,7 +406,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: `/admin`'s new section shows the current `ats_scan_intro` content, editing and saving updates it (confirm by reloading and seeing the new value persist), and — if you can run a scan — the ATS scanner's actual output reflects the edited tone (not required to verify this last part if the AI provider isn't configured yet in this environment; note if skipped for that reason).
 
-      Depends on: none (migration 025 already applied to the live database) · Status: not started
+      Depends on: none (migration 025 already applied to the live database) · Status: in progress
 
 ---
 
