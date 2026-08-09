@@ -442,7 +442,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: create a real package with two quota lines through the form, confirm it appears correctly in the list, toggle it inactive and confirm the state persists on reload.
 
-      Depends on: TASK-060 (done) · Status: not started
+      Depends on: TASK-060 (done) · Status: in progress
 
 ---
 
