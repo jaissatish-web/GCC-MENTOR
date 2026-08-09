@@ -386,7 +386,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       **Frontend-only, same constraints as always:** no backend/AI/prompt changes — if the API contract seems wrong or insufficient for a good UI, stop and report rather than modifying `app/api/ats-scan/route.ts` or `lib/ai/atsScorePrompt.ts` yourself.
 
-      Depends on: TASK-049 (backend, done) · Status: in progress
+      Depends on: TASK-049 (backend, done) · Status: **done — built by Hermes, 2026-08-08.** Added public `/ats-scan` UI with upload/dropzone and paste fallback, optional job description, client-side limits, loading/error states, API submission, complete score/results presentation, free CTA to `/onboarding`, and a homepage link. Reused the existing light-theme tokens and standalone public-page pattern; no backend or AI code changed. `npx tsc --noEmit`, `npm run lint`, and `npm run build` pass. Manual verification at 320px, 375px, and 1440px confirmed no horizontal overflow, the route renders, and paste mode opens; the only 320px browser error was the pre-existing missing `/favicon.ico`. Live AI result submission was not run because it requires the configured provider/rate-limit environment.
 
 ---
 
