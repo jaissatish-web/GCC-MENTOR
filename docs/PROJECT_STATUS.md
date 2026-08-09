@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-09 (Homepage work (TASK-053 through 057) all done and approved — see prior entries below. Founder asked to build out the full platform; scope was too large to build blind, so sequenced it — decisions: build the free ATS/Gulf-readiness scanner (TASK-049) first; keep the 3 pricing tiers marketing-only for now. **TASK-049's backend is built, migrations 023+024 are APPLIED to the live database (founder authorized direct DB access for the dev phase — see `supabase/migrations/README.md`), and the route was tested end-to-end for real.** Everything works except the last step: the AI provider has never been configured from `/admin` (a pre-existing gap, Unplanned #16) — that's the one thing standing between this and a real score. **TASK-058 (the frontend) is written and ready for Hermes.** See `docs/TASKS.md` TASK-049/058, and "Before this actually works end-to-end" below for the AI-provider gap.)
+**Last updated:** 2026-08-09 (**The free ATS/Gulf-readiness scanner is fully built end-to-end — backend (TASK-049) and frontend (TASK-058), both done and approved.** Migrations 023+024 applied to the live database. Live-tested against the real running app, not just a clean build: page loads, paste/upload UI works, the request reaches the real API, and the loading/error states display correctly. The **only** thing left before it returns a real score is the AI provider itself, which has never been configured from `/admin` (pre-existing gap, Unplanned #16) — set an OpenRouter key + model there and this tool is fully live. Homepage work (TASK-052 through 057) also all done and approved — see prior entries below. See `docs/TASKS.md` TASK-049/058 for the full writeups.)
 
 ## What just happened — read this before starting new work
 
@@ -177,7 +177,7 @@ a summary only.
 | TASK-044 (pre-payment preview decision) | **Resolved 2026-08-07 — Option B (blurred/watermarked full CV).** Built as part of TASK-033. |
 | TASK-045 (manual credit grant) | Done. |
 | TASK-047 (pricing config, ad hoc) | **Done.** Not a pre-written ticket — founder requested it mid-session; added to `docs/TASKS.md` per the project's own "everything lives in TASKS.md" rule. |
-| TASK-048/049/050 (Phase 2 pulled forward, ad hoc) | Founder decision 2026-08-07 to start the free ATS scanner + multiple templates now, in parallel, rather than waiting for Phase 1 sales signal — see `docs/MVP.md` §2a. **TASK-048 and TASK-049's backend both done, migrations 023+024 applied and verified 2026-08-09**, route tested end-to-end for real (works up to the AI call — blocked only by the AI provider never having been configured from `/admin`, a pre-existing gap). **TASK-058 (frontend for TASK-049) written, ready for Hermes.** TASK-050 (templates) not started. |
+| TASK-048/049/050 (Phase 2 pulled forward, ad hoc) | Founder decision 2026-08-07 to start the free ATS scanner + multiple templates now, in parallel, rather than waiting for Phase 1 sales signal — see `docs/MVP.md` §2a. **TASK-048, TASK-049, and TASK-058 all done and approved, 2026-08-09** — the ATS scanner is fully built, backend and frontend, migrations applied, live-tested end-to-end. Only blocked on the AI provider being configured from `/admin` (pre-existing gap). TASK-050 (templates) not started. |
 | TASK-051 (promo-code payment bypass) | **Done, 2026-08-07.** Migration 021 applied and end-to-end tested against the live database. See "What just happened" above for the security fix that came out of testing it. |
 | TASK-053 (desktop app shell, ad hoc) | **Done, approved, 2026-08-08.** Built by Hermes. See "What just happened" above. |
 | TASK-054 (homepage photography, ad hoc) | **Superseded by TASK-056**, not built — see below. |
@@ -187,11 +187,11 @@ a summary only.
 
 **Phase 1 is functionally complete except Razorpay** (blocked on the
 founder's KYC, not on building). **Homepage work (TASK-052 through
-TASK-057) is fully done. Migrations 023 and 024 are applied.** **Next
-up:** founder sets an OpenRouter API key + model from `/admin` (the last
-gap before the ATS scanner returns a real score — Unplanned #16), and can
-hand **TASK-058** (the ATS scanner's frontend) to Hermes whenever ready.
-TASK-050 (multiple resume templates) is the only other open item, not yet
+TASK-057) is fully done. The ATS scanner (TASK-048/049/058) is fully
+built and live-tested.** **Next up:** founder sets an OpenRouter API key
++ model from `/admin` (the last gap before the ATS scanner returns a real
+score — Unplanned #16). TASK-050 (multiple resume templates) is the only
+other open item, not yet
 started, no
 dependency on anything above — pick it up whenever it's next in priority.
 
