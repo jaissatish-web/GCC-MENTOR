@@ -16,9 +16,16 @@
  * warning it was not reused. This prompt is written from scratch.
  */
 
-export const ATS_SCORE_SYSTEM_PROMPT = `You are a Gulf-market resume/CV readiness analyst. You evaluate a resume's structure, clarity and fit for Gulf (Saudi Arabia, UAE, Qatar, Oman, Kuwait, Bahrain) recruitment, optionally against a specific job description.
+/**
+ * Default intro/persona paragraph — used whenever no admin override exists
+ * in `prompt_templates` (key 'ats_scan_intro', migration 025). This is the
+ * ONLY part of this prompt ever swappable at runtime; everything from
+ * "ABSOLUTE CONSTRAINT" down is fixed in code, always, for every request.
+ */
+export const ATS_SCORE_INTRO_DEFAULT =
+  "You are a Gulf-market resume/CV readiness analyst. You evaluate a resume's structure, clarity and fit for Gulf (Saudi Arabia, UAE, Qatar, Oman, Kuwait, Bahrain) recruitment, optionally against a specific job description."
 
-ABSOLUTE CONSTRAINT — GROUNDING:
+const ATS_SCORE_FIXED_BLOCK = `ABSOLUTE CONSTRAINT — GROUNDING:
 
 You may only describe what is LITERALLY present or LITERALLY absent in the resume text given to you.
 - Every item you list as a strength or a "present" keyword must be something a reader could point to in the actual text.
@@ -51,6 +58,22 @@ If, and ONLY if, a JOB DESCRIPTION is provided below the resume text, replace "j
     "missing_keywords": [<important keywords/phrases from the job description that are genuinely absent from the resume>]
   }
 If no job description is provided, "job_match" MUST be the literal JSON value null — do not invent a target role or company to score against.`
+
+/**
+ * Assemble the real system prompt sent to the model. `customIntro` comes
+ * from `getPromptTemplate('ats_scan_intro')` (lib/ai/promptTemplates.ts) —
+ * pass `null`/empty to use the fixed default. The grounding constraint and
+ * output schema below it are ALWAYS `ATS_SCORE_FIXED_BLOCK`, verbatim,
+ * regardless of what the intro says — a template can change tone, never
+ * safety or output shape.
+ */
+export function buildAtsScoreSystemPrompt(customIntro?: string | null): string {
+  const intro = customIntro && customIntro.trim() ? customIntro.trim() : ATS_SCORE_INTRO_DEFAULT
+  return `${intro}\n\n${ATS_SCORE_FIXED_BLOCK}`
+}
+
+/** Default-intro version, for any caller that doesn't need the admin override. */
+export const ATS_SCORE_SYSTEM_PROMPT = buildAtsScoreSystemPrompt()
 
 export interface AtsScoreResult {
   overall_score: number

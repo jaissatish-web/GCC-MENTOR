@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { generate } from '@/lib/ai/provider'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
 import {
-  ATS_SCORE_SYSTEM_PROMPT,
+  buildAtsScoreSystemPrompt,
   buildAtsScoreUserPrompt,
   validateAtsScoreResult,
 } from '@/lib/ai/atsScorePrompt'
+import { getPromptTemplate } from '@/lib/ai/promptTemplates'
 import {
   getAnonymousRateLimitStatus,
   incrementAnonymousRateLimit,
@@ -106,8 +107,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
+    // Admin-editable intro/tone only (lib/ai/promptTemplates.ts) — the
+    // grounding constraint and output schema are always the fixed default
+    // inside buildAtsScoreSystemPrompt, never overridable from here.
+    const customIntro = await getPromptTemplate('ats_scan_intro')
     const result = await generate({
-      system: ATS_SCORE_SYSTEM_PROMPT,
+      system: buildAtsScoreSystemPrompt(customIntro),
       user: buildAtsScoreUserPrompt(resumeText, jobDescription),
       maxTokens: 2048,
       temperature: 0.2,
