@@ -15,12 +15,14 @@ import {
   updatePromptTemplateAction,
   createServicePackageAction,
   setServicePackageActiveAction,
+  deleteProviderConfigAction,
 } from '@/app/admin/actions'
 import { listCreditsForUser } from '@/lib/admin/credits'
 import { getProviderConfig } from '@/lib/ai/providerConfig'
 import { listPromoCodes } from '@/lib/admin/promoCodes'
 import { getAllPromptTemplates } from '@/lib/ai/promptTemplates'
 import { listServicePackages } from '@/lib/admin/servicePackages'
+import { listProviderConfigs } from '@/lib/ai/providerConfig'
 import { ServicePackageItemsFields } from '@/components/admin/ServicePackageItemsFields'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -88,6 +90,7 @@ export default async function AdminPage({
   const selectedCredits = selectedUserId ? await listCreditsForUser(selectedUserId) : []
   const recentAccessLog = await listPiiAccessLog(50)
   const providerConfig = await getProviderConfig()
+  const allProviderConfigs = await listProviderConfigs()
   const promoCodes = await listPromoCodes(50)
   const promptTemplates = await getAllPromptTemplates()
   const servicePackages = await listServicePackages()
@@ -99,15 +102,15 @@ export default async function AdminPage({
         <p className="text-sm text-ink-muted">Signed in as {admin.email ?? admin.id}</p>
       </div>
 
-      {/* ---- AI provider config (migration 019, founder request 2026-08-07) */}
+      {/* ---- AI provider config (migration 019, TASK-062/063) ------------ */}
       <Card className="flex flex-col gap-4 p-5">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">
           AI provider
         </h2>
         <p className="text-[12px] text-ink-muted">
-          Controls which AI service and model every optimization/extraction call uses —
+          Controls which AI service and model each feature uses —
           change it here any time, no redeploy needed. Leave the API key blank to keep the
-          key already saved; only fill it in to change it.
+          key already saved for that key; only fill it in to change it.
         </p>
 
         {providerSaved ? (
@@ -121,27 +124,69 @@ export default async function AdminPage({
           </div>
         ) : null}
 
-        {providerConfig ? (
-          <p className="text-[12px] text-ink-faint">
-            Currently: <span className="font-semibold text-ink-body">{providerConfig.provider}</span> ·{' '}
-            <span className="font-mono">{providerConfig.model}</span>
-            {providerConfig.fallbackModel ? (
-              <>
-                {' '}
-                (fallback: <span className="font-mono">{providerConfig.fallbackModel}</span>)
-              </>
-            ) : null}{' '}
-            · key <span className="font-mono">{maskSecret(providerConfig.apiKey)}</span> · last
-            updated {providerConfig.updatedAt.slice(0, 10)}
+        {/* Config rows list */}
+        {allProviderConfigs.length === 0 ? (
+          <p className="text-[12px] text-state-terra-text">
+            Not configured yet — no AI calls will work until at least a default is saved.
           </p>
         ) : (
-          <p className="text-[12px] text-state-terra-text">
-            Not configured yet — no AI calls will work until this is saved.
-          </p>
+          <div className="flex flex-col gap-2">
+            {allProviderConfigs.map((cfg) => (
+              <div
+                key={cfg.key}
+                className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3 ${
+                  cfg.key === 'default' ? 'border-gold/50 bg-gold/[0.04]' : 'border-line'
+                }`}
+              >
+                <div className="flex flex-col gap-0.5">
+                  <span className="flex items-center gap-2">
+                    <span className="font-mono text-sm font-semibold text-midnight">{cfg.key}</span>
+                    {cfg.key === 'default' ? (
+                      <span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-state-gold-text">
+                        Fallback
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="text-[12px] text-ink-muted">
+                    {cfg.provider} · <span className="font-mono">{cfg.model}</span>
+                    {cfg.fallbackModel ? (
+                      <> (fallback: <span className="font-mono">{cfg.fallbackModel}</span>)</>
+                    ) : null}
+                    {' '}· key <span className="font-mono">{maskSecret(cfg.apiKey)}</span>
+                    {cfg.updatedAt ? <> · last updated {cfg.updatedAt.slice(0, 10)}</> : null}
+                  </span>
+                  {cfg.key === 'default' ? (
+                    <span className="text-[11px] text-ink-faint">
+                      Applies to any feature without its own override.
+                    </span>
+                  ) : null}
+                </div>
+                {cfg.key !== 'default' ? (
+                  <form action={deleteProviderConfigAction}>
+                    <input type="hidden" name="key" value={cfg.key} />
+                    <button
+                      type="submit"
+                      className="text-[11px] font-semibold text-state-terra-text underline-offset-2 hover:underline"
+                    >
+                      Remove override
+                    </button>
+                  </form>
+                ) : null}
+              </div>
+            ))}
+          </div>
         )}
 
         <form action={updateProviderConfigAction} className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-2">
+            <Input
+              name="key"
+              label="Key"
+              defaultValue="default"
+              list="known-config-keys"
+              placeholder="e.g. extraction"
+              className="w-[140px]"
+            />
             <Input
               name="provider"
               label="Provider"
@@ -158,18 +203,28 @@ export default async function AdminPage({
               className="flex-1 min-w-[220px]"
             />
           </div>
-          <Input
-            name="fallbackModel"
-            label="Fallback model (optional — v2)"
-            defaultValue={providerConfig?.fallbackModel ?? ''}
-            placeholder="e.g. openai/gpt-5.2 — leave blank to disable"
-          />
-          <Input
-            name="apiKey"
-            type="password"
-            label={providerConfig ? 'New API key (leave blank to keep current)' : 'API key (required)'}
-            placeholder={providerConfig ? '••••••••' : 'sk-or-...'}
-          />
+          <div className="flex flex-wrap gap-2">
+            <Input
+              name="fallbackModel"
+              label="Fallback model (optional — v2)"
+              defaultValue={providerConfig?.fallbackModel ?? ''}
+              placeholder="e.g. openai/gpt-5.2 — leave blank to disable"
+              className="flex-1"
+            />
+            <Input
+              name="apiKey"
+              type="password"
+              label={providerConfig ? 'New API key (leave blank to keep current)' : 'API key (required)'}
+              placeholder={providerConfig ? '••••••••' : 'sk-or-...'}
+              className="flex-1"
+            />
+          </div>
+          <datalist id="known-config-keys">
+            <option value="default" />
+            <option value="extraction" />
+            <option value="optimization" />
+            <option value="ats_scan" />
+          </datalist>
           <Button type="submit" variant="primary" className="self-start">
             Save AI provider
           </Button>

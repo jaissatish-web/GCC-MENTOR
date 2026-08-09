@@ -474,7 +474,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: the existing single-`'default'`-row behavior still works exactly as before (backward compatibility is the whole point), and — if you can reach a state to test it — creating an override for one key and confirming it shows separately from `'default'` in the list.
 
-      Depends on: TASK-062 (done) · Status: not started
+      Depends on: TASK-062 (done) · Status: **done — built by Hermes, 2026-08-09.** Extended the existing "AI provider" section in `/admin` to list every config row from `listProviderConfigs()` with `'default'` visually distinguished (gold border, "Fallback" badge, "applies to any feature without its own override" note). Added a `key` field to the create/edit form (text input with datalist of `default`/`extraction`/`optimization`/`ats_scan`). Added "Remove override" button per non-default row calling `deleteProviderConfigAction`. No changes to `lib/ai/providerConfig.ts`, `lib/ai/provider.ts`, `app/admin/actions.ts`'s existing logic, or any route's `configKey`. `npx tsc --noEmit`, `npm run lint`, `npm run build` pass.
 
 ---
 
