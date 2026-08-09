@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Input } from '@/components/ui/Input'
 
 /**
@@ -14,11 +14,23 @@ import { Input } from '@/components/ui/Input'
  * prevent a zero-row form from being submitted.
  */
 export function ServicePackageItemsFields() {
-  const [rowCount, setRowCount] = useState(1)
+  // A unique, never-reused id per row (NOT a plain count) — using a plain
+  // 0..rowCount-1 index as both the React `key` and the id to remove let
+  // "remove row N" actually remove the LAST row instead whenever N wasn't
+  // already the last one: React keeps every key that still exists in the
+  // new array mounted with its current typed value, so shrinking the count
+  // always drops the highest index, regardless of which row's button was
+  // clicked. A stable id per row (kept even as earlier rows are removed)
+  // makes `key` and "which row to remove" the same value, so the row that's
+  // visually removed is always the one whose button was actually clicked.
+  const [rowIds, setRowIds] = useState<number[]>([0])
+  const nextIdRef = useRef(1)
 
-  const addRow = () => setRowCount((n) => n + 1)
-  const removeRow = (index: number) => {
-    if (rowCount > 1) setRowCount((n) => n - 1)
+  const addRow = () => {
+    setRowIds((ids) => [...ids, nextIdRef.current++])
+  }
+  const removeRow = (id: number) => {
+    setRowIds((ids) => (ids.length > 1 ? ids.filter((rowId) => rowId !== id) : ids))
   }
 
   return (
@@ -27,10 +39,10 @@ export function ServicePackageItemsFields() {
         Quota line items
       </div>
       <div className="flex flex-col gap-2" id="service-items">
-        {Array.from({ length: rowCount }, (_, i) => (
-          <div key={i} className="flex items-end gap-2">
+        {rowIds.map((id, i) => (
+          <div key={id} className="flex items-end gap-2">
             <Input
-              name={`service_key_${i}`}
+              name={`service_key_${id}`}
               label={`Service key #${i + 1}`}
               placeholder="e.g. resume_optimization"
               list="known-services"
@@ -38,7 +50,7 @@ export function ServicePackageItemsFields() {
               className="flex-1"
             />
             <Input
-              name={`quota_${i}`}
+              name={`quota_${id}`}
               type="number"
               min={1}
               label="Quota"
@@ -46,10 +58,10 @@ export function ServicePackageItemsFields() {
               required
               className="w-[100px]"
             />
-            {rowCount > 1 ? (
+            {rowIds.length > 1 ? (
               <button
                 type="button"
-                onClick={() => removeRow(i)}
+                onClick={() => removeRow(id)}
                 className="mb-0.5 flex h-11 w-9 items-center justify-center rounded-lg border border-line text-sm text-ink-muted hover:border-terracotta hover:text-terracotta"
                 aria-label={`Remove service #${i + 1}`}
               >
