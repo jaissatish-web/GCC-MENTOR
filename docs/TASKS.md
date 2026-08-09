@@ -442,7 +442,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: create a real package with two quota lines through the form, confirm it appears correctly in the list, toggle it inactive and confirm the state persists on reload.
 
-      Depends on: TASK-060 (done) · Status: in progress
+      Depends on: TASK-060 (done) · Status: **done — built by Hermes, 2026-08-09.** Added "Service packages" section to `/admin` with create form (name, description, price, repeatable service_key/quota fields with datalist suggestions for known values), list view showing inline quota items with active/inactive toggle per package. Added `createServicePackageAction` and `setServicePackageActiveAction` server actions. Skipped optional item 4 (package-tied promo codes) per spec's own "skip if it adds real complexity" instruction — the `createPromoCode` function doesn't accept `packageId` yet, and adding it would require schema/lib/action changes beyond this ticket's scope. No changes to migrations, servicePackages.ts's existing functions, or any prompt/AI file. `npx tsc --noEmit`, `npm run lint`, `npm run build` pass.
 
 ---
 

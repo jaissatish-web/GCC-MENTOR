@@ -7,6 +7,7 @@ import { grantOptimizationCredit } from '@/lib/admin/credits'
 import { getProviderConfig, setProviderConfig } from '@/lib/ai/providerConfig'
 import { createPromoCode, deactivatePromoCode } from '@/lib/admin/promoCodes'
 import { setPromptTemplate } from '@/lib/ai/promptTemplates'
+import { createServicePackage, setServicePackageActive } from '@/lib/admin/servicePackages'
 
 /**
  * Admin Server Actions — TASK-040.
@@ -179,4 +180,47 @@ export async function updatePromptTemplateAction(formData: FormData): Promise<vo
     redirect(`/admin?promptError=${encodeURIComponent(result.error)}`)
   }
   redirect('/admin?promptSaved=1')
+}
+
+/**
+ * Create a service package — TASK-061. Parses repeated service/quota fields
+ * from FormData and calls the already-built lib function.
+ */
+export async function createServicePackageAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  const name = String(formData.get('name') ?? '').trim()
+  const description = String(formData.get('description') ?? '').trim()
+  const rawPrice = String(formData.get('priceInr') ?? '').trim()
+  const priceInr = rawPrice ? Number(rawPrice) : 0
+  if (!name) { redirect('/admin?spError=Package+name+is+required'); return }
+  // Collect repeated service_key_N and quota_N fields.
+  const items: { serviceKey: string; quota: number }[] = []
+  const entries = Array.from(formData.entries())
+  for (const [key, value] of entries) {
+    const match = /^service_key_(\d+)$/.exec(key)
+    if (match && value) {
+      const idx = match[1]
+      const quotaRaw = formData.get(`quota_${idx}`)
+      const quota = quotaRaw ? Number(quotaRaw) : 0
+      if (Number.isInteger(quota) && quota > 0) {
+        items.push({ serviceKey: String(value).trim(), quota })
+      }
+    }
+  }
+  const result = await createServicePackage({ name, description: description || null, priceInr, items, adminUserId: admin.id })
+  if (!result.ok) { redirect(`/admin?spError=${encodeURIComponent(result.error)}`); return }
+  redirect('/admin?spSaved=1')
+}
+
+/**
+ * Toggle a service package's active state — TASK-061.
+ */
+export async function setServicePackageActiveAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  const packageId = String(formData.get('packageId') ?? '').trim()
+  const isActive = formData.get('isActive') === 'true'
+  if (!packageId) { redirect('/admin?spError=Missing+package+id'); return }
+  const result = await setServicePackageActive(packageId, isActive, admin.id)
+  if (!result.ok) { redirect(`/admin?spError=${encodeURIComponent(result.error)}`); return }
+  redirect('/admin?spSaved=1')
 }
