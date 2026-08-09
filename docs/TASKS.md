@@ -386,7 +386,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       **Frontend-only, same constraints as always:** no backend/AI/prompt changes — if the API contract seems wrong or insufficient for a good UI, stop and report rather than modifying `app/api/ats-scan/route.ts` or `lib/ai/atsScorePrompt.ts` yourself.
 
-      Depends on: TASK-049 (backend, done) · Status: not started
+      Depends on: TASK-049 (backend, done) · Status: in progress
 
 ---
 
