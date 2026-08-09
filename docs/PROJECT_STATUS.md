@@ -8,7 +8,7 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
-**Last updated:** 2026-08-08 (TASK-053, TASK-055, TASK-056, and now **TASK-057 all done and approved.** The homepage is now fully what the founder's brief asked for: "GCC MENTOR" branding, light theme, honest 3-tier pricing display, plus all the storytelling sections (Problem, Solution/ecosystem, Product Showcase, Comparison, Interview Demo, Testimonials) that TASK-056 had deferred. TASK-057 round 1 correctly self-reported blocked rather than faking it; round 2 shipped good, honest content — every live/soon and preview label was independently checked against what's actually built and is accurate. One overstatement in round 2's own report corrected on review: it claimed the whole file was reformatted to normal JSX, but only the six new sections got extracted into named components — the pre-existing sections are still the same dense single-line JSX from TASK-056. Not worth another round over, just noted for next time. TASK-056 supersedes TASK-052 (the old homepage) and TASK-054 (photography, carried forward). This machine's ~4GB RAM can still OOM `npm run build` under load, and a flaky dev server can show false-negative CSS issues after rapid restarts (confirmed harmless during this review — always re-verify anything suspicious against a fresh `.next` + fresh dev server before treating it as a real bug) — see "Known state of the tooling" below. See `docs/TASKS.md` TASK-053 through 057 for full writeups.)
+**Last updated:** 2026-08-09 (Homepage work (TASK-053 through 057) all done and approved — see prior entries below. New: founder asked to build out the full platform (all 3 pricing tiers eventually working, AI logic and prompts admin-configurable, API management from admin panel). Scope was too large to build blind, so asked the founder to sequence it first — decisions: **build the free ATS/Gulf-readiness scanner (TASK-049) first**; keep the 3 pricing tiers marketing-only for now (₹399 = today's real product, the other two stay "coming soon" until their features exist — no gating logic built yet); promo codes should eventually unlock any tier once tiers have real content behind them. **TASK-049's backend is now built** (CTO-direct, same reasoning as TASK-048 — AI prompt/validation pipeline): `lib/ai/atsScorePrompt.ts`, `app/api/ats-scan/route.ts`, a new migration (`024_ai_usage_log_nullable_user.sql`) making `ai_usage_log.user_id` nullable so anonymous calls can still be cost-tracked, and `lib/ai/provider.ts`'s `generate()` now accepts an optional `userId`. **TASK-058 (the frontend for it) is written and ready for Hermes.** See `docs/TASKS.md` TASK-049/058 for the full writeup and the exact API contract.)
 
 ## What just happened — read this before starting new work
 
@@ -177,7 +177,7 @@ a summary only.
 | TASK-044 (pre-payment preview decision) | **Resolved 2026-08-07 — Option B (blurred/watermarked full CV).** Built as part of TASK-033. |
 | TASK-045 (manual credit grant) | Done. |
 | TASK-047 (pricing config, ad hoc) | **Done.** Not a pre-written ticket — founder requested it mid-session; added to `docs/TASKS.md` per the project's own "everything lives in TASKS.md" rule. |
-| TASK-048/049/050 (Phase 2 pulled forward, ad hoc) | Founder decision 2026-08-07 to start the free ATS scanner + multiple templates now, in parallel, rather than waiting for Phase 1 sales signal — see `docs/MVP.md` §2a. **TASK-048 done 2026-08-08** (migration written, not yet applied — see above). TASK-049/050 not started; TASK-049 (the scanner) depends on TASK-048's migration being applied first. |
+| TASK-048/049/050 (Phase 2 pulled forward, ad hoc) | Founder decision 2026-08-07 to start the free ATS scanner + multiple templates now, in parallel, rather than waiting for Phase 1 sales signal — see `docs/MVP.md` §2a. **TASK-048 done** (migration written, not yet applied). **TASK-049 backend done 2026-08-09** (CTO-direct build — see below); its migration also not yet applied. **TASK-058 (frontend for TASK-049) written, ready for Hermes.** TASK-050 (templates) not started. |
 | TASK-051 (promo-code payment bypass) | **Done, 2026-08-07.** Migration 021 applied and end-to-end tested against the live database. See "What just happened" above for the security fix that came out of testing it. |
 | TASK-053 (desktop app shell, ad hoc) | **Done, approved, 2026-08-08.** Built by Hermes. See "What just happened" above. |
 | TASK-054 (homepage photography, ad hoc) | **Superseded by TASK-056**, not built — see below. |
@@ -187,9 +187,12 @@ a summary only.
 
 **Phase 1 is functionally complete except Razorpay** (blocked on the
 founder's KYC, not on building). **Homepage work (TASK-052 through
-TASK-057) is now fully done.** **Next up:** founder applies migration
-`023_anonymous_rate_limits.sql` (unblocks TASK-049) — that's the only
-remaining open item outside of Razorpay.
+TASK-057) is fully done.** **Next up:** founder applies migrations
+`023_anonymous_rate_limits.sql` and `024_ai_usage_log_nullable_user.sql`
+together (unblocks TASK-049's live testing), and can hand **TASK-058**
+(the ATS scanner's frontend) to Hermes whenever ready. TASK-050 (multiple
+resume templates) is the only other open item, not yet started, no
+dependency on anything above — pick it up whenever it's next in priority.
 
 ## Before this actually works end-to-end
 
@@ -209,11 +212,16 @@ exceptions. The AI provider itself (OpenRouter key/model) still needs
 to be set from `/admin` once the founder can sign in and reach it — see
 Unplanned #16 — but the database layer is live.
 
-**`023_anonymous_rate_limits.sql` (TASK-048) is written and passes
-build/lint/typecheck but is NOT yet applied** — queued behind the founder's
-usual manual-apply-via-SQL-Editor process. Nothing in the app calls it yet
-(no anonymous route exists until TASK-049), so this doesn't block anything
-currently live.
+**`023_anonymous_rate_limits.sql` (TASK-048) and `024_ai_usage_log_nullable_user.sql`
+(TASK-049) are both written and pass build/lint/typecheck but are NOT yet
+applied** — queued behind the founder's usual manual-apply-via-SQL-Editor
+process. `/api/ats-scan` (TASK-049) now exists and calls both — until these
+are applied, hitting that route will fail closed (the anonymous rate
+limiter's own design: a limit it cannot verify must not pass). Nothing else
+currently live depends on either migration, so this doesn't block anything
+else in the app today. **Apply both together** — 023 then 024, in that
+order (numbering), same checklist as every migration
+(`supabase/migrations/README.md`).
 
 ## Key decisions made along the way (the non-obvious ones)
 

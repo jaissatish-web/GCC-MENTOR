@@ -19,6 +19,13 @@ import type { RateLimitStatus } from '@/lib/rateLimit'
  * to read).
  */
 
+/**
+ * TASK-049 addition — the free ATS/Gulf-readiness scanner is the first (and
+ * so far only) consumer of this module. Default 3/day per identity hash,
+ * overridable via RATE_LIMIT_ANON_ATS_SCAN_PER_DAY.
+ */
+export const LIMIT_ACTION_ANON_ATS_SCAN = 'ats_scan'
+
 const DEFAULT_ANONYMOUS_LIMIT = 3
 
 function parsePositiveEnvInt(v: string | undefined): number | null {

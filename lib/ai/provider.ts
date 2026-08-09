@@ -31,8 +31,14 @@ interface GenerateParams {
   user: string;
   maxTokens: number;
   temperature: number;
-  /** The authenticated user this call is on behalf of (for ai_usage_log). */
-  userId: string;
+  /**
+   * The authenticated user this call is on behalf of (for ai_usage_log).
+   * Omit only for genuinely anonymous, no-login routes (e.g. TASK-049's
+   * ATS scanner) — logs with user_id = NULL (migration 024). Every
+   * authenticated route must still pass a real userId; this is not a
+   * shortcut around that.
+   */
+  userId?: string;
   /** Which endpoint/flow triggered the call (for ai_usage_log), e.g. '/api/parse/upload'. */
   route: string;
 }
@@ -83,7 +89,7 @@ function estimateCostInr(inputTokens: number, outputTokens: number): number {
 }
 
 async function logUsage(opts: {
-  userId: string;
+  userId: string | null;
   route: string;
   model: string;
   inputTokens: number;
@@ -103,13 +109,13 @@ async function logUsage(opts: {
       // A usage-log failure must never fail the model call the user is waiting
       // on. Log it and move on — the generation result is what matters.
       console.error(
-        'ai_usage_log insert error: user=' + opts.userId + ' route=' + opts.route,
+        'ai_usage_log insert error: user=' + (opts.userId ?? 'anonymous') + ' route=' + opts.route,
         error?.message ?? '',
       );
     }
   } catch (e) {
     console.error(
-      'ai_usage_log insert threw: user=' + opts.userId + ' route=' + opts.route,
+      'ai_usage_log insert threw: user=' + (opts.userId ?? 'anonymous') + ' route=' + opts.route,
       e instanceof Error ? e.message : String(e),
     );
   }
@@ -190,7 +196,7 @@ export async function generate({
     const outputTokens = json?.usage?.completion_tokens ?? 0;
 
     // Fire-and-forget the usage log so it never slows or blocks the response.
-    void logUsage({ userId, route, model: config.model, inputTokens, outputTokens });
+    void logUsage({ userId: userId ?? null, route, model: config.model, inputTokens, outputTokens });
 
     return { text, inputTokens, outputTokens };
   } catch (error) {
