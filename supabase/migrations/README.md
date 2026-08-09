@@ -17,6 +17,18 @@ deliberate — the founder applies each file by hand in the Supabase SQL Editor.
 That is by design, because the founder is the only person with production
 access, and every change is reviewed before it is applied.
 
+**Also a technical fact, not just a preference (2026-08-09):** during
+development, the founder authorized Claude Code to apply migrations directly
+where possible. Tried once — `DATABASE_URL`'s direct-connection host
+(`db.<ref>.supabase.co`) does not resolve from the Claude Code sandbox at
+all, not even at the DNS level. This is a known Supabase behavior — the
+direct host is IPv6-only for many projects, and the sandbox has no IPv6
+route. The Connection Pooler URL (Project Settings → Database → Connection
+Pooling, port 6543) is IPv4-reachable and would likely work if ever wanted,
+but the founder chose to keep using the SQL Editor manually instead — so
+that's still the live process. Don't re-attempt the direct-connection
+approach without the pooler URL; it will fail the same way.
+
 ## How migrations are numbered
 
 Files are named with a zero-padded, monotonically increasing number followed by
@@ -65,6 +77,15 @@ Use this exact checklist every time you apply a new migration to the database.
 - [ ] I ran the SQL and the editor returned **success** (no error).
 - [ ] I verified every table the file created has **RLS enabled** and an
       **owner-only policy**.
+- [ ] If the file created a `SECURITY DEFINER` function, I ran
+      `REVOKE EXECUTE ... FROM anon, authenticated` on it explicitly — a
+      `REVOKE ... FROM PUBLIC` is **not sufficient on this project**: this
+      Supabase project grants `EXECUTE` on new functions directly to
+      `anon`/`authenticated` as a separate default privilege that `FROM
+      PUBLIC` never touches (found and fixed on three functions 2026-08-07,
+      see `docs/TASKS.md` Unplanned finding #18). Verify with:
+      `SELECT grantee, privilege_type FROM information_schema.routine_privileges WHERE routine_schema='public' AND routine_name='<fn>';`
+      — only `service_role` (and the owner) should appear.
 - [ ] I spot-checked the result (a quick select, or a look in the Table
       Editor) and it matches what the file intended.
 - [ ] I confirmed the change **cannot be re-run twice** (it is either a
