@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin/adminAuth'
 import { setRateLimitOverride } from '@/lib/admin/adminData'
 import { grantOptimizationCredit } from '@/lib/admin/credits'
-import { getProviderConfig, setProviderConfig } from '@/lib/ai/providerConfig'
+import { AI_CONFIG_KEY_DEFAULT, getProviderConfigExact, setProviderConfig, deleteProviderConfig } from '@/lib/ai/providerConfig'
 import { createPromoCode, deactivatePromoCode } from '@/lib/admin/promoCodes'
 import { setPromptTemplate } from '@/lib/ai/promptTemplates'
 import { createServicePackage, setServicePackageActive } from '@/lib/admin/servicePackages'
@@ -83,6 +83,12 @@ export async function grantCreditAction(formData: FormData): Promise<void> {
 export async function updateProviderConfigAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin()
 
+  // TASK-062: per-call-site override. Blank/omitted = 'default', the same
+  // single global config this form always managed before. A non-default
+  // key creates or edits an override for one specific feature only —
+  // lib/ai/providerConfig.ts's getProviderConfig() falls back to 'default'
+  // for any feature that has no override of its own.
+  const key = String(formData.get('key') ?? '').trim() || AI_CONFIG_KEY_DEFAULT
   const provider = String(formData.get('provider') ?? '').trim()
   const model = String(formData.get('model') ?? '').trim()
   const rawFallback = String(formData.get('fallbackModel') ?? '').trim()
@@ -94,10 +100,12 @@ export async function updateProviderConfigAction(formData: FormData): Promise<vo
 
   let apiKey = rawApiKey
   if (!apiKey) {
-    // Blank submission = keep the existing key. Read it back rather than
-    // trusting a hidden form field, so a crafted POST can't smuggle in a
-    // stale or forged key value.
-    const existing = await getProviderConfig()
+    // Blank submission = keep the existing key for THIS key specifically —
+    // an exact lookup, never falling back to 'default''s key, so creating a
+    // new override can't silently inherit a different row's secret. Read it
+    // back rather than trusting a hidden form field, so a crafted POST
+    // can't smuggle in a stale or forged key value.
+    const existing = await getProviderConfigExact(key)
     if (!existing) {
       redirect('/admin?providerError=API+key+is+required+the+first+time')
     }
@@ -105,6 +113,7 @@ export async function updateProviderConfigAction(formData: FormData): Promise<vo
   }
 
   const result = await setProviderConfig({
+    key,
     provider,
     model,
     fallbackModel: rawFallback || null,
@@ -116,6 +125,26 @@ export async function updateProviderConfigAction(formData: FormData): Promise<vo
     redirect(`/admin?providerError=${encodeURIComponent(result.error)}`)
   }
 
+  redirect('/admin?providerSaved=1')
+}
+
+/**
+ * Remove a per-feature AI provider override (TASK-062) — the feature falls
+ * back to 'default' again, same as if the override had never been created.
+ * Deleting 'default' itself is allowed too (same behavior as never having
+ * configured it) — not specially blocked, since an admin might genuinely
+ * want to clear it while setting up overrides for everything explicitly.
+ */
+export async function deleteProviderConfigAction(formData: FormData): Promise<void> {
+  await requireAdmin()
+  const key = String(formData.get('key') ?? '').trim()
+  if (!key) {
+    redirect('/admin?providerError=Missing+config+key')
+  }
+  const result = await deleteProviderConfig(key)
+  if (!result.ok) {
+    redirect(`/admin?providerError=${encodeURIComponent(result.error)}`)
+  }
   redirect('/admin?providerSaved=1')
 }
 

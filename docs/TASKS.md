@@ -450,6 +450,32 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       Manually verify after the fix: create a package with **two** different service keys and confirm both quota items actually appear in the package's item list afterward, not just one.
 
+- [x] **TASK-062: Per-call-site AI model selection — backend** — founder request 2026-08-09, piece 2 of the "build Cover Letter properly" plan: pick a different AI model/provider per feature (extraction, optimization, ATS scan, Cover Letter later) from `/admin`, not one global setting for everything. **Built directly by CTO, not Hermes** — same AI-pipeline-configuration category as every other CTO-direct piece of this plan. **No new migration needed** — migration 019 already made `ai_provider_config.key` a free-text primary key; it just happened to only ever have one row (`'default'`) until now. This is a code-only change.
+
+      **Files:** `lib/ai/providerConfig.ts` (rewritten — `getProviderConfig(key)` now resolves a specific key, falling back to `'default'` when no override exists for that key; new `getProviderConfigExact()` for exact-only lookups, `listProviderConfigs()` for the admin UI, `deleteProviderConfig()` to remove an override), `lib/ai/provider.ts` (`generate()` gained an optional `configKey` param, passed straight through to `getProviderConfig`), `app/admin/actions.ts` (`updateProviderConfigAction` now accepts an optional `key` field, defaulting to `'default'` exactly as before when omitted — **the existing admin form is unchanged and still works identically**; new `deleteProviderConfigAction`). Four call sites updated to pass their real feature key: `app/api/parse/text/route.ts` and `app/api/parse/upload/route.ts` → `'extraction'`, `app/api/optimize/route.ts` → `'optimization'`, `app/api/ats-scan/route.ts` → `'ats_scan'`.
+
+      **Fallback design, not "configure everything or nothing":** the founder only ever has to set `'default'` once — every feature without its own override uses it automatically. A per-feature override is purely additive: add a row for `'ats_scan'` and only that feature switches models, everything else keeps using `'default'`. This is the same pattern already proven by `prompt_templates` (TASK-059) and `service_packages` (TASK-060) — one shared default, optional named overrides on top.
+
+      **One correctness detail worth flagging:** the existing "blank API key = keep the current one" convenience (so the founder doesn't have to re-paste a secret just to change the model string) now does an **exact-key lookup** (`getProviderConfigExact`), not the fallback-aware `getProviderConfig`. Getting this wrong would have meant creating a brand-new override with a blank key silently inherited `'default'`'s API key into a different row instead of erroring — this was checked and built correctly the first time, not caught after the fact.
+
+      **Verified against the live database, not just success messages** — then fully cleaned up, since the founder still hasn't done real setup yet: inserted a real `'default'` row and a real `'ats_scan'` override with different models, confirmed the `ats_scan` row resolves to its own model, confirmed `'optimization'` (no override) would correctly fall back to `'default'`'s model, then deleted both test rows — table confirmed back to genuinely empty afterward, exactly the "not configured yet" state the founder still needs to set for real.
+
+      `npx tsc --noEmit` 0 errors, `npm run lint` PASS, `npm run build` PASS. **Existing `/admin` AI provider form is fully backward compatible** — it has no `key` field yet, so every submission through it still manages `'default'` exactly as before this ticket.
+
+      Depends on: none · Status: done
+
+- [ ] **TASK-063: Admin UI for per-call-site AI model selection** — the UI on top of TASK-062's backend. Let the founder see and manage a model override per feature, not just the one global `'default'` the current form handles.
+
+      **Spec:**
+      1. Extend the existing "AI provider" section in `/admin` — don't build a separate new Card, this is the same feature with more rows. List every row from `listProviderConfigs()` (already built), each showing its `key`, provider, model, fallback model, and masked API key (reuse the existing `maskSecret()` helper already in `app/admin/page.tsx`) — `'default'` should be visually distinguished as the fallback-for-everything row (e.g. always shown first, a small "applies to any feature without its own override" note).
+      2. The existing create/edit form needs one new field: `key`, defaulting to `default` (a text input is fine — reuse the `datalist`-of-known-values pattern already used for `service_key` in `ServicePackageItemsFields.tsx` for consistency; known values so far: `default`, `extraction`, `optimization`, `ats_scan`). Submitting with an existing key edits that row (upsert, already handled server-side); submitting a new key creates an override.
+      3. A "Remove override" action per non-default row, calling the already-built `deleteProviderConfigAction` — **do not show this for the `'default'` row** in a way that makes it look like a normal per-feature delete (it's allowed by the backend, but deleting `'default'` while overrides still reference it as their fallback would be a confusing thing to do by accident — a confirm step or distinct styling is enough, use your judgement, flag if genuinely unsure).
+      4. **Frontend/admin-plumbing only** — do not modify `lib/ai/providerConfig.ts`, `lib/ai/provider.ts`, `app/admin/actions.ts`'s existing logic, or any route's `configKey`. If the existing lib functions seem to be missing something you need, stop and report.
+
+      `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: the existing single-`'default'`-row behavior still works exactly as before (backward compatibility is the whole point), and — if you can reach a state to test it — creating an override for one key and confirming it shows separately from `'default'` in the list.
+
+      Depends on: TASK-062 (done) · Status: not started
+
 ---
 
 ## Blocked / Needs Review

@@ -117,6 +117,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       maxTokens: 2048,
       temperature: 0.2,
       route: '/api/ats-scan',
+      configKey: 'ats_scan',
       // No userId — anonymous route, ai_usage_log records user_id = NULL
       // (migration 024).
     })

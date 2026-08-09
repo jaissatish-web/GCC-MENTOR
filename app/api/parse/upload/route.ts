@@ -69,6 +69,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       temperature: 0.1,
       userId: user.id,
       route: '/api/parse/upload',
+      configKey: 'extraction',
     })
     const parsed = extractJsonObject(result.text)
     const normalized = normalizeDraft(parsed)

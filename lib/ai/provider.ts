@@ -41,6 +41,14 @@ interface GenerateParams {
   userId?: string;
   /** Which endpoint/flow triggered the call (for ai_usage_log), e.g. '/api/parse/upload'. */
   route: string;
+  /**
+   * Which ai_provider_config row to use (TASK-062) — e.g. 'extraction',
+   * 'optimization', 'ats_scan'. Falls back to the 'default' row when this
+   * key has no override configured (lib/ai/providerConfig.ts's
+   * getProviderConfig). Omit to use 'default' directly, same as before
+   * this feature existed.
+   */
+  configKey?: string;
 }
 
 interface GenerateResult {
@@ -136,8 +144,9 @@ export async function generate({
   temperature,
   userId,
   route,
+  configKey,
 }: GenerateParams): Promise<GenerateResult> {
-  const config = await getProviderConfig();
+  const config = await getProviderConfig(configKey);
   if (!config) {
     // No guessed default — there is no safe default for a live API key.
     // The founder configures this once from /admin (migration 019).

@@ -324,6 +324,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       temperature: 0.2,
       userId: user.id,
       route: '/api/optimize',
+      configKey: 'optimization',
     })
     const parsed = extractJsonObject(result.text)
     const parsedSkillsOrder = isObject(parsed) ? parsed.skills_order : undefined
