@@ -557,7 +557,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify against the running dev server: the three-state driving-license toggle genuinely distinguishes "not answered" from "no" (reload after saving "no" and confirm it doesn't come back as unset, and vice versa), a GCC-tagged work entry round-trips correctly (save, reload, still tagged), and the employment-gaps callout only appears when there's a real gap in the data.
 
-      Depends on: TASK-067 (done) · Status: not started.
+      Depends on: TASK-067 (done) · Status: in progress.
 
 ---
 
