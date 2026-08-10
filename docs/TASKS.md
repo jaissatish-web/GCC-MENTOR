@@ -636,7 +636,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: the `/ats-scan` copy addition reads naturally and doesn't compete with the existing CTA; on `/profile`, confirm the banner only appears when `CLAIMED_SCAN_RESULT_KEY` was actually present, and reloading `/profile` afterward does NOT show it again (confirms the key was really cleared, not just read). Full authenticated round-trip (anonymous scan → signup → see both the draft AND the banner) can't be exercised without the AI provider configured — same standing exception as TASK-069; note if skipped for that reason.
 
-      Depends on: TASK-069 (done) · Status: not started.
+      Depends on: TASK-069 (done) · Status: in progress.
 
 ---
 
