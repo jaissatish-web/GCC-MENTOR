@@ -757,6 +757,26 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
       applicable)` correctly matches the spec's "skip inapplicable entirely" requirement. No
       defects found.
 
+- [x] **TASK-073: Wire the Resume Optimizer to Job Match findings** — piece 4 of `docs/GCC_READINESS_JOB_MATCH.md`'s sequence, closing it out. **Built directly by CTO, not Hermes** — touches `lib/ai/buildOptimizationPrompt.ts`, a byte-verified, safety-critical file (TASK-018).
+
+      **Per §19:** "the optimization uses Candidate Profile + Original Resume + Job Description + Job Match findings." `/api/optimize` now runs JD structuring + deterministic requirement mapping (best-effort, same discipline as TASK-071/069) before building the optimization prompt, and passes the findings in as a new, purely additive prompt section.
+
+      **Files:** `lib/jobMatch/profileAdapters.ts` (new — factors the profile-adapter out of `app/api/ats-scan/route.ts` into a shared module with a second adapter for a real, saved `CareerProfileFull`, which is richer than an anonymous draft: has `has_driving_license`, `gcc_country` on real work history rows. One source of truth so the anonymous and authenticated paths can't silently drift — same reasoning as `lib/resumeDocument.ts`'s "one derivation, many renderers," TASK-032), `lib/ai/buildOptimizationPrompt.ts` (extended — new optional `jobMatchCategories` param, new `## JOB MATCH FINDINGS` section), `app/api/optimize/route.ts` (extended).
+
+      **Verified by executing the function, not just reading the code** — same standard TASK-018 itself used. A throwaway script (deleted after, not committed) confirmed: the `system` prompt is byte-identical whether or not findings are passed (grounding rule and level instructions completely untouched); the `user` prompt is unchanged when the new param is omitted or explicitly `null` (every pre-existing call site's behavior is identical to before this ticket); the new section only appears when findings are actually passed; and an inapplicable category (e.g. `driving_license` when the JD never asked for one) is correctly excluded from the output entirely, not shown as a zeroed-out row.
+
+      **Only the DETERMINISTIC categories are used here, not the LLM semantic explanation layer `/ats-scan` uses.** Nothing in the optimize flow displays a "why" explanation — paying for a second AI call to produce prose nobody sees would be pure waste. If a future ticket adds a Job Match report screen to the authenticated flow (matching the founder's described journey of seeing the report before clicking "Optimize"), the semantic layer can be reused from `lib/ai/jobMatchExplanation.ts` then, not duplicated now.
+
+      **The findings are framed explicitly as emphasis-only guidance, never a licence to invent.** The new section's own instruction text says so directly, and — more importantly — the actual `GROUNDING_INSTRUCTION` injected earlier in the system prompt is completely untouched; this section cannot weaken it, only add read-only evidence for the model to use when deciding what in the CAREER PROFILE section to foreground.
+
+      **Best-effort end to end, same discipline as TASK-069/071.** A failure in JD structuring degrades to `jobMatchCategories: null`, which the prompt builder already treats as "behave exactly as before this ticket" — never blocks a paid optimization that would otherwise have succeeded.
+
+      **Verified:** `npx tsc --noEmit` 0 errors, `npm run build` PASS (30 routes). Full round-trip not exercised — same pre-existing gap as every AI route in this project (Unplanned #16).
+
+      **This closes out the founder's agreed four-piece sequence** (GCC Readiness data layer → anonymous sessions → Job Match engine → optimizer wired to findings). What's still open: (1) the OpenRouter key was never set in `/admin`, so none of this has been exercised end-to-end with real output — the single blocker underneath every AI-driven ticket built today; (2) no UI yet shows an authenticated user a Job Match report before they click "Optimize" — the founder's described journey (§37) has that as a distinct step, not folded silently into the optimize call the way this ticket did it; (3) Cover Letter styles (TASK-065/066, on hold) and the rest of the roadmap (templates, application dashboard) remain queued behind this.
+
+      Depends on: TASK-071 (done) · Status: done, 2026-08-10.
+
 ---
 
 ## Blocked / Needs Review
