@@ -73,7 +73,9 @@ export interface Package {
 
   // Target
   target_job_title: string
-  target_country: TargetCountry
+  // Optional (migration 030) — see types/careerProfile.ts's note; the same
+  // reasoning applies here.
+  target_country: TargetCountry | null
   target_company: string | null
   target_industry: string // persona selection
   job_description: string | null // the JD it was optimized against, if provided

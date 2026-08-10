@@ -777,6 +777,26 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       Depends on: TASK-071 (done) · Status: done, 2026-08-10.
 
+
+- [x] **TASK-074: Make `target_country` optional** — founder decision 2026-08-10: `target_country` never actually changed CV format or generation behavior — `lib/ai/buildOptimizationPrompt.ts`'s Gulf format conventions (a documented TASK-018 decision) have always been country-agnostic, and the field is never rendered on the resume itself. It is informational targeting context, same standing as `target_company` (already nullable) or `current_location`, not a functional switch. Requiring it and labelling it "sets CV format conventions" (`/optimize/target`) was misleading. Founded under migration 030.
+
+      **Spec:**
+      1. Flag `public.career_profiles.target_country` and `public.packages.target_country` `NULL` in the database (new `supabase/migrations/030_target_country_optional.sql` — `DROP NOT NULL` on both columns).
+      2. Update the TypeScript domain types to `TargetCountry | null`: `CareerProfile.target_country` (`types/careerProfile.ts`) and `Package.target_country` (`types/package.ts`).
+      3. Update the two prompt builders' target interfaces + renderers to make the field optional and **omit the `Country:` line entirely when unset** (never `Country: none`, which implies a required input the model should expect): `lib/ai/buildOptimizationPrompt.ts` (`OptimizationTarget`) and `lib/ai/buildCoverLetterPrompt.ts` (`CoverLetterTarget`).
+      4. Server validators accept `null`/absent but still reject a present non-enum value: `app/api/optimize/route.ts` (`targetFields.target_country`) and `app/api/profile/route.ts` (`validateProfile`); normalize absent→`null` on the accepted optimize body.
+      5. Client submits `null` (never `''`) when unselected — matching `target_company`'s existing convention — so the server enum check isn't tripped by an empty string: `app/profile/page.tsx` `buildPutBody` (`optNull`), `app/optimize/setup/page.tsx` submit body (trim→null).
+      6. `/optimize/target` drops country from the required-before-continue gate (title + industry remain required) and relabels "optional" instead of "sets CV format conventions"; `/profile` likewise relabels "Target country (required)" → "(optional)" and drops it from the client-side `REQUIRED_LABELS` pre-PUT list.
+      7. `app/dashboard/library/page.tsx` `countryLabel` handles `null` → "Not specified".
+      8. `lib/readiness.ts` unchanged — the field is still a scored item when filled (optional-contributes, not required-for-100), consistent with `target_company`/`current_location`.
+      9. Do NOT make `target_country` a required field on the READ path or change migration 029/adjoining GCC fields.
+
+      **Built by Hermes** (the change was already complete in the working tree; this ticket records, verifies, and commits it — the working tree was verified `npm run build` PASS and `npm run lint` PASS). Migration 030 is `DROP NOT NULL` on two columns — additive, no data impact — but is **not run here** (it must be applied by the founder like every migration).
+
+      **Deviations from spec:** none as written; the only standing note is that migration 030 is not yet applied to the live DB (code is safe against an unapplied copy — validators still accept the currently-required column, UI sends a real value when present).
+
+      Depends on: — · Status: done, 2026-08-10.
+
 ---
 
 ## Blocked / Needs Review

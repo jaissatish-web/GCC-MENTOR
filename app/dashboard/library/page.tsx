@@ -33,7 +33,8 @@ function formatDay(iso: string): string {
   return `${d.getDate()} ${MONTHS[d.getMonth()] ?? ''}`
 }
 
-function countryLabel(c: string): string {
+function countryLabel(c: string | null): string {
+  if (!c) return 'Not specified'
   return GULF_COUNTRIES.find((x) => x.value === c)?.label ?? c
 }
 

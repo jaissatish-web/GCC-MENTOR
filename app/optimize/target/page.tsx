@@ -148,11 +148,13 @@ function TargetScreen() {
     }
   }, [similar])
 
-  // Title, industry and country are required; company and JD are not.
+  // Title and industry are required; country, company and JD are not.
+  // Country is optional (migration 030, founder decision 2026-08-10) — it
+  // never actually changed CV format or generation behavior, so requiring
+  // it was misleading. See file header.
   const canContinue =
     draft.target_job_title.trim() !== '' &&
-    draft.target_industry !== '' &&
-    draft.target_country !== ''
+    draft.target_industry !== ''
 
   const onContinue = useCallback(() => {
     if (!canContinue) return
@@ -299,8 +301,7 @@ function TargetScreen() {
 
         <div className="flex flex-col gap-2">
           <div className="text-[11px] font-semibold tracking-wide text-ink-body">
-            Target country <span className="text-terracotta">*</span>{' '}
-            <span className="font-normal text-ink-warm">— sets CV format conventions</span>
+            Target country <span className="font-normal text-ink-warm">— optional</span>
           </div>
           <div className="flex flex-wrap gap-[7px]">
             {GULF_COUNTRIES.map((c) => {
@@ -389,7 +390,7 @@ function TargetScreen() {
         </Button>
         {!canContinue ? (
           <p className="text-center text-[11px] text-ink-faint">
-            Add your job title, industry and country to continue.
+            Add your job title and industry to continue.
           </p>
         ) : null}
       </div>

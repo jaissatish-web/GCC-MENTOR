@@ -352,7 +352,10 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
     current_project: optNull(e.current_project),
     target_job_title: e.target_job_title,
     target_industry: e.target_industry,
-    target_country: e.target_country,
+    // optNull, not the raw value — same treatment as target_company. Without
+    // this, leaving the field unselected sends '' (fails enum validation
+    // server-side) instead of null (now valid, migration 030).
+    target_country: optNull(e.target_country),
     target_company: optNull(e.target_company),
     full_name: e.full_name,
     photo_url: optNull(e.photo_url),
@@ -443,13 +446,17 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
 // so the user gets a readable error instead of a bare server 400).
 // ---------------------------------------------------------------------------
 
+// target_country deliberately absent (migration 030, founder decision
+// 2026-08-10) — it never actually changed CV format or generation
+// behavior, so requiring it was misleading. It's still an editable field
+// below and still contributes to the readiness score if filled
+// (lib/readiness.ts), same standing as target_company and current_location.
 const REQUIRED_LABELS: Array<[keyof EditorData, string]> = [
   ['full_name', 'Full name'],
   ['phone', 'Phone'],
   ['email', 'Email'],
   ['target_job_title', 'Target job title'],
   ['target_industry', 'Target industry'],
-  ['target_country', 'Target country'],
 ]
 
 function requiredMissing(e: EditorData): string[] {
@@ -865,7 +872,7 @@ function ProfileScreen() {
             />
             <div className="flex flex-col gap-1.5">
               <label htmlFor="f_target_country" className="text-sm font-medium text-marble">
-                Target country (required)
+                Target country <span className="font-normal text-marble/50">(optional)</span>
               </label>
               <select
                 id="f_target_country"

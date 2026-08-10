@@ -100,7 +100,8 @@ export interface SelectedBlocks {
 export interface OptimizationTarget {
   target_job_title: string
   target_industry: string
-  target_country: TargetCountry
+  // Optional (migration 030) — see types/careerProfile.ts's note.
+  target_country: TargetCountry | null
   target_company?: string | null
 }
 
@@ -223,8 +224,11 @@ function renderTarget(target: OptimizationTarget): string {
   const lines = [
     `Job title: ${target.target_job_title}`,
     `Industry: ${target.target_industry}`,
-    `Country: ${target.target_country}`,
   ]
+  // Optional (migration 030) — only add the line when actually set; omitting
+  // it entirely (not "Country: none") avoids implying it was ever a
+  // required input the model should expect.
+  if (target.target_country) lines.push(`Country: ${target.target_country}`)
   if (target.target_company) lines.push(`Company: ${target.target_company}`)
   return lines.join('\n')
 }

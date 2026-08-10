@@ -70,7 +70,12 @@ export interface CareerProfile {
   // Target
   target_job_title: string
   target_industry: string
-  target_country: TargetCountry
+  // Optional (migration 030) — informational targeting context, same
+  // standing as target_company. Never rendered on the resume itself and
+  // never changes generation behavior (lib/ai/buildOptimizationPrompt.ts's
+  // Gulf format conventions are already country-agnostic) — it was never
+  // correct to require it or to label it as format-affecting.
+  target_country: TargetCountry | null
   target_company: string | null
 
   // Identity & contact

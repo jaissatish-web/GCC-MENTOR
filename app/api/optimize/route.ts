@@ -94,8 +94,12 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
   if (typeof tf.target_industry !== 'string' || tf.target_industry.trim() === '') {
     return { error: 'targetFields.target_industry' }
   }
-  if (typeof tf.target_country !== 'string' || !TARGET_COUNTRIES.includes(tf.target_country as TargetCountry)) {
-    return { error: 'targetFields.target_country' }
+  // Optional (migration 030) — see types/careerProfile.ts's note. null/absent
+  // is valid; if present it must be a real enum member.
+  if (tf.target_country !== undefined && tf.target_country !== null) {
+    if (typeof tf.target_country !== 'string' || !TARGET_COUNTRIES.includes(tf.target_country as TargetCountry)) {
+      return { error: 'targetFields.target_country' }
+    }
   }
   if (tf.target_company !== undefined && tf.target_company !== null && typeof tf.target_company !== 'string') {
     return { error: 'targetFields.target_company' }
@@ -122,7 +126,7 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
       targetFields: {
         target_job_title: tf.target_job_title,
         target_industry: tf.target_industry,
-        target_country: tf.target_country as TargetCountry,
+        target_country: (tf.target_country as TargetCountry | null | undefined) ?? null,
         target_company: (tf.target_company as string | null | undefined) ?? null,
       },
       jobDescription: (body.jobDescription as string | null | undefined) ?? null,

@@ -182,7 +182,10 @@ function SetupScreen() {
         targetFields: {
           target_job_title: draft.target_job_title,
           target_industry: draft.target_industry,
-          target_country: draft.target_country,
+          // Optional (migration 030) — empty means null, same convention as
+          // target_company right below (an empty string would otherwise fail
+          // the server's enum check).
+          target_country: draft.target_country.trim() !== '' ? draft.target_country : null,
           target_company: draft.target_company.trim() !== '' ? draft.target_company : null,
         },
         jobDescription: draft.job_description.trim() !== '' ? draft.job_description : null,

@@ -87,10 +87,15 @@ function validateProfile(p: Record<string, unknown>): string | null {
   if (requiredStringErr) return requiredStringErr
 
   if (typeof p.currently_in_gulf !== 'boolean') return 'currently_in_gulf'
-  if (
-    typeof p.target_country !== 'string' ||
-    !TARGET_COUNTRIES.includes(p.target_country as TargetCountry)
-  ) return 'target_country'
+  // Optional (migration 030) — informational targeting context, same
+  // standing as target_company. null/absent is valid; if present it must be
+  // a real enum member.
+  if (p.target_country !== null && p.target_country !== undefined) {
+    if (
+      typeof p.target_country !== 'string' ||
+      !TARGET_COUNTRIES.includes(p.target_country as TargetCountry)
+    ) return 'target_country'
+  }
 
   // Optional scalar fields — null/undefined ok, but wrong type is an error.
   const optionalStr = (...fields: string[]): string | null => {
