@@ -722,7 +722,31 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: submitting a resume + JD and getting a response with `jobMatch: null` (expected until an AI provider is configured, per the standing exception) still renders the rest of the page correctly with no crash — this is the realistic state you'll be testing against; note that the full breakdown itself can't be visually verified end-to-end until Unplanned #16 is resolved.
 
-      Depends on: TASK-071 (done) · Status: in progress.
+      Depends on: TASK-071 (done) · Status: done, 2026-08-10.
+
+      **Built by Hermes** — one file (`app/ats-scan/page.tsx`), frontend-only, no backend/AI/
+      migration changes. (1) The page now reads the response's top-level `jobMatch`
+      (`JobMatchResult`, imported from `types/jobMatch.ts`) into a new `jobMatch` state
+      alongside the existing `result`/`score` state. (2) Replaces the old shallow
+      keyword-match "Job match" section entirely: when `jobMatch` is present, a full-width
+      card renders `overall_score` prominently (reuses the existing `Score` large treatment),
+      the `diagnosis` as a visually-weighted lead paragraph (gold left-border callout — the
+      "Ohhh moment"), then each category from `categories` **only when `applicable: true`**
+      as a labelled score + its `explanation` sentence, using plain-English labels
+      (`Summary Match`, `Career Relevance`, `Required Skills`, `Industry Match`,
+      `Experience Level`, `GCC Experience`, `Education`, `Certifications`, `Driving License`)
+      from a local `CATEGORY_LABELS` map — inapplicable categories are skipped entirely (no
+      "N/A" rows, no zeroed chips). (3) The old `result.job_match` section is fully removed
+      per the spec — when `jobMatch` is null, nothing extra renders (a stale shallow score is
+      never shown). (4) All other results content (`overall_score`, `category_scores`,
+      strengths/improvements/gulf_format_notes, CTA) untouched. `npx tsc --noEmit` 0 errors,
+      `npm run lint` PASS, `npm run build` PASS (`/ats-scan` 3.64 kB, statically prerendered).
+      Dev server booted: `/ats-scan` renders 200; a submitted resume + JD correctly returns
+      502 ("AI provider is not configured. Set it in /admin first.") and the page falls back
+      gracefully with `jobMatch` null — no crash — matching the ticket's realistic manual
+      check. The full breakdown branch itself can't be visually verified end-to-end until
+      Unplanned #16 (AI provider configured) is resolved — same standing exception the spec
+      names; its JSX/types are verified by the clean `tsc`/`build` and by construction.
 
 ---
 

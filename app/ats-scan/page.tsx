@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ChangeEvent, DragEvent, FormEvent, useRef, useState } from 'react'
+import type { JobMatchResult, JobMatchCategoryKey } from '@/types/jobMatch'
 
 type CategoryScores = {
   structure: number
@@ -37,6 +38,21 @@ function ListBlock({ title, items }: { title: string; items: string[] }) {
   return <section className="rounded-2xl border border-line bg-white p-5"><h3 className="font-serif text-2xl">{title}</h3><ul className="mt-4 space-y-3">{items.map(item => <li key={item} className="flex gap-2 text-sm leading-relaxed text-ink-body"><span className="text-gold">✓</span><span>{item}</span></li>)}</ul></section>
 }
 
+// Plain-English display labels for the Job Match categories (types/jobMatch.ts).
+// Display order is intentional — semantic "why" categories first, then the
+// deterministic evidence categories, matching how the founder's pipe reads.
+const CATEGORY_LABELS: Array<[string, JobMatchCategoryKey]> = [
+  ['Summary Match', 'summary_match'],
+  ['Career Relevance', 'career_relevance'],
+  ['Required Skills', 'required_skills'],
+  ['Industry Match', 'industry_match'],
+  ['Experience Level', 'experience_level'],
+  ['GCC Experience', 'gcc_experience'],
+  ['Education', 'education'],
+  ['Certifications', 'certifications'],
+  ['Driving License', 'driving_license'],
+]
+
 export default function AtsScanPage() {
   const fileInput = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
@@ -47,6 +63,7 @@ export default function AtsScanPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<ScanResult | null>(null)
+  const [jobMatch, setJobMatch] = useState<JobMatchResult | null>(null)
 
   const chooseFile = (nextFile: File | null) => {
     setError(null)
@@ -72,6 +89,7 @@ export default function AtsScanPage() {
     event.preventDefault()
     setError(null)
     setResult(null)
+    setJobMatch(null)
     if (!file && resumeText.trim().length < MIN_TEXT_LENGTH) return setError('Paste at least 50 characters of resume text, or upload a file.')
     if (resumeText.length > MAX_TEXT_LENGTH) return setError('Pasted resume text must be 20,000 characters or fewer.')
     if (jobDescription.length > MAX_JD_LENGTH) return setError('Job description must be 8,000 characters or fewer.')
@@ -82,10 +100,13 @@ export default function AtsScanPage() {
     setLoading(true)
     try {
       const response = await fetch('/api/ats-scan', { method: 'POST', body })
-      const payload = await response.json() as { success?: boolean; score?: ScanResult; error?: string; limit?: { message?: string } }
+      const payload = await response.json() as { success?: boolean; score?: ScanResult; error?: string; limit?: { message?: string }; jobMatch?: JobMatchResult }
       if (!response.ok) throw new Error(response.status === 429 ? payload.limit?.message ?? payload.error ?? 'Daily scan limit reached.' : payload.error ?? 'Could not analyze this resume.')
       if (!payload.score) throw new Error('The scan returned no results. Please try again.')
       setResult(payload.score)
+      // TASK-072: the richer, authoritative Job Match result (TASK-071) — the
+      // old score.job_match field is deliberately not rendered anymore.
+      setJobMatch(payload.jobMatch ?? null)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not analyze this resume.')
     } finally {
@@ -98,7 +119,7 @@ export default function AtsScanPage() {
       <form onSubmit={submit} className="mx-auto mt-12 max-w-3xl rounded-3xl border border-line bg-fill-warm p-5 shadow-elev-1 sm:p-8">
         <div className="flex flex-col gap-5"><div className={`rounded-2xl border-2 border-dashed p-8 text-center transition-colors ${dragging ? 'border-gold bg-gold/10' : 'border-line-strong bg-white'}`} onDragOver={event => { event.preventDefault(); setDragging(true) }} onDragLeave={() => setDragging(false)} onDrop={onDrop}><input ref={fileInput} type="file" accept=".pdf,.doc,.docx" className="sr-only" onChange={onFileChange} /><p className="text-3xl text-gold">↑</p><h2 className="mt-3 font-serif text-2xl">{file ? file.name : 'Drop your resume here'}</h2><p className="mt-2 text-sm text-ink-body">PDF up to 5MB · Word up to 2MB</p><button type="button" onClick={() => fileInput.current?.click()} className="mt-5 min-h-11 rounded-lg border border-line-strong bg-white px-5 py-3 text-sm font-bold hover:border-gold">Choose a file</button></div><button type="button" onClick={() => { setPasteMode(v => !v); setFile(null) }} className="self-center text-sm font-bold text-emerald underline underline-offset-4">{pasteMode ? 'Use file upload instead' : 'Paste text instead'}</button>{pasteMode ? <label className="text-sm font-semibold">Resume text<textarea value={resumeText} onChange={event => setResumeText(event.target.value)} maxLength={MAX_TEXT_LENGTH} rows={10} placeholder="Paste your resume text here (50–20,000 characters)" className="mt-2 w-full rounded-lg border border-line bg-white p-4 font-sans text-sm font-normal outline-none focus:border-gold focus:ring-2 focus:ring-gold/25" /><span className="mt-1 block text-right text-xs font-normal text-ink-muted">{resumeText.length.toLocaleString()} / {MAX_TEXT_LENGTH.toLocaleString()}</span></label> : null}<label className="text-sm font-semibold">Job description <span className="font-normal text-ink-muted">(optional)</span><textarea value={jobDescription} onChange={event => setJobDescription(event.target.value)} maxLength={MAX_JD_LENGTH} rows={5} placeholder="Paste a job description to see keyword alignment" className="mt-2 w-full rounded-lg border border-line bg-white p-4 font-sans text-sm font-normal outline-none focus:border-gold focus:ring-2 focus:ring-gold/25" /><span className="mt-1 block text-right text-xs font-normal text-ink-muted">{jobDescription.length.toLocaleString()} / {MAX_JD_LENGTH.toLocaleString()}</span></label>{error ? <p role="alert" className="rounded-lg border border-terracotta/40 bg-state-terra-bg p-3 text-sm font-semibold text-state-terra-text">{error}</p> : null}<button type="submit" disabled={loading || (!file && !pasteMode)} className="min-h-11 rounded-lg bg-midnight px-6 py-3 text-sm font-bold text-marble disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Analyzing your resume…' : 'Scan my CV for free'}</button><p className="text-center text-xs text-ink-muted">We keep your scan briefly (a few days) so signing up doesn&rsquo;t mean starting over. Never shared, never sold.</p></div>
       </form>
-      {result ? <section className="mx-auto mt-16 max-w-5xl"><div className="rounded-3xl border border-gold/50 bg-white p-6 shadow-glow-gold sm:p-10"><div className="flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left"><div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">Your free scan</p><h2 className="mt-3 font-serif text-4xl">Gulf readiness overview</h2><p className="mt-3 max-w-2xl text-ink-body">{result.summary}</p></div><Score value={result.overall_score} large /></div><div className="mt-10 grid gap-3 sm:grid-cols-3">{[['Structure', result.category_scores.structure], ['Clarity & impact', result.category_scores.clarity_and_impact], ['Gulf-readiness', result.category_scores.gulf_readiness]].map(([label, value]) => <div key={label} className="rounded-xl border border-line bg-fill-warm p-4"><p className="text-xs font-bold uppercase tracking-wider text-ink-muted">{label}</p><div className="mt-2"><Score value={value as number} /></div></div>)}</div></div><div className="mt-5 grid gap-4 md:grid-cols-2"><ListBlock title="Strengths" items={result.strengths} /><ListBlock title="Improvements" items={result.improvements} /><ListBlock title="Gulf format notes" items={result.gulf_format_notes} />{result.job_match ? <section className="rounded-2xl border border-line bg-white p-5"><div className="flex items-center justify-between"><h3 className="font-serif text-2xl">Job match</h3><Score value={result.job_match.match_score} /></div><p className="mt-4 text-xs font-bold uppercase tracking-wider text-emerald">Present keywords</p><p className="mt-2 text-sm text-ink-body">{result.job_match.present_keywords.join(' · ') || 'None identified'}</p><p className="mt-4 text-xs font-bold uppercase tracking-wider text-terracotta">Missing keywords</p><p className="mt-2 text-sm text-ink-body">{result.job_match.missing_keywords.join(' · ') || 'None identified'}</p></section> : null}</div><div className="mt-8 rounded-2xl bg-midnight p-7 text-center text-marble"><h2 className="font-serif text-3xl">Ready to build the full picture?</h2><p className="mx-auto mt-2 max-w-xl text-sm text-marble/70">Turn this free scan into a complete Career Profile and a CV built for your next target role.</p><Link href="/onboarding" className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-gold px-6 py-3 text-sm font-bold text-midnight">Build your full Career Profile</Link><p className="mx-auto mt-4 max-w-xl text-xs text-marble/55">Sign up and we&rsquo;ll save this result &mdash; no need to scan again.</p></div></section> : null}
+      {result ? <section className="mx-auto mt-16 max-w-5xl"><div className="rounded-3xl border border-gold/50 bg-white p-6 shadow-glow-gold sm:p-10"><div className="flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left"><div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">Your free scan</p><h2 className="mt-3 font-serif text-4xl">Gulf readiness overview</h2><p className="mt-3 max-w-2xl text-ink-body">{result.summary}</p></div><Score value={result.overall_score} large /></div><div className="mt-10 grid gap-3 sm:grid-cols-3">{[['Structure', result.category_scores.structure], ['Clarity & impact', result.category_scores.clarity_and_impact], ['Gulf-readiness', result.category_scores.gulf_readiness]].map(([label, value]) => <div key={label} className="rounded-xl border border-line bg-fill-warm p-4"><p className="text-xs font-bold uppercase tracking-wider text-ink-muted">{label}</p><div className="mt-2"><Score value={value as number} /></div></div>)}</div></div><div className="mt-5 grid gap-4 md:grid-cols-2"><ListBlock title="Strengths" items={result.strengths} /><ListBlock title="Improvements" items={result.improvements} /><ListBlock title="Gulf format notes" items={result.gulf_format_notes} /></div>{jobMatch ? <section className="rounded-2xl border border-gold/50 bg-white p-5 sm:p-7"><div className="flex flex-col items-center justify-between gap-4 sm:flex-row"><h3 className="font-serif text-2xl">Job match</h3><Score value={jobMatch.overall_score} large /></div><p className="mt-5 border-l-4 border-gold bg-fill-warm p-4 text-base leading-relaxed text-ink-body">{jobMatch.diagnosis}</p><div className="mt-6 flex flex-col gap-3">{CATEGORY_LABELS.filter(([, key]) => jobMatch.categories[key].applicable).map(([label, key]) => { const c = jobMatch.categories[key]; return <div key={key} className="flex items-start justify-between gap-4 rounded-xl border border-line bg-fill-warm p-4"><div className="min-w-0"><p className="text-sm font-bold text-midnight">{label}</p>{c.explanation ? <p className="mt-1 text-sm leading-relaxed text-ink-body">{c.explanation}</p> : null}</div><span className="shrink-0 font-mono text-lg font-bold text-emerald">{c.score}<span className="text-sm">/100</span></span></div> })}</div></section> : null}<div className="mt-8 rounded-2xl bg-midnight p-7 text-center text-marble"><h2 className="font-serif text-3xl">Ready to build the full picture?</h2><p className="mx-auto mt-2 max-w-xl text-sm text-marble/70">Turn this free scan into a complete Career Profile and a CV built for your next target role.</p><Link href="/onboarding" className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-gold px-6 py-3 text-sm font-bold text-midnight">Build your full Career Profile</Link><p className="mx-auto mt-4 max-w-xl text-xs text-marble/55">Sign up and we&rsquo;ll save this result &mdash; no need to scan again.</p></div></section> : null}
     </div></main>
 }
 
