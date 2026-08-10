@@ -82,6 +82,10 @@ function makeProfile(): CareerProfileFull {
     },
     readiness_category: 'currently_in_gulf' as const,
     readiness_score: 88,
+    has_driving_license: null,
+    driving_license_country: null,
+    driving_license_category: null,
+    driving_license_validity_date: null,
     created_at: now,
     updated_at: now,
   }
@@ -107,6 +111,7 @@ function makeProfile(): CareerProfileFull {
         ],
         sort_order: 0,
         created_at: now,
+        gcc_country: 'saudi_arabia',
       },
       {
         id: people[1],
@@ -122,6 +127,7 @@ function makeProfile(): CareerProfileFull {
           'Supported FAT/SAT and witnessed vendor testing to ADNOC standards',
         ],
         sort_order: 1,
+        gcc_country: 'uae',
         created_at: now,
       },
     ],

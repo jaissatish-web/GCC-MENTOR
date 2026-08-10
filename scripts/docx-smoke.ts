@@ -33,6 +33,8 @@ function makeProfile(): CareerProfileFull {
     phone: '+966 5x xxx xxxx', whatsapp: '+91 90000 00000', email: 'r@example.com',
     linkedin_url: 'https://linkedin.example/rahul', professional_summary: 'Summary text.',
     readiness_category: 'currently_in_gulf' as const, readiness_score: 88,
+    has_driving_license: null, driving_license_country: null,
+    driving_license_category: null, driving_license_validity_date: null,
     created_at: now, updated_at: now,
   }
   const e1 = 'e1', e2 = 'e2', s1 = 's1', s2 = 's2'
@@ -48,10 +50,10 @@ function makeProfile(): CareerProfileFull {
     work_experience: [
       { id: e1, profile_id: 'p1', company: 'L&T Energy', role: 'Sr. I&C Commissioning Engineer',
         start_date: '2022-03-01', end_date: null, location: 'Jubail, KSA',
-        description: 'Lead commissioning.', highlights: ['Commissioned ESD', 'Zero punch-list'], sort_order: 0, created_at: now },
+        description: 'Lead commissioning.', highlights: ['Commissioned ESD', 'Zero punch-list'], sort_order: 0, created_at: now, gcc_country: 'saudi_arabia' },
       { id: e2, profile_id: 'p1', company: 'Petrofac', role: 'Instrumentation Engineer',
         start_date: '2019-06-01', end_date: '2022-02-01', location: 'Abu Dhabi, UAE',
-        description: null, highlights: ['Instrument index'], sort_order: 1, created_at: now },
+        description: null, highlights: ['Instrument index'], sort_order: 1, created_at: now, gcc_country: 'uae' },
     ],
     skills: [
       { id: s1, profile_id: 'p1', name: 'Loop checking', sort_order: 0, created_at: now },

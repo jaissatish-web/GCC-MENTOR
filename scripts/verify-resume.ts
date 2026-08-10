@@ -67,6 +67,10 @@ function makeFixture(): {
       'Instrumentation & Control commissioning engineer with 12+ years delivering upstream and downstream projects for Aramco- and ADNOC-standard megaprojects across the Gulf.',
     readiness_category: 'currently_in_gulf' as const,
     readiness_score: 88,
+    has_driving_license: null,
+    driving_license_country: null,
+    driving_license_category: null,
+    driving_license_validity_date: null,
     created_at: now,
     updated_at: now,
   }
@@ -112,6 +116,7 @@ function makeFixture(): {
         highlights: ['Commissioned ESD and F&G logic', 'Oversaw 40+ field engineers', 'Cut loop-check rework'],
         sort_order: 0,
         created_at: now,
+        gcc_country: 'saudi_arabia',
       },
       {
         id: people[1],
@@ -125,6 +130,7 @@ function makeFixture(): {
         highlights: ['Instrument index for 2,000+ instruments', 'Supported FAT/SAT to ADNOC standards'],
         sort_order: 1,
         created_at: now,
+        gcc_country: 'uae',
       },
     ],
     skills: [

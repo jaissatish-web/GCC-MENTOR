@@ -13,6 +13,7 @@ import type {
 } from '@/types/careerProfile'
 import { calculateReadiness } from '@/lib/readiness'
 import type { ReadinessInput } from '@/lib/readiness'
+import { detectEmploymentGaps } from '@/lib/employmentGaps'
 
 /**
  * Profile CRUD API — TASK-012.
@@ -104,7 +105,8 @@ function validateProfile(p: Record<string, unknown>): string | null {
     'current_employer', 'current_project', 'target_company', 'photo_url',
     'nationality', 'date_of_birth', 'passport_validity_date', 'visa_status',
     'notice_period', 'current_location', 'whatsapp', 'linkedin_url',
-    'professional_summary',
+    'professional_summary', 'driving_license_country', 'driving_license_category',
+    'driving_license_validity_date',
   )
   if (optionalStrErr) return optionalStrErr
 
@@ -115,6 +117,13 @@ function validateProfile(p: Record<string, unknown>): string | null {
   }
   if (p.visa_transferable !== null && p.visa_transferable !== undefined) {
     if (typeof p.visa_transferable !== 'boolean') return 'visa_transferable'
+  }
+  // has_driving_license is nullable-tri-state (migration 027) — null/absent
+  // is valid (not yet answered), but if present it must be a real boolean,
+  // never a truthy string, so "not yet answered" can never be confused with
+  // a coerced false.
+  if (p.has_driving_license !== null && p.has_driving_license !== undefined) {
+    if (typeof p.has_driving_license !== 'boolean') return 'has_driving_license'
   }
 
   // Readiness is auto-derived (TASK-014); accept null or a known value if sent.
@@ -147,6 +156,11 @@ function validateWorkExperience(list: unknown): string | null {
     if (requireString(item.start_date, 'start_date')) return 'work_experience.start_date'
     if (optional(item.end_date, 'end_date', (x) => typeof x === 'string')) return 'work_experience.end_date'
     if (typeof item.sort_order !== 'number') return 'work_experience.sort_order'
+    // migration 027 — null/absent = not GCC experience, otherwise must be a
+    // real target_country_enum member, same set the DB column accepts.
+    if (
+      optional(item.gcc_country, 'gcc_country', (x) => typeof x === 'string' && TARGET_COUNTRIES.includes(x as TargetCountry))
+    ) return 'work_experience.gcc_country'
   }
   return null
 }
@@ -247,6 +261,12 @@ export async function GET(): Promise<NextResponse> {
     fetchChildren('profile_additional_information'),
   ])
 
+  // Computed on read, never persisted — see lib/employmentGaps.ts's header
+  // for why this is informational only (not folded into readiness_score
+  // yet). Not part of CareerProfileFull's DB-mirrored shape; an additive
+  // extra key on the response only.
+  const employment_gaps = detectEmploymentGaps(work_experience as ProfileWorkExperience[])
+
   return NextResponse.json({
     ...(profile as CareerProfile),
     work_experience: work_experience as ProfileWorkExperience[],
@@ -254,7 +274,8 @@ export async function GET(): Promise<NextResponse> {
     certifications: certifications as ProfileCertification[],
     education: education as ProfileEducation[],
     additional_information: additional_information as ProfileAdditionalInformation[],
-  } satisfies CareerProfileFull)
+    employment_gaps,
+  } satisfies CareerProfileFull & { employment_gaps: ReturnType<typeof detectEmploymentGaps> })
 }
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
@@ -303,6 +324,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     'passport_validity_date', 'visa_status', 'visa_transferable', 'notice_period',
     'current_location', 'phone', 'whatsapp', 'email', 'linkedin_url',
     'professional_summary', 'field_visibility', 'readiness_category', 'readiness_score',
+    'has_driving_license', 'driving_license_country', 'driving_license_category',
+    'driving_license_validity_date',
   ]
   const profileRow: Record<string, unknown> = {}
   for (const k of allowedProfileKeys) {

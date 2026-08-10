@@ -94,6 +94,16 @@ export interface CareerProfile {
   // Null on the manual/fresher paths, meaning "no before" (not empty).
   professional_summary: string | null
 
+  // Driving license (migration 027, docs/GCC_READINESS_JOB_MATCH.md §5).
+  // has_driving_license is nullable: null = not yet answered, false =
+  // explicitly answered "no". Never conflate the two — a missing answer
+  // must not silently score as "no license" (docs/GCC_READINESS_JOB_MATCH.md
+  // §5's own explicit warning against penalizing every candidate without one).
+  has_driving_license: boolean | null
+  driving_license_country: string | null
+  driving_license_category: string | null
+  driving_license_validity_date: string | null // date
+
   // Visibility storage
   field_visibility: FieldVisibility
 
@@ -118,6 +128,10 @@ export interface ProfileWorkExperience {
   highlights: string[] | null
   sort_order: number
   created_at: string
+  // migration 027, docs/GCC_READINESS_JOB_MATCH.md §5 "GCC Experience".
+  // null = not GCC-based work. Reuses TargetCountry — 'generic_gulf' covers
+  // older resume data where the specific GCC country isn't clearly stated.
+  gcc_country: TargetCountry | null
 }
 
 // ---- profile_skills (migration 011) ----------------------------------------
