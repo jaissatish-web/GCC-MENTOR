@@ -19,15 +19,23 @@ access, and every change is reviewed before it is applied.
 
 **Also a technical fact, not just a preference (2026-08-09):** during
 development, the founder authorized Claude Code to apply migrations directly
-where possible. Tried once — `DATABASE_URL`'s direct-connection host
-(`db.<ref>.supabase.co`) does not resolve from the Claude Code sandbox at
-all, not even at the DNS level. This is a known Supabase behavior — the
-direct host is IPv6-only for many projects, and the sandbox has no IPv6
-route. The Connection Pooler URL (Project Settings → Database → Connection
-Pooling, port 6543) is IPv4-reachable and would likely work if ever wanted,
-but the founder chose to keep using the SQL Editor manually instead — so
-that's still the live process. Don't re-attempt the direct-connection
-approach without the pooler URL; it will fail the same way.
+where possible. `DATABASE_URL`'s direct-connection host (`db.<ref>.supabase.co`)
+does not resolve from the Claude Code sandbox at all, not even at the DNS
+level — a known Supabase behavior, the direct host is IPv6-only for many
+projects and the sandbox has no IPv6 route.
+
+**Update, 2026-08-10:** the founder supplied the Connection Pooler URL
+(Project Settings → Database → Connection Pooling, port 6543), which IS
+IPv4-reachable from the sandbox. It's cached in `.env.local` as
+`DATABASE_POOLER_URL` (gitignored, never committed — same handling as every
+other secret in that file). Migration 027 was applied this way, using the
+`pg` npm package (installed `--no-save` for this one-off use — not a
+project dependency, not in `package.json`) connecting with discrete
+connection fields rather than parsing the URL as a string, since the
+founder's actual database password contains literal `@` characters that
+make naive URL-parsing ambiguous. Applying a migration directly is now the
+default when a session has DB access already established — the SQL Editor
+manual-paste process below remains the fallback whenever it isn't.
 
 ## How migrations are numbered
 

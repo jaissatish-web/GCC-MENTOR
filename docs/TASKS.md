@@ -543,6 +543,8 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       **Verified:** `npx tsc --noEmit` 0 errors (after adding `gcc_country`/driving-license fields to the three fixture-data test scripts — `scripts/docx-smoke.ts`, `scripts/pdf-loadtest.ts`, `scripts/verify-resume.ts` — that construct full `CareerProfileFull` objects). Re-ran the exhaustive TASK-032 golden-baseline check after: **32,768/32,768 permutations still byte-identical** — the new fields touch nothing in the rendered PDF/DOCX. `npm run build`: all 28 routes compile clean.
 
+      **Migration applied 2026-08-10** — founder supplied the Connection Pooler URL; applied directly and independently verified against the live database (`information_schema.columns`): all five new columns exist with the correct type and nullability (`career_profiles.has_driving_license` boolean, `.driving_license_country`/`.driving_license_category` text, `.driving_license_validity_date` date, `profile_work_experience.gcc_country` the `target_country_enum` type). See `supabase/migrations/README.md` for how direct application now works.
+
       Depends on: none (additive) · Status: done, 2026-08-10.
 
 - [ ] **TASK-068: GCC Readiness profile UI — driving license fields, GCC-tagged work history, employment gaps display** — the UI on top of TASK-067's already-built backend. **No scoring/weighting judgment calls in this ticket** — nothing here changes `readiness_score`; this is form fields and a display list.
