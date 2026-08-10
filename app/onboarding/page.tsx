@@ -1,10 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { cn } from '@/lib/utils'
+import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
 
 /**
  * Onboarding path chooser — screen 02 (TASK-022), route /onboarding.
@@ -27,6 +28,18 @@ import { cn } from '@/lib/utils'
  * to /profile provisionally, recording which path was chosen in local state so
  * TASK-023 can intercept and run extraction when it is built. No extraction
  * happens here.
+ *
+ * TASK-069 addition: on mount, silently attempts to claim an anonymous
+ * analysis session (POST /api/anonymous-session/claim) — a visitor who
+ * scanned a resume via the free /ats-scan tool before signing up gets that
+ * exact extraction handed back here instead of being asked to redo it
+ * (docs/GCC_READINESS_JOB_MATCH.md §17). A claimed draft is written into the
+ * SAME sessionStorage key TASK-023's own extraction handoff already uses, so
+ * /profile's existing draft-review code (fromDraft, TASK-024) picks it up
+ * completely unchanged — no new consumer to build or review. For everyone
+ * else (the overwhelming majority: anonymous visitors with no prior scan,
+ * and returning logged-in users) the claim call returns `{ draft: null }`
+ * quickly and this screen behaves exactly as before.
  */
 
 type OnboardingPath = 'upload' | 'paste' | 'scratch'
@@ -79,6 +92,42 @@ function OptionCard({
 export default function OnboardingPage() {
   const router = useRouter()
   const [path, setPath] = useState<OnboardingPath | null>(null)
+  // Gates the first paint so a claimable session redirects to /profile
+  // before the 3-choice screen ever flashes. Anonymous visitors and
+  // returning users clear this in one fast round trip (no AI call, no file
+  // I/O — just a cookie + row lookup) since the claim endpoint returns
+  // `{ draft: null }` for both.
+  const [checkingClaim, setCheckingClaim] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/anonymous-session/claim', { method: 'POST', cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled) return
+        if (data?.draft) {
+          window.sessionStorage.setItem(CAREER_PROFILE_DRAFT_KEY, JSON.stringify(data.draft))
+          // Carry the pre-signup score along too, if there was one (extraction
+          // can succeed independently of scoring — see /api/ats-scan). Whoever
+          // builds the "welcome back" display (TASK-070) reads and clears this.
+          if (data.atsScore) {
+            window.sessionStorage.setItem(
+              CLAIMED_SCAN_RESULT_KEY,
+              JSON.stringify({ atsScore: data.atsScore, jobDescription: data.jobDescription ?? null }),
+            )
+          }
+          router.replace('/profile')
+          return
+        }
+        setCheckingClaim(false)
+      })
+      .catch(() => {
+        if (!cancelled) setCheckingClaim(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [router])
 
   const continueLink = () => {
       // Upload & paste go to the transient extraction screen (TASK-023), which
@@ -93,6 +142,14 @@ export default function OnboardingPage() {
         router.push('/profile')
       }
     }
+
+  if (checkingClaim) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-void">
+        <p className="font-mono text-sm text-marble/55">Loading…</p>
+      </main>
+    )
+  }
 
   return (
     <main className="flex min-h-dvh flex-col bg-void">

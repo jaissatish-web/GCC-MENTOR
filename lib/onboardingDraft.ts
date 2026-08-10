@@ -34,3 +34,18 @@ export const OPTIMIZATION_TARGET_DRAFT_KEY = 'optimization_target_draft'
  * browser sessions.
  */
 export const OPTIMIZATION_REPLACE_PACKAGE_KEY = 'optimization_replace_package'
+
+/**
+ * Session-storage handoff for a claimed anonymous scan result (TASK-069 →
+ * TASK-070). When /onboarding claims an anonymous_analysis_session on
+ * signup, it writes the ATS score + job description here (alongside the
+ * profile draft under CAREER_PROFILE_DRAFT_KEY) so a "welcome back, here's
+ * what we found" display can show the exact result the person already saw
+ * pre-signup without a second AI call. Whoever builds that display must READ
+ * and CLEAR this key — same one-time-handoff contract as every other key
+ * in this file.
+ *
+ * sessionStorage (not localStorage): single-flow state, must not persist
+ * across browser sessions.
+ */
+export const CLAIMED_SCAN_RESULT_KEY = 'claimed_scan_result'

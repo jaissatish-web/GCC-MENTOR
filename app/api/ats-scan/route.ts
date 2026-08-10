@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generate } from '@/lib/ai/provider'
-import { extractJsonObject } from '@/lib/ai/extractionPrompt'
+import { EXTRACTION_SYSTEM_PROMPT, normalizeDraft, extractJsonObject } from '@/lib/ai/extractionPrompt'
 import {
   buildAtsScoreSystemPrompt,
   buildAtsScoreUserPrompt,
   validateAtsScoreResult,
 } from '@/lib/ai/atsScorePrompt'
+import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
 import { getPromptTemplate } from '@/lib/ai/promptTemplates'
 import {
   getAnonymousRateLimitStatus,
@@ -13,6 +14,7 @@ import {
   getClientIdentityHash,
   LIMIT_ACTION_ANON_ATS_SCAN,
 } from '@/lib/anonymousRateLimit'
+import { SESSION_COOKIE_NAME, upsertAnonymousSession } from '@/lib/anonymousSession'
 
 /**
  * Free ATS/Gulf-readiness scanner (TASK-049). Public, NO LOGIN REQUIRED —
@@ -26,12 +28,16 @@ import {
  * a file/text split like the authenticated parse routes, since the
  * frontend only needs one upload surface for this tool.
  *
- * Never writes anything to the database — this is a stateless scan. No
- * ats_reports-style table exists for anonymous callers; storing an
- * anonymous stranger's resume text with no account and no consent flow
- * would be a bigger PII footprint than this tool needs (CTO judgment
- * call — flag if a "your last scan" feature is ever wanted, that needs its
- * own design, not a silent side effect of this route).
+ * TASK-069 update: this is no longer fully stateless. Alongside the score,
+ * this route now also runs extraction (same pipeline /api/parse/text uses)
+ * and persists both into a short-lived anonymous_analysis_session (migration
+ * 028) so a "claim on signup" flow (app/api/anonymous-session/claim/route.ts)
+ * can pre-fill the Career Profile and re-show this exact result without
+ * asking the person to re-upload — the exact feature TASK-049's original
+ * comment here flagged as needing its own design before being built. See
+ * that migration's header for the retention/deletion reasoning. The
+ * response contract for the score itself is UNCHANGED — a caller that
+ * ignores the new cookie sees identical behavior to before.
  */
 
 const MAX_FILE_SIZE_PDF = 5 * 1024 * 1024   // 5MB, matches /api/parse/upload
@@ -106,6 +112,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Resume text too long (maximum 20000 characters)' }, { status: 400 })
   }
 
+  let score: AtsScoreResult
   try {
     // Admin-editable intro/tone only (lib/ai/promptTemplates.ts) — the
     // grounding constraint and output schema are always the fixed default
@@ -122,17 +129,63 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // (migration 024).
     })
     const parsed = extractJsonObject(result.text)
-    const score = validateAtsScoreResult(parsed)
-    if (!score) {
+    const validated = validateAtsScoreResult(parsed)
+    if (!validated) {
       return NextResponse.json({ error: 'Could not analyze this resume. Please try again.' }, { status: 422 })
     }
-
-    // A successful scan consumes a rate-limit slot.
-    await incrementAnonymousRateLimit({ identityHash, action: LIMIT_ACTION_ANON_ATS_SCAN })
-
-    return NextResponse.json({ success: true, score })
+    score = validated
   } catch (e) {
     console.error('ats-scan: AI call failed', e instanceof Error ? e.message : String(e))
     return NextResponse.json({ error: 'Could not analyze this resume. Please try again.' }, { status: 502 })
   }
+
+  // A successful scan consumes a rate-limit slot regardless of what happens
+  // below — the score itself already succeeded and is what the caller paid
+  // a rate-limit slot for.
+  await incrementAnonymousRateLimit({ identityHash, action: LIMIT_ACTION_ANON_ATS_SCAN })
+
+  // Extraction + session persistence (TASK-069) is best-effort ON TOP OF the
+  // score — never lets a failure here turn a successful scan into an error
+  // response. A visitor who never signs up loses nothing; one who does loses
+  // only the "don't re-upload" convenience, not the score they already got.
+  let sessionToken: string | null = null
+  try {
+    const extractResult = await generate({
+      system: EXTRACTION_SYSTEM_PROMPT,
+      user: `Extract from this resume text:\n\n${resumeText}`,
+      maxTokens: 8192,
+      temperature: 0.1,
+      route: '/api/ats-scan',
+      configKey: 'extraction',
+      // No userId — same anonymous call as the score above.
+    })
+    const draft = normalizeDraft(extractJsonObject(extractResult.text))
+    if (draft) {
+      const existingToken = request.cookies.get(SESSION_COOKIE_NAME)?.value ?? null
+      sessionToken = await upsertAnonymousSession({
+        existingToken,
+        identityHash,
+        data: {
+          resumeText,
+          extractedProfile: draft,
+          jobDescription,
+          atsScoreResult: score,
+        },
+      })
+    }
+  } catch (e) {
+    console.error('ats-scan: session persistence failed (non-fatal)', e instanceof Error ? e.message : String(e))
+  }
+
+  const response = NextResponse.json({ success: true, score })
+  if (sessionToken) {
+    response.cookies.set(SESSION_COOKIE_NAME, sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days — matches ANONYMOUS_SESSION_TTL_DAYS's default; cookie lifetime is a UX ceiling, the DB row's own expires_at is the real enforcement
+    })
+  }
+  return response
 }
