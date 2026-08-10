@@ -18,11 +18,12 @@ import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Toggle } from '@/components/ui/Toggle'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
-import { CAREER_PROFILE_DRAFT_KEY } from '@/lib/onboardingDraft'
+import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import { calculateReadiness, type ReadinessResult } from '@/lib/readiness'
 import type { ReadinessCategory, PassportType } from '@/types/careerProfile'
 import type { CareerProfileDraft, CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
+import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
 
 /**
  * Career Profile review screen — screen 04 (TASK-024), route /profile.
@@ -570,12 +571,34 @@ function ProfileScreen() {
   // Computed employment gaps from GET /api/profile (TASK-067). Read-only,
   // display-only, never scored — see lib/employmentGaps.ts's header.
   const [employmentGaps, setEmploymentGaps] = useState<EmploymentGap[]>([])
+  // Claimed anonymous scan result (TASK-070) — one-time "welcome back" banner.
+  // null = never claimed / already dismissed.
+  const [claimedScan, setClaimedScan] = useState<AtsScoreResult | null>(null)
   const didInit = useRef(false)
 
   // ---- Initial load: draft handoff, else GET existing, else empty ----------
   useEffect(() => {
     if (didInit.current) return
     didInit.current = true
+
+    // CLAIMED_SCAN_RESULT_KEY — one-time "welcome back" handoff (TASK-070).
+    // Reads and clears it here regardless of the draft branch below, so the
+    // banner can show even if the companion profile-draft half of the handoff
+    // is somehow absent. Same one-time contract as CAREER_PROFILE_DRAFT_KEY:
+    // the key is always cleared once read, never left to re-show on reload.
+    const claimedRaw = window.sessionStorage.getItem(CLAIMED_SCAN_RESULT_KEY)
+    if (claimedRaw) {
+      try {
+        const parsed = JSON.parse(claimedRaw) as { atsScore?: unknown }
+        const s = parsed?.atsScore
+        if (s && typeof s === 'object' && !Array.isArray(s) && 'overall_score' in s) {
+          setClaimedScan(s as AtsScoreResult)
+        }
+      } catch {
+        /* corrupt payload — just show nothing, key is still cleared below */
+      }
+      window.sessionStorage.removeItem(CLAIMED_SCAN_RESULT_KEY)
+    }
 
     const raw = window.sessionStorage.getItem(CAREER_PROFILE_DRAFT_KEY)
     if (raw) {
@@ -744,6 +767,41 @@ function ProfileScreen() {
       {loadError ? (
         <div className="mx-5 mt-4 rounded-xl border border-terracotta/30 bg-state-terra-bg px-3.5 py-3 text-[12px] text-state-terra-text">
           {loadError}
+        </div>
+      ) : null}
+
+      {/* WELCOME BACK — one-time claimed anonymous scan result (TASK-070).
+          Dismissible and non-blocking; the editor is fully usable underneath.
+          Renders only when CLAIMED_SCAN_RESULT_KEY was actually present — and
+          that key was already read+cleared in the mount pass, so this can never
+          reappear after a reload. */}
+      {claimedScan ? (
+        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-xl border border-gold/40 bg-surface px-4 py-3">
+          <div className="flex flex-col gap-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-state-gold-text">
+              Welcome back
+            </p>
+            <p className="text-[13px] font-medium text-marble">
+              Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
+            </p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span className="font-mono text-2xl font-bold text-emerald">
+                {claimedScan.overall_score}
+                <span className="text-sm">/100</span>
+              </span>
+              <span className="font-mono text-[12px] text-marble/70">Structure {claimedScan.category_scores.structure}</span>
+              <span className="font-mono text-[12px] text-marble/70">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
+              <span className="font-mono text-[12px] text-marble/70">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setClaimedScan(null)}
+            aria-label="Dismiss welcome back banner"
+            className="min-h-11 shrink-0 px-1 text-marble/60 transition-colors hover:text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+          >
+            ✕
+          </button>
         </div>
       ) : null}
 

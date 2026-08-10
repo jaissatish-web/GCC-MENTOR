@@ -636,7 +636,30 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: the `/ats-scan` copy addition reads naturally and doesn't compete with the existing CTA; on `/profile`, confirm the banner only appears when `CLAIMED_SCAN_RESULT_KEY` was actually present, and reloading `/profile` afterward does NOT show it again (confirms the key was really cleared, not just read). Full authenticated round-trip (anonymous scan → signup → see both the draft AND the banner) can't be exercised without the AI provider configured — same standing exception as TASK-069; note if skipped for that reason.
 
-      Depends on: TASK-069 (done) · Status: in progress.
+      Depends on: TASK-069 (done) · Status: done, 2026-08-10.
+
+      **Built by Hermes** — two files, frontend-only, no backend/AI/migration changes (the
+      data + key already exist from TASK-069). (1) **`/ats-scan` save-on-signup promise:**
+      added one low-key line under the "Build your full Career Profile" CTA on the results
+      screen ("Sign up and we'll save this result — no need to scan again.") so the existing
+      silent carry-over is now an explicit, visible promise rather than a pleasant surprise.
+      (2) **`/profile` "Welcome back" banner:** on the same mount pass that already reads
+      `CAREER_PROFILE_DRAFT_KEY`, the effect now also reads `CLAIMED_SCAN_RESULT_KEY` from
+      `lib/onboardingDraft.ts`, `JSON.parse`es `{ atsScore }`, and ALWAYS clears the key once
+      read (same one-time-handoff contract as the draft key) so it can never re-show on
+      reload. A small dismissible card (gold-accented, × dismiss button) renders "Welcome
+      back — here's what we found in your last scan" with the `overall_score` /100 prominent
+      plus the three `category_scores` as compact chips (kept to score + categories to avoid
+      cluttering the profile-review screen; pulled from the exported `AtsScoreResult` type).
+      (3) **Absent key → nothing:** the banner is gated on `claimedScan` state, which is only
+      ever set when the key was genuinely present and parsed — no placeholder, no empty
+      state. `npx tsc --noEmit` 0 errors, `npm run lint` PASS, `npm run build` PASS
+      (`/ats-scan` 3.33 kB, `/profile` 9.16 kB, both statically prerendered). Dev server
+      booted: `/ats-scan` renders 200; `/profile` correctly 307s to `/login` for an
+      unauthenticated request. The authenticated round-trip (anonymous scan → signup →
+      draft AND banner both appear; reload clears the banner) could not be exercised live —
+      no user session available to this agent and the AI provider isn't configured (the same
+      standing exception TASK-069 noted); the read+parse+clear contract is code-verified.
 
 ---
 
