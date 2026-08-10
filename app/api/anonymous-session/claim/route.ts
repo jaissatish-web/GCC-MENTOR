@@ -62,6 +62,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const response = NextResponse.json({
     draft: claimed?.extractedProfile ?? null,
     atsScore: claimed?.atsScoreResult ?? null,
+    jobMatch: claimed?.jobMatchResult ?? null,
     jobDescription: claimed?.jobDescription ?? null,
   })
   // Single-use either way — a consumed token or a dead one should not be

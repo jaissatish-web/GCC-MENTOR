@@ -2,6 +2,7 @@ import { randomBytes, createHash } from 'crypto'
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
+import type { JobMatchResult } from '@/types/jobMatch'
 
 /**
  * Anonymous analysis session storage (TASK-069, migration 028).
@@ -43,6 +44,8 @@ export interface AnonymousSessionData {
   extractedProfile: CareerProfileDraft
   jobDescription: string | null
   atsScoreResult: AtsScoreResult | null
+  /** TASK-071. Null whenever no job description was given, or the Job Match engine's AI calls failed — the rest of the session is still valid either way. */
+  jobMatchResult: JobMatchResult | null
 }
 
 /**
@@ -70,6 +73,7 @@ export async function upsertAnonymousSession(opts: {
         extracted_profile: opts.data.extractedProfile,
         job_description: opts.data.jobDescription,
         ats_score_result: opts.data.atsScoreResult,
+        job_match_result: opts.data.jobMatchResult,
         expires_at: expiresAt,
       })
       .eq('token_hash', existingHash)
@@ -93,6 +97,7 @@ export async function upsertAnonymousSession(opts: {
     extracted_profile: opts.data.extractedProfile,
     job_description: opts.data.jobDescription,
     ats_score_result: opts.data.atsScoreResult,
+    job_match_result: opts.data.jobMatchResult,
     expires_at: expiresAt,
   })
   if (insertError) {
@@ -117,7 +122,7 @@ export async function claimAnonymousSession(token: string): Promise<AnonymousSes
 
   const { data: row, error } = await supabase
     .from('anonymous_analysis_sessions')
-    .select('resume_text, extracted_profile, job_description, ats_score_result')
+    .select('resume_text, extracted_profile, job_description, ats_score_result, job_match_result')
     .eq('token_hash', tokenHash)
     .gt('expires_at', new Date().toISOString())
     .maybeSingle()
@@ -140,5 +145,6 @@ export async function claimAnonymousSession(token: string): Promise<AnonymousSes
     extractedProfile: row.extracted_profile as CareerProfileDraft,
     jobDescription: (row.job_description as string | null) ?? null,
     atsScoreResult: (row.ats_score_result as AtsScoreResult | null) ?? null,
+    jobMatchResult: (row.job_match_result as JobMatchResult | null) ?? null,
   }
 }

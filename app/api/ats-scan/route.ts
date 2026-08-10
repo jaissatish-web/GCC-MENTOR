@@ -7,6 +7,27 @@ import {
   validateAtsScoreResult,
 } from '@/lib/ai/atsScorePrompt'
 import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
+import {
+  buildJobDescriptionUserPrompt,
+  JOB_DESCRIPTION_SYSTEM_PROMPT,
+  validateStructuredJobProfile,
+} from '@/lib/ai/jobDescriptionPrompt'
+import {
+  buildJobMatchExplanationSystemPrompt,
+  buildJobMatchExplanationUserPrompt,
+  validateJobMatchExplanation,
+} from '@/lib/ai/jobMatchExplanation'
+import {
+  computeDeterministicCategories,
+  combineJobMatchScore,
+} from '@/lib/jobMatch/requirementMapping'
+import type { JobMatchProfileInput } from '@/lib/jobMatch/requirementMapping'
+import {
+  DETERMINISTIC_CATEGORIES,
+  SEMANTIC_CATEGORIES,
+  JOB_MATCH_SCORING_VERSION,
+} from '@/types/jobMatch'
+import type { JobMatchCategoryKey, JobMatchCategoryResult, JobMatchResult } from '@/types/jobMatch'
 import { getPromptTemplate } from '@/lib/ai/promptTemplates'
 import {
   getAnonymousRateLimitStatus,
@@ -15,6 +36,7 @@ import {
   LIMIT_ACTION_ANON_ATS_SCAN,
 } from '@/lib/anonymousRateLimit'
 import { SESSION_COOKIE_NAME, upsertAnonymousSession } from '@/lib/anonymousSession'
+import type { CareerProfileDraft } from '@/types/careerProfile'
 
 /**
  * Free ATS/Gulf-readiness scanner (TASK-049). Public, NO LOGIN REQUIRED —
@@ -38,12 +60,48 @@ import { SESSION_COOKIE_NAME, upsertAnonymousSession } from '@/lib/anonymousSess
  * that migration's header for the retention/deletion reasoning. The
  * response contract for the score itself is UNCHANGED — a caller that
  * ignores the new cookie sees identical behavior to before.
+ *
+ * TASK-071 update: when a job description IS given, the response also
+ * carries a new `jobMatch` field (docs/GCC_READINESS_JOB_MATCH.md §10-13) —
+ * the founder's structured pipeline (JD → StructuredJobProfile →
+ * deterministic requirement/evidence mapping → LLM semantic scoring +
+ * explanation), NOT the old shallow keyword-match `score.job_match` field
+ * atsScorePrompt.ts still produces. That field is left in place (not worth
+ * touching a grounding-adjacent, already-approved file for this) but is no
+ * longer the authoritative job-match signal — `jobMatch` is. Extraction
+ * moved earlier in this route (used to run only for session persistence)
+ * because the Job Match engine needs the extracted profile as its candidate
+ * side; it is still entirely best-effort — a failure here degrades to
+ * `jobMatch: null`, never breaks the score response the caller already paid
+ * a rate-limit slot for.
  */
 
 const MAX_FILE_SIZE_PDF = 5 * 1024 * 1024   // 5MB, matches /api/parse/upload
 const MAX_FILE_SIZE_DOCX = 2 * 1024 * 1024  // 2MB, matches /api/parse/upload
 const MAX_TEXT_LENGTH = 20000               // matches /api/parse/text
 const MAX_JD_LENGTH = 8000
+
+/** Adapts an extraction draft (whatever a resume actually yielded) into the Job Match engine's purpose-built input shape. Always hasDrivingLicense: null — an anonymous draft has no such field, by design (see types/careerProfile.ts). */
+function buildJobMatchProfileInput(draft: CareerProfileDraft): JobMatchProfileInput {
+  return {
+    professionalSummary: draft.professional_summary ?? null,
+    workExperience: (draft.work_experience ?? []).map((w) => ({
+      role: w.role ?? '',
+      startDate: w.start_date ?? null,
+      endDate: w.end_date ?? null,
+      description: w.description ?? null,
+      highlights: w.highlights ?? [],
+      gccCountry: w.gcc_country ?? null,
+    })),
+    skillNames: (draft.skills ?? []).map((s) => s.name ?? '').filter(Boolean),
+    certificationNames: (draft.certifications ?? []).map((c) => c.name ?? '').filter(Boolean),
+    educationEntries: (draft.education ?? []).map((e) => ({
+      degree: e.degree ?? '',
+      fieldOfStudy: e.field_of_study ?? null,
+    })),
+    hasDrivingLicense: null,
+  }
+}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const identityHash = getClientIdentityHash(request)
@@ -144,11 +202,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // a rate-limit slot for.
   await incrementAnonymousRateLimit({ identityHash, action: LIMIT_ACTION_ANON_ATS_SCAN })
 
-  // Extraction + session persistence (TASK-069) is best-effort ON TOP OF the
-  // score — never lets a failure here turn a successful scan into an error
-  // response. A visitor who never signs up loses nothing; one who does loses
-  // only the "don't re-upload" convenience, not the score they already got.
-  let sessionToken: string | null = null
+  // Extraction, the Job Match engine, and session persistence are ALL
+  // best-effort ON TOP OF the score — never let a failure below turn a
+  // successful scan into an error response. A visitor who never signs up
+  // loses nothing; one who does loses only the "don't re-upload"
+  // convenience or the Job Match breakdown, not the score they already got.
+  let draft: CareerProfileDraft | null = null
   try {
     const extractResult = await generate({
       system: EXTRACTION_SYSTEM_PROMPT,
@@ -159,8 +218,75 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       configKey: 'extraction',
       // No userId — same anonymous call as the score above.
     })
-    const draft = normalizeDraft(extractJsonObject(extractResult.text))
-    if (draft) {
+    draft = normalizeDraft(extractJsonObject(extractResult.text))
+  } catch (e) {
+    console.error('ats-scan: extraction failed (non-fatal)', e instanceof Error ? e.message : String(e))
+  }
+
+  // Job Match engine (TASK-071) — only runs when both a JD and a usable
+  // draft exist. Its own internal failures are caught per-stage below so a
+  // partial result (deterministic categories with no LLM explanations yet)
+  // is still better than nothing, though in practice a hard failure in
+  // either AI call just yields jobMatch: null.
+  let jobMatch: JobMatchResult | null = null
+  if (draft && jobDescription) {
+    try {
+      const jdResult = await generate({
+        system: JOB_DESCRIPTION_SYSTEM_PROMPT,
+        user: buildJobDescriptionUserPrompt(jobDescription),
+        maxTokens: 1536,
+        temperature: 0.1,
+        route: '/api/ats-scan',
+        configKey: 'job_description',
+      })
+      const structuredJob = validateStructuredJobProfile(extractJsonObject(jdResult.text))
+
+      if (structuredJob) {
+        const profileInput = buildJobMatchProfileInput(draft)
+        const deterministic = computeDeterministicCategories(profileInput, structuredJob)
+
+        const explanationResult = await generate({
+          system: buildJobMatchExplanationSystemPrompt(),
+          user: buildJobMatchExplanationUserPrompt({
+            resumeText,
+            professionalSummary: profileInput.professionalSummary,
+            job: structuredJob,
+            jobDescriptionText: jobDescription,
+            deterministicCategories: deterministic,
+          }),
+          maxTokens: 2048,
+          temperature: 0.3,
+          route: '/api/ats-scan',
+          configKey: 'job_match_explanation',
+        })
+        const explanation = validateJobMatchExplanation(extractJsonObject(explanationResult.text))
+
+        if (explanation) {
+          const categories = {} as Record<JobMatchCategoryKey, JobMatchCategoryResult>
+          for (const key of DETERMINISTIC_CATEGORIES) {
+            const c = deterministic[key]
+            if (c) categories[key] = { ...c, explanation: explanation.deterministicExplanations[key] ?? '' }
+          }
+          for (const key of SEMANTIC_CATEGORIES) {
+            const s = explanation.semanticScores[key]
+            categories[key] = { score: s.score, applicable: true, evidence: [], explanation: s.explanation }
+          }
+          jobMatch = {
+            overall_score: combineJobMatchScore(categories),
+            categories,
+            diagnosis: explanation.diagnosis,
+            scoring_version: JOB_MATCH_SCORING_VERSION,
+          }
+        }
+      }
+    } catch (e) {
+      console.error('ats-scan: job match engine failed (non-fatal)', e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  let sessionToken: string | null = null
+  if (draft) {
+    try {
       const existingToken = request.cookies.get(SESSION_COOKIE_NAME)?.value ?? null
       sessionToken = await upsertAnonymousSession({
         existingToken,
@@ -170,14 +296,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           extractedProfile: draft,
           jobDescription,
           atsScoreResult: score,
+          jobMatchResult: jobMatch,
         },
       })
+    } catch (e) {
+      console.error('ats-scan: session persistence failed (non-fatal)', e instanceof Error ? e.message : String(e))
     }
-  } catch (e) {
-    console.error('ats-scan: session persistence failed (non-fatal)', e instanceof Error ? e.message : String(e))
   }
 
-  const response = NextResponse.json({ success: true, score })
+  const response = NextResponse.json({ success: true, score, jobMatch })
   if (sessionToken) {
     response.cookies.set(SESSION_COOKIE_NAME, sessionToken, {
       httpOnly: true,
