@@ -722,7 +722,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: submitting a resume + JD and getting a response with `jobMatch: null` (expected until an AI provider is configured, per the standing exception) still renders the rest of the page correctly with no crash — this is the realistic state you'll be testing against; note that the full breakdown itself can't be visually verified end-to-end until Unplanned #16 is resolved.
 
-      Depends on: TASK-071 (done) · Status: not started.
+      Depends on: TASK-071 (done) · Status: in progress.
 
 ---
 
