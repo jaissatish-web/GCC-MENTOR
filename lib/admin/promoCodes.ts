@@ -21,6 +21,16 @@ export interface CreatePromoCodeParams {
   maxRedemptions: number | null
   expiresAt: string | null // ISO, or null for no expiry
   adminUserId: string
+  /**
+   * TASK-065/TASK-060. NULL (default) = the original single-resume code,
+   * redeemed through the untouched redeem_promo_code RPC exactly as before
+   * this field existed. Set = a package-credit code, redeemed instead
+   * through migration 026's redeem_package_promo_code (see
+   * lib/admin/servicePackages.ts's redeemPackagePromoCode) — two separate
+   * redemption paths, chosen by which kind of code this is, never by
+   * anything the redeeming user supplies.
+   */
+  packageId?: string | null
 }
 
 /** Normalise a founder-typed code to a consistent, redemption-matching form. */
@@ -55,6 +65,7 @@ export async function createPromoCode(
     max_redemptions: params.maxRedemptions,
     expires_at: params.expiresAt,
     created_by: adminUserId,
+    package_id: params.packageId?.trim() || null,
   })
 
   if (error) {
@@ -75,13 +86,17 @@ export interface PromoCodeRow {
   expiresAt: string | null
   active: boolean
   createdAt: string
+  /** NULL = the original single-resume code. Set = a package-credit code — see CreatePromoCodeParams.packageId. */
+  packageId: string | null
+  /** Joined for display only, e.g. "Pro Bundle". NULL when packageId is NULL or the package was since deleted. */
+  packageName: string | null
 }
 
 export async function listPromoCodes(limit = 50): Promise<PromoCodeRow[]> {
   const supabase = createServiceRoleClient()
   const { data, error } = await supabase
     .from('promo_codes')
-    .select('code, description, max_redemptions, redemption_count, expires_at, active, created_at')
+    .select('code, description, max_redemptions, redemption_count, expires_at, active, created_at, package_id, service_packages(name)')
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -98,15 +113,22 @@ export async function listPromoCodes(limit = 50): Promise<PromoCodeRow[]> {
     expires_at: string | null
     active: boolean
     created_at: string
-  }>).map((r) => ({
-    code: r.code,
-    description: r.description,
-    maxRedemptions: r.max_redemptions,
-    redemptionCount: r.redemption_count,
-    expiresAt: r.expires_at,
-    active: r.active,
-    createdAt: r.created_at,
-  }))
+    package_id: string | null
+    service_packages: { name: string } | { name: string }[] | null
+  }>).map((r) => {
+    const joined = Array.isArray(r.service_packages) ? r.service_packages[0] : r.service_packages
+    return {
+      code: r.code,
+      description: r.description,
+      maxRedemptions: r.max_redemptions,
+      redemptionCount: r.redemption_count,
+      expiresAt: r.expires_at,
+      active: r.active,
+      createdAt: r.created_at,
+      packageId: r.package_id,
+      packageName: joined?.name ?? null,
+    }
+  })
 }
 
 /**

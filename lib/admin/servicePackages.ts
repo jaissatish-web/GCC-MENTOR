@@ -17,6 +17,12 @@ import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
  * new key used consistently by whatever route consumes it.
  */
 
+// Typed constant for the one service_key a real route consumes as of
+// TASK-065, so a typo can't silently create an unspendable credit type.
+// Still just a string at the database layer — this is a convenience for
+// callers, not a new constraint.
+export const SERVICE_KEY_COVER_LETTER = 'cover_letter'
+
 export interface ServicePackageItemInput {
   serviceKey: string
   quota: number
@@ -188,6 +194,32 @@ export async function grantServiceCredit(params: {
 
   console.info(`service credit granted: id=${data.id} service=${serviceKey} admin=${adminUserId} target=${targetUserId} reason="${reason}"`)
   return { ok: true, creditId: data.id as string }
+}
+
+/**
+ * How many unconsumed credits a user has for one service — TASK-065, for a
+ * generation route to fast-fail with a clear message BEFORE spending a real
+ * AI call on a user with nothing to spend, and for the UI to show "N
+ * available" without a round trip through the atomic consume RPC. This is
+ * a read, not the authority — consumeServiceCredit's atomic RPC is still
+ * the actual gate; a race between this count and the real consume just
+ * means the fast-fail check occasionally under- or over-shoots by one, and
+ * the atomic call underneath is what actually can't be beaten.
+ */
+export async function countAvailableServiceCredits(userId: string, serviceKey: string): Promise<number> {
+  const supabase = createServiceRoleClient()
+  const { count, error } = await supabase
+    .from('user_service_credits')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('service_key', serviceKey)
+    .is('consumed_at', null)
+
+  if (error) {
+    console.error(`service credit count error: user=${userId} service=${serviceKey}`, error.message)
+    return 0
+  }
+  return count ?? 0
 }
 
 /**

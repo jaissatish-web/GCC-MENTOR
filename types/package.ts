@@ -46,6 +46,24 @@ export interface OptimizedContent {
   experience_blocks: ExperienceBlock[]
 }
 
+// ---- cover_letters (JSONB[], TASK-065) --------------------------------------
+// full_text is composed server-side from the validated parts below, never
+// requested from the model — same reasoning as OptimizedContent: storage
+// can never diverge from what was actually grounding-checked.
+
+export interface CoverLetter {
+  id: string
+  generated_at: string // ISO
+  target_job_title: string
+  target_company: string | null
+  greeting: string
+  opening_paragraph: string
+  body_paragraphs: string[]
+  closing_paragraph: string
+  sign_off: string
+  full_text: string
+}
+
 // ---- packages (migration 012) ----------------------------------------------
 
 export interface Package {
@@ -82,7 +100,7 @@ export interface Package {
   // UI. Docs/DASHBOARD_LIBRARY.md §2. (Required keys: the column is always
   // present in a returned row, just null.)
   ats_score_card: unknown // Phase 2; jsonb
-  cover_letters: unknown[] // Phase 3; jsonb[]
+  cover_letters: CoverLetter[] // Phase 3; jsonb[] — typed as of TASK-065
   interview_questions: unknown // Phase 4; jsonb
   mock_interview_runs: unknown[] // Phase 4; jsonb[]
 }

@@ -167,6 +167,10 @@ export async function createPromoCodeAction(formData: FormData): Promise<void> {
   const maxRedemptions = rawMax === '' ? null : Number.parseInt(rawMax, 10)
   // datetime-local input has no timezone; treat as a wall-clock deadline.
   const expiresAt = rawExpires === '' ? null : new Date(rawExpires).toISOString()
+  // TASK-065: optional — blank/omitted keeps today's exact behavior (the
+  // original single-resume code type, redeemed via redeem_promo_code).
+  const rawPackageId = String(formData.get('packageId') ?? '').trim()
+  const packageId = rawPackageId === '' ? null : rawPackageId
 
   const result = await createPromoCode({
     code,
@@ -174,6 +178,7 @@ export async function createPromoCodeAction(formData: FormData): Promise<void> {
     maxRedemptions,
     expiresAt,
     adminUserId: admin.id,
+    packageId,
   })
 
   if (!result.ok) {
