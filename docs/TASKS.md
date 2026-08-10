@@ -529,6 +529,36 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       Depends on: TASK-065 (done) · Status: not started.
 
+### K — GCC Readiness / Job Match (founder spec, `docs/GCC_READINESS_JOB_MATCH.md`, 2026-08-10)
+
+**Founder redirected priority 2026-08-10: TASK-066 (Cover Letter frontend) is on hold — this is now the priority.** Full spec recorded in `docs/GCC_READINESS_JOB_MATCH.md`. Agreed build order (founder confirmed 2026-08-10): (1) GCC Readiness data layer, (2) anonymous session infrastructure, (3) structured Job Match engine — **replacing** the existing `/ats-scan` tool, not running alongside it — (4) Resume Optimizer wired to Job Match findings. Cover Letter styles and the rest come later. Per the spec's own §38, exact GCC Readiness/Job Match scoring weights are NOT yet supplied by the founder — build the data model and pipeline architecture now, do not invent final scoring.
+
+- [x] **TASK-067: GCC Readiness data layer — driving license + GCC-tagged work history + employment gap detection** — piece 1 of the sequence above. **Built directly by CTO, not Hermes** — schema/migration work, same standing as every prior data-layer ticket. Per `docs/GCC_READINESS_JOB_MATCH.md` §5.
+
+      **Files:** `supabase/migrations/027_gcc_readiness_fields.sql` (new — additive only, no RLS change needed, both targets already owner-scoped), `types/careerProfile.ts` (`has_driving_license`/`driving_license_country`/`driving_license_category`/`driving_license_validity_date` on `CareerProfile`; `gcc_country` on `ProfileWorkExperience`), `app/api/profile/route.ts` (PUT validation + `allowedProfileKeys` for the new fields; GET now also returns a computed, non-persisted `employment_gaps` array), `lib/employmentGaps.ts` (new — pure function, no DB access).
+
+      **Two scope decisions, logged rather than silently assumed:** (1) Driving license gets **no `field_visibility` toggle** in this ticket — the founder's spec frames it purely as a Readiness/Match input, never as something to print on the CV; that's a template decision for later, not a data-layer one now. (2) GCC experience is **not** a new parallel table — `profile_work_experience` already holds company/role/dates/location/description for every entry; the only new fact needed is "was this GCC-based, and which country," so that's one new nullable column (`gcc_country`, reusing `target_country_enum`) on the existing table, not a duplicate structure. `currently_in_gulf` (migration 010, current status) is untouched — deriving one from the other is a `lib/readiness.ts` decision for later, not a schema change now.
+
+      **`lib/employmentGaps.ts` is informational only, not wired into scoring.** The founder's spec §38 explicitly asks for "exact employment-gap rules" to be supplied separately — this computes real calendar gaps (merging overlapping/concurrent roles first, so two roles at once never register as a false gap) and returns them on `GET /api/profile` as `employment_gaps`, but does **not** fold them into `readiness_score`. Interim `DEFAULT_MIN_GAP_MONTHS = 3` is clearly labeled as a display threshold, not a scoring weight.
+
+      **Verified:** `npx tsc --noEmit` 0 errors (after adding `gcc_country`/driving-license fields to the three fixture-data test scripts — `scripts/docx-smoke.ts`, `scripts/pdf-loadtest.ts`, `scripts/verify-resume.ts` — that construct full `CareerProfileFull` objects). Re-ran the exhaustive TASK-032 golden-baseline check after: **32,768/32,768 permutations still byte-identical** — the new fields touch nothing in the rendered PDF/DOCX. `npm run build`: all 28 routes compile clean.
+
+      Depends on: none (additive) · Status: done, 2026-08-10.
+
+- [ ] **TASK-068: GCC Readiness profile UI — driving license fields, GCC-tagged work history, employment gaps display** — the UI on top of TASK-067's already-built backend. **No scoring/weighting judgment calls in this ticket** — nothing here changes `readiness_score`; this is form fields and a display list.
+
+      **Spec:**
+      1. On `/profile` (the Career Profile editor, `app/profile/page.tsx`), add a "Driving license" sub-section — a natural place is near the existing Passport/Visa fields (same identity-and-relocation grouping). Fields: a toggle/select for `has_driving_license` (must support three states: not yet answered / yes / no — **do not default it to false in the UI**, a `null` value from the API means "not yet answered" and must render as genuinely unset, not as an unchecked "no"), and — shown only when `has_driving_license` is true — `driving_license_country` (text), `driving_license_category` (text), `driving_license_validity_date` (date). Match the existing field styling/patterns already on this page (`Input`, date fields, etc. — this page was dark-themed in TASK-055/064, follow that).
+      2. On each work experience entry (same page, the work history editor), add a way to mark an entry as GCC-based and pick which country — `gcc_country`, one of `saudi_arabia | uae | qatar | oman | kuwait | bahrain | generic_gulf`, or unset. A simple select/dropdown per entry is enough; match the country chip/select pattern already used elsewhere in this codebase (`GULF_COUNTRIES` in `lib/utils.ts`, already used on `/optimize/target` and the homepage) rather than inventing new country-list copy.
+      3. Both footer buttons on `/profile` ("Save & exit", "Confirm profile") already PUT the full profile object (established contract, TASK-024) — make sure the new fields are included in that PUT body like every other field on this page. No new API call needed; `PUT /api/profile` already accepts all of these (TASK-067).
+      4. **Employment gaps display, read-only, no editing.** `GET /api/profile` now returns an `employment_gaps` array (`{ gapStartDate, gapEndDate, gapMonths, precedingCompany, followingCompany }`) alongside the profile — show these somewhere sensible on `/profile`, e.g. a small callout near the work history section if the array is non-empty ("We noticed a 5-month gap between Company A and Company B — this isn't scored, just something to be aware of"). **Do not attach a score, penalty, or red/green indicator to this** — the founder's spec explicitly hasn't defined gap scoring yet; this is informational only, phrase the copy that way. If the array is empty, show nothing (not a "no gaps!" success message — silence is correct here, not a manufactured positive).
+
+      **Frontend only, same constraints as always:** do not modify `lib/employmentGaps.ts`'s detection logic, `app/api/profile/route.ts`'s validation, or the migration. If the API contract above seems insufficient for a good UI, stop and report rather than changing backend code yourself.
+
+      `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify against the running dev server: the three-state driving-license toggle genuinely distinguishes "not answered" from "no" (reload after saving "no" and confirm it doesn't come back as unset, and vice versa), a GCC-tagged work entry round-trips correctly (save, reload, still tagged), and the employment-gaps callout only appears when there's a real gap in the data.
+
+      Depends on: TASK-067 (done) · Status: not started.
+
 ---
 
 ## Blocked / Needs Review
