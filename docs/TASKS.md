@@ -710,7 +710,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       Depends on: TASK-069 (done) · Status: done, 2026-08-10.
 
-- [ ] **TASK-072: Display the Job Match breakdown on `/ats-scan`** — the UI on top of TASK-071's already-built backend. **No scoring/AI/backend changes in this ticket.**
+- [x] **TASK-072: Display the Job Match breakdown on `/ats-scan`** — the UI on top of TASK-071's already-built backend. **No scoring/AI/backend changes in this ticket.**
 
       **Spec:**
       1. `app/ats-scan/page.tsx` already reads `result.score` and `result.job_match` (the old shallow keyword-match) from the `/api/ats-scan` response. The response now also carries a top-level `result.jobMatch` (note the different casing/field name — `JobMatchResult`, exported from `types/jobMatch.ts`: `{ overall_score, categories, diagnosis, scoring_version }`, where `categories` is keyed by `summary_match | career_relevance | required_skills | industry_match | experience_level | gcc_experience | education | certifications | driving_license`, each `{ score, applicable, evidence, explanation }`).
@@ -747,6 +747,15 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
       check. The full breakdown branch itself can't be visually verified end-to-end until
       Unplanned #16 (AI provider configured) is resolved — same standing exception the spec
       names; its JSX/types are verified by the clean `tsc`/`build` and by construction.
+
+      — **APPROVED.** CTO independently re-verified against the actual diff (commit
+      `dcba9e4`), not the report alone: `npx tsc --noEmit` and `npm run build` both re-run
+      clean, `/ats-scan` matches the reported 3.64 kB exactly. Confirmed the old shallow
+      `result.job_match` section is genuinely gone (not just unused) and the new section moved
+      to full width outside the 2-column grid — a sensible layout call given it now holds a
+      diagnosis paragraph plus up to 9 category rows, not a defect. `CATEGORY_LABELS.filter(...
+      applicable)` correctly matches the spec's "skip inapplicable entirely" requirement. No
+      defects found.
 
 ---
 
