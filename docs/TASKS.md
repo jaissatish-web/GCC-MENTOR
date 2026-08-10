@@ -625,7 +625,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       Depends on: TASK-048, TASK-049 (both done) · Status: done, 2026-08-10.
 
-- [ ] **TASK-070: Anonymous scan continuity — "this will be saved" prompt + welcome-back result display** — the UI on top of TASK-069's already-built backend. **No scoring/AI/backend changes in this ticket** — the data already exists, this is display work.
+- [x] **TASK-070: Anonymous scan continuity — "this will be saved" prompt + welcome-back result display** — the UI on top of TASK-069's already-built backend. **No scoring/AI/backend changes in this ticket** — the data already exists, this is display work.
 
       **Spec:**
       1. On `/ats-scan`'s results screen (`app/ats-scan/page.tsx`), somewhere near the existing "Build your full Career Profile" CTA into `/onboarding`, add a short line making the save-on-signup behavior an explicit, visible promise rather than a silent surprise — something like "Sign up and we'll save this result — no need to scan again." Keep it low-key, one line, not a new section.
@@ -660,6 +660,29 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
       draft AND banner both appear; reload clears the banner) could not be exercised live —
       no user session available to this agent and the AI provider isn't configured (the same
       standing exception TASK-069 noted); the read+parse+clear contract is code-verified.
+
+      — **APPROVED, with one CTO fix.** CTO independently re-verified against the actual diff
+      (commit `1cb37bf`), not the report alone: `npx tsc --noEmit` and `npm run build` both
+      re-run clean. Traced the mount-effect ordering directly — `CLAIMED_SCAN_RESULT_KEY` is
+      read and unconditionally cleared (the `removeItem` sits after the try/catch, not inside
+      its success branch) BEFORE the `CAREER_PROFILE_DRAFT_KEY` block, confirming the report's
+      "runs regardless of the draft branch" claim rather than taking it on faith. Checked
+      `category_scores.structure`/`.clarity_and_impact`/`.gulf_readiness` directly against
+      `AtsScoreResult`'s real definition in `lib/ai/atsScorePrompt.ts` — exact match, no drift.
+
+      **One real defect found on review, not in the report — a stale privacy claim TASK-069's
+      own backend change had already made false.** `/ats-scan`'s existing pre-scan copy said
+      "Your scan is stateless. We do not save your resume." That was true when TASK-049 wrote
+      it and false the moment TASK-069 shipped (the scan now persists the resume text + draft
+      for up to `ANONYMOUS_SESSION_TTL_DAYS`, default 7). Nobody touched that line when adding
+      persistence — this ticket then compounded it by adding a SECOND, contradicting line
+      further down the same page ("Sign up and we'll save this result"). Not Hermes's error —
+      TASK-070's spec never mentioned the older line, and TASK-069 (CTO-built) is the one that
+      should have caught it at the time and didn't. Fixed directly (one sentence, not worth a
+      round trip): now reads "We keep your scan briefly (a few days) so signing up doesn't mean
+      starting over. Never shared, never sold." — accurate, and deliberately says "a few days"
+      rather than hard-coding "7" so it can't drift out of sync with the env var. `tsc`/`build`
+      re-confirmed clean after.
 
 ---
 
