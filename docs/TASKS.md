@@ -547,7 +547,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       Depends on: none (additive) · Status: done, 2026-08-10.
 
-- [ ] **TASK-068: GCC Readiness profile UI — driving license fields, GCC-tagged work history, employment gaps display** — the UI on top of TASK-067's already-built backend. **No scoring/weighting judgment calls in this ticket** — nothing here changes `readiness_score`; this is form fields and a display list.
+- [x] **TASK-068: GCC Readiness profile UI — driving license fields, GCC-tagged work history, employment gaps display** — the UI on top of TASK-067's already-built backend. **No scoring/weighting judgment calls in this ticket** — nothing here changes `readiness_score`; this is form fields and a display list.
 
       **Spec:**
       1. On `/profile` (the Career Profile editor, `app/profile/page.tsx`), add a "Driving license" sub-section — a natural place is near the existing Passport/Visa fields (same identity-and-relocation grouping). Fields: a toggle/select for `has_driving_license` (must support three states: not yet answered / yes / no — **do not default it to false in the UI**, a `null` value from the API means "not yet answered" and must render as genuinely unset, not as an unchecked "no"), and — shown only when `has_driving_license` is true — `driving_license_country` (text), `driving_license_category` (text), `driving_license_validity_date` (date). Match the existing field styling/patterns already on this page (`Input`, date fields, etc. — this page was dark-themed in TASK-055/064, follow that).
@@ -587,6 +587,21 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
       save/reload round-trip (tri-state persistence, GCC tag round-trip, gaps callout
       with real data) not exercised — no user session available to this agent; deferred
       per the standing pre-auth exception (docs/HERMES.md §3a).
+
+      — **APPROVED.** CTO independently re-verified against the actual diff (commit
+      `02beaa4`), not the report alone: `npx tsc --noEmit` and `npm run build` both
+      re-run clean (`/profile` 8.82 kB, matching the report). Specifically stress-tested
+      the tri-state `has_driving_license` logic — the exact class of bug this project has
+      caught before (a field silently defaulting to a coerced value): the `<select>`'s
+      `value`/`onChange` correctly round-trip `null ↔ ''`, `true ↔ 'yes'`, `false ↔ 'no'`
+      with no path that collapses "not answered" into "no". `fromFull`'s `p.has_driving_license
+      ?? null` correctly preserves a real `false` (nullish coalescing only substitutes on
+      `null`/`undefined`, never on `false`). `GULF_COUNTRIES`' seven values checked
+      directly against `target_country_enum` — exact match, so the per-entry GCC selector
+      can't silently fail server-side validation. Traced all three load paths (session-draft
+      handoff, GET of a saved profile, and the error/empty-editor fallback): `employmentGaps`
+      only ever gets set on the GET path and correctly stays at its `[]` default on the other
+      two — a fresh draft never shows a stale or fabricated gaps callout. No defects found.
 
 ---
 
