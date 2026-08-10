@@ -21,7 +21,7 @@ import {
   computeDeterministicCategories,
   combineJobMatchScore,
 } from '@/lib/jobMatch/requirementMapping'
-import type { JobMatchProfileInput } from '@/lib/jobMatch/requirementMapping'
+import { buildJobMatchProfileInputFromDraft } from '@/lib/jobMatch/profileAdapters'
 import {
   DETERMINISTIC_CATEGORIES,
   SEMANTIC_CATEGORIES,
@@ -80,28 +80,6 @@ const MAX_FILE_SIZE_PDF = 5 * 1024 * 1024   // 5MB, matches /api/parse/upload
 const MAX_FILE_SIZE_DOCX = 2 * 1024 * 1024  // 2MB, matches /api/parse/upload
 const MAX_TEXT_LENGTH = 20000               // matches /api/parse/text
 const MAX_JD_LENGTH = 8000
-
-/** Adapts an extraction draft (whatever a resume actually yielded) into the Job Match engine's purpose-built input shape. Always hasDrivingLicense: null — an anonymous draft has no such field, by design (see types/careerProfile.ts). */
-function buildJobMatchProfileInput(draft: CareerProfileDraft): JobMatchProfileInput {
-  return {
-    professionalSummary: draft.professional_summary ?? null,
-    workExperience: (draft.work_experience ?? []).map((w) => ({
-      role: w.role ?? '',
-      startDate: w.start_date ?? null,
-      endDate: w.end_date ?? null,
-      description: w.description ?? null,
-      highlights: w.highlights ?? [],
-      gccCountry: w.gcc_country ?? null,
-    })),
-    skillNames: (draft.skills ?? []).map((s) => s.name ?? '').filter(Boolean),
-    certificationNames: (draft.certifications ?? []).map((c) => c.name ?? '').filter(Boolean),
-    educationEntries: (draft.education ?? []).map((e) => ({
-      degree: e.degree ?? '',
-      fieldOfStudy: e.field_of_study ?? null,
-    })),
-    hasDrivingLicense: null,
-  }
-}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const identityHash = getClientIdentityHash(request)
@@ -242,7 +220,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const structuredJob = validateStructuredJobProfile(extractJsonObject(jdResult.text))
 
       if (structuredJob) {
-        const profileInput = buildJobMatchProfileInput(draft)
+        const profileInput = buildJobMatchProfileInputFromDraft(draft)
         const deterministic = computeDeterministicCategories(profileInput, structuredJob)
 
         const explanationResult = await generate({

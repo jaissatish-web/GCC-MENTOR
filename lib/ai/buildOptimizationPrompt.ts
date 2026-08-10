@@ -60,6 +60,8 @@ import type {
   TargetCountry,
 } from '@/types/careerProfile'
 import type { OptimizationLevel } from '@/types/package'
+import { DETERMINISTIC_CATEGORIES } from '@/types/jobMatch'
+import type { JobMatchCategoryKey, JobMatchCategoryResult } from '@/types/jobMatch'
 
 // ---- Step 3: Gulf format conventions ---------------------------------------
 // See the DECISION note above. Grounded in design-reference/Landing Page.dc.html
@@ -234,6 +236,46 @@ function renderJobDescription(jobDescription: string | undefined | null): string
 }
 
 /**
+ * TASK-073 — docs/GCC_READINESS_JOB_MATCH.md §19: "the optimization uses
+ * Candidate Profile + Original Resume + Job Description + Job Match
+ * findings." Purely ADDITIVE — omitted entirely (returns '') when no
+ * findings are passed in, so every existing, byte-verified call site and
+ * every already-shipped behavior is completely unaffected.
+ *
+ * Only the DETERMINISTIC categories are used here (lib/jobMatch/
+ * requirementMapping.ts) — real, reproducible facts about skill/experience/
+ * education overlap, not the LLM semantic layer's own scores. This is
+ * evidence to help the model decide what to EMPHASIZE from content that
+ * ALREADY EXISTS in the CAREER PROFILE section above; it is never a licence
+ * to add anything. The instruction below says so explicitly, and the
+ * grounding rule injected earlier in the system prompt (GROUNDING_INSTRUCTION,
+ * unchanged) still governs the actual output — this section cannot weaken it.
+ */
+function renderJobMatchFindings(
+  categories: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null | undefined,
+): string {
+  if (!categories) return ''
+  const applicable = DETERMINISTIC_CATEGORIES
+    .map((key) => ({ key, result: categories[key] }))
+    .filter((x): x is { key: JobMatchCategoryKey; result: JobMatchCategoryResult } => !!x.result?.applicable)
+  if (applicable.length === 0) return ''
+
+  const lines = applicable.map(({ key, result }) => `- ${key}: ${result.evidence.join('; ') || 'no detail recorded'}`)
+
+  return (
+    '## JOB MATCH FINDINGS (structured analysis of this profile against the job description above — interim scoring, see docs/GCC_READINESS_JOB_MATCH.md)\n' +
+    lines.join('\n') +
+    '\n\nUse this analysis only to decide what to EMPHASIZE from the candidate\'s ' +
+    'real, existing profile above — for example, if a required skill is present ' +
+    'but underrepresented, foreground it; if a REWRITABLE entry already ' +
+    'demonstrates something the job asks for, make that connection clearer. ' +
+    'This is guidance for emphasis only. The grounding rule above still ' +
+    'applies without exception: never add a skill, claim, or experience not ' +
+    'already present in the CAREER PROFILE section.'
+  )
+}
+
+/**
  * The output schema, per docs/DASHBOARD_LIBRARY.md §4 and
  * lib/ai/validateGrounding.ts. Deliberately narrow: the model returns only
  * what it actually generates. `source_bullets` / `source_profile_summary`
@@ -271,6 +313,7 @@ export function buildOptimizationPrompt(
   level: OptimizationLevel,
   selectedBlocks: SelectedBlocks,
   jobDescription?: string | null,
+  jobMatchCategories?: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null,
 ): BuiltPrompt {
   const persona = getPersona(target.target_industry)
   const levelInstruction = LEVEL_INSTRUCTIONS[level]
@@ -279,10 +322,13 @@ export function buildOptimizationPrompt(
     '\n\n',
   )
 
+  const jobMatchSection = renderJobMatchFindings(jobMatchCategories)
+
   const user = [
     renderCareerProfile(profile, selectedBlocks),
     '## TARGET\n' + renderTarget(target),
     '## JOB DESCRIPTION\n' + renderJobDescription(jobDescription),
+    ...(jobMatchSection ? [jobMatchSection] : []),
     '## OUTPUT FORMAT\n' + renderOutputFormat(),
   ].join('\n\n')
 

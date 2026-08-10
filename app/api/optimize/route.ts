@@ -7,6 +7,14 @@ import { validateGrounding } from '@/lib/ai/validateGrounding'
 import type { ValidationFailure } from '@/lib/ai/validateGrounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
 import {
+  buildJobDescriptionUserPrompt,
+  JOB_DESCRIPTION_SYSTEM_PROMPT,
+  validateStructuredJobProfile,
+} from '@/lib/ai/jobDescriptionPrompt'
+import { computeDeterministicCategories } from '@/lib/jobMatch/requirementMapping'
+import { buildJobMatchProfileInputFromFullProfile } from '@/lib/jobMatch/profileAdapters'
+import type { JobMatchCategoryKey, JobMatchCategoryResult } from '@/types/jobMatch'
+import {
   getRateLimitStatus,
   incrementRateLimit,
   LIMIT_ACTION_OPTIMIZATION,
@@ -308,12 +316,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: limit.message ?? 'Daily limit reached' }, { status: 429 })
   }
 
+  // Job Match findings (TASK-073, docs/GCC_READINESS_JOB_MATCH.md §19) —
+  // best-effort ONLY. A failure here must never block a paid optimization
+  // that would otherwise have succeeded; the prompt builder already treats
+  // a missing/null value as "behave exactly as before this ticket" (see
+  // buildOptimizationPrompt's renderJobMatchFindings). Deterministic
+  // categories only — the LLM semantic explanation layer used on /ats-scan
+  // is skipped here on purpose: nothing in this flow displays it, so paying
+  // for a second AI call to produce prose nobody sees would be pure waste.
+  let jobMatchCategories: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null = null
+  if (jobDescription) {
+    try {
+      const jdResult = await generate({
+        system: JOB_DESCRIPTION_SYSTEM_PROMPT,
+        user: buildJobDescriptionUserPrompt(jobDescription),
+        maxTokens: 1536,
+        temperature: 0.1,
+        userId: user.id,
+        route: '/api/optimize',
+        configKey: 'job_description',
+      })
+      const structuredJob = validateStructuredJobProfile(extractJsonObject(jdResult.text))
+      if (structuredJob) {
+        const profileInput = buildJobMatchProfileInputFromFullProfile(profile)
+        jobMatchCategories = computeDeterministicCategories(profileInput, structuredJob)
+      }
+    } catch (e) {
+      console.error('optimize: job match findings failed (non-fatal) user=' + user.id + ' profile=' + profileId, e instanceof Error ? e.message : String(e))
+    }
+  }
+
   const { system, user: userPrompt } = buildOptimizationPrompt(
     profile,
     targetFields,
     level,
     selectedBlocks,
     jobDescription,
+    jobMatchCategories,
   )
 
   const runOnce = async (userMessage: string) => {
