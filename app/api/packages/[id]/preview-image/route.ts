@@ -44,7 +44,7 @@ const CHILD_TABLES = [
   'profile_additional_information',
 ] as const
 
-const WATERMARK = '[Product Name] · Preview — Unlock to download'
+const WATERMARK = 'GCC MENTOR · Preview — Unlock to download'
 
 export async function GET(
   request: NextRequest,

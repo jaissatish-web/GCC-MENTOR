@@ -16,16 +16,23 @@ import { cn } from '@/lib/utils'
  * Every interactive element is at least 44px tall (min-h-11).
  */
 const buttonVariants = cva(
-  'inline-flex min-h-11 select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg px-[22px] py-4 text-sm leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2 active:scale-[0.99] disabled:pointer-events-none',
+  'inline-flex min-h-11 select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg px-[22px] py-4 text-sm leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void active:scale-[0.99] disabled:pointer-events-none motion-reduce:transition-none',
   {
     variants: {
       variant: {
         primary: 'bg-midnight font-bold text-marble hover:bg-deep-navy',
-        purchase: 'bg-gold font-bold text-midnight hover:bg-gold-light',
-        progress: 'bg-emerald font-bold text-marble hover:bg-emerald',
+        // The primary purchase CTA on dark: gold with a soft outer glow that
+        // intensifies on hover. This is the single loudest element on any
+        // screen — deliberately the only thing that glows this strongly.
+        purchase:
+          'bg-gold font-bold text-midnight shadow-glow-gold hover:bg-gold-light hover:shadow-glow-gold-lg hover:-translate-y-px',
+        progress: 'bg-emerald font-bold text-marble shadow-glow-emerald hover:bg-emerald',
         secondary:
           'border border-line-strong bg-white font-semibold text-midnight hover:bg-fill-subtle',
-        disabled: 'bg-fill-subtle font-semibold text-ink-faint',
+        // Dark-surface secondary — hairline border on translucent fill.
+        ghost:
+          'border border-hairline bg-marble/[0.04] font-semibold text-marble backdrop-blur hover:border-gold/45 hover:bg-marble/[0.08] hover:-translate-y-px',
+        disabled: 'bg-surface-2/60 font-semibold text-marble/35',
       },
     },
     defaultVariants: {

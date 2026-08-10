@@ -2,14 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Defined at top level, outside any @layer/@media nesting: Tailwind's JIT
+ * only emits a @keyframes block for names it sees used via a literal
+ * `animate-<name>` class in scanned files. This one is applied through the
+ * hand-written `.is-visible` rule in the utilities layer below instead of an
+ * `animate-reveal-up` class, so Tailwind never detected the usage and
+ * silently omitted it — a first attempt at nesting this @keyframes rule
+ * inside `@layer utilities { @media {...} } ` was ALSO silently stripped by
+ * Tailwind's layer processing (confirmed: absent from the compiled
+ * stylesheet both times). Every [data-reveal] element was permanently stuck
+ * at opacity: 0 as a result (found 2026-08-07: the whole page rendered
+ * blank). The *definition* here is unconditional and harmless on its own —
+ * only the rule that *applies* it, below, is gated behind
+ * prefers-reduced-motion.
+ */
+@keyframes reveal-up {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @layer base {
   * {
     box-sizing: border-box;
   }
 
+  html {
+    scroll-behavior: smooth;
+    /* Anchor links must not land underneath the sticky header. */
+    scroll-padding-top: 80px;
+  }
+
   body {
     margin: 0;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   /* Headlines use Instrument Serif at weight 400 — docs/DESIGN.md §3 */
@@ -19,5 +52,61 @@
     font-family: var(--font-instrument-serif), Georgia, serif;
     font-weight: 400;
     text-wrap: pretty;
+  }
+
+  ::selection {
+    background: theme('colors.gold');
+    color: theme('colors.midnight');
+  }
+
+  /* Dark scrollbar so the chrome matches the product on dark surfaces. */
+  .dark-scope {
+    scrollbar-color: theme('colors.surface-2') transparent;
+  }
+  .dark-scope ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  .dark-scope ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dark-scope ::-webkit-scrollbar-thumb {
+    background: theme('colors.surface-2');
+    border-radius: 999px;
+  }
+}
+
+@layer utilities {
+  /*
+   * Scroll reveal.
+   *
+   * Content is only ever pre-hidden when BOTH are true:
+   *   1. JS ran (html.js-reveal is set by an inline script before paint), and
+   *   2. the user has not asked for reduced motion.
+   *
+   * So a no-JS visitor and a reduced-motion visitor both get fully visible
+   * content immediately — the animation is strictly an enhancement, never a
+   * gate on reading the page.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .js-reveal [data-reveal] {
+      opacity: 0;
+      transform: translate3d(0, 18px, 0);
+      will-change: opacity, transform;
+    }
+
+    .js-reveal [data-reveal].is-visible {
+      animation: reveal-up 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
+      will-change: auto;
+    }
+  }
+
+  /* Hairline top highlight — the cheap trick that makes a dark card read
+     as a physical raised surface rather than a flat rectangle. */
+  .surface-sheen {
+    box-shadow:
+      inset 0 1px 0 rgba(251, 249, 245, 0.06),
+      0 4px 12px rgba(0, 0, 0, 0.45),
+      0 12px 32px -8px rgba(0, 0, 0, 0.6);
   }
 }

@@ -2,50 +2,46 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 /**
- * Input — labelled text field.
+ * Select — labelled dropdown select field.
  *
- * `tone="light"` (default, unchanged): white background, radius 12px,
- * midnight focus ring, terracotta error — the original DESIGN.md §4 field,
- * still used by every light screen (admin, optimize/target, profile,
- * settings).
+ * `tone="light"` (default, unchanged): white background, border-line,
+ * midnight focus ring — the original DESIGN.md §4 field styling.
  *
  * `tone="dark"` (new, 2026-08-07 Phase 2): dark-surface variant for the
- * redesigned auth pages — void background, hairline border, gold focus
- * ring. Opt-in only; every existing call site is unaffected.
+ * redesigned auth pages — void background, hairline border, gold focus ring.
+ * Opt-in only; every existing call site is unaffected.
  *
- * Always renders a real <label> when `label` is provided and surfaces
- * errors to assistive tech via aria-invalid / aria-describedby.
+ * Accepts <option> children directly, just like a native <select>.
  */
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
   error?: string
   tone?: 'light' | 'dark'
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, type = 'text', tone = 'light', ...props }, ref) => {
+const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
+  ({ className, label, error, id, tone = 'light', children, ...props }, ref) => {
     const autoId = React.useId()
-    const inputId = id ?? autoId
+    const selectId = id ?? autoId
     const isDark = tone === 'dark'
 
     return (
       <div className="flex w-full flex-col gap-1.5">
         {label ? (
           <label
-            htmlFor={inputId}
+            htmlFor={selectId}
             className={cn('text-sm font-medium', isDark ? 'text-marble/85' : 'text-midnight')}
           >
             {label}
           </label>
         ) : null}
-        <input
+        <select
           ref={ref}
-          id={inputId}
-          type={type}
+          id={selectId}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `${inputId}-error` : undefined}
+          aria-describedby={error ? `${selectId}-error` : undefined}
           className={cn(
-            'min-h-11 w-full rounded-lg border px-[15px] py-[13px] text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
+            'min-h-11 w-full rounded-lg border px-[15px] py-[13px] text-sm font-medium outline-none transition-colors motion-reduce:transition-none appearance-none cursor-pointer',
             isDark
               ? cn(
                   'bg-void/60 text-marble placeholder:text-marble/30',
@@ -62,10 +58,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className
           )}
           {...props}
-        />
+        >
+          {children}
+        </select>
         {error ? (
           <p
-            id={`${inputId}-error`}
+            id={`${selectId}-error`}
             className={cn('text-xs font-medium', isDark ? 'text-terracotta' : 'text-terracotta')}
           >
             {error}
@@ -75,6 +73,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     )
   }
 )
-Input.displayName = 'Input'
+Select.displayName = 'Select'
 
-export { Input }
+export { Select }

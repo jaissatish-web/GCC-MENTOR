@@ -187,7 +187,12 @@ export default function DashboardLibraryPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-5">
+    // bg-marble here is a Phase 1 compatibility patch, not a redesign: this
+    // page's light-theme content (text-midnight etc.) was inheriting its
+    // background from the old shared light layout. Now that
+    // app/dashboard/layout.tsx is dark, this page needs its own light
+    // background to stay legible until it gets the same dark pass in Phase 3.
+    <div className="flex min-h-screen flex-col gap-4 rounded-t-[28px] bg-marble p-5 lg:rounded-none">
       {/* Header */}
       <div className="flex flex-col gap-1">
         <h1 className="font-serif text-[27px] leading-tight text-midnight">Library</h1>

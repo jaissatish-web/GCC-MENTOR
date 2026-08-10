@@ -4,16 +4,30 @@ import { AuthForm } from '@/components/auth/AuthForm'
 import { Card } from '@/components/ui/Card'
 import { login } from './actions'
 
+/**
+ * /login — Phase 2 dark redesign (2026-08-07). Visual-only change: the
+ * `login` server action, its validation, its redirect (`/dashboard` on
+ * success), and its error messages are byte-for-byte unchanged — see
+ * ./actions.ts.
+ *
+ * No "Forgot password?" link: this product has no password-reset flow
+ * implemented anywhere (checked — no reset/recovery route, action, or
+ * Supabase call exists). Adding the link would be fake functionality, so
+ * it's left out until that flow actually exists.
+ */
 export default function LoginPage() {
   return (
-    <AuthShell>
-      <Card className="w-full max-w-sm p-8">
-        <h1 className="text-2xl text-midnight">Sign in</h1>
-        <p className="mb-6 mt-1 text-sm text-ink-body">Welcome back to [Product Name].</p>
-        <AuthForm action={login} submitLabel="Sign in" />
-        <p className="mt-6 text-center text-xs text-ink-body">
-          No account yet?{' '}
-          <Link href="/signup" className="font-semibold text-emerald">
+    <AuthShell
+      headline="Your Gulf Career, Built With Strategy."
+      body="Build a stronger profile, prepare for Gulf interviews and approach opportunities with confidence."
+    >
+      <Card tone="dark" className="flex w-full flex-col gap-1 p-8">
+        <h1 className="font-serif text-[26px] text-marble">Sign in</h1>
+        <p className="mb-5 text-[13.5px] text-marble/55">Welcome back to GCC MENTOR.</p>
+        <AuthForm action={login} submitLabel="Sign in" tone="dark" />
+        <p className="mt-6 text-center text-[12.5px] text-marble/50">
+          Don&apos;t have an account?{' '}
+          <Link href="/signup" className="font-semibold text-gold-light hover:text-gold">
             Create one
           </Link>
         </p>

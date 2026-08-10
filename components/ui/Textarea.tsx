@@ -2,50 +2,47 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 /**
- * Input — labelled text field.
+ * Textarea — labelled multi-line text field.
  *
- * `tone="light"` (default, unchanged): white background, radius 12px,
- * midnight focus ring, terracotta error — the original DESIGN.md §4 field,
- * still used by every light screen (admin, optimize/target, profile,
- * settings).
+ * `tone="light"` (default, unchanged): white background, border-line,
+ * midnight focus ring — the original DESIGN.md §4 field styling.
  *
  * `tone="dark"` (new, 2026-08-07 Phase 2): dark-surface variant for the
- * redesigned auth pages — void background, hairline border, gold focus
- * ring. Opt-in only; every existing call site is unaffected.
+ * redesigned auth pages — void background, hairline border, gold focus ring.
+ * Opt-in only; every existing call site is unaffected.
  *
- * Always renders a real <label> when `label` is provided and surfaces
- * errors to assistive tech via aria-invalid / aria-describedby.
+ * Resizable vertically by default (no resize-none applied), accepting a
+ * `rows` prop passed through normally to control initial height.
  */
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
   error?: string
   tone?: 'light' | 'dark'
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, type = 'text', tone = 'light', ...props }, ref) => {
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, label, error, id, tone = 'light', ...props }, ref) => {
     const autoId = React.useId()
-    const inputId = id ?? autoId
+    const textareaId = id ?? autoId
     const isDark = tone === 'dark'
 
     return (
       <div className="flex w-full flex-col gap-1.5">
         {label ? (
           <label
-            htmlFor={inputId}
+            htmlFor={textareaId}
             className={cn('text-sm font-medium', isDark ? 'text-marble/85' : 'text-midnight')}
           >
             {label}
           </label>
         ) : null}
-        <input
+        <textarea
           ref={ref}
-          id={inputId}
-          type={type}
+          id={textareaId}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `${inputId}-error` : undefined}
+          aria-describedby={error ? `${textareaId}-error` : undefined}
           className={cn(
-            'min-h-11 w-full rounded-lg border px-[15px] py-[13px] text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
+            'min-h-11 w-full rounded-lg border px-[15px] py-[13px] text-sm font-medium outline-none transition-colors motion-reduce:transition-none resize-y',
             isDark
               ? cn(
                   'bg-void/60 text-marble placeholder:text-marble/30',
@@ -65,7 +62,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         />
         {error ? (
           <p
-            id={`${inputId}-error`}
+            id={`${textareaId}-error`}
             className={cn('text-xs font-medium', isDark ? 'text-terracotta' : 'text-terracotta')}
           >
             {error}
@@ -75,6 +72,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     )
   }
 )
-Input.displayName = 'Input'
+Textarea.displayName = 'Textarea'
 
-export { Input }
+export { Textarea }

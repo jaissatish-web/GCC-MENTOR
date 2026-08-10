@@ -14,6 +14,9 @@ import { cn } from '@/lib/utils'
  * each a real <button> with a 44px+ touch target, plus the progress bar
  * (1/5), back arrow, privacy note and Continue button shown in the mockup.
  *
+ * Dark visual system redesign (2026-08-07): every token shifted to the navy/gold
+ * premium palette. No prop, state variable, or function signature changed.
+ *
  * This screen only CHOOSES a path. It does not call the rate limiter and does
  * not run extraction — screen 03 (TASK-023) will run POST /api/parse/upload or
  * /api/parse/text and handle the results. Path 3 (scratch) routes straight
@@ -49,25 +52,25 @@ function OptionCard({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        'flex w-full min-h-11 items-start gap-3.5 rounded-2xl border bg-white px-4 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2',
+        'flex w-full min-h-11 items-start gap-3.5 rounded-2xl border bg-surface px-4 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void',
         selected
-          ? 'border-emerald shadow-[0_8px_22px_rgba(14,92,74,0.1)]'
-          : 'border-line'
+          ? 'border-emerald shadow-[0_8px_22px_rgba(14,92,74,0.18)]'
+          : 'border-hairline'
       )}
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-fill-subtle text-ink-body">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-surface-2 text-marble">
         {icon}
       </span>
       <span className="flex flex-col gap-1">
         <span className="flex items-center gap-2">
-          <span className="text-[15px] font-bold text-midnight">{title}</span>
+          <span className="text-[15px] font-bold text-marble">{title}</span>
           {badge ? (
             <span className="rounded-[5px] bg-state-gold-bg px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-state-gold-text">
               {badge}
             </span>
           ) : null}
         </span>
-        <span className="text-[12px] leading-snug text-ink-muted">{description}</span>
+        <span className="text-[12px] leading-snug text-marble/55">{description}</span>
       </span>
     </button>
   )
@@ -92,9 +95,9 @@ export default function OnboardingPage() {
     }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-marble">
+    <main className="flex min-h-dvh flex-col bg-void">
       {/* Status bar placeholder + header */}
-      <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-midnight">
+      <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-marble/40">
         <span>9:41</span>
         <span className="tracking-[0.14em]">▮▮▮</span>
       </header>
@@ -105,22 +108,22 @@ export default function OnboardingPage() {
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-lg text-[20px] leading-none text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-lg text-[20px] leading-none text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void"
         >
           ←
         </button>
         <div className="flex-1">
-          <ProgressBar value={20} />
+          <ProgressBar value={20} tone="dark" />
         </div>
-        <span className="font-mono text-[11px] text-ink-muted">1/5</span>
+        <span className="font-mono text-[11px] text-marble/40">1/5</span>
       </div>
 
       {/* Heading */}
       <div className="flex flex-col gap-2 px-5">
-        <h1 className="text-[30px] font-normal leading-[1.12] text-midnight [text-wrap:pretty]">
+        <h1 className="mt-1 font-serif text-[28px] leading-tight text-marble sm:text-[32px]">
           Let&apos;s build your Career Profile
         </h1>
-        <p className="mb-1.5 text-[14px] leading-normal text-ink-body [text-wrap:pretty]">
+        <p className="mb-1.5 text-[13.5px] leading-relaxed text-marble/55">
           Built once, reused for every future application. Choose whichever is easiest — all three
           end up in the same place.
         </p>
@@ -137,14 +140,14 @@ export default function OnboardingPage() {
           onClick={() => setPath('upload')}
         />
         <OptionCard
-          icon={<span className="text-[16px] text-ink-body">¶</span>}
+          icon={<span className="text-[16px] text-marble/75">¶</span>}
           title="Paste your resume text"
           description="No file handy? Paste the text straight in."
           selected={path === 'paste'}
           onClick={() => setPath('paste')}
         />
         <OptionCard
-          icon={<span className="text-[16px] text-ink-body">✎</span>}
+          icon={<span className="text-[16px] text-marble/75">✎</span>}
           title="Start from scratch"
           description="Fill it in yourself. Good if you don't have a resume yet."
           selected={path === 'scratch'}
@@ -154,15 +157,15 @@ export default function OnboardingPage() {
 
       {/* Privacy note + Continue — pinned to the bottom like the mockup */}
       <div className="mt-auto flex flex-col gap-3 px-5 pb-6 pt-4">
-        <div className="flex items-start gap-2.5 rounded-xl border border-line bg-fill-subtle px-3.5 py-3">
-          <span className="text-[13px] text-emerald">⌾</span>
-          <p className="text-[11px] leading-snug text-ink-body">
+        <div className="flex items-start gap-2.5 rounded-xl border border-hairline bg-surface-2 px-3.5 py-3">
+          <span className="text-[13px] text-gold-light">⌾</span>
+          <p className="text-[11px] leading-snug text-marble/55">
             Your file is used only to build your profile. Passport, visa and contact fields are
             encrypted and never shown publicly.
           </p>
         </div>
         <Button
-          variant="primary"
+          variant="purchase"
           className="w-full"
           onClick={continueLink}
           disabled={path === null}
