@@ -684,6 +684,46 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
       rather than hard-coding "7" so it can't drift out of sync with the env var. `tsc`/`build`
       re-confirmed clean after.
 
+- [x] **TASK-071: Job Match engine — structured JD matching, deterministic + LLM** — piece 3 of `docs/GCC_READINESS_JOB_MATCH.md`'s sequence, the core differentiator. **Built directly by CTO, not Hermes** — the actual AI prompt/validation pipeline and scoring architecture, same standing as every AI-critical piece of this project.
+
+      **Follows the founder's own pipeline exactly (§11):** JD → Structured Job Profile → requirement/evidence mapping → deterministic scoring → LLM semantic analysis → final score + human-readable explanation.
+
+      **Scoring is deliberately interim** — §38 explicitly says exact category weights are supplied separately and must not be invented. Every *applicable* category is equally weighted for now (`JOB_MATCH_SCORING_VERSION = 'v1-interim-equal-weight'`, versioned per §35 "Analysis Versioning" so a future re-weighting never silently reinterprets an already-shown result).
+
+      **Files:** `types/jobMatch.ts` (new — `StructuredJobProfile`, per-category result shape, splits categories into `DETERMINISTIC_CATEGORIES` vs `SEMANTIC_CATEGORIES`), `lib/ai/jobDescriptionPrompt.ts` (new — extracts a `StructuredJobProfile` from raw JD text), `lib/jobMatch/requirementMapping.ts` (new — pure function, no AI, no DB access), `lib/ai/jobMatchExplanation.ts` (new — the LLM semantic layer), `app/api/ats-scan/route.ts` (extended — extraction moved earlier since the engine needs the draft as its candidate side; a new top-level `jobMatch` field added to the response), `lib/anonymousSession.ts` + `supabase/migrations/029_anonymous_session_job_match.sql` (extended — a claimed session now carries the Job Match result forward too).
+
+      **Category split, and why:** `required_skills`, `experience_level`, `gcc_experience`, `education`, `certifications`, `driving_license` are DETERMINISTIC — pure string/date comparison against the extracted profile, same input always produces the same output, matching §6's "Do NOT let the LLM randomly generate the final score" (stated for GCC Readiness, applied here with equal force). `summary_match`, `career_relevance`, `industry_match` are SEMANTIC — whether a summary actually *communicates* relevance, or a career narrative actually *demonstrates* the JD's responsibilities, isn't a string-matchable fact; these are scored by the LLM layer, grounded in the same literal-text-only constraint every generation-adjacent prompt in this project uses.
+
+      **Company/Project/Environment Relevance (§10) is deliberately NOT a category.** There is no structured data source for "similar company," and the spec itself warns against making same-company experience a universal requirement. Flagged rather than guessed at with a fake heuristic — needs its own design if wanted.
+
+      **The LLM explanation layer cannot override a deterministic score — structurally, not by convention.** Deterministic evidence is passed into the prompt as fixed, already-decided context ("here's what was found, write one sentence explaining it"); `JobMatchExplanationResult`'s type only has an `explanation` string slot for deterministic categories, never a `score` slot — there is no field a rogue number could land in even if the model tried. Verified by construction, not by hoping the prompt is obeyed.
+
+      **`required_experience_years` distinguishes total from relevant, per the spec's explicit warning against conflating them** (§10: "Do NOT assume 10 years total experience = 10 years relevant experience"). `computeExperienceYears()` sums total tenure across all work history and separately sums only the years where a role's text overlaps the JD's required skills/responsibilities — both numbers are kept and shown as evidence, not collapsed into one.
+
+      **Driving license, education, certifications, and GCC experience are each `applicable: false` — contributing nothing, positive or negative — whenever the JD never raised them**, matching §5/§10's explicit rule that absence of a requirement the employer never asked for must not become a penalty. A candidate with no driving license loses zero points on a posting that never mentions one.
+
+      **Best-effort end to end, same discipline as TASK-069.** JD extraction, requirement mapping, and the LLM explanation call are each wrapped so a failure at any stage degrades to `jobMatch: null` — never turns an already-successful scan into an error response. The pre-existing `score.job_match` field (`lib/ai/atsScorePrompt.ts`, unchanged) is left in place but is no longer authoritative; the new `jobMatch` field is.
+
+      **Verified:** `npx tsc --noEmit` 0 errors, `npm run build` PASS (30 routes). Migration 029 applied via the Connection Pooler and independently verified live (`job_match_result jsonb`, nullable, present on `anonymous_analysis_sessions`). Full round-trip not exercised — same pre-existing gap as every AI route in this project (Unplanned #16: no OpenRouter key configured from `/admin` yet).
+
+      **Not yet built, flagged rather than silently scoped in:** the `/ats-scan` results page doesn't display `jobMatch` yet — it's computed and persisted, but the UI still only shows the old `score` object. See TASK-072.
+
+      Depends on: TASK-069 (done) · Status: done, 2026-08-10.
+
+- [ ] **TASK-072: Display the Job Match breakdown on `/ats-scan`** — the UI on top of TASK-071's already-built backend. **No scoring/AI/backend changes in this ticket.**
+
+      **Spec:**
+      1. `app/ats-scan/page.tsx` already reads `result.score` and `result.job_match` (the old shallow keyword-match) from the `/api/ats-scan` response. The response now also carries a top-level `result.jobMatch` (note the different casing/field name — `JobMatchResult`, exported from `types/jobMatch.ts`: `{ overall_score, categories, diagnosis, scoring_version }`, where `categories` is keyed by `summary_match | career_relevance | required_skills | industry_match | experience_level | gcc_experience | education | certifications | driving_license`, each `{ score, applicable, evidence, explanation }`).
+      2. When `result.jobMatch` is present, render it in place of (not alongside) the existing "Job match" section that currently reads `result.job_match.match_score`/`present_keywords`/`missing_keywords` — the new field is the richer, authoritative replacement per the founder's decision to evolve this tool, not a second competing section. Show `overall_score` prominently (matches the existing `Score` component's large-value treatment used for `result.overall_score`), the `diagnosis` as a short lead paragraph (the "Ohhh moment" — give it real visual weight, this is the differentiator), then each category from `categories` **only where `applicable: true`** (skip inapplicable ones entirely — no "N/A" rows, no zeroed-out chips implying a penalty that never happened) as a labelled score + its `explanation` sentence. Category labels: use plain English, not the snake_case keys (e.g. "Required Skills", "GCC Experience", "Driving License").
+      3. If `result.jobMatch` is `null` (no JD was given, or the engine failed) but `result.job_match` (the old field) is still present, that's fine — fall back to showing nothing extra rather than the old shallow section (per TASK-071's note, `score.job_match` is no longer authoritative; showing it now would contradict the new richer section when both happen to be present, and showing a stale shallow score is worse than showing nothing).
+      4. Keep everything else on the results screen (`overall_score`, `category_scores`, strengths/improvements/gulf_format_notes) exactly as-is — this ticket only replaces the job-match section.
+
+      **Frontend only, same constraints as always:** do not modify `app/api/ats-scan/route.ts`, any file under `lib/jobMatch/` or `lib/ai/job*.ts`, `types/jobMatch.ts`, or the migrations. If the category set or field names seem insufficient for a clean UI, stop and report rather than changing the backend yourself.
+
+      `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: submitting a resume + JD and getting a response with `jobMatch: null` (expected until an AI provider is configured, per the standing exception) still renders the rest of the page correctly with no crash — this is the realistic state you'll be testing against; note that the full breakdown itself can't be visually verified end-to-end until Unplanned #16 is resolved.
+
+      Depends on: TASK-071 (done) · Status: not started.
+
 ---
 
 ## Blocked / Needs Review
