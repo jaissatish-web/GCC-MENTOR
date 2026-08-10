@@ -181,7 +181,7 @@ export async function generate({
         // Optional app-identification headers OpenRouter's docs recommend —
         // no functional effect on the response, safe to omit if wrong.
         'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
-        'X-Title': '[Product Name]',
+        'X-Title': 'GCC MENTOR',
       },
       body: JSON.stringify(body),
     });
