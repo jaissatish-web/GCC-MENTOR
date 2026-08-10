@@ -559,7 +559,34 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify against the running dev server: the three-state driving-license toggle genuinely distinguishes "not answered" from "no" (reload after saving "no" and confirm it doesn't come back as unset, and vice versa), a GCC-tagged work entry round-trips correctly (save, reload, still tagged), and the employment-gaps callout only appears when there's a real gap in the data.
 
-      Depends on: TASK-067 (done) · Status: in progress.
+      Depends on: TASK-067 (done) · Status: done, 2026-08-10.
+
+      **Built by Hermes** — one file (`app/profile/page.tsx`), no backend/migration/AI
+      changes (TASK-067's data layer already returns everything). (1) **Driving license**
+      sub-section added as its own Card immediately after Identity & contact (the same
+      identity-and-relocation grouping the Passport/Visa fields live in): a tri-state
+      `<select>` for `has_driving_license` (`Not answered yet` / `Yes` / `No`) that maps
+      to `null` / `true` / `false` and never defaults the unanswered state to a coerced
+      "no"; the `driving_license_country`, `driving_license_category`, and
+      `driving_license_validity_date` inputs render only when `has_driving_license` is
+      `true`. (2) **GCC-tagged work history**: each work-experience entry gained a "Gulf
+      experience" `<select>` fed from `GULF_COUNTRIES` (values match
+      `target_country_enum`, blank `= Not GCC-based`) writing the entry's `gcc_country`.
+      (3) Both new field sets are included in the existing full-object PUT body via
+      `buildPutBody` (`has_driving_license` passed through as its nullable boolean; the
+      three license strings and `gcc_country` via the shared `optNull` `"" → null`
+      mapping) — no new API call. (4) **Employment gaps display** is read-only: the GET
+      response's `employment_gaps` is captured on load into component state and rendered
+      as a neutral callout (no score/penalty/red-green) under the Work experience card
+      only when the array is non-empty ("We noticed a N-month gap between X and Y… isn't
+      scored — just something to be aware of"); an empty array renders nothing. `npx tsc
+      --noEmit` 0 errors, `npm run lint` PASS, `npm run build` PASS (`/profile` 8.82 kB,
+      statically prerendered). Dev server booted: `/profile` correctly 307s to
+      `/login?redirectTo=%2Fprofile` for an unauthenticated request (middleware + shell
+      behave) and the redirected page + `/login` render 200. Full authenticated
+      save/reload round-trip (tri-state persistence, GCC tag round-trip, gaps callout
+      with real data) not exercised — no user session available to this agent; deferred
+      per the standing pre-auth exception (docs/HERMES.md §3a).
 
 ---
 

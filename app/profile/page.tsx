@@ -72,6 +72,15 @@ function uid(): string {
   return `row-${Date.now()}-${seq}`
 }
 
+/** Employment gap (GET /api/profile's computed `employment_gaps`, TASK-067). */
+interface EmploymentGap {
+  gapStartDate: string
+  gapEndDate: string
+  gapMonths: number
+  precedingCompany: string | null
+  followingCompany: string | null
+}
+
 interface EditableWork {
   key: string
   id?: string
@@ -82,6 +91,8 @@ interface EditableWork {
   location: string
   description: string
   highlights: string
+  /** GCC-tagged country, or '' = not GCC-based (TASK-067 `gcc_country`). */
+  gcc_country: string
 }
 
 interface EditableSkill {
@@ -139,6 +150,12 @@ interface EditorData {
   email: string
   linkedin_url: string
   professional_summary: string
+  // Driving license (TASK-067, docs/GCC_READINESS_JOB_MATCH.md §5). Nullable:
+  // null = not yet answered; the UI must NOT collapse it to a coerced false.
+  has_driving_license: boolean | null
+  driving_license_country: string
+  driving_license_category: string
+  driving_license_validity_date: string
   field_visibility: FieldVisibility
   work_experience: EditableWork[]
   skills: EditableSkill[]
@@ -175,6 +192,10 @@ function emptyEditor(): EditorData {
     email: '',
     linkedin_url: '',
     professional_summary: '',
+    has_driving_license: null,
+    driving_license_country: '',
+    driving_license_category: '',
+    driving_license_validity_date: '',
     field_visibility: { ...DEFAULT_FIELD_VISIBILITY },
     work_experience: [],
     skills: [],
@@ -204,6 +225,7 @@ function ws(o: unknown): EditableWork {
     location: str(w.location),
     description: str(w.description),
     highlights: Array.isArray(w.highlights) ? (w.highlights as unknown[]).map(str).join('\n') : '',
+    gcc_country: str(w.gcc_country),
   }
 }
 
@@ -299,6 +321,10 @@ function fromFull(p: CareerProfileFull): EditorData {
     email: str(p.email),
     linkedin_url: str(p.linkedin_url),
     professional_summary: str(p.professional_summary),
+    has_driving_license: p.has_driving_license ?? null,
+    driving_license_country: str(p.driving_license_country),
+    driving_license_category: str(p.driving_license_category),
+    driving_license_validity_date: str(p.driving_license_validity_date),
     field_visibility: { ...DEFAULT_FIELD_VISIBILITY, ...(p.field_visibility ?? {}) },
     work_experience: (p.work_experience ?? []).map(ws),
     skills: (p.skills ?? []).map(sk),
@@ -342,6 +368,10 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
     email: e.email,
     linkedin_url: optNull(e.linkedin_url),
     professional_summary: optNull(e.professional_summary),
+    has_driving_license: e.has_driving_license,
+    driving_license_country: optNull(e.driving_license_country),
+    driving_license_category: optNull(e.driving_license_category),
+    driving_license_validity_date: optNull(e.driving_license_validity_date),
     field_visibility: e.field_visibility,
   }
 
@@ -360,6 +390,7 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
           .filter((h) => h !== '').length > 0
           ? w.highlights.split('\n').map((h) => h.trim()).filter((h) => h !== '')
           : null,
+      gcc_country: optNull(w.gcc_country),
       sort_order: i,
     }
     if (typeof w.id === 'string' && w.id !== '') row.id = w.id
@@ -536,6 +567,9 @@ function ProfileScreen() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  // Computed employment gaps from GET /api/profile (TASK-067). Read-only,
+  // display-only, never scored — see lib/employmentGaps.ts's header.
+  const [employmentGaps, setEmploymentGaps] = useState<EmploymentGap[]>([])
   const didInit = useRef(false)
 
   // ---- Initial load: draft handoff, else GET existing, else empty ----------
@@ -567,6 +601,9 @@ function ProfileScreen() {
       })
       .then((data) => {
         setEditor(data ? fromFull(data as CareerProfileFull) : emptyEditor())
+        // Read-only employment gaps (TASK-067); absent on the draft/empty paths.
+        const gaps = (data as { employment_gaps?: unknown } | null)?.employment_gaps
+        setEmploymentGaps(Array.isArray(gaps) ? (gaps as EmploymentGap[]) : [])
         setLoaded(true)
       })
       .catch(() => {
@@ -909,6 +946,57 @@ function ProfileScreen() {
           </div>
         </CardSection>
 
+        {/* DRIVING LICENSE — TASK-068. Grouped with the Passport/Visa fields
+            (the same identity-and-relocation grouping). has_driving_license is
+            a genuine tri-state: null = not answered, true = yes, false = explicit
+            no. The select must NOT default the unanswered state to a coerced
+            "no" (docs/GCC_READINESS_JOB_MATCH.md §5). Readiness/Match input only
+            — deliberately no field_visibility toggle (TASK-067 scope decision). */}
+        <CardSection title="Driving license">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-marble">
+              Do you have a driving license?
+            </label>
+            <select
+              id="f_has_driving_license"
+              className={selectClass}
+              value={editor.has_driving_license === null ? '' : editor.has_driving_license ? 'yes' : 'no'}
+              onChange={(e) =>
+                setField({
+                  has_driving_license: e.target.value === '' ? null : e.target.value === 'yes',
+                })
+              }
+            >
+              <option value="">Not answered yet</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          {editor.has_driving_license === true ? (
+            <div className="grid gap-3">
+              <Input
+                id="f_driving_license_country"
+                label="Country issued"
+                value={editor.driving_license_country}
+                onChange={(e) => setField({ driving_license_country: e.target.value })}
+              />
+              <Input
+                id="f_driving_license_category"
+                label="Category / type"
+                value={editor.driving_license_category}
+                onChange={(e) => setField({ driving_license_category: e.target.value })}
+              />
+              <Input
+                id="f_driving_license_validity_date"
+                label="Validity date"
+                type="date"
+                value={editor.driving_license_validity_date}
+                onChange={(e) => setField({ driving_license_validity_date: e.target.value })}
+              />
+            </div>
+          ) : null}
+        </CardSection>
+
         {/* PROFESSIONAL SUMMARY — the user's OWN summary, source of the diff */}
         <CardSection title="Professional summary">
           <textarea
@@ -994,6 +1082,7 @@ function ProfileScreen() {
                             location: '',
                             description: '',
                             highlights: '',
+                            gcc_country: '',
                           },
                         ],
                       }
@@ -1035,6 +1124,26 @@ function ProfileScreen() {
                   <Input label="End (blank = current)" type="date" value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
                 </div>
                 <Input label="Location" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-marble">
+                    Gulf experience
+                  </label>
+                  <select
+                    id={`f_work_gcc_${w.key}`}
+                    className={selectClass}
+                    value={w.gcc_country}
+                    onChange={(e) =>
+                      setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { gcc_country: e.target.value }) }))
+                    }
+                  >
+                    <option value="">Not GCC-based</option>
+                    {GULF_COUNTRIES.map((c) => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <label className="flex flex-col gap-1.5 text-sm font-medium text-marble">
                   Description
                   <textarea
@@ -1057,6 +1166,25 @@ function ProfileScreen() {
             ))}
           </div>
         </CardSection>
+
+        {/* EMPLOYMENT GAPS — read-only display from GET /api/profile's
+            `employment_gaps` (TASK-067). Informational only — no score, no
+            penalty, no red/green indicator; see lib/employmentGaps.ts's header.
+            An empty array renders nothing (silence is correct here, not a
+            manufactured "no gaps!"). */}
+        {employmentGaps.length > 0 ? (
+          <div className="flex flex-col gap-2 rounded-xl border border-hairline/70 bg-surface px-3.5 py-3">
+            <span className="text-[12px] font-semibold text-marble/70">
+              Employment gaps &mdash; just for your awareness
+            </span>
+            {employmentGaps.map((g, i) => (
+              <p key={i} className="text-[11px] leading-snug text-marble/55">
+                We noticed a {g.gapMonths}-month gap between {g.precedingCompany || 'a previous role'} and{' '}
+                {g.followingCompany || 'your next role'}. This isn&rsquo;t scored &mdash; just something to be aware of.
+              </p>
+            ))}
+          </div>
+        ) : null}
 
         {/* EDUCATION */}
         <CardSection
