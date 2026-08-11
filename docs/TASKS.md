@@ -791,9 +791,13 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
       8. `lib/readiness.ts` unchanged — the field is still a scored item when filled (optional-contributes, not required-for-100), consistent with `target_company`/`current_location`.
       9. Do NOT make `target_country` a required field on the READ path or change migration 029/adjoining GCC fields.
 
-      **Built by Hermes** (the change was already complete in the working tree; this ticket records, verifies, and commits it — the working tree was verified `npm run build` PASS and `npm run lint` PASS). Migration 030 is `DROP NOT NULL` on two columns — additive, no data impact — but is **not run here** (it must be applied by the founder like every migration).
+      **Built by Hermes** (the change was already complete in the working tree; this ticket records, verifies, and commits it — the working tree was verified `npm run build` PASS and `npm run lint` PASS). Migration 030 is `DROP NOT NULL` on two columns — additive, no data impact.
 
-      **Deviations from spec:** none as written; the only standing note is that migration 030 is not yet applied to the live DB (code is safe against an unapplied copy — validators still accept the currently-required column, UI sends a real value when present).
+      **Migration applied 2026-08-10** — CTO applied it directly via the Connection Pooler and independently verified against the live database: both `career_profiles.target_country` and `packages.target_country` confirmed `is_nullable = YES`.
+
+      **Three follow-up fixes found on CTO review before applying, not in the original diff** (commit `bbd8f00`): (1) `lib/admin/adminData.ts`'s `AdminPackageSummary.targetCountry` was still typed as a required `string` despite the column now being nullable — widened to `string | null`, and the admin payments list (`app/admin/page.tsx`) now shows "No country" instead of rendering nothing awkwardly next to the bullet separator. (2) `app/optimize/setup/page.tsx`'s "Optimizing…" progress screen still had a named step "Applying {Country} CV format" — the exact format-varies-by-country implication this whole ticket exists to remove. Now always "Applying Gulf CV format". `npx tsc --noEmit` 0 errors, `npm run build` PASS (30 routes) re-confirmed after these fixes.
+
+      **Deviations from spec:** none as written.
 
       Depends on: — · Status: done, 2026-08-10.
 
