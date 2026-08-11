@@ -8,7 +8,6 @@ import {
   UserCircleIcon,
   DocumentTextIcon,
   BookOpenIcon,
-  EllipsisHorizontalIcon,
 } from '@heroicons/react/24/outline'
 import { MoreSheet } from './MoreSheet'
 

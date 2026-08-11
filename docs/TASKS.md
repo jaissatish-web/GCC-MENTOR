@@ -963,7 +963,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **TASK-078 is now unblocked.**
 
-- [ ] **TASK-078: Navigation system** — desktop sidebar, tablet collapsed
+- [x] **TASK-078: Navigation system** — desktop sidebar, tablet collapsed
       sidebar, mobile bottom-nav + "More" sheet.
 
       **Spec:** Full spec in `DESIGN_SYSTEM.md` §8.1–8.4. Restyle
@@ -988,6 +988,8 @@ any ticket in this section — it is not repeated in full inside each one.**
       **Built by Hermes** — restyled `Sidebar.tsx` with nine real destinations (Dashboard, Career Profile, GCC Readiness, Job Match, Resume Optimizer, Cover Letter, Library, Payments, Settings) using Heroicons outline icons and redesign tokens. Three not-yet-built routes (GCC Readiness, Job Match, Cover Letter) have nav entries pointing at their final paths per spec. Desktop (≥1024px) shows full 248px sidebar; tablet (768–1023px) collapses to 48px icon-only bar with tap-expand overlay; mobile (<768px) hidden. Restyled `MobileBottomNav.tsx` to five slots (Dashboard, Career Profile, Resume Optimizer, Library, More) with Heroicons, replacing the prior three-slot layout. Created `MoreSheet.tsx` — a bottom drawer with the remaining five destinations (GCC Readiness, Job Match, Cover Letter, Payments, Settings), dismiss on backdrop tap. Zero Locked/Planned entries anywhere in navigation. Help card kept at the bottom of the sidebar. All components use `font-redesign-sans`, redesign color tokens, and `redesign-gold` active states. No page content, middleware, or backend files touched.
 
       `npx tsc --noEmit`, `npm run lint`, `./node_modules/.bin/next build` all pass. Compiled CSS audit confirms emitted redesign class names.
+
+      **CTO review, 2026-08-11 — APPROVED, one fix applied directly.** Independently re-ran `tsc`/`lint`/`build` (all clean) and read the actual diff against `DESIGN_SYSTEM.md` §8.1–8.4: nine-item order and paths correct, breakpoint scoping correct (`lg:flex` / `md:flex lg:hidden` don't overlap, mobile correctly shows neither aside), MobileBottomNav's 5 slots and MoreSheet's other 5 correct, zero Locked/Planned entries anywhere, `middleware.ts` and page content untouched (diff stat confirms only the 3 layout files). One real defect the report missed: `MobileBottomNav.tsx` imported `EllipsisHorizontalIcon` but never used it (only `MoreSheet.tsx` renders it) — `next/core-web-vitals` doesn't flag unused imports, so lint passed anyway. Harmless at runtime (tree-shaken) but dead code; too small for a Hermes round trip, removed directly. Full logged-in visual check of the rendered nav not possible from this environment (no admin/user session available outside a real browser login) — same standing gap as every other UI ticket.
 
 - [ ] **TASK-079: Locked/Planned tile component** — new shared component,
       `components/ui/LockedTile.tsx`.
