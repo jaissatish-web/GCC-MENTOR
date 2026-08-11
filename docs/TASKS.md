@@ -1004,7 +1004,16 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **Do not touch:** no existing component, no backend.
 
-      Depends on: TASK-076, TASK-077 · Status: in progress.
+      Depends on: TASK-076, TASK-077 · Status: done, 2026-08-11.
+
+      **Built by Hermes** — created `components/ui/LockedTile.tsx` per `PLANNED_SERVICES.md`:
+      - Dashed border (`border-dashed border-line-dark-strong`), `bg-surface-2-light` fill (dark fallback: `bg-marble/[0.03]`), `rounded-radius-lg`, `font-redesign-sans`.
+      - Neutral "Planned" outline badge — never a phase number.
+      - Title and description via string-only props; no numeric or preview-content prop exists in the type signature.
+      - Tap/click toggles a short honest note (default: "Planned for a future release.") with keyboard support (`Enter`/`Space`, `aria-expanded`).
+      - Zero data fetching, zero backend dependencies — purely presentational.
+
+      `npx tsc --noEmit`, `npm run lint`, `./node_modules/.bin/next build` all pass. The combined command timed out at the build trace-collection phase (same environment limitation as TASK-077); the standalone build passes cleanly with all 35 routes generated.
 
 ---
 
