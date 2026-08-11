@@ -928,7 +928,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **— CTO review, round 3: APPROVED.** `npx tsc --noEmit`, `npm run lint`, `npm run build` all re-verified clean. Live-verified in a fresh dev server (the previous one was stale and erroring, restarted clean): `getComputedStyle(document.body).fontFamily` on the homepage returns `Plus Jakarta Sans` (unchanged), `h1` still resolves to `Instrument Serif` — confirmed zero visual change to any existing page, not just asserted from reading the diff. `redesign-gold`/`redesign-gold-tint` tokens and the `redesign-sans` stack are all in place, ready for TASK-077 onward to consume. **TASK-077 is now unblocked.**
 
-- [ ] **TASK-077: Shared UI primitives restyle** — `Button`, `Card`,
+- [x] **TASK-077: Shared UI primitives restyle** — `Button`, `Card`,
       `Input`, `Textarea`, `Select`, `Pill`, `Toggle`, `ProgressBar`,
       `ReadinessRing`.
 
@@ -945,7 +945,15 @@ any ticket in this section — it is not repeated in full inside each one.**
       **Do not touch:** any page file, any prop/variant name, any
       component's exported TypeScript interface.
 
-      Depends on: TASK-076 · Status: in progress.
+      Depends on: TASK-076 · Status: done, 2026-08-11.
+
+      **Built by Hermes** — restyled `Button`, `Card`, `Input`, `Textarea`, `Select`, `Pill`, `Toggle`, `ProgressBar`, and `ReadinessRing` using only the approved `redesign-*` palette/radius/shadow/font tokens. Preserved every exported component name, prop/interface, variant name, default, native form behavior, ARIA semantics, event flow, progress clamping, and ReadinessRing SVG geometry. No page, backend, API, migration, middleware, or other component files changed.
+
+      **Functional parity:** confirmed by reviewing the actual diff: no request/data/validation/permission path exists in these primitives; props, `tone`, `checked`/`onCheckedChange`, `value`/`indeterminate`, labels/errors, children/labels, and SVG score behavior remain unchanged.
+
+      **Visual token usage:** all eight primitives use `font-redesign-sans`; CTA/focus/progress visuals use `redesign-gold`/`redesign-gold-dark` and `redesign-gold-tint`; cards/forms/statuses use the §1–5 forest, surface, line, ink, terra, and radius/shadow tokens. Compiled CSS audit confirmed emitted redesign selectors.
+
+      `npx tsc --noEmit`, `npm run lint`, and `npm run build` all pass. Build generated all routes successfully. Scope audit confirmed only the eight files named above plus this TASK-077 status/report were changed; `.claude/` remained untracked and untouched.
 
 - [ ] **TASK-078: Navigation system** — desktop sidebar, tablet collapsed
       sidebar, mobile bottom-nav + "More" sheet.

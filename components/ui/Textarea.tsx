@@ -2,17 +2,8 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 /**
- * Textarea — labelled multi-line text field.
- *
- * `tone="light"` (default, unchanged): white background, border-line,
- * midnight focus ring — the original DESIGN.md §4 field styling.
- *
- * `tone="dark"` (new, 2026-08-07 Phase 2): dark-surface variant for the
- * redesigned auth pages — void background, hairline border, gold focus ring.
- * Opt-in only; every existing call site is unaffected.
- *
- * Resizable vertically by default (no resize-none applied), accepting a
- * `rows` prop passed through normally to control initial height.
+ * Textarea — labelled multi-line text field. Exported props and tone API are
+ * unchanged; visual classes use the redesign token foundation only.
  */
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
@@ -27,11 +18,11 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const isDark = tone === 'dark'
 
     return (
-      <div className="flex w-full flex-col gap-1.5">
+      <div className="flex w-full flex-col gap-1.5 font-redesign-sans">
         {label ? (
           <label
             htmlFor={textareaId}
-            className={cn('text-sm font-medium', isDark ? 'text-marble/85' : 'text-midnight')}
+            className={cn('text-sm font-medium', isDark ? 'text-ink-900-dark' : 'text-ink-900')}
           >
             {label}
           </label>
@@ -42,19 +33,19 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${textareaId}-error` : undefined}
           className={cn(
-            'min-h-11 w-full rounded-lg border px-[15px] py-[13px] text-sm font-medium outline-none transition-colors motion-reduce:transition-none resize-y',
+            'min-h-11 w-full resize-y rounded-radius-md border px-[15px] py-[13px] font-redesign-sans text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
             isDark
               ? cn(
-                  'bg-void/60 text-marble placeholder:text-marble/30',
+                  'bg-bg-dark text-ink-900-dark placeholder:text-ink-400-dark',
                   error
-                    ? 'border-terracotta focus:border-terracotta focus:ring-2 focus:ring-terracotta/25'
-                    : 'border-hairline focus:border-gold focus:ring-2 focus:ring-gold/25'
+                    ? 'border-terra-dark focus:border-terra-dark focus:ring-2 focus:ring-terra-dark/25'
+                    : 'border-line-dark-strong focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/25'
                 )
               : cn(
-                  'bg-white text-midnight placeholder:text-ink-faint',
+                  'bg-surface-light text-ink-900 placeholder:text-ink-400',
                   error
-                    ? 'border-terracotta focus:border-terracotta focus:ring-2 focus:ring-terracotta/20'
-                    : 'border-line focus:border-midnight focus:ring-2 focus:ring-midnight/20'
+                    ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/20'
+                    : 'border-line-light focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20'
                 ),
             className
           )}
@@ -63,7 +54,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {error ? (
           <p
             id={`${textareaId}-error`}
-            className={cn('text-xs font-medium', isDark ? 'text-terracotta' : 'text-terracotta')}
+            className={cn('font-redesign-sans text-xs font-medium', isDark ? 'text-terra-dark' : 'text-terra')}
           >
             {error}
           </p>

@@ -5,30 +5,21 @@ import { cn } from '@/lib/utils'
 /**
  * Pill — compact status / label chip.
  *
- * The five package statuses use fully-rounded pill shapes; `risk` and
- * `grounded` use a tighter 7px radius and carry icons. Colours are the
- * semantic tints (state-*) from tailwind.config.ts — never hard-coded hex.
- *   applied         fill-subtle / line-strong
- *   shortlisted     state-gold-*
- *   interview       state-emerald-*
- *   visa_processing state-visa-*
- *   offer           solid emerald
- *   risk            state-terra-* (rounded-[7px])
- *   grounded        state-emerald-* (rounded-[7px])
+ * The seven variant names and label/children behavior are unchanged. Visuals
+ * use the redesign semantic and neutral tokens from DESIGN_SYSTEM.md §8.
  */
 const pillVariants = cva(
-  'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-[11px] py-[6px] text-[11px] font-semibold leading-none',
+  'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-[11px] py-[6px] font-redesign-sans text-[11px] font-semibold leading-none',
   {
     variants: {
       variant: {
-        applied: 'border border-line-strong bg-fill-subtle text-ink-body',
-        shortlisted: 'border border-state-gold-line bg-state-gold-bg text-state-gold-text',
-        interview: 'border border-state-emerald-line bg-state-emerald-bg text-emerald',
-        visa_processing: 'border border-state-visa-line bg-state-visa-bg text-state-visa-text',
-        offer: 'bg-emerald text-marble',
-        risk: 'rounded-[7px] border border-state-terra-line bg-state-terra-bg text-state-terra-text',
-        grounded:
-          'rounded-[7px] border border-state-emerald-line bg-state-emerald-bg text-emerald',
+        applied: 'border border-line-light-strong bg-surface-2-light text-ink-700',
+        shortlisted: 'border border-redesign-gold bg-redesign-gold-tint text-gold-text',
+        interview: 'border border-forest-tint bg-forest-tint text-forest',
+        visa_processing: 'border border-ink-200 bg-ink-200 text-ink-700',
+        offer: 'bg-forest text-surface-light',
+        risk: 'rounded-[7px] border border-terra bg-terra-tint text-terra',
+        grounded: 'rounded-[7px] border border-forest-tint bg-forest-tint text-forest',
       },
     },
     defaultVariants: {

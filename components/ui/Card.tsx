@@ -5,21 +5,16 @@ import { cn } from '@/lib/utils'
 /**
  * Card — the standard raised surface.
  *
- * `tone="light"` (the DEFAULT, unchanged) is the original white-on-marble
- * card from DESIGN.md §4, still used by every light app screen.
- *
- * `tone="dark"` is the 2026-08-07 dark redesign surface: a navy panel with a
- * hairline border and an inset top highlight, so it reads as a physically
- * raised object instead of a flat rectangle. `tone="dark-interactive"` adds
- * the hover lift used by clickable cards.
+ * Exported props and tone behavior remain unchanged. The redesign uses the
+ * shared surface, line, radius, and shadow tokens from DESIGN_SYSTEM.md §8.
  */
-const cardVariants = cva('rounded-2xl border', {
+const cardVariants = cva('rounded-radius-lg border font-redesign-sans', {
   variants: {
     tone: {
-      light: 'border-line bg-white',
-      dark: 'border-hairline bg-surface shadow-elev-2 shadow-inset-hairline',
+      light: 'border-line-light bg-surface-light shadow-redesign-sm',
+      dark: 'border-line-dark bg-surface-dark shadow-redesign-md',
       'dark-interactive':
-        'border-hairline bg-surface shadow-elev-2 transition-all duration-300 hover:-translate-y-1 hover:border-gold/40 hover:shadow-elev-3 motion-reduce:transform-none motion-reduce:transition-none',
+        'border-line-dark bg-surface-dark shadow-redesign-md transition-all duration-300 hover:-translate-y-1 hover:border-redesign-gold hover:shadow-redesign-lg motion-reduce:transform-none motion-reduce:transition-none',
     },
   },
   defaultVariants: {

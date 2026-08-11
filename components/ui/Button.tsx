@@ -5,34 +5,24 @@ import { cn } from '@/lib/utils'
 /**
  * Button — shared action button.
  *
- * Variants map one-to-one to DESIGN.md §4 and the approved Components panel
- * in design-reference/MVP Screens.dc.html:
- *   primary   = navy action      (bg-midnight)
- *   purchase  = gold purchase    (bg-gold)
- *   progress  = emerald progress (bg-emerald)
- *   secondary = white + line-strong border
- *   disabled  = fill-subtle + ink-faint
- *
- * Every interactive element is at least 44px tall (min-h-11).
+ * Variant names and props are unchanged. Visuals use the redesign foundation
+ * tokens from docs/redesign/DESIGN_SYSTEM.md §6; this component does not alter
+ * click, submit, disabled, or focus behavior.
  */
 const buttonVariants = cva(
-  'inline-flex min-h-11 select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg px-[22px] py-4 text-sm leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void active:scale-[0.99] disabled:pointer-events-none motion-reduce:transition-none',
+  'inline-flex min-h-11 select-none items-center justify-center gap-2 whitespace-nowrap rounded-radius-md px-[22px] py-4 font-redesign-sans text-sm leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-forest-deep active:scale-[0.99] disabled:pointer-events-none motion-reduce:transition-none',
   {
     variants: {
       variant: {
-        primary: 'bg-midnight font-bold text-marble hover:bg-deep-navy',
-        // The primary purchase CTA on dark: gold with a soft outer glow that
-        // intensifies on hover. This is the single loudest element on any
-        // screen — deliberately the only thing that glows this strongly.
+        primary: 'bg-forest-deep font-bold text-ink-900-dark hover:bg-forest-deep-dark',
         purchase:
-          'bg-gold font-bold text-midnight shadow-glow-gold hover:bg-gold-light hover:shadow-glow-gold-lg hover:-translate-y-px',
-        progress: 'bg-emerald font-bold text-marble shadow-glow-emerald hover:bg-emerald',
+          'bg-redesign-gold font-bold text-forest-deep shadow-redesign-cta-glow hover:bg-redesign-gold-dark hover:shadow-redesign-lg hover:-translate-y-px',
+        progress: 'bg-forest font-bold text-surface-light shadow-redesign-md hover:bg-forest-dark',
         secondary:
-          'border border-line-strong bg-white font-semibold text-midnight hover:bg-fill-subtle',
-        // Dark-surface secondary — hairline border on translucent fill.
+          'border border-line-light-strong bg-surface-light font-semibold text-ink-900 hover:bg-surface-2-light',
         ghost:
-          'border border-hairline bg-marble/[0.04] font-semibold text-marble backdrop-blur hover:border-gold/45 hover:bg-marble/[0.08] hover:-translate-y-px',
-        disabled: 'bg-surface-2/60 font-semibold text-marble/35',
+          'border border-line-dark bg-transparent font-semibold text-ink-900-dark backdrop-blur hover:border-redesign-gold hover:bg-forest-tint-dark hover:-translate-y-px',
+        disabled: 'bg-surface-2-light font-semibold text-ink-400',
       },
     },
     defaultVariants: {

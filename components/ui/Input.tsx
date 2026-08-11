@@ -2,19 +2,8 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 /**
- * Input — labelled text field.
- *
- * `tone="light"` (default, unchanged): white background, radius 12px,
- * midnight focus ring, terracotta error — the original DESIGN.md §4 field,
- * still used by every light screen (admin, optimize/target, profile,
- * settings).
- *
- * `tone="dark"` (new, 2026-08-07 Phase 2): dark-surface variant for the
- * redesigned auth pages — void background, hairline border, gold focus
- * ring. Opt-in only; every existing call site is unaffected.
- *
- * Always renders a real <label> when `label` is provided and surfaces
- * errors to assistive tech via aria-invalid / aria-describedby.
+ * Input — labelled text field. Exported props and the light/dark tone API are
+ * unchanged; only the visual token classes use the approved redesign system.
  */
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -29,11 +18,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const isDark = tone === 'dark'
 
     return (
-      <div className="flex w-full flex-col gap-1.5">
+      <div className="flex w-full flex-col gap-1.5 font-redesign-sans">
         {label ? (
           <label
             htmlFor={inputId}
-            className={cn('text-sm font-medium', isDark ? 'text-marble/85' : 'text-midnight')}
+            className={cn('text-sm font-medium', isDark ? 'text-ink-900-dark' : 'text-ink-900')}
           >
             {label}
           </label>
@@ -45,19 +34,19 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${inputId}-error` : undefined}
           className={cn(
-            'min-h-11 w-full rounded-lg border px-[15px] py-[13px] text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
+            'min-h-11 w-full rounded-radius-md border px-[15px] py-[13px] font-redesign-sans text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
             isDark
               ? cn(
-                  'bg-void/60 text-marble placeholder:text-marble/30',
+                  'bg-bg-dark text-ink-900-dark placeholder:text-ink-400-dark',
                   error
-                    ? 'border-terracotta focus:border-terracotta focus:ring-2 focus:ring-terracotta/25'
-                    : 'border-hairline focus:border-gold focus:ring-2 focus:ring-gold/25'
+                    ? 'border-terra-dark focus:border-terra-dark focus:ring-2 focus:ring-terra-dark/25'
+                    : 'border-line-dark-strong focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/25'
                 )
               : cn(
-                  'bg-white text-midnight placeholder:text-ink-faint',
+                  'bg-surface-light text-ink-900 placeholder:text-ink-400',
                   error
-                    ? 'border-terracotta focus:border-terracotta focus:ring-2 focus:ring-terracotta/20'
-                    : 'border-line focus:border-midnight focus:ring-2 focus:ring-midnight/20'
+                    ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/20'
+                    : 'border-line-light focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20'
                 ),
             className
           )}
@@ -66,7 +55,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error ? (
           <p
             id={`${inputId}-error`}
-            className={cn('text-xs font-medium', isDark ? 'text-terracotta' : 'text-terracotta')}
+            className={cn('font-redesign-sans text-xs font-medium', isDark ? 'text-terra-dark' : 'text-terra')}
           >
             {error}
           </p>
