@@ -801,6 +801,41 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       Depends on: — · Status: done, 2026-08-10.
 
+- [ ] **TASK-075: Split the admin panel into a dashboard + one page per function** — founder request, 2026-08-11: the current `/admin` is one long page with six unrelated sections stacked on top of each other (AI provider, prompt templates, promo codes, service packages, user search/detail, PII access log), and it wasn't clear what each part was for. This is a navigation restructure only — **no new admin features, no data-model changes, no behavior changes to any existing form or action.** `docs/ADMIN.md` §1 has already been updated to describe this structure (read it first).
+
+      **Spec:**
+      1. Move each section of the current `app/admin/page.tsx` into its own route, keeping every existing Server Action, data fetch, and form exactly as-is (copy the JSX for that section, don't rewrite its logic):
+         - `app/admin/ai-provider/page.tsx` — the "AI provider" card (provider config list + save form).
+         - `app/admin/prompts/page.tsx` — the "Prompt templates" card.
+         - `app/admin/promo-codes/page.tsx` — the "Promo codes" card (create form + existing codes list).
+         - `app/admin/packages/page.tsx` — the "Service packages" card (create form + existing packages list).
+         - `app/admin/users/page.tsx` — "Find a user" + everything conditionally shown for a selected user (packages, "Grant a free optimization", rate-limit override). These all share the `q`/`user` search params today — keep them together on one page exactly as they work now, just moved off the root page.
+         - `app/admin/access-log/page.tsx` — the "PII access log" table.
+      2. **Every one of the six new page.tsx files must call `requireAdmin()` itself at the top**, exactly like `app/admin/page.tsx` does today — the middleware gate at `/admin/:path*` (already covers new subroutes, no middleware change needed) is layer one, this is layer two, same defense-in-depth pattern `lib/admin/adminAuth.ts`'s own comment documents. Do not centralize this check into a layout only — each page keeps its own call, matching the existing pattern for every admin page and Server Action in this codebase.
+      3. Rewrite `app/admin/page.tsx` itself into a lightweight dashboard: a card per function linking to its new route, each showing one line of *live* summary data (reuse the existing data-fetch functions already imported in the current file — don't add new queries):
+         - AI provider → e.g. "3 configs · default configured" or "Not configured" in the warning color if `allProviderConfigs.length === 0` (this is the single biggest blocker in the product right now — make it visually obvious, not buried).
+         - Prompts → e.g. "3 templates".
+         - Promo codes → e.g. "2 active / 3 total".
+         - Service packages → e.g. "1 active package".
+         - Users → no count needed, just a link ("Search users →").
+         - Access log → e.g. "42 recent entries" (reuse the existing `listPiiAccessLog(50)` call, just show `.length`).
+         No forms, no tables, no per-item lists on this page — it's a summary + links only.
+      4. Add `app/admin/layout.tsx` — a shared shell wrapping every `/admin/*` page (including the dashboard) with a simple horizontal tab nav: Dashboard · AI Provider · Prompts · Promo Codes · Packages · Users · Access Log, each linking to its route, the current section visually highlighted (compare `pathname` via `usePathname()` in a small client component, or accept an `active` prop per page — either is fine). Keep it plain and minimal, matching the existing admin styling (`Card`, existing Tailwind tokens) — this is **not** the authenticated-app `AppShell` (dark sidebar) used by `/dashboard` etc.; admin stays visually separate, same as it is today, per `docs/ADMIN.md` §1's "not a second product" framing. The layout itself does not need its own `requireAdmin()` call (point 2 already covers every page).
+      5. Update every redirect target in `app/admin/actions.ts` from the hard-coded `/admin` to the new page each action actually belongs on:
+         - `overrideRateLimitAction`, `grantCreditAction` → `/admin/users` (keep the same `?q=&user=` query params they already build).
+         - `updateProviderConfigAction`, `deleteProviderConfigAction` → `/admin/ai-provider` (keep `?providerSaved=1` / `?providerError=...`).
+         - `createPromoCodeAction`, `deactivatePromoCodeAction` → `/admin/promo-codes` (keep `?promoSaved=1` / `?promoError=...`).
+         - `updatePromptTemplateAction` → `/admin/prompts` (keep `?promptSaved=1` / `?promptError=...`).
+         - `createServicePackageAction`, `setServicePackageActiveAction` → `/admin/packages` (keep `?spSaved=1` / `?spError=...`).
+      6. Each new sub-page reads its own `searchParams` for the saved/error flags relevant to it (e.g. only `app/admin/ai-provider/page.tsx` needs to read `providerSaved`/`providerError`) — don't carry all six pages' possible query params onto every page.
+      7. Delete the old monolithic content from `app/admin/page.tsx` once moved — don't leave the six sections duplicated on both the dashboard and their new pages.
+
+      **Explicitly out of scope — do not touch:** `app/admin/actions.ts`'s actual logic (only the redirect target strings change, per point 5), any `lib/admin/*` or `lib/ai/*` file, any migration, any non-admin route. If splitting a section reveals it depends on state only the root page computed (e.g. `q` needing to flow into the users page's own search form), keep that computation local to the new page — it's already scoped that way in the current file, just verify while moving it.
+
+      `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify against the running dev server: `/admin` loads as a dashboard with six links and correct live counts; each link lands on a working page with its form(s) intact; submitting each form (AI provider save, promo code create, prompt template save, service package create, rate-limit override, credit grant) redirects back to its own page (not `/admin`) with the correct saved/error banner; the tab nav is present and correctly highlights the active section on every page; a direct navigation to any new sub-route while signed out redirects to `/dashboard` exactly like `/admin` does today (the existing `requireAdmin()` behavior, now just also true on the new routes).
+
+      Depends on: — · Status: done, 2026-08-11.
+
 ---
 
 ## Blocked / Needs Review

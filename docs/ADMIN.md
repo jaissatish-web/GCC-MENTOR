@@ -6,11 +6,21 @@ Source: Founding Brief §5b, §5c, §5d.
 
 ## 1. Admin panel — scope
 
-**Founder-only access. One screen. Deliberately minimal.**
+**Founder-only access. Deliberately minimal.**
 
 This is operational tooling, not a second product to build. Every hour spent here is an hour not spent on the thing users pay for.
 
-**Route:** `/admin` — protected by a server-side role check on **every** request, not a hidden URL.
+**Structure (revised 2026-08-11, TASK-075):** originally one long scrolling
+screen; the founder found that hard to navigate once six unrelated
+functions (AI provider, prompts, promo codes, packages, users, access log)
+were all stacked on one page. Now a small dashboard (`/admin`) with a
+one-line live status per function, linking out to one page per function
+(`/admin/ai-provider`, `/admin/prompts`, `/admin/promo-codes`,
+`/admin/packages`, `/admin/users`, `/admin/access-log`) plus a shared tab
+nav so any page can reach any other. Still the same features, same "not a
+second product" minimalism — this is a navigation fix, not new scope.
+
+**Route:** `/admin` and `/admin/*` — protected by a server-side role check on **every** request, not a hidden URL. Every sub-page, not just the dashboard, must independently call `requireAdmin()` — the middleware gate at `/admin/:path*` covers page renders, but Server Actions are separate POST endpoints the middleware does not cover, so `app/admin/actions.ts` also re-checks independently (unchanged from before this split).
 
 ### Access control requirements
 

@@ -36,7 +36,7 @@ export async function overrideRateLimitAction(formData: FormData): Promise<void>
   if (q) params.set('q', q)
   if (userId) params.set('user', userId)
   const suffix = params.toString()
-  redirect(`/admin${suffix ? `?${suffix}` : ''}`)
+  redirect(`/admin/users${suffix ? `?${suffix}` : ''}`)
 }
 
 /**
@@ -66,7 +66,7 @@ export async function grantCreditAction(formData: FormData): Promise<void> {
   if (q) params.set('q', q)
   if (targetUserId) params.set('user', targetUserId)
   const suffix = params.toString()
-  redirect(`/admin${suffix ? `?${suffix}` : ''}`)
+  redirect(`/admin/users${suffix ? `?${suffix}` : ''}`)
 }
 
 /**
@@ -95,7 +95,7 @@ export async function updateProviderConfigAction(formData: FormData): Promise<vo
   const rawApiKey = String(formData.get('apiKey') ?? '').trim()
 
   if (!provider || !model) {
-    redirect('/admin?providerError=Provider+and+model+are+required')
+    redirect('/admin/ai-provider?providerError=Provider+and+model+are+required')
   }
 
   let apiKey = rawApiKey
@@ -107,7 +107,7 @@ export async function updateProviderConfigAction(formData: FormData): Promise<vo
     // can't smuggle in a stale or forged key value.
     const existing = await getProviderConfigExact(key)
     if (!existing) {
-      redirect('/admin?providerError=API+key+is+required+the+first+time')
+      redirect('/admin/ai-provider?providerError=API+key+is+required+the+first+time')
     }
     apiKey = existing.apiKey
   }
@@ -122,10 +122,10 @@ export async function updateProviderConfigAction(formData: FormData): Promise<vo
   })
 
   if (!result.ok) {
-    redirect(`/admin?providerError=${encodeURIComponent(result.error)}`)
+    redirect(`/admin/ai-provider?providerError=${encodeURIComponent(result.error)}`)
   }
 
-  redirect('/admin?providerSaved=1')
+  redirect('/admin/ai-provider?providerSaved=1')
 }
 
 /**
@@ -139,13 +139,13 @@ export async function deleteProviderConfigAction(formData: FormData): Promise<vo
   await requireAdmin()
   const key = String(formData.get('key') ?? '').trim()
   if (!key) {
-    redirect('/admin?providerError=Missing+config+key')
+    redirect('/admin/ai-provider?providerError=Missing+config+key')
   }
   const result = await deleteProviderConfig(key)
   if (!result.ok) {
-    redirect(`/admin?providerError=${encodeURIComponent(result.error)}`)
+    redirect(`/admin/ai-provider?providerError=${encodeURIComponent(result.error)}`)
   }
-  redirect('/admin?providerSaved=1')
+  redirect('/admin/ai-provider?providerSaved=1')
 }
 
 /**
@@ -182,10 +182,10 @@ export async function createPromoCodeAction(formData: FormData): Promise<void> {
   })
 
   if (!result.ok) {
-    redirect(`/admin?promoError=${encodeURIComponent(result.error)}`)
+    redirect(`/admin/promo-codes?promoError=${encodeURIComponent(result.error)}`)
   }
 
-  redirect('/admin?promoSaved=1')
+  redirect('/admin/promo-codes?promoSaved=1')
 }
 
 /** Deactivate a promo code — "stop this one right now" (e.g. it leaked). */
@@ -195,7 +195,7 @@ export async function deactivatePromoCodeAction(formData: FormData): Promise<voi
   if (code) {
     await deactivatePromoCode(code, admin.id)
   }
-  redirect('/admin?promoSaved=1')
+  redirect('/admin/promo-codes?promoSaved=1')
 }
 
 /**
@@ -207,13 +207,13 @@ export async function updatePromptTemplateAction(formData: FormData): Promise<vo
   const key = String(formData.get('key') ?? '').trim()
   const content = String(formData.get('content') ?? '').trim()
   if (!key || !content) {
-    redirect('/admin?promptError=Key+and+content+are+required')
+    redirect('/admin/prompts?promptError=Key+and+content+are+required')
   }
   const result = await setPromptTemplate({ key, content, adminId: admin.id })
   if (!result.ok) {
-    redirect(`/admin?promptError=${encodeURIComponent(result.error)}`)
+    redirect(`/admin/prompts?promptError=${encodeURIComponent(result.error)}`)
   }
-  redirect('/admin?promptSaved=1')
+  redirect('/admin/prompts?promptSaved=1')
 }
 
 /**
@@ -226,7 +226,7 @@ export async function createServicePackageAction(formData: FormData): Promise<vo
   const description = String(formData.get('description') ?? '').trim()
   const rawPrice = String(formData.get('priceInr') ?? '').trim()
   const priceInr = rawPrice ? Number(rawPrice) : 0
-  if (!name) { redirect('/admin?spError=Package+name+is+required'); return }
+  if (!name) { redirect('/admin/packages?spError=Package+name+is+required'); return }
   // Collect repeated service_key_N and quota_N fields.
   const items: { serviceKey: string; quota: number }[] = []
   const entries = Array.from(formData.entries())
@@ -242,8 +242,8 @@ export async function createServicePackageAction(formData: FormData): Promise<vo
     }
   }
   const result = await createServicePackage({ name, description: description || null, priceInr, items, adminUserId: admin.id })
-  if (!result.ok) { redirect(`/admin?spError=${encodeURIComponent(result.error)}`); return }
-  redirect('/admin?spSaved=1')
+  if (!result.ok) { redirect(`/admin/packages?spError=${encodeURIComponent(result.error)}`); return }
+  redirect('/admin/packages?spSaved=1')
 }
 
 /**
@@ -253,8 +253,8 @@ export async function setServicePackageActiveAction(formData: FormData): Promise
   const admin = await requireAdmin()
   const packageId = String(formData.get('packageId') ?? '').trim()
   const isActive = formData.get('isActive') === 'true'
-  if (!packageId) { redirect('/admin?spError=Missing+package+id'); return }
+  if (!packageId) { redirect('/admin/packages?spError=Missing+package+id'); return }
   const result = await setServicePackageActive(packageId, isActive, admin.id)
-  if (!result.ok) { redirect(`/admin?spError=${encodeURIComponent(result.error)}`); return }
-  redirect('/admin?spSaved=1')
+  if (!result.ok) { redirect(`/admin/packages?spError=${encodeURIComponent(result.error)}`); return }
+  redirect('/admin/packages?spSaved=1')
 }
