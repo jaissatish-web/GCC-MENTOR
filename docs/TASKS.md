@@ -1004,7 +1004,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **Do not touch:** no existing component, no backend.
 
-      Depends on: TASK-076, TASK-077 · Status: not started.
+      Depends on: TASK-076, TASK-077 · Status: in progress.
 
 ---
 
