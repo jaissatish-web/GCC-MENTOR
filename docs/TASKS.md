@@ -464,13 +464,15 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
       Depends on: none · Status: done
 
-- [ ] **TASK-063: Admin UI for per-call-site AI model selection** — the UI on top of TASK-062's backend. Let the founder see and manage a model override per feature, not just the one global `'default'` the current form handles.
+- [x] **TASK-063: Admin UI for per-call-site AI model selection** — the UI on top of TASK-062's backend. Let the founder see and manage a model override per feature, not just the one global `'default'` the current form handles.
 
       **Spec:**
       1. Extend the existing "AI provider" section in `/admin` — don't build a separate new Card, this is the same feature with more rows. List every row from `listProviderConfigs()` (already built), each showing its `key`, provider, model, fallback model, and masked API key (reuse the existing `maskSecret()` helper already in `app/admin/page.tsx`) — `'default'` should be visually distinguished as the fallback-for-everything row (e.g. always shown first, a small "applies to any feature without its own override" note).
       2. The existing create/edit form needs one new field: `key`, defaulting to `default` (a text input is fine — reuse the `datalist`-of-known-values pattern already used for `service_key` in `ServicePackageItemsFields.tsx` for consistency; known values so far: `default`, `extraction`, `optimization`, `ats_scan`). Submitting with an existing key edits that row (upsert, already handled server-side); submitting a new key creates an override.
       3. A "Remove override" action per non-default row, calling the already-built `deleteProviderConfigAction` — **do not show this for the `'default'` row** in a way that makes it look like a normal per-feature delete (it's allowed by the backend, but deleting `'default'` while overrides still reference it as their fallback would be a confusing thing to do by accident — a confirm step or distinct styling is enough, use your judgement, flag if genuinely unsure).
       4. **Frontend/admin-plumbing only** — do not modify `lib/ai/providerConfig.ts`, `lib/ai/provider.ts`, `app/admin/actions.ts`'s existing logic, or any route's `configKey`. If the existing lib functions seem to be missing something you need, stop and report.
+
+      **Found already done, 2026-08-11:** discovered while starting TASK-099 below — `app/admin/ai-provider/page.tsx` already had all four spec points (row list with masking, `'default'` visually distinguished, `key` field with a known-values datalist, per-row "Remove override"). Checkbox had simply never been updated. Superseded by TASK-099's per-service card layout the same day.
 
       `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass. Manually verify: the existing single-`'default'`-row behavior still works exactly as before (backward compatibility is the whole point), and — if you can reach a state to test it — creating an override for one key and confirming it shows separately from `'default'` in the list.
 
@@ -1149,8 +1151,10 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 - [ ] **TASK-095: Admin Dashboard + AI Provider** — restyle only, per
       `PAGE_SPECS.md` §D. Same live-summary data fetches, same warning
-      treatment when no provider is configured, same provider-config
-      form/list.
+      treatment when no provider is configured. `/admin/ai-provider`'s
+      structure changed under TASK-099 (2026-08-11) — restyle the six
+      named-service cards + Default card + Other overrides card described
+      there now, not the old single generic form/list.
 
       Depends on: TASK-094 · Status: not started.
 
@@ -1172,6 +1176,30 @@ any ticket in this section — it is not repeated in full inside each one.**
       fallback per spec.
 
       Depends on: TASK-094 · Status: not started.
+
+---
+
+- [x] **TASK-099: Named per-service AI config cards on `/admin/ai-provider`** — ad hoc, founder request 2026-08-11, decided step-by-step in chat rather than a pre-written spec.
+
+      **Founder ask:** a separate provider/model/fallback-model/API key setting per product service, not one generic `key` text field.
+
+      **Decisions made in conversation, in order:**
+      1. **Which services.** "Resume creation" / "resume phrasing" = the parsing step (`extraction`) — upload/paste a resume, AI reads and understands it, saves structured data, user reviews/edits/fills gaps. "Optimization" = the separate job-description-based rewrite step (`optimization`). "Resume uploading process" confirmed to be the same thing as `extraction`, not a third service. Final six: Resume Parsing (`extraction`), Resume Optimization (`optimization`), ATS Scanner (`ats_scan`), Cover Letter Generation (`cover_letter`), Q&A Generation (`qa_generation`, new key), Mock Interview (`mock_interview`, new key).
+      2. **Q&A Generation / Mock Interview — flagged as a real conflict, not silently built or refused** (per this project's standing "flag scope conflicts" practice): `docs/redesign/PLANNED_SERVICES.md` explicitly says zero functionality/backend for these and "does not authorize starting step 1... today." Founder chose to override that and pre-configure them anyway — rows exist, nothing reads them yet (no route passes `configKey: 'qa_generation'` or `'mock_interview'`), inert until those features are actually built.
+      3. **Fallback depth.** Founder confirmed same-account OpenRouter model-list fallback (what already exists, `route: 'fallback'`) is enough for now; true cross-provider fallback (separate provider + separate key on failure) explicitly deferred to a later, separately-scoped engineering task — not built here.
+      4. **Timing vs. the redesign.** This is functional work, and `/admin/ai-provider` is inside the locked "presentation-only, zero functional change" Stage 3 redesign (TASK-076–098). Flagged the conflict; founder chose to build the backend/functional piece now, plain-styled to match the page's *current* look, and let TASK-095 (not started) restyle it later without touching this logic.
+
+      **What was built:** `app/admin/ai-provider/page.tsx` rewritten from one generic key/provider/model/fallback/API-key form + raw row list into: six named service `Card`s (each its own `provider`/`model`/`fallbackModel`/`apiKey` form posting to the existing `updateProviderConfigAction`, hidden `key` fixed per service), a `Default` card (fallback-for-anything-unconfigured, same role as before), and an `Other overrides` card (the old generic add-by-key form, now `required` on `key` so a blank submission can no longer silently overwrite `'default'` — a footgun in the old shared form once `Default` got its own dedicated card) for internal sub-steps (`job_description`, `job_match_explanation`) that aren't one of the six named services.
+
+      **Zero backend/schema change** — confirmed unnecessary and not made: `ai_provider_config` (migration 019) was already a free-text-key table, `lib/ai/providerConfig.ts`'s get/set/list/delete and `lib/ai/provider.ts`'s `generate({ configKey })` already resolve per-key with fallback to `'default'` (TASK-062). This ticket is UI-only, same division of labor TASK-063's own spec called for.
+
+      **Verified:** `npx tsc --noEmit` 0 errors, `npm run lint` clean, `npm run build` PASS (all 35 routes, `/admin/ai-provider` unchanged size class). Live-checked against the running dev server: unauthenticated request to `/admin/ai-provider` still correctly gates behind login (no crash, no regression to TASK-075's middleware behavior) — full logged-in visual check not possible from this environment, same standing gap as every other admin page (no admin session available outside a real browser login, per Unplanned #16's note).
+
+      **Also fixed in passing:** TASK-063 above was actually already fully built (list, masking, `'default'` distinguished, key datalist, remove-override) — only its checkbox had never been updated. Marked done, now superseded by this ticket's card layout.
+
+      **Follow-up needed:** `docs/redesign/PAGE_SPECS.md` §D's `/admin/ai-provider` entry and `TASK-095`'s spec both still describe the old "one list + one form" shape — updated in this same session so the eventual restyle ticket has accurate structure to work from.
+
+      Depends on: TASK-062 · Status: done, 2026-08-11.
 
 ---
 

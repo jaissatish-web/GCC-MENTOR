@@ -434,10 +434,18 @@ sub-pages. Same data-fetch functions, same warning-color treatment when
 **Tablet:** 2-up. **Mobile:** single column.
 
 ### `/admin/ai-provider`
-**Function (unchanged):** Provider config list + save form, per-key
-overrides.
+**Function (unchanged as of TASK-099, 2026-08-11):** Six named-service
+cards (Resume Parsing, Resume Optimization, ATS Scanner, Cover Letter
+Generation, Q&A Generation, Mock Interview — each its own
+provider/model/fallback-model/API-key form), a `Default` card (fallback
+for anything unconfigured), and an `Other overrides` card (free-text-key
+form for internal sub-steps like `job_description`). Q&A
+Generation/Mock Interview are inert config rows — no route reads those
+keys yet.
 
-**Desktop/Tablet:** Config list as stacked cards, form below.
+**Desktop/Tablet:** One card per service, stacked, each with its own
+inline form. Default and Other overrides as trailing cards, same
+pattern.
 **Mobile:** Same, full-width fields.
 
 ### `/admin/prompts`
