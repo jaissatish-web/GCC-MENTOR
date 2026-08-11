@@ -983,7 +983,11 @@ any ticket in this section — it is not repeated in full inside each one.**
       **Do not touch:** `middleware.ts` (route protection is unrelated to
       nav rendering), any page's own content.
 
-      Depends on: TASK-076, TASK-077 · Status: in progress.
+      Depends on: TASK-076, TASK-077 · Status: done, 2026-08-11.
+
+      **Built by Hermes** — restyled `Sidebar.tsx` with nine real destinations (Dashboard, Career Profile, GCC Readiness, Job Match, Resume Optimizer, Cover Letter, Library, Payments, Settings) using Heroicons outline icons and redesign tokens. Three not-yet-built routes (GCC Readiness, Job Match, Cover Letter) have nav entries pointing at their final paths per spec. Desktop (≥1024px) shows full 248px sidebar; tablet (768–1023px) collapses to 48px icon-only bar with tap-expand overlay; mobile (<768px) hidden. Restyled `MobileBottomNav.tsx` to five slots (Dashboard, Career Profile, Resume Optimizer, Library, More) with Heroicons, replacing the prior three-slot layout. Created `MoreSheet.tsx` — a bottom drawer with the remaining five destinations (GCC Readiness, Job Match, Cover Letter, Payments, Settings), dismiss on backdrop tap. Zero Locked/Planned entries anywhere in navigation. Help card kept at the bottom of the sidebar. All components use `font-redesign-sans`, redesign color tokens, and `redesign-gold` active states. No page content, middleware, or backend files touched.
+
+      `npx tsc --noEmit`, `npm run lint`, `./node_modules/.bin/next build` all pass. Compiled CSS audit confirms emitted redesign class names.
 
 - [ ] **TASK-079: Locked/Planned tile component** — new shared component,
       `components/ui/LockedTile.tsx`.
