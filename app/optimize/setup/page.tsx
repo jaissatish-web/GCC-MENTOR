@@ -251,8 +251,11 @@ function SetupScreen() {
     if (summaryOn) list.push('Reframed your summary')
     for (const e of experiences) if (expOn[e.id]) list.push(`Rewriting ${e.company} bullets`)
     list.push('Reordering skills by relevance')
-    const cc = GULF_COUNTRIES.find((c) => c.value === draft.target_country)
-    list.push(`Applying ${cc ? cc.label : 'Gulf'} CV format`)
+    // Always "Gulf CV format" (migration 030) — the format has never
+    // actually varied by target_country (lib/ai/buildOptimizationPrompt.ts's
+    // GULF_FORMAT_NOTE is one country-agnostic convention), so naming a
+    // specific country here implied a variation that doesn't exist.
+    list.push('Applying Gulf CV format')
     return list
   }, [draft, summaryOn, experiences, expOn])
 

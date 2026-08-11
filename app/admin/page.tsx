@@ -553,7 +553,7 @@ export default async function AdminPage({
                     <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-semibold text-midnight">{p.targetJobTitle}</span>
                       <span className="text-[12px] text-ink-muted">
-                        {p.targetCountry} · created {fmtDate(p.createdAt)}
+                        {p.targetCountry ?? 'No country'} · created {fmtDate(p.createdAt)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">

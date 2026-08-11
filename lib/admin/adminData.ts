@@ -119,7 +119,7 @@ export interface AdminPackageSummary {
   id: string
   userId: string
   targetJobTitle: string
-  targetCountry: string
+  targetCountry: string | null // optional, migration 030
   status: PackageStatus
   isPaid: boolean
   paymentId: string | null
@@ -156,7 +156,7 @@ export async function listPackages(
     id: string
     user_id: string
     target_job_title: string
-    target_country: string
+    target_country: string | null
     status: PackageStatus
     is_paid: boolean
     payment_id: string | null
