@@ -945,7 +945,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       **Do not touch:** any page file, any prop/variant name, any
       component's exported TypeScript interface.
 
-      Depends on: TASK-076 · Status: not started.
+      Depends on: TASK-076 · Status: in progress.
 
 - [ ] **TASK-078: Navigation system** — desktop sidebar, tablet collapsed
       sidebar, mobile bottom-nav + "More" sheet.
