@@ -983,7 +983,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       **Do not touch:** `middleware.ts` (route protection is unrelated to
       nav rendering), any page's own content.
 
-      Depends on: TASK-076, TASK-077 · Status: not started.
+      Depends on: TASK-076, TASK-077 · Status: in progress.
 
 - [ ] **TASK-079: Locked/Planned tile component** — new shared component,
       `components/ui/LockedTile.tsx`.
