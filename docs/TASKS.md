@@ -899,7 +899,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       **Do not touch:** any `app/*/page.tsx`, any `components/*` file,
       any backend file.
 
-      Depends on: — · Status: not started.
+      Depends on: — · Status: in progress.
 
 - [ ] **TASK-077: Shared UI primitives restyle** — `Button`, `Card`,
       `Input`, `Textarea`, `Select`, `Pill`, `Toggle`, `ProgressBar`,
