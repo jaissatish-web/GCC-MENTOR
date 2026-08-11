@@ -1,13 +1,22 @@
 import type { Metadata } from 'next'
-import { Instrument_Serif, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
+import { Instrument_Serif, Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 
-// Typography per docs/DESIGN.md §3.
-// Instrument Serif = headlines · Plus Jakarta Sans = UI/body · IBM Plex Mono = scores
+// Typography per docs/redesign/DESIGN_SYSTEM.md §2.
+// Instrument Serif = headlines · Inter = UI/body · IBM Plex Mono = scores
+// Plus Jakarta Sans remains loaded as a compatibility fallback for existing
+// CSS variable consumers until page-level redesign tickets migrate them.
 const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-instrument-serif',
+  display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
   display: 'swap',
 })
 
@@ -54,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className={`${instrumentSerif.variable} ${jakarta.variable} ${plexMono.variable} font-sans bg-void text-marble antialiased`}
+        className={`${instrumentSerif.variable} ${inter.variable} ${jakarta.variable} ${plexMono.variable} font-sans bg-void text-marble antialiased`}
       >
         {children}
       </body>

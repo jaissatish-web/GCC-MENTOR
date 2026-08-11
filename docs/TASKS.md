@@ -881,7 +881,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 ---
 
-- [ ] **TASK-076: Design tokens + icon dependency** — the foundation every
+- [x] **TASK-076: Design tokens + icon dependency** — the foundation every
       other redesign ticket depends on. No page visually changes yet.
 
       **Spec:** (1) `npm install @heroicons/react` — exact package/version
@@ -899,7 +899,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       **Do not touch:** any `app/*/page.tsx`, any `components/*` file,
       any backend file.
 
-      Depends on: — · Status: in review — round 1 sent back, 2026-08-11.
+      Depends on: — · Status: done, 2026-08-11.
 
       **Built by Hermes** — installed only the approved `@heroicons/react` v2.2.0 dependency; extended `tailwind.config.ts` additively with most of the redesign palette (light values plus explicit dark aliases), distinct `gold-text`, 8px spacing rhythm, additive radius/shadow aliases. Preserved every existing token name/value used by current components; no page, component, backend, API, or functionality files changed. `npx tsc --noEmit`, `npm run lint`, and `npm run build` all pass.
 
@@ -909,6 +909,12 @@ any ticket in this section — it is not repeated in full inside each one.**
       2. **Inter was never wired in.** The ticket's own spec said "font-family stacks (serif/Inter/mono per §2)" — `fontFamily` in `tailwind.config.ts` is untouched in the diff, still pointing `sans` at the pre-existing `--font-jakarta` (Plus Jakarta Sans). No `next/font` setup for Inter exists anywhere. `DESIGN_SYSTEM.md` §2 requires Inter for all UI/body text.
 
       Neither gap breaks the build (nothing yet references the missing tokens), which is why `tsc`/`lint`/`build` all passing didn't catch it — these are completeness gaps against the written spec, not compile errors. **TASK-077 does not start until round 2 closes both.**
+
+      **Round 2 correction — both gaps closed:**
+      1. Added collision-safe `redesign-gold` / `redesign-gold-dark` tokens with `#C98A2E` / `#E8B15C`, plus `redesign-gold-tint` / `redesign-gold-tint-dark` with `#FBF1DF` / `#26301F`. The existing `gold` token remains unchanged for current pages; future redesign tickets use the new names consistently.
+      2. Imported `Inter` from `next/font/google`, loaded weights 400/500/600/700 under `--font-inter`, added it to the root body variables, and made `fontFamily.sans` prefer `var(--font-inter)` while retaining `var(--font-jakarta)` as a compatibility fallback.
+
+      Only `tailwind.config.ts`, `app/layout.tsx`, and this TASK-076 documentation were changed. `npx tsc --noEmit`, `npm run lint`, and `npm run build` pass. The build encountered transient Google Fonts `ECONNRESET` retries for the pre-existing Jakarta font, then completed successfully.
 
 - [ ] **TASK-077: Shared UI primitives restyle** — `Button`, `Card`,
       `Input`, `Textarea`, `Select`, `Pill`, `Toggle`, `ProgressBar`,

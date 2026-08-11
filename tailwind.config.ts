@@ -82,6 +82,13 @@ const config: Config = {
         'forest-deep-dark': '#0E1B16',
         'forest-tint': '#E6EFE9',
         'forest-tint-dark': '#193527',
+        // Collision-safe redesign names: the existing `gold` token above is
+        // retained for current pages; redesign tickets use these exact §1.1
+        // CTA/accent and tint values.
+        'redesign-gold': '#C98A2E',
+        'redesign-gold-dark': '#E8B15C',
+        'redesign-gold-tint': '#FBF1DF',
+        'redesign-gold-tint-dark': '#26301F',
         'gold-text': '#8A5A1E',
         'gold-text-dark': '#F3CD8B',
         amber: '#B9691D',
@@ -125,7 +132,7 @@ const config: Config = {
       },
       fontFamily: {
         serif: ['var(--font-instrument-serif)', 'Georgia', 'serif'],
-        sans:  ['var(--font-jakarta)', 'system-ui', 'sans-serif'],
+        sans:  ['var(--font-inter)', 'var(--font-jakarta)', 'system-ui', 'sans-serif'],
         mono:  ['var(--font-plex-mono)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
