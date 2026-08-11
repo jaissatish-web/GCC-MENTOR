@@ -132,7 +132,13 @@ const config: Config = {
       },
       fontFamily: {
         serif: ['var(--font-instrument-serif)', 'Georgia', 'serif'],
-        sans:  ['var(--font-inter)', 'var(--font-jakarta)', 'system-ui', 'sans-serif'],
+        sans:  ['var(--font-jakarta)', 'system-ui', 'sans-serif'],
+        // Redesign-only, opt-in stack (docs/redesign/DESIGN_SYSTEM.md §2) —
+        // collision-safe alongside `sans`, mirroring the `redesign-gold`
+        // naming pattern. Existing pages keep resolving through `sans`
+        // (Jakarta) unchanged until their own page-level ticket migrates
+        // them to `font-redesign-sans`.
+        'redesign-sans': ['var(--font-inter)', 'var(--font-jakarta)', 'system-ui', 'sans-serif'],
         mono:  ['var(--font-plex-mono)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {

@@ -924,6 +924,10 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       Only `tailwind.config.ts`, `app/layout.tsx`, and this TASK-076 documentation were changed. `npx tsc --noEmit`, `npm run lint`, and `npm run build` pass. The build encountered transient Google Fonts `ECONNRESET` retries for the pre-existing Jakarta font, then completed successfully.
 
+      **Round 3, note:** the founder pasted the round-2 report a second time; `git log` confirmed no new commit existed beyond `33dbb81` — Hermes had not actually acted on the round-2 correction request. Since the remaining fix was now small and fully unambiguous (revert `fontFamily.sans` to its original value; add Inter as a new, separate `redesign-sans` key instead), **the CTO made the change directly** rather than loop through a third Hermes round-trip: `tailwind.config.ts`'s `sans` key reverted to `['var(--font-jakarta)', 'system-ui', 'sans-serif']` (unchanged from before this ticket), a new `redesign-sans` key added with Inter first, Jakarta as fallback. `app/layout.tsx` needed no change — `inter.variable` staying in the body's className is harmless since nothing resolves to it by default anymore.
+
+      **— CTO review, round 3: APPROVED.** `npx tsc --noEmit`, `npm run lint`, `npm run build` all re-verified clean. Live-verified in a fresh dev server (the previous one was stale and erroring, restarted clean): `getComputedStyle(document.body).fontFamily` on the homepage returns `Plus Jakarta Sans` (unchanged), `h1` still resolves to `Instrument Serif` — confirmed zero visual change to any existing page, not just asserted from reading the diff. `redesign-gold`/`redesign-gold-tint` tokens and the `redesign-sans` stack are all in place, ready for TASK-077 onward to consume. **TASK-077 is now unblocked.**
+
 - [ ] **TASK-077: Shared UI primitives restyle** — `Button`, `Card`,
       `Input`, `Textarea`, `Select`, `Pill`, `Toggle`, `ProgressBar`,
       `ReadinessRing`.
