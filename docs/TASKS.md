@@ -842,6 +842,298 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 ---
 
+## Redesign (Stage 3 — visual/presentation only, TASK-076 through TASK-098)
+
+**Every ticket in this section carries the same non-negotiable banner and
+the same two-part acceptance gate. Read this block once before starting
+any ticket in this section — it is not repeated in full inside each one.**
+
+> **VISUAL/PRESENTATION IMPLEMENTATION ONLY — DO NOT CHANGE EXISTING
+> FUNCTIONALITY.** You are restyling a page or component that already
+> works. Every API contract, request/response shape, business rule, data
+> behavior, authorization check, validation rule, and functional outcome
+> must remain unchanged. You may refactor the frontend internally where
+> the new UI genuinely requires it (component structure, local state
+> shape) — you may not change what a user can do, what data is sent or
+> received, or what the backend does with it. **Never touch:** any file
+> under `lib/ai/`, `lib/admin/`, `lib/supabase/`, any `app/api/*/route.ts`
+> file's logic, any `supabase/migrations/*` file, `middleware.ts`, or
+> `lib/ai/grounding.ts`. If a ticket's visual spec seems to require any of
+> these to change, **stop and report — do not implement, do not guess.**
+>
+> Read in this order before starting: `docs/RULES.md`, `docs/HERMES.md`,
+> then this ticket's own Spec, then the exact `docs/redesign/
+> DESIGN_SYSTEM.md` and `docs/redesign/PAGE_SPECS.md` sections it names.
+>
+> **Acceptance — both must pass, not just one:**
+> 1. *Functional parity* — the page does exactly what it did before:
+>    same data sources, same API calls, same validation, same permission
+>    checks, same success/error behavior. Verified by re-reading the
+>    actual diff against the pre-change route/component, not assumed.
+> 2. *Visual QA* — uses only components/tokens from `DESIGN_SYSTEM.md`
+>    (no one-off color, radius, shadow, or typeface), matches this
+>    ticket's named `PAGE_SPECS.md` entry at desktop/tablet/mobile, and
+>    the mobile nav (bottom bar + "More" sheet) reaches every destination
+>    per `DESIGN_SYSTEM.md` §8.3 if this page is part of the app shell.
+>
+> `npx tsc --noEmit` / `npm run lint` / `npm run build` must pass, same as
+> every other ticket in this project.
+
+---
+
+- [ ] **TASK-076: Design tokens + icon dependency** — the foundation every
+      other redesign ticket depends on. No page visually changes yet.
+
+      **Spec:** (1) `npm install @heroicons/react` — exact package/version
+      per `DESIGN_SYSTEM.md` §1.3, nothing else installed. (2) Extend
+      `tailwind.config.ts` with the full token set from `DESIGN_SYSTEM.md`
+      §1–5: color tokens (light + dark values), the 8px spacing scale
+      (including the added 16/20/64 steps), radius scale, shadow scale,
+      font-family stacks (serif/Inter/mono per §2). Do not remove any
+      existing token another component still references — additive only,
+      confirmed by grepping for every current `tailwind.config.ts` token
+      name before removing it. (3) Add the `--gold-text` token
+      distinctly from `--gold` per §9's accessibility finding — do not
+      collapse them into one value.
+
+      **Do not touch:** any `app/*/page.tsx`, any `components/*` file,
+      any backend file.
+
+      Depends on: — · Status: not started.
+
+- [ ] **TASK-077: Shared UI primitives restyle** — `Button`, `Card`,
+      `Input`, `Textarea`, `Select`, `Pill`, `Toggle`, `ProgressBar`,
+      `ReadinessRing`.
+
+      **Spec:** Restyle each component in `components/ui/` to the new
+      tokens per `DESIGN_SYSTEM.md` §6–8, §10. **Same exported component
+      names, same props/API — every existing call site across the app
+      must keep compiling with zero changes to how it's called.**
+      `Button`'s six variants (`primary/purchase/progress/secondary/
+      ghost/disabled`) keep their exact names and meaning, restyled only.
+      `Pill`'s seven variants (`applied/shortlisted/interview/
+      visa_processing/offer/risk/grounded`) likewise. Apply the `--gold`
+      vs. `--gold-text` distinction from §9 everywhere gold text appears.
+
+      **Do not touch:** any page file, any prop/variant name, any
+      component's exported TypeScript interface.
+
+      Depends on: TASK-076 · Status: not started.
+
+- [ ] **TASK-078: Navigation system** — desktop sidebar, tablet collapsed
+      sidebar, mobile bottom-nav + "More" sheet.
+
+      **Spec:** Full spec in `DESIGN_SYSTEM.md` §8.1–8.4. Restyle
+      `components/layout/Sidebar.tsx` to the nine real destinations in the
+      exact order given (Dashboard · Career Profile · GCC Readiness · Job
+      Match · Resume Optimizer · Cover Letter · Library · Payments ·
+      Settings) — **three of these routes don't exist until TASK-091/092/
+      093 ship; add the nav entries now, pointing at their final paths, so
+      those three tickets only need to add the page, not touch nav again.**
+      Build the tablet icon-only/expand-on-tap variant. Build the new
+      mobile bottom bar (5 slots: Dashboard/Career Profile/Resume
+      Optimizer/Library/More) and the "More" sheet drawer component
+      listing the other 5 destinations exactly as specified. **Zero
+      Locked/Planned entries anywhere in navigation, per
+      `PLANNED_SERVICES.md`.**
+
+      **Do not touch:** `middleware.ts` (route protection is unrelated to
+      nav rendering), any page's own content.
+
+      Depends on: TASK-076, TASK-077 · Status: not started.
+
+- [ ] **TASK-079: Locked/Planned tile component** — new shared component,
+      `components/ui/LockedTile.tsx`.
+
+      **Spec:** Full anatomy in `PLANNED_SERVICES.md` — dashed border,
+      neutral "Planned" badge (never a phase number), title + one
+      description line via props, tap/click shows a static honest note,
+      no numeric prop, no preview-content prop (the component's own type
+      signature should make it structurally impossible to pass it a fake
+      score or result). This is a purely presentational component with
+      zero data fetching.
+
+      **Do not touch:** no existing component, no backend.
+
+      Depends on: TASK-076, TASK-077 · Status: not started.
+
+---
+
+- [ ] **TASK-080: Landing page (`/`)** — restyle only, per
+      `PAGE_SPECS.md` §A. Same `liveServices`/`comingSoon` copy and
+      routing, dark/gold editorial hero per `DESIGN_SYSTEM.md`. The
+      `comingSoon` grid uses the new `LockedTile` component (TASK-079) in
+      place of its current ad-hoc dashed-card markup — visually
+      consistent with Dashboard's Planned row now, same copy.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+- [ ] **TASK-081: Login / Signup** — restyle only, per `PAGE_SPECS.md`
+      §A. Same fields, same Supabase Auth validation/redirect behavior.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+- [ ] **TASK-082: Onboarding + Extracting** — restyle only, per
+      `PAGE_SPECS.md` §B. Same upload/paste-text paths and endpoints,
+      same named-step extraction progress sequence.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+---
+
+- [ ] **TASK-083: Dashboard** — restyle + two specific, spec-approved
+      content corrections, per `PAGE_SPECS.md` §C.
+
+      **Spec:** Same data sources (`GET /api/profile`, `GET /api/packages`,
+      `calculateReadiness()`) — no new query, no changed field. Two
+      approved corrections, not scope creep: (1) drop the stale "ATS score
+      check" locked tile (the scanner has been live since TASK-058); (2)
+      add a third metric tile, "Latest Job Match," sourced from the most
+      recent package/session's already-computed `JobMatchResult` — display
+      only, no new computation. Add the new "Planned" row using
+      `LockedTile` (TASK-079) for Mock Interview / Q&A / Saved Jobs, per
+      `PLANNED_SERVICES.md`.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+- [ ] **TASK-084: Career Profile + Visibility** — restyle only, per
+      `PAGE_SPECS.md` §C. Same full-object `PUT /api/profile` contract,
+      same required-field set, same tri-state driving-license logic —
+      **flagged for extra-careful review since this exact class of bug
+      has been caught before in this project.** Same `field_visibility`
+      behavior on `/profile/visibility`.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+- [ ] **TASK-085: Optimize Target + Setup** — restyle only, per
+      `PAGE_SPECS.md` §C. `target_country` stays optional (do not
+      reintroduce as required — TASK-074 already made this decision).
+      Same block/level fields submitted to `/api/optimize`.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+- [ ] **TASK-086: Optimize Payment** — restyle only, per `PAGE_SPECS.md`
+      §C. Same promo-code redemption RPC path. Razorpay stays absent/
+      blocked exactly as today — do not add a payment method that doesn't
+      exist.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+- [ ] **TASK-087: Optimize Preview/Diff** — restyle only, per
+      `PAGE_SPECS.md` §C. The blur/watermark stays server-rendered into
+      the PNG (TASK-033/044) — **do not replace it with a client-side CSS
+      filter**, that would reopen a resolved security consideration. Diff
+      tab stays ungated. `PATCH /api/packages/[id]` edit path unchanged.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+- [ ] **TASK-088: Library + Package Detail** — restyle only, per
+      `PAGE_SPECS.md` §C. Same list/status/delete API, same reuse-
+      detection behavior (TASK-036), same hard-delete confirmation flow
+      (TASK-037). Desktop table → mobile card-list breakpoint per spec.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+- [ ] **TASK-089: `/ats-scan`** — restyle only, per `PAGE_SPECS.md` §C.
+      Stays the public, anonymous-capable entry funnel exactly as built
+      (TASK-048/049/058/069/070/071/072) — this ticket does not touch
+      `/gcc-readiness` or `/job-match` (separate tickets, separate new
+      pages) and does not change anonymous-session behavior.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+- [ ] **TASK-090: Settings + Payments** — restyle only, per
+      `PAGE_SPECS.md` §C. `/payments` stays an honest placeholder — this
+      ticket does not build the missing payment-history feature
+      (Unplanned #4), only restyles the placeholder that exists today.
+      Same `DeleteDataSection` irreversible-action confirmation flow.
+
+      Depends on: TASK-076–079 · Status: not started.
+
+---
+
+- [ ] **TASK-091: `/gcc-readiness` (new page)** — existing logic only,
+      per `PAGE_SPECS.md` §C and Stage 1 item 5. New route, zero new
+      computation: reads the same `calculateReadiness()` output already
+      used on `/dashboard`. **Acceptance test specific to this ticket:**
+      the score and "missing" list shown here must match `/dashboard`'s
+      own readiness card exactly, since both read identical source data —
+      any discrepancy is a real bug, not a styling difference.
+
+      **Do not touch:** `lib/readiness.ts` (read from, never modified).
+
+      Depends on: TASK-076–079, TASK-083 (nav entry already points here
+      from TASK-078; Dashboard's readiness card is the parity reference) ·
+      Status: not started.
+
+- [ ] **TASK-092: `/job-match` (new page)** — existing logic only, per
+      `PAGE_SPECS.md` §C and Stage 1 item 5. New route, reuses
+      `lib/jobMatch/*` and `lib/ai/jobMatchExplanation.ts` exactly as
+      `/ats-scan` already does, via the existing `CareerProfileFull`
+      adapter TASK-073 already built for this purpose. A pasted JD here
+      must produce the identical `JobMatchResult` shape `/ats-scan` and
+      `/optimize` already consume.
+
+      **Do not touch:** `lib/jobMatch/`, `lib/ai/jobMatchExplanation.ts`
+      (read from, never modified — if the existing adapter doesn't
+      cleanly support this page's needs, stop and report rather than
+      extend it yourself).
+
+      Depends on: TASK-076–079, TASK-083 · Status: not started.
+
+- [ ] **TASK-093: `/cover-letter` (new page)** — existing backend only,
+      per `PAGE_SPECS.md` §C and Stage 1 item 5. This is TASK-066's
+      original, already-written frontend spec (paused 2026-08-10),
+      implemented now against TASK-065's fully-built backend. Same
+      `package.is_paid` + `cover_letter` service-credit gating, consumed
+      only after a validated success.
+
+      **Do not touch:** any file under `lib/ai/buildCoverLetterPrompt.ts`,
+      `lib/ai/validateCoverLetterGrounding.ts`, or the cover-letter API
+      route's logic.
+
+      Depends on: TASK-076–079, TASK-083 · Status: not started.
+
+---
+
+- [ ] **TASK-094: Admin shell/nav** — restyle only, per `PAGE_SPECS.md`
+      §D. Restyles `app/admin/layout.tsx` and `AdminNav.tsx` — the
+      TASK-075 structure (dashboard + 6 sub-pages, exact-pathname active
+      tab) is kept exactly, denser type scale, mono for IDs, no gold glow
+      (glow is reserved for consumer-facing CTAs per `DESIGN_SYSTEM.md`
+      §8's admin note). **Do not add, remove, reorder, or rename any admin
+      nav destination** — TASK-075 already settled that question.
+
+      Depends on: TASK-076, TASK-077 · Status: not started.
+
+- [ ] **TASK-095: Admin Dashboard + AI Provider** — restyle only, per
+      `PAGE_SPECS.md` §D. Same live-summary data fetches, same warning
+      treatment when no provider is configured, same provider-config
+      form/list.
+
+      Depends on: TASK-094 · Status: not started.
+
+- [ ] **TASK-096: Admin Prompts + Promo Codes** — restyle only, per
+      `PAGE_SPECS.md` §D. Same forms/actions, unchanged from TASK-075's
+      split.
+
+      Depends on: TASK-094 · Status: not started.
+
+- [ ] **TASK-097: Admin Packages + Users** — restyle only, per
+      `PAGE_SPECS.md` §D. Same dynamic line-item form (stable per-row keys
+      — do not reintroduce TASK-061's original array-index-as-key bug),
+      same `q`/`user` search-param sharing on Users.
+
+      Depends on: TASK-094 · Status: not started.
+
+- [ ] **TASK-098: Admin Access Log** — restyle only, per `PAGE_SPECS.md`
+      §D. Same read-only 50-row query. Desktop table → mobile stacked-row
+      fallback per spec.
+
+      Depends on: TASK-094 · Status: not started.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
