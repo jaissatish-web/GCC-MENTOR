@@ -71,6 +71,57 @@ const config: Config = {
           added:   '#D3E8DE',
           removed: '#A89A8A',
         },
+
+        // ── Redesign token foundation (docs/redesign/DESIGN_SYSTEM.md §1) ──
+        // Existing tokens above are retained for current call sites. The
+        // redesign palette is additive; explicit *-dark aliases expose the
+        // approved dark-theme values without silently changing legacy colors.
+        forest: '#175C3E',
+        'forest-dark': '#3FA06E',
+        'forest-deep': '#0E1F19',
+        'forest-deep-dark': '#0E1B16',
+        'forest-tint': '#E6EFE9',
+        'forest-tint-dark': '#193527',
+        'gold-text': '#8A5A1E',
+        'gold-text-dark': '#F3CD8B',
+        amber: '#B9691D',
+        'amber-dark': '#E2933E',
+        terra: '#B4472B',
+        'terra-dark': '#E27A54',
+        'terra-tint': '#F7E7E1',
+        'terra-tint-dark': '#3A2018',
+        'ink-900': '#17241F',
+        'ink-900-dark': '#F2F5F0',
+        'ink-700': '#45544D',
+        'ink-700-dark': '#C2CDC4',
+        'ink-400': '#7C8981',
+        'ink-400-dark': '#83988C',
+        'ink-200': '#DFE4DE',
+        'ink-200-dark': '#2C4A3A',
+        bg: '#FBFAF6',
+        'bg-dark': '#0E1B16',
+        'surface-light': '#FFFFFF',
+        'surface-dark': '#132A21',
+        'surface-2-light': '#F4F2EC',
+        'surface-2-dark': '#193527',
+        'line-light': '#E4E1D6',
+        'line-light-strong': '#CFCABB',
+        'line-dark': '#20402F',
+        'line-dark-strong': '#2E5A41',
+      },
+      spacing: {
+        // The redesign's explicit 8px rhythm. These values match Tailwind's
+        // existing scale where present and add the documented 20px step.
+        '1': '4px',
+        '2': '8px',
+        '3': '12px',
+        '4': '16px',
+        '5': '20px',
+        '6': '24px',
+        '8': '32px',
+        '10': '40px',
+        '12': '48px',
+        '16': '64px',
       },
       fontFamily: {
         serif: ['var(--font-instrument-serif)', 'Georgia', 'serif'],
@@ -78,14 +129,27 @@ const config: Config = {
         mono:  ['var(--font-plex-mono)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
-        lg:  '12px',
-        xl:  '14px',
+        // Existing lg/xl/2xl/3xl values are retained for current call sites.
+        // The redesign scale is additive under explicit radius-* names.
+        'radius-sm': '6px',
+        'radius-md': '12px',
+        'radius-lg': '16px',
+        'radius-xl': '20px',
+        'radius-full': '9999px',
+        lg: '12px',
+        xl: '14px',
         '2xl': '18px',
         '3xl': '22px',
       },
       // Elevation + glow. On a dark base, depth comes from glow and layered
       // shadow rather than the soft grey shadows a light theme uses.
       boxShadow: {
+        // Redesign §5 scale. Existing elev/glow names remain below for
+        // current call sites and are intentionally not changed.
+        'redesign-sm': '0 1px 2px rgba(23,36,31,0.07)',
+        'redesign-md': '0 6px 16px rgba(23,36,31,0.09)',
+        'redesign-lg': '0 20px 44px rgba(23,36,31,0.14)',
+        'redesign-cta-glow': '0 6px 18px rgba(201,138,46,0.35)',
         'elev-1': '0 1px 2px rgba(0,0,0,0.4), 0 4px 12px -4px rgba(0,0,0,0.5)',
         'elev-2': '0 4px 12px rgba(0,0,0,0.45), 0 12px 32px -8px rgba(0,0,0,0.6)',
         'elev-3': '0 8px 24px rgba(0,0,0,0.5), 0 28px 64px -12px rgba(0,0,0,0.7)',

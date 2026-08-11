@@ -899,7 +899,9 @@ any ticket in this section — it is not repeated in full inside each one.**
       **Do not touch:** any `app/*/page.tsx`, any `components/*` file,
       any backend file.
 
-      Depends on: — · Status: in progress.
+      Depends on: — · Status: done, 2026-08-11.
+
+      **Built by Hermes** — installed only the approved `@heroicons/react` v2.2.0 dependency; extended `tailwind.config.ts` additively with the full redesign palette (light values plus explicit dark aliases), distinct `gold-text`, 8px spacing rhythm, additive radius/shadow aliases, and the existing serif/sans/mono stacks. Preserved every existing token name/value used by current components; no page, component, backend, API, or functionality files changed. `npx tsc --noEmit`, `npm run lint`, and `npm run build` all pass. Compiled route output is unchanged; visual page changes begin in TASK-077 onward.
 
 - [ ] **TASK-077: Shared UI primitives restyle** — `Button`, `Card`,
       `Input`, `Textarea`, `Select`, `Pill`, `Toggle`, `ProgressBar`,
