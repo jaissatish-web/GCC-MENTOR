@@ -2036,6 +2036,8 @@ any ticket in this section — it is not repeated in full inside each one.**
       `.next/static/css/*.css`; no `-light-light-` artifact; zero legacy-token
       leaks in all three files. Copy confirmed present in the compiled output.
 
+      **CTO review, 2026-08-12 — APPROVED, no fix needed.** Gave `ServicePackageItemsFields.tsx` line-by-line attention since it's the file with a real, documented prior incident: read the current file directly, not just the diff — `key={id}` uses the stable `rowIds` value (never the map index), `removeRow(id)` filters by that same stable id, and `service_key_${id}`/`quota_${id}` field names use it too. The bug class this ticket was flagged against is not present. `q`/`user` param sharing and all server-action forms (create/activate/deactivate package, grant credit, override rate limit) with their hidden inputs confirmed genuinely untouched on the other two files. `tsc`/`lint`/`build` independently re-run, all clean.
+
 - [ ] **TASK-098: Admin Access Log** — restyle only, per `PAGE_SPECS.md`
       §D. Same read-only 50-row query. Desktop table → mobile stacked-row
       fallback per spec.
