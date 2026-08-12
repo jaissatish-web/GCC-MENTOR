@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Card } from '@/components/ui/Card'
@@ -95,8 +95,10 @@ function latestJobMatch(packages: Package[]): { score: number; title?: string } 
       if (jm && typeof jm === 'object') {
         const score = (jm as { match_score?: unknown }).match_score
         if (typeof score === 'number' && Number.isFinite(score)) {
-          const title = (jm as { target_job_title?: unknown }).target_job_title
-          return { score, title: typeof title === 'string' ? title : undefined }
+          // job_match (lib/ai/atsScorePrompt.ts's AtsScoreResult) has no
+          // title field of its own — the package row it's stored on
+          // already has the real target_job_title.
+          return { score, title: p.target_job_title || undefined }
         }
       }
     }
@@ -334,7 +336,7 @@ export default function DashboardPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
-                    GCC Readiness Score
+                    Gulf Readiness Score
                   </span>
                   <span className="text-[13px] text-ink-400-dark">
                     {missing.length === 0 && profile
@@ -362,10 +364,10 @@ export default function DashboardPage() {
               ) : null}
 
               <Link
-                href="/gcc-readiness"
+                href="/profile"
                 className={cn(buttonVariants({ variant: 'purchase' }), 'mt-1 w-full text-[13.5px]')}
               >
-                {missing.length === 0 ? 'View GCC Readiness' : 'Improve Score'}
+                {missing.length === 0 ? 'View Career Profile' : 'Improve Score'}
               </Link>
             </Card>
           </Reveal>

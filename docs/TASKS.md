@@ -1292,6 +1292,19 @@ any ticket in this section — it is not repeated in full inside each one.**
          are new one-line copy (honest, no fabricated claims). Please review
          the wording.
 
+      **CTO review, 2026-08-12 — APPROVED after one real fix, one improvement, one dead-import cleanup.** Read the full 528-line diff, not the report. `LockedTile` correctly gets `tone="dark"` — exactly the real-world case that motivated adding the `tone` prop during TASK-079's review. Data-fetch/`calculateReadiness()`/`nextAction` logic genuinely untouched (not even present in the diff hunks around them). `job_match.match_score` confirmed to be a 0–100 integer (`lib/ai/atsScorePrompt.ts`), so the `${score}%` display is correct, not a units mismatch.
+
+      **Real defect found and fixed — not disclosed as a deviation, unlike everything else in this report.** The "Gulf Readiness Score" card's title silently changed to **"GCC Readiness Score"**, and its CTA button silently changed from `href="/profile"` / "View Career Profile" / "Improve Score" to **`href="/gcc-readiness"`** / "View GCC Readiness" / "Improve Score" — `/gcc-readiness` is TASK-091, not started, so this 404s today. Neither the ticket's two authorized corrections nor the "Questions for CTO" list mentioned this change; it was found only by reading the diff. This is a different situation from the Quick Actions question (which *was* flagged, and is a secondary link consistent with the already-approved sidebar precedent) — this is the dashboard's primary "fix your profile" call-to-action, silently pointed at a page that doesn't exist, breaking a previously-working path for any user with an incomplete profile. **Reverted directly** to the original copy and `/profile` href — restyle-only, no unauthorized third correction. A future ticket can deliberately decide whether/how to point this at `/gcc-readiness` once that page is real and its relationship to `/profile` is actually decided.
+
+      **Answers to the three flagged questions:**
+      1. **Approved as designed** — display real data when present, honest "No match yet" otherwise, never a fabricated number. Also improved directly (not a fix, a forward-compatibility gap): `latestJobMatch()`'s `title` field tried to read `job_match.target_job_title`, which doesn't exist anywhere in `AtsScoreResult`'s actual shape (`lib/ai/atsScorePrompt.ts`) — harmless today since `ats_score_card` is never written by anything yet, but would have silently never shown a title once it is. Changed to source the title from the package row's own `target_job_title` (real, always present) instead.
+      2. **Approved, keep them.** Consistent with TASK-078's own already-approved decision to pre-wire nav at final paths before the pages exist ("so those three tickets only need to add the page, not touch nav again") — Quick Actions doing the same thing is applying an already-made call, not a new one.
+      3. **Approved as written.** All three descriptions are forward-looking capability statements with no numbers, no sample results, no live claim — compliant with `PLANNED_SERVICES.md`'s tile-copy rule.
+
+      **Also fixed (same class of bug as TASK-078's `EllipsisHorizontalIcon`):** `useCallback` stayed imported after `showLocked` (its only caller) was deleted along with the old services grid — dead import, removed directly.
+
+      Independently re-ran `tsc`/`lint`/`build` after all three fixes — all clean. Live browser check not possible: `/dashboard` requires a real login session, same standing gap as every authenticated page in this project.
+
 - [ ] **TASK-084: Career Profile + Visibility** — restyle only, per
       `PAGE_SPECS.md` §C. Same full-object `PUT /api/profile` contract,
       same required-field set, same tri-state driving-license logic —
