@@ -1907,6 +1907,8 @@ any ticket in this section — it is not repeated in full inside each one.**
         glow was introduced (admin keeps a flat gold border for the active
         tab, never a glow).
 
+      **CTO review, 2026-08-12 — APPROVED, no fix needed. Small, clean, exactly matches spec.** Confirmed `TABS` (all 7 destinations, same order) and the exact-pathname `active` logic are genuinely absent from the diff. `requireAdmin()` correctly still absent from the layout, matching the documented, deliberate delegation to middleware + per-page/action checks. Gold used only as a flat active-tab border, never a glow, matching §8's admin-specific rule. `tsc`/`lint`/`build` independently re-run, all clean. Live-verified unauthenticated `/admin` still correctly redirects (`307` → `/login`).
+
       `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
       build` all pass; all 7 admin routes build (dashboard + 6 sub-pages).
       Tokens resolve in `.next/static/css/*.css`; the nav labels compile
