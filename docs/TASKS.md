@@ -1885,7 +1885,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       §8's admin note). **Do not add, remove, reorder, or rename any admin
       nav destination** — TASK-075 already settled that question.
 
-      Depends on: TASK-076, TASK-077 · Status: not started.
+      Depends on: TASK-076, TASK-077 · Status: in progress.
 
 - [ ] **TASK-095: Admin Dashboard + AI Provider** — restyle only, per
       `PAGE_SPECS.md` §D. Same live-summary data fetches, same warning
