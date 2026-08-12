@@ -42,15 +42,15 @@ export default async function UsersPage({
   const selectedCredits = selectedUserId ? await listCreditsForUser(selectedUserId) : []
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8">
+    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 font-redesign-sans">
       <div>
-        <h1 className="font-serif text-2xl text-midnight">Users</h1>
-        <p className="text-sm text-ink-muted">Signed in as {admin.email ?? admin.id}</p>
+        <h1 className="font-serif text-2xl text-ink-900">Users</h1>
+        <p className="text-sm text-ink-400">Signed in as {admin.email ?? admin.id}</p>
       </div>
 
       {/* ---- Users list (docs/ADMIN.md §2.1) --------------------------- */}
       <Card className="flex flex-col gap-4 p-5">
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
           Find a user
         </h2>
         <form method="get" action="/admin/users" className="flex gap-2">
@@ -68,29 +68,29 @@ export default async function UsersPage({
 
         {q ? (
           results.length === 0 ? (
-            <p className="text-sm text-ink-muted">No matches for &ldquo;{q}&rdquo;.</p>
+            <p className="text-sm text-ink-400">No matches for &ldquo;{q}&rdquo;.</p>
           ) : (
             <div className="flex flex-col gap-2">
               {results.map((r) => (
                 <div
                   key={r.userId}
-                  className="flex flex-col gap-2 rounded-xl border border-line p-3 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 rounded-radius-lg border border-line-light p-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-semibold text-midnight">
+                    <span className="text-sm font-semibold text-ink-900">
                       {r.fullName || 'Unnamed profile'}
                     </span>
-                    <span className="text-[12px] text-ink-muted">
+                    <span className="text-[12px] text-ink-400">
                       {r.phone || '—'} · {r.email || '—'}
                     </span>
-                    <span className="text-[12px] text-ink-faint">
+                    <span className="text-[12px] text-ink-400">
                       Readiness: {r.readinessScore ?? '—'} ({readableCategory(r.readinessCategory)}) ·
                       Signed up {fmtDate(r.signupDate)}
                     </span>
                   </div>
                   <Link
                     href={`/admin/users?${new URLSearchParams({ q: q ?? '', user: r.userId }).toString()}`}
-                    className="text-[12px] font-semibold text-emerald"
+                    className="text-[12px] font-semibold text-forest"
                   >
                     View packages →
                   </Link>
@@ -99,7 +99,7 @@ export default async function UsersPage({
             </div>
           )
         ) : (
-          <p className="text-sm text-ink-muted">
+          <p className="text-sm text-ink-400">
             Search for a user to view their packages or override their rate limit.
           </p>
         )}
@@ -109,21 +109,21 @@ export default async function UsersPage({
       {selectedUserId ? (
         <>
           <Card className="flex flex-col gap-4 p-5">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
               Packages — read-only (docs/ADMIN.md §2.2)
             </h2>
             {selectedPackages.length === 0 ? (
-              <p className="text-sm text-ink-muted">No packages for this user.</p>
+              <p className="text-sm text-ink-400">No packages for this user.</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {selectedPackages.map((p) => (
                   <div
                     key={p.id}
-                    className="flex flex-col gap-1 rounded-xl border border-line p-3 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-1 rounded-radius-lg border border-line-light p-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-semibold text-midnight">{p.targetJobTitle}</span>
-                      <span className="text-[12px] text-ink-muted">
+                      <span className="text-sm font-semibold text-ink-900">{p.targetJobTitle}</span>
+                      <span className="text-[12px] text-ink-400">
                         {p.targetCountry ?? 'No country'} · created {fmtDate(p.createdAt)}
                       </span>
                     </div>
@@ -139,10 +139,10 @@ export default async function UsersPage({
 
           {/* ---- Manual credit grant (docs/ADMIN.md §2.3) ---------------- */}
           <Card className="flex flex-col gap-4 p-5">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
               Grant a free optimization (docs/ADMIN.md §2.3)
             </h2>
-            <p className="text-[12px] text-ink-muted">
+            <p className="text-[12px] text-ink-400">
               The fix for &ldquo;I paid but something broke&rdquo;. One grant = one free
               optimization; it is applied automatically the next time this user optimizes.
               Every grant is logged with your admin ID, the reason, and the timestamp.
@@ -158,15 +158,15 @@ export default async function UsersPage({
 
             {selectedCredits.length > 0 ? (
               <div className="flex flex-col gap-1.5">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-warm">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
                   Grant history
                 </div>
                 {selectedCredits.map((c) => (
                   <div
                     key={c.id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-[12px]"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-radius-md border border-line-light px-3 py-2 text-[12px]"
                   >
-                    <span className="text-ink-body">
+                    <span className="text-ink-700">
                       {c.grantedAt.slice(0, 10)} · {c.reason}
                     </span>
                     <Pill
@@ -177,12 +177,12 @@ export default async function UsersPage({
                 ))}
               </div>
             ) : (
-              <p className="text-[12px] text-ink-faint">No credits granted to this user yet.</p>
+              <p className="text-[12px] text-ink-400">No credits granted to this user yet.</p>
             )}
           </Card>
 
           <Card className="flex flex-col gap-4 p-5">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
               Rate-limit override (docs/ADMIN.md §2.4) — today only
             </h2>
             <div className="flex flex-col gap-4">
@@ -190,16 +190,16 @@ export default async function UsersPage({
                 <form
                   key={rl.action}
                   action={overrideRateLimitAction}
-                  className="flex flex-col gap-2 rounded-xl border border-line p-3"
+                  className="flex flex-col gap-2 rounded-radius-lg border border-line-light p-3"
                 >
                   <input type="hidden" name="userId" value={selectedUserId} />
                   <input type="hidden" name="action" value={rl.action} />
                   <input type="hidden" name="q" value={q ?? ''} />
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-midnight">
+                    <span className="text-sm font-semibold text-ink-900">
                       {rl.action.replace(/_/g, ' ')}
                     </span>
-                    <span className="text-[12px] text-ink-muted">
+                    <span className="text-[12px] text-ink-400">
                       {rl.count} used today
                       {rl.limitOverride != null ? ` · override: ${rl.limitOverride}` : ' · default limit'}
                     </span>

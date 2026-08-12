@@ -1996,12 +1996,45 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **CTO review, 2026-08-12 — APPROVED, no fix needed.** Confirmed `updatePromptTemplateAction`'s form + hidden `key` input, and `createPromoCodeAction`/`deactivatePromoCodeAction`'s forms + hidden `code` input, are all genuinely absent from either diff. `tsc`/`lint`/`build` independently re-run, all clean.
 
-- [ ] **TASK-097: Admin Packages + Users** — restyle only, per
+- [x] **TASK-097: Admin Packages + Users** — restyle only, per
       `PAGE_SPECS.md` §D. Same dynamic line-item form (stable per-row keys
       — do not reintroduce TASK-061's original array-index-as-key bug),
       same `q`/`user` search-param sharing on Users.
 
-      Depends on: TASK-094 · Status: in progress.
+      Depends on: TASK-094 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled three files to the forest/gold **light**
+      system, visual-only (same token set as TASK-095/096):
+      - **`app/admin/packages/page.tsx`** → token swap (`midnight`→`ink-900`,
+        `ink-warm/body/muted/faint`→`ink-400/700`, `fill-subtle`→`surface-2-light`
+        on the `resume_optimization`/`cover_letter` mono chips,
+        `fill-warm`→`surface-2-light`, `emerald`→`forest`/`forest-tint`,
+        `terra`→`terra-tint`, `border-line*`→`line-light*`,
+        `rounded-xl`→`radius-lg`, `font-redesign-sans`). The `createServicePackageAction`
+        form, hidden `packageId`/`isActive` inputs, the Activate/Deactivate
+        server-action buttons, and the `ServicePackageItemsFields` usage are
+        all unchanged — diff is **pure className change**.
+      - **`components/admin/ServicePackageItemsFields.tsx`** (the §D
+        do-not-touch) → **the stable per-row-key logic is byte-for-byte
+        unchanged** and verified: `useState<number[]>([0])`,
+        `nextIdRef = useRef(1)`, `addRow`/`removeRow`, `key={id}`, and the
+        `service_key_${id}` / `quota_${id}` field names are all untouched
+        (the TASK-061 array-index-as-key bug is NOT reintroduced); only
+        `className` tokens changed (`ink-warm`→`ink-400`, `border-line*`→
+        `line-light*`, `emerald`→`forest`, `terracotta`→`terra`, radii).
+      - **`app/admin/users/page.tsx`** → token swap over the §D structure.
+        The **`q`/`user` search-param sharing** (the `searchParams` read, the
+        `?q=&user=` "View packages →" links), the `searchUsers`/`listPackages`/
+        `getTodayRateLimits`/`listCreditsForUser` fetches, the
+        `grantCreditAction` / `overrideRateLimitAction` forms with their
+        hidden `userId`/`q`/`action` inputs, and the `Pill` (package-status /
+        Paid / credit-applied) usage are all unchanged — diff is **pure
+        className change**.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; both admin routes build. Tokens resolve in
+      `.next/static/css/*.css`; no `-light-light-` artifact; zero legacy-token
+      leaks in all three files. Copy confirmed present in the compiled output.
 
 - [ ] **TASK-098: Admin Access Log** — restyle only, per `PAGE_SPECS.md`
       §D. Same read-only 50-row query. Desktop table → mobile stacked-row

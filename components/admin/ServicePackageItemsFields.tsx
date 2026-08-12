@@ -35,7 +35,7 @@ export function ServicePackageItemsFields() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-warm">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
         Quota line items
       </div>
       <div className="flex flex-col gap-2" id="service-items">
@@ -62,7 +62,7 @@ export function ServicePackageItemsFields() {
               <button
                 type="button"
                 onClick={() => removeRow(id)}
-                className="mb-0.5 flex h-11 w-9 items-center justify-center rounded-lg border border-line text-sm text-ink-muted hover:border-terracotta hover:text-terracotta"
+                className="mb-0.5 flex h-11 w-9 items-center justify-center rounded-radius-md border border-line-light text-sm text-ink-400 hover:border-terra hover:text-terra"
                 aria-label={`Remove service #${i + 1}`}
               >
                 ×
@@ -74,7 +74,7 @@ export function ServicePackageItemsFields() {
       <button
         type="button"
         onClick={addRow}
-        className="self-start rounded-lg border border-dashed border-line-strong px-4 py-2 text-[12px] font-semibold text-emerald hover:border-emerald"
+        className="self-start rounded-radius-md border border-dashed border-line-light-strong px-4 py-2 text-[12px] font-semibold text-forest hover:border-forest"
       >
         + Add another service
       </button>
