@@ -991,7 +991,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **CTO review, 2026-08-11 — APPROVED, one fix applied directly.** Independently re-ran `tsc`/`lint`/`build` (all clean) and read the actual diff against `DESIGN_SYSTEM.md` §8.1–8.4: nine-item order and paths correct, breakpoint scoping correct (`lg:flex` / `md:flex lg:hidden` don't overlap, mobile correctly shows neither aside), MobileBottomNav's 5 slots and MoreSheet's other 5 correct, zero Locked/Planned entries anywhere, `middleware.ts` and page content untouched (diff stat confirms only the 3 layout files). One real defect the report missed: `MobileBottomNav.tsx` imported `EllipsisHorizontalIcon` but never used it (only `MoreSheet.tsx` renders it) — `next/core-web-vitals` doesn't flag unused imports, so lint passed anyway. Harmless at runtime (tree-shaken) but dead code; too small for a Hermes round trip, removed directly. Full logged-in visual check of the rendered nav not possible from this environment (no admin/user session available outside a real browser login) — same standing gap as every other UI ticket.
 
-- [ ] **TASK-079: Locked/Planned tile component** — new shared component,
+- [x] **TASK-079: Locked/Planned tile component** — new shared component,
       `components/ui/LockedTile.tsx`.
 
       **Spec:** Full anatomy in `PLANNED_SERVICES.md` — dashed border,
