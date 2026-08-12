@@ -1357,12 +1357,58 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       Independently re-ran `tsc`/`lint`/`build` — all clean, matches the report exactly. No fix needed on this one.
 
-- [ ] **TASK-085: Optimize Target + Setup** — restyle only, per
+- [x] **TASK-085: Optimize Target + Setup** — restyle only, per
       `PAGE_SPECS.md` §C. `target_country` stays optional (do not
       reintroduce as required — TASK-074 already made this decision).
       Same block/level fields submitted to `/api/optimize`.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled `app/optimize/target/page.tsx` +
+      `app/optimize/setup/page.tsx` to §C's **centered 720px wizard card**
+      on the light paper `--bg`, visual-only. All logic/contracts are
+      byte-for-byte unchanged (diff-verified — every `+/-` line is a
+      `className`/tone/structural-removal; `canContinue` still requires
+      only title + industry, `target_country` stays an optional chip row,
+      and the `/api/optimize` `POST` body incl. `target_country: '' → null`
+      is identical):
+      - **§C layout:** each light form is now wrapped in a
+        `max-w-[720px]` centered column on `bg-bg` with the fields inside a
+        light `Card tone="light"` (the wizard card), back arrow + step
+        indicator preserved (ProgressBar for target, 3/5 + "2 steps"
+        indicator via the existing layout). Mobile = full-width.
+      - **Token swap (light forest/gold, ordered):** `bg-marble`→`bg-bg`,
+        `text-midnight`→`ink-900`, `ink-body/muted/warm/faint`→`ink-700`/
+        `ink-400`, `bg-white`→`surface-light`, `border-line*`→`line-light*`,
+        `bg-midnight`→`forest-deep`, `emerald`→`forest`, `state-gold-*`→
+        `redesign-gold-tint`/`gold-text`, `terra`→`terra-tint`, `gold`→
+        `redesign-gold`, `rounded-lg/xl`→`radius-md/lg`.
+      - **Setup's dark "Optimizing…" transient** (the screen-07 stage swap)
+        converted navy→forest deep (`bg-forest-deep`, `ink-900-dark` text,
+        `redesign-gold` progress), kept dark as designed.
+      - **Removed the fake device status bars** (`9:41 ▮▮▮`) from all three
+        screens (target, setup form, setup optimizing) — same approved call
+        as TASK-081/082/084.
+      - **Caught and fixed my own script artifact:** an ordered-replace
+        collision produced `border-line-light-light-strong` from
+        `border-line-strong`; fixed all 4 occurrences to
+        `border-line-light-strong` and re-verified it resolves (grep of
+        compiled CSS, and no `light-light` remains anywhere).
+      - Buttons keep their existing variants (target uses `progress` — the
+        DESIGN_SYSTEM §6 in-flow "continue" action; setup uses `purchase`
+        for the pay-to-optimize CTA). Reuse-detection prompt, JD paste/PDF
+        stub, level cards, risk indicator and block checkboxes all
+        restyled in place.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm
+      run build` all pass; `/optimize/target` (5.02 kB) and `/optimize/setup`
+      (5.08 kB) prerender statically. All redesign tokens resolve in
+      `.next/static/css/*.css`; no legacy navy/warm token or status-bar
+      markup remains in either source file. The static HTML shows the
+      client "Loading…" gate (both screens read the sessionDraft / profile
+      before painting — same as before); the full form copy and logic
+      confirmed present in the compiled output. Live browser check not run:
+      `/optimize/*` requires a real login session (standing gap).
 
 - [ ] **TASK-086: Optimize Payment** — restyle only, per `PAGE_SPECS.md`
       §C. Same promo-code redemption RPC path. Razorpay stays absent/
