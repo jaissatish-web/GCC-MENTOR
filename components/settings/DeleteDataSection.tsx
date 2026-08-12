@@ -33,9 +33,9 @@ export function DeleteDataSection() {
   }
 
   return (
-    <Card className="border-terracotta/30 p-6">
-      <h2 className="text-lg font-bold text-midnight">Delete my data</h2>
-      <p className="mt-2 text-sm text-ink-body">
+    <Card tone="dark" className="border border-terra-dark/40 p-6">
+      <h2 className="text-lg font-bold text-ink-900-dark">Delete my data</h2>
+      <p className="mt-2 text-sm text-ink-700-dark">
         Permanently deletes your Career Profile, work history, skills, certifications, education,
         and every saved package in your Library. This is a real deletion, not a hide — it cannot
         be undone. Your login stays active; you would start onboarding fresh.
@@ -45,14 +45,14 @@ export function DeleteDataSection() {
         <Button
           type="button"
           variant="secondary"
-          className="mt-4 border-terracotta text-terracotta hover:bg-terracotta/5"
+          className="mt-4 border-terra-dark text-terra-dark hover:bg-terra/5"
           onClick={() => setRevealed(true)}
         >
           Delete my data
         </Button>
       ) : (
-        <div className="mt-4 flex flex-col gap-3 rounded-lg border border-terracotta/30 bg-terracotta/5 p-4">
-          <p className="text-sm font-semibold text-terracotta">
+        <div className="mt-4 flex flex-col gap-3 rounded-radius-md border border-terra-dark/30 bg-terra/5 p-4">
+          <p className="text-sm font-semibold text-terra-dark">
             This cannot be undone. Type {CONFIRM_PHRASE} to confirm.
           </p>
           <Input
@@ -66,7 +66,7 @@ export function DeleteDataSection() {
           {state?.error ? (
             <p
               role="alert"
-              className="rounded-lg border border-state-terra-line bg-state-terra-bg px-3 py-2 text-xs text-state-terra-text"
+              className="rounded-radius-md border border-terra-dark/40 bg-terra-tint-dark px-3 py-2 text-xs text-terra-dark"
             >
               {state.error}
             </p>
@@ -89,7 +89,7 @@ export function DeleteDataSection() {
               type="button"
               onClick={handleDelete}
               disabled={!canConfirm || isPending}
-              className="border border-terracotta bg-terracotta text-marble hover:bg-terracotta/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="border border-terra-dark bg-terra text-ink-900-dark hover:bg-terra/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? 'Deleting…' : 'Permanently delete everything'}
             </Button>

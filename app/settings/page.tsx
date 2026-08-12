@@ -14,13 +14,13 @@ import { AppShell } from '@/components/layout/AppShell'
 export default function SettingsPage() {
   return (
     <AppShell>
-      <div className="px-6 py-16 md:px-8 lg:px-12">
-        <div className="mx-auto w-full max-w-2xl space-y-8">
+      <div className="px-5 py-16 sm:px-8 lg:px-12 font-redesign-sans">
+        <div className="mx-auto w-full max-w-[900px] space-y-8">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-marble/40">
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-400-dark">
               /settings
             </p>
-            <h1 className="mt-3 font-serif text-4xl leading-tight text-marble sm:text-[40px]">
+            <h1 className="mt-3 font-serif text-4xl leading-tight text-ink-900-dark sm:text-[40px]">
               Settings
             </h1>
           </div>

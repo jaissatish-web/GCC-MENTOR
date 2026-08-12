@@ -23,13 +23,13 @@ export interface PlaceholderPageProps {
 
 export function PlaceholderPage({ title, ticket, route, next }: PlaceholderPageProps) {
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl items-center justify-center px-6 py-16">
-      <Card className="w-full p-8">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-warm">{route}</p>
-        <h1 className="mt-3 text-4xl text-midnight">{title}</h1>
-        <p className="mt-2 text-sm leading-relaxed text-ink-body">
+    <main className="mx-auto flex min-h-screen w-full max-w-[560px] items-center justify-center px-6 py-16 font-redesign-sans">
+      <Card className="w-full border-dashed p-8">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-400">{route}</p>
+        <h1 className="mt-3 text-4xl text-ink-900">{title}</h1>
+        <p className="mt-2 text-sm leading-relaxed text-ink-700">
           Placeholder screen — wireframe only. Built in{' '}
-          <span className="font-mono text-emerald">{ticket}</span>.
+          <span className="font-mono text-forest">{ticket}</span>.
         </p>
         <div className="mt-6">
           {next ? (

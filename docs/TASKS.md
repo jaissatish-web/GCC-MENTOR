@@ -1629,13 +1629,49 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       Since this is the first public, no-login-required page in this whole batch, actually loaded it live end-to-end (clean dev-server restart first — the previous server's state had gone stale from this session's own repeated interleaved `build`/`dev` runs, which briefly produced obviously-wrong computed styles on a first check; a fresh restart resolved it immediately, confirming it was environment noise, not a code defect): computed styles match tokens exactly (`main` background `rgb(251,250,246)` = `--bg`'s `#FBFAF6`, `h1` color `rgb(23,36,31)` = `ink-900`'s `#17241F`, form background `rgb(244,242,236)` = `surface-2-light`'s `#F4F2EC`), and clicked "Paste text instead" — it genuinely toggled to the textarea with the correct `0 / 20,000` limit, confirming `pasteMode`/`setPasteMode`/`setFile(null)` all still work as real client interactions, not just present in source.
 
-- [ ] **TASK-090: Settings + Payments** — restyle only, per
+- [x] **TASK-090: Settings + Payments** — restyle only, per
       `PAGE_SPECS.md` §C. `/payments` stays an honest placeholder — this
       ticket does not build the missing payment-history feature
       (Unplanned #4), only restyles the placeholder that exists today.
       Same `DeleteDataSection` irreversible-action confirmation flow.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled three files, visual-only:
+      - **`app/settings/page.tsx`** → §C **900px readable column**
+        (`max-w-2xl`→`max-w-[900px]`), dark forest tokens (`text-marble`→
+        `ink-900-dark`, `text-marble/40`→`ink-400-dark`,
+        `font-redesign-sans`). Same content: heading + `DeleteDataSection`.
+      - **`components/settings/DeleteDataSection.tsx`** → the **danger-zone
+        card** now uses `--terra` accents on a dark surface per §C: `Card
+        tone="dark" border-terra-dark/40`, `ink-900-dark`/`ink-700-dark`
+        text, terra-tinted confirm box (`bg-terra-dark/10`),
+        `--terra`-filled "Permanently delete everything" button, terra
+        error callout (`border-terra-dark/40 bg-terra-tint-dark
+        text-terra-dark`). **The two-step irreversible-action flow is
+        byte-for-byte unchanged**: `CONFIRM_PHRASE='DELETE'`, `revealed`/
+        `confirmText`/`canConfirm` gating, `deleteMyData` server-action
+        call, redirect-on-success — diff shows only `className`/tone changes
+        and the `<>`/`rounded`→`radius-md` mapping.
+      - **`components/PlaceholderPage.tsx`** (used only by `/payments`) →
+        §C "centered empty-state card, §11 dashed-empty-state pattern": the
+        `Card` is now `border-dashed`, `max-w-[560px]` centered, forest/gold
+        light tokens (`ink-900`/`ink-700`/`ink-400`, `forest` for the ticket
+        mono), `font-redesign-sans`. `/payments` remains an **honest
+        placeholder** — no payment-history feature was built (Unplanned #4).
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; `/settings` (2.56 kB) and `/payments` (178 B) prerender
+      statically. **Note:** the first build attempt failed with
+      `PageNotFoundError: Cannot find module for page: /admin` etc. — the
+      known dual-agent `.next` cache-contention failure (a concurrent build
+      corrupted `.next`; it involves admin/API routes this ticket never
+      touched). A clean `rm -rf .next && npm run build` re-run passed
+      `EXIT=0`, confirming it was environment noise, not a code defect. All
+      redesign tokens resolve in `.next/static/css/*.css` (`max-w-[900px]`,
+      `max-w-[560px]`, `border-dashed`, `border-terra-dark`, `bg-terra-tint-dark`,
+      `bg-terra`, forest/gold darks); no legacy token remains in the source.
+      Copy + logic confirmed present in the compiled output.
 
 ---
 
