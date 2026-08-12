@@ -15,31 +15,21 @@ import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboard
  * each a real <button> with a 44px+ touch target, plus the progress bar
  * (1/5), back arrow, privacy note and Continue button shown in the mockup.
  *
- * Dark visual system redesign (2026-08-07): every token shifted to the navy/gold
- * premium palette. No prop, state variable, or function signature changed.
+ * TASK-082 light restyle (2026-08-12, PAGE_SPECS.md §B): the dark navy
+ * full-screen mockup frame is presented as a light centered card column on
+ * the paper `--bg` (max-width 640px, same as the auth/utility screens). No
+ * prop, state variable, or function signature changed.
  *
  * This screen only CHOOSES a path. It does not call the rate limiter and does
  * not run extraction — screen 03 (TASK-023) will run POST /api/parse/upload or
  * /api/parse/text and handle the results. Path 3 (scratch) routes straight
  * through to the Career Profile review screen (/profile, TASK-024).
  *
- * NOTE (flagged to CTO): screen 03 has no route defined in docs/ — extraction
- * is a transient state with no URL in USER_FLOW. Paths 1 & 2 therefore advance
- * to /profile provisionally, recording which path was chosen in local state so
- * TASK-023 can intercept and run extraction when it is built. No extraction
- * happens here.
- *
  * TASK-069 addition: on mount, silently attempts to claim an anonymous
- * analysis session (POST /api/anonymous-session/claim) — a visitor who
- * scanned a resume via the free /ats-scan tool before signing up gets that
- * exact extraction handed back here instead of being asked to redo it
- * (docs/GCC_READINESS_JOB_MATCH.md §17). A claimed draft is written into the
- * SAME sessionStorage key TASK-023's own extraction handoff already uses, so
- * /profile's existing draft-review code (fromDraft, TASK-024) picks it up
- * completely unchanged — no new consumer to build or review. For everyone
- * else (the overwhelming majority: anonymous visitors with no prior scan,
- * and returning logged-in users) the claim call returns `{ draft: null }`
- * quickly and this screen behaves exactly as before.
+ * analysis session (POST /api/anonymous-session/claim). A claimed draft is
+ * written into the SAME sessionStorage key TASK-023's own extraction handoff
+ * already uses, so /profile's existing draft-review code picks it up
+ * completely unchanged.
  */
 
 type OnboardingPath = 'upload' | 'paste' | 'scratch'
@@ -65,25 +55,23 @@ function OptionCard({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        'flex w-full min-h-11 items-start gap-3.5 rounded-2xl border bg-surface px-4 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void',
-        selected
-          ? 'border-emerald shadow-[0_8px_22px_rgba(14,92,74,0.18)]'
-          : 'border-hairline'
+        'flex w-full min-h-11 items-start gap-3.5 rounded-radius-lg border bg-surface-light px-4 py-4 text-left font-redesign-sans transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
+        selected ? 'border-forest shadow-redesign-md' : 'border-line-light'
       )}
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-surface-2 text-marble">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-surface-2-light text-ink-900">
         {icon}
       </span>
       <span className="flex flex-col gap-1">
         <span className="flex items-center gap-2">
-          <span className="text-[15px] font-bold text-marble">{title}</span>
+          <span className="text-[15px] font-bold text-ink-900">{title}</span>
           {badge ? (
-            <span className="rounded-[5px] bg-state-gold-bg px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-state-gold-text">
+            <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text">
               {badge}
             </span>
           ) : null}
         </span>
-        <span className="text-[12px] leading-snug text-marble/55">{description}</span>
+        <span className="text-[12px] leading-snug text-ink-700">{description}</span>
       </span>
     </button>
   )
@@ -145,90 +133,86 @@ export default function OnboardingPage() {
 
   if (checkingClaim) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-void">
-        <p className="font-mono text-sm text-marble/55">Loading…</p>
+      <main className="flex min-h-dvh items-center justify-center bg-bg font-redesign-sans">
+        <p className="font-mono text-sm text-ink-400">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-void">
-      {/* Status bar placeholder + header */}
-      <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-marble/40">
-        <span>9:41</span>
-        <span className="tracking-[0.14em]">▮▮▮</span>
-      </header>
-
-      {/* Back arrow + progress bar 1/5 */}
-      <div className="flex items-center gap-3.5 px-5 pb-4 pt-1.5">
-        <button
-          type="button"
-          aria-label="Go back"
-          onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-lg text-[20px] leading-none text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void"
-        >
-          ←
-        </button>
-        <div className="flex-1">
-          <ProgressBar value={20} tone="dark" />
+    <main className="flex min-h-dvh flex-col bg-bg font-redesign-sans">
+      <div className="mx-auto flex w-full max-w-[640px] flex-1 flex-col px-5 pb-6 pt-9 sm:px-8 sm:pt-12">
+        {/* Back arrow + progress bar 1/5 */}
+        <div className="flex items-center gap-3.5">
+          <button
+            type="button"
+            aria-label="Go back"
+            onClick={() => router.back()}
+            className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          >
+            ←
+          </button>
+          <div className="flex-1">
+            <ProgressBar value={20} tone="light" />
+          </div>
+          <span className="font-mono text-[11px] text-ink-400">1/5</span>
         </div>
-        <span className="font-mono text-[11px] text-marble/40">1/5</span>
-      </div>
 
-      {/* Heading */}
-      <div className="flex flex-col gap-2 px-5">
-        <h1 className="mt-1 font-serif text-[28px] leading-tight text-marble sm:text-[32px]">
-          Let&apos;s build your Career Profile
-        </h1>
-        <p className="mb-1.5 text-[13.5px] leading-relaxed text-marble/55">
-          Built once, reused for every future application. Choose whichever is easiest — all three
-          end up in the same place.
-        </p>
-      </div>
-
-      {/* Option cards */}
-      <div className="flex flex-col gap-3 px-5 pt-3">
-        <OptionCard
-          icon={<span className="text-[17px] text-emerald">↑</span>}
-          title="Upload a file"
-          badge="Fastest"
-          description="Resume PDF/DOCX, or your LinkedIn profile export. We read it and fill in everything we can."
-          selected={path === 'upload'}
-          onClick={() => setPath('upload')}
-        />
-        <OptionCard
-          icon={<span className="text-[16px] text-marble/75">¶</span>}
-          title="Paste your resume text"
-          description="No file handy? Paste the text straight in."
-          selected={path === 'paste'}
-          onClick={() => setPath('paste')}
-        />
-        <OptionCard
-          icon={<span className="text-[16px] text-marble/75">✎</span>}
-          title="Start from scratch"
-          description="Fill it in yourself. Good if you don't have a resume yet."
-          selected={path === 'scratch'}
-          onClick={() => setPath('scratch')}
-        />
-      </div>
-
-      {/* Privacy note + Continue — pinned to the bottom like the mockup */}
-      <div className="mt-auto flex flex-col gap-3 px-5 pb-6 pt-4">
-        <div className="flex items-start gap-2.5 rounded-xl border border-hairline bg-surface-2 px-3.5 py-3">
-          <span className="text-[13px] text-gold-light">⌾</span>
-          <p className="text-[11px] leading-snug text-marble/55">
-            Your file is used only to build your profile. Passport, visa and contact fields are
-            encrypted and never shown publicly.
+        {/* Heading */}
+        <div className="mt-8 flex flex-col gap-2">
+          <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">
+            Let&apos;s build your Career Profile
+          </h1>
+          <p className="text-[13.5px] leading-relaxed text-ink-700">
+            Built once, reused for every future application. Choose whichever is easiest — all three
+            end up in the same place.
           </p>
         </div>
-        <Button
-          variant="purchase"
-          className="w-full"
-          onClick={continueLink}
-          disabled={path === null}
-        >
-          Continue
-        </Button>
+
+        {/* Option cards */}
+        <div className="mt-7 flex flex-col gap-3">
+          <OptionCard
+            icon={<span className="text-[17px] text-forest">↑</span>}
+            title="Upload a file"
+            badge="Fastest"
+            description="Resume PDF/DOCX, or your LinkedIn profile export. We read it and fill in everything we can."
+            selected={path === 'upload'}
+            onClick={() => setPath('upload')}
+          />
+          <OptionCard
+            icon={<span className="text-[16px] text-ink-700">¶</span>}
+            title="Paste your resume text"
+            description="No file handy? Paste the text straight in."
+            selected={path === 'paste'}
+            onClick={() => setPath('paste')}
+          />
+          <OptionCard
+            icon={<span className="text-[16px] text-ink-700">✎</span>}
+            title="Start from scratch"
+            description="Fill it in yourself. Good if you don't have a resume yet."
+            selected={path === 'scratch'}
+            onClick={() => setPath('scratch')}
+          />
+        </div>
+
+        {/* Privacy note + Continue — pinned to the bottom like the mockup */}
+        <div className="mt-auto flex flex-col gap-3 pt-8">
+          <div className="flex items-start gap-2.5 rounded-radius-lg border border-line-light bg-surface-2-light px-3.5 py-3">
+            <span className="text-[13px] text-gold-text">⌾</span>
+            <p className="text-[11px] leading-snug text-ink-700">
+              Your file is used only to build your profile. Passport, visa and contact fields are
+              encrypted and never shown publicly.
+            </p>
+          </div>
+          <Button
+            variant="purchase"
+            className="w-full"
+            onClick={continueLink}
+            disabled={path === null}
+          >
+            Continue
+          </Button>
+        </div>
       </div>
     </main>
   )

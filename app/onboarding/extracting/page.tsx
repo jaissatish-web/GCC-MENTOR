@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import { cn } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY } from '@/lib/onboardingDraft'
 
@@ -11,14 +12,16 @@ import { CAREER_PROFILE_DRAFT_KEY } from '@/lib/onboardingDraft'
  * Extraction progress screen — screen 03 (TASK-023), route /onboarding/extracting.
  *
  * Conversion of the "03 · Extracting (transient)" screen in
- * design-reference/MVP Screens.dc.html — dark navy background, sweep-animated
- * "CV" badge, itemised four-row checklist, "usually takes ~20s", and the
- * "nothing is saved until you confirm" footer. Not a spinner.
+ * design-reference/MVP Screens.dc.html — sweep-animated "CV" badge,
+ * itemised four-row checklist, "usually takes ~20s", and the "nothing is
+ * saved until you confirm" footer. Not a spinner.
  *
- * NOTE (flagged to CTO, same provisional-routing spirit as TASK-022's note):
- * TASK-022 deferred "the actual upload/paste interaction flow" to TASK-023, so
- * this screen collects the payload itself (file picker for upload, textarea for
- * paste) after /?path=upload or /?path=paste.
+ * TASK-082 light restyle (2026-08-12, PAGE_SPECS.md §B): the dark navy
+ * full-screen mockup frame becomes a single light centered card on the
+ * paper `--bg` (the extract/collect surface is a 640px card; the
+ * extracting progress is a narrow centered card). Logic is untouched —
+ * collect → extracting → error/success, the client timer, the /api/parse
+ * calls, the session-storage handoff, and the error path are unchanged.
  *
  * TRANSIENT SCREEN — not streaming: POST /api/parse/upload and /api/parse/text
  * each return the full CareerProfileDraft once. The four checklist rows advance
@@ -27,12 +30,10 @@ import { CAREER_PROFILE_DRAFT_KEY } from '@/lib/onboardingDraft'
  * straight to done.
  *
  * On success the draft is stored in SESSIONSTORAGE under the single documented
- * key CAREER_PROFILE_DRAFT_KEY (parsed resume content — deliberately not
- * localStorage, so it never persists across browser sessions), then routed to
- * /profile. TASK-024 will read and clear this key when built.
+ * key CAREER_PROFILE_DRAFT_KEY, then routed to /profile. TASK-024 reads/clears.
  *
  * On API error the server's own message is shown (e.g. 429), with a way back to
- * /onboarding — never a stranded dark screen.
+ * /onboarding — never a stranded screen.
  */
 
 type Path = 'upload' | 'paste'
@@ -126,17 +127,17 @@ function ExtractingScreen() {
   // ---- Collect stage (deferred upload/paste interaction) -------------------
   if (stage === 'collect') {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-midnight px-6">
-        <div className="w-full max-w-sm">
+      <main className="flex min-h-dvh items-center justify-center bg-bg px-6 py-12 font-redesign-sans">
+        <Card tone="light" className="w-full max-w-[560px] p-6 sm:p-8">
           <Link
             href="/onboarding"
             aria-label="Back to choose how to start"
-            className="mb-6 inline-flex size-11 items-center justify-center rounded-lg text-2xl leading-none text-marble/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="inline-flex size-11 items-center justify-center rounded-radius-md text-2xl leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             ←
           </Link>
 
-          <h1 className="font-serif text-[30px] leading-snug text-marble">
+          <h1 className="mt-4 font-serif text-[30px] leading-snug text-ink-900">
             {path === 'upload' ? 'Upload your resume' : 'Paste your resume'}
           </h1>
 
@@ -152,7 +153,7 @@ function ExtractingScreen() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-gold/40 bg-white/5 px-4 py-6 text-sm text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-radius-md border border-dashed border-line-light-strong bg-surface-2-light px-4 py-6 text-sm text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               >
                 {file ? file.name : 'Choose a file — PDF/DOCX'}
               </button>
@@ -163,30 +164,30 @@ function ExtractingScreen() {
               onChange={(e) => setText(e.target.value)}
               rows={8}
               placeholder="Paste your resume text here…"
-              className="mt-6 w-full resize-none rounded-lg border border-gold/40 bg-white/5 px-4 py-3 text-sm text-marble placeholder:text-marble/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              className="mt-6 w-full resize-none rounded-radius-md border border-line-light bg-surface-light px-4 py-3 text-sm text-ink-900 placeholder:text-ink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
             />
           )}
 
-          <Button variant="primary" className="mt-6 w-full" disabled={!canStart} onClick={runExtraction}>
+          <Button variant="purchase" className="mt-6 w-full" disabled={!canStart} onClick={runExtraction}>
             Start extraction
           </Button>
-        </div>
+        </Card>
       </main>
     )
   }
 
-  // ---- Error stage: give the user a way back, never strand on the dark screen
+  // ---- Error stage: give the user a way back, never strand on the screen
   if (stage === 'error') {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-midnight px-6">
-        <div className="w-full max-w-sm text-center">
-          <div className="mx-auto flex size-24 items-center justify-center rounded-3xl border border-gold/40 bg-white/5 font-serif text-3xl text-gold-light">
+      <main className="flex min-h-dvh items-center justify-center bg-bg px-6 py-12 font-redesign-sans">
+        <Card tone="light" className="w-full max-w-[480px] p-8 text-center">
+          <div className="mx-auto flex size-24 items-center justify-center rounded-radius-xl border border-line-light bg-surface-2-light font-serif text-3xl text-gold-text">
             !
           </div>
-          <h1 className="mt-6 font-serif text-[27px] leading-tight text-marble">
+          <h1 className="mt-6 font-serif text-[27px] leading-tight text-ink-900">
             We couldn&apos;t read that
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-marble/70">{serverMessage}</p>
+          <p className="mt-3 text-sm leading-relaxed text-ink-700">{serverMessage}</p>
           <div className="mt-8 flex flex-col gap-3">
             <Button
               variant="primary"
@@ -199,51 +200,46 @@ function ExtractingScreen() {
               Try again
             </Button>
           </div>
-        </div>
+        </Card>
       </main>
     )
   }
 
-  // ---- Extracting stage: the dark screen from the mockup -------------------
+  // ---- Extracting stage: single centered card with the step checklist ------
   return (
-    <main className="flex min-h-dvh flex-col bg-midnight">
-      <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-marble/80">
-        <span>9:41</span>
-        <span className="tracking-[0.14em]">▮▮▮</span>
-      </header>
-
-      <div className="flex flex-1 flex-col justify-center gap-6 px-6">
+    <main className="flex min-h-dvh flex-col bg-bg font-redesign-sans">
+      <div className="mx-auto flex w-full max-w-[520px] flex-1 flex-col items-center justify-center gap-6 px-6 py-12">
         {/* Sweep-animated CV badge — reuses the existing animate-sweep keyframe */}
-        <div className="relative mx-auto flex size-24 items-center justify-center overflow-hidden rounded-[26px] border border-gold/40 bg-white/5">
-          <span className="font-serif text-[34px] leading-none text-gold-light">CV</span>
-          <span className="absolute inset-0 w-2/5 animate-sweep bg-gradient-to-r from-transparent via-gold/35 to-transparent" />
+        <div className="relative flex size-24 items-center justify-center overflow-hidden rounded-radius-xl border border-line-light bg-surface-2-light">
+          <span className="font-serif text-[34px] leading-none text-gold-text">CV</span>
+          <span className="absolute inset-0 w-2/5 animate-sweep bg-gradient-to-r from-transparent via-redesign-gold/30 to-transparent" />
         </div>
 
         <div className="text-center">
-          <h1 className="font-serif text-[27px] leading-tight text-marble">Reading your resume</h1>
-          <p className="mt-2 text-[13px] leading-relaxed text-marble/60">
+          <h1 className="font-serif text-[27px] leading-tight text-ink-900">Reading your resume</h1>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-700">
             Usually takes about 20 seconds.
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-2xl border border-line/10 bg-white/5 p-5">
+        <Card tone="light" className="flex w-full flex-col gap-3 p-5">
           {CHECKLIST.map((label, i) => {
             const isDone = i <= rowCount - 2
             const isActive = i === rowCount - 1
             const icon = isDone ? '✓' : isActive ? '◍' : '○'
-            const color = isDone ? 'text-state-emerald-line' : isActive ? 'text-gold-light' : 'text-marble/40'
+            const color = isDone ? 'text-forest' : isActive ? 'text-redesign-gold' : 'text-ink-400'
             return (
-              <div key={label} className="flex items-center gap-2.5 text-[13px] font-medium text-marble">
+              <div key={label} className="flex items-center gap-2.5 text-[13px] font-medium text-ink-900">
                 <span className={cn('w-4 text-center', color)}>{icon}</span>
                 {label}
               </div>
             )
           })}
-        </div>
+        </Card>
 
-        <p className="text-center text-[11px] leading-relaxed text-marble/45">
+        <p className="text-center text-[11px] leading-relaxed text-ink-400">
           You&apos;ll get to review and correct everything on the next screen —{' '}
-          <span className="text-marble/70">nothing is saved until you confirm.</span>
+          <span className="text-ink-700">nothing is saved until you confirm.</span>
         </p>
       </div>
     </main>

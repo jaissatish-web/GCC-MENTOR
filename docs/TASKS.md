@@ -1130,11 +1130,64 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **Live-verified this time** — got a working dev server up (`npm run dev` in the background, the earlier port-3000/launch.json issue was transient) and loaded both `/login` and `/signup` directly: full copy renders correctly on both, zero console errors, and a computed-style check confirms the actual rendered colors match the intended tokens exactly (`AuthShell`'s root: `rgb(251,250,246)` = `--bg`'s `#FBFAF6`; `h1`: `rgb(23,36,31)` = `ink-900`'s `#17241F`) — not just inferring from prerendered HTML source. `tsc`/`lint`/`build` independently re-run, all clean.
 
-- [ ] **TASK-082: Onboarding + Extracting** — restyle only, per
+- [x] **TASK-082: Onboarding + Extracting** — restyle only, per
       `PAGE_SPECS.md` §B. Same upload/paste-text paths and endpoints,
       same named-step extraction progress sequence.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled both onboarding screens to the light
+      centered-card treatment of `PAGE_SPECS.md` §B ("centered card, 640px
+      max-width" / "single centered card, step list with checkmarks").
+      No logic, endpoint, validation, or handoff changed:
+      - `app/onboarding/page.tsx` (chooser): dark `bg-void` full-screen →
+        centered light column on paper `--bg`, max-w 640px. Option cards
+        are now light `Card`-style tiles (`bg-surface-light
+        border-line-light`, selected = `border-forest shadow-redesign-md`),
+        badge `bg-redesign-gold-tint text-gold-text`, icons `text-forest` /
+        `text-ink-700`, `ProgressBar tone="light"`, focus rings
+        `ring-redesign-gold ring-offset-bg`. The claim/`checkingClaim`
+        gate, back arrow, 1/5 progress, privacy note, and Continue
+        (`purchase`) are unchanged.
+      - `app/onboarding/extracting/page.tsx`: all three stages converted
+        from dark `bg-midnight` to light cards on `--bg`. Collect
+        (upload/paste) becomes a 640px `Card` with the dashed drop-zone
+        (`border-dashed border-line-light-strong bg-surface-2-light`, the
+        §7 dashed="unfilled" convention) or light textarea; the extract
+        button is now `purchase` per §B ("Button (`purchase` for
+        \"Extract\")"). Error stage = centered error Card with a way back +
+        "Try again". Extracting stage = centered 520px Card with the same
+        four-row checklist (done `✓ text-forest`, active `◍
+        text-redesign-gold`, pending `○ text-ink-400`), sweep badge (kept,
+        reused `animate-sweep`, `via-redesign-gold/30`), and the "nothing
+        is saved until you confirm" footer. Client timer, session-storage
+        handoff, `?path=` routing, and `/api/parse/*` calls are untouched.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm
+      run build` all pass; `/onboarding` and `/onboarding/extracting` are
+      statically prerendered (3.51 / 3.73 kB). Token resolution verified by
+      literal grep across `.next/static/css/*.css` (all redesign classes
+      present) and the compiled output confirms the copy and light classes
+      (no `bg-midnight` anywhere on the pages; the only `text-marble` left
+      is the global `<body>` in `app/layout.tsx`, covered by each page's
+      `min-h-dvh bg-bg`). The chooser's static HTML shows only its first
+      render (the `checkingClaim` loading gate — the actual chooser paints
+      client-side after the claim check, same as before); content verified
+      in the compiled client bundle. Live browser check not run: no
+      `.env.local`, so the middleware 500s on `next start` (known blocker).
+
+      **Deviations / questions for CTO:**
+      1. Removed the decorative fake mobile status bar (`9:41 ▮▮▮`) that
+         headed both screens. It was device-mockup chrome (an iPhone-screen
+         artifact), not product content, and PAGE_SPECS §B specifies these
+         are responsive centered cards on a page (login/signup redesign
+         already dropped device chrome). Flagging per "restyle only".
+      2. `PAGE_SPECS.md` §B describes `/onboarding` as a card with a
+         "paste-text toggle". The existing (TASK-022/023) implementation
+         routes upload vs paste as two separate `?path=` states on
+         `/onboarding/extracting`; I kept that structure and endpoints
+         (functional parity) rather than merging into a single toggle.
+         Flagging so the reviewer can confirm no merge was expected.
 
 ---
 
