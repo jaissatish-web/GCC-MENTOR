@@ -192,7 +192,7 @@ export default function DashboardLibraryPage() {
         // AppShell (bg-void); the old `bg-marble` light placeholder wrapper and its
         // mobile "sheet" radius are gone — the library now renders dark cards/table
         // on the shell, consistent with the dark dashboard.
-        <div className="flex min-h-screen flex-col gap-4 p-5 lg:p-8 lg:p-10">
+        <div className="flex min-h-screen flex-col gap-4 p-5 sm:p-8 lg:p-10">
       {/* Header */}
       <div className="flex flex-col gap-1">
         <h1 className="font-serif text-[27px] leading-tight text-ink-900-dark">Library</h1>

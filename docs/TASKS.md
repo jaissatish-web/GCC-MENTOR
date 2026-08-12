@@ -1579,6 +1579,14 @@ any ticket in this section — it is not repeated in full inside each one.**
       confirmed present in the compiled output. Live browser check not run:
       requires a real login + package (standing gap).
 
+      **CTO review, 2026-08-12 — APPROVED, one small fix applied directly.** Read both full diffs. `changeStatus`/`PUT`, `deletePackage`/`DELETE`, `confirmingDelete`'s two-step confirm, and the reuse-detection `/optimize/target` link on Library are all absent from the diff — genuinely untouched. On `/package/[id]`, the `lg:order-1`/`lg:order-2` flex-reorder pattern is correct and standard for "same DOM order (mobile-first, accessible tab order), different visual order at a breakpoint" — `pdfUrl`/`docxUrl`/`waUrl`/`setDownloaded`/`is_paid` guard/`GulfPremium` props all confirmed unchanged. Grepped both files for every legacy token — clean.
+
+      **One real, small defect found and fixed directly:** Library's root wrapper had `p-5 lg:p-8 lg:p-10` — two classes targeting the same `lg` breakpoint, so `lg:p-8` was fully dead (overridden by the later `lg:p-10` at identical specificity), meaning the page skipped the tablet-intermediate padding step every other restyled page in this batch has (`Dashboard`'s own `p-5 pb-8 sm:p-8 lg:p-10` is the established 3-tier pattern). Almost certainly a `sm:`/`lg:` typo. Fixed to `p-5 sm:p-8 lg:p-10`.
+
+      **Also noted, not a defect:** `PAGE_SPECS.md`'s "sortable by date/status" for the Library table was never actually implemented, before or after this ticket — confirmed via grep, no sort logic exists anywhere in the file, old or new. A restyle-only ticket correctly didn't add a new feature to close that gap; corrected the doc directly so a future session doesn't assume it's already there.
+
+      Independently re-ran `tsc`/`lint`/`build` after the fix — all clean.
+
 - [ ] **TASK-089: `/ats-scan`** — restyle only, per `PAGE_SPECS.md` §C.
       Stays the public, anonymous-capable entry funnel exactly as built
       (TASK-048/049/058/069/070/071/072) — this ticket does not touch

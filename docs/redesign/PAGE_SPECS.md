@@ -367,9 +367,14 @@ confirmation flow (TASK-037).
 **Components:** Table (desktop), resume/package card (mobile/tablet),
 Pill (status), Button.
 
-**Desktop:** Library = data table, sortable by date/status, mono for
-generation-count column. Package detail = two-column (document preview
-left, actions/status right rail).
+**Desktop:** Library = data table, mono for generation-count column.
+Package detail = two-column (document preview left, actions/status
+right rail). **Correction (2026-08-12, TASK-088 review):** "sortable by
+date/status" was never actually implemented, before or after this
+redesign — no sort control exists in the current or prior code. Not a
+regression; a restyle-only ticket correctly didn't add it (that would
+be a new feature, out of scope). Flagging so a future session doesn't
+assume it exists — building it would be its own ticket.
 
 **Tablet:** Library switches from table to card list at the same
 breakpoint the current app already uses; package detail stacks.
