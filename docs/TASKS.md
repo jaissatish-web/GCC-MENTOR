@@ -1455,13 +1455,13 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **CTO review, 2026-08-12 — APPROVED, no fix needed.** Read the full diff and the current file. `redeem()`, the `POST /api/packages/[id]/redeem-promo` call, the `is_paid`/redirect check, and the Razorpay stub copy are all confirmed genuinely absent from the diff — untouched. Grepped for every legacy token (`midnight`, `marble` background, `hairline`, `void`, `state-gold/terra/emerald-*`, `fill-subtle`, `line-soft`, old `rounded-lg/2xl`) plus the `light-light`/`dark-dark` collision pattern from TASK-085 — zero of any remain; the "single `border-line` rule" fix genuinely worked this time. `tsc`/`lint`/`build` independently re-run, all clean. (One imperceptible, non-blocking nit: the hand-rolled Unlock button's `text-marble` was already there pre-diff and wasn't touched — `Button.tsx`'s own `progress` variant uses `text-surface-light` for the same white-on-forest-fill pairing instead. `marble` and `surface-light` differ by `#FBF9F5` vs `#FFFFFF`, invisible in practice — not worth a fix.)
 
-- [x] **TASK-087: Optimize Preview/Diff** — restyle only, per
+- [ ] **TASK-087: Optimize Preview/Diff** — restyle only, per
       `PAGE_SPECS.md` §C. The blur/watermark stays server-rendered into
       the PNG (TASK-033/044) — **do not replace it with a client-side CSS
       filter**, that would reopen a resolved security consideration. Diff
       tab stays ungated. `PATCH /api/packages/[id]` edit path unchanged.
 
-      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+      Depends on: TASK-076–079 · Status: round 1 done, round 2 needed (2026-08-12) — see CTO review below.
 
       **Built by Hermes** — restyled both screens, visual-only:
       - `app/optimize/preview/[packageId]/page.tsx` (light) → forest/gold
@@ -1503,6 +1503,14 @@ any ticket in this section — it is not repeated in full inside each one.**
       to two-column to avoid restructuring this complex inline-edit diff
       under a restyle ticket. Please confirm whether the §C two-column
       desktop layout is required here or deferred.
+
+      **CTO review, 2026-08-12 — round 1 verified correct on everything security/logic-critical, but NOT approved as done: the desktop two-column layout is required, not deferred, and round 2 needs to build it.**
+
+      **Security/logic checks — all independently re-verified against the diff and current file, all pass:** blur genuinely stays server-rendered (`<img src="/api/packages/[id]/preview-image">`, zero `blur`/`backdrop-blur` CSS anywhere); `tab === 'changes'` is unconditional, no `is_paid` gate; `saveSummary`/`saveBullet`'s `PATCH` bodies untouched; `/package/[id]`'s `is_paid` redirect untouched. `tsc`/`lint`/`build` all clean, no legacy tokens, no collision artifacts. This part of the work is genuinely solid — the caution about not touching this file carelessly was well-placed.
+
+      **Answering the flagged question: build it, this isn't a case like TASK-082's spec wording being wrong about reality.** `PAGE_SPECS.md` §C's two-column description is specific and correct, not ambiguous filler — and TASK-083/084 already did comparably-sized structural restyle work (Dashboard's two-column + right rail, Profile's `900px` reflow) under the same "restyle only" framing without incident, so there's no reason this file is a special exception. The current single-column-with-tabs layout also has a real, non-cosmetic UX gap on desktop: reviewing "Changes" hides the resume preview and the purchase CTA entirely behind a tab switch, on a screen with plenty of unused width to show both at once.
+
+      **Round 2 spec:** At the `lg` breakpoint (matching this batch's established convention), split into two columns: **left** = the existing tabbed Changes/Full CV panel, completely unchanged (same tabs, same diff rendering, same inline-edit `PATCH` calls); **right rail** = a persistent resume preview (the same server-rendered blurred `<img>`, not a new element) + the "Unlock full CV" CTA, visible regardless of which tab is active on the left. Tablet (stacked, preview above) and mobile (single column, tabs, sticky CTA) stay exactly as already built — those already match spec. **Do not duplicate the blur image fetch or introduce any new client-side filter** — reuse the exact `imageUrl` prop/endpoint already wired into `FullCVTab`, just also render it (or an equivalent instance) in the new right rail. If sharing that image between the tab body and the rail raises any question about correctness, stop and report rather than guessing — this is the one file on this project with an explicit "never a client-side CSS filter" security constraint.
 
 - [ ] **TASK-088: Library + Package Detail** — restyle only, per
       `PAGE_SPECS.md` §C. Same list/status/delete API, same reuse-
