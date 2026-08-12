@@ -130,8 +130,18 @@ length validation; same handoff into `/onboarding/extracting`.
 **Components:** Card, form field set (file drop-zone variant, dashed
 border per `DESIGN_SYSTEM.md` §7), Button (`purchase` for "Extract").
 
-**Desktop:** Centered card, 640px max-width, drop-zone with a paste-text
-toggle above/below it.
+**Architecture note (corrected 2026-08-12, TASK-082 review):** this is not
+a single card with an inline toggle. The actual, existing (TASK-022/023)
+flow is two screens: `/onboarding` is a three-option chooser (upload /
+paste / start from scratch) that routes to `/onboarding/extracting?path=
+upload` or `?path=paste`, where that page's own `collect` stage shows the
+one relevant input (file drop-zone or textarea) before running extraction.
+Do not merge these into a single toggle — that would be a functional/
+routing change, out of "restyle only" scope.
+
+**Desktop:** `/onboarding`: centered chooser card, 640px max-width.
+`/onboarding/extracting`'s collect stage: centered card, drop-zone (dashed
+border) or textarea depending on `?path=`.
 
 **Tablet/Mobile:** Same composition, full-width.
 
