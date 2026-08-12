@@ -1737,7 +1737,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **Heads-up for TASK-092/093**: both add another new authenticated route (`/job-match`, `/cover-letter`) and will need the identical `middleware.ts` addition — check for this specifically in those reviews rather than assuming the pattern was internalized from this one round.
 
-- [ ] **TASK-092: `/job-match` (new page)** — existing logic only, per
+- [x] **TASK-092: `/job-match` (new page)** — existing logic only, per
       `PAGE_SPECS.md` §C and Stage 1 item 5. New route, reuses
       `lib/jobMatch/*` and `lib/ai/jobMatchExplanation.ts` exactly as
       `/ats-scan` already does, via the existing `CareerProfileFull`
@@ -1792,6 +1792,14 @@ any ticket in this section — it is not repeated in full inside each one.**
         stored `professional_summary` (an authenticated profile has no raw
         pasted resume), keeping the LLM grounded in the user's real saved
         data.
+
+      **CTO review, 2026-08-12 — APPROVED after two direct fixes, one accepted-as-is.** Read the actual route file, not just the description: `lib/jobMatch/`/`lib/ai/jobMatchExplanation.ts` genuinely untouched (imported only, absent from the diff), auth checked first with `supabase.auth.getUser()` → 401, exactly the `/api/profile` pattern.
+
+      1. **Real gap, and a repeat of TASK-091's exact miss despite the explicit heads-up left in that review**: `middleware.ts` was never updated for `/job-match` either. Checked the actual exposure the same way as last time — **not a cost/abuse vector**, since `/api/job-match` independently 401s an unauthenticated caller before any AI call runs — but an anonymous visitor to the page itself would see a rendered form instead of a clean login redirect. Added `/job-match` to `PROTECTED_ROUTES` and both matcher entries directly, live-verified: anonymous `curl` now gets `307` → `/login?redirectTo=%2Fjob-match`. Given this is the second miss in a row on the identical checklist item, flagging it plainly for TASK-093 rather than trusting a third heads-up alone to land.
+      2. **Real, fixed honesty gap in the CTA copy**: "Optimize with these findings" / "Take these findings into a tailored optimization" both asserted a data handoff to `/optimize/target` that doesn't exist — Hermes's own flagged question confirms `/optimize` has no plumbing to consume the JD or findings, so this was a plain, generic navigation link dressed as something more. This is the same class of issue this project has caught before (copy implying behavior that isn't real — TASK-070's "we do not save your resume" contradiction, the "coming soon" fabrication rule). Reworded directly to "Ready to tailor your resume for a specific role?" / "Optimize your resume →" — honest about what actually happens, no functional change.
+      3. **Accepted as-is, not a defect**: the explanation prompt passes the same `professional_summary` string as both `resumeText` and `professionalSummary`, so the two labeled blocks in the final prompt ("RESUME:" and "CANDIDATE'S PROFESSIONAL SUMMARY:") end up duplicating the same short text under a somewhat inaccurate "RESUME" label. Not a grounding violation (no invented content, same real data twice) and not a functional defect — just a ceiling on explanation richness until a future ticket decides to synthesize a fuller resume-equivalent text from the structured profile. Correctly out of scope for "existing logic only."
+
+      Independently re-ran `tsc`/`lint`/`build` after both fixes — all clean (38 routes now).
 
 
 

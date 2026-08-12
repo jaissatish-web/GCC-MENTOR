@@ -169,12 +169,12 @@ function JobMatchScreen() {
               packages are never altered here.
             </div>
             <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
-              <p className="text-[12.5px] text-ink-400-dark">Take these findings into a tailored optimization.</p>
+              <p className="text-[12.5px] text-ink-400-dark">Ready to tailor your resume for a specific role?</p>
               <Link
                 href="/optimize/target"
                 className={cn(buttonVariants({ variant: 'purchase' }), 'w-full sm:w-auto text-[13.5px]')}
               >
-                Optimize with these findings
+                Optimize your resume →
               </Link>
             </div>
           </section>
