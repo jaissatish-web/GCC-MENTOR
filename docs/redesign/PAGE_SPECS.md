@@ -82,7 +82,11 @@ same visual family as Dashboard's Planned row, per `PLANNED_SERVICES.md`),
 Button (`purchase` for primary CTA, `ghost` for secondary).
 
 **Desktop (≥1024px):** Dark forest-deep hero, skyline photo with gradient,
-serif H1, gold "coming soon" eyebrow badge, two-button CTA row, trust line.
+serif H1, gold eyebrow styled as a small badge-like uppercase label (visual
+treatment only — this is the existing eyebrow copy, e.g. "Built for the
+Gulf career journey"; it does not mean literal "Coming Soon" text belongs
+in the hero — clarified 2026-08-12, TASK-080 review), two-button CTA row,
+trust line.
 Below: alternating light/dark sections at 1280px max-width — live-services
 4-up grid, coming-soon 4-up dashed grid, industries strip, testimonials
 3-up, comparison table, pricing 3-up, footer.

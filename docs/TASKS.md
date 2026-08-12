@@ -1074,6 +1074,12 @@ any ticket in this section — it is not repeated in full inside each one.**
       than adding new "Coming Soon" text — i.e. restyle-only, no content
       change. Flagging so the reviewer can confirm this reading.
 
+      **CTO review, 2026-08-12 — APPROVED, no fix needed.** Read the full diff, not just the report: every section's copy, `id`/anchor, and `href` confirmed byte-identical to the pre-redesign version — only classNames changed. `LockedTile` renders inside `#platform`, which has no background class of its own and inherits the page wrapper's `bg-bg` (light) — matches `LockedTile`'s `tone="light"` default from the TASK-079 fix, correctly, no prop needed. Checked every `redesign-gold`/`forest`/`gold-text` token against `tailwind.config.ts` — all real, none invented. Gold is used the safe way throughout (fill + dark text, or `gold-text`/`gold-text-dark` for text) — the exact WCAG contrast mistake this project already caught once (raw gold as body text) was not repeated. `Button` variant names (`purchase`, `primary`, `ghost`) confirmed to exist with matching styling intent (`ghost` is dark-surface-styled and is only ever used on the dark hero). Independently re-ran `tsc`/`lint`/`build` — all clean, matches the report.
+
+      **Question resolved:** `PAGE_SPECS.md`'s "gold 'coming soon' eyebrow badge" describes the eyebrow's *visual treatment* (small, gold, badge-like uppercase label) — not literal "Coming Soon" copy. Nothing in the ticket or the hero's actual content references an unbuilt feature, so literal "Coming Soon" text would have been a fabricated claim on a live page, contradicting the founder's own standing rule. Hermes's reading (keep the real eyebrow copy, style it gold) is correct — approved as-is. Clarified the wording in `PAGE_SPECS.md` directly so this doesn't get re-litigated on a future ticket.
+
+      Live browser check not possible this round either: dev server on port 3000 had gone unresponsive (connection refused) and the shared `.claude/launch.json` at the parent working directory (not this repo's own, which is correctly configured) points `gccsaas` at a broken unquoted-path command — a pre-existing tooling issue outside this repo, not introduced by this ticket. Relied on `tsc`/`lint`/`build` plus full manual diff review instead, same standard this project has used before when live preview wasn't available.
+
 - [ ] **TASK-081: Login / Signup** — restyle only, per `PAGE_SPECS.md`
       §A. Same fields, same Supabase Auth validation/redirect behavior.
 
