@@ -1083,7 +1083,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 - [ ] **TASK-081: Login / Signup** — restyle only, per `PAGE_SPECS.md`
       §A. Same fields, same Supabase Auth validation/redirect behavior.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 - [ ] **TASK-082: Onboarding + Extracting** — restyle only, per
       `PAGE_SPECS.md` §B. Same upload/paste-text paths and endpoints,
