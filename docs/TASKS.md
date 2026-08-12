@@ -1877,7 +1877,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 ---
 
-- [ ] **TASK-094: Admin shell/nav** — restyle only, per `PAGE_SPECS.md`
+- [x] **TASK-094: Admin shell/nav** — restyle only, per `PAGE_SPECS.md`
       §D. Restyles `app/admin/layout.tsx` and `AdminNav.tsx` — the
       TASK-075 structure (dashboard + 6 sub-pages, exact-pathname active
       tab) is kept exactly, denser type scale, mono for IDs, no gold glow
@@ -1885,7 +1885,36 @@ any ticket in this section — it is not repeated in full inside each one.**
       §8's admin note). **Do not add, remove, reorder, or rename any admin
       nav destination** — TASK-075 already settled that question.
 
-      Depends on: TASK-076, TASK-077 · Status: in progress.
+      Depends on: TASK-076, TASK-077 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled the admin shell + nav to the forest/gold
+      **light** system, visual-only (admin is currently a light
+      `surface-2` surface — §D's "--surface-2 background" — kept light, not
+      converted to the dark consumer shell):
+      - **`app/admin/layout.tsx`** → `bg-fill-subtle`→`bg-surface-2-light`,
+        `font-redesign-sans`. Shell otherwise unchanged (still renders
+        `AdminNav` + children; still deliberately does NOT call
+        `requireAdmin()` here — per page/action re-check + the middleware
+        `/admin/:path*` gate, per docs/ADMIN.md §1).
+      - **`app/admin/AdminNav.tsx`** → `border-b border-line`→`border-line-light`,
+        active tab `border-gold text-midnight`→`border-redesign-gold text-ink-900`,
+        inactive `text-ink-muted hover:text-midnight`→`text-ink-400
+        hover:text-ink-900`, `rounded-t-lg`→`rounded-t-radius-md`,
+        `font-redesign-sans`. **The `TABS` array is byte-for-byte unchanged**
+        — all 7 destinations (Dashboard, AI Provider, Prompts, Promo Codes,
+        Packages, Users, Access Log) in the same order; the exact-pathname
+        active-tab logic is untouched (do-not-touch per the ticket). No gold
+        glow was introduced (admin keeps a flat gold border for the active
+        tab, never a glow).
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; all 7 admin routes build (dashboard + 6 sub-pages).
+      Tokens resolve in `.next/static/css/*.css`; the nav labels compile
+      into the admin layout client chunk. No legacy token remains in the two
+      shell files (the one grep "hit" was a false positive — `border-line\b`
+      matching inside the correct `border-line-light`).
+
+
 
 - [ ] **TASK-095: Admin Dashboard + AI Provider** — restyle only, per
       `PAGE_SPECS.md` §D. Same live-summary data fetches, same warning
