@@ -104,26 +104,26 @@ export default async function AiProviderPage({
   const otherConfigs = allProviderConfigs.filter((c) => !KNOWN_KEYS.has(c.key))
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8">
+    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 font-redesign-sans">
       <div>
-        <h1 className="font-serif text-2xl text-midnight">AI provider</h1>
-        <p className="text-sm text-ink-muted">Signed in as {admin.email ?? admin.id}</p>
+        <h1 className="font-serif text-2xl text-ink-900">AI provider</h1>
+        <p className="text-sm text-ink-400">Signed in as {admin.email ?? admin.id}</p>
       </div>
 
       {providerSaved ? (
-        <div className="rounded-xl border border-state-emerald-line bg-state-emerald-bg px-3.5 py-2.5 text-[12px] text-emerald">
+        <div className="rounded-radius-lg border border-forest/50 bg-forest-tint px-3.5 py-2.5 text-[12px] text-forest">
           Saved.
         </div>
       ) : null}
       {providerError ? (
-        <div className="rounded-xl border border-terracotta/30 bg-state-terra-bg px-3.5 py-2.5 text-[12px] text-state-terra-text">
+        <div className="rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">
           {providerError}
         </div>
       ) : null}
 
       <div>
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">Services</h2>
-        <p className="mt-1 text-[12px] text-ink-muted">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">Services</h2>
+        <p className="mt-1 text-[12px] text-ink-400">
           Each service below runs on its own provider, model, and API key. Leave a service
           unconfigured and it falls back to Default. Leave the API key field blank on save to
           keep the key already saved for that service.
@@ -136,17 +136,17 @@ export default async function AiProviderPage({
           return (
             <Card key={service.key} className="flex flex-col gap-3 p-5">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-bold text-midnight">{service.name}</h3>
+                <h3 className="text-sm font-bold text-ink-900">{service.name}</h3>
                 {service.status === 'planned' ? (
-                  <span className="rounded-full border border-line-strong px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ink-muted">
+                  <span className="rounded-full border border-line-light-strong px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ink-400">
                     Planned — not live yet
                   </span>
                 ) : null}
               </div>
-              <p className="text-[12px] text-ink-muted">{service.description}</p>
+              <p className="text-[12px] text-ink-400">{service.description}</p>
 
               {config ? (
-                <div className="rounded-xl border border-line p-3 text-[12px] text-ink-muted">
+                <div className="rounded-radius-lg border border-line-light p-3 text-[12px] text-ink-400">
                   {config.provider} · <span className="font-mono">{config.model}</span>
                   {config.fallbackModel ? (
                     <>
@@ -158,7 +158,7 @@ export default async function AiProviderPage({
                   {config.updatedAt ? <> · last updated {config.updatedAt.slice(0, 10)}</> : null}
                 </div>
               ) : (
-                <p className="text-[12px] text-state-terra-text">
+                <p className="text-[12px] text-terra">
                   Not configured — falls back to Default below until set here.
                 </p>
               )}
@@ -209,15 +209,15 @@ export default async function AiProviderPage({
 
       <Card className="flex flex-col gap-4 p-5">
         <div>
-          <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">Default</h2>
-          <p className="mt-1 text-[12px] text-ink-muted">
+          <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">Default</h2>
+          <p className="mt-1 text-[12px] text-ink-400">
             Used by any AI call — a service above with nothing saved, or an internal step like
             job-description parsing — that has no key of its own.
           </p>
         </div>
 
         {defaultConfig ? (
-          <div className="rounded-xl border border-gold/50 bg-gold/[0.04] p-3 text-[12px] text-ink-muted">
+          <div className="rounded-radius-lg border border-redesign-gold/50 bg-redesign-gold/[0.04] p-3 text-[12px] text-ink-400">
             {defaultConfig.provider} · <span className="font-mono">{defaultConfig.model}</span>
             {defaultConfig.fallbackModel ? (
               <>
@@ -229,7 +229,7 @@ export default async function AiProviderPage({
             {defaultConfig.updatedAt ? <> · last updated {defaultConfig.updatedAt.slice(0, 10)}</> : null}
           </div>
         ) : (
-          <p className="text-[12px] text-state-terra-text">
+          <p className="text-[12px] text-terra">
             Not configured yet — any service above without its own key/model won&apos;t work until
             this is set.
           </p>
@@ -278,25 +278,25 @@ export default async function AiProviderPage({
 
       <Card className="flex flex-col gap-4 p-5">
         <div>
-          <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">Other overrides</h2>
-          <p className="mt-1 text-[12px] text-ink-muted">
+          <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">Other overrides</h2>
+          <p className="mt-1 text-[12px] text-ink-400">
             Advanced — internal AI sub-steps (e.g. job-description parsing) that aren&apos;t one of
             the named services above, plus anything added by key directly.
           </p>
         </div>
 
         {otherConfigs.length === 0 ? (
-          <p className="text-[12px] text-ink-faint">No other overrides configured.</p>
+          <p className="text-[12px] text-ink-400">No other overrides configured.</p>
         ) : (
           <div className="flex flex-col gap-2">
             {otherConfigs.map((cfg) => (
               <div
                 key={cfg.key}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line p-3"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-radius-lg border border-line-light p-3"
               >
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-mono text-sm font-semibold text-midnight">{cfg.key}</span>
-                  <span className="text-[12px] text-ink-muted">
+                  <span className="font-mono text-sm font-semibold text-ink-900">{cfg.key}</span>
+                  <span className="text-[12px] text-ink-400">
                     {cfg.provider} · <span className="font-mono">{cfg.model}</span>
                     {cfg.fallbackModel ? (
                       <>
@@ -312,7 +312,7 @@ export default async function AiProviderPage({
                   <input type="hidden" name="key" value={cfg.key} />
                   <button
                     type="submit"
-                    className="text-[11px] font-semibold text-state-terra-text underline-offset-2 hover:underline"
+                    className="text-[11px] font-semibold text-terra underline-offset-2 hover:underline"
                   >
                     Remove override
                   </button>

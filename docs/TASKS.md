@@ -1918,14 +1918,48 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 
 
-- [ ] **TASK-095: Admin Dashboard + AI Provider** — restyle only, per
+- [x] **TASK-095: Admin Dashboard + AI Provider** — restyle only, per
       `PAGE_SPECS.md` §D. Same live-summary data fetches, same warning
       treatment when no provider is configured. `/admin/ai-provider`'s
       structure changed under TASK-099 (2026-08-11) — restyle the six
       named-service cards + Default card + Other overrides card described
       there now, not the old single generic form/list.
 
-      Depends on: TASK-094 · Status: in progress.
+      Depends on: TASK-094 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled both admin pages to the forest/gold
+      **light** system, visual-only:
+      - **`app/admin/page.tsx` (Admin Dashboard)** → §D's **3-up summary
+        grid within the 960px admin container**: `max-w-3xl`→`max-w-[960px]`,
+        and the card list `flex flex-col gap-3`→`grid grid-cols-1 gap-3
+        sm:grid-cols-2 lg:grid-cols-3` (3-up desktop, 2-up tablet, single
+        column mobile — each card is a `Link <Card>` that keeps its live
+        summary). The **big blocker warning** treatment is unchanged
+        (still a `--terra`-tinted card with the strongest weight when
+        `allProviderConfigs.length === 0`, now `border-terra/40
+        bg-terra-tint` / `text-terra`). Same data fetches (`requireAdmin`,
+        `listProviderConfigs`, `getAllPromptTemplates`, `listPromoCodes`,
+        `listServicePackages`, `listPiiAccessLog`) and the same six
+        `sections` hrefs — diff is **pure className change**.
+      - **`app/admin/ai-provider/page.tsx`** → token swap over TASK-099's
+        structure (six named-service cards + Default + Other overrides):
+        `midnight`→`ink-900`, `ink-warm/body/muted/faint`→`ink-400/700`,
+        `emerald`→`forest`, `terra`→`terra-tint`, `gold`→`redesign-gold`,
+        `border-line*`→`line-light*` (regex-guarded, no artifact), radii →
+        `radius-lg/md`, `font-redesign-sans`. **All logic/structure is
+        byte-for-byte unchanged**: the `SERVICES` array (keys, names,
+        `live`/`planned` statuses incl. the inert `qa_generation` /
+        `mock_interview` rows), the `updateProviderConfigAction` /
+        `deleteProviderConfigAction` forms, hidden `key` inputs, the
+        `maskSecret` masked-key rendering, and the Default + Other overrides
+        cards — diff shows **only `className` changes**.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; all 7 admin routes build. Tokens resolve in
+      `.next/static/css/*.css` including the responsive grid variants
+      (`sm:grid-cols-2`, `lg:grid-cols-3`) and `max-w-[960px]`; no
+      `-light-light-` artifact; zero legacy-token leaks in either file.
+      Copy confirmed present in the compiled output.
 
 - [ ] **TASK-096: Admin Prompts + Promo Codes** — restyle only, per
       `PAGE_SPECS.md` §D. Same forms/actions, unchanged from TASK-075's

@@ -79,36 +79,36 @@ export default async function AdminDashboardPage() {
   ]
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8">
+    <main className="mx-auto flex max-w-[960px] flex-col gap-6 px-5 py-8 font-redesign-sans">
       <div>
-        <h1 className="font-serif text-2xl text-midnight">Admin</h1>
-        <p className="text-sm text-ink-muted">
+        <h1 className="font-serif text-2xl text-ink-900">Admin</h1>
+        <p className="text-sm text-ink-400">
           Signed in as {admin.email ?? admin.id}. Operational tooling — one dashboard,
           one page per function.
         </p>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {sections.map((s) => (
           <Link key={s.href} href={s.href} className="block">
             <Card
               className={`flex flex-col gap-1 p-5 transition-colors ${
                 s.warn
-                  ? 'border-terracotta/40 bg-state-terra-bg'
-                  : 'hover:border-gold/50'
+                  ? 'border-terra/40 bg-terra-tint'
+                  : 'hover:border-redesign-gold/50'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">
+                <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
                   {s.title}
                 </h2>
-                <span className="text-sm text-emerald">→</span>
+                <span className="text-sm text-forest">→</span>
               </div>
               <p
                 className={
                   s.warn
-                    ? 'text-[13px] font-semibold text-state-terra-text'
-                    : 'text-[13px] text-ink-body'
+                    ? 'text-[13px] font-semibold text-terra'
+                    : 'text-[13px] text-ink-700'
                 }
               >
                 {s.summary}
