@@ -1750,7 +1750,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       cleanly support this page's needs, stop and report rather than
       extend it yourself).
 
-      Depends on: TASK-076–079, TASK-083 · Status: not started.
+      Depends on: TASK-076–079, TASK-083 · Status: in progress.
 
 - [ ] **TASK-093: `/cover-letter` (new page)** — existing backend only,
       per `PAGE_SPECS.md` §C and Stage 1 item 5. This is TASK-066's
