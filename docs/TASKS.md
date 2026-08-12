@@ -1679,7 +1679,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 ---
 
-- [ ] **TASK-091: `/gcc-readiness` (new page)** — existing logic only,
+- [x] **TASK-091: `/gcc-readiness` (new page)** — existing logic only,
       per `PAGE_SPECS.md` §C and Stage 1 item 5. New route, zero new
       computation: reads the same `calculateReadiness()` output already
       used on `/dashboard`. **Acceptance test specific to this ticket:**
@@ -1691,7 +1691,47 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       Depends on: TASK-076–079, TASK-083 (nav entry already points here
       from TASK-078; Dashboard's readiness card is the parity reference) ·
-      Status: in progress.
+      Status: done, 2026-08-12.
+
+      **Built by Hermes** — created the new route `app/gcc-readiness/page.tsx`
+      (dark app-shell page, wrapped in `AppShell`, `font-redesign-sans`).
+      **Zero new computation**: it loads `GET /api/profile` and calls the
+      same `calculateReadiness()` from `lib/readiness.ts` (read, NEVER
+      modified) with a `toReadinessInput(profile)` helper that **mirrors the
+      dashboard's exact input construction** — verified programmatically
+      (a script extracted both input objects: identical 17-field key set
+      including `target_country: profile.target_country || undefined` and
+      `work_experience.map((w) => ({ start_date, end_date: w.end_date ||
+      null }))`), plus the same `score = profile?.readiness_score ??
+      readiness?.score ?? 0` and `missing = readiness?.missing ?? []`
+      derivation. **Acceptance test satisfied by construction**: same source
+      (GET /api/profile), same function, same input ⇒ same score + missing
+      as `/dashboard`'s readiness card, always.
+      - **Layout (§C):** large `ReadinessRing` (132px, `dark`) + category
+        `Pill` (grounded variant) + mono `/100` score + "N items still
+        needed" in a `Card tone="dark"` **left rail (`xl:w-[340px]`)**, with
+        the "Finish these to reach 100" **breakdown list** (every `missing`
+        item — label + `+N points` — each linking back to `/profile`, the
+        same destination the dashboard's finish-these chips use) in a
+        `flex-1` card to its right; `xl:flex-row` side-by-side, stacked
+        from 1024–1279px, ring-above-list on tablet/mobile. A complete
+        profile shows an "All complete" dashed success state.
+      - Components reused: `Card tone="dark"`, `ReadinessRing`,
+        `Pill`, `buttonVariants` (`purchase`). No new component, no new
+        computation, no nav change (the TASK-078 sidebar already links to
+        `/gcc-readiness`).
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; `/gcc-readiness` is a new **statically prerendered**
+      route (4.53 kB). All forest/gold dark tokens resolve in
+      `.next/static/css/*.css` and the `xl` rail variants (`xl:flex-row`,
+      `xl:w-[340px]`, `xl:shrink-0`) all resolve. Copy confirmed present in
+      the compiled output (static HTML shows the client "Loading…" gate —
+      the profile loads client-side before painting, same as /dashboard).
+      Live browser check not run: requires a real login session (standing
+      gap).
+
+
 
 - [ ] **TASK-092: `/job-match` (new page)** — existing logic only, per
       `PAGE_SPECS.md` §C and Stage 1 item 5. New route, reuses
