@@ -1750,7 +1750,50 @@ any ticket in this section — it is not repeated in full inside each one.**
       cleanly support this page's needs, stop and report rather than
       extend it yourself).
 
-      Depends on: TASK-076–079, TASK-083 · Status: in progress.
+      Depends on: TASK-076–079, TASK-083 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — created the new authenticated Job Match report:
+      - **`app/api/job-match/route.ts`** (new, thin): authenticates, loads the
+        caller's `CareerProfileFull` (same 5 children as GET /api/profile),
+        and runs **the identical `/api/ats-scan` jobMatch pipeline** — the only
+        difference is the resume source: it builds its `JobMatchProfileInput`
+        via the TASK-073 `buildJobMatchProfileInputFromFullProfile` adapter
+        instead of the parsed-resume draft adapter. `computeDeterministicCategories`,
+        `buildJobMatchExplanation*`, `validateJobMatchExplanation`,
+        `combineJobMatchScore`, the DETERMINISTIC/SEMANTIC category-assembly
+        loops, and `JOB_MATCH_SCORING_VERSION` are all reused **verbatim** —
+        a programmatic diff of both routes confirmed the returned
+        `{ overall_score, categories, diagnosis, scoring_version }` object,
+        both category loops, and the `computeDeterministicCategories(profileInput,
+        structuredJob)` call are content-identical (only whitespace differs).
+        **`lib/jobMatch/` and `lib/ai/jobMatchExplanation.ts` are untouched —
+        only imported.**
+      - **`app/job-match/page.tsx`** (new): JD-paste form (900px cap, §C),
+        results below as the **Job Match breakdown** — full-width diagnosis,
+        then the category grid (`sm:grid-cols-2`, `lg:grid-cols-3`), a
+        grounding notice, and a `purchase` "Optimize with these findings" →
+        `/optimize/target`. Dark app-shell theme, sibling styling to
+        `/ats-scan` (same category order). The API returns 404 when no
+        profile exists, which the page surfaces as "Build your Career
+        Profile first".
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; `/api/job-match` is a dynamic route and `/job-match`
+      is statically prerendered (3.27 kB). All forest/gold dark tokens +
+      the `sm:grid-cols-2`/`lg:grid-cols-3` grid variants resolve; no
+      artifact. Copy confirmed compiled.
+
+      **Questions for CTO:**
+      - "Optimize with these findings" currently links to `/optimize/target`
+        plainly — /optimize has no plumbing to consume the JD/findings, so
+        the findings are not *carried forward* yet (that would mean adding a
+        JD input to /optimize, which is a feature beyond this display ticket).
+      - The explanation prompt's `resumeText` is set to the profile's own
+        stored `professional_summary` (an authenticated profile has no raw
+        pasted resume), keeping the LLM grounded in the user's real saved
+        data.
+
+
 
 - [ ] **TASK-093: `/cover-letter` (new page)** — existing backend only,
       per `PAGE_SPECS.md` §C and Stage 1 item 5. This is TASK-066's
