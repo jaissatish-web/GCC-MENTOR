@@ -1019,14 +1019,60 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 ---
 
-- [ ] **TASK-080: Landing page (`/`)** — restyle only, per
+- [x] **TASK-080: Landing page (`/`)** — restyle only, per
       `PAGE_SPECS.md` §A. Same `liveServices`/`comingSoon` copy and
       routing, dark/gold editorial hero per `DESIGN_SYSTEM.md`. The
       `comingSoon` grid uses the new `LockedTile` component (TASK-079) in
       place of its current ad-hoc dashed-card markup — visually
       consistent with Dashboard's Planned row now, same copy.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled `app/page.tsx` only, per `PAGE_SPECS.md`
+      §A + `DESIGN_SYSTEM.md`. No content, routing, or anchor change:
+      every section, its copy, ids, and CTAs are unchanged; only the
+      visual tokens moved to the forest/gold redesign system (via the
+      `Card`, `Button`/`buttonVariants`, and `LockedTile` shared
+      primitives already restyled in TASK-077/079).
+      - Dark forest-deep hero (`bg-forest-deep`), skyline photo with
+        gradient, serif H1, gold-tinted eyebrow kicker, two-button CTA row
+        (`purchase` gold primary + `ghost` secondary), trust line.
+      - Alternating light/dark sections at 1280px: platforms/live services
+        (light), ecosystem/dark, showcase, comparison (light recessed),
+        interview demo, testimonials, professionals, industries/dark,
+        countries, "what changes", pricing, resources/dark, FAQ, footer.
+      - `comingSoon` grid now renders the `LockedTile` component (TASK-079)
+        in place of the old hand-rolled dashed card, same title/description
+        copy, per `PLANNED_SERVICES.md` (neutral "Planned" badge, tap note
+        "\<service\> — planned for a future release."). Anchor ids
+        (`#mock-interview`, `#question-papers`, `#gulf-guidance`,
+        `#ai-assistant`) preserved on wrapper divs.
+      - Scripts used only real tokens from `tailwind.config.ts`
+        (`forest-deep`, `forest-dark`, `redesign-gold`(+`-tint`/`-dark`),
+        `gold-text`/`gold-text-dark`, `ink-900/700/400` + `-dark`,
+        `line-light`/`-dark`, `surface-light`/`surface-2-light`/`-dark`,
+        `bg` paper, `radius-lg/xl`, `redesign-sm/md/lg`, `redesign-cta-glow`).
+        Gold is used as a *fill* for CTA/badges (dark text on top, §9-safe)
+        and as text only on dark surfaces (`gold-text-dark`) — never raw
+        gold text on a light surface.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm
+      run build` all pass; `/` is statically prerendered (7.05 kB). Token
+      resolution verified by literal grep across both `.next/static/css/*.css`
+      files (all key classes present), and the prerendered
+      `.next/server/app/index.html` confirmed the new design rendered
+      (gold CTAs, forest-deep surfaces, 4 LockedTile "Planned" tiles, hero
+      badge + "75% ready" card). Live browser check not run: no `.env.local`
+      so the middleware 500s on `next start` (known environment blocker —
+      per workflow, not reported as a defect).
+
+      **Question for CTO:** `PAGE_SPECS.md` §A's hero line says
+      "gold 'coming soon' eyebrow badge", but the ticket also says "same
+      copy" and the founder forbids fabricated "coming soon" claims for the
+      hero's own live service. I kept the existing hero eyebrow copy
+      ("Built for the Gulf career journey") styled as a gold eyebrow rather
+      than adding new "Coming Soon" text — i.e. restyle-only, no content
+      change. Flagging so the reviewer can confirm this reading.
 
 - [ ] **TASK-081: Login / Signup** — restyle only, per `PAGE_SPECS.md`
       §A. Same fields, same Supabase Auth validation/redirect behavior.
