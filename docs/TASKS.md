@@ -1080,10 +1080,51 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       Live browser check not possible this round either: dev server on port 3000 had gone unresponsive (connection refused) and the shared `.claude/launch.json` at the parent working directory (not this repo's own, which is correctly configured) points `gccsaas` at a broken unquoted-path command — a pre-existing tooling issue outside this repo, not introduced by this ticket. Relied on `tsc`/`lint`/`build` plus full manual diff review instead, same standard this project has used before when live preview wasn't available.
 
-- [ ] **TASK-081: Login / Signup** — restyle only, per `PAGE_SPECS.md`
+- [x] **TASK-081: Login / Signup** — restyle only, per `PAGE_SPECS.md`
       §A. Same fields, same Supabase Auth validation/redirect behavior.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled the auth screens to the spec's light
+      centered-card treatment. `PAGE_SPECS.md` §A is explicit that login /
+      signup are "a utility screen" — **centered card, max-width 420px, on a
+      light or subtly-tinted `--bg` "not the dark hero treatment"** — so the
+      previous dark split-screen (`bg-void` + `text-marble` + `gold`/`hairline`)
+      was converted to a single light centered column on the paper `--bg`:
+      - `components/auth/AuthShell.tsx` (restyled, in scope — it carried the
+        dark shell the spec removes): `bg-bg` paper, faint `bg-glow-radial`
+        gold warmth, gold logo mark (`bg-redesign-gold` + `text-forest-deep`
+        + `shadow-redesign-cta-glow`), gold "Saudi · UAE · Qatar · Oman ·
+        Kuwait · Bahrain" eyebrow pill (`border-redesign-gold/40
+        bg-redesign-gold-tint text-gold-text`), serif headline + body in
+        `ink-900`/`ink-700`, then the form card, then the three trust lines
+        and the grounding tagline — both kept **verbatim** (functional
+        parity). `max-w-[420px]` centered column, full-width with side
+        padding on mobile.
+      - `app/login/page.tsx` + `app/signup/page.tsx`: `Card tone="light"`
+        (`border-line-light bg-surface-light shadow-redesign-sm`), serif h1 +
+        muted copy in `ink-900`/`ink-400`, `AuthForm` with `tone="light"`
+        (its `primary` button per §A — forest-deep fill; the component's own
+        email/password fields, validation and submit logic are untouched),
+        and the cross-link now `text-forest hover:text-forest-dark` (green is
+        the §1.1 primary-link colour; raw gold as text on light fails WCAG —
+        the class of mistake this project has already caught).
+      - `AuthForm.tsx` and `actions.ts` unchanged — the form already supports
+        a light `tone`; the server actions, redirects, validation and error
+        messaging are byte-for-byte untouched.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; `/login` and `/signup` are statically prerendered
+      (2.67 kB each). Token resolution verified by literal grep across
+      `.next/static/css/*.css` (all redesign classes present) and the
+      prerendered `.next/server/app/{login,signup}.html` confirm the light
+      design rendered (gold logo/eyebrow, `bg-bg` shell, `ink` text, `primary`
+      button, all copy + grounding note) with the dark shell class fully
+      gone from `AuthShell`. The only remaining `bg-void`/`text-marble` in
+      the page HTML is the global `<body>` from `app/layout.tsx` (present on
+      every route), fully covered by the shell's `min-h-screen bg-bg`.
+      Live browser check not run: no `.env.local`, so the middleware 500s on
+      `next start` (known environment blocker — per workflow, not a defect).
 
 - [ ] **TASK-082: Onboarding + Extracting** — restyle only, per
       `PAGE_SPECS.md` §B. Same upload/paste-text paths and endpoints,
