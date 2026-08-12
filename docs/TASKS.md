@@ -1994,6 +1994,8 @@ any ticket in this section — it is not repeated in full inside each one.**
       `.next/static/css/*.css`; no `-light-light-` artifact; zero legacy-token
       leaks. Copy confirmed present in the compiled output.
 
+      **CTO review, 2026-08-12 — APPROVED, no fix needed.** Confirmed `updatePromptTemplateAction`'s form + hidden `key` input, and `createPromoCodeAction`/`deactivatePromoCodeAction`'s forms + hidden `code` input, are all genuinely absent from either diff. `tsc`/`lint`/`build` independently re-run, all clean.
+
 - [ ] **TASK-097: Admin Packages + Users** — restyle only, per
       `PAGE_SPECS.md` §D. Same dynamic line-item form (stable per-row keys
       — do not reintroduce TASK-061's original array-index-as-key bug),
