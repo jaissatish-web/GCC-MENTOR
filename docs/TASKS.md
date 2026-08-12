@@ -1417,7 +1417,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       blocked exactly as today — do not add a payment method that doesn't
       exist.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 - [ ] **TASK-087: Optimize Preview/Diff** — restyle only, per
       `PAGE_SPECS.md` §C. The blur/watermark stays server-rendered into
