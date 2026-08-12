@@ -1351,6 +1351,12 @@ any ticket in this section — it is not repeated in full inside each one.**
       source file. Live browser check not run: `/profile` requires a real
       login session (same standing gap as every authenticated page).
 
+      **CTO review, 2026-08-12 — APPROVED, no fix needed. This is the one flagged for extra-careful scrutiny, so it got a full line-by-line read of both diffs, twice, specifically hunting the tri-state license logic.** Confirmed: the `f_has_driving_license` `<select>` and its `onChange` are entirely absent from the diff hunks — only the adjacent `<label>`'s className changed. Same for `onSubmit('exit')`/`onSubmit('confirm')` at the bottom of `app/profile/page.tsx` and `flip(key, v)` on the visibility page — genuinely byte-identical, not just claimed. `max-w-[900px]` matches `PAGE_SPECS.md` §C's stated "900px single readable column" exactly (correctly replacing the old `max-w-5xl` = 1024px, which never matched spec). Every new token (`terra-dark`, `terra-tint-dark`, `gold-text-dark`, `redesign-gold-tint-dark`, etc.) checked against `tailwind.config.ts` — all real. `bg-void` retention is consistent, not a leak: `AppShell.tsx` (the actual wrapping shell for every authenticated page) is itself still `bg-void` — hasn't been restyled yet, so `/profile` matching it is correct, not stale.
+
+      **The one disclosed tradeoff — approved as a reasonable call, not deferred:** `Input`/`Toggle` were deliberately left at their default *light* tone inside the newly-dark `CardSection`s, to avoid touching ~40 call sites. No page anywhere in this redesign has yet used `tone="dark"` on `Input`/`Toggle` (checked — no precedent either way), and light fields on a dark card is a legible, common pattern, not a contrast or functionality defect — Toggle/Input work identically regardless of tone. Approved as shipped. Worth the founder eyeballing once logged in, since it's the one genuinely-uncertain visual call in an otherwise fully-verified ticket, but not blocking.
+
+      Independently re-ran `tsc`/`lint`/`build` — all clean, matches the report exactly. No fix needed on this one.
+
 - [ ] **TASK-085: Optimize Target + Setup** — restyle only, per
       `PAGE_SPECS.md` §C. `target_country` stays optional (do not
       reintroduce as required — TASK-074 already made this decision).
