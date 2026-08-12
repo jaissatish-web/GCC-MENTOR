@@ -174,38 +174,32 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
 
   if (error) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-marble px-5">
-        <p className="text-sm text-state-terra-text">{error}</p>
+      <div className="flex min-h-dvh items-center justify-center bg-bg px-5">
+        <p className="text-sm text-terra">{error}</p>
       </div>
     )
   }
 
   if (!pkg) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-marble">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+      <div className="flex min-h-dvh items-center justify-center bg-bg">
+        <p className="font-mono text-sm text-ink-400">Loading…</p>
       </div>
     )
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-marble">
-      {/* Status bar */}
-      <header className="flex h-11 items-center justify-between bg-marble px-5 text-[12px] font-semibold text-midnight">
-        <span>9:41</span>
-        <span className="tracking-[0.14em]">▮▮▮</span>
-      </header>
-
+    <main className="flex min-h-dvh flex-col bg-bg">
       <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5">
         <button
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-lg text-[20px] leading-none text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2"
         >
           ←
         </button>
-        <h1 className="font-serif text-[26px] leading-tight text-midnight">Here&apos;s what changed</h1>
+        <h1 className="font-serif text-[26px] leading-tight text-ink-900">Here&apos;s what changed</h1>
         {/* Tabs */}
         <div className="flex gap-2">
           <button
@@ -213,8 +207,8 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
             onClick={() => setTab('changes')}
             aria-pressed={tab === 'changes'}
             className={cn(
-              'min-h-11 rounded-[9px] px-3.5 py-2 text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2',
-              tab === 'changes' ? 'bg-midnight text-marble' : 'border border-line bg-white font-medium text-ink-body'
+              'min-h-11 rounded-[9px] px-3.5 py-2 text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
+              tab === 'changes' ? 'bg-forest-deep text-ink-900-dark' : 'border border-line-light bg-surface-light font-medium text-ink-700'
             )}
           >
             Changes ({changeCount})
@@ -224,8 +218,8 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
             onClick={() => setTab('full')}
             aria-pressed={tab === 'full'}
             className={cn(
-              'min-h-11 rounded-[9px] px-3.5 py-2 text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2',
-              tab === 'full' ? 'bg-midnight text-marble' : 'border border-line bg-white font-medium text-ink-body'
+              'min-h-11 rounded-[9px] px-3.5 py-2 text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
+              tab === 'full' ? 'bg-forest-deep text-ink-900-dark' : 'border border-line-light bg-surface-light font-medium text-ink-700'
             )}
           >
             Full CV
@@ -276,7 +270,7 @@ interface DiffToken {
 
 function renderDiffParts(parts: DiffToken[]) {
   return parts.map((p, i) => {
-    if (p.added) return <mark key={i} className="rounded-sm bg-diff-added px-0.5 text-ink-body">{p.value}</mark>
+    if (p.added) return <mark key={i} className="rounded-sm bg-diff-added px-0.5 text-ink-700">{p.value}</mark>
     if (p.removed) return null // removed words belong in the "before" strike line
     return <span key={i}>{p.value}</span>
   })
@@ -323,30 +317,30 @@ function ChangesTab({
     <>
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-5 pb-4">
         {/* Professional summary */}
-        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4">
+        <div className="flex flex-col gap-3 rounded-radius-lg border border-line-light bg-surface-light p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[12px] font-bold text-midnight">Professional summary</span>
-            <span className="rounded-[5px] bg-state-emerald-bg px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-emerald">
+            <span className="text-[12px] font-bold text-ink-900">Professional summary</span>
+            <span className="rounded-[5px] bg-forest-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-forest">
               Rewritten
             </span>
           </div>
 
-          <div className="rounded-[9px] border-l-2 border-state-terra-line bg-fill-warm p-3">
-            <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-terracotta">Before</div>
-            <p className="text-[11.5px] leading-relaxed text-ink-muted">{summaryBefore}</p>
+          <div className="rounded-[9px] border-l-2 border-terra/40 bg-surface-2-light p-3">
+            <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-terra">Before</div>
+            <p className="text-[11.5px] leading-relaxed text-ink-400">{summaryBefore}</p>
           </div>
 
-          <div className="rounded-[9px] border-l-2 border-emerald bg-state-emerald-bg p-3">
-            <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-emerald">After</div>
+          <div className="rounded-[9px] border-l-2 border-forest bg-forest-tint p-3">
+            <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-forest">After</div>
             {editing.summary ? (
               <textarea
                 value={draftSummary}
                 onChange={(e) => setDraftSummary(e.target.value)}
                 rows={5}
-                className="min-h-11 w-full resize-none rounded-lg border border-line bg-white p-2 text-[11.5px] text-ink-body outline-none focus:border-midnight focus:ring-2 focus:ring-midnight/20"
+                className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[11.5px] text-ink-700 outline-none focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
               />
             ) : (
-              <p className="text-[11.5px] leading-relaxed text-midnight">
+              <p className="text-[11.5px] leading-relaxed text-ink-900">
                 {renderDiffParts(diffWords(summaryBefore, summaryAfter || '').filter((p) => !p.removed))}
               </p>
             )}
@@ -355,18 +349,18 @@ function ChangesTab({
           {editing.summary ? (
             <div className="flex gap-2">
               <button type="button" disabled={saveBusy} onClick={() => saveSummary()}
-                className="min-h-11 rounded-lg bg-emerald px-3.5 text-[11px] font-semibold text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2">
+                className="min-h-11 rounded-radius-md bg-forest px-3.5 text-[11px] font-semibold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2">
                 {saveBusy ? 'Saving…' : 'Save'}
               </button>
               <button type="button" disabled={saveBusy} onClick={() => setEditing({})}
-                className="min-h-11 rounded-lg border border-line-strong bg-white px-3.5 text-[11px] font-semibold text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2">
+                className="min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-3.5 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2">
                 Cancel
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold text-emerald">Edit this text</span>
-              <span className="text-[10px] text-ink-warm">· any generated line</span>
+              <span className="text-[11px] font-semibold text-forest">Edit this text</span>
+              <span className="text-[10px] text-ink-400">· any generated line</span>
             </div>
           )}
         </div>
@@ -384,20 +378,20 @@ function ChangesTab({
             const isEditing = editing.blockId === block.profile_experience_id && editing.index === bi
             const company = profile?.work_experience?.find((w) => w.id === block.profile_experience_id)?.company ?? ''
             return (
-              <div key={block.profile_experience_id + ':' + bi} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-4">
+              <div key={block.profile_experience_id + ':' + bi} className="flex flex-col gap-2 rounded-radius-lg border border-line-light bg-surface-light p-4">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[12px] font-bold text-midnight">{company} — bullet {bi + 1} of {effective.length}</span>
-                  {src ? <span className="font-mono text-[10px] text-ink-warm">+{wordsIn(added.map((p) => p.value).join(' '))} JD terms</span> : null}
+                  <span className="text-[12px] font-bold text-ink-900">{company} — bullet {bi + 1} of {effective.length}</span>
+                  {src ? <span className="font-mono text-[10px] text-ink-400">+{wordsIn(added.map((p) => p.value).join(' '))} JD terms</span> : null}
                 </div>
                 {isEditing ? (
                   <textarea
                     value={draftBullet}
                     onChange={(e) => setDraftBullet(e.target.value)}
                     rows={3}
-                    className="min-h-11 w-full resize-none rounded-lg border border-line bg-white p-2 text-[11.5px] text-ink-body outline-none focus:border-midnight focus:ring-2 focus:ring-midnight/20"
+                    className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[11.5px] text-ink-700 outline-none focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
                   />
                 ) : (
-                  <p className="text-[11.5px] leading-relaxed text-midnight">
+                  <p className="text-[11.5px] leading-relaxed text-ink-900">
                     {removedParts.length ? (
                       <>
                         <span className="text-diff-removed line-through">{removedParts.map((p) => p.value).join('')}</span>{' '}
@@ -405,7 +399,7 @@ function ChangesTab({
                       </>
                     ) : null}
                     {afterParts.map((p, i) => (p.added ? (
-                      <mark key={i} className="rounded-sm bg-diff-added px-0.5 text-ink-body">{p.value}</mark>
+                      <mark key={i} className="rounded-sm bg-diff-added px-0.5 text-ink-700">{p.value}</mark>
                     ) : (
                       <span key={i}>{p.value}</span>
                     )))}
@@ -415,11 +409,11 @@ function ChangesTab({
                   {isEditing ? (
                     <>
                       <button type="button" disabled={saveBusy} onClick={() => saveBullet()}
-                        className="min-h-9 rounded-lg bg-emerald px-3 text-[11px] font-semibold text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2">
+                        className="min-h-9 rounded-radius-md bg-forest px-3 text-[11px] font-semibold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2">
                         Save
                       </button>
                       <button type="button" disabled={saveBusy} onClick={() => setEditing({})}
-                        className="min-h-9 rounded-lg border border-line-strong bg-white px-3 text-[11px] font-semibold text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2">
+                        className="min-h-9 rounded-radius-md border border-line-light-strong bg-surface-light px-3 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2">
                         Cancel
                       </button>
                     </>
@@ -430,7 +424,7 @@ function ChangesTab({
                         setEditing({ blockId: block.profile_experience_id, index: bi })
                         setDraftBullet(bullet)
                       }}
-                      className="min-h-11 px-1 text-[11px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+                      className="min-h-11 px-1 text-[11px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
                     >
                       Edit this text
                     </button>
@@ -443,8 +437,8 @@ function ChangesTab({
 
         {/* Skills reordered */}
         {skillsMovement.length ? (
-          <div className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-4">
-            <span className="text-[12px] font-bold text-midnight">Skills reordered</span>
+          <div className="flex flex-col gap-2.5 rounded-radius-lg border border-line-light bg-surface-light p-4">
+            <span className="text-[12px] font-bold text-ink-900">Skills reordered</span>
             <div className="flex flex-wrap gap-1.5">
               {skillsMovement.map((s, i) => (
                 <span
@@ -452,8 +446,8 @@ function ChangesTab({
                   className={cn(
                     'rounded-[99px] border px-2.5 py-1 text-[11px] font-medium',
                     s.movement !== 0
-                      ? 'border-state-emerald-line bg-state-emerald-bg text-emerald'
-                      : 'border-line bg-fill-subtle text-ink-body'
+                      ? 'border-forest/40 bg-forest-tint text-forest'
+                      : 'border-line-light bg-surface-2-light text-ink-700'
                   )}
                 >
                   {s.name} {s.movement > 0 ? `↑${s.movement}` : s.movement < 0 ? `↓${Math.abs(s.movement)}` : '·'}
@@ -469,11 +463,11 @@ function ChangesTab({
         <button
           type="button"
           onClick={onUnlock}
-          className="min-h-11 rounded-[13px] bg-gold px-4 py-4 text-[15px] font-bold text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
+          className="min-h-11 rounded-[13px] bg-redesign-gold px-4 py-4 text-[15px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
         >
           Unlock full CV
         </button>
-        <p className="text-center text-[11px] text-ink-warm">One-time · PDF + Word · saved to your Library</p>
+        <p className="text-center text-[11px] text-ink-400">One-time · PDF + Word · saved to your Library</p>
       </div>
     </>
   )
@@ -492,8 +486,8 @@ function FullCVTab({
 }) {
   return (
     <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-5 pb-4">
-      <p className="text-[11.5px] leading-relaxed text-ink-muted">
-        A blurred preview of your optimized CV for <strong className="text-midnight">{pkgTitle}</strong>
+      <p className="text-[11.5px] leading-relaxed text-ink-400">
+        A blurred preview of your optimized CV for <strong className="text-ink-900">{pkgTitle}</strong>
         {pkgCompany ? ` (${pkgCompany})` : ''}. Unlock to download &amp; edit.
       </p>
       {/* The Full CV preview is a SERVER-rendered blurred image — the client
@@ -502,16 +496,16 @@ function FullCVTab({
       <img
         src={imageUrl}
         alt="Blurred preview of your optimized full CV"
-        className="w-full rounded-2xl border border-line"
+        className="w-full rounded-radius-lg border border-line-light"
       />
       <button
         type="button"
         onClick={onUnlock}
-        className="mt-2 min-h-11 rounded-[13px] bg-gold px-4 py-4 text-[15px] font-bold text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2"
+        className="mt-2 min-h-11 rounded-[13px] bg-redesign-gold px-4 py-4 text-[15px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
       >
         Unlock full CV
       </button>
-      <p className="text-center text-[11px] text-ink-warm">One-time · PDF + Word · saved to your Library</p>
+      <p className="text-center text-[11px] text-ink-400">One-time · PDF + Word · saved to your Library</p>
     </div>
   )
 }

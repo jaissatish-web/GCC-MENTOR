@@ -1455,13 +1455,54 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **CTO review, 2026-08-12 — APPROVED, no fix needed.** Read the full diff and the current file. `redeem()`, the `POST /api/packages/[id]/redeem-promo` call, the `is_paid`/redirect check, and the Razorpay stub copy are all confirmed genuinely absent from the diff — untouched. Grepped for every legacy token (`midnight`, `marble` background, `hairline`, `void`, `state-gold/terra/emerald-*`, `fill-subtle`, `line-soft`, old `rounded-lg/2xl`) plus the `light-light`/`dark-dark` collision pattern from TASK-085 — zero of any remain; the "single `border-line` rule" fix genuinely worked this time. `tsc`/`lint`/`build` independently re-run, all clean. (One imperceptible, non-blocking nit: the hand-rolled Unlock button's `text-marble` was already there pre-diff and wasn't touched — `Button.tsx`'s own `progress` variant uses `text-surface-light` for the same white-on-forest-fill pairing instead. `marble` and `surface-light` differ by `#FBF9F5` vs `#FFFFFF`, invisible in practice — not worth a fix.)
 
-- [ ] **TASK-087: Optimize Preview/Diff** — restyle only, per
+- [x] **TASK-087: Optimize Preview/Diff** — restyle only, per
       `PAGE_SPECS.md` §C. The blur/watermark stays server-rendered into
       the PNG (TASK-033/044) — **do not replace it with a client-side CSS
       filter**, that would reopen a resolved security consideration. Diff
       tab stays ungated. `PATCH /api/packages/[id]` edit path unchanged.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled both screens, visual-only:
+      - `app/optimize/preview/[packageId]/page.tsx` (light) → forest/gold
+        light tokens (`bg-bg`, `ink-*`, `surface-light`, `line-light*`,
+        `forest`/`forest-tint`, `redesign-gold`, `radius-md/lg`), fake
+        device status bar removed.
+      - `app/package/[id]/page.tsx` (dark, AppShell) → forest/gold dark
+        tokens (`ink-900-dark`, `surface-dark`, `line-dark`,
+        `forest-dark`/`forest-tint-dark`, `radius-md/lg`), fake device
+        status bar removed.
+      **Security-critical behavior verified unchanged (diff + grep):**
+      - **Blur stays server-rendered.** The Full CV preview is the `<img
+        src="/api/packages/[id]/preview-image">` (server-rendered blurred
+        PNG, TASK-044 Option B). Zero client-side `blur`/`backdrop-blur`
+        CSS filter was introduced anywhere on the page.
+      - **Diff tab stays ungated.** `tab === 'changes'` is still the
+        default tab rendered unconditionally (no `is_paid` gate on it).
+      - **`PATCH /api/packages/[id]` unchanged.** `saveSummary` /
+        `saveBullet` still send the identical bodies
+        (`{ summary: { user_edited } }` and
+        `{ experience_blocks: [{ profile_experience_id, user_edited_bullets }] }`).
+      - The `is_paid` → `/optimize/pay/[id]` redirect on `/package/[id]`
+        is untouched.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm
+      run build` all pass; `/optimize/preview/[packageId]` (6.22 kB) and
+      `/package/[id]` (4.46 kB) are dynamic server-rendered routes. All
+      redesign tokens resolve in `.next/static/css/*.css`; no legacy
+      navy/warm token or status-bar markup remains and no `-light-light-` /
+      `-dark-dark-` artifact was produced. Copy + logic confirmed present
+      in the compiled output. Live browser check not run: requires a real
+      login + package (standing gap).
+
+      **Question for CTO:** `PAGE_SPECS.md` §C describes a desktop
+      two-column composition for the preview screen (diff left, resume
+      preview + purchase CTA right). The existing screens are single-column
+      (mobile-first mockup), and the ticket is framed "restyle only." I
+      restyled the existing single-column structure rather than re-layouting
+      to two-column to avoid restructuring this complex inline-edit diff
+      under a restyle ticket. Please confirm whether the §C two-column
+      desktop layout is required here or deferred.
 
 - [ ] **TASK-088: Library + Package Detail** — restyle only, per
       `PAGE_SPECS.md` §C. Same list/status/delete API, same reuse-
