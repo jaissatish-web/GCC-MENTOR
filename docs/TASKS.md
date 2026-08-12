@@ -1200,7 +1200,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 ---
 
-- [ ] **TASK-083: Dashboard** — restyle + two specific, spec-approved
+- [x] **TASK-083: Dashboard** — restyle + two specific, spec-approved
       content corrections, per `PAGE_SPECS.md` §C.
 
       **Spec:** Same data sources (`GET /api/profile`, `GET /api/packages`,
@@ -1213,7 +1213,84 @@ any ticket in this section — it is not repeated in full inside each one.**
       `LockedTile` (TASK-079) for Mock Interview / Q&A / Saved Jobs, per
       `PLANNED_SERVICES.md`.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled `app/dashboard/page.tsx` to the `§C`
+      composition on the dark forest shell (the authenticated AppShell is
+      `bg-void`/forest nav, so the dashboard stays dark with the new
+      forest/gold tokens — unlike the light auth/onboarding utility
+      screens). Data sources unchanged: still one `GET /api/profile` + one
+      `GET /api/packages` (`select('*')`) + `calculateReadiness()`. No new
+      query.
+      - **layout (§C):** left column = greeting + metric row (Profile
+        Strength · Resumes Created · Latest Job Match) + next-step hero
+        strip + Recent Activity + new "Planned" row; right rail
+        (`xl` 340px, drops below on tablet) = GCC Readiness ring card +
+        Quick Actions (Check GCC Readiness, Analyze a Job Match, Optimize
+        Resume, Generate Cover Letter, View Library) + Library preview.
+        `lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[minmax(0,1fr)_340px]`;
+        metric row 2-up→3-up; Planned row = horizontally-scrollable strip
+        on mobile, static grid on `lg`.
+      - **Correction 1 — ATS tile dropped.** The old `LOCKED` services grid
+        (including "ATS score check · Free · Phase 2") is removed entirely;
+        `grep` of prerendered HTML confirms `ATS score check`, `Phase 2`,
+        `Interviews Practiced`, `Jobs Matched` are all absent.
+      - **Correction 2 — "Latest Job Match" metric added.** Reads the most
+        recent package's already-computed `JobMatchResult` from the
+        existing packages fetch: `packages[i].ats_score_card.job_match`
+        (jsonb, returned by `select('*')`; `match_score` guarded to a real
+        finite number via a defensive narrow). Display-only, no computation.
+        `ats_score_card` is a Phase-2 reservation slot the current optimize
+        flow does not populate, so when no Job Match is present the tile
+        renders a **neutral "No match yet"** state — never a fabricated
+        number. **Flagged for CTO** (see below).
+      - **Planned row:** `LockedTile tone="dark"` (TASK-079) × 3 — Mock
+        Interview, Q&A / Interview Prep, Saved Jobs, per
+        `PLANNED_SERVICES.md`, each with a tap note "… — planned for a
+        future release."
+      - **Quick Actions** link to `Optimize Resume` `/optimize/target` and
+        `View Library` `/dashboard/library` (real) plus `/gcc-readiness`,
+        `/job-match`, `/cover-letter` — the three TASK-091/092/093 pages not
+        yet built. **They match the already-shipped sidebar (TASK-078),
+        which links to the same three routes** — so these are the approved
+        nav destinations, not newly-invented dead links. **Flagged.**
+      - Shared primitives reused: `Card tone="dark"`, `ReadinessRing dark`,
+        `Pill`, `ProgressBar tone="dark"`, `LockedTile`, `buttonVariants`,
+        `Reveal`. Tokens are all real (`surface-dark`, `surface-2-dark`,
+        `line-dark`, `ink-900/400-dark`, `gold-text-dark`, `forest-dark`,
+        `redesign-gold-dark`).
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm
+      run build` all pass; `/dashboard` is statically prerendered
+      (7.41 kB). Token resolution verified by literal grep across
+      `.next/static/css/*.css`, and the prerendered
+      `.next/server/app/dashboard.html` confirms the new composition
+      (Latest Job Match, all 5 Quick Actions, Planned row, GCC Readiness
+      card) and the absence of the ATS/Phase-2 tiles. `Q&A` renders as
+      `Q&amp;A` in HTML (correct encoding); LockedTile's tap note is a
+      no-JS-hidden interaction, so it doesn't appear in static HTML
+      (expected). Live browser check not run: no `.env.local`, so the
+      middleware 500s on `next start` (known blocker).
+
+      **Questions for CTO:**
+      1. **"Latest Job Match" data availability.** The metric is correctly
+         display-only and reads `ats_score_card.job_match` from the
+         existing packages fetch, but `ats_score_card` is a Phase-2
+         reservation slot that `/api/optimize` does not populate today — so
+         for most users the tile will show its neutral "No match yet" state
+         until a scan/package actually stores a Job Match there. Please
+         confirm this matches intent (display of a real value when present,
+         honest empty state otherwise) rather than requiring the metric to
+         surface a value that isn't computed yet.
+      2. **Quick Actions → unbuilt routes.** `/gcc-readiness`, `/job-match`,
+         `/cover-letter` are TASK-091/092/093 (not started); the sidebar
+         already links to them. Landing on them today 404s until those
+         tickets ship. Keeping them (consistent with the nav) vs. showing
+         them as Planned — please confirm.
+      3. **Planned-row copy.** `PLANNED_SERVICES.md` requires "one line,
+         plain language" descriptions; the three descriptions written here
+         are new one-line copy (honest, no fabricated claims). Please review
+         the wording.
 
 - [ ] **TASK-084: Career Profile + Visibility** — restyle only, per
       `PAGE_SPECS.md` §C. Same full-object `PUT /api/profile` contract,
