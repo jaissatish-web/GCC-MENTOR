@@ -1461,7 +1461,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       filter**, that would reopen a resolved security consideration. Diff
       tab stays ungated. `PATCH /api/packages/[id]` edit path unchanged.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 - [ ] **TASK-088: Library + Package Detail** — restyle only, per
       `PAGE_SPECS.md` §C. Same list/status/delete API, same reuse-
