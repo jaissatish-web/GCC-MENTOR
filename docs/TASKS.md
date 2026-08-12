@@ -2001,7 +2001,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       — do not reintroduce TASK-061's original array-index-as-key bug),
       same `q`/`user` search-param sharing on Users.
 
-      Depends on: TASK-094 · Status: not started.
+      Depends on: TASK-094 · Status: in progress.
 
 - [ ] **TASK-098: Admin Access Log** — restyle only, per `PAGE_SPECS.md`
       §D. Same read-only 50-row query. Desktop table → mobile stacked-row
