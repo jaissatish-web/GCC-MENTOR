@@ -1126,6 +1126,10 @@ any ticket in this section — it is not repeated in full inside each one.**
       Live browser check not run: no `.env.local`, so the middleware 500s on
       `next start` (known environment blocker — per workflow, not a defect).
 
+      **CTO review, 2026-08-12 — APPROVED, no fix needed.** Read the full diff: `AuthForm.tsx`/`actions.ts` genuinely untouched (confirmed by their absence from the commit, not just the claim); `AuthShell.tsx`'s new markup is a clean single-column replacement with no leftover dark classes, no duplicated mobile-logo block from the old two-column layout, `max-w-[420px]` matches the spec's number exactly. `bg-glow-radial` (reused, not new) is a transparent-fading gold gradient — theme-neutral, safe on the new light background. Cross-link color changed from gold to `text-forest` — correct call, since raw gold as link text on a light surface is the exact WCAG contrast defect this project already found once; green is `DESIGN_SYSTEM.md` §1.1's actual primary-link color. `AuthForm`'s existing `tone` prop already resolves `light` → `primary` button, matching §A's "Button (primary)" requirement with zero changes needed to that file.
+
+      **Live-verified this time** — got a working dev server up (`npm run dev` in the background, the earlier port-3000/launch.json issue was transient) and loaded both `/login` and `/signup` directly: full copy renders correctly on both, zero console errors, and a computed-style check confirms the actual rendered colors match the intended tokens exactly (`AuthShell`'s root: `rgb(251,250,246)` = `--bg`'s `#FBFAF6`; `h1`: `rgb(23,36,31)` = `ink-900`'s `#17241F`) — not just inferring from prerendered HTML source. `tsc`/`lint`/`build` independently re-run, all clean.
+
 - [ ] **TASK-082: Onboarding + Extracting** — restyle only, per
       `PAGE_SPECS.md` §B. Same upload/paste-text paths and endpoints,
       same named-step extraction progress sequence.
