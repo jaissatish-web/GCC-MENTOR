@@ -188,6 +188,9 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
     )
   }
 
+  const imageUrl = `/api/packages/${encodeURIComponent(packageId)}/preview-image`
+  const handleUnlock = () => router.push(`/optimize/pay/${packageId}`)
+
   return (
     <main className="flex min-h-dvh flex-col bg-bg">
       <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5">
@@ -227,32 +230,62 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
         </div>
       </div>
 
-      {tab === 'changes' ? (
-        <ChangesTab
-          oc={oc}
-          summaryBefore={summaryBefore}
-          summaryAfter={summaryAfter}
-          editing={editing}
-          draftSummary={draftSummary}
-          draftBullet={draftBullet}
-          setDraftSummary={setDraftSummary}
-          setDraftBullet={setDraftBullet}
-          setEditing={setEditing}
-          saveSummary={saveSummary}
-          saveBullet={saveBullet}
-          saveBusy={saveBusy}
-          skillsMovement={skillsMovement}
-          profile={profile}
-          onUnlock={() => router.push(`/optimize/pay/${packageId}`)}
-        />
-      ) : (
-        <FullCVTab
-          pkgTitle={pkg.target_job_title}
-          pkgCompany={pkg.target_company}
-          imageUrl={`/api/packages/${encodeURIComponent(packageId)}/preview-image`}
-          onUnlock={() => router.push(`/optimize/pay/${packageId}`)}
-        />
-      )}
+      {/* lg: two columns — left = the tabbed Changes/Full CV panel (unchanged),
+          right rail = a persistent server-rendered blurred preview + Unlock CTA
+          (visible regardless of active tab, per PAGE_SPECS §C / CTO round 2).
+          The tab footers' Unlock CTAs are hidden on lg so the rail is the single
+          desktop CTA; below lg everything stays single-column as built. */}
+      <div className="flex flex-1 flex-col lg:flex-row lg:gap-4 lg:px-8 lg:pb-6">
+        {tab === 'changes' ? (
+          <ChangesTab
+            oc={oc}
+            summaryBefore={summaryBefore}
+            summaryAfter={summaryAfter}
+            editing={editing}
+            draftSummary={draftSummary}
+            draftBullet={draftBullet}
+            setDraftSummary={setDraftSummary}
+            setDraftBullet={setDraftBullet}
+            setEditing={setEditing}
+            saveSummary={saveSummary}
+            saveBullet={saveBullet}
+            saveBusy={saveBusy}
+            skillsMovement={skillsMovement}
+            profile={profile}
+            onUnlock={handleUnlock}
+          />
+        ) : (
+          <FullCVTab
+            pkgTitle={pkg.target_job_title}
+            pkgCompany={pkg.target_company}
+            imageUrl={imageUrl}
+            onUnlock={handleUnlock}
+          />
+        )}
+
+        {/* Right rail (≥lg): persistent server-rendered blurred preview + CTA —
+            reuses the exact imageUrl endpoint wired into FullCVTab (same
+            server-rendered PNG; NO client-side CSS blur is introduced). */}
+        <aside className="hidden shrink-0 flex-col gap-3 lg:flex lg:w-[340px] lg:border-l lg:border-line-light lg:pl-5">
+          <p className="text-[11.5px] leading-relaxed text-ink-400">
+            A blurred preview of your optimized CV. Unlock to download &amp; edit.
+          </p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
+            alt="Blurred preview of your optimized full CV"
+            className="w-full rounded-radius-lg border border-line-light"
+          />
+          <button
+            type="button"
+            onClick={handleUnlock}
+            className="min-h-11 w-full rounded-radius-md bg-redesign-gold px-4 py-4 text-[15px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+          >
+            Unlock full CV
+          </button>
+          <p className="text-center text-[11px] text-ink-400">One-time · PDF + Word · saved to your Library</p>
+        </aside>
+      </div>
     </main>
   )
 }
@@ -458,8 +491,8 @@ function ChangesTab({
         ) : null}
       </div>
 
-      {/* Footer */}
-      <div className="flex flex-col gap-1.5 px-5 pb-6 pt-3">
+      {/* Footer — Unlock CTA shows below lg; on lg the right rail is the CTA */}
+      <div className="flex flex-col gap-1.5 px-5 pb-6 pt-3 lg:hidden">
         <button
           type="button"
           onClick={onUnlock}
@@ -501,11 +534,11 @@ function FullCVTab({
       <button
         type="button"
         onClick={onUnlock}
-        className="mt-2 min-h-11 rounded-[13px] bg-redesign-gold px-4 py-4 text-[15px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+        className="mt-2 min-h-11 rounded-[13px] bg-redesign-gold px-4 py-4 text-[15px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 lg:hidden"
       >
         Unlock full CV
       </button>
-      <p className="text-center text-[11px] text-ink-400">One-time · PDF + Word · saved to your Library</p>
+      <p className="text-center text-[11px] text-ink-400 lg:hidden">One-time · PDF + Word · saved to your Library</p>
     </div>
   )
 }

@@ -1512,6 +1512,24 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **Round 2 spec:** At the `lg` breakpoint (matching this batch's established convention), split into two columns: **left** = the existing tabbed Changes/Full CV panel, completely unchanged (same tabs, same diff rendering, same inline-edit `PATCH` calls); **right rail** = a persistent resume preview (the same server-rendered blurred `<img>`, not a new element) + the "Unlock full CV" CTA, visible regardless of which tab is active on the left. Tablet (stacked, preview above) and mobile (single column, tabs, sticky CTA) stay exactly as already built — those already match spec. **Do not duplicate the blur image fetch or introduce any new client-side filter** — reuse the exact `imageUrl` prop/endpoint already wired into `FullCVTab`, just also render it (or an equivalent instance) in the new right rail. If sharing that image between the tab body and the rail raises any question about correctness, stop and report rather than guessing — this is the one file on this project with an explicit "never a client-side CSS filter" security constraint.
 
+      **Round 2 — CTO-mandated desktop two-column layout, done (2026-08-12).**
+      Built the `lg` two-column composition in `app/optimize/preview/[packageId]/page.tsx`:
+      left = the existing tabbed Changes/Full CV panel, unchanged (same tabs, same
+      `diff` rendering, same inline-edit `PATCH` calls); right = a persistent
+      `340px` rail (`hidden lg:flex`, `lg:border-l`) rendering the **same
+      server-rendered blurred `<img src="/api/packages/[id]/preview-image">`**
+      (the exact `imageUrl` endpoint already wired into `FullCVTab` — hoisted to a
+      shared const; **no client-side CSS blur/filter introduced**, verified by grep)
+      plus the "Unlock full CV" CTA, visible regardless of active tab. The tab
+      footers' Unlock CTAs are now `lg:hidden` so the rail is the single desktop
+      CTA. Below `lg` (tablet/mobile) behavior is unchanged — single column, tabs,
+      the tab's own Unlock CTA, exactly as built. `npx tsc --noEmit`, `npm run
+      lint`, and a full `rm -rf .next && npm run build` all pass;
+      `/optimize/preview/[packageId]` is a dynamic server-rendered route (6.34 kB).
+      Responsive variants verified resolving in compiled CSS
+      (`@media (min-width:1024px)` with `lg:flex-row`, `lg:w-[340px]`, `lg:hidden`).
+      Re-verified: diff tab still ungated, `PATCH` bodies byte-identical, `/package/[id]` unchanged.
+
 - [ ] **TASK-088: Library + Package Detail** — restyle only, per
       `PAGE_SPECS.md` §C. Same list/status/delete API, same reuse-
       detection behavior (TASK-036), same hard-delete confirmation flow
