@@ -1593,7 +1593,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       `/gcc-readiness` or `/job-match` (separate tickets, separate new
       pages) and does not change anonymous-session behavior.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 - [ ] **TASK-090: Settings + Payments** — restyle only, per
       `PAGE_SPECS.md` §C. `/payments` stays an honest placeholder — this
