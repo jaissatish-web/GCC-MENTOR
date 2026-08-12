@@ -63,7 +63,7 @@ Phase 1 (MVP) only. **Do not create tickets for Phase 2+.**
 
 ### B — Data layer  ⚠️ every ticket in this section is Needs Review
 
-- [ ] **TASK-007: Migration — `career_profiles`** ⚠️ *Needs Review*
+- [x] **TASK-007: Migration — `career_profiles`** ⚠️ *Needs Review*
       Spec: Create `supabase/migrations/010_career_profiles.sql` implementing the `career_profiles` table exactly as specified in `docs/CAREER_PROFILE.md` §2, including the `field_visibility` JSONB column with its documented defaults. Enable RLS with a policy restricting all operations to `user_id = auth.uid()`. **Do not add a passport number column — ever.** Do not drop or alter any existing table.
       Depends on: TASK-003 · Status: done
 
