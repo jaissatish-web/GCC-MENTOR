@@ -1362,7 +1362,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       reintroduce as required — TASK-074 already made this decision).
       Same block/level fields submitted to `/api/optimize`.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 - [ ] **TASK-086: Optimize Payment** — restyle only, per `PAGE_SPECS.md`
       §C. Same promo-code redemption RPC path. Razorpay stays absent/
