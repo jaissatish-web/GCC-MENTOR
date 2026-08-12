@@ -1537,7 +1537,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       detection behavior (TASK-036), same hard-delete confirmation flow
       (TASK-037). Desktop table → mobile card-list breakpoint per spec.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 - [ ] **TASK-089: `/ats-scan`** — restyle only, per `PAGE_SPECS.md` §C.
       Stays the public, anonymous-capable entry funnel exactly as built
