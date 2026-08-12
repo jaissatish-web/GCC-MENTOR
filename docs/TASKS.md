@@ -1925,7 +1925,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       named-service cards + Default card + Other overrides card described
       there now, not the old single generic form/list.
 
-      Depends on: TASK-094 · Status: not started.
+      Depends on: TASK-094 · Status: in progress.
 
 - [ ] **TASK-096: Admin Prompts + Promo Codes** — restyle only, per
       `PAGE_SPECS.md` §D. Same forms/actions, unchanged from TASK-075's
