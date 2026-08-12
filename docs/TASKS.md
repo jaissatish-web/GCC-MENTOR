@@ -2038,11 +2038,41 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **CTO review, 2026-08-12 — APPROVED, no fix needed.** Gave `ServicePackageItemsFields.tsx` line-by-line attention since it's the file with a real, documented prior incident: read the current file directly, not just the diff — `key={id}` uses the stable `rowIds` value (never the map index), `removeRow(id)` filters by that same stable id, and `service_key_${id}`/`quota_${id}` field names use it too. The bug class this ticket was flagged against is not present. `q`/`user` param sharing and all server-action forms (create/activate/deactivate package, grant credit, override rate limit) with their hidden inputs confirmed genuinely untouched on the other two files. `tsc`/`lint`/`build` independently re-run, all clean.
 
-- [ ] **TASK-098: Admin Access Log** — restyle only, per `PAGE_SPECS.md`
+- [x] **TASK-098: Admin Access Log** — restyle only, per `PAGE_SPECS.md`
       §D. Same read-only 50-row query. Desktop table → mobile stacked-row
       fallback per spec.
 
-      Depends on: TASK-094 · Status: in progress.
+      Depends on: TASK-094 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled `app/admin/access-log/page.tsx` to the
+      forest/gold **light** system and added the **§D mobile stacked-card
+      fallback** (the "same treatment as Library's mobile fallback"):
+      - **Mobile:** each row is now a `Card`-style rounded div (`lg:hidden`)
+        with the fields as labeled rows — **When**, **Admin** (`font-mono`),
+        **Target** (`font-mono`), **Resource** (`resource · id` in mono) — so
+        the four columns become readable stacked rows instead of a cramped
+        horizontal scroll.
+      - **Desktop/tablet:** the existing table is preserved inside its own
+        `overflow-x-auto` container, now gated `hidden lg:block` (table at
+        lg+, cards below — the library's breakpoint).
+      - Tokens: `midnight`→`ink-900`, `ink-body`→`ink-700`, `ink-muted/warm`
+        →`ink-400`, `border-line`→`border-line-light`, `font-redesign-sans`.
+        **The `/lib` is untouched**: same read-only `listPiiAccessLog(50)`
+        query, `requireAdmin`, and the exact row field access
+        (`accessedAt`/`adminUserId`/`targetUserId`/`resource`/`resourceId`,
+        mono ID slicing to 8) — diff is the restyle + the added mobile-cards /
+        `lg` wrappers, nothing else.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; `/admin/access-log` builds (`ƒ`, 44 total routes).
+      Tokens + responsive variants (`lg:hidden`, `lg:block`) resolve in
+      `.next/static/css/*.css`; no artifact; no real legacy-token leak (the
+      "hit" was a grep `\b` false positive inside `border-line-light`). Copy
+      confirmed present in the compiled output.
+
+      **This is the final ticket of the Stage-3 redesign batch
+      (TASK-076–098), submitted with the last-three admin tickets for CTO
+      review.**
 
 ---
 
