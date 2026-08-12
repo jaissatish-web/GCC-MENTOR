@@ -1026,7 +1026,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       place of its current ad-hoc dashed-card markup — visually
       consistent with Dashboard's Planned row now, same copy.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 - [ ] **TASK-081: Login / Signup** — restyle only, per `PAGE_SPECS.md`
       §A. Same fields, same Supabase Auth validation/redirect behavior.
