@@ -1,5 +1,6 @@
 import { requireAdmin } from '@/lib/admin/adminAuth'
 import { listPromoCodes } from '@/lib/admin/promoCodes'
+import { listServicePackages } from '@/lib/admin/servicePackages'
 import { createPromoCodeAction, deactivatePromoCodeAction } from '@/app/admin/actions'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -11,6 +12,15 @@ import { Pill } from '@/components/ui/Pill'
  * monolithic /admin page). Unlock a package's paid deliverable without
  * Razorpay while KYC stays blocked. Same form, same action, same behavior
  * as before — this is a navigation restructure only.
+ *
+ * TASK-066 item 3 (follow-up, 2026-08-13): `createPromoCodeAction` and
+ * `createPromoCode` have supported a `packageId` since TASK-065 (a package-
+ * tied code redeems through `redeem_package_promo_code`, not the original
+ * single-resume `redeem_promo_code`), but this form never had a field to
+ * set it — every code created here was always the single-resume kind.
+ * Added the package dropdown (blank = original behavior, unchanged) and
+ * the package name on each existing code, sourced from `listPromoCodes`'s
+ * already-joined `packageName` (no new query).
  */
 export default async function PromoCodesPage({
   searchParams,
@@ -20,7 +30,11 @@ export default async function PromoCodesPage({
   const admin = await requireAdmin()
   const { promoSaved, promoError } = searchParams
 
-  const promoCodes = await listPromoCodes(50)
+  const [promoCodes, servicePackages] = await Promise.all([
+    listPromoCodes(50),
+    listServicePackages(),
+  ])
+  const activePackages = servicePackages.filter((p) => p.isActive)
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 font-redesign-sans">
@@ -77,6 +91,24 @@ export default async function PromoCodesPage({
             />
             <Input name="expiresAt" type="datetime-local" label="Expires (optional)" className="w-[220px]" />
           </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="f_promo_package" className="text-sm font-medium text-ink-900">
+              Package <span className="font-normal text-ink-400">(optional — leave blank for the original single-resume code)</span>
+            </label>
+            <select
+              id="f_promo_package"
+              name="packageId"
+              defaultValue=""
+              className="min-h-11 w-full max-w-[320px] rounded-radius-md border border-line-light bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none transition-colors focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
+            >
+              <option value="">None — original single-resume code</option>
+              {activePackages.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <Button type="submit" variant="primary" className="self-start">
             Create code
           </Button>
@@ -93,7 +125,14 @@ export default async function PromoCodesPage({
                 className="flex flex-wrap items-center justify-between gap-2 rounded-radius-md border border-line-light px-3 py-2 text-[12px]"
               >
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-mono font-semibold text-ink-900">{c.code}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="font-mono font-semibold text-ink-900">{c.code}</span>
+                    {c.packageName ? (
+                      <span className="rounded-full border border-line-light-strong px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ink-400">
+                        {c.packageName}
+                      </span>
+                    ) : null}
+                  </span>
                   <span className="text-ink-400">
                     {c.description} · {c.redemptionCount}
                     {c.maxRedemptions != null ? ` / ${c.maxRedemptions}` : ''} used
