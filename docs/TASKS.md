@@ -2042,7 +2042,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       §D. Same read-only 50-row query. Desktop table → mobile stacked-row
       fallback per spec.
 
-      Depends on: TASK-094 · Status: not started.
+      Depends on: TASK-094 · Status: in progress.
 
 ---
 
