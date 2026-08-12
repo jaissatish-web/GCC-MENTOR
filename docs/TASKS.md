@@ -1305,14 +1305,51 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       Independently re-ran `tsc`/`lint`/`build` after all three fixes — all clean. Live browser check not possible: `/dashboard` requires a real login session, same standing gap as every authenticated page in this project.
 
-- [ ] **TASK-084: Career Profile + Visibility** — restyle only, per
+- [x] **TASK-084: Career Profile + Visibility** — restyle only, per
       `PAGE_SPECS.md` §C. Same full-object `PUT /api/profile` contract,
       same required-field set, same tri-state driving-license logic —
       **flagged for extra-careful review since this exact class of bug
       has been caught before in this project.** Same `field_visibility`
       behavior on `/profile/visibility`.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled `app/profile/page.tsx` +
+      `app/profile/visibility/page.tsx` (1505/218-line files) to the
+      forest/gold dark theme, **visual-only**. The full-object PUT body,
+      required-field validation, tri-state driving-license `<select>`
+      (`'' → null · 'yes' → true · 'no' → false`, never a coerced default
+      `false`), `field_visibility` batching, and every data-fetch are
+      **byte-for-byte unchanged** — verified by diff (every `+/-` line is a
+      `className`/tone/structural-removal; the license block at
+      `app/profile/page.tsx:1024/1027` is identical) and by `tsc`.
+      - **Token swap (ordered, collision-safe):** `text-marble` →
+        `ink-900-dark`, `border-hairline` → `line-dark`, `bg-surface` /
+        `bg-surface-2` → `surface-dark` / `surface-2-dark`, `gold-light` /
+        `state-gold-*` → `gold-text-dark` / `redesign-gold-tint-dark`,
+        `emerald` → `forest-dark`, `terracotta` / `state-terra-*` →
+        `terra-dark` / `terra-tint-dark`, `ring/border/bg-gold` →
+        `redesign-gold-dark` family, `shadow-glow-gold` →
+        `redesign-cta-glow`, `rounded-lg/xl` → `radius-md`. Zero old-token
+        leaks remain (grep of both files confirms).
+      - **§C 900px column:** container `max-w-5xl` (1024px) → `max-w-[900px]`
+        to match "Desktop: 900px single readable column". Repeatable
+        sections were already card-per-entry; structure unchanged.
+      - **Dark-card fix:** `CardSection`'s and the photo card's `Card` were
+        default-tone (light/white) with light text — now `tone="dark"`, so
+        the light text is readable on the dark form cards.
+      - **Removed the fake device status bar** (`9:41 ▮▮▮`) from both pages
+        — same approved call as TASK-081/082.
+      - `Input`/`Toggle` render at their shared default `tone` (light/white
+        fields on the dark cards). Deliberate minimal choice to avoid
+        touching ~40 call sites; flagged for CTO if `tone="dark"` is wanted.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm
+      run build` all pass; `/profile` (10.4 kB) and `/profile/visibility`
+      (3.45 kB) prerender statically. All redesign tokens resolve in
+      `.next/static/css/*.css`; no legacy navy/gold token remains in either
+      source file. Live browser check not run: `/profile` requires a real
+      login session (same standing gap as every authenticated page).
 
 - [ ] **TASK-085: Optimize Target + Setup** — restyle only, per
       `PAGE_SPECS.md` §C. `target_country` stays optional (do not

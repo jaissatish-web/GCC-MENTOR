@@ -498,7 +498,7 @@ const CATEGORY_COPY: Record<ReadinessCategory, { highlight: string; rest: string
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-marble/60">
+    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-900-dark/60">
       {children}
     </div>
   )
@@ -518,11 +518,11 @@ function CardSection({
   children: React.ReactNode
 }) {
   return (
-    <Card id={id} className="flex flex-col gap-3.5 p-4">
+    <Card id={id} tone="dark" className="flex flex-col gap-3.5 p-4">
       <div className="flex items-center justify-between gap-3">
-        <div className="text-[15px] font-bold text-marble">{title}</div>
+        <div className="text-[15px] font-bold text-ink-900-dark">{title}</div>
         {badge ? (
-          <span className="rounded-[5px] bg-state-gold-bg px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-state-gold-text">
+          <span className="rounded-[5px] bg-redesign-gold-tint-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text-dark">
             {badge}
           </span>
         ) : action ? (
@@ -535,10 +535,10 @@ function CardSection({
 }
 
 const selectClass =
-  'min-h-11 w-full rounded-lg border border-hairline/60 bg-surface px-[15px] py-[13px] text-sm font-medium text-marble outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/20'
+  'min-h-11 w-full rounded-radius-md border border-line-dark/60 bg-surface-dark px-[15px] py-[13px] text-sm font-medium text-ink-900-dark outline-none transition-colors focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/20'
 
 const textareaClass =
-  'min-h-11 w-full resize-none rounded-lg border border-hairline/60 bg-surface px-[15px] py-[13px] text-sm font-medium text-marble outline-none transition-colors placeholder:text-marble/40 focus:border-gold focus:ring-2 focus:ring-gold/20'
+  'min-h-11 w-full resize-none rounded-radius-md border border-line-dark/60 bg-surface-dark px-[15px] py-[13px] text-sm font-medium text-ink-900-dark outline-none transition-colors placeholder:text-ink-900-dark/40 focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/20'
 
 function ConfirmToggle({
   id,
@@ -556,8 +556,8 @@ function ConfirmToggle({
   return (
     <div id={id} className="flex items-start justify-between gap-3 py-1">
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-marble">{label}</span>
-        {hint ? <span className="text-[12px] text-marble/55">{hint}</span> : null}
+        <span className="text-sm font-medium text-ink-900-dark">{label}</span>
+        {hint ? <span className="text-[12px] text-ink-900-dark/55">{hint}</span> : null}
       </div>
       <Toggle checked={checked} onCheckedChange={onChange} aria-label={label} />
     </div>
@@ -739,32 +739,28 @@ function ProfileScreen() {
 
   if (!loaded || !editor) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-5xl items-center justify-center bg-void">
-        <p className="font-mono text-sm text-marble/55">Loading…</p>
+      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-void">
+        <p className="font-mono text-sm text-ink-900-dark/55">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-void">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-void">
       {/* Readiness header — the ring IS the header, on dark navy */}
-      <header className="flex flex-col gap-4 bg-surface px-5 pb-6 pt-4">
-        <div className="flex h-11 items-center justify-between text-[12px] font-semibold text-marble/80">
-          <span>9:41</span>
-          <span className="tracking-[0.14em]">▮▮▮</span>
-        </div>
+      <header className="flex flex-col gap-4 bg-surface-dark px-5 pb-6 pt-4">
         <div className="flex items-center gap-4">
           <div className="shrink-0">
             {/* Reuses the approved TASK-026 ReadinessRing component. */}
             <ReadinessRing score={readiness.score} size={86} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <h1 className="font-serif text-[20px] leading-tight text-marble">
+            <h1 className="font-serif text-[20px] leading-tight text-ink-900-dark">
               Almost there, {firstName}
             </h1>
-            <p className="text-[12px] leading-relaxed text-marble/70">
-              <span className="font-semibold text-marble">{itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
-              Profiles like yours — <span className="font-semibold text-gold-light">{categoryCopy.highlight}</span> —{' '}
+            <p className="text-[12px] leading-relaxed text-ink-900-dark/70">
+              <span className="font-semibold text-ink-900-dark">{itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
+              Profiles like yours — <span className="font-semibold text-gold-text-dark">{categoryCopy.highlight}</span> —{' '}
               {categoryCopy.rest}
             </p>
           </div>
@@ -772,7 +768,7 @@ function ProfileScreen() {
       </header>
 
       {loadError ? (
-        <div className="mx-5 mt-4 rounded-xl border border-terracotta/30 bg-state-terra-bg px-3.5 py-3 text-[12px] text-state-terra-text">
+        <div className="mx-5 mt-4 rounded-radius-md border border-terra-dark/30 bg-terra-tint-dark px-3.5 py-3 text-[12px] text-terra-dark">
           {loadError}
         </div>
       ) : null}
@@ -783,29 +779,29 @@ function ProfileScreen() {
           that key was already read+cleared in the mount pass, so this can never
           reappear after a reload. */}
       {claimedScan ? (
-        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-xl border border-gold/40 bg-surface px-4 py-3">
+        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-radius-md border border-redesign-gold-dark/40 bg-surface-dark px-4 py-3">
           <div className="flex flex-col gap-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-state-gold-text">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-text-dark">
               Welcome back
             </p>
-            <p className="text-[13px] font-medium text-marble">
+            <p className="text-[13px] font-medium text-ink-900-dark">
               Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
             </p>
             <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="font-mono text-2xl font-bold text-emerald">
+              <span className="font-mono text-2xl font-bold text-forest-dark">
                 {claimedScan.overall_score}
                 <span className="text-sm">/100</span>
               </span>
-              <span className="font-mono text-[12px] text-marble/70">Structure {claimedScan.category_scores.structure}</span>
-              <span className="font-mono text-[12px] text-marble/70">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
-              <span className="font-mono text-[12px] text-marble/70">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
+              <span className="font-mono text-[12px] text-ink-900-dark/70">Structure {claimedScan.category_scores.structure}</span>
+              <span className="font-mono text-[12px] text-ink-900-dark/70">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
+              <span className="font-mono text-[12px] text-ink-900-dark/70">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setClaimedScan(null)}
             aria-label="Dismiss welcome back banner"
-            className="min-h-11 shrink-0 px-1 text-marble/60 transition-colors hover:text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="min-h-11 shrink-0 px-1 text-ink-900-dark/60 transition-colors hover:text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark"
           >
             ✕
           </button>
@@ -822,12 +818,12 @@ function ProfileScreen() {
                 key={m.field}
                 type="button"
                 onClick={() => focusField(m.field)}
-                className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-hairline/70 bg-surface px-3.5 py-3 text-left transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void"
+                className="flex min-h-11 items-center justify-between gap-3 rounded-radius-md border border-line-dark/70 bg-surface-dark px-3.5 py-3 text-left transition-colors hover:bg-surface-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2 focus-visible:ring-offset-void"
               >
-                <span className="text-[13px] font-medium text-marble">
-                  {m.label} <span className="font-normal text-marble/60">· +{m.points} points</span>
+                <span className="text-[13px] font-medium text-ink-900-dark">
+                  {m.label} <span className="font-normal text-ink-900-dark/60">· +{m.points} points</span>
                 </span>
-                <span className="shrink-0 text-[11px] font-semibold text-emerald">Add →</span>
+                <span className="shrink-0 text-[11px] font-semibold text-forest-dark">Add →</span>
               </button>
             ))}
           </div>
@@ -871,8 +867,8 @@ function ProfileScreen() {
               onChange={(e) => setField({ target_industry: e.target.value })}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_target_country" className="text-sm font-medium text-marble">
-                Target country <span className="font-normal text-marble/50">(optional)</span>
+              <label htmlFor="f_target_country" className="text-sm font-medium text-ink-900-dark">
+                Target country <span className="font-normal text-ink-900-dark/50">(optional)</span>
               </label>
               <select
                 id="f_target_country"
@@ -907,7 +903,7 @@ function ProfileScreen() {
           action={
             <Link
               href="/profile/visibility"
-              className="text-[11px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
             >
               What appears on your CV →
             </Link>
@@ -968,7 +964,7 @@ function ProfileScreen() {
               onChange={(e) => setField({ date_of_birth: e.target.value })}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_passport_type" className="text-sm font-medium text-marble">
+              <label htmlFor="f_passport_type" className="text-sm font-medium text-ink-900-dark">
                 Passport type
               </label>
               <select
@@ -1019,7 +1015,7 @@ function ProfileScreen() {
             — deliberately no field_visibility toggle (TASK-067 scope decision). */}
         <CardSection title="Driving license">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-marble">
+            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-ink-900-dark">
               Do you have a driving license?
             </label>
             <select
@@ -1072,26 +1068,26 @@ function ProfileScreen() {
             onChange={(e) => setField({ professional_summary: e.target.value })}
             placeholder="A short summary of who you are and what you bring."
           />
-          <p className="text-[11px] leading-snug text-marble/55">
+          <p className="text-[11px] leading-snug text-ink-900-dark/55">
             This is your own summary — the AI never writes back into it. It is the &ldquo;before&rdquo; the
             optimizer diffs against.
           </p>
         </CardSection>
 
         {/* PHOTO — STUB. No Storage/upload API exists yet (see header note). */}
-        <Card id="sec_photo" className="flex gap-3.5 border-[1.5px] border-gold p-4">
-          <div className="flex h-[70px] w-[58px] shrink-0 flex-col items-center justify-center gap-1 rounded-[7px] border border-dashed border-gold bg-surface-2">
-            <span className="text-base text-state-gold-text">◔</span>
-            <span className="text-[8px] font-semibold uppercase tracking-wider text-state-gold-text">Add</span>
+        <Card id="sec_photo" tone="dark" className="flex gap-3.5 border-[1.5px] border-redesign-gold-dark p-4">
+          <div className="flex h-[70px] w-[58px] shrink-0 flex-col items-center justify-center gap-1 rounded-[7px] border border-dashed border-redesign-gold-dark bg-surface-2-dark">
+            <span className="text-base text-gold-text-dark">◔</span>
+            <span className="text-[8px] font-semibold uppercase tracking-wider text-gold-text-dark">Add</span>
           </div>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-[13px] font-bold text-marble">Photo</span>
-              <span className="rounded-[5px] bg-state-gold-bg px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-state-gold-text">
+              <span className="text-[13px] font-bold text-ink-900-dark">Photo</span>
+              <span className="rounded-[5px] bg-redesign-gold-tint-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text-dark">
                 Expected in Gulf CVs
               </span>
             </div>
-            <p className="text-[11px] leading-snug text-marble/55">
+            <p className="text-[11px] leading-snug text-ink-900-dark/55">
               Passport-style, plain background. Counts toward your readiness score.
             </p>
             <div className="mt-1 flex gap-2">
@@ -1106,7 +1102,7 @@ function ProfileScreen() {
                 type="button"
                 disabled
                 title="Photo upload coming soon"
-                className="min-h-11 cursor-not-allowed rounded-lg bg-surface px-3 py-3 text-[11px] font-semibold text-marble opacity-50"
+                className="min-h-11 cursor-not-allowed rounded-radius-md bg-surface-dark px-3 py-3 text-[11px] font-semibold text-ink-900-dark opacity-50"
               >
                 Upload photo
               </button>
@@ -1114,12 +1110,12 @@ function ProfileScreen() {
                 type="button"
                 disabled
                 title="Photo upload coming soon"
-                className="min-h-11 cursor-not-allowed rounded-lg border border-hairline/70 bg-surface px-3 py-3 text-[11px] font-semibold text-marble opacity-50"
+                className="min-h-11 cursor-not-allowed rounded-radius-md border border-line-dark/70 bg-surface-dark px-3 py-3 text-[11px] font-semibold text-ink-900-dark opacity-50"
               >
                 Take one now
               </button>
             </div>
-            <p className="text-[10px] text-marble/40">Photo upload is coming soon.</p>
+            <p className="text-[10px] text-ink-900-dark/40">Photo upload is coming soon.</p>
           </div>
         </Card>
 
@@ -1154,7 +1150,7 @@ function ProfileScreen() {
                     : e
                 )
               }
-              className="text-[11px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
             >
               + Add
             </button>
@@ -1162,9 +1158,9 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-4">
             {editor.work_experience.map((w, i) => (
-              <div key={w.key} className="flex flex-col gap-2.5 border border-hairline/60 rounded-xl p-3">
+              <div key={w.key} className="flex flex-col gap-2.5 border border-line-dark/60 rounded-radius-md p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-marble/55">#{i + 1}</span>
+                  <span className="font-mono text-[11px] text-ink-900-dark/55">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1177,7 +1173,7 @@ function ProfileScreen() {
                           : e
                       )
                     }
-                    className="min-h-11 px-1 text-[11px] font-semibold text-terracotta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+                    className="min-h-11 px-1 text-[11px] font-semibold text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
                   >
                     Remove
                   </button>
@@ -1190,7 +1186,7 @@ function ProfileScreen() {
                 </div>
                 <Input label="Location" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-marble">
+                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-ink-900-dark">
                     Gulf experience
                   </label>
                   <select
@@ -1209,7 +1205,7 @@ function ProfileScreen() {
                     ))}
                   </select>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-marble">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900-dark">
                   Description
                   <textarea
                     rows={3}
@@ -1218,8 +1214,8 @@ function ProfileScreen() {
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { description: e.target.value }) }))}
                   />
                 </label>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-marble">
-                  Highlights <span className="text-[11px] font-normal text-marble/55">one per line</span>
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900-dark">
+                  Highlights <span className="text-[11px] font-normal text-ink-900-dark/55">one per line</span>
                   <textarea
                     rows={3}
                     className={textareaClass}
@@ -1238,12 +1234,12 @@ function ProfileScreen() {
             An empty array renders nothing (silence is correct here, not a
             manufactured "no gaps!"). */}
         {employmentGaps.length > 0 ? (
-          <div className="flex flex-col gap-2 rounded-xl border border-hairline/70 bg-surface px-3.5 py-3">
-            <span className="text-[12px] font-semibold text-marble/70">
+          <div className="flex flex-col gap-2 rounded-radius-md border border-line-dark/70 bg-surface-dark px-3.5 py-3">
+            <span className="text-[12px] font-semibold text-ink-900-dark/70">
               Employment gaps &mdash; just for your awareness
             </span>
             {employmentGaps.map((g, i) => (
-              <p key={i} className="text-[11px] leading-snug text-marble/55">
+              <p key={i} className="text-[11px] leading-snug text-ink-900-dark/55">
                 We noticed a {g.gapMonths}-month gap between {g.precedingCompany || 'a previous role'} and{' '}
                 {g.followingCompany || 'your next role'}. This isn&rsquo;t scored &mdash; just something to be aware of.
               </p>
@@ -1279,7 +1275,7 @@ function ProfileScreen() {
                     : e
                 )
               }
-              className="text-[11px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
             >
               + Add
             </button>
@@ -1287,15 +1283,15 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.education.map((x, i) => (
-              <div key={x.key} className="flex flex-col gap-2.5 border border-hairline/60 rounded-xl p-3">
+              <div key={x.key} className="flex flex-col gap-2.5 border border-line-dark/60 rounded-radius-md p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-marble/55">#{i + 1}</span>
+                  <span className="font-mono text-[11px] text-ink-900-dark/55">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
                       setEditor((e) => (e ? { ...e, education: e.education.filter((y) => y.key !== x.key) } : e))
                     }
-                    className="min-h-11 px-1 text-[11px] font-semibold text-terracotta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+                    className="min-h-11 px-1 text-[11px] font-semibold text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
                   >
                     Remove
                   </button>
@@ -1323,7 +1319,7 @@ function ProfileScreen() {
               onClick={() =>
                 setEditor((e) => (e ? { ...e, skills: [...e.skills, { key: uid(), name: '' }] } : e))
               }
-              className="text-[11px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
             >
               + Add
             </button>
@@ -1332,7 +1328,7 @@ function ProfileScreen() {
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
-                <span className="font-mono text-[11px] text-marble/55">{i + 1}</span>
+                <span className="font-mono text-[11px] text-ink-900-dark/55">{i + 1}</span>
                 <Input
                   value={s.name}
                   aria-label={`Skill ${i + 1}`}
@@ -1344,7 +1340,7 @@ function ProfileScreen() {
                     setEditor((e) => (e ? { ...e, skills: e.skills.filter((x) => x.key !== s.key) } : e))
                   }
                   aria-label={`Remove skill ${i + 1}`}
-                  className="min-h-11 px-2 text-[13px] text-terracotta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+                  className="min-h-11 px-2 text-[13px] text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
                 >
                   ✕
                 </button>
@@ -1374,7 +1370,7 @@ function ProfileScreen() {
                     : e
                 )
               }
-              className="text-[11px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
             >
               + Add
             </button>
@@ -1382,15 +1378,15 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.certifications.map((c, i) => (
-              <div key={c.key} className="flex flex-col gap-2.5 border border-hairline/60 rounded-xl p-3">
+              <div key={c.key} className="flex flex-col gap-2.5 border border-line-dark/60 rounded-radius-md p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-marble/55">#{i + 1}</span>
+                  <span className="font-mono text-[11px] text-ink-900-dark/55">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
                       setEditor((e) => (e ? { ...e, certifications: e.certifications.filter((x) => x.key !== c.key) } : e))
                     }
-                    className="min-h-11 px-1 text-[11px] font-semibold text-terracotta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+                    className="min-h-11 px-1 text-[11px] font-semibold text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
                   >
                     Remove
                   </button>
@@ -1417,18 +1413,18 @@ function ProfileScreen() {
               onClick={() =>
                 setEditor((e) => (e ? { ...e, additional_information: [...e.additional_information, { key: uid(), label: '', value: '' }] } : e))
               }
-              className="text-[11px] font-semibold text-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
             >
               + Add
             </button>
           }
         >
-          <p className="text-[11px] leading-snug text-marble/55">
+          <p className="text-[11px] leading-snug text-ink-900-dark/55">
             AI-labelled · you can rename the label on each item.
           </p>
           <div className="flex flex-col gap-3">
             {editor.additional_information.map((a) => (
-              <div key={a.key} className="flex flex-col gap-2.5 border border-hairline/60 rounded-xl p-3">
+              <div key={a.key} className="flex flex-col gap-2.5 border border-line-dark/60 rounded-radius-md p-3">
                 <div className="flex gap-2">
                   <Input
                     label="Label"
@@ -1442,13 +1438,13 @@ function ProfileScreen() {
                         setEditor((e) => (e ? { ...e, additional_information: e.additional_information.filter((x) => x.key !== a.key) } : e))
                       }
                       aria-label="Remove item"
-                      className="min-h-11 px-2 text-[13px] text-terracotta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+                      className="min-h-11 px-2 text-[13px] text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
                     >
                       ✕
                     </button>
                   </div>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-marble">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900-dark">
                   Value
                   <textarea
                     rows={2}
@@ -1465,11 +1461,11 @@ function ProfileScreen() {
 
       {/* Save & exit / Confirm profile — same full-object PUT, differ in navigation */}
       {saveError ? (
-        <div className="mx-5 mb-3 rounded-xl border border-terracotta/30 bg-state-terra-bg px-3.5 py-3 text-[12px] text-state-terra-text">
+        <div className="mx-5 mb-3 rounded-radius-md border border-terra-dark/30 bg-terra-tint-dark px-3.5 py-3 text-[12px] text-terra-dark">
           {saveError}
         </div>
       ) : null}
-      <div className="sticky bottom-0 flex gap-2.5 bg-gradient-to-t from-marble via-marble/95 to-transparent px-5 pb-5 pt-4">
+      <div className="sticky bottom-0 flex gap-2.5 bg-gradient-to-t from-void via-void/95 to-transparent px-5 pb-5 pt-4">
         <Button
           variant="secondary"
           className="flex-1"

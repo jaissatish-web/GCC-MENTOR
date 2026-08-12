@@ -136,32 +136,26 @@ function VisibilityScreen() {
 
   if (!loaded || !vis) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-5xl items-center justify-center bg-void">
-        <p className="font-mono text-sm text-marble/55">Loading…</p>
+      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-void">
+        <p className="font-mono text-sm text-ink-900-dark/55">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-void">
-      {/* Status bar */}
-      <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-marble">
-        <span>9:41</span>
-        <span className="tracking-[0.14em]">▮▮▮</span>
-      </header>
-
+    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-void">
       {/* Back + heading */}
       <div className="flex flex-col gap-2 px-5 pb-4 pt-1.5">
         <button
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-lg text-[20px] leading-none text-marble focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2"
         >
           ←
         </button>
-        <h1 className="font-serif text-[27px] leading-tight text-marble">What appears on your CV</h1>
-        <p className="text-[13px] leading-normal text-marble/70 [text-wrap:pretty]">
+        <h1 className="font-serif text-[27px] leading-tight text-ink-900-dark">What appears on your CV</h1>
+        <p className="text-[13px] leading-normal text-ink-900-dark/70 [text-wrap:pretty]">
           Gulf employers expect some of these; others you may prefer to hide. Hiding a field never
           deletes it — the template closes the gap cleanly.
         </p>
@@ -172,11 +166,11 @@ function VisibilityScreen() {
         {FIELDS.map(({ key, label, hint }) => (
           <div
             key={key}
-            className="flex items-center justify-between gap-3 rounded-xl border border-hairline/60 bg-surface px-4 py-3.5"
+            className="flex items-center justify-between gap-3 rounded-radius-md border border-line-dark/60 bg-surface-dark px-4 py-3.5"
           >
             <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="text-[13px] font-semibold text-marble">{label}</span>
-              <span className="text-[11px] leading-snug text-marble/60">{hint}</span>
+              <span className="text-[13px] font-semibold text-ink-900-dark">{label}</span>
+              <span className="text-[11px] leading-snug text-ink-900-dark/60">{hint}</span>
             </div>
             <Toggle checked={vis[key]} onCheckedChange={(v) => flip(key, v)} aria-label={label} />
           </div>
@@ -185,14 +179,14 @@ function VisibilityScreen() {
 
       {/* Static PII footer note (mockup verbatim) + Done */}
       {saveError ? (
-        <div className="mx-5 mt-3 rounded-xl border border-terracotta/30 bg-state-terra-bg px-3.5 py-3 text-[12px] text-state-terra-text">
+        <div className="mx-5 mt-3 rounded-radius-md border border-terra-dark/30 bg-terra-tint-dark px-3.5 py-3 text-[12px] text-terra-dark">
           {saveError}
         </div>
       ) : null}
       <div className="flex flex-col gap-3 px-5 pb-6 pt-4">
-        <div className="flex items-start gap-2.5 rounded-xl border border-hairline/60 bg-surface px-3.5 py-3">
-          <span className="text-[13px] text-emerald">⌾</span>
-          <p className="text-[11px] leading-snug text-marble/70">
+        <div className="flex items-start gap-2.5 rounded-radius-md border border-line-dark/60 bg-surface-dark px-3.5 py-3">
+          <span className="text-[13px] text-forest-dark">⌾</span>
+          <p className="text-[11px] leading-snug text-ink-900-dark/70">
             Passport and visa fields are encrypted. Every internal access is logged. You can delete
             your profile and all packages at any time from Settings.
           </p>
