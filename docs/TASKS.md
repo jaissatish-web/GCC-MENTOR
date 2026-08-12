@@ -1455,13 +1455,13 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **CTO review, 2026-08-12 — APPROVED, no fix needed.** Read the full diff and the current file. `redeem()`, the `POST /api/packages/[id]/redeem-promo` call, the `is_paid`/redirect check, and the Razorpay stub copy are all confirmed genuinely absent from the diff — untouched. Grepped for every legacy token (`midnight`, `marble` background, `hairline`, `void`, `state-gold/terra/emerald-*`, `fill-subtle`, `line-soft`, old `rounded-lg/2xl`) plus the `light-light`/`dark-dark` collision pattern from TASK-085 — zero of any remain; the "single `border-line` rule" fix genuinely worked this time. `tsc`/`lint`/`build` independently re-run, all clean. (One imperceptible, non-blocking nit: the hand-rolled Unlock button's `text-marble` was already there pre-diff and wasn't touched — `Button.tsx`'s own `progress` variant uses `text-surface-light` for the same white-on-forest-fill pairing instead. `marble` and `surface-light` differ by `#FBF9F5` vs `#FFFFFF`, invisible in practice — not worth a fix.)
 
-- [ ] **TASK-087: Optimize Preview/Diff** — restyle only, per
+- [x] **TASK-087: Optimize Preview/Diff** — restyle only, per
       `PAGE_SPECS.md` §C. The blur/watermark stays server-rendered into
       the PNG (TASK-033/044) — **do not replace it with a client-side CSS
       filter**, that would reopen a resolved security consideration. Diff
       tab stays ungated. `PATCH /api/packages/[id]` edit path unchanged.
 
-      Depends on: TASK-076–079 · Status: round 1 done, round 2 needed (2026-08-12) — see CTO review below.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12 (round 2 approved).
 
       **Built by Hermes** — restyled both screens, visual-only:
       - `app/optimize/preview/[packageId]/page.tsx` (light) → forest/gold
@@ -1529,6 +1529,8 @@ any ticket in this section — it is not repeated in full inside each one.**
       Responsive variants verified resolving in compiled CSS
       (`@media (min-width:1024px)` with `lg:flex-row`, `lg:w-[340px]`, `lg:hidden`).
       Re-verified: diff tab still ungated, `PATCH` bodies byte-identical, `/package/[id]` unchanged.
+
+      **CTO round-2 review, 2026-08-12 — APPROVED, no fix needed.** All four round-2 requirements verified met exactly: `lg:flex-row` two-column split present; left panel (`ChangesTab`/`FullCVTab`) unchanged aside from `onUnlock` being hoisted into a shared `handleUnlock` — same `router.push` target; right rail reuses the identical hoisted `imageUrl` string (not a second fetch of a different endpoint) for both the tab's own image and the rail's; grepped the whole file for `blur`/`filter` — every hit is a comment or copy string, zero CSS classes. The duplicate-CTA risk was handled correctly: tab-footer CTAs are `lg:hidden`, rail CTA only shows `lg:flex`, so exactly one "Unlock full CV" button is ever visible per breakpoint, never zero or two. Tablet/mobile confirmed unchanged from round 1 (which already matched spec for those breakpoints). Independently re-ran `tsc`/`lint`/`build` — all clean. Round 2 closes this ticket.
 
 - [ ] **TASK-088: Library + Package Detail** — restyle only, per
       `PAGE_SPECS.md` §C. Same list/status/delete API, same reuse-
