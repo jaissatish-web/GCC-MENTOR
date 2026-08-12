@@ -1731,7 +1731,11 @@ any ticket in this section — it is not repeated in full inside each one.**
       Live browser check not run: requires a real login session (standing
       gap).
 
+      **CTO review, 2026-08-12 — APPROVED, one real gap found and fixed directly.** Independently verified the parity claim rather than trusting the description: diffed `toReadinessInput()` against `/dashboard`'s own inline input object field-by-field — genuinely identical, including the exact same `|| undefined`/`|| null` conventions on the same two fields. `lib/readiness.ts` confirmed untouched (absent from the commit). `score`/`missing` derivation lines are character-for-character the same as Dashboard's.
 
+      **Real gap: `middleware.ts` was never updated for the new route.** `/gcc-readiness` was missing from both `PROTECTED_ROUTES` and the `matcher` config — its own header comment says this list "must stay in sync," and every other authenticated page in this app is gated there. Checked the actual exposure: **not a data leak** — `GET /api/profile` independently checks auth server-side and 401s for anonymous callers — but the practical effect was a confusing rendered-shell-then-error-message for a logged-out visitor instead of the clean, immediate `/login` redirect every other protected page gives. Added `/gcc-readiness` to both lists directly (small, safe, well-scoped) and live-verified the fix: anonymous `curl` to `/gcc-readiness` now returns `307` → `Location: /login?redirectTo=%2Fgcc-readiness`, matching the standard pattern exactly. `tsc`/`lint`/`build` re-run clean after the fix (36 routes now).
+
+      **Heads-up for TASK-092/093**: both add another new authenticated route (`/job-match`, `/cover-letter`) and will need the identical `middleware.ts` addition — check for this specifically in those reviews rather than assuming the pattern was internalized from this one round.
 
 - [ ] **TASK-092: `/job-match` (new page)** — existing logic only, per
       `PAGE_SPECS.md` §C and Stage 1 item 5. New route, reuses
