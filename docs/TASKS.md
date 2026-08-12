@@ -1410,6 +1410,8 @@ any ticket in this section — it is not repeated in full inside each one.**
       confirmed present in the compiled output. Live browser check not run:
       `/optimize/*` requires a real login session (standing gap).
 
+      **CTO review, 2026-08-12 — APPROVED, no fix needed.** Read both full diffs. `canContinue`, `set('target_country', ...)`, `set('target_industry', ...)`, the reuse-detection state (`similar`/`dismissed`/`replacingId`), `toggleAll`/`toggleExp`/`setLevel`/`setSummaryOn`, and `onSubmit`'s entire `/api/optimize` POST body (including `target_country: draft.target_country.trim() !== '' ? draft.target_country : null`, unchanged since TASK-074) are **all absent from the diff hunks** — genuinely untouched, not just claimed. `720px` matches `PAGE_SPECS.md` §C exactly. Grepped both files for every legacy token (`marble`, `midnight`, `void`, `hairline`, `terracotta`, `state-gold-*`, `state-terra-*`, `state-emerald-*`, `bg-fill-subtle`, old `rounded-lg/xl/2xl`) and for the self-reported `light-light`/`dark-dark` collision pattern — zero of either remain; the disclosed self-caught fix is confirmed actually fixed, not just described as fixed. Independently re-ran `tsc`/`lint`/`build` — all clean, matches the report.
+
 - [ ] **TASK-086: Optimize Payment** — restyle only, per `PAGE_SPECS.md`
       §C. Same promo-code redemption RPC path. Razorpay stays absent/
       blocked exactly as today — do not add a payment method that doesn't
