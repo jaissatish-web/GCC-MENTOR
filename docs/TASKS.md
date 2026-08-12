@@ -1967,7 +1967,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       `PAGE_SPECS.md` §D. Same forms/actions, unchanged from TASK-075's
       split.
 
-      Depends on: TASK-094 · Status: not started.
+      Depends on: TASK-094 · Status: in progress.
 
 - [ ] **TASK-097: Admin Packages + Users** — restyle only, per
       `PAGE_SPECS.md` §D. Same dynamic line-item form (stable per-row keys
