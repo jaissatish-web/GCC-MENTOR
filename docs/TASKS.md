@@ -1814,7 +1814,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       `lib/ai/validateCoverLetterGrounding.ts`, or the cover-letter API
       route's logic.
 
-      Depends on: TASK-076–079, TASK-083 · Status: not started.
+      Depends on: TASK-076–079, TASK-083 · Status: in progress.
 
 ---
 
