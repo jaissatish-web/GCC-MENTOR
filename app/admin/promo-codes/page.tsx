@@ -23,29 +23,29 @@ export default async function PromoCodesPage({
   const promoCodes = await listPromoCodes(50)
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8">
+    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 font-redesign-sans">
       <div>
-        <h1 className="font-serif text-2xl text-midnight">Promo codes</h1>
-        <p className="text-sm text-ink-muted">Signed in as {admin.email ?? admin.id}</p>
+        <h1 className="font-serif text-2xl text-ink-900">Promo codes</h1>
+        <p className="text-sm text-ink-400">Signed in as {admin.email ?? admin.id}</p>
       </div>
 
       <Card className="flex flex-col gap-4 p-5">
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-warm">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
           Promo codes
         </h2>
-        <p className="text-[12px] text-ink-muted">
+        <p className="text-[12px] text-ink-400">
           Unlocks a package&apos;s paid deliverable without Razorpay — for beta testers while
           KYC stays blocked. A user enters a code on the payment screen. Reusable up to the
           redemption limit you set (blank = unlimited).
         </p>
 
         {promoSaved ? (
-          <div className="rounded-xl border border-state-emerald-line bg-state-emerald-bg px-3.5 py-2.5 text-[12px] text-emerald">
+          <div className="rounded-radius-lg border border-forest/50 bg-forest-tint px-3.5 py-2.5 text-[12px] text-forest">
             Saved.
           </div>
         ) : null}
         {promoError ? (
-          <div className="rounded-xl border border-terracotta/30 bg-state-terra-bg px-3.5 py-2.5 text-[12px] text-state-terra-text">
+          <div className="rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">
             {promoError}
           </div>
         ) : null}
@@ -84,17 +84,17 @@ export default async function PromoCodesPage({
 
         {promoCodes.length > 0 ? (
           <div className="flex flex-col gap-1.5">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-warm">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
               Existing codes
             </div>
             {promoCodes.map((c) => (
               <div
                 key={c.code}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-[12px]"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-radius-md border border-line-light px-3 py-2 text-[12px]"
               >
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-mono font-semibold text-midnight">{c.code}</span>
-                  <span className="text-ink-muted">
+                  <span className="font-mono font-semibold text-ink-900">{c.code}</span>
+                  <span className="text-ink-400">
                     {c.description} · {c.redemptionCount}
                     {c.maxRedemptions != null ? ` / ${c.maxRedemptions}` : ''} used
                     {c.expiresAt ? ` · expires ${c.expiresAt.slice(0, 10)}` : ''}
@@ -107,7 +107,7 @@ export default async function PromoCodesPage({
                       <input type="hidden" name="code" value={c.code} />
                       <button
                         type="submit"
-                        className="text-[11px] font-semibold text-state-terra-text underline-offset-2 hover:underline"
+                        className="text-[11px] font-semibold text-terra underline-offset-2 hover:underline"
                       >
                         Deactivate
                       </button>
@@ -118,7 +118,7 @@ export default async function PromoCodesPage({
             ))}
           </div>
         ) : (
-          <p className="text-[12px] text-ink-faint">No promo codes created yet.</p>
+          <p className="text-[12px] text-ink-400">No promo codes created yet.</p>
         )}
       </Card>
     </main>

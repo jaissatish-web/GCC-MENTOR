@@ -1963,11 +1963,36 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **CTO review, 2026-08-12 — APPROVED, no fix needed.** Gave `/admin/ai-provider` particular attention since it's the security-sensitive page (raw API keys, `maskSecret`) I built directly a few tickets back. Confirmed the `SERVICES` array, every `updateProviderConfigAction`/`deleteProviderConfigAction` form, every hidden `key` input, and `maskSecret` itself are all genuinely absent from the diff — no secret-handling logic touched anywhere. Dashboard's `960px`/3-up grid matches spec exactly, `sections` data-fetch and the terra blocker-warning condition (`allProviderConfigs.length === 0`) untouched. `tsc`/`lint`/`build` independently re-run, all clean.
 
-- [ ] **TASK-096: Admin Prompts + Promo Codes** — restyle only, per
+- [x] **TASK-096: Admin Prompts + Promo Codes** — restyle only, per
       `PAGE_SPECS.md` §D. Same forms/actions, unchanged from TASK-075's
       split.
 
-      Depends on: TASK-094 · Status: in progress.
+      Depends on: TASK-094 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled both admin pages to the forest/gold
+      **light** system, visual-only (same token set as TASK-095):
+      - **`app/admin/prompts/page.tsx`** → §D "one card per template,
+        full-width textarea": token swap over the existing structure
+        (`midnight`→`ink-900`, `ink-warm/muted/faint`→`ink-400`,
+        `emerald`→`forest`, `terra`→`terra-tint`, `border-line*`→`line-light*`
+        regex-guarded, radii→`radius-lg`, `font-redesign-sans`). The `Textarea`
+        is already `w-full` per template. `requireAdmin`, `getAllPromptTemplates`,
+        the `updatePromptTemplateAction` forms, and the mono template-key row
+        are byte-for-byte unchanged — diff is **pure className change**.
+      - **`app/admin/promo-codes/page.tsx`** → §D "compact rows (desktop),
+        stacked cards (mobile)": the existing `flex-wrap` row list already
+        stacks on mobile, so it's kept as-is and just token-swapped
+        (`midnight`→`ink-900`, `ink-*`→`ink-400`, `terra`→`terra-tint`,
+        `border-line*`→`line-light*`, `rounded-lg`→`radius-md`,
+        `font-redesign-sans`). The mono code row, `Pill` (offer/risk), the
+        `createPromoCodeAction`/`deactivatePromoCodeAction` forms, the hidden
+        `code` input, and the `maxRedemptions`/`expiresAt` fields are all
+        unchanged — diff is **pure className change**.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; both admin routes build. Tokens resolve in
+      `.next/static/css/*.css`; no `-light-light-` artifact; zero legacy-token
+      leaks. Copy confirmed present in the compiled output.
 
 - [ ] **TASK-097: Admin Packages + Users** — restyle only, per
       `PAGE_SPECS.md` §D. Same dynamic line-item form (stable per-row keys
