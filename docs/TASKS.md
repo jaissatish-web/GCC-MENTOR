@@ -1532,12 +1532,52 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **CTO round-2 review, 2026-08-12 — APPROVED, no fix needed.** All four round-2 requirements verified met exactly: `lg:flex-row` two-column split present; left panel (`ChangesTab`/`FullCVTab`) unchanged aside from `onUnlock` being hoisted into a shared `handleUnlock` — same `router.push` target; right rail reuses the identical hoisted `imageUrl` string (not a second fetch of a different endpoint) for both the tab's own image and the rail's; grepped the whole file for `blur`/`filter` — every hit is a comment or copy string, zero CSS classes. The duplicate-CTA risk was handled correctly: tab-footer CTAs are `lg:hidden`, rail CTA only shows `lg:flex`, so exactly one "Unlock full CV" button is ever visible per breakpoint, never zero or two. Tablet/mobile confirmed unchanged from round 1 (which already matched spec for those breakpoints). Independently re-ran `tsc`/`lint`/`build` — all clean. Round 2 closes this ticket.
 
-- [ ] **TASK-088: Library + Package Detail** — restyle only, per
+- [x] **TASK-088: Library + Package Detail** — restyle only, per
       `PAGE_SPECS.md` §C. Same list/status/delete API, same reuse-
       detection behavior (TASK-036), same hard-delete confirmation flow
       (TASK-037). Desktop table → mobile card-list breakpoint per spec.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled the two screens, visual-only:
+      - **`app/dashboard/library/page.tsx`** (the §C "desktop table → mobile
+        card-list" list page): this page was a **light-on-dark Phase-1
+        placeholder** with an explicit `bg-marble` wrapper + mobile "sheet"
+        radius waiting for "the same dark pass in Phase 3". TASK-088 is that
+        pass — the stale `bg-marble` wrapper (and its comment) is removed and
+        the page now renders **dark forest/gold** cards/table directly on the
+        dark AppShell, consistent with the dark dashboard. The desktop
+        `<table>`/grid and mobile card-list **breakpoint is unchanged**, and
+        every API/flow is byte-for-byte intact: `PUT /api/packages/[id]`
+        (optimistic status update with revert on error), `DELETE
+        /api/packages/[id]` (two-step inline hard-delete confirm), and the
+        "Re-optimize" → `/optimize/target` reuse-detection entry. Status
+        `<select>` colours map to the Pill-variant forest/gold/terra (and a
+        neutral dark for `visa_processing` — no redesign visa token exists),
+        mono generation-level column kept. No legacy light token remains (the
+        two `bg-marble`/`state-emerald` hits left are in code comments, not
+        classes).
+      - **`app/package/[id]`** (§C "desktop two-column: document preview
+        left, actions/status right rail"): added the `lg` two-column via
+        flex `order` utilities (preview `lg:order-1 lg:flex-1` left, actions
+        rail `lg:order-2 lg:w-[300px]` right). Below `lg` it stays single
+        column with **actions first then preview — the existing mobile
+        order, unchanged** — and download buttons are now full-width
+        (`inline-flex w-full`), per §C "download buttons full-width". The
+        `pdfUrl`/`docxUrl`/`waUrl`/Edit links, `setDownloaded` repeat-purchase
+        prompt, `is_paid` → `/optimize/pay/[id]` guard, and the `GulfPremium`
+        render (same `optimized_content`/`skillsOrder`/`fieldVisibility`
+        props) are all unchanged — diff shows only className re-indentation.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm
+      run build` all pass; `/dashboard/library` prerenders statically
+      (3 kB) and `/package/[id]` is a dynamic server-rendered route
+      (4.52 kB). All forest/gold dark tokens resolve in
+      `.next/static/css/*.css` and the `lg` responsive/order variants
+      (`lg:flex-row`, `lg:order-1/2`, `lg:w-[300px]`, `lg:flex-1`) all
+      resolve; no `-dark-dark-`/«-light-light-» artifact. Copy + logic
+      confirmed present in the compiled output. Live browser check not run:
+      requires a real login + package (standing gap).
 
 - [ ] **TASK-089: `/ats-scan`** — restyle only, per `PAGE_SPECS.md` §C.
       Stays the public, anonymous-capable entry funnel exactly as built

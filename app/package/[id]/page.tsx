@@ -84,8 +84,8 @@ function PackageScreenInner({ id }: { id: string }) {
   const waUrl = `https://wa.me/?text=${whatsappText}`
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-void">
-      <div className="flex flex-col gap-3 px-5 pb-6 pt-1.5">
+    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-void font-redesign-sans">
+      <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5">
         <button
           type="button"
           aria-label="Go back"
@@ -99,48 +99,55 @@ function PackageScreenInner({ id }: { id: string }) {
           ✓ Unlocked &amp; saved to Library
         </span>
         <h1 className="font-serif text-[27px] leading-tight text-ink-900-dark">Your Gulf CV is ready, {firstName}</h1>
+      </div>
 
-        {/* Actions */}
-        <div className="mt-1 flex flex-wrap gap-2">
-          <a
-            href={pdfUrl}
-            onClick={() => setDownloaded(true)}
-            className="min-h-11 rounded-radius-md bg-surface-dark px-4 py-3 text-[12.5px] font-bold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2"
-          >
-            Download PDF
-          </a>
-          <a
-            href={docxUrl}
-            onClick={() => setDownloaded(true)}
-            className="min-h-11 rounded-radius-md border border-line-dark/70 bg-surface-dark px-4 py-3 text-[12.5px] font-semibold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2"
-          >
-            Word (.docx)
-          </a>
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="min-h-11 rounded-radius-md border border-line-dark/70 bg-surface-dark px-4 py-3 text-[12.5px] font-semibold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2"
-          >
-            Share to WhatsApp
-          </a>
-          <Link
-            href={`/optimize/preview/${encodeURIComponent(id)}`}
-            className="min-h-11 rounded-radius-md border border-line-dark/70 bg-surface-dark px-4 py-3 text-[12.5px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark focus-visible:ring-offset-2"
-          >
-            Edit text
-          </Link>
+      {/* lg two-column (PAGE_SPECS §C): left = document preview, right = actions/status
+          rail. Below lg single column — actions first (as built), then the preview.
+          DOM order keeps actions first so mobile matches the current layout; lg order
+          utilities route the preview left and the actions rail right. */}
+      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:flex-row lg:gap-6">
+        {/* Actions rail — DOM first (mobile), routes right on lg */}
+        <div className="flex flex-col gap-3 lg:order-2 lg:w-[300px] lg:shrink-0">
+          <div className="flex flex-col gap-2">
+            <a
+              href={pdfUrl}
+              onClick={() => setDownloaded(true)}
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md bg-surface-dark px-4 py-3 text-[12.5px] font-bold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2"
+            >
+              Download PDF
+            </a>
+            <a
+              href={docxUrl}
+              onClick={() => setDownloaded(true)}
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md border border-line-dark/70 bg-surface-dark px-4 py-3 text-[12.5px] font-semibold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2"
+            >
+              Word (.docx)
+            </a>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md border border-line-dark/70 bg-surface-dark px-4 py-3 text-[12.5px] font-semibold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2"
+            >
+              Share to WhatsApp
+            </a>
+            <Link
+              href={`/optimize/preview/${encodeURIComponent(id)}`}
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md border border-line-dark/70 bg-surface-dark px-4 py-3 text-[12.5px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark focus-visible:ring-offset-2"
+            >
+              Edit text
+            </Link>
+          </div>
+          {downloaded ? (
+            <div className="rounded-radius-lg border border-forest-dark/40 bg-forest-tint-dark px-3.5 py-3 text-[12.5px] text-forest-dark">
+              Applying somewhere else? Your profile is saved — next one takes a minute.
+            </div>
+          ) : null}
         </div>
 
-        {downloaded ? (
-          <div className="rounded-radius-lg border border-forest-dark/40 bg-forest-tint-dark px-3.5 py-3 text-[12.5px] text-forest-dark">
-            Applying somewhere else? Your profile is saved — next one takes a minute.
-          </div>
-        ) : null}
-
-        {/* Inline full resume preview (paid owner's own document) */}
+        {/* Inline full resume preview (paid owner's own document) — left on lg */}
         {profile ? (
-          <div className="mt-1 overflow-hidden rounded-radius-lg border border-line-dark/60 bg-surface-dark">
+          <div className="overflow-hidden rounded-radius-lg border border-line-dark/60 bg-surface-dark lg:order-1 lg:flex-1">
             <GulfPremium
               profile={profile}
               optimizedContent={(pkg.optimized_content ?? {
