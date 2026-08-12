@@ -44,9 +44,9 @@ const failurePatterns = [
 
 const ecosystemSteps = [
   ['Career Profile', 'Your grounded facts', true],
-  ['Job Matching', 'Find the right target', false],
+  ['Job Matching', 'Find the right target', true],
   ['Resume Optimization', 'Reframe your application', true],
-  ['Cover Letter', 'Connect your story', false],
+  ['Cover Letter', 'Connect your story', true],
   ['Q&A Prep', 'Prepare your answers', false],
   ['Mock Interview', 'Practice the conversation', false],
   ['Evaluation', 'See where to improve', false],

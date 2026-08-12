@@ -1803,7 +1803,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 
 
-- [ ] **TASK-093: `/cover-letter` (new page)** — existing backend only,
+- [x] **TASK-093: `/cover-letter` (new page)** — existing backend only,
       per `PAGE_SPECS.md` §C and Stage 1 item 5. This is TASK-066's
       original, already-written frontend spec (paused 2026-08-10),
       implemented now against TASK-065's fully-built backend. Same
@@ -1865,7 +1865,15 @@ any ticket in this section — it is not repeated in full inside each one.**
         Phase 3") are NOT part of this "/cover-letter new page" ticket and
         were not done — flag if they should be separate follow-up tickets.
 
+      **CTO review, 2026-08-12 — APPROVED, plus one out-of-file honesty fix caught as a direct side effect of this ticket shipping.** Confirmed all 5 named do-not-touch files (`buildCoverLetterPrompt.ts`, `validateCoverLetterGrounding.ts`, the cover-letter route, `redeem-package-promo`, `service-credits`) genuinely absent from `git status`/the diff. Read the full new page: `generate()`'s empty-`{}` POST, `canGenerate`'s `is_paid && available > 0` gate, verbatim server error surfacing, and `redeem()`'s flow all match the description exactly. **Middleware protection was done correctly this time** — confirmed `/cover-letter` in both `PROTECTED_ROUTES` and the matcher, live-verified: anonymous `curl` gets `307` → `/login?redirectTo=%2Fcover-letter`. Good, the repeat-miss pattern from TASK-091/092 didn't continue.
 
+      **Both flagged questions resolved:**
+      1. **Omitting the fake tone picker — approved.** A control that sends nothing to the backend is worse than no control; this was the right call.
+      2. **TASK-066 items 3/4 — confirmed genuinely out of this ticket's scope, not silently dropped.** Recorded here as real, open follow-up work: (a) the admin promo-code UI still has no `packageId` dropdown for package-tied codes, (b) checked item (b) directly rather than just noting it — see below.
+
+      **Caught while checking (2b): the public homepage was now telling a stale story.** `app/page.tsx`'s `ecosystemSteps` array (from TASK-080, already-approved) still marked `'Job Matching'` and `'Cover Letter'` as `false` (not live), rendering a "Coming Soon" badge for two features that are now genuinely built — Cover Letter by this very ticket, Job Matching via both `/job-match` (TASK-092) and the older `/ats-scan` Job Match section (TASK-072, live long before this redesign). This isn't the unsafe direction (nothing was overclaimed) but it is inaccurate, undersold the actual product, and directly contradicted by the dashboard's own Quick Actions already linking both live. Flipped both to `true` directly — small, safe, copy-only, in a file this ticket didn't otherwise touch but whose staleness this ticket's completion directly caused.
+
+      Independently re-ran `tsc`/`lint`/`build` after the homepage fix — all clean (39 routes now). This closes out the three new-page tickets (TASK-091/092/093).
 
 ---
 
