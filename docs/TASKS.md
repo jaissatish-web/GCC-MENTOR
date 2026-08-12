@@ -1213,7 +1213,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       `LockedTile` (TASK-079) for Mock Interview / Q&A / Saved Jobs, per
       `PLANNED_SERVICES.md`.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 - [ ] **TASK-084: Career Profile + Visibility** — restyle only, per
       `PAGE_SPECS.md` §C. Same full-object `PUT /api/profile` contract,
