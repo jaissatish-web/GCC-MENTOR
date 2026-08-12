@@ -1691,7 +1691,7 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       Depends on: TASK-076–079, TASK-083 (nav entry already points here
       from TASK-078; Dashboard's readiness card is the parity reference) ·
-      Status: not started.
+      Status: in progress.
 
 - [ ] **TASK-092: `/job-match` (new page)** — existing logic only, per
       `PAGE_SPECS.md` §C and Stage 1 item 5. New route, reuses
