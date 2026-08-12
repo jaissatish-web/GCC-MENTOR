@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Card } from '@/components/ui/Card'
 import type { Package } from '@/types/package'
 
 /**
@@ -75,98 +76,93 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
 
   if (error) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-marble px-5">
-        <p className="text-sm text-state-terra-text">{error}</p>
+      <div className="flex min-h-dvh items-center justify-center bg-bg px-5">
+        <p className="text-sm text-terra">{error}</p>
       </div>
     )
   }
 
   if (!pkg) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-marble">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+      <div className="flex min-h-dvh items-center justify-center bg-bg">
+        <p className="font-mono text-sm text-ink-400">Loading…</p>
       </div>
     )
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-marble">
-      <header className="flex h-11 items-center justify-between px-5 text-[12px] font-semibold text-midnight">
-        <span>9:41</span>
-        <span className="tracking-[0.14em]">▮▮▮</span>
-      </header>
-
-      <div className="flex flex-col gap-3 px-5 pb-6 pt-1.5">
+    <main className="flex min-h-dvh items-center justify-center bg-bg px-5 py-10 font-redesign-sans">
+      <Card tone="light" className="flex w-full max-w-[520px] flex-col gap-3 p-5 sm:p-6">
         <button
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-lg text-[20px] leading-none text-midnight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2"
         >
           ←
         </button>
-        <h1 className="font-serif text-[27px] leading-tight text-midnight">One payment. No surprises.</h1>
+        <h1 className="font-serif text-[27px] leading-tight text-ink-900">One payment. No surprises.</h1>
 
         {/* Order summary */}
-        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4.5">
+        <div className="flex flex-col gap-3 rounded-radius-lg border border-line-light bg-surface-light p-4.5">
           <div className="flex items-baseline justify-between">
-            <span className="text-[13px] font-semibold text-midnight">Optimized Gulf CV</span>
-            <span className="font-mono text-[15px] text-midnight">₹499</span>
+            <span className="text-[13px] font-semibold text-ink-900">Optimized Gulf CV</span>
+            <span className="font-mono text-[15px] text-ink-900">₹499</span>
           </div>
-          <p className="text-[11px] text-ink-muted">
+          <p className="text-[11px] text-ink-400">
             {pkg.target_job_title}
             {pkg.target_company ? ` · ${pkg.target_company}` : ''}
           </p>
-          <div className="h-px bg-line-soft" />
-          <div className="flex flex-col gap-1.5 text-[12px] text-ink-body">
+          <div className="h-px bg-line-light" />
+          <div className="flex flex-col gap-1.5 text-[12px] text-ink-700">
             <div className="flex gap-2">
-              <span className="text-emerald">✓</span> PDF and Word download
+              <span className="text-forest">✓</span> PDF and Word download
             </div>
             <div className="flex gap-2">
-              <span className="text-emerald">✓</span> Edit and re-download anytime
+              <span className="text-forest">✓</span> Edit and re-download anytime
             </div>
             <div className="flex gap-2">
-              <span className="text-emerald">✓</span> Saved to your Library forever
+              <span className="text-forest">✓</span> Saved to your Library forever
             </div>
           </div>
-          <p className="text-[10.5px] text-ink-faint">No subscription. No auto-renewal. Taxes included.</p>
+          <p className="text-[10.5px] text-ink-400">No subscription. No auto-renewal. Taxes included.</p>
         </div>
 
         {/* Promo code — the actual unlock path while Razorpay is blocked */}
-        <div className="flex flex-col gap-2.5 rounded-2xl border border-emerald/30 bg-state-emerald-bg p-4.5">
-          <span className="text-[12px] font-bold text-midnight">Have a promo code?</span>
+        <div className="flex flex-col gap-2.5 rounded-radius-lg border border-forest/30 bg-forest-tint p-4.5">
+          <span className="text-[12px] font-bold text-ink-900">Have a promo code?</span>
           <div className="flex gap-2">
             <input
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="Enter code"
               aria-label="Promo code"
-              className="min-h-11 flex-1 rounded-lg border border-line bg-white px-3 text-[13px] uppercase tracking-wide text-ink-body outline-none focus:border-midnight focus:ring-2 focus:ring-midnight/20"
+              className="min-h-11 flex-1 rounded-radius-md border border-line-light bg-surface-light px-3 text-[13px] uppercase tracking-wide text-ink-700 outline-none focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
             />
             <button
               type="button"
               disabled={!code.trim() || redeeming}
               onClick={() => redeem()}
-              className="min-h-11 rounded-lg bg-emerald px-4 text-[13px] font-bold text-marble disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2"
+              className="min-h-11 rounded-radius-md bg-forest px-4 text-[13px] font-bold text-marble disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
             >
               {redeeming ? 'Checking…' : 'Unlock'}
             </button>
           </div>
-          {redeemError ? <p className="text-[11.5px] text-state-terra-text">{redeemError}</p> : null}
+          {redeemError ? <p className="text-[11.5px] text-terra">{redeemError}</p> : null}
         </div>
 
         {/* Razorpay — honestly disabled, not a dead link */}
-        <div className="flex flex-col gap-2 rounded-2xl border border-dashed border-line-strong bg-fill-subtle p-4.5 opacity-70">
-          <span className="text-[12px] font-bold text-midnight">Card · UPI · Netbanking · Wallet</span>
-          <p className="text-[11px] text-ink-muted">
+        <div className="flex flex-col gap-2 rounded-radius-lg border border-dashed border-line-light-strong bg-surface-2-light p-4.5 opacity-70">
+          <span className="text-[12px] font-bold text-ink-900">Card · UPI · Netbanking · Wallet</span>
+          <p className="text-[11px] text-ink-400">
             Coming soon. We never see or store your card details.
           </p>
         </div>
 
-        <p className="mt-1 text-center text-[11px] text-ink-warm">
+        <p className="mt-1 text-center text-[11px] text-ink-400">
           Something went wrong with your order? Email the founder directly — replies within a day.
         </p>
-      </div>
+      </Card>
     </main>
   )
 }

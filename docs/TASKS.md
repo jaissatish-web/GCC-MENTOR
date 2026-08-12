@@ -1412,12 +1412,46 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       **CTO review, 2026-08-12 — APPROVED, no fix needed.** Read both full diffs. `canContinue`, `set('target_country', ...)`, `set('target_industry', ...)`, the reuse-detection state (`similar`/`dismissed`/`replacingId`), `toggleAll`/`toggleExp`/`setLevel`/`setSummaryOn`, and `onSubmit`'s entire `/api/optimize` POST body (including `target_country: draft.target_country.trim() !== '' ? draft.target_country : null`, unchanged since TASK-074) are **all absent from the diff hunks** — genuinely untouched, not just claimed. `720px` matches `PAGE_SPECS.md` §C exactly. Grepped both files for every legacy token (`marble`, `midnight`, `void`, `hairline`, `terracotta`, `state-gold-*`, `state-terra-*`, `state-emerald-*`, `bg-fill-subtle`, old `rounded-lg/xl/2xl`) and for the self-reported `light-light`/`dark-dark` collision pattern — zero of either remain; the disclosed self-caught fix is confirmed actually fixed, not just described as fixed. Independently re-ran `tsc`/`lint`/`build` — all clean, matches the report.
 
-- [ ] **TASK-086: Optimize Payment** — restyle only, per `PAGE_SPECS.md`
+- [x] **TASK-086: Optimize Payment** — restyle only, per `PAGE_SPECS.md`
       §C. Same promo-code redemption RPC path. Razorpay stays absent/
       blocked exactly as today — do not add a payment method that doesn't
       exist.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled `app/optimize/pay/[packageId]/page.tsx`
+      to §C's "single centered card" treatment, visual-only. The promo-code
+      redemption flow (`POST /api/packages/[id]/redeem-promo`, the
+      `redeem_promo_code` RPC path), the `is_paid` → `/package/[id]`
+      redirect, and the Razorpay "coming soon" stub are all **byte-for-byte
+      unchanged** (diff-verified — every `+/-` line is a `className`/tone/
+      structural line; `redeem()`, `setCode`, `setRedeemError`, `onClick`,
+      and the `₹499` order-summary copy are untouched):
+      - **§C layout:** the form is now a single centered `Card tone="light"`
+        (`max-w-[520px]`) on the paper `--bg`, replacing the old full-width
+        mobile-frame + fake status bar. Back arrow, order summary, promo
+        `Input`, `purchase`-style Unlock CTA, and the disabled
+        Card/UPI/Netbanking/Wallet section all inside the card.
+      - **Token swap (light forest/gold, single `border-line` rule so no
+        `-light-light-` artifact):** `bg-marble`→`bg-bg`,
+        `text-midnight`→`ink-900`, `ink-body/muted/warm/faint`→`ink-700`/
+        `ink-400`, `bg-white`→`surface-light`, `border-line*`→`line-light*`,
+        `emerald`→`forest` (+`forest-tint`), `ring-midnight`→`forest-deep`,
+        `line-soft` divider→`line-light`, `rounded-lg/2xl`→`radius-md/lg`.
+        The Unlock button keeps its forest `bg-forest` fill (the `purchase`
+        CTA per §C).
+      - **Removed the fake device status bar** (`9:41 ▮▮▮`) — same approved
+        call as TASK-081/082/084/085.
+      - Razorpay stays **absent/disabled** exactly as today — no payment
+        method was added.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm
+      run build` all pass; `/optimize/pay/[packageId]` is a dynamic
+      server-rendered route (2.9 kB). All redesign tokens resolve in
+      `.next/static/css/*.css`; no legacy navy/warm token or status-bar
+      markup remains, and no `-light-light-` CSS artifact was produced.
+      Copy + logic confirmed present in the compiled output. Live browser
+      check not run: requires a real login + package (standing gap).
 
 - [ ] **TASK-087: Optimize Preview/Diff** — restyle only, per
       `PAGE_SPECS.md` §C. The blur/watermark stays server-rendered into
