@@ -1587,13 +1587,43 @@ any ticket in this section — it is not repeated in full inside each one.**
 
       Independently re-ran `tsc`/`lint`/`build` after the fix — all clean.
 
-- [ ] **TASK-089: `/ats-scan`** — restyle only, per `PAGE_SPECS.md` §C.
+- [x] **TASK-089: `/ats-scan`** — restyle only, per `PAGE_SPECS.md` §C.
       Stays the public, anonymous-capable entry funnel exactly as built
       (TASK-048/049/058/069/070/071/072) — this ticket does not touch
       `/gcc-readiness` or `/job-match` (separate tickets, separate new
       pages) and does not change anonymous-session behavior.
 
-      Depends on: TASK-076–079 · Status: in progress.
+      Depends on: TASK-076–079 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — restyled `app/ats-scan/page.tsx` to the forest/gold
+      light system, visual-only. The public anonymous funnel is **byte-for-byte
+      unchanged functionally**: `chooseFile`'s file-type (`pdf/doc/docx`) and
+      size (5MB/2MB) validation, the drag-drop + file-input + paste +
+      job-description fields (with `MAX_TEXT_LENGTH`/`MAX_JD_LENGTH`/`MIN_TEXT_LENGTH`
+      guards), the `POST /api/ats-scan` `FormData` submit, the 429
+      `limit.message` handling, the `maxDuration` export, and the Score /
+      ListBlock / Job-Match category rendering are all untouched — diff shows
+      **only `className` token changes** (the big form line changed only in its
+      class strings; every handler/inline-prop is identical).
+      - **Token swap (light, regex-guarded so no `text-text`/`light-light`
+        artifacts):** `bg-marble`→`bg-bg`, `text-midnight`→`ink-900`,
+        `ink-body/muted`→`ink-700`/`ink-400`, `bg-white`→`surface-light`,
+        `bg-fill-warm`→`surface-2-light`, `border-line*`→`line-light*`,
+        `emerald`→`forest`, `terra`→`terra-tint`, `gold`→`redesign-gold`
+        (+ `text-gold`→`text-gold-text` for gold *text* on light, §9-safe);
+        `bg-midnight`→`forest-deep` with `text-marble`→`ink-900-dark` (submit
+        button + the dark "Build the full picture" panel);
+        `shadow-glow-gold`→`redesign-cta-glow`, `shadow-elev-1`→`redesign-md`,
+        `rounded-3xl/2xl/xl/lg`→`radius-xl/lg/lg/md`.
+      - No fake device status bar exists here (public marketing page with its
+        own header); nothing to remove. It does not touch `/gcc-readiness` /
+        `/job-match` and does not change anonymous-session behavior.
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; `/ats-scan` is statically prerendered (3.65 kB). All
+      redesign tokens resolve in `.next/static/css/*.css`; zero legacy light
+      token or `-text-text-`/`-light-light-` artifact remains. Copy + logic
+      confirmed present in the compiled output.
 
 - [ ] **TASK-090: Settings + Payments** — restyle only, per
       `PAGE_SPECS.md` §C. `/payments` stays an honest placeholder — this
