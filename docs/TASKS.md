@@ -1453,6 +1453,8 @@ any ticket in this section — it is not repeated in full inside each one.**
       Copy + logic confirmed present in the compiled output. Live browser
       check not run: requires a real login + package (standing gap).
 
+      **CTO review, 2026-08-12 — APPROVED, no fix needed.** Read the full diff and the current file. `redeem()`, the `POST /api/packages/[id]/redeem-promo` call, the `is_paid`/redirect check, and the Razorpay stub copy are all confirmed genuinely absent from the diff — untouched. Grepped for every legacy token (`midnight`, `marble` background, `hairline`, `void`, `state-gold/terra/emerald-*`, `fill-subtle`, `line-soft`, old `rounded-lg/2xl`) plus the `light-light`/`dark-dark` collision pattern from TASK-085 — zero of any remain; the "single `border-line` rule" fix genuinely worked this time. `tsc`/`lint`/`build` independently re-run, all clean. (One imperceptible, non-blocking nit: the hand-rolled Unlock button's `text-marble` was already there pre-diff and wasn't touched — `Button.tsx`'s own `progress` variant uses `text-surface-light` for the same white-on-forest-fill pairing instead. `marble` and `surface-light` differ by `#FBF9F5` vs `#FFFFFF`, invisible in practice — not worth a fix.)
+
 - [ ] **TASK-087: Optimize Preview/Diff** — restyle only, per
       `PAGE_SPECS.md` §C. The blur/watermark stays server-rendered into
       the PNG (TASK-033/044) — **do not replace it with a client-side CSS
