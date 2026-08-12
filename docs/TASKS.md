@@ -1961,6 +1961,8 @@ any ticket in this section — it is not repeated in full inside each one.**
       `-light-light-` artifact; zero legacy-token leaks in either file.
       Copy confirmed present in the compiled output.
 
+      **CTO review, 2026-08-12 — APPROVED, no fix needed.** Gave `/admin/ai-provider` particular attention since it's the security-sensitive page (raw API keys, `maskSecret`) I built directly a few tickets back. Confirmed the `SERVICES` array, every `updateProviderConfigAction`/`deleteProviderConfigAction` form, every hidden `key` input, and `maskSecret` itself are all genuinely absent from the diff — no secret-handling logic touched anywhere. Dashboard's `960px`/3-up grid matches spec exactly, `sections` data-fetch and the terra blocker-warning condition (`allProviderConfigs.length === 0`) untouched. `tsc`/`lint`/`build` independently re-run, all clean.
+
 - [ ] **TASK-096: Admin Prompts + Promo Codes** — restyle only, per
       `PAGE_SPECS.md` §D. Same forms/actions, unchanged from TASK-075's
       split.
