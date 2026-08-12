@@ -12,6 +12,7 @@ const PROTECTED_ROUTES = [
   '/admin',
   '/gcc-readiness',
   '/job-match',
+  '/cover-letter',
 ]
 
 // Routes only for guests — redirect to the dashboard if already logged in.
@@ -133,6 +134,7 @@ export const config = {
     '/admin/:path*',
     '/gcc-readiness/:path*',
     '/job-match/:path*',
+    '/cover-letter/:path*',
     '/login',
     '/signup',
   ],

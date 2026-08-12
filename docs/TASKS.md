@@ -1814,7 +1814,58 @@ any ticket in this section — it is not repeated in full inside each one.**
       `lib/ai/validateCoverLetterGrounding.ts`, or the cover-letter API
       route's logic.
 
-      Depends on: TASK-076–079, TASK-083 · Status: in progress.
+      Depends on: TASK-076–079, TASK-083 · Status: done, 2026-08-12.
+
+      **Built by Hermes** — created the new `/cover-letter` generation page
+      (`app/cover-letter/page.tsx`, dark app-shell, §C layout: centered
+      720px form → generated letters full-width below). Frontend-only over
+      TASK-065's backend — **no AI/backend/lib file was touched** (verified:
+      `lib/ai/buildCoverLetterPrompt.ts`, `lib/ai/validateCoverLetterGrounding.ts`,
+      the cover-letter route, `redeem-package-promo`, and `service-credits`
+      are all unchanged in git).
+      - **Generation flow (TASK-066 item 1, as a standalone page):** loads
+        `GET /api/packages` + `GET /api/service-credits?service=cover_letter`;
+        a package selector (paid/unlocked packages selectable); existing
+        `cover_letters` for the selected package shown newest-first, each with
+        an **edit-in-place textarea** (local, never persisted) + Copy +
+        Download `.txt` (uses the server-composed `full_text`, not a rebuild).
+        "Generate cover letter" → `POST /api/packages/[id]/cover-letter` with
+        an empty `{}` body (the route reads target + JD from the package),
+        gated on `is_paid` + an available credit; on success the letter is
+        appended and the shown credit decremented; **errors are the server's
+        verbatim strings**, never a generic message.
+      - **Redeem entry point (§C "reachable from here"):** a "Redeem a code"
+        card → `POST /api/redeem-package-promo` `{ code }`, shows the
+        server's message verbatim and re-fetches credits on success. (Built
+        here because `/settings` has no redeem card yet — that was TASK-066
+        item 2, outside this ticket's page.)
+      - **Middleware protection (the explicit ask):** added `/cover-letter`
+        to BOTH `PROTECTED_ROUTES` and the matcher in `middleware.ts`, the
+        same way `/gcc-readiness` and `/job-match` were added. Confirmed in
+        the compiled `.next/server/middleware.js` that `/cover-letter`
+        appears 2× (protected + matcher), matching the `/gcc-readiness` and
+        `/job-match` entries exactly. (Note: `/gcc-readiness` and
+        `/job-match` are ALREADY in middleware — the CTO added them during
+        their TASK-091/092 reviews — so all three new authenticated pages
+        are now protected and an anonymous visitor to any of them gets the
+        clean `307 → /login?redirectTo=…` redirect.)
+
+      `npx tsc --noEmit`, `npm run lint`, and a full `rm -rf .next && npm run
+      build` all pass; `/cover-letter` is statically prerendered (4.28 kB).
+      Tokens resolve; no artifact.
+
+      **Questions for CTO:**
+      - §C lists "form field set (persona/tone selection)" but the backend
+        POST body is empty — `buildCoverLetterPrompt` derives tone internally
+        and the route accepts no persona/tone input. A tone picker that sent
+        nothing would be a fake control, so it was deliberately omitted (only
+        the package selector, which the backend requires, is a form field).
+      - The paused TASK-066 spec's items 3 (admin promo-code `packageId`
+        dropdown) and 4 (reframe the dashboard Cover Letter card off "Locked ·
+        Phase 3") are NOT part of this "/cover-letter new page" ticket and
+        were not done — flag if they should be separate follow-up tickets.
+
+
 
 ---
 
