@@ -1625,6 +1625,10 @@ any ticket in this section — it is not repeated in full inside each one.**
       token or `-text-text-`/`-light-light-` artifact remains. Copy + logic
       confirmed present in the compiled output.
 
+      **CTO review, 2026-08-12 — APPROVED, most thoroughly live-verified ticket so far.** Diff-reviewed: every handler (`onDragOver`/`onDragLeave`/`onDrop`/`onFileChange`, `submit`, `pasteMode`, length guards, the `POST /api/ats-scan` call, 429 handling, `maxDuration`) confirmed absent from the diff hunks — untouched. Grepped for legacy tokens and the `-text-text-`/`-light-light-` collision patterns — clean. `tsc`/`lint`/`build` independently re-run, all clean.
+
+      Since this is the first public, no-login-required page in this whole batch, actually loaded it live end-to-end (clean dev-server restart first — the previous server's state had gone stale from this session's own repeated interleaved `build`/`dev` runs, which briefly produced obviously-wrong computed styles on a first check; a fresh restart resolved it immediately, confirming it was environment noise, not a code defect): computed styles match tokens exactly (`main` background `rgb(251,250,246)` = `--bg`'s `#FBFAF6`, `h1` color `rgb(23,36,31)` = `ink-900`'s `#17241F`, form background `rgb(244,242,236)` = `surface-2-light`'s `#F4F2EC`), and clicked "Paste text instead" — it genuinely toggled to the textarea with the correct `0 / 20,000` limit, confirming `pasteMode`/`setPasteMode`/`setFile(null)` all still work as real client interactions, not just present in source.
+
 - [ ] **TASK-090: Settings + Payments** — restyle only, per
       `PAGE_SPECS.md` §C. `/payments` stays an honest placeholder — this
       ticket does not build the missing payment-history feature
