@@ -1635,7 +1635,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       (Unplanned #4), only restyles the placeholder that exists today.
       Same `DeleteDataSection` irreversible-action confirmation flow.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 ---
 
