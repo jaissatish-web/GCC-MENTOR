@@ -1134,7 +1134,7 @@ any ticket in this section — it is not repeated in full inside each one.**
       `PAGE_SPECS.md` §B. Same upload/paste-text paths and endpoints,
       same named-step extraction progress sequence.
 
-      Depends on: TASK-076–079 · Status: not started.
+      Depends on: TASK-076–079 · Status: in progress.
 
 ---
 
