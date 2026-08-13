@@ -5,6 +5,25 @@ import { buttonVariants } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { LockedTile } from '@/components/ui/LockedTile'
 import { SiteNav } from '@/components/marketing/SiteNav'
+import {
+  ChartBarIcon,
+  MagnifyingGlassIcon,
+  DocumentTextIcon,
+  PencilSquareIcon,
+  ArrowUpTrayIcon,
+  InboxIcon,
+  ArrowPathIcon,
+  XCircleIcon,
+  FaceFrownIcon,
+  ArrowPathRoundedSquareIcon,
+  UserCircleIcon,
+  PuzzlePieceIcon,
+  SparklesIcon,
+  MicrophoneIcon,
+  RocketLaunchIcon,
+  ShieldCheckIcon,
+  GlobeAltIcon,
+} from '@heroicons/react/24/outline'
 
 const photos = {
   worker: 'https://images.unsplash.com/photo-1672748341520-6a839e6c05bb?auto=format&fit=crop&w=800&q=80',
@@ -13,10 +32,10 @@ const photos = {
 }
 
 const liveServices = [
-  ['Resume Builder', 'Build your Career Profile once — upload, paste, or start from scratch.', '/onboarding'],
-  ['Resume Optimizer', 'Reframe your CV for one target Gulf role using only your facts.', '/onboarding'],
-  ['Resume Library', 'Keep every application version and its status in one place.', '/dashboard/library'],
-  ['Career Profile', 'Your real experience, skills and certifications, ready to reuse.', '/profile'],
+  ['Resume Builder', 'Build your Career Profile once — upload, paste, or start from scratch.', '/onboarding', DocumentTextIcon],
+  ['Resume Optimizer', 'Reframe your CV for one target Gulf role using only your facts.', '/onboarding', SparklesIcon],
+  ['Resume Library', 'Keep every application version and its status in one place.', '/dashboard/library', UserCircleIcon],
+  ['Career Profile', 'Your real experience, skills and certifications, ready to reuse.', '/profile', PencilSquareIcon],
 ] as const
 
 const comingSoon = [
@@ -42,17 +61,6 @@ const failurePatterns = [
   ['06', 'No structured feedback', 'Without a clear review loop, the same gaps repeat.'],
 ] as const
 
-const ecosystemSteps = [
-  ['Career Profile', 'Your grounded facts', true],
-  ['Job Matching', 'Find the right target', true],
-  ['Resume Optimization', 'Reframe your application', true],
-  ['Cover Letter', 'Connect your story', true],
-  ['Q&A Prep', 'Prepare your answers', false],
-  ['Mock Interview', 'Practice the conversation', false],
-  ['Evaluation', 'See where to improve', false],
-  ['Improvement', 'Build the next version', false],
-] as const
-
 const comparisonRows = [
   ['Starting point', 'Generic advice', 'Your real career profile'],
   ['Format', 'Western templates', 'Gulf-focused presentation'],
@@ -70,17 +78,50 @@ const showcasePanels = [
 ] as const
 
 const heroHighlights = [
-  'Gulf Readiness Score',
-  'Job-Specific Optimization',
-  'ATS-Ready Formatting',
-  'Cover Letters, Grounded in Your Profile',
+  ['Gulf Readiness Score', ChartBarIcon],
+  ['Job-Specific Optimization', MagnifyingGlassIcon],
+  ['ATS-Ready Formatting', DocumentTextIcon],
+  ['Grounded Cover Letters', PencilSquareIcon],
 ] as const
 
-const scorecardRows: [string, number][] = [
-  ['GCC-relevant experience', 85],
-  ['Keyword alignment', 70],
-  ['Formatting', 92],
+const scorecardRings: [string, number][] = [
+  ['Gulf Readiness', 78],
+  ['ATS Score', 92],
+  ['Job Match', 88],
 ]
+
+const scorecardImprovements = [
+  'Add more GCC-relevant keywords',
+  'Highlight measurable achievements',
+  'Strengthen your professional summary',
+] as const
+
+const painPoints = [
+  ['Apply for jobs', ArrowUpTrayIcon],
+  ['No response', InboxIcon],
+  ['Try again', ArrowPathIcon],
+  ['Rejection or silence', XCircleIcon],
+  ['Lose confidence', FaceFrownIcon],
+  ['Repeat the cycle', ArrowPathRoundedSquareIcon],
+] as const
+
+const journeySteps = [
+  ['Career Profile', 'Turn your experience into one grounded profile.', UserCircleIcon, true],
+  ['GCC Readiness', 'See how ready your profile is for GCC hiring.', ChartBarIcon, true],
+  ['Job Match', 'Compare your profile against a real role.', MagnifyingGlassIcon, true],
+  ['Optimize', 'Reframe your resume for the target role.', SparklesIcon, true],
+  ['Cover Letter', 'Connect your story to the role you want.', PencilSquareIcon, true],
+  ['Q&A Prep', 'Prepare role-specific interview questions.', PuzzlePieceIcon, false],
+  ['Mock Interview', 'Practice with guided AI feedback.', MicrophoneIcon, false],
+  ['Career Guidance', 'Understand country and role expectations.', GlobeAltIcon, false],
+] as const
+
+const honestHighlights = [
+  [GlobeAltIcon, '6 Gulf countries', 'Saudi, UAE, Qatar, Oman, Kuwait, Bahrain'],
+  [ShieldCheckIcon, 'Nothing invented', 'Every line traces back to your real facts'],
+  [SparklesIcon, 'Job-specific, not generic', 'Reframed for the exact role you target'],
+  [RocketLaunchIcon, 'Live tools today', '5 of 8 platform steps already shipped'],
+] as const
 
 const countryFlags: Record<string, string> = {
   saudi_arabia: '🇸🇦',
@@ -161,8 +202,22 @@ function FailureSection() {
     <section id="problem" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
       <div className="max-w-3xl">
         <Kicker>The problem</Kicker>
-        <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Applying more isn&apos;t always the answer.</h2>
-        <p className="mt-5 text-lg leading-relaxed text-ink-700">When the preparation is disconnected, more applications often create more noise — not more opportunity.</p>
+        <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Sound familiar? You&apos;re not alone.</h2>
+        <p className="mt-5 text-lg leading-relaxed text-ink-700">Most professionals face the same frustrating application cycle.</p>
+      </div>
+      <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_320px] lg:items-start">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {painPoints.map(([title, Icon]) => (
+            <div key={title} className="flex flex-col items-center gap-3 rounded-radius-lg border border-line-light bg-surface-light p-4 text-center shadow-redesign-sm">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-terra/30 bg-terra-tint"><Icon className="h-5 w-5 text-terra" aria-hidden="true" /></span>
+              <b className="text-sm text-ink-900">{title}</b>
+            </div>
+          ))}
+        </div>
+        <Card tone="light" className="border-redesign-gold/40 bg-redesign-gold-tint p-6">
+          <h3 className="font-serif text-2xl text-ink-900">It&apos;s not your fault.</h3>
+          <p className="mt-3 text-sm leading-relaxed text-ink-700">The problem is rarely your experience. It is the strategy, positioning, and understanding of what GCC employers really look for.</p>
+        </Card>
       </div>
       <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {failurePatterns.map(([number, title, description]) => (
@@ -180,18 +235,39 @@ function EcosystemSection() {
   return (
     <section id="ecosystem" className="border-y border-line-dark bg-forest-deep text-ink-900-dark">
       <div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
-        <div className="max-w-3xl"><Kicker onDark>One connected system</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">One Career Profile. Multiple ways to prepare.</h2><p className="mt-5 text-lg leading-relaxed text-ink-900-dark/70">Your facts should not be re-entered for every step. Start with one grounded profile, then add preparation as each tool becomes available.</p></div>
-        <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {ecosystemSteps.map(([title, description, live], index) => (
-            <div key={title} className="relative rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-5">
-              <div className="flex items-start justify-between gap-2"><span className="font-mono text-xs text-redesign-gold-dark">{String(index + 1).padStart(2, '0')}</span>{live ? <LiveBadge onDark /> : <SoonBadge onDark />}</div>
-              <h3 className="mt-7 font-serif text-xl text-ink-900-dark">{title}</h3><p className="mt-2 text-sm text-ink-900-dark/65">{description}</p>
-              {index < ecosystemSteps.length - 1 ? <span aria-hidden className="absolute -right-3 top-1/2 z-10 hidden text-gold-text-dark lg:block">→</span> : null}
+        <div className="mx-auto max-w-2xl text-center"><Kicker onDark>One intelligent system</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">How GCC MENTOR Works</h2><p className="mt-5 text-lg leading-relaxed text-ink-900-dark/70">Your facts should not be re-entered for every step. Start with one grounded profile, then add preparation as each tool becomes available.</p></div>
+        <div className="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4">
+          {journeySteps.map(([title, description, Icon, live], index) => (
+            <div key={title} className="relative flex flex-col items-center gap-3 text-center">
+              <span className={cn('flex h-14 w-14 items-center justify-center rounded-full border', live ? 'border-redesign-gold-dark/50 bg-ink-900-dark/10' : 'border-dashed border-ink-900-dark/30 bg-transparent')}>
+                <Icon className={cn('h-6 w-6', live ? 'text-redesign-gold-dark' : 'text-ink-900-dark/40')} aria-hidden="true" />
+              </span>
+              <span className="font-mono text-[10px] tracking-[0.15em] text-redesign-gold-dark">{String(index + 1).padStart(2, '0')}</span>
+              <b className="font-serif text-base text-ink-900-dark">{title}</b>
+              <p className="text-[12px] leading-snug text-ink-900-dark/60">{description}</p>
+              {live ? <LiveBadge onDark /> : <SoonBadge onDark />}
+              {index < journeySteps.length - 1 ? <span aria-hidden className="absolute -right-2 top-6 hidden text-ink-900-dark/25 sm:block">→</span> : null}
             </div>
           ))}
         </div>
       </div>
     </section>
+  )
+}
+
+function HighlightBandSection() {
+  return (
+    <div className="mx-auto max-w-[1280px] px-5 pb-20 sm:px-8 lg:px-12 lg:pb-28">
+      <div className="grid gap-px overflow-hidden rounded-radius-lg border border-line-dark bg-line-dark sm:grid-cols-2 lg:grid-cols-4">
+        {honestHighlights.map(([Icon, title, description]) => (
+          <div key={title} className="flex flex-col items-center gap-2 bg-forest-deep p-6 text-center text-ink-900-dark">
+            <Icon className="h-6 w-6 text-redesign-gold-dark" aria-hidden="true" />
+            <b className="text-sm">{title}</b>
+            <p className="text-[11px] leading-snug text-ink-900-dark/55">{description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -250,9 +326,9 @@ export default function Home() {
               <h1 className="max-w-[14ch] font-serif text-5xl leading-[0.98] tracking-tight text-ink-900-dark sm:text-6xl lg:text-7xl">From more applications to <span className="text-forest-dark">the right opportunity.</span></h1>
               <p className="max-w-[55ch] text-[17px] leading-relaxed text-ink-900-dark/70 sm:text-lg">GCC MENTOR turns your real experience into a Gulf-ready Career Profile, then helps you target, optimize and prepare for the role you actually want.</p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {heroHighlights.map((h) => (
+                {heroHighlights.map(([h, Icon]) => (
                   <div key={h} className="flex items-center gap-2 rounded-radius-lg border border-line-dark bg-ink-900-dark/5 px-3 py-2.5">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-redesign-gold" />
+                    <Icon className="h-4 w-4 shrink-0 text-redesign-gold-dark" aria-hidden="true" />
                     <span className="text-[11px] font-semibold leading-tight text-ink-900-dark/80">{h}</span>
                   </div>
                 ))}
@@ -261,25 +337,28 @@ export default function Home() {
               <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-line-dark pt-5 text-[12px] font-semibold text-ink-900-dark/60"><span>✓ Nothing invented</span><span>✓ Gulf-focused</span><span>✓ You stay in control</span></div>
             </div>
             <div className="relative min-h-[380px] overflow-hidden rounded-radius-xl border border-line-dark-strong p-5 shadow-redesign-lg sm:min-h-[470px]">
-              <Image src={photos.skyline} alt="City skyline at night." fill priority className="object-cover opacity-35" />
-              <div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/70 to-transparent" />
+              <Image src={photos.skyline} alt="City skyline at night." fill priority className="object-cover opacity-30" />
+              <div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/75 to-forest-deep/40" />
               <div className="relative flex h-full flex-col justify-end gap-4 text-ink-900-dark">
                 <span className="w-fit rounded-full bg-redesign-gold px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-deep">Illustrative preview</span>
                 <div className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-5 backdrop-blur-sm">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-bold">Gulf Readiness Score</p>
-                      <p className="mt-1 text-[11px] leading-snug text-ink-900-dark/55">An example of what your Career Profile scorecard could look like</p>
-                    </div>
-                    <StaticScoreRing score={75} />
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    {scorecardRows.map(([label, value]) => (
-                      <div key={label}>
-                        <div className="flex justify-between text-[10px] text-ink-900-dark/55"><span>{label}</span><span>{value}%</span></div>
-                        <div className="mt-1 h-1.5 rounded-full bg-ink-900-dark/15"><div className="h-full rounded-full bg-redesign-gold" style={{ width: `${value}%` }} /></div>
+                  <p className="text-sm font-bold">Your Application Scorecard</p>
+                  <p className="mt-1 text-[11px] leading-snug text-ink-900-dark/55">An example of what your Career Profile scorecard could look like — not a real result</p>
+                  <div className="mt-4 grid grid-cols-3 gap-3">
+                    {scorecardRings.map(([label, value]) => (
+                      <div key={label} className="flex flex-col items-center gap-2 text-center">
+                        <StaticScoreRing score={value} size={56} />
+                        <span className="text-[10px] text-ink-900-dark/55">{label}</span>
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-5 rounded-radius-lg border border-ink-900-dark/15 p-3.5">
+                    <p className="text-[11px] font-bold text-ink-900-dark/85">Example improvements a scan might suggest</p>
+                    <div className="mt-2.5 space-y-2">
+                      {scorecardImprovements.map((x) => (
+                        <div key={x} className="flex items-center gap-2 text-[11px] text-ink-900-dark/70"><span className="text-redesign-gold-dark">✓</span>{x}</div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -287,11 +366,12 @@ export default function Home() {
           </div>
           <GcCountryStrip />
         </section>
-        <section id="platform" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="max-w-2xl"><Kicker>The platform</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Everything you need to move forward in the Gulf.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Start with the tools that are live today. See what is coming next without confusing a preview for a promise.</p></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{liveServices.map(([title, desc, href]) => <Link href={href} key={title} className="group"><Card tone="light" className="flex min-h-[250px] flex-col gap-4 p-6 transition hover:-translate-y-1 hover:border-redesign-gold"><LiveBadge /><h3 className="font-serif text-2xl text-ink-900">{title}</h3><p className="text-sm leading-relaxed text-ink-700">{desc}</p><span className="mt-auto text-sm font-bold text-forest group-hover:text-gold-text">Open →</span></Card></Link>)}</div><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{comingSoon.map(([title, desc]) => <div key={title} id={title === 'Mock Interview' ? 'mock-interview' : title === 'Question Paper Generator' ? 'question-papers' : title === 'Gulf Career Guidance' ? 'gulf-guidance' : 'ai-assistant'} className="flex"><LockedTile title={title} description={desc} note={`${title} — planned for a future release.`} className="h-full w-full min-h-[220px]" /></div>)}</div></section>
+        <section id="platform" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="max-w-2xl"><Kicker>The platform</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Everything you need to move forward in the Gulf.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Start with the tools that are live today. See what is coming next without confusing a preview for a promise.</p></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{liveServices.map(([title, desc, href, Icon]) => <Link href={href} key={title} className="group"><Card tone="light" className="flex min-h-[250px] flex-col gap-4 p-6 transition hover:-translate-y-1 hover:border-redesign-gold"><div className="flex items-center justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-forest-tint"><Icon className="h-5 w-5 text-forest" aria-hidden="true" /></span><LiveBadge /></div><h3 className="font-serif text-2xl text-ink-900">{title}</h3><p className="text-sm leading-relaxed text-ink-700">{desc}</p><span className="mt-auto text-sm font-bold text-forest group-hover:text-gold-text">Open →</span></Card></Link>)}</div><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{comingSoon.map(([title, desc]) => <div key={title} id={title === 'Mock Interview' ? 'mock-interview' : title === 'Question Paper Generator' ? 'question-papers' : title === 'Gulf Career Guidance' ? 'gulf-guidance' : 'ai-assistant'} className="flex"><LockedTile title={title} description={desc} note={`${title} — planned for a future release.`} className="h-full w-full min-h-[220px]" /></div>)}</div></section>
         <section id="ats-scan" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto flex max-w-[1280px] flex-col items-start gap-6 px-5 py-16 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12"><div className="max-w-2xl"><Kicker>Free tool</Kicker><h2 className="mt-3 font-serif text-3xl text-ink-900 sm:text-4xl">See how Gulf-ready your CV is.</h2><p className="mt-3 text-ink-700">Get a free ATS and Gulf-readiness scan before you build your full Career Profile.</p></div><Link href="/ats-scan" className={cn(buttonVariants({ variant: 'primary' }))}>Scan my CV for free →</Link></div></section>
         <section id="how-it-works" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="max-w-2xl"><Kicker>How it works</Kicker><h2 className="mt-4 font-serif text-4xl text-ink-900 sm:text-5xl">One clear path from experience to application.</h2></div><div className="mt-12 grid gap-8 md:grid-cols-4">{[['01','Capture','Upload, paste or build your Career Profile.'],['02','Clarify','Choose your Gulf country, target role and company.'],['03','Prepare','Review the changes and strengthen your application.'],['04','Apply','Download, save and reuse your profile for the next target.']].map(([n,t,d]) => <div key={n} className="flex flex-col gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-full border border-redesign-gold/40 bg-redesign-gold-tint font-mono text-sm font-bold text-gold-text">{n}</span><h3 className="font-serif text-2xl text-ink-900">{t}</h3><p className="text-sm leading-relaxed text-ink-700">{d}</p></div>)}</div></div></section>
         <FailureSection />
         <EcosystemSection />
+        <HighlightBandSection />
         <ShowcaseSection />
         <ComparisonSection />
         <InterviewDemoSection />
@@ -304,7 +384,19 @@ export default function Home() {
         <section id="resources" className="border-y border-line-dark bg-forest-deep text-ink-900-dark"><div className="mx-auto max-w-[900px] px-5 py-20 text-center sm:px-8 lg:py-24"><Kicker onDark>Start with what you have</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Your next move starts with your real experience.</h2><p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-900-dark/70">No perfect CV required. No inflated claims. Just a clearer path to prepare, apply and grow.</p><Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }), 'mt-8')}>Build your Career Profile</Link></div></section>
         <section className="mx-auto max-w-[900px] px-5 py-20 sm:px-8 lg:py-24"><Kicker>Questions</Kicker><h2 className="mt-4 font-serif text-4xl text-ink-900">Good questions deserve clear answers.</h2><div className="mt-8 divide-y divide-line-light rounded-radius-lg border border-line-light bg-surface-light px-6">{faq.map(([q,a]) => <details key={q} className="group py-5"><summary className="cursor-pointer list-none pr-8 text-base font-bold text-ink-900 marker:hidden">{q}<span className="float-right text-gold-text group-open:rotate-45">＋</span></summary><p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-700">{a}</p></details>)}</div></section>
       </main>
-      <footer className="border-t border-line-light bg-surface-2-light"><div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-5 py-10 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12"><div className="flex items-center gap-2.5"><span className="font-serif flex h-8 w-8 items-center justify-center rounded-radius-lg bg-forest-deep text-lg text-gold-text-dark">G</span><span className="font-bold text-ink-900">GCC MENTOR</span></div><p className="text-sm text-ink-400">Built for Gulf professionals · Privacy · Terms · Refunds</p><Link href="/login" className="text-sm font-bold text-forest">Log in</Link></div></footer>
+      <footer className="border-t border-line-light bg-surface-2-light">
+        <div className="mx-auto max-w-[1280px] px-5 py-14 sm:px-8 lg:px-12">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="lg:col-span-2">
+              <div className="flex items-center gap-2.5"><span className="font-serif flex h-8 w-8 items-center justify-center rounded-radius-lg bg-forest-deep text-lg text-gold-text-dark">G</span><span className="font-bold text-ink-900">GCC MENTOR</span></div>
+              <p className="mt-4 max-w-[320px] text-sm text-ink-400">Your all-in-one career intelligence platform for professionals targeting GCC opportunities.</p>
+            </div>
+            <div><b className="text-sm text-ink-900">Product</b><div className="mt-4 flex flex-col gap-2.5 text-sm text-ink-400"><a href="#how-it-works">How It Works</a><a href="#platform">Platform</a><a href="#pricing">Pricing</a></div></div>
+            <div><b className="text-sm text-ink-900">Company</b><div className="mt-4 flex flex-col gap-2.5 text-sm text-ink-400"><Link href="/login">Log in</Link><span>Privacy</span><span>Terms</span><span>Refunds</span></div></div>
+          </div>
+          <div className="mt-10 border-t border-line-light pt-6 text-sm text-ink-400">Built for Gulf professionals.</div>
+        </div>
+      </footer>
     </div>
   )
 }
