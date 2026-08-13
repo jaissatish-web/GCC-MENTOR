@@ -35,11 +35,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let extractedText = ''
     try {
       if (fileExt === 'pdf') {
-        const { PDFParse } = require('pdf-parse')
-        const parser = new PDFParse({ data: buffer })
-        const parsed = await parser.getText()
-        extractedText = parsed.text
-      } else if (fileExt === 'docx' || fileExt === 'doc') {
+            const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.mjs')
+            const loadingTask = pdfjsLib.getDocument({
+              data: new Uint8Array(buffer),
+              disableRange: true,
+              disableStream: true,
+            })
+            const doc = await loadingTask.promise
+            const pages: string[] = []
+            for (let i = 1; i <= doc.numPages; i++) {
+              const page = await doc.getPage(i)
+              const content = await page.getTextContent()
+              const pageText = content.items
+                .map((item: { str: string }) => item.str)
+                .join(' ')
+                .replace(/\s+/g, ' ')
+              pages.push(pageText.trim())
+            }
+            extractedText = pages.join('\n')
+          } else if (fileExt === 'docx' || fileExt === 'doc') {
         const mammoth = await import('mammoth')
         const result = await mammoth.extractRawText({ buffer })
         extractedText = result.value

@@ -132,14 +132,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     try {
-      if (fileExt === 'pdf') {
-              // Use require() — pdf-parse v2 CJS entry is reliable on Vercel.
-              // Dynamic import() can resolve ESM path differently in serverless.
-              const { PDFParse } = require('pdf-parse')
-              const parser = new PDFParse({ data: buffer })
-              const parsed = await parser.getText()
-              resumeText = parsed.text
-      } else {
+          if (fileExt === 'pdf') {
+            // Use pdfjs-dist directly — bypass pdf-parse wrapper.
+            // pdf-parse v2 wraps pdfjs-dist but its worker config
+            // fails on Vercel serverless. pdfjs-dist itself works.
+            const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.mjs')
+            const loadingTask = pdfjsLib.getDocument({
+              data: new Uint8Array(buffer),
+              disableRange: true,
+              disableStream: true,
+            })
+            const doc = await loadingTask.promise
+            const pages: string[] = []
+            for (let i = 1; i <= doc.numPages; i++) {
+              const page = await doc.getPage(i)
+              const content = await page.getTextContent()
+              const pageText = content.items
+                .map((item: { str: string }) => item.str)
+                .join(' ')
+                .replace(/\s+/g, ' ')
+              pages.push(pageText.trim())
+            }
+            resumeText = pages.join('\n')
+          } else {
         const mammoth = await import('mammoth')
         const parsed = await mammoth.extractRawText({ buffer })
         resumeText = parsed.value
