@@ -69,6 +69,28 @@ const showcasePanels = [
   ['Interview Readiness', 'Coming soon', 'Practice and evaluation will follow'],
 ] as const
 
+const heroHighlights = [
+  'Gulf Readiness Score',
+  'Job-Specific Optimization',
+  'ATS-Ready Formatting',
+  'Cover Letters, Grounded in Your Profile',
+] as const
+
+const scorecardRows: [string, number][] = [
+  ['GCC-relevant experience', 85],
+  ['Keyword alignment', 70],
+  ['Formatting', 92],
+]
+
+const countryFlags: Record<string, string> = {
+  saudi_arabia: '🇸🇦',
+  uae: '🇦🇪',
+  qatar: '🇶🇦',
+  oman: '🇴🇲',
+  kuwait: '🇰🇼',
+  bahrain: '🇧🇭',
+}
+
 function Kicker({ children, onDark = false }: { children: React.ReactNode; onDark?: boolean }) {
   return (
     <p className={cn('text-[11px] font-bold uppercase tracking-[0.2em]', onDark ? 'text-gold-text-dark' : 'text-gold-text')}>
@@ -103,6 +125,37 @@ function SoonBadge({ onDark = false }: { onDark?: boolean }) {
   )
 }
 
+/** Static illustrative ring for the server-rendered hero panel — the animated,
+ * stateful `ReadinessRing` component needs a client boundary, which a
+ * marketing page shouldn't take on for one decorative preview. */
+function StaticScoreRing({ score, size = 64 }: { score: number; size?: number }) {
+  const circumference = 264
+  const offset = circumference * (1 - score / 100)
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} className="-rotate-90" aria-hidden="true">
+      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className="stroke-forest-tint-dark" />
+      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="stroke-redesign-gold-dark" />
+      <text x="50" y="50" dy="0.35em" textAnchor="middle" className="font-mono text-[22px] fill-redesign-gold-dark" style={{ transform: 'rotate(90deg)', transformOrigin: '50px 50px' }}>{score}</text>
+    </svg>
+  )
+}
+
+function GcCountryStrip() {
+  const countries = GULF_COUNTRIES.filter((c) => c.value !== 'generic_gulf')
+  return (
+    <div className="border-t border-line-dark bg-forest-deep-dark/60">
+      <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-4 text-[12px] font-semibold text-ink-900-dark/70 sm:px-8 lg:px-12">
+        <span className="text-ink-900-dark/90">CV support across the Gulf</span>
+        {countries.map((c) => (
+          <span key={c.value} className="flex items-center gap-1.5">
+            {countryFlags[c.value]} {c.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function FailureSection() {
   return (
     <section id="problem" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
@@ -114,7 +167,7 @@ function FailureSection() {
       <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {failurePatterns.map(([number, title, description]) => (
           <Card key={number} tone="light" className="flex gap-4 p-5">
-            <span className="font-mono text-xs text-terra">{number}</span>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-terra/30 bg-terra-tint font-mono text-xs font-bold text-terra">{number}</span>
             <div><h3 className="font-serif text-xl text-ink-900">{title}</h3><p className="mt-2 text-sm leading-relaxed text-ink-700">{description}</p></div>
           </Card>
         ))}
@@ -190,10 +243,53 @@ export default function Home() {
     <div className="w-full overflow-x-clip bg-bg text-ink-900">
       <SiteNav />
       <main>
-        <section className="relative overflow-hidden border-b border-line-dark bg-forest-deep"><div className="mx-auto grid max-w-[1280px] items-center gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[1fr_0.9fr] lg:px-12 lg:py-28"><div className="relative z-10 flex flex-col gap-6"><Kicker onDark>Built for the Gulf career journey</Kicker><h1 className="max-w-[11ch] font-serif text-5xl leading-[0.98] tracking-tight text-ink-900-dark sm:text-7xl">Your experience. <span className="text-forest-dark">Your next Gulf opportunity.</span></h1><p className="max-w-[55ch] text-[17px] leading-relaxed text-ink-900-dark/70 sm:text-lg">GCC MENTOR helps professionals build a stronger CV, prepare for the next step and make better-informed career decisions across the Gulf.</p><div className="flex flex-col gap-3 sm:flex-row"><Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }))}>Build your Career Profile</Link><a href="#platform" className={cn(buttonVariants({ variant: 'ghost' }))}>Explore the platform</a></div><div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-line-dark pt-5 text-[12px] font-semibold text-ink-900-dark/60"><span>✓ Nothing invented</span><span>✓ Gulf-focused</span><span>✓ You stay in control</span></div></div><div className="relative min-h-[380px] overflow-hidden rounded-radius-xl border border-line-dark-strong p-5 shadow-redesign-lg sm:min-h-[470px]"><Image src={photos.skyline} alt="City skyline at night." fill priority className="object-cover opacity-35" /><div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/65 to-transparent" /><div className="relative flex h-full flex-col justify-end gap-4 text-ink-900-dark"><span className="w-fit rounded-full bg-redesign-gold px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-deep">One profile → many possibilities</span><h2 className="max-w-[10ch] font-serif text-4xl leading-tight">Prepare with clarity. Apply with confidence.</h2><div className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-4 text-sm text-ink-900-dark/80 backdrop-blur-sm">Career Profile <span className="float-right text-forest-dark">75% ready</span><div className="mt-3 h-2 rounded-full bg-ink-900-dark/20"><div className="h-2 w-3/4 rounded-full bg-redesign-gold" /></div></div></div></div></div></section>
+        <section className="relative overflow-hidden border-b border-line-dark bg-forest-deep">
+          <div className="mx-auto grid max-w-[1280px] items-center gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[1.05fr_0.95fr] lg:px-12 lg:py-28">
+            <div className="relative z-10 flex flex-col gap-6">
+              <Kicker onDark>Built for the Gulf career journey</Kicker>
+              <h1 className="max-w-[14ch] font-serif text-5xl leading-[0.98] tracking-tight text-ink-900-dark sm:text-6xl lg:text-7xl">From more applications to <span className="text-forest-dark">the right opportunity.</span></h1>
+              <p className="max-w-[55ch] text-[17px] leading-relaxed text-ink-900-dark/70 sm:text-lg">GCC MENTOR turns your real experience into a Gulf-ready Career Profile, then helps you target, optimize and prepare for the role you actually want.</p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {heroHighlights.map((h) => (
+                  <div key={h} className="flex items-center gap-2 rounded-radius-lg border border-line-dark bg-ink-900-dark/5 px-3 py-2.5">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-redesign-gold" />
+                    <span className="text-[11px] font-semibold leading-tight text-ink-900-dark/80">{h}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row"><Link href="/ats-scan" className={cn(buttonVariants({ variant: 'purchase' }))}>Check My Gulf Readiness — Free →</Link><a href="#platform" className={cn(buttonVariants({ variant: 'ghost' }))}>See how it works</a></div>
+              <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-line-dark pt-5 text-[12px] font-semibold text-ink-900-dark/60"><span>✓ Nothing invented</span><span>✓ Gulf-focused</span><span>✓ You stay in control</span></div>
+            </div>
+            <div className="relative min-h-[380px] overflow-hidden rounded-radius-xl border border-line-dark-strong p-5 shadow-redesign-lg sm:min-h-[470px]">
+              <Image src={photos.skyline} alt="City skyline at night." fill priority className="object-cover opacity-35" />
+              <div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/70 to-transparent" />
+              <div className="relative flex h-full flex-col justify-end gap-4 text-ink-900-dark">
+                <span className="w-fit rounded-full bg-redesign-gold px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-deep">Illustrative preview</span>
+                <div className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-5 backdrop-blur-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-bold">Gulf Readiness Score</p>
+                      <p className="mt-1 text-[11px] leading-snug text-ink-900-dark/55">An example of what your Career Profile scorecard could look like</p>
+                    </div>
+                    <StaticScoreRing score={75} />
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {scorecardRows.map(([label, value]) => (
+                      <div key={label}>
+                        <div className="flex justify-between text-[10px] text-ink-900-dark/55"><span>{label}</span><span>{value}%</span></div>
+                        <div className="mt-1 h-1.5 rounded-full bg-ink-900-dark/15"><div className="h-full rounded-full bg-redesign-gold" style={{ width: `${value}%` }} /></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <GcCountryStrip />
+        </section>
         <section id="platform" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="max-w-2xl"><Kicker>The platform</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Everything you need to move forward in the Gulf.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Start with the tools that are live today. See what is coming next without confusing a preview for a promise.</p></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{liveServices.map(([title, desc, href]) => <Link href={href} key={title} className="group"><Card tone="light" className="flex min-h-[250px] flex-col gap-4 p-6 transition hover:-translate-y-1 hover:border-redesign-gold"><LiveBadge /><h3 className="font-serif text-2xl text-ink-900">{title}</h3><p className="text-sm leading-relaxed text-ink-700">{desc}</p><span className="mt-auto text-sm font-bold text-forest group-hover:text-gold-text">Open →</span></Card></Link>)}</div><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{comingSoon.map(([title, desc]) => <div key={title} id={title === 'Mock Interview' ? 'mock-interview' : title === 'Question Paper Generator' ? 'question-papers' : title === 'Gulf Career Guidance' ? 'gulf-guidance' : 'ai-assistant'} className="flex"><LockedTile title={title} description={desc} note={`${title} — planned for a future release.`} className="h-full w-full min-h-[220px]" /></div>)}</div></section>
         <section id="ats-scan" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto flex max-w-[1280px] flex-col items-start gap-6 px-5 py-16 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12"><div className="max-w-2xl"><Kicker>Free tool</Kicker><h2 className="mt-3 font-serif text-3xl text-ink-900 sm:text-4xl">See how Gulf-ready your CV is.</h2><p className="mt-3 text-ink-700">Get a free ATS and Gulf-readiness scan before you build your full Career Profile.</p></div><Link href="/ats-scan" className={cn(buttonVariants({ variant: 'primary' }))}>Scan my CV for free →</Link></div></section>
-        <section id="how-it-works" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="max-w-2xl"><Kicker>How it works</Kicker><h2 className="mt-4 font-serif text-4xl text-ink-900 sm:text-5xl">One clear path from experience to application.</h2></div><div className="mt-12 grid gap-8 md:grid-cols-4">{[['01','Capture','Upload, paste or build your Career Profile.'],['02','Clarify','Choose your Gulf country, target role and company.'],['03','Prepare','Review the changes and strengthen your application.'],['04','Apply','Download, save and reuse your profile for the next target.']].map(([n,t,d]) => <div key={n} className="flex flex-col gap-3"><span className="font-mono text-sm text-gold-text">{n}</span><h3 className="font-serif text-2xl text-ink-900">{t}</h3><p className="text-sm leading-relaxed text-ink-700">{d}</p></div>)}</div></div></section>
+        <section id="how-it-works" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="max-w-2xl"><Kicker>How it works</Kicker><h2 className="mt-4 font-serif text-4xl text-ink-900 sm:text-5xl">One clear path from experience to application.</h2></div><div className="mt-12 grid gap-8 md:grid-cols-4">{[['01','Capture','Upload, paste or build your Career Profile.'],['02','Clarify','Choose your Gulf country, target role and company.'],['03','Prepare','Review the changes and strengthen your application.'],['04','Apply','Download, save and reuse your profile for the next target.']].map(([n,t,d]) => <div key={n} className="flex flex-col gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-full border border-redesign-gold/40 bg-redesign-gold-tint font-mono text-sm font-bold text-gold-text">{n}</span><h3 className="font-serif text-2xl text-ink-900">{t}</h3><p className="text-sm leading-relaxed text-ink-700">{d}</p></div>)}</div></div></section>
         <FailureSection />
         <EcosystemSection />
         <ShowcaseSection />

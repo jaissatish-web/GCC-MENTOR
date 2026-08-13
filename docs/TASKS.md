@@ -2107,6 +2107,30 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 ---
 
+- [x] **TASK-100: Landing page retrofit after unreviewed direct GitHub pushes** — presentation-only, per `PAGE_SPECS.md` §A `/` landing page spec, built directly by CTO (Claude Code) rather than Hermes because it was a same-session cleanup of a process violation, not a fresh spec build.
+
+      **What happened:** on 2026-08-13, `origin/main` on GitHub received 9 commits (author: founder's own account, commit messages read as AI-agent-generated) that rewrote `app/page.tsx` entirely, bypassing `docs/TASKS.md`/Hermes/CTO review completely — no ticket, no docs update. A separate unmerged branch, `agent/landing-page-conversion-redesign`, had 2 more independent commits rewriting the same file differently. Local `main` never pulled either — it stayed on the TASK-098-approved state throughout.
+
+      **Founder flagged this to Claude directly ("I changed the landing page on GitHub only") and asked for an inspection.** Comparing `origin/main`'s `app/page.tsx` against the locked redesign scope found four real violations, not just a style difference:
+      1. Abandoned the design system entirely — no `SiteNav`/`Button`/`Card`/`LockedTile`, no design tokens, a fresh hardcoded page with inline hex colors.
+      2. "Mock Interview" shown as a live, clickable nav item tagged "NEW" — `PLANNED_SERVICES.md` explicitly bans planned services from appearing as nav items on any breakpoint.
+      3. Fabricated content: three named testimonials with photos and star ratings, plus invented traction stats ("10,000+ Professionals helped," "4.8/5") — directly contradicts this page's own already-approved "no invented testimonials" placeholder pattern and the product's core "nothing invented" promise.
+      4. Real 3-tier pricing (₹399/₹1,499/₹2,499) disappeared; `#pricing` nav link pointed at a generic CTA with no pricing info.
+
+      **Founder's decision, given via `AskUserQuestion`:** keep the new visual direction/storytelling energy, but retrofit it onto the approved design system, remove the fabrication, restore the live-vs-planned honesty, and restore pricing — then log it as a proper ticket. (Not chosen: reverting outright, or shipping GitHub's version as-is.)
+
+      **What was built**, on top of the last-approved local `app/page.tsx` (not on top of the 9 unreviewed commits): new hero section with punchier storytelling copy ("From more applications to the right opportunity"), a live-feature highlight strip (only actually-live features, not Mock Interview), a GCC-country support strip (`GcCountryStrip`, real supported countries from `GULF_COUNTRIES`, purely decorative), and an "Illustrative preview" Gulf Readiness scorecard panel in the hero (labeled illustrative, not implied to be a real computed result — same honesty convention as the existing `ShowcaseSection`'s "Live concept"/"Preview" labels). Added numbered circle badges to the pain-points and 4-step sections for visual polish (copy unchanged). Everything else (live/coming-soon services grid, ecosystem steps with Live/Coming-Soon badges, comparison table, placeholder-only testimonials, FAQ, real 3-tier pricing with its existing single-checkout disclosure) kept exactly as already approved under TASK-076–098 — none of that was a violation, so none of it was touched.
+
+      One implementation deviation from a first draft, self-caught before commit: initially reused the existing animated `ReadinessRing` component (needs `useEffect`/`useState`) in the hero, which forced `app/page.tsx` — a server component today, correctly, for a marketing page — into `'use client'`. Replaced with a small static, server-safe SVG ring (`StaticScoreRing`) using the same token classes instead of paying that cost for one decorative illustration.
+
+      **Verified:** `npx tsc --noEmit` 0 errors, `npm run lint` clean, live-checked against a running dev server (`GET /` → 200, no console errors, no broken requests) — full page text read back and checked line-by-line against the four flagged violations, confirmed absent, and against the untouched sections, confirmed unchanged.
+
+      **Not yet done — needs a separate explicit decision, not assumed:** whether/how to reconcile this with `origin/main` on GitHub. The 9 unreviewed commits and the stray `agent/landing-page-conversion-redesign` branch are still there; this ticket's commit exists only locally as of this entry. Publishing it requires either a force-push replacing those 9 commits (since this supersedes them content-wise) or another reconciliation approach — a git history rewrite on `main`, which needs the founder's explicit confirmation before it happens, not just the "retrofit it" decision above.
+
+      Depends on: TASK-098 · Status: done locally, 2026-08-13 — not yet pushed to GitHub.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
