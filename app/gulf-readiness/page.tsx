@@ -39,15 +39,27 @@ export default function GulfReadinessPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/ats-scan/session', { cache: 'no-store' })
-      .then(async response => {
-        const data = await response.json()
-        if (!response.ok) throw new Error(data.error ?? 'Your scan could not be found.')
-        setScore(data.score)
-        if (data.jobMatch) setJobMatch(data.jobMatch)
-      })
-      .catch(err => setError(err instanceof Error ? err.message : 'Your scan could not be found.'))
-  }, [])
+      // First try sessionStorage (set by /ats-scan after successful scan)
+      const stored = sessionStorage.getItem('gcc_scan_result')
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored)
+          sessionStorage.removeItem('gcc_scan_result') // clean up
+          setScore(parsed.score)
+          if (parsed.jobMatch) setJobMatch(parsed.jobMatch)
+          return
+        } catch { /* corrupted, fall through */ }
+      }
+      // Fallback: try session cookie (for direct /gulf-readiness visits)
+      fetch('/api/ats-scan/session', { cache: 'no-store' })
+        .then(async response => {
+          const data = await response.json()
+          if (!response.ok) throw new Error(data.error ?? 'Your scan could not be found.')
+          setScore(data.score)
+          if (data.jobMatch) setJobMatch(data.jobMatch)
+        })
+        .catch(err => setError(err instanceof Error ? err.message : 'Your scan could not be found.'))
+    }, [])
 
   if (error) return <main className="min-h-dvh bg-bg px-5 py-20 text-center"><h1 className="font-serif text-4xl">Your scan is unavailable</h1><p className="mx-auto mt-4 max-w-lg text-ink-700">{error}</p><Link href="/ats-scan" className="mt-8 inline-flex rounded-radius-md bg-forest-deep px-6 py-3 font-bold text-ink-900-dark">Scan my CV again</Link></main>
   if (!score) return <main className="flex min-h-dvh items-center justify-center bg-bg"><p className="font-mono text-sm text-ink-500">Preparing your Gulf readiness report…</p></main>

@@ -42,22 +42,24 @@ export default function AtsScanPage() {
   const onFileChange = (event: ChangeEvent<HTMLInputElement>) => chooseFile(event.target.files?.[0] ?? null)
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setError(null)
-    if (!file && resumeText.trim().length < MIN_TEXT_LENGTH) return setError('Upload a resume or paste at least 50 characters of resume text.')
-    if (resumeText.length > MAX_TEXT_LENGTH) return setError('Pasted resume text must be 20,000 characters or fewer.')
+      event.preventDefault()
+      setError(null)
+      if (!file && resumeText.trim().length < MIN_TEXT_LENGTH) return setError('Upload a resume or paste at least 50 characters of resume text.')
+      if (resumeText.length > MAX_TEXT_LENGTH) return setError('Pasted resume text must be 20,000 characters or fewer.')
 
-    const body = new FormData()
-    if (file) body.append('file', file)
-    else body.append('resume_text', resumeText.trim())
+      const body = new FormData()
+      if (file) body.append('file', file)
+      else body.append('resume_text', resumeText.trim())
 
-    setLoading(true)
-    try {
-      const response = await fetch('/api/ats-scan', { method: 'POST', body })
-      const payload = await response.json() as { success?: boolean; error?: string; limit?: { message?: string } }
-      if (!response.ok) throw new Error(response.status === 429 ? payload.limit?.message ?? payload.error ?? 'Daily scan limit reached.' : payload.error ?? 'Could not analyze this resume.')
-      if (!payload.success) throw new Error('The scan could not be completed. Please try again.')
-      router.push('/gulf-readiness')
+      setLoading(true)
+      try {
+        const response = await fetch('/api/ats-scan', { method: 'POST', body })
+        const payload = await response.json() as { success?: boolean; score?: unknown; jobMatch?: unknown; error?: string; limit?: { message?: string } }
+        if (!response.ok) throw new Error(response.status === 429 ? payload.limit?.message ?? payload.error ?? 'Daily scan limit reached.' : payload.error ?? 'Could not analyze this resume.')
+        if (!payload.success) throw new Error('The scan could not be completed. Please try again.')
+        // Store result in sessionStorage so /gulf-readiness can read it directly
+        sessionStorage.setItem('gcc_scan_result', JSON.stringify({ score: payload.score, jobMatch: payload.jobMatch }))
+        router.push('/gulf-readiness')
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not analyze this resume.')
       setLoading(false)
