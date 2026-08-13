@@ -138,8 +138,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                       resumeText = result.text
                       if (!resumeText || resumeText.trim().length < 50) {
                         return NextResponse.json({
-                          error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.',
-                          code: 'PDF_NO_TEXT',
+                                                error: 'Cannot read PDF [Filter=' + (result.filter || 'none') + ' Streams=' + result.streamCount + ' Errors=' + result.errorCount + ' Text=' + (resumeText ? resumeText.length : 0) + 'chars]. Upload a valid text-based PDF or Word file, or paste your resume text instead.',
+                                                code: 'PDF_NO_TEXT',
                           extracted: resumeText ? resumeText.length : 0,
                           debug: { filter: result.filter, streams: result.streamCount, errors: result.errorCount },
                         }, { status: 400 })
@@ -165,9 +165,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             'stack=' + (e instanceof Error ? (e.stack ?? '').split('\\n').slice(0, 3).join(' | '): ''),
           )
           return NextResponse.json({
-            error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.',
-            code: 'PARSE_EXCEPTION',
-            detail: e instanceof Error ? e.message : String(e),
+            error: 'PDF parse crashed [' + (e instanceof Error ? e.message : String(e)) + ']. Try paste text instead.',
+                        code: 'PARSE_EXCEPTION',
           }, { status: 422 })
         }
 
