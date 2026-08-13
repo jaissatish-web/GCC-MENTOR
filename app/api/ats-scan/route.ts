@@ -134,15 +134,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     try {
           if (fileExt === 'pdf') {
-            resumeText = extractPdfText(buffer)
-            // DEBUG: tell us what was actually extracted
-            if (!resumeText || resumeText.trim().length < 50) {
-              return NextResponse.json({
-                error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.',
-                code: 'PDF_NO_TEXT',
-                extracted: resumeText ? resumeText.length : 0,
-              }, { status: 400 })
-            }
+                      const result = extractPdfText(buffer, true) // debug mode
+                      resumeText = result.text
+                      if (!resumeText || resumeText.trim().length < 50) {
+                        return NextResponse.json({
+                          error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.',
+                          code: 'PDF_NO_TEXT',
+                          extracted: resumeText ? resumeText.length : 0,
+                          debug: { filter: result.filter, streams: result.streamCount, errors: result.errorCount },
+                        }, { status: 400 })
+                      }
           } else {
             const mammoth = await import('mammoth')
             const parsed = await mammoth.extractRawText({ buffer })

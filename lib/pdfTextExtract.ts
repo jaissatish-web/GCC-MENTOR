@@ -1,69 +1,187 @@
 // Direct PDF text extraction — zero external dependencies.
-// Handles BOTH uncompressed AND FlateDecode (zlib) compressed streams.
+// Handles common PDF stream filters: FlateDecode, ASCII85Decode,
+// ASCIIHexDecode, and chained filters (e.g. [/ASCII85Decode /FlateDecode]).
 // All modern PDF generators (Word, Google Docs, Canva, resume builders)
-// use FlateDecode compression — this handles those.
+// compress their streams — this decompresses them first.
 
-import { inflateSync } from 'zlib'
+import { inflateSync, inflateRawSync } from 'zlib'
 
-function extractPdfText(buffer: Buffer): string {
+export interface ExtractResult {
+  text: string
+  /** Diagnostic info — non-empty only when debugging is needed */
+  filter?: string
+  streamCount?: number
+  errorCount?: number
+}
+
+function extractPdfText(buffer: Buffer, debug = false): ExtractResult {
   const raw = buffer.toString('latin1')
+  const result: ExtractResult = { text: '' }
+  if (debug) result.streamCount = 0
 
-  // Verify PDF header
-  if (!raw.startsWith('%PDF-')) return ''
+  if (!raw.startsWith('%PDF-')) return result
 
-  // Extract text from all stream objects (both compressed and uncompressed)
   const textParts: string[] = []
   let pos = 0
+  let errors = 0
 
   while (pos < raw.length) {
-    // Find the stream dictionary (the part before 'stream\n')
-    const streamMarker = raw.indexOf('stream\n', pos)
+    // Find stream: 'stream\n' or 'stream\r\n'
+    let streamMarker = raw.indexOf('stream', pos)
+    while (streamMarker !== -1) {
+      const after = raw[streamMarker + 6]
+      if (after === '\n' || after === '\r') break
+      streamMarker = raw.indexOf('stream', streamMarker + 1)
+    }
     if (streamMarker === -1) break
 
-    // Find dictionary start: look backwards from streamMarker for the object header
-    // A stream dictionary is between '<<' and '>>' right before 'stream'
-    const dictStart = raw.lastIndexOf('<<', streamMarker)
-    const dictEnd = streamMarker
-    const dict = dictStart !== -1 && dictStart > pos ? raw.slice(dictStart, dictEnd) : ''
-
-    const dataStart = streamMarker + 7
-    const streamEnd = raw.indexOf('endstream', dataStart)
-    if (streamEnd === -1) break
-
-    // Account for optional \r\n after 'stream' keyword and before 'endstream'
-    let dataEnd = streamEnd
-    if (dataEnd > 0 && raw[dataEnd - 1] === '\n') dataEnd--
-    if (dataEnd > 0 && raw[dataEnd - 1] === '\r') dataEnd--
-
-    let streamData: Buffer
-    try {
-      const rawData = Buffer.from(raw.slice(dataStart, dataEnd), 'latin1')
-
-      // Check if this stream is FlateDecode compressed
-      if (dict.includes('/FlateDecode')) {
-        try {
-          streamData = inflateSync(rawData)
-        } catch {
-          // Decompression failed — skip this stream
-          pos = streamEnd + 9
-          continue
-        }
-      } else {
-        streamData = rawData
-      }
-    } catch {
-      pos = streamEnd + 9
+    // Determine the actual data start (skip 'stream\r\n' or 'stream\n')
+    let dataStart = streamMarker + 7 // 'stream\n'
+    if (raw[streamMarker + 6] === '\r' && raw[streamMarker + 7] === '\n') {
+      dataStart = streamMarker + 8 // 'stream\r\n'
+    } else if (raw[streamMarker + 6] === '\n') {
+      dataStart = streamMarker + 7
+    } else {
+      pos = streamMarker + 6
       continue
     }
 
-    // Extract text from the (possibly decompressed) stream
-    const streamStr = streamData.toString('latin1')
-    extractTextFromContent(streamStr, textParts)
+    const streamEnd = raw.indexOf('endstream', dataStart)
+    if (streamEnd === -1) break
+
+    // Find the stream dictionary (<< ... >> before stream)
+    const dictStart = raw.lastIndexOf('<<', streamMarker)
+    const dict = dictStart !== -1 && dictStart > pos ? raw.slice(dictStart, streamMarker) : ''
+
+    // Trim trailing whitespace before endstream
+    let dataEnd = streamEnd
+    while (dataEnd > dataStart && (raw[dataEnd - 1] === '\n' || raw[dataEnd - 1] === '\r' || raw[dataEnd - 1] === ' ')) {
+      dataEnd--
+    }
+
+    if (debug) result.streamCount!++
+
+    let streamData: Buffer | null = null
+    try {
+      const rawData = Buffer.from(raw.slice(dataStart, dataEnd), 'latin1')
+      streamData = decompressStream(rawData, dict)
+
+      if (!streamData) {
+        errors++
+        if (debug && !result.filter && dict) result.filter = detectFilter(dict) ?? undefined
+      }
+    } catch {
+      errors++
+    }
+
+    if (streamData) {
+      const streamStr = streamData.toString('latin1')
+      extractTextFromContent(streamStr, textParts)
+    }
 
     pos = streamEnd + 9
   }
 
-  return textParts.join(' ').replace(/\s+/g, ' ').trim()
+  if (debug) result.errorCount = errors
+  result.text = textParts.join(' ').replace(/\s+/g, ' ').trim()
+  return result
+}
+
+function decompressStream(data: Buffer, dict: string): Buffer | null {
+  const filter = detectFilter(dict)
+  if (!filter) return data
+
+  // Multiple chained filters: e.g. [/ASCII85Decode /FlateDecode]
+  // Apply in the order listed
+  let current = data
+  for (const f of filter.split('+')) {
+    try {
+      if (f === 'FlateDecode') {
+        // Try standard zlib first, then raw deflate
+        try {
+          current = inflateSync(current)
+        } catch {
+          current = inflateRawSync(current)
+        }
+      } else if (f === 'ASCII85Decode') {
+        current = decodeAscii85(current)
+      } else if (f === 'ASCIIHexDecode') {
+        current = decodeAsciiHex(current)
+      }
+      // LZWDecode, RunLengthDecode, etc. — unsupported for now
+      // but most modern PDFs only use FlateDecode or ASCII85+FlateDecode
+    } catch {
+      return null
+    }
+  }
+
+  return current
+}
+
+function detectFilter(dict: string): string | null {
+  // Single filter: /Filter /FlateDecode
+  const singleMatch = dict.match(/\/Filter\s*\/(\w+)/)
+  if (singleMatch) return singleMatch[1]
+
+  // Array of filters: /Filter [/ASCII85Decode /FlateDecode]
+  const arrayMatch = dict.match(/\/Filter\s*\[([^\]]+)\]/)
+  if (arrayMatch) {
+    const filters = arrayMatch[1].match(/\/\w+/g)
+    if (filters) return filters.map(f => f.slice(1)).join('+')
+  }
+
+  return null
+}
+
+function decodeAscii85(data: Buffer): Buffer {
+  const text = data.toString('latin1')
+  // Remove whitespace and the ~> end marker
+  const cleaned = text.replace(/\s/g, '').replace(/~>$/, '')
+  const result: number[] = []
+  let group: number[] = []
+
+  for (let i = 0; i < cleaned.length; i++) {
+    const ch = cleaned.charCodeAt(i)
+    if (ch < 33 || ch > 117) continue // skip invalid chars
+    group.push(ch - 33)
+
+    if (group.length === 5) {
+      const n = group[0] * 85 * 85 * 85 * 85 +
+                group[1] * 85 * 85 * 85 +
+                group[2] * 85 * 85 +
+                group[3] * 85 +
+                group[4]
+      result.push((n >> 24) & 0xFF, (n >> 16) & 0xFF, (n >> 8) & 0xFF, n & 0xFF)
+      group = []
+    }
+  }
+
+  // Handle remaining characters (padding implied)
+  if (group.length > 0) {
+    while (group.length < 5) group.push(84) // 84 = max value, padding
+    const n = group[0] * 85 * 85 * 85 * 85 +
+              group[1] * 85 * 85 * 85 +
+              group[2] * 85 * 85 +
+              group[3] * 85 +
+              group[4]
+    for (let j = 0; j < group.length - 1; j++) {
+      result.push((n >> (24 - j * 8)) & 0xFF)
+    }
+  }
+
+  return Buffer.from(result)
+}
+
+function decodeAsciiHex(data: Buffer): Buffer {
+  const text = data.toString('latin1').replace(/\s/g, '')
+  const result: number[] = []
+  for (let i = 0; i < text.length - 1; i += 2) {
+    const hex = text.slice(i, i + 2)
+    if (/^[0-9a-fA-F]{2}$/.test(hex)) {
+      result.push(parseInt(hex, 16))
+    }
+  }
+  return Buffer.from(result)
 }
 
 function extractTextFromContent(content: string, parts: string[]): void {
@@ -76,7 +194,7 @@ function extractTextFromContent(content: string, parts: string[]): void {
 
     const block = content.slice(btIdx + 2, etIdx)
 
-    // Extract text between parentheses: (text) — Tj operator
+    // Extract text: (text) Tj
     const tjRegex = /\(([^)]*)\)\s*Tj/g
     let tjMatch
     while ((tjMatch = tjRegex.exec(block)) !== null) {
@@ -88,7 +206,7 @@ function extractTextFromContent(content: string, parts: string[]): void {
       if (text.trim()) parts.push(text)
     }
 
-    // Also try TJ operator (array of strings): [(text) number (text)] TJ
+    // Extract text: [(text) num (text)] TJ
     const tjArrayRegex = /\[([\s\S]*?)\]\s*TJ/g
     let tjArrMatch
     while ((tjArrMatch = tjArrayRegex.exec(block)) !== null) {

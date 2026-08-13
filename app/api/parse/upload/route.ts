@@ -36,7 +36,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let extractedText = ''
     try {
       if (fileExt === 'pdf') {
-            extractedText = extractPdfText(buffer)
+            extractedText = extractPdfText(buffer).text
           } else if (fileExt === 'docx' || fileExt === 'doc') {
         const mammoth = await import('mammoth')
         const result = await mammoth.extractRawText({ buffer })
