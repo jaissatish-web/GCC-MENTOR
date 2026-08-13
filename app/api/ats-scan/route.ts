@@ -123,18 +123,40 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Word file must be under 2MB' }, { status: 400 })
     }
 
+    // PDF header validation — reject non-PDF files early
+    if (fileExt === 'pdf') {
+      const header = buffer.slice(0, 5).toString()
+      if (header !== '%PDF-') {
+        return NextResponse.json({ error: 'This file does not appear to be a valid PDF.' }, { status: 400 })
+      }
+    }
+
     try {
       if (fileExt === 'pdf') {
-        const pdfParse = (await import('pdf-parse')).default
-        const pdfData = await pdfParse(buffer)
-        resumeText = pdfData.text
+        const { PDFParse } = await import('pdf-parse')
+        const parser = new PDFParse({ data: buffer })
+        const parsed = await parser.getText()
+        resumeText = parsed.text
       } else {
         const mammoth = await import('mammoth')
-        const result = await mammoth.extractRawText({ buffer })
-        resumeText = result.value
+        const parsed = await mammoth.extractRawText({ buffer })
+        resumeText = parsed.value
       }
-    } catch {
-      return NextResponse.json({ error: 'Could not read file. Try copy-paste instead.' }, { status: 422 })
+    } catch (e) {
+      console.error(
+        'ATS_SCAN_PARSE_FAILED',
+        'filename=' + file.name,
+        'size=' + buffer.length,
+        'ext=' + fileExt,
+        'error=' + (e instanceof Error ? e.message : String(e)),
+        'stack=' + (e instanceof Error ? (e.stack ?? '').split('\n').slice(0, 3).join(' | '): ''),
+      )
+      return NextResponse.json({ error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.' }, { status: 422 })
+    }
+
+    // Image-only PDF detection: the file is valid but produced no extractable text
+    if (!resumeText || resumeText.trim().length < 50) {
+      return NextResponse.json({ error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.' }, { status: 400 })
     }
   } else if (typeof rawText === 'string') {
     resumeText = rawText

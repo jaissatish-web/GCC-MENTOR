@@ -116,6 +116,33 @@ export async function upsertAnonymousSession(opts: {
  * these cases, which is correct: none of them should behave differently
  * from "no anonymous session exists."
  */
+/**
+ * Read-only session lookup — used by the Gulf Readiness results page
+ * (/gulf-readiness) to display scan results without consuming the
+ * session. The session row is NOT deleted by this function (unlike
+ * claimAnonymousSession, which is single-use for signup handoff).
+ */
+export async function getAnonymousSession(token: string): Promise<AnonymousSessionData | null> {
+  const supabase = createServiceRoleClient()
+  const tokenHash = hashToken(token)
+
+  const { data: row, error } = await supabase
+    .from('anonymous_analysis_sessions')
+    .select('resume_text, extracted_profile, job_description, ats_score_result, job_match_result')
+    .eq('token_hash', tokenHash)
+    .gt('expires_at', new Date().toISOString())
+    .maybeSingle()
+
+  if (error || !row) return null
+  return {
+    resumeText: row.resume_text as string,
+    extractedProfile: row.extracted_profile as CareerProfileDraft,
+    jobDescription: (row.job_description as string | null) ?? null,
+    atsScoreResult: (row.ats_score_result as AtsScoreResult | null) ?? null,
+    jobMatchResult: (row.job_match_result as JobMatchResult | null) ?? null,
+  }
+}
+
 export async function claimAnonymousSession(token: string): Promise<AnonymousSessionData | null> {
   const supabase = createServiceRoleClient()
   const tokenHash = hashToken(token)

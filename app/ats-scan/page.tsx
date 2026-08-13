@@ -1,80 +1,36 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ChangeEvent, DragEvent, FormEvent, useRef, useState } from 'react'
-import type { JobMatchResult, JobMatchCategoryKey } from '@/types/jobMatch'
-
-type CategoryScores = {
-  structure: number
-  clarity_and_impact: number
-  gulf_readiness: number
-}
-
-type JobMatch = {
-  match_score: number
-  present_keywords: string[]
-  missing_keywords: string[]
-} | null
-
-type ScanResult = {
-  overall_score: number
-  category_scores: CategoryScores
-  strengths: string[]
-  improvements: string[]
-  gulf_format_notes: string[]
-  summary: string
-  job_match: JobMatch
-}
 
 const MAX_TEXT_LENGTH = 20000
-const MAX_JD_LENGTH = 8000
+const MAX_PDF_SIZE = 10 * 1024 * 1024
+const MAX_WORD_SIZE = 5 * 1024 * 1024
 const MIN_TEXT_LENGTH = 50
 
-function Score({ value, large = false }: { value: number; large?: boolean }) {
-  return <span className={`font-mono font-bold text-forest ${large ? 'text-7xl' : 'text-3xl'}`}>{value}<span className={large ? 'text-3xl' : 'text-base'}>/100</span></span>
-}
-
-function ListBlock({ title, items }: { title: string; items: string[] }) {
-  return <section className="rounded-radius-lg border border-line-light bg-surface-light p-5"><h3 className="font-serif text-2xl">{title}</h3><ul className="mt-4 space-y-3">{items.map(item => <li key={item} className="flex gap-2 text-sm leading-relaxed text-ink-700"><span className="text-gold-text">✓</span><span>{item}</span></li>)}</ul></section>
-}
-
-// Plain-English display labels for the Job Match categories (types/jobMatch.ts).
-// Display order is intentional — semantic "why" categories first, then the
-// deterministic evidence categories, matching how the founder's pipe reads.
-const CATEGORY_LABELS: Array<[string, JobMatchCategoryKey]> = [
-  ['Summary Match', 'summary_match'],
-  ['Career Relevance', 'career_relevance'],
-  ['Required Skills', 'required_skills'],
-  ['Industry Match', 'industry_match'],
-  ['Experience Level', 'experience_level'],
-  ['GCC Experience', 'gcc_experience'],
-  ['Education', 'education'],
-  ['Certifications', 'certifications'],
-  ['Driving License', 'driving_license'],
-]
-
 export default function AtsScanPage() {
+  const router = useRouter()
   const fileInput = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
   const [pasteMode, setPasteMode] = useState(false)
   const [resumeText, setResumeText] = useState('')
-  const [jobDescription, setJobDescription] = useState('')
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<ScanResult | null>(null)
-  const [jobMatch, setJobMatch] = useState<JobMatchResult | null>(null)
 
   const chooseFile = (nextFile: File | null) => {
     setError(null)
     if (!nextFile) return
     const lower = nextFile.name.toLowerCase()
-    const validType = lower.endsWith('.pdf') || lower.endsWith('.docx') || lower.endsWith('.doc')
-    const maxSize = lower.endsWith('.pdf') ? 5 * 1024 * 1024 : 2 * 1024 * 1024
-    if (!validType) return setError('Only PDF and Word files are supported.')
-    if (nextFile.size > maxSize) return setError(lower.endsWith('.pdf') ? 'PDF file must be under 5MB.' : 'Word file must be under 2MB.')
+    const isPdf = lower.endsWith('.pdf')
+    const isWord = lower.endsWith('.docx') || lower.endsWith('.doc')
+    if (!isPdf && !isWord) return setError('Only PDF and Word files are supported.')
+    const maxSize = isPdf ? MAX_PDF_SIZE : MAX_WORD_SIZE
+    if (nextFile.size > maxSize) return setError(isPdf ? 'PDF file must be under 10MB.' : 'Word file must be under 5MB.')
     setFile(nextFile)
     setPasteMode(false)
+    setResumeText('')
   }
 
   const onDrop = (event: DragEvent<HTMLDivElement>) => {
@@ -88,39 +44,29 @@ export default function AtsScanPage() {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError(null)
-    setResult(null)
-    setJobMatch(null)
-    if (!file && resumeText.trim().length < MIN_TEXT_LENGTH) return setError('Paste at least 50 characters of resume text, or upload a file.')
+    if (!file && resumeText.trim().length < MIN_TEXT_LENGTH) return setError('Upload a resume or paste at least 50 characters of resume text.')
     if (resumeText.length > MAX_TEXT_LENGTH) return setError('Pasted resume text must be 20,000 characters or fewer.')
-    if (jobDescription.length > MAX_JD_LENGTH) return setError('Job description must be 8,000 characters or fewer.')
+
     const body = new FormData()
     if (file) body.append('file', file)
-    else body.append('resume_text', resumeText)
-    if (jobDescription.trim()) body.append('job_description', jobDescription)
+    else body.append('resume_text', resumeText.trim())
+
     setLoading(true)
     try {
       const response = await fetch('/api/ats-scan', { method: 'POST', body })
-      const payload = await response.json() as { success?: boolean; score?: ScanResult; error?: string; limit?: { message?: string }; jobMatch?: JobMatchResult }
+      const payload = await response.json() as { success?: boolean; error?: string; limit?: { message?: string } }
       if (!response.ok) throw new Error(response.status === 429 ? payload.limit?.message ?? payload.error ?? 'Daily scan limit reached.' : payload.error ?? 'Could not analyze this resume.')
-      if (!payload.score) throw new Error('The scan returned no results. Please try again.')
-      setResult(payload.score)
-      // TASK-072: the richer, authoritative Job Match result (TASK-071) — the
-      // old score.job_match field is deliberately not rendered anymore.
-      setJobMatch(payload.jobMatch ?? null)
+      if (!payload.success) throw new Error('The scan could not be completed. Please try again.')
+      router.push('/gulf-readiness')
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not analyze this resume.')
-    } finally {
       setLoading(false)
     }
   }
 
   return <main className="min-h-dvh bg-bg text-ink-900"><header className="border-b border-line-light bg-bg/95"><div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-5 sm:px-8"><Link href="/" className="flex items-center gap-2.5"><span className="font-serif flex h-9 w-9 items-center justify-center rounded-radius-md bg-forest-deep text-lg text-gold-text-dark">G</span><span className="font-bold tracking-wide">GCC MENTOR</span></Link><Link href="/login" className="text-sm font-semibold text-ink-400 hover:text-ink-900">Log in</Link></div></header>
     <div className="mx-auto max-w-[1100px] px-5 py-14 sm:px-8 lg:py-20"><div className="mx-auto max-w-3xl text-center"><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-text">Free Gulf readiness check</p><h1 className="mt-4 font-serif text-5xl leading-tight sm:text-6xl">How ready is your CV for a Gulf opportunity?</h1><p className="mt-5 text-lg leading-relaxed text-ink-700">Upload your resume or paste its text. Get a free, grounded review of structure, clarity and Gulf-readiness — no login required.</p></div>
-      <form onSubmit={submit} className="mx-auto mt-12 max-w-3xl rounded-radius-xl border border-line-light bg-surface-2-light p-5 shadow-redesign-md sm:p-8">
-        <div className="flex flex-col gap-5"><div className={`rounded-radius-lg border-2 border-dashed p-8 text-center transition-colors ${dragging ? 'border-redesign-gold bg-redesign-gold/10' : 'border-line-light-strong bg-surface-light'}`} onDragOver={event => { event.preventDefault(); setDragging(true) }} onDragLeave={() => setDragging(false)} onDrop={onDrop}><input ref={fileInput} type="file" accept=".pdf,.doc,.docx" className="sr-only" onChange={onFileChange} /><p className="text-3xl text-gold-text">↑</p><h2 className="mt-3 font-serif text-2xl">{file ? file.name : 'Drop your resume here'}</h2><p className="mt-2 text-sm text-ink-700">PDF up to 5MB · Word up to 2MB</p><button type="button" onClick={() => fileInput.current?.click()} className="mt-5 min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-5 py-3 text-sm font-bold hover:border-redesign-gold">Choose a file</button></div><button type="button" onClick={() => { setPasteMode(v => !v); setFile(null) }} className="self-center text-sm font-bold text-forest underline underline-offset-4">{pasteMode ? 'Use file upload instead' : 'Paste text instead'}</button>{pasteMode ? <label className="text-sm font-semibold">Resume text<textarea value={resumeText} onChange={event => setResumeText(event.target.value)} maxLength={MAX_TEXT_LENGTH} rows={10} placeholder="Paste your resume text here (50–20,000 characters)" className="mt-2 w-full rounded-radius-md border border-line-light bg-surface-light p-4 font-sans text-sm font-normal outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25" /><span className="mt-1 block text-right text-xs font-normal text-ink-400">{resumeText.length.toLocaleString()} / {MAX_TEXT_LENGTH.toLocaleString()}</span></label> : null}<label className="text-sm font-semibold">Job description <span className="font-normal text-ink-400">(optional)</span><textarea value={jobDescription} onChange={event => setJobDescription(event.target.value)} maxLength={MAX_JD_LENGTH} rows={5} placeholder="Paste a job description to see keyword alignment" className="mt-2 w-full rounded-radius-md border border-line-light bg-surface-light p-4 font-sans text-sm font-normal outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25" /><span className="mt-1 block text-right text-xs font-normal text-ink-400">{jobDescription.length.toLocaleString()} / {MAX_JD_LENGTH.toLocaleString()}</span></label>{error ? <p role="alert" className="rounded-radius-md border border-terra/40 bg-terra-tint p-3 text-sm font-semibold text-terra">{error}</p> : null}<button type="submit" disabled={loading || (!file && !pasteMode)} className="min-h-11 rounded-radius-md bg-forest-deep px-6 py-3 text-sm font-bold text-ink-900-dark disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Analyzing your resume…' : 'Scan my CV for free'}</button><p className="text-center text-xs text-ink-400">We keep your scan briefly (a few days) so signing up doesn&rsquo;t mean starting over. Never shared, never sold.</p></div>
-      </form>
-      {result ? <section className="mx-auto mt-16 max-w-5xl"><div className="rounded-radius-xl border border-redesign-gold/50 bg-surface-light p-6 shadow-redesign-cta-glow sm:p-10"><div className="flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left"><div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-text">Your free scan</p><h2 className="mt-3 font-serif text-4xl">Gulf readiness overview</h2><p className="mt-3 max-w-2xl text-ink-700">{result.summary}</p></div><Score value={result.overall_score} large /></div><div className="mt-10 grid gap-3 sm:grid-cols-3">{[['Structure', result.category_scores.structure], ['Clarity & impact', result.category_scores.clarity_and_impact], ['Gulf-readiness', result.category_scores.gulf_readiness]].map(([label, value]) => <div key={label} className="rounded-radius-lg border border-line-light bg-surface-2-light p-4"><p className="text-xs font-bold uppercase tracking-wider text-ink-400">{label}</p><div className="mt-2"><Score value={value as number} /></div></div>)}</div></div><div className="mt-5 grid gap-4 md:grid-cols-2"><ListBlock title="Strengths" items={result.strengths} /><ListBlock title="Improvements" items={result.improvements} /><ListBlock title="Gulf format notes" items={result.gulf_format_notes} /></div>{jobMatch ? <section className="rounded-radius-lg border border-redesign-gold/50 bg-surface-light p-5 sm:p-7"><div className="flex flex-col items-center justify-between gap-4 sm:flex-row"><h3 className="font-serif text-2xl">Job match</h3><Score value={jobMatch.overall_score} large /></div><p className="mt-5 border-l-4 border-redesign-gold bg-surface-2-light p-4 text-base leading-relaxed text-ink-700">{jobMatch.diagnosis}</p><div className="mt-6 flex flex-col gap-3">{CATEGORY_LABELS.filter(([, key]) => jobMatch.categories[key].applicable).map(([label, key]) => { const c = jobMatch.categories[key]; return <div key={key} className="flex items-start justify-between gap-4 rounded-radius-lg border border-line-light bg-surface-2-light p-4"><div className="min-w-0"><p className="text-sm font-bold text-ink-900">{label}</p>{c.explanation ? <p className="mt-1 text-sm leading-relaxed text-ink-700">{c.explanation}</p> : null}</div><span className="shrink-0 font-mono text-lg font-bold text-forest">{c.score}<span className="text-sm">/100</span></span></div> })}</div></section> : null}<div className="mt-8 rounded-radius-lg bg-forest-deep p-7 text-center text-ink-900-dark"><h2 className="font-serif text-3xl">Ready to build the full picture?</h2><p className="mx-auto mt-2 max-w-xl text-sm text-ink-900-dark/70">Turn this free scan into a complete Career Profile and a CV built for your next target role.</p><Link href="/onboarding" className="mt-5 inline-flex min-h-11 items-center rounded-radius-md bg-redesign-gold px-6 py-3 text-sm font-bold text-ink-900">Build your full Career Profile</Link><p className="mx-auto mt-4 max-w-xl text-xs text-ink-900-dark/55">Sign up and we&rsquo;ll save this result &mdash; no need to scan again.</p></div></section> : null}
-    </div></main>
+      <form onSubmit={submit} className="mx-auto mt-12 max-w-3xl rounded-radius-xl border border-line-light bg-surface-2-light p-5 shadow-redesign-md sm:p-8"><div className="flex flex-col gap-5"><div className={`rounded-radius-lg border-2 border-dashed p-8 text-center transition-colors ${dragging ? 'border-redesign-gold bg-redesign-gold/10' : 'border-line-light-strong bg-surface-light'}`} onDragOver={event => { event.preventDefault(); setDragging(true) }} onDragLeave={() => setDragging(false)} onDrop={onDrop}><input ref={fileInput} type="file" accept=".pdf,.doc,.docx" className="sr-only" onChange={onFileChange} /><p className="text-3xl text-gold-text">↑</p><h2 className="mt-3 font-serif text-2xl">{file ? file.name : 'Drop your resume here'}</h2><p className="mt-2 text-sm text-ink-700">PDF up to 10MB · Word up to 5MB</p><button type="button" onClick={() => fileInput.current?.click()} className="mt-5 min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-5 py-3 text-sm font-bold hover:border-redesign-gold">Choose a file</button></div><button type="button" onClick={() => { setPasteMode(v => !v); setFile(null); setError(null) }} className="self-center text-sm font-bold text-forest underline underline-offset-4">{pasteMode ? 'Use file upload instead' : 'Paste text instead'}</button>{pasteMode ? <label className="text-sm font-semibold">Resume text<textarea value={resumeText} onChange={event => setResumeText(event.target.value)} maxLength={MAX_TEXT_LENGTH} rows={10} placeholder="Paste your resume text here (50–20,000 characters)" className="mt-2 w-full rounded-radius-md border border-line-light bg-surface-light p-4 font-sans text-sm font-normal outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25" /><span className="mt-1 block text-right text-xs font-normal text-ink-400">{resumeText.length.toLocaleString()} / {MAX_TEXT_LENGTH.toLocaleString()}</span></label> : null}{error ? <p role="alert" className="rounded-radius-md border border-terra/40 bg-terra-tint p-3 text-sm font-semibold text-terra">{error}</p> : null}<button type="submit" disabled={loading || (!file && !pasteMode)} className="min-h-11 rounded-radius-md bg-forest-deep px-6 py-3 text-sm font-bold text-ink-900-dark disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Analyzing your resume…' : 'Analyze my resume'}</button><p className="text-center text-xs text-ink-400">We keep your scan briefly so signing up doesn&rsquo;t mean starting over. Never shared, never sold.</p></div></form></div></main>
 }
 
 export const maxDuration = 60

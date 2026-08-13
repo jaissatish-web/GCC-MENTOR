@@ -35,10 +35,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let extractedText = ''
   try {
     if (fileExt === 'pdf') {
-      const pdfParse = (await import('pdf-parse')).default
-      const pdfData = await pdfParse(buffer)
-      extractedText = pdfData.text
-    } else if (fileExt === 'docx' || fileExt === 'doc') {
+      const { PDFParse } = await import('pdf-parse')
+      const parser = new PDFParse({ data: buffer })
+        const parsed = await parser.getText()
+        extractedText = parsed.text
+      } else if (fileExt === 'docx' || fileExt === 'doc') {
       const mammoth = await import('mammoth')
       const result = await mammoth.extractRawText({ buffer })
       extractedText = result.value
