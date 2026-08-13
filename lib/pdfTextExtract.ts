@@ -194,7 +194,28 @@ function extractTextFromContent(content: string, parts: string[]): void {
 
     const block = content.slice(btIdx + 2, etIdx)
 
-    // Extract text: (text) Tj
+    // Extract hex-encoded text: <0045006F> Tj (Google Docs, Canva, modern PDFs)
+    const hexTjRegex = /<([0-9a-fA-F]+)>\s*Tj/g
+    let hexTjMatch
+    while ((hexTjMatch = hexTjRegex.exec(block)) !== null) {
+      const hexText = hexStringToText(hexTjMatch[1])
+      if (hexText.trim()) parts.push(hexText)
+    }
+
+    // Extract hex strings in TJ arrays: [<0045> 5 <006F>] TJ
+    const hexTjArrayRegex = /\[([\s\S]*?)\]\s*TJ/g
+    let hexTjArrMatch
+    while ((hexTjArrMatch = hexTjArrayRegex.exec(block)) !== null) {
+      const arrContent = hexTjArrMatch[1]
+      const hexStrRegex = /<([0-9a-fA-F]+)>/g
+      let hexStrMatch
+      while ((hexStrMatch = hexStrRegex.exec(arrContent)) !== null) {
+        const hexText = hexStringToText(hexStrMatch[1])
+        if (hexText.trim()) parts.push(hexText)
+      }
+    }
+
+    // Extract plain text: (text) Tj
     const tjRegex = /\(([^)]*)\)\s*Tj/g
     let tjMatch
     while ((tjMatch = tjRegex.exec(block)) !== null) {
@@ -206,7 +227,7 @@ function extractTextFromContent(content: string, parts: string[]): void {
       if (text.trim()) parts.push(text)
     }
 
-    // Extract text: [(text) num (text)] TJ
+    // Extract plain text in TJ arrays: [(text) num (text)] TJ
     const tjArrayRegex = /\[([\s\S]*?)\]\s*TJ/g
     let tjArrMatch
     while ((tjArrMatch = tjArrayRegex.exec(block)) !== null) {
@@ -222,6 +243,48 @@ function extractTextFromContent(content: string, parts: string[]): void {
     }
 
     btPos = etIdx + 2
+  }
+}
+
+/** Decode PDF hex-encoded text to readable string */
+function hexStringToText(hex: string): string {
+  const bytes: number[] = []
+  for (let i = 0; i < hex.length - 1; i += 2) {
+    bytes.push(parseInt(hex.slice(i, i + 2), 16))
+  }
+  // Most PDF hex text is UTF-16BE encoded (common for embedded fonts)
+  // Try UTF-16BE first, fall back to Latin-1
+  try {
+    const buf = Buffer.from(bytes)
+    // Check for BOM
+    if (bytes[0] === 0xFE && bytes[1] === 0xFF) {
+      return buf.toString('utf16le').slice(1) // UTF-16BE with BOM
+    }
+    // Try UTF-16BE (most common for PDF hex text)
+    const utf16be = Buffer.alloc(bytes.length * 2)
+    for (let i = 0; i < bytes.length; i += 2) {
+      if (i + 1 < bytes.length) {
+        utf16be[i] = bytes[i]
+        utf16be[i + 1] = bytes[i + 1]
+      }
+    }
+    // Simpler approach: just try ASCII/Latin-1 first
+    if (bytes.every(b => b < 128)) {
+      return buf.toString('latin1')
+    }
+    // Try swapping bytes for UTF-16BE
+    const swapped = Buffer.alloc(bytes.length)
+    for (let i = 0; i < bytes.length; i += 2) {
+      if (i + 1 < bytes.length) {
+        swapped[i] = bytes[i + 1]
+        swapped[i + 1] = bytes[i]
+      } else {
+        swapped[i] = bytes[i]
+      }
+    }
+    return swapped.toString('utf16le')
+  } catch {
+    return ''
   }
 }
 
