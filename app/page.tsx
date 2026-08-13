@@ -1,214 +1,156 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { cn, GULF_COUNTRIES } from '@/lib/utils'
+import { GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { LockedTile } from '@/components/ui/LockedTile'
 import { SiteNav } from '@/components/marketing/SiteNav'
 
-const photos = {
-  worker: 'https://images.unsplash.com/photo-1672748341520-6a839e6c05bb?auto=format&fit=crop&w=800&q=80',
-  skyline: 'https://images.unsplash.com/photo-1652707228067-25672fa0b082?auto=format&fit=crop&w=1600&q=80',
-  blueprint: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
-}
+const skyline = 'https://images.unsplash.com/photo-1652707228067-25672fa0b082?auto=format&fit=crop&w=1800&q=85'
+const professional = 'https://images.unsplash.com/photo-1672748341520-6a839e6c05bb?auto=format&fit=crop&w=1000&q=85'
 
-const liveServices = [
-  ['Resume Builder', 'Build your Career Profile once — upload, paste, or start from scratch.', '/onboarding'],
-  ['Resume Optimizer', 'Reframe your CV for one target Gulf role using only your facts.', '/onboarding'],
-  ['Resume Library', 'Keep every application version and its status in one place.', '/dashboard/library'],
-  ['Career Profile', 'Your real experience, skills and certifications, ready to reuse.', '/profile'],
+const painPoints = [
+  ['01', 'You apply everywhere but hear nothing', 'More applications do not fix a CV that is unclear, generic or poorly aligned.'],
+  ['02', 'Your CV is not built for the Gulf', 'A strong career can still be presented in the wrong format or context for GCC hiring.'],
+  ['03', 'You use one resume for every job', 'Different roles need different evidence, keywords and priorities.'],
+  ['04', 'You do not know what to fix first', 'Without a clear score and diagnosis, every application becomes guesswork.'],
+  ['05', 'You write generic AI applications', 'Generic output sounds polished but can miss your real experience and the actual job.'],
+  ['06', 'Interview preparation starts too late', 'The resume is only the first step in being ready for a better opportunity.'],
 ] as const
 
-const comingSoon = [
-  ['Mock Interview', 'Practice technical, HR and communication answers with guided AI feedback.'],
-  ['Question Paper Generator', 'Prepare role-specific technical questions before you walk in.'],
-  ['Gulf Career Guidance', 'Understand country, role and hiring expectations in one place.'],
-  ['AI Career Assistant', 'Ask a career question and receive grounded guidance.'],
+const services = [
+  ['GCC Readiness', 'See how prepared your resume is for the Gulf market.', 'Free', '/ats-scan'],
+  ['ATS & Job Match', 'Check your resume against the exact job description and see where you align.', 'Live', '/ats-scan'],
+  ['Resume Optimization', 'Reframe your real experience for one target role without inventing facts.', 'Live', '/optimize'],
+  ['Career Profile', 'Build one trusted profile that powers your future applications.', 'Live', '/onboarding'],
+  ['Resume Library', 'Keep versions and application documents organized in one place.', 'Live', '/dashboard/library'],
+  ['Cover Letter', 'Create a role-specific letter grounded in your actual experience.', 'Live', '/cover-letter'],
+  ['Job Match', 'Turn a job description into a clear fit diagnosis and next actions.', 'Live', '/job-match'],
+  ['Interview Preparation', 'Practice technical, HR and communication answers.', 'Coming soon', '#coming-soon'],
 ] as const
 
-const faq = [
-  ['Will GCC MENTOR invent anything on my CV?', 'No. The optimizer uses only facts in your Career Profile. It improves framing, never your history.'],
-  ['Which Gulf countries are supported?', 'Resume building and optimization currently support Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain.'],
-  ['Are all tools available today?', 'No. Live tools are clearly marked. Interview preparation, guidance and the assistant are previews until built.'],
-  ['Can I see changes before paying?', 'Yes. The current flow shows the changes before payment so you can review what was generated.'],
-]
-
-const failurePatterns = [
-  ['01', 'More applications, no response', 'Volume cannot fix a CV that is not landing clearly.'],
-  ['02', 'Western CV used for a Gulf role', 'The format and context do not match what the market expects.'],
-  ['03', 'One generic resume everywhere', 'A single version misses the role, country and employer signal.'],
-  ['04', 'Weak JD alignment', 'Good experience gets buried when the relevant language is missing.'],
-  ['05', 'Interview preparation starts too late', 'A polished CV is only one part of being ready.'],
-  ['06', 'No structured feedback', 'Without a clear review loop, the same gaps repeat.'],
-] as const
-
-const ecosystemSteps = [
-  ['Career Profile', 'Your grounded facts', true],
-  ['Job Matching', 'Find the right target', true],
-  ['Resume Optimization', 'Reframe your application', true],
-  ['Cover Letter', 'Connect your story', true],
-  ['Q&A Prep', 'Prepare your answers', false],
-  ['Mock Interview', 'Practice the conversation', false],
-  ['Evaluation', 'See where to improve', false],
-  ['Improvement', 'Build the next version', false],
+const scoreCards = [
+  ['GCC READINESS', '78', 'Market positioning'],
+  ['ATS SCORE', '92', 'For this job'],
+  ['JOB MATCH', '88', 'Experience fit'],
 ] as const
 
 const comparisonRows = [
-  ['Starting point', 'Generic advice', 'Your real career profile'],
-  ['Format', 'Western templates', 'Gulf-focused presentation'],
-  ['Relevance', 'One resume for every role', 'Job-specific framing'],
-  ['Safety', 'May embellish claims', 'Nothing invented — ever'],
-  ['Direction', 'Output without context', 'A connected preparation journey'],
+  ['Starting point', 'Generic prompt', 'Your real Career Profile'],
+  ['Resume review', 'One-size-fits-all', 'GCC + job-specific'],
+  ['Optimization', 'May embellish', 'Grounded in your facts'],
+  ['Application', 'Resume only', 'Resume + Job Match + Cover Letter'],
+  ['Direction', 'Isolated outputs', 'One connected career journey'],
 ] as const
 
-const showcasePanels = [
-  ['Gulf Readiness Score', '75%', 'Complete your contact, target and career details'],
-  ['Target Role', 'I&C Commissioning Engineer', 'Saudi Arabia · Target company'],
-  ['Job Match', 'Preview', 'Role-specific alignment is coming soon'],
-  ['Resume status', 'Ready to review', 'Before and after lines remain in your control'],
-  ['Interview Readiness', 'Coming soon', 'Practice and evaluation will follow'],
-] as const
+const faq = [
+  ['Do I need an account to check my resume?', 'No. The free GCC readiness scan works without login. You can upload a PDF or Word document, or paste your resume text.'],
+  ['Can I check my resume against a specific job?', 'Yes. Paste the job description with your resume and GCC MENTOR can show job-specific alignment and match categories.'],
+  ['Will GCC MENTOR invent achievements?', 'No. Resume optimization is designed around your Career Profile and grounded facts. It improves framing rather than inventing employers, dates, titles or achievements.'],
+  ['Which GCC countries are supported?', 'Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain are supported for the current resume and optimization experience.'],
+  ['Are interview tools live?', 'Not yet. Interview preparation is clearly marked as coming soon so the landing page never promises a feature that is not available.'],
+]
 
-function Kicker({ children, onDark = false }: { children: React.ReactNode; onDark?: boolean }) {
-  return (
-    <p className={cn('text-[11px] font-bold uppercase tracking-[0.2em]', onDark ? 'text-gold-text-dark' : 'text-gold-text')}>
-      {children}
-    </p>
-  )
+function Kicker({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
+  return <p className={`text-[11px] font-bold uppercase tracking-[0.2em] ${dark ? 'text-gold-text-dark' : 'text-gold-text'}`}>{children}</p>
 }
 
-function LiveBadge({ onDark = false }: { onDark?: boolean }) {
-  return (
-    <span
-      className={cn(
-        'rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider',
-        onDark ? 'border-forest-dark/40 bg-forest-tint-dark text-forest-dark' : 'border-forest/40 bg-forest-tint text-forest'
-      )}
-    >
-      Live
-    </span>
-  )
+function ScoreCard({ label, value, caption }: { label: string; value: string; caption: string }) {
+  return <div className="rounded-radius-lg border border-line-light bg-surface-light/95 p-4 shadow-redesign-sm backdrop-blur"><p className="text-[10px] font-bold tracking-[0.16em] text-ink-400">{label}</p><p className="mt-2 font-mono text-3xl font-bold text-forest">{value}<span className="text-sm">/100</span></p><p className="mt-1 text-xs text-ink-700">{caption}</p></div>
 }
 
-function SoonBadge({ onDark = false }: { onDark?: boolean }) {
+function ResumeVisual() {
   return (
-    <span
-      className={cn(
-        'rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider',
-        onDark ? 'border-redesign-gold-dark/40 bg-redesign-gold-tint-dark text-gold-text-dark' : 'border-redesign-gold/40 bg-redesign-gold-tint text-gold-text'
-      )}
-    >
-      Coming Soon
-    </span>
-  )
-}
-
-function FailureSection() {
-  return (
-    <section id="problem" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-      <div className="max-w-3xl">
-        <Kicker>The problem</Kicker>
-        <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Applying more isn&apos;t always the answer.</h2>
-        <p className="mt-5 text-lg leading-relaxed text-ink-700">When the preparation is disconnected, more applications often create more noise — not more opportunity.</p>
-      </div>
-      <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {failurePatterns.map(([number, title, description]) => (
-          <Card key={number} tone="light" className="flex gap-4 p-5">
-            <span className="font-mono text-xs text-terra">{number}</span>
-            <div><h3 className="font-serif text-xl text-ink-900">{title}</h3><p className="mt-2 text-sm leading-relaxed text-ink-700">{description}</p></div>
-          </Card>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function EcosystemSection() {
-  return (
-    <section id="ecosystem" className="border-y border-line-dark bg-forest-deep text-ink-900-dark">
-      <div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
-        <div className="max-w-3xl"><Kicker onDark>One connected system</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">One Career Profile. Multiple ways to prepare.</h2><p className="mt-5 text-lg leading-relaxed text-ink-900-dark/70">Your facts should not be re-entered for every step. Start with one grounded profile, then add preparation as each tool becomes available.</p></div>
-        <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {ecosystemSteps.map(([title, description, live], index) => (
-            <div key={title} className="relative rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-5">
-              <div className="flex items-start justify-between gap-2"><span className="font-mono text-xs text-redesign-gold-dark">{String(index + 1).padStart(2, '0')}</span>{live ? <LiveBadge onDark /> : <SoonBadge onDark />}</div>
-              <h3 className="mt-7 font-serif text-xl text-ink-900-dark">{title}</h3><p className="mt-2 text-sm text-ink-900-dark/65">{description}</p>
-              {index < ecosystemSteps.length - 1 ? <span aria-hidden className="absolute -right-3 top-1/2 z-10 hidden text-gold-text-dark lg:block">→</span> : null}
+    <div className="relative mx-auto w-full max-w-[650px]">
+      <div className="absolute -inset-5 rounded-[2rem] bg-redesign-gold/10 blur-2xl" />
+      <div className="relative overflow-hidden rounded-radius-xl border border-white/15 bg-forest-deep/90 p-3 shadow-redesign-xl">
+        <div className="relative overflow-hidden rounded-radius-lg border border-white/10 bg-surface-light">
+          <Image src={skyline} alt="Dubai skyline at dusk" fill className="absolute inset-0 h-full w-full object-cover opacity-[0.08]" priority />
+          <div className="relative p-5 sm:p-7">
+            <div className="flex items-center justify-between border-b border-line-light pb-4">
+              <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-forest">GCC MENTOR</p><p className="mt-1 text-[11px] text-ink-400">Target application analysis</p></div>
+              <span className="rounded-full bg-forest-tint px-3 py-1 text-[10px] font-bold text-forest">LIVE CHECK</span>
             </div>
-          ))}
+            <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="rounded-radius-lg border border-line-light bg-white/90 p-5 shadow-redesign-sm">
+                <div className="flex items-start justify-between gap-3"><div><p className="font-serif text-xl text-ink-900">Ahmed Khan</p><p className="mt-1 text-xs font-semibold text-forest">Senior Project Manager · Dubai, UAE</p></div><span className="rounded bg-surface-2-light px-2 py-1 text-[9px] font-bold text-ink-400">CV.pdf</span></div>
+                <div className="mt-5 space-y-4">
+                  <div><p className="text-[9px] font-bold uppercase tracking-wider text-ink-400">Professional Summary</p><div className="mt-2 space-y-1.5"><span className="block h-2 w-[92%] rounded bg-ink-200" /><span className="block h-2 w-[82%] rounded bg-ink-200" /><span className="block h-2 w-[68%] rounded bg-ink-200" /></div></div>
+                  <div><p className="text-[9px] font-bold uppercase tracking-wider text-ink-400">Experience</p><div className="mt-2 space-y-1.5"><span className="block h-2 w-[96%] rounded bg-ink-200" /><span className="block h-2 w-[88%] rounded bg-ink-200" /><span className="block h-2 w-[74%] rounded bg-ink-200" /></div></div>
+                  <div><p className="text-[9px] font-bold uppercase tracking-wider text-ink-400">Skills</p><div className="mt-2 flex flex-wrap gap-1.5"><span className="rounded bg-forest-tint px-2 py-1 text-[9px] font-bold text-forest">PMP</span><span className="rounded bg-forest-tint px-2 py-1 text-[9px] font-bold text-forest">Agile</span><span className="rounded bg-forest-tint px-2 py-1 text-[9px] font-bold text-forest">SAP</span><span className="rounded bg-forest-tint px-2 py-1 text-[9px] font-bold text-forest">Leadership</span></div></div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {scoreCards.map(([label, value, caption]) => <ScoreCard key={label} label={label} value={value} caption={caption} />)}
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-radius-lg border border-redesign-gold/40 bg-redesign-gold-tint p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-gold-text">3 priority improvements</p><p className="mt-2 text-sm font-semibold text-ink-900">Missing role keywords · weak impact language · GCC positioning</p></div>
+              <div className="rounded-radius-lg border border-forest/15 bg-forest-tint p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-forest">Next action</p><p className="mt-2 text-sm font-semibold text-ink-900">Optimize this resume for the target job</p></div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
+      <div className="absolute -bottom-5 -left-2 hidden w-44 sm:block"><ScoreCard label="GULF POSITIONING" value="84" caption="Country-aware" /></div>
+      <div className="absolute -right-3 top-10 hidden w-48 lg:block"><ScoreCard label="ROLE TARGET" value="88" caption="Senior PM · Dubai" /></div>
+    </div>
   )
 }
 
-function ShowcaseSection() {
-  return (
-    <section id="showcase" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-      <div className="max-w-3xl"><Kicker>Inside GCC MENTOR</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">See the concepts before you use them.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">A visual preview should clarify the journey, not pretend a future feature is live.</p></div>
-      <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {showcasePanels.map(([title, value, description], index) => (
-          <Card key={title} tone="light" className="p-5">
-            <span className="text-xs font-bold uppercase tracking-wider text-gold-text">{index === 0 || index === 1 || index === 3 ? 'Live concept' : 'Preview'}</span>
-            <h3 className="mt-5 font-serif text-xl text-ink-900">{title}</h3>
-            <p className="mt-3 text-lg font-bold text-forest">{value}</p>
-            <p className="mt-2 text-sm leading-relaxed text-ink-700">{description}</p>
-          </Card>
-        ))}
-      </div>
-    </section>
-  )
+function PainSection() {
+  return <section id="problem" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end"><div><Kicker>The problem</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">You do not need more applications. You need a better application strategy.</h2></div><p className="max-w-2xl text-lg leading-relaxed text-ink-700">If you are experienced but still struggling to land a well-paid GCC role, the problem is often not your career. It is how your experience is positioned, matched and prepared for the job.</p></div><div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{painPoints.map(([number, title, description]) => <Card key={number} tone="light" className="flex gap-4 p-5"><span className="font-mono text-xs text-terra">{number}</span><div><h3 className="font-serif text-xl text-ink-900">{title}</h3><p className="mt-2 text-sm leading-relaxed text-ink-700">{description}</p></div></Card>)}</div></section>
 }
 
-function ComparisonSection() {
-  return (
-    <section id="comparison" className="border-y border-line-light bg-surface-2-light">
-      <div className="mx-auto max-w-[1100px] px-5 py-20 sm:px-8 lg:py-24"><div className="max-w-3xl"><Kicker>The difference</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Generic AI tools vs. GCC MENTOR.</h2><p className="mt-5 text-lg text-ink-700">The distinction is grounded in what you need to prepare for a Gulf opportunity.</p></div>
-        <div className="mt-10 overflow-x-auto rounded-radius-lg border border-line-light bg-surface-light"><table className="w-full min-w-[680px] border-collapse text-left"><thead><tr className="border-b border-line-light"><th className="p-5 text-xs uppercase tracking-wider text-ink-400">Area</th><th className="p-5 text-sm font-bold text-ink-400">Generic AI tools</th><th className="bg-redesign-gold-tint p-5 text-sm font-bold text-ink-900">GCC MENTOR</th></tr></thead><tbody>{comparisonRows.map(([area, generic, gcc]) => <tr key={area} className="border-b border-line-light last:border-0"><th className="p-5 text-sm font-bold text-ink-900">{area}</th><td className="p-5 text-sm text-ink-700">{generic}</td><td className="bg-redesign-gold-tint/60 p-5 text-sm font-semibold text-forest">{gcc}</td></tr>)}</tbody></table></div>
-      </div>
-    </section>
-  )
+function HowItWorks() {
+  const steps = [['01', 'Upload your resume', 'PDF, Word or pasted text.'], ['02', 'Add the job description', 'Tell us exactly what you are targeting.'], ['03', 'Get your scores', 'GCC Readiness, ATS and Job Match.'], ['04', 'Fix what matters', 'Optimize the resume and create the cover letter.']] as const
+  return <section id="how-it-works" className="border-y border-line-dark bg-forest-deep text-ink-900-dark"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="max-w-3xl"><Kicker dark>How it works</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">From “Why am I not getting interviews?” to a clearer next move.</h2><p className="mt-5 text-lg leading-relaxed text-ink-900-dark/70">GCC MENTOR turns your existing experience into a job-specific preparation loop.</p></div><div className="mt-12 grid gap-3 md:grid-cols-2 lg:grid-cols-4">{steps.map(([number, title, description]) => <div key={number} className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-6"><span className="font-mono text-xs text-redesign-gold-dark">{number}</span><h3 className="mt-8 font-serif text-2xl">{title}</h3><p className="mt-2 text-sm leading-relaxed text-ink-900-dark/65">{description}</p></div>)}</div><div className="mt-10"><Link href="/ats-scan" className={buttonVariants({ variant: 'purchase' })}>Check my GCC readiness free</Link></div></div></section>
 }
 
-function InterviewDemoSection() {
-  return (
-    <section id="interview-demo" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="flex flex-wrap items-end justify-between gap-5"><div className="max-w-3xl"><Kicker>Interview preparation</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Practice before the real conversation.</h2><p className="mt-5 text-lg text-ink-700">A visual preview of the guided mock interview experience planned for GCC MENTOR.</p></div><SoonBadge /></div>
-      <div className="mt-10 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]"><div className="rounded-radius-lg border border-line-dark bg-forest-deep p-6 text-ink-900-dark sm:p-8"><div className="flex items-center gap-3"><span className="rounded-full bg-redesign-gold px-3 py-2 text-xs font-bold text-forest-deep">DEMO</span><span className="text-xs uppercase tracking-wider text-ink-900-dark/50">Mock Interview preview</span></div><div className="mt-8 rounded-radius-lg bg-surface-2-dark p-5"><p className="text-xs font-bold uppercase tracking-wider text-gold-text-dark">Question</p><p className="mt-3 font-serif text-2xl text-ink-900-dark">Tell me about your commissioning experience.</p></div><div className="mt-4 rounded-radius-lg border border-ink-900-dark/20 p-5 text-sm text-ink-900-dark/55">Your spoken or typed answer will appear here.</div></div><div className="grid grid-cols-2 gap-3">{['Technical', 'Communication', 'Relevance', 'Confidence'].map(label => <Card key={label} tone="light" className="p-5"><span className="text-xs font-bold uppercase tracking-wider text-ink-400">{label}</span><div className="mt-7 h-2 rounded-full bg-surface-2-light"><div className="h-2 w-2/3 rounded-full bg-redesign-gold" /></div><p className="mt-3 text-xs text-ink-400">Preview score</p></Card>)}<Card tone="light" className="col-span-2 border-dashed p-5"><h3 className="font-serif text-xl text-ink-900">Strengths and areas to improve</h3><p className="mt-2 text-sm text-ink-700">Evaluation feedback will be generated when this feature is built.</p></Card></div></div>
-    </section>
-  )
+function ScoringSection() {
+  return <section id="platform" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="grid gap-12 lg:grid-cols-[0.75fr_1.25fr] lg:items-center"><div><Kicker>Know before you apply</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Your resume is not just a document. It is your application signal.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">GCC MENTOR checks your resume against Gulf-readiness factors and, when you provide a job description, gives you a job-specific match diagnosis.</p><div className="mt-8 space-y-3"><div className="rounded-radius-lg border border-line-light bg-surface-2-light p-5"><p className="font-serif text-xl text-ink-900">GCC Readiness</p><p className="mt-2 text-sm leading-relaxed text-ink-700">Are your structure, clarity and Gulf-market positioning ready?</p></div><div className="rounded-radius-lg border border-line-light bg-surface-2-light p-5"><p className="font-serif text-xl text-ink-900">ATS Score</p><p className="mt-2 text-sm leading-relaxed text-ink-700">Is your resume readable and aligned for the application?</p></div><div className="rounded-radius-lg border border-redesign-gold/50 bg-redesign-gold-tint p-5"><p className="font-serif text-xl text-ink-900">Job Match</p><p className="mt-2 text-sm leading-relaxed text-ink-700">Does your actual experience match the requirements of this particular job?</p></div></div></div><div><ResumeVisual /></div></div></section>
 }
 
-function TestimonialsSection() {
-  const placeholders = ['Your story could go here.', 'A verified professional experience will appear here.', 'Real outcomes, shared with permission.']
-  return (
-    <section id="testimonials" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="max-w-3xl"><Kicker>Real voices, when earned</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">No invented testimonials.</h2><p className="mt-5 text-lg text-ink-700">This space is ready for verified stories from Gulf professionals. We will add them when real users choose to share them.</p></div><div className="mt-10 grid gap-4 md:grid-cols-3">{placeholders.map(text => <div key={text} className="min-h-[170px] rounded-radius-lg border border-dashed border-line-light-strong bg-surface-light p-6"><span className="text-2xl text-gold-text">“</span><p className="mt-4 text-sm leading-relaxed text-ink-400">{text}</p><div className="mt-6 h-2 w-24 rounded-full bg-surface-2-light" /><div className="mt-2 h-2 w-16 rounded-full bg-surface-2-light" /></div>)}</div></div></section>
-  )
+function ServicesSection() {
+  return <section id="services" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="max-w-3xl"><Kicker>Everything in one career system</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Every tool has one job: move you closer to a better-fit opportunity.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Start free, then use the live tools you need. Future tools stay clearly marked so you always know what is real today.</p></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{services.map(([title, description, status, href]) => <Card key={title} tone="light" className="flex min-h-[230px] flex-col p-6"><div className="flex items-start justify-between gap-3"><span className="rounded-full border border-line-light px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">{status}</span><span className="text-gold-text">→</span></div><h3 className="mt-6 font-serif text-2xl text-ink-900">{title}</h3><p className="mt-2 text-sm leading-relaxed text-ink-700">{description}</p>{href.startsWith('/') ? <Link href={href} className="mt-auto pt-6 text-sm font-bold text-forest underline underline-offset-4">Explore {title}</Link> : <span className="mt-auto pt-6 text-sm font-bold text-ink-400">Planned</span>}</Card>)}</div></div></section>
+}
+
+function OptimizationSection() {
+  return <section id="optimization" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="grid gap-10 lg:grid-cols-2 lg:items-center"><div className="relative min-h-[420px] overflow-hidden rounded-radius-xl bg-forest-deep p-5 shadow-redesign-lg"><Image src={professional} alt="Professional working in the Gulf" fill className="absolute inset-0 h-full w-full object-cover opacity-20" /><div className="relative flex h-full flex-col justify-center gap-4"><div className="rounded-radius-lg bg-surface-light p-5 shadow-redesign-md"><p className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Before</p><p className="mt-3 text-sm text-ink-700">Responsible for managing projects and coordinating teams.</p></div><div className="mx-auto text-2xl text-gold-text-dark">↓</div><div className="rounded-radius-lg border border-redesign-gold/40 bg-surface-light p-5 shadow-redesign-md"><div className="flex items-center justify-between"><p className="text-[10px] font-bold uppercase tracking-wider text-gold-text">Optimized for target role</p><span className="rounded-full bg-forest-tint px-2 py-1 text-[9px] font-bold text-forest">GROUNDED</span></div><p className="mt-3 text-sm font-semibold leading-relaxed text-ink-900">Reframed to emphasize the relevant delivery, leadership and project evidence already present in your Career Profile.</p></div></div></div><div><Kicker>Resume optimization</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Stronger positioning. Same truth.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">GCC MENTOR can reframe summaries and experience bullets for a target Gulf role while keeping your real employers, titles, dates, education and certifications grounded.</p><div className="mt-8 grid gap-3 sm:grid-cols-2"><Card tone="light" className="p-5"><p className="font-bold text-forest">Reframed</p><p className="mt-2 text-sm text-ink-700">Make relevant experience easier to see.</p></Card><Card tone="light" className="p-5"><p className="font-bold text-forest">Reordered</p><p className="mt-2 text-sm text-ink-700">Prioritize skills by the target role.</p></Card><Card tone="light" className="p-5"><p className="font-bold text-forest">Grounded</p><p className="mt-2 text-sm text-ink-700">No invented claims or fake achievements.</p></Card><Card tone="light" className="p-5"><p className="font-bold text-forest">Reviewable</p><p className="mt-2 text-sm text-ink-700">You stay in control of the final version.</p></Card></div><Link href="/optimize" className="mt-8 inline-flex font-bold text-forest underline underline-offset-4">See resume optimization →</Link></div></div></section>
+}
+
+function ApplicationSection() {
+  return <section className="border-y border-line-dark bg-forest-deep text-ink-900-dark"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="max-w-3xl"><Kicker dark>One application, not five disconnected tools</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Build the application around the job you actually want.</h2><p className="mt-5 text-lg leading-relaxed text-ink-900-dark/70">Check the fit. Optimize the resume. Create the cover letter. Keep your career story consistent from the first click to the interview.</p></div><div className="mt-12 grid gap-3 md:grid-cols-4"><Link href="/job-match" className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-6 transition hover:border-redesign-gold-dark/50"><span className="font-mono text-xs text-redesign-gold-dark">01</span><h3 className="mt-7 font-serif text-2xl">Job Match</h3><p className="mt-2 text-sm text-ink-900-dark/65">Understand the fit before spending time applying.</p></Link><Link href="/optimize" className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-6 transition hover:border-redesign-gold-dark/50"><span className="font-mono text-xs text-redesign-gold-dark">02</span><h3 className="mt-7 font-serif text-2xl">Optimize</h3><p className="mt-2 text-sm text-ink-900-dark/65">Make the relevant evidence easier to find.</p></Link><Link href="/cover-letter" className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-6 transition hover:border-redesign-gold-dark/50"><span className="font-mono text-xs text-redesign-gold-dark">03</span><h3 className="mt-7 font-serif text-2xl">Cover Letter</h3><p className="mt-2 text-sm text-ink-900-dark/65">Connect your story to the employer and role.</p></Link><div className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-6"><span className="font-mono text-xs text-redesign-gold-dark">04</span><h3 className="mt-7 font-serif text-2xl">Interview</h3><p className="mt-2 text-sm text-ink-900-dark/65">Preparation is coming next.</p><span className="mt-5 inline-flex rounded-full border border-redesign-gold-dark/40 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-text-dark">Coming soon</span></div></div></div></section>
+}
+
+function CountriesSection() {
+  return <section id="industries" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="grid gap-10 lg:grid-cols-2 lg:items-center"><div><Kicker>Built for the Gulf</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">One trusted career story. A target for every GCC market.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Start with your real experience, then choose the country and role you want to target. The current experience supports the six GCC markets below.</p><div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">{GULF_COUNTRIES.slice(0, 6).map(country => <Link href="/onboarding" key={country.value}><Card tone="light" className="p-4 transition hover:border-redesign-gold"><p className="font-bold text-ink-900">{country.label}</p><p className="mt-1 text-xs text-forest">CV support live</p></Card></Link>)}</div></div><div className="relative min-h-[420px] overflow-hidden rounded-radius-xl bg-forest-deep"><Image src={skyline} alt="Gulf skyline" fill className="object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/20 to-transparent" /><div className="absolute bottom-0 left-0 right-0 p-7 text-ink-900-dark"><Kicker dark>Middle East career focus</Kicker><p className="mt-3 max-w-md font-serif text-3xl">From India and beyond to the Gulf opportunity you are targeting.</p></div></div></div></section>
+}
+
+function TrustSection() {
+  return <section className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="grid gap-4 md:grid-cols-3"><Card tone="light" className="p-6"><p className="font-serif text-2xl text-forest">No invented achievements</p><p className="mt-3 text-sm leading-relaxed text-ink-700">Your career history stays grounded in the information you provide.</p></Card><Card tone="light" className="p-6"><p className="font-serif text-2xl text-forest">See the diagnosis first</p><p className="mt-3 text-sm leading-relaxed text-ink-700">Start with a free scan before deciding whether you need the deeper workflow.</p></Card><Card tone="light" className="p-6"><p className="font-serif text-2xl text-forest">You stay in control</p><p className="mt-3 text-sm leading-relaxed text-ink-700">Generated changes are reviewable. Your final application is still your decision.</p></Card></div></div></section>
+}
+
+function PricingSection() {
+  const plans = [['Essential', '₹399', 'Start with one stronger target resume'], ['Professional', '₹1,499', 'Prepare more completely for applications'], ['Mentor', '₹2,499', 'Build an ongoing GCC career system']] as const
+  return <section id="pricing" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="max-w-3xl"><Kicker>Simple, transparent pricing</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Start with proof. Upgrade when you need more.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Use the free readiness check first. Paid packages are shown clearly before purchase, while future package features remain marked as planned.</p></div><div className="mt-12 grid gap-5 lg:grid-cols-3">{plans.map(([name, price, description], index) => <Card key={name} tone="light" className={`flex flex-col p-7 ${index === 1 ? 'border-redesign-gold shadow-redesign-cta-glow' : ''}`}><div className="flex items-center justify-between"><h3 className="font-serif text-2xl text-ink-900">{name}</h3>{index === 1 ? <span className="rounded-full bg-redesign-gold px-2.5 py-1 text-[10px] font-bold uppercase text-forest-deep">Popular</span> : null}</div><p className="mt-6 font-mono text-4xl text-ink-900">{price}</p><p className="mt-3 text-sm leading-relaxed text-ink-700">{description}.</p><Link href="/onboarding" className={cn(buttonVariants({ variant: index === 1 ? 'purchase' : 'primary' }), 'mt-7')}>Get started</Link></Card>)}</div></section>
+}
+
+function FAQSection() {
+  return <section id="resources" className="border-t border-line-light bg-surface-2-light"><div className="mx-auto max-w-[900px] px-5 py-20 sm:px-8 lg:py-24"><Kicker>Questions</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Clear answers before you trust a career tool.</h2><div className="mt-10 divide-y divide-line-light rounded-radius-lg border border-line-light bg-surface-light px-6">{faq.map(([question, answer]) => <details key={question} className="group py-5"><summary className="cursor-pointer list-none pr-8 text-base font-bold text-ink-900">{question}<span className="float-right text-gold-text transition group-open:rotate-45">＋</span></summary><p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-700">{answer}</p></details>)}</div></div></section>
 }
 
 export default function Home() {
-  return (
-    <div className="w-full overflow-x-clip bg-bg text-ink-900">
-      <SiteNav />
-      <main>
-        <section className="relative overflow-hidden border-b border-line-dark bg-forest-deep"><div className="mx-auto grid max-w-[1280px] items-center gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[1fr_0.9fr] lg:px-12 lg:py-28"><div className="relative z-10 flex flex-col gap-6"><Kicker onDark>Built for the Gulf career journey</Kicker><h1 className="max-w-[11ch] font-serif text-5xl leading-[0.98] tracking-tight text-ink-900-dark sm:text-7xl">Your experience. <span className="text-forest-dark">Your next Gulf opportunity.</span></h1><p className="max-w-[55ch] text-[17px] leading-relaxed text-ink-900-dark/70 sm:text-lg">GCC MENTOR helps professionals build a stronger CV, prepare for the next step and make better-informed career decisions across the Gulf.</p><div className="flex flex-col gap-3 sm:flex-row"><Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }))}>Build your Career Profile</Link><a href="#platform" className={cn(buttonVariants({ variant: 'ghost' }))}>Explore the platform</a></div><div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-line-dark pt-5 text-[12px] font-semibold text-ink-900-dark/60"><span>✓ Nothing invented</span><span>✓ Gulf-focused</span><span>✓ You stay in control</span></div></div><div className="relative min-h-[380px] overflow-hidden rounded-radius-xl border border-line-dark-strong p-5 shadow-redesign-lg sm:min-h-[470px]"><Image src={photos.skyline} alt="City skyline at night." fill priority className="object-cover opacity-35" /><div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/65 to-transparent" /><div className="relative flex h-full flex-col justify-end gap-4 text-ink-900-dark"><span className="w-fit rounded-full bg-redesign-gold px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-deep">One profile → many possibilities</span><h2 className="max-w-[10ch] font-serif text-4xl leading-tight">Prepare with clarity. Apply with confidence.</h2><div className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-4 text-sm text-ink-900-dark/80 backdrop-blur-sm">Career Profile <span className="float-right text-forest-dark">75% ready</span><div className="mt-3 h-2 rounded-full bg-ink-900-dark/20"><div className="h-2 w-3/4 rounded-full bg-redesign-gold" /></div></div></div></div></div></section>
-        <section id="platform" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="max-w-2xl"><Kicker>The platform</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Everything you need to move forward in the Gulf.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Start with the tools that are live today. See what is coming next without confusing a preview for a promise.</p></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{liveServices.map(([title, desc, href]) => <Link href={href} key={title} className="group"><Card tone="light" className="flex min-h-[250px] flex-col gap-4 p-6 transition hover:-translate-y-1 hover:border-redesign-gold"><LiveBadge /><h3 className="font-serif text-2xl text-ink-900">{title}</h3><p className="text-sm leading-relaxed text-ink-700">{desc}</p><span className="mt-auto text-sm font-bold text-forest group-hover:text-gold-text">Open →</span></Card></Link>)}</div><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{comingSoon.map(([title, desc]) => <div key={title} id={title === 'Mock Interview' ? 'mock-interview' : title === 'Question Paper Generator' ? 'question-papers' : title === 'Gulf Career Guidance' ? 'gulf-guidance' : 'ai-assistant'} className="flex"><LockedTile title={title} description={desc} note={`${title} — planned for a future release.`} className="h-full w-full min-h-[220px]" /></div>)}</div></section>
-        <section id="ats-scan" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto flex max-w-[1280px] flex-col items-start gap-6 px-5 py-16 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12"><div className="max-w-2xl"><Kicker>Free tool</Kicker><h2 className="mt-3 font-serif text-3xl text-ink-900 sm:text-4xl">See how Gulf-ready your CV is.</h2><p className="mt-3 text-ink-700">Get a free ATS and Gulf-readiness scan before you build your full Career Profile.</p></div><Link href="/ats-scan" className={cn(buttonVariants({ variant: 'primary' }))}>Scan my CV for free →</Link></div></section>
-        <section id="how-it-works" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="max-w-2xl"><Kicker>How it works</Kicker><h2 className="mt-4 font-serif text-4xl text-ink-900 sm:text-5xl">One clear path from experience to application.</h2></div><div className="mt-12 grid gap-8 md:grid-cols-4">{[['01','Capture','Upload, paste or build your Career Profile.'],['02','Clarify','Choose your Gulf country, target role and company.'],['03','Prepare','Review the changes and strengthen your application.'],['04','Apply','Download, save and reuse your profile for the next target.']].map(([n,t,d]) => <div key={n} className="flex flex-col gap-3"><span className="font-mono text-sm text-gold-text">{n}</span><h3 className="font-serif text-2xl text-ink-900">{t}</h3><p className="text-sm leading-relaxed text-ink-700">{d}</p></div>)}</div></div></section>
-        <FailureSection />
-        <EcosystemSection />
-        <ShowcaseSection />
-        <ComparisonSection />
-        <InterviewDemoSection />
-        <TestimonialsSection />
-        <section id="professionals" className="mx-auto grid max-w-[1280px] gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2 lg:px-12 lg:py-28"><div className="relative min-h-[360px] overflow-hidden rounded-radius-xl"><Image src={photos.worker} alt="Industrial worker wearing a hard hat." fill className="object-cover" /><div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-forest-deep/85 to-transparent p-7 pt-24 text-ink-900-dark"><p className="font-serif text-2xl">Your work deserves to be understood.</p></div></div><div className="flex flex-col justify-center gap-5"><Kicker>For professionals</Kicker><h2 className="font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Your facts stay fixed. Your story gets clearer.</h2><p className="text-lg leading-relaxed text-ink-700">A Gulf application is more than a list of duties. GCC MENTOR helps you present your real experience in a way that is relevant, readable and ready for the role you want.</p><div className="grid gap-3 sm:grid-cols-2">{['Experience stays yours','No invented numbers','Country-aware formatting','Edit every generated line'].map(x => <Card key={x} tone="light" className="p-4 text-sm font-bold text-ink-900">✓ {x}</Card>)}</div></div></section>
-        <section id="industries" className="border-y border-line-dark bg-forest-deep text-ink-900-dark"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><Kicker onDark>Industries</Kicker><h2 className="mt-4 max-w-2xl font-serif text-4xl leading-tight sm:text-5xl">Built around the careers that move the Gulf.</h2><p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-900-dark/70">Engineering, construction, technical operations, healthcare, IT and management — start with your real background and target the next role.</p><div className="mt-10 flex flex-wrap gap-3">{['Engineering & commissioning','Construction & site operations','Healthcare','IT & technology','Quality & safety','Project & people management'].map(x => <span key={x} className="rounded-full border border-ink-900-dark/20 bg-ink-900-dark/10 px-4 py-3 text-sm font-semibold">{x}</span>)}</div></div></section>
-        <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="grid gap-12 lg:grid-cols-2"><div><Kicker>Gulf visual identity</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">One profile. A target for every Gulf country.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Choose a target and build from the same trusted career history. Country guides are coming soon; CV support is live today.</p><div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">{GULF_COUNTRIES.slice(0,6).map(c => <Link href="/onboarding" key={c.value} className="group"><Card tone="light" className="p-4 text-sm font-bold text-ink-900 transition hover:border-redesign-gold">{c.label} <span className="block pt-1 text-xs font-medium text-forest">CV support live</span></Card></Link>)}</div></div><div className="relative min-h-[360px] overflow-hidden rounded-radius-xl"><Image src={photos.blueprint} alt="Hands drafting on a blueprint with pencil and ruler." fill className="object-cover" /></div></div></section>
-        <section className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12"><Kicker>What changes — and what never does</Kicker><div className="mt-8 grid gap-4 md:grid-cols-3">{[['Reframed','Summary and experience bullets are rewritten for relevance.'],['Reordered','Skills move by relevance; their facts do not change.'],['Never touched','Employers, titles, dates, education and certifications stay grounded.']].map(([t,d]) => <Card key={t} tone="light" className="p-6"><h3 className="font-serif text-2xl text-forest">{t}</h3><p className="mt-3 text-sm leading-relaxed text-ink-700">{d}</p></Card>)}</div></div></section>
-        <section id="pricing" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="max-w-2xl"><Kicker>Simple, transparent pricing</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Choose the level of support you need.</h2><p className="mt-5 text-lg text-ink-700">These are the planned GCC MENTOR packages. Current checkout remains the existing single resume flow while tier support is being built.</p></div><div className="mt-12 grid gap-5 lg:grid-cols-3">{[['Essential','₹399','Start with a stronger CV','One optimized target resume'],['Professional','₹1,499','Prepare more completely','Resume optimization plus preparation tools'],['Mentor','₹2,499','Build an ongoing career system','Full platform access as features arrive']].map(([name,price,tag,desc], i) => <Card key={name} tone="light" className={`flex flex-col gap-5 p-7 ${i===1 ? 'border-redesign-gold shadow-redesign-cta-glow' : 'border-line-light'}`}><div className="flex items-center justify-between"><h3 className="font-serif text-2xl text-ink-900">{name}</h3>{i===1 ? <span className="rounded-full bg-redesign-gold px-2.5 py-1 text-[10px] font-bold uppercase text-forest-deep">Popular</span> : null}</div><p className="text-sm font-semibold text-forest">{tag}</p><p className="font-mono text-4xl text-ink-900">{price}</p><p className="text-sm leading-relaxed text-ink-700">{desc}. Exact features will be shown before purchase.</p><Link href="/onboarding" className={cn(buttonVariants({ variant: i === 1 ? 'purchase' : 'primary' }), 'mt-auto')}>Get Started</Link></Card>)}</div></section>
-        <section id="resources" className="border-y border-line-dark bg-forest-deep text-ink-900-dark"><div className="mx-auto max-w-[900px] px-5 py-20 text-center sm:px-8 lg:py-24"><Kicker onDark>Start with what you have</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Your next move starts with your real experience.</h2><p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-900-dark/70">No perfect CV required. No inflated claims. Just a clearer path to prepare, apply and grow.</p><Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }), 'mt-8')}>Build your Career Profile</Link></div></section>
-        <section className="mx-auto max-w-[900px] px-5 py-20 sm:px-8 lg:py-24"><Kicker>Questions</Kicker><h2 className="mt-4 font-serif text-4xl text-ink-900">Good questions deserve clear answers.</h2><div className="mt-8 divide-y divide-line-light rounded-radius-lg border border-line-light bg-surface-light px-6">{faq.map(([q,a]) => <details key={q} className="group py-5"><summary className="cursor-pointer list-none pr-8 text-base font-bold text-ink-900 marker:hidden">{q}<span className="float-right text-gold-text group-open:rotate-45">＋</span></summary><p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-700">{a}</p></details>)}</div></section>
-      </main>
-      <footer className="border-t border-line-light bg-surface-2-light"><div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-5 py-10 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12"><div className="flex items-center gap-2.5"><span className="font-serif flex h-8 w-8 items-center justify-center rounded-radius-lg bg-forest-deep text-lg text-gold-text-dark">G</span><span className="font-bold text-ink-900">GCC MENTOR</span></div><p className="text-sm text-ink-400">Built for Gulf professionals · Privacy · Terms · Refunds</p><Link href="/login" className="text-sm font-bold text-forest">Log in</Link></div></footer>
-    </div>
-  )
+  return <div className="w-full overflow-x-clip bg-bg text-ink-900"><SiteNav /><main>
+    <section className="relative overflow-hidden border-b border-line-dark bg-forest-deep text-ink-900-dark"><Image src={skyline} alt="Dubai skyline" fill priority className="absolute inset-0 object-cover opacity-20" /><div className="absolute inset-0 bg-gradient-to-r from-forest-deep via-forest-deep/95 to-forest-deep/65" /><div className="relative mx-auto grid max-w-[1280px] gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-12 lg:py-24"><div><Kicker dark>Built for GCC job seekers</Kicker><h1 className="mt-5 max-w-3xl font-serif text-5xl leading-[1.02] sm:text-6xl lg:text-7xl">Stop applying blindly. <span className="text-gold-text-dark">Know why your resume is not getting noticed.</span></h1><p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-900-dark/75 sm:text-xl">Upload your resume, add the job you want, and see your <strong className="text-ink-900-dark">GCC Readiness, ATS Score and Job Match</strong> before you spend another application.</p><div className="mt-8 flex flex-col gap-3 sm:flex-row"><Link href="/ats-scan" className={buttonVariants({ variant: 'purchase' })}>Check my GCC readiness — free</Link><Link href="/onboarding" className="inline-flex min-h-11 items-center justify-center rounded-radius-md border border-ink-900-dark/25 px-6 py-3 text-sm font-bold text-ink-900-dark transition hover:border-redesign-gold-dark/60">Build my Career Profile</Link></div><p className="mt-4 text-xs text-ink-900-dark/50">No login required for the first scan · PDF / Word supported · Start free</p><div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-xs font-semibold text-ink-900-dark/55"><span>Saudi Arabia</span><span>UAE</span><span>Qatar</span><span>Kuwait</span><span>Oman</span><span>Bahrain</span></div></div><ResumeVisual /></div></section>
+    <PainSection />
+    <HowItWorks />
+    <ScoringSection />
+    <ServicesSection />
+    <OptimizationSection />
+    <ApplicationSection />
+    <CountriesSection />
+    <TrustSection />
+    <PricingSection />
+    <FAQSection />
+    <section id="coming-soon" className="border-t border-line-dark bg-forest-deep text-center text-ink-900-dark"><div className="mx-auto max-w-[900px] px-5 py-20 sm:px-8 lg:py-24"><Kicker dark>What is next</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Interview preparation is coming.</h2><p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-900-dark/70">Mock interviews, role-specific Q&A and evaluation are planned. We will not label them live until they are ready.</p><Link href="/ats-scan" className={buttonVariants({ variant: 'purchase' })}>Start with the tools that are live</Link></div></section>
+  </main><footer className="border-t border-line-light bg-surface-2-light"><div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-5 py-10 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12"><div><div className="flex items-center gap-2.5"><span className="font-serif flex h-8 w-8 items-center justify-center rounded-radius-lg bg-forest-deep text-lg text-gold-text-dark">G</span><span className="font-bold text-ink-900">GCC MENTOR</span></div><p className="mt-2 text-xs text-ink-400">Built for Gulf professionals who want a better-fit opportunity.</p></div><div className="flex flex-wrap gap-4 text-sm font-semibold text-ink-700"><Link href="/login">Log in</Link><Link href="/onboarding">Get started</Link><Link href="/ats-scan">Free CV scan</Link><a href="#pricing">Pricing</a><a href="#resources">FAQ</a></div></div></footer></div>
 }
