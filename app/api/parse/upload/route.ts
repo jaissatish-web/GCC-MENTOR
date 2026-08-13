@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { generate } from '@/lib/ai/provider'
 import { EXTRACTION_SYSTEM_PROMPT, normalizeDraft, extractJsonObject } from '@/lib/ai/extractionPrompt'
 import { getRateLimitStatus, incrementRateLimit, LIMIT_ACTION_EXTRACTION } from '@/lib/rateLimit'
+import { extractPdfText } from '@/lib/pdfTextExtract'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 
 // File-size limits kept verbatim from reference/parse-upload.reference.ts.
@@ -35,24 +36,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let extractedText = ''
     try {
       if (fileExt === 'pdf') {
-            const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.mjs')
-            const loadingTask = pdfjsLib.getDocument({
-              data: new Uint8Array(buffer),
-              disableRange: true,
-              disableStream: true,
-            })
-            const doc = await loadingTask.promise
-            const pages: string[] = []
-            for (let i = 1; i <= doc.numPages; i++) {
-              const page = await doc.getPage(i)
-              const content = await page.getTextContent()
-              const pageText = content.items
-                .map((item: { str: string }) => item.str)
-                .join(' ')
-                .replace(/\s+/g, ' ')
-              pages.push(pageText.trim())
-            }
-            extractedText = pages.join('\n')
+            extractedText = extractPdfText(buffer)
           } else if (fileExt === 'docx' || fileExt === 'doc') {
         const mammoth = await import('mammoth')
         const result = await mammoth.extractRawText({ buffer })

@@ -36,6 +36,7 @@ import {
   LIMIT_ACTION_ANON_ATS_SCAN,
 } from '@/lib/anonymousRateLimit'
 import { SESSION_COOKIE_NAME, upsertAnonymousSession } from '@/lib/anonymousSession'
+import { extractPdfText } from '@/lib/pdfTextExtract'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 
 /**
@@ -133,28 +134,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     try {
           if (fileExt === 'pdf') {
-            // Use pdfjs-dist directly — bypass pdf-parse wrapper.
-            // pdf-parse v2 wraps pdfjs-dist but its worker config
-            // fails on Vercel serverless. pdfjs-dist itself works.
-            const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.mjs')
-            const loadingTask = pdfjsLib.getDocument({
-              data: new Uint8Array(buffer),
-              disableRange: true,
-              disableStream: true,
-            })
-            const doc = await loadingTask.promise
-            const pages: string[] = []
-            for (let i = 1; i <= doc.numPages; i++) {
-              const page = await doc.getPage(i)
-              const content = await page.getTextContent()
-              const pageText = content.items
-                .map((item: { str: string }) => item.str)
-                .join(' ')
-                .replace(/\s+/g, ' ')
-              pages.push(pageText.trim())
-            }
-            resumeText = pages.join('\n')
-          } else {
+                  // Direct PDF text extraction — no pdfjs-dist worker needed.
+                  // Works on ALL text-based PDFs (Word, Google Docs, Canva, resume builders).
+                  // Image-only PDFs return empty string → caught by <50 char check below.
+                  resumeText = extractPdfText(buffer)
+                } else {
         const mammoth = await import('mammoth')
         const parsed = await mammoth.extractRawText({ buffer })
         resumeText = parsed.value
