@@ -211,7 +211,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     score = validated
   } catch (e) {
     console.error('ats-scan: AI call failed', e instanceof Error ? e.message : String(e))
-    return NextResponse.json({ error: 'Could not analyze this resume. Please try again.' }, { status: 502 })
+        return NextResponse.json({ error: 'AI scan failed: ' + (e instanceof Error ? e.message : String(e)), code: 'AI_FAILED' }, { status: 502 })
   }
 
   // A successful scan consumes a rate-limit slot regardless of what happens
