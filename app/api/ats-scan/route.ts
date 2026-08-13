@@ -134,29 +134,45 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     try {
           if (fileExt === 'pdf') {
-                  // Direct PDF text extraction — no pdfjs-dist worker needed.
-                  // Works on ALL text-based PDFs (Word, Google Docs, Canva, resume builders).
-                  // Image-only PDFs return empty string → caught by <50 char check below.
-                  resumeText = extractPdfText(buffer)
-                } else {
-        const mammoth = await import('mammoth')
-        const parsed = await mammoth.extractRawText({ buffer })
-        resumeText = parsed.value
-      }
-    } catch (e) {
-      console.error(
-        'ATS_SCAN_PARSE_FAILED',
-        'filename=' + file.name,
-        'size=' + buffer.length,
-        'ext=' + fileExt,
-        'error=' + (e instanceof Error ? e.message : String(e)),
-        'stack=' + (e instanceof Error ? (e.stack ?? '').split('\n').slice(0, 3).join(' | '): ''),
-      )
-      return NextResponse.json({ error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.' }, { status: 422 })
-    }
+            resumeText = extractPdfText(buffer)
+            // DEBUG: tell us what was actually extracted
+            if (!resumeText || resumeText.trim().length < 50) {
+              return NextResponse.json({
+                error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.',
+                code: 'PDF_NO_TEXT',
+                extracted: resumeText ? resumeText.length : 0,
+              }, { status: 400 })
+            }
+          } else {
+            const mammoth = await import('mammoth')
+            const parsed = await mammoth.extractRawText({ buffer })
+            resumeText = parsed.value
+            if (!resumeText || resumeText.trim().length < 50) {
+              return NextResponse.json({
+                error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.',
+                code: 'WORD_NO_TEXT',
+              }, { status: 400 })
+            }
+          }
+        } catch (e) {
+          console.error(
+            'ATS_SCAN_PARSE_FAILED',
+            'filename=' + file.name,
+            'size=' + buffer.length,
+            'ext=' + fileExt,
+            'error=' + (e instanceof Error ? e.message : String(e)),
+            'stack=' + (e instanceof Error ? (e.stack ?? '').split('\\n').slice(0, 3).join(' | '): ''),
+          )
+          return NextResponse.json({
+            error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.',
+            code: 'PARSE_EXCEPTION',
+            detail: e instanceof Error ? e.message : String(e),
+          }, { status: 422 })
+        }
 
-    // Image-only PDF detection: the file is valid but produced no extractable text
-    if (!resumeText || resumeText.trim().length < 50) {
+        // Move the length check outside the try block
+        // (already handled per-format above, but belt-and-suspenders)
+        if (!resumeText || resumeText.trim().length < 50) {
       return NextResponse.json({ error: 'We could not read this file. Please upload a valid text-based PDF or Word file, or copy and paste your resume text.' }, { status: 400 })
     }
   } else if (typeof rawText === 'string') {
