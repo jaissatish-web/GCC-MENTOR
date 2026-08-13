@@ -3,314 +3,79 @@ import Link from 'next/link'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { LockedTile } from '@/components/ui/LockedTile'
 import { SiteNav } from '@/components/marketing/SiteNav'
 import {
   ChartBarIcon,
-  MagnifyingGlassIcon,
   DocumentTextIcon,
   PencilSquareIcon,
-  ArrowUpTrayIcon,
-  InboxIcon,
-  ArrowPathIcon,
-  XCircleIcon,
-  FaceFrownIcon,
-  ArrowPathRoundedSquareIcon,
-  UserCircleIcon,
-  PuzzlePieceIcon,
   SparklesIcon,
-  MicrophoneIcon,
-  RocketLaunchIcon,
   ShieldCheckIcon,
   GlobeAltIcon,
+  RocketLaunchIcon,
+  UserCircleIcon,
+  CheckCircleIcon,
+  ArrowRightIcon,
 } from '@heroicons/react/24/outline'
 
 const photos = {
+  skyline: 'https://images.unsplash.com/photo-1652707228067-25672fa0b082?auto=format&fit=crop&w=1920&q=80',
   worker: 'https://images.unsplash.com/photo-1672748341520-6a839e6c05bb?auto=format&fit=crop&w=800&q=80',
-  skyline: 'https://images.unsplash.com/photo-1652707228067-25672fa0b082?auto=format&fit=crop&w=1600&q=80',
+  office: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
   blueprint: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+  dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
+  riyadh: 'https://images.unsplash.com/photo-1578926288207-90e23c0e6b0d?auto=format&fit=crop&w=800&q=80',
+  doha: 'https://images.unsplash.com/photo-1592143523956-12b19eeb7670?auto=format&fit=crop&w=800&q=80',
 }
-
-const liveServices = [
-  ['Resume Builder', 'Build your Career Profile once — upload, paste, or start from scratch.', '/onboarding', DocumentTextIcon],
-  ['Resume Optimizer', 'Reframe your CV for one target Gulf role using only your facts.', '/onboarding', SparklesIcon],
-  ['Resume Library', 'Keep every application version and its status in one place.', '/dashboard/library', UserCircleIcon],
-  ['Career Profile', 'Your real experience, skills and certifications, ready to reuse.', '/profile', PencilSquareIcon],
-] as const
-
-const comingSoon = [
-  ['Mock Interview', 'Practice technical, HR and communication answers with guided AI feedback.'],
-  ['Question Paper Generator', 'Prepare role-specific technical questions before you walk in.'],
-  ['Gulf Career Guidance', 'Understand country, role and hiring expectations in one place.'],
-  ['AI Career Assistant', 'Ask a career question and receive grounded guidance.'],
-] as const
-
-const faq = [
-  ['Will GCC MENTOR invent anything on my CV?', 'No. The optimizer uses only facts in your Career Profile. It improves framing, never your history.'],
-  ['Which Gulf countries are supported?', 'Resume building and optimization currently support Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain.'],
-  ['Are all tools available today?', 'No. Live tools are clearly marked. Interview preparation, guidance and the assistant are previews until built.'],
-  ['Can I see changes before paying?', 'Yes. The current flow shows the changes before payment so you can review what was generated.'],
-]
-
-const failurePatterns = [
-  ['01', 'More applications, no response', 'Volume cannot fix a CV that is not landing clearly.'],
-  ['02', 'Western CV used for a Gulf role', 'The format and context do not match what the market expects.'],
-  ['03', 'One generic resume everywhere', 'A single version misses the role, country and employer signal.'],
-  ['04', 'Weak JD alignment', 'Good experience gets buried when the relevant language is missing.'],
-  ['05', 'Interview preparation starts too late', 'A polished CV is only one part of being ready.'],
-  ['06', 'No structured feedback', 'Without a clear review loop, the same gaps repeat.'],
-] as const
-
-const comparisonRows = [
-  ['Starting point', 'Generic advice', 'Your real career profile'],
-  ['Format', 'Western templates', 'Gulf-focused presentation'],
-  ['Relevance', 'One resume for every role', 'Job-specific framing'],
-  ['Safety', 'May embellish claims', 'Nothing invented — ever'],
-  ['Direction', 'Output without context', 'A connected preparation journey'],
-] as const
-
-const showcasePanels = [
-  ['Gulf Readiness Score', '75%', 'Complete your contact, target and career details'],
-  ['Target Role', 'I&C Commissioning Engineer', 'Saudi Arabia · Target company'],
-  ['Job Match', 'Preview', 'Role-specific alignment is coming soon'],
-  ['Resume status', 'Ready to review', 'Before and after lines remain in your control'],
-  ['Interview Readiness', 'Coming soon', 'Practice and evaluation will follow'],
-] as const
-
-const heroHighlights = [
-  ['Gulf Readiness Score', ChartBarIcon],
-  ['Job-Specific Optimization', MagnifyingGlassIcon],
-  ['ATS-Ready Formatting', DocumentTextIcon],
-  ['Grounded Cover Letters', PencilSquareIcon],
-] as const
-
-const scorecardRings: [string, number][] = [
-  ['Gulf Readiness', 78],
-  ['ATS Score', 92],
-  ['Job Match', 88],
-]
-
-const scorecardImprovements = [
-  'Add more GCC-relevant keywords',
-  'Highlight measurable achievements',
-  'Strengthen your professional summary',
-] as const
-
-const painPoints = [
-  ['Apply for jobs', ArrowUpTrayIcon],
-  ['No response', InboxIcon],
-  ['Try again', ArrowPathIcon],
-  ['Rejection or silence', XCircleIcon],
-  ['Lose confidence', FaceFrownIcon],
-  ['Repeat the cycle', ArrowPathRoundedSquareIcon],
-] as const
-
-const journeySteps = [
-  ['Career Profile', 'Turn your experience into one grounded profile.', UserCircleIcon, true],
-  ['GCC Readiness', 'See how ready your profile is for GCC hiring.', ChartBarIcon, true],
-  ['Job Match', 'Compare your profile against a real role.', MagnifyingGlassIcon, true],
-  ['Optimize', 'Reframe your resume for the target role.', SparklesIcon, true],
-  ['Cover Letter', 'Connect your story to the role you want.', PencilSquareIcon, true],
-  ['Q&A Prep', 'Prepare role-specific interview questions.', PuzzlePieceIcon, false],
-  ['Mock Interview', 'Practice with guided AI feedback.', MicrophoneIcon, false],
-  ['Career Guidance', 'Understand country and role expectations.', GlobeAltIcon, false],
-] as const
-
-const honestHighlights = [
-  [GlobeAltIcon, '6 Gulf countries', 'Saudi, UAE, Qatar, Oman, Kuwait, Bahrain'],
-  [ShieldCheckIcon, 'Nothing invented', 'Every line traces back to your real facts'],
-  [SparklesIcon, 'Job-specific, not generic', 'Reframed for the exact role you target'],
-  [RocketLaunchIcon, 'Live tools today', '5 of 8 platform steps already shipped'],
-] as const
 
 const countryFlags: Record<string, string> = {
-  saudi_arabia: '🇸🇦',
-  uae: '🇦🇪',
-  qatar: '🇶🇦',
-  oman: '🇴🇲',
-  kuwait: '🇰🇼',
-  bahrain: '🇧🇭',
+  saudi_arabia: '🇸🇦', uae: '🇦🇪', qatar: '🇶🇦',
+  oman: '🇴🇲', kuwait: '🇰🇼', bahrain: '🇧🇭',
 }
 
-function Kicker({ children, onDark = false }: { children: React.ReactNode; onDark?: boolean }) {
-  return (
-    <p className={cn('text-[11px] font-bold uppercase tracking-[0.2em]', onDark ? 'text-gold-text-dark' : 'text-gold-text')}>
-      {children}
-    </p>
-  )
+const services = [
+  { icon: UserCircleIcon, title: 'Build Your Career Profile', desc: 'Tell us about your experience once. Your profile becomes the trusted source for every future application.', href: '/onboarding' },
+  { icon: ChartBarIcon, title: 'Check Your Gulf Readiness', desc: 'Understand how prepared your experience, resume and skills are for Gulf employers — free, no login.', href: '/ats-scan' },
+  { icon: SparklesIcon, title: 'Create a GCC-Optimized Resume', desc: 'Generate a professional resume tailored to the specific country and role you\'re targeting.', href: '/onboarding' },
+  { icon: DocumentTextIcon, title: 'Prepare to Apply', desc: 'Get job-specific optimization, cover letters and application-ready packages.', href: '/dashboard' },
+]
+
+const journeySteps = [
+  { label: 'Your Experience', desc: 'Your real career history — degrees, skills, certifications, years of work.', color: 'bg-surface' },
+  { label: 'Career Profile', desc: 'Structured, grounded, always yours.', color: 'bg-forest/10' },
+  { label: 'GCC Readiness', desc: 'Score + improvement plan.', color: 'bg-forest/20' },
+  { label: 'Country + Job Targeting', desc: 'Pick your Gulf market and role.', color: 'bg-forest/30' },
+  { label: 'GCC Resume', desc: 'Optimized, ATS-ready.', color: 'bg-forest/40' },
+  { label: 'Application Package', desc: 'Resume + cover letter + prep.', color: 'bg-forest-900 text-white' },
+]
+
+const pricing = [
+  { name: 'Free', price: null, tag: 'GCC Readiness', items: ['ATS Scan', 'GCC Readiness Score', 'Strengths & Improvements'], featured: false },
+  { name: 'Resume Optimization', price: '₹499', tag: 'Single resume', items: ['Career Profile', 'GCC-Optimized Resume', 'PDF + DOCX Download', '30-day access'], featured: false },
+  { name: 'Resume + Cover Letter', price: '₹999', tag: 'Most popular', items: ['Everything in Resume', 'Cover Letter', 'Priority support'], featured: true },
+  { name: 'Complete Package', price: '₹2,499', tag: 'Full access', items: ['Everything in ₹999', 'Multiple resumes', 'Job Match reports', 'Interview prep tools'], featured: false },
+]
+
+const faq = [
+  { q: 'Will GCC MENTOR invent anything on my CV?', a: 'No. The optimizer uses only facts in your Career Profile. It improves framing, never your history. Every generated line is validated against your profile before you see it.' },
+  { q: 'Which Gulf countries are supported?', a: 'Resume building and optimization currently support Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain.' },
+  { q: 'Are all tools available today?', a: 'No. Live tools are clearly marked. Interview preparation, guidance and the assistant are previews until built.' },
+  { q: 'Can I see changes before paying?', a: 'Yes. The current flow shows the changes before payment so you can review what was generated.' },
+  { q: 'How is my data protected?', a: 'Passport, visa and contact fields are encrypted. Every internal access is logged. You can delete your profile and all data at any time from Settings.' },
+]
+
+function Kicker({ children }: { children: React.ReactNode }) {
+  return <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-forest-700">{children}</p>
 }
 
-function LiveBadge({ onDark = false }: { onDark?: boolean }) {
-  return (
-    <span
-      className={cn(
-        'rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider',
-        onDark ? 'border-forest-dark/40 bg-forest-tint-dark text-forest-dark' : 'border-forest/40 bg-forest-tint text-forest'
-      )}
-    >
-      Live
-    </span>
-  )
-}
-
-function SoonBadge({ onDark = false }: { onDark?: boolean }) {
-  return (
-    <span
-      className={cn(
-        'rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider',
-        onDark ? 'border-redesign-gold-dark/40 bg-redesign-gold-tint-dark text-gold-text-dark' : 'border-redesign-gold/40 bg-redesign-gold-tint text-gold-text'
-      )}
-    >
-      Coming Soon
-    </span>
-  )
-}
-
-/** Static illustrative ring for the server-rendered hero panel — the animated,
- * stateful `ReadinessRing` component needs a client boundary, which a
- * marketing page shouldn't take on for one decorative preview. */
 function StaticScoreRing({ score, size = 64 }: { score: number; size?: number }) {
   const circumference = 264
   const offset = circumference * (1 - score / 100)
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} className="-rotate-90" aria-hidden="true">
-      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className="stroke-forest-tint-dark" />
-      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="stroke-redesign-gold-dark" />
-      <text x="50" y="50" dy="0.35em" textAnchor="middle" className="font-mono text-[22px] fill-redesign-gold-dark" style={{ transform: 'rotate(90deg)', transformOrigin: '50px 50px' }}>{score}</text>
+      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className="stroke-forest-100" />
+      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="stroke-forest-700" />
+      <text x="50" y="50" dy="0.35em" textAnchor="middle" className="font-mono text-[22px] fill-forest-700" style={{ transform: 'rotate(90deg)', transformOrigin: '50px 50px' }}>{score}</text>
     </svg>
-  )
-}
-
-function GcCountryStrip() {
-  const countries = GULF_COUNTRIES.filter((c) => c.value !== 'generic_gulf')
-  return (
-    <div className="border-t border-line-dark bg-forest-deep-dark/60">
-      <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-4 text-[12px] font-semibold text-ink-900-dark/70 sm:px-8 lg:px-12">
-        <span className="text-ink-900-dark/90">CV support across the Gulf</span>
-        {countries.map((c) => (
-          <span key={c.value} className="flex items-center gap-1.5">
-            {countryFlags[c.value]} {c.label}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function FailureSection() {
-  return (
-    <section id="problem" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-      <div className="max-w-3xl">
-        <Kicker>The problem</Kicker>
-        <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Sound familiar? You&apos;re not alone.</h2>
-        <p className="mt-5 text-lg leading-relaxed text-ink-700">Most professionals face the same frustrating application cycle.</p>
-      </div>
-      <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_320px] lg:items-start">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {painPoints.map(([title, Icon]) => (
-            <div key={title} className="flex flex-col items-center gap-3 rounded-radius-lg border border-line-light bg-surface-light p-4 text-center shadow-redesign-sm">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-terra/30 bg-terra-tint"><Icon className="h-5 w-5 text-terra" aria-hidden="true" /></span>
-              <b className="text-sm text-ink-900">{title}</b>
-            </div>
-          ))}
-        </div>
-        <Card tone="light" className="border-redesign-gold/40 bg-redesign-gold-tint p-6">
-          <h3 className="font-serif text-2xl text-ink-900">It&apos;s not your fault.</h3>
-          <p className="mt-3 text-sm leading-relaxed text-ink-700">The problem is rarely your experience. It is the strategy, positioning, and understanding of what GCC employers really look for.</p>
-        </Card>
-      </div>
-      <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {failurePatterns.map(([number, title, description]) => (
-          <Card key={number} tone="light" className="flex gap-4 p-5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-terra/30 bg-terra-tint font-mono text-xs font-bold text-terra">{number}</span>
-            <div><h3 className="font-serif text-xl text-ink-900">{title}</h3><p className="mt-2 text-sm leading-relaxed text-ink-700">{description}</p></div>
-          </Card>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function EcosystemSection() {
-  return (
-    <section id="ecosystem" className="border-y border-line-dark bg-forest-deep text-ink-900-dark">
-      <div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
-        <div className="mx-auto max-w-2xl text-center"><Kicker onDark>One intelligent system</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">How GCC MENTOR Works</h2><p className="mt-5 text-lg leading-relaxed text-ink-900-dark/70">Your facts should not be re-entered for every step. Start with one grounded profile, then add preparation as each tool becomes available.</p></div>
-        <div className="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4">
-          {journeySteps.map(([title, description, Icon, live], index) => (
-            <div key={title} className="relative flex flex-col items-center gap-3 text-center">
-              <span className={cn('flex h-14 w-14 items-center justify-center rounded-full border', live ? 'border-redesign-gold-dark/50 bg-ink-900-dark/10' : 'border-dashed border-ink-900-dark/30 bg-transparent')}>
-                <Icon className={cn('h-6 w-6', live ? 'text-redesign-gold-dark' : 'text-ink-900-dark/40')} aria-hidden="true" />
-              </span>
-              <span className="font-mono text-[10px] tracking-[0.15em] text-redesign-gold-dark">{String(index + 1).padStart(2, '0')}</span>
-              <b className="font-serif text-base text-ink-900-dark">{title}</b>
-              <p className="text-[12px] leading-snug text-ink-900-dark/60">{description}</p>
-              {live ? <LiveBadge onDark /> : <SoonBadge onDark />}
-              {index < journeySteps.length - 1 ? <span aria-hidden className="absolute -right-2 top-6 hidden text-ink-900-dark/25 sm:block">→</span> : null}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function HighlightBandSection() {
-  return (
-    <div className="mx-auto max-w-[1280px] px-5 pb-20 sm:px-8 lg:px-12 lg:pb-28">
-      <div className="grid gap-px overflow-hidden rounded-radius-lg border border-line-dark bg-line-dark sm:grid-cols-2 lg:grid-cols-4">
-        {honestHighlights.map(([Icon, title, description]) => (
-          <div key={title} className="flex flex-col items-center gap-2 bg-forest-deep p-6 text-center text-ink-900-dark">
-            <Icon className="h-6 w-6 text-redesign-gold-dark" aria-hidden="true" />
-            <b className="text-sm">{title}</b>
-            <p className="text-[11px] leading-snug text-ink-900-dark/55">{description}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function ShowcaseSection() {
-  return (
-    <section id="showcase" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-      <div className="max-w-3xl"><Kicker>Inside GCC MENTOR</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">See the concepts before you use them.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">A visual preview should clarify the journey, not pretend a future feature is live.</p></div>
-      <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {showcasePanels.map(([title, value, description], index) => (
-          <Card key={title} tone="light" className="p-5">
-            <span className="text-xs font-bold uppercase tracking-wider text-gold-text">{index === 0 || index === 1 || index === 3 ? 'Live concept' : 'Preview'}</span>
-            <h3 className="mt-5 font-serif text-xl text-ink-900">{title}</h3>
-            <p className="mt-3 text-lg font-bold text-forest">{value}</p>
-            <p className="mt-2 text-sm leading-relaxed text-ink-700">{description}</p>
-          </Card>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function ComparisonSection() {
-  return (
-    <section id="comparison" className="border-y border-line-light bg-surface-2-light">
-      <div className="mx-auto max-w-[1100px] px-5 py-20 sm:px-8 lg:py-24"><div className="max-w-3xl"><Kicker>The difference</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Generic AI tools vs. GCC MENTOR.</h2><p className="mt-5 text-lg text-ink-700">The distinction is grounded in what you need to prepare for a Gulf opportunity.</p></div>
-        <div className="mt-10 overflow-x-auto rounded-radius-lg border border-line-light bg-surface-light"><table className="w-full min-w-[680px] border-collapse text-left"><thead><tr className="border-b border-line-light"><th className="p-5 text-xs uppercase tracking-wider text-ink-400">Area</th><th className="p-5 text-sm font-bold text-ink-400">Generic AI tools</th><th className="bg-redesign-gold-tint p-5 text-sm font-bold text-ink-900">GCC MENTOR</th></tr></thead><tbody>{comparisonRows.map(([area, generic, gcc]) => <tr key={area} className="border-b border-line-light last:border-0"><th className="p-5 text-sm font-bold text-ink-900">{area}</th><td className="p-5 text-sm text-ink-700">{generic}</td><td className="bg-redesign-gold-tint/60 p-5 text-sm font-semibold text-forest">{gcc}</td></tr>)}</tbody></table></div>
-      </div>
-    </section>
-  )
-}
-
-function InterviewDemoSection() {
-  return (
-    <section id="interview-demo" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="flex flex-wrap items-end justify-between gap-5"><div className="max-w-3xl"><Kicker>Interview preparation</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Practice before the real conversation.</h2><p className="mt-5 text-lg text-ink-700">A visual preview of the guided mock interview experience planned for GCC MENTOR.</p></div><SoonBadge /></div>
-      <div className="mt-10 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]"><div className="rounded-radius-lg border border-line-dark bg-forest-deep p-6 text-ink-900-dark sm:p-8"><div className="flex items-center gap-3"><span className="rounded-full bg-redesign-gold px-3 py-2 text-xs font-bold text-forest-deep">DEMO</span><span className="text-xs uppercase tracking-wider text-ink-900-dark/50">Mock Interview preview</span></div><div className="mt-8 rounded-radius-lg bg-surface-2-dark p-5"><p className="text-xs font-bold uppercase tracking-wider text-gold-text-dark">Question</p><p className="mt-3 font-serif text-2xl text-ink-900-dark">Tell me about your commissioning experience.</p></div><div className="mt-4 rounded-radius-lg border border-ink-900-dark/20 p-5 text-sm text-ink-900-dark/55">Your spoken or typed answer will appear here.</div></div><div className="grid grid-cols-2 gap-3">{['Technical', 'Communication', 'Relevance', 'Confidence'].map(label => <Card key={label} tone="light" className="p-5"><span className="text-xs font-bold uppercase tracking-wider text-ink-400">{label}</span><div className="mt-7 h-2 rounded-full bg-surface-2-light"><div className="h-2 w-2/3 rounded-full bg-redesign-gold" /></div><p className="mt-3 text-xs text-ink-400">Preview score</p></Card>)}<Card tone="light" className="col-span-2 border-dashed p-5"><h3 className="font-serif text-xl text-ink-900">Strengths and areas to improve</h3><p className="mt-2 text-sm text-ink-700">Evaluation feedback will be generated when this feature is built.</p></Card></div></div>
-    </section>
-  )
-}
-
-function TestimonialsSection() {
-  const placeholders = ['Your story could go here.', 'A verified professional experience will appear here.', 'Real outcomes, shared with permission.']
-  return (
-    <section id="testimonials" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="max-w-3xl"><Kicker>Real voices, when earned</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">No invented testimonials.</h2><p className="mt-5 text-lg text-ink-700">This space is ready for verified stories from Gulf professionals. We will add them when real users choose to share them.</p></div><div className="mt-10 grid gap-4 md:grid-cols-3">{placeholders.map(text => <div key={text} className="min-h-[170px] rounded-radius-lg border border-dashed border-line-light-strong bg-surface-light p-6"><span className="text-2xl text-gold-text">“</span><p className="mt-4 text-sm leading-relaxed text-ink-400">{text}</p><div className="mt-6 h-2 w-24 rounded-full bg-surface-2-light" /><div className="mt-2 h-2 w-16 rounded-full bg-surface-2-light" /></div>)}</div></div></section>
   )
 }
 
@@ -319,82 +84,296 @@ export default function Home() {
     <div className="w-full overflow-x-clip bg-bg text-ink-900">
       <SiteNav />
       <main>
-        <section className="relative overflow-hidden border-b border-line-dark bg-forest-deep">
-          <div className="mx-auto grid max-w-[1280px] items-center gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[1.05fr_0.95fr] lg:px-12 lg:py-28">
-            <div className="relative z-10 flex flex-col gap-6">
-              <Kicker onDark>Built for the Gulf career journey</Kicker>
-              <h1 className="max-w-[14ch] font-serif text-5xl leading-[0.98] tracking-tight text-ink-900-dark sm:text-6xl lg:text-7xl">From more applications to <span className="text-forest-dark">the right opportunity.</span></h1>
-              <p className="max-w-[55ch] text-[17px] leading-relaxed text-ink-900-dark/70 sm:text-lg">GCC MENTOR turns your real experience into a Gulf-ready Career Profile, then helps you target, optimize and prepare for the role you actually want.</p>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {heroHighlights.map(([h, Icon]) => (
-                  <div key={h} className="flex items-center gap-2 rounded-radius-lg border border-line-dark bg-ink-900-dark/5 px-3 py-2.5">
-                    <Icon className="h-4 w-4 shrink-0 text-redesign-gold-dark" aria-hidden="true" />
-                    <span className="text-[11px] font-semibold leading-tight text-ink-900-dark/80">{h}</span>
-                  </div>
-                ))}
+        {/* ════ HERO ════ */}
+        <section className="relative overflow-hidden bg-bg">
+          {/* Background skyline image */}
+          <div className="absolute inset-0">
+            <Image src={photos.skyline} alt="" fill className="object-cover opacity-[0.07] scale-110" priority />
+          </div>
+          <div className="relative mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+            <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+              {/* Hero copy */}
+              <div className="flex flex-col gap-6">
+                <Kicker>Premium Gulf Career Concierge</Kicker>
+                <h1 className="font-serif text-5xl leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
+                  Your Career,<br />
+                  <span className="text-forest-800">Gulf-Ready.</span>
+                </h1>
+                <p className="max-w-[55ch] text-[17px] leading-relaxed text-ink-700 sm:text-lg">
+                  Prepare for your next opportunity in Saudi Arabia, UAE, Qatar, Oman, Kuwait or Bahrain.
+                  Build your career profile once. Get a GCC-optimized resume, assess your readiness, and prepare for the right Gulf opportunities — without AI inventing a single fact.
+                </p>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }), 'text-[15px] px-6')}>
+                    Build My GCC Career Profile <ArrowRightIcon className="ml-1 h-4 w-4" />
+                  </Link>
+                  <Link href="/ats-scan" className={cn(buttonVariants({ variant: 'primary' }), 'text-[15px]')}>
+                    Check My Gulf Readiness
+                  </Link>
+                </div>
+                <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-semibold text-ink-600">
+                  {GULF_COUNTRIES.filter(c => c.value !== 'generic_gulf').map(c => (
+                    <span key={c.value}>{countryFlags[c.value]} {c.label}</span>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row"><Link href="/ats-scan" className={cn(buttonVariants({ variant: 'purchase' }))}>Check My Gulf Readiness — Free →</Link><a href="#platform" className={cn(buttonVariants({ variant: 'ghost' }))}>See how it works</a></div>
-              <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-line-dark pt-5 text-[12px] font-semibold text-ink-900-dark/60"><span>✓ Nothing invented</span><span>✓ Gulf-focused</span><span>✓ You stay in control</span></div>
-            </div>
-            <div className="relative min-h-[380px] overflow-hidden rounded-radius-xl border border-line-dark-strong p-5 shadow-redesign-lg sm:min-h-[470px]">
-              <Image src={photos.skyline} alt="City skyline at night." fill priority className="object-cover opacity-30" />
-              <div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/75 to-forest-deep/40" />
-              <div className="relative flex h-full flex-col justify-end gap-4 text-ink-900-dark">
-                <span className="w-fit rounded-full bg-redesign-gold px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-deep">Illustrative preview</span>
-                <div className="rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-5 backdrop-blur-sm">
-                  <p className="text-sm font-bold">Your Application Scorecard</p>
-                  <p className="mt-1 text-[11px] leading-snug text-ink-900-dark/55">An example of what your Career Profile scorecard could look like — not a real result</p>
-                  <div className="mt-4 grid grid-cols-3 gap-3">
-                    {scorecardRings.map(([label, value]) => (
-                      <div key={label} className="flex flex-col items-center gap-2 text-center">
-                        <StaticScoreRing score={value} size={56} />
-                        <span className="text-[10px] text-ink-900-dark/55">{label}</span>
-                      </div>
-                    ))}
+
+              {/* Hero visual: scorecard preview */}
+              <div className="relative">
+                <div className="rounded-radius-2xl border border-line bg-surface p-5 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.12)] sm:p-7">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-forest-700">GCC Career Profile</p>
+                      <p className="mt-1 text-[13px] text-ink-600">Senior Instrument Engineer</p>
+                    </div>
+                    <span className="rounded-full bg-forest-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-800">Premium</span>
                   </div>
-                  <div className="mt-5 rounded-radius-lg border border-ink-900-dark/15 p-3.5">
-                    <p className="text-[11px] font-bold text-ink-900-dark/85">Example improvements a scan might suggest</p>
-                    <div className="mt-2.5 space-y-2">
-                      {scorecardImprovements.map((x) => (
-                        <div key={x} className="flex items-center gap-2 text-[11px] text-ink-900-dark/70"><span className="text-redesign-gold-dark">✓</span>{x}</div>
-                      ))}
+                  <div className="mt-5 grid grid-cols-3 gap-3">
+                    <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
+                      <StaticScoreRing score={92} size={56} />
+                      <span className="text-[10px] font-bold text-ink-600">ATS Score</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
+                      <StaticScoreRing score={84} size={56} />
+                      <span className="text-[10px] font-bold text-ink-600">Gulf Readiness</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
+                      <StaticScoreRing score={78} size={56} />
+                      <span className="text-[10px] font-bold text-ink-600">Job Match</span>
                     </div>
                   </div>
+                  <div className="mt-4 flex items-center gap-4 text-[12px] text-forest-700">
+                    <span className="flex items-center gap-1.5"><CheckCircleIcon className="h-4 w-4" /> Saudi Arabia ✓</span>
+                    <span className="flex items-center gap-1.5"><CheckCircleIcon className="h-4 w-4" /> UAE ✓</span>
+                  </div>
+                  <div className="mt-4 rounded-radius-lg border border-line bg-forest-50/50 p-4">
+                    <div className="flex items-center justify-between text-[13px]">
+                      <span className="font-semibold">Profile completeness</span>
+                      <span className="text-forest-700 font-bold">94%</span>
+                    </div>
+                    <div className="mt-2 h-2 rounded-full bg-forest-100">
+                      <div className="h-2 w-[94%] rounded-full bg-forest-600" />
+                    </div>
+                    <p className="mt-2 text-[11px] text-ink-500">2 items remaining — add them to reach 100%</p>
+                  </div>
+                </div>
+                {/* Decorative dot */}
+                <div className="absolute -bottom-3 -right-3 h-24 w-24 rounded-full bg-gold-200/40 blur-2xl" aria-hidden="true" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ════ TRUST BAND ════ */}
+        <section className="border-y border-line bg-surface-2-light">
+          <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-center gap-x-10 gap-y-3 px-5 py-5 text-[13px] font-semibold text-ink-600 sm:px-8 lg:px-12">
+            <span className="flex items-center gap-2"><ShieldCheckIcon className="h-4 w-4 text-forest-600" /> No invented facts</span>
+            <span className="flex items-center gap-2"><GlobeAltIcon className="h-4 w-4 text-forest-600" /> Gulf focused</span>
+            <span className="flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-forest-600" /> Professional preparation</span>
+          </div>
+        </section>
+
+        {/* ════ SERVICE CARDS ════ */}
+        <section className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
+          <div className="max-w-2xl">
+            <Kicker>Everything you need to prepare for the Gulf</Kicker>
+            <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">One profile. Every application.</h2>
+            <p className="mt-5 text-lg leading-relaxed text-ink-700">Your experience, skills and certifications live in one place. Every tool draws from the same trusted source.</p>
+          </div>
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {services.map((s, i) => (
+              <Link key={s.title} href={s.href} className="group">
+                <Card tone="light" className="flex h-full min-h-[280px] flex-col gap-4 p-6 transition-all hover:-translate-y-1 hover:border-forest-300 hover:shadow-sm">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-radius-lg bg-forest-100 text-forest-700">
+                    <s.icon className="h-5 w-5" />
+                  </span>
+                  <span className="font-mono text-[10px] tracking-[0.15em] text-forest-500">0{i + 1}</span>
+                  <h3 className="font-serif text-xl text-ink-900">{s.title}</h3>
+                  <p className="text-sm leading-relaxed text-ink-600">{s.desc}</p>
+                  <span className="mt-auto text-sm font-bold text-forest-700 group-hover:text-forest-600">Learn more →</span>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ════ GULF MARKETS ════ */}
+        <section className="border-y border-line bg-surface-2-light">
+          <div className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
+            <div className="max-w-2xl">
+              <Kicker>One career profile. Six Gulf markets.</Kicker>
+              <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Your experience is ready for any of them.</h2>
+            </div>
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {GULF_COUNTRIES.filter(c => c.value !== 'generic_gulf').map((c) => (
+                <Link key={c.value} href="/ats-scan" className="group">
+                  <Card tone="light" className="flex h-full min-h-[130px] flex-col gap-2 p-5 transition-all hover:-translate-y-0.5 hover:border-forest-300">
+                    <span className="text-2xl">{countryFlags[c.value]}</span>
+                    <h3 className="font-serif text-xl text-ink-900">{c.label}</h3>
+                    <p className="text-[12px] leading-relaxed text-ink-500">CV support live · GCC Readiness available</p>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════ TRANSFORMATION JOURNEY ════ */}
+        <section className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
+          <div className="max-w-2xl">
+            <Kicker>From &ldquo;I want a Gulf job&rdquo; to &ldquo;I&rsquo;m ready to apply.&rdquo;</Kicker>
+            <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Your transformation journey.</h2>
+          </div>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+            {journeySteps.map((step, i) => (
+              <div key={step.label} className="flex flex-col gap-3">
+                <div className={cn('flex h-14 w-14 items-center justify-center rounded-radius-xl font-serif text-lg font-bold', step.color)}>
+                  {String(i + 1).padStart(2, '0')}
+                </div>
+                <h3 className="font-serif text-lg text-ink-900">{step.label}</h3>
+                <p className="text-[12px] leading-relaxed text-ink-500">{step.desc}</p>
+                {i < journeySteps.length - 1 && (
+                  <ArrowRightIcon className="hidden h-5 w-5 text-ink-300 lg:block" />
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ════ TRUST SECTION ════ */}
+        <section className="border-y border-line bg-surface-2-light">
+          <div className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
+            <div className="grid items-center gap-16 lg:grid-cols-2">
+              <div className="relative min-h-[400px] overflow-hidden rounded-radius-2xl">
+                <Image src={photos.worker} alt="Industrial professional" fill className="object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-forest-900/60 to-transparent" />
+              </div>
+              <div className="flex flex-col gap-6">
+                <Kicker>Your career data stays factual</Kicker>
+                <h2 className="font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">
+                  AI that works from <span className="text-forest-800">your experience</span> — never invents it.
+                </h2>
+                <div className="mt-2 grid gap-5">
+                  {[
+                    { title: 'No fabricated experience', desc: 'Your profile is the source of truth. Every line on your resume traces back to a fact you provided.' },
+                    { title: 'Built for GCC applications', desc: 'Designed around Gulf job-search requirements — format, keywords, and expectations.' },
+                    { title: 'Professional, transparent preparation', desc: 'Know what you are getting before you pay. See the changes, review the output, then decide.' },
+                  ].map(t => (
+                    <div key={t.title} className="flex gap-3">
+                      <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-forest-600" />
+                      <div>
+                        <h3 className="font-bold text-ink-900">{t.title}</h3>
+                        <p className="text-sm leading-relaxed text-ink-600">{t.desc}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
-          <GcCountryStrip />
         </section>
-        <section id="platform" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="max-w-2xl"><Kicker>The platform</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Everything you need to move forward in the Gulf.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Start with the tools that are live today. See what is coming next without confusing a preview for a promise.</p></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{liveServices.map(([title, desc, href, Icon]) => <Link href={href} key={title} className="group"><Card tone="light" className="flex min-h-[250px] flex-col gap-4 p-6 transition hover:-translate-y-1 hover:border-redesign-gold"><div className="flex items-center justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-forest-tint"><Icon className="h-5 w-5 text-forest" aria-hidden="true" /></span><LiveBadge /></div><h3 className="font-serif text-2xl text-ink-900">{title}</h3><p className="text-sm leading-relaxed text-ink-700">{desc}</p><span className="mt-auto text-sm font-bold text-forest group-hover:text-gold-text">Open →</span></Card></Link>)}</div><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{comingSoon.map(([title, desc]) => <div key={title} id={title === 'Mock Interview' ? 'mock-interview' : title === 'Question Paper Generator' ? 'question-papers' : title === 'Gulf Career Guidance' ? 'gulf-guidance' : 'ai-assistant'} className="flex"><LockedTile title={title} description={desc} note={`${title} — planned for a future release.`} className="h-full w-full min-h-[220px]" /></div>)}</div></section>
-        <section id="ats-scan" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto flex max-w-[1280px] flex-col items-start gap-6 px-5 py-16 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12"><div className="max-w-2xl"><Kicker>Free tool</Kicker><h2 className="mt-3 font-serif text-3xl text-ink-900 sm:text-4xl">See how Gulf-ready your CV is.</h2><p className="mt-3 text-ink-700">Get a free ATS and Gulf-readiness scan before you build your full Career Profile.</p></div><Link href="/ats-scan" className={cn(buttonVariants({ variant: 'primary' }))}>Scan my CV for free →</Link></div></section>
-        <section id="how-it-works" className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><div className="max-w-2xl"><Kicker>How it works</Kicker><h2 className="mt-4 font-serif text-4xl text-ink-900 sm:text-5xl">One clear path from experience to application.</h2></div><div className="mt-12 grid gap-8 md:grid-cols-4">{[['01','Capture','Upload, paste or build your Career Profile.'],['02','Clarify','Choose your Gulf country, target role and company.'],['03','Prepare','Review the changes and strengthen your application.'],['04','Apply','Download, save and reuse your profile for the next target.']].map(([n,t,d]) => <div key={n} className="flex flex-col gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-full border border-redesign-gold/40 bg-redesign-gold-tint font-mono text-sm font-bold text-gold-text">{n}</span><h3 className="font-serif text-2xl text-ink-900">{t}</h3><p className="text-sm leading-relaxed text-ink-700">{d}</p></div>)}</div></div></section>
-        <FailureSection />
-        <EcosystemSection />
-        <HighlightBandSection />
-        <ShowcaseSection />
-        <ComparisonSection />
-        <InterviewDemoSection />
-        <TestimonialsSection />
-        <section id="professionals" className="mx-auto grid max-w-[1280px] gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2 lg:px-12 lg:py-28"><div className="relative min-h-[360px] overflow-hidden rounded-radius-xl"><Image src={photos.worker} alt="Industrial worker wearing a hard hat." fill className="object-cover" /><div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-forest-deep/85 to-transparent p-7 pt-24 text-ink-900-dark"><p className="font-serif text-2xl">Your work deserves to be understood.</p></div></div><div className="flex flex-col justify-center gap-5"><Kicker>For professionals</Kicker><h2 className="font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Your facts stay fixed. Your story gets clearer.</h2><p className="text-lg leading-relaxed text-ink-700">A Gulf application is more than a list of duties. GCC MENTOR helps you present your real experience in a way that is relevant, readable and ready for the role you want.</p><div className="grid gap-3 sm:grid-cols-2">{['Experience stays yours','No invented numbers','Country-aware formatting','Edit every generated line'].map(x => <Card key={x} tone="light" className="p-4 text-sm font-bold text-ink-900">✓ {x}</Card>)}</div></div></section>
-        <section id="industries" className="border-y border-line-dark bg-forest-deep text-ink-900-dark"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24"><Kicker onDark>Industries</Kicker><h2 className="mt-4 max-w-2xl font-serif text-4xl leading-tight sm:text-5xl">Built around the careers that move the Gulf.</h2><p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-900-dark/70">Engineering, construction, technical operations, healthcare, IT and management — start with your real background and target the next role.</p><div className="mt-10 flex flex-wrap gap-3">{['Engineering & commissioning','Construction & site operations','Healthcare','IT & technology','Quality & safety','Project & people management'].map(x => <span key={x} className="rounded-full border border-ink-900-dark/20 bg-ink-900-dark/10 px-4 py-3 text-sm font-semibold">{x}</span>)}</div></div></section>
-        <section className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="grid gap-12 lg:grid-cols-2"><div><Kicker>Gulf visual identity</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">One profile. A target for every Gulf country.</h2><p className="mt-5 text-lg leading-relaxed text-ink-700">Choose a target and build from the same trusted career history. Country guides are coming soon; CV support is live today.</p><div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">{GULF_COUNTRIES.slice(0,6).map(c => <Link href="/onboarding" key={c.value} className="group"><Card tone="light" className="p-4 text-sm font-bold text-ink-900 transition hover:border-redesign-gold">{c.label} <span className="block pt-1 text-xs font-medium text-forest">CV support live</span></Card></Link>)}</div></div><div className="relative min-h-[360px] overflow-hidden rounded-radius-xl"><Image src={photos.blueprint} alt="Hands drafting on a blueprint with pencil and ruler." fill className="object-cover" /></div></div></section>
-        <section className="border-y border-line-light bg-surface-2-light"><div className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12"><Kicker>What changes — and what never does</Kicker><div className="mt-8 grid gap-4 md:grid-cols-3">{[['Reframed','Summary and experience bullets are rewritten for relevance.'],['Reordered','Skills move by relevance; their facts do not change.'],['Never touched','Employers, titles, dates, education and certifications stay grounded.']].map(([t,d]) => <Card key={t} tone="light" className="p-6"><h3 className="font-serif text-2xl text-forest">{t}</h3><p className="mt-3 text-sm leading-relaxed text-ink-700">{d}</p></Card>)}</div></div></section>
-        <section id="pricing" className="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28"><div className="max-w-2xl"><Kicker>Simple, transparent pricing</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Choose the level of support you need.</h2><p className="mt-5 text-lg text-ink-700">These are the planned GCC MENTOR packages. Current checkout remains the existing single resume flow while tier support is being built.</p></div><div className="mt-12 grid gap-5 lg:grid-cols-3">{[['Essential','₹399','Start with a stronger CV','One optimized target resume'],['Professional','₹1,499','Prepare more completely','Resume optimization plus preparation tools'],['Mentor','₹2,499','Build an ongoing career system','Full platform access as features arrive']].map(([name,price,tag,desc], i) => <Card key={name} tone="light" className={`flex flex-col gap-5 p-7 ${i===1 ? 'border-redesign-gold shadow-redesign-cta-glow' : 'border-line-light'}`}><div className="flex items-center justify-between"><h3 className="font-serif text-2xl text-ink-900">{name}</h3>{i===1 ? <span className="rounded-full bg-redesign-gold px-2.5 py-1 text-[10px] font-bold uppercase text-forest-deep">Popular</span> : null}</div><p className="text-sm font-semibold text-forest">{tag}</p><p className="font-mono text-4xl text-ink-900">{price}</p><p className="text-sm leading-relaxed text-ink-700">{desc}. Exact features will be shown before purchase.</p><Link href="/onboarding" className={cn(buttonVariants({ variant: i === 1 ? 'purchase' : 'primary' }), 'mt-auto')}>Get Started</Link></Card>)}</div></section>
-        <section id="resources" className="border-y border-line-dark bg-forest-deep text-ink-900-dark"><div className="mx-auto max-w-[900px] px-5 py-20 text-center sm:px-8 lg:py-24"><Kicker onDark>Start with what you have</Kicker><h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">Your next move starts with your real experience.</h2><p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-900-dark/70">No perfect CV required. No inflated claims. Just a clearer path to prepare, apply and grow.</p><Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }), 'mt-8')}>Build your Career Profile</Link></div></section>
-        <section className="mx-auto max-w-[900px] px-5 py-20 sm:px-8 lg:py-24"><Kicker>Questions</Kicker><h2 className="mt-4 font-serif text-4xl text-ink-900">Good questions deserve clear answers.</h2><div className="mt-8 divide-y divide-line-light rounded-radius-lg border border-line-light bg-surface-light px-6">{faq.map(([q,a]) => <details key={q} className="group py-5"><summary className="cursor-pointer list-none pr-8 text-base font-bold text-ink-900 marker:hidden">{q}<span className="float-right text-gold-text group-open:rotate-45">＋</span></summary><p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-700">{a}</p></details>)}</div></section>
+
+        {/* ════ PRICING ════ */}
+        <section id="pricing" className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
+          <div className="max-w-2xl">
+            <Kicker>Choose the help you need</Kicker>
+            <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Services, not subscriptions.</h2>
+            <p className="mt-5 text-lg leading-relaxed text-ink-700">Pay for what you need today. No recurring charges, no hidden fees.</p>
+          </div>
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {pricing.map((p, i) => (
+              <Card key={p.name} tone="light" className={cn('flex flex-col gap-5 p-6', p.featured && 'border-forest-400 shadow-md ring-1 ring-forest-300/50')}>
+                {p.featured && (
+                  <span className="w-fit rounded-full bg-forest-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-800">Most popular</span>
+                )}
+                <div>
+                  <h3 className="font-serif text-xl text-ink-900">{p.name}</h3>
+                  <p className="text-sm text-forest-700">{p.tag}</p>
+                </div>
+                {p.price ? (
+                  <p className="font-mono text-4xl font-bold text-ink-900">{p.price}</p>
+                ) : (
+                  <p className="font-mono text-4xl font-bold text-forest-600">Free</p>
+                )}
+                <ul className="flex flex-col gap-2.5 text-sm text-ink-600">
+                  {p.items.map(item => (
+                    <li key={item} className="flex items-center gap-2">
+                      <CheckCircleIcon className="h-4 w-4 shrink-0 text-forest-600" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <Link href={p.price ? '/onboarding' : '/ats-scan'} className={cn(buttonVariants({ variant: p.featured ? 'purchase' : 'primary' }), 'mt-auto')}>
+                  {p.price ? 'Get Started' : 'Try Free'}
+                </Link>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* ════ FAQ ════ */}
+        <section className="border-y border-line bg-surface-2-light">
+          <div className="mx-auto max-w-[900px] px-5 py-24 sm:px-8 lg:py-28">
+            <Kicker>Common questions</Kicker>
+            <h2 className="mt-4 font-serif text-4xl text-ink-900 sm:text-5xl">Good questions deserve clear answers.</h2>
+            <div className="mt-8 divide-y divide-line rounded-radius-xl border border-line bg-surface">
+              {faq.map(({ q, a }) => (
+                <details key={q} className="group px-6">
+                  <summary className="flex cursor-pointer items-center justify-between py-5 text-sm font-bold text-ink-900 marker:hidden">
+                    {q}
+                    <span className="text-gold-500 transition-transform group-open:rotate-45">＋</span>
+                  </summary>
+                  <p className="pb-5 text-sm leading-relaxed text-ink-600">{a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════ FINAL CTA ════ */}
+        <section className="mx-auto max-w-[900px] px-5 py-24 text-center sm:px-8 lg:py-28">
+          <Kicker>Ready to begin</Kicker>
+          <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">
+            Ready for your next Gulf opportunity?
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-700">
+            No perfect CV required. No inflated claims. Just a clearer path to prepare, apply and grow.
+          </p>
+          <Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }), 'mt-8 text-[15px] px-6')}>
+            Build My GCC Career Profile <ArrowRightIcon className="ml-1 h-4 w-4" />
+          </Link>
+        </section>
       </main>
-      <footer className="border-t border-line-light bg-surface-2-light">
+
+      {/* ════ FOOTER ════ */}
+      <footer className="border-t border-line bg-surface-2-light">
         <div className="mx-auto max-w-[1280px] px-5 py-14 sm:px-8 lg:px-12">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-2">
-              <div className="flex items-center gap-2.5"><span className="font-serif flex h-8 w-8 items-center justify-center rounded-radius-lg bg-forest-deep text-lg text-gold-text-dark">G</span><span className="font-bold text-ink-900">GCC MENTOR</span></div>
-              <p className="mt-4 max-w-[320px] text-sm text-ink-400">Your all-in-one career intelligence platform for professionals targeting GCC opportunities.</p>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-radius-lg bg-forest-900 text-lg font-bold text-white">G</span>
+                <span className="font-bold text-ink-900">GCC MENTOR</span>
+              </div>
+              <p className="mt-4 max-w-[320px] text-sm text-ink-400">Your career intelligence platform for Indian professionals targeting GCC opportunities.</p>
             </div>
-            <div><b className="text-sm text-ink-900">Product</b><div className="mt-4 flex flex-col gap-2.5 text-sm text-ink-400"><a href="#how-it-works">How It Works</a><a href="#platform">Platform</a><a href="#pricing">Pricing</a></div></div>
-            <div><b className="text-sm text-ink-900">Company</b><div className="mt-4 flex flex-col gap-2.5 text-sm text-ink-400"><Link href="/login">Log in</Link><span>Privacy</span><span>Terms</span><span>Refunds</span></div></div>
+            <div>
+              <b className="text-sm text-ink-900">Product</b>
+              <div className="mt-4 flex flex-col gap-2.5 text-sm text-ink-400">
+                <Link href="/ats-scan">Free Scan</Link>
+                <Link href="/onboarding">Build Profile</Link>
+                <a href="#pricing">Pricing</a>
+              </div>
+            </div>
+            <div>
+              <b className="text-sm text-ink-900">Company</b>
+              <div className="mt-4 flex flex-col gap-2.5 text-sm text-ink-400">
+                <Link href="/login">Log in</Link>
+                <span>Privacy</span>
+                <span>Terms</span>
+              </div>
+            </div>
           </div>
-          <div className="mt-10 border-t border-line-light pt-6 text-sm text-ink-400">Built for Gulf professionals.</div>
+          <div className="mt-10 border-t border-line pt-6 text-sm text-ink-400">Built for Gulf professionals.</div>
         </div>
       </footer>
     </div>
