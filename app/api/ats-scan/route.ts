@@ -79,7 +79,7 @@ import type { CareerProfileDraft } from '@/types/careerProfile'
 
 const MAX_FILE_SIZE_PDF = 5 * 1024 * 1024   // 5MB, matches /api/parse/upload
 const MAX_FILE_SIZE_DOCX = 2 * 1024 * 1024  // 2MB, matches /api/parse/upload
-const MAX_TEXT_LENGTH = 20000               // matches /api/parse/text
+const MAX_TEXT_LENGTH = 50000               // matches /api/parse/text, generous for full resumes
 const MAX_JD_LENGTH = 8000
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
