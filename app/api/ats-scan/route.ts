@@ -133,10 +133,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     try {
       if (fileExt === 'pdf') {
-        const { PDFParse } = await import('pdf-parse')
-        const parser = new PDFParse({ data: buffer })
-        const parsed = await parser.getText()
-        resumeText = parsed.text
+              // Use require() — pdf-parse v2 CJS entry is reliable on Vercel.
+              // Dynamic import() can resolve ESM path differently in serverless.
+              const { PDFParse } = require('pdf-parse')
+              const parser = new PDFParse({ data: buffer })
+              const parsed = await parser.getText()
+              resumeText = parsed.text
       } else {
         const mammoth = await import('mammoth')
         const parsed = await mammoth.extractRawText({ buffer })
