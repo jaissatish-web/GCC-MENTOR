@@ -7,11 +7,30 @@ export interface AiProviderConfig {
   provider: string
   model: string
   apiKey: string
+  fallbackEnabled: boolean
   fallbackProvider: string | null
   fallbackModel: string | null
   fallbackApiKey: string | null
   updatedAt: string
   updatedBy: string | null
+}
+
+function mapConfig(data: Record<string, unknown>): AiProviderConfig {
+  const fallbackProvider = (data.fallback_provider as string | null) ?? null
+  const fallbackModel = (data.fallback_model as string | null) ?? null
+  const fallbackApiKey = (data.fallback_api_key as string | null) ?? null
+  return {
+    key: data.key as string,
+    provider: data.provider as string,
+    model: data.model as string,
+    apiKey: data.api_key as string,
+    fallbackEnabled: Boolean(fallbackProvider && fallbackModel && fallbackApiKey),
+    fallbackProvider,
+    fallbackModel,
+    fallbackApiKey,
+    updatedAt: data.updated_at as string,
+    updatedBy: (data.updated_by as string | null) ?? null,
+  }
 }
 
 async function readConfigRow(key: string): Promise<AiProviderConfig | null> {
@@ -21,24 +40,11 @@ async function readConfigRow(key: string): Promise<AiProviderConfig | null> {
     .select('key, provider, model, api_key, fallback_provider, fallback_model, fallback_api_key, updated_at, updated_by')
     .eq('key', key)
     .maybeSingle()
-
   if (error) {
     console.error('ai_provider_config read error: key=' + key, error.message)
     return null
   }
-  if (!data) return null
-
-  return {
-    key: data.key as string,
-    provider: data.provider as string,
-    model: data.model as string,
-    apiKey: data.api_key as string,
-    fallbackProvider: (data.fallback_provider as string | null) ?? null,
-    fallbackModel: (data.fallback_model as string | null) ?? null,
-    fallbackApiKey: (data.fallback_api_key as string | null) ?? null,
-    updatedAt: data.updated_at as string,
-    updatedBy: (data.updated_by as string | null) ?? null,
-  }
+  return data ? mapConfig(data as Record<string, unknown>) : null
 }
 
 export async function getProviderConfigExact(key: string): Promise<AiProviderConfig | null> {
@@ -64,20 +70,16 @@ export async function setProviderConfig(opts: {
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const key = opts.key?.trim() || AI_CONFIG_KEY_DEFAULT
   const supabase = createServiceRoleClient()
-  const { error } = await supabase.from('ai_provider_config').upsert(
-    {
-      key,
-      provider: opts.provider,
-      model: opts.model,
-      api_key: opts.apiKey,
-      fallback_provider: opts.fallbackProvider,
-      fallback_model: opts.fallbackModel,
-      fallback_api_key: opts.fallbackApiKey,
-      updated_by: opts.adminId,
-    },
-    { onConflict: 'key' }
-  )
-
+  const { error } = await supabase.from('ai_provider_config').upsert({
+    key,
+    provider: opts.provider,
+    model: opts.model,
+    api_key: opts.apiKey,
+    fallback_provider: opts.fallbackProvider,
+    fallback_model: opts.fallbackModel,
+    fallback_api_key: opts.fallbackApiKey,
+    updated_by: opts.adminId,
+  }, { onConflict: 'key' })
   if (error) {
     console.error('ai_provider_config write error: key=' + key, error.message)
     return { ok: false, error: 'Failed to save the AI provider configuration' }
@@ -91,23 +93,11 @@ export async function listProviderConfigs(): Promise<AiProviderConfig[]> {
     .from('ai_provider_config')
     .select('key, provider, model, api_key, fallback_provider, fallback_model, fallback_api_key, updated_at, updated_by')
     .order('key')
-
   if (error) {
     console.error('ai_provider_config list error', error.message)
     return []
   }
-
-  return ((data ?? []) as Array<Record<string, unknown>>).map((r) => ({
-    key: r.key as string,
-    provider: r.provider as string,
-    model: r.model as string,
-    apiKey: r.api_key as string,
-    fallbackProvider: (r.fallback_provider as string | null) ?? null,
-    fallbackModel: (r.fallback_model as string | null) ?? null,
-    fallbackApiKey: (r.fallback_api_key as string | null) ?? null,
-    updatedAt: r.updated_at as string,
-    updatedBy: (r.updated_by as string | null) ?? null,
-  }))
+  return ((data ?? []) as Array<Record<string, unknown>>).map(mapConfig)
 }
 
 export async function deleteProviderConfig(key: string): Promise<{ ok: true } | { ok: false; error: string }> {
