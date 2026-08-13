@@ -26,7 +26,7 @@ import type { RateLimitStatus } from '@/lib/rateLimit'
  */
 export const LIMIT_ACTION_ANON_ATS_SCAN = 'ats_scan'
 
-const DEFAULT_ANONYMOUS_LIMIT = 3
+const DEFAULT_ANONYMOUS_LIMIT = 20
 
 function parsePositiveEnvInt(v: string | undefined): number | null {
   if (!v) return null
