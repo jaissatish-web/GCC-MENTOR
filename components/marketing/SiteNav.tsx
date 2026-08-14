@@ -4,12 +4,10 @@ import * as React from 'react'
 import Link from 'next/link'
 
 const ITEMS = [
-  ['Platform', '#platform'],
+  ['Services', '#services'],
   ['How It Works', '#how-it-works'],
-  ['For Professionals', '#professionals'],
-  ['Industries', '#industries'],
+  ['Gulf Markets', '#markets'],
   ['Pricing', '#pricing'],
-  ['Resources', '#resources'],
 ] as const
 
 export function SiteNav() {
@@ -26,11 +24,11 @@ export function SiteNav() {
         </nav>
         <div className="flex items-center gap-3">
           <Link href="/login" className="hidden text-[13px] font-semibold text-ink-muted hover:text-midnight sm:inline">Log in</Link>
-          <Link href="/onboarding" className="hidden min-h-11 items-center rounded-lg bg-midnight px-5 py-2.5 text-[13px] font-bold text-marble transition-colors hover:bg-deep-navy sm:inline-flex">Get Started</Link>
+          <Link href="/onboarding" className="hidden min-h-11 items-center rounded-lg bg-midnight px-5 py-2.5 text-[13px] font-bold text-marble transition-colors hover:bg-deep-navy sm:inline-flex">Get Started Free</Link>
           <button type="button" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen(v => !v)} className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-midnight lg:hidden">{open ? '✕' : '☰'}</button>
         </div>
       </div>
-      {open ? <div className="border-t border-line bg-marble px-5 py-5 lg:hidden"><nav className="mx-auto flex max-w-[1280px] flex-col gap-1">{ITEMS.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)} className="min-h-11 rounded-lg px-3 py-3 text-[15px] font-semibold text-midnight">{label}</a>)}<Link href="/onboarding" onClick={() => setOpen(false)} className="mt-3 min-h-11 rounded-lg bg-midnight px-4 py-3 text-center font-bold text-marble">Get Started</Link></nav></div> : null}
+      {open ? <div className="border-t border-line bg-marble px-5 py-5 lg:hidden"><nav className="mx-auto flex max-w-[1280px] flex-col gap-1">{ITEMS.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)} className="min-h-11 rounded-lg px-3 py-3 text-[15px] font-semibold text-midnight">{label}</a>)}<Link href="/onboarding" onClick={() => setOpen(false)} className="mt-3 min-h-11 rounded-lg bg-midnight px-4 py-3 text-center font-bold text-marble">Get Started Free</Link></nav></div> : null}
     </header>
   )
 }

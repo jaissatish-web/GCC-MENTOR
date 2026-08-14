@@ -20,11 +20,6 @@ import {
 const photos = {
   skyline: 'https://images.unsplash.com/photo-1652707228067-25672fa0b082?auto=format&fit=crop&w=1920&q=80',
   worker: 'https://images.unsplash.com/photo-1672748341520-6a839e6c05bb?auto=format&fit=crop&w=800&q=80',
-  office: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
-  blueprint: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
-  dubai: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
-  riyadh: 'https://images.unsplash.com/photo-1578926288207-90e23c0e6b0d?auto=format&fit=crop&w=800&q=80',
-  doha: 'https://images.unsplash.com/photo-1592143523956-12b19eeb7670?auto=format&fit=crop&w=800&q=80',
 }
 
 const countryFlags: Record<string, string> = {
@@ -51,8 +46,8 @@ const journeySteps = [
 const pricing = [
   { name: 'Free', price: null, tag: 'GCC Readiness', items: ['ATS Scan', 'GCC Readiness Score', 'Strengths & Improvements'], featured: false },
   { name: 'Resume Optimization', price: '₹499', tag: 'Single resume', items: ['Career Profile', 'GCC-Optimized Resume', 'PDF + DOCX Download', '30-day access'], featured: false },
-  { name: 'Resume + Cover Letter', price: '₹999', tag: 'Most popular', items: ['Everything in Resume', 'Cover Letter', 'Priority support'], featured: true },
-  { name: 'Complete Package', price: '₹2,499', tag: 'Full access', items: ['Everything in ₹999', 'Multiple resumes', 'Job Match reports', 'Interview prep tools'], featured: false },
+  { name: 'Resume + Cover Letter', price: '₹999', tag: 'Most popular', items: ['Optimized resume', 'Professional cover letter', 'PDF + DOCX Download'], featured: true },
+    { name: 'Complete Package', price: '₹2,499', tag: 'Full preparation', items: ['Resume + cover letter', 'Multiple target versions', 'Job Match reports'], featured: false }
 ]
 
 const faq = [
@@ -104,8 +99,8 @@ export default function Home() {
                   Build your career profile once. Get a GCC-optimized resume, assess your readiness, and prepare for the right Gulf opportunities — without AI inventing a single fact.
                 </p>
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }), 'text-[15px] px-6')}>
-                    Build My GCC Career Profile <ArrowRightIcon className="ml-1 h-4 w-4" />
+                  <Link href="/onboarding" className={cn(buttonVariants({ variant: 'primary' }), 'text-[15px] px-6')}>
+                                      Get Started Free <ArrowRightIcon className="ml-1 h-4 w-4" />
                   </Link>
                   <Link href="/ats-scan" className={cn(buttonVariants({ variant: 'primary' }), 'text-[15px]')}>
                     Check My Gulf Readiness
@@ -126,22 +121,23 @@ export default function Home() {
                       <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-forest-700">GCC Career Profile</p>
                       <p className="mt-1 text-[13px] text-ink-600">Senior Instrument Engineer</p>
                     </div>
-                    <span className="rounded-full bg-forest-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-800">Premium</span>
+                    <span className="rounded-full bg-forest-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-800">Illustrative profile</span>
                   </div>
-                  <div className="mt-5 grid grid-cols-3 gap-3">
-                    <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
-                      <StaticScoreRing score={92} size={56} />
-                      <span className="text-[10px] font-bold text-ink-600">ATS Score</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
-                      <StaticScoreRing score={84} size={56} />
-                      <span className="text-[10px] font-bold text-ink-600">Gulf Readiness</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
-                      <StaticScoreRing score={78} size={56} />
-                      <span className="text-[10px] font-bold text-ink-600">Job Match</span>
-                    </div>
-                  </div>
+                  <p className="mt-5 text-[10px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — not a real customer result</p>
+                                    <div className="mt-3 grid grid-cols-3 gap-3">
+                                      <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
+                                        <CheckCircleIcon className="h-10 w-10 text-forest-600" />
+                                        <span className="text-center text-[10px] font-bold text-ink-600">ATS-ready format</span>
+                                      </div>
+                                      <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
+                                        <ChartBarIcon className="h-10 w-10 text-forest-600" />
+                                        <span className="text-center text-[10px] font-bold text-ink-600">Readiness review</span>
+                                      </div>
+                                      <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
+                                        <SparklesIcon className="h-10 w-10 text-forest-600" />
+                                        <span className="text-center text-[10px] font-bold text-ink-600">Role targeting</span>
+                                      </div>
+                                    </div>
                   <div className="mt-4 flex items-center gap-4 text-[12px] text-forest-700">
                     <span className="flex items-center gap-1.5"><CheckCircleIcon className="h-4 w-4" /> Saudi Arabia ✓</span>
                     <span className="flex items-center gap-1.5"><CheckCircleIcon className="h-4 w-4" /> UAE ✓</span>
@@ -149,12 +145,12 @@ export default function Home() {
                   <div className="mt-4 rounded-radius-lg border border-line bg-forest-50/50 p-4">
                     <div className="flex items-center justify-between text-[13px]">
                       <span className="font-semibold">Profile completeness</span>
-                      <span className="text-forest-700 font-bold">94%</span>
+                      <span className="text-forest-700 font-bold">Ready to review</span>
                     </div>
                     <div className="mt-2 h-2 rounded-full bg-forest-100">
-                      <div className="h-2 w-[94%] rounded-full bg-forest-600" />
-                    </div>
-                    <p className="mt-2 text-[11px] text-ink-500">2 items remaining — add them to reach 100%</p>
+                                          <div className="h-2 w-3/4 rounded-full bg-forest-600" />
+                                        </div>
+                                        <p className="mt-2 text-[11px] text-ink-500">Complete your profile to strengthen future applications</p>
                   </div>
                 </div>
                 {/* Decorative dot */}
@@ -174,9 +170,9 @@ export default function Home() {
         </section>
 
         {/* ════ SERVICE CARDS ════ */}
-        <section className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
-          <div className="max-w-2xl">
-            <Kicker>Everything you need to prepare for the Gulf</Kicker>
+        <section id="services" className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
+                  <div className="max-w-2xl">
+                    <Kicker>Everything you need to prepare for the Gulf</Kicker>
             <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">One profile. Every application.</h2>
             <p className="mt-5 text-lg leading-relaxed text-ink-700">Your experience, skills and certifications live in one place. Every tool draws from the same trusted source.</p>
           </div>
@@ -198,10 +194,10 @@ export default function Home() {
         </section>
 
         {/* ════ GULF MARKETS ════ */}
-        <section className="border-y border-line bg-surface-2-light">
-          <div className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
-            <div className="max-w-2xl">
-              <Kicker>One career profile. Six Gulf markets.</Kicker>
+        <section id="markets" className="border-y border-line bg-surface-2-light">
+                  <div className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
+                    <div className="max-w-2xl">
+                      <Kicker>One career profile. Six Gulf markets.</Kicker>
               <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Your experience is ready for any of them.</h2>
             </div>
             <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -339,8 +335,8 @@ export default function Home() {
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-700">
             No perfect CV required. No inflated claims. Just a clearer path to prepare, apply and grow.
           </p>
-          <Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }), 'mt-8 text-[15px] px-6')}>
-            Build My GCC Career Profile <ArrowRightIcon className="ml-1 h-4 w-4" />
+          <Link href="/onboarding" className={cn(buttonVariants({ variant: 'primary' }), 'mt-8 text-[15px] px-6')}>
+                      Get Started Free <ArrowRightIcon className="ml-1 h-4 w-4" />
           </Link>
         </section>
       </main>
