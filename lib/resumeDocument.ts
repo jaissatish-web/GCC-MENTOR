@@ -171,7 +171,10 @@ export function buildResumeDocument({
     visible(fv, 'passport_type') && profile.passport_type && `Passport ${profile.passport_type}`,
     visible(fv, 'passport_validity') &&
       profile.passport_validity_date &&
-      `Passport valid to ${profile.passport_validity_date}`,
+      // Month/year, like every other date on the CV. A raw ISO string reads as
+      // a bug, and the day is padding from lib/partialDates.ts whenever the
+      // source only stated a month — never something the user actually typed.
+      `Passport valid to ${formatMonthYear(profile.passport_validity_date)}`,
     visible(fv, 'notice_period') && profile.notice_period && `Notice ${profile.notice_period}`,
   ])
 

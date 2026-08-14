@@ -2157,6 +2157,24 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 ---
 
+- [x] **TASK-102: Partial dates (month-precision) on profile save — real 500 fixed** — found and built outside the ticket process (work was already sitting uncommitted in the working tree when the founder asked for a push); CTO reviewed it in full before committing rather than pushing it unread, and ticketed it retroactively so it isn't another undocumented change.
+
+      **The bug, which was real and user-facing:** resumes state employment and certification dates to month precision at best ("March 2021", "2019") — a day-of-month is essentially never present, and `lib/ai/extractionPrompt.ts` is deliberately written to return `YYYY-MM`/`YYYY` in that case rather than invent a day. But the DB columns are Postgres `date` (full dates only) and the profile form used `<input type="date">`, which **silently blanks** any value that isn't a full ISO date. So an extracted `2021-03` rendered as an empty field while still sitting in React form state, and saving failed the entire request with a 500 the user could neither see the cause of nor fix. This sat on the main "confirm your extracted profile" screen — the product's own "Wow moment" step.
+
+      **The fix:** new `lib/partialDates.ts` with three narrow helpers — `normalizeProfileDate` (pads `YYYY`→`YYYY-01-01`, `YYYY-MM`→`YYYY-MM-01` for storage; returns `null` for anything unparseable rather than guessing), `toMonthInputValue` and `toDateInputValue` (stored value → what each input type expects, returning `''` rather than a padded value the user never typed). `app/api/profile/route.ts` now runs the date columns on `career_profiles` and on the two child tables through `normalizeProfileDate` before they reach Postgres. `app/profile/page.tsx` switches work-experience and certification dates to `<input type="month">` — matching what the data actually is — while date-of-birth and passport/licence expiry stay `type="date"`, since those are genuine full dates the user can read off a document. `lib/resumeDocument.ts` now formats passport validity as month/year like every other date on the CV instead of printing a raw ISO string whose day is storage padding.
+
+      **A second, independent bug fixed in the same diff:** `readinessInput` was an *alias* of `profileRow`, not a copy, so assigning the four child arrays onto it added keys that aren't columns on `career_profiles` — the upsert then failed with `Could not find the 'certifications' column of 'career_profiles'`, defeating the allow-list built immediately above it. Now a spread copy.
+
+      **CTO review notes:** the padded day is storage-only and never surfaced (`resumeDocument` formats month/year throughout) — checked, that invariant holds. Verified the readiness/gap path is safe with partial input: `lib/employmentGaps.ts` parses with `new Date()`, and both `new Date('2021-03')` and `new Date('2019')` parse validly (to the 1st of the period) rather than `NaN`, so passing raw `body.work_experience` there is correct, not an oversight. **One deliberate tradeoff worth recording:** switching certification/work dates to `type="month"` means any *existing* stored row that did have a real day (e.g. `2025-06-15`) will display as `2025-06` and normalize to `2025-06-01` on the next save — a silent narrowing of already-stored data. Accepted, because month precision is what the CV renders anyway and the alternative keeps the 500; noted here so it isn't rediscovered as a mystery later.
+
+      **Verified:** `npx tsc --noEmit` 0 errors, `npm run eslint` clean on all four files, full `npm run build` pass. Not exercised against a live save (no authenticated session available in this environment — the same standing gap disclosed on every ticket this session), so the fix is code-correct and type-correct but the end-to-end 500 has not been re-reproduced-then-confirmed-gone from a browser.
+
+      **Also in this commit:** `.gitignore` now excludes `tmp-*.mjs` and `.hermes/`. Eight throwaway `tmp-*.mjs` scripts were sitting untracked in the repo root — they read credentials out of `.env.local` at runtime (several use the **service-role** key) rather than hardcoding them, so nothing secret was about to be committed, but they are debug scaffolding and must not enter history.
+
+      Depends on: TASK-024 · Status: done, 2026-08-14.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*

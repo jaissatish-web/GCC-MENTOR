@@ -43,3 +43,12 @@ __pycache__/
 
 # Misc
 .eslintcache
+
+# Hermes agent working directory (local tooling state, not project source)
+.hermes/
+
+# Throwaway one-off scripts used to poke the live database during debugging.
+# They read credentials out of .env.local at runtime and several use the
+# service-role key, so they must never be committed even though the secrets
+# themselves live outside the file.
+tmp-*.mjs

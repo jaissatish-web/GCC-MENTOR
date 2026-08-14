@@ -14,6 +14,7 @@ import type {
 import { calculateReadiness } from '@/lib/readiness'
 import type { ReadinessInput } from '@/lib/readiness'
 import { detectEmploymentGaps } from '@/lib/employmentGaps'
+import { normalizeProfileDate } from '@/lib/partialDates'
 
 /**
  * Profile CRUD API — TASK-012.
@@ -48,6 +49,23 @@ const CHILD_TABLES = [
   'profile_certifications',
   'profile_education',
   'profile_additional_information',
+] as const
+
+/**
+ * Date columns on each child table. Values arriving for these are run through
+ * normalizeProfileDate before they reach Postgres — see lib/partialDates.ts for
+ * why month-precision input is the normal case rather than an edge case.
+ */
+const CHILD_DATE_FIELDS: Partial<Record<(typeof CHILD_TABLES)[number], readonly string[]>> = {
+  profile_work_experience: ['start_date', 'end_date'],
+  profile_certifications: ['issue_date', 'expiry_date'],
+}
+
+/** Date columns on career_profiles itself. Same treatment. */
+const PROFILE_DATE_FIELDS = [
+  'date_of_birth',
+  'passport_validity_date',
+  'driving_license_validity_date',
 ] as const
 
 // ---------------------------------------------------------------------------
@@ -336,13 +354,23 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   for (const k of allowedProfileKeys) {
     if (body[k] !== undefined) profileRow[k] = body[k]
   }
+  // Same partial-date treatment as the child tables above.
+  for (const f of PROFILE_DATE_FIELDS) {
+    if (f in profileRow) profileRow[f] = normalizeProfileDate(profileRow[f])
+  }
+
   // user_id is always the caller; never taken from the body.
   profileRow.user_id = user.id
 
   // Compute readiness (TASK-014) from the submitted data and persist it.
   // readiness_category/score are ALWAYS computed here — never taken from the
   // request body. Completeness only (docs/CAREER_PROFILE.md §5).
-  const readinessInput: ReadinessInput = profileRow as unknown as ReadinessInput
+  // NOTE: this must be a COPY of profileRow, not an alias. Assigning the four
+  // child arrays onto profileRow itself would add keys that are not columns on
+  // career_profiles, and the upsert below then fails with "Could not find the
+  // 'certifications' column of 'career_profiles'" — defeating the whitelist
+  // built directly above.
+  const readinessInput: ReadinessInput = { ...profileRow } as unknown as ReadinessInput
   readinessInput.work_experience = Array.isArray(body.work_experience)
     ? (body.work_experience as Array<{ start_date: string; end_date?: string | null }>)
     : []
@@ -391,9 +419,17 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   ): Promise<void> => {
     if (!Array.isArray(rows)) return
 
+    const dateFields = CHILD_DATE_FIELDS[table] ?? []
     const incoming = rows.filter(isObject).map((r): Record<string, unknown> => {
       const { profile_id: _ignored, ...rest } = r
-      return { ...rest, profile_id: profileId } // force ownership; never body value
+      const row: Record<string, unknown> = { ...rest, profile_id: profileId } // force ownership; never body value
+      // Month-precision dates ("2021-03") and bare years ("2019") are what
+      // resumes actually contain and what extraction returns. Postgres `date`
+      // rejects both, which used to fail the whole save with a 500.
+      for (const f of dateFields) {
+        if (f in row) row[f] = normalizeProfileDate(row[f])
+      }
+      return row
     })
 
     const withId = incoming.filter((r) => typeof r.id === 'string' && String(r.id).trim() !== '')

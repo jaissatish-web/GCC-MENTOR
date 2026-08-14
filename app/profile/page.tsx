@@ -21,6 +21,7 @@ import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import { calculateReadiness, type ReadinessResult } from '@/lib/readiness'
+import { toDateInputValue, toMonthInputValue } from '@/lib/partialDates'
 import type { ReadinessCategory, PassportType } from '@/types/careerProfile'
 import type { CareerProfileDraft, CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
@@ -221,8 +222,10 @@ function ws(o: unknown): EditableWork {
     id: typeof w.id === 'string' ? w.id : undefined,
     company: str(w.company),
     role: str(w.role),
-    start_date: str(w.start_date),
-    end_date: str(w.end_date),
+    // Month precision — see lib/partialDates.ts. A <input type="date"> silently
+    // blanked anything without a day, which is most of what resumes contain.
+    start_date: toMonthInputValue(w.start_date),
+    end_date: toMonthInputValue(w.end_date),
     location: str(w.location),
     description: str(w.description),
     highlights: Array.isArray(w.highlights) ? (w.highlights as unknown[]).map(str).join('\n') : '',
@@ -242,8 +245,8 @@ function ce(o: unknown): EditableCert {
     id: typeof c.id === 'string' ? c.id : undefined,
     name: str(c.name),
     issuer: str(c.issuer),
-    issue_date: str(c.issue_date),
-    expiry_date: str(c.expiry_date),
+    issue_date: toMonthInputValue(c.issue_date),
+    expiry_date: toMonthInputValue(c.expiry_date),
   }
 }
 
@@ -277,9 +280,9 @@ function fromDraft(d: CareerProfileDraft): EditorData {
     full_name: str(d.full_name),
     photo_url: str(d.photo_url),
     nationality: str(d.nationality),
-    date_of_birth: str(d.date_of_birth),
+    date_of_birth: toDateInputValue(d.date_of_birth),
     passport_type: str(d.passport_type),
-    passport_validity_date: str(d.passport_validity_date),
+    passport_validity_date: toDateInputValue(d.passport_validity_date),
     visa_status: str(d.visa_status),
     visa_transferable: d.visa_transferable ?? false,
     notice_period: str(d.notice_period),
@@ -310,9 +313,9 @@ function fromFull(p: CareerProfileFull): EditorData {
     full_name: str(p.full_name),
     photo_url: str(p.photo_url),
     nationality: str(p.nationality),
-    date_of_birth: str(p.date_of_birth),
+    date_of_birth: toDateInputValue(p.date_of_birth),
     passport_type: str(p.passport_type),
-    passport_validity_date: str(p.passport_validity_date),
+    passport_validity_date: toDateInputValue(p.passport_validity_date),
     visa_status: str(p.visa_status),
     visa_transferable: p.visa_transferable === true,
     notice_period: str(p.notice_period),
@@ -1181,8 +1184,8 @@ function ProfileScreen() {
                 <Input label="Role" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
                 <Input label="Company" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Input label="Start" type="date" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
-                  <Input label="End (blank = current)" type="date" value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
+                  <Input label="Start" type="month" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
+                  <Input label="End (blank = current)" type="month" value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
                 </div>
                 <Input label="Location" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
                 <div className="flex flex-col gap-1.5">
@@ -1394,8 +1397,8 @@ function ProfileScreen() {
                 <Input label="Name" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
                 <Input label="Issuer" value={c.issuer} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issuer: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Input label="Issue date" type="date" value={c.issue_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issue_date: e.target.value }) }))} />
-                  <Input label="Expiry date" type="date" value={c.expiry_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { expiry_date: e.target.value }) }))} />
+                  <Input label="Issue date" type="month" value={c.issue_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issue_date: e.target.value }) }))} />
+                  <Input label="Expiry date" type="month" value={c.expiry_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { expiry_date: e.target.value }) }))} />
                 </div>
               </div>
             ))}
