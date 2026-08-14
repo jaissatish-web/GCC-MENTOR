@@ -43,11 +43,19 @@ const journeySteps = [
   { label: 'Application Package', desc: 'Resume + cover letter + prep.', color: 'bg-forest-900 text-white' },
 ]
 
+// `live: true` = a real visitor can pay this price today via /onboarding →
+// /optimize/pay, which currently only ever charges the single lib/pricing.ts
+// resume_optimization amount (₹499). The two bundle tiers are real (they
+// exist as admin-created service_packages, TASK-061), but are unlocked by a
+// promo code the founder hands out directly while Razorpay stays blocked on
+// KYC — there is no self-serve checkout for them yet. Marking them `live:
+// false` here is what keeps the "Get Started" button honest: a visitor who
+// clicks it should never end up paying for less than the tier promised.
 const pricing = [
-  { name: 'Free', price: null, tag: 'GCC Readiness', items: ['ATS Scan', 'GCC Readiness Score', 'Strengths & Improvements'], featured: false },
-  { name: 'Resume Optimization', price: '₹499', tag: 'Single resume', items: ['Career Profile', 'GCC-Optimized Resume', 'PDF + DOCX Download', '30-day access'], featured: false },
-  { name: 'Resume + Cover Letter', price: '₹999', tag: 'Most popular', items: ['Optimized resume', 'Professional cover letter', 'PDF + DOCX Download'], featured: true },
-    { name: 'Complete Package', price: '₹2,499', tag: 'Full preparation', items: ['Resume + cover letter', 'Multiple target versions', 'Job Match reports'], featured: false }
+  { name: 'Free', price: null, tag: 'GCC Readiness', items: ['ATS Scan', 'GCC Readiness Score', 'Strengths & Improvements'], featured: false, live: true },
+  { name: 'Resume Optimization', price: '₹499', tag: 'Single resume', items: ['Career Profile', 'GCC-Optimized Resume', 'PDF + DOCX Download', '30-day access'], featured: true, live: true },
+  { name: 'Resume + Cover Letter', price: '₹999', tag: 'Bundle', items: ['Optimized resume', 'Professional cover letter', 'PDF + DOCX Download'], featured: false, live: false },
+  { name: 'Complete Package', price: '₹2,499', tag: 'Full preparation', items: ['Resume + cover letter', 'Multiple target versions', 'Job Match reports'], featured: false, live: false }
 ]
 
 const faq = [
@@ -275,13 +283,16 @@ export default function Home() {
             <Kicker>Choose the help you need</Kicker>
             <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Services, not subscriptions.</h2>
             <p className="mt-5 text-lg leading-relaxed text-ink-700">Pay for what you need today. No recurring charges, no hidden fees.</p>
+            <p className="mt-3 text-sm leading-relaxed text-ink-400">Instant self-serve checkout today covers Resume Optimization. The bundle tiers are real — self-serve checkout for them is coming soon.</p>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {pricing.map((p, i) => (
               <Card key={p.name} tone="light" className={cn('flex flex-col gap-5 p-6', p.featured && 'border-forest-400 shadow-md ring-1 ring-forest-300/50')}>
-                {p.featured && (
+                {p.featured ? (
                   <span className="w-fit rounded-full bg-forest-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest-800">Most popular</span>
-                )}
+                ) : !p.live ? (
+                  <span className="w-fit rounded-full bg-redesign-gold-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-text">Self-serve checkout coming soon</span>
+                ) : null}
                 <div>
                   <h3 className="font-serif text-xl text-ink-900">{p.name}</h3>
                   <p className="text-sm text-forest-700">{p.tag}</p>
@@ -299,9 +310,18 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <Link href={p.price ? '/onboarding' : '/ats-scan'} className={cn(buttonVariants({ variant: p.featured ? 'purchase' : 'primary' }), 'mt-auto')}>
-                  {p.price ? 'Get Started' : 'Try Free'}
-                </Link>
+                {p.live ? (
+                  <Link href={p.price ? '/onboarding' : '/ats-scan'} className={cn(buttonVariants({ variant: p.featured ? 'purchase' : 'primary' }), 'mt-auto')}>
+                    {p.price ? 'Get Started' : 'Try Free'}
+                  </Link>
+                ) : (
+                  <span
+                    className={cn(buttonVariants({ variant: 'secondary' }), 'mt-auto cursor-not-allowed opacity-60')}
+                    aria-disabled="true"
+                  >
+                    Coming soon
+                  </span>
+                )}
               </Card>
             ))}
           </div>
