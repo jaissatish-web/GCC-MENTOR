@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-type Signal = { id: string; label: string; present: boolean; weight: number; fix: string; credit: string }
+type Signal = { id: string; label: string; present: boolean; weight: number; fix: string; credit: string; impact?: number }
 
 type Score = {
   overall_score: number
@@ -14,6 +14,8 @@ type Score = {
   summary: string
   /** Present since the scan became deterministic; absent on older cached results. */
   signals?: { structure: Signal[]; clarity: Signal[]; gulf: Signal[] }
+  potential_score?: number
+  quick_wins?: Signal[]
 }
 
 type JobMatchCategory = { score: number; applicable: boolean; explanation: string }
@@ -97,6 +99,104 @@ function Checklist({ title, signals }: { title: string; signals: Signal[] }) {
   )
 }
 
+/**
+ * The post-scan call to action.
+ *
+ * Deliberately two different messages, because a visitor scoring 88 and one
+ * scoring 52 are in completely different situations and a single generic
+ * "create your account" speaks to neither.
+ *
+ *  >= 75  the CV clears the Gulf basics, so the next real step is tailoring it
+ *         to a specific role — that is the paid optimizer, and the account is
+ *         the thing standing between them and it.
+ *  <  75  something concrete is missing, and we know exactly what and exactly
+ *         what it is worth. Naming the gap and the number it unlocks is a far
+ *         stronger reason to sign up than "save your results".
+ *
+ * The projected score is real arithmetic, not a marketing figure: scoring is
+ * deterministic, so "fix these and you reach 91" is a fact we can stand behind.
+ * That is only possible because the report is computed rather than written by a
+ * model.
+ *
+ * What this copy deliberately does NOT do is promise interviews, employer calls
+ * or jobs. The honest motivator is that Gulf recruiters filter on these exact
+ * fields — which is true, checkable, and does not need embellishing.
+ */
+function NextStep({ score }: { score: Score }) {
+  const ready = score.overall_score >= 75
+  const wins = (score.quick_wins ?? []).filter((w) => (w.impact ?? 0) > 0)
+  const potential = score.potential_score ?? 100
+  const gain = Math.max(0, potential - score.overall_score)
+
+  return (
+    <section className="mx-auto mt-10 max-w-4xl overflow-hidden rounded-radius-xl bg-forest-deep text-ink-900-dark shadow-redesign-cta-glow">
+      <div className="p-8 sm:p-10">
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-text-dark">
+          {ready ? 'You are ready to apply' : 'You are close'}
+        </p>
+
+        <h2 className="mt-3 font-serif text-3xl leading-tight sm:text-4xl">
+          {ready
+            ? 'Your CV clears the Gulf basics. Now aim it at a specific role.'
+            : gain > 0
+              ? `${gain} points are sitting on the table.`
+              : 'Create your free account to keep this report.'}
+        </h2>
+
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-ink-900-dark/80">
+          {ready
+            ? 'A strong general CV still loses to a targeted one. Create your free account to build your Career Profile once, then generate a version tuned to each Gulf role you apply for.'
+            : 'Gulf recruiters filter on the exact fields below before a human ever reads your CV. Create your free account and we will walk you through fixing each one.'}
+        </p>
+
+        {/* The specific, checkable promise — what fixing the gaps is worth. */}
+        {!ready && wins.length > 0 ? (
+          <div className="mx-auto mt-6 max-w-xl rounded-radius-lg border border-ink-900-dark/15 bg-ink-900-dark/[0.06] p-5 text-left">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="text-[12px] font-semibold uppercase tracking-wider text-gold-text-dark">
+                Your quickest wins
+              </span>
+              <span className="font-mono text-sm text-ink-900-dark/70">
+                {score.overall_score} → <span className="font-bold text-gold-text-dark">{potential}</span>
+              </span>
+            </div>
+            <ul className="mt-3 space-y-2">
+              {wins.map((w) => (
+                <li key={w.id} className="flex items-center justify-between gap-4 text-sm">
+                  <span className="text-ink-900-dark/85">{w.label}</span>
+                  <span className="shrink-0 font-mono text-[13px] font-bold text-gold-text-dark">
+                    +{w.impact}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Link
+            href="/signup"
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-radius-md bg-redesign-gold px-7 py-3 text-sm font-bold text-forest-deep transition-opacity hover:opacity-90 sm:w-auto"
+          >
+            {ready ? 'Create my account & optimize' : 'Create my free account & fix these'}
+          </Link>
+          <Link
+            href="/login"
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-radius-md border border-ink-900-dark/25 px-7 py-3 text-sm font-bold text-ink-900-dark/85 sm:w-auto"
+          >
+            I already have an account
+          </Link>
+        </div>
+
+        <p className="mt-4 text-center text-xs text-ink-400-dark">
+          Free to create. Your scan is kept for 7 days — an account keeps it permanently and tracks
+          your score as you improve it.
+        </p>
+      </div>
+    </section>
+  )
+}
+
 export default function GulfReadinessPage() {
   const [score, setScore] = useState<Score | null>(null)
   const [jobMatch, setJobMatch] = useState<JobMatch | null>(null)
@@ -148,6 +248,6 @@ export default function GulfReadinessPage() {
       {/* Job Match section — only shown when a JD was provided */}
       {jobMatch ? <section className="mx-auto mt-8 max-w-4xl rounded-radius-xl border border-redesign-gold/50 bg-surface-light p-6 sm:p-8"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:text-left"><div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-text">Job match</p><h2 className="mt-2 font-serif text-3xl">How you fit this role</h2></div><div className="flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-6 border-redesign-gold/40 bg-surface-2-light shadow-sm"><span className="font-mono text-4xl font-bold">{jobMatch.overall_score}</span><span className="text-xs text-ink-500">/100</span></div></div><p className="mt-5 border-l-4 border-redesign-gold bg-surface-2-light p-4 text-sm leading-relaxed text-ink-700">{jobMatch.diagnosis}</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{Object.entries(jobMatch.categories).filter(([, c]) => c.applicable).map(([key, c]) => <div key={key} className="rounded-radius-md border border-line-light bg-surface-2-light p-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-500">{CATEGORY_LABELS[key] ?? key}</p><span className="font-mono text-lg font-bold text-forest">{c.score}<span className="text-xs text-ink-400">/100</span></span></div><p className="mt-2 text-[12.5px] leading-relaxed text-ink-700">{c.explanation}</p></div>)}</div></section> : null}
 
-      <section className="mx-auto mt-10 max-w-4xl rounded-radius-xl bg-forest-deep p-8 text-center text-ink-900-dark shadow-redesign-cta-glow sm:p-10"><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-text-dark">Your data is saved</p><h2 className="mt-3 font-serif text-4xl">Save these results — create your free account.</h2><p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-ink-900-dark/75">We already extracted your resume information and saved your score. Create your account and we&rsquo;ll carry everything into your Career Profile — no second upload, no re-scanning.</p><div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"><Link href="/onboarding" className="inline-flex min-h-12 items-center rounded-radius-md bg-redesign-gold px-7 py-3 text-sm font-bold text-ink-900">Save my results &amp; build profile</Link><Link href="/login" className="inline-flex min-h-12 items-center rounded-radius-md border border-ink-900-dark/20 px-7 py-3 text-sm font-bold text-ink-900-dark/80">I already have an account</Link></div><p className="mt-4 text-xs text-ink-400-dark">Your scan is saved for 7 days. Create an account to keep it permanently.</p></section>
+      <NextStep score={score} />
     </div></main>
 }

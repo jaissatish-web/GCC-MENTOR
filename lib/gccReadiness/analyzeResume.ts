@@ -42,6 +42,14 @@ export interface ReadinessSignal {
   fix: string
   /** Shown when present — phrased as what the resume already does well. */
   credit: string
+  /**
+   * Points added to the OVERALL score if this item is fixed.
+   *
+   * Computable only because the scoring is deterministic — with a model-written
+   * verdict there is no way to say what any single fix is worth, so the user
+   * can only be told "improve your resume" rather than "add this, gain 8".
+   */
+  impact?: number
 }
 
 export interface ResumeAnalysis extends AtsScoreResult {
@@ -51,6 +59,10 @@ export interface ResumeAnalysis extends AtsScoreResult {
     clarity: ReadinessSignal[]
     gulf: ReadinessSignal[]
   }
+  /** Score if every currently-missing item were addressed. */
+  potential_score: number
+  /** Highest-impact missing items, best first. */
+  quick_wins: ReadinessSignal[]
   /** Facts pulled out deterministically. Never guessed. */
   detected: {
     email: string | null
@@ -303,6 +315,19 @@ export function analyzeResume(resumeText: string, options: AnalyzeOptions = {}):
   // Gulf readiness is the product's whole point, so it carries the most weight.
   const overall = Math.round(structureScore * 0.3 + clarityScore * 0.25 + gulfScore * 0.45)
 
+  // Weight each category's contribution to the overall score, so a signal's
+  // impact is expressed in the same units the user sees at the top of the page.
+  const CATEGORY_WEIGHT = { structure: 0.3, clarity: 0.25, gulf: 0.45 } as const
+  const assignImpact = (list: ReadinessSignal[], weight: number) => {
+    const categoryTotal = list.reduce((n, x) => n + x.weight, 0)
+    for (const sig of list) {
+      sig.impact = categoryTotal === 0 ? 0 : Math.round((sig.weight / categoryTotal) * 100 * weight)
+    }
+  }
+  assignImpact(structure, CATEGORY_WEIGHT.structure)
+  assignImpact(clarity, CATEGORY_WEIGHT.clarity)
+  assignImpact(gulf, CATEGORY_WEIGHT.gulf)
+
   const all = [...structure, ...clarity, ...gulf]
   const strengths = all
     .filter((s) => s.present)
@@ -322,8 +347,21 @@ export function analyzeResume(resumeText: string, options: AnalyzeOptions = {}):
     .slice(0, 4)
     .map((s) => s.fix)
 
+  // Fixing everything outstanding yields 100 by construction; cap defensively
+  // in case rounding in a category ever overshoots.
+  const potential = Math.min(
+    100,
+    overall + all.filter((x) => !x.present).reduce((n, x) => n + (x.impact ?? 0), 0)
+  )
+  const quickWins = all
+    .filter((x) => !x.present)
+    .sort((a, b) => (b.impact ?? 0) - (a.impact ?? 0))
+    .slice(0, 4)
+
   return {
     overall_score: overall,
+    potential_score: potential,
+    quick_wins: quickWins,
     category_scores: {
       structure: structureScore,
       clarity_and_impact: clarityScore,
