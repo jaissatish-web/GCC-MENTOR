@@ -168,7 +168,7 @@ function ExtractingScreen() {
             />
           )}
 
-          <Button variant="purchase" className="mt-6 w-full" disabled={!canStart} onClick={runExtraction}>
+          <Button variant="primary" className="mt-6 w-full" disabled={!canStart} onClick={runExtraction}>
             Start extraction
           </Button>
         </Card>

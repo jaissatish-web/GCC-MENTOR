@@ -205,7 +205,7 @@ export default function OnboardingPage() {
             </p>
           </div>
           <Button
-            variant="purchase"
+            variant="primary"
             className="w-full"
             onClick={continueLink}
             disabled={path === null}

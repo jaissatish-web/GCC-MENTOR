@@ -213,7 +213,7 @@ function CoverLetterScreen() {
             <p className="max-w-sm text-[12.5px] text-ink-400">
               A cover letter is generated from a paid resume package. Optimize a resume first to unlock one.
             </p>
-            <a href="/optimize/target" className={cn(buttonVariants({ variant: 'purchase' }), 'text-[13.5px]')}>
+            <a href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[13.5px]')}>
               Optimize a resume
             </a>
           </div>

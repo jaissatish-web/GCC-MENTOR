@@ -172,7 +172,7 @@ function JobMatchScreen() {
               <p className="text-[12.5px] text-ink-400">Ready to tailor your resume for a specific role?</p>
               <Link
                 href="/optimize/target"
-                className={cn(buttonVariants({ variant: 'purchase' }), 'w-full sm:w-auto text-[13.5px]')}
+                className={cn(buttonVariants({ variant: 'primary' }), 'w-full sm:w-auto text-[13.5px]')}
               >
                 Optimize your resume →
               </Link>

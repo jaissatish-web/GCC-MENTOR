@@ -258,7 +258,7 @@ export default function DashboardPage() {
               </div>
               <Link
                 href={nextAction.href}
-                className={cn(buttonVariants({ variant: 'purchase' }), 'w-fit text-[13.5px]')}
+                className={cn(buttonVariants({ variant: 'primary' }), 'w-fit text-[13.5px]')}
               >
                 {nextAction.cta} →
               </Link>
@@ -365,7 +365,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/profile"
-                className={cn(buttonVariants({ variant: 'purchase' }), 'mt-1 w-full text-[13.5px]')}
+                className={cn(buttonVariants({ variant: 'primary' }), 'mt-1 w-full text-[13.5px]')}
               >
                 {missing.length === 0 ? 'View Career Profile' : 'Improve Score'}
               </Link>
