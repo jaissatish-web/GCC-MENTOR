@@ -553,7 +553,7 @@ function PointsChip({ earned, total }: { earned: number; total: number }) {
   if (total === 0) {
     return (
       <span className="shrink-0 whitespace-nowrap rounded-full border border-line-dark-strong px-2.5 py-1 text-[10.5px] font-semibold text-ink-400-dark">
-        Not scored
+        Optional
       </span>
     )
   }
@@ -566,85 +566,139 @@ function PointsChip({ earned, total }: { earned: number; total: number }) {
           ? 'bg-forest-tint-dark text-forest-dark'
           : 'bg-redesign-gold-tint-dark text-gold-text-dark'
       )}
-      title={`This section is worth ${total} of your 100 readiness points`}
     >
-      {complete ? `✓ ${total} pts` : `${earned}/${total} pts`}
+      {complete ? 'Done' : `+${total - earned} pts`}
     </span>
   )
 }
 
 /**
- * A section of the Career Profile form.
+ * One step of the Career Profile form — a collapsible block.
  *
- * Heading layout is deliberately two-column: the left column carries the title
- * and the one-line reason the block exists, the right carries what it is worth.
- * That pairing is the point — it answers "why am I filling this in?" and
- * "what do I get for it?" in the same glance, which is the difference between a
- * long form feeling arbitrary and feeling like it is going somewhere. On mobile
- * the two stack, with the chip pinned to the top-right of the title row so it
- * never pushes the heading into a second line.
+ * WHY THIS COLLAPSES NOW. Earlier revisions kept all nine sections expanded,
+ * on the reasoning that collapsing hides fields the user still has to fill and
+ * buries validation errors. That reasoning was wrong for this form: expanded,
+ * the page renders roughly 750 lines of inputs at once, and the founder's
+ * feedback — twice — was that it reads as complicated regardless of how good
+ * the per-field guidance is. The volume itself was the problem.
+ *
+ * The compromise that keeps the original concern honest: collapsing hides the
+ * INPUTS but never the STATE. Every closed row still shows its number, name,
+ * one-line purpose, how many rows it contains, and exactly how many points are
+ * still available in it. So the user can always see what is left to do across
+ * the whole form — which is the thing that was actually at risk — while only
+ * ever facing one block's fields at a time.
+ *
+ * Closed, the nine rows fit roughly a screen and a half: the entire job, legible
+ * at a glance. That is the difference between "this is a wall of inputs" and
+ * "there are nine things and I am on number three."
  */
 function CardSection({
   id,
+  step,
   title,
   helper,
   badge,
   action,
-  optional,
   earned,
   total,
+  open,
+  onToggle,
   children,
 }: {
   id?: string
+  step: number
   title: string
   helper?: string
   badge?: string
   action?: React.ReactNode
-  optional?: boolean
   earned?: number
   total?: number
+  open: boolean
+  onToggle: () => void
   children: React.ReactNode
 }) {
+  const panelId = `${id ?? `step-${step}`}-panel`
+  const done = typeof total === 'number' && total > 0 && (earned ?? 0) >= total
   return (
-    <Card id={id} tone="dark" className="flex scroll-mt-24 flex-col gap-4 p-4 sm:p-5">
-      <div className="flex flex-col gap-2.5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h2 className="text-[15px] font-bold leading-snug text-ink-900-dark">{title}</h2>
-            {optional ? (
-              <span className="rounded-[5px] border border-line-dark-strong px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-400-dark">
-                Optional
+    <Card
+      id={id}
+      tone="dark"
+      className={cn(
+        'flex scroll-mt-24 flex-col overflow-hidden p-0 transition-colors',
+        open && 'border-redesign-gold-dark/40'
+      )}
+    >
+      <h2>
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          aria-controls={panelId}
+          className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-surface-2-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-redesign-gold sm:p-5"
+        >
+          {/* Step marker — a tick once the block is complete, so progress is
+              readable from the numbers column alone without reading any text. */}
+          <span
+            className={cn(
+              'flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-bold tabular-nums',
+              done
+                ? 'bg-forest-dark text-forest-deep'
+                : open
+                  ? 'bg-redesign-gold text-forest-deep'
+                  : 'bg-surface-2-dark text-ink-400-dark'
+            )}
+            aria-hidden="true"
+          >
+            {done ? '✓' : step}
+          </span>
+
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="flex flex-wrap items-center gap-2">
+              <span className="text-[15px] font-bold leading-snug text-ink-900-dark">{title}</span>
+              {badge ? (
+                <span className="rounded-[5px] bg-surface-2-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-700-dark">
+                  {badge}
+                </span>
+              ) : null}
+            </span>
+            {helper ? (
+              <span
+                className={cn(
+                  'text-[12px] leading-relaxed text-ink-400-dark',
+                  !open && 'line-clamp-1'
+                )}
+              >
+                {helper}
               </span>
             ) : null}
-            {badge ? (
-              <span className="rounded-[5px] bg-surface-2-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-700-dark">
-                {badge}
-              </span>
-            ) : null}
-          </div>
-          {typeof total === 'number' ? (
-            <PointsChip earned={earned ?? 0} total={total} />
-          ) : null}
+          </span>
+
+          <span className="flex shrink-0 items-center gap-2">
+            {typeof total === 'number' ? <PointsChip earned={earned ?? 0} total={total} /> : null}
+            <span
+              aria-hidden="true"
+              className={cn(
+                'text-[12px] text-ink-400-dark transition-transform',
+                open && 'rotate-180'
+              )}
+            >
+              ▾
+            </span>
+          </span>
+        </button>
+      </h2>
+
+      {open ? (
+        <div id={panelId} className="border-t border-line-dark p-4 sm:p-5">
+          {action ? <div className="mb-4 flex flex-wrap gap-2">{action}</div> : null}
+          {children}
         </div>
-        {helper ? (
-          <p className="max-w-[70ch] text-[12.5px] leading-relaxed text-ink-400-dark">{helper}</p>
-        ) : null}
-        {action ? <div className="flex flex-wrap gap-2">{action}</div> : null}
-      </div>
-      <div className="border-t border-line-dark pt-4">{children}</div>
+      ) : null}
     </Card>
   )
 }
 
-/**
- * Jump navigation for the form.
- *
- * The profile is genuinely long, and the brief asked for it not to read as one
- * overwhelming screen. Rather than collapsing sections — which hides fields a
- * user still has to fill and makes validation errors easy to miss — this gives
- * a persistent map of the blocks so any part is one click away. The anchors are
- * the section ids that already existed on the cards.
- */
 /**
  * Which scored readiness fields each form section is responsible for.
  *
@@ -652,7 +706,7 @@ function CardSection({
  * not 1:1 — the "Contact & target" group is split across two sections (targets
  * live in Status & target, contact details in Identity), and the whole Visa
  * readiness group sits inside Identity & contact. Sections with no entry here
- * are genuinely unscored and render "Not scored".
+ * are genuinely unscored and render "Optional".
  */
 const SECTION_FIELDS: Record<string, readonly string[]> = {
   sec_status: ['target_job_title', 'target_country', 'target_industry', 'target_company'],
@@ -683,28 +737,6 @@ const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
   { id: 'sec_certifications', label: 'Certifications' },
   { id: 'sec_additional', label: 'Additional information' },
 ]
-
-function SectionNav() {
-  return (
-    <nav aria-label="Profile sections" className="rounded-radius-lg border border-line-dark bg-surface-dark p-4">
-      <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
-        Sections
-      </h2>
-      <ul className="mt-3 flex flex-wrap gap-1.5">
-        {FORM_SECTIONS.map((s) => (
-          <li key={s.id}>
-            <a
-              href={`#${s.id}`}
-              className="flex min-h-9 items-center rounded-radius-md border border-line-dark-strong px-2.5 text-[12px] font-medium text-ink-700-dark transition-colors hover:border-redesign-gold hover:text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-surface-dark"
-            >
-              {s.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
-}
 
 const selectClass =
   'min-h-11 w-full rounded-radius-md border border-line-dark-strong bg-surface-dark px-[15px] py-[13px] text-sm font-medium text-ink-900-dark outline-none transition-colors focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/20'
@@ -871,6 +903,53 @@ function ProfileScreen() {
     (sectionId: string) => sectionPoints[sectionId] ?? { earned: 0, total: 0 },
     [sectionPoints]
   )
+
+  // ---- Which step is open ---------------------------------------------------
+  // Independent toggles rather than a strict one-at-a-time accordion: forcing a
+  // section shut when another opens loses the user's place, and someone
+  // cross-checking dates between two jobs has a legitimate reason to keep two
+  // open at once.
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
+  const didAutoOpen = useRef(false)
+
+  // On first load, open the first step that still has points available — the
+  // answer to "what do I actually have to do?" without the user hunting for it.
+  // Runs once (didAutoOpen) so it never yanks a section shut or re-opens one
+  // while the user is typing and their score changes underneath them.
+  useEffect(() => {
+    if (didAutoOpen.current || !editor) return
+    didAutoOpen.current = true
+    const firstIncomplete = FORM_SECTIONS.find((s) => {
+      const p = sectionPoints[s.id]
+      return p && p.total > 0 && p.earned < p.total
+    })
+    setOpenSections({ [(firstIncomplete ?? FORM_SECTIONS[0]).id]: true })
+  }, [editor, sectionPoints])
+
+  const toggleSection = useCallback((sectionId: string) => {
+    setOpenSections((prev) => ({ ...prev, [sectionId]: !prev[sectionId] }))
+  }, [])
+
+  /** Everything a CardSection needs, so each call site stays one line of props. */
+  const sectionProps = useCallback(
+    (sectionId: string) => {
+      const idx = FORM_SECTIONS.findIndex((s) => s.id === sectionId)
+      return {
+        id: sectionId,
+        step: idx + 1,
+        ...pointsFor(sectionId),
+        open: Boolean(openSections[sectionId]),
+        onToggle: () => toggleSection(sectionId),
+      }
+    },
+    [pointsFor, openSections, toggleSection]
+  )
+
+  const doneCount = FORM_SECTIONS.filter((s) => {
+    const p = sectionPoints[s.id]
+    return p && p.total > 0 && p.earned >= p.total
+  }).length
+  const scoredCount = FORM_SECTIONS.filter((s) => (sectionPoints[s.id]?.total ?? 0) > 0).length
 
   // ---- Phone / WhatsApp: split for editing, joined for storage --------------
   // The DB columns stay single strings (lib/phone.ts explains why), so the
@@ -1083,13 +1162,27 @@ function ProfileScreen() {
           shows the score; the chips show where the remaining points are. */}
 
       {/* Editor body */}
-      <div className="flex flex-col gap-4 px-5 py-4">
-        <SectionNav />
+      <div className="flex flex-col gap-2.5 px-5 py-4">
+        {/* One plain sentence naming the whole job before the first step, so
+            the user knows how long this is and where they are inside it. The
+            old page opened straight into nine expanded blocks with no such
+            framing, which is what made it feel endless. */}
+        <p className="px-1 pb-1 text-[12.5px] leading-relaxed text-ink-400-dark">
+          {doneCount === scoredCount ? (
+            <>All {scoredCount} scored sections are complete — review anything below, then confirm.</>
+          ) : (
+            <>
+              <span className="font-semibold text-ink-900-dark">
+                {doneCount} of {scoredCount} sections done.
+              </span>{' '}
+              Open a step to fill it in. Your work is kept as you move between them.
+            </>
+          )}
+        </p>
 
         {/* STATUS & TARGET */}
         <CardSection
-          id="sec_status"
-          {...pointsFor('sec_status')}
+          {...sectionProps('sec_status')}
           title="Status & target"
           helper="Where you are now and the role you are aiming for. This steers how every generated resume is framed, so it is worth getting right first."
         >
@@ -1157,8 +1250,7 @@ function ProfileScreen() {
         {/* IDENTITY & CONTACT — the card header links to /profile/visibility
             (TASK-025 screen 04b), the per-field "what appears on your CV" view. */}
         <CardSection
-          id="sec_identity"
-          {...pointsFor('sec_identity')}
+          {...sectionProps('sec_identity')}
           title="Identity & contact"
           helper="Your name, contact details and documents. Passport, visa and contact fields are encrypted, and you control what appears on a generated CV."
           action={
@@ -1291,10 +1383,8 @@ function ProfileScreen() {
             "no" (docs/GCC_READINESS_JOB_MATCH.md §5). Readiness/Match input only
             — deliberately no field_visibility toggle (TASK-067 scope decision). */}
         <CardSection
-          id="sec_license"
-          {...pointsFor('sec_license')}
+          {...sectionProps('sec_license')}
           title="Driving license"
-          optional
           helper="Not scored, but Gulf employers ask for it outright on site and field roles — and its absence is often what filters a CV out. Skip it only if you genuinely do not hold one."
         >
           <div className="flex flex-col gap-1.5">
@@ -1343,8 +1433,7 @@ function ProfileScreen() {
 
         {/* PROFESSIONAL SUMMARY — the user's OWN summary, source of the diff */}
         <CardSection
-          id="sec_summary"
-          {...pointsFor('sec_summary')}
+          {...sectionProps('sec_summary')}
           title="Professional summary"
           helper="Not scored, but it is the first thing a recruiter reads. Describe your experience, strongest skills, industry background and the role you are targeting — two or three sentences. The optimizer rewrites the framing for each job; it never changes the facts."
         >
@@ -1409,8 +1498,7 @@ function ProfileScreen() {
 
         {/* WORK EXPERIENCE */}
         <CardSection
-          id="sec_work_experience"
-          {...pointsFor('sec_work_experience')}
+          {...sectionProps('sec_work_experience')}
           title="Work experience"
           helper="Add your most recent role first. Focus on responsibilities, measurable achievements, and the systems or standards you worked to."
           badge={editor.work_experience.length ? `${editor.work_experience.length} found` : undefined}
@@ -1518,8 +1606,7 @@ function ProfileScreen() {
 
         {/* EDUCATION */}
         <CardSection
-          id="sec_education"
-          {...pointsFor('sec_education')}
+          {...sectionProps('sec_education')}
           title="Education"
           helper="Degrees and formal qualifications. Include the awarding institution — Gulf employers frequently verify it."
           badge={editor.education.length ? `${editor.education.length} found` : undefined}
@@ -1563,8 +1650,7 @@ function ProfileScreen() {
 
         {/* SKILLS */}
         <CardSection
-          id="sec_skills"
-          {...pointsFor('sec_skills')}
+          {...sectionProps('sec_skills')}
           title="Skills"
           helper="List the technical skills and systems you actually worked with. The optimizer reorders these for each job; it never adds a skill you did not enter."
           badge={editor.skills.length ? `${editor.skills.length} found` : undefined}
@@ -1605,8 +1691,7 @@ function ProfileScreen() {
 
         {/* CERTIFICATIONS */}
         <CardSection
-          id="sec_certifications"
-          {...pointsFor('sec_certifications')}
+          {...sectionProps('sec_certifications')}
           title="Certifications"
           helper="Safety, technical and vendor certifications. These carry real weight in Gulf hiring, so add expiry dates where they apply."
           badge={editor.certifications.length ? `${editor.certifications.length} found` : undefined}
@@ -1650,8 +1735,7 @@ function ProfileScreen() {
         {/* ADDITIONAL INFORMATION — one block, AI-suggested labels the user can rename.
             MVP: a single section; not individually toggleable per field (Phase 2). */}
         <CardSection
-          id="sec_additional"
-          {...pointsFor('sec_additional')}
+          {...sectionProps('sec_additional')}
           title="Additional information"
           helper="Not scored, but it is where you answer the questions a Gulf recruiter asks next — languages, availability, references."
           action={
