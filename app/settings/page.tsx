@@ -54,9 +54,9 @@ function formatDate(iso: string | null): string {
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1 border-b border-line-dark py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-      <span className="text-[12.5px] font-medium text-ink-400-dark">{label}</span>
-      <span className="break-words text-[13.5px] font-semibold text-ink-900-dark sm:text-right">
+    <div className="flex flex-col gap-1 border-b border-line-light py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <span className="text-[12.5px] font-medium text-ink-400">{label}</span>
+      <span className="break-words text-[13.5px] font-semibold text-ink-900 sm:text-right">
         {value}
       </span>
     </div>
@@ -65,7 +65,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-radius-md border border-dashed border-line-dark-strong bg-bg-dark px-4 py-6 text-center text-[12.5px] leading-relaxed text-ink-400-dark">
+    <div className="rounded-radius-md border border-dashed border-line-light-strong bg-bg px-4 py-6 text-center text-[12.5px] leading-relaxed text-ink-400">
       {children}
     </div>
   )
@@ -134,7 +134,7 @@ export default async function SettingsPage({
         />
 
         {/* Tabs — real links, so each section is bookmarkable and keyboard-navigable */}
-        <nav aria-label="Settings sections" className="mt-6 border-b border-line-dark">
+        <nav aria-label="Settings sections" className="mt-6 border-b border-line-light">
           <ul className="-mb-px flex flex-wrap gap-1">
             {TABS.map((t) => {
               const active = t.id === tab
@@ -145,10 +145,10 @@ export default async function SettingsPage({
                     aria-current={active ? 'page' : undefined}
                     className={cn(
                       'flex min-h-11 items-center rounded-t-radius-md px-3.5 text-[13px] font-redesign-sans transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
                       active
                         ? 'border-b-2 border-redesign-gold font-semibold text-redesign-gold'
-                        : 'border-b-2 border-transparent font-medium text-ink-400-dark hover:text-ink-900-dark'
+                        : 'border-b-2 border-transparent font-medium text-ink-400 hover:text-ink-900'
                     )}
                   >
                     {t.label}
@@ -167,7 +167,7 @@ export default async function SettingsPage({
               actions={
                 <Link
                   href="/profile"
-                  className="flex min-h-11 items-center rounded-radius-md border border-line-dark-strong px-4 text-[13px] font-semibold text-ink-900-dark transition-colors hover:bg-surface-2-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
+                  className="flex min-h-11 items-center rounded-radius-md border border-line-light-strong px-4 text-[13px] font-semibold text-ink-900 transition-colors hover:bg-surface-2-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
                 >
                   Edit Career Profile
                 </Link>
@@ -192,14 +192,14 @@ export default async function SettingsPage({
                   label="Status"
                   value={
                     user.email_confirmed_at ? (
-                      <span className="text-forest-dark">Confirmed</span>
+                      <span className="text-forest">Confirmed</span>
                     ) : (
-                      <span className="text-amber-dark">Not confirmed</span>
+                      <span className="text-amber">Not confirmed</span>
                     )
                   }
                 />
               </div>
-              <p className="mt-4 text-[12px] leading-relaxed text-ink-400-dark">
+              <p className="mt-4 text-[12px] leading-relaxed text-ink-400">
                 Changing your sign-in email is not available in the app yet. Deleting your data does
                 not delete your login — see the Delete Data tab for exactly what is removed.
               </p>
@@ -216,12 +216,12 @@ export default async function SettingsPage({
                   {Object.entries(availableByService).map(([key, count]) => (
                     <li
                       key={key}
-                      className="flex items-center justify-between gap-4 rounded-radius-md border border-line-dark bg-bg-dark px-4 py-3"
+                      className="flex items-center justify-between gap-4 rounded-radius-md border border-line-light bg-bg px-4 py-3"
                     >
-                      <span className="text-[13.5px] font-semibold text-ink-900-dark">
+                      <span className="text-[13.5px] font-semibold text-ink-900">
                         {serviceLabel(key)}
                       </span>
-                      <span className="rounded-full bg-forest-tint-dark px-2.5 py-1 text-[11px] font-bold text-forest-dark">
+                      <span className="rounded-full bg-forest-tint px-2.5 py-1 text-[11px] font-bold text-forest">
                         {count} available
                       </span>
                     </li>
@@ -236,17 +236,17 @@ export default async function SettingsPage({
 
               {used.length > 0 ? (
                 <div className="mt-5">
-                  <h3 className="text-[13px] font-semibold text-ink-900-dark">Recently used</h3>
+                  <h3 className="text-[13px] font-semibold text-ink-900">Recently used</h3>
                   <ul className="mt-2 flex flex-col">
                     {used.slice(0, 5).map((c) => (
                       <li
                         key={c.id}
-                        className="flex items-center justify-between gap-4 border-b border-line-dark py-2.5 last:border-b-0"
+                        className="flex items-center justify-between gap-4 border-b border-line-light py-2.5 last:border-b-0"
                       >
-                        <span className="text-[12.5px] text-ink-700-dark">
+                        <span className="text-[12.5px] text-ink-700">
                           {serviceLabel(c.serviceKey)}
                         </span>
-                        <span className="text-[11.5px] text-ink-400-dark">
+                        <span className="text-[11.5px] text-ink-400">
                           {formatDate(c.consumedAt)}
                         </span>
                       </li>
@@ -267,13 +267,13 @@ export default async function SettingsPage({
                   {unlocked.map((p) => (
                     <li
                       key={p.id as string}
-                      className="flex flex-col gap-1 rounded-radius-md border border-line-dark bg-bg-dark px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+                      className="flex flex-col gap-1 rounded-radius-md border border-line-light bg-bg px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                     >
                       <span className="min-w-0">
-                        <span className="block truncate text-[13.5px] font-semibold text-ink-900-dark">
+                        <span className="block truncate text-[13.5px] font-semibold text-ink-900">
                           {(p.target_job_title as string) || 'Untitled resume'}
                         </span>
-                        <span className="block text-[11.5px] text-ink-400-dark">
+                        <span className="block text-[11.5px] text-ink-400">
                           Unlocked {formatDate(p.created_at as string)}
                         </span>
                       </span>
@@ -290,7 +290,7 @@ export default async function SettingsPage({
                 <EmptyState>You have not unlocked any paid resumes yet.</EmptyState>
               )}
 
-              <p className="mt-5 rounded-radius-md border border-line-dark bg-bg-dark px-4 py-3 text-[12px] leading-relaxed text-ink-400-dark">
+              <p className="mt-5 rounded-radius-md border border-line-light bg-bg px-4 py-3 text-[12px] leading-relaxed text-ink-400">
                 Online card payment is not switched on yet, so there is no saved card, invoice
                 history or billing address to show here. Access is currently granted directly or by
                 redeeming a code. This section will show real transactions once checkout goes live.

@@ -95,17 +95,17 @@ export default function CreateResumePage() {
                 aria-pressed={active}
                 className={cn(
                   'flex h-full flex-col gap-3 rounded-radius-lg border p-5 text-left transition-colors',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-void',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
                   active
                     ? 'border-redesign-gold bg-redesign-gold/[0.08] shadow-redesign-md'
-                    : 'border-line-dark bg-surface-dark hover:border-redesign-gold/40 hover:bg-surface-2-dark'
+                    : 'border-line-light bg-surface-light hover:border-redesign-gold/40 hover:bg-surface-2-light'
                 )}
               >
                 <span className="flex items-center justify-between gap-2">
                   <span
                     className={cn(
                       'flex size-10 items-center justify-center rounded-[11px]',
-                      active ? 'bg-redesign-gold text-forest-deep' : 'bg-surface-2-dark text-ink-900-dark'
+                      active ? 'bg-redesign-gold text-forest-deep' : 'bg-surface-2-light text-ink-900'
                     )}
                   >
                     <Icon className="size-5" />
@@ -113,16 +113,16 @@ export default function CreateResumePage() {
                   {active ? (
                     <CheckCircleIcon className="size-5 shrink-0 text-redesign-gold" />
                   ) : option.badge ? (
-                    <span className="rounded-[5px] bg-redesign-gold-tint-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text-dark">
+                    <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text">
                       {option.badge}
                     </span>
                   ) : null}
                 </span>
-                <span className="text-[15px] font-bold text-ink-900-dark">{option.title}</span>
-                <span className="text-[12.5px] leading-relaxed text-ink-700-dark">
+                <span className="text-[15px] font-bold text-ink-900">{option.title}</span>
+                <span className="text-[12.5px] leading-relaxed text-ink-700">
                   {option.description}
                 </span>
-                <span className="mt-auto text-[11.5px] leading-relaxed text-ink-400-dark">
+                <span className="mt-auto text-[11.5px] leading-relaxed text-ink-400">
                   {option.detail}
                 </span>
               </button>
@@ -131,8 +131,8 @@ export default function CreateResumePage() {
         </div>
 
         {/* Continue — disabled until a path is chosen, so the next step is never ambiguous */}
-        <div className="mt-7 flex flex-col gap-3 rounded-radius-lg border border-line-dark bg-surface-dark p-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[12.5px] leading-relaxed text-ink-400-dark">
+        <div className="mt-7 flex flex-col gap-3 rounded-radius-lg border border-line-light bg-surface-light p-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[12.5px] leading-relaxed text-ink-400">
             {chosen
               ? `Continue with “${chosen.title}”. You can change your mind at any point before saving.`
               : 'Choose one of the three options above to continue.'}
@@ -148,7 +148,7 @@ export default function CreateResumePage() {
           </Button>
         </div>
 
-        <p className="mt-4 text-[11.5px] leading-relaxed text-ink-400-dark">
+        <p className="mt-4 text-[11.5px] leading-relaxed text-ink-400">
           Nothing is invented from thin air — every line of a generated resume traces back to a fact
           in your Career Profile.
         </p>

@@ -32,11 +32,11 @@ export function PageHeader({
       )}
     >
       <div className="flex min-w-0 flex-col gap-1">
-        <h1 className="font-serif text-[28px] leading-tight text-ink-900-dark sm:text-[32px]">
+        <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">
           {title}
         </h1>
         {description ? (
-          <p className="max-w-[62ch] text-[13px] leading-relaxed text-ink-400-dark">
+          <p className="max-w-[62ch] text-[13px] leading-relaxed text-ink-400">
             {description}
           </p>
         ) : null}
@@ -102,15 +102,15 @@ export function SectionCard({
     <section
       id={id}
       className={cn(
-        'rounded-radius-lg border border-line-dark bg-surface-dark p-5 shadow-redesign-md sm:p-6',
+        'rounded-radius-lg border border-line-light bg-surface-light p-5 shadow-redesign-md sm:p-6',
         className
       )}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
         <div className="flex min-w-0 flex-col gap-1">
-          <h2 className="text-[16px] font-bold leading-snug text-ink-900-dark">{title}</h2>
+          <h2 className="text-[16px] font-bold leading-snug text-ink-900">{title}</h2>
           {helper ? (
-            <p className="max-w-[70ch] text-[12.5px] leading-relaxed text-ink-400-dark">{helper}</p>
+            <p className="max-w-[70ch] text-[12.5px] leading-relaxed text-ink-400">{helper}</p>
           ) : null}
         </div>
         {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}

@@ -47,11 +47,11 @@ const config: Config = {
         //   surface   = standard raised card on void
         //   surface-2 = hover / higher elevation
         //   hairline  = 1px separator on dark (use /60 /40 for softer)
-        void: '#050C16',
-        surface: '#0D1D31',
-        'surface-2': '#15304C',
-        'surface-3': '#1D3A59',
-        hairline: '#1E3550',
+        void: '#060F1D',
+        surface: '#0F2542',
+        'surface-2': '#16304F',
+        'surface-3': '#1E3A5C',
+        hairline: '#1E3A5C',
 
         // Semantic tints — status pills, callouts, diff highlighting
         state: {
@@ -76,12 +76,12 @@ const config: Config = {
         // Existing tokens above are retained for current call sites. The
         // redesign palette is additive; explicit *-dark aliases expose the
         // approved dark-theme values without silently changing legacy colors.
-        forest: '#175C3E',
-        'forest-dark': '#3FA06E',
-        'forest-deep': '#0E1F19',
-        'forest-deep-dark': '#0E1B16',
-        'forest-tint': '#E6EFE9',
-        'forest-tint-dark': '#193527',
+        forest: '#1B4272',
+        'forest-dark': '#6BA3E0',
+        'forest-deep': '#0B1F38',
+        'forest-deep-dark': '#081627',
+        'forest-tint': '#E7EEF8',
+        'forest-tint-dark': '#14304F',
         // Collision-safe redesign names: the existing `gold` token above is
         // retained for current pages; redesign tickets use these exact §1.1
         // CTA/accent and tint values.
@@ -97,24 +97,24 @@ const config: Config = {
         'terra-dark': '#E27A54',
         'terra-tint': '#F7E7E1',
         'terra-tint-dark': '#3A2018',
-        'ink-900': '#17241F',
-        'ink-900-dark': '#F2F5F0',
-        'ink-700': '#45544D',
-        'ink-700-dark': '#C2CDC4',
-        'ink-400': '#7C8981',
-        'ink-400-dark': '#83988C',
-        'ink-200': '#DFE4DE',
-        'ink-200-dark': '#2C4A3A',
-        bg: '#FBFAF6',
-        'bg-dark': '#0E1B16',
+        'ink-900': '#111C2B',
+        'ink-900-dark': '#F3F6FA',
+        'ink-700': '#44546A',
+        'ink-700-dark': '#C4D0DE',
+        'ink-400': '#6B7A8D',
+        'ink-400-dark': '#93A7BD',
+        'ink-200': '#DDE3EC',
+        'ink-200-dark': '#2A4468',
+        bg: '#F7F9FC',
+        'bg-dark': '#081627',
         'surface-light': '#FFFFFF',
-        'surface-dark': '#132A21',
-        'surface-2-light': '#F4F2EC',
-        'surface-2-dark': '#193527',
-        'line-light': '#E4E1D6',
-        'line-light-strong': '#CFCABB',
-        'line-dark': '#20402F',
-        'line-dark-strong': '#2E5A41',
+        'surface-dark': '#0F2542',
+        'surface-2-light': '#EDF1F7',
+        'surface-2-dark': '#16304F',
+        'line-light': '#DCE3EC',
+        'line-light-strong': '#C2CCD9',
+        'line-dark': '#1E3A5C',
+        'line-dark-strong': '#2C5482',
       },
       spacing: {
         // The redesign's explicit 8px rhythm. These values match Tailwind's

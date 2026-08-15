@@ -208,10 +208,10 @@ export default function DashboardPage() {
       <Reveal>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <h1 className="font-serif text-[28px] leading-tight text-ink-900-dark sm:text-[32px]">
+            <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">
               Good {greeting()}, {firstName} <span aria-hidden>👋</span>
             </h1>
-            <p className="text-[13px] text-ink-400-dark">
+            <p className="text-[13px] text-ink-400">
               {targetParts ? `Targeting ${targetParts}` : "Let's get you closer to your next opportunity."}
             </p>
           </div>
@@ -248,13 +248,13 @@ export default function DashboardPage() {
 
           {/* Next-step hero strip */}
           <Reveal delay={80}>
-            <Card tone="dark" className="flex h-full flex-col justify-between gap-5 border-redesign-gold-dark/25 bg-redesign-gold-dark/[0.06] p-6">
+            <Card tone="light" className="flex h-full flex-col justify-between gap-5 border-redesign-gold/25 bg-redesign-gold/[0.06] p-6">
               <div className="flex flex-col gap-2">
-                <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-gold-text-dark">
+                <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-gold-text">
                   Your next best action
                 </span>
-                <h2 className="font-serif text-[22px] leading-snug text-ink-900-dark">{nextAction.title}</h2>
-                <p className="text-[13.5px] leading-relaxed text-ink-400-dark">{nextAction.body}</p>
+                <h2 className="font-serif text-[22px] leading-snug text-ink-900">{nextAction.title}</h2>
+                <p className="text-[13.5px] leading-relaxed text-ink-400">{nextAction.body}</p>
               </div>
               <Link
                 href={nextAction.href}
@@ -267,19 +267,19 @@ export default function DashboardPage() {
 
           {/* Recent Activity */}
           <Reveal delay={110}>
-            <Card tone="dark" className="flex h-full flex-col gap-3 p-6">
-              <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
+            <Card tone="light" className="flex h-full flex-col gap-3 p-6">
+              <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                 Recent activity
               </div>
               {!packagesLoaded ? (
                 <div className="flex flex-col gap-2">
-                  <div className="h-14 animate-pulse rounded-radius-md bg-surface-2-dark/60" />
-                  <div className="h-14 animate-pulse rounded-radius-md bg-surface-2-dark/60" />
+                  <div className="h-14 animate-pulse rounded-radius-md bg-surface-2-light/60" />
+                  <div className="h-14 animate-pulse rounded-radius-md bg-surface-2-light/60" />
                 </div>
               ) : recentPackages.length === 0 ? (
-                <div className="flex flex-col gap-1 rounded-radius-md border border-dashed border-line-dark bg-surface-2-dark/50 p-5">
-                  <span className="text-[13px] font-semibold text-ink-400-dark">No activity yet</span>
-                  <span className="text-[12.5px] leading-relaxed text-ink-400-dark">
+                <div className="flex flex-col gap-1 rounded-radius-md border border-dashed border-line-light bg-surface-2-light/50 p-5">
+                  <span className="text-[13px] font-semibold text-ink-400">No activity yet</span>
+                  <span className="text-[12.5px] leading-relaxed text-ink-400">
                     Optimize a resume and it will show up here.
                   </span>
                 </div>
@@ -289,13 +289,13 @@ export default function DashboardPage() {
                     <Link
                       key={pkg.id}
                       href={`/package/${pkg.id}`}
-                      className="flex items-center justify-between gap-3 rounded-radius-md border border-line-dark/70 bg-surface-2-dark/50 px-4 py-3 transition-colors hover:border-redesign-gold-dark/40"
+                      className="flex items-center justify-between gap-3 rounded-radius-md border border-line-light/70 bg-surface-2-light/50 px-4 py-3 transition-colors hover:border-redesign-gold/40"
                     >
                       <span className="flex flex-col gap-0.5">
-                        <span className="text-[13px] font-semibold text-ink-900-dark/85">
+                        <span className="text-[13px] font-semibold text-ink-900/85">
                           Optimized for {pkg.target_job_title}
                         </span>
-                        <span className="text-[11.5px] text-ink-400-dark">{relativeTime(pkg.created_at)}</span>
+                        <span className="text-[11.5px] text-ink-400">{relativeTime(pkg.created_at)}</span>
                       </span>
                       <Pill variant={pkg.status}>{STATUS_LABEL[pkg.status]}</Pill>
                     </Link>
@@ -308,7 +308,7 @@ export default function DashboardPage() {
           {/* New "Planned" row — LockedTile, per PLANNED_SERVICES.md */}
           <Reveal delay={140}>
             <section className="flex flex-col gap-3">
-              <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
+              <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                 Planned for you
               </div>
               {/* Horizontally-scrollable strip on mobile; static grid on larger */}
@@ -319,7 +319,7 @@ export default function DashboardPage() {
                     title={s.title}
                     description={s.description}
                     note={`${s.title} — planned for a future release.`}
-                    tone="dark"
+                    tone="light"
                     className="min-w-[240px] snap-start lg:min-w-0"
                   />
                 ))}
@@ -332,13 +332,13 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-6">
           {/* Readiness ring card */}
           <Reveal delay={170}>
-            <Card tone="dark" className="flex flex-col gap-5 p-6">
+            <Card tone="light" className="flex flex-col gap-5 p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
+                  <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                     Gulf Readiness Score
                   </span>
-                  <span className="text-[13px] text-ink-400-dark">
+                  <span className="text-[13px] text-ink-400">
                     {missing.length === 0 && profile
                       ? 'Every section complete'
                       : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed`}
@@ -347,7 +347,7 @@ export default function DashboardPage() {
                 <ReadinessRing score={score} size={64} dark />
               </div>
 
-              <ProgressBar value={score} tone="dark" getValueLabel={(v) => `${v} out of 100`} />
+              <ProgressBar value={score} tone="light" getValueLabel={(v) => `${v} out of 100`} />
 
               {missing.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
@@ -355,7 +355,7 @@ export default function DashboardPage() {
                     <Link
                       key={m.field}
                       href="/profile"
-                      className="rounded-full border border-line-dark bg-surface-2-dark/60 px-3 py-1.5 text-[11.5px] font-medium text-ink-400-dark transition-colors hover:border-redesign-gold-dark/40 hover:text-gold-text-dark"
+                      className="rounded-full border border-line-light bg-surface-2-light/60 px-3 py-1.5 text-[11.5px] font-medium text-ink-400 transition-colors hover:border-redesign-gold/40 hover:text-gold-text"
                     >
                       {m.label}
                     </Link>
@@ -374,8 +374,8 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <Reveal delay={200}>
-            <Card tone="dark" className="flex flex-col gap-2 p-6">
-              <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
+            <Card tone="light" className="flex flex-col gap-2 p-6">
+              <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                 Quick actions
               </div>
               <div className="mt-1 flex flex-col">
@@ -383,10 +383,10 @@ export default function DashboardPage() {
                   <Link
                     key={a.href}
                     href={a.href}
-                    className="flex min-h-11 items-center justify-between gap-3 rounded-radius-md px-2 py-2.5 text-[13.5px] font-semibold text-ink-900-dark/85 transition-colors hover:bg-surface-2-dark/60 hover:text-gold-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
+                    className="flex min-h-11 items-center justify-between gap-3 rounded-radius-md px-2 py-2.5 text-[13.5px] font-semibold text-ink-900/85 transition-colors hover:bg-surface-2-light/60 hover:text-gold-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
                   >
                     {a.label}
-                    <span aria-hidden className="text-ink-400-dark">→</span>
+                    <span aria-hidden className="text-ink-400">→</span>
                   </Link>
                 ))}
               </div>
@@ -395,20 +395,20 @@ export default function DashboardPage() {
 
           {/* Library preview */}
           <Reveal delay={230}>
-            <Card tone="dark" className="flex h-full flex-col gap-4 p-6">
+            <Card tone="light" className="flex h-full flex-col gap-4 p-6">
               <div className="flex items-baseline justify-between">
-                <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
+                <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                   Library · {packagesLoaded ? packageCount : '—'} package{packageCount === 1 ? '' : 's'}
                 </span>
                 <Link
                   href="/dashboard/library"
-                  className="text-[12px] font-semibold text-forest-dark transition-colors hover:text-forest-dark/80"
+                  className="text-[12px] font-semibold text-forest transition-colors hover:text-forest/80"
                 >
                   View Library →
                 </Link>
               </div>
               {packageCount === 0 ? (
-                <div className="flex flex-1 items-center rounded-radius-md border border-dashed border-line-dark bg-surface-2-dark/50 p-5 text-[12.5px] leading-relaxed text-ink-400-dark">
+                <div className="flex flex-1 items-center rounded-radius-md border border-dashed border-line-light bg-surface-2-light/50 p-5 text-[12.5px] leading-relaxed text-ink-400">
                   No packages yet — optimize a resume and it will appear here.
                 </div>
               ) : (
@@ -416,13 +416,13 @@ export default function DashboardPage() {
                   {recentPackages.slice(0, 3).map((pkg) => (
                     <div
                       key={pkg.id}
-                      className="flex items-center justify-between rounded-radius-md bg-surface-2-dark/50 px-4 py-2.5 text-[13px] font-medium text-ink-900-dark/75"
+                      className="flex items-center justify-between rounded-radius-md bg-surface-2-light/50 px-4 py-2.5 text-[13px] font-medium text-ink-900/75"
                     >
                       <span>
                         {pkg.target_job_title} ·{' '}
                         {GULF_COUNTRIES.find((c) => c.value === pkg.target_country)?.label ?? pkg.target_country}
                       </span>
-                      <span className="text-[11px] text-ink-400-dark">v{pkg.generation_count}</span>
+                      <span className="text-[11px] text-ink-400">v{pkg.generation_count}</span>
                     </div>
                   ))}
                 </div>
@@ -464,14 +464,14 @@ function MetricTile({
   muted?: boolean
 }) {
   return (
-    <Card tone="dark" className="flex flex-col gap-1.5 p-4">
-      <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-400-dark">
+    <Card tone="light" className="flex flex-col gap-1.5 p-4">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-400">
         {label}
       </span>
-      <span className={cn('font-mono text-[26px] leading-none', muted ? 'text-ink-400-dark' : 'text-gold-text-dark')}>
+      <span className={cn('font-mono text-[26px] leading-none', muted ? 'text-ink-400' : 'text-gold-text')}>
         {value}
       </span>
-      {sub ? <span className={cn('text-[11px]', muted ? 'text-ink-400-dark' : 'text-forest-dark')}>{sub}</span> : null}
+      {sub ? <span className={cn('text-[11px]', muted ? 'text-ink-400' : 'text-forest')}>{sub}</span> : null}
     </Card>
   )
 }

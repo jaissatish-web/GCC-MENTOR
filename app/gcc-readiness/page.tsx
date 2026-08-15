@@ -93,8 +93,8 @@ function GccReadinessScreen() {
 
   if (!loaded) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-void font-redesign-sans">
-        <p className="font-mono text-sm text-ink-400-dark">Loading…</p>
+      <main className="flex min-h-dvh items-center justify-center bg-bg font-redesign-sans">
+        <p className="font-mono text-sm text-ink-400">Loading…</p>
       </main>
     )
   }
@@ -111,14 +111,14 @@ function GccReadinessScreen() {
   return (
     <main className="mx-auto w-full max-w-[1100px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
       <div className="flex flex-col gap-1">
-        <h1 className="font-serif text-[28px] leading-tight text-ink-900-dark sm:text-[32px]">GCC Readiness</h1>
-        <p className="text-[13px] text-ink-400-dark">
+        <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">GCC Readiness</h1>
+        <p className="text-[13px] text-ink-400">
           How complete is the profile your future Gulf applications are built from.
         </p>
       </div>
 
       {loadError ? (
-        <div className="mt-6 rounded-radius-lg border border-terra-dark/40 bg-terra-tint-dark px-3.5 py-3 text-[12.5px] text-terra-dark">
+        <div className="mt-6 rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra">
           {loadError}
         </div>
       ) : (
@@ -126,16 +126,16 @@ function GccReadinessScreen() {
           {/* ——— ring / breakdown, §C: side-by-side on xl (rail), stacked below ——— */}
           <div className="mt-6 flex flex-col gap-6 xl:flex-row xl:items-start">
             {/* Readiness ring */}
-            <Card tone="dark" className="flex flex-col items-center gap-4 p-8 text-center xl:w-[340px] xl:shrink-0">
+            <Card tone="light" className="flex flex-col items-center gap-4 p-8 text-center xl:w-[340px] xl:shrink-0">
               <div className="flex flex-col items-center gap-3">
                 <ReadinessRing score={score} size={132} dark />
-                <span className="font-mono text-[26px] leading-none text-gold-text-dark">
+                <span className="font-mono text-[26px] leading-none text-gold-text">
                   {score}
-                  <span className="text-[15px] text-ink-400-dark">/100</span>
+                  <span className="text-[15px] text-ink-400">/100</span>
                 </span>
               </div>
               {category ? <Pill variant="grounded">{categoryLabel(category)}</Pill> : null}
-              <p className="text-[12.5px] leading-relaxed text-ink-400-dark">
+              <p className="text-[12.5px] leading-relaxed text-ink-400">
                 {missing.length === 0
                   ? 'Every section complete.'
                   : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed.`}
@@ -149,18 +149,18 @@ function GccReadinessScreen() {
             </Card>
 
             {/* Breakdown list */}
-            <Card tone="dark" className="flex flex-1 flex-col gap-4 p-6">
+            <Card tone="light" className="flex flex-1 flex-col gap-4 p-6">
               <div className="flex flex-col gap-1">
-                <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
+                <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                   Finish these to reach 100
                 </span>
-                <p className="text-[12px] text-ink-400-dark">Each one raises your score. Tap to edit on your profile.</p>
+                <p className="text-[12px] text-ink-400">Each one raises your score. Tap to edit on your profile.</p>
               </div>
 
               {missing.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 rounded-radius-lg border border-dashed border-line-dark bg-surface-2-dark/50 p-8 text-center">
-                  <span className="font-serif text-2xl text-forest-dark">All complete</span>
-                  <p className="max-w-sm text-[12.5px] leading-relaxed text-ink-400-dark">
+                <div className="flex flex-col items-center gap-3 rounded-radius-lg border border-dashed border-line-light bg-surface-2-light/50 p-8 text-center">
+                  <span className="font-serif text-2xl text-forest">All complete</span>
+                  <p className="max-w-sm text-[12.5px] leading-relaxed text-ink-400">
                     Your profile is 100% ready. Every section used by a future Gulf application is filled in.
                   </p>
                 </div>
@@ -170,13 +170,13 @@ function GccReadinessScreen() {
                     <Link
                       key={m.field}
                       href="/profile"
-                      className="flex min-h-11 items-center justify-between gap-3 rounded-radius-md border border-line-dark/70 bg-surface-2-dark/50 px-4 py-3 transition-colors hover:border-redesign-gold-dark/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
+                      className="flex min-h-11 items-center justify-between gap-3 rounded-radius-md border border-line-light/70 bg-surface-2-light/50 px-4 py-3 transition-colors hover:border-redesign-gold/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
                     >
                       <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate text-[13px] font-semibold text-ink-900-dark/85">{m.label}</span>
-                        <span className="text-[11px] text-ink-400-dark">+{m.points} points</span>
+                        <span className="truncate text-[13px] font-semibold text-ink-900/85">{m.label}</span>
+                        <span className="text-[11px] text-ink-400">+{m.points} points</span>
                       </span>
-                      <span className="shrink-0 text-[11px] font-semibold text-forest-dark">Add →</span>
+                      <span className="shrink-0 text-[11px] font-semibold text-forest">Add →</span>
                     </Link>
                   ))}
                 </div>

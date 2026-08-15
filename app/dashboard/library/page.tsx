@@ -45,11 +45,11 @@ function levelLabel(level: string): string {
 // Status dropdown styling mirrors Pill's status variant colours (never hard hex).
 function statusSelectClass(status: PackageStatus): string {
   const map: Record<PackageStatus, string> = {
-    applied: 'border-line-dark-strong bg-surface-2-dark text-ink-700-dark',
-    shortlisted: 'border-redesign-gold-dark/50 bg-redesign-gold-tint-dark text-gold-text-dark',
-    interview: 'border-forest-dark/50 bg-forest-tint-dark text-forest-dark',
-    visa_processing: 'border-line-dark bg-surface-2-dark text-ink-400-dark',
-    offer: 'border-forest-dark bg-forest text-ink-900-dark',
+    applied: 'border-line-light-strong bg-surface-2-light text-ink-700',
+    shortlisted: 'border-redesign-gold/50 bg-redesign-gold-tint text-gold-text',
+    interview: 'border-forest/50 bg-forest-tint text-forest',
+    visa_processing: 'border-line-light bg-surface-2-light text-ink-400',
+    offer: 'border-forest bg-forest text-ink-900',
   }
   return map[status]
 }
@@ -60,8 +60,8 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
       className={cn(
         'rounded-[6px] px-2 py-1 text-[9.5px] font-semibold leading-none',
         present
-          ? 'bg-forest-tint-dark text-forest-dark'
-          : 'border border-dashed border-line-dark-strong bg-surface-2-dark text-ink-400-dark'
+          ? 'bg-forest-tint text-forest'
+          : 'border border-dashed border-line-light-strong bg-surface-2-light text-ink-400'
       )}
     >
       {label}
@@ -87,12 +87,12 @@ function StatusSelect({
       }}
       aria-label="Package status"
       className={cn(
-        'min-h-11 cursor-pointer rounded-full border px-[11px] py-[6px] text-[11px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2',
+        'min-h-11 cursor-pointer rounded-full border px-[11px] py-[6px] text-[11px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
         statusSelectClass(initial)
       )}
     >
       {PACKAGE_STATUSES.map((s) => (
-        <option key={s.value} value={s.value} className="bg-surface-dark text-ink-700-dark">
+        <option key={s.value} value={s.value} className="bg-surface-light text-ink-700">
           {s.label} ▾
         </option>
       ))}
@@ -174,7 +174,7 @@ export default function DashboardLibraryPage() {
   if (packages === null) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="font-mono text-sm text-ink-400-dark">Loading…</p>
+        <p className="font-mono text-sm text-ink-400">Loading…</p>
       </div>
     )
   }
@@ -182,40 +182,40 @@ export default function DashboardLibraryPage() {
   if (loadError) {
     return (
       <div className="flex items-center justify-center px-5 py-20">
-        <p className="text-sm text-terra-dark">{loadError}</p>
+        <p className="text-sm text-terra">{loadError}</p>
       </div>
     )
   }
 
   return (
     // TASK-088: dark forest pass (PAGE_SPECS §C). This page sits in the dark
-        // AppShell (bg-void); the old `bg-marble` light placeholder wrapper and its
+        // AppShell (bg-bg); the old `bg-marble` light placeholder wrapper and its
         // mobile "sheet" radius are gone — the library now renders dark cards/table
         // on the shell, consistent with the dark dashboard.
         <div className="flex min-h-screen flex-col gap-4 p-5 sm:p-8 lg:p-10">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900-dark">Library</h1>
-        <p className="text-[12.5px] text-ink-700-dark">
+        <h1 className="font-serif text-[27px] leading-tight text-ink-900">Library</h1>
+        <p className="text-[12.5px] text-ink-700">
           {packages.length} package{packages.length === 1 ? '' : 's'} · every optimization you&apos;ve run
         </p>
       </div>
 
       {opError ? (
-        <div className="rounded-radius-lg border border-terra-dark/30 bg-terra-tint-dark px-3.5 py-3 text-[12px] text-terra-dark">
+        <div className="rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
           {opError}
         </div>
       ) : null}
 
       {packages.length === 0 ? (
-        <div className="rounded-radius-lg border border-line-dark bg-surface-dark p-8 text-center">
-          <p className="text-sm font-medium text-ink-900-dark">No packages yet</p>
-          <p className="mt-1 text-[12.5px] text-ink-400-dark">
+        <div className="rounded-radius-lg border border-line-light bg-surface-light p-8 text-center">
+          <p className="text-sm font-medium text-ink-900">No packages yet</p>
+          <p className="mt-1 text-[12.5px] text-ink-400">
             Optimize a resume and it will appear here.
           </p>
           <Link
             href="/optimize/target"
-            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-radius-md bg-forest px-5 text-sm font-bold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark focus-visible:ring-offset-2"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-radius-md bg-forest px-5 text-sm font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
           >
             Optimize your resume
           </Link>
@@ -229,13 +229,13 @@ export default function DashboardLibraryPage() {
           const atsPresent = pkg.ats_score_card != null
           const qaPresent = pkg.interview_questions != null
           return (
-            <div key={pkg.id} className="rounded-radius-lg border border-line-dark bg-surface-dark p-4">
+            <div key={pkg.id} className="rounded-radius-lg border border-line-light bg-surface-light p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[13px] font-bold leading-snug text-ink-900-dark">
+                  <span className="text-[13px] font-bold leading-snug text-ink-900">
                     {pkg.target_job_title}
                   </span>
-                  <span className="text-[11px] text-ink-400-dark">
+                  <span className="text-[11px] text-ink-400">
                     {pkg.target_company || 'No company'} · {countryLabel(pkg.target_country)} ·{' '}
                     {formatDay(pkg.created_at)}
                   </span>
@@ -253,13 +253,13 @@ export default function DashboardLibraryPage() {
               <div className="mt-3.5 flex items-center gap-4">
                 <Link
                   href={`/package/${pkg.id}`}
-                  className="min-h-11 px-1 text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark focus-visible:ring-offset-2"
+                  className="min-h-11 px-1 text-[11px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
                 >
                   Open
                 </Link>
                 <Link
                   href="/optimize/target"
-                  className="min-h-11 px-1 text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark focus-visible:ring-offset-2"
+                  className="min-h-11 px-1 text-[11px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
                 >
                   Re-optimize
                 </Link>
@@ -270,8 +270,8 @@ export default function DashboardLibraryPage() {
                   }
                   aria-pressed={confirmingDelete === pkg.id}
                   className={cn(
-                    'min-h-11 px-1 text-[11px] font-semibold underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark focus-visible:ring-offset-2',
-                    confirmingDelete === pkg.id && 'text-terra-dark underline'
+                    'min-h-11 px-1 text-[11px] font-semibold underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra focus-visible:ring-offset-2',
+                    confirmingDelete === pkg.id && 'text-terra underline'
                   )}
                 >
                   {confirmingDelete === pkg.id ? 'Confirm delete?' : 'Delete'}
@@ -283,8 +283,8 @@ export default function DashboardLibraryPage() {
       </div>
 
       {/* ── DESKTOP: table ── */}
-      <div className="hidden overflow-hidden rounded-radius-lg border border-line-dark bg-surface-dark lg:block">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1.2fr_90px] gap-4 border-b border-line-dark bg-surface-2-dark px-5 py-3 text-[9.5px] font-semibold uppercase tracking-[0.1em] text-ink-400-dark">
+      <div className="hidden overflow-hidden rounded-radius-lg border border-line-light bg-surface-light lg:block">
+        <div className="grid grid-cols-[2fr_1fr_1fr_1.2fr_90px] gap-4 border-b border-line-light bg-surface-2-light px-5 py-3 text-[9.5px] font-semibold uppercase tracking-[0.1em] text-ink-400">
           <span>Target</span>
           <span>Country</span>
           <span>Level</span>
@@ -294,22 +294,22 @@ export default function DashboardLibraryPage() {
         {packages.map((pkg) => (
           <div
             key={pkg.id}
-            className="grid grid-cols-[2fr_1fr_1fr_1.2fr_90px] items-center gap-4 border-b border-line-dark px-5 py-3.5 last:border-0"
+            className="grid grid-cols-[2fr_1fr_1fr_1.2fr_90px] items-center gap-4 border-b border-line-light px-5 py-3.5 last:border-0"
           >
             <div className="flex flex-col gap-0.5">
-              <span className="text-[12.5px] font-semibold text-ink-900-dark">{pkg.target_job_title}</span>
-              <span className="text-[10.5px] text-ink-400-dark">
+              <span className="text-[12.5px] font-semibold text-ink-900">{pkg.target_job_title}</span>
+              <span className="text-[10.5px] text-ink-400">
                 {pkg.target_company || 'No company'} · {formatDay(pkg.created_at)}
               </span>
             </div>
-            <span className="text-[12px] text-ink-700-dark">{countryLabel(pkg.target_country)}</span>
-            <span className="text-[12px] text-ink-700-dark">{levelLabel(pkg.optimization_level)}</span>
+            <span className="text-[12px] text-ink-700">{countryLabel(pkg.target_country)}</span>
+            <span className="text-[12px] text-ink-700">{levelLabel(pkg.optimization_level)}</span>
             <div className="justify-self-start">
               <StatusSelect initial={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
             </div>
             <Link
               href={`/package/${pkg.id}`}
-              className="min-h-11 px-1 text-[11.5px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark focus-visible:ring-offset-2"
+              className="min-h-11 px-1 text-[11.5px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
             >
               Open
             </Link>

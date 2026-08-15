@@ -507,7 +507,7 @@ const CATEGORY_COPY: Record<ReadinessCategory, { highlight: string; rest: string
  * `helper` is the guided remark shown under the title — one short line saying
  * what to put in this block and what makes it useful to a Gulf recruiter. It
  * renders on `ink-400-dark`, a real token, rather than an opacity wash of the
- * body colour (the whole file used `text-ink-900-dark/55` and similar, which
+ * body colour (the whole file used `text-ink-900/55` and similar, which
  * is what made the guidance hard to read against the card).
  *
  * `optional` marks blocks a user can legitimately skip, so required vs
@@ -526,7 +526,7 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-radius-md border border-dashed border-line-dark-strong px-4 py-3 text-[13px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark focus-visible:ring-offset-2 focus-visible:ring-offset-surface-dark"
+      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-radius-md border border-dashed border-line-light-strong px-4 py-3 text-[13px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 focus-visible:ring-offset-surface-light"
     >
       <span aria-hidden="true" className="text-[15px] leading-none">
         +
@@ -552,7 +552,7 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
 function PointsChip({ earned, total }: { earned: number; total: number }) {
   if (total === 0) {
     return (
-      <span className="shrink-0 whitespace-nowrap rounded-full border border-line-dark-strong px-2.5 py-1 text-[10.5px] font-semibold text-ink-400-dark">
+      <span className="shrink-0 whitespace-nowrap rounded-full border border-line-light-strong px-2.5 py-1 text-[10.5px] font-semibold text-ink-400">
         Optional
       </span>
     )
@@ -563,8 +563,8 @@ function PointsChip({ earned, total }: { earned: number; total: number }) {
       className={cn(
         'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[10.5px] font-bold tabular-nums',
         complete
-          ? 'bg-forest-tint-dark text-forest-dark'
-          : 'bg-redesign-gold-tint-dark text-gold-text-dark'
+          ? 'bg-forest-tint text-forest'
+          : 'bg-redesign-gold-tint text-gold-text'
       )}
     >
       {complete ? 'Done' : `+${total - earned} pts`}
@@ -623,10 +623,10 @@ function CardSection({
   return (
     <Card
       id={id}
-      tone="dark"
+      tone="light"
       className={cn(
         'flex scroll-mt-24 flex-col overflow-hidden p-0 transition-colors',
-        open && 'border-redesign-gold-dark/40'
+        open && 'border-redesign-gold/40'
       )}
     >
       <h2>
@@ -635,7 +635,7 @@ function CardSection({
           onClick={onToggle}
           aria-expanded={open}
           aria-controls={panelId}
-          className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-surface-2-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-redesign-gold sm:p-5"
+          className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-surface-2-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-redesign-gold sm:p-5"
         >
           {/* Step marker — a tick once the block is complete, so progress is
               readable from the numbers column alone without reading any text. */}
@@ -643,10 +643,10 @@ function CardSection({
             className={cn(
               'flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-bold tabular-nums',
               done
-                ? 'bg-forest-dark text-forest-deep'
+                ? 'bg-forest text-forest-deep'
                 : open
                   ? 'bg-redesign-gold text-forest-deep'
-                  : 'bg-surface-2-dark text-ink-400-dark'
+                  : 'bg-surface-2-light text-ink-400'
             )}
             aria-hidden="true"
           >
@@ -655,9 +655,9 @@ function CardSection({
 
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="flex flex-wrap items-center gap-2">
-              <span className="text-[15px] font-bold leading-snug text-ink-900-dark">{title}</span>
+              <span className="text-[15px] font-bold leading-snug text-ink-900">{title}</span>
               {badge ? (
-                <span className="rounded-[5px] bg-surface-2-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-700-dark">
+                <span className="rounded-[5px] bg-surface-2-light px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-700">
                   {badge}
                 </span>
               ) : null}
@@ -665,7 +665,7 @@ function CardSection({
             {helper ? (
               <span
                 className={cn(
-                  'text-[12px] leading-relaxed text-ink-400-dark',
+                  'text-[12px] leading-relaxed text-ink-400',
                   !open && 'line-clamp-1'
                 )}
               >
@@ -679,7 +679,7 @@ function CardSection({
             <span
               aria-hidden="true"
               className={cn(
-                'text-[12px] text-ink-400-dark transition-transform',
+                'text-[12px] text-ink-400 transition-transform',
                 open && 'rotate-180'
               )}
             >
@@ -690,7 +690,7 @@ function CardSection({
       </h2>
 
       {open ? (
-        <div id={panelId} className="border-t border-line-dark p-4 sm:p-5">
+        <div id={panelId} className="border-t border-line-light p-4 sm:p-5">
           {action ? <div className="mb-4 flex flex-wrap gap-2">{action}</div> : null}
           {children}
         </div>
@@ -739,10 +739,10 @@ const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
 ]
 
 const selectClass =
-  'min-h-11 w-full rounded-radius-md border border-line-dark-strong bg-surface-dark px-[15px] py-[13px] text-sm font-medium text-ink-900-dark outline-none transition-colors focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/20'
+  'min-h-11 w-full rounded-radius-md border border-line-light-strong bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none transition-colors focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20'
 
 const textareaClass =
-  'min-h-11 w-full resize-none rounded-radius-md border border-line-dark-strong bg-surface-dark px-[15px] py-[13px] text-sm font-medium text-ink-900-dark outline-none transition-colors placeholder:text-ink-400-dark focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/20'
+  'min-h-11 w-full resize-none rounded-radius-md border border-line-light-strong bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20'
 
 function ConfirmToggle({
   id,
@@ -760,8 +760,8 @@ function ConfirmToggle({
   return (
     <div id={id} className="flex items-start justify-between gap-3 py-1">
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-ink-900-dark">{label}</span>
-        {hint ? <span className="text-[12px] text-ink-400-dark">{hint}</span> : null}
+        <span className="text-sm font-medium text-ink-900">{label}</span>
+        {hint ? <span className="text-[12px] text-ink-400">{hint}</span> : null}
       </div>
       <Toggle checked={checked} onCheckedChange={onChange} aria-label={label} />
     </div>
@@ -1085,28 +1085,28 @@ function ProfileScreen() {
 
   if (!loaded || !editor) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-void">
-        <p className="font-mono text-sm text-ink-400-dark">Loading…</p>
+      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-bg">
+        <p className="font-mono text-sm text-ink-400">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-void">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-bg">
       {/* Readiness header — the ring IS the header, on dark navy */}
-      <header className="flex flex-col gap-4 bg-surface-dark px-5 pb-6 pt-4">
+      <header className="flex flex-col gap-4 bg-surface-light px-5 pb-6 pt-4">
         <div className="flex items-center gap-4">
           <div className="shrink-0">
             {/* Reuses the approved TASK-026 ReadinessRing component. */}
             <ReadinessRing score={readiness.score} size={86} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <h1 className="font-serif text-[20px] leading-tight text-ink-900-dark">
+            <h1 className="font-serif text-[20px] leading-tight text-ink-900">
               Almost there, {firstName}
             </h1>
-            <p className="text-[12px] leading-relaxed text-ink-700-dark">
-              <span className="font-semibold text-ink-900-dark">{itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
-              Profiles like yours — <span className="font-semibold text-gold-text-dark">{categoryCopy.highlight}</span> —{' '}
+            <p className="text-[12px] leading-relaxed text-ink-700">
+              <span className="font-semibold text-ink-900">{itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
+              Profiles like yours — <span className="font-semibold text-gold-text">{categoryCopy.highlight}</span> —{' '}
               {categoryCopy.rest}
             </p>
           </div>
@@ -1114,7 +1114,7 @@ function ProfileScreen() {
       </header>
 
       {loadError ? (
-        <div className="mx-5 mt-4 rounded-radius-md border border-terra-dark/30 bg-terra-tint-dark px-3.5 py-3 text-[12px] text-terra-dark">
+        <div className="mx-5 mt-4 rounded-radius-md border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
           {loadError}
         </div>
       ) : null}
@@ -1125,29 +1125,29 @@ function ProfileScreen() {
           that key was already read+cleared in the mount pass, so this can never
           reappear after a reload. */}
       {claimedScan ? (
-        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-radius-md border border-redesign-gold-dark/40 bg-surface-dark px-4 py-3">
+        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-radius-md border border-redesign-gold/40 bg-surface-light px-4 py-3">
           <div className="flex flex-col gap-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-text-dark">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-text">
               Welcome back
             </p>
-            <p className="text-[13px] font-medium text-ink-900-dark">
+            <p className="text-[13px] font-medium text-ink-900">
               Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
             </p>
             <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="font-mono text-2xl font-bold text-forest-dark">
+              <span className="font-mono text-2xl font-bold text-forest">
                 {claimedScan.overall_score}
                 <span className="text-sm">/100</span>
               </span>
-              <span className="font-mono text-[12px] text-ink-700-dark">Structure {claimedScan.category_scores.structure}</span>
-              <span className="font-mono text-[12px] text-ink-700-dark">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
-              <span className="font-mono text-[12px] text-ink-700-dark">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
+              <span className="font-mono text-[12px] text-ink-700">Structure {claimedScan.category_scores.structure}</span>
+              <span className="font-mono text-[12px] text-ink-700">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
+              <span className="font-mono text-[12px] text-ink-700">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setClaimedScan(null)}
             aria-label="Dismiss welcome back banner"
-            className="min-h-11 shrink-0 px-1 text-ink-400-dark transition-colors hover:text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark"
+            className="min-h-11 shrink-0 px-1 text-ink-400 transition-colors hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
           >
             ✕
           </button>
@@ -1167,12 +1167,12 @@ function ProfileScreen() {
             the user knows how long this is and where they are inside it. The
             old page opened straight into nine expanded blocks with no such
             framing, which is what made it feel endless. */}
-        <p className="px-1 pb-1 text-[12.5px] leading-relaxed text-ink-400-dark">
+        <p className="px-1 pb-1 text-[12.5px] leading-relaxed text-ink-400">
           {doneCount === scoredCount ? (
             <>All {scoredCount} scored sections are complete — review anything below, then confirm.</>
           ) : (
             <>
-              <span className="font-semibold text-ink-900-dark">
+              <span className="font-semibold text-ink-900">
                 {doneCount} of {scoredCount} sections done.
               </span>{' '}
               Open a step to fill it in. Your work is kept as you move between them.
@@ -1194,33 +1194,33 @@ function ProfileScreen() {
             onChange={(v) => setField({ currently_in_gulf: v })}
           />
           <div className="grid gap-3">
-            <Input tone="dark"
+            <Input tone="light"
               id="f_current_employer"
               label="Current employer"
               value={editor.current_employer}
               onChange={(e) => setField({ current_employer: e.target.value })}
             />
-            <Input tone="dark"
+            <Input tone="light"
               id="f_current_project"
               label="Current project"
               value={editor.current_project}
               onChange={(e) => setField({ current_project: e.target.value })}
             />
-            <Input tone="dark"
+            <Input tone="light"
               id="f_target_job_title"
               label="Target job title (required)"
               value={editor.target_job_title}
               onChange={(e) => setField({ target_job_title: e.target.value })}
             />
-            <Input tone="dark"
+            <Input tone="light"
               id="f_target_industry"
               label="Target industry (required)"
               value={editor.target_industry}
               onChange={(e) => setField({ target_industry: e.target.value })}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_target_country" className="text-sm font-medium text-ink-900-dark">
-                Target country <span className="font-normal text-ink-400-dark">(optional)</span>
+              <label htmlFor="f_target_country" className="text-sm font-medium text-ink-900">
+                Target country <span className="font-normal text-ink-400">(optional)</span>
               </label>
               <select
                 id="f_target_country"
@@ -1238,7 +1238,7 @@ function ProfileScreen() {
                 ))}
               </select>
             </div>
-            <Input tone="dark"
+            <Input tone="light"
               id="f_target_company"
               label="Target company (optional)"
               value={editor.target_company}
@@ -1256,7 +1256,7 @@ function ProfileScreen() {
           action={
             <Link
               href="/profile/visibility"
-              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+              className="text-[11px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
             >
               What appears on your CV →
             </Link>
@@ -1304,19 +1304,19 @@ function ProfileScreen() {
               value={editor.email}
               onChange={(e) => setField({ email: e.target.value })}
             />
-            <Input tone="dark"
+            <Input tone="light"
               id="f_current_location"
               label="Current location"
               value={editor.current_location}
               onChange={(e) => setField({ current_location: e.target.value })}
             />
-            <Input tone="dark"
+            <Input tone="light"
               id="f_nationality"
               label="Nationality"
               value={editor.nationality}
               onChange={(e) => setField({ nationality: e.target.value })}
             />
-            <Input tone="dark"
+            <Input tone="light"
               id="f_linkedin_url"
               label="LinkedIn URL"
               type="url"
@@ -1332,7 +1332,7 @@ function ProfileScreen() {
               onChange={(e) => setField({ date_of_birth: e.target.value })}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_passport_type" className="text-sm font-medium text-ink-900-dark">
+              <label htmlFor="f_passport_type" className="text-sm font-medium text-ink-900">
                 Passport type
               </label>
               <select
@@ -1354,7 +1354,7 @@ function ProfileScreen() {
               value={editor.passport_validity_date}
               onChange={(e) => setField({ passport_validity_date: e.target.value })}
             />
-            <Input tone="dark"
+            <Input tone="light"
               id="f_visa_status"
               label="Visa status"
               value={editor.visa_status}
@@ -1367,7 +1367,7 @@ function ProfileScreen() {
               checked={editor.visa_transferable}
               onChange={(v) => setField({ visa_transferable: v })}
             />
-            <Input tone="dark"
+            <Input tone="light"
               id="f_notice_period"
               label="Notice period"
               value={editor.notice_period}
@@ -1388,7 +1388,7 @@ function ProfileScreen() {
           helper="Not scored, but Gulf employers ask for it outright on site and field roles — and its absence is often what filters a CV out. Skip it only if you genuinely do not hold one."
         >
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-ink-900-dark">
+            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-ink-900">
               Do you have a driving license?
             </label>
             <select
@@ -1408,13 +1408,13 @@ function ProfileScreen() {
           </div>
           {editor.has_driving_license === true ? (
             <div className="grid gap-3">
-              <Input tone="dark"
+              <Input tone="light"
                 id="f_driving_license_country"
                 label="Country issued"
                 value={editor.driving_license_country}
                 onChange={(e) => setField({ driving_license_country: e.target.value })}
               />
-              <Input tone="dark"
+              <Input tone="light"
                 id="f_driving_license_category"
                 label="Category / type"
                 value={editor.driving_license_category}
@@ -1445,26 +1445,26 @@ function ProfileScreen() {
             onChange={(e) => setField({ professional_summary: e.target.value })}
             placeholder="A short summary of who you are and what you bring."
           />
-          <p className="text-[11px] leading-snug text-ink-400-dark">
+          <p className="text-[11px] leading-snug text-ink-400">
             This is your own summary — the AI never writes back into it. It is the &ldquo;before&rdquo; the
             optimizer diffs against.
           </p>
         </CardSection>
 
         {/* PHOTO — STUB. No Storage/upload API exists yet (see header note). */}
-        <Card id="sec_photo" tone="dark" className="flex gap-3.5 border-[1.5px] border-redesign-gold-dark p-4">
-          <div className="flex h-[70px] w-[58px] shrink-0 flex-col items-center justify-center gap-1 rounded-[7px] border border-dashed border-redesign-gold-dark bg-surface-2-dark">
-            <span className="text-base text-gold-text-dark">◔</span>
-            <span className="text-[8px] font-semibold uppercase tracking-wider text-gold-text-dark">Add</span>
+        <Card id="sec_photo" tone="light" className="flex gap-3.5 border-[1.5px] border-redesign-gold p-4">
+          <div className="flex h-[70px] w-[58px] shrink-0 flex-col items-center justify-center gap-1 rounded-[7px] border border-dashed border-redesign-gold bg-surface-2-light">
+            <span className="text-base text-gold-text">◔</span>
+            <span className="text-[8px] font-semibold uppercase tracking-wider text-gold-text">Add</span>
           </div>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-[13px] font-bold text-ink-900-dark">Photo</span>
-              <span className="rounded-[5px] bg-redesign-gold-tint-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text-dark">
+              <span className="text-[13px] font-bold text-ink-900">Photo</span>
+              <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text">
                 Expected in Gulf CVs
               </span>
             </div>
-            <p className="text-[11px] leading-snug text-ink-400-dark">
+            <p className="text-[11px] leading-snug text-ink-400">
               Passport-style, plain background. Counts toward your readiness score.
             </p>
             <div className="mt-1 flex gap-2">
@@ -1479,7 +1479,7 @@ function ProfileScreen() {
                 type="button"
                 disabled
                 title="Photo upload coming soon"
-                className="min-h-11 cursor-not-allowed rounded-radius-md bg-surface-dark px-3 py-3 text-[11px] font-semibold text-ink-900-dark opacity-50"
+                className="min-h-11 cursor-not-allowed rounded-radius-md bg-surface-light px-3 py-3 text-[11px] font-semibold text-ink-900 opacity-50"
               >
                 Upload photo
               </button>
@@ -1487,12 +1487,12 @@ function ProfileScreen() {
                 type="button"
                 disabled
                 title="Photo upload coming soon"
-                className="min-h-11 cursor-not-allowed rounded-radius-md border border-line-dark/70 bg-surface-dark px-3 py-3 text-[11px] font-semibold text-ink-900-dark opacity-50"
+                className="min-h-11 cursor-not-allowed rounded-radius-md border border-line-light/70 bg-surface-light px-3 py-3 text-[11px] font-semibold text-ink-900 opacity-50"
               >
                 Take one now
               </button>
             </div>
-            <p className="text-[10px] text-ink-400-dark">Photo upload is coming soon.</p>
+            <p className="text-[10px] text-ink-400">Photo upload is coming soon.</p>
           </div>
         </Card>
 
@@ -1506,7 +1506,7 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addWork}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
               >
                 <span aria-hidden="true">+</span> Add
               </button>
@@ -1514,9 +1514,9 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-4">
             {editor.work_experience.map((w, i) => (
-              <div key={w.key} className="flex flex-col gap-2.5 border border-line-dark-strong rounded-radius-md p-3">
+              <div key={w.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-ink-400-dark">#{i + 1}</span>
+                  <span className="font-mono text-[11px] text-ink-400">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1529,20 +1529,20 @@ function ProfileScreen() {
                           : e
                       )
                     }
-                    className="min-h-11 px-1 text-[11px] font-semibold text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
+                    className="min-h-11 px-1 text-[11px] font-semibold text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
                   >
                     Remove
                   </button>
                 </div>
-                <Input tone="dark" label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
-                <Input tone="dark" label="Company" placeholder="e.g. Bechtel" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
+                <Input tone="light" label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
+                <Input tone="light" label="Company" placeholder="e.g. Bechtel" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
                   <DateField id={`f_work_start_${w.key}`} label="Start" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
                   <DateField id={`f_work_end_${w.key}`} label="End" helper="Leave blank if this is your current role." value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
                 </div>
-                <Input tone="dark" label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
+                <Input tone="light" label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-ink-900-dark">
+                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-ink-900">
                     Gulf experience
                   </label>
                   <select
@@ -1561,7 +1561,7 @@ function ProfileScreen() {
                     ))}
                   </select>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900-dark">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900">
                   Description
                   <textarea
                     rows={3}
@@ -1570,8 +1570,8 @@ function ProfileScreen() {
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { description: e.target.value }) }))}
                   />
                 </label>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900-dark">
-                  Highlights <span className="text-[11px] font-normal text-ink-400-dark">one per line</span>
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900">
+                  Highlights <span className="text-[11px] font-normal text-ink-400">one per line</span>
                   <textarea
                     rows={3}
                     className={textareaClass}
@@ -1591,12 +1591,12 @@ function ProfileScreen() {
             An empty array renders nothing (silence is correct here, not a
             manufactured "no gaps!"). */}
         {employmentGaps.length > 0 ? (
-          <div className="flex flex-col gap-2 rounded-radius-md border border-line-dark/70 bg-surface-dark px-3.5 py-3">
-            <span className="text-[12px] font-semibold text-ink-700-dark">
+          <div className="flex flex-col gap-2 rounded-radius-md border border-line-light/70 bg-surface-light px-3.5 py-3">
+            <span className="text-[12px] font-semibold text-ink-700">
               Employment gaps &mdash; just for your awareness
             </span>
             {employmentGaps.map((g, i) => (
-              <p key={i} className="text-[11px] leading-snug text-ink-400-dark">
+              <p key={i} className="text-[11px] leading-snug text-ink-400">
                 We noticed a {g.gapMonths}-month gap between {g.precedingCompany || 'a previous role'} and{' '}
                 {g.followingCompany || 'your next role'}. This isn&rsquo;t scored &mdash; just something to be aware of.
               </p>
@@ -1614,7 +1614,7 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addEducation}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
               >
                 <span aria-hidden="true">+</span> Add
               </button>
@@ -1622,25 +1622,25 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.education.map((x, i) => (
-              <div key={x.key} className="flex flex-col gap-2.5 border border-line-dark-strong rounded-radius-md p-3">
+              <div key={x.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-ink-400-dark">#{i + 1}</span>
+                  <span className="font-mono text-[11px] text-ink-400">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
                       setEditor((e) => (e ? { ...e, education: e.education.filter((y) => y.key !== x.key) } : e))
                     }
-                    className="min-h-11 px-1 text-[11px] font-semibold text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
+                    className="min-h-11 px-1 text-[11px] font-semibold text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
                   >
                     Remove
                   </button>
                 </div>
-                <Input tone="dark" label="Degree" placeholder="e.g. B.Tech" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
-                <Input tone="dark" label="Institution" placeholder="e.g. UPTU" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
-                <Input tone="dark" label="Field of study" placeholder="e.g. Electronics & Communication" value={x.field_of_study} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { field_of_study: e.target.value }) }))} />
+                <Input tone="light" label="Degree" placeholder="e.g. B.Tech" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
+                <Input tone="light" label="Institution" placeholder="e.g. UPTU" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
+                <Input tone="light" label="Field of study" placeholder="e.g. Electronics & Communication" value={x.field_of_study} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { field_of_study: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Input tone="dark" label="Start year" inputMode="numeric" placeholder="2005" value={x.start_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { start_year: e.target.value }) }))} />
-                  <Input tone="dark" label="End year" inputMode="numeric" placeholder="2009" value={x.end_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { end_year: e.target.value }) }))} />
+                  <Input tone="light" label="Start year" inputMode="numeric" placeholder="2005" value={x.start_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { start_year: e.target.value }) }))} />
+                  <Input tone="light" label="End year" inputMode="numeric" placeholder="2009" value={x.end_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { end_year: e.target.value }) }))} />
                 </div>
               </div>
             ))}
@@ -1658,7 +1658,7 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addSkill}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
               >
                 <span aria-hidden="true">+</span> Add
               </button>
@@ -1667,8 +1667,8 @@ function ProfileScreen() {
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
-                <span className="font-mono text-[11px] text-ink-400-dark">{i + 1}</span>
-                <Input tone="dark"
+                <span className="font-mono text-[11px] text-ink-400">{i + 1}</span>
+                <Input tone="light"
                   value={s.name}
                   aria-label={`Skill ${i + 1}`}
                   onChange={(e) => setEditor((st) => st && ({ ...st, skills: updateList(st.skills, s.key, { name: e.target.value }) }))}
@@ -1679,7 +1679,7 @@ function ProfileScreen() {
                     setEditor((e) => (e ? { ...e, skills: e.skills.filter((x) => x.key !== s.key) } : e))
                   }
                   aria-label={`Remove skill ${i + 1}`}
-                  className="min-h-11 px-2 text-[13px] text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
+                  className="min-h-11 px-2 text-[13px] text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
                 >
                   ✕
                 </button>
@@ -1699,7 +1699,7 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addCertification}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
               >
                 <span aria-hidden="true">+</span> Add
               </button>
@@ -1707,21 +1707,21 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.certifications.map((c, i) => (
-              <div key={c.key} className="flex flex-col gap-2.5 border border-line-dark-strong rounded-radius-md p-3">
+              <div key={c.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-ink-400-dark">#{i + 1}</span>
+                  <span className="font-mono text-[11px] text-ink-400">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
                       setEditor((e) => (e ? { ...e, certifications: e.certifications.filter((x) => x.key !== c.key) } : e))
                     }
-                    className="min-h-11 px-1 text-[11px] font-semibold text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
+                    className="min-h-11 px-1 text-[11px] font-semibold text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
                   >
                     Remove
                   </button>
                 </div>
-                <Input tone="dark" label="Name" placeholder="e.g. Functional Safety (IEC 61511)" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
-                <Input tone="dark" label="Issuer" placeholder="e.g. TÜV Rheinland" value={c.issuer} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issuer: e.target.value }) }))} />
+                <Input tone="light" label="Name" placeholder="e.g. Functional Safety (IEC 61511)" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
+                <Input tone="light" label="Issuer" placeholder="e.g. TÜV Rheinland" value={c.issuer} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issuer: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
                   <DateField id={`f_cert_issue_${c.key}`} label="Issued" value={c.issue_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issue_date: e.target.value }) }))} />
                   <DateField id={`f_cert_expiry_${c.key}`} label="Expires" helper="Blank if it does not expire." value={c.expiry_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { expiry_date: e.target.value }) }))} />
@@ -1742,20 +1742,20 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addAdditional}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
               >
                 <span aria-hidden="true">+</span> Add
               </button>
             }
         >
-          <p className="text-[11px] leading-snug text-ink-400-dark">
+          <p className="text-[11px] leading-snug text-ink-400">
             AI-labelled · you can rename the label on each item.
           </p>
           <div className="flex flex-col gap-3">
             {editor.additional_information.map((a) => (
-              <div key={a.key} className="flex flex-col gap-2.5 border border-line-dark-strong rounded-radius-md p-3">
+              <div key={a.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
                 <div className="flex gap-2">
-                  <Input tone="dark"
+                  <Input tone="light"
                     label="Label"
                     value={a.label}
                     onChange={(e) => setEditor((s) => s && ({ ...s, additional_information: updateList(s.additional_information, a.key, { label: e.target.value }) }))}
@@ -1767,13 +1767,13 @@ function ProfileScreen() {
                         setEditor((e) => (e ? { ...e, additional_information: e.additional_information.filter((x) => x.key !== a.key) } : e))
                       }
                       aria-label="Remove item"
-                      className="min-h-11 px-2 text-[13px] text-terra-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra-dark"
+                      className="min-h-11 px-2 text-[13px] text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
                     >
                       ✕
                     </button>
                   </div>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900-dark">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900">
                   Value
                   <textarea
                     rows={2}
@@ -1791,7 +1791,7 @@ function ProfileScreen() {
 
       {/* Save & exit / Confirm profile — same full-object PUT, differ in navigation */}
       {saveError ? (
-        <div className="mx-5 mb-3 rounded-radius-md border border-terra-dark/30 bg-terra-tint-dark px-3.5 py-3 text-[12px] text-terra-dark">
+        <div className="mx-5 mb-3 rounded-radius-md border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
           {saveError}
         </div>
       ) : null}
