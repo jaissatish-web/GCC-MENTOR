@@ -37,6 +37,7 @@ import {
 } from '@/lib/anonymousRateLimit'
 import { SESSION_COOKIE_NAME, upsertAnonymousSession } from '@/lib/anonymousSession'
 import { extractPdfText } from '@/lib/pdfTextExtract'
+import { analyzeResume } from '@/lib/gccReadiness/analyzeResume'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 
 /**
@@ -198,32 +199,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Resume text too long (maximum 20000 characters)' }, { status: 400 })
   }
 
-  let score: AtsScoreResult
-  try {
-    // Admin-editable intro/tone only (lib/ai/promptTemplates.ts) — the
-    // grounding constraint and output schema are always the fixed default
-    // inside buildAtsScoreSystemPrompt, never overridable from here.
-    const customIntro = await getPromptTemplate('ats_scan_intro')
-    const result = await generate({
-      system: buildAtsScoreSystemPrompt(customIntro),
-      user: buildAtsScoreUserPrompt(resumeText, jobDescription),
-      maxTokens: 2048,
-      temperature: 0.2,
-      route: '/api/ats-scan',
-      configKey: 'ats_scan',
-      // No userId — anonymous route, ai_usage_log records user_id = NULL
-      // (migration 024).
-    })
-    const parsed = extractJsonObject(result.text)
-    const validated = validateAtsScoreResult(parsed)
-    if (!validated) {
-      return NextResponse.json({ error: 'Could not analyze this resume. Please try again.' }, { status: 422 })
-    }
-    score = validated
-  } catch (e) {
-    console.error('ats-scan: AI call failed', e instanceof Error ? e.message : String(e))
-        return NextResponse.json({ error: 'AI scan failed: ' + (e instanceof Error ? e.message : String(e)), code: 'AI_FAILED' }, { status: 502 })
-  }
+  // GCC readiness is computed deterministically — see
+  // lib/gccReadiness/analyzeResume.ts for the full reasoning. In short: this
+  // report answers checklist questions ("does the CV state visa status?",
+  // "are achievements quantified?") that are lookups rather than judgements.
+  // Doing them in code rather than through a model takes the free scan from
+  // 44-97 seconds to milliseconds, costs nothing on free traffic, cannot
+  // hallucinate, and — critically — returns the SAME score for the same CV
+  // every time. The previous model-based scorer returned 78 and 45 for the
+  // same resume on two runs, which is disqualifying for a number users are
+  // meant to act on.
+  const analysis = analyzeResume(resumeText)
+  const score: AtsScoreResult = analysis
 
   // A successful scan consumes a rate-limit slot regardless of what happens
   // below — the score itself already succeeded and is what the caller paid
@@ -235,20 +222,38 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // successful scan into an error response. A visitor who never signs up
   // loses nothing; one who does loses only the "don't re-upload"
   // convenience or the Job Match breakdown, not the score they already got.
+  //
+  // EXTRACTION NOW RUNS ONLY WHEN THIS RESPONSE ACTUALLY NEEDS IT.
+  //
+  // It is by far the most expensive call in this route — measured at 8,193
+  // output tokens, roughly a minute of generation, because it asks the model to
+  // re-type the entire resume as JSON. The score above no longer depends on it,
+  // and a visitor without a job description never sees its output: it exists so
+  // that IF they sign up later their profile is pre-filled.
+  //
+  // Making an anonymous visitor wait a minute for a convenience they cannot see
+  // is the wrong trade. It now runs only when a job description was supplied,
+  // because the Job Match engine genuinely needs the candidate side. The raw
+  // resume text is still persisted below either way, so the pre-fill can be
+  // rebuilt later without costing the visitor their first impression.
   let draft: CareerProfileDraft | null = null
-  try {
-    const extractResult = await generate({
-      system: EXTRACTION_SYSTEM_PROMPT,
-      user: `Extract from this resume text:\n\n${resumeText}`,
-      maxTokens: 8192,
-      temperature: 0.1,
-      route: '/api/ats-scan',
-      configKey: 'extraction',
-      // No userId — same anonymous call as the score above.
-    })
-    draft = normalizeDraft(extractJsonObject(extractResult.text))
-  } catch (e) {
-    console.error('ats-scan: extraction failed (non-fatal)', e instanceof Error ? e.message : String(e))
+  if (jobDescription) {
+    try {
+      const extractResult = await generate({
+        system: EXTRACTION_SYSTEM_PROMPT,
+        user: `Extract from this resume text:
+
+${resumeText}`,
+        maxTokens: 8192,
+        temperature: 0.1,
+        route: '/api/ats-scan',
+        configKey: 'extraction',
+        // No userId — anonymous route, ai_usage_log records user_id = NULL.
+      })
+      draft = normalizeDraft(extractJsonObject(extractResult.text))
+    } catch (e) {
+      console.error('ats-scan: extraction failed (non-fatal)', e instanceof Error ? e.message : String(e))
+    }
   }
 
   // Job Match engine (TASK-071) — only runs when both a JD and a usable
