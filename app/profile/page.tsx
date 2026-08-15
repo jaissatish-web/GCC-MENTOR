@@ -501,14 +501,6 @@ const CATEGORY_COPY: Record<ReadinessCategory, { highlight: string; rest: string
 // Small presentational helpers
 // ---------------------------------------------------------------------------
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
-      {children}
-    </div>
-  )
-}
-
 /**
  * A section of the Career Profile form.
  *
@@ -521,6 +513,29 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
  * `optional` marks blocks a user can legitimately skip, so required vs
  * optional is visible at section level instead of guessed field by field.
  */
+/**
+ * The primary way to add another row to a list section.
+ *
+ * Full width, dashed, and sitting directly under the last row — the place the
+ * user's eye already is when they finish one entry. The previous control was an
+ * 11px text link in the section header with no minimum touch target, which is
+ * why adding a second job or degree was easy to miss entirely.
+ */
+function AddRowButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-radius-md border border-dashed border-line-dark-strong px-4 py-3 text-[13px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark focus-visible:ring-offset-2 focus-visible:ring-offset-surface-dark"
+    >
+      <span aria-hidden="true" className="text-[15px] leading-none">
+        +
+      </span>
+      {label}
+    </button>
+  )
+}
+
 /**
  * The points chip shown at the right of a section heading.
  *
@@ -870,19 +885,68 @@ function ProfileScreen() {
   const itemsLeft = readiness.missing.length
 
   // "Finish these to reach 100" → scroll/focus the inline field (never a route).
-  const focusField = useCallback((field: string) => {
-    const el =
-      document.getElementById(`f_${field}`) ??
-      document.getElementById(`sec_${field}`) ??
-      document.getElementById('sec_identity')
-    if (!el) return
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    const tag = el.tagName
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') (el as HTMLElement).focus()
-  }, [])
-
   const setField = useCallback((patch: Partial<EditorData>) => {
     setEditor((e) => (e ? { ...e, ...patch } : e))
+  }, [])
+
+  // ---- Row adders -----------------------------------------------------------
+  // Named rather than inline so the same handler backs both the header button
+  // and the "Add another" button under each list. Senior candidates routinely
+  // have five or more roles and several qualifications, so adding the next one
+  // has to be obvious from where the user actually is — the bottom of the list
+  // they just finished — not only from a control in the section header.
+  const addWork = useCallback(() => {
+    setEditor((e) =>
+      e
+        ? {
+            ...e,
+            work_experience: [
+              ...e.work_experience,
+              { key: uid(), company: '', role: '', start_date: '', end_date: '', location: '', description: '', highlights: '', gcc_country: '' },
+            ],
+          }
+        : e
+    )
+  }, [])
+
+  const addEducation = useCallback(() => {
+    setEditor((e) =>
+      e
+        ? {
+            ...e,
+            education: [
+              ...e.education,
+              { key: uid(), degree: '', institution: '', field_of_study: '', start_year: '', end_year: '' },
+            ],
+          }
+        : e
+    )
+  }, [])
+
+  const addSkill = useCallback(() => {
+    setEditor((e) => (e ? { ...e, skills: [...e.skills, { key: uid(), name: '' }] } : e))
+  }, [])
+
+  const addCertification = useCallback(() => {
+    setEditor((e) =>
+      e
+        ? {
+            ...e,
+            certifications: [
+              ...e.certifications,
+              { key: uid(), name: '', issuer: '', issue_date: '', expiry_date: '' },
+            ],
+          }
+        : e
+    )
+  }, [])
+
+  const addAdditional = useCallback(() => {
+    setEditor((e) =>
+      e
+        ? { ...e, additional_information: [...e.additional_information, { key: uid(), label: '', value: '' }] }
+        : e
+    )
   }, [])
 
   // Phone/WhatsApp write back as one joined string — see the phoneParts note above.
@@ -1011,27 +1075,12 @@ function ProfileScreen() {
         </div>
       ) : null}
 
-      {/* "Finish these to reach 100" — inline taps to the field */}
-      {readiness.missing.length > 0 ? (
-        <div className="flex flex-col gap-2.5 px-5 pt-4">
-          <SectionHeading>Finish these to reach 100</SectionHeading>
-          <div className="flex flex-col gap-2">
-            {readiness.missing.map((m) => (
-              <button
-                key={m.field}
-                type="button"
-                onClick={() => focusField(m.field)}
-                className="flex min-h-11 items-center justify-between gap-3 rounded-radius-md border border-line-dark/70 bg-surface-dark px-3.5 py-3 text-left transition-colors hover:bg-surface-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-2 focus-visible:ring-offset-void"
-              >
-                <span className="text-[13px] font-medium text-ink-900-dark">
-                  {m.label} <span className="font-normal text-ink-400-dark">· +{m.points} points</span>
-                </span>
-                <span className="shrink-0 text-[11px] font-semibold text-forest-dark">Add →</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
+      {/* The old "Finish these to reach 100" checklist stood here. Removed:
+          every one of its rows named a field that appears immediately below,
+          and each section now carries its own earned/total points chip, so the
+          list was a second copy of the same information sitting between the
+          user and the form they actually came to fill in. The ring above still
+          shows the score; the chips show where the remaining points are. */}
 
       {/* Editor body */}
       <div className="flex flex-col gap-4 px-5 py-4">
@@ -1052,25 +1101,25 @@ function ProfileScreen() {
             onChange={(v) => setField({ currently_in_gulf: v })}
           />
           <div className="grid gap-3">
-            <Input
+            <Input tone="dark"
               id="f_current_employer"
               label="Current employer"
               value={editor.current_employer}
               onChange={(e) => setField({ current_employer: e.target.value })}
             />
-            <Input
+            <Input tone="dark"
               id="f_current_project"
               label="Current project"
               value={editor.current_project}
               onChange={(e) => setField({ current_project: e.target.value })}
             />
-            <Input
+            <Input tone="dark"
               id="f_target_job_title"
               label="Target job title (required)"
               value={editor.target_job_title}
               onChange={(e) => setField({ target_job_title: e.target.value })}
             />
-            <Input
+            <Input tone="dark"
               id="f_target_industry"
               label="Target industry (required)"
               value={editor.target_industry}
@@ -1096,7 +1145,7 @@ function ProfileScreen() {
                 ))}
               </select>
             </div>
-            <Input
+            <Input tone="dark"
               id="f_target_company"
               label="Target company (optional)"
               value={editor.target_company}
@@ -1163,19 +1212,19 @@ function ProfileScreen() {
               value={editor.email}
               onChange={(e) => setField({ email: e.target.value })}
             />
-            <Input
+            <Input tone="dark"
               id="f_current_location"
               label="Current location"
               value={editor.current_location}
               onChange={(e) => setField({ current_location: e.target.value })}
             />
-            <Input
+            <Input tone="dark"
               id="f_nationality"
               label="Nationality"
               value={editor.nationality}
               onChange={(e) => setField({ nationality: e.target.value })}
             />
-            <Input
+            <Input tone="dark"
               id="f_linkedin_url"
               label="LinkedIn URL"
               type="url"
@@ -1213,7 +1262,7 @@ function ProfileScreen() {
               value={editor.passport_validity_date}
               onChange={(e) => setField({ passport_validity_date: e.target.value })}
             />
-            <Input
+            <Input tone="dark"
               id="f_visa_status"
               label="Visa status"
               value={editor.visa_status}
@@ -1226,7 +1275,7 @@ function ProfileScreen() {
               checked={editor.visa_transferable}
               onChange={(v) => setField({ visa_transferable: v })}
             />
-            <Input
+            <Input tone="dark"
               id="f_notice_period"
               label="Notice period"
               value={editor.notice_period}
@@ -1269,13 +1318,13 @@ function ProfileScreen() {
           </div>
           {editor.has_driving_license === true ? (
             <div className="grid gap-3">
-              <Input
+              <Input tone="dark"
                 id="f_driving_license_country"
                 label="Country issued"
                 value={editor.driving_license_country}
                 onChange={(e) => setField({ driving_license_country: e.target.value })}
               />
-              <Input
+              <Input tone="dark"
                 id="f_driving_license_category"
                 label="Category / type"
                 value={editor.driving_license_category}
@@ -1366,36 +1415,14 @@ function ProfileScreen() {
           helper="Add your most recent role first. Focus on responsibilities, measurable achievements, and the systems or standards you worked to."
           badge={editor.work_experience.length ? `${editor.work_experience.length} found` : undefined}
           action={
-            <button
-              type="button"
-              onClick={() =>
-                setEditor((e) =>
-                  e
-                    ? {
-                        ...e,
-                        work_experience: [
-                          ...e.work_experience,
-                          {
-                            key: uid(),
-                            company: '',
-                            role: '',
-                            start_date: '',
-                            end_date: '',
-                            location: '',
-                            description: '',
-                            highlights: '',
-                            gcc_country: '',
-                          },
-                        ],
-                      }
-                    : e
-                )
-              }
-              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
-            >
-              + Add
-            </button>
-          }
+              <button
+                type="button"
+                onClick={addWork}
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+              >
+                <span aria-hidden="true">+</span> Add
+              </button>
+            }
         >
           <div className="flex flex-col gap-4">
             {editor.work_experience.map((w, i) => (
@@ -1419,13 +1446,13 @@ function ProfileScreen() {
                     Remove
                   </button>
                 </div>
-                <Input label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
-                <Input label="Company" placeholder="e.g. Bechtel" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
+                <Input tone="dark" label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
+                <Input tone="dark" label="Company" placeholder="e.g. Bechtel" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
                   <DateField id={`f_work_start_${w.key}`} label="Start" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
                   <DateField id={`f_work_end_${w.key}`} label="End" helper="Leave blank if this is your current role." value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
                 </div>
-                <Input label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
+                <Input tone="dark" label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-ink-900-dark">
                     Gulf experience
@@ -1466,6 +1493,7 @@ function ProfileScreen() {
                 </label>
               </div>
             ))}
+            <AddRowButton label="Add another role" onClick={addWork} />
           </div>
         </CardSection>
 
@@ -1496,33 +1524,14 @@ function ProfileScreen() {
           helper="Degrees and formal qualifications. Include the awarding institution — Gulf employers frequently verify it."
           badge={editor.education.length ? `${editor.education.length} found` : undefined}
           action={
-            <button
-              type="button"
-              onClick={() =>
-                setEditor((e) =>
-                  e
-                    ? {
-                        ...e,
-                        education: [
-                          ...e.education,
-                          {
-                            key: uid(),
-                            degree: '',
-                            institution: '',
-                            field_of_study: '',
-                            start_year: '',
-                            end_year: '',
-                          },
-                        ],
-                      }
-                    : e
-                )
-              }
-              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
-            >
-              + Add
-            </button>
-          }
+              <button
+                type="button"
+                onClick={addEducation}
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+              >
+                <span aria-hidden="true">+</span> Add
+              </button>
+            }
         >
           <div className="flex flex-col gap-3">
             {editor.education.map((x, i) => (
@@ -1539,15 +1548,16 @@ function ProfileScreen() {
                     Remove
                   </button>
                 </div>
-                <Input label="Degree" placeholder="e.g. B.Tech" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
-                <Input label="Institution" placeholder="e.g. UPTU" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
-                <Input label="Field of study" placeholder="e.g. Electronics & Communication" value={x.field_of_study} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { field_of_study: e.target.value }) }))} />
+                <Input tone="dark" label="Degree" placeholder="e.g. B.Tech" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
+                <Input tone="dark" label="Institution" placeholder="e.g. UPTU" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
+                <Input tone="dark" label="Field of study" placeholder="e.g. Electronics & Communication" value={x.field_of_study} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { field_of_study: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Input label="Start year" inputMode="numeric" placeholder="2005" value={x.start_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { start_year: e.target.value }) }))} />
-                  <Input label="End year" inputMode="numeric" placeholder="2009" value={x.end_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { end_year: e.target.value }) }))} />
+                  <Input tone="dark" label="Start year" inputMode="numeric" placeholder="2005" value={x.start_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { start_year: e.target.value }) }))} />
+                  <Input tone="dark" label="End year" inputMode="numeric" placeholder="2009" value={x.end_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { end_year: e.target.value }) }))} />
                 </div>
               </div>
             ))}
+            <AddRowButton label="Add another qualification" onClick={addEducation} />
           </div>
         </CardSection>
 
@@ -1559,22 +1569,20 @@ function ProfileScreen() {
           helper="List the technical skills and systems you actually worked with. The optimizer reorders these for each job; it never adds a skill you did not enter."
           badge={editor.skills.length ? `${editor.skills.length} found` : undefined}
           action={
-            <button
-              type="button"
-              onClick={() =>
-                setEditor((e) => (e ? { ...e, skills: [...e.skills, { key: uid(), name: '' }] } : e))
-              }
-              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
-            >
-              + Add
-            </button>
-          }
+              <button
+                type="button"
+                onClick={addSkill}
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+              >
+                <span aria-hidden="true">+</span> Add
+              </button>
+            }
         >
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
                 <span className="font-mono text-[11px] text-ink-400-dark">{i + 1}</span>
-                <Input
+                <Input tone="dark"
                   value={s.name}
                   aria-label={`Skill ${i + 1}`}
                   onChange={(e) => setEditor((st) => st && ({ ...st, skills: updateList(st.skills, s.key, { name: e.target.value }) }))}
@@ -1591,6 +1599,7 @@ function ProfileScreen() {
                 </button>
               </div>
             ))}
+            <AddRowButton label="Add another skill" onClick={addSkill} />
           </div>
         </CardSection>
 
@@ -1602,26 +1611,14 @@ function ProfileScreen() {
           helper="Safety, technical and vendor certifications. These carry real weight in Gulf hiring, so add expiry dates where they apply."
           badge={editor.certifications.length ? `${editor.certifications.length} found` : undefined}
           action={
-            <button
-              type="button"
-              onClick={() =>
-                setEditor((e) =>
-                  e
-                    ? {
-                        ...e,
-                        certifications: [
-                          ...e.certifications,
-                          { key: uid(), name: '', issuer: '', issue_date: '', expiry_date: '' },
-                        ],
-                      }
-                    : e
-                )
-              }
-              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
-            >
-              + Add
-            </button>
-          }
+              <button
+                type="button"
+                onClick={addCertification}
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+              >
+                <span aria-hidden="true">+</span> Add
+              </button>
+            }
         >
           <div className="flex flex-col gap-3">
             {editor.certifications.map((c, i) => (
@@ -1638,14 +1635,15 @@ function ProfileScreen() {
                     Remove
                   </button>
                 </div>
-                <Input label="Name" placeholder="e.g. Functional Safety (IEC 61511)" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
-                <Input label="Issuer" placeholder="e.g. TÜV Rheinland" value={c.issuer} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issuer: e.target.value }) }))} />
+                <Input tone="dark" label="Name" placeholder="e.g. Functional Safety (IEC 61511)" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
+                <Input tone="dark" label="Issuer" placeholder="e.g. TÜV Rheinland" value={c.issuer} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issuer: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
                   <DateField id={`f_cert_issue_${c.key}`} label="Issued" value={c.issue_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issue_date: e.target.value }) }))} />
                   <DateField id={`f_cert_expiry_${c.key}`} label="Expires" helper="Blank if it does not expire." value={c.expiry_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { expiry_date: e.target.value }) }))} />
                 </div>
               </div>
             ))}
+            <AddRowButton label="Add another certification" onClick={addCertification} />
           </div>
         </CardSection>
 
@@ -1657,16 +1655,14 @@ function ProfileScreen() {
           title="Additional information"
           helper="Not scored, but it is where you answer the questions a Gulf recruiter asks next — languages, availability, references."
           action={
-            <button
-              type="button"
-              onClick={() =>
-                setEditor((e) => (e ? { ...e, additional_information: [...e.additional_information, { key: uid(), label: '', value: '' }] } : e))
-              }
-              className="text-[11px] font-semibold text-forest-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
-            >
-              + Add
-            </button>
-          }
+              <button
+                type="button"
+                onClick={addAdditional}
+                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-dark-strong px-3 text-[12px] font-semibold text-forest-dark transition-colors hover:border-forest-dark hover:bg-forest-tint-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-dark"
+              >
+                <span aria-hidden="true">+</span> Add
+              </button>
+            }
         >
           <p className="text-[11px] leading-snug text-ink-400-dark">
             AI-labelled · you can rename the label on each item.
@@ -1675,7 +1671,7 @@ function ProfileScreen() {
             {editor.additional_information.map((a) => (
               <div key={a.key} className="flex flex-col gap-2.5 border border-line-dark-strong rounded-radius-md p-3">
                 <div className="flex gap-2">
-                  <Input
+                  <Input tone="dark"
                     label="Label"
                     value={a.label}
                     onChange={(e) => setEditor((s) => s && ({ ...s, additional_information: updateList(s.additional_information, a.key, { label: e.target.value }) }))}
@@ -1704,6 +1700,7 @@ function ProfileScreen() {
                 </label>
               </div>
             ))}
+            <AddRowButton label="Add another item" onClick={addAdditional} />
           </div>
         </CardSection>
       </div>
