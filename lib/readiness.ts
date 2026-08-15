@@ -178,6 +178,33 @@ export interface ReadinessResult {
   missing: MissingItem[]
 }
 
+/**
+ * What each scored field is worth for a given category — the same numbers
+ * calculateReadiness() awards, exposed so the profile form can show a section's
+ * real point value next to its heading.
+ *
+ * This has to be derived rather than hard-coded in the UI, because the weights
+ * are NOT fixed: Education is worth 30 to a fresher but 5 to someone already in
+ * the Gulf, and Visa readiness is worth 0 to a fresher but 40 in-Gulf (see
+ * WEIGHTS above). A static "+30 points" label would therefore be wrong for most
+ * users. Fields absent from the returned map are genuinely unscored.
+ *
+ * Pure and side-effect free, like everything else in this file. The `profile`
+ * argument is only needed because groupsFor() takes it; no field values affect
+ * the weights themselves.
+ */
+export function fieldPointsFor(category: ReadinessCategory): Record<string, number> {
+  const key = CATEGORY_TO_KEY[category]
+  // groupsFor only reads `profile` to build the closures, never to pick weights,
+  // so a minimal stub is sufficient and keeps this callable without a profile.
+  const stub: ReadinessInput = { currently_in_gulf: false }
+  const out: Record<string, number> = {}
+  for (const group of groupsFor(stub, key)) {
+    for (const item of group.items) out[item.field] = item.points
+  }
+  return out
+}
+
 export function calculateReadiness(profile: ReadinessInput): ReadinessResult {
   const category = deriveCategory(profile)
   const key = CATEGORY_TO_KEY[category]

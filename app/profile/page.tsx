@@ -20,8 +20,10 @@ import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
-import { calculateReadiness, type ReadinessResult } from '@/lib/readiness'
+import { calculateReadiness, fieldPointsFor, type ReadinessResult } from '@/lib/readiness'
 import { toDateInputValue, toMonthInputValue } from '@/lib/partialDates'
+import { splitPhone, joinPhone } from '@/lib/phone'
+import { TextField, TextAreaField, SelectField, DateField, PhoneField } from '@/components/ui/FormField'
 import type { ReadinessCategory, PassportType } from '@/types/careerProfile'
 import type { CareerProfileDraft, CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
@@ -519,6 +521,54 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
  * `optional` marks blocks a user can legitimately skip, so required vs
  * optional is visible at section level instead of guessed field by field.
  */
+/**
+ * The points chip shown at the right of a section heading.
+ *
+ * `earned`/`total` are computed live from lib/readiness.ts for THIS user's
+ * category — never hard-coded. That is not pedantry: the weights genuinely
+ * differ per category (Education is 30 points to a fresher and 5 to someone
+ * already in the Gulf; Visa readiness is 0 to a fresher and 40 in-Gulf), so a
+ * fixed "+30 points" label would be wrong for most people looking at it.
+ *
+ * A section worth nothing shows "Not scored" rather than "+0 points", because
+ * "0" reads as a bug or as "worthless" — several unscored sections (summary,
+ * licence) still materially affect the CV the user gets out.
+ */
+function PointsChip({ earned, total }: { earned: number; total: number }) {
+  if (total === 0) {
+    return (
+      <span className="shrink-0 whitespace-nowrap rounded-full border border-line-dark-strong px-2.5 py-1 text-[10.5px] font-semibold text-ink-400-dark">
+        Not scored
+      </span>
+    )
+  }
+  const complete = earned >= total
+  return (
+    <span
+      className={cn(
+        'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[10.5px] font-bold tabular-nums',
+        complete
+          ? 'bg-forest-tint-dark text-forest-dark'
+          : 'bg-redesign-gold-tint-dark text-gold-text-dark'
+      )}
+      title={`This section is worth ${total} of your 100 readiness points`}
+    >
+      {complete ? `✓ ${total} pts` : `${earned}/${total} pts`}
+    </span>
+  )
+}
+
+/**
+ * A section of the Career Profile form.
+ *
+ * Heading layout is deliberately two-column: the left column carries the title
+ * and the one-line reason the block exists, the right carries what it is worth.
+ * That pairing is the point — it answers "why am I filling this in?" and
+ * "what do I get for it?" in the same glance, which is the difference between a
+ * long form feeling arbitrary and feeling like it is going somewhere. On mobile
+ * the two stack, with the chip pinned to the top-right of the title row so it
+ * never pushes the heading into a second line.
+ */
 function CardSection({
   id,
   title,
@@ -526,6 +576,8 @@ function CardSection({
   badge,
   action,
   optional,
+  earned,
+  total,
   children,
 }: {
   id?: string
@@ -534,33 +586,37 @@ function CardSection({
   badge?: string
   action?: React.ReactNode
   optional?: boolean
+  earned?: number
+  total?: number
   children: React.ReactNode
 }) {
   return (
-    <Card id={id} tone="dark" className="flex scroll-mt-24 flex-col gap-3.5 p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-[15px] font-bold text-ink-900-dark">{title}</h2>
+    <Card id={id} tone="dark" className="flex scroll-mt-24 flex-col gap-4 p-4 sm:p-5">
+      <div className="flex flex-col gap-2.5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h2 className="text-[15px] font-bold leading-snug text-ink-900-dark">{title}</h2>
             {optional ? (
               <span className="rounded-[5px] border border-line-dark-strong px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-400-dark">
                 Optional
               </span>
             ) : null}
+            {badge ? (
+              <span className="rounded-[5px] bg-surface-2-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-700-dark">
+                {badge}
+              </span>
+            ) : null}
           </div>
-          {helper ? (
-            <p className="max-w-[68ch] text-[12px] leading-relaxed text-ink-400-dark">{helper}</p>
+          {typeof total === 'number' ? (
+            <PointsChip earned={earned ?? 0} total={total} />
           ) : null}
         </div>
-        {badge ? (
-          <span className="shrink-0 rounded-[5px] bg-redesign-gold-tint-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text-dark">
-            {badge}
-          </span>
-        ) : action ? (
-          <span className="shrink-0">{action}</span>
+        {helper ? (
+          <p className="max-w-[70ch] text-[12.5px] leading-relaxed text-ink-400-dark">{helper}</p>
         ) : null}
+        {action ? <div className="flex flex-wrap gap-2">{action}</div> : null}
       </div>
-      {children}
+      <div className="border-t border-line-dark pt-4">{children}</div>
     </Card>
   )
 }
@@ -574,6 +630,33 @@ function CardSection({
  * a persistent map of the blocks so any part is one click away. The anchors are
  * the section ids that already existed on the cards.
  */
+/**
+ * Which scored readiness fields each form section is responsible for.
+ *
+ * This mapping is needed because the readiness groups and the form's blocks are
+ * not 1:1 — the "Contact & target" group is split across two sections (targets
+ * live in Status & target, contact details in Identity), and the whole Visa
+ * readiness group sits inside Identity & contact. Sections with no entry here
+ * are genuinely unscored and render "Not scored".
+ */
+const SECTION_FIELDS: Record<string, readonly string[]> = {
+  sec_status: ['target_job_title', 'target_country', 'target_industry', 'target_company'],
+  sec_identity: [
+    'full_name',
+    'phone',
+    'email',
+    'current_location',
+    'visa_status',
+    'visa_transferable',
+    'notice_period',
+    'passport_validity_date',
+  ],
+  sec_work_experience: ['work_experience'],
+  sec_education: ['education'],
+  sec_skills: ['skills'],
+  sec_certifications: ['certifications'],
+}
+
 const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
   { id: 'sec_status', label: 'Status & target' },
   { id: 'sec_identity', label: 'Identity & contact' },
@@ -746,6 +829,42 @@ function ProfileScreen() {
     })
   }, [editor])
 
+  // ---- Per-section point totals --------------------------------------------
+  // `fieldPointsFor` gives what each scored field is worth for THIS user's
+  // category; `readiness.missing` says which are still empty. Earned = total
+  // minus whatever in that section is still outstanding, so the chips always
+  // reconcile with the ring above them instead of being a second, drifting
+  // source of truth.
+  const sectionPoints = useMemo(() => {
+    const perField = fieldPointsFor(readiness.category)
+    const missingFields = new Set(readiness.missing.map((m) => m.field))
+    const out: Record<string, { earned: number; total: number }> = {}
+    for (const [sectionId, fields] of Object.entries(SECTION_FIELDS)) {
+      let total = 0
+      let earned = 0
+      for (const f of fields) {
+        const pts = perField[f] ?? 0
+        total += pts
+        if (!missingFields.has(f)) earned += pts
+      }
+      out[sectionId] = { earned, total }
+    }
+    return out
+  }, [readiness.category, readiness.missing])
+
+  const pointsFor = useCallback(
+    (sectionId: string) => sectionPoints[sectionId] ?? { earned: 0, total: 0 },
+    [sectionPoints]
+  )
+
+  // ---- Phone / WhatsApp: split for editing, joined for storage --------------
+  // The DB columns stay single strings (lib/phone.ts explains why), so the
+  // split is derived from the stored value rather than held as extra state —
+  // that keeps one source of truth and means an extracted or previously-saved
+  // number round-trips without a migration.
+  const phoneParts = useMemo(() => splitPhone(editor?.phone), [editor?.phone])
+  const whatsappParts = useMemo(() => splitPhone(editor?.whatsapp), [editor?.whatsapp])
+
   const firstName = editor ? (editor.full_name.trim().split(/\s+/)[0] || 'there') : 'there'
   const categoryCopy = CATEGORY_COPY[readiness.category]
   const itemsLeft = readiness.missing.length
@@ -765,6 +884,16 @@ function ProfileScreen() {
   const setField = useCallback((patch: Partial<EditorData>) => {
     setEditor((e) => (e ? { ...e, ...patch } : e))
   }, [])
+
+  // Phone/WhatsApp write back as one joined string — see the phoneParts note above.
+  const setPhone = useCallback(
+    (dial: string, number: string) => setField({ phone: joinPhone(dial, number) }),
+    [setField]
+  )
+  const setWhatsapp = useCallback(
+    (dial: string, number: string) => setField({ whatsapp: joinPhone(dial, number) }),
+    [setField]
+  )
 
   const updateList = useCallback(
     <T extends { key: string }>(list: T[], key: string, patch: Partial<T>): T[] =>
@@ -911,6 +1040,7 @@ function ProfileScreen() {
         {/* STATUS & TARGET */}
         <CardSection
           id="sec_status"
+          {...pointsFor('sec_status')}
           title="Status & target"
           helper="Where you are now and the role you are aiming for. This steers how every generated resume is framed, so it is worth getting right first."
         >
@@ -979,6 +1109,7 @@ function ProfileScreen() {
             (TASK-025 screen 04b), the per-field "what appears on your CV" view. */}
         <CardSection
           id="sec_identity"
+          {...pointsFor('sec_identity')}
           title="Identity & contact"
           helper="Your name, contact details and documents. Passport, visa and contact fields are encrypted, and you control what appears on a generated CV."
           action={
@@ -990,31 +1121,45 @@ function ProfileScreen() {
             </Link>
           }
         >
-          <div className="grid gap-3">
-            <Input
+          <div className="grid gap-4 sm:grid-cols-2">
+            <TextField
               id="f_full_name"
-              label="Full name (required)"
+              label="Full name"
+              required
+              placeholder="e.g. Satish Kumar Jaiswal"
+              helper="Exactly as it appears on your passport — Gulf employers check this against your documents."
               value={editor.full_name}
               onChange={(e) => setField({ full_name: e.target.value })}
+              className="sm:col-span-2"
             />
-            <Input
+            <PhoneField
               id="f_phone"
-              label="Phone (required)"
-              type="tel"
-              value={editor.phone}
-              onChange={(e) => setField({ phone: e.target.value })}
+              label="Phone"
+              required
+              helper="Pick your country code, then the number without it."
+              dial={phoneParts.dial}
+              number={phoneParts.number}
+              onDialChange={(v) => setPhone(v, phoneParts.number)}
+              onNumberChange={(v) => setPhone(phoneParts.dial, v)}
             />
-            <Input
+            <PhoneField
               id="f_whatsapp"
               label="WhatsApp"
-              type="tel"
-              value={editor.whatsapp}
-              onChange={(e) => setField({ whatsapp: e.target.value })}
+              helper="Leave blank if it is the same as your phone number."
+              dial={whatsappParts.dial}
+              number={whatsappParts.number}
+              onDialChange={(v) => setWhatsapp(v, whatsappParts.number)}
+              onNumberChange={(v) => setWhatsapp(whatsappParts.dial, v)}
             />
-            <Input
+            <TextField
               id="f_email"
-              label="Email (required)"
+              label="Email"
+              required
               type="email"
+              inputMode="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              helper="Where recruiters will reply. Use one you check daily."
               value={editor.email}
               onChange={(e) => setField({ email: e.target.value })}
             />
@@ -1037,10 +1182,11 @@ function ProfileScreen() {
               value={editor.linkedin_url}
               onChange={(e) => setField({ linkedin_url: e.target.value })}
             />
-            <Input
+            <DateField
               id="f_date_of_birth"
               label="Date of birth"
-              type="date"
+              precision="day"
+              helper="Many Gulf employers require this on the CV itself."
               value={editor.date_of_birth}
               onChange={(e) => setField({ date_of_birth: e.target.value })}
             />
@@ -1059,10 +1205,11 @@ function ProfileScreen() {
                 <option value="Non-ECR">Non-ECR</option>
               </select>
             </div>
-            <Input
+            <DateField
               id="f_passport_validity_date"
-              label="Passport validity date"
-              type="date"
+              label="Passport valid until"
+              precision="day"
+              helper="Employers check you have enough validity left to process a work visa."
               value={editor.passport_validity_date}
               onChange={(e) => setField({ passport_validity_date: e.target.value })}
             />
@@ -1096,9 +1243,10 @@ function ProfileScreen() {
             — deliberately no field_visibility toggle (TASK-067 scope decision). */}
         <CardSection
           id="sec_license"
+          {...pointsFor('sec_license')}
           title="Driving license"
           optional
-          helper="Gulf employers often ask for this outright, especially for site and field roles. Skip it if you do not hold one."
+          helper="Not scored, but Gulf employers ask for it outright on site and field roles — and its absence is often what filters a CV out. Skip it only if you genuinely do not hold one."
         >
           <div className="flex flex-col gap-1.5">
             <label htmlFor="f_has_driving_license" className="text-sm font-medium text-ink-900-dark">
@@ -1133,10 +1281,10 @@ function ProfileScreen() {
                 value={editor.driving_license_category}
                 onChange={(e) => setField({ driving_license_category: e.target.value })}
               />
-              <Input
+              <DateField
                 id="f_driving_license_validity_date"
-                label="Validity date"
-                type="date"
+                label="Valid until"
+                precision="day"
                 value={editor.driving_license_validity_date}
                 onChange={(e) => setField({ driving_license_validity_date: e.target.value })}
               />
@@ -1147,8 +1295,9 @@ function ProfileScreen() {
         {/* PROFESSIONAL SUMMARY — the user's OWN summary, source of the diff */}
         <CardSection
           id="sec_summary"
+          {...pointsFor('sec_summary')}
           title="Professional summary"
-          helper="Briefly describe your experience, strongest skills, industry background, and the type of role you are targeting. Two or three sentences is plenty — the optimizer rewrites the framing, never the facts."
+          helper="Not scored, but it is the first thing a recruiter reads. Describe your experience, strongest skills, industry background and the role you are targeting — two or three sentences. The optimizer rewrites the framing for each job; it never changes the facts."
         >
           <textarea
             id="f_professional_summary"
@@ -1212,6 +1361,7 @@ function ProfileScreen() {
         {/* WORK EXPERIENCE */}
         <CardSection
           id="sec_work_experience"
+          {...pointsFor('sec_work_experience')}
           title="Work experience"
           helper="Add your most recent role first. Focus on responsibilities, measurable achievements, and the systems or standards you worked to."
           badge={editor.work_experience.length ? `${editor.work_experience.length} found` : undefined}
@@ -1269,13 +1419,13 @@ function ProfileScreen() {
                     Remove
                   </button>
                 </div>
-                <Input label="Role" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
-                <Input label="Company" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
+                <Input label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
+                <Input label="Company" placeholder="e.g. Bechtel" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Input label="Start" type="month" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
-                  <Input label="End (blank = current)" type="month" value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
+                  <DateField id={`f_work_start_${w.key}`} label="Start" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
+                  <DateField id={`f_work_end_${w.key}`} label="End" helper="Leave blank if this is your current role." value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
                 </div>
-                <Input label="Location" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
+                <Input label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-ink-900-dark">
                     Gulf experience
@@ -1341,6 +1491,7 @@ function ProfileScreen() {
         {/* EDUCATION */}
         <CardSection
           id="sec_education"
+          {...pointsFor('sec_education')}
           title="Education"
           helper="Degrees and formal qualifications. Include the awarding institution — Gulf employers frequently verify it."
           badge={editor.education.length ? `${editor.education.length} found` : undefined}
@@ -1388,12 +1539,12 @@ function ProfileScreen() {
                     Remove
                   </button>
                 </div>
-                <Input label="Degree" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
-                <Input label="Institution" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
-                <Input label="Field of study" value={x.field_of_study} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { field_of_study: e.target.value }) }))} />
+                <Input label="Degree" placeholder="e.g. B.Tech" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
+                <Input label="Institution" placeholder="e.g. UPTU" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
+                <Input label="Field of study" placeholder="e.g. Electronics & Communication" value={x.field_of_study} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { field_of_study: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Input label="Start year" inputMode="numeric" value={x.start_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { start_year: e.target.value }) }))} />
-                  <Input label="End year" inputMode="numeric" value={x.end_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { end_year: e.target.value }) }))} />
+                  <Input label="Start year" inputMode="numeric" placeholder="2005" value={x.start_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { start_year: e.target.value }) }))} />
+                  <Input label="End year" inputMode="numeric" placeholder="2009" value={x.end_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { end_year: e.target.value }) }))} />
                 </div>
               </div>
             ))}
@@ -1403,6 +1554,7 @@ function ProfileScreen() {
         {/* SKILLS */}
         <CardSection
           id="sec_skills"
+          {...pointsFor('sec_skills')}
           title="Skills"
           helper="List the technical skills and systems you actually worked with. The optimizer reorders these for each job; it never adds a skill you did not enter."
           badge={editor.skills.length ? `${editor.skills.length} found` : undefined}
@@ -1445,6 +1597,7 @@ function ProfileScreen() {
         {/* CERTIFICATIONS */}
         <CardSection
           id="sec_certifications"
+          {...pointsFor('sec_certifications')}
           title="Certifications"
           helper="Safety, technical and vendor certifications. These carry real weight in Gulf hiring, so add expiry dates where they apply."
           badge={editor.certifications.length ? `${editor.certifications.length} found` : undefined}
@@ -1485,11 +1638,11 @@ function ProfileScreen() {
                     Remove
                   </button>
                 </div>
-                <Input label="Name" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
-                <Input label="Issuer" value={c.issuer} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issuer: e.target.value }) }))} />
+                <Input label="Name" placeholder="e.g. Functional Safety (IEC 61511)" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
+                <Input label="Issuer" placeholder="e.g. TÜV Rheinland" value={c.issuer} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issuer: e.target.value }) }))} />
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Input label="Issue date" type="month" value={c.issue_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issue_date: e.target.value }) }))} />
-                  <Input label="Expiry date" type="month" value={c.expiry_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { expiry_date: e.target.value }) }))} />
+                  <DateField id={`f_cert_issue_${c.key}`} label="Issued" value={c.issue_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issue_date: e.target.value }) }))} />
+                  <DateField id={`f_cert_expiry_${c.key}`} label="Expires" helper="Blank if it does not expire." value={c.expiry_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { expiry_date: e.target.value }) }))} />
                 </div>
               </div>
             ))}
@@ -1500,8 +1653,9 @@ function ProfileScreen() {
             MVP: a single section; not individually toggleable per field (Phase 2). */}
         <CardSection
           id="sec_additional"
+          {...pointsFor('sec_additional')}
           title="Additional information"
-          helper="Anything else worth stating — languages, notice period, availability, or references."
+          helper="Not scored, but it is where you answer the questions a Gulf recruiter asks next — languages, availability, references."
           action={
             <button
               type="button"
