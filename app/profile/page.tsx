@@ -465,10 +465,10 @@ const REQUIRED_LABELS: Array<[keyof EditorData, string]> = [
   ['target_industry', 'Target industry'],
 ]
 
-function requiredMissing(e: EditorData): string[] {
-  const missing: string[] = []
+function requiredMissing(e: EditorData): Array<{ key: keyof EditorData; label: string }> {
+  const missing: Array<{ key: keyof EditorData; label: string }> = []
   for (const [k, label] of REQUIRED_LABELS) {
-    if (typeof e[k] === 'string' && String(e[k]).trim() === '') missing.push(label)
+    if (typeof e[k] === 'string' && String(e[k]).trim() === '') missing.push({ key: k, label })
   }
   return missing
 }
@@ -910,6 +910,9 @@ function ProfileScreen() {
   // section shut when another opens loses the user's place, and someone
   // cross-checking dates between two jobs has a legitimate reason to keep two
   // open at once.
+  // Populated only after the user actually tries to save — a field is never
+  // shown as an error before they have had a chance to fill it.
+  const [invalidFields, setInvalidFields] = useState<Set<string>>(new Set())
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
   const didAutoOpen = useRef(false)
 
@@ -1052,9 +1055,39 @@ function ProfileScreen() {
 
       const missing = requiredMissing(editor)
       if (missing.length > 0) {
-        setSaveError(`Please complete the required fields first: ${missing.join(', ')}.`)
+        // Mark the fields, open the sections holding them, and scroll to the
+        // first one. Naming them in a sentence is not enough on a nine-section
+        // form — the user still has to hunt.
+        setInvalidFields(new Set(missing.map((m) => String(m.key))))
+        setSaveError(
+          missing.length === 1
+            ? `${missing[0].label} is required.`
+            : `${missing.length} required fields are still empty: ${missing.map((m) => m.label).join(', ')}.`
+        )
+        const owning = new Set<string>()
+        for (const m of missing) {
+          for (const [sectionId, fields] of Object.entries(SECTION_FIELDS)) {
+            if ((fields as readonly string[]).includes(String(m.key))) owning.add(sectionId)
+          }
+        }
+        // target_industry/target_job_title live in Status & target; contact
+        // fields in Identity. Fall back to opening both if a key is unmapped.
+        if (owning.size === 0) { owning.add('sec_status'); owning.add('sec_identity') }
+        setOpenSections((prev) => {
+          const next = { ...prev }
+          owning.forEach((id) => { next[id] = true })
+          return next
+        })
+        window.requestAnimationFrame(() => {
+          const el = document.getElementById(`f_${String(missing[0].key)}`)
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            ;(el as HTMLElement).focus?.()
+          }
+        })
         return
       }
+      setInvalidFields(new Set())
 
       setSubmitting(true)
       try {
@@ -1207,18 +1240,30 @@ function ProfileScreen() {
               value={editor.current_project}
               onChange={(e) => setField({ current_project: e.target.value })}
             />
-            <Input tone="light"
-              id="f_target_job_title"
-              label="Target job title (required)"
-              value={editor.target_job_title}
-              onChange={(e) => setField({ target_job_title: e.target.value })}
-            />
-            <Input tone="light"
-              id="f_target_industry"
-              label="Target industry (required)"
-              value={editor.target_industry}
-              onChange={(e) => setField({ target_industry: e.target.value })}
-            />
+            <div className="flex flex-col gap-1">
+              <Input tone="light"
+                id="f_target_job_title"
+                label="Target job title"
+                value={editor.target_job_title}
+                onChange={(e) => setField({ target_job_title: e.target.value })}
+                className={invalidFields.has('target_job_title') ? 'border-terra focus:border-terra focus:ring-terra/25' : undefined}
+              />
+              {invalidFields.has('target_job_title') ? (
+                <p role="alert" className="text-[12px] font-medium text-terra">Target job title is required.</p>
+              ) : null}
+            </div>
+            <div className="flex flex-col gap-1">
+              <Input tone="light"
+                id="f_target_industry"
+                label="Target industry"
+                value={editor.target_industry}
+                onChange={(e) => setField({ target_industry: e.target.value })}
+                className={invalidFields.has('target_industry') ? 'border-terra focus:border-terra focus:ring-terra/25' : undefined}
+              />
+              {invalidFields.has('target_industry') ? (
+                <p role="alert" className="text-[12px] font-medium text-terra">Target industry is required.</p>
+              ) : null}
+            </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="f_target_country" className="text-sm font-medium text-ink-900">
                 Target country <span className="font-normal text-ink-400">(optional)</span>
@@ -1272,12 +1317,14 @@ function ProfileScreen() {
               helper="Exactly as it appears on your passport — Gulf employers check this against your documents."
               value={editor.full_name}
               onChange={(e) => setField({ full_name: e.target.value })}
+              error={invalidFields.has('full_name') ? 'Full name is required.' : undefined}
               className="sm:col-span-2"
             />
             <PhoneField
               id="f_phone"
               label="Phone"
               required
+              error={invalidFields.has('phone') ? 'Phone number is required.' : undefined}
               helper="Pick your country code, then the number without it."
               dial={phoneParts.dial}
               number={phoneParts.number}
@@ -1301,6 +1348,7 @@ function ProfileScreen() {
               inputMode="email"
               autoComplete="email"
               placeholder="you@example.com"
+              error={invalidFields.has('email') ? 'Email is required.' : undefined}
               helper="Where recruiters will reply. Use one you check daily."
               value={editor.email}
               onChange={(e) => setField({ email: e.target.value })}
@@ -1759,22 +1807,22 @@ function ProfileScreen() {
           {saveError}
         </div>
       ) : null}
-      <div className="sticky bottom-0 flex gap-2.5 bg-gradient-to-t from-void via-void/95 to-transparent px-5 pb-5 pt-4">
+      {/*
+        ONE action, not two.
+        "Save & exit" and "Confirm profile" wrote the identical full-object PUT
+        and differed only in where they navigated afterwards — a distinction the
+        product understood and the user did not, presented as the last decision
+        on a long form. There is now a single way out.
+      */}
+      <div className="sticky bottom-0 bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pb-5 pt-4">
         <Button
-          variant="secondary"
-          className="flex-1"
-          disabled={submitting}
+          variant="primary"
+          className="w-full"
+          busy={submitting}
+          busyLabel="Saving…"
           onClick={() => onSubmit('exit')}
         >
           Save &amp; exit
-        </Button>
-        <Button
-          variant="progress"
-          className="flex-[1.4]"
-          disabled={submitting}
-          onClick={() => onSubmit('confirm')}
-        >
-          {submitting ? 'Saving…' : 'Confirm profile'}
         </Button>
       </div>
     </main>

@@ -25,12 +25,12 @@ import { ALL_DIAL_CODES, PRIMARY_DIAL_CODES, OTHER_DIAL_CODES } from '@/lib/phon
  */
 
 const controlBase =
-  'min-h-11 w-full rounded-radius-md border bg-bg-dark px-[15px] py-[13px] text-[16px] sm:text-sm font-medium text-ink-900-dark outline-none transition-colors placeholder:font-normal placeholder:text-ink-400-dark motion-reduce:transition-none'
+  'min-h-11 w-full rounded-radius-md border bg-surface-light px-[15px] py-[13px] text-[16px] sm:text-sm font-medium text-ink-900 outline-none transition-colors placeholder:font-normal placeholder:text-ink-400 motion-reduce:transition-none'
 
 const controlState = (invalid?: boolean) =>
   invalid
-    ? 'border-terra-dark focus:border-terra-dark focus:ring-2 focus:ring-terra-dark/30'
-    : 'border-line-dark-strong focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/30'
+    ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/25'
+    : 'border-line-light-strong focus:border-forest focus:ring-2 focus:ring-forest/25'
 
 export function FieldShell({
   id,
@@ -53,23 +53,19 @@ export function FieldShell({
   const errorId = error ? `${id}-error` : undefined
   return (
     <div className={cn('flex w-full flex-col gap-1.5 font-redesign-sans', className)}>
-      <label htmlFor={id} className="text-[13px] font-semibold leading-snug text-ink-900-dark">
+      <label htmlFor={id} className="text-[13px] font-semibold leading-snug text-ink-900">
         {label}
         {required ? (
-          <span className="ml-1 text-terra-dark" aria-hidden="true">
-            *
-          </span>
-        ) : (
-          <span className="ml-1.5 text-[11px] font-normal text-ink-400-dark">Optional</span>
-        )}
+          <span className="ml-1.5 text-[11px] font-normal text-terra">Required</span>
+        ) : null}
       </label>
       {children}
       {error ? (
-        <p id={errorId} role="alert" className="text-[12px] font-medium text-terra-dark">
+        <p id={errorId} role="alert" className="text-[12px] font-medium text-terra">
           {error}
         </p>
       ) : helper ? (
-        <p id={helperId} className="text-[11.5px] leading-relaxed text-ink-400-dark">
+        <p id={helperId} className="text-[11.5px] leading-relaxed text-ink-400">
           {helper}
         </p>
       ) : null}
@@ -196,8 +192,8 @@ export function DateField({
         className={cn(
           controlBase,
           controlState(Boolean(error)),
-          // Safari/Chrome render the picker indicator dark-on-dark by default.
-          '[color-scheme:dark]'
+          // Keep the native picker chrome on the light scheme to match the page.
+          '[color-scheme:light]'
         )}
         {...props}
       />
