@@ -52,3 +52,7 @@ __pycache__/
 # service-role key, so they must never be committed even though the secrets
 # themselves live outside the file.
 tmp-*.mjs
+
+# Saved web pages dropped into the repo root by browser "save page as".
+# These are 250KB HTML dumps, not project source.
+z*.html
