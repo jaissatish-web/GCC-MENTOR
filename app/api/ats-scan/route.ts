@@ -136,6 +136,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           if (fileExt === 'pdf') {
                       const result = extractPdfText(buffer, true) // debug mode
                       resumeText = result.text
+                      // A failed font decode does not produce EMPTY text — it
+                      // produces confident-looking noise that clears a length
+                      // check and reaches the model, which then invents
+                      // specifics to fill the gaps. Refuse it explicitly.
+                      if (result.looksGarbled) {
+                        return NextResponse.json({
+                          error:
+                            'We could not read the text in this PDF reliably. Please upload a different export (Save as PDF from Word or Google Docs works well), or paste your resume text instead.',
+                          code: 'PDF_UNREADABLE',
+                        }, { status: 400 })
+                      }
                       if (!resumeText || resumeText.trim().length < 50) {
                         return NextResponse.json({
                                                 error: 'Cannot read PDF [Filter=' + (result.filter || 'none') + ' Streams=' + result.streamCount + ' Errors=' + result.errorCount + ' Text=' + (resumeText ? resumeText.length : 0) + 'chars]. Upload a valid text-based PDF or Word file, or paste your resume text instead.',

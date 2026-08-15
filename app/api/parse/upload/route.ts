@@ -36,7 +36,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let extractedText = ''
     try {
       if (fileExt === 'pdf') {
-            extractedText = extractPdfText(buffer).text
+            {
+              // Same guard as /api/ats-scan: unreadable is not the same as
+              // empty, and only the explicit check separates them.
+              const pdf = extractPdfText(buffer)
+              if (pdf.looksGarbled) {
+                return NextResponse.json(
+                  {
+                    error:
+                      'We could not read the text in this PDF reliably. Please upload a different export (Save as PDF from Word or Google Docs works well), or paste your resume text instead.',
+                    code: 'PDF_UNREADABLE',
+                  },
+                  { status: 400 },
+                )
+              }
+              extractedText = pdf.text
+            }
           } else if (fileExt === 'docx' || fileExt === 'doc') {
         const mammoth = await import('mammoth')
         const result = await mammoth.extractRawText({ buffer })

@@ -12,6 +12,219 @@ export interface ExtractResult {
   filter?: string
   streamCount?: number
   errorCount?: number
+  /** How many embedded-font ToUnicode maps were parsed (0 = none found). */
+  fontMapCount?: number
+  /** True when the text is almost certainly a failed decode, not a resume. */
+  looksGarbled?: boolean
+}
+
+// ---------------------------------------------------------------------------
+// Embedded font decoding (ToUnicode CMaps)
+//
+// WHY THIS EXISTS — this is the bug that made the product fabricate.
+//
+// Word/LibreOffice/Canva exports embed SUBSET fonts (BAAAAA+SegoeUI) whose
+// glyph codes are arbitrary: in a real resume tested here, code 0x44 meant "a",
+// an offset of 29 from ASCII. Reading those codes as characters yields a
+// consistent-looking cipher — "6 $ 7 , 6 +" for "SATISH" — and, worse, digits
+// land at codes 0x13–0x1C, below the printable filter, so EVERY NUMBER was
+// silently deleted. Years of experience, kV ratings, quantities and dates all
+// vanished.
+//
+// The model downstream then received confident-looking garbage and filled the
+// gaps with invented specifics, which is the exact opposite of this product's
+// one promise. Extraction correctness is therefore a grounding concern, not a
+// formatting nicety.
+//
+// The correct mapping is already in the file: each font carries a /ToUnicode
+// CMap giving code -> unicode. We parse those and decode through them.
+// ---------------------------------------------------------------------------
+
+type CMap = Map<number, string>
+
+interface FontInfo {
+  cmap: CMap
+  /** Identity-H and friends use 2-byte codes; simple fonts use 1. */
+  bytes: 1 | 2
+}
+
+/** Index every `N 0 obj … endobj` body once, so lookups are O(1) afterwards. */
+function buildObjectIndex(raw: string): Map<number, string> {
+  const objs = new Map<number, string>()
+  const re = /(\d+)\s+0\s+obj([\s\S]*?)endobj/g
+  let m: RegExpExecArray | null
+  while ((m = re.exec(raw)) !== null) {
+    // First definition wins: an incrementally-updated PDF can repeat an object
+    // number, and the earlier one is the one the rest of our offsets assume.
+    if (!objs.has(Number(m[1]))) objs.set(Number(m[1]), m[2])
+  }
+  return objs
+}
+
+/** Pull and decompress a stream body out of an already-located object. */
+function objectStream(objBody: string): Buffer | null {
+  const s = objBody.indexOf('stream')
+  const e = objBody.indexOf('endstream')
+  if (s === -1 || e === -1 || e <= s) return null
+  let data = Buffer.from(objBody.slice(s + 6, e), 'latin1')
+  while (data.length && (data[0] === 0x0a || data[0] === 0x0d)) data = data.subarray(1)
+  const dict = objBody.slice(0, s)
+  try {
+    return decompressStream(data, dict)
+  } catch {
+    return null
+  }
+}
+
+function hexToCodePointString(hex: string): string {
+  // A bfchar/bfrange destination may hold several UTF-16BE units (ligatures).
+  let out = ''
+  for (let i = 0; i + 3 < hex.length + 1; i += 4) {
+    const unit = parseInt(hex.slice(i, i + 4), 16)
+    if (Number.isNaN(unit)) break
+    out += String.fromCharCode(unit)
+  }
+  return out
+}
+
+/** Parse the bfchar/bfrange sections of a ToUnicode CMap. */
+function parseCMap(text: string): { cmap: CMap; bytes: 1 | 2 } {
+  const cmap: CMap = new Map()
+
+  // Codespace width — `<0000> <FFFF>` means 2-byte codes.
+  let bytes: 1 | 2 = 2
+  const csr = text.match(/begincodespacerange([\s\S]*?)endcodespacerange/)
+  if (csr) {
+    const first = csr[1].match(/<([0-9a-fA-F]+)>/)
+    if (first && first[1].length <= 2) bytes = 1
+  }
+
+  const bfcharRe = /beginbfchar([\s\S]*?)endbfchar/g
+  let bc: RegExpExecArray | null
+  while ((bc = bfcharRe.exec(text)) !== null) {
+    const pairRe = /<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/g
+    let pair: RegExpExecArray | null
+    while ((pair = pairRe.exec(bc[1])) !== null) {
+      cmap.set(parseInt(pair[1], 16), hexToCodePointString(pair[2]))
+    }
+  }
+
+  const bfrangeRe = /beginbfrange([\s\S]*?)endbfrange/g
+  let br: RegExpExecArray | null
+  while ((br = bfrangeRe.exec(text)) !== null) {
+    // Form A: <lo> <hi> <dstStart>
+    const formARe = /<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/g
+    let r: RegExpExecArray | null
+    while ((r = formARe.exec(br[1])) !== null) {
+      const lo = parseInt(r[1], 16)
+      const hi = parseInt(r[2], 16)
+      const dst = parseInt(r[3], 16)
+      // Guard against a malformed range claiming millions of entries.
+      if (hi < lo || hi - lo > 65535) continue
+      for (let c = lo; c <= hi; c++) cmap.set(c, String.fromCharCode(dst + (c - lo)))
+    }
+    // Form B: <lo> <hi> [ <d1> <d2> … ]
+    const formBRe = /<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*\[([\s\S]*?)\]/g
+    let rb: RegExpExecArray | null
+    while ((rb = formBRe.exec(br[1])) !== null) {
+      const lo = parseInt(rb[1], 16)
+      let i = 0
+      const dRe = /<([0-9a-fA-F]+)>/g
+      let d: RegExpExecArray | null
+      while ((d = dRe.exec(rb[3])) !== null) {
+        cmap.set(lo + i, hexToCodePointString(d[1]))
+        i++
+      }
+    }
+  }
+
+  return { cmap, bytes }
+}
+
+/**
+ * Map every font RESOURCE NAME (/F14) to its decoded ToUnicode map.
+ *
+ * Keyed by name rather than by page because exporters of this class assign a
+ * font name once per document — /F14 resolves to object 14 in every page's
+ * resource dictionary — so a global table is both correct here and far simpler
+ * than threading page resources through the content-stream walk. A name that
+ * genuinely disagreed between pages would simply be decoded by whichever
+ * mapping was registered; the fallback path below still applies when a code is
+ * absent from the map, so the failure mode stays "unchanged behaviour", not
+ * "wrong characters".
+ */
+function buildFontMaps(raw: string, objs: Map<number, string>): Map<string, FontInfo> {
+  const fonts = new Map<string, FontInfo>()
+  const cache = new Map<number, FontInfo | null>()
+
+  const resRe = /\/Font\s*<<([\s\S]*?)>>/g
+  let resDict: RegExpExecArray | null
+  while ((resDict = resRe.exec(raw)) !== null) {
+    const refRe = /\/([A-Za-z0-9]+)\s+(\d+)\s+0\s+R/g
+    let ref: RegExpExecArray | null
+    while ((ref = refRe.exec(resDict[1])) !== null) {
+      const name = ref[1]
+      const objNum = Number(ref[2])
+      if (fonts.has(name)) continue
+
+      let info = cache.get(objNum)
+      if (info === undefined) {
+        info = null
+        const fontObj = objs.get(objNum)
+        const tu = fontObj?.match(/\/ToUnicode\s+(\d+)\s+0\s+R/)
+        if (tu) {
+          const cmapObj = objs.get(Number(tu[1]))
+          if (cmapObj) {
+            const buf = objectStream(cmapObj)
+            if (buf) {
+              const parsed = parseCMap(buf.toString('latin1'))
+              if (parsed.cmap.size > 0) info = parsed
+            }
+          }
+        }
+        cache.set(objNum, info)
+      }
+      if (info) fonts.set(name, info)
+    }
+  }
+
+  return fonts
+}
+
+/**
+ * True for streams that cannot contain page text.
+ *
+ * Images and embedded font programs are binary; scanning them for BT/ET finds
+ * spurious matches and emits raw bytes as "text". A /Form XObject is a real
+ * content stream and must stay in.
+ */
+function isNonContentStream(dict: string): boolean {
+  if (!dict) return false
+  if (/\/Subtype\s*\/Image/.test(dict)) return true
+  if (/\/(DCTDecode|JPXDecode|CCITTFaxDecode|JBIG2Decode|RunLengthDecode)/.test(dict)) return true
+  if (/\/FontFile\d?/.test(dict)) return true
+  if (/\/Type\s*\/(Font|Metadata|XRef|ObjStm)/.test(dict)) return true
+  if (/\/Subtype\s*\/(Type1C|CIDFontType0C|OpenType|TrueType)/.test(dict)) return true
+  return false
+}
+
+/** Decode a hex text string through a font's CMap. */
+function decodeWithCMap(hex: string, font: FontInfo): string {
+  const step = font.bytes * 2
+  let out = ''
+  for (let i = 0; i + step <= hex.length; i += step) {
+    const code = parseInt(hex.slice(i, i + step), 16)
+    if (Number.isNaN(code)) continue
+    const mapped = font.cmap.get(code)
+    if (mapped !== undefined) {
+      out += mapped
+    } else if (code >= 32 && code <= 0x10ffff) {
+      // Unmapped code — fall back to treating it as a character rather than
+      // dropping it, so a partially-mapped font degrades instead of vanishing.
+      out += String.fromCharCode(code)
+    }
+  }
+  return out
 }
 
 function extractPdfText(buffer: Buffer, debug = false): ExtractResult {
@@ -20,6 +233,18 @@ function extractPdfText(buffer: Buffer, debug = false): ExtractResult {
   if (debug) result.streamCount = 0
 
   if (!raw.startsWith('%PDF-')) return result
+
+  // Resolve embedded-font encodings before reading any content stream — a
+  // subset font's codes are meaningless without its ToUnicode map.
+  let fonts: Map<string, FontInfo> = new Map()
+  try {
+    fonts = buildFontMaps(raw, buildObjectIndex(raw))
+  } catch {
+    // A malformed font table must never cost us the whole document; fall back
+    // to raw code-as-character decoding, i.e. the previous behaviour.
+    fonts = new Map()
+  }
+  if (debug) result.fontMapCount = fonts.size
 
   const textParts: string[] = []
   let pos = 0
@@ -59,6 +284,15 @@ function extractPdfText(buffer: Buffer, debug = false): ExtractResult {
       dataEnd--
     }
 
+    // Only page/form content streams hold text. Image bitmaps and embedded
+    // font programs decompress into binary that happens to contain "BT"/"ET"
+    // byte pairs often enough to leak megabytes of noise into the output —
+    // which then goes to the model as if it were resume content. Skip them.
+    if (isNonContentStream(dict)) {
+      pos = streamEnd + 9
+      continue
+    }
+
     if (debug) result.streamCount!++
 
     let streamData: Buffer | null = null
@@ -76,7 +310,7 @@ function extractPdfText(buffer: Buffer, debug = false): ExtractResult {
 
     if (streamData) {
       const streamStr = streamData.toString('latin1')
-      extractTextFromContent(streamStr, textParts)
+      extractTextFromContent(streamStr, fonts, textParts)
     }
 
     pos = streamEnd + 9
@@ -84,7 +318,47 @@ function extractPdfText(buffer: Buffer, debug = false): ExtractResult {
 
   if (debug) result.errorCount = errors
   result.text = textParts.join(' ').replace(/\s+/g, ' ').trim()
+  result.looksGarbled = looksGarbled(result.text)
   return result
+}
+
+/**
+ * Does this text look like a failed decode rather than a resume?
+ *
+ * The guard that would have caught the original bug on its own. When a subset
+ * font cannot be decoded the output is not empty — it is confident-looking
+ * rubbish ("6 $ 7 , 6 +") that passes a length check and reaches the model,
+ * which then fills the gaps with invented specifics. Refusing to send it is
+ * strictly better than any answer derived from it: this product's promise is
+ * that nothing is invented, and an unreadable file has to fail loudly.
+ *
+ * Kept deliberately crude — it only has to separate "real prose" from "noise",
+ * and every threshold here is far from the values normal resume text produces.
+ */
+function looksGarbled(text: string): boolean {
+  const t = text.trim()
+  if (t.length < 50) return true
+
+  // Real prose is overwhelmingly printable ASCII. Emoji and accents push this
+  // up a little, hence a generous ceiling rather than a tight one.
+  const nonPrintable = (t.match(/[^\x20-\x7E -ɏ -➿\uD800-\uDFFF]/g) ?? []).length
+  if (nonPrintable / t.length > 0.15) return true
+
+  // Words. Garbled output is either one giant run or single characters
+  // separated by spaces; neither yields a normal mean word length.
+  const words = t.split(/\s+/).filter(Boolean)
+  if (words.length < 10) return true
+  const avgWordLen = words.reduce((n, w) => n + w.length, 0) / words.length
+  if (avgWordLen < 2 || avgWordLen > 25) return true
+
+  // Vowel frequency is the cheapest reliable "is this a language?" signal.
+  // English prose sits near 38%; a substitution cipher lands far below it.
+  const letters = (t.match(/[A-Za-z]/g) ?? []).length
+  if (letters < 40) return true
+  const vowels = (t.match(/[AEIOUaeiou]/g) ?? []).length
+  if (vowels / letters < 0.20) return true
+
+  return false
 }
 
 function decompressStream(data: Buffer, dict: string): Buffer | null {
@@ -184,64 +458,109 @@ function decodeAsciiHex(data: Buffer): Buffer {
   return Buffer.from(result)
 }
 
-function extractTextFromContent(content: string, parts: string[]): void {
+function unescapePdfLiteral(s: string): string {
+  return s
+    .replace(/\\([()\\])/g, '$1')
+    .replace(/\\n/g, ' ')
+    .replace(/\\r/g, ' ')
+    .replace(/\\t/g, ' ')
+}
+
+/**
+ * Walk a text block IN ORDER, tracking the active font.
+ *
+ * The previous implementation ran four independent regexes over the block, so
+ * it could not know which font any given string belonged to — a prerequisite
+ * for decoding subset fonts at all. It also pushed every string as its own
+ * part and joined the lot with spaces, which is why a document that emits one
+ * glyph per array element came out as "S A T I S H".
+ *
+ * Here each show-operator's glyphs are concatenated without separators, and a
+ * space is inserted only where the PDF's own kerning says one belongs.
+ */
+function extractTextFromBlock(
+  block: string,
+  fonts: Map<string, FontInfo>,
+  parts: string[]
+): void {
+  // /F14 11 Tf  |  (lit) Tj  |  <hex> Tj  |  [ … ] TJ  |  (lit) '  |  (lit) "
+  const opRe = /\/([A-Za-z0-9]+)\s+[\d.]+\s+Tf|\(((?:[^()\\]|\\.)*)\)\s*(?:Tj|'|")|<([0-9a-fA-F\s]+)>\s*Tj|\[([\s\S]*?)\]\s*TJ/g
+
+  let currentFont: FontInfo | undefined
+  let m: RegExpExecArray | null
+
+  // Everything inside one BT/ET is accumulated into a SINGLE part.
+  //
+  // A word is routinely split across several show-operators — this document
+  // emits "Superint" and "endent" as two Tj calls so it can apply kerning
+  // between them. Pushing each operator separately and joining the list with a
+  // space (the previous behaviour) therefore manufactured spaces inside words:
+  // "Superint endent", "P assport", "T abuk". Real word gaps survive because
+  // the font's CMap maps a genuine space glyph, and blocks are still joined
+  // with a space so separate lines never run together.
+  let blockText = ''
+
+  while ((m = opRe.exec(block)) !== null) {
+    if (m[1] !== undefined) {
+      currentFont = fonts.get(m[1])
+      continue
+    }
+
+    if (m[2] !== undefined) {
+      blockText += unescapePdfLiteral(m[2])
+      continue
+    }
+
+    if (m[3] !== undefined) {
+      const hex = m[3].replace(/\s+/g, '')
+      blockText += currentFont ? decodeWithCMap(hex, currentFont) : hexStringToText(hex)
+      continue
+    }
+
+    if (m[4] !== undefined) {
+      // A TJ array interleaves strings with kerning numbers. Glyphs join with
+      // no separator; a sufficiently negative kern is the document's way of
+      // spelling a space, which is how word boundaries survive in exports that
+      // never emit an actual space character.
+      let run = ''
+      const elRe = /\(((?:[^()\\]|\\.)*)\)|<([0-9a-fA-F\s]+)>|(-?[\d.]+)/g
+      let el: RegExpExecArray | null
+      while ((el = elRe.exec(m[4])) !== null) {
+        if (el[1] !== undefined) {
+          run += unescapePdfLiteral(el[1])
+        } else if (el[2] !== undefined) {
+          const hex = el[2].replace(/\s+/g, '')
+          run += currentFont ? decodeWithCMap(hex, currentFont) : hexStringToText(hex)
+        } else if (el[3] !== undefined) {
+          // Only a LARGE negative kern means "word gap". Typographic kerning
+          // pairs after capitals (T, P, R, V, W, Y) sit around -30..-150, and
+          // treating those as spaces shredded words into "T abuk", "P assport",
+          // "R esults". Exports of this class emit a real space glyph via the
+          // font's CMap anyway, so this only has to catch documents that
+          // position words without one — hence a deliberately conservative
+          // threshold that stays clear of ordinary kerning.
+          if (parseFloat(el[3]) <= -400 && run && !run.endsWith(' ')) run += ' '
+        }
+      }
+      blockText += run
+    }
+  }
+
+  if (blockText.trim()) parts.push(blockText)
+}
+
+function extractTextFromContent(
+  content: string,
+  fonts: Map<string, FontInfo>,
+  parts: string[]
+): void {
   let btPos = 0
   while (btPos < content.length) {
     const btIdx = content.indexOf('BT', btPos)
     if (btIdx === -1) break
     const etIdx = content.indexOf('ET', btIdx)
     if (etIdx === -1) break
-
-    const block = content.slice(btIdx + 2, etIdx)
-
-    // Extract hex-encoded text: <0045006F> Tj (Google Docs, Canva, modern PDFs)
-    const hexTjRegex = /<([0-9a-fA-F]+)>\s*Tj/g
-    let hexTjMatch
-    while ((hexTjMatch = hexTjRegex.exec(block)) !== null) {
-      const hexText = hexStringToText(hexTjMatch[1])
-      if (hexText.trim()) parts.push(hexText)
-    }
-
-    // Extract hex strings in TJ arrays: [<0045> 5 <006F>] TJ
-    const hexTjArrayRegex = /\[([\s\S]*?)\]\s*TJ/g
-    let hexTjArrMatch
-    while ((hexTjArrMatch = hexTjArrayRegex.exec(block)) !== null) {
-      const arrContent = hexTjArrMatch[1]
-      const hexStrRegex = /<([0-9a-fA-F]+)>/g
-      let hexStrMatch
-      while ((hexStrMatch = hexStrRegex.exec(arrContent)) !== null) {
-        const hexText = hexStringToText(hexStrMatch[1])
-        if (hexText.trim()) parts.push(hexText)
-      }
-    }
-
-    // Extract plain text: (text) Tj
-    const tjRegex = /\(([^)]*)\)\s*Tj/g
-    let tjMatch
-    while ((tjMatch = tjRegex.exec(block)) !== null) {
-      const text = tjMatch[1]
-        .replace(/\\([()\\])/g, '$1')
-        .replace(/\\n/g, ' ')
-        .replace(/\\r/g, ' ')
-        .replace(/\\t/g, ' ')
-      if (text.trim()) parts.push(text)
-    }
-
-    // Extract plain text in TJ arrays: [(text) num (text)] TJ
-    const tjArrayRegex = /\[([\s\S]*?)\]\s*TJ/g
-    let tjArrMatch
-    while ((tjArrMatch = tjArrayRegex.exec(block)) !== null) {
-      const arrContent = tjArrMatch[1]
-      const strRegex = /\(([^)]*)\)/g
-      let strMatch
-      while ((strMatch = strRegex.exec(arrContent)) !== null) {
-        const text = strMatch[1]
-          .replace(/\\([()\\])/g, '$1')
-          .replace(/\\n/g, ' ')
-        if (text.trim()) parts.push(text)
-      }
-    }
-
+    extractTextFromBlock(content.slice(btIdx + 2, etIdx), fonts, parts)
     btPos = etIdx + 2
   }
 }
