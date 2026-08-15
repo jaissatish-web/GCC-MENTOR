@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { buttonVariants } from '@/components/ui/Button'
 import { useEffect, useState } from 'react'
 
 type Signal = { id: string; label: string; present: boolean; weight: number; fix: string; credit: string; impact?: number }
@@ -176,13 +177,13 @@ function NextStep({ score }: { score: Score }) {
         <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/signup"
-            className="inline-flex min-h-12 w-full items-center justify-center rounded-radius-md bg-redesign-gold px-7 py-3 text-sm font-bold text-forest-deep transition-opacity hover:opacity-90 sm:w-auto"
+            className={buttonVariants({ variant: 'purchase' }) + ' w-full sm:w-auto'}
           >
             {ready ? 'Create my account & optimize' : 'Create my free account & fix these'}
           </Link>
           <Link
             href="/login"
-            className="inline-flex min-h-12 w-full items-center justify-center rounded-radius-md border border-ink-900-dark/25 px-7 py-3 text-sm font-bold text-ink-900-dark/85 sm:w-auto"
+            className={buttonVariants({ variant: 'ghost' }) + ' w-full border-ink-900-dark/25 text-ink-900-dark hover:bg-ink-900-dark/10 sm:w-auto'}
           >
             I already have an account
           </Link>

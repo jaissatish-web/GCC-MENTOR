@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/Button'
 
 /**
  * Career Profile photo upload (TASK-113).
@@ -104,31 +104,27 @@ export function PhotoUpload({
                 if (f) void upload(f)
               }}
             />
-            <button
+            <Button
               type="button"
-              disabled={busy}
+              variant="progress"
+              size="sm"
+              busy={busy}
+              busyLabel="Uploading…"
               onClick={() => inputRef.current?.click()}
-              className={cn(
-                'min-h-11 rounded-radius-md bg-forest px-4 py-3 text-[11px] font-semibold text-white transition-opacity',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
-                busy && 'cursor-not-allowed opacity-60'
-              )}
             >
-              {busy ? 'Working…' : photoUrl ? 'Replace photo' : 'Upload photo'}
-            </button>
+              {photoUrl ? 'Replace photo' : 'Upload photo'}
+            </Button>
             {photoUrl ? (
-              <button
+              <Button
                 type="button"
-                disabled={busy}
+                variant="danger"
+                size="sm"
+                busy={busy}
+                busyLabel="Removing…"
                 onClick={() => void remove()}
-                className={cn(
-                  'min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-4 py-3 text-[11px] font-semibold text-terra transition-colors',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra focus-visible:ring-offset-2',
-                  busy && 'cursor-not-allowed opacity-60'
-                )}
               >
                 Remove
-              </button>
+              </Button>
             ) : null}
           </div>
         </div>

@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Button } from '@/components/ui/Button'
+import { Button, buttonVariants } from '@/components/ui/Button'
 import { AppShell } from '@/components/layout/AppShell'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
@@ -1470,7 +1470,7 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addWork}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                className={buttonVariants({ variant: 'ghost', size: 'sm' })}
               >
                 <span aria-hidden="true">+</span> Add
               </button>
@@ -1493,7 +1493,7 @@ function ProfileScreen() {
                           : e
                       )
                     }
-                    className="min-h-11 px-1 text-[11px] font-semibold text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
                   >
                     Remove
                   </button>
@@ -1578,7 +1578,7 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addEducation}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                className={buttonVariants({ variant: 'ghost', size: 'sm' })}
               >
                 <span aria-hidden="true">+</span> Add
               </button>
@@ -1594,7 +1594,7 @@ function ProfileScreen() {
                     onClick={() =>
                       setEditor((e) => (e ? { ...e, education: e.education.filter((y) => y.key !== x.key) } : e))
                     }
-                    className="min-h-11 px-1 text-[11px] font-semibold text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
                   >
                     Remove
                   </button>
@@ -1622,7 +1622,7 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addSkill}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                className={buttonVariants({ variant: 'ghost', size: 'sm' })}
               >
                 <span aria-hidden="true">+</span> Add
               </button>
@@ -1643,7 +1643,7 @@ function ProfileScreen() {
                     setEditor((e) => (e ? { ...e, skills: e.skills.filter((x) => x.key !== s.key) } : e))
                   }
                   aria-label={`Remove skill ${i + 1}`}
-                  className="min-h-11 px-2 text-[13px] text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
+                  className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
                 >
                   ✕
                 </button>
@@ -1663,7 +1663,7 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addCertification}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                className={buttonVariants({ variant: 'ghost', size: 'sm' })}
               >
                 <span aria-hidden="true">+</span> Add
               </button>
@@ -1679,7 +1679,7 @@ function ProfileScreen() {
                     onClick={() =>
                       setEditor((e) => (e ? { ...e, certifications: e.certifications.filter((x) => x.key !== c.key) } : e))
                     }
-                    className="min-h-11 px-1 text-[11px] font-semibold text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
                   >
                     Remove
                   </button>
@@ -1706,7 +1706,7 @@ function ProfileScreen() {
               <button
                 type="button"
                 onClick={addAdditional}
-                className="flex min-h-11 items-center gap-1 rounded-radius-md border border-line-light-strong px-3 text-[12px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                className={buttonVariants({ variant: 'ghost', size: 'sm' })}
               >
                 <span aria-hidden="true">+</span> Add
               </button>
@@ -1731,7 +1731,7 @@ function ProfileScreen() {
                         setEditor((e) => (e ? { ...e, additional_information: e.additional_information.filter((x) => x.key !== a.key) } : e))
                       }
                       aria-label="Remove item"
-                      className="min-h-11 px-2 text-[13px] text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
+                      className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
                     >
                       ✕
                     </button>
