@@ -9,13 +9,24 @@ const MAX_PDF_SIZE = 10 * 1024 * 1024
 const MAX_WORD_SIZE = 5 * 1024 * 1024
 const MIN_TEXT_LENGTH = 50
 
+// The four things the scan ACTUALLY does, in the order it does them.
+//
+// The previous list promised "Spelling checking" and "Grammar checking", which
+// this product has never performed — a progress bar that narrates work nobody
+// is doing is the same class of problem as a model inventing achievements, just
+// in the UI layer. These four map directly onto lib/gccReadiness/analyzeResume.
 const ANALYSIS_STEPS = [
-  'Resume phrasing',
-  'Spelling checking',
-  'Grammar checking',
-  'Resume experience checking',
-  'Qualification checking',
+  'Reading your file',
+  'Checking structure and contact details',
+  'Checking achievements and wording',
+  'Checking Gulf requirements',
 ] as const
+
+// The analysis itself is deterministic and finishes in well under a second, so
+// the steps exist to make a fast operation legible rather than to fill a long
+// wait. They advance quickly and the real response almost always lands first;
+// the interval only matters for a slow upload on a poor connection.
+const STEP_INTERVAL_MS = 220
 
 export default function AtsScanPage() {
   const router = useRouter()
@@ -36,10 +47,9 @@ export default function AtsScanPage() {
       setCurrentStep(0)
       return
     }
-    // Advance steps every ~20s to simulate progress
     progressTimer.current = setInterval(() => {
       setCurrentStep(prev => Math.min(prev + 1, ANALYSIS_STEPS.length - 1))
-    }, 20000)
+    }, STEP_INTERVAL_MS)
     return () => {
       if (progressTimer.current) clearInterval(progressTimer.current)
     }

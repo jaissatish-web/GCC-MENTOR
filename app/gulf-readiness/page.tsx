@@ -3,7 +3,18 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-type Score = { overall_score: number; category_scores: { structure: number; clarity_and_impact: number; gulf_readiness: number }; strengths: string[]; improvements: string[]; gulf_format_notes: string[]; summary: string }
+type Signal = { id: string; label: string; present: boolean; weight: number; fix: string; credit: string }
+
+type Score = {
+  overall_score: number
+  category_scores: { structure: number; clarity_and_impact: number; gulf_readiness: number }
+  strengths: string[]
+  improvements: string[]
+  gulf_format_notes: string[]
+  summary: string
+  /** Present since the scan became deterministic; absent on older cached results. */
+  signals?: { structure: Signal[]; clarity: Signal[]; gulf: Signal[] }
+}
 
 type JobMatchCategory = { score: number; applicable: boolean; explanation: string }
 type JobMatch = {
@@ -31,6 +42,59 @@ function ScoreCard({ label, value, tone }: { label: string; value: number; tone:
 
 function List({ title, items, icon }: { title: string; items: string[]; icon: string }) {
   return <section className="rounded-radius-xl border border-line-light bg-surface-light p-6"><h2 className="font-serif text-2xl">{title}</h2><div className="mt-4 space-y-3">{items.map((item, i) => <div key={`${item}-${i}`} className="flex gap-3 rounded-radius-md bg-surface-2-light p-3 text-sm leading-relaxed"><span className="shrink-0 text-gold-text">{icon}</span><span>{item}</span></div>)}</div></section>
+}
+
+/**
+ * The full pass/fail checklist behind the score.
+ *
+ * This is the payoff of computing the report in code rather than asking a
+ * model for a verdict: every check can be shown with its result and its exact
+ * remedy, so the number stops being an opinion the user has to trust and
+ * becomes a list they can work through. A model-written summary could never be
+ * displayed this way, because there would be nothing underneath it to show.
+ */
+function Checklist({ title, signals }: { title: string; signals: Signal[] }) {
+  const done = signals.filter((x) => x.present).length
+  return (
+    <section className="rounded-radius-xl border border-line-light bg-surface-light p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-serif text-2xl">{title}</h2>
+        <span className="font-mono text-sm text-ink-500">
+          {done}/{signals.length} passed
+        </span>
+      </div>
+      <ul className="mt-4 space-y-2.5">
+        {signals.map((sig) => (
+          <li
+            key={sig.id}
+            className={`flex gap-3 rounded-radius-md border p-3 ${
+              sig.present
+                ? 'border-forest/30 bg-forest-tint/50'
+                : 'border-redesign-gold/40 bg-redesign-gold-tint/60'
+            }`}
+          >
+            <span
+              aria-hidden="true"
+              className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                sig.present ? 'bg-forest text-white' : 'bg-redesign-gold text-forest-deep'
+              }`}
+            >
+              {sig.present ? '✓' : '!'}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-ink-900">
+                {sig.label}
+                <span className="sr-only">{sig.present ? ' — passed' : ' — needs attention'}</span>
+              </span>
+              <span className="mt-0.5 block text-[13px] leading-relaxed text-ink-700">
+                {sig.present ? sig.credit : sig.fix}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
 }
 
 export default function GulfReadinessPage() {
@@ -69,7 +133,17 @@ export default function GulfReadinessPage() {
     <div className="mx-auto max-w-[1100px] px-5 py-12 sm:px-8 lg:py-16"><div className="mx-auto max-w-4xl text-center"><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-text">Your free Gulf readiness report</p><h1 className="mt-4 font-serif text-5xl leading-tight sm:text-6xl">Here is what is holding your CV back.</h1><p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-ink-700">{score.summary}</p></div>
       <section className={`mx-auto mt-10 max-w-4xl rounded-radius-xl border-2 ${overallTone === 'green' ? 'border-forest bg-forest-tint' : overallTone === 'gold' ? 'border-redesign-gold bg-redesign-gold-tint' : 'border-terra bg-terra-tint'} p-7 sm:p-10`}><div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left"><div className="flex size-32 shrink-0 flex-col items-center justify-center rounded-full border-8 border-white/70 bg-surface-light shadow-sm"><span className="font-mono text-5xl font-bold">{score.overall_score}</span><span className="text-xs text-ink-500">out of 100</span></div><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-500">Overall GCC readiness</p><h2 className="mt-2 font-serif text-3xl">{score.overall_score >= 75 ? 'Strong foundation' : score.overall_score >= 55 ? 'Good foundation, but needs work' : 'Needs attention before you apply'}</h2><p className="mt-2 text-sm leading-relaxed text-ink-700">This score is based only on what your submitted resume actually contains. It is a diagnostic, not a promise of employment.</p></div></div></section>
       <section className="mx-auto mt-8 grid max-w-4xl gap-4 md:grid-cols-3"><ScoreCard label="Structure" value={score.category_scores.structure} tone="green" /><ScoreCard label="Clarity & impact" value={score.category_scores.clarity_and_impact} tone="gold" /><ScoreCard label="Gulf readiness" value={score.category_scores.gulf_readiness} tone="terra" /></section>
-      <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2"><List title="What is already working" items={score.strengths} icon="✓" /><List title="What you should fix" items={score.improvements} icon="!" /><div className="md:col-span-2"><List title="Gulf-specific observations" items={score.gulf_format_notes} icon="→" /></div></div>
+      {score.signals ? (
+        <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <Checklist title="Gulf requirements" signals={score.signals.gulf} />
+          </div>
+          <Checklist title="Structure & contact" signals={score.signals.structure} />
+          <Checklist title="Achievements & wording" signals={score.signals.clarity} />
+        </div>
+      ) : (
+        <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2"><List title="What is already working" items={score.strengths} icon="✓" /><List title="What you should fix" items={score.improvements} icon="!" /><div className="md:col-span-2"><List title="Gulf-specific observations" items={score.gulf_format_notes} icon="→" /></div></div>
+      )}
 
       {/* Job Match section — only shown when a JD was provided */}
       {jobMatch ? <section className="mx-auto mt-8 max-w-4xl rounded-radius-xl border border-redesign-gold/50 bg-surface-light p-6 sm:p-8"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:text-left"><div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-text">Job match</p><h2 className="mt-2 font-serif text-3xl">How you fit this role</h2></div><div className="flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-6 border-redesign-gold/40 bg-surface-2-light shadow-sm"><span className="font-mono text-4xl font-bold">{jobMatch.overall_score}</span><span className="text-xs text-ink-500">/100</span></div></div><p className="mt-5 border-l-4 border-redesign-gold bg-surface-2-light p-4 text-sm leading-relaxed text-ink-700">{jobMatch.diagnosis}</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{Object.entries(jobMatch.categories).filter(([, c]) => c.applicable).map(([key, c]) => <div key={key} className="rounded-radius-md border border-line-light bg-surface-2-light p-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-500">{CATEGORY_LABELS[key] ?? key}</p><span className="font-mono text-lg font-bold text-forest">{c.score}<span className="text-xs text-ink-400">/100</span></span></div><p className="mt-2 text-[12.5px] leading-relaxed text-ink-700">{c.explanation}</p></div>)}</div></section> : null}
