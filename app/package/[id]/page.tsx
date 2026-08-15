@@ -72,7 +72,7 @@ function PackageScreenInner({ id }: { id: string }) {
     // While checking is_paid we show nothing but a loader — never content.
     return (
       <div className="flex min-h-dvh items-center justify-center bg-void">
-        <p className="font-mono text-sm text-ink-900-dark/55">Loading…</p>
+        <p className="font-mono text-sm text-ink-400-dark">Loading…</p>
       </div>
     )
   }

@@ -137,7 +137,7 @@ function VisibilityScreen() {
   if (!loaded || !vis) {
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-void">
-        <p className="font-mono text-sm text-ink-900-dark/55">Loading…</p>
+        <p className="font-mono text-sm text-ink-400-dark">Loading…</p>
       </main>
     )
   }
@@ -155,7 +155,7 @@ function VisibilityScreen() {
           ←
         </button>
         <h1 className="font-serif text-[27px] leading-tight text-ink-900-dark">What appears on your CV</h1>
-        <p className="text-[13px] leading-normal text-ink-900-dark/70 [text-wrap:pretty]">
+        <p className="text-[13px] leading-normal text-ink-700-dark [text-wrap:pretty]">
           Gulf employers expect some of these; others you may prefer to hide. Hiding a field never
           deletes it — the template closes the gap cleanly.
         </p>
@@ -170,7 +170,7 @@ function VisibilityScreen() {
           >
             <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-[13px] font-semibold text-ink-900-dark">{label}</span>
-              <span className="text-[11px] leading-snug text-ink-900-dark/60">{hint}</span>
+              <span className="text-[11px] leading-snug text-ink-400-dark">{hint}</span>
             </div>
             <Toggle checked={vis[key]} onCheckedChange={(v) => flip(key, v)} aria-label={label} />
           </div>
@@ -186,7 +186,7 @@ function VisibilityScreen() {
       <div className="flex flex-col gap-3 px-5 pb-6 pt-4">
         <div className="flex items-start gap-2.5 rounded-radius-md border border-line-dark/60 bg-surface-dark px-3.5 py-3">
           <span className="text-[13px] text-forest-dark">⌾</span>
-          <p className="text-[11px] leading-snug text-ink-900-dark/70">
+          <p className="text-[11px] leading-snug text-ink-700-dark">
             Passport and visa fields are encrypted. Every internal access is logged. You can delete
             your profile and all packages at any time from Settings.
           </p>

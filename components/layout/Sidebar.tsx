@@ -4,43 +4,20 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import {
-  Squares2X2Icon,
-  UserCircleIcon,
-  ShieldCheckIcon,
-  MagnifyingGlassIcon,
-  DocumentTextIcon,
-  EnvelopeIcon,
-  BookOpenIcon,
-  CreditCardIcon,
-  Cog6ToothIcon,
-} from '@heroicons/react/24/outline'
+import { NAV_ITEMS, isNavItemActive, navHref, type NavItem as NavItemType } from './navItems'
 
 /**
- * Desktop sidebar — redesigned per docs/redesign/DESIGN_SYSTEM.md §8.1–8.2.
+ * Desktop sidebar — per docs/redesign/DESIGN_SYSTEM.md §8.1–8.2.
  *
- * Nine real destinations in the exact approved order. Three routes (GCC
- * Readiness, Job Match, Cover Letter) are not yet built — their nav entries
- * point at the final paths so future page tickets add the route without
- * touching nav again. Zero Locked/Planned entries anywhere in navigation
- * (docs/redesign/PLANNED_SERVICES.md).
+ * The destination list now lives in ./navItems so this rail, the mobile
+ * bottom bar and the More drawer cannot drift apart. Zero Locked/Planned
+ * entries anywhere in navigation (docs/redesign/PLANNED_SERVICES.md).
  *
  * Desktop (≥1024px): full 248px sidebar with labels.
- * Tablet (768–1023px): 48px icon-only bar; tap/hover expands into a labeled
+ * Tablet (768–1023px): 48px icon-only bar; tap expands into a labeled
  * overlay that sits above the page content.
  * Mobile (<768px): hidden — handled by MobileBottomNav + MoreSheet.
  */
-const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon },
-  { label: 'Career Profile', href: '/profile', icon: UserCircleIcon },
-  { label: 'GCC Readiness', href: '/gcc-readiness', icon: ShieldCheckIcon },
-  { label: 'Job Match', href: '/job-match', icon: MagnifyingGlassIcon },
-  { label: 'Resume Optimizer', href: '/optimize/target', icon: DocumentTextIcon },
-  { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },
-  { label: 'Library', href: '/dashboard/library', icon: BookOpenIcon },
-  { label: 'Payments', href: '/payments', icon: CreditCardIcon },
-  { label: 'Settings', href: '/settings', icon: Cog6ToothIcon },
-] as const
 
 function BrandMark() {
   return (
@@ -59,7 +36,7 @@ function NavItem({
   collapsed,
   onClick,
 }: {
-  item: (typeof NAV_ITEMS)[number]
+  item: NavItemType
   active: boolean
   collapsed: boolean
   onClick?: () => void
@@ -68,10 +45,12 @@ function NavItem({
   return (
     <Link
       key={item.label}
-      href={item.href}
+      href={navHref(item)}
       onClick={onClick}
+      aria-current={active ? 'page' : undefined}
       className={cn(
         'flex min-h-11 items-center gap-3 rounded-xl text-[13.5px] font-redesign-sans transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-forest-deep-dark',
         collapsed ? 'justify-center px-0' : 'px-3',
         active
           ? 'border border-redesign-gold/25 bg-redesign-gold/[0.09] font-semibold text-redesign-gold'
@@ -90,8 +69,8 @@ export function Sidebar() {
   const pathname = usePathname()
   const [tabletExpanded, setTabletExpanded] = useState(false)
 
-  // Exact match for active state — see docs/HERMES.md pitfalls.
-  const isActive = (href: string) => pathname === href
+  // Prefix-aware except for Dashboard — see isNavItemActive for why.
+  const isActive = (item: NavItemType) => isNavItemActive(item, pathname ?? '')
 
   // Shared nav content rendered inside both desktop and tablet overlays.
   const navContent = (
@@ -99,7 +78,7 @@ export function Sidebar() {
       <BrandMark />
       <nav className="flex flex-col gap-1">
         {NAV_ITEMS.map((item) => (
-          <NavItem key={item.label} item={item} active={isActive(item.href)} collapsed={false} />
+          <NavItem key={item.label} item={item} active={isActive(item)} collapsed={false} />
         ))}
       </nav>
       <div className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-line-dark bg-surface-dark p-4 shadow-sm">
@@ -129,7 +108,7 @@ export function Sidebar() {
         <nav className="flex flex-col items-center gap-1">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon
-            const active = isActive(item.href)
+            const active = isActive(item)
             return (
               <button
                 key={item.label}
@@ -176,7 +155,7 @@ export function Sidebar() {
                 <NavItem
                   key={item.label}
                   item={item}
-                  active={isActive(item.href)}
+                  active={isActive(item)}
                   collapsed={false}
                   onClick={() => setTabletExpanded(false)}
                 />

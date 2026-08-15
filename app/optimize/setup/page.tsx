@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
@@ -280,8 +281,8 @@ function SetupScreen() {
   // Waiting for the draft handoff / profile load.
   if (!draft) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-bg">
-        <p className="font-mono text-sm text-ink-400">Loading…</p>
+      <main className="flex min-h-dvh items-center justify-center">
+        <p className="font-mono text-sm text-ink-400-dark">Loading…</p>
       </main>
     )
   }
@@ -299,7 +300,7 @@ function SetupScreen() {
               Optimizing for
               <span className="block text-gold-text-dark">{ctaName}</span>
             </h1>
-            <p className="text-[13px] leading-relaxed text-ink-900-dark/60">
+            <p className="text-[13px] leading-relaxed text-ink-400-dark">
               Reviewed as {personaLabel(draft.target_industry)} would.
             </p>
           </div>
@@ -311,14 +312,14 @@ function SetupScreen() {
               const isActive = i === activeIndex
               const icon = isDone ? '✓' : isActive ? '◍' : '○'
               const iconColor = isDone
-                ? 'text-forest'
+                ? 'text-forest-dark'
                 : isActive
                   ? 'text-gold-text-dark'
-                  : 'text-ink-900-dark/40'
+                  : 'text-ink-400-dark'
               return (
                 <div key={s} className="flex items-center gap-3 text-[13px] font-medium">
                   <span className={cn('w-4 shrink-0 text-center', iconColor)}>{icon}</span>
-                  <span className={isDone || isActive ? 'text-ink-900-dark' : 'text-ink-900-dark/40'}>{s}</span>
+                  <span className={isDone || isActive ? 'text-ink-900-dark' : 'text-ink-400-dark'}>{s}</span>
                 </div>
               )
             })}
@@ -332,13 +333,13 @@ function SetupScreen() {
                 style={{ width: `${percent}%` }}
               />
             </div>
-            <div className="flex justify-between font-mono text-[11px] text-ink-900-dark/55">
+            <div className="flex justify-between font-mono text-[11px] text-ink-400-dark">
               <span>{percent}%</span>
               <span>~{secsLeft}s left</span>
             </div>
           </div>
 
-          <p className="text-center text-[11px] leading-relaxed text-ink-900-dark/45">
+          <p className="text-center text-[11px] leading-relaxed text-ink-400-dark">
             Only facts already in your profile are used. Nothing is invented.
           </p>
         </div>
@@ -347,7 +348,7 @@ function SetupScreen() {
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-bg font-redesign-sans">
+    <main className="flex min-h-dvh flex-col font-redesign-sans">
       <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-5 py-8 sm:px-8 lg:py-12">
       {/* Back + heading */}
       <div className="flex flex-col gap-2">
@@ -355,19 +356,19 @@ function SetupScreen() {
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
         >
           ←
         </button>
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900">What should we sharpen?</h1>
-        <p className="text-[12px] leading-normal text-ink-700">
+        <h1 className="font-serif text-[27px] leading-tight text-ink-900-dark">What should we sharpen?</h1>
+        <p className="text-[12px] leading-normal text-ink-700-dark">
           Your dates, employers, titles and certifications are never touched. Only framing changes.
         </p>
       </div>
 
       {loadError ? (
-        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-3">
-          <p className="text-[12px] text-terra">{loadError}</p>
+        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-radius-lg border border-terra-dark/30 bg-terra-tint-dark px-3.5 py-3">
+          <p className="text-[12px] text-terra-dark">{loadError}</p>
           <Button variant="secondary" className="w-full" onClick={() => router.push('/optimize/target')}>
             Back to choose target
           </Button>
@@ -375,10 +376,10 @@ function SetupScreen() {
       ) : null}
 
       {/* Body */}
-      <Card tone="light" className="mt-5 flex flex-1 flex-col gap-2.5 overflow-y-auto p-5">
+      <Card tone="dark" className="mt-5 flex flex-1 flex-col gap-2.5 overflow-y-auto p-5">
         {/* Blocks */}
         <div className="flex items-center justify-between">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">Blocks</div>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">Blocks</div>
           <button
             type="button"
             aria-pressed={allOn}
@@ -386,8 +387,8 @@ function SetupScreen() {
             className={cn(
               'rounded-radius-md border px-3 py-2 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
               allOn
-                ? 'border-redesign-gold/50 bg-redesign-gold-tint text-gold-text'
-                : 'border-line-light bg-surface-light text-ink-700'
+                ? 'border-redesign-gold/50 bg-redesign-gold-tint-dark text-gold-text-dark'
+                : 'border-line-dark bg-surface-dark text-ink-700-dark'
             )}
           >
             Optimize all
@@ -400,21 +401,21 @@ function SetupScreen() {
           onClick={() => setSummaryOn((v) => !v)}
           aria-pressed={summaryOn}
           className={cn(
-            'flex min-h-11 items-center gap-3 rounded-radius-lg border bg-surface-light px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
-            summaryOn ? 'border-forest' : 'border-line-light'
+            'flex min-h-11 items-center gap-3 rounded-radius-lg border bg-surface-dark px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
+            summaryOn ? 'border-forest' : 'border-line-dark'
           )}
         >
           <span
             className={cn(
               'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[11px] text-white',
-              summaryOn ? 'bg-forest' : 'border-[1.5px] border-line-light-strong'
+              summaryOn ? 'bg-forest' : 'border-[1.5px] border-line-dark-strong'
             )}
           >
             {summaryOn ? '✓' : ''}
           </span>
           <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-semibold text-ink-900">Professional summary</span>
-            <span className="text-[11px] text-ink-400">Rewritten for this target</span>
+            <span className="text-[13px] font-semibold text-ink-900-dark">Professional summary</span>
+            <span className="text-[11px] text-ink-400-dark">Rewritten for this target</span>
           </span>
         </button>
 
@@ -428,21 +429,21 @@ function SetupScreen() {
               onClick={() => toggleExp(e.id)}
               aria-pressed={on}
               className={cn(
-                'flex min-h-11 items-center gap-3 rounded-radius-lg border bg-surface-light px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
-                on ? 'border-forest' : 'border-line-light'
+                'flex min-h-11 items-center gap-3 rounded-radius-lg border bg-surface-dark px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
+                on ? 'border-forest' : 'border-line-dark'
               )}
             >
               <span
                 className={cn(
                   'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[11px] text-white',
-                  on ? 'bg-forest' : 'border-[1.5px] border-line-light-strong'
+                  on ? 'bg-forest' : 'border-[1.5px] border-line-dark-strong'
                 )}
               >
                 {on ? '✓' : ''}
               </span>
               <span className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-semibold text-ink-900">{e.label}</span>
-                <span className="text-[11px] text-ink-400">
+                <span className="text-[13px] font-semibold text-ink-900-dark">{e.label}</span>
+                <span className="text-[11px] text-ink-400-dark">
                   {e.bullets} bullet{e.bullets === 1 ? '' : 's'}
                 </span>
               </span>
@@ -451,16 +452,16 @@ function SetupScreen() {
         })}
 
         {/* Skills & certifications — informational only, no checkbox */}
-        <div className="flex min-h-11 items-center justify-between rounded-radius-lg border border-line-light bg-surface-2-light px-4 py-3">
+        <div className="flex min-h-11 items-center justify-between rounded-radius-lg border border-line-dark bg-surface-2-dark px-4 py-3">
           <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-semibold text-ink-900">Skills &amp; certifications</span>
-            <span className="text-[11px] text-ink-400">Reordered by relevance — never reworded</span>
+            <span className="text-[13px] font-semibold text-ink-900-dark">Skills &amp; certifications</span>
+            <span className="text-[11px] text-ink-400-dark">Reordered by relevance — never reworded</span>
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-forest">Automatic</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-forest-dark">Automatic</span>
         </div>
 
         {/* Optimization level */}
-        <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+        <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark">
           Optimization level
         </div>
         <div className="flex gap-[7px]">
@@ -473,16 +474,16 @@ function SetupScreen() {
                 aria-pressed={selected}
                 onClick={() => setLevel(l.value)}
                 className={cn(
-                  'flex min-h-11 flex-1 flex-col items-center gap-1 rounded-radius-lg border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
+                  'flex min-h-11 flex-1 flex-col items-center gap-1 rounded-radius-lg border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
                   selected
-                    ? 'border-forest-deep bg-forest-deep'
-                    : 'border-line-light bg-surface-light'
+                    ? 'border-redesign-gold bg-forest-deep'
+                    : 'border-line-dark bg-surface-dark'
                 )}
               >
-                <span className={cn('text-[13px] font-semibold', selected ? 'text-ink-900-dark' : 'text-ink-900')}>
+                <span className={cn('text-[13px] font-semibold', selected ? 'text-ink-900-dark' : 'text-ink-900-dark')}>
                   {l.label}
                 </span>
-                <span className={cn('font-mono text-[10px]', selected ? 'text-gold-text-dark' : 'text-ink-400')}>
+                <span className={cn('font-mono text-[10px]', selected ? 'text-gold-text-dark' : 'text-ink-400-dark')}>
                   {l.range}
                 </span>
               </button>
@@ -492,16 +493,16 @@ function SetupScreen() {
 
         {/* Risk indicator — ONLY at Moderate/High */}
         {level !== 'easy' ? (
-          <div className="mt-1 flex items-start gap-2.5 rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3">
-            <span className="text-[13px] text-terra">△</span>
-            <p className="text-[11px] leading-snug text-terra">{RISK_COPY}</p>
+          <div className="mt-1 flex items-start gap-2.5 rounded-radius-lg border border-terra-dark/40 bg-terra-tint-dark px-3.5 py-3">
+            <span className="text-[13px] text-terra-dark">△</span>
+            <p className="text-[11px] leading-snug text-terra-dark">{RISK_COPY}</p>
           </div>
         ) : null}
       </Card>
 
       {/* Footer CTA */}
       {error ? (
-        <div className="mx-5 mb-3 rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mb-3 rounded-radius-lg border border-terra-dark/30 bg-terra-tint-dark px-3.5 py-3 text-[12px] text-terra-dark">
           {error}
         </div>
       ) : null}
@@ -528,8 +529,10 @@ function SetupScreen() {
 // Keep a Suspense boundary for future useSearchParams safety during prerender.
 export default function OptimizeSetupPage() {
   return (
-    <Suspense>
-      <SetupScreen />
-    </Suspense>
+    <AppShell>
+      <Suspense>
+        <SetupScreen />
+      </Suspense>
+    </AppShell>
   )
 }

@@ -13,6 +13,11 @@ const PROTECTED_ROUTES = [
   '/gcc-readiness',
   '/job-match',
   '/cover-letter',
+  '/create-resume',
+  // /payments is now a redirect into /settings?tab=payments, but it stays
+  // listed here: it must not become an unauthenticated route just because
+  // its body is a redirect, and it was in fact never protected before.
+  '/payments',
 ]
 
 // Routes only for guests — redirect to the dashboard if already logged in.
@@ -135,6 +140,8 @@ export const config = {
     '/gcc-readiness/:path*',
     '/job-match/:path*',
     '/cover-letter/:path*',
+    '/create-resume/:path*',
+    '/payments/:path*',
     '/login',
     '/signup',
   ],

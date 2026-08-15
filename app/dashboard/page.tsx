@@ -254,7 +254,7 @@ export default function DashboardPage() {
                   Your next best action
                 </span>
                 <h2 className="font-serif text-[22px] leading-snug text-ink-900-dark">{nextAction.title}</h2>
-                <p className="text-[13.5px] leading-relaxed text-ink-900-dark/60">{nextAction.body}</p>
+                <p className="text-[13.5px] leading-relaxed text-ink-400-dark">{nextAction.body}</p>
               </div>
               <Link
                 href={nextAction.href}
@@ -278,7 +278,7 @@ export default function DashboardPage() {
                 </div>
               ) : recentPackages.length === 0 ? (
                 <div className="flex flex-col gap-1 rounded-radius-md border border-dashed border-line-dark bg-surface-2-dark/50 p-5">
-                  <span className="text-[13px] font-semibold text-ink-900-dark/60">No activity yet</span>
+                  <span className="text-[13px] font-semibold text-ink-400-dark">No activity yet</span>
                   <span className="text-[12.5px] leading-relaxed text-ink-400-dark">
                     Optimize a resume and it will show up here.
                   </span>

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { ProgressBar } from '@/components/ui/ProgressBar'
@@ -173,14 +174,14 @@ function TargetScreen() {
 
   if (!loaded) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-bg">
-        <p className="font-mono text-sm text-ink-400">Loading…</p>
+      <main className="flex min-h-dvh items-center justify-center">
+        <p className="font-mono text-sm text-ink-400-dark">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-bg font-redesign-sans">
+    <main className="flex min-h-dvh flex-col font-redesign-sans">
       <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-5 py-8 sm:px-8 lg:py-12">
       {/* Back + progress 3/5 */}
       <div className="flex items-center gap-3.5">
@@ -188,50 +189,51 @@ function TargetScreen() {
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
         >
           ←
         </button>
         <div className="flex-1">
-          <ProgressBar value={60} />
+          <ProgressBar value={60} tone="dark" />
         </div>
-        <span className="font-mono text-[11px] text-ink-400">3/5</span>
+        <span className="font-mono text-[11px] text-ink-400-dark">3/5</span>
       </div>
 
       {/* Heading */}
       <div className="px-5 pb-4">
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900">Who are we targeting?</h1>
+        <h1 className="font-serif text-[27px] leading-tight text-ink-900-dark">Who are we targeting?</h1>
       </div>
 
       {loadError ? (
-        <div className="mx-5 mb-3 rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mb-3 rounded-radius-lg border border-terra-dark/30 bg-terra-tint-dark px-3.5 py-3 text-[12px] text-terra-dark">
           {loadError}
         </div>
       ) : null}
 
       {/* Fields */}
-      <Card tone="light" className="mt-5 flex flex-1 flex-col gap-4 overflow-y-auto p-5">
+      <Card tone="dark" className="mt-5 flex flex-1 flex-col gap-4 overflow-y-auto p-5">
         <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_job_title" className="text-[11px] font-semibold tracking-wide text-ink-700">
-            Target job title <span className="text-terra">*</span>
+          <label htmlFor="f_target_job_title" className="text-[11px] font-semibold tracking-wide text-ink-700-dark">
+            Target job title <span className="text-terra-dark">*</span>
           </label>
           <Input
             id="f_target_job_title"
             value={draft.target_job_title}
             onChange={(e) => set('target_job_title', e.target.value)}
             placeholder="e.g. Commissioning Engineer (I&C)"
+            tone="dark"
           />
         </div>
 
         {/* Reuse detection prompt (TASK-036) — fires when a similar-titled
             package already exists */}
         {similar && !dismissed ? (
-          <div className="rounded-radius-lg border border-redesign-gold/50 bg-redesign-gold-tint p-3.5">
-            <p className="text-[12px] leading-snug text-gold-text">
+          <div className="rounded-radius-lg border border-redesign-gold/50 bg-redesign-gold-tint-dark p-3.5">
+            <p className="text-[12px] leading-snug text-gold-text-dark">
               You already have a &ldquo;{similar.title}&rdquo; package — re-optimize it (overwrites its
               current text), or start fresh?
             </p>
-            <p className="mt-0.5 text-[10.5px] text-ink-400">Keeping past versions arrives in Phase 2.</p>
+            <p className="mt-0.5 text-[10.5px] text-ink-400-dark">Keeping past versions arrives in Phase 2.</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <button
                 type="button"
@@ -239,7 +241,7 @@ function TargetScreen() {
                   setReplacingId(similar.id)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-radius-md bg-forest-deep px-3.5 py-2 text-[11px] font-semibold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2"
+                className="min-h-11 rounded-radius-md bg-forest-deep px-3.5 py-2 text-[11px] font-semibold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
               >
                 Re-optimize
               </button>
@@ -249,7 +251,7 @@ function TargetScreen() {
                   setReplacingId(null)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-3.5 py-2 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2"
+                className="min-h-11 rounded-radius-md border border-line-dark-strong bg-surface-dark px-3.5 py-2 text-[11px] font-semibold text-ink-900-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
               >
                 Start fresh
               </button>
@@ -258,7 +260,7 @@ function TargetScreen() {
         ) : null}
 
         {similar && replacingId ? (
-          <div className="rounded-radius-lg border border-forest/30 bg-forest-tint px-3.5 py-3 text-[11.5px] leading-snug text-forest">
+          <div className="rounded-radius-lg border border-forest/30 bg-forest-tint-dark px-3.5 py-3 text-[11.5px] leading-snug text-forest-dark">
             Will re-optimize your existing &ldquo;{similar.title}&rdquo; package — its current text will be
             replaced.{' '}
             <button
@@ -275,12 +277,12 @@ function TargetScreen() {
         ) : null}
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_industry" className="text-[11px] font-semibold tracking-wide text-ink-700">
-            Target industry <span className="text-terra">*</span> <span className="font-normal text-ink-400">— drives the writing persona</span>
+          <label htmlFor="f_target_industry" className="text-[11px] font-semibold tracking-wide text-ink-700-dark">
+            Target industry <span className="text-terra-dark">*</span> <span className="font-normal text-ink-400-dark">— drives the writing persona</span>
           </label>
           <select
             id="f_target_industry"
-            className="min-h-11 w-full rounded-radius-md border border-line-light bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none transition-colors focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
+            className="min-h-11 w-full rounded-radius-md border border-line-dark bg-surface-dark px-[15px] py-[13px] text-sm font-medium text-ink-900-dark outline-none transition-colors focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20"
             value={draft.target_industry}
             onChange={(e) => set('target_industry', e.target.value)}
           >
@@ -296,8 +298,8 @@ function TargetScreen() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="text-[11px] font-semibold tracking-wide text-ink-700">
-            Target country <span className="font-normal text-ink-400">— optional</span>
+          <div className="text-[11px] font-semibold tracking-wide text-ink-700-dark">
+            Target country <span className="font-normal text-ink-400-dark">— optional</span>
           </div>
           <div className="flex flex-wrap gap-[7px]">
             {GULF_COUNTRIES.map((c) => {
@@ -309,10 +311,10 @@ function TargetScreen() {
                   aria-pressed={selected}
                   onClick={() => set('target_country', c.value)}
                   className={cn(
-                    'min-h-11 rounded-[99px] px-[14px] py-[10px] text-[12px] font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
+                    'min-h-11 rounded-[99px] px-[14px] py-[10px] text-[12px] font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
                     selected
                       ? 'bg-forest-deep text-ink-900-dark'
-                      : 'border border-line-light bg-surface-light font-medium text-ink-700'
+                      : 'border border-line-dark bg-surface-dark font-medium text-ink-700-dark'
                   )}
                 >
                   {c.label}
@@ -323,31 +325,32 @@ function TargetScreen() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_company" className="text-[11px] font-semibold tracking-wide text-ink-700">
-            Target company <span className="font-normal text-ink-400">— optional, sharpens framing</span>
+          <label htmlFor="f_target_company" className="text-[11px] font-semibold tracking-wide text-ink-700-dark">
+            Target company <span className="font-normal text-ink-400-dark">— optional, sharpens framing</span>
           </label>
           <Input
             id="f_target_company"
             value={draft.target_company}
             onChange={(e) => set('target_company', e.target.value)}
             placeholder="Any employer"
+            tone="dark"
           />
         </div>
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <div className="text-[11px] font-semibold tracking-wide text-ink-700">
-              Job description <span className="font-normal text-ink-400">— optional</span>
+            <div className="text-[11px] font-semibold tracking-wide text-ink-700-dark">
+              Job description <span className="font-normal text-ink-400-dark">— optional</span>
             </div>
-            <span className="rounded-[5px] bg-redesign-gold-tint px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-gold-text">
+            <span className="rounded-[5px] bg-redesign-gold-tint-dark px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-gold-text-dark">
               Best results
             </span>
           </div>
           <div className="flex flex-col gap-2.5 rounded-radius-lg border border-dashed border-redesign-gold p-4">
-            <div className="text-[13px] font-medium leading-snug text-ink-900">
+            <div className="text-[13px] font-medium leading-snug text-ink-900-dark">
               Paste the posting, or upload the PDF
             </div>
-            <p className="text-[11px] leading-snug text-ink-400">
+            <p className="text-[11px] leading-snug text-ink-400-dark">
               With a JD we match the employer&apos;s exact wording. Without one, we optimize to your title,
               industry and country.
             </p>
@@ -357,7 +360,7 @@ function TargetScreen() {
               value={draft.job_description}
               onChange={(e) => set('job_description', e.target.value)}
               placeholder="Paste the job posting text here…"
-              className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none placeholder:text-ink-400 focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
+              className="min-h-11 w-full resize-none rounded-radius-md border border-line-dark bg-surface-dark px-[15px] py-[13px] text-sm font-medium text-ink-900-dark outline-none placeholder:text-ink-400-dark focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20"
             />
             {/* JD-PDF UPLOAD STUB (TASK-027 contract #4): no speced route exists
                 to extract text from an uploaded JD PDF — /api/parse/upload is for
@@ -368,7 +371,7 @@ function TargetScreen() {
               type="button"
               disabled
               title="JD PDF upload coming soon"
-              className="min-h-11 cursor-not-allowed rounded-radius-md border border-line-light-strong bg-surface-light px-3 py-3 text-[11px] font-semibold text-ink-900 opacity-50"
+              className="min-h-11 cursor-not-allowed rounded-radius-md border border-line-dark-strong bg-surface-dark px-3 py-3 text-[11px] font-semibold text-ink-900-dark opacity-50"
             >
               Upload the PDF
             </button>
@@ -378,14 +381,14 @@ function TargetScreen() {
 
       {/* Footer */}
       <div className="flex flex-col gap-2.5 px-5 pb-6 pt-4">
-        <p className="text-center text-[11px] leading-snug text-ink-400">
+        <p className="text-center text-[11px] leading-snug text-ink-400-dark">
           Still free — you&apos;ll see what changes before you pay.
         </p>
         <Button variant="progress" className="w-full" disabled={!canContinue} onClick={onContinue}>
           Choose what to optimize
         </Button>
         {!canContinue ? (
-          <p className="text-center text-[11px] text-ink-400">
+          <p className="text-center text-[11px] text-ink-400-dark">
             Add your job title and industry to continue.
           </p>
         ) : null}
@@ -398,8 +401,10 @@ function TargetScreen() {
 // Keep a Suspense boundary for future useSearchParams safety during prerender.
 export default function OptimizeTargetPage() {
   return (
-    <Suspense>
-      <TargetScreen />
-    </Suspense>
+    <AppShell>
+      <Suspense>
+        <TargetScreen />
+      </Suspense>
+    </AppShell>
   )
 }
