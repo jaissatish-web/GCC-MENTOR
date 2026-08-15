@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { deletePhoto } from '@/lib/storage/profilePhoto'
 
 /**
  * Data deletion (TASK-037).
@@ -66,6 +67,16 @@ export async function deleteMyData(
     return { error: 'You must be signed in to do this.' }
   }
 
+  // Read the photo path BEFORE the row goes, or it becomes unreachable and the
+  // file is orphaned in storage forever. TASK-037 flagged exactly this gap and
+  // could not close it because no bucket existed yet; migration 032 created one,
+  // so it is closed here.
+  const { data: photoRow } = await supabase
+    .from('career_profiles')
+    .select('photo_url')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
   const { error: deleteError } = await supabase
     .from('career_profiles')
     .delete()
@@ -79,6 +90,11 @@ export async function deleteMyData(
         'Something went wrong deleting your data. Please try again, or email the founder if this persists.',
     }
   }
+
+  // Only after the row is confirmed gone. Failures here are logged, not
+  // surfaced: the user's data IS deleted, and reporting an error would wrongly
+  // suggest otherwise. Worst case is one orphaned object.
+  await deletePhoto(photoRow?.photo_url)
 
   console.info('account data deleted: user=' + user.id)
 

@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Toggle } from '@/components/ui/Toggle'
+import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
@@ -1452,48 +1453,11 @@ function ProfileScreen() {
         </CardSection>
 
         {/* PHOTO — STUB. No Storage/upload API exists yet (see header note). */}
-        <Card id="sec_photo" tone="light" className="flex gap-3.5 border-[1.5px] border-redesign-gold p-4">
-          <div className="flex h-[70px] w-[58px] shrink-0 flex-col items-center justify-center gap-1 rounded-[7px] border border-dashed border-redesign-gold bg-surface-2-light">
-            <span className="text-base text-gold-text">◔</span>
-            <span className="text-[8px] font-semibold uppercase tracking-wider text-gold-text">Add</span>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              <span className="text-[13px] font-bold text-ink-900">Photo</span>
-              <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text">
-                Expected in Gulf CVs
-              </span>
-            </div>
-            <p className="text-[11px] leading-snug text-ink-400">
-              Passport-style, plain background. Counts toward your readiness score.
-            </p>
-            <div className="mt-1 flex gap-2">
-              {/* PHOTO UPLOAD STUB (TASK-024 contract #5): no Supabase Storage
-                  object / no POST /api/profile/photo exists anywhere in this repo
-                  (same gap TASK-037 flags). These two buttons are built visually
-                  per the mockup but DISABLED — they must not fire a network call.
-                  When photo upload is built for real, wire the upload + Storage
-                  object here and add its cleanup to
-                  components/settings/DeleteDataSection.tsx. */}
-              <button
-                type="button"
-                disabled
-                title="Photo upload coming soon"
-                className="min-h-11 cursor-not-allowed rounded-radius-md bg-surface-light px-3 py-3 text-[11px] font-semibold text-ink-900 opacity-50"
-              >
-                Upload photo
-              </button>
-              <button
-                type="button"
-                disabled
-                title="Photo upload coming soon"
-                className="min-h-11 cursor-not-allowed rounded-radius-md border border-line-light/70 bg-surface-light px-3 py-3 text-[11px] font-semibold text-ink-900 opacity-50"
-              >
-                Take one now
-              </button>
-            </div>
-            <p className="text-[10px] text-ink-400">Photo upload is coming soon.</p>
-          </div>
+        <Card id="sec_photo" tone="light" className="border-[1.5px] border-redesign-gold p-4">
+          <PhotoUpload
+            photoUrl={editor.photo_url || null}
+            onChange={(next) => setField({ photo_url: next ?? '' })}
+          />
         </Card>
 
         {/* WORK EXPERIENCE */}

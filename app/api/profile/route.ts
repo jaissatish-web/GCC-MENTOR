@@ -14,6 +14,7 @@ import type {
 import { calculateReadiness } from '@/lib/readiness'
 import type { ReadinessInput } from '@/lib/readiness'
 import { detectEmploymentGaps } from '@/lib/employmentGaps'
+import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
 import { normalizeProfileDate } from '@/lib/partialDates'
 
 /**
@@ -125,7 +126,7 @@ function validateProfile(p: Record<string, unknown>): string | null {
     return null
   }
   const optionalStrErr = optionalStr(
-    'current_employer', 'current_project', 'target_company', 'photo_url',
+    'current_employer', 'current_project', 'target_company',
     'nationality', 'date_of_birth', 'passport_validity_date', 'visa_status',
     'notice_period', 'current_location', 'whatsapp', 'linkedin_url',
     'professional_summary', 'driving_license_country', 'driving_license_category',
@@ -290,8 +291,14 @@ export async function GET(): Promise<NextResponse> {
   // extra key on the response only.
   const employment_gaps = detectEmploymentGaps(work_experience as ProfileWorkExperience[])
 
+  // photo_url stores an OBJECT PATH (migration 032). The client can only
+  // render a URL, so sign it here; a missing or removed object yields null and
+  // the profile simply renders without a picture.
+  const photoDisplayUrl = await signedPhotoUrl((profile as { photo_url?: string | null }).photo_url)
+
   return NextResponse.json({
     ...(profile as CareerProfile),
+    photo_url: photoDisplayUrl,
     work_experience: work_experience as ProfileWorkExperience[],
     skills: skills as ProfileSkill[],
     certifications: certifications as ProfileCertification[],
@@ -343,7 +350,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   const allowedProfileKeys: Array<keyof CareerProfile> = [
     'currently_in_gulf', 'current_employer', 'current_project',
     'target_job_title', 'target_industry', 'target_country', 'target_company',
-    'full_name', 'photo_url', 'nationality', 'date_of_birth', 'passport_type',
+    'full_name', 'nationality', 'date_of_birth', 'passport_type',
     'passport_validity_date', 'visa_status', 'visa_transferable', 'notice_period',
     'current_location', 'phone', 'whatsapp', 'email', 'linkedin_url',
     'professional_summary', 'field_visibility', 'readiness_category', 'readiness_score',

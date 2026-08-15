@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
 import { createElement } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import GulfPremium, {
@@ -155,8 +156,16 @@ export async function GET(
     additional_information: additional_information as ProfileAdditionalInformation[],
   }
 
+  // The template renders <img src>, and Puppeteer fetches it over the network,
+  // so the stored object path has to become a real signed URL before render or
+  // the photo silently comes out blank in the delivered PDF.
+  const profileWithPhoto = {
+    ...profile,
+    photo_url: await signedPhotoUrl(profile.photo_url),
+  }
+
   const props: GulfPremiumProps = {
-    profile,
+    profile: profileWithPhoto,
     optimizedContent: (pkg.optimized_content ?? {
       summary: { generated: '', source_profile_summary: '' },
       experience_blocks: [],
