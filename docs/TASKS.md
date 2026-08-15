@@ -2199,6 +2199,28 @@ any ticket in this section — it is not repeated in full inside each one.**
 
 ---
 
+- [x] **TASK-104: Career Profile form redesign — guided blocks, live points, phone/date input** — founder feedback: the form reads as unorganised, users lose patience part-way, and nothing tells them why a block exists or what it is worth. Presentation-only; no schema, API or scoring behaviour changed.
+
+      **Grounded in published form research, at the founder's request** (see Sources in the reply): labels stay **above** inputs (NN/g — top-aligned labels give the fastest completion and fewest errors, since the eye scans straight down); placeholders are **examples only, never the label** (NN/g — placeholder-only fields raise both error rate and completion time across every demographic, because the hint vanishes the moment typing starts; WCAG agrees); helper text sits **below** the input, in the same position the error message will occupy.
+
+      **Section headings are now two-column** — left: title + the one line saying why the block exists; right: what it is worth. That pairing is the whole point: it answers "why am I filling this in?" and "what do I get for it?" in one glance.
+
+      **The points had to be computed, not hard-coded — this was the significant finding.** `lib/readiness.ts`'s weights are **category-dependent**: Education is worth **30** to a fresher but **5** to someone already in the Gulf; Visa readiness is **0** to a fresher but **40** in-Gulf. A static "+30 points" chip would therefore have been wrong for most users looking at it. Added `fieldPointsFor(category)` — a pure derivation from the same `groupsFor()`/`WEIGHTS` that `calculateReadiness()` already uses, so the chips cannot drift from the ring — and a `SECTION_FIELDS` map, because the readiness groups are **not 1:1 with the form's blocks** (the Contact & target group is split across Status and Identity, and the entire Visa group sits inside Identity). Chips show `earned/total`. **Verified all 16 scored fields are mapped to exactly one section**, so section totals sum to precisely 100. Sections that genuinely score nothing (Professional summary, Driving licence, Additional information) render **"Not scored"** plus a line on why they still matter, rather than a misleading "+0 points" that reads as either a bug or as "skip me".
+
+      **Phone/WhatsApp split — with a deliberate deviation from the literal request.** The founder asked for two blocks each. Built as a **country-code `<select>` + number input**, not two free-text boxes: usability testing on phone fields is consistent that splitting a number across multiple *text* inputs hurts most on mobile, where users must jump between boxes and the keyboard changes under them. A picker keeps the code visibly separate (the founder's actual intent), guarantees a valid E.164 prefix, and avoids that cost. **Storage is unchanged** — still one joined string — because `lib/resumeDocument.ts`, `lib/ai/buildOptimizationPrompt.ts` and `lib/ai/extractionPrompt.ts` all read the column whole; splitting the column would have broken all three plus grounding validation. `lib/phone.ts` round-trip tested: longest-match (`+971` wins over `+97`), unknown codes (`+999 …`) preserved verbatim rather than reinterpreted, pre-existing unprefixed numbers left exactly as typed, and a bare dial code never written when the number is empty.
+
+      **Dates** now go through an explicit `DateField`: `precision="day"` for date of birth, passport and licence validity (real full dates the user reads off a document), `precision="month"` for career dates (all a resume actually states — see TASK-102). `[color-scheme:dark]` added because the browser's own picker indicator renders dark-on-dark otherwise.
+
+      **Mobile:** inputs are 16px on small screens — below that iOS Safari auto-zooms the focused field and visibly yanks the page sideways mid-form; single column that pairs to two at `sm`; the points chip is pinned so it never pushes a heading onto a second line.
+
+      **New:** `components/ui/FormField.tsx` (`TextField`, `TextAreaField`, `SelectField`, `DateField`, `PhoneField`, `FieldShell`) and `lib/phone.ts`.
+
+      **Verified:** `tsc` 0 errors, `eslint` clean, full `npm run build` pass, phone split/join round-trip tested against 10 cases, scored-field coverage checked by diffing `readiness.ts` against `SECTION_FIELDS`. **Not visually verified** — `/profile` is auth-gated and magic-link login cannot complete in this environment (Unplanned #20).
+
+      Depends on: TASK-102, TASK-103 · Status: done, 2026-08-14.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
