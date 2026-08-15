@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { buttonVariants } from '@/components/ui/Button'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn, GULF_COUNTRIES, PACKAGE_STATUSES } from '@/lib/utils'
 import type { Package, PackageStatus } from '@/types/package'
@@ -49,7 +50,7 @@ function statusSelectClass(status: PackageStatus): string {
     shortlisted: 'border-redesign-gold/50 bg-redesign-gold-tint text-gold-text',
     interview: 'border-forest/50 bg-forest-tint text-forest',
     visa_processing: 'border-line-light bg-surface-2-light text-ink-400',
-    offer: 'border-forest bg-forest text-ink-900',
+    offer: 'border-forest bg-forest text-white',
   }
   return map[status]
 }
@@ -215,7 +216,7 @@ export default function DashboardLibraryPage() {
           </p>
           <Link
             href="/optimize/target"
-            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-radius-md bg-forest px-5 text-sm font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+            className={buttonVariants({ variant: 'primary' }) + ' mt-4'}
           >
             Optimize your resume
           </Link>

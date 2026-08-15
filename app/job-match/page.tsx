@@ -109,7 +109,7 @@ function JobMatchScreen() {
             <p className="text-[12px] text-ink-400">
               {jobDescription.length.toLocaleString()} characters
             </p>
-            <Button type="submit" variant="purchase" disabled={loading || jobDescription.trim().length === 0}>
+            <Button type="submit" variant="primary" disabled={loading || jobDescription.trim().length === 0}>
               {loading ? 'Analyzing…' : 'Analyze match'}
             </Button>
           </div>

@@ -139,7 +139,7 @@ export default function CreateResumePage() {
           </p>
           <Button
             type="button"
-            variant="purchase"
+            variant="primary"
             disabled={!chosen}
             onClick={() => chosen && router.push(chosen.href)}
             className="shrink-0 disabled:cursor-not-allowed disabled:opacity-50"

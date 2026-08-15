@@ -253,7 +253,7 @@ function CoverLetterScreen() {
               (available ?? 0) > 0 ? (
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-[12px] text-ink-400">Target: {letterTarget(selected)}</p>
-                  <Button type="button" variant="purchase" onClick={generate} disabled={!canGenerate}>
+                  <Button type="button" variant="primary" onClick={generate} disabled={!canGenerate}>
                     {generating ? 'Generating…' : 'Generate cover letter'}
                   </Button>
                 </div>
@@ -285,7 +285,7 @@ function CoverLetterScreen() {
             autoComplete="off"
             className="min-h-11 flex-1 rounded-radius-md border border-line-light/70 bg-surface-2-light/50 px-3 text-[14px] text-ink-900 outline-none placeholder:text-ink-400 focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25"
           />
-          <Button type="submit" variant="purchase" disabled={redeeming || redeemCode.trim().length === 0}>
+          <Button type="submit" variant="primary" disabled={redeeming || redeemCode.trim().length === 0}>
             {redeeming ? 'Redeeming…' : 'Redeem'}
           </Button>
         </form>

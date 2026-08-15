@@ -211,7 +211,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
             aria-pressed={tab === 'changes'}
             className={cn(
               'min-h-11 rounded-[9px] px-3.5 py-2 text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
-              tab === 'changes' ? 'bg-forest-deep text-ink-900' : 'border border-line-light bg-surface-light font-medium text-ink-700'
+              tab === 'changes' ? 'bg-forest-deep text-white' : 'border border-line-light bg-surface-light font-medium text-ink-700'
             )}
           >
             Changes ({changeCount})
@@ -222,7 +222,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
             aria-pressed={tab === 'full'}
             className={cn(
               'min-h-11 rounded-[9px] px-3.5 py-2 text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
-              tab === 'full' ? 'bg-forest-deep text-ink-900' : 'border border-line-light bg-surface-light font-medium text-ink-700'
+              tab === 'full' ? 'bg-forest-deep text-white' : 'border border-line-light bg-surface-light font-medium text-ink-700'
             )}
           >
             Full CV
@@ -382,7 +382,7 @@ function ChangesTab({
           {editing.summary ? (
             <div className="flex gap-2">
               <button type="button" disabled={saveBusy} onClick={() => saveSummary()}
-                className="min-h-11 rounded-radius-md bg-forest px-3.5 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2">
+                className="min-h-11 rounded-radius-md bg-forest px-3.5 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2">
                 {saveBusy ? 'Saving…' : 'Save'}
               </button>
               <button type="button" disabled={saveBusy} onClick={() => setEditing({})}
@@ -442,7 +442,7 @@ function ChangesTab({
                   {isEditing ? (
                     <>
                       <button type="button" disabled={saveBusy} onClick={() => saveBullet()}
-                        className="min-h-9 rounded-radius-md bg-forest px-3 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2">
+                        className="min-h-9 rounded-radius-md bg-forest px-3 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2">
                         Save
                       </button>
                       <button type="button" disabled={saveBusy} onClick={() => setEditing({})}

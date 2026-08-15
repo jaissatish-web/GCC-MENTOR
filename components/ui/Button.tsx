@@ -28,10 +28,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-forest-deep font-bold text-ink-900-dark hover:bg-forest',
+        primary: 'bg-forest font-bold text-white hover:bg-forest-deep',
         purchase:
           'bg-redesign-gold font-bold text-forest-deep shadow-redesign-cta-glow hover:bg-redesign-gold-dark hover:shadow-redesign-lg hover:-translate-y-px',
-        progress: 'bg-forest font-bold text-surface-light shadow-redesign-md hover:bg-forest-deep',
+        progress: 'bg-forest font-bold text-white shadow-redesign-md hover:bg-forest-deep',
         secondary:
           'border border-line-light-strong bg-surface-light font-semibold text-ink-900 hover:bg-surface-2-light',
         ghost:

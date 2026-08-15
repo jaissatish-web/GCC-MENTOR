@@ -142,7 +142,7 @@ function GccReadinessScreen() {
               </p>
               <Link
                 href="/profile"
-                className={cn(buttonVariants({ variant: 'purchase' }), 'w-full text-[13.5px]')}
+                className={cn(buttonVariants({ variant: 'primary' }), 'w-full text-[13.5px]')}
               >
                 {missing.length === 0 ? 'View Career Profile' : 'Complete profile'}
               </Link>

@@ -241,7 +241,7 @@ function TargetScreen() {
                   setReplacingId(similar.id)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-radius-md bg-forest-deep px-3.5 py-2 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+                className="min-h-11 rounded-radius-md bg-forest-deep px-3.5 py-2 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
               >
                 Re-optimize
               </button>
@@ -313,7 +313,7 @@ function TargetScreen() {
                   className={cn(
                     'min-h-11 rounded-[99px] px-[14px] py-[10px] text-[12px] font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
                     selected
-                      ? 'bg-forest-deep text-ink-900'
+                      ? 'bg-forest-deep text-white'
                       : 'border border-line-light bg-surface-light font-medium text-ink-700'
                   )}
                 >
