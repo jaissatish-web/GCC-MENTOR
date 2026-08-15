@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -76,11 +76,20 @@ function NavItem({
   active,
   collapsed,
   onClick,
+  pending = false,
 }: {
   item: NavItemType
   active: boolean
   collapsed: boolean
   onClick?: () => void
+  /**
+   * The destination exists but the user has not set it up yet.
+   *
+   * Still a real link — they are sent here straight after extraction, so it
+   * must be reachable and must not move around the menu later. It is only
+   * presented as not-yet-started.
+   */
+  pending?: boolean
 }) {
   const Icon = item.icon
   return (
@@ -93,6 +102,7 @@ function NavItem({
         'flex min-h-11 items-center gap-3 rounded-xl text-[13.5px] font-redesign-sans transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-forest-deep-dark',
         collapsed ? 'justify-center px-0' : 'px-3',
+        pending && !active && 'opacity-60',
         active
           ? 'border border-redesign-gold/25 bg-redesign-gold/[0.09] font-semibold text-redesign-gold'
           : 'border border-transparent font-medium text-ink-400-dark hover:bg-marble/[0.05] hover:text-ink-900-dark'
@@ -101,12 +111,43 @@ function NavItem({
       <Icon
         className={cn('size-5 shrink-0', active ? 'text-redesign-gold' : 'text-ink-400-dark')}
       />
-      {!collapsed && <span>{item.label}</span>}
+      {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+      {!collapsed && pending ? (
+        <span className="shrink-0 rounded-[5px] border border-line-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-400-dark/70">
+          Set up
+        </span>
+      ) : null}
     </Link>
   )
 }
 
+/**
+ * Cached across client-side navigations.
+ *
+ * The shell re-renders on every route change, and re-asking whether the user
+ * has a profile each time would add a request per navigation for a fact that
+ * changes once. Module scope resets on a full page load, which is exactly when
+ * it should be re-checked.
+ */
+let cachedHasProfile: boolean | null = null
+
 export function Sidebar() {
+  // Defaults to true so the nav never briefly tells an existing user that
+  // their profile is missing while the check is in flight.
+  const [hasProfile, setHasProfile] = useState<boolean>(cachedHasProfile ?? true)
+
+  useEffect(() => {
+    if (cachedHasProfile !== null) return
+    fetch('/api/profile', { cache: 'no-store' })
+      .then((res) => {
+        // 404 is the documented "no profile yet" response, not an error.
+        cachedHasProfile = res.status !== 404
+        setHasProfile(cachedHasProfile)
+      })
+      .catch(() => {
+        cachedHasProfile = true
+      })
+  }, [])
   const pathname = usePathname()
   const [tabletExpanded, setTabletExpanded] = useState(false)
 
@@ -119,7 +160,13 @@ export function Sidebar() {
       <BrandMark />
       <nav className="flex flex-col gap-1">
         {NAV_ITEMS.map((item) => (
-          <NavItem key={item.label} item={item} active={isActive(item)} collapsed={false} />
+          <NavItem
+            key={item.label}
+            item={item}
+            active={isActive(item)}
+            collapsed={false}
+            pending={Boolean(item.needsProfile) && !hasProfile}
+          />
         ))}
         <PlannedGroup />
       </nav>
@@ -199,6 +246,7 @@ export function Sidebar() {
                   item={item}
                   active={isActive(item)}
                   collapsed={false}
+                  pending={Boolean(item.needsProfile) && !hasProfile}
                   onClick={() => setTabletExpanded(false)}
                 />
               ))}

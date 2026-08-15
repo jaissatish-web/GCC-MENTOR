@@ -179,7 +179,19 @@ export default function DashboardPage() {
   // Next Best Action — a simple three-tier rule over real state, not a
   // recommendation engine (explicitly out of scope).
   const nextAction =
-    !profile || score < 40
+    // A brand-new user is told to CREATE A RESUME, not to "complete a Career
+    // Profile". They signed up to make a CV; "Career Profile" is our internal
+    // name for the data behind it, and leading with it points a first-time
+    // visitor at an empty form using a term they have never seen. The profile
+    // is what creating a resume produces, so that is the order we ask for it in.
+    !profile
+      ? {
+          title: 'Create your first resume',
+          body: 'Upload an existing CV, paste the text, or type it in — whichever is easiest. We build your profile from it.',
+          cta: 'Create resume',
+          href: '/create-resume',
+        }
+      : score < 40
       ? {
           title: 'Complete your Career Profile',
           body: missing.length

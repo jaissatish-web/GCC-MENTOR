@@ -1,6 +1,5 @@
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
-
 /**
  * The authenticated app frame.
  *

@@ -40,14 +40,24 @@ export interface NavItem {
    * multi-step flow (`/optimize/target` → `/setup` → `/preview` → `/pay`).
    */
   exact?: boolean
+  /**
+   * Shown dimmed, with a "Not set up yet" hint, until the user has a profile.
+   *
+   * Deliberately dimmed rather than hidden. The user LANDS on this page right
+   * after extraction, so removing it from the nav would drop them somewhere
+   * with no visible way back — and nav that changes shape between visits makes
+   * people re-learn the menu. Dimming keeps the destination discoverable while
+   * making clear it is not the first step.
+   */
+  needsProfile?: boolean
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, exact: true },
-  { label: 'Resume Library', href: '/dashboard/library', icon: BookOpenIcon },
-  { label: 'Career Profile', href: '/profile', icon: UserCircleIcon },
-  { label: 'GCC Readiness', href: '/gcc-readiness', icon: ShieldCheckIcon },
   { label: 'Create Resume', href: '/create-resume', icon: PlusCircleIcon },
+  { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true },
+  { label: 'Resume Library', href: '/dashboard/library', icon: BookOpenIcon },
+  { label: 'GCC Readiness', href: '/gcc-readiness', icon: ShieldCheckIcon },
   { label: 'Job Match', href: '/job-match', icon: MagnifyingGlassIcon },
   { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },
