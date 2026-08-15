@@ -1130,9 +1130,17 @@ function ProfileScreen() {
       {/* Readiness header — the ring IS the header, on dark navy */}
       <header className="flex flex-col gap-4 bg-surface-light px-5 pb-6 pt-4">
         <div className="flex items-center gap-4">
+          {/* Photo first: it is what a Gulf recruiter looks at first, and it
+              used to sit buried between form sections. */}
+          <PhotoUpload
+            compact
+            photoUrl={editor.photo_url || null}
+            onChange={(next) => setField({ photo_url: next ?? '' })}
+          />
+          {/* The score is the headline of this page, so it stays visible on a
+              phone rather than being hidden to make room — just smaller. */}
           <div className="shrink-0">
-            {/* Reuses the approved TASK-026 ReadinessRing component. */}
-            <ReadinessRing score={readiness.score} size={86} />
+            <ReadinessRing score={readiness.score} size={68} />
           </div>
           <div className="flex flex-col gap-1.5">
             <h1 className="font-serif text-[20px] leading-tight text-ink-900">
@@ -1499,14 +1507,6 @@ function ProfileScreen() {
             optimizer diffs against.
           </p>
         </CardSection>
-
-        {/* PHOTO — STUB. No Storage/upload API exists yet (see header note). */}
-        <Card id="sec_photo" tone="light" className="border-[1.5px] border-redesign-gold p-4">
-          <PhotoUpload
-            photoUrl={editor.photo_url || null}
-            onChange={(next) => setField({ photo_url: next ?? '' })}
-          />
-        </Card>
 
         {/* WORK EXPERIENCE */}
         <CardSection

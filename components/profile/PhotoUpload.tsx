@@ -19,9 +19,20 @@ import { Button } from '@/components/ui/Button'
 export function PhotoUpload({
   photoUrl,
   onChange,
+  compact = false,
 }: {
   photoUrl: string | null
   onChange: (nextUrl: string | null) => void
+  /**
+   * Header variant: just the frame, with the whole thing as the click target.
+   *
+   * The photo belongs at the top of the profile — it is the first thing a Gulf
+   * recruiter looks at, and burying the control between form sections made it
+   * feel like an afterthought. The full variant with its explanatory copy is
+   * still right when the control stands alone; in the header the surrounding
+   * context already explains itself.
+   */
+  compact?: boolean
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
@@ -64,6 +75,66 @@ export function PhotoUpload({
     } finally {
       setBusy(false)
     }
+  }
+
+  if (compact) {
+    return (
+      <div className="flex shrink-0 flex-col items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          aria-label={photoUrl ? 'Change your profile photo' : 'Upload a profile photo'}
+          className="group relative h-[86px] w-[68px] shrink-0 overflow-hidden rounded-radius-md border border-line-light-strong bg-surface-2-light transition-colors hover:border-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 disabled:opacity-60"
+        >
+          {photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photoUrl} alt="Your profile photo" className="h-full w-full object-cover" />
+          ) : (
+            <span className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-center">
+              <span aria-hidden="true" className="text-[18px] leading-none text-forest">
+                +
+              </span>
+              <span className="text-[9px] font-semibold uppercase tracking-wider text-ink-400">
+                Photo
+              </span>
+            </span>
+          )}
+          {/* Affordance on hover/focus so it is discoverable without a label. */}
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-forest-deep/80 py-0.5 text-center text-[9px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+            {busy ? '…' : photoUrl ? 'Change' : 'Add'}
+          </span>
+        </button>
+
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="sr-only"
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) void upload(f)
+          }}
+        />
+
+        {photoUrl ? (
+          <button
+            type="button"
+            onClick={() => void remove()}
+            disabled={busy}
+            className="text-[10.5px] font-semibold text-ink-400 underline underline-offset-2 hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra disabled:opacity-60"
+          >
+            Remove
+          </button>
+        ) : null}
+
+        {error ? (
+          <p role="alert" className="max-w-[120px] text-center text-[10px] font-medium text-terra">
+            {error}
+          </p>
+        ) : null}
+      </div>
+    )
   }
 
   return (
