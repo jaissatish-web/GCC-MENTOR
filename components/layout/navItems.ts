@@ -1,5 +1,8 @@
 import {
   Squares2X2Icon,
+  ChatBubbleLeftRightIcon,
+  QuestionMarkCircleIcon,
+  BookmarkIcon,
   BookOpenIcon,
   UserCircleIcon,
   ShieldCheckIcon,
@@ -49,6 +52,35 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },
   { label: 'Settings', href: '/settings', icon: Cog6ToothIcon },
+] as const
+
+/**
+ * Services that are agreed but not built.
+ *
+ * These are rendered in the nav as DIMMED, NON-INTERACTIVE rows under their own
+ * "Coming soon" heading — never as links.
+ *
+ * DELIBERATE DEVIATION, founder decision 2026-08-15.
+ * docs/redesign/PLANNED_SERVICES.md previously said "No nav entry, on any
+ * breakpoint, for any of the three." The founder asked for them to be visible
+ * in the sidebar and, given the choice, chose the dimmed non-clickable
+ * treatment specifically so the roadmap is visible without anyone tapping into
+ * a dead end. That is what the original rule was protecting against, so the
+ * intent survives even though the letter of it changed. The doc has been
+ * updated rather than left contradicting the code.
+ *
+ * They carry no href by construction: there is nothing to navigate to, and a
+ * type without one cannot accidentally be turned into a link later.
+ */
+export interface PlannedNavItem {
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+}
+
+export const PLANNED_NAV_ITEMS: readonly PlannedNavItem[] = [
+  { label: 'Mock Interview', icon: ChatBubbleLeftRightIcon },
+  { label: 'Q&A / Interview Prep', icon: QuestionMarkCircleIcon },
+  { label: 'Saved Jobs', icon: BookmarkIcon },
 ] as const
 
 /**

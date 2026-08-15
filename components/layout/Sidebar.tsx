@@ -4,20 +4,61 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { NAV_ITEMS, isNavItemActive, navHref, type NavItem as NavItemType } from './navItems'
+import {
+  NAV_ITEMS,
+  PLANNED_NAV_ITEMS,
+  isNavItemActive,
+  navHref,
+  type NavItem as NavItemType,
+} from './navItems'
 
 /**
  * Desktop sidebar — per docs/redesign/DESIGN_SYSTEM.md §8.1–8.2.
  *
  * The destination list now lives in ./navItems so this rail, the mobile
- * bottom bar and the More drawer cannot drift apart. Zero Locked/Planned
- * entries anywhere in navigation (docs/redesign/PLANNED_SERVICES.md).
+ * bottom bar and the More drawer cannot drift apart. Planned services appear
+ * under their own "Coming soon" heading as dimmed, non-interactive rows —
+ * founder decision 2026-08-15, recorded in docs/redesign/PLANNED_SERVICES.md.
  *
  * Desktop (≥1024px): full 248px sidebar with labels.
  * Tablet (768–1023px): 48px icon-only bar; tap expands into a labeled
  * overlay that sits above the page content.
  * Mobile (<768px): hidden — handled by MobileBottomNav + MoreSheet.
  */
+
+/**
+ * The "Coming soon" group.
+ *
+ * Rendered as plain <div>s, not buttons or links: there is nothing to activate,
+ * and a disabled control still takes focus in some browsers, which would put a
+ * keyboard user on an item that does nothing. Marked aria-disabled so assistive
+ * tech announces the state rather than the user discovering it by trying.
+ */
+function PlannedGroup() {
+  return (
+    <div className="mt-6 flex flex-col gap-1">
+      <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark/70">
+        Coming soon
+      </div>
+      {PLANNED_NAV_ITEMS.map((item) => {
+        const Icon = item.icon
+        return (
+          <div
+            key={item.label}
+            aria-disabled="true"
+            className="flex min-h-11 cursor-default items-center gap-3 rounded-xl px-3 text-[13.5px] font-medium text-ink-400-dark/55"
+          >
+            <Icon className="size-5 shrink-0 text-ink-400-dark/45" />
+            <span className="flex-1 truncate">{item.label}</span>
+            <span className="shrink-0 rounded-[5px] border border-line-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-400-dark/70">
+              Soon
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 function BrandMark() {
   return (
@@ -80,6 +121,7 @@ export function Sidebar() {
         {NAV_ITEMS.map((item) => (
           <NavItem key={item.label} item={item} active={isActive(item)} collapsed={false} />
         ))}
+        <PlannedGroup />
       </nav>
       <div className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-line-dark bg-surface-dark p-4 shadow-sm">
         <div className="text-[12px] font-semibold leading-normal text-redesign-gold">Need help?</div>
@@ -160,6 +202,7 @@ export function Sidebar() {
                   onClick={() => setTabletExpanded(false)}
                 />
               ))}
+              <PlannedGroup />
             </nav>
             <div className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-line-dark bg-surface-dark p-4 shadow-sm">
               <div className="text-[12px] font-semibold leading-normal text-redesign-gold">Need help?</div>
