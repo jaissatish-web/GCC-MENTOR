@@ -6,7 +6,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { cn } from '@/lib/utils'
-import { CAREER_PROFILE_DRAFT_KEY } from '@/lib/onboardingDraft'
+import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_RESUME_TEXT_KEY } from '@/lib/onboardingDraft'
 
 /**
  * Extraction progress screen — screen 03 (TASK-023), route /onboarding/extracting.
@@ -36,7 +36,14 @@ import { CAREER_PROFILE_DRAFT_KEY } from '@/lib/onboardingDraft'
  * /onboarding — never a stranded screen.
  */
 
-type Path = 'upload' | 'paste'
+/**
+ * 'claimed' is a paste in everything but origin: the text comes from the
+ * anonymous scan the user already ran (handed over by /onboarding via
+ * CLAIMED_RESUME_TEXT_KEY) rather than from the textarea, and extraction starts
+ * on its own because the person already chose this by signing up. It posts to
+ * the same endpoint with the same payload as 'paste'.
+ */
+type Path = 'upload' | 'paste' | 'claimed'
 
 const CHECKLIST = [
   'Contact & identity fields',
@@ -53,7 +60,8 @@ function ExtractingScreen() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const raw = searchParams.get('path')
-  const path: Path | null = raw === 'upload' ? 'upload' : raw === 'paste' ? 'paste' : null
+  const path: Path | null =
+    raw === 'upload' ? 'upload' : raw === 'paste' ? 'paste' : raw === 'claimed' ? 'claimed' : null
 
   const [file, setFile] = useState<File | null>(null)
   const [text, setText] = useState('')
@@ -71,8 +79,9 @@ function ExtractingScreen() {
     stage === 'collect' &&
     (path === 'upload' ? file !== null : (text ?? '').trim().length >= 50)
 
-  const runExtraction = useCallback(async () => {
+  const runExtraction = useCallback(async (overrideText?: string) => {
     if (!path) return
+    const bodyText = overrideText ?? text
     setStage('extracting')
     setServerMessage('')
 
@@ -86,7 +95,7 @@ function ExtractingScreen() {
       const res =
         path === 'upload'
           ? await uploadFile(file!)
-          : await postText(text)
+          : await postText(bodyText)
 
       if (!res.ok) {
         // Surface the server's own message verbatim (e.g. 429 rate limit).
@@ -123,6 +132,38 @@ function ExtractingScreen() {
       clearInterval(timer)
     }
   }, [file, path, router, text])
+
+  // 'claimed' starts on its own from the text /onboarding handed over. The ref
+  // guard matters: React runs effects twice in development StrictMode, and this
+  // one spends a real AI call and a rate-limit slot.
+  const claimedStarted = useRef(false)
+  useEffect(() => {
+    if (path !== 'claimed' || claimedStarted.current) return
+    const claimed = window.sessionStorage.getItem(CLAIMED_RESUME_TEXT_KEY)
+    // One-time handoff — clear before doing anything with it, so a refresh
+    // mid-extraction cannot silently spend a second call on the same text.
+    window.sessionStorage.removeItem(CLAIMED_RESUME_TEXT_KEY)
+    if (!claimed || claimed.trim().length < 50) {
+      // Nothing usable to resume from (refresh, or a cleared tab). The chooser
+      // is the honest destination — not an error screen for something the user
+      // did not do wrong.
+      router.replace('/onboarding')
+      return
+    }
+    claimedStarted.current = true
+    setText(claimed)
+    void runExtraction(claimed)
+  }, [path, router, runExtraction])
+
+  // 'claimed' never collects anything — the text is already in hand. Without
+  // this the paste card would flash for one frame before the effect above runs.
+  if (path === 'claimed' && stage === 'collect') {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-bg px-6 py-12 font-redesign-sans">
+        <p className="text-sm text-ink-700">Picking up your scan…</p>
+      </main>
+    )
+  }
 
   // ---- Collect stage (deferred upload/paste interaction) -------------------
   if (stage === 'collect') {
@@ -168,7 +209,7 @@ function ExtractingScreen() {
             />
           )}
 
-          <Button variant="primary" className="mt-6 w-full" disabled={!canStart} onClick={runExtraction}>
+          <Button variant="primary" className="mt-6 w-full" disabled={!canStart} onClick={() => void runExtraction()}>
             Start extraction
           </Button>
         </Card>

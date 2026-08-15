@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generate } from '@/lib/ai/provider'
 import { EXTRACTION_SYSTEM_PROMPT, normalizeDraft, extractJsonObject } from '@/lib/ai/extractionPrompt'
-import {
-  buildAtsScoreSystemPrompt,
-  buildAtsScoreUserPrompt,
-  validateAtsScoreResult,
-} from '@/lib/ai/atsScorePrompt'
+// Only the result TYPE is still needed here: since TASK-109 the score is
+// computed by lib/gccReadiness/analyzeResume.ts, so the scoring prompt, its
+// validator and the admin-editable intro are no longer called from this route.
 import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
 import {
   buildJobDescriptionUserPrompt,
@@ -28,7 +26,6 @@ import {
   JOB_MATCH_SCORING_VERSION,
 } from '@/types/jobMatch'
 import type { JobMatchCategoryKey, JobMatchCategoryResult, JobMatchResult } from '@/types/jobMatch'
-import { getPromptTemplate } from '@/lib/ai/promptTemplates'
 import {
   getAnonymousRateLimitStatus,
   incrementAnonymousRateLimit,
@@ -321,8 +318,16 @@ ${resumeText}`,
     }
   }
 
+  // Persisted whenever there is a scan to keep — NOT gated on `draft`.
+  //
+  // It was gated on it before, which quietly broke three things once TASK-109
+  // made extraction conditional on a job description: /gulf-readiness reads its
+  // sessionStorage copy once and deletes it, so a refresh fell back to this row
+  // and found nothing ("Your scan is unavailable"); the page's own promise that
+  // "your scan is kept for 7 days" was false for every scan without a JD, which
+  // is the default path; and signup had nothing to claim.
   let sessionToken: string | null = null
-  if (draft) {
+  if (resumeText) {
     try {
       const existingToken = request.cookies.get(SESSION_COOKIE_NAME)?.value ?? null
       sessionToken = await upsertAnonymousSession({

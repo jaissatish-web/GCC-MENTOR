@@ -5,7 +5,11 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { cn } from '@/lib/utils'
-import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
+import {
+  CAREER_PROFILE_DRAFT_KEY,
+  CLAIMED_RESUME_TEXT_KEY,
+  CLAIMED_SCAN_RESULT_KEY,
+} from '@/lib/onboardingDraft'
 
 /**
  * Onboarding path chooser — screen 02 (TASK-022), route /onboarding.
@@ -93,20 +97,35 @@ export default function OnboardingPage() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (cancelled) return
-        if (data?.draft) {
-          window.sessionStorage.setItem(CAREER_PROFILE_DRAFT_KEY, JSON.stringify(data.draft))
-          // Carry the pre-signup score along too, if there was one (extraction
-          // can succeed independently of scoring — see /api/ats-scan). Whoever
-          // builds the "welcome back" display (TASK-070) reads and clears this.
-          if (data.atsScore) {
+        // Carry the pre-signup score along in either branch below, if there was
+        // one. Whoever builds the "welcome back" display (TASK-070) reads and
+        // clears this.
+        const carryScore = () => {
+          if (data?.atsScore) {
             window.sessionStorage.setItem(
               CLAIMED_SCAN_RESULT_KEY,
               JSON.stringify({ atsScore: data.atsScore, jobDescription: data.jobDescription ?? null }),
             )
           }
+        }
+
+        if (data?.draft) {
+          window.sessionStorage.setItem(CAREER_PROFILE_DRAFT_KEY, JSON.stringify(data.draft))
+          carryScore()
           router.replace('/profile')
           return
         }
+
+        // No draft, but we still hold the resume text they scanned — since
+        // TASK-109 that is the normal case, not an edge one. Extract it now
+        // rather than making them upload the same file a second time.
+        if (typeof data?.resumeText === 'string' && data.resumeText.trim().length >= 50) {
+          window.sessionStorage.setItem(CLAIMED_RESUME_TEXT_KEY, data.resumeText)
+          carryScore()
+          router.replace('/onboarding/extracting?path=claimed')
+          return
+        }
+
         setCheckingClaim(false)
       })
       .catch(() => {

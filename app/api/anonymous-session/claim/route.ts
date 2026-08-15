@@ -61,6 +61,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const response = NextResponse.json({
     draft: claimed?.extractedProfile ?? null,
+    // The raw text is returned so the caller can still pre-fill when no draft
+    // was stored — since TASK-109 the free scan skips extraction unless a job
+    // description was given, and the promise this endpoint exists to keep is
+    // "you don't upload your CV twice", not "we happened to extract it early".
+    resumeText: claimed?.resumeText ?? null,
     atsScore: claimed?.atsScoreResult ?? null,
     jobMatch: claimed?.jobMatchResult ?? null,
     jobDescription: claimed?.jobDescription ?? null,

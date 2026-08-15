@@ -49,3 +49,18 @@ export const OPTIMIZATION_REPLACE_PACKAGE_KEY = 'optimization_replace_package'
  * across browser sessions.
  */
 export const CLAIMED_SCAN_RESULT_KEY = 'claimed_scan_result'
+
+/**
+ * Session-storage handoff for a claimed scan that has NO draft yet.
+ *
+ * Since TASK-109 the free scan skips extraction unless a job description was
+ * supplied, so most claimed sessions carry raw resume text rather than a
+ * finished draft. /onboarding writes that text here and sends the user to
+ * /onboarding/extracting, which extracts it exactly as if they had pasted it —
+ * so the "you never upload your CV twice" promise still holds, with the wait
+ * moved out of the free scan and behind a progress screen the user chose.
+ *
+ * READ and CLEARED by /onboarding/extracting. sessionStorage, same contract as
+ * every other key here.
+ */
+export const CLAIMED_RESUME_TEXT_KEY = 'claimed_resume_text'

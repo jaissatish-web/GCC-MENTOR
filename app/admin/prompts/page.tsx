@@ -1,5 +1,5 @@
 import { requireAdmin } from '@/lib/admin/adminAuth'
-import { getAllPromptTemplates } from '@/lib/ai/promptTemplates'
+import { getAllPromptTemplates, LIVE_PROMPT_TEMPLATE_KEYS } from '@/lib/ai/promptTemplates'
 import { updatePromptTemplateAction } from '@/app/admin/actions'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -68,6 +68,13 @@ export default async function PromptsPage({
                     {tmpl.description ? (
                       <span className="text-[12px] text-ink-400">{tmpl.description}</span>
                     ) : null}
+                    {LIVE_PROMPT_TEMPLATE_KEYS.includes(tmpl.key) ? null : (
+                      <span className="mt-1 rounded-radius-md border border-line-light bg-surface-2-light px-2 py-1 text-[11px] text-ink-700">
+                        Not currently used — no AI call reads this template today, so editing it
+                        will not change anything users see. It is kept because the text is still
+                        good, and a future call site can pick it up.
+                      </span>
+                    )}
                   </div>
                   {tmpl.updatedAt ? (
                     <span className="text-[11px] text-ink-400">

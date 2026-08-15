@@ -19,6 +19,20 @@ import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
  * lib/ai/providerConfig.ts's behaviour.
  */
 
+/**
+ * Template keys that a live AI call actually reads today.
+ *
+ * `ats_scan_intro` (the only row migration 025 seeds) is deliberately NOT here:
+ * since TASK-109 the free scan is computed by lib/gccReadiness/analyzeResume.ts
+ * with no model call, so nothing consumes that template any more. Editing it
+ * still saves, and would still take effect if the scan ever returns to a
+ * prompt — but it changes nothing today, and the admin screen says so rather
+ * than showing a form that quietly does nothing.
+ *
+ * Add a key here the moment a real call site starts reading it.
+ */
+export const LIVE_PROMPT_TEMPLATE_KEYS: readonly string[] = []
+
 export async function getPromptTemplate(key: string): Promise<string | null> {
   const supabase = createServiceRoleClient()
   const { data, error } = await supabase

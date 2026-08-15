@@ -39,9 +39,36 @@ export function generateSessionToken(): string {
   return randomBytes(32).toString('hex')
 }
 
+/**
+ * `extracted_profile` is `jsonb NOT NULL` (migration 028, written when a draft
+ * was always produced). Rather than change a live column's constraint for this,
+ * "no draft" is stored as an empty object and mapped back to null on the way
+ * out — in these two functions only, so no caller ever has to know. A future
+ * migration could drop the NOT NULL and delete both helpers; nothing else
+ * depends on the representation.
+ */
+function draftForStorage(draft: CareerProfileDraft | null): CareerProfileDraft | Record<string, never> {
+  return draft ?? {}
+}
+
+function draftFromStorage(raw: unknown): CareerProfileDraft | null {
+  if (!raw || typeof raw !== 'object') return null
+  if (Object.keys(raw as Record<string, unknown>).length === 0) return null
+  return raw as CareerProfileDraft
+}
+
 export interface AnonymousSessionData {
   resumeText: string
-  extractedProfile: CareerProfileDraft
+  /**
+   * NULL whenever extraction did not run.
+   *
+   * Since TASK-109 the free scan only extracts when a job description was
+   * supplied (the Job Match engine needs the candidate side; the readiness
+   * score no longer does). The session must still be written in that case —
+   * the scan result and the raw resume text are exactly what "your scan is
+   * kept for 7 days" promises, and what a /gulf-readiness refresh reads back.
+   */
+  extractedProfile: CareerProfileDraft | null
   jobDescription: string | null
   atsScoreResult: AtsScoreResult | null
   /** TASK-071. Null whenever no job description was given, or the Job Match engine's AI calls failed — the rest of the session is still valid either way. */
@@ -70,7 +97,7 @@ export async function upsertAnonymousSession(opts: {
       .from('anonymous_analysis_sessions')
       .update({
         resume_text: opts.data.resumeText,
-        extracted_profile: opts.data.extractedProfile,
+        extracted_profile: draftForStorage(opts.data.extractedProfile),
         job_description: opts.data.jobDescription,
         ats_score_result: opts.data.atsScoreResult,
         job_match_result: opts.data.jobMatchResult,
@@ -94,7 +121,7 @@ export async function upsertAnonymousSession(opts: {
     token_hash: hashToken(token),
     identity_hash: opts.identityHash,
     resume_text: opts.data.resumeText,
-    extracted_profile: opts.data.extractedProfile,
+    extracted_profile: draftForStorage(opts.data.extractedProfile),
     job_description: opts.data.jobDescription,
     ats_score_result: opts.data.atsScoreResult,
     job_match_result: opts.data.jobMatchResult,
@@ -136,7 +163,7 @@ export async function getAnonymousSession(token: string): Promise<AnonymousSessi
   if (error || !row) return null
   return {
     resumeText: row.resume_text as string,
-    extractedProfile: row.extracted_profile as CareerProfileDraft,
+    extractedProfile: draftFromStorage(row.extracted_profile),
     jobDescription: (row.job_description as string | null) ?? null,
     atsScoreResult: (row.ats_score_result as AtsScoreResult | null) ?? null,
     jobMatchResult: (row.job_match_result as JobMatchResult | null) ?? null,
@@ -169,7 +196,7 @@ export async function claimAnonymousSession(token: string): Promise<AnonymousSes
 
   return {
     resumeText: row.resume_text as string,
-    extractedProfile: row.extracted_profile as CareerProfileDraft,
+    extractedProfile: draftFromStorage(row.extracted_profile),
     jobDescription: (row.job_description as string | null) ?? null,
     atsScoreResult: (row.ats_score_result as AtsScoreResult | null) ?? null,
     jobMatchResult: (row.job_match_result as JobMatchResult | null) ?? null,
