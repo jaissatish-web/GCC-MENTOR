@@ -22,7 +22,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="dark-scope contents">
         <Sidebar />
       </div>
-      <main className="min-h-screen flex-1 pb-24 lg:pb-0">{children}</main>
+      {/*
+        min-w-0 is load-bearing, not tidying.
+
+        A flex item defaults to min-width:auto, so it refuses to shrink below
+        its content. Without this the content column measured 784px inside a
+        375px viewport — every authenticated page scrolled sideways and the user
+        had to pan around to reach controls. One property, and it is the single
+        biggest mobile defect in the app.
+      */}
+      <main className="min-h-screen min-w-0 flex-1 pb-24 lg:pb-0">{children}</main>
       <div className="dark-scope contents">
         <MobileBottomNav />
       </div>

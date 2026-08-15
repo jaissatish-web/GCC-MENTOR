@@ -150,7 +150,7 @@ export default async function AiProviderPage({
         <div className="rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">{providerError}</div>
       ) : null}
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Card tone="light" className="p-4">
           <p className="text-[11px] text-ink-400">AI services</p>
           <p className="mt-1 text-xl font-bold text-ink-900">{SERVICES.length}</p>

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { AuthShell } from '@/components/auth/AuthShell'
 import { AuthForm } from '@/components/auth/AuthForm'
+import { AuthHashHandler } from '@/components/auth/AuthHashHandler'
 import { Card } from '@/components/ui/Card'
 import { login } from './actions'
 
@@ -22,6 +23,7 @@ export default function LoginPage() {
       body="Build a stronger profile, prepare for Gulf interviews and approach opportunities with confidence."
     >
       <Card tone="light" className="flex w-full flex-col gap-1 p-8">
+        <AuthHashHandler />
         <h1 className="font-serif text-[26px] text-ink-900">Sign in</h1>
         <p className="mb-5 text-[13.5px] text-ink-400">Welcome back to GCC MENTOR.</p>
         <AuthForm action={login} submitLabel="Sign in" tone="light" />

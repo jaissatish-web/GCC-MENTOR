@@ -225,12 +225,18 @@ export default function DashboardPage() {
         </div>
       </Reveal>
 
+      {/*
+        min-w-0 on the columns is required, not cosmetic. A grid item defaults
+        to min-width:auto and so refuses to shrink below its content — this
+        column measured 744px inside a 335px cell on a 375px phone, which is
+        what forced the whole dashboard to scroll sideways.
+      */}
       <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[minmax(0,1fr)_340px]">
         {/* ── LEFT column ── */}
-        <div className="flex flex-col gap-6">
+        <div className="flex min-w-0 flex-col gap-6">
           {/* Metric row: Profile Strength · Resumes Created · Latest Job Match */}
           <Reveal delay={40}>
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <MetricTile label="Profile Strength" value={`${score}%`} sub={readiness?.category ? categoryLabel(readiness.category) : undefined} />
               <MetricTile
                 label="Resumes Created"
@@ -329,7 +335,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── RIGHT rail ── */}
-        <div className="flex flex-col gap-6">
+        <div className="flex min-w-0 flex-col gap-6">
           {/* Readiness ring card */}
           <Reveal delay={170}>
             <Card tone="light" className="flex flex-col gap-5 p-6">

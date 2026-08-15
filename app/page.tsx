@@ -179,7 +179,7 @@ export default function Home() {
                     <span className="rounded-full bg-forest-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest">Illustrative profile</span>
                   </div>
                   <p className="mt-5 text-[10px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — not a real customer result</p>
-                  <div className="mt-3 grid grid-cols-3 gap-3">
+                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
                       <CheckCircleIcon className="h-10 w-10 text-forest" />
                       <span className="text-center text-[10px] font-bold text-ink-700">ATS-ready format</span>
