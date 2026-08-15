@@ -59,6 +59,9 @@ export interface ResumeAnalysis extends AtsScoreResult {
     yearsMentioned: number | null
     gulfCountries: string[]
     gulfClients: string[]
+    languages: string[]
+    /** undefined = the source gave us no way to check (pasted text / DOCX). */
+    hasImage: boolean | undefined
   }
 }
 
@@ -91,6 +94,17 @@ const GULF_CLIENT_TERMS: Array<[string, RegExp]> = [
   ['Fluor', /\bfluor\b/i],
   ['Worley', /\bworley\b/i],
   ['McDermott', /\bmcdermott\b/i],
+]
+
+/** Languages that materially affect Gulf hiring. */
+const LANGUAGE_TERMS: Array<[string, RegExp]> = [
+  ['English', /\benglish\b/i],
+  ['Arabic', /\barabic\b/i],
+  ['Hindi', /\bhindi\b/i],
+  ['Urdu', /\burdu\b/i],
+  ['Malayalam', /\bmalayalam\b/i],
+  ['Tamil', /\btamil\b/i],
+  ['Tagalog', /\b(tagalog|filipino)\b/i],
 ]
 
 const ACTION_VERBS =
@@ -137,7 +151,21 @@ function scoreOf(signals: ReadinessSignal[]): number {
 // Analysis
 // ---------------------------------------------------------------------------
 
-export function analyzeResume(resumeText: string): ResumeAnalysis {
+export interface AnalyzeOptions {
+  /**
+   * Raster images found in the source PDF, if it was a PDF.
+   *
+   * A weak hint only: a CV may embed a company logo or an icon rather than a
+   * headshot, so a non-zero count is treated as "an image is present" and the
+   * copy is hedged accordingly. `undefined` (pasted text, or a DOCX) means we
+   * genuinely do not know, and the check is skipped rather than failed — a
+   * user who pasted their text must never be told their photo is missing when
+   * we had no way to look.
+   */
+  imageCount?: number
+}
+
+export function analyzeResume(resumeText: string, options: AnalyzeOptions = {}): ResumeAnalysis {
   const text = resumeText ?? ''
   const lines = toLines(text)
 
@@ -150,6 +178,7 @@ export function analyzeResume(resumeText: string): ResumeAnalysis {
     const m = text.match(/(\d{1,2})\s*\+?\s*(?:years?|yrs?)\b/i)
     return m ? Number(m[1]) : null
   })()
+  const languages = LANGUAGE_TERMS.filter(([, re]) => re.test(text)).map(([n]) => n)
   const gulfCountries = GULF_COUNTRY_TERMS.filter(([, re]) => re.test(text)).map(([n]) => n)
   const gulfClients = GULF_CLIENT_TERMS.filter(([, re]) => re.test(text)).map(([n]) => n)
 
@@ -179,6 +208,9 @@ export function analyzeResume(resumeText: string): ResumeAnalysis {
     signal('certifications', 'Certifications', has(text, /\b(certificat\w*|certified|licen[sc]e\w*|accredit\w*)/i), 8,
       'List your certifications with the issuing body — these carry real weight in Gulf hiring.',
       'Certifications are included.'),
+    signal('linkedin', 'LinkedIn profile', Boolean(linkedin), 6,
+      'Add your LinkedIn URL — Gulf recruiters routinely check it before calling.',
+      'LinkedIn profile is linked.'),
     signal('dates', 'Dates on roles', has(text, /\b(19|20)\d{2}\b/) && (text.match(/\b(19|20)\d{2}\b/g) ?? []).length >= 2, 8,
       'Add start and end dates to each role — ATS software uses them to compute your experience.',
       'Roles carry dates.'),
@@ -233,10 +265,35 @@ export function analyzeResume(resumeText: string): ResumeAnalysis {
     signal('gulf_clients', 'Recognised clients / standards', gulfClients.length > 0, 12,
       'Name the operators and standards you have worked to (Aramco, ADNOC, Shell DEP) — recruiters search for them.',
       `Names recognised Gulf clients/standards (${gulfClients.slice(0, 4).join(', ')}).`),
+    signal('notice_period', 'Notice period', has(text, /\b(notice\s+period|serving\s+notice|immediate(ly)?\s+(available|join\w*)|available\s+immediately|availability\s*:?\s*immediate|\d+\s*(days?|weeks?|months?)\s+notice)\b/i), 12,
+      'State your notice period explicitly (e.g. "Notice period: 30 days"). Gulf employers shortlist on start date.',
+      'Notice period is stated.'),
+    signal('languages', 'Languages', languages.length > 0, 10,
+      'List the languages you speak and your level — English is expected, and Arabic is a genuine advantage.',
+      `Languages are listed (${languages.slice(0, 3).join(', ')}).`),
+    signal('date_of_birth', 'Date of birth / age', has(text, /\b(date\s+of\s+birth|d\.?o\.?b\.?|born|age)\b/i), 8,
+      'Add your date of birth — unlike Western CVs, Gulf employers expect it for visa eligibility.',
+      'Date of birth is included.'),
+    signal('marital_status', 'Marital status', has(text, /\b(marital\s+status|maritalstatus|married|bachelor\s+status)\b|\bstatus\s*:\s*(single|married)\b/i), 6,
+      'Add marital status — commonly requested on Gulf CVs for family-status visa purposes.',
+      'Marital status is included.'),
     signal('license', 'Driving licence', has(text, /\bdriv(ing|er'?s)\s+licen[sc]e\w*/i), 8,
       'Add your driving licence if you hold one — many Gulf site roles require it.',
       'Driving licence is mentioned.'),
   ]
+
+  // A photo is expected on Gulf CVs far more than Western ones, but we can only
+  // check it for PDFs. When the user pasted text or sent a DOCX we cannot look,
+  // so the check is OMITTED rather than failed — telling someone their photo is
+  // missing when we never had a way to see it is exactly the kind of confident
+  // wrong advice this engine exists to avoid.
+  if (typeof options.imageCount === 'number') {
+    gulf.push(
+      signal('photo', 'Photo', options.imageCount > 0, 10,
+        'Consider adding a professional headshot — most Gulf employers expect a photo on the CV.',
+        'Your CV includes an image, which most Gulf employers expect.')
+    )
+  }
 
   // ---- Scores -------------------------------------------------------------
   const structureScore = scoreOf(structure)
@@ -284,7 +341,16 @@ export function analyzeResume(resumeText: string): ResumeAnalysis {
     summary: buildSummary(overall, gulfScore, gulf, gulfCountries),
     job_match: null,
     signals: { structure, clarity, gulf },
-    detected: { email, phone, linkedin, yearsMentioned, gulfCountries, gulfClients },
+    detected: {
+      email,
+      phone,
+      linkedin,
+      yearsMentioned,
+      gulfCountries,
+      gulfClients,
+      languages,
+      hasImage: typeof options.imageCount === 'number' ? options.imageCount > 0 : undefined,
+    },
   }
 }
 

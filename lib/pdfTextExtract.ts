@@ -16,6 +16,14 @@ export interface ExtractResult {
   fontMapCount?: number
   /** True when the text is almost certainly a failed decode, not a resume. */
   looksGarbled?: boolean
+  /**
+   * How many embedded raster images the document contains.
+   *
+   * Used only as a weak hint for "does this CV carry a photo?" — a resume may
+   * embed a logo or an icon instead, so the caller must treat a non-zero count
+   * as "an image is present", never as "a photograph of you is present".
+   */
+  imageCount?: number
 }
 
 // ---------------------------------------------------------------------------
@@ -249,6 +257,7 @@ function extractPdfText(buffer: Buffer, debug = false): ExtractResult {
   const textParts: string[] = []
   let pos = 0
   let errors = 0
+  let images = 0
 
   while (pos < raw.length) {
     // Find stream: 'stream\n' or 'stream\r\n'
@@ -289,6 +298,7 @@ function extractPdfText(buffer: Buffer, debug = false): ExtractResult {
     // byte pairs often enough to leak megabytes of noise into the output —
     // which then goes to the model as if it were resume content. Skip them.
     if (isNonContentStream(dict)) {
+      if (/\/Subtype\s*\/Image/.test(dict)) images++
       pos = streamEnd + 9
       continue
     }
@@ -319,6 +329,7 @@ function extractPdfText(buffer: Buffer, debug = false): ExtractResult {
   if (debug) result.errorCount = errors
   result.text = textParts.join(' ').replace(/\s+/g, ' ').trim()
   result.looksGarbled = looksGarbled(result.text)
+  result.imageCount = images
   return result
 }
 

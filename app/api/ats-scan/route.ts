@@ -110,6 +110,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const jobDescription = typeof rawJd === 'string' && rawJd.trim() ? rawJd.trim().slice(0, MAX_JD_LENGTH) : null
 
   let resumeText = ''
+  // Only known for PDFs; stays undefined for DOCX and pasted text so the photo
+  // check is skipped rather than failed. See analyzeResume's AnalyzeOptions.
+  let pdfImageCount: number | undefined
 
   if (file) {
     const buffer = Buffer.from(await file.arrayBuffer())
@@ -137,6 +140,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           if (fileExt === 'pdf') {
                       const result = extractPdfText(buffer, true) // debug mode
                       resumeText = result.text
+                      pdfImageCount = result.imageCount
                       // A failed font decode does not produce EMPTY text — it
                       // produces confident-looking noise that clears a length
                       // check and reaches the model, which then invents
@@ -209,7 +213,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // every time. The previous model-based scorer returned 78 and 45 for the
   // same resume on two runs, which is disqualifying for a number users are
   // meant to act on.
-  const analysis = analyzeResume(resumeText)
+  const analysis = analyzeResume(resumeText, { imageCount: pdfImageCount })
   const score: AtsScoreResult = analysis
 
   // A successful scan consumes a rate-limit slot regardless of what happens
