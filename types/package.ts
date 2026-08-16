@@ -85,9 +85,27 @@ export interface Package {
   status: PackageStatus
 
   // Output (structured, never a flat file)
-  optimized_content: OptimizedContent
+  /** NULL between payment and generation — see migration 033 (pay before generate). */
+  optimized_content: OptimizedContent | null
   skills_order: string[] // relevance-ordered skill IDs for this target
   field_visibility_snapshot: FieldVisibility
+  /**
+   * The document AS DELIVERED (migration 034): buildResumeDocument() output,
+   * captured once at generation. Renderers prefer it over the live profile so a
+   * paid resume cannot change when the Career Profile is later edited. NULL for
+   * packages generated before that migration, which still render live.
+   *
+   * Typed loosely here on purpose — types/package.ts is imported by client
+   * components, and pulling in ResumeDocument would drag the whole
+   * resume-document module into those bundles for a field they only pass
+   * through untouched.
+   */
+  document_snapshot?: unknown | null
+  /**
+   * What the user chose to optimize, captured at creation (migration 033) so
+   * generation can run later, in a request that carries only a package id.
+   */
+  selected_blocks?: { summary: boolean; experienceIds: string[] } | null
 
   // Payment
   is_paid: boolean // gates download

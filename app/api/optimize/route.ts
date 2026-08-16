@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { generate } from '@/lib/ai/provider'
 import { buildOptimizationPrompt } from '@/lib/ai/buildOptimizationPrompt'
 import type { SelectedBlocks, OptimizationTarget } from '@/lib/ai/buildOptimizationPrompt'
+import { buildResumeDocument } from '@/lib/resumeDocument'
 import { validateGrounding } from '@/lib/ai/validateGrounding'
 import type { ValidationFailure } from '@/lib/ai/validateGrounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
@@ -568,12 +569,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // (docs/CAREER_PROFILE.md §2 "Visibility storage"), not a live reference.
   // Re-snapshotted now rather than kept from creation, because generation is
   // the moment the document is actually produced.
+  // FREEZE WHAT WAS DELIVERED (TASK-132, migration 034). Until now a package
+  // stored only the AI text; every fixed field — name, contact, education,
+  // certifications, photo — was read live from career_profiles at render time,
+  // so editing the profile silently rewrote resumes the user had already paid
+  // for. The rendered document is captured here, once, and renderers prefer it.
+  //
+  // Deliberately the RENDERED document (buildResumeDocument output), not a copy
+  // of the profile: field visibility is already applied, so a hidden field is
+  // absent rather than duplicated into a second, unencrypted table.
+  const document_snapshot = buildResumeDocument({
+    profile,
+    optimizedContent: optimized_content,
+    skillsOrder: skills_order,
+    fieldVisibility: profile.field_visibility,
+  })
+
   const { data: created, error: insertError } = await supabase
     .from('packages')
     .update({
       optimized_content,
       skills_order,
       field_visibility_snapshot: profile.field_visibility,
+      document_snapshot,
     })
     .eq('id', generatePackageId)
     .eq('user_id', user.id)

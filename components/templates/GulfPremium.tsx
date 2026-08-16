@@ -1,7 +1,7 @@
 import type { CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { OptimizedContent } from '@/types/package'
 import { T, PAGE, SIZE } from './tokens'
-import { buildResumeDocument } from '@/lib/resumeDocument'
+import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 
 /**
  * GulfPremium — the single MVP resume template (TASK-031).
@@ -55,6 +55,17 @@ export interface GulfPremiumProps {
   skillsOrder?: string[]
   /** The package's visibility snapshot. Omitted => every field shown. */
   fieldVisibility?: Partial<FieldVisibility> | null
+  /**
+   * The document AS DELIVERED (packages.document_snapshot, migration 034).
+   *
+   * When present it is rendered verbatim and the profile is ignored, so a
+   * resume the user has already paid for cannot change because they later
+   * edited their Career Profile — which is what happened before, since every
+   * fixed field was read live at render time. Absent for packages generated
+   * before migration 034, which keep building from the live profile exactly as
+   * they always did.
+   */
+  document?: ResumeDocument | null
 }
 
 const sectionLabelStyle: React.CSSProperties = {
@@ -108,6 +119,7 @@ export default function GulfPremium({
   optimizedContent,
   skillsOrder,
   fieldVisibility,
+  document,
 }: GulfPremiumProps) {
   const {
     header,
@@ -117,7 +129,7 @@ export default function GulfPremium({
     certifications,
     education,
     additional,
-  } = buildResumeDocument({ profile, optimizedContent, skillsOrder, fieldVisibility })
+  } = document ?? buildResumeDocument({ profile, optimizedContent, skillsOrder, fieldVisibility })
 
   return (
     <div

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { getTemplate } from '@/lib/templates'
+import type { ResumeDocument } from '@/lib/resumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
@@ -164,6 +165,11 @@ function PackageScreenInner({ id }: { id: string }) {
                   you see is what downloads" stops being true the moment a
                   second template exists. */}
               <Template
+                // The delivered document wins over the live profile — see
+                // migration 034. Without this the on-screen resume silently
+                // changes whenever the Career Profile is edited, including for
+                // resumes already paid for.
+                document={(pkg.document_snapshot as ResumeDocument | null) ?? null}
                 profile={profile}
                 optimizedContent={(pkg.optimized_content ?? {
                   summary: { generated: '', source_profile_summary: '' },

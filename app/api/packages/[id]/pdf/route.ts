@@ -5,6 +5,7 @@ import { createElement } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { type GulfPremiumProps } from '@/components/templates/GulfPremium'
 import { getTemplate } from '@/lib/templates'
+import type { ResumeDocument } from '@/lib/resumeDocument'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -172,7 +173,17 @@ export async function GET(
     photo_url: await signedPhotoUrl(profile.photo_url),
   }
 
+  // Prefer the frozen document (migration 034) so a paid PDF re-downloaded
+  // months later is byte-for-byte the document that was bought. The photo is
+  // stored as an object PATH, so it still has to be signed at render time —
+  // the snapshot freezes WHICH photo, not a URL that would have expired.
+  const snapshot = (pkgRow as { document_snapshot?: ResumeDocument | null }).document_snapshot ?? null
+  const documentForRender: ResumeDocument | null = snapshot
+    ? { ...snapshot, header: { ...snapshot.header, photoUrl: await signedPhotoUrl(snapshot.header.photoUrl) } }
+    : null
+
   const props: GulfPremiumProps = {
+    document: documentForRender,
     profile: profileWithPhoto,
     optimizedContent: (pkg.optimized_content ?? {
       summary: { generated: '', source_profile_summary: '' },
