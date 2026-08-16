@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { launchBrowser, waitForImages } from '@/lib/pdf/browser'
 import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
 import { createElement } from 'react'
 import { createClient } from '@/lib/supabase/server'
@@ -49,6 +50,12 @@ import type { OptimizedContent } from '@/types/package'
  *     SNAPSHOT, not the profile's current toggles, so the document renders as it
  *     looked at generation time.
  */
+
+// Chrome needs the Node runtime, and a cold lambda spends real time unpacking
+// the Chromium binary before it renders anything — well past Vercel's 10s
+// default. 60s is the ceiling on the current plan.
+export const runtime = 'nodejs'
+export const maxDuration = 60
 
 const CHILD_TABLES = [
   'profile_work_experience',
@@ -197,47 +204,33 @@ export async function GET(
 <body>${bodyHtml}</body>
 </html>`
 
-    // ---- Launch Puppeteer, inject HTML, print to PDF -------------------------
-    const puppeteer = await import('puppeteer')
-    const fs = await import('fs')
+    // ---- Launch Chrome, inject HTML, print to PDF ----------------------------
+    // See lib/pdf/browser.ts: serverless gets @sparticuz/chromium, local dev
+    // reuses an installed Chrome. This route used to import `puppeteer`
+    // directly, which is why the download failed on every deployed request.
+    const browser = await launchBrowser()
 
-    // Prefer Puppeteer's own cached Chrome, then fall back to system Chrome.
-    let resolvedExecutable: string | undefined
+    let pdf: Uint8Array
     try {
-      const candidate = (puppeteer as unknown as { executablePath: () => string }).executablePath?.()
-      if (candidate && fs.existsSync(candidate)) resolvedExecutable = candidate
-    } catch {
-      /* ignore */
+      const page = await browser.newPage()
+      await page.setViewport({ width: 794, height: 1123 })
+      await page.setContent(fullHtml, { waitUntil: 'domcontentloaded' })
+      // The profile photo comes from a signed URL over the network; without
+      // this the PDF could be delivered with the photo missing while the
+      // on-screen preview showed it.
+      await waitForImages(page)
+
+      pdf = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        preferCSSPageSize: false,
+      })
+    } finally {
+      // Always close, including on a render error — a leaked Chrome on a
+      // long-running server is a slow memory leak, and on a lambda it delays
+      // the response.
+      await browser.close().catch(() => {})
     }
-    if (!resolvedExecutable) {
-      const systemCandidates = [
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        '/usr/bin/google-chrome',
-        '/usr/bin/google-chrome-stable',
-        '/usr/bin/chromium-browser',
-        '/usr/bin/chromium',
-      ]
-      resolvedExecutable = systemCandidates.find((p) => fs.existsSync(p))
-    }
-
-    const browser = await (puppeteer.default ?? puppeteer).launch({
-      headless: true,
-      ...(resolvedExecutable ? { executablePath: resolvedExecutable } : {}),
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-    })
-
-    const page = await browser.newPage()
-    await page.setViewport({ width: 794, height: 1123 })
-    await page.setContent(fullHtml, { waitUntil: 'domcontentloaded' })
-
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      preferCSSPageSize: false,
-    })
-
-    await browser.close()
 
     const safeName =
       (pkg.target_job_title || 'resume')

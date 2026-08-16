@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createElement } from 'react'
+import { launchBrowser, waitForImages } from '@/lib/pdf/browser'
 import { createClient } from '@/lib/supabase/server'
 import GulfPremium, { type GulfPremiumProps } from '@/components/templates/GulfPremium'
 import type {
@@ -43,6 +44,11 @@ const CHILD_TABLES = [
   'profile_education',
   'profile_additional_information',
 ] as const
+
+// Same reasoning as the PDF route: Chrome needs the Node runtime, and a cold
+// lambda unpacking Chromium runs well past the 10s default.
+export const runtime = 'nodejs'
+export const maxDuration = 60
 
 const WATERMARK = 'GCC MENTOR · Preview — Unlock to download'
 
@@ -160,39 +166,17 @@ export async function GET(
 </body>
 </html>`
 
-    const puppeteer = await import('puppeteer')
-    const fs = await import('fs')
-
-    let resolvedExecutable: string | undefined
-    try {
-      const candidate = (puppeteer as unknown as { executablePath: () => string }).executablePath?.()
-      if (candidate && fs.existsSync(candidate)) resolvedExecutable = candidate
-    } catch {
-      /* ignore */
-    }
-    if (!resolvedExecutable) {
-      const systemCandidates = [
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        '/usr/bin/google-chrome',
-        '/usr/bin/google-chrome-stable',
-        '/usr/bin/chromium-browser',
-        '/usr/bin/chromium',
-      ]
-      resolvedExecutable = systemCandidates.find((p) => fs.existsSync(p))
-    }
-
-    const browser = await (puppeteer.default ?? puppeteer).launch({
-      headless: true,
-      ...(resolvedExecutable ? { executablePath: resolvedExecutable } : {}),
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-    })
+    // Same shared launcher as the PDF route — this route was broken in
+    // production for the identical reason (no bundled Chrome on Vercel), which
+    // means the pre-payment preview never rendered on the live site either.
+    const browser = await launchBrowser()
     try {
       const page = await browser.newPage()
       await page.setViewport({ width: 794, height: 1123 })
       await page.setContent(fullHtml, { waitUntil: 'domcontentloaded' })
-      // Let fonts/layout settle so the blur + watermark are fully rendered.
-      await new Promise((r) => setTimeout(r, 500))
+      // Images and fonts must be in before the screenshot, or the blurred
+      // preview shows a half-rendered page.
+      await waitForImages(page)
       const rawImage = await page.screenshot({ type: 'png' })
       const imageBytes = new Uint8Array(rawImage)
 
