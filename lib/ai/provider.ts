@@ -27,8 +27,24 @@ async function callOpenAICompatible(baseUrl: string, apiKey: string, model: stri
   const res = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, { role: 'user', content: user }], max_tokens: maxTokens, temperature }) })
   const json = await res.json().catch(() => null) as any
   if (!res.ok) throw new AIProviderError(`${res.status}: ${json?.error?.message ?? res.statusText}`)
-  const text = json?.choices?.[0]?.message?.content
-  if (!text) throw new AIProviderError('Model response contained no text content')
+  const choice = json?.choices?.[0]
+  const text = choice?.message?.content
+  if (!text) {
+    // Reasoning models (deepseek-v4-flash, the configured default) spend their
+    // thinking tokens against the SAME max_tokens budget before emitting any
+    // visible content, so an under-budgeted call returns a populated
+    // `reasoning` field and a null `content`. That is a completely different
+    // problem from a refusal or a bad key, and the bare old message
+    // ("no text content") sent every diagnosis down the wrong path.
+    const reasoningChars = String(choice?.message?.reasoning ?? '').length
+    throw new AIProviderError(
+      `Model returned no content (finish_reason=${choice?.finish_reason ?? 'unknown'}` +
+        (reasoningChars
+          ? `, reasoning-only response of ${reasoningChars} chars — max_tokens was likely consumed by reasoning tokens`
+          : '') +
+        ')'
+    )
+  }
   return { text, inputTokens: json?.usage?.prompt_tokens ?? 0, outputTokens: json?.usage?.completion_tokens ?? 0 }
 }
 
@@ -60,7 +76,16 @@ export async function generate({ system, user, maxTokens, temperature, userId, r
     void logUsage(userId ?? null, route, config.model, result.inputTokens, result.outputTokens)
     return result
   } catch (primaryError) {
-    if (!config.fallbackProvider || !config.fallbackModel || !config.fallbackApiKey) throw new AIProviderError('Primary AI provider failed and no valid fallback is configured', primaryError)
+    // Carry the real reason INTO the message. It was previously passed only as
+    // `cause`, which nothing logs, so every failure surfaced as the same
+    // uninformative sentence and the actual provider error was unrecoverable.
+    const why = primaryError instanceof Error ? primaryError.message : String(primaryError)
+    if (!config.fallbackProvider || !config.fallbackModel || !config.fallbackApiKey) {
+      throw new AIProviderError(
+        `Primary AI provider (${config.provider}/${config.model}) failed and no fallback is configured — ${why}`,
+        primaryError
+      )
+    }
     try {
       const result = await callProvider(config.fallbackProvider, config.fallbackApiKey, config.fallbackModel, system, user, maxTokens, temperature)
       void logUsage(userId ?? null, route, config.fallbackModel, result.inputTokens, result.outputTokens)
