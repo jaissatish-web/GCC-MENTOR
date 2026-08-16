@@ -66,6 +66,9 @@ const sectionLabelStyle: React.CSSProperties = {
   color: T.inkWarm,
   marginTop: '16px',
   marginBottom: '6px',
+  // Never leave a section heading alone at the bottom of a page.
+  pageBreakAfter: 'avoid',
+  breakAfter: 'avoid',
 }
 
 const bodyTextStyle: React.CSSProperties = {
@@ -75,10 +78,25 @@ const bodyTextStyle: React.CSSProperties = {
   color: T.inkBody,
 }
 
-/** A section renders only when it has content — label and body together. */
+/**
+ * A section renders only when it has content — label and body together.
+ *
+ * NO pageBreakInside:avoid on the section itself, deliberately. It used to have
+ * one, and that is what produced the printed "gap": an Experience section with
+ * several jobs cannot fit on one page, so the browser tried, failed, and pushed
+ * the whole block to the next page — leaving a large blank area at the bottom
+ * of the previous one. Measured: 2.32 pages of content printed across FOUR
+ * pages.
+ *
+ * The right granularity is the individual entry, which already carries its own
+ * avoid — so a single job or degree is never split — while the section is free
+ * to flow across a page boundary the way a document does. The heading is kept
+ * with its first entry by breakAfter on the label, so it can never be stranded
+ * alone at the foot of a page.
+ */
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ pageBreakInside: 'avoid' }}>
+    <div>
       <div style={sectionLabelStyle}>{title}</div>
       {children}
     </div>

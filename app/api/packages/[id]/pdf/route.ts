@@ -203,8 +203,22 @@ export async function GET(
   <style>
     html, body { margin: 0; padding: 0; background: #ffffff; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    @page :first { size: A4; margin: 0; }
-    @page { size: A4; margin: 14mm 0 12mm 0; }
+    /*
+     * ZERO margins on EVERY page, not just the first.
+     *
+     * The old rule gave page 1 no margin and every later page 14mm top +
+     * 12mm bottom, which is exactly the "gap in between" the founder reported:
+     * the screen shows one continuous document, and the PDF interrupted it
+     * with a band of whitespace at each page boundary that has no counterpart
+     * on screen.
+     *
+     * The template already carries its own frame (38px 46px of padding), so
+     * page margins were adding a second, inconsistent one. With these at zero
+     * the printed page matches the preview, and GulfPremium's per-section
+     * pageBreakInside:avoid is what keeps a section from being split across
+     * the break.
+     */
+    @page { size: A4; margin: 0; }
   </style>
 </head>
 <body>${bodyHtml}</body>

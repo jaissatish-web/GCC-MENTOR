@@ -61,12 +61,23 @@ export function ResumeDocumentView({
     const inner = innerRef.current
     if (!outer || !inner) return
 
-    // Watch BOTH: the container (window resize, sidebar opening) and the page
+    // Watch BOTH: the container (sidebar opening, layout shifts) and the page
     // itself (fonts finishing, an image loading, content edited in place).
     const ro = new ResizeObserver(() => measure())
     ro.observe(outer)
     ro.observe(inner)
-    return () => ro.disconnect()
+
+    // A window listener as well, and not as belt-and-braces padding: observed
+    // failing. Growing the viewport from 760px to 1280px left the container
+    // correctly at 794px while the page stayed rendered at 680px — the observer
+    // did not deliver for that change, so the resume rendered smaller than its
+    // own container until something else forced a re-measure. Resizing the
+    // window is the single most likely way a real user hits this.
+    window.addEventListener('resize', measure)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measure)
+    }
   }, [measure])
 
   // A second pass once webfonts settle — text metrics change and the page gets

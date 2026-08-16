@@ -107,27 +107,28 @@ function PackageScreenInner({ id }: { id: string }) {
         <h1 className="font-serif text-[27px] leading-tight text-ink-900">Your Gulf CV is ready, {firstName}</h1>
       </div>
 
-      {/* lg two-column (PAGE_SPECS §C): left = document preview, right = actions/status
-          rail. Below lg single column — actions first (as built), then the preview.
-          DOM order keeps actions first so mobile matches the current layout; lg order
-          utilities route the preview left and the actions rail right. */}
-      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:flex-row lg:gap-6">
-        {/* Actions rail — DOM first (mobile), routes right on lg. Sticky at lg
-            so the download buttons stay reachable while reading a long CV
-            instead of scrolling away at the top of the page. */}
-        <div className="flex flex-col gap-3 lg:order-2 lg:w-[300px] lg:shrink-0 lg:sticky lg:top-5 lg:self-start">
-          <div className="flex flex-col gap-2">
+      {/* Single column, actions ABOVE the document.
+          The previous lg two-column layout spent a fixed 300px of every desktop
+          screen on four buttons, which left the A4 page (794px) scaled down
+          inside whatever remained. Moving the actions to a horizontal toolbar
+          gives the page the full 1240px, so the resume renders at its true size
+          and is simply read top to bottom, the way a document is. */}
+      <div className="flex w-full flex-col gap-4 px-5 pb-8">
+        {/* Toolbar — sticks to the top of the viewport while scrolling a long
+            CV, so Download is always one click away without costing any width. */}
+        <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-bg/80">
+          <div className="flex flex-wrap items-center gap-2">
             <a
               href={pdfUrl}
               onClick={() => setDownloaded(true)}
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md bg-surface-light px-4 py-3 text-[12.5px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+              className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md bg-surface-light px-4 py-3 text-[12.5px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
             >
               Download PDF
             </a>
             <a
               href={docxUrl}
               onClick={() => setDownloaded(true)}
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+              className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
             >
               Word (.docx)
             </a>
@@ -135,13 +136,13 @@ function PackageScreenInner({ id }: { id: string }) {
               href={waUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+              className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
             >
               Share to WhatsApp
             </a>
             <Link
               href={`/optimize/preview/${encodeURIComponent(id)}`}
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+              className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
             >
               Edit text
             </Link>
@@ -153,14 +154,13 @@ function PackageScreenInner({ id }: { id: string }) {
           ) : null}
         </div>
 
-        {/* The document itself — left on lg. Presented as a page on a desk:
-            neutral backdrop, the full A4 sheet scaled to fit the column, top to
-            bottom, nothing clipped. Previously this was the raw 794px template
-            inside an `overflow-hidden` box narrower than itself, which cut the
-            right-hand side off the user's own resume. */}
+        {/* The document itself: a page on a desk. Capped at the template's own
+            794px and centred, so a wide screen shows the sheet at true size
+            rather than a stretched one, and a narrow screen scales it down
+            instead of clipping it. */}
         {profile ? (
-          <div className="rounded-radius-lg bg-surface-2-light p-3 sm:p-5 lg:order-1 lg:flex-1 lg:min-w-0">
-            <ResumeDocumentView>
+          <div className="rounded-radius-lg bg-surface-2-light p-3 sm:p-5">
+            <ResumeDocumentView className="mx-auto w-full max-w-[794px]">
               {/* Registry lookup, not a hard-coded import: the screen must show
                   the same template the PDF and Word routes resolve, or "what
                   you see is what downloads" stops being true the moment a
