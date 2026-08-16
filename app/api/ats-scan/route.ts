@@ -135,7 +135,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     try {
           if (fileExt === 'pdf') {
-                      const result = extractPdfText(buffer, true) // debug mode
+                      const result = await extractPdfText(buffer, true) // debug mode
                       resumeText = result.text
                       pdfImageCount = result.imageCount
                       // A failed font decode does not produce EMPTY text — it
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                       }
                       if (!resumeText || resumeText.trim().length < 50) {
                         return NextResponse.json({
-                                                error: 'Cannot read PDF [Filter=' + (result.filter || 'none') + ' Streams=' + result.streamCount + ' Errors=' + result.errorCount + ' Text=' + (resumeText ? resumeText.length : 0) + 'chars]. Upload a valid text-based PDF or Word file, or paste your resume text instead.',
+                                                error: 'Cannot read PDF [Pages=' + (result.streamCount ?? 0) + ' Errors=' + (result.errorCount ?? 0) + ' Text=' + (resumeText ? resumeText.length : 0) + 'chars]. Upload a valid text-based PDF or Word file, or paste your resume text instead.',
                                                 code: 'PDF_NO_TEXT',
                           extracted: resumeText ? resumeText.length : 0,
                           debug: { filter: result.filter, streams: result.streamCount, errors: result.errorCount },

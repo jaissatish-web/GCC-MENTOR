@@ -39,7 +39,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             {
               // Same guard as /api/ats-scan: unreadable is not the same as
               // empty, and only the explicit check separates them.
-              const pdf = extractPdfText(buffer)
+              const pdf = await extractPdfText(buffer)
               if (pdf.looksGarbled) {
                 return NextResponse.json(
                   {
