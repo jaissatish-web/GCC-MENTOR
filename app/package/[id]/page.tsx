@@ -18,9 +18,10 @@ import type { OptimizedContent, Package } from '@/types/package'
  * for an unpaid load.
  *
  * When paid: renders the paid user's OWN full resume inline via the single
- * template (GulfPremium) and offers the actions from Step 10: Download PDF /
- * Word (the existing is_paid-gated GET /api/packages/[id]/pdf and /docx
- * routes, TASK-030/032), Share to WhatsApp (a wa.me link, no backend), and
+ * template (GulfPremium) and offers the actions from Step 10: Download PDF
+ * (the is_paid-gated GET /api/packages/[id]/pdf; the parallel /docx route
+ * exists but is deliberately unlinked — see the note at docxUrl's old site),
+ * Share to WhatsApp (a wa.me link, no backend), and
  * "Edit text" → back to the Changes tab of this package
  * (/optimize/preview/[id]). A repeat-purchase prompt appears after a download,
  * per docs/DASHBOARD_LIBRARY.md: "Applying somewhere else? Your profile is
@@ -81,7 +82,11 @@ function PackageScreenInner({ id }: { id: string }) {
   const Template = getTemplate((pkg as { template_id?: string | null }).template_id).component
   const firstName = profile ? profile.full_name.trim().split(/\s+/)[0] || 'there' : 'there'
   const pdfUrl = `/api/packages/${encodeURIComponent(id)}/pdf`
-  const docxUrl = `/api/packages/${encodeURIComponent(id)}/docx`
+  // Word download is deliberately not offered yet (founder decision,
+  // 2026-08-16). The .docx route still exists and still works — it is simply
+  // not linked, because its layout does not match the on-screen resume and
+  // shipping a download that disagrees with the preview is worse than not
+  // shipping one. Re-link it once the generator mirrors the template.
   const whatsappText = encodeURIComponent(`Here is my optimized Gulf CV: ${pkg.target_job_title}`)
   const waUrl = `https://wa.me/?text=${whatsappText}`
 
@@ -124,13 +129,6 @@ function PackageScreenInner({ id }: { id: string }) {
               className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md bg-surface-light px-4 py-3 text-[12.5px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
             >
               Download PDF
-            </a>
-            <a
-              href={docxUrl}
-              onClick={() => setDownloaded(true)}
-              className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
-            >
-              Word (.docx)
             </a>
             <a
               href={waUrl}

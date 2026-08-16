@@ -116,7 +116,11 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
           <div className="h-px bg-line-light" />
           <div className="flex flex-col gap-1.5 text-[12px] text-ink-700">
             <div className="flex gap-2">
-              <span className="text-forest">✓</span> PDF and Word download
+              {/* Says PDF only. Word download is not offered yet (founder
+                  decision, 2026-08-16) — this line sits on the PAYMENT screen,
+                  so promising a format the buyer cannot then download is the
+                  one place that mistake actually costs money and trust. */}
+              <span className="text-forest">✓</span> PDF download
             </div>
             <div className="flex gap-2">
               <span className="text-forest">✓</span> Edit and re-download anytime

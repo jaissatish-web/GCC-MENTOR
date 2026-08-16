@@ -283,7 +283,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
           >
             Unlock full CV
           </button>
-          <p className="text-center text-[11px] text-ink-400">One-time · PDF + Word · saved to your Library</p>
+          <p className="text-center text-[11px] text-ink-400">One-time · PDF download · saved to your Library</p>
         </aside>
       </div>
     </main>
@@ -500,7 +500,7 @@ function ChangesTab({
         >
           Unlock full CV
         </button>
-        <p className="text-center text-[11px] text-ink-400">One-time · PDF + Word · saved to your Library</p>
+        <p className="text-center text-[11px] text-ink-400">One-time · PDF download · saved to your Library</p>
       </div>
     </>
   )
@@ -538,7 +538,7 @@ function FullCVTab({
       >
         Unlock full CV
       </button>
-      <p className="text-center text-[11px] text-ink-400 lg:hidden">One-time · PDF + Word · saved to your Library</p>
+      <p className="text-center text-[11px] text-ink-400 lg:hidden">One-time · PDF download · saved to your Library</p>
     </div>
   )
 }
