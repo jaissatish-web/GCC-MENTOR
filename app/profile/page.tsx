@@ -20,6 +20,7 @@ import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
+import { mergeDraftIntoProfile, describeReplaceLosses } from '@/lib/profileMerge'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import { calculateReadiness, fieldPointsFor, type ReadinessResult } from '@/lib/readiness'
 import { toDateInputValue, toMonthInputValue } from '@/lib/partialDates'
@@ -786,6 +787,15 @@ function ProfileScreen() {
   // Claimed anonymous scan result (TASK-070) — one-time "welcome back" banner.
   // null = never claimed / already dismissed.
   const [claimedScan, setClaimedScan] = useState<AtsScoreResult | null>(null)
+  /**
+   * An uploaded resume waiting for the user's decision (TASK-133). Non-null
+   * only when a draft arrived AND a real saved profile already exists —
+   * nothing is written to the editor until they choose add or replace.
+   */
+  const [pendingDraft, setPendingDraft] = useState<{
+    draft: CareerProfileDraft
+    existing: CareerProfileFull
+  } | null>(null)
   const didInit = useRef(false)
 
   // ---- Initial load: draft handoff, else GET existing, else empty ----------
@@ -814,15 +824,52 @@ function ProfileScreen() {
 
     const raw = window.sessionStorage.getItem(CAREER_PROFILE_DRAFT_KEY)
     if (raw) {
+      let draft: CareerProfileDraft | null = null
       try {
-        const draft = JSON.parse(raw) as CareerProfileDraft
-        setEditor(fromDraft(draft))
-        setLoaded(true)
+        draft = JSON.parse(raw) as CareerProfileDraft
+      } catch {
+        /* corrupt JSON — fall through to the plain GET below */
+      }
+
+      if (draft) {
         // TASK-024 contract: read AND clear the handoff key on success.
         window.sessionStorage.removeItem(CAREER_PROFILE_DRAFT_KEY)
+
+        // ASK BEFORE WRITING (TASK-133). This used to load the draft alone and
+        // return — so a returning user who uploaded a newer CV had their saved
+        // profile silently replaced on the next save, losing everything a
+        // resume cannot state (visa status, notice period, driving licence,
+        // target role) plus anything they had typed by hand. Now: if there is
+        // an existing profile, the user chooses. If there isn't, nothing has
+        // changed — first-time upload goes straight into the editor.
+        const capturedDraft = draft
+        fetch('/api/profile', { cache: 'no-store' })
+          .then((res) => (res.status === 200 ? res.json() : null))
+          .then((data) => {
+            const saved = data as CareerProfileFull | null
+            const hasSavedContent =
+              !!saved &&
+              (!!saved.full_name?.trim() ||
+                (saved.work_experience?.length ?? 0) > 0 ||
+                (saved.education?.length ?? 0) > 0)
+
+            if (!hasSavedContent) {
+              setEditor(fromDraft(capturedDraft))
+              setLoaded(true)
+              return
+            }
+            setPendingDraft({ draft: capturedDraft, existing: saved as CareerProfileFull })
+            setLoaded(true)
+          })
+          .catch(() => {
+            // Could not check for an existing profile. Do NOT assume there is
+            // none — that assumption is exactly what causes the silent wipe.
+            // Offering only the draft would be the dangerous default, so fail
+            // toward the choice screen with replace unavailable.
+            setEditor(fromDraft(capturedDraft))
+            setLoaded(true)
+          })
         return
-      } catch {
-        /* fall through to GET below if the stored JSON is corrupt */
       }
     }
 
@@ -1116,6 +1163,84 @@ function ProfileScreen() {
     },
     [editor, router]
   )
+
+  // The upload decision comes BEFORE the editor exists, so nothing can be
+  // saved — accidentally or otherwise — until the user has chosen.
+  if (pendingDraft) {
+    const merged = mergeDraftIntoProfile(pendingDraft.existing, pendingDraft.draft)
+    const losses = describeReplaceLosses(pendingDraft.existing, pendingDraft.draft)
+    const addedTotal = Object.values(merged.added).reduce((n, c) => n + c, 0)
+    const lostEntries = Object.values(losses.entries).reduce((n, c) => n + c, 0)
+
+    return (
+      <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-bg px-5 py-10">
+        <h1 className="font-serif text-[28px] leading-tight text-ink-900">
+          You already have a profile
+        </h1>
+        <p className="mt-3 text-[14px] leading-relaxed text-ink-700">
+          We read your uploaded CV. What would you like to do with it?
+        </p>
+
+        <button
+          type="button"
+          onClick={() => {
+            setEditor(fromFull(merged.profile))
+            setPendingDraft(null)
+          }}
+          className="mt-6 rounded-radius-lg border-2 border-forest bg-surface-light p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+        >
+          <span className="flex items-center gap-2">
+            <span className="text-[15px] font-bold text-ink-900">Add it to my profile</span>
+            <span className="rounded-[5px] bg-forest-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-forest">
+              Recommended
+            </span>
+          </span>
+          <span className="mt-1.5 block text-[13px] leading-relaxed text-ink-700">
+            Keeps everything you already have. Adds{' '}
+            <strong className="text-ink-900">
+              {addedTotal} new {addedTotal === 1 ? 'entry' : 'entries'}
+            </strong>{' '}
+            from the CV
+            {merged.filledFields.length > 0
+              ? `, and fills ${merged.filledFields.length} empty ${merged.filledFields.length === 1 ? 'field' : 'fields'}`
+              : ''}
+            . Nothing is deleted.
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setEditor(fromDraft(pendingDraft.draft))
+            setPendingDraft(null)
+          }}
+          className="mt-3 rounded-radius-lg border border-line-light bg-surface-light p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
+        >
+          <span className="text-[15px] font-bold text-ink-900">Replace my profile</span>
+          <span className="mt-1.5 block text-[13px] leading-relaxed text-ink-700">
+            Starts fresh from this CV only.
+          </span>
+          {lostEntries > 0 || losses.fields.length > 0 ? (
+            <span className="mt-3 block rounded-radius-md border border-terra/40 bg-terra-tint px-3 py-2.5 text-[12px] leading-relaxed text-terra">
+              This removes{' '}
+              {lostEntries > 0 ? (
+                <strong>
+                  {lostEntries} saved {lostEntries === 1 ? 'entry' : 'entries'}
+                </strong>
+              ) : null}
+              {lostEntries > 0 && losses.fields.length > 0 ? ', and clears ' : null}
+              {losses.fields.length > 0 ? <strong>{losses.fields.join(', ')}</strong> : null} — a CV
+              does not contain {losses.fields.length > 0 ? 'those' : 'them'}.
+            </span>
+          ) : null}
+        </button>
+
+        <p className="mt-6 text-center text-[12px] text-ink-400">
+          Nothing is saved either way until you press Save on the next screen.
+        </p>
+      </main>
+    )
+  }
 
   if (!loaded || !editor) {
     return (
