@@ -1,56 +1,207 @@
 import GulfPremium from '@/components/templates/GulfPremium'
+import AtsClassic from '@/components/templates/AtsClassic'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
 
 /**
- * Template registry (TASK-031).
+ * Resume template registry (TASK-031, extended for the template system in
+ * TASK-136).
  *
- * MVP ships exactly ONE template. Multiple selectable templates are a Phase 2
- * feature (docs/RULES.md §4) — do not add a second entry here to "prepare"
- * for that. The registry exists so the PDF route (TASK-030) and the DOCX
- * route (TASK-032) resolve the template by id rather than importing the
- * component directly, which is what makes adding Phase 2 templates a
- * data change rather than a rewrite.
+ * ONE DOCUMENT, MANY PRESENTATIONS. Every template renders the SAME
+ * `ResumeDocument` produced by lib/resumeDocument.ts — the canonical model the
+ * spec's §12 asks for, which already existed here and is shared by the screen,
+ * the PDF and the DOCX builder. A template is a renderer, never a second data
+ * shape: there is deliberately no GulfPremiumData / AtsClassicData.
  *
- * This also closes docs/TASKS.md Unplanned #2: the previous build's registry
- * and its template UI disagreed about how many templates existed. There is
- * one, it is named here, and nothing else is exposed.
+ * That is what makes "change template without touching content" true by
+ * construction rather than by careful copying — switching templates re-renders
+ * the same document object through a different component.
+ *
+ * IDS ARE STABLE AND PERMANENT. They are written into `packages.template_id`
+ * (migration 035) and a stored resume is reproduced by looking its id up here.
+ * Renaming one silently restyles every resume that referenced it. Display
+ * names may change freely; ids may not.
  */
 
-export const MVP_TEMPLATE_ID = 'gulf_premium' as const
+export type TemplateId =
+  | 'gulf_premium'
+  | 'ats_classic'
+  | 'gcc_engineering'
+  | 'executive_gcc'
+  | 'modern_professional'
+  | 'gcc_arabic'
+  | 'senior_compact'
 
-export type TemplateId = typeof MVP_TEMPLATE_ID
+export const DEFAULT_TEMPLATE_ID: TemplateId = 'gulf_premium'
 
-/**
- * The default a package renders with when it has no stored choice.
- *
- * Kept as its own name rather than reusing MVP_TEMPLATE_ID at call sites: once
- * a second template exists, "the default for new packages" and "the template
- * this codebase started with" stop being the same idea, and every call site
- * that conflated them would have to be found by hand.
- */
-export const DEFAULT_TEMPLATE_ID: TemplateId = MVP_TEMPLATE_ID
+/** Kept for the pre-registry call sites that still import it. */
+export const MVP_TEMPLATE_ID: TemplateId = 'gulf_premium'
+
+export type TemplateCategory =
+  | 'professional'
+  | 'ats'
+  | 'engineering'
+  | 'executive'
+  | 'arabic'
+  | 'senior'
+
+/** How safely a template parses in an applicant tracking system. */
+export type AtsLevel = 'maximum' | 'high'
 
 export interface TemplateEntry {
   id: TemplateId
-  /** Shown in UI copy if a template is ever named to the user. */
-  label: string
-  component: (props: GulfPremiumProps) => React.JSX.Element
-}
-
-export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
-  [MVP_TEMPLATE_ID]: {
-    id: MVP_TEMPLATE_ID,
-    label: 'Gulf Premium',
-    component: GulfPremium,
-  },
+  /**
+   * Bumped whenever a released template's LAYOUT changes. Stored alongside the
+   * id so a revision cannot restyle resumes already delivered under the old
+   * one (spec §14).
+   */
+  version: number
+  name: string
+  /** One line, shown on the picker card. */
+  description: string
+  /** Who it is for, shown as "Best for …". */
+  recommendedFor: string[]
+  category: TemplateCategory
+  region: 'gcc'
+  direction: 'ltr' | 'rtl'
+  languages: string[]
+  atsLevel: AtsLevel
+  /** False until the renderer exists — the picker only offers real templates. */
+  available: boolean
+  /**
+   * Undefined while a template is still on the roadmap. `getTemplate` falls
+   * back to the default, so a stored id for an unbuilt template still renders
+   * rather than throwing.
+   */
+  component?: (props: GulfPremiumProps) => React.JSX.Element
 }
 
 /**
- * Resolve a template by id. Falls back to the MVP template for an unknown id
- * rather than throwing — a stored package referencing a retired template must
- * still render, never 500. Same reasoning as getPersona() in lib/ai/personas.ts.
+ * All seven ids exist here from the start, so a template can be built and
+ * switched on by setting `available` and attaching a component — no id
+ * invention later, and no chance of two developers picking different strings
+ * for the same template.
  */
-export function getTemplate(id?: string | null): TemplateEntry {
-  if (id && id in TEMPLATES) return TEMPLATES[id as TemplateId]
-  return TEMPLATES[MVP_TEMPLATE_ID]
+export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
+  gulf_premium: {
+    id: 'gulf_premium',
+    version: 1,
+    name: 'Gulf Premium',
+    description: 'Premium GCC professional resume',
+    recommendedFor: ['Engineering', 'Management', 'Oil & Gas'],
+    category: 'professional',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: true,
+    component: GulfPremium,
+  },
+  ats_classic: {
+    id: 'ats_classic',
+    version: 1,
+    name: 'ATS Classic',
+    description: 'Maximum ATS compatibility',
+    recommendedFor: ['Corporate applications', 'Workday', 'LinkedIn'],
+    category: 'ats',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'maximum',
+    available: true,
+    component: AtsClassic,
+  },
+  gcc_engineering: {
+    id: 'gcc_engineering',
+    version: 1,
+    name: 'GCC Engineering',
+    description: 'Built for GCC engineering careers',
+    recommendedFor: ['Engineering', 'EPC', 'Oil & Gas'],
+    category: 'engineering',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: false,
+  },
+  executive_gcc: {
+    id: 'executive_gcc',
+    version: 1,
+    name: 'Executive GCC',
+    description: 'Executive-level professional presentation',
+    recommendedFor: ['Directors', 'GMs', 'VPs'],
+    category: 'executive',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: false,
+  },
+  modern_professional: {
+    id: 'modern_professional',
+    version: 1,
+    name: 'Modern Professional',
+    description: 'Modern corporate resume',
+    recommendedFor: ['Technology', 'Sales', 'Marketing'],
+    category: 'professional',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: false,
+  },
+  gcc_arabic: {
+    id: 'gcc_arabic',
+    version: 1,
+    name: 'GCC Arabic',
+    description: 'Professional Arabic RTL resume',
+    recommendedFor: ['Arabic GCC applications'],
+    category: 'arabic',
+    region: 'gcc',
+    direction: 'rtl',
+    languages: ['ar', 'en'],
+    atsLevel: 'high',
+    available: false,
+  },
+  senior_compact: {
+    id: 'senior_compact',
+    version: 1,
+    name: 'Senior Compact',
+    description: 'High-density resume for experienced professionals',
+    recommendedFor: ['10+ years experience'],
+    category: 'senior',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: false,
+  },
+}
+
+/** Only the templates a user can actually pick right now. */
+export function availableTemplates(): TemplateEntry[] {
+  return Object.values(TEMPLATES).filter((t) => t.available)
+}
+
+export function isTemplateId(value: unknown): value is TemplateId {
+  return typeof value === 'string' && value in TEMPLATES
+}
+
+/**
+ * Resolve a template by id, with a renderer guaranteed.
+ *
+ * Falls back to the default for an unknown id, a null id (every package
+ * created before migration 035), or an id whose renderer is not built yet —
+ * a stored package must always render, never 500. Same reasoning as
+ * getPersona() in lib/ai/personas.ts.
+ */
+export function getTemplate(id?: string | null): TemplateEntry & {
+  component: (props: GulfPremiumProps) => React.JSX.Element
+} {
+  const entry = isTemplateId(id) ? TEMPLATES[id] : TEMPLATES[DEFAULT_TEMPLATE_ID]
+  if (entry.component) {
+    return entry as TemplateEntry & { component: (props: GulfPremiumProps) => React.JSX.Element }
+  }
+  return TEMPLATES[DEFAULT_TEMPLATE_ID] as TemplateEntry & {
+    component: (props: GulfPremiumProps) => React.JSX.Element
+  }
 }
