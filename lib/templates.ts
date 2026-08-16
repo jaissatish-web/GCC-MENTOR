@@ -1,5 +1,7 @@
 import GulfPremium from '@/components/templates/GulfPremium'
 import AtsClassic from '@/components/templates/AtsClassic'
+import { makeTemplate } from '@/components/templates/engine'
+import * as themes from '@/components/templates/themes'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
 
 /**
@@ -28,8 +30,11 @@ export type TemplateId =
   | 'gcc_engineering'
   | 'executive_gcc'
   | 'modern_professional'
-  | 'gcc_arabic'
   | 'senior_compact'
+  | 'gulf_minimal'
+  | 'corporate_band'
+  | 'technical_sidebar'
+  | 'graduate_entry'
 
 export const DEFAULT_TEMPLATE_ID: TemplateId = 'gulf_premium'
 
@@ -41,8 +46,9 @@ export type TemplateCategory =
   | 'ats'
   | 'engineering'
   | 'executive'
-  | 'arabic'
   | 'senior'
+  | 'minimal'
+  | 'entry'
 
 /** How safely a template parses in an applicant tracking system. */
 export type AtsLevel = 'maximum' | 'high'
@@ -121,7 +127,8 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     direction: 'ltr',
     languages: ['en'],
     atsLevel: 'high',
-    available: false,
+    available: true,
+    component: makeTemplate(themes.GCC_ENGINEERING),
   },
   executive_gcc: {
     id: 'executive_gcc',
@@ -134,7 +141,8 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     direction: 'ltr',
     languages: ['en'],
     atsLevel: 'high',
-    available: false,
+    available: true,
+    component: makeTemplate(themes.EXECUTIVE_GCC),
   },
   modern_professional: {
     id: 'modern_professional',
@@ -147,20 +155,8 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     direction: 'ltr',
     languages: ['en'],
     atsLevel: 'high',
-    available: false,
-  },
-  gcc_arabic: {
-    id: 'gcc_arabic',
-    version: 1,
-    name: 'GCC Arabic',
-    description: 'Professional Arabic RTL resume',
-    recommendedFor: ['Arabic GCC applications'],
-    category: 'arabic',
-    region: 'gcc',
-    direction: 'rtl',
-    languages: ['ar', 'en'],
-    atsLevel: 'high',
-    available: false,
+    available: true,
+    component: makeTemplate(themes.MODERN_PROFESSIONAL),
   },
   senior_compact: {
     id: 'senior_compact',
@@ -173,7 +169,64 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     direction: 'ltr',
     languages: ['en'],
     atsLevel: 'high',
-    available: false,
+    available: true,
+    component: makeTemplate(themes.SENIOR_COMPACT),
+  },
+  gulf_minimal: {
+    id: 'gulf_minimal',
+    version: 1,
+    name: 'Gulf Minimal',
+    description: 'Restrained, text-first resume',
+    recommendedFor: ['Academia', 'Consulting', 'Research'],
+    category: 'minimal',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'maximum',
+    available: true,
+    component: makeTemplate(themes.GULF_MINIMAL),
+  },
+  corporate_band: {
+    id: 'corporate_band',
+    version: 1,
+    name: 'Corporate Band',
+    description: 'Bold section bands, easy to scan',
+    recommendedFor: ['Operations', 'Banking', 'Corporate'],
+    category: 'professional',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: true,
+    component: makeTemplate(themes.CORPORATE_BAND),
+  },
+  technical_sidebar: {
+    id: 'technical_sidebar',
+    version: 1,
+    name: 'Technical Sidebar',
+    description: 'Skills and tools in a dedicated rail',
+    recommendedFor: ['Technicians', 'IT', 'Instrumentation'],
+    category: 'engineering',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: true,
+    component: makeTemplate(themes.TECHNICAL_SIDEBAR),
+  },
+  graduate_entry: {
+    id: 'graduate_entry',
+    version: 1,
+    name: 'Graduate Entry',
+    description: 'For early-career and first Gulf roles',
+    recommendedFor: ['Graduates', 'Under 3 years experience'],
+    category: 'entry',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: true,
+    component: makeTemplate(themes.GRADUATE_ENTRY),
   },
 }
 
