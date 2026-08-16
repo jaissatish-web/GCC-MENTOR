@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
+import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
@@ -191,16 +192,12 @@ function CoverLetterScreen() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-[900px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">Cover Letter</h1>
-        <p className="text-[13px] text-ink-400">
-          Generate a tailored cover letter from any paid resume in your Library.
-        </p>
-      </div>
-
+    <PageShell
+      title="Cover Letter"
+      subtitle="Generate a tailored cover letter from any paid resume in your Library."
+    >
       {/* Credits status */}
-      <div className="mt-4 rounded-radius-lg border border-line-light bg-surface-2-light/40 px-4 py-3 text-[12px] text-ink-400">
+      <div className="rounded-radius-lg border border-line-light bg-surface-2-light/40 px-4 py-3 text-[12px] text-ink-400">
         Cover letter credits available:{' '}
         <span className="font-mono font-bold text-gold-text">{available ?? 0}</span>
       </div>
@@ -345,7 +342,7 @@ function CoverLetterScreen() {
       <p className="mt-6 text-center text-[11.5px] text-ink-400">
         Based strictly on your saved Career Profile and the resume&apos;s target — nothing invented.
       </p>
-    </main>
+    </PageShell>
   )
 }
 

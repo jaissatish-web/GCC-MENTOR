@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Suspense, useState } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
+import { PageShell } from '@/components/layout/PageShell'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import type { JobMatchResult, JobMatchCategoryKey } from '@/types/jobMatch'
@@ -84,16 +85,12 @@ function JobMatchScreen() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-[900px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">Job Match</h1>
-        <p className="text-[13px] text-ink-400">
-          Paste a Gulf job description and see how your saved Career Profile aligns.
-        </p>
-      </div>
-
+    <PageShell
+      title="Job Match"
+      subtitle="Paste a Gulf job description and see how your saved Career Profile aligns."
+    >
       {/* JD paste form */}
-      <Card tone="light" className="mt-6 p-6">
+      <Card tone="light" className="p-6">
         <form onSubmit={analyze} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-ink-900">
             Job description
@@ -187,7 +184,7 @@ function JobMatchScreen() {
           </Card>
         )
       ) : null}
-    </main>
+    </PageShell>
   )
 }
 

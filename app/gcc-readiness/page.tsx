@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
+import { PageShell } from '@/components/layout/PageShell'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Card } from '@/components/ui/Card'
 import { Pill } from '@/components/ui/Pill'
@@ -109,16 +110,13 @@ function GccReadinessScreen() {
   const category = readiness?.category
 
   return (
-    <main className="mx-auto w-full max-w-[1100px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">Profile Strength</h1>
-        <p className="text-[13px] text-ink-400">
-          How complete is the profile your future Gulf applications are built from.
-        </p>
-      </div>
-
+    <PageShell
+      width="wide"
+      title="Profile Strength"
+      subtitle="How complete is the profile your future Gulf applications are built from."
+    >
       {loadError ? (
-        <div className="mt-6 rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra">
+        <div className="rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra">
           {loadError}
         </div>
       ) : (
@@ -185,7 +183,7 @@ function GccReadinessScreen() {
           </div>
         </>
       )}
-    </main>
+    </PageShell>
   )
 }
 
