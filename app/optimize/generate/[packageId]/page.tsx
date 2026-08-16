@@ -1,0 +1,138 @@
+'use client'
+
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
+
+/**
+ * Generation screen — runs AFTER payment (TASK-131, pay before generate).
+ *
+ * The optimization used to run inside /optimize/setup's submit, before any
+ * money changed hands: every visitor who never bought still spent real model
+ * tokens, and the product then had to sell a blurred preview of work it had
+ * already paid for. Generation now lives here, reached only once the package
+ * is paid, and POSTs { packageId } to /api/optimize — which refuses with 402
+ * unless the row it loads is genuinely paid. The paywall is the row, not this
+ * screen.
+ *
+ * Idempotent by construction: if the package already has content the server
+ * returns alreadyGenerated and nothing is spent, so a refresh mid-generation
+ * cannot produce a second charge or a second resume.
+ */
+
+const STEPS = [
+  'Reading your Career Profile',
+  'Applying Gulf CV format',
+  'Rewriting for your target role',
+  'Checking every line against your profile',
+]
+
+const STEP_MS = 15000
+
+export default function GeneratePage({ params }: { params: { packageId: string } }) {
+  const router = useRouter()
+  const packageId = params.packageId
+  const [step, setStep] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+  const started = useRef(false)
+
+  const run = useCallback(async () => {
+    setError(null)
+    setStep(1)
+    const timer = window.setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length)), STEP_MS)
+    try {
+      const res = await fetch('/api/optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ packageId }),
+      })
+      const body = await res.json().catch(() => ({}))
+      window.clearInterval(timer)
+
+      if (!res.ok) {
+        // 402 means the row is not paid — send them to pay rather than showing
+        // a generic failure for something they can actually resolve.
+        if (res.status === 402) {
+          router.replace(`/optimize/pay/${encodeURIComponent(packageId)}`)
+          return
+        }
+        setError((body?.error as string) ?? 'Could not build your resume. Please try again.')
+        return
+      }
+      router.replace(`/package/${encodeURIComponent(packageId)}`)
+    } catch {
+      window.clearInterval(timer)
+      setError('Network error. Please check your connection and try again.')
+    }
+  }, [packageId, router])
+
+  useEffect(() => {
+    // Ref guard: React runs effects twice in development StrictMode, and this
+    // one spends a model call and a rate-limit slot.
+    if (started.current) return
+    started.current = true
+    void run()
+  }, [run])
+
+  if (error) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-bg px-6 py-12 font-redesign-sans">
+        <div className="w-full max-w-[480px] rounded-radius-lg border border-line-light bg-surface-light p-8 text-center">
+          <h1 className="font-serif text-[26px] leading-tight text-ink-900">We couldn&apos;t build it</h1>
+          <p className="mt-3 text-sm leading-relaxed text-ink-700">{error}</p>
+          <p className="mt-3 text-[12px] text-ink-400">
+            Your payment is safe — this resume stays in your Library and can be built again without
+            paying twice.
+          </p>
+          <div className="mt-7 flex flex-col gap-3">
+            <Button variant="primary" className="w-full" onClick={() => void run()}>
+              Try again
+            </Button>
+            <Button variant="secondary" className="w-full" onClick={() => router.push('/dashboard')}>
+              Back to dashboard
+            </Button>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
+  return (
+    <main className="flex min-h-dvh items-center justify-center bg-forest-deep px-6 py-12 font-redesign-sans">
+      <div className="w-full max-w-[440px]">
+        <h1 className="font-serif text-[28px] leading-tight text-ink-900-dark">
+          Building your Gulf CV…
+        </h1>
+        <p className="mt-2 text-[13px] text-ink-400-dark">
+          This takes about a minute. Every line is checked against your profile — nothing is
+          invented.
+        </p>
+        <ul className="mt-8 flex flex-col gap-3">
+          {STEPS.map((label, i) => {
+            const state = i < step ? 'done' : i === step ? 'active' : 'todo'
+            return (
+              <li key={label} className="flex items-center gap-3 text-[13.5px]">
+                <span
+                  aria-hidden
+                  className={
+                    'flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] ' +
+                    (state === 'done'
+                      ? 'border-redesign-gold bg-redesign-gold text-forest-deep'
+                      : state === 'active'
+                        ? 'border-redesign-gold text-gold-text-dark'
+                        : 'border-ink-900-dark/25 text-ink-400-dark')
+                  }
+                >
+                  {state === 'done' ? '✓' : i + 1}
+                </span>
+                <span className={state === 'todo' ? 'text-ink-400-dark' : 'text-ink-900-dark'}>
+                  {label}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    </main>
+  )
+}

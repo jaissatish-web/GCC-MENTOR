@@ -64,11 +64,27 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
           setError('Package not found.')
           return
         }
-        setPkg(pkgData.package as Package)
+        const p = pkgData.package as Package
+        // PAID-ONLY from TASK-131 onwards. This screen used to be the sales
+        // pitch: it showed a blurred, watermarked render of a resume that had
+        // already been generated for free, and asked the user to unlock it.
+        // Optimization no longer runs before payment, so an unpaid package has
+        // nothing to preview — send them to pay, and a paid-but-ungenerated one
+        // to finish generating. The blurred-preview branch below is now
+        // unreachable and is being removed with its route.
+        if (!p.is_paid) {
+          router.replace(`/optimize/pay/${encodeURIComponent(packageId)}`)
+          return
+        }
+        if (!p.optimized_content) {
+          router.replace(`/optimize/generate/${encodeURIComponent(packageId)}`)
+          return
+        }
+        setPkg(p)
         setProfile(profileData as CareerProfileFull | null)
       })
       .catch(() => setError('Could not load this package.'))
-  }, [packageId])
+  }, [packageId, router])
 
   const oc: OptimizedContent | null = pkg?.optimized_content ?? null
 

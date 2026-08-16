@@ -43,7 +43,14 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
           return
         }
         if (p.is_paid) {
-          router.replace(`/package/${encodeURIComponent(packageId)}`)
+          // Paid but never generated (TASK-131: payment now precedes the model
+          // call, so this is a normal state, not a broken one) — finish the job
+          // rather than dropping them on an empty resume.
+          router.replace(
+            p.optimized_content
+              ? `/package/${encodeURIComponent(packageId)}`
+              : `/optimize/generate/${encodeURIComponent(packageId)}`,
+          )
           return
         }
         setPkg(p)
@@ -67,7 +74,9 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
         setRedeeming(false)
         return
       }
-      router.push(`/package/${encodeURIComponent(packageId)}`)
+      // Paid — NOW build it. Generation deliberately happens after this point
+      // and nowhere else (TASK-131).
+      router.push(`/optimize/generate/${encodeURIComponent(packageId)}`)
     } catch {
       setRedeemError('Network error. Please try again.')
       setRedeeming(false)

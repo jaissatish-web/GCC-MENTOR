@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generate } from '@/lib/ai/provider'
 import { buildOptimizationPrompt } from '@/lib/ai/buildOptimizationPrompt'
@@ -39,18 +39,18 @@ import type { OptimizationLevel, OptimizedContent, ExperienceBlock } from '@/typ
  * validates the response (TASK-019), retries once on a hard failure with a
  * corrective instruction, and on success creates an unpaid `packages` row.
  * Never returns unvalidated output. Nothing about validity is trusted from
- * the client — everything the model returns is re-derived from real profile
+ * the client â€” everything the model returns is re-derived from real profile
  * data or the validator before it touches the database.
  *
- * RATE LIMITED, deliberately beyond the ticket's literal text — see the
+ * RATE LIMITED, deliberately beyond the ticket's literal text â€” see the
  * comment on LIMIT_ACTION_OPTIMIZATION in lib/rateLimit.ts. Optimization is
  * NOT payment-gated (packages get created and the full diff is shown at
  * screen 08, before payment at screen 09), so "paid actions are
- * self-limiting" (docs/ADMIN.md §5) does not hold for this specific action.
+ * self-limiting" (docs/ADMIN.md Â§5) does not hold for this specific action.
  *
  * CLOSES docs/TASKS.md Unplanned #5: `packages.profile_id` ownership was
  * never verified server-side anywhere. Here, the profile is loaded scoped
- * to `user_id = caller` AND `id = profileId` in the same query — if
+ * to `user_id = caller` AND `id = profileId` in the same query â€” if
  * `profileId` belongs to another user, the query returns no row and this
  * 404s. `profileId` is never trusted alone.
  */
@@ -94,7 +94,7 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
   if (typeof tf.target_industry !== 'string' || tf.target_industry.trim() === '') {
     return { error: 'targetFields.target_industry' }
   }
-  // Optional (migration 030) — see types/careerProfile.ts's note. null/absent
+  // Optional (migration 030) â€” see types/careerProfile.ts's note. null/absent
   // is valid; if present it must be a real enum member.
   if (tf.target_country !== undefined && tf.target_country !== null) {
     if (typeof tf.target_country !== 'string' || !TARGET_COUNTRIES.includes(tf.target_country as TargetCountry)) {
@@ -140,7 +140,7 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
 }
 
 /**
- * Only hard failures block validity (docs/PROMPTS.md §7 — unsourced numerics
+ * Only hard failures block validity (docs/PROMPTS.md Â§7 â€” unsourced numerics
  * are "flagged", not rejected). The corrective prompt names only what
  * actually needs fixing.
  */
@@ -159,7 +159,7 @@ function buildCorrectiveAddendum(failures: ValidationFailure[]): string {
 }
 
 /** Skills the model omitted from its ordering are appended in the profile's
- *  own order — a skill can never silently vanish. Same principle already
+ *  own order â€” a skill can never silently vanish. Same principle already
  *  used in components/templates/GulfPremium.tsx. Accepts ids or names,
  *  matching validateGrounding's lenient permutation check. */
 function resolveSkillsOrder(profile: CareerProfileFull, parsedSkillsOrder: unknown): string[] {
@@ -190,7 +190,7 @@ function resolveSkillsOrder(profile: CareerProfileFull, parsedSkillsOrder: unkno
  * Builds the package's optimized_content. source_bullets/source_profile_summary
  * come from the REAL profile, never from the model's own echo (TASK-018's
  * design: never trust the model to transcribe long text back byte-for-byte).
- * Only entries in selectedBlocks.experienceIds get a block — untouched
+ * Only entries in selectedBlocks.experienceIds get a block â€” untouched
  * entries are rendered directly from the profile by the template
  * (components/templates/GulfPremium.tsx), never round-tripped here.
  */
@@ -214,7 +214,7 @@ function buildOptimizedContent(
   const experience_blocks: ExperienceBlock[] = selectedBlocks.experienceIds
     .map((expId): ExperienceBlock | null => {
       const sourceEntry = profile.work_experience.find((e) => e.id === expId)
-      if (!sourceEntry) return null // selected id not on this profile — skip, don't fabricate
+      if (!sourceEntry) return null // selected id not on this profile â€” skip, don't fabricate
       const modelBlock = modelBlocksById.get(expId)
       const generatedBullets =
         modelBlock && Array.isArray(modelBlock.generated_bullets)
@@ -262,14 +262,81 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const parsedBody = validateBody(rawBody)
-  if ('error' in parsedBody) {
-    return NextResponse.json({ error: `Invalid field: ${parsedBody.error}` }, { status: 400 })
+  // ---- TWO PHASES, ONE ROUTE (TASK-131: pay before generate) -----------------
+  //
+  // The AI must not run before the user has paid. Payment in this product is
+  // applied to an EXISTING package (redeem_promo_code takes a package_id), so
+  // there is no way to charge before a row exists. The flow is therefore:
+  //
+  //   PHASE A  POST { profileId, ...target }  -> creates the package UNPAID and
+  //            EMPTY, runs NO model call, returns its id.
+  //   PHASE B  POST { packageId }             -> requires is_paid, then
+  //            generates into that row.
+  //
+  // Kept in one route rather than split into two files so the grounding
+  // pipeline below has exactly one implementation. Phase B deliberately reads
+  // the target fields back off the ROW, never from the request: a caller must
+  // not be able to pay for one job title and then generate against another.
+  const bodyObj = (rawBody ?? {}) as Record<string, unknown>
+  const generatePackageId =
+    typeof bodyObj.packageId === 'string' && bodyObj.packageId.trim() ? bodyObj.packageId.trim() : null
+
+  let profileId: string
+  let targetFields: OptimizationTarget
+  let jobDescription: string | null
+  let selectedBlocks: SelectedBlocks
+  let level: OptimizationLevel
+
+  if (generatePackageId) {
+    const { data: pkgRow, error: pkgErr } = await supabase
+      .from('packages')
+      .select('*')
+      .eq('id', generatePackageId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (pkgErr) {
+      console.error('optimize: package lookup failed user=' + user.id, pkgErr.message)
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    }
+    if (!pkgRow) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+
+    // THE PAYWALL. Read from the row we just loaded, never from the request.
+    if (!pkgRow.is_paid) {
+      return NextResponse.json(
+        { error: 'Payment required before this resume can be generated.' },
+        { status: 402 },
+      )
+    }
+    // Idempotence: a double-click, a refresh, or a retry must not spend a
+    // second model call on a package that already has its resume.
+    if (pkgRow.optimized_content) {
+      return NextResponse.json({ success: true, packageId: generatePackageId, alreadyGenerated: true })
+    }
+
+    profileId = pkgRow.profile_id as string
+    targetFields = {
+      target_job_title: pkgRow.target_job_title as string,
+      target_industry: pkgRow.target_industry as string,
+      target_country: (pkgRow.target_country as string | null) ?? null,
+      target_company: (pkgRow.target_company as string | null) ?? null,
+    } as OptimizationTarget
+    jobDescription = (pkgRow.job_description as string | null) ?? null
+    level = pkgRow.optimization_level as OptimizationLevel
+    selectedBlocks = (pkgRow.selected_blocks as SelectedBlocks | null) ?? {
+      summary: true,
+      experienceIds: [],
+    }
+  } else {
+    const parsedBody = validateBody(rawBody)
+    if ('error' in parsedBody) {
+      return NextResponse.json({ error: `Invalid field: ${parsedBody.error}` }, { status: 400 })
+    }
+    ;({ profileId, targetFields, jobDescription, selectedBlocks, level } = parsedBody.body)
   }
-  const { profileId, targetFields, jobDescription, selectedBlocks, level } = parsedBody.body
 
   // Load the profile scoped to BOTH id and the caller's own user_id in one
-  // query. profileId is never trusted alone — see the file header note on
+  // query. profileId is never trusted alone â€” see the file header note on
   // Unplanned #5. A profile owned by someone else simply does not match and
   // returns no row, never leaking whether it exists.
   const { data: profileRow, error: profileError } = await supabase
@@ -308,6 +375,88 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     additional_information: additional_information as ProfileAdditionalInformation[],
   }
 
+  // ---- PHASE A: create the package, charge nothing, generate nothing --------
+  //
+  // Everything generation will need is written to the row now, because the
+  // request that generates runs later and carries only a package id.
+  if (!generatePackageId) {
+    const { data: createdRow, error: createError } = await supabase
+      .from('packages')
+      .insert({
+        user_id: user.id,
+        profile_id: profileId,
+        target_job_title: targetFields.target_job_title,
+        target_industry: targetFields.target_industry,
+        target_country: targetFields.target_country,
+        target_company: targetFields.target_company,
+        job_description: jobDescription,
+        optimization_level: level,
+        selected_blocks: selectedBlocks,
+        // NULL until paid AND generated — the distinction migration 033 exists
+        // to make expressible.
+        optimized_content: null,
+        skills_order: null,
+        field_visibility_snapshot: profile.field_visibility,
+        is_paid: false,
+      })
+      .select('id')
+      .single()
+
+    if (createError || !createdRow) {
+      console.error(
+        'optimize: package create failed user=' + user.id + ' profile=' + profileId,
+        createError?.message ?? 'no row',
+      )
+      return NextResponse.json(
+        { error: 'Could not start your optimization. Please try again.' },
+        { status: 500 },
+      )
+    }
+
+    const newPackageId = createdRow.id as string
+
+    // An admin-granted free optimization still means "this one is paid for", so
+    // it flips is_paid here and the client can go straight to generation with
+    // no payment step. Unchanged in substance from the original flow — only its
+    // position moved, from after generation to before it.
+    let creditApplied = false
+    try {
+      creditApplied = await consumeOptimizationCredit(user.id, newPackageId)
+      if (creditApplied) {
+        const { error: paidError } = await supabase
+          .from('packages')
+          .update({ is_paid: true })
+          .eq('id', newPackageId)
+          .eq('user_id', user.id)
+        if (paidError) {
+          console.error(
+            'optimize: credit consumed but is_paid flip FAILED — needs manual fix. user=' +
+              user.id + ' package=' + newPackageId,
+            paidError.message,
+          )
+          creditApplied = false
+        }
+      }
+    } catch (e) {
+      console.error(
+        'optimize: credit check failed (package left unpaid) user=' + user.id + ' package=' + newPackageId,
+        e instanceof Error ? e.message : String(e),
+      )
+      creditApplied = false
+    }
+
+    // No rate-limit slot is spent here: nothing was generated. Phase B spends
+    // it, on a run that actually cost a model call.
+    return NextResponse.json({
+      success: true,
+      packageId: newPackageId,
+      isPaid: creditApplied,
+      creditApplied,
+      requiresPayment: !creditApplied,
+    })
+  }
+
+  // ---- PHASE B: the row is paid, so generate into it ------------------------
   // Rate limit BEFORE the model call — see the file header note. Secondary
   // keying via the profile's own phone/email, same as extraction.
   const limit = await getRateLimitStatus({
@@ -320,12 +469,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: limit.message ?? 'Daily limit reached' }, { status: 429 })
   }
 
-  // Job Match findings (TASK-073, docs/GCC_READINESS_JOB_MATCH.md §19) —
+  // Job Match findings (TASK-073, docs/GCC_READINESS_JOB_MATCH.md Â§19) â€”
   // best-effort ONLY. A failure here must never block a paid optimization
   // that would otherwise have succeeded; the prompt builder already treats
   // a missing/null value as "behave exactly as before this ticket" (see
   // buildOptimizationPrompt's renderJobMatchFindings). Deterministic
-  // categories only — the LLM semantic explanation layer used on /ats-scan
+  // categories only â€” the LLM semantic explanation layer used on /ats-scan
   // is skipped here on purpose: nothing in this flow displays it, so paying
   // for a second AI call to produce prose nobody sees would be pure waste.
   let jobMatchCategories: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null = null
@@ -380,7 +529,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     attempt = await runOnce(userPrompt)
 
     // Retry ONCE with a corrective instruction on a hard failure
-    // (docs/PROMPTS.md §7). A flag-only result is already `valid: true` and
+    // (docs/PROMPTS.md Â§7). A flag-only result is already `valid: true` and
     // does not trigger a retry.
     if (!attempt.validation.valid) {
       const corrective = userPrompt + buildCorrectiveAddendum(attempt.validation.failures)
@@ -392,8 +541,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   if (!attempt.validation.valid) {
-    // NEVER return unvalidated output. Log IDs and reason only — never a
-    // field value or the model's offendingValue (docs/RULES.md §3).
+    // NEVER return unvalidated output. Log IDs and reason only â€” never a
+    // field value or the model's offendingValue (docs/RULES.md Â§3).
     const reasons = attempt.validation.failures
       .filter((f) => f.severity === 'hard')
       .map((f) => `${f.code}@${f.path}`)
@@ -411,86 +560,42 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const optimized_content = buildOptimizedContent(profile, parsedObj, selectedBlocks)
   const skills_order = resolveSkillsOrder(profile, parsedObj.skills_order)
 
+  // UPDATE, not insert: the row already exists and is already paid for. It is
+  // re-scoped to the caller here as well — the earlier ownership check and this
+  // write are separate statements, and the write must not rely on the read.
+  //
   // field_visibility_snapshot: visibility state AT GENERATION TIME
   // (docs/CAREER_PROFILE.md §2 "Visibility storage"), not a live reference.
+  // Re-snapshotted now rather than kept from creation, because generation is
+  // the moment the document is actually produced.
   const { data: created, error: insertError } = await supabase
     .from('packages')
-    .insert({
-      user_id: user.id,
-      profile_id: profileId,
-      target_job_title: targetFields.target_job_title,
-      target_industry: targetFields.target_industry,
-      target_country: targetFields.target_country,
-      target_company: targetFields.target_company,
-      job_description: jobDescription,
-      optimization_level: level,
+    .update({
       optimized_content,
       skills_order,
       field_visibility_snapshot: profile.field_visibility,
-      is_paid: false,
     })
+    .eq('id', generatePackageId)
+    .eq('user_id', user.id)
     .select('id')
     .single()
 
   if (insertError || !created) {
-    console.error('optimize: package insert failed user=' + user.id + ' profile=' + profileId, insertError?.message ?? 'no row')
+    console.error('optimize: package update failed user=' + user.id + ' package=' + generatePackageId, insertError?.message ?? 'no row')
     return NextResponse.json({ error: 'Could not save your optimized resume. Please try again.' }, { status: 500 })
   }
 
   const packageId = created.id as string
 
-  // ---- Manual credit grant (TASK-045, docs/ADMIN.md §2.3) --------------------
-  // "Insert a credit row the optimize flow checks BEFORE requiring payment."
-  // This is that check. If the founder granted this user a free optimization
-  // (the §6 support loop: "I paid but it broke" -> grant -> user re-runs at no
-  // cost), consume it and mark this package paid so the download gate in
-  // app/api/packages/[id]/pdf|docx lets them through without paying again.
-  //
-  // ORDER MATTERS: the package is created first, unpaid, then a credit is
-  // consumed and the row flipped to paid. The credit ledger records which
-  // package it paid for, so the package id must exist to attribute it. If the
-  // flip below fails, the package simply stays unpaid — recoverable (the
-  // founder can grant again), and it never marks something paid on an error
-  // path. Consumption itself is atomic in Postgres, not here (migration 018) —
-  // a JS read-then-write would let a double-click spend one credit twice.
-  let creditApplied = false
-  try {
-    creditApplied = await consumeOptimizationCredit(user.id, packageId)
-    if (creditApplied) {
-      const { error: paidError } = await supabase
-        .from('packages')
-        .update({ is_paid: true })
-        .eq('id', packageId)
-        .eq('user_id', user.id)
-      if (paidError) {
-        // Credit is spent but the package didn't flip. Log loudly with ids —
-        // this is the one state a human needs to resolve, and it is strictly
-        // better than the alternative (flipping first, then failing to record
-        // consumption, which would hand out unlimited free optimizations).
-        console.error(
-          'optimize: credit consumed but is_paid flip FAILED — needs manual fix. user=' +
-            user.id + ' package=' + packageId,
-          paidError.message,
-        )
-        creditApplied = false
-      }
-    }
-  } catch (e) {
-    console.error(
-      'optimize: credit check failed (package left unpaid) user=' + user.id + ' package=' + packageId,
-      e instanceof Error ? e.message : String(e),
-    )
-    creditApplied = false
-  }
+  // The credit grant (TASK-045) moved to Phase A, where it belongs now: a
+  // granted credit is what makes a package PAID, and payment has to be settled
+  // before generation rather than after it. Nothing consumes a credit here.
 
-  // Usage logging happens inside generate() (TASK-039) — do not add a second
-  // call. Only a fully successful run consumes a rate-limit slot — same
+  // Usage logging happens inside generate() (TASK-039) â€” do not add a second
+  // call. Only a fully successful run consumes a rate-limit slot â€” same
   // accepted tradeoff as extraction's Unplanned #12: a failed/retried
   // attempt that produced nothing for the user should not cost them a try.
   await incrementRateLimit({ userId: user.id, action: LIMIT_ACTION_OPTIMIZATION })
 
-  // creditApplied tells the client this run was covered by an admin-granted
-  // free optimization, so the payment step can be skipped. It is derived
-  // server-side and never trusted from the request.
-  return NextResponse.json({ success: true, packageId, creditApplied })
+  return NextResponse.json({ success: true, packageId })
 }
