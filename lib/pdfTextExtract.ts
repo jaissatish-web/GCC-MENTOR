@@ -494,11 +494,31 @@ function extractTextFromBlock(
   fonts: Map<string, FontInfo>,
   parts: string[]
 ): void {
-  // /F14 11 Tf  |  (lit) Tj  |  <hex> Tj  |  [ … ] TJ  |  (lit) '  |  (lit) "
-  const opRe = /\/([A-Za-z0-9]+)\s+[\d.]+\s+Tf|\(((?:[^()\\]|\\.)*)\)\s*(?:Tj|'|")|<([0-9a-fA-F\s]+)>\s*Tj|\[([\s\S]*?)\]\s*TJ/g
+  // Show operators:
+  //   /F14 11 Tf  |  (lit) Tj  |  <hex> Tj  |  [ … ] TJ  |  (lit) '  |  (lit) "
+  // Line-position operators, which is where LINE STRUCTURE lives:
+  //   tx ty Td  |  tx ty TD  |  T*  |  a b c d e f Tm
+  //
+  // Those four were previously not matched at all, so every line inside a
+  // BT/ET block was concatenated with nothing between it and the next one.
+  // Line breaks only survived when the producer happened to emit one BT/ET per
+  // line; Word and LibreOffice do not — they open one block per paragraph and
+  // move the cursor with Td/Tm. Measured effect on a real PDF: the email came
+  // back as "Engineerrajesh.kumar@example.com" (the previous line's last word
+  // fused onto it) and "English" went undetected because it had fused onto the
+  // "LANGUAGES" heading. Section headings merging into body text also defeats
+  // the structure checks in lib/gccReadiness/analyzeResume.ts, and hands the
+  // extraction model a wall of run-together words — the same degraded input
+  // TASK-107 exists to prevent, arriving by a different route.
+  const opRe =
+    /\/([A-Za-z0-9]+)\s+[\d.]+\s+Tf|\(((?:[^()\\]|\\.)*)\)\s*(Tj|'|")|<([0-9a-fA-F\s]+)>\s*Tj|\[([\s\S]*?)\]\s*TJ|(-?[\d.]+)\s+(-?[\d.]+)\s+(Td|TD)|(T\*)|(?:-?[\d.]+\s+){4}(-?[\d.]+)\s+(-?[\d.]+)\s+Tm/g
 
   let currentFont: FontInfo | undefined
   let m: RegExpExecArray | null
+
+  /** Text-matrix y of the last Tm, so a Tm that only moves horizontally (common
+   *  for kerning and tab stops) is not mistaken for a new line. */
+  let lastTmY: number | null = null
 
   // Everything inside one BT/ET is accumulated into a SINGLE part.
   //
@@ -511,24 +531,55 @@ function extractTextFromBlock(
   // with a space so separate lines never run together.
   let blockText = ''
 
+  const newline = () => {
+    if (blockText && !blockText.endsWith('\n')) blockText += '\n'
+  }
+
   while ((m = opRe.exec(block)) !== null) {
     if (m[1] !== undefined) {
       currentFont = fonts.get(m[1])
       continue
     }
 
+    // ---- line-position operators (no text of their own) --------------------
+    if (m[8] !== undefined) {
+      // tx ty Td / TD — a non-zero vertical move is a new line. A purely
+      // horizontal one is a tab stop or a column, which must NOT break a line.
+      if (parseFloat(m[7]) !== 0) newline()
+      continue
+    }
+
+    if (m[9] !== undefined) {
+      // T* — move to the next line, unconditionally.
+      newline()
+      continue
+    }
+
+    if (m[11] !== undefined) {
+      // a b c d e f Tm — sets the text matrix outright. Only treat it as a new
+      // line when it actually moves the baseline; producers also use Tm to
+      // re-position horizontally within a line.
+      const y = parseFloat(m[11])
+      if (lastTmY !== null && y !== lastTmY) newline()
+      lastTmY = y
+      continue
+    }
+
     if (m[2] !== undefined) {
+      // ' and " both mean "move to the next line, THEN show" — the line break
+      // comes first, which is what makes them different from Tj.
+      if (m[3] === "'" || m[3] === '"') newline()
       blockText += unescapePdfLiteral(m[2])
       continue
     }
 
-    if (m[3] !== undefined) {
-      const hex = m[3].replace(/\s+/g, '')
+    if (m[4] !== undefined) {
+      const hex = m[4].replace(/\s+/g, '')
       blockText += currentFont ? decodeWithCMap(hex, currentFont) : hexStringToText(hex)
       continue
     }
 
-    if (m[4] !== undefined) {
+    if (m[5] !== undefined) {
       // A TJ array interleaves strings with kerning numbers. Glyphs join with
       // no separator; a sufficiently negative kern is the document's way of
       // spelling a space, which is how word boundaries survive in exports that
@@ -536,7 +587,7 @@ function extractTextFromBlock(
       let run = ''
       const elRe = /\(((?:[^()\\]|\\.)*)\)|<([0-9a-fA-F\s]+)>|(-?[\d.]+)/g
       let el: RegExpExecArray | null
-      while ((el = elRe.exec(m[4])) !== null) {
+      while ((el = elRe.exec(m[5])) !== null) {
         if (el[1] !== undefined) {
           run += unescapePdfLiteral(el[1])
         } else if (el[2] !== undefined) {
