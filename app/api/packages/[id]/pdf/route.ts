@@ -245,10 +245,21 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error(
-      'pdf: render failed user=' + user.id + ' pkg=' + packageId,
-      error instanceof Error ? error.message : String(error)
+    const detail = error instanceof Error ? error.message : String(error)
+    console.error('pdf: render failed user=' + user.id + ' pkg=' + packageId, detail)
+    // The reason is returned, not just logged. This download is triggered by a
+    // plain link, so a failure is a page the user is looking at — and the
+    // previous bare "PDF generation failed" gave neither them nor us anything
+    // to act on, which is why a launch failure that had been live in production
+    // the whole time took a founder report and a code read to identify. Same
+    // reasoning as the AI provider error in TASK-122.
+    return NextResponse.json(
+      {
+        error: 'PDF generation failed',
+        detail,
+        hint: 'Send this whole message when reporting the problem — the detail line names the actual cause.',
+      },
+      { status: 500 }
     )
-    return NextResponse.json({ error: 'PDF generation failed' }, { status: 500 })
   }
 }

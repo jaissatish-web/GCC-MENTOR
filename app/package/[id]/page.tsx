@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import GulfPremium from '@/components/templates/GulfPremium'
+import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package } from '@/types/package'
@@ -84,7 +85,11 @@ function PackageScreenInner({ id }: { id: string }) {
   const waUrl = `https://wa.me/?text=${whatsappText}`
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col bg-bg font-redesign-sans">
+    // Wider than the old max-w-5xl: at 1024px, minus a 300px action rail and
+    // padding, the document column was narrower than the template's own 794px
+    // page, so the resume was being scaled down harder than it needed to be —
+    // or, before ResumeDocumentView existed, clipped outright.
+    <main className="mx-auto flex min-h-dvh w-full max-w-[1240px] flex-col bg-bg font-redesign-sans">
       <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5">
         <button
           type="button"
@@ -106,8 +111,10 @@ function PackageScreenInner({ id }: { id: string }) {
           DOM order keeps actions first so mobile matches the current layout; lg order
           utilities route the preview left and the actions rail right. */}
       <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:flex-row lg:gap-6">
-        {/* Actions rail — DOM first (mobile), routes right on lg */}
-        <div className="flex flex-col gap-3 lg:order-2 lg:w-[300px] lg:shrink-0">
+        {/* Actions rail — DOM first (mobile), routes right on lg. Sticky at lg
+            so the download buttons stay reachable while reading a long CV
+            instead of scrolling away at the top of the page. */}
+        <div className="flex flex-col gap-3 lg:order-2 lg:w-[300px] lg:shrink-0 lg:sticky lg:top-5 lg:self-start">
           <div className="flex flex-col gap-2">
             <a
               href={pdfUrl}
@@ -145,18 +152,27 @@ function PackageScreenInner({ id }: { id: string }) {
           ) : null}
         </div>
 
-        {/* Inline full resume preview (paid owner's own document) — left on lg */}
+        {/* The document itself — left on lg. Presented as a page on a desk:
+            neutral backdrop, the full A4 sheet scaled to fit the column, top to
+            bottom, nothing clipped. Previously this was the raw 794px template
+            inside an `overflow-hidden` box narrower than itself, which cut the
+            right-hand side off the user's own resume. */}
         {profile ? (
-          <div className="overflow-hidden rounded-radius-lg border border-line-light/60 bg-surface-light lg:order-1 lg:flex-1">
-            <GulfPremium
-              profile={profile}
-              optimizedContent={(pkg.optimized_content ?? {
-                summary: { generated: '', source_profile_summary: '' },
-                experience_blocks: [],
-              }) as OptimizedContent}
-              skillsOrder={pkg.skills_order ?? []}
-              fieldVisibility={pkg.field_visibility_snapshot ?? null}
-            />
+          <div className="rounded-radius-lg bg-surface-2-light p-3 sm:p-5 lg:order-1 lg:flex-1 lg:min-w-0">
+            <ResumeDocumentView>
+              <GulfPremium
+                profile={profile}
+                optimizedContent={(pkg.optimized_content ?? {
+                  summary: { generated: '', source_profile_summary: '' },
+                  experience_blocks: [],
+                }) as OptimizedContent}
+                skillsOrder={pkg.skills_order ?? []}
+                fieldVisibility={pkg.field_visibility_snapshot ?? null}
+              />
+            </ResumeDocumentView>
+            <p className="mt-3 text-center text-[11.5px] text-ink-400">
+              This is exactly what downloads as your PDF.
+            </p>
           </div>
         ) : null}
       </div>
