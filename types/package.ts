@@ -107,6 +107,12 @@ export interface Package {
    */
   selected_blocks?: { summary: boolean; experienceIds: string[] } | null
 
+  /** User-chosen label (migration 036). NULL = never renamed; the UI falls back to target_job_title. */
+  name?: string | null
+  /** Stable template id, and its version at the time it was applied (migration 035). */
+  template_id?: string | null
+  template_version?: number | null
+
   // Payment
   is_paid: boolean // gates download
   payment_id: string | null // Razorpay reference

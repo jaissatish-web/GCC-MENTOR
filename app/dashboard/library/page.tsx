@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/Button'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn, GULF_COUNTRIES, PACKAGE_STATUSES } from '@/lib/utils'
+import { getTemplate } from '@/lib/templates'
 import type { Package, PackageStatus } from '@/types/package'
 
 /**
@@ -43,6 +44,16 @@ function levelLabel(level: string): string {
   return level.charAt(0).toUpperCase() + level.slice(1)
 }
 
+/**
+ * The template a resume was rendered with, by name.
+ *
+ * Resolved through the registry so a retired or unknown id still shows the
+ * template that will actually render, rather than a raw string the user has
+ * never seen.
+ */
+function templateNameFor(id?: string | null): string {
+  return getTemplate(id).name
+}
 // Status dropdown styling mirrors Pill's status variant colours (never hard hex).
 function statusSelectClass(status: PackageStatus): string {
   const map: Record<PackageStatus, string> = {
@@ -232,13 +243,29 @@ export default function DashboardLibraryPage() {
           return (
             <div key={pkg.id} className="rounded-radius-lg border border-line-light bg-surface-light p-4">
               <div className="flex items-start justify-between gap-3">
-                <div className="flex flex-col gap-1">
+                <div className="flex min-w-0 flex-col gap-1">
+                  {/* The user's own name for this resume, falling back to the
+                      target job title. Three attempts at the same role were
+                      three identical rows before this, because the title is not
+                      something the user can change. */}
                   <span className="text-[13px] font-bold leading-snug text-ink-900">
-                    {pkg.target_job_title}
+                    {pkg.name?.trim() || pkg.target_job_title}
                   </span>
+                  {pkg.name?.trim() ? (
+                    <span className="text-[11px] text-ink-700">{pkg.target_job_title}</span>
+                  ) : null}
                   <span className="text-[11px] text-ink-400">
                     {pkg.target_company || 'No company'} · {countryLabel(pkg.target_country)} ·{' '}
                     {formatDay(pkg.created_at)}
+                  </span>
+                  <span className="flex flex-wrap items-center gap-2 text-[10.5px] text-ink-400">
+                    {/* Short id: enough to quote in a support message, without
+                        a 36-character UUID dominating the card. */}
+                    <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
+                    <span>·</span>
+                    <span>{templateNameFor(pkg.template_id)}</span>
+                    <span>·</span>
+                    <span>Updated {formatDay(pkg.updated_at ?? pkg.created_at)}</span>
                   </span>
                 </div>
                 <StatusSelect initial={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />

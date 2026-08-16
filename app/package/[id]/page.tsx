@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { getTemplate, type TemplateId } from '@/lib/templates'
-import type { ResumeDocument } from '@/lib/resumeDocument'
+import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { AppShell } from '@/components/layout/AppShell'
@@ -39,6 +39,34 @@ function PackageScreenInner({ id }: { id: string }) {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [switchingTo, setSwitchingTo] = useState<TemplateId | null>(null)
   const [templateError, setTemplateError] = useState<string | null>(null)
+  const [nameDraft, setNameDraft] = useState('')
+  const [nameState, setNameState] = useState<string | null>(null)
+
+  // Saves only when the value actually changed, so tabbing through the field
+  // does not fire a pointless write on a paid resume.
+  const saveName = useCallback(async () => {
+    const current = (pkg?.name as string | null) ?? ''
+    const next = nameDraft.trim()
+    if (!pkg || next === current.trim()) return
+    setNameState('Saving…')
+    try {
+      const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: next }),
+      })
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}))
+        setNameState((b?.error as string) ?? 'Could not save the name.')
+        return
+      }
+      setPkg((prev) => (prev ? { ...prev, name: next || null } : prev))
+      setNameState('Saved')
+      window.setTimeout(() => setNameState(null), 1600)
+    } catch {
+      setNameState('Network error.')
+    }
+  }, [id, nameDraft, pkg])
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -62,6 +90,7 @@ function PackageScreenInner({ id }: { id: string }) {
           return
         }
         setPkg(p)
+        setNameDraft(((p as { name?: string | null }).name ?? '') as string)
         setProfile(profileData as CareerProfileFull | null)
       })
       .catch(() => setError('Could not load this package.'))
@@ -86,7 +115,30 @@ function PackageScreenInner({ id }: { id: string }) {
 
   const activeTemplateId = getTemplate((pkg as { template_id?: string | null }).template_id).id
   const Template = getTemplate(activeTemplateId).component
-  const previewDocument = (pkg.document_snapshot as ResumeDocument | null) ?? null
+  /**
+   * The document the picker previews.
+   *
+   * Prefer the frozen snapshot, but FALL BACK to building it from the live
+   * profile. Without this fallback the "Change template" button was hidden on
+   * exactly the resumes a real user would try it on: every package generated
+   * before migration 034 has no snapshot, so `document_snapshot` is null and
+   * the button never rendered. Reported by the founder as "I can't find the
+   * option anywhere" — it was there, and invisible to everyone who already
+   * had resumes.
+   */
+  const previewDocument: ResumeDocument | null =
+    (pkg.document_snapshot as ResumeDocument | null) ??
+    (profile
+      ? buildResumeDocument({
+          profile,
+          optimizedContent: (pkg.optimized_content ?? {
+            summary: { generated: '', source_profile_summary: '' },
+            experience_blocks: [],
+          }) as OptimizedContent,
+          skillsOrder: pkg.skills_order ?? [],
+          fieldVisibility: pkg.field_visibility_snapshot ?? null,
+        })
+      : null)
   const firstName = profile ? profile.full_name.trim().split(/\s+/)[0] || 'there' : 'there'
   const pdfUrl = `/api/packages/${encodeURIComponent(id)}/pdf`
   // Word download is deliberately not offered yet (founder decision,
@@ -117,6 +169,29 @@ function PackageScreenInner({ id }: { id: string }) {
           ✓ Unlocked &amp; saved to Library
         </span>
         <h1 className="font-serif text-[27px] leading-tight text-ink-900">Your Gulf CV is ready, {firstName}</h1>
+
+        {/* Rename, in place. A user with three attempts at the same role sees
+            three identical rows in the Library otherwise — the target job
+            title is not something they can change. Saves on blur or Enter;
+            clearing it falls back to the job title rather than storing blank. */}
+        <label className="flex flex-wrap items-center gap-2 text-[12px] text-ink-400">
+          <span>Resume name</span>
+          <input
+            type="text"
+            value={nameDraft}
+            maxLength={120}
+            placeholder={pkg.target_job_title}
+            onChange={(e) => setNameDraft(e.target.value)}
+            onBlur={() => void saveName()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.currentTarget.blur()
+              }
+            }}
+            className="min-w-[220px] flex-1 rounded-radius-md border border-line-light bg-surface-light px-3 py-2 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+          />
+          {nameState ? <span className="text-forest">{nameState}</span> : null}
+        </label>
       </div>
 
       {/* Single column, actions ABOVE the document.

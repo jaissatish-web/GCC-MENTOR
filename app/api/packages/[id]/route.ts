@@ -266,28 +266,59 @@ export async function PATCH(
     templateUpdate = { template_id: entry.id, template_version: entry.version }
   }
 
-  if (Object.keys(summaryEdit).length === 0 && blockEdits.length === 0 && !templateUpdate) {
+  // ---- Rename (TASK-139) ----------------------------------------------------
+  // The user's own label for this resume. Trimmed, length-capped, and an empty
+  // string clears it back to "never named" rather than storing a blank — so the
+  // Library falls back to the target job title instead of showing a nameless
+  // row.
+  const metaUpdate: { name?: string | null; status?: PackageStatus } = {}
+  if (b.name !== undefined) {
+    if (b.name !== null && typeof b.name !== 'string') {
+      return NextResponse.json({ error: 'Invalid field: name' }, { status: 400 })
+    }
+    const trimmed = typeof b.name === 'string' ? b.name.trim() : ''
+    if (trimmed.length > 120) {
+      return NextResponse.json({ error: 'Name must be 120 characters or fewer.' }, { status: 400 })
+    }
+    metaUpdate.name = trimmed === '' ? null : trimmed
+  }
+  if (b.status !== undefined) {
+    if (typeof b.status !== 'string' || !VALID_STATUSES.includes(b.status as PackageStatus)) {
+      return NextResponse.json({ error: 'Invalid field: status' }, { status: 400 })
+    }
+    metaUpdate.status = b.status as PackageStatus
+  }
+
+  const hasMeta = Object.keys(metaUpdate).length > 0
+
+  if (
+    Object.keys(summaryEdit).length === 0 &&
+    blockEdits.length === 0 &&
+    !templateUpdate &&
+    !hasMeta
+  ) {
     return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
   }
 
-  // A template-only switch must not rewrite optimized_content: an untouched
-  // read-modify-write would still overwrite the row with whatever was read,
-  // which is a needless risk on a paid document.
-  if (templateUpdate && Object.keys(summaryEdit).length === 0 && blockEdits.length === 0) {
-    const { data: switched, error: switchErr } = await supabase
+  // Metadata-only changes (rename, status, template) never touch the document.
+  // Rewriting optimized_content for a rename would put a paid resume's words
+  // through a read-modify-write for no reason at all.
+  if (Object.keys(summaryEdit).length === 0 && blockEdits.length === 0) {
+    const { data: metaRow, error: metaErr } = await supabase
       .from('packages')
-      .update(templateUpdate)
+      .update({ ...(templateUpdate ?? {}), ...metaUpdate })
       .eq('id', packageId)
       .eq('user_id', user.id)
-      .select('id')
+      .select('id, name, status, template_id, template_version')
       .maybeSingle()
-    if (switchErr) {
-      console.error('packages patch template switch failed user=' + user.id + ' pkg=' + packageId, switchErr.message)
+    if (metaErr) {
+      console.error('packages patch meta failed user=' + user.id + ' pkg=' + packageId, metaErr.message)
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
-    if (!switched) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
-    return NextResponse.json({ ok: true, ...templateUpdate })
+    if (!metaRow) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+    return NextResponse.json({ ok: true, package: metaRow })
   }
+
 
   // ---- Read-modify-write merge onto the existing optimized_content ---------
   const oc =
