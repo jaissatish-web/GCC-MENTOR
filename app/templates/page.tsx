@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { buttonVariants } from '@/components/ui/Button'
 import { AppShell } from '@/components/layout/AppShell'
+import { PageShell } from '@/components/layout/PageShell'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { getTemplate, DEFAULT_TEMPLATE_ID, type TemplateId } from '@/lib/templates'
 import { SAMPLE_RESUME_DOCUMENT } from '@/lib/sampleResume'
@@ -54,18 +55,14 @@ function TemplatesInner() {
   const templateName = getTemplate(templateId).name
 
   return (
-    <main className="mx-auto flex w-full max-w-[1240px] flex-col gap-5 px-5 pb-10 pt-2">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900">Resume templates</h1>
-        <p className="max-w-[70ch] text-[13.5px] text-ink-700">
-          Ten designs, all built for GCC applications. Every preview below shows the same example
-          CV, so you can compare them properly. Pick one, choose a resume, and open it.
-        </p>
-      </div>
-
+    <PageShell
+      width="wide"
+      title="Resume templates"
+      subtitle="Ten designs, all built for GCC applications. Every preview shows the same example CV, so you can compare them properly."
+    >
       {/* The action bar sticks to the top so the choice made at the bottom of a
           long gallery is still actionable without scrolling back. */}
-      <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky top-0 z-20 -mt-2 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[12.5px] text-ink-700">
           Selected: <strong className="text-ink-900">{templateName}</strong>
         </p>
@@ -125,7 +122,7 @@ function TemplatesInner() {
         Previews use an example CV. Your own wording, dates and details are never changed by
         switching template.
       </p>
-    </main>
+    </PageShell>
   )
 }
 

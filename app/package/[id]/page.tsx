@@ -347,9 +347,11 @@ function PackageScreenInner({ id }: { id: string }) {
         {/* The document itself: a page on a desk. Capped at the template's own
             794px and centred, so a wide screen shows the sheet at true size
             rather than a stretched one, and a narrow screen scales it down
-            instead of clipping it. */}
+            instead of clipping it. The generous surrounding surface is what
+            makes it read as a document being reviewed rather than a widget
+            floating in a page. */}
         {profile ? (
-          <div className="rounded-radius-lg bg-surface-2-light p-3 sm:p-5">
+          <div className="flex justify-center rounded-radius-lg bg-surface-2-light p-3 sm:p-6 lg:p-8">
             <ResumeDocumentView className="mx-auto w-full max-w-[794px]">
               {/* Registry lookup, not a hard-coded import: the screen must show
                   the same template the PDF and Word routes resolve, or "what

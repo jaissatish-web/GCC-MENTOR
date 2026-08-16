@@ -82,6 +82,29 @@ const config: Config = {
         'forest-deep-dark': '#081627',
         'forest-tint': '#E7EEF8',
         'forest-tint-dark': '#14304F',
+
+        // ── TRUTHFUL NAMES FOR THE SAME COLOURS ──────────────────────────────
+        //
+        // The palette moved from green to navy (TASK-112) by changing the
+        // VALUES and keeping the green NAMES. `forest` is navy. `forest-dark`
+        // is a LIGHT BLUE — despite "dark" — because it exists to sit ON a dark
+        // surface. Anyone choosing a colour by its name chooses wrong, and that
+        // has already shipped two real defects: near-black text on a navy
+        // button (1.69:1, invisible) and white labels on a white card.
+        //
+        // These aliases point at the identical values, so nothing renders
+        // differently today. New code uses the honest name; the old names stay
+        // valid, so no page has to be rewritten to benefit. A mass rename would
+        // touch every file in the app for zero visual change — the risk belongs
+        // to a dedicated pass, not to every ticket that needs a blue.
+        //
+        // USE THESE. Treat `forest*` as deprecated.
+        navy: '#1B4272',
+        'navy-deep': '#0B1F38',
+        'navy-tint': '#E7EEF8',
+        'navy-tint-dark': '#14304F',
+        /** Light blue for text and borders ON dark navy surfaces. */
+        sky: '#6BA3E0',
         // Collision-safe redesign names: the existing `gold` token above is
         // retained for current pages; redesign tickets use these exact §1.1
         // CTA/accent and tint values.
