@@ -1939,7 +1939,7 @@ function ProfileScreen() {
         product understood and the user did not, presented as the last decision
         on a long form. There is now a single way out.
       */}
-      <div className="sticky bottom-0 bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pb-5 pt-4">
+      <div className="sticky bottom-0 flex flex-col gap-2 bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pb-5 pt-4">
         <Button
           variant="primary"
           className="w-full"
@@ -1949,6 +1949,25 @@ function ProfileScreen() {
         >
           Save &amp; exit
         </Button>
+        {/*
+          FREE CV download (TASK-134). The free tier previously ended here with
+          nothing to take away: a user could type their whole history in and had
+          no way to get a document out, because every download route was gated
+          on a paid package. What is paid for is the AI rewrite, not putting
+          your own facts on a page.
+
+          Deliberately secondary styling: this is a useful exit, not the action
+          the page is trying to get you to take.
+        */}
+        <a
+          href="/api/resume/pdf"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md border border-line-light bg-surface-light px-4 py-3 text-[13px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+        >
+          Download my CV (PDF) — free
+        </a>
+        <p className="text-center text-[11.5px] text-ink-400">
+          Downloads what you have saved. Optimizing it for a specific job is the paid step.
+        </p>
       </div>
     </main>
   )

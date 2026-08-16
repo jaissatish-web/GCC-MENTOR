@@ -111,7 +111,7 @@ function GccReadinessScreen() {
   return (
     <main className="mx-auto w-full max-w-[1100px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
       <div className="flex flex-col gap-1">
-        <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">GCC Readiness</h1>
+        <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">Profile Strength</h1>
         <p className="text-[13px] text-ink-400">
           How complete is the profile your future Gulf applications are built from.
         </p>

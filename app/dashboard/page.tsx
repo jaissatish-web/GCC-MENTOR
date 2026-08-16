@@ -57,7 +57,7 @@ const PLANNED_SERVICES: ReadonlyArray<{ title: string; description: string }> = 
 ]
 
 const QUICK_ACTIONS: ReadonlyArray<{ label: string; href: string }> = [
-  { label: 'Check GCC Readiness', href: '/gcc-readiness' },
+  { label: 'Profile Strength', href: '/gcc-readiness' },
   { label: 'Analyze a Job Match', href: '/job-match' },
   { label: 'Optimize Resume', href: '/optimize/target' },
   { label: 'Generate Cover Letter', href: '/cover-letter' },
@@ -354,7 +354,7 @@ export default function DashboardPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
-                    Gulf Readiness Score
+                    Profile Strength
                   </span>
                   <span className="text-[13px] text-ink-400">
                     {missing.length === 0 && profile

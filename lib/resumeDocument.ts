@@ -181,10 +181,20 @@ export function buildResumeDocument({
   const hasAnyIdentity = Boolean(identityPrimary || identityContact || identityGulf)
   const hasHeaderText = Boolean(displayName || profile.target_job_title || hasAnyIdentity)
 
-  // ---- Summary (generated vs user-edited precedence) ----------------------
+  // ---- Summary (user-edited > generated > the user's own) -----------------
+  //
+  // The third fallback is new (TASK-134) and was found by testing rather than
+  // reading: with no optimized content — a FREE CV rendered straight from the
+  // profile — this returned an empty string, so the document came out with no
+  // summary at all. The user's own professional_summary is their own writing,
+  // which is exactly what belongs on a CV nobody paid to have rewritten.
+  //
+  // It cannot affect a paid resume's wording: a generated summary always wins,
+  // and this only fills the case that previously rendered blank.
   const summary =
     optimizedContent.summary?.user_edited?.trim() ||
     optimizedContent.summary?.generated?.trim() ||
+    profile.professional_summary?.trim() ||
     ''
 
   // ---- Experience ---------------------------------------------------------

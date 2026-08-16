@@ -23,13 +23,43 @@ Two themes, one token set. Every color below is a CSS custom property —
 components reference the token name, never a literal hex value, so a future
 palette tweak is a one-file change.
 
+> ### ⚠ THE PALETTE IS NAVY, NOT GREEN — corrected 2026-08-16
+>
+> This section described a **forest green** brand primary. TASK-112 moved the
+> product to **navy** at the founder's request, by changing the token VALUES and
+> keeping the green NAMES. The names below are therefore historical: `--forest`
+> is navy, and `--forest-dark` is a light blue.
+>
+> That is a live hazard, not a cosmetic one. Anyone — human or agent — choosing
+> a colour by its name chooses wrong, and it has already shipped two real
+> defects: near-black text on a navy button (1.69:1, invisible) and white form
+> labels on a white card ("Full name" could not be seen at all). Both reached
+> the founder in normal use.
+>
+> This restores the direction `docs/DESIGN.md` §1 stated from the very
+> beginning: **navy = action, gold = purchase and readiness**. The redesign's
+> green was the divergence; the code has since returned to the original plan
+> while carrying the wrong labels.
+>
+> **Correct values as shipped today** (`tailwind.config.ts` is authoritative):
+>
+> | Token | Value | Actually is |
+> |---|---|---|
+> | `--forest` | `#1B4272` | Navy — primary action |
+> | `--forest-deep` | `#0B1F38` | Near-black navy — dark surfaces |
+> | `--forest-dark` | `#6BA3E0` | **Light blue**, for use ON dark surfaces |
+> | `--forest-tint` | `#E7EEF8` | Pale blue tint fill |
+>
+> Renaming the tokens to `navy` / `navy-deep` / `sky` is the outstanding fix.
+> Until that lands, read the value, never the name.
+
 ### 1.1 Brand & neutral tokens
 
 | Token | Light value | Dark value | Use |
 |---|---|---|---|
-| `--forest` | `#175C3E` | `#3FA06E` | Brand primary — success/interview status, primary text links, progress button |
-| `--forest-deep` | `#0E1F19` | `#0E1B16` | Dark surfaces — sidebar, dashboard shell, landing hero |
-| `--forest-tint` | `#E6EFE9` | `#193527` | Success/interview tint fill |
+| `--forest` | `#1B4272` (navy) | `#6BA3E0` | Brand primary — primary action, links, progress |
+| `--forest-deep` | `#0B1F38` | `#081627` | Dark surfaces — sidebar, optimizing screen, landing hero |
+| `--forest-tint` | `#E7EEF8` | `#152B3B` | Tint fill |
 | `--gold` | `#C98A2E` | `#E8B15C` | Primary CTA fill, focus ring, accent — **fill only, see §9 accessibility** |
 | `--gold-text` | `#8A5A1E` | `#F3CD8B` | Gold-*colored text/links* on their theme's base surface — a distinct, darker token from `--gold` on light backgrounds (see §9) |
 | `--gold-tint` | `#FBF1DF` | `#26301F` | Shortlisted/attention tint fill |

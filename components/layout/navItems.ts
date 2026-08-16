@@ -57,7 +57,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Create Resume', href: '/create-resume', icon: PlusCircleIcon },
   { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true },
   { label: 'Resume Library', href: '/dashboard/library', icon: BookOpenIcon },
-  { label: 'GCC Readiness', href: '/gcc-readiness', icon: ShieldCheckIcon },
+  { label: 'Profile Strength', href: '/gcc-readiness', icon: ShieldCheckIcon },
   { label: 'Job Match', href: '/job-match', icon: MagnifyingGlassIcon },
   { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },
