@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createElement } from 'react'
 import { launchBrowser, waitForImages } from '@/lib/pdf/browser'
 import { createClient } from '@/lib/supabase/server'
-import GulfPremium, { type GulfPremiumProps } from '@/components/templates/GulfPremium'
+import { type GulfPremiumProps } from '@/components/templates/GulfPremium'
+import { getTemplate } from '@/lib/templates'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -142,7 +143,10 @@ export async function GET(
 
   try {
     const { renderToStaticMarkup } = await import('react-dom/server')
-    const bodyHtml = renderToStaticMarkup(createElement(GulfPremium, props))
+    // Same registry lookup as the PDF route — the blurred preview must show the
+    // template the buyer will actually receive.
+    const Template = getTemplate((pkg as { template_id?: string | null }).template_id).component
+    const bodyHtml = renderToStaticMarkup(createElement(Template, props))
 
     // Blur + watermark applied HERE, before the screenshot — this is what makes
     // the served PNG safe. The watermark is tiled diagonally across the page.

@@ -3,9 +3,8 @@ import { launchBrowser, waitForImages } from '@/lib/pdf/browser'
 import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
 import { createElement } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import GulfPremium, {
-  type GulfPremiumProps,
-} from '@/components/templates/GulfPremium'
+import { type GulfPremiumProps } from '@/components/templates/GulfPremium'
+import { getTemplate } from '@/lib/templates'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -112,6 +111,8 @@ export async function GET(
   const pkg = pkgRow as {
     profile_id: string
     target_job_title: string
+    /** Optional until the column exists; getTemplate() falls back safely. */
+    template_id?: string | null
     optimized_content?: OptimizedContent | null
     skills_order?: string[] | null
     field_visibility_snapshot?: CareerProfileFull['field_visibility'] | null
@@ -188,7 +189,12 @@ export async function GET(
     // pending reference route used require(); `await import()` preserves that
     // runtime-only behaviour without needing an ESLint rule that isn't loaded.
     const { renderToStaticMarkup } = await import('react-dom/server')
-    const bodyHtml = renderToStaticMarkup(createElement(GulfPremium, props))
+    // Resolved through the registry, never imported directly — this is what
+    // makes "the resume reopens and downloads in the template it was saved
+    // with" a data lookup instead of a code change. Unknown/absent ids fall
+    // back to the default rather than throwing.
+    const Template = getTemplate(pkg.template_id).component
+    const bodyHtml = renderToStaticMarkup(createElement(Template, props))
 
     const fullHtml = `<!DOCTYPE html>
 <html>

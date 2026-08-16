@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
-import GulfPremium from '@/components/templates/GulfPremium'
+import { getTemplate } from '@/lib/templates'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
@@ -78,6 +78,7 @@ function PackageScreenInner({ id }: { id: string }) {
     )
   }
 
+  const Template = getTemplate((pkg as { template_id?: string | null }).template_id).component
   const firstName = profile ? profile.full_name.trim().split(/\s+/)[0] || 'there' : 'there'
   const pdfUrl = `/api/packages/${encodeURIComponent(id)}/pdf`
   const docxUrl = `/api/packages/${encodeURIComponent(id)}/docx`
@@ -160,7 +161,11 @@ function PackageScreenInner({ id }: { id: string }) {
         {profile ? (
           <div className="rounded-radius-lg bg-surface-2-light p-3 sm:p-5 lg:order-1 lg:flex-1 lg:min-w-0">
             <ResumeDocumentView>
-              <GulfPremium
+              {/* Registry lookup, not a hard-coded import: the screen must show
+                  the same template the PDF and Word routes resolve, or "what
+                  you see is what downloads" stops being true the moment a
+                  second template exists. */}
+              <Template
                 profile={profile}
                 optimizedContent={(pkg.optimized_content ?? {
                   summary: { generated: '', source_profile_summary: '' },

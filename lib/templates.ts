@@ -20,6 +20,16 @@ export const MVP_TEMPLATE_ID = 'gulf_premium' as const
 
 export type TemplateId = typeof MVP_TEMPLATE_ID
 
+/**
+ * The default a package renders with when it has no stored choice.
+ *
+ * Kept as its own name rather than reusing MVP_TEMPLATE_ID at call sites: once
+ * a second template exists, "the default for new packages" and "the template
+ * this codebase started with" stop being the same idea, and every call site
+ * that conflated them would have to be found by hand.
+ */
+export const DEFAULT_TEMPLATE_ID: TemplateId = MVP_TEMPLATE_ID
+
 export interface TemplateEntry {
   id: TemplateId
   /** Shown in UI copy if a template is ever named to the user. */
