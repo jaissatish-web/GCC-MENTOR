@@ -54,6 +54,47 @@ function levelLabel(level: string): string {
 function templateNameFor(id?: string | null): string {
   return getTemplate(id).name
 }
+/**
+ * The resume's name, edited where it is read.
+ *
+ * Saves on blur or Enter and only when the value actually changed, so moving
+ * through the list with the keyboard never fires a write. Escape abandons the
+ * edit and restores what was there.
+ */
+function NameField({
+  value,
+  placeholder,
+  onSave,
+}: {
+  value: string
+  placeholder: string
+  onSave: (next: string) => void
+}) {
+  const [draft, setDraft] = useState(value)
+  useEffect(() => setDraft(value), [value])
+  return (
+    <input
+      type="text"
+      value={draft}
+      placeholder={placeholder}
+      maxLength={120}
+      aria-label="Resume name"
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => {
+        if (draft.trim() !== value.trim()) onSave(draft.trim())
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') e.currentTarget.blur()
+        if (e.key === 'Escape') {
+          setDraft(value)
+          e.currentTarget.blur()
+        }
+      }}
+      className="w-full rounded-radius-md border border-transparent bg-transparent px-1.5 py-1 text-[13.5px] font-bold leading-snug text-ink-900 hover:border-line-light focus:border-forest focus:bg-surface-light focus-visible:outline-none"
+    />
+  )
+}
+
 // Status dropdown styling mirrors Pill's status variant colours (never hard hex).
 function statusSelectClass(status: PackageStatus): string {
   const map: Record<PackageStatus, string> = {
@@ -165,6 +206,28 @@ export default function DashboardLibraryPage() {
     [packages]
   )
 
+  const renamePackage = useCallback(async (id: string, next: string) => {
+    setOpError(null)
+    // Optimistic, then reconciled — same pattern as the status dropdown above.
+    const prevName = packages?.find((p) => p.id === id)?.name ?? null
+    setPackages((list) => (list ? list.map((p) => (p.id === id ? { ...p, name: next || null } : p)) : list))
+    try {
+      const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: next }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        setPackages((list) => (list ? list.map((p) => (p.id === id ? { ...p, name: prevName } : p)) : list))
+        setOpError((body?.error as string) ?? 'Could not rename this resume.')
+      }
+    } catch {
+      setPackages((list) => (list ? list.map((p) => (p.id === id ? { ...p, name: prevName } : p)) : list))
+      setOpError('Network error. Could not rename this resume.')
+    }
+  }, [packages])
+
   const deletePackage = useCallback(async (id: string) => {
     setOpError(null)
     try {
@@ -243,28 +306,29 @@ export default function DashboardLibraryPage() {
           return (
             <div key={pkg.id} className="rounded-radius-lg border border-line-light bg-surface-light p-4">
               <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 flex-col gap-1">
-                  {/* The user's own name for this resume, falling back to the
-                      target job title. Three attempts at the same role were
-                      three identical rows before this, because the title is not
-                      something the user can change. */}
-                  <span className="text-[13px] font-bold leading-snug text-ink-900">
-                    {pkg.name?.trim() || pkg.target_job_title}
-                  </span>
-                  {pkg.name?.trim() ? (
-                    <span className="text-[11px] text-ink-700">{pkg.target_job_title}</span>
-                  ) : null}
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  {/* Editable in place. The row's identity is whatever the user
+                      calls it; the target job title is the fallback, and the
+                      placeholder, so an unnamed resume looks unchanged. */}
+                  <NameField
+                    value={pkg.name ?? ''}
+                    placeholder={pkg.target_job_title}
+                    onSave={(next) => renamePackage(pkg.id, next)}
+                  />
                   <span className="text-[11px] text-ink-400">
-                    {pkg.target_company || 'No company'} · {countryLabel(pkg.target_country)} ·{' '}
-                    {formatDay(pkg.created_at)}
+                    {pkg.target_company || 'No company'} · {formatDay(pkg.created_at)}
                   </span>
-                  <span className="flex flex-wrap items-center gap-2 text-[10.5px] text-ink-400">
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10.5px] text-ink-400">
                     {/* Short id: enough to quote in a support message, without
                         a 36-character UUID dominating the card. */}
                     <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
-                    <span>·</span>
-                    <span>{templateNameFor(pkg.template_id)}</span>
-                    <span>·</span>
+                    <span aria-hidden>·</span>
+                    <span className="rounded-[4px] bg-surface-2-light px-1.5 py-0.5 font-semibold text-ink-700">
+                      {templateNameFor(pkg.template_id)}
+                    </span>
+                    <span aria-hidden>·</span>
+                    <span>{levelLabel(pkg.optimization_level)} optimization</span>
+                    <span aria-hidden>·</span>
                     <span>Updated {formatDay(pkg.updated_at ?? pkg.created_at)}</span>
                   </span>
                 </div>

@@ -14,6 +14,7 @@ const PROTECTED_ROUTES = [
   '/job-match',
   '/cover-letter',
   '/create-resume',
+  '/templates',
   // /payments is now a redirect into /settings?tab=payments, but it stays
   // listed here: it must not become an unauthenticated route just because
   // its body is a redirect, and it was in fact never protected before.
@@ -141,6 +142,7 @@ export const config = {
     '/job-match/:path*',
     '/cover-letter/:path*',
     '/create-resume/:path*',
+    '/templates/:path*',
     '/payments/:path*',
     '/login',
     '/signup',

@@ -249,17 +249,24 @@ export default function DashboardPage() {
           {/* Metric row: Profile Strength · Resumes Created · Latest Job Match */}
           <Reveal delay={40}>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <MetricTile label="Profile Strength" value={`${score}%`} sub={readiness?.category ? categoryLabel(readiness.category) : undefined} />
+              <MetricTile
+                label="Profile Strength"
+                value={`${score}%`}
+                sub={readiness?.category ? categoryLabel(readiness.category) : undefined}
+                href="/gcc-readiness"
+              />
               <MetricTile
                 label="Resumes Created"
                 value={packagesLoaded ? String(packageCount) : '—'}
                 sub={packageCount > 0 ? 'In your Library' : undefined}
+                href="/dashboard/library"
               />
               <MetricTile
                 label="Latest Job Match"
                 value={jobMatch ? `${jobMatch.score}%` : '—'}
                 sub={jobMatch?.title ?? (jobMatch ? 'Match score' : 'No match yet')}
                 muted={!jobMatch}
+                href="/job-match"
               />
             </div>
           </Reveal>
@@ -470,19 +477,30 @@ function categoryLabel(category: string): string {
   return map[category] ?? category
 }
 
+/**
+ * A dashboard metric. When given an `href` the whole tile is the link.
+ *
+ * A number the user is meant to act on should be reachable from where it is
+ * shown — reading "Profile Strength 62%" and then hunting the menu for where
+ * to fix it is the sort of small friction that makes a product feel unfinished.
+ * The whole card is the target rather than a small "view" link, which is both
+ * easier to hit on a phone and simpler to announce to a screen reader.
+ */
 function MetricTile({
   label,
   value,
   sub,
   muted,
+  href,
 }: {
   label: string
   value?: string
   sub?: string
   muted?: boolean
+  href?: string
 }) {
-  return (
-    <Card tone="light" className="flex flex-col gap-1.5 p-4">
+  const inner = (
+    <>
       <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-400">
         {label}
       </span>
@@ -490,6 +508,27 @@ function MetricTile({
         {value}
       </span>
       {sub ? <span className={cn('text-[11px]', muted ? 'text-ink-400' : 'text-forest')}>{sub}</span> : null}
-    </Card>
+    </>
+  )
+
+  if (!href) {
+    return (
+      <Card tone="light" className="flex flex-col gap-1.5 p-4">
+        {inner}
+      </Card>
+    )
+  }
+
+  return (
+    <Link
+      href={href}
+      aria-label={`${label}: ${value ?? 'not available'}`}
+      className="group flex flex-col gap-1.5 rounded-radius-lg border border-line-light bg-surface-light p-4 transition hover:border-forest/60 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+    >
+      {inner}
+      <span aria-hidden className="mt-0.5 text-[10.5px] font-semibold text-forest opacity-0 transition group-hover:opacity-100">
+        Open →
+      </span>
+    </Link>
   )
 }
