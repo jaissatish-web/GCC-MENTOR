@@ -1,9 +1,10 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generate } from '@/lib/ai/provider'
 import { buildOptimizationPrompt } from '@/lib/ai/buildOptimizationPrompt'
 import type { SelectedBlocks, OptimizationTarget } from '@/lib/ai/buildOptimizationPrompt'
 import { buildResumeDocument } from '@/lib/resumeDocument'
+import { getTemplate } from '@/lib/templates'
 import { validateGrounding } from '@/lib/ai/validateGrounding'
 import type { ValidationFailure } from '@/lib/ai/validateGrounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
@@ -376,6 +377,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     additional_information: additional_information as ProfileAdditionalInformation[],
   }
 
+  // A caller may name a template at creation; anything unknown, unavailable or
+  // absent resolves to the default rather than erroring, so a stale client can
+  // never block someone from starting a resume.
+  const chosenTemplate = getTemplate(
+    typeof bodyObj.templateId === 'string' ? bodyObj.templateId : null,
+  )
+
   // ---- PHASE A: create the package, charge nothing, generate nothing --------
   //
   // Everything generation will need is written to the row now, because the
@@ -393,6 +401,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         job_description: jobDescription,
         optimization_level: level,
         selected_blocks: selectedBlocks,
+        // Stamp the template AND its version at creation (migration 035). The
+        // version is what stops a later revision of the same template from
+        // restyling a resume that has already been delivered.
+        template_id: chosenTemplate.id,
+        template_version: chosenTemplate.version,
         // NULL until paid AND generated — the distinction migration 033 exists
         // to make expressible.
         optimized_content: null,

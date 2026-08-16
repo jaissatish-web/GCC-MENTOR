@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { PACKAGE_STATUSES } from '@/lib/utils'
+import { TEMPLATES, isTemplateId } from '@/lib/templates'
 import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
 
 /**
@@ -244,8 +245,48 @@ export async function PATCH(
     }
   }
 
-  if (Object.keys(summaryEdit).length === 0 && blockEdits.length === 0) {
+  // ---- Template switch (TASK-138) ------------------------------------------
+  // Presentation only. The template is resolved at RENDER time from this
+  // column, and the document's content lives in optimized_content and
+  // document_snapshot — neither of which is touched here. That is what makes
+  // "changing template must NOT destroy resume content" true by construction
+  // rather than by being careful.
+  let templateUpdate: { template_id: string; template_version: number } | null = null
+  if (b.templateId !== undefined) {
+    if (!isTemplateId(b.templateId)) {
+      return NextResponse.json({ error: 'Invalid field: templateId' }, { status: 400 })
+    }
+    const entry = TEMPLATES[b.templateId]
+    if (!entry.available) {
+      return NextResponse.json({ error: 'That template is not available yet.' }, { status: 400 })
+    }
+    // The VERSION is stamped from the registry at switch time, so the resume
+    // records the template as it exists today. A later revision cannot then
+    // restyle it retroactively (migration 035's whole purpose).
+    templateUpdate = { template_id: entry.id, template_version: entry.version }
+  }
+
+  if (Object.keys(summaryEdit).length === 0 && blockEdits.length === 0 && !templateUpdate) {
     return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
+  }
+
+  // A template-only switch must not rewrite optimized_content: an untouched
+  // read-modify-write would still overwrite the row with whatever was read,
+  // which is a needless risk on a paid document.
+  if (templateUpdate && Object.keys(summaryEdit).length === 0 && blockEdits.length === 0) {
+    const { data: switched, error: switchErr } = await supabase
+      .from('packages')
+      .update(templateUpdate)
+      .eq('id', packageId)
+      .eq('user_id', user.id)
+      .select('id')
+      .maybeSingle()
+    if (switchErr) {
+      console.error('packages patch template switch failed user=' + user.id + ' pkg=' + packageId, switchErr.message)
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    }
+    if (!switched) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+    return NextResponse.json({ ok: true, ...templateUpdate })
   }
 
   // ---- Read-modify-write merge onto the existing optimized_content ---------
@@ -267,7 +308,7 @@ export async function PATCH(
 
   const { data: updated, error: updateErr } = await supabase
     .from('packages')
-    .update({ optimized_content: oc })
+    .update({ optimized_content: oc, ...(templateUpdate ?? {}) })
     .eq('id', packageId)
     .eq('user_id', user.id)
     .select('id')

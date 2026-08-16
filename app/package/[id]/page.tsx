@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
-import { getTemplate } from '@/lib/templates'
+import { getTemplate, type TemplateId } from '@/lib/templates'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
+import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package } from '@/types/package'
@@ -35,6 +36,9 @@ function PackageScreenInner({ id }: { id: string }) {
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [downloaded, setDownloaded] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [switchingTo, setSwitchingTo] = useState<TemplateId | null>(null)
+  const [templateError, setTemplateError] = useState<string | null>(null)
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -80,7 +84,9 @@ function PackageScreenInner({ id }: { id: string }) {
     )
   }
 
-  const Template = getTemplate((pkg as { template_id?: string | null }).template_id).component
+  const activeTemplateId = getTemplate((pkg as { template_id?: string | null }).template_id).id
+  const Template = getTemplate(activeTemplateId).component
+  const previewDocument = (pkg.document_snapshot as ResumeDocument | null) ?? null
   const firstName = profile ? profile.full_name.trim().split(/\s+/)[0] || 'there' : 'there'
   const pdfUrl = `/api/packages/${encodeURIComponent(id)}/pdf`
   // Word download is deliberately not offered yet (founder decision,
@@ -145,7 +151,59 @@ function PackageScreenInner({ id }: { id: string }) {
             >
               Edit text
             </Link>
+            {previewDocument ? (
+              <button
+                type="button"
+                aria-expanded={pickerOpen}
+                onClick={() => setPickerOpen((v) => !v)}
+                className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+              >
+                {pickerOpen ? 'Close templates' : 'Change template'}
+              </button>
+            ) : null}
           </div>
+          {pickerOpen && previewDocument ? (
+            <div className="rounded-radius-lg border border-line-light bg-surface-2-light p-4">
+              <p className="mb-3 text-[12.5px] text-ink-700">
+                Pick a look. Your wording, dates and details stay exactly as they are — only the
+                design changes, and your PDF changes with it.
+              </p>
+              {templateError ? (
+                <p role="alert" className="mb-3 text-[12px] text-terra">
+                  {templateError}
+                </p>
+              ) : null}
+              <TemplatePicker
+                document={previewDocument}
+                current={activeTemplateId}
+                busyId={switchingTo}
+                onSelect={async (nextId) => {
+                  if (nextId === activeTemplateId || switchingTo) return
+                  setSwitchingTo(nextId)
+                  setTemplateError(null)
+                  try {
+                    const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ templateId: nextId }),
+                    })
+                    if (!res.ok) {
+                      const b = await res.json().catch(() => ({}))
+                      setTemplateError((b?.error as string) ?? 'Could not change the template.')
+                      return
+                    }
+                    // Update in place rather than reloading: the document is
+                    // unchanged, so only the renderer needs to swap.
+                    setPkg((prev) => (prev ? { ...prev, template_id: nextId } : prev))
+                  } catch {
+                    setTemplateError('Network error. Please try again.')
+                  } finally {
+                    setSwitchingTo(null)
+                  }
+                }}
+              />
+            </div>
+          ) : null}
           {downloaded ? (
             <div className="rounded-radius-lg border border-forest/40 bg-forest-tint px-3.5 py-3 text-[12.5px] text-forest">
               Applying somewhere else? Your profile is saved — next one takes a minute.
