@@ -143,7 +143,18 @@ export async function GET(): Promise<NextResponse> {
   <style>
     html, body { margin: 0; padding: 0; background: #ffffff; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    @page { size: A4; margin: 0; }
+    /* Identical page framing to the paid PDF route — see its comment for the
+       reasoning. Kept in step deliberately: a free CV and a paid one must sit
+       on the page the same way, or the paid one looks like a different
+       product for the wrong reason. */
+    @page { size: A4; margin: 10mm 0; }
+    @media print {
+      #resume-render {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        min-height: 0 !important;
+      }
+    }
   </style>
 </head>
 <body>${bodyHtml}</body>

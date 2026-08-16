@@ -215,21 +215,39 @@ export async function GET(
     html, body { margin: 0; padding: 0; background: #ffffff; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     /*
-     * ZERO margins on EVERY page, not just the first.
+     * PAGE MARGINS: the same on every page, and equal to the frame the
+     * template already draws on screen.
      *
-     * The old rule gave page 1 no margin and every later page 14mm top +
-     * 12mm bottom, which is exactly the "gap in between" the founder reported:
-     * the screen shows one continuous document, and the PDF interrupted it
-     * with a band of whitespace at each page boundary that has no counterpart
-     * on screen.
+     * History, because this has now been wrong in both directions. It began as
+     * 0 on page one and 14mm/12mm on every page after, which printed a band of
+     * whitespace at each page break that has no counterpart on screen. Setting
+     * every page to 0 removed that, but the template's own 38px of vertical
+     * padding only applies ONCE, at the very start of the flow — so page two
+     * began hard against the top edge of the paper, which is what the founder
+     * reported.
      *
-     * The template already carries its own frame (38px 46px of padding), so
-     * page margins were adding a second, inconsistent one. With these at zero
-     * the printed page matches the preview, and GulfPremium's per-section
-     * pageBreakInside:avoid is what keeps a section from being split across
-     * the break.
+     * The fix is to move the VERTICAL frame out of the element and into the
+     * page box, where it repeats on every sheet by definition:
+     *
+     *   @page margin      10mm top and bottom  (= 37.8px, the template's 38px)
+     *   template padding  horizontal only, in print
+     *
+     * Horizontal framing stays on the element, so it is identical on screen
+     * and in print, and left/right need no page margin at all.
+     *
+     * min-height is also released in print: the template floors itself at one
+     * full A4 (1123px) for the on-screen sheet, but inside a page box that is
+     * now 10mm shorter that floor would overflow and force a nearly empty
+     * second page out of a one-page CV.
      */
-    @page { size: A4; margin: 0; }
+    @page { size: A4; margin: 10mm 0; }
+    @media print {
+      #resume-render {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        min-height: 0 !important;
+      }
+    }
   </style>
 </head>
 <body>${bodyHtml}</body>
