@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { getTemplate, type TemplateId } from '@/lib/templates'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
@@ -32,6 +32,8 @@ import type { OptimizedContent, Package } from '@/types/package'
 
 function PackageScreenInner({ id }: { id: string }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const requestedTemplate = searchParams.get('template')
   const [pkg, setPkg] = useState<Package | null>(null)
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -41,6 +43,36 @@ function PackageScreenInner({ id }: { id: string }) {
   const [templateError, setTemplateError] = useState<string | null>(null)
   const [nameDraft, setNameDraft] = useState('')
   const [nameState, setNameState] = useState<string | null>(null)
+
+  /** Persist a template choice. Shared by the picker and the "trying" banner. */
+  const applyTemplate = useCallback(
+    async (nextId: TemplateId) => {
+      if (switchingTo) return
+      setSwitchingTo(nextId)
+      setTemplateError(null)
+      try {
+        const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ templateId: nextId }),
+        })
+        if (!res.ok) {
+          const b = await res.json().catch(() => ({}))
+          setTemplateError((b?.error as string) ?? 'Could not change the template.')
+          return
+        }
+        setPkg((prev) => (prev ? { ...prev, template_id: nextId } : prev))
+        // Drop ?template= once it is the saved value — leaving it would keep
+        // showing "not saved yet" for something that now is.
+        router.replace(`/package/${encodeURIComponent(id)}`)
+      } catch {
+        setTemplateError('Network error. Please try again.')
+      } finally {
+        setSwitchingTo(null)
+      }
+    },
+    [id, router, switchingTo],
+  )
 
   // Saves only when the value actually changed, so tabbing through the field
   // does not fire a pointless write on a paid resume.
@@ -113,7 +145,16 @@ function PackageScreenInner({ id }: { id: string }) {
     )
   }
 
-  const activeTemplateId = getTemplate((pkg as { template_id?: string | null }).template_id).id
+  /**
+   * `?template=` arrives from the gallery: a template to TRY, not one that has
+   * been applied. It renders immediately and offers to be kept, so a click in
+   * the gallery can never silently restyle a resume the user already
+   * delivered. Anything unknown falls back to the saved template.
+   */
+  const savedTemplateId = getTemplate((pkg as { template_id?: string | null }).template_id).id
+  const tryingTemplateId = requestedTemplate ? getTemplate(requestedTemplate).id : null
+  const isTrying = !!tryingTemplateId && tryingTemplateId !== savedTemplateId
+  const activeTemplateId = isTrying ? (tryingTemplateId as TemplateId) : savedTemplateId
   const Template = getTemplate(activeTemplateId).component
   /**
    * The document the picker previews.
@@ -237,6 +278,32 @@ function PackageScreenInner({ id }: { id: string }) {
               </button>
             ) : null}
           </div>
+          {isTrying ? (
+            <div className="flex flex-col gap-2 rounded-radius-lg border border-forest/50 bg-forest-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-[12.5px] text-forest">
+                Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Not saved yet —
+                your download still uses{' '}
+                <strong>{getTemplate(savedTemplateId).name}</strong>.
+              </p>
+              <span className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={() => void applyTemplate(activeTemplateId)}
+                  disabled={!!switchingTo}
+                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-forest px-4 text-[12.5px] font-bold text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                >
+                  {switchingTo ? 'Saving…' : 'Save this template'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.replace(`/package/${encodeURIComponent(id)}`)}
+                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md border border-line-light bg-surface-light px-4 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                >
+                  Discard
+                </button>
+              </span>
+            </div>
+          ) : null}
           {pickerOpen && previewDocument ? (
             <div className="rounded-radius-lg border border-line-light bg-surface-2-light p-4">
               <p className="mb-3 text-[12.5px] text-ink-700">
@@ -252,29 +319,9 @@ function PackageScreenInner({ id }: { id: string }) {
                 document={previewDocument}
                 current={activeTemplateId}
                 busyId={switchingTo}
-                onSelect={async (nextId) => {
-                  if (nextId === activeTemplateId || switchingTo) return
-                  setSwitchingTo(nextId)
-                  setTemplateError(null)
-                  try {
-                    const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ templateId: nextId }),
-                    })
-                    if (!res.ok) {
-                      const b = await res.json().catch(() => ({}))
-                      setTemplateError((b?.error as string) ?? 'Could not change the template.')
-                      return
-                    }
-                    // Update in place rather than reloading: the document is
-                    // unchanged, so only the renderer needs to swap.
-                    setPkg((prev) => (prev ? { ...prev, template_id: nextId } : prev))
-                  } catch {
-                    setTemplateError('Network error. Please try again.')
-                  } finally {
-                    setSwitchingTo(null)
-                  }
+                onSelect={(nextId) => {
+                  if (nextId === activeTemplateId) return
+                  void applyTemplate(nextId)
                 }}
               />
             </div>

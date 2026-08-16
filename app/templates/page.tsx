@@ -1,141 +1,86 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
-import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { getTemplate, DEFAULT_TEMPLATE_ID, type TemplateId } from '@/lib/templates'
-import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
-import type { CareerProfileFull } from '@/types/careerProfile'
-import type { OptimizedContent, Package } from '@/types/package'
+import { SAMPLE_RESUME_DOCUMENT } from '@/lib/sampleResume'
+import type { Package } from '@/types/package'
 
 /**
- * Resume Templates — pick a look, load one of your resumes into it, save.
+ * Resume Templates — browse the designs, then open one of your resumes in it.
  *
- * The reverse of /package/[id], which starts from a resume and changes its
- * template. Here the user starts from the TEMPLATE. Same registry, same
- * renderer, same PATCH — nothing about a resume's content is touched, so a
- * save from this screen is exactly the switch the resume page performs.
+ * SHOWCASE DATA, NOT THE USER'S. Every card renders a fictional GCC engineering
+ * CV (lib/sampleResume.ts). The gallery used to render the signed-in user's own
+ * resume, which meant a brand-new user — who has not optimized anything yet —
+ * saw ten empty pages and could not judge a single one. A template gallery has
+ * to be browsable before you own a resume.
  *
- * Only PAID resumes are listed. An unpaid package has no content to preview,
- * and offering it would put a template choice against a document the user has
- * not unlocked.
+ * NO SECOND PREVIEW PANE. The cards ARE the preview: they are rendered by the
+ * real template components, not screenshots. Choosing a template and then
+ * pressing Preview opens the resume screen itself, which is where saving,
+ * downloading and editing already live — rather than rebuilding those three
+ * things here and having two places that can disagree.
+ *
+ * NOTHING IS WRITTEN HERE. Preview navigates with the template as a query
+ * parameter; the resume screen renders it and offers to keep it. A gallery
+ * click must not silently restyle a resume the user has already delivered.
  */
 
 function TemplatesInner() {
+  const router = useRouter()
   const [packages, setPackages] = useState<Package[] | null>(null)
-  const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [selectedId, setSelectedId] = useState<string>('')
   const [templateId, setTemplateId] = useState<TemplateId>(DEFAULT_TEMPLATE_ID)
-  const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const didInit = useRef(false)
 
   useEffect(() => {
     if (didInit.current) return
     didInit.current = true
-    Promise.all([
-      fetch('/api/packages', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)),
-      fetch('/api/profile', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)),
-    ])
-      .then(([pkgData, profileData]) => {
-        const all = ((pkgData?.packages as Package[] | undefined) ?? []).filter((p) => p.is_paid)
-        setPackages(all)
-        setProfile(profileData as CareerProfileFull | null)
-        if (all.length > 0) {
-          setSelectedId(all[0].id)
-          setTemplateId(getTemplate(all[0].template_id).id)
-        }
+    fetch('/api/packages', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const paid = ((data?.packages as Package[] | undefined) ?? []).filter((p) => p.is_paid)
+        setPackages(paid)
+        if (paid.length > 0) setSelectedId(paid[0].id)
       })
       .catch(() => setError('Could not load your resumes.'))
   }, [])
 
-  const selected = packages?.find((p) => p.id === selectedId) ?? null
-
-  // The document to preview: the resume's frozen copy when it has one, else
-  // rebuilt from the live profile — the same fallback the resume page uses, so
-  // a resume created before snapshots still previews here.
-  const document: ResumeDocument | null =
-    (selected?.document_snapshot as ResumeDocument | null) ??
-    (selected && profile
-      ? buildResumeDocument({
-          profile,
-          optimizedContent: (selected.optimized_content ?? {
-            summary: { generated: '', source_profile_summary: '' },
-            experience_blocks: [],
-          }) as OptimizedContent,
-          skillsOrder: selected.skills_order ?? [],
-          fieldVisibility: selected.field_visibility_snapshot ?? null,
-        })
-      : null)
-
-  const save = useCallback(async () => {
-    if (!selected || saving) return
-    setSaving(true)
-    setMessage(null)
-    setError(null)
-    try {
-      const res = await fetch(`/api/packages/${encodeURIComponent(selected.id)}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ templateId }),
-      })
-      if (!res.ok) {
-        const b = await res.json().catch(() => ({}))
-        setError((b?.error as string) ?? 'Could not save the template.')
-        return
-      }
-      setPackages((prev) =>
-        prev ? prev.map((p) => (p.id === selected.id ? { ...p, template_id: templateId } : p)) : prev,
-      )
-      setMessage('Saved to your Resume Library.')
-    } catch {
-      setError('Network error. Please try again.')
-    } finally {
-      setSaving(false)
-    }
-  }, [selected, saving, templateId])
-
-  if (packages === null) {
-    return <p className="px-5 py-20 text-center font-mono text-sm text-ink-400">Loading…</p>
-  }
-
-  const Preview = getTemplate(templateId).component
-  const isDirty = selected ? getTemplate(selected.template_id).id !== templateId : false
+  const hasResumes = (packages?.length ?? 0) > 0
+  const templateName = getTemplate(templateId).name
 
   return (
     <main className="mx-auto flex w-full max-w-[1240px] flex-col gap-5 px-5 pb-10 pt-2">
       <div className="flex flex-col gap-1">
         <h1 className="font-serif text-[27px] leading-tight text-ink-900">Resume templates</h1>
-        <p className="text-[13.5px] text-ink-700">
-          Pick a design, load one of your resumes into it, and save. Your wording never changes —
-          only the look.
+        <p className="max-w-[70ch] text-[13.5px] text-ink-700">
+          Ten designs, all built for GCC applications. Every preview below shows the same example
+          CV, so you can compare them properly. Pick one, choose a resume, and open it.
         </p>
       </div>
 
-      {packages.length === 0 ? (
-        <div className="rounded-radius-lg border border-dashed border-line-light bg-surface-light p-8 text-center">
-          <p className="text-[14px] font-semibold text-ink-900">No resumes yet</p>
-          <p className="mt-1 text-[13px] text-ink-700">
-            Once you have created and unlocked a resume, you can try it in any template here.
-          </p>
-        </div>
-      ) : (
-        <>
-          <label className="flex flex-wrap items-center gap-2 text-[12.5px] text-ink-700">
-            <span className="font-semibold">Resume</span>
+      {/* The action bar sticks to the top so the choice made at the bottom of a
+          long gallery is still actionable without scrolling back. */}
+      <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[12.5px] text-ink-700">
+          Selected: <strong className="text-ink-900">{templateName}</strong>
+        </p>
+
+        {packages === null ? (
+          <span className="text-[12px] text-ink-400">Loading your resumes…</span>
+        ) : hasResumes ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="sr-only" htmlFor="resume-select">
+              Resume to preview
+            </label>
             <select
+              id="resume-select"
               value={selectedId}
-              onChange={(e) => {
-                const next = e.target.value
-                setSelectedId(next)
-                const p = packages.find((x) => x.id === next)
-                setTemplateId(getTemplate(p?.template_id).id)
-                setMessage(null)
-                setError(null)
-              }}
-              className="min-h-11 min-w-[260px] rounded-radius-md border border-line-light bg-surface-light px-3 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+              onChange={(e) => setSelectedId(e.target.value)}
+              className="min-h-11 min-w-[220px] rounded-radius-md border border-line-light bg-surface-light px-3 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
             >
               {packages.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -143,70 +88,42 @@ function TemplatesInner() {
                 </option>
               ))}
             </select>
-          </label>
-
-          <div className="flex flex-col gap-5 lg:flex-row">
-            <div className="lg:flex-1 lg:min-w-0">
-              <TemplatePicker
-                document={
-                  document ?? {
-                    header: {
-                      showPhoto: false, photoUrl: null, displayName: '', targetJobTitle: '',
-                      hasAnyIdentity: false, identityPrimary: '', identityContact: '',
-                      identityGulf: '', hasHeaderText: false,
-                    },
-                    summary: '', experience: [], skills: [], certifications: [],
-                    education: [], additional: [],
-                  }
-                }
-                current={templateId}
-                onSelect={(id) => {
-                  setTemplateId(id)
-                  setMessage(null)
-                }}
-              />
-            </div>
-
-            <div className="lg:w-[420px] lg:shrink-0">
-              <div className="rounded-radius-lg bg-surface-2-light p-3">
-                {document ? (
-                  <ResumeDocumentView>
-                    {/* The template only reads `document` here; the profile and
-                        optimized-content props exist for the legacy path where
-                        no snapshot is available and are unused in this view. */}
-                    <Preview
-                      {...({
-                        document,
-                        skillsOrder: [],
-                        fieldVisibility: null,
-                      } as unknown as React.ComponentProps<typeof Preview>)}
-                    />
-                  </ResumeDocumentView>
-                ) : (
-                  <p className="p-8 text-center text-[13px] text-ink-400">
-                    Select a resume to preview it.
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => void save()}
-                disabled={!isDirty || saving}
-                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-radius-md bg-forest px-4 py-3 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
-              >
-                {saving ? 'Saving…' : isDirty ? 'Save to my Resume Library' : 'Already using this template'}
-              </button>
-              {message ? <p className="mt-2 text-center text-[12px] text-forest">{message}</p> : null}
-              {error ? (
-                <p role="alert" className="mt-2 text-center text-[12px] text-terra">
-                  {error}
-                </p>
-              ) : null}
-            </div>
+            <button
+              type="button"
+              onClick={() =>
+                router.push(
+                  `/package/${encodeURIComponent(selectedId)}?template=${encodeURIComponent(templateId)}`,
+                )
+              }
+              disabled={!selectedId}
+              className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-forest px-5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+            >
+              Preview my resume
+            </button>
           </div>
-        </>
-      )}
+        ) : (
+          <span className="text-[12px] text-ink-400">
+            Create a resume to try these with your own details.
+          </span>
+        )}
+      </div>
+
+      {error ? (
+        <p role="alert" className="text-[12.5px] text-terra">
+          {error}
+        </p>
+      ) : null}
+
+      <TemplatePicker
+        document={SAMPLE_RESUME_DOCUMENT}
+        current={templateId}
+        onSelect={(id) => setTemplateId(id)}
+      />
+
+      <p className="text-center text-[11.5px] text-ink-400">
+        Previews use an example CV. Your own wording, dates and details are never changed by
+        switching template.
+      </p>
     </main>
   )
 }
