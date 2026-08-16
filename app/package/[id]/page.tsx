@@ -7,6 +7,7 @@ import { getTemplate, type TemplateId } from '@/lib/templates'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
+import { buttonVariants } from '@/components/ui/Button'
 import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package } from '@/types/package'
@@ -245,38 +246,48 @@ function PackageScreenInner({ id }: { id: string }) {
         {/* Toolbar — sticks to the top of the viewport while scrolling a long
             CV, so Download is always one click away without costing any width. */}
         <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-bg/80">
-          <div className="flex flex-wrap items-center gap-2">
+          {/*
+            One button system, one size, one rhythm.
+            These four controls were hand-styled with three different paddings,
+            two text sizes and two focus-ring colours, which is what made the
+            row read as unaligned. They now all come from buttonVariants at
+            size="sm", so their heights and hit areas match by construction and
+            cannot drift again. On a phone each is full-width and stacked —
+            four 44px targets in a row do not fit 375px without shrinking below
+            the touch-target floor.
+          */}
+          <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center">
             <a
               href={pdfUrl}
               onClick={() => setDownloaded(true)}
-              className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md bg-surface-light px-4 py-3 text-[12.5px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+              className={buttonVariants({ variant: 'primary', size: 'sm' })}
             >
               Download PDF
             </a>
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
-            >
-              Share to WhatsApp
-            </a>
-            <Link
-              href={`/optimize/preview/${encodeURIComponent(id)}`}
-              className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
-            >
-              Edit text
-            </Link>
             {previewDocument ? (
               <button
                 type="button"
                 aria-expanded={pickerOpen}
                 onClick={() => setPickerOpen((v) => !v)}
-                className="inline-flex min-h-11 flex-1 items-center justify-center sm:flex-none rounded-radius-md border border-line-light/70 bg-surface-light px-4 py-3 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                className={buttonVariants({ variant: 'secondary', size: 'sm' })}
               >
                 {pickerOpen ? 'Close templates' : 'Change template'}
               </button>
             ) : null}
+            <Link
+              href={`/optimize/preview/${encodeURIComponent(id)}`}
+              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+            >
+              Edit text
+            </Link>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+            >
+              Share to WhatsApp
+            </a>
           </div>
           {isTrying ? (
             <div className="flex flex-col gap-2 rounded-radius-lg border border-forest/50 bg-forest-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -290,14 +301,14 @@ function PackageScreenInner({ id }: { id: string }) {
                   type="button"
                   onClick={() => void applyTemplate(activeTemplateId)}
                   disabled={!!switchingTo}
-                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-forest px-4 text-[12.5px] font-bold text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                  className={buttonVariants({ variant: 'primary', size: 'sm' })}
                 >
                   {switchingTo ? 'Saving…' : 'Save this template'}
                 </button>
                 <button
                   type="button"
                   onClick={() => router.replace(`/package/${encodeURIComponent(id)}`)}
-                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md border border-line-light bg-surface-light px-4 text-[12.5px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                  className={buttonVariants({ variant: 'secondary', size: 'sm' })}
                 >
                   Discard
                 </button>

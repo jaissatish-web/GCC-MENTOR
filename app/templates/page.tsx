@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { buttonVariants } from '@/components/ui/Button'
 import { AppShell } from '@/components/layout/AppShell'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { getTemplate, DEFAULT_TEMPLATE_ID, type TemplateId } from '@/lib/templates'
@@ -96,7 +97,7 @@ function TemplatesInner() {
                 )
               }
               disabled={!selectedId}
-              className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-forest px-5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+              className={buttonVariants({ variant: 'primary', size: 'sm' })}
             >
               Preview my resume
             </button>
