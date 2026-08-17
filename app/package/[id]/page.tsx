@@ -363,6 +363,40 @@ function PackageScreenInner({ id }: { id: string }) {
             >
               Share to WhatsApp
             </a>
+
+            {/* SAVE SITS BESIDE DOWNLOAD (TASK-156, founder's call).
+                It was at the bottom of the left rail, under the colour swatches
+                — which meant the confirmation for a change you make on the left
+                appeared nowhere near the button you press next. Save belongs with
+                the other actions on this document. It appears only when there is
+                something unsaved, so the row does not carry a permanently inert
+                button, and `ml-auto` pushes it clear of the three navigation
+                actions rather than sitting in the middle of them. */}
+            {styleable && styleDirty ? (
+              <span className="flex flex-wrap items-center gap-2 sm:ml-auto">
+                <span className="text-[11.5px] text-ink-400">Unsaved style change</span>
+                <button
+                  type="button"
+                  disabled={styleBusy}
+                  onClick={() => void saveStyle(draftStyle)}
+                  className={buttonVariants({ variant: 'primary', size: 'sm' })}
+                >
+                  {styleBusy ? 'Saving…' : 'Save style'}
+                </button>
+                <button
+                  type="button"
+                  disabled={styleBusy}
+                  onClick={() => setDraftStyle(savedStyle)}
+                  className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+                >
+                  Undo
+                </button>
+              </span>
+            ) : styleMsg ? (
+              <span role="status" className="text-[11.5px] text-forest sm:ml-auto">
+                {styleMsg}
+              </span>
+            ) : null}
           </div>
           {isTrying ? (
             <div className="flex flex-col gap-2 rounded-radius-lg border border-forest/50 bg-forest-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -529,25 +563,14 @@ function PackageScreenInner({ id }: { id: string }) {
                         </div>
                       </div>
 
+                      {/* Save/Undo moved up beside Download PDF (TASK-156). Only
+                          Reset stays here, because it belongs with the controls it
+                          clears rather than with the document's actions. */}
                       {styleDirty ? (
-                        <div className="mt-3 flex gap-2">
-                          <button
-                            type="button"
-                            disabled={styleBusy}
-                            onClick={() => void saveStyle(draftStyle)}
-                            className={buttonVariants({ variant: 'primary', size: 'sm' })}
-                          >
-                            {styleBusy ? 'Saving…' : 'Save style'}
-                          </button>
-                          <button
-                            type="button"
-                            disabled={styleBusy}
-                            onClick={() => setDraftStyle(savedStyle)}
-                            className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-                          >
-                            Undo
-                          </button>
-                        </div>
+                        <p className="mt-3 text-[11.5px] text-ink-400">
+                          Unsaved — use <strong className="text-ink-700">Save style</strong> at the
+                          top.
+                        </p>
                       ) : hasStyle ? (
                         <button
                           type="button"
@@ -565,11 +588,6 @@ function PackageScreenInner({ id }: { id: string }) {
                           Using the template&apos;s own style.
                         </p>
                       )}
-                      {styleMsg ? (
-                        <p role="status" className="mt-2 text-[11.5px] text-forest">
-                          {styleMsg}
-                        </p>
-                      ) : null}
                     </>
                   ) : (
                     // Honest rather than decorative: these two templates are

@@ -55,3 +55,22 @@ export function formatINR(amount: number): string {
 
 /** MVP price, in rupees. See docs/MVP.md §7. */
 export const PRICE_INR = 499
+
+/**
+ * What to call a saved resume (TASK-156).
+ *
+ * ONE HELPER, USED EVERYWHERE. `packages.name` (migration 036) is the label the
+ * user typed; `target_job_title` is the role the resume was optimized for and is
+ * not editable. The fallback belongs in one place because it was previously
+ * inlined in one screen and simply forgotten in three others — the Library, both
+ * dashboard lists and the template gallery's picker all printed the job title, so
+ * renaming a resume appeared to do nothing anywhere except the field it was typed
+ * into. The founder reported it as "rename is not saving"; it was saving fine and
+ * being ignored on read.
+ */
+export function resumeLabel(pkg: {
+  name?: string | null
+  target_job_title?: string | null
+}): string {
+  return pkg.name?.trim() || pkg.target_job_title?.trim() || 'Untitled resume'
+}

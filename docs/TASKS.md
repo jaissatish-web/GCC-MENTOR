@@ -2999,6 +2999,55 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-156: Save beside Download PDF, and show the resume's name everywhere**
+
+      Three founder reports. The middle one turned out to be the interesting bug.
+
+      **1. Save button placement.** It sat at the bottom of the left rail under the
+      colour swatches, so the confirmation for a change made on the left appeared
+      nowhere near the button pressed next. Save and Undo now sit in the toolbar
+      beside Download PDF, appearing only when there is an unsaved change so the row
+      never carries an inert button. Reset stays in the rail with the controls it
+      clears, and the rail's duplicate status line is gone — one save location.
+
+      **2. "Rename is not saving." IT WAS SAVING.** Checked the live row before
+      touching any code: `name = 'instrument engineer 1'`, written 09:39 that day,
+      alongside the `heritage_left` template and the forest accent. **The bug was on
+      READ, not write.** The name/title fallback was inlined in the template
+      gallery's picker and simply forgotten in three other places — the Library row
+      title and both dashboard lists — all of which printed `target_job_title`, the
+      role the resume was optimized for, which is not editable. So renaming appeared
+      to do nothing anywhere except the field it was typed into, which reads exactly
+      like a broken save. Now one exported `resumeLabel()` in `lib/utils.ts` used by
+      all four sites, so a fifth screen cannot forget it.
+
+      **3. The dropdown appended the internal id** — "INSTRUMENT ENGINEER —
+      2f25ad58". That is the "number" in the report. Gone. The id was there to
+      disambiguate several resumes aimed at the same role, which is precisely the
+      problem migration 036's `name` column exists to solve, so the crutch is no
+      longer needed.
+
+      **Worth naming the pattern:** a value that saves correctly and is ignored on
+      read is indistinguishable from a failed save, from the user's side. Checking
+      the database before the code turned a suspected write bug into a found read
+      bug in one query, and it is the third time this session that measuring first
+      beat reasoning first.
+
+      **Verified:** 6 assertions on `resumeLabel` — saved name wins, falls back to
+      the job title when never named, a whitespace-only name falls back rather than
+      rendering blank, the name is trimmed, no 8-hex-character id can appear in the
+      output, and both-missing yields a readable placeholder instead of an empty row.
+      `tsc`, `lint`, a full production build (45 routes) and the
+      32,768-permutation golden baseline all clean.
+
+      **Not verified:** the toolbar Save button clicked against a live paid resume,
+      which needs a login. The rename write path was confirmed against the live
+      database instead.
+
+      Depends on: TASK-152 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*

@@ -7,6 +7,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { PageShell } from '@/components/layout/PageShell'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { getTemplate, DEFAULT_TEMPLATE_ID, type TemplateId } from '@/lib/templates'
+import { resumeLabel } from '@/lib/utils'
 import { SAMPLE_RESUME_DOCUMENT } from '@/lib/sampleResume'
 import type { Package } from '@/types/package'
 
@@ -82,7 +83,7 @@ function TemplatesInner() {
             >
               {packages.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name?.trim() || p.target_job_title} — {p.id.slice(0, 8)}
+                  {resumeLabel(p)}
                 </option>
               ))}
             </select>

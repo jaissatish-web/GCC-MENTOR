@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/Button'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn, GULF_COUNTRIES, PACKAGE_STATUSES } from '@/lib/utils'
+import { cn, GULF_COUNTRIES, PACKAGE_STATUSES, resumeLabel } from '@/lib/utils'
 import { getTemplate } from '@/lib/templates'
 import type { Package, PackageStatus } from '@/types/package'
 
@@ -389,7 +389,7 @@ export default function DashboardLibraryPage() {
             className="grid grid-cols-[2fr_1fr_1fr_1.2fr_90px] items-center gap-4 border-b border-line-light px-5 py-3.5 last:border-0"
           >
             <div className="flex flex-col gap-0.5">
-              <span className="text-[12.5px] font-semibold text-ink-900">{pkg.target_job_title}</span>
+              <span className="text-[12.5px] font-semibold text-ink-900">{resumeLabel(pkg)}</span>
               <span className="text-[10.5px] text-ink-400">
                 {pkg.target_company || 'No company'} · {formatDay(pkg.created_at)}
               </span>

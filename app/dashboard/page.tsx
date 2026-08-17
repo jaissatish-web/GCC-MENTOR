@@ -9,7 +9,7 @@ import { Pill } from '@/components/ui/Pill'
 import { LockedTile } from '@/components/ui/LockedTile'
 import { Reveal } from '@/components/ui/Reveal'
 import { buttonVariants } from '@/components/ui/Button'
-import { cn, GULF_COUNTRIES } from '@/lib/utils'
+import { cn, GULF_COUNTRIES, resumeLabel } from '@/lib/utils'
 import { calculateReadiness } from '@/lib/readiness'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { Package } from '@/types/package'
@@ -318,7 +318,7 @@ export default function DashboardPage() {
                     >
                       <span className="flex flex-col gap-0.5">
                         <span className="text-[13px] font-semibold text-ink-900/85">
-                          Optimized for {pkg.target_job_title}
+                          Optimized for {resumeLabel(pkg)}
                         </span>
                         <span className="text-[11.5px] text-ink-400">{relativeTime(pkg.created_at)}</span>
                       </span>
@@ -444,7 +444,7 @@ export default function DashboardPage() {
                       className="flex items-center justify-between rounded-radius-md bg-surface-2-light/50 px-4 py-2.5 text-[13px] font-medium text-ink-900/75"
                     >
                       <span>
-                        {pkg.target_job_title} ·{' '}
+                        {resumeLabel(pkg)} ·{' '}
                         {GULF_COUNTRIES.find((c) => c.value === pkg.target_country)?.label ?? pkg.target_country}
                       </span>
                       <span className="text-[11px] text-ink-400">v{pkg.generation_count}</span>
