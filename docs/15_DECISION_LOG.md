@@ -12,6 +12,88 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-17 — the Gulf Readiness Scorecard is fully arithmetic
+
+**Founder decision, final: the entire readiness engine — score, scenario, strengths,
+gaps, recommendations, ranking — is arithmetic. No LLM call anywhere in it.**
+
+This is better than the LLM version, not a compromise:
+- **Reproducible.** The same resume always scores the same. An LLM scorer once returned
+  78 then 45 for one CV, which is why the score is deterministic in the first place.
+- **Free and instant.** No token cost, sub-second, safe as the top of the funnel.
+- **Cannot fabricate.** A scorer that never writes prose cannot break the grounding rule.
+  It awards points only for evidence it actually finds.
+- **The anonymous score and the signed-in detailed score are identical**, because the
+  same pure function runs on the same inputs. The number never changes after signup —
+  exactly when it must not.
+
+**One engine, two views.** `lib/gulfReadiness/` takes funnel answers + resume text and
+returns the complete result. Anonymous shows a subset (score, scenario, band, top three
+strengths and gaps, one or two recommendations); after signup the *same object* is shown
+in full. The signed-in report is the anonymous result unblurred — nothing is recomputed.
+
+**The scoring model.** Six dimensions per scenario, each with a max, summing to 100. The
+situation is a **visible dimension** — "Gulf Market Position" — auto-filled from the
+funnel answer rather than a modifier bolted on and clamped:
+
+| Situation | Gulf Market Position (its max, auto-filled) |
+|---|---|
+| Currently in Gulf | 15 |
+| Returner | 8 |
+| Domestic experienced | 5 |
+| Fresher | 0 (dimension not shown) |
+
+Its max varies by scenario and it fills to its max, so **every scenario can still reach
+100** — a fresher's 100 comes entirely from education, projects and skills, so they are
+never structurally capped or punished for a situation they cannot change. A stronger
+situation simply means fewer points must come from the resume, which is honest: being
+in-market *is* an advantage. This resolves the founder's "+3/+3 makes a difference" as a
+real, explainable line item, with no clamping.
+
+**Evidence is heuristic, and honest about it.** The resume dimensions are scored by
+rule-based detection on the text — quantified achievements (numbers in bullets),
+certifications, education, skills, contact completeness, availability signals. Each
+dimension returns `{ score, max, evidence[], gaps[], confidence }`. Where detection is
+weak the **confidence drops and the report says so** — never a false zero presented as
+fact.
+
+**Band messages, and every band routes honestly to optimization** (founder design). The
+point is that each band has a *real* reason to optimise, so the nudge is never invented:
+
+| Score | Direction |
+|---|---|
+| Under 50 | Not Gulf-ready yet — start by optimising the resume |
+| 50–74 | Good foundation, close — an optimised resume gets you application-ready |
+| 75+ | Ready to apply — now tailor an optimised resume to each specific job to get shortlisted |
+
+**Messages are scenario-aware, not only score-aware** — 3 bands × 4 scenarios = 12 short
+messages in config, tunable (and admin-editable later, like prompts). A fresher at 45 and
+a returner at 45 hear different things.
+
+⚠ **Honesty guardrail: readiness to *apply*, never a hiring probability.** No band ever
+says or implies "you will get the job." This is the one place it would be tempting to
+cross the line the whole product holds.
+
+**Carry into signup: browser-held, no server record while anonymous** (founder delegated
+the choice). The result object plus funnel answers plus resume text sit in `sessionStorage`
+through the signup redirect; on account creation they are persisted to the new user and
+the temp state is cleared. Abandon signup and nothing is stored server-side, ever. This
+gives the strongest honest trust line — "we don't save your resume unless you sign up" —
+and a reliable same-tab handoff. **Tradeoff:** close the tab or switch device before
+signup and it is lost; the user re-runs. The existing `anonymous_analysis_sessions` table
+is left in place (not deleted without instruction) and simply not used by this flow; it
+can be retired deliberately later.
+
+**The LLM extraction still exists, separately.** Building the editable Career Profile
+after signup uses the existing extraction call — a different job (populating real fields
+for later optimization). Readiness itself never calls it.
+
+**Deliberately not in this build:** SEO pages, the score-improvement simulator, and any
+country matching — per the founder's own sequencing. `gcc_country` and other country
+columns are **not** removed; only the funnel omits the question.
+
+---
+
 ## 2026-08-17 — Stage 1 funnel: ask the user, do not infer
 
 **Founder design, approved and agreed.** The anonymous entry point becomes: a

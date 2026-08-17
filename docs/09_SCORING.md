@@ -16,7 +16,23 @@ correction.
 
 ---
 
-## 1. GCC Readiness — arithmetic, not opinion
+## 1. GCC Readiness — the anonymous Scorecard
+
+> **The anonymous scan runs the Gulf Readiness Scorecard** — `lib/gulfReadiness/`,
+> a fully arithmetic engine (no LLM, agreed 2026-08-17). The section below describes
+> the older signed-in profile-completeness score in `lib/readiness.ts`, which shares
+> the four-category idea. The Scorecard is the current anonymous entry point.
+>
+> **The Scorecard in one paragraph.** Funnel answers pick the scenario; six
+> dimensions are scored to 100, one of them ("Gulf Market Position") auto-filled from
+> the situation; the resume dimensions are scored by rule-based detection on the text
+> with a confidence flag; the score maps to a band whose message is scenario-aware and
+> always routes honestly to optimization; and a ranker orders the gaps into "fix these
+> first". The same pure function runs anonymous and signed-in, so **the number never
+> changes after signup.** Full design in [`15_DECISION_LOG.md`](15_DECISION_LOG.md);
+> the engine is `lib/gulfReadiness/engine.ts`, its knobs (weights, situation points,
+> the twelve band messages) in `lib/gulfReadiness/config.ts`, verified by
+> `scripts/verify-gulf-readiness.ts`.
 
 **Completeness and market-readiness of the user's own profile.** It never judges
 their career; it tells them what is missing or weak for a Gulf application.
