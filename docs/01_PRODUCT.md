@@ -144,18 +144,23 @@ migration.
 
 ---
 
-## 7. Planned, and deliberately accommodated
+## 7. Being built next
 
-These are **future services, not banned ideas**. The design system must be able to
-absorb them without a rebuild, and they may appear as honest "Planned" tiles —
-never as nav items, never with invented data behind them.
+**Interview Q&A and Mock Interview moved from "planned" to "to be built" on
+2026-08-17.** The plan is to get all eight services working — on the Career Profile as
+the only fact source, and on our own prompts — before any commerce work.
 
-- Mock Interview (speech-based, with AI review)
-- Interview Q&A / interview preparation
-- Saved Jobs
+Both are genuine builds from zero. They have AI config rows and nothing else: no route,
+no prompt, no engine. Until they exist they stay honest "Planned" tiles, dimmed and
+non-interactive in the navigation, never links, never with invented data behind them.
 
-Config rows already exist for the two AI-backed ones so they can be switched on
-without a migration, and nothing calls them.
+**Saved Jobs** remains planned and unscheduled.
+
+**The commercial model, recorded and deliberately deferred:** plans will be **monthly
+subscriptions**. None of it is built and it changes nothing in the core build — but it
+constrains one later decision, so it is worth knowing now: **the payment provider must
+support recurring billing.** What exists today is one-time credits that never expire,
+which is not a subscription and would need expiry, renewal and reset to become one.
 
 ---
 

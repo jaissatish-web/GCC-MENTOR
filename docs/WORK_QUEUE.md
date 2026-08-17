@@ -5,32 +5,79 @@ part-document it affects is updated instead. It never becomes a log.
 
 How work is handed over, reviewed and closed: [`16_WORKING_AGREEMENT.md`](16_WORKING_AGREEMENT.md) §2.
 
-**Current phase, set by the founder 2026-08-17: build the whole AI pipeline with the
-paid locks off, one service at a time, then re-apply the locks over a finished
-machine.** Order: the LLM control layer first, then each service.
+**Current phase, set by the founder 2026-08-17: build the core product — every service
+working individually on the Career Profile and our own prompts — with the paid locks
+off. Payment, bundles, pricing and free/paid control come afterwards.** Full reasoning
+in [`15_DECISION_LOG.md`](15_DECISION_LOG.md).
+
+---
+
+## Done
+
+### ✅ The LLM control layer
+One module owning model resolution, prompt assembly with grounding injected, token
+budget, parse, shape check, one repair attempt, and refusal to return unvalidated
+output. Additive — services adopt it one at a time.
 
 ---
 
 ## In progress
 
-### P0 · The LLM control layer — **active**
-One module owning model resolution, prompt assembly, token budget, retries and
-fallback, structured-output parsing, mandatory grounding validation, usage and cost
-logging, and failure diagnostics. Every service plugs into it instead of hand-rolling
-its own call. **First, because doing it after the services means retrofitting seven of
-them.**
+### P1 · Prompt registry and versioning — **active**
+Draft-then-publish, founder-approved. A versions table; exactly one active version per
+prompt; publish and rollback are a flip; nothing edited in place, nothing deleted.
+**Every generation stamped with the prompt version that produced it** — without that,
+quality changes cannot be attributed to the prompt, the model or the input.
 
-### P1 · Then each service, one at a time
-GCC Readiness · ATS/ scan · Job Match · Resume optimization · Cover letter ·
-Downloads · Q&A · Mock interview.
+**Before tuning any service**, so tuning is measured rather than remembered.
 
-**Q&A and mock interview do not exist at all** — no route, no prompt, no engine. They
-are builds from zero, not unlocks. The other six exist and are now open.
+**The floor:** persona, tone, instructions and examples are editable. The grounding
+block and the output schema are not — a bad edit to either silently breaks the
+product's one promise or every call.
 
-### P2 · Re-apply the paid locks — **after the pipeline, not before**
-Traces to: open items §A0, and [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md)
-reads as the restore guide. Includes purging or marking the rows generated during this
-phase.
+### P1b · LLM configuration fixes — same run, same control panel
+- **A third runtime tier**: if a service's primary and fallback both fail, fall back to
+  the default row's provider. Today that only happens when a service has no row at all.
+  Must skip the default when it is the same provider and model already tried.
+- **Named cards for `job_description` and `job_match_explanation`** — two live,
+  money-spending calls currently visible only under "other overrides".
+- **Say that fallback needs provider, model AND key.** Setting only a fallback model
+  silently does nothing.
+- **Collapse the service list to one place.** It lives in three today.
+
+---
+
+## Next
+
+### P2 · Each existing service onto the control layer, one at a time
+GCC Readiness · ATS/GCC scan · Job Match · Resume optimization · Cover letter ·
+Downloads. Tuning prompts as each lands, with version history.
+
+**Each service needs a definition of "working" first** — fixture profiles and what a
+good result looks like. Otherwise there is no finish line. Same fixtures the test bench
+will use.
+
+### P3 · The prompt test bench
+Draft against active, same input, same model, side by side. **Fixture profiles only,
+never real user data.** The grounding validator runs on test output, so a bad draft is
+visible before it is published.
+
+### P4 · Interview Q&A and Mock Interview — builds from zero
+Config rows exist; nothing else does. Not unlocks.
+
+### P5 · Then commerce
+Payment provider (**must support recurring — plans are monthly**), then metering, then
+bundles and pricing, then re-applying the paid locks.
+
+**Most of the bundle machinery already exists**: the admin screen, per-service quotas,
+atomic granting and consumption. Almost nothing consumes it. Metering goes through **one
+wrapper** — spend a credit only after a validated success, never on failure — not
+per-route. **Readiness scanning stays unmetered**: it costs nothing to run and it is the
+top of the funnel.
+
+Re-applying the locks traces to open items §A0, and
+[`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) reads as the restore guide.
+Includes purging or marking the rows generated during this phase.
 
 ---
 

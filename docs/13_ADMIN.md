@@ -32,9 +32,9 @@ an action can never be attributed to someone else.
 | Screen | What it does | State |
 |---|---|---|
 | **Overview** (`/admin`) | One live summary line per section, so a blocker is visible without opening every page | Live |
-| **AI Provider** (`/admin/ai-provider`) | Provider, model, fallback model and API key **per feature**, plus a default and internal overrides | Live |
+| **AI Provider** (`/admin/ai-provider`) | Provider, model, fallback and API key **per service**, plus a default and internal overrides | Live and genuinely wired — see §3b |
 | **Free Plan** (`/admin/plan`) | What the free tier includes, per feature, including which templates free users may pick | **Editor works; no user-facing gate reads it yet** |
-| **Prompts** (`/admin/prompts`) | Edit the introductory tone and voice of specific prompts | Partly inert — see §4 |
+| **Prompts** (`/admin/prompts`) | Edit prompt text | **Fully inert today** — see §4. Being rebuilt with versioning |
 | **Promo Codes** (`/admin/promo-codes`) | Create and deactivate codes, optionally tied to a bundle | Live — **this is the real checkout today** |
 | **Packages** (`/admin/packages`) | Bundle definitions and their included items | Live |
 | **Users** (`/admin/users`) | User list, search, package history, payments, manual credit grants | Live |
@@ -60,6 +60,27 @@ the key is the founder's own step.
 
 ---
 
+## 3b. How the per-service AI configuration actually behaves
+
+**It works as intended, and that was verified by reading every call site** — all ten
+pass their own service key, so changing a model here changes exactly that service.
+Saving replaces the previous values; submitting the key field blank keeps the existing
+key rather than wiping it.
+
+**Three things that are not obvious from the screen**, all recorded in
+[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md):
+
+1. **Fallback needs provider, model *and* key.** Setting only a fallback model does
+   nothing at all, silently. The screen should say so.
+2. **The default row is a *configuration* fallback, not a runtime one.** It applies when
+   a service has no row of its own. It is **not** tried when a service's own primary and
+   fallback both fail mid-call — that request simply fails. A third runtime tier is
+   planned.
+3. **Two live calls have no named card.** `job_description` and `job_match_explanation`
+   spend real money and appear only under "other overrides".
+
+---
+
 ## 4. Controls that do not do what they appear to
 
 **This section exists because a control that silently does nothing is the same
@@ -69,10 +90,11 @@ category of dishonesty as fake data**, and this project has made that mistake.
   user-facing gate calls them yet. The screen carries a plain "not live yet" notice
   saying exactly what does and does not happen. **The notice is removed in the same
   change that wires the first gate.**
-- **Prompts** — some prompt templates no longer feed any AI call, because the routes
-  that used them stopped calling a model. Those are **labelled** rather than left
-  looking functional. The grounding constraint and output schema are hard-coded and
-  are never editable from here.
+- **Prompts** — **no AI call reads a stored prompt template at all today.** The list of
+  live keys is empty, so every field on this screen edits something nothing consumes.
+  It is labelled rather than left looking functional. Being rebuilt with versioning and
+  draft-then-publish; the grounding block and output schema stay permanently
+  non-editable. See [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b.
 - **Interview Q&A and Mock Interview** appear in the AI Provider list as config rows
   for features that do not exist. The founder chose to add them deliberately, and they
   are marked **planned** — inert until the features are built.

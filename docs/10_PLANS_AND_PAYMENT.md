@@ -265,6 +265,32 @@ migration.
 
 ## 8. Service credits and bundles
 
+**Plans will be monthly subscriptions** (founder decision 2026-08-17), built after the
+core product works. **The payment provider chosen in §5 must therefore support recurring
+billing.** What is described below is one-time credits that never expire — not a
+subscription. Expiry, renewal and reset are the gap, and they are a schema change.
+
+**Most of the machinery already exists and is easy to overlook:** an admin screen that
+builds a package, per-service quotas (one row per package-and-service, with a quota),
+atomic granting of a whole package into individual credit rows, and atomic consumption.
+A spent credit is stamped, never deleted, so "what did they get, when, and who gave it"
+is always answerable.
+
+**What is missing is consumers.** Only the cover letter ever spent a credit, and that was
+removed with the locks. **When metering is switched on it goes through one wrapper** —
+spend a credit for service X, only after a validated success, never on failure — not
+per-route. Eight routes would be eight chances to forget, and this project has been
+burned by exactly that twice.
+
+**Readiness scanning stays unmetered.** It is arithmetic, it costs nothing to run, and it
+is the top of the free funnel; charging credits for it would buy no saving and cost
+conversion.
+
+⚠ **Service keys are free text with no validation**, and the admin screen warns about
+this itself: a typo means the quota silently never matches any route, so a customer could
+buy a package whose credits never work. Fixed by resolving the key from the single
+service registry.
+
 A bundle grants **service credits** — one per included item — consumed atomically when
 the feature runs. The cover letter was the first real consumer: generation required the
 package to be paid **and** an available cover-letter credit.

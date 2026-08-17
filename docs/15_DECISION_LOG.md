@@ -12,6 +12,118 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-17 — the build plan, agreed
+
+**Core product first, commerce afterwards.** Founder's decision, stated twice and
+locked here: get **every service working individually** — on the Career Profile as the
+only fact source, and on our own prompts — and only then decide payment, bundles,
+pricing and free/paid control. "First our target to build our core product, clean and
+workable; later we will do these extra work."
+
+**The eight services.** Six exist and now run unlocked: GCC Readiness, the ATS/GCC scan,
+Job Match, resume optimization, cover letter, downloads. **Two are genuine builds from
+zero: Interview Q&A and Mock Interview** — they have config rows and nothing else. They
+move from "planned, accommodated" to "to be built" as a result of this decision.
+
+**Plans will be monthly subscriptions.** Recorded now, deliberately **not built** now.
+It changes nothing about the core build, but it constrains exactly one later decision:
+**the payment provider must support recurring billing**, which narrows the shortlist.
+Note it before choosing a provider, not after. What exists today (bundles of one-time
+credits that never expire) is not a subscription and would need expiry, renewal and
+reset to become one.
+
+**Bundles and metering are deferred, and mostly already exist.** The admin screen for
+building a package, per-service quotas, atomic granting and atomic consumption are all
+built. Almost nothing consumes them. When metering is switched on it goes through **one
+wrapper — spend a credit for service X, only after a validated success, never on
+failure** — not per-route, because eight routes is eight chances to forget, and this
+project has been burned that way twice. **Free readiness scanning stays unmetered**: it
+is arithmetic, costs nothing to run, and is the top of the funnel.
+
+### Prompt control — draft then publish
+
+Founder wants to change and optimise prompts himself, with versions and testing, from
+the admin panel. Approved, with a floor.
+
+**What was found on checking:** prompt control is roughly 5% built, and what exists is
+inert — `LIVE_PROMPT_TEMPLATE_KEYS` is an empty array, so **no AI call reads any prompt
+template today**. Storage is one row per key, edited in place: no version, no history,
+no rollback.
+
+**The floor, which is not negotiable.** A prompt has three parts and they are not
+equally editable:
+- **Editable:** persona, tone, task instructions, emphasis, examples — where quality lives.
+- **Never editable:** the grounding block. A bad edit silently turns off the product's
+  one promise and nothing downstream would catch it. It is injected by the control layer
+  from one constant, which already makes this true by construction.
+- **Never editable:** the output schema. The parser and the validator depend on it.
+
+**Versioning:** never edit in place. A new version each time; exactly one active per
+prompt; publishing is a flip and rollback is a flip back; nothing is deleted.
+**Every generation records which prompt version produced it** — that is the whole point:
+without it, when quality moves you cannot tell whether it was the prompt, the model or
+the input.
+
+**Versioning comes before tuning the services**, not after. Tuning first would mean
+tuning with no record of what changed.
+
+**Testing:** draft against active, same input, same model, side by side — and **run
+against saved fixture profiles, never real users' data**, because admin access to real
+profiles is audited for a reason. **The grounding validator runs on test output too**,
+so a draft can be seen failing grounding before it is published. That is what makes
+handing over the controls safe.
+
+### Two guards to hold while services are built
+
+1. **User data is data, never instructions.** Profile facts are mapped into every
+   prompt — but a user can type "ignore previous instructions" into their professional
+   summary. Facts go in a delimited block the model is told is data, never merged into
+   the instruction text. Cheap now, ugly to retrofit across eight services.
+2. **Deterministic logic stays in code, not in prompts.** As prompts become editable
+   there will be a pull to move scoring rules into prompt text where they are easier to
+   tweak. That is how the readiness score once returned 78 and then 45 for the same
+   resume.
+
+### LLM configuration — checked against the code
+
+Founder's belief that per-service provider/model/key with fallback is already built is
+**correct, and it is genuinely wired** — all ten call sites pass their own service key,
+so a model changed in the admin panel really does change that service. Saving replaces
+the previous values.
+
+**One part of the described behaviour does not exist.** The `default` row is a
+*configuration* fallback — used when a service has no row of its own — **not a runtime
+one**. If a service's primary and its fallback both fail mid-call, the request throws;
+the default provider is never tried. **A third runtime tier will be added**, with the
+guard that it skips the default when it is the same provider and model already tried,
+so a broken call does not pay twice for the identical failure.
+
+**Two smaller fixes with it:** fallback only activates when provider, model *and* key
+are all set — setting only a fallback model silently does nothing, and the screen must
+say so. And two live, money-spending calls (`job_description`, `job_match_explanation`)
+appear only under "other overrides" rather than as named cards; they become first-class.
+
+**The service list is collapsed to one place.** It currently lives in three — the admin
+screen, the provider config and the control-layer registry. One list means adding a
+service is one edit, and it removes the silent-typo class of bug that the bundle screen
+warns about on its own face.
+
+### The order
+
+1. Prompt registry, versioning, draft/publish/rollback, version stamped on every generation
+2. The LLM-config fixes above, same run — same control panel, all small
+3. Services onto the control layer, one at a time, tuning prompts with history
+4. The prompt test bench, once there are two or three services to compare
+5. Q&A and Mock Interview, built from zero
+6. Then commerce: provider, bundles, monthly, free/paid
+
+**Before step 3, each service needs a definition of "working"** — a handful of real
+fixture profiles and what a good result looks like. Otherwise "make all services work"
+has no finish line. It is the same fixture set the test bench uses, so it is not extra
+work, only earlier work.
+
+---
+
 ## 2026-08-17 — later the same day
 
 **Every paid lock is removed. All services are open.** Founder decision, taken after

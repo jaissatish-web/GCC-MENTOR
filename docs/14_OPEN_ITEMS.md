@@ -62,10 +62,16 @@ to the entitlements table and removing the "not live yet" notice in the same cha
 Related and unresolved: the free profile-only CV download still works but **nothing
 links to it** (§B4).
 
-### A3 · Long-term pricing model
+### A3 · Long-term pricing model — **decided: monthly subscription, deferred**
 
-One-time versus usage versus subscription. Undecided on purpose; the data model stays
-neutral. The two bundle tiers are real prices with no purchase path.
+Founder decision 2026-08-17: plans will be **monthly**. Nothing is built and nothing
+should be built until the core product works. **It constrains A1: the payment provider
+must support recurring billing.**
+
+What exists today is one-time credits that never expire — not a subscription. Making it
+one needs expiry, renewal and reset, which is a schema change, not a config change.
+
+The two bundle tiers on the landing page remain real prices with no purchase path.
 
 ### A4 · Legal content
 
@@ -178,6 +184,37 @@ Choosing a colour by its name produces a wrong result, and it has already shippe
 real defects that reached the founder: near-black text on a navy button (1.69:1), and
 white labels on a white card. **Remaining work:** migrate usages, then delete the
 aliases.
+
+### B7b · Three gaps on the AI provider control panel
+
+Found 2026-08-17 by reading the code rather than the screen. The per-service
+configuration itself is correct and genuinely wired — all ten call sites pass their own
+service key — but three things do not behave the way the screen implies.
+
+1. **Fallback silently does nothing unless provider, model *and* key are all set.**
+   Setting only a fallback model — a natural reading of "same provider, cheaper model" —
+   produces no fallback and no error. The screen should say so.
+2. **The default row is a configuration fallback, not a runtime one.** It applies when a
+   service has no row of its own; it is **not** tried when a service's own primary and
+   fallback both fail mid-call. A third runtime tier is planned, and must skip the
+   default when it is the same provider and model already attempted — otherwise a broken
+   call pays twice for the identical failure and the user waits longer for the same
+   error.
+3. **Two live, money-spending calls have no named card.** `job_description` and
+   `job_match_explanation` appear only under "other overrides". You cannot tune what you
+   cannot see.
+
+Also: **the service list lives in three places** — this screen, the provider config and
+the control-layer registry. Collapsing it to one removes the silent-typo class of bug
+that the bundle screen already warns about on its own face.
+
+### B7c · The prompt admin screen edits nothing
+
+`LIVE_PROMPT_TEMPLATE_KEYS` is an empty array, so **no AI call reads a stored prompt
+template.** Every field on `/admin/prompts` currently writes to a table nothing consumes.
+It is labelled rather than left looking functional, which is the right handling — but it
+is being replaced by a versioned, draft-then-publish system. See
+[`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b.
 
 ### B8 · Two small things on the optimize route, seen and accepted
 

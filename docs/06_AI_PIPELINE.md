@@ -84,8 +84,18 @@ There is no seeded default. An unconfigured state raises a clear provider error
 rather than silently guessing a model.
 
 **Fallback:** a second independent provider, model and key, tried **only** when the
-primary genuinely fails. Separately, the configured fallback *model* uses
-OpenRouter's own routing.
+primary genuinely fails.
+
+⚠ **Fallback activates only when provider, model *and* key are all set.** Setting just a
+fallback model — a natural reading of "same provider, cheaper model" — silently does
+nothing, with no error.
+
+**The `default` row is a *configuration* fallback, not a runtime one.** It is used when a
+service has no row of its own, decided before any call is made. If a service's own
+primary and fallback both fail mid-call, the request throws — the default provider is
+**not** tried. A third runtime tier is planned, and it must skip the default when that is
+the same provider and model already attempted, so a broken call does not pay twice for
+the identical failure.
 
 **Every call is logged** to `ai_usage_log` with the model string that was actually
 used — never a hard-coded constant.
@@ -117,15 +127,80 @@ model can do extraction while a stronger one writes resumes.
 | `optimization` | Rewrites a resume for one target job | Live |
 | `ats_scan` | The Job Match breakdown's semantic layer | Live |
 | `cover_letter` | Generates a cover letter for a paid package | Live |
-| `qa_generation` | Interview Q&A | **Planned — no route calls it** |
-| `mock_interview` | Mock interview review | **Planned — no route calls it** |
+| `job_description` | Structures a pasted job advert | Live |
+| `job_match_explanation` | The semantic half of Job Match | Live |
+| `qa_generation` | Interview Q&A | **To be built — no route calls it** |
+| `mock_interview` | Mock interview review | **To be built — no route calls it** |
 
-Plus a `default` row used when a feature has no specific configuration, and an
-overrides mechanism for internal sub-steps such as job-description structuring.
+Plus a `default` row used when a service has no configuration of its own.
 
-The two planned rows exist so the features can be switched on without a migration.
-They are **inert**, and the admin screen labels them as such rather than implying
-they work.
+**Per-service configuration is genuinely wired**, not decorative — every one of the ten
+call sites passes its own service key, verified by reading each. A model changed in the
+admin panel really does change that service and nothing else.
+
+⚠ **`job_description` and `job_match_explanation` are live, money-spending calls that
+appear on the admin screen only under "other overrides"**, not as named cards. They
+should be first-class; recorded in [`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md).
+
+The two unbuilt rows exist so those services can be switched on without a migration.
+They are **inert**, and the admin screen labels them as such rather than implying they
+work.
+
+---
+
+## 2b. Prompt control — versioned, draft then publish
+
+**Founder-owned by design.** The founder changes and optimises prompts from the admin
+panel without a developer, because prompt quality *is* product quality here.
+
+**State today: roughly 5% built, and inert.** Storage is one row per key, edited in
+place — no version, no history, no rollback — and `LIVE_PROMPT_TEMPLATE_KEYS` is an
+empty array, so **no AI call reads a stored prompt template at all.** The screen is
+honestly labelled but it currently edits nothing.
+
+### The floor — three parts, not equally editable
+
+| Part | Editable |
+|---|---|
+| Persona, tone, task instructions, emphasis, examples | **Yes.** This is where quality lives |
+| The grounding block | **Never.** Injected by the control layer from one constant |
+| The output schema | **Never.** The parser and the validator depend on it |
+
+A bad edit to the grounding block silently turns off the product's one promise, and
+nothing downstream would catch it — the model simply starts inventing. A bad edit to the
+schema breaks every call for every user. Everything else is free to change.
+
+### Versioning
+
+Never edit in place. A new version each time; **exactly one active per prompt**;
+publishing is a flip and rollback is a flip back; nothing is deleted.
+
+**Every generation records the prompt version that produced it.** That is the point of
+versioning here — without it, when output quality moves you cannot tell whether it was
+the prompt, the model or the input, and you will guess wrong at least once.
+
+**Versioning lands before the services are tuned.** Tuning first means tuning with no
+record of what changed.
+
+### Testing
+
+Draft against active — same input, same model, side by side.
+
+- **Fixture profiles only, never real users' data.** Admin access to real profiles is
+  audited for a reason, and prompt iteration would generate a great deal of it.
+- **The grounding validator runs on test output**, so a draft can be seen failing
+  grounding *before* it is published. That is what makes handing over the controls safe
+  rather than risky.
+
+### Two guards that hold while prompts are editable
+
+1. **User data is data, never instructions.** Profile facts are mapped into every
+   prompt — and a user can type "ignore previous instructions" into their professional
+   summary. Facts belong in a delimited block the model is told is data, never merged
+   into the instruction text.
+2. **Deterministic logic stays in code.** There is a pull to move scoring rules into
+   editable prompt text because it is easier to tweak there. That is how the readiness
+   score once returned 78 and then 45 for the same resume.
 
 ---
 
