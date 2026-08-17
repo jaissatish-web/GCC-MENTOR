@@ -95,6 +95,12 @@ export const MODERN_PROFESSIONAL: TemplateTheme = {
   layout: 'single',
   uppercaseName: false,
   allowPhoto: true,
+  // TASK-149: deliberately the RESTRAINED modern option — icons and skill pills
+  // but no colour block. Someone who wants the contemporary look without a
+  // masthead has to have somewhere to land, or the four photo themes all become
+  // loud in the same way.
+  skillStyle: 'chips',
+  contactIcons: true,
 }
 
 export const SENIOR_COMPACT: TemplateTheme = {
@@ -150,8 +156,14 @@ export const CORPORATE_BAND: TemplateTheme = {
   accentSoft: '#EEF3F8',
   headingStyle: 'band',
   layout: 'single',
-  uppercaseName: false,
+  uppercaseName: true,
   allowPhoto: true,
+  // TASK-149: a full-bleed navy masthead with the name reversed out of it. The
+  // 'band' heading style alone was too quiet to tell this apart from the other
+  // single-column themes at a glance.
+  headerBand: true,
+  photoShape: 'rect',
+  contactIcons: true,
 }
 
 export const TECHNICAL_SIDEBAR: TemplateTheme = {
@@ -167,9 +179,16 @@ export const TECHNICAL_SIDEBAR: TemplateTheme = {
   accent: '#15607A',
   accentSoft: '#EDF4F7',
   headingStyle: 'plain',
-  layout: 'sidebar',
+  // TASK-149: the full-bleed rail. This was a pale-tinted box beside the text,
+  // which at thumbnail size was indistinguishable from the single-column
+  // themes. Now the rail runs the whole page height in solid teal with the
+  // photo and contact details reversed out of it.
+  layout: 'sidebar-filled',
   uppercaseName: false,
   allowPhoto: true,
+  photoShape: 'circle',
+  skillStyle: 'chips',
+  contactIcons: true,
   labels: { skills: 'Tools & Skills' },
 }
 
@@ -189,5 +208,12 @@ export const GRADUATE_ENTRY: TemplateTheme = {
   layout: 'single',
   uppercaseName: false,
   allowPhoto: true,
+  // TASK-149: green masthead and a round photo. A first CV is the one most
+  // likely to be read by a human rather than a parser, so this is the theme
+  // that can afford to look the friendliest.
+  headerBand: true,
+  photoShape: 'circle',
+  skillStyle: 'chips',
+  contactIcons: true,
   labels: { summary: 'Career Objective' },
 }

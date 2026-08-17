@@ -93,6 +93,37 @@ export interface ResumeAdditionalItem {
   display: string
 }
 
+/**
+ * One contact fact, kept separate so a template can put an icon beside it
+ * (TASK-149).
+ *
+ * The three `identity*` lines below are pre-JOINED strings — "+966 55 000 0000 ·
+ * name@example.com" — which is exactly right for a template that prints one
+ * contact line, and useless for one that wants a phone glyph next to the phone
+ * and an envelope next to the email. Splitting a joined line back apart at
+ * render time would mean parsing our own output, so the parts are carried
+ * alongside it instead.
+ *
+ * ADDITIVE ONLY. Every existing field keeps its exact value, verified by
+ * re-running the 32,768-permutation golden baseline after this change. Old
+ * `document_snapshot` rows (migration 034) predate this field and will not have
+ * it, so any template reading it must fall back to the joined lines.
+ */
+export interface ResumeContactItem {
+  kind:
+    | 'nationality'
+    | 'location'
+    | 'visa'
+    | 'phone'
+    | 'whatsapp'
+    | 'email'
+    | 'linkedin'
+    | 'dob'
+    | 'passport'
+    | 'notice'
+  text: string
+}
+
 export interface ResumeDocument {
   header: {
     showPhoto: boolean
@@ -104,6 +135,8 @@ export interface ResumeDocument {
     identityContact: string
     identityGulf: string
     hasHeaderText: boolean
+    /** Same facts as the three identity lines, unjoined. Absent on pre-TASK-149 snapshots. */
+    contactItems?: ResumeContactItem[]
   }
   summary: string
   experience: ResumeExperienceItem[]
@@ -177,6 +210,35 @@ export function buildResumeDocument({
       `Passport valid to ${formatMonthYear(profile.passport_validity_date)}`,
     visible(fv, 'notice_period') && profile.notice_period && `Notice ${profile.notice_period}`,
   ])
+
+  // The same facts, unjoined, for templates that want an icon per item
+  // (TASK-149). Built from the identical visibility-gated values above — this
+  // reads no new field and makes no new decision, so it cannot disagree with the
+  // joined lines.
+  const contactItems: ResumeContactItem[] = [
+    { kind: 'nationality' as const, text: (visible(fv, 'nationality') && profile.nationality) || '' },
+    { kind: 'location' as const, text: (visible(fv, 'current_location') && profile.current_location) || '' },
+    { kind: 'visa' as const, text: visaItem ?? '' },
+    { kind: 'phone' as const, text: (visible(fv, 'phone') && profile.phone) || '' },
+    {
+      kind: 'whatsapp' as const,
+      text: visible(fv, 'whatsapp') && profile.whatsapp ? `WhatsApp ${profile.whatsapp}` : '',
+    },
+    { kind: 'email' as const, text: (visible(fv, 'email') && profile.email) || '' },
+    { kind: 'linkedin' as const, text: (visible(fv, 'linkedin_url') && profile.linkedin_url) || '' },
+    {
+      kind: 'dob' as const,
+      text: visible(fv, 'date_of_birth') && profile.date_of_birth ? `DOB ${profile.date_of_birth}` : '',
+    },
+    {
+      kind: 'passport' as const,
+      text: visible(fv, 'passport_type') && profile.passport_type ? `Passport ${profile.passport_type}` : '',
+    },
+    {
+      kind: 'notice' as const,
+      text: visible(fv, 'notice_period') && profile.notice_period ? `Notice ${profile.notice_period}` : '',
+    },
+  ].filter((i) => i.text.trim() !== '')
 
   const hasAnyIdentity = Boolean(identityPrimary || identityContact || identityGulf)
   const hasHeaderText = Boolean(displayName || profile.target_job_title || hasAnyIdentity)
@@ -277,6 +339,7 @@ export function buildResumeDocument({
       identityContact,
       identityGulf,
       hasHeaderText,
+      contactItems,
     },
     summary,
     experience,

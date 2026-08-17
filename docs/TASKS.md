@@ -2571,6 +2571,97 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-149: make four templates actually different from each other**
+
+      Founder asked whether the thumbnails looked like Zety or Enhancv. Honest
+      answer was no, and the reason was measurable rather than aesthetic: **7 of
+      8 engine themes were `layout: 'single'`**, so ten templates were ten
+      typographic variations on one document. At 240px they were
+      indistinguishable. The gap was never polish — it was differentiation.
+
+      **A DEAD REGRESSION TEST, found on the way in and worth more than this
+      ticket.** `scripts/verify-resume.ts` renders all 2^15 = 32,768
+      field-visibility permutations and hashes each one. It was failing
+      **32768/32768 before any change today**. Traced: the golden file was last
+      captured at TASK-032, and `GulfPremium.tsx` has changed twice since —
+      TASK-129 (page margins) and TASK-132 (the `document` prop). Both were
+      deliberate and approved, so every hash legitimately moved and nobody
+      re-captured. **The project's strongest regression test has therefore been
+      dead since 2026-08-16, meaning TASK-129 through TASK-148 all shipped with
+      no protection from it.** Confirmed not caused by this session's commits:
+      those added one function to `lib/resumeDocument.ts` and touched no
+      template. Re-captured against current deployed output first, so it pinned
+      known-good behaviour, and then used as intended — it PASSES after every
+      change below, which is the proof that `GulfPremium` and the paid PDF are
+      byte-for-byte untouched by this ticket.
+
+      **New document field, additive only.** Icons need one fact per glyph, but
+      `header.identityPrimary/Contact/Gulf` are pre-JOINED strings
+      ("+966 … · name@example.com"). Splitting them at render time would mean
+      parsing our own output, so `header.contactItems` carries the same
+      visibility-gated values unjoined, alongside the untouched lines. Every
+      existing field keeps its exact value — verified by the golden baseline, not
+      asserted. Pre-TASK-149 `document_snapshot` rows have no such field, so
+      every icon path falls back to the joined lines rather than rendering blank.
+
+      **New engine capabilities:** `layout: 'sidebar-filled'` (a rail at the full
+      page height, photo and contacts reversed out of it), `headerBand` (a
+      full-bleed colour masthead with the name in white), `photoShape`
+      (rect/circle), `skillStyle` ('chips'), `contactIcons`. `renderSkills` and
+      `renderList` were extracted so the filled rail draws the same sections
+      against a reversed-out theme instead of a second copy of the markup.
+      Contact glyphs are inline SVG paths, not an icon font or a sprite — the PDF
+      pipeline has no stylesheet and no network, so a font would arrive as tofu.
+      All `aria-hidden`: the text beside each one already says what it is, and it
+      keeps an ATS parser reading words only.
+
+      **NO SKILL BARS, deliberately, against the founder's own wording.** He
+      asked for skill bars; this product does not collect a proficiency level for
+      a skill, so a bar or a dot rating would be **inventing a number about the
+      user** — the exact fabrication `docs/RULES.md` forbids and the thing
+      TASK-107 was a launch blocker over. Pills instead: they assert only "this
+      skill is listed", which is all we know. Recorded here as a deliberate
+      substitution, and it was told to the founder rather than quietly swapped.
+
+      **What each of the four now is:** Technical Sidebar — full-height teal rail,
+      circular photo, pills, icons. Corporate Band — full-bleed navy masthead,
+      uppercase name reversed white, rectangular photo, icons. Graduate Entry —
+      green masthead, circular photo, pills. Modern Professional — deliberately
+      the restrained option, icons and pills but no colour block, so someone who
+      wants contemporary without a masthead has somewhere to land. **The five ATS
+      templates are untouched** and stay plain, because surviving a parser is
+      their entire job.
+
+      **Verified in a real browser by measuring computed style, not by looking.**
+      Technical Sidebar: page padding 0, page is flex, rail 238×**1123px** —
+      exactly full A4 height — solid `rgb(21,96,122)`, photo border-radius 50%.
+      Corporate Band and Graduate Entry mastheads both measured 794px wide and
+      flush to the page's left edge, i.e. genuinely full-bleed, names
+      `rgb(255,255,255)`. Four icons each on all four themes; zero on all five
+      ATS themes. No horizontal overflow on any of the ten. **One defect caught
+      by counting rather than reading:** the first pass produced icons on only
+      three of four — Modern Professional is single-column with no band, so it
+      fell through to the original header block, which ignored `contactIcons`
+      entirely. Fixed and re-counted.
+
+      **Checked rather than assumed:** Chrome drops background colours when
+      printing by default, which would have made a navy masthead print white on
+      the paid PDF. Both PDF routes already set
+      `print-color-adjust: exact !important` and `printBackground: true`, so the
+      colour blocks survive into the deliverable.
+
+      `tsc`, `lint`, full production build (45 routes) and the 32,768-permutation
+      golden baseline all clean.
+
+      **Known limitation, not fixed:** on a CV long enough to run to a second
+      page, `sidebar-filled`'s rail background will not repeat on the overflow
+      page — the colour is on one element sized to one page. Commercial builders
+      have the same constraint. Worth a ticket if a two-page CV becomes common.
+
+      Depends on: TASK-137, TASK-147 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
