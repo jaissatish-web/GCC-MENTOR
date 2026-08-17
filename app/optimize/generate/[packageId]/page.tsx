@@ -5,19 +5,22 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 
 /**
- * Generation screen — runs AFTER payment (TASK-131, pay before generate).
+ * Generation screen. POSTs { packageId } to /api/optimize, which reads the
+ * target fields off the row rather than the request.
  *
- * The optimization used to run inside /optimize/setup's submit, before any
- * money changed hands: every visitor who never bought still spent real model
- * tokens, and the product then had to sell a blurred preview of work it had
- * already paid for. Generation now lives here, reached only once the package
- * is paid, and POSTs { packageId } to /api/optimize — which refuses with 402
- * unless the row it loads is genuinely paid. The paywall is the row, not this
- * screen.
+ * Generation lives on its own screen rather than inside /optimize/setup's submit
+ * because it used to run there, before payment: every visitor who never bought
+ * spent real model tokens, and the product then had to sell a blurred preview of
+ * work it had already paid for. The screen is worth keeping for that reason
+ * alone — a long model call deserves its own progress surface — and it is where
+ * the payment step will sit in front of again when the locks return.
+ *
+ * NO PAYMENT STEP while the locks are off (founder decision 2026-08-17).
  *
  * Idempotent by construction: if the package already has content the server
  * returns alreadyGenerated and nothing is spent, so a refresh mid-generation
- * cannot produce a second charge or a second resume.
+ * cannot produce a second resume. That guard now carries the whole weight of
+ * preventing a duplicate model call, since no payment check sits in front of it.
  */
 
 const STEPS = [
@@ -50,12 +53,9 @@ export default function GeneratePage({ params }: { params: { packageId: string }
       window.clearInterval(timer)
 
       if (!res.ok) {
-        // 402 means the row is not paid — send them to pay rather than showing
-        // a generic failure for something they can actually resolve.
-        if (res.status === 402) {
-          router.replace(`/optimize/pay/${encodeURIComponent(packageId)}`)
-          return
-        }
+        // The 402 branch is gone with the paywall. A 429 is the one remaining
+        // refusal the user can act on, and the server's own message names the
+        // reset time, so it is shown rather than replaced.
         setError((body?.error as string) ?? 'Could not build your resume. Please try again.')
         return
       }

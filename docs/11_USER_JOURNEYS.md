@@ -81,7 +81,7 @@ broke exactly that. Treat it as load-bearing.
 
 ---
 
-## 4. The paid flow — pay before generate
+## 4. The optimize flow
 
 ```
 /optimize/target             target job title, country, company, industry,
@@ -89,24 +89,27 @@ broke exactly that. Treat it as load-bearing.
    ↓
 /optimize/setup              which blocks to optimize · framing intensity
                              (Easy / Moderate / High)
-   ↓                         creates the package: unpaid, empty
-/optimize/pay/[id]           promo code — the real path today.
-                             Razorpay shown honestly disabled
-   ↓
-/optimize/generate/[id]      the model runs here, only now
+   ↓                         creates the package: empty
+/optimize/generate/[id]      the model runs here
    ↓
 /optimize/preview/[id]       before/after diff, per block, word-level
    ↓
 /package/[id]                the finished resume
 ```
 
-**Payment sits before generation, and that was a business change.** Optimization used
-to run first, so every visitor who never bought still spent real tokens, and the
-product then sold a blurred preview of work it had already paid to produce. Full
-reasoning in [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §6.
+**The payment step is gone from this flow** — every paid lock was removed on
+2026-08-17 while the pipeline is built. `/optimize/pay/[id]` still exists and now
+**forwards** any package onward instead of asking for money: the flow no longer
+routes through it, but old links and the back button do, and landing on a payment
+form for an open service would be a dead end.
 
-**"Paid but not yet generated" is a normal state.** The payment screen sends such a
-package straight to the generate step rather than dropping the user on an empty resume.
+**Generation still has its own screen**, which matters independently of payment: a long
+model call deserves a progress surface, and the screen is idempotent, so a refresh
+mid-generation cannot produce a second resume. That guard now carries the whole weight
+of preventing a duplicate model call.
+
+**Setup creates the row; generate fills it.** Phase B reads the target fields off the
+row rather than the request, so the job title cannot be swapped between the two steps.
 
 **The before/after diff is the product's first "wow" moment** — per block, word-level
 highlighting. The diff view is **not** paywalled; the deliverable is.

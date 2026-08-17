@@ -10,6 +10,32 @@ outcome instead.
 
 ---
 
+## 0. Standing: the paid locks are off
+
+**Every paid lock was removed on 2026-08-17 by founder decision**, so the full
+pipeline can be built before the locks go back on. This is not a defect — it is a
+deliberate, temporary state — but it has consequences that must not be forgotten.
+
+**A0 · Re-apply the locks when the pipeline is done.** The specification to restore
+is preserved in [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md), which reads as
+a restore guide. Three parts, none optional:
+
+1. **The gate itself**, deleted along with `lib/packageAccess.ts` — plus the 18
+   assertions proving it fails closed on every malformed input. A gate not shown to
+   fail closed has not been shown to work.
+2. **The rows created during this phase.** Generation now runs without payment, so
+   rows exist with AI content and `is_paid = false` — the exact shape the old gate
+   refused. **They must be purged or marked**, not assumed away.
+3. **The credit consume on the cover letter**, restored *after* a validated success,
+   never before, with a failed consume discarding the generation.
+
+**A0b · Review the generation rate limit.** Payment was one of two limits on model
+spend; the daily per-user limit is now the only one. Its value was set when a paywall
+sat in front of it. Not urgent — it is a real limit and returns 429 — but it should be
+a deliberate number rather than an inherited one.
+
+---
+
 ## A. Decisions only the founder can make
 
 These block work. Nothing else in this file matters as much as the first one.

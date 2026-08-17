@@ -11,18 +11,21 @@ import type { CoverLetter, Package } from '@/types/package'
 /**
  * Cover Letter — new route (TASK-093, PAGE_SPECS §C / TASK-066 frontend).
  *
- * Generation UI over TASK-065's fully-built backend. The backend generates a
- * letter FROM a paid package (POST /api/packages/[id]/cover-letter, empty
- * body — it reads the target + job description from the package itself), so
- * this standalone page lets the user pick a paid package, shows every letter
- * already on it, and offers a "Generate cover letter" button gated on an
- * available `cover_letter` service credit (GET /api/service-credits).
+ * Generation UI. The backend writes a letter FROM a resume package (POST
+ * /api/packages/[id]/cover-letter, empty body — it reads the target role and job
+ * description off the package itself), so this page picks a package, shows every
+ * letter already on it, and offers a Generate button.
  *
- * Gating is 100% server-side (package.is_paid + credit), and a credit is only
- * consumed AFTER a validated success — this page never guesses or bypasses
- * that; it just surfaces the server's authoritative count and verbatim error
- * strings. A "Redeem a code" entry point (POST /api/redeem-package-promo,
- * §C "reachable from here") lets a user top up credits without leaving.
+ * NO GATING while the locks are off (founder decision 2026-08-17). This screen
+ * used to require the package to be paid and a `cover_letter` credit to be
+ * available, and to show the credit balance. Both requirements are gone, and the
+ * balance is no longer displayed — a counter implies something is spending it.
+ *
+ * The redeem-a-code entry point below still works and still adds credits; it is
+ * left in place because topping up is not blocked by anything, and the codes
+ * become meaningful again with the locks. Server-side is still the only
+ * authority: this page surfaces the server's verbatim error strings and never
+ * decides anything itself.
  *
  * NOTE (flagged for CTO): §C lists "form field set (persona/tone selection)",
  * but the backend's POST body is empty — `buildCoverLetterPrompt` derives
@@ -72,20 +75,24 @@ function CoverLetterScreen() {
       .then(([data]) => {
         const list = (data?.packages as Package[] | undefined) ?? []
         setPackages(list)
-        const firstPaid = list.find((p) => p.is_paid)
-        if (firstPaid) setSelectedId(firstPaid.id)
-        else setSelectedId(list[0]?.id ?? null)
+        setSelectedId(list[0]?.id ?? null)
       })
       .catch(() => setLoadError('Could not load your packages. Please try again.'))
   }, [refreshCredits])
 
-  const paidPackages = useMemo(() => (packages ?? []).filter((p) => p.is_paid), [packages])
+  // EVERY resume is eligible while the locks are off (founder decision
+  // 2026-08-17). This used to filter to paid packages only; leaving that filter
+  // in place would now hide every resume the user has, because nothing is marked
+  // paid any more — the screen would look broken rather than open.
+  const eligiblePackages = useMemo(() => packages ?? [], [packages])
   const selected = useMemo(() => (packages ?? []).find((p) => p.id === selectedId) ?? null, [packages, selectedId])
   const letters = useMemo(
     () => (selected?.cover_letters ?? []).slice().sort((a, b) => b.generated_at.localeCompare(a.generated_at)),
     [selected],
   )
-  const canGenerate = selected?.is_paid === true && (available ?? 0) > 0 && !generating
+  // No credit requirement and no paid requirement while the locks are off. The
+  // server is still the authority; this only stops a double-submit.
+  const canGenerate = selected !== null && !generating
 
   async function generate() {
     if (!selected) return
@@ -183,7 +190,9 @@ function CoverLetterScreen() {
     )
   }
 
-  if (packages === null || available === null) {
+  // Credits no longer gate anything, so the page must not wait on their count
+  // before it can render.
+  if (packages === null) {
     return (
       <main className="mx-auto w-full max-w-[900px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
         <p className="font-mono text-sm text-ink-400">Loading…</p>
@@ -194,21 +203,19 @@ function CoverLetterScreen() {
   return (
     <PageShell
       title="Cover Letter"
-      subtitle="Generate a tailored cover letter from any paid resume in your Library."
+      subtitle="Generate a tailored cover letter from any resume in your Library."
     >
-      {/* Credits status */}
-      <div className="rounded-radius-lg border border-line-light bg-surface-2-light/40 px-4 py-3 text-[12px] text-ink-400">
-        Cover letter credits available:{' '}
-        <span className="font-mono font-bold text-gold-text">{available ?? 0}</span>
-      </div>
+      {/* The credit counter is deliberately not shown while the locks are off: a
+          credit balance implies it is being spent, and nothing is spending it. */}
 
       {/* Centered generation form (720px, §C) */}
       <Card tone="light" className="mt-5 p-6">
-        {paidPackages.length === 0 ? (
+        {eligiblePackages.length === 0 ? (
           <div className="flex flex-col items-center gap-3 p-4 text-center">
-            <p className="text-[13px] font-semibold text-ink-900/85">No unlocked resumes yet</p>
+            <p className="text-[13px] font-semibold text-ink-900/85">No resumes yet</p>
             <p className="max-w-sm text-[12.5px] text-ink-400">
-              A cover letter is generated from a paid resume package. Optimize a resume first to unlock one.
+              A cover letter is written from one of your resumes — it takes the target role and job
+              description from it. Create a resume first.
             </p>
             <a href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[13.5px]')}>
               Optimize a resume
@@ -223,22 +230,13 @@ function CoverLetterScreen() {
                 onChange={(e) => setSelectedId(e.target.value)}
                 className="min-h-11 w-full cursor-pointer rounded-radius-md border border-line-light/70 bg-surface-2-light/50 px-3 text-[14px] text-ink-900 outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25"
               >
-                {paidPackages.map((p) => (
+                {eligiblePackages.map((p) => (
                   <option key={p.id} value={p.id} className="bg-surface-light text-ink-900">
-                    {letterTarget(p)} · unlocked
+                    {letterTarget(p)}
                   </option>
                 ))}
-                {selected && !selected.is_paid ? (
-                  <option value={selected.id} className="bg-surface-light text-ink-900">
-                    {letterTarget(selected)} · locked
-                  </option>
-                ) : null}
               </select>
             </label>
-
-            {selected && !selected.is_paid ? (
-              <p className="text-[12px] text-terra">Unlock this resume before generating a cover letter for it.</p>
-            ) : null}
 
             {genError ? (
               <p role="alert" className="rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra">
@@ -246,19 +244,13 @@ function CoverLetterScreen() {
               </p>
             ) : null}
 
-            {selected?.is_paid ? (
-              (available ?? 0) > 0 ? (
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-[12px] text-ink-400">Target: {letterTarget(selected)}</p>
-                  <Button type="button" variant="primary" onClick={generate} disabled={!canGenerate}>
-                    {generating ? 'Generating…' : 'Generate cover letter'}
-                  </Button>
-                </div>
-              ) : (
-                <p className="text-[12.5px] text-ink-400">
-                  No cover letter credits left. Redeem a code below to generate more.
-                </p>
-              )
+            {selected ? (
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[12px] text-ink-400">Target: {letterTarget(selected)}</p>
+                <Button type="button" variant="primary" onClick={generate} disabled={!canGenerate}>
+                  {generating ? 'Generating…' : 'Generate cover letter'}
+                </Button>
+              </div>
             ) : null}
           </div>
         )}

@@ -6,7 +6,8 @@ import { createClient } from '@/lib/supabase/server'
 import { type GulfPremiumProps } from '@/components/templates/GulfPremium'
 import { getTemplate } from '@/lib/templates'
 import { readStyleOverrides } from '@/lib/resumeStyle'
-import { canServeDocument } from '@/lib/packageAccess'
+// No access helper is imported while the locks are off — the route does not gate.
+// See lib/resumeKind.ts for the rule to restore.
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type {
   CareerProfile,
@@ -103,19 +104,17 @@ export async function GET(
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
 
-  // ---- PAYMENT GATE (TASK-162) ----------------------------------------------
-  // Gates the AI-written text, not the container. A row with no
-  // optimized_content holds nothing but the user's own typing, so downloading it
-  // is the free tier; a row WITH content is the paid deliverable and needs
-  // is_paid. Decided in one place — lib/packageAccess.ts — so this route and the
-  // resume screen cannot drift, and always read server-side from the row we just
-  // loaded, never from anything the client sent.
-  if (!canServeDocument(pkgRow as { is_paid?: boolean | null; optimized_content?: unknown })) {
-    return NextResponse.json(
-      { error: 'Payment required to download this resume' },
-      { status: 403 }
-    )
-  }
+  // NO PAYMENT GATE. Founder decision 2026-08-17: every service is open while
+  // the AI pipeline is built, and the locks are re-applied afterwards. Auth and
+  // ownership above are unchanged and still do the real protecting — the row is
+  // loaded scoped to the caller, so another user's id matches nothing.
+  //
+  // WHEN THE LOCK RETURNS it belongs exactly here, and it must be the same
+  // decision the resume screen makes. The rule it implemented, worth keeping:
+  // gate the AI-WRITTEN TEXT, not the container. A row with no
+  // optimized_content holds nothing but the user's own typing, so serving it
+  // gives away nothing; a row WITH content is the paid deliverable. Read it
+  // server-side from the loaded row, never from anything the client sent.
 
   const pkg = pkgRow as {
     profile_id: string

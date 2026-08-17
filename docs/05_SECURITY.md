@@ -36,7 +36,7 @@ creates a hole.
 |---|---|---|
 | **Who are you?** | Supabase session, checked first in every route | Anything about entitlement |
 | **Is this row yours?** | The query itself — scoped `user_id = caller`, so another user's id matches no row and 404s | Whether the content is paid |
-| **May this content be served?** | `lib/packageAccess.ts` | Ownership. It never sees a user id and cannot be mistaken for an ownership check |
+| **May this content be served?** | **Nobody, currently.** Every service is open — see §8 | — |
 
 **Ownership is enforced in the query, not in a branch afterwards.** A row loaded
 by id and *then* checked is a row that was already read.
@@ -175,18 +175,34 @@ hiccup is worse than the narrow gap.
 
 ---
 
-## 8. Payment integrity
+## 8. Payment integrity — currently not enforced, on purpose
 
-**`is_paid` is only ever set server-side**, by promo-code redemption or an admin
-credit grant, both atomic. There is no client-side path that can set it and there
-must never be one.
+**Every paid lock was removed on 2026-08-17 by founder decision**, so the whole
+pipeline can be built and tuned without a paywall in the way. The locks are
+re-applied over the finished machine. Full reasoning and the accepted tradeoffs
+are in [`15_DECISION_LOG.md`](15_DECISION_LOG.md).
 
-**The invariant the whole access gate rests on:** content cannot exist without
-payment. Generation refuses unless the row is genuinely paid; nothing else writes
-generated content except a text edit, which only edits text that already exists;
-and there is no refund path that flips `is_paid` back.
+**What still protects things, unchanged:** authentication on every route,
+ownership scoping in every query, row-level security, the service-role boundary,
+and the daily rate limit on generation. **Nothing about data protection was
+weakened** — only the "have you paid" question was removed.
 
-**If a refund flow is ever added, that is the invariant it must preserve.**
+**What to restore, and the two rules that made it correct:**
+
+1. **`is_paid` is only ever set server-side**, by promo-code redemption or an
+   admin credit grant, both atomic. No client-side path may set it.
+2. **Gate the AI-written text, not the container** — a row with no generated
+   content holds only the user's own typing, so serving it gives nothing away.
+
+**The invariant the old gate rested on:** content cannot exist without payment.
+Generation refused unless the row was paid; nothing else wrote content except a
+text edit, which only edits text that already exists; and no refund path flipped
+`is_paid` back.
+
+⚠ **That invariant is being broken deliberately right now.** Rows are being
+created with generated content and `is_paid = false`. **Whoever re-applies the
+lock must deal with those rows** — purge or mark them — rather than assume they
+cannot exist. If a refund flow is ever added, it must preserve the invariant too.
 
 When a real payment provider is integrated: `is_paid` set only by verified
 server-side confirmation, never a client callback; webhooks idempotent; card data

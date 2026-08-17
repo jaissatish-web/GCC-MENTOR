@@ -6,7 +6,8 @@ import type { CoverLetterTarget } from '@/lib/ai/buildCoverLetterPrompt'
 import { validateCoverLetterGrounding, type ParsedCoverLetter } from '@/lib/ai/validateCoverLetterGrounding'
 import type { CoverLetterValidationFailure } from '@/lib/ai/validateCoverLetterGrounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
-import { consumeServiceCredit, countAvailableServiceCredits, SERVICE_KEY_COVER_LETTER } from '@/lib/admin/servicePackages'
+// Credit helpers are deliberately not imported while the locks are off — the
+// route neither checks nor consumes a credit. They come back with the lock.
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -112,19 +113,13 @@ export async function POST(
   if (!pkgRow) {
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
-  if (!pkgRow.is_paid) {
-    return NextResponse.json({ error: 'Unlock this resume before generating a cover letter for it.' }, { status: 403 })
-  }
-
-  // Fast pre-check only — see the file header. The real gate is the atomic
-  // consume after a validated success, below.
-  const available = await countAvailableServiceCredits(user.id, SERVICE_KEY_COVER_LETTER)
-  if (available <= 0) {
-    return NextResponse.json(
-      { error: 'You have no cover letter credits available. Redeem a code to unlock more.' },
-      { status: 403 },
-    )
-  }
+  // NO PAYMENT GATE AND NO CREDIT REQUIREMENT while the locks are off (founder
+  // decision 2026-08-17). Auth and ownership above are unchanged.
+  //
+  // WHEN THE LOCKS RETURN, both halves come back: the is_paid check here, and
+  // the atomic credit consume AFTER a validated success further down — never
+  // before it, so a model failure cannot cost the user a credit they keep
+  // nothing for. That ordering is the part worth preserving.
 
   // Profile loaded scoped to BOTH profile_id and the caller's own user_id —
   // same double-scoping fix TASK-030's review added to the PDF route.
@@ -217,19 +212,13 @@ export async function POST(
 
   const parsedLetter = attempt.parsed as unknown as ParsedCoverLetter
 
-  // Consume the credit only now — after a validated success, never before.
-  const consumed = await consumeServiceCredit(user.id, SERVICE_KEY_COVER_LETTER)
-  if (!consumed) {
-    // Extremely rare race with the pre-check above (e.g. a concurrent
-    // request on another tab spent the last credit in between). The
-    // generation is thrown away rather than persisted for free — nothing
-    // was charged, so asking the user to retry is fair, not a bug they hit.
-    console.error('cover-letter: generated but no credit available at consume time — discarded. user=' + user.id + ' pkg=' + packageId)
-    return NextResponse.json(
-      { error: 'You have no cover letter credits available. Redeem a code to unlock more.' },
-      { status: 403 },
-    )
-  }
+  // NO CREDIT IS CONSUMED while the locks are off. Spending one when the letter
+  // is free anyway would silently burn something the founder issued
+  // deliberately, and the ledger would record it as having paid for this run.
+  //
+  // When the lock returns, the consume goes back HERE — after a validated
+  // success, never before it — and a failed consume must discard the generation
+  // rather than persist it, since nothing was charged for it.
 
   const letter: CoverLetter = {
     id: crypto.randomUUID(),

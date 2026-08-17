@@ -1,5 +1,32 @@
 # PLANS AND PAYMENT — what is free, what is paid, and how that is enforced
 
+> ## ⚠ NOTHING IS ENFORCED RIGHT NOW
+>
+> **Every paid lock was removed on 2026-08-17 by founder decision.** All services
+> are open to any signed-in user: optimization, cover letters, downloads,
+> everything. No payment check, no credit requirement, no free-tier quota in
+> force.
+>
+> **Why:** build the whole pipeline first — every service, the prompting, the LLM
+> control layer — then apply the locks over a finished machine. Reasoning and
+> accepted tradeoffs: [`15_DECISION_LOG.md`](15_DECISION_LOG.md).
+>
+> **This document therefore describes two things at once:** how the commercial
+> model is meant to work, and — in each section — what has to be put back. Read
+> the rules below as the specification to restore, not as a description of what
+> the code does today.
+>
+> **Three things to know before restoring anything:**
+> 1. `lib/packageAccess.ts` is **deleted**. Its labelling half survives as
+>    `lib/resumeKind.ts`, which grants nothing and must not be turned into a gate
+>    by accident.
+> 2. **Rows now exist with AI content and `is_paid = false`** — the exact shape the
+>    old gate refused. They must be purged or marked; they cannot be assumed away.
+> 3. The 18 fail-closed assertions went with the gate and have to be rewritten.
+>
+> **What is still enforced:** authentication, ownership, row-level security, and
+> the daily rate limit on generation.
+
 ---
 
 ## 1. The commercial model in one line
@@ -12,10 +39,13 @@ it does.
 
 ---
 
-## 2. The access gate — the most important gate in the product
+## 2. The access gate — removed, and the specification to restore
 
-`lib/packageAccess.ts`. **One helper, every call site.** Two copies of a payment
-check eventually disagree, and the copy that is wrong is always the permissive one.
+**Not in the code today.** What follows is what it was and why, because it took
+three attempts to get right and the reasoning is the valuable part.
+
+**One helper, every call site.** Two copies of a payment check eventually
+disagree, and the copy that is wrong is always the permissive one.
 
 ### The old gate was on the wrong thing
 
@@ -49,12 +79,19 @@ rule they were only correlated, and the correlation held by luck.
 
 **If a refund flow is ever added, that is the invariant it must preserve.**
 
-### Verified to fail closed
+⚠ **The invariant is being broken on purpose right now**, since generation runs
+without payment. Rows with content and `is_paid = false` already exist, so the
+restored gate cannot treat that combination as impossible.
 
-18 assertions cover the malformed shapes: AI content present with the paid flag
+### It was verified to fail closed, and that has to be redone
+
+18 assertions covered the malformed shapes: AI content present with the paid flag
 undefined, null, the *string* `"true"` or the *number* `1` — all blocked. Empty
 object, empty string, `0` and `false` in the content column — all counted as content
 and blocked. Tier proven irrelevant to access.
+
+**Those assertions went with the gate.** A gate that has not been shown to fail
+closed on every malformed input has not been shown to work.
 
 **`tier` is not the access gate, and must never become one.** It drives the quota
 and the labelling only.
@@ -102,8 +139,11 @@ work.
 profile, can use any permitted template, can edit it, and can download the PDF. They
 edit it by editing their Career Profile, and the CV follows.
 
-**What exists and is verified:**
-- The access gate above, with 18 failing-closed assertions
+**Note the quota is not enforced today either** — nothing creates a free-tier row, so
+nothing counts against it. The database index below still exists and would still bite.
+
+**What exists:**
+- ~~The access gate above~~ — **deleted**, see the banner at the top of this file
 - A `tier` column and a **database-level** partial unique index allowing exactly one
   free resume per user — a quota enforced only in application code is a quota a
   second code path forgets
@@ -156,7 +196,16 @@ of it is a normal build.
 
 ---
 
-## 6. Pay before generate
+## 6. Pay before generate — the structure survives, the payment step does not
+
+**The two-phase flow is still in the code and still correct**; only the payment
+check between the phases is gone. Phase A creates the row and fixes its target
+fields; Phase B generates into it, reading those fields **off the row rather than
+the request** — so a caller cannot set up one job title and generate against
+another. That is a correctness property, independent of payment, and it stays.
+
+**When the lock returns it goes back at the top of Phase B.** The rest of this
+section is why the ordering matters.
 
 Optimization used to run **before** payment. Two consequences: every visitor who never
 bought still spent real model tokens, and the product then sold a **blurred preview of
@@ -217,8 +266,17 @@ migration.
 ## 8. Service credits and bundles
 
 A bundle grants **service credits** — one per included item — consumed atomically when
-the feature runs. The cover letter is the first real consumer: generation requires the
-package to be paid **and** an available cover-letter credit, and the credit is spent
-only after a validated success.
+the feature runs. The cover letter was the first real consumer: generation required the
+package to be paid **and** an available cover-letter credit.
 
-Never on a failure. A user must not lose a credit to a model hiccup.
+**No credit is consumed anywhere today.** The requirement is gone with the locks, and
+the consume calls were removed rather than left running: spending an admin-granted
+credit on work that is free anyway would silently burn something the founder issued
+deliberately, and the ledger would record it as having paid for that run. Redeeming a
+code still works and still adds credits — topping up was never blocked by anything, and
+the codes become meaningful again when the locks return.
+
+**The ordering to restore, which is the part that matters:** consume the credit **after**
+a validated success, never before, and if the consume fails, discard the generation
+rather than persisting it. A user must never lose a credit to a model hiccup, and must
+never receive a deliverable that no credit was spent on.

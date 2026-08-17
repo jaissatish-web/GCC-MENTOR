@@ -9,11 +9,19 @@ import { DEFAULT_TEMPLATE_ID, isTemplateId, type TemplateId } from '@/lib/templa
  * place — a table he edits from /admin — instead of asking for a deploy. That was
  * the explicit reason for building this before any of the screens.
  *
- * WHAT THIS DOES NOT DECIDE. Whether a specific resume may be served is decided by
- * lib/packageAccess.ts, on whether the row holds AI-written text. That gate protects
- * something already sold and must not become editable from an admin screen — a
+ * WHAT THIS DOES NOT DECIDE. Whether a specific resume may be served used to be
+ * decided by lib/packageAccess.ts, on whether the row holds AI-written text. That
+ * module was deleted on 2026-08-17 when the founder opened every service while the
+ * AI pipeline is built; its labelling half survives as lib/resumeKind.ts, which
+ * grants nothing.
+ *
+ * The separation still matters and must survive the re-locking: a gate protecting
+ * something ALREADY SOLD must not become editable from an admin screen, because a
  * mis-click would hand out paid work. This module governs what a free user may
- * START, not what they have already bought. Keeping the two apart is deliberate.
+ * START, not what they have already bought.
+ *
+ * NOTHING USER-FACING READS THIS YET. The readers below are live and correct; no
+ * gate calls them. /admin/plan says so on its face.
  *
  * FAILURE BEHAVIOUR IS CLOSED FOR PAID FEATURES, OPEN FOR FREE ONES. If the table
  * cannot be read — a network blip, a bad row — a feature marked as costing money

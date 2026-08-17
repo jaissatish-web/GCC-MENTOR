@@ -49,7 +49,7 @@ most, and each has a document that owns it.
 
 | Module | Decides | Document |
 |---|---|---|
-| `lib/packageAccess.ts` | Whether a resume may be served or downloaded | [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) |
+| `lib/resumeKind.ts` | What kind of resume a row holds, **for labelling only** — no gate | [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) |
 | `lib/entitlements.ts` | What the free plan includes | [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) |
 | `lib/ai/grounding.ts` | The grounding instruction, verbatim, imported everywhere | [`02_PHILOSOPHY.md`](02_PHILOSOPHY.md) |
 | `lib/ai/validateGrounding.ts` | Whether generated output may be returned at all | [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) |
@@ -81,7 +81,7 @@ Browser → middleware.ts (session + route protection)
 Browser → route handler
         → authentication check           (401 if absent — always first)
         → ownership check                (the row must belong to the caller)
-        → gate check                     (paid? entitled? rate limit?)
+        → rate limit                     (the only spend limit while locks are off)
         → prompt built from profile data only
         → AI provider over HTTP
         → grounding validator            (blocks unvalidated output)
@@ -89,9 +89,13 @@ Browser → route handler
 ```
 
 **Every step in that order matters.** Authentication precedes any model call, so an
-anonymous caller can never spend tokens. The gate precedes generation, so
-unpaid work is never produced. Validation precedes the response, so unverified
+anonymous caller can never spend tokens. Validation precedes the response, so unverified
 output never reaches a user.
+
+**There is no payment check in that chain today** — every service is open while the AI
+pipeline is being built, and the locks are re-applied afterwards. When they return, the
+gate sits immediately after the ownership check, before anything is generated or served.
+See [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md).
 
 **A PDF download:**
 ```

@@ -45,9 +45,12 @@ function TemplatesInner() {
     fetch('/api/packages', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        const paid = ((data?.packages as Package[] | undefined) ?? []).filter((p) => p.is_paid)
-        setPackages(paid)
-        if (paid.length > 0) setSelectedId(paid[0].id)
+        // Every resume is listed while the locks are off (founder decision
+        // 2026-08-17). This used to filter to paid packages; keeping that filter
+        // would now show an empty gallery, because nothing is marked paid.
+        const list = (data?.packages as Package[] | undefined) ?? []
+        setPackages(list)
+        if (list.length > 0) setSelectedId(list[0].id)
       })
       .catch(() => setError('Could not load your resumes.'))
   }, [])

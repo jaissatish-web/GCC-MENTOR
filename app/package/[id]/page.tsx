@@ -18,7 +18,7 @@ import {
   type ResumeStyleOverrides,
   type SizeKey,
 } from '@/lib/resumeStyle'
-import { canServeDocument, resumeKind } from '@/lib/packageAccess'
+import { resumeKind } from '@/lib/resumeKind'
 import { buttonVariants } from '@/components/ui/Button'
 import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
@@ -172,16 +172,10 @@ function PackageScreenInner({ id }: { id: string }) {
           setError('Package not found.')
           return
         }
-        // SECURITY GATE (TASK-162). Gates the AI-written text, not the
-        // container: a resume with no optimized_content is the user's own typing
-        // in a template — the free tier — and refusing to show it protected
-        // nothing. A resume WITH generated content still requires payment, with
-        // the decision made server-side-shaped in lib/packageAccess.ts so this
-        // screen and the PDF route cannot disagree.
-        if (!canServeDocument(p)) {
-          router.replace(`/optimize/pay/${encodeURIComponent(id)}`)
-          return
-        }
+        // No payment gate while the locks are off (founder decision
+        // 2026-08-17). This screen used to send an unpaid resume to /optimize/pay;
+        // when the lock returns it must make the same decision as the PDF route,
+        // never its own — see lib/resumeKind.ts.
         setPkg(p)
         setNameDraft(((p as { name?: string | null }).name ?? '') as string)
         // readStyleOverrides, not a cast: the column is jsonb and a row could
@@ -231,9 +225,9 @@ function PackageScreenInner({ id }: { id: string }) {
   const activeTemplateId = isTrying ? (tryingTemplateId as TemplateId) : savedTemplateId
   const Template = getTemplate(activeTemplateId).component
   /**
-   * Free resume (TASK-162): no AI text in it, so it is the user's own profile in
-   * a template. Drives the copy and where "Edit" goes — NOT access, which is
-   * decided by canServeDocument above.
+   * No model-written text in this row, so it is the user's own profile in a
+   * template. Drives the copy and where "Edit" goes. **Never access** — nothing
+   * on this screen decides permission.
    */
   const isFree = resumeKind(pkg) === 'free'
   const styleable = getTemplate(activeTemplateId).styleable
@@ -354,14 +348,16 @@ function PackageScreenInner({ id }: { id: string }) {
           >
             Download PDF
           </a>
-          {/* WHERE "EDIT" GOES DEPENDS ON WHAT THIS RESUME IS (TASK-162).
-              /optimize/preview edits `optimized_content`, and a free resume has
-              none — its guard would send the user to /optimize/generate, which
-              402s because the row is unpaid, which returns them to /optimize/pay.
-              A loop, from a button labelled Edit. A free resume's words live in
-              the Career Profile, so that is where its Edit goes, and the CV
-              follows because a free resume renders from the live profile rather
-              than from a frozen snapshot. */}
+          {/* WHERE "EDIT" GOES DEPENDS ON WHAT THIS RESUME IS.
+              /optimize/preview edits the model-written text, and a resume that
+              has never been optimized has none — so its Edit goes to the Career
+              Profile, where its words actually live, and the CV follows because
+              an unoptimized resume renders from the live profile rather than from
+              a frozen snapshot.
+              This also used to be a genuine loop: preview sent an ungenerated row
+              to generate, which refused with a payment error, which sent it back
+              to pay. The payment leg is gone, but the routing rule below is right
+              on its own merits and stays. */}
           <Link
             href={isFree ? '/profile' : `/optimize/preview/${encodeURIComponent(id)}`}
             className={buttonVariants({ variant: 'secondary', size: 'sm' })}
@@ -440,14 +436,15 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         ) : null}
 
-        {/* The upsell, stated as what it actually adds rather than as a lock.
-            Shown on a free resume only, and it names the difference: the words
-            are yours until you pay for them to be rewritten for one job. */}
+        {/* Shown on an un-optimized resume: what optimizing would add. Worded as
+            a next step rather than as a paid step, because while the locks are off
+            it is not one — and describing it as paid would be untrue copy, which
+            is the one thing this product does not do. */}
         {isFree ? (
           <div className="flex flex-col gap-2 rounded-radius-lg border border-line-light bg-surface-light px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[12.5px] text-ink-700">
-              This is your own wording in a Gulf format — yours to download free. The paid step
-              rewrites it for one specific job.
+              This is your own wording in a Gulf format. Optimizing rewrites it for one specific
+              job, using only the facts already in your profile.
             </p>
             <Link
               href="/optimize/target"

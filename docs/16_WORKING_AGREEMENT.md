@@ -120,8 +120,7 @@ additionally requires CTO review before it is approved.
 **Protected files — do not modify without an explicit instruction naming the file:**
 
 `middleware.ts` · `lib/supabase/client.ts` · `lib/supabase/server.ts` ·
-`app/auth/callback/route.ts` · `lib/ai/grounding.ts` · `lib/packageAccess.ts` ·
-`tailwind.config.ts`
+`app/auth/callback/route.ts` · `lib/ai/grounding.ts` · `tailwind.config.ts`
 
 ---
 

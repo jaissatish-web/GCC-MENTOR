@@ -85,13 +85,12 @@ export async function GET(
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
 
-  // ---- is_paid gate: unconditional, read server-side from the loaded row ----
-  if (!pkgRow.is_paid) {
-    return NextResponse.json(
-      { error: 'Payment required to download this resume' },
-      { status: 403 }
-    )
-  }
+  // NO PAYMENT GATE while the locks are off (founder decision 2026-08-17). Auth
+  // and ownership above are unchanged. When the lock returns it belongs here,
+  // and it must make the same decision as the PDF route.
+  //
+  // Note this route has no UI caller: the Word download was withdrawn because
+  // its output did not match the screen. See docs/14_OPEN_ITEMS.md.
 
   const pkg = pkgRow as {
     profile_id: string

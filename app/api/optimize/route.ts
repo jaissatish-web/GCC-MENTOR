@@ -21,7 +21,6 @@ import {
   incrementRateLimit,
   LIMIT_ACTION_OPTIMIZATION,
 } from '@/lib/rateLimit'
-import { consumeOptimizationCredit } from '@/lib/admin/credits'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -264,21 +263,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  // ---- TWO PHASES, ONE ROUTE (TASK-131: pay before generate) -----------------
+  // ---- TWO PHASES, ONE ROUTE -------------------------------------------------
   //
-  // The AI must not run before the user has paid. Payment in this product is
-  // applied to an EXISTING package (redeem_promo_code takes a package_id), so
-  // there is no way to charge before a row exists. The flow is therefore:
-  //
-  //   PHASE A  POST { profileId, ...target }  -> creates the package UNPAID and
-  //            EMPTY, runs NO model call, returns its id.
-  //   PHASE B  POST { packageId }             -> requires is_paid, then
-  //            generates into that row.
+  //   PHASE A  POST { profileId, ...target }  -> creates the package EMPTY,
+  //            runs NO model call, returns its id.
+  //   PHASE B  POST { packageId }             -> generates into that row.
   //
   // Kept in one route rather than split into two files so the grounding
   // pipeline below has exactly one implementation. Phase B deliberately reads
-  // the target fields back off the ROW, never from the request: a caller must
-  // not be able to pay for one job title and then generate against another.
+  // the target fields back off the ROW, never from the request, so a caller
+  // cannot set up one job title and then generate against another.
+  //
+  // NO PAYMENT CHECK. Founder decision 2026-08-17: every service is open while
+  // the AI pipeline is being built, and the locks are re-applied afterwards.
+  // The two phases stay as they are because Phase A is where the row and its
+  // target fields are established, and Phase B's read-from-the-row behaviour is
+  // a correctness property independent of payment. When the lock returns, it
+  // goes back at the top of Phase B — see docs/15_DECISION_LOG.md.
+  //
+  // COST: payment used to be the only limit on this route. There is now none.
   const bodyObj = (rawBody ?? {}) as Record<string, unknown>
   const generatePackageId =
     typeof bodyObj.packageId === 'string' && bodyObj.packageId.trim() ? bodyObj.packageId.trim() : null
@@ -303,15 +306,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     if (!pkgRow) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
 
-    // THE PAYWALL. Read from the row we just loaded, never from the request.
-    if (!pkgRow.is_paid) {
-      return NextResponse.json(
-        { error: 'Payment required before this resume can be generated.' },
-        { status: 402 },
-      )
-    }
     // Idempotence: a double-click, a refresh, or a retry must not spend a
-    // second model call on a package that already has its resume.
+    // second model call on a package that already has its resume. This is now
+    // the ONLY thing standing between a retry and a duplicate model call, so it
+    // matters more than it did when a payment check sat in front of it.
     if (pkgRow.optimized_content) {
       return NextResponse.json({ success: true, packageId: generatePackageId, alreadyGenerated: true })
     }
@@ -406,11 +404,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // restyling a resume that has already been delivered.
         template_id: chosenTemplate.id,
         template_version: chosenTemplate.version,
-        // NULL until paid AND generated — the distinction migration 033 exists
-        // to make expressible.
+        // NULL until generated — the distinction migration 033 exists to make
+        // expressible, and still the honest description of an empty row.
         optimized_content: null,
         skills_order: null,
         field_visibility_snapshot: profile.field_visibility,
+        // Left FALSE deliberately while the locks are off. Nothing was paid, so
+        // writing `true` would put a false fact in the database and every row
+        // created during this phase would later read as a completed purchase.
+        // Nothing gates on it today; it is a record, not a permission.
         is_paid: false,
       })
       .select('id')
@@ -429,44 +431,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const newPackageId = createdRow.id as string
 
-    // An admin-granted free optimization still means "this one is paid for", so
-    // it flips is_paid here and the client can go straight to generation with
-    // no payment step. Unchanged in substance from the original flow — only its
-    // position moved, from after generation to before it.
-    let creditApplied = false
-    try {
-      creditApplied = await consumeOptimizationCredit(user.id, newPackageId)
-      if (creditApplied) {
-        const { error: paidError } = await supabase
-          .from('packages')
-          .update({ is_paid: true })
-          .eq('id', newPackageId)
-          .eq('user_id', user.id)
-        if (paidError) {
-          console.error(
-            'optimize: credit consumed but is_paid flip FAILED — needs manual fix. user=' +
-              user.id + ' package=' + newPackageId,
-            paidError.message,
-          )
-          creditApplied = false
-        }
-      }
-    } catch (e) {
-      console.error(
-        'optimize: credit check failed (package left unpaid) user=' + user.id + ' package=' + newPackageId,
-        e instanceof Error ? e.message : String(e),
-      )
-      creditApplied = false
-    }
-
-    // No rate-limit slot is spent here: nothing was generated. Phase B spends
-    // it, on a run that actually cost a model call.
+    // NO CREDIT IS CONSUMED while the locks are off. An admin-granted credit
+    // buys one free optimization; spending one when the optimization is free
+    // anyway would silently burn something the founder issued deliberately, and
+    // the grant ledger would record it as having paid for this run. Generation
+    // is simply open, so nothing needs to pay for it.
+    //
+    // No rate-limit slot is spent here either: nothing was generated. Phase B
+    // spends it, on a run that actually costs a model call.
     return NextResponse.json({
       success: true,
       packageId: newPackageId,
-      isPaid: creditApplied,
-      creditApplied,
-      requiresPayment: !creditApplied,
+      requiresPayment: false,
     })
   }
 

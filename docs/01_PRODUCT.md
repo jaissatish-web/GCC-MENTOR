@@ -70,12 +70,18 @@ Everything in this section is built, deployed and working.
 - **15 resume templates**, adjustable font, size and accent colour on 13 of them.
 - Hard-delete of all personal data from Settings.
 
-**Paid**
+**Meant to be paid — currently open to everyone**
+
+⚠ **Every paid lock was removed on 2026-08-17** so the full pipeline can be built
+and tuned before the locks go back on. Any signed-in user can use all of this
+free today. See [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md).
+
 - **Resume optimization**: the AI rewrite — a Gulf-format resume reframed for one
   target job, at Easy / Moderate / High framing intensity, grounded strictly in
   profile facts, with a before/after diff and user text editing.
 - **PDF download** of the delivered document.
-- **Cover letter** generation for a paid package, consuming a service credit.
+- **Cover letter** generation for any resume. It required payment plus a service
+  credit; it requires neither right now.
 
 **Admin**
 - Users, packages and payments views; AI provider and per-feature model config;

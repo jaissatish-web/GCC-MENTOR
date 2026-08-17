@@ -5,13 +5,36 @@ part-document it affects is updated instead. It never becomes a log.
 
 How work is handed over, reviewed and closed: [`16_WORKING_AGREEMENT.md`](16_WORKING_AGREEMENT.md) §2.
 
-**Status: nothing is assigned.** The queue below is the CTO's recommended order, awaiting
-the founder's priority call. Every item traces to
-[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md).
+**Current phase, set by the founder 2026-08-17: build the whole AI pipeline with the
+paid locks off, one service at a time, then re-apply the locks over a finished
+machine.** Order: the LLM control layer first, then each service.
 
 ---
 
-## Ready to start
+## In progress
+
+### P0 · The LLM control layer — **active**
+One module owning model resolution, prompt assembly, token budget, retries and
+fallback, structured-output parsing, mandatory grounding validation, usage and cost
+logging, and failure diagnostics. Every service plugs into it instead of hand-rolling
+its own call. **First, because doing it after the services means retrofitting seven of
+them.**
+
+### P1 · Then each service, one at a time
+GCC Readiness · ATS/ scan · Job Match · Resume optimization · Cover letter ·
+Downloads · Q&A · Mock interview.
+
+**Q&A and mock interview do not exist at all** — no route, no prompt, no engine. They
+are builds from zero, not unlocks. The other six exist and are now open.
+
+### P2 · Re-apply the paid locks — **after the pipeline, not before**
+Traces to: open items §A0, and [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md)
+reads as the restore guide. Includes purging or marking the rows generated during this
+phase.
+
+---
+
+## Ready to start, whenever priority allows
 
 ### W1 · Fix the two untrue claims on the landing page
 **Why first: it is public-facing, it is small, and it is the kind of thing this product

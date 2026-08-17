@@ -12,6 +12,57 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-17 — later the same day
+
+**Every paid lock is removed. All services are open.** Founder decision, taken after
+hearing the alternative and the costs.
+
+**The plan:** build the whole pipeline first — readiness, ATS/GCC scoring, job checking,
+resume optimization, cover letter, downloads, and the two that do not exist yet (Q&A and
+mock interview) — one service at a time, getting the prompting and LLM control right,
+**then** apply the paid locks over a finished machine.
+
+**What was removed:** the payment check before generation, the `is_paid` gate on the PDF,
+Word and cover-letter routes, the cover-letter credit requirement, and the page-level
+redirects that sent an unpaid resume to the payment screen. `lib/packageAccess.ts` is
+deleted; the labelling half survives as `lib/resumeKind.ts`, which explicitly grants
+nothing.
+
+**What was deliberately kept:** the `is_paid` and `tier` **columns** (dropping them is a
+destructive schema change, and the locks are coming back), the admin promo-code and credit
+tools (they unlock things — they never blocked anyone), the daily rate limit on generation,
+and the payment screen itself, now a pass-through that forwards rather than a dead end.
+
+**No credit is consumed anywhere while the locks are off.** Spending an admin-granted
+credit on work that is free anyway would silently burn something the founder issued, and
+the ledger would record it as having paid for the run.
+
+**The alternative was offered and declined.** A single unlock switch would have kept the
+gate code intact and made re-locking a one-line change. The founder chose outright deletion.
+Three consequences, accepted knowingly:
+
+1. **Re-applying the locks is a rebuild**, including the 18 assertions that proved the gate
+   failed closed on every malformed input.
+2. **The invariant is being broken on purpose.** The gate rested on "AI content cannot
+   exist without payment". Rows will now exist with content and `is_paid = false`, which is
+   exactly the shape the old gate refused. **Whoever re-applies the lock must handle those
+   rows** rather than assume they cannot exist — purge them, or mark them.
+3. **Payment was one of two limits on model spend.** The other, a daily per-user rate limit
+   on generation, is still in force — so this is not an open tap, but the remaining limit is
+   now the only one and its value is worth reviewing.
+
+**Nothing was marked paid to make things work.** `is_paid` stays false on new rows. Writing
+`true` would have been simpler and would have kept several UI filters working untouched, but
+it would put a false fact in the database and every row from this phase would later read as a
+completed purchase. The UI filters were changed instead.
+
+**First build target: the LLM control layer**, chosen by the founder ahead of any individual
+service — one module owning model choice, prompt assembly, token budget, retries, structured
+output, mandatory grounding validation, cost logging and failure diagnostics. Doing it first
+means the seven services plug into it rather than being retrofitted afterwards.
+
+---
+
 ## 2026-08-17
 
 **Documentation consolidated into current-state part-files; ticket history frozen.**

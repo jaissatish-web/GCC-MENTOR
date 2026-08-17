@@ -224,11 +224,13 @@ function SetupScreen() {
           )
         }
 
-        // PAY BEFORE GENERATE (TASK-131). This call no longer produces a
-        // resume — it creates an empty, unpaid package. Payment comes next,
-        // and generation happens only after it. The one exception is an
-        // admin-granted free optimization, which the server has already
-        // settled, so that user goes straight to generation.
+        // This call does not produce a resume — it creates an empty package.
+        // Generation is the next screen.
+        //
+        // The payment step between the two is gone while the locks are off
+        // (founder decision 2026-08-17). The server still answers
+        // `requiresPayment`, always false for now, so the step can be put back
+        // without changing this contract.
         if (responseBody?.requiresPayment) {
           router.push(`/optimize/pay/${newPackageId}`)
           return

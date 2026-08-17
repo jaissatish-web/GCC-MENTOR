@@ -65,16 +65,10 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
           return
         }
         const p = pkgData.package as Package
-        // PAID-ONLY from TASK-131 onwards. Optimization no longer runs before
-        // payment, so an unpaid package has nothing to preview — send them to
-        // pay, and a paid-but-ungenerated one to finish generating. The
-        // blurred-preview branch this guard made unreachable is now actually
-        // gone (TASK-145); it stayed in the file for a day, which meant paying
-        // customers were the only ones who ever saw the "unlock" pitch.
-        if (!p.is_paid) {
-          router.replace(`/optimize/pay/${encodeURIComponent(packageId)}`)
-          return
-        }
+        // No payment guard while the locks are off (founder decision
+        // 2026-08-17). The ungenerated case below still stands, and is not about
+        // payment at all: there is genuinely nothing to preview until the model
+        // has run, so finish generating first.
         if (!p.optimized_content) {
           router.replace(`/optimize/generate/${encodeURIComponent(packageId)}`)
           return

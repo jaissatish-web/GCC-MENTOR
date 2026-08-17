@@ -42,18 +42,24 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
           setError('Package not found.')
           return
         }
-        if (p.is_paid) {
-          // Paid but never generated (TASK-131: payment now precedes the model
-          // call, so this is a normal state, not a broken one) — finish the job
-          // rather than dropping them on an empty resume.
-          router.replace(
-            p.optimized_content
-              ? `/package/${encodeURIComponent(packageId)}`
-              : `/optimize/generate/${encodeURIComponent(packageId)}`,
-          )
-          return
-        }
-        setPkg(p)
+        // NOTHING TO PAY while the locks are off (founder decision 2026-08-17),
+        // so this screen forwards EVERY package instead of asking for money the
+        // product does not currently need.
+        //
+        // Kept as a pass-through rather than deleted: the flow no longer routes
+        // through here, but old links, bookmarks and the browser back button do,
+        // and landing on a payment form for an already-open service would be
+        // exactly the kind of dead end this codebase avoids. The screen itself is
+        // intact below and comes back into the flow with the locks.
+        //
+        // A package with no content goes to generation rather than to the resume —
+        // the same forwarding rule the paid version used, for the same reason: do
+        // not drop someone on an empty resume.
+        router.replace(
+          p.optimized_content
+            ? `/package/${encodeURIComponent(packageId)}`
+            : `/optimize/generate/${encodeURIComponent(packageId)}`,
+        )
       })
       .catch(() => setError('Could not load this package.'))
   }, [packageId, router])
