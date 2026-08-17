@@ -281,7 +281,7 @@ function PackageScreenInner({ id }: { id: string }) {
      * nested scroll areas on a touch screen are how you lose the user.
      */
     <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-bg font-redesign-sans lg:h-dvh lg:min-h-0 lg:overflow-hidden">
-      <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5 lg:shrink-0">
+      <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5 lg:shrink-0 lg:gap-1.5 lg:pb-2">
         <button
           type="button"
           aria-label="Go back"
@@ -294,7 +294,7 @@ function PackageScreenInner({ id }: { id: string }) {
         <span className="self-start rounded-[5px] bg-forest-tint px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-forest">
           ✓ Unlocked &amp; saved to Library
         </span>
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900">Your Gulf CV is ready, {firstName}</h1>
+        <h1 className="font-serif text-[27px] leading-tight text-ink-900 lg:text-[21px]">Your Gulf CV is ready, {firstName}</h1>
 
         {/* Rename, in place. A user with three attempts at the same role sees
             three identical rows in the Library otherwise — the target job
@@ -327,10 +327,10 @@ function PackageScreenInner({ id }: { id: string }) {
           screen next to the thing it changes — so those get the left rail, and
           the rail is paid for by widening the shell rather than by squeezing
           the A4 page. */}
-      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:min-h-0 lg:flex-1 lg:pb-5">
+      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:min-h-0 lg:flex-1 lg:gap-2 lg:pb-3">
         {/* Toolbar — sticks to the top of the viewport while scrolling a long
             CV, so Download is always one click away without costing any width. */}
-        <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-bg/80 lg:static lg:shrink-0">
+        <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-bg/80 lg:static lg:shrink-0 lg:py-2">
           {/*
             One button system, one size, one rhythm.
             These four controls were hand-styled with three different paddings,
@@ -424,8 +424,14 @@ function PackageScreenInner({ id }: { id: string }) {
                   pushed off-centre to the left with its caption stranded on the
                   right. That is the "not centred" the founder reported, and it
                   was a one-word layout bug, not a design decision. */}
-              <div className="flex flex-col items-center rounded-radius-lg bg-gradient-to-b from-surface-2-light to-surface-2-light/60 p-3 ring-1 ring-line-light/70 sm:p-6 lg:p-8">
-                <ResumeDocumentView className="w-full max-w-[794px] overflow-hidden rounded-[3px] shadow-[0_1px_2px_rgba(16,24,40,0.06),0_12px_32px_-8px_rgba(16,24,40,0.18)] ring-1 ring-line-light/80">
+              <div className="flex flex-col items-center rounded-radius-lg bg-gradient-to-b from-surface-2-light to-surface-2-light/60 p-3 ring-1 ring-line-light/70 sm:p-6 lg:p-4">
+                {/* fitToHeight: show a WHOLE page, then scroll for the next one
+                    (TASK-154). Without it the pane from TASK-153 showed roughly
+                    half a page at true size. */}
+                <ResumeDocumentView
+                  fitToHeight
+                  className="w-full max-w-[794px] rounded-[3px]"
+                >
                   {/* Registry lookup, not a hard-coded import: the screen must
                       show the same template the PDF and Word routes resolve, or
                       "what you see is what downloads" stops being true the

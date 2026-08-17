@@ -2880,6 +2880,70 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-154: fit a whole resume page on screen, and stop clipping the bottom**
+
+      Founder could not see a full resume: he wants at least one whole page
+      visible, then the scroller moving to the next page, with nothing cut off the
+      bottom.
+
+      `ResumeDocumentView` fitted to WIDTH only — right while the page scrolled as
+      a whole, wrong once TASK-153 gave the document a fixed-height pane, where a
+      page at true size (1123px) in a ~676px pane showed about half a page. A new
+      `fitToHeight` prop scales so one full page fits the visible height. It finds
+      the nearest scrolling ancestor and measures the page's offset within it
+      **scroll-independently**, so a re-measure taken halfway down the resume
+      gives the same answer as one at the top instead of shrinking the page every
+      time the user scrolls.
+
+      **THE REAL "cut from the bottom" BUG, and it is pre-existing.** The reserved
+      box was sized with `inner.getBoundingClientRect().height * scale`. A bounding
+      rect **includes** the transform, so the scale was applied twice, the box came
+      out short, and the page was clipped by the `overflow-hidden` on that same
+      box. Invisible while the scale was 1 — 1123 × 1 × 1 is still 1123 — which is
+      why it never showed on desktop. **It has been wrong on every phone since this
+      component shipped**, because a narrow screen always scales down: measured a
+      324px box holding a 440px page at 375px wide. Now uses `offsetHeight`, the
+      untransformed layout height, which is what the multiplication wants. After:
+      440px box for a 440px page.
+
+      **A third instance of the off-centre bug**, fixed while here: the reserved box
+      was `w-full`, so once the scale dropped below 1 the page — transformed from
+      its top-LEFT origin — sat against the left edge of a wider box. Same defect
+      as TASK-146 and TASK-148. The box is now sized to the scaled result and
+      centred.
+
+      Desktop chrome slimmed at `lg` (smaller h1, tighter gaps and padding) to give
+      the document its height back — worth ~70px, most of a scale step.
+
+      A **0.5 floor** on the fit, deliberately: on a short window the arithmetic can
+      ask for a scale that makes the resume unreadable, and an unreadable whole page
+      is worse than a readable page you scroll. Below the floor the page may exceed
+      the pane and the user scrolls; the content is complete either way, because the
+      box always reserves the full scaled height.
+
+      **Verified by measurement at three sizes.** 1440×820: scale 0.577, page 458px
+      wide, one full page 648px inside a 676px pane with 28px headroom, centred,
+      bottom reachable, page itself does not scroll. 1280×720: scale 0.5, one page
+      562px in a 576px pane, 14px headroom, fits. 375px: width-fit 0.392, 311px
+      page, reserved height 440px exactly matching the page, nothing clipped, one
+      natural page scroll, no nested scroller, no horizontal overflow.
+
+      **One measurement trap worth recording.** Two intermediate readings looked
+      stale (0.42, then 0.52 with headroom going spare) and both were **my own probe
+      reading the wrong element**, synchronously in the same tick as the resize,
+      before the ResizeObserver fired — the component was already correct. A
+      ResizeObserver on the scroll container plus one `requestAnimationFrame` pass
+      were still genuinely needed, because the container's final height is not known
+      during the first paint of a flex chain this deep. Worth remembering that a
+      failing measurement can be the measurement's fault.
+
+      `tsc`, `lint`, a full production build (45 routes) and the
+      32,768-permutation golden baseline all clean.
+
+      Depends on: TASK-153 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*

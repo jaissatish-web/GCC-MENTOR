@@ -25,13 +25,54 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  */
 
 const PAGE_WIDTH = 794
+/** One A4 page at 96 DPI. The floor of the printed page, not a cap on content. */
+const PAGE_HEIGHT = 1123
+/** Breathing room under the page so it never touches the pane's bottom edge. */
+const BOTTOM_GAP = 12
+/**
+ * How small fit-to-height is allowed to go.
+ *
+ * On a short laptop the arithmetic can ask for a scale that makes the resume
+ * unreadable, and an unreadable whole page is worse than a readable page you
+ * scroll. Below this the page is allowed to exceed the pane and the user scrolls
+ * within it — the content is still complete either way, because the wrapper
+ * always reserves the FULL scaled height.
+ */
+const MIN_FIT_SCALE = 0.5
+
+/** Nearest ancestor that actually scrolls, or null when the page itself does. */
+function findScrollParent(el: HTMLElement): HTMLElement | null {
+  let p = el.parentElement
+  while (p) {
+    const oy = getComputedStyle(p).overflowY
+    if (oy === 'auto' || oy === 'scroll') return p
+    p = p.parentElement
+  }
+  return null
+}
 
 export function ResumeDocumentView({
   children,
   className = '',
+  /**
+   * Scale so a WHOLE PAGE fits the visible height, then scroll for the next one
+   * (TASK-154).
+   *
+   * Fitting width alone was right while the page scrolled as a whole. Once
+   * TASK-153 gave the document its own fixed-height pane, a page at true size
+   * (1123px) inside a ~520px pane meant the user saw half a page and had to
+   * scroll to find the rest — "cut from the bottom", as the founder put it.
+   *
+   * Off by default: this only makes sense where the container constrains height.
+   * When no scrolling ancestor is found — a phone, where the page itself scrolls
+   * — it falls back to width-only fitting on its own, so the flag is safe to
+   * pass anywhere.
+   */
+  fitToHeight = false,
 }: {
   children: React.ReactNode
   className?: string
+  fitToHeight?: boolean
 }) {
   const outerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
@@ -46,14 +87,44 @@ export function ResumeDocumentView({
     const available = outer.clientWidth
     // Never scale UP: a 1200px-wide monitor should show a crisp A4 page, not a
     // blown-up one.
-    const next = Math.min(1, available / PAGE_WIDTH)
+    let next = Math.min(1, available / PAGE_WIDTH)
+
+    if (fitToHeight) {
+      const container = findScrollParent(outer)
+      if (container) {
+        // Offset of the page within its scroll container, measured
+        // scroll-INDEPENDENTLY — adding scrollTop back means a re-measure taken
+        // halfway down the resume yields the same answer as one taken at the
+        // top, instead of shrinking the page every time the user scrolls.
+        const offsetWithin =
+          outer.getBoundingClientRect().top -
+          container.getBoundingClientRect().top +
+          container.scrollTop
+        const availableHeight = container.clientHeight - offsetWithin - BOTTOM_GAP
+        if (availableHeight > 0) {
+          const heightFit = availableHeight / PAGE_HEIGHT
+          next = Math.max(MIN_FIT_SCALE, Math.min(next, heightFit))
+        }
+      }
+    }
+
     setScale(next)
     // The page grows with content (minHeight is a floor, not a cap), so read
     // the real rendered height rather than assuming 1123px — a three-page CV
     // must not be cut off at the bottom, which is the same bug in the other
     // axis.
-    setScaledHeight(inner.getBoundingClientRect().height * next)
-  }, [])
+    //
+    // `offsetHeight`, NOT `getBoundingClientRect().height` (TASK-154). A bounding
+    // rect INCLUDES the transform, so multiplying it by the scale applied the
+    // scale twice and the reserved box came out short — the page was clipped at
+    // the bottom by the `overflow-hidden` on that very box. Invisible while the
+    // scale was 1, because 1123 x 1 x 1 is still 1123. It was wrong on every
+    // phone from the day this component shipped, since a narrow screen always
+    // scales down: measured a 324px box holding a 440px page at 375px wide.
+    // `offsetHeight` is the untransformed layout height, which is what the
+    // multiplication actually wants.
+    setScaledHeight(inner.offsetHeight * next)
+  }, [fitToHeight])
 
   useEffect(() => {
     measure()
@@ -67,6 +138,19 @@ export function ResumeDocumentView({
     ro.observe(outer)
     ro.observe(inner)
 
+    // And the SCROLL CONTAINER, when fitting to height — its height is an input
+    // to the scale, and nothing else reports it. Without this the first measure
+    // ran against a container still being laid out and the page stayed at
+    // whatever scale that produced: measured 0.42 with 155px of headroom going
+    // spare, because no later event ever recomputed it.
+    const container = fitToHeight ? findScrollParent(outer) : null
+    if (container) ro.observe(container)
+
+    // One more pass after layout settles. The container's final height is not
+    // known during the first paint of a flex chain this deep, and the fit is a
+    // function of it.
+    const raf = requestAnimationFrame(() => measure())
+
     // A window listener as well, and not as belt-and-braces padding: observed
     // failing. Growing the viewport from 760px to 1280px left the container
     // correctly at 794px while the page stayed rendered at 680px — the observer
@@ -75,10 +159,11 @@ export function ResumeDocumentView({
     // window is the single most likely way a real user hits this.
     window.addEventListener('resize', measure)
     return () => {
+      cancelAnimationFrame(raf)
       ro.disconnect()
       window.removeEventListener('resize', measure)
     }
-  }, [measure])
+  }, [measure, fitToHeight])
 
   // A second pass once webfonts settle — text metrics change and the page gets
   // taller, which would otherwise leave the last lines overlapping whatever
@@ -90,9 +175,20 @@ export function ResumeDocumentView({
 
   return (
     <div ref={outerRef} className={className}>
+      {/* The reserved box is exactly the SCALED page, and centred.
+          It used to be `w-full`, which was invisible while the scale was 1 and
+          the box was already page-width. The moment fit-to-height made the scale
+          less than 1, the page — transformed from its top-LEFT origin — sat
+          against the left edge of a wider box. Same off-centre bug as TASK-146
+          and TASK-148, in a third place. Sizing the box to the result rather than
+          to the container removes the gap instead of compensating for it. */}
       <div
-        style={{ height: scaledHeight || undefined }}
-        className="relative w-full overflow-hidden"
+        style={{
+          height: scaledHeight || undefined,
+          width: PAGE_WIDTH * scale,
+          maxWidth: '100%',
+        }}
+        className="relative mx-auto overflow-hidden"
       >
         <div
           ref={innerRef}
