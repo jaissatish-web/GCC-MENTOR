@@ -134,8 +134,13 @@ model can do extraction while a stronger one writes resumes.
 | `cover_letter` | Generates a cover letter for a paid package | Live |
 | `job_description` | Structures a pasted job advert | Live |
 | `job_match_explanation` | The semantic half of Job Match | Live |
+| `ats_scan` | — | **No caller.** The readiness score is deterministic arithmetic and makes no model call. Its prompt module survives only because the *result type* is still used to shape a stored scan |
 | `qa_generation` | Interview Q&A | **To be built — no route calls it** |
 | `mock_interview` | Mock interview review | **To be built — no route calls it** |
+
+**Five services make model calls:** extraction, optimization, job_description,
+job_match_explanation and cover_letter. Each has a **draft v1 prompt seeded** and nothing
+published — see §2b.
 
 Plus a `default` row used when a service has no configuration of its own.
 
@@ -162,10 +167,28 @@ panel without a developer, because prompt quality *is* product quality here.
 rebuilt `/admin/prompts` with draft, publish and rollback. The old `prompt_templates`
 table is superseded and left in place; it should gain no new keys.
 
-**Nothing is published yet, and that is the correct state.** A prompt with no published
-version runs on the prompt written in its own module, so this can be adopted one service
-at a time. `ai_usage_log.prompt_version_id` is null for those calls, meaning "ran on the
-in-code prompt" — not "unknown".
+**Draft v1 is seeded for all five services that make model calls** (`scripts/seed-prompts.mjs`,
+re-runnable — each run adds a new draft rather than overwriting, because history is the
+point). **Nothing is published**, which is the correct state: a prompt with no published
+version runs on the prompt written in its own module, so this is adopted one service at a
+time, and `ai_usage_log.prompt_version_id` stays null for those calls — meaning "ran on
+the in-code prompt", not "unknown".
+
+**How to test one:** publish it from `/admin/prompts`, run the flow that uses it, compare
+against what the built-in prompt produced, and roll back in one click if it is worse.
+
+| Service | Run this to exercise it |
+|---|---|
+| `extraction` | Upload or paste a resume at `/ats-scan` or `/onboarding` |
+| `job_description` | Paste a job description into the same scan, or into `/optimize/target` |
+| `job_match_explanation` | A scan **with** a job description → `/gulf-readiness`, or `/job-match` |
+| `optimization` | `/optimize/target` → setup → generate |
+| `cover_letter` | `/cover-letter`, pick a resume, generate |
+
+**What the seeded drafts contain, and deliberately do not.** Only the quality-deciding
+part: what may be touched, how to write it, and what to do when the input is thin. The
+grounding rule, the output schema, the persona, the profile, the target and the job
+description are all injected around them.
 
 ### The floor — three parts, not equally editable
 

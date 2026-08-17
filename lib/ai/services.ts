@@ -23,7 +23,13 @@
 export const AI_SERVICES = {
   extraction: { label: 'Resume Parsing', built: true, description: 'Reads an uploaded or pasted resume into structured profile data.' },
   optimization: { label: 'Resume Optimization', built: true, description: 'Rewrites a resume for one target job, using only facts already in the profile.' },
-  ats_scan: { label: 'ATS / GCC Scanner', built: true, description: 'Scores a resume for GCC readiness.' },
+  // NOT built, despite appearances. The GCC readiness score is deterministic
+  // arithmetic and makes no model call, so nothing passes this config key.
+  // lib/ai/atsScorePrompt.ts survives only because its RESULT TYPE is still used
+  // to shape the stored scan result — the prompt itself has no caller. The
+  // 'ats_scan' string elsewhere in the codebase is a rate-limit action name, not
+  // this key.
+  ats_scan: { label: 'ATS / GCC Scanner', built: false, description: 'The readiness score is deterministic and makes no model call. This key has no caller.' },
   job_description: { label: 'Job Description Structuring', built: true, description: 'Turns a pasted job advert into structured requirements.' },
   job_match_explanation: { label: 'Job Match Explanation', built: true, description: 'The semantic half of Job Match — why each category scored as it did.' },
   cover_letter: { label: 'Cover Letter', built: true, description: 'Writes a cover letter for a resume package.' },
