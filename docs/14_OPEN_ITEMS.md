@@ -36,6 +36,27 @@ a deliberate number rather than an inherited one.
 
 ---
 
+## Gulf Readiness Scorecard — what remains
+
+The anonymous flow is built and verified live (funnel → arithmetic score → result →
+browser handoff). Two pieces remain before it is fully end-to-end:
+
+- **The signup restore + full report is not wired yet.** The anonymous result, answers
+  and resume text are saved to `sessionStorage` and the signup CTA points to `/signup`,
+  but nothing yet reads that handoff after account creation to show the unblurred report
+  (`ScorecardResult` with `locked={false}`) and build the profile from the carried resume
+  text. This is the next step.
+- **The old `/ats-scan` → `/gulf-readiness` flow still exists** alongside the new
+  `/gulf-readiness-score`. They overlap. Decide whether the old one is retired or kept for
+  the job-description/Job Match path. Three readiness route names now coexist
+  (`/gulf-readiness`, `/gcc-readiness`, `/gulf-readiness-score`) — worth consolidating
+  deliberately, not urgently.
+
+The weights and the twelve band messages are first-draft numbers in
+`lib/gulfReadiness/config.ts`, meant to be tuned once real scores come in.
+
+---
+
 ## A. Decisions only the founder can make
 
 These block work. Nothing else in this file matters as much as the first one.

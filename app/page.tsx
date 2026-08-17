@@ -34,7 +34,7 @@ const countryFlags: Record<string, string> = {
 
 const services = [
   { icon: UserCircleIcon, title: 'Build Your Career Profile', desc: 'Tell us about your experience once. Your profile becomes the trusted source for every future application.', href: '/onboarding' },
-  { icon: ChartBarIcon, title: 'Check Your Gulf Readiness', desc: 'Understand how prepared your experience, resume and skills are for Gulf employers — free, no login.', href: '/ats-scan' },
+  { icon: ChartBarIcon, title: 'Check Your Gulf Readiness', desc: 'Understand how prepared your experience, resume and skills are for Gulf employers — free, no login.', href: '/gulf-readiness-score' },
   { icon: SparklesIcon, title: 'Create a GCC-Optimized Resume', desc: 'Generate a professional resume tailored to the specific country and role you\'re targeting.', href: '/onboarding' },
   { icon: DocumentTextIcon, title: 'Prepare to Apply', desc: 'Get job-specific optimization, cover letters and application-ready packages.', href: '/dashboard' },
 ]
@@ -157,7 +157,7 @@ export default function Home() {
                   <Link href="/onboarding" className={cn(buttonVariants({ variant: 'purchase' }), 'text-[15px] px-6')}>
                     Get Started Free <ArrowRightIcon className="ml-1 h-4 w-4" />
                   </Link>
-                  <Link href="/ats-scan" className={cn(buttonVariants({ variant: 'secondary' }), 'text-[15px] border-white/30 bg-white/5 text-white hover:bg-white/10')}>
+                  <Link href="/gulf-readiness-score" className={cn(buttonVariants({ variant: 'secondary' }), 'text-[15px] border-white/30 bg-white/5 text-white hover:bg-white/10')}>
                     Check My Gulf Readiness
                   </Link>
                 </div>
