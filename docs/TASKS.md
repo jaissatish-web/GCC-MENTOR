@@ -3138,6 +3138,46 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-159: widen the photo slider's upward range**
+
+      Founder: the slider works, give it more room to enlarge.
+
+      Maximum raised **1.4× → 2.4×**. The curve is now piecewise linear with a fixed
+      knee at 50: the bottom half of the travel spends itself between 0.6 and 1.0,
+      the top half between 1.0 and 2.4. Deliberately asymmetric — a Gulf CV photo
+      below about 0.6× stops being recognisable, so there is nothing to gain from
+      more downward travel, while "noticeably bigger" is the actual request.
+
+      **The knee is what protects the promise that 50 means exactly the template's
+      own size.** It is pinned to 1.0 by construction rather than landing wherever a
+      single linear range happens to put it — so widening the maximum again later can
+      never shift the default, and can never change how an existing resume renders.
+
+      **One real constraint found and capped:** at 2.4× a rail circle computes to
+      269px inside a rail whose content column is 194px, and it bled over the rail's
+      edge. The circle is now capped to the rail's usable width, declared as a named
+      constant rather than a magic number.
+
+      **Verified: 10 assertions** — 50 still maps to exactly 1.0, 0 still 0.6, 100 now
+      2.4, the midpoints either side of the knee land on 0.8 and 1.7, the curve is
+      monotonically increasing across all 101 positions, and the pixel results come
+      out at 173px and 182px for the two header photo bases. Then **every photo
+      template rendered at both 50 and 100 — 20 combinations** — checked for
+      horizontal overflow, the photo escaping its page, and the photo escaping its
+      rail: none in any of them. Rail circles cap at exactly 194px as intended;
+      header photos reach 182×226.
+
+      Gulf Premium correctly shows 76×94 at both positions — it is hand-written and
+      ignores overrides (Unplanned #26), and the panel already tells the user its
+      style is fixed rather than offering a slider that would not move.
+
+      `tsc`, `lint`, a full production build (45 routes) and the
+      32,768-permutation golden baseline all clean.
+
+      Depends on: TASK-158 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*

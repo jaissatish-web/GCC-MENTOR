@@ -85,13 +85,31 @@ export type AccentKey = keyof typeof ACCENT_OPTIONS
  */
 export const PHOTO_DEFAULT = 50
 const PHOTO_MIN_MULT = 0.6
-const PHOTO_MAX_MULT = 1.4
+const PHOTO_MAX_MULT = 2.4
 
-/** Slider position -> dimension multiplier. 0 -> 0.6, 50 -> 1.0, 100 -> 1.4. */
+/**
+ * Slider position -> dimension multiplier. 0 -> 0.6, 50 -> 1.0, 100 -> 2.4.
+ *
+ * DELIBERATELY ASYMMETRIC (TASK-159). The founder asked for more room to enlarge,
+ * and the two directions do not need equal travel: a Gulf CV photo smaller than
+ * about 0.6x stops being recognisable, while "noticeably bigger" is a real and
+ * common request. So the curve is piecewise linear with a fixed knee at 50 — the
+ * bottom half spends its travel between 0.6 and 1.0, the top half between 1.0 and
+ * 2.4, giving three times the upward range.
+ *
+ * The knee is what protects the promise that 50 means "exactly the template's own
+ * size": it is pinned to 1.0 by construction rather than falling wherever a single
+ * linear range happens to put it. Widening the maximum can therefore never shift
+ * the default, which is the property that lets an existing resume render
+ * unchanged.
+ */
 export function photoMultiplier(position: number | undefined | null): number {
   const p = typeof position === 'number' && Number.isFinite(position) ? position : PHOTO_DEFAULT
   const clamped = Math.min(100, Math.max(0, p))
-  const mult = PHOTO_MIN_MULT + (clamped / 100) * (PHOTO_MAX_MULT - PHOTO_MIN_MULT)
+  const mult =
+    clamped <= PHOTO_DEFAULT
+      ? PHOTO_MIN_MULT + (clamped / PHOTO_DEFAULT) * (1 - PHOTO_MIN_MULT)
+      : 1 + ((clamped - PHOTO_DEFAULT) / (100 - PHOTO_DEFAULT)) * (PHOTO_MAX_MULT - 1)
   return Math.round(mult * 1000) / 1000
 }
 

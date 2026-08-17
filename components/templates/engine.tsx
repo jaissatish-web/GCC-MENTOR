@@ -140,6 +140,9 @@ const DEFAULT_LABELS: Record<SectionKey, string> = {
   additional: 'Additional Information',
 }
 
+/** Usable width inside the filled rail: 238px wide, 22px padding each side. */
+const RAIL_CONTENT_W = 194
+
 function pt(n: number): string {
   return `${Math.round(n * 100) / 100}pt`
 }
@@ -689,11 +692,18 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
               style={{
                 // A rect photo in the rail spans the rail's width, so only its
                 // height responds to the slider; a circle scales both.
+                // Capped to the rail's own content width (238px rail minus 22px
+                // padding each side). Without the cap the widened slider range
+                // (TASK-159) pushed a 2.4x circle to 269px inside a 194px column
+                // and it bled over the rail edge.
                 width:
                   theme.photoShape === 'circle'
-                    ? `${Math.round(112 * photoScale)}px`
+                    ? `${Math.min(RAIL_CONTENT_W, Math.round(112 * photoScale))}px`
                     : '100%',
-                height: `${Math.round((theme.photoShape === 'circle' ? 112 : 132) * photoScale)}px`,
+                height:
+                  theme.photoShape === 'circle'
+                    ? `${Math.min(RAIL_CONTENT_W, Math.round(112 * photoScale))}px`
+                    : `${Math.round(132 * photoScale)}px`,
                 objectFit: 'cover',
                 borderRadius: photoRadius,
                 display: 'block',
