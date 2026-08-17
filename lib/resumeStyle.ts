@@ -71,10 +71,36 @@ export const ACCENT_OPTIONS = {
 
 export type AccentKey = keyof typeof ACCENT_OPTIONS
 
+/**
+ * Photo size, as a 0–100 slider position (TASK-158).
+ *
+ * A NUMBER is safe here where a font-family string was not: it is validated as an
+ * integer, clamped to the range, and only ever multiplied into a pixel dimension,
+ * so there is no path from it into arbitrary CSS. That is why this one control can
+ * be continuous while font and colour stay as named keys.
+ *
+ * 50 is the DEFAULT and maps to exactly 1.0 — the size every template already
+ * used. So a user who never touches the slider sees no change, and it has room to
+ * move in both directions rather than only up from the smallest size.
+ */
+export const PHOTO_DEFAULT = 50
+const PHOTO_MIN_MULT = 0.6
+const PHOTO_MAX_MULT = 1.4
+
+/** Slider position -> dimension multiplier. 0 -> 0.6, 50 -> 1.0, 100 -> 1.4. */
+export function photoMultiplier(position: number | undefined | null): number {
+  const p = typeof position === 'number' && Number.isFinite(position) ? position : PHOTO_DEFAULT
+  const clamped = Math.min(100, Math.max(0, p))
+  const mult = PHOTO_MIN_MULT + (clamped / 100) * (PHOTO_MAX_MULT - PHOTO_MIN_MULT)
+  return Math.round(mult * 1000) / 1000
+}
+
 export interface ResumeStyleOverrides {
   font?: FontKey
   size?: SizeKey
   accent?: AccentKey
+  /** Slider position 0-100. Absent means PHOTO_DEFAULT. */
+  photo?: number
 }
 
 export function isFontKey(v: unknown): v is FontKey {
@@ -114,6 +140,18 @@ export function parseStyleOverrides(
   if (o.accent !== undefined && o.accent !== null) {
     if (!isAccentKey(o.accent)) return { error: 'styleOverrides.accent' }
     out.accent = o.accent
+  }
+  if (o.photo !== undefined && o.photo !== null) {
+    // Integer in range, rejected rather than clamped: a request carrying 5000
+    // is a bug or an attack, and silently storing 100 would hide it. Rounded
+    // first so 50.4 from a slider is accepted as 50.
+    if (typeof o.photo !== 'number' || !Number.isFinite(o.photo)) {
+      return { error: 'styleOverrides.photo' }
+    }
+    const rounded = Math.round(o.photo)
+    if (rounded < 0 || rounded > 100) return { error: 'styleOverrides.photo' }
+    // The default is not an override — storing it would claim a choice.
+    if (rounded !== PHOTO_DEFAULT) out.photo = rounded
   }
 
   // Nothing set is stored as NULL rather than `{}` — one representation for
@@ -173,6 +211,10 @@ export function applyStyleOverrides(
     const a = ACCENT_OPTIONS[overrides.accent]
     next.accent = a.hex
     next.accentSoft = a.soft
+  }
+
+  if (overrides.photo !== undefined) {
+    next.photoScale = photoMultiplier(overrides.photo)
   }
 
   return next

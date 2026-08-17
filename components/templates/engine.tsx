@@ -116,6 +116,11 @@ export interface TemplateTheme {
    * the renderer falls back to the joined lines when it is absent.
    */
   contactIcons?: boolean
+  /**
+   * Multiplier on the photo's dimensions (TASK-158). 1 = the size the template
+   * was designed with. Driven by the user's slider via applyStyleOverrides.
+   */
+  photoScale?: number
 }
 
 type SectionKey =
@@ -343,6 +348,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
   const useIcons = Boolean(theme.contactIcons) && contactItems.length > 0
 
   const photoRadius = theme.photoShape === 'circle' ? '50%' : '2px'
+  const photoScale = theme.photoScale ?? 1
 
   /** Contact facts stacked one per line, each with its glyph. */
   const ContactList = ({ color, muted }: { color: string; muted: string }) =>
@@ -401,7 +407,13 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
         <img
           src={header.photoUrl as string}
           alt=""
-          style={{ width: '72px', height: '90px', objectFit: 'cover', borderRadius: '2px', flexShrink: 0 }}
+          style={{
+            width: `${Math.round(72 * photoScale)}px`,
+            height: `${Math.round(90 * photoScale)}px`,
+            objectFit: 'cover',
+            borderRadius: photoRadius,
+            flexShrink: 0,
+          }}
         />
       ) : null}
       <div style={{ minWidth: 0 }}>
@@ -550,8 +562,8 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
           src={header.photoUrl as string}
           alt=""
           style={{
-            width: '76px',
-            height: theme.photoShape === 'circle' ? '76px' : '94px',
+            width: `${Math.round(76 * photoScale)}px`,
+            height: `${Math.round((theme.photoShape === 'circle' ? 76 : 94) * photoScale)}px`,
             objectFit: 'cover',
             borderRadius: photoRadius,
             flexShrink: 0,
@@ -675,8 +687,13 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
               src={header.photoUrl as string}
               alt=""
               style={{
-                width: theme.photoShape === 'circle' ? '112px' : '100%',
-                height: theme.photoShape === 'circle' ? '112px' : '132px',
+                // A rect photo in the rail spans the rail's width, so only its
+                // height responds to the slider; a circle scales both.
+                width:
+                  theme.photoShape === 'circle'
+                    ? `${Math.round(112 * photoScale)}px`
+                    : '100%',
+                height: `${Math.round((theme.photoShape === 'circle' ? 112 : 132) * photoScale)}px`,
                 objectFit: 'cover',
                 borderRadius: photoRadius,
                 display: 'block',

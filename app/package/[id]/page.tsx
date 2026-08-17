@@ -12,6 +12,7 @@ import {
   FONT_OPTIONS,
   SIZE_OPTIONS,
   readStyleOverrides,
+  PHOTO_DEFAULT,
   type AccentKey,
   type FontKey,
   type ResumeStyleOverrides,
@@ -214,11 +215,17 @@ function PackageScreenInner({ id }: { id: string }) {
   const savedTemplateId = getTemplate((pkg as { template_id?: string | null }).template_id).id
   const styleDirty = JSON.stringify(draftStyle) !== JSON.stringify(savedStyle)
   const hasStyle = Object.keys(savedStyle).length > 0
+  const photoPos = draftStyle.photo ?? PHOTO_DEFAULT
+  /** Only offer the size control when there is actually a photo to size. */
+  const hasPhoto = Boolean(
+    (pkg.document_snapshot as ResumeDocument | null)?.header?.photoUrl ?? profile?.photo_url,
+  )
   const tryingTemplateId = requestedTemplate ? getTemplate(requestedTemplate).id : null
   const isTrying = !!tryingTemplateId && tryingTemplateId !== savedTemplateId
   const activeTemplateId = isTrying ? (tryingTemplateId as TemplateId) : savedTemplateId
   const Template = getTemplate(activeTemplateId).component
   const styleable = getTemplate(activeTemplateId).styleable
+  const allowsPhoto = getTemplate(activeTemplateId).allowsPhoto
   /**
    * The document the picker previews.
    *
@@ -566,6 +573,44 @@ function PackageScreenInner({ id }: { id: string }) {
                       {/* Save/Undo moved up beside Download PDF (TASK-156). Only
                           Reset stays here, because it belongs with the controls it
                           clears rather than with the document's actions. */}
+                      {/* PHOTO SIZE (TASK-158, founder-directed).
+                          A slider rather than named steps because size is the one
+                          property where "a bit bigger" is the actual request, and a
+                          number is safe to accept: it is validated as an integer in
+                          range and only ever multiplied into a pixel dimension, so
+                          unlike a font name it has no route into arbitrary CSS.
+
+                          Hidden when the template prints no photo. A control that
+                          cannot move is worse than an absent one. */}
+                      {allowsPhoto && hasPhoto ? (
+                        <div className="mt-4">
+                          <label
+                            htmlFor="photo-size"
+                            className="flex items-baseline justify-between text-[11px] text-ink-400"
+                          >
+                            <span>Photo size</span>
+                            <span className="text-ink-700">{photoPos}%</span>
+                          </label>
+                          <input
+                            id="photo-size"
+                            type="range"
+                            min={0}
+                            max={100}
+                            step={5}
+                            value={photoPos}
+                            onChange={(e) =>
+                              setDraftStyle((st) => ({ ...st, photo: Number(e.target.value) }))
+                            }
+                            className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-2-light accent-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                          />
+                          <div className="mt-1 flex justify-between text-[10px] text-ink-400">
+                            <span>Smaller</span>
+                            <span>50% = template default</span>
+                            <span>Larger</span>
+                          </div>
+                        </div>
+                      ) : null}
+
                       {styleDirty ? (
                         <p className="mt-3 text-[11.5px] text-ink-400">
                           Unsaved — use <strong className="text-ink-700">Save style</strong> at the

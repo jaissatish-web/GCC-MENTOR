@@ -87,6 +87,13 @@ export interface TemplateEntry {
    * offering settings that do nothing.
    */
   styleable: boolean
+  /**
+   * Whether this template prints a photo at all (TASK-158). Read from the theme
+   * itself where there is one, so it cannot drift from what the renderer does.
+   * The resume screen hides the photo-size slider when this is false, rather than
+   * offering a control with nothing to move.
+   */
+  allowsPhoto: boolean
   /** False until the renderer exists — the picker only offers real templates. */
   available: boolean
   /**
@@ -116,6 +123,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: true,
     styleable: false,
     component: GulfPremium,
   },
@@ -131,6 +139,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'maximum',
     available: true,
+    allowsPhoto: false,
     styleable: false,
     component: AtsClassic,
   },
@@ -146,6 +155,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.GCC_ENGINEERING.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.GCC_ENGINEERING),
   },
@@ -161,6 +171,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.EXECUTIVE_GCC.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.EXECUTIVE_GCC),
   },
@@ -176,6 +187,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.MODERN_PROFESSIONAL.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.MODERN_PROFESSIONAL),
   },
@@ -191,6 +203,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.SENIOR_COMPACT.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.SENIOR_COMPACT),
   },
@@ -206,6 +219,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'maximum',
     available: true,
+    allowsPhoto: themes.GULF_MINIMAL.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.GULF_MINIMAL),
   },
@@ -221,6 +235,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.CORPORATE_BAND.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.CORPORATE_BAND),
   },
@@ -236,6 +251,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.TECHNICAL_SIDEBAR.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.TECHNICAL_SIDEBAR),
   },
@@ -251,6 +267,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.GRADUATE_ENTRY.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.GRADUATE_ENTRY),
   },
@@ -266,6 +283,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.PORTRAIT_RIGHT.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.PORTRAIT_RIGHT),
   },
@@ -281,6 +299,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.CONSULTANT_RIGHT.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.CONSULTANT_RIGHT),
   },
@@ -296,6 +315,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.HERITAGE_LEFT.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.HERITAGE_LEFT),
   },
@@ -311,6 +331,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.PROJECT_TWOCOL.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.PROJECT_TWOCOL),
   },
@@ -326,6 +347,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    allowsPhoto: themes.CREATIVE_GCC.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.CREATIVE_GCC),
   },

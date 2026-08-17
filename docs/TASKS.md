@@ -3087,6 +3087,57 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-158: photo size slider in the Text style panel**
+
+      Founder: add a bar so the user can increase the photo size, default 50%,
+      inside the Text style box.
+
+      **A slider rather than named steps**, because size is the one property where
+      "a bit bigger" is the literal request and three preset buttons would not serve
+      it. A number is also the one value safe to accept continuously: it is
+      validated as an integer in range and only ever multiplied into a pixel
+      dimension, so unlike a font-family string it has no route into arbitrary CSS.
+      Font and colour stay as named keys for exactly that reason.
+
+      **50 maps to 1.0** — the size every template was already designed with. The
+      default position is therefore not a change, existing resumes render
+      byte-identically, and the slider has room in both directions rather than only
+      upward from the smallest size. Range 0.6× to 1.4×.
+
+      Validation **rejects out-of-range rather than clamping**: a request carrying
+      5000 is a bug or an attack, and silently storing 100 would hide it. 50 is never
+      stored, since writing the default would claim a choice the user did not make —
+      the same rule migrations 035/036 follow for `template_id` and `name`.
+
+      Applied at all three photo sites: plain header (72×90), banded header (76×94,
+      or 76×76 circular) and filled rail (112 circle, or full-width × 132 rect). The
+      rect-in-rail case scales height only, because its width is the rail's width and
+      scaling that would mean nothing.
+
+      New `allowsPhoto` registry flag, **read from the theme itself** where there is
+      one so it cannot drift from what the renderer does. The slider is hidden when
+      the template prints no photo, or when the user has no photo — a control that
+      cannot move is worse than an absent one.
+
+      **Verified: 20 assertions** — default 50; 50 maps to exactly 1.0; 0 and 100 map
+      to 0.6 and 1.4; `undefined` and `NaN` fall back to the default; valid values
+      accepted; 50 and 50.4 both correctly not stored; out-of-range, negative, string
+      and NaN all rejected; a CSS-injection attempt through the photo field rejected;
+      the shared theme provably not mutated; and the header photo computing 101px at
+      max and 43px at min from its 72px base. Then in a browser: `creative_gcc`
+      circle 112 → 67 min → 157 max, `heritage_left` 76×94 → 106×132,
+      `modern_professional` 72×90 → 101×126, **every default matching the pre-change
+      value exactly**, A4 height held at 1123px throughout. `tsc`, `lint`, a full
+      production build (45 routes) and the 32,768-permutation golden baseline all
+      clean.
+
+      **Not verified:** dragging the slider on a live paid resume, which needs a
+      login. The value path and the rendered pixel result were exercised directly.
+
+      Depends on: TASK-152, TASK-156 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
