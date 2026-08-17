@@ -286,3 +286,57 @@ export function buildResumeDocument({
     additional,
   }
 }
+
+/**
+ * Re-apply the user's own text edits to an ALREADY-FROZEN document (TASK-145).
+ *
+ * THE BUG THIS CLOSES. Migration 034 froze the rendered document so that
+ * editing the Career Profile could not rewrite a resume someone had already
+ * paid for. But the snapshot is written exactly once, at generation, and
+ * generation refuses to run twice (app/api/optimize/route.ts's idempotence
+ * check). Editing the resume's TEXT — "Edit text" on /package/[id] →
+ * /optimize/preview/[id] → PATCH /api/packages/[id] — updates
+ * `optimized_content` and nothing else. Both renderers that matter prefer the
+ * snapshot, so every edit was silently dropped from the on-screen document and
+ * from the downloaded PDF while still showing as saved on the edit screen.
+ *
+ * WHY NOT JUST REBUILD THE WHOLE DOCUMENT. Calling buildResumeDocument again at
+ * edit time would read the LIVE profile, which is precisely what migration 034
+ * exists to prevent: a user who changed their job title and then fixed a typo
+ * in a bullet would have the title change leak into a delivered resume. So this
+ * touches ONLY the two things a user can actually edit — the summary and the
+ * experience bullets — and leaves every fixed field exactly as delivered.
+ *
+ * FALLBACKS POINT AT THE SNAPSHOT, NOT THE PROFILE. buildResumeDocument falls
+ * back to profile.professional_summary and entry.highlights; there is no
+ * profile here by design, so an empty edit falls back to what the frozen
+ * document already says. Clearing an edit therefore restores the delivered
+ * wording rather than blanking a paid document.
+ *
+ * Precedence is kept identical to buildResumeDocument above — the two must
+ * agree, which is why this lives beside it rather than in the route.
+ */
+export function applyContentEditsToDocument(
+  doc: ResumeDocument,
+  optimizedContent: OptimizedContent
+): ResumeDocument {
+  const summary =
+    optimizedContent.summary?.user_edited?.trim() ||
+    optimizedContent.summary?.generated?.trim() ||
+    doc.summary
+
+  const blocksById = new Map(
+    (optimizedContent.experience_blocks ?? []).map((b) => [b.profile_experience_id, b])
+  )
+
+  const experience = doc.experience.map((item) => {
+    const block = blocksById.get(item.entry.id)
+    if (!block) return item
+    const bullets = block.user_edited_bullets ?? block.generated_bullets ?? null
+    if (bullets === null) return item
+    const cleaned = bullets.filter((b) => b && b.trim() !== '')
+    return { ...item, bullets: cleaned }
+  })
+
+  return { ...doc, summary, experience }
+}

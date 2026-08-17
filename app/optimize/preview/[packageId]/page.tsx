@@ -11,26 +11,27 @@ import type { OptimizedContent, Package } from '@/types/package'
  * Before / after preview — screen 08 (TASK-033), route
  * /optimize/preview/[packageId].
  *
- * Two tabs: "Changes (N)" and "Full CV", matching the mockup (dark active tab,
- * white inactive). The CHANGES tab is NOT payment-gated and is shown in full:
- * it renders the per-block diff from the package's already-built
+ * WHAT THIS SCREEN IS NOW: the text editor for a resume that has already been
+ * bought. It renders the per-block diff from the package's already-built
  * optimized_content (TASK-021) — we are NOT re-deriving anything, only
  * rendering it as a diff (word-level highlighting + strike-through via the
  * `diff` library; the "added JD language" is computed as words present in the
  * generated text but absent from the source — the before/after comparison).
- * Generated text is inline-editable here (PATCH /api/packages/[id]);
- * fixed fields are not editable.
+ * Generated text is inline-editable here (PATCH /api/packages/[id]); fixed
+ * fields are not editable.
  *
- * The FULL CV tab shows the RESOLVED TASK-044 Option B: a blurred/watermarked
- * preview. The image is produced SERVER-SIDE by
- * GET /api/packages/[id]/preview-image (render GulfPremium → blur + watermark
- * in the HTML → Puppeteer screenshot → serve only the PNG). The client only
- * ever receives that raster; it never gets the real unblurred CV text here.
- * "Unlock full CV" CTA → /optimize/pay/[packageId] (payment is TASK-042/043,
- * blocked).
+ * WHAT IT USED TO BE, and why that broke (TASK-145). This was the sales pitch:
+ * a free generation, shown blurred and watermarked, with an "Unlock full CV"
+ * CTA. TASK-131 inverted the funnel — payment now precedes generation — and
+ * added a guard at the top of this component that redirects an unpaid package
+ * to /optimize/pay and a paid-but-ungenerated one to /optimize/generate. The
+ * guard shipped; the sales pitch did not come out with it. The result was that
+ * the ONLY people who could reach this screen were paying customers, and they
+ * were shown their own resume blurred, over the words "Unlock to download",
+ * with a gold button that bounced them off /optimize/pay straight back again.
+ * The blurred preview, the Full CV tab and the Unlock CTA are all gone; the
+ * real document lives on /package/[id].
  */
-
-type Tab = 'changes' | 'full'
 
 interface Editing {
   summary?: boolean
@@ -43,7 +44,6 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
   const [pkg, setPkg] = useState<Package | null>(null)
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<Tab>('changes')
   const [editing, setEditing] = useState<Editing>({})
   const [draftSummary, setDraftSummary] = useState('')
   const [draftBullet, setDraftBullet] = useState('')
@@ -65,13 +65,12 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
           return
         }
         const p = pkgData.package as Package
-        // PAID-ONLY from TASK-131 onwards. This screen used to be the sales
-        // pitch: it showed a blurred, watermarked render of a resume that had
-        // already been generated for free, and asked the user to unlock it.
-        // Optimization no longer runs before payment, so an unpaid package has
-        // nothing to preview — send them to pay, and a paid-but-ungenerated one
-        // to finish generating. The blurred-preview branch below is now
-        // unreachable and is being removed with its route.
+        // PAID-ONLY from TASK-131 onwards. Optimization no longer runs before
+        // payment, so an unpaid package has nothing to preview — send them to
+        // pay, and a paid-but-ungenerated one to finish generating. The
+        // blurred-preview branch this guard made unreachable is now actually
+        // gone (TASK-145); it stayed in the file for a day, which meant paying
+        // customers were the only ones who ever saw the "unlock" pitch.
         if (!p.is_paid) {
           router.replace(`/optimize/pay/${encodeURIComponent(packageId)}`)
           return
@@ -204,8 +203,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
     )
   }
 
-  const imageUrl = `/api/packages/${encodeURIComponent(packageId)}/preview-image`
-  const handleUnlock = () => router.push(`/optimize/pay/${packageId}`)
+  const handleDone = () => router.push(`/package/${encodeURIComponent(packageId)}`)
 
   return (
     <main className="flex min-h-dvh flex-col bg-bg">
@@ -219,87 +217,52 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
           ←
         </button>
         <h1 className="font-serif text-[26px] leading-tight text-ink-900">Here&apos;s what changed</h1>
-        {/* Tabs */}
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setTab('changes')}
-            aria-pressed={tab === 'changes'}
-            className={cn(
-              'min-h-11 rounded-[9px] px-3.5 py-2 text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
-              tab === 'changes' ? 'bg-forest-deep text-white' : 'border border-line-light bg-surface-light font-medium text-ink-700'
-            )}
-          >
-            Changes ({changeCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab('full')}
-            aria-pressed={tab === 'full'}
-            className={cn(
-              'min-h-11 rounded-[9px] px-3.5 py-2 text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2',
-              tab === 'full' ? 'bg-forest-deep text-white' : 'border border-line-light bg-surface-light font-medium text-ink-700'
-            )}
-          >
-            Full CV
-          </button>
-        </div>
+        {/* The "Full CV" tab is gone (TASK-145). It showed a blurred,
+            watermarked raster of the resume — the pre-payment sales pitch —
+            on a screen only a paying customer can now reach. The real,
+            unblurred document already has a screen of its own at
+            /package/[id], which is also where downloading and template
+            switching live; rendering it a second time here would be the
+            duplicate that TASK-141 deliberately avoided. */}
+        <p className="text-[12px] text-ink-400">{changeCount} change{changeCount === 1 ? '' : 's'} to review</p>
       </div>
 
-      {/* lg: two columns — left = the tabbed Changes/Full CV panel (unchanged),
-          right rail = a persistent server-rendered blurred preview + Unlock CTA
-          (visible regardless of active tab, per PAGE_SPECS §C / CTO round 2).
-          The tab footers' Unlock CTAs are hidden on lg so the rail is the single
-          desktop CTA; below lg everything stays single-column as built. */}
+      {/* lg: two columns — left = the changes/edit panel, right rail = the same
+          "back to your CV" action the mobile footer carries. The rail used to
+          hold a blurred preview and an Unlock CTA; both are gone (TASK-145).
+          This screen is reachable only by a paying customer now, so selling
+          them the resume they already own was the defect, not the layout. */}
       <div className="flex flex-1 flex-col lg:flex-row lg:gap-4 lg:px-8 lg:pb-6">
-        {tab === 'changes' ? (
-          <ChangesTab
-            oc={oc}
-            summaryBefore={summaryBefore}
-            summaryAfter={summaryAfter}
-            editing={editing}
-            draftSummary={draftSummary}
-            draftBullet={draftBullet}
-            setDraftSummary={setDraftSummary}
-            setDraftBullet={setDraftBullet}
-            setEditing={setEditing}
-            saveSummary={saveSummary}
-            saveBullet={saveBullet}
-            saveBusy={saveBusy}
-            skillsMovement={skillsMovement}
-            profile={profile}
-            onUnlock={handleUnlock}
-          />
-        ) : (
-          <FullCVTab
-            pkgTitle={pkg.target_job_title}
-            pkgCompany={pkg.target_company}
-            imageUrl={imageUrl}
-            onUnlock={handleUnlock}
-          />
-        )}
+        <ChangesTab
+          oc={oc}
+          summaryBefore={summaryBefore}
+          summaryAfter={summaryAfter}
+          editing={editing}
+          draftSummary={draftSummary}
+          draftBullet={draftBullet}
+          setDraftSummary={setDraftSummary}
+          setDraftBullet={setDraftBullet}
+          setEditing={setEditing}
+          saveSummary={saveSummary}
+          saveBullet={saveBullet}
+          saveBusy={saveBusy}
+          skillsMovement={skillsMovement}
+          profile={profile}
+          onDone={handleDone}
+        />
 
-        {/* Right rail (≥lg): persistent server-rendered blurred preview + CTA —
-            reuses the exact imageUrl endpoint wired into FullCVTab (same
-            server-rendered PNG; NO client-side CSS blur is introduced). */}
         <aside className="hidden shrink-0 flex-col gap-3 lg:flex lg:w-[340px] lg:border-l lg:border-line-light lg:pl-5">
           <p className="text-[11.5px] leading-relaxed text-ink-400">
-            A blurred preview of your optimized CV. Unlock to download &amp; edit.
+            Edit the generated wording here. Every change saves as you make it, and appears on your
+            CV and in the PDF you download.
           </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
-            alt="Blurred preview of your optimized full CV"
-            className="w-full rounded-radius-lg border border-line-light"
-          />
           <button
             type="button"
-            onClick={handleUnlock}
+            onClick={handleDone}
             className="min-h-11 w-full rounded-radius-md bg-redesign-gold px-4 py-4 text-[15px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
           >
-            Unlock full CV
+            Back to your CV
           </button>
-          <p className="text-center text-[11px] text-ink-400">One-time · PDF download · saved to your Library</p>
         </aside>
       </div>
     </main>
@@ -344,7 +307,7 @@ function ChangesTab({
   saveBusy,
   skillsMovement,
   profile,
-  onUnlock,
+  onDone,
 }: {
   oc: OptimizedContent | null
   summaryBefore: string
@@ -360,7 +323,7 @@ function ChangesTab({
   saveBusy: boolean
   skillsMovement: Array<{ name: string; movement: number }>
   profile: CareerProfileFull | null
-  onUnlock: () => void
+  onDone: () => void
 }) {
   return (
     <>
@@ -507,55 +470,18 @@ function ChangesTab({
         ) : null}
       </div>
 
-      {/* Footer — Unlock CTA shows below lg; on lg the right rail is the CTA */}
+      {/* Footer — below lg; on lg the right rail carries the same action. */}
       <div className="flex flex-col gap-1.5 px-5 pb-6 pt-3 lg:hidden">
         <button
           type="button"
-          onClick={onUnlock}
+          onClick={onDone}
           className="min-h-11 rounded-[13px] bg-redesign-gold px-4 py-4 text-[15px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
         >
-          Unlock full CV
+          Back to your CV
         </button>
-        <p className="text-center text-[11px] text-ink-400">One-time · PDF download · saved to your Library</p>
+        <p className="text-center text-[11px] text-ink-400">Edits save as you make them</p>
       </div>
     </>
-  )
-}
-
-function FullCVTab({
-  pkgTitle,
-  pkgCompany,
-  imageUrl,
-  onUnlock,
-}: {
-  pkgTitle: string
-  pkgCompany: string | null
-  imageUrl: string
-  onUnlock: () => void
-}) {
-  return (
-    <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-5 pb-4">
-      <p className="text-[11.5px] leading-relaxed text-ink-400">
-        A blurred preview of your optimized CV for <strong className="text-ink-900">{pkgTitle}</strong>
-        {pkgCompany ? ` (${pkgCompany})` : ''}. Unlock to download &amp; edit.
-      </p>
-      {/* The Full CV preview is a SERVER-rendered blurred image — the client
-          never receives the real unblurred text (TASK-044 Option B). */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={imageUrl}
-        alt="Blurred preview of your optimized full CV"
-        className="w-full rounded-radius-lg border border-line-light"
-      />
-      <button
-        type="button"
-        onClick={onUnlock}
-        className="mt-2 min-h-11 rounded-[13px] bg-redesign-gold px-4 py-4 text-[15px] font-bold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 lg:hidden"
-      >
-        Unlock full CV
-      </button>
-      <p className="text-center text-[11px] text-ink-400 lg:hidden">One-time · PDF download · saved to your Library</p>
-    </div>
   )
 }
 

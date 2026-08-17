@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { PACKAGE_STATUSES } from '@/lib/utils'
 import { TEMPLATES, isTemplateId } from '@/lib/templates'
+import { applyContentEditsToDocument } from '@/lib/resumeDocument'
+import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
 
 /**
@@ -18,10 +20,12 @@ import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
  * caller in the SAME query, so a row belonging to another user matches nothing
  * and 404s — never a leak, never a cross-user write (RLS also applies).
  *
- * PATCH write scope: ONLY the `optimized_content` jsonb column via a
- * read-modify-write merge (PostgREST replaces a jsonb column wholesale). It
- * never touches is_paid, status or any other column. Hiding a field / deleting
- * is untouched here. Shape is validated before any write; only the keys
+ * PATCH write scope: `optimized_content` via a read-modify-write merge
+ * (PostgREST replaces a jsonb column wholesale), and — only when that content
+ * actually changed — `document_snapshot`, so the frozen document the renderers
+ * read stays in step with the edit (TASK-145). Plus the metadata columns the
+ * later sections below add: `name`, `status`, `template_id`/`template_version`.
+ * It never touches is_paid. Shape is validated before any write; only the keys
  * provided are merged (summary.user_edited and/or per-block
  * user_edited_bullets keyed by profile_experience_id), everything else in the
  * package's optimized_content is preserved.
@@ -174,7 +178,7 @@ export async function PATCH(
   // ---- Load the current package (owner-scoped) to read its optimized_content -
   const { data: pkg, error: loadErr } = await supabase
     .from('packages')
-    .select('id, optimized_content')
+    .select('id, optimized_content, document_snapshot')
     .eq('id', packageId)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -337,9 +341,27 @@ export async function PATCH(
     // optimize route's buildOptimizedContent).
   }
 
+  // KEEP THE FROZEN DOCUMENT IN STEP WITH THE EDIT (TASK-145).
+  //
+  // document_snapshot (migration 034) is what the resume screen and the PDF
+  // route actually render — they prefer it over the live profile so a paid
+  // document cannot change underneath its buyer. It was written once, at
+  // generation, and nothing rewrote it afterwards, so every text edit made here
+  // was saved to optimized_content and then silently ignored by both renderers.
+  //
+  // Only the summary and the bullets are re-applied — the two things a user can
+  // edit. Every fixed field stays exactly as delivered, which is the promise
+  // migration 034 makes and this must not weaken. Packages generated before 034
+  // have no snapshot and are left alone: they render from the live profile, as
+  // they always have.
+  const existingSnapshot = pkg.document_snapshot as ResumeDocument | null
+  const snapshotUpdate = existingSnapshot
+    ? { document_snapshot: applyContentEditsToDocument(existingSnapshot, oc) }
+    : {}
+
   const { data: updated, error: updateErr } = await supabase
     .from('packages')
-    .update({ optimized_content: oc, ...(templateUpdate ?? {}) })
+    .update({ optimized_content: oc, ...snapshotUpdate, ...(templateUpdate ?? {}) })
     .eq('id', packageId)
     .eq('user_id', user.id)
     .select('id')
