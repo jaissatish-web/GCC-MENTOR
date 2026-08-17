@@ -5,6 +5,7 @@ import { createElement } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { type GulfPremiumProps } from '@/components/templates/GulfPremium'
 import { getTemplate } from '@/lib/templates'
+import { readStyleOverrides } from '@/lib/resumeStyle'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type {
   CareerProfile,
@@ -191,6 +192,12 @@ export async function GET(
     }) as OptimizedContent,
     skillsOrder: pkg.skills_order ?? [],
     fieldVisibility: pkg.field_visibility_snapshot ?? null,
+    // The user's saved font/size/accent (TASK-152). Read through
+    // readStyleOverrides so a row holding anything unexpected degrades to
+    // template defaults rather than 500ing on a paid download.
+    styleOverrides: readStyleOverrides(
+      (pkgRow as { style_overrides?: unknown }).style_overrides,
+    ),
   }
 
   try {

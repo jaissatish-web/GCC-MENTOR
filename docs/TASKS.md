@@ -2753,6 +2753,82 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-152: let the user change the resume's font, size and colour, and save it**
+
+      Founder's ask: adjust text style, size and colour in the resume preview
+      against their own loaded data, then save. Migration **037** adds
+      `packages.style_overrides jsonb`, **applied to the live database and
+      confirmed against `information_schema`**, not assumed.
+
+      **Why a separate column from `document_snapshot`.** The snapshot is the
+      frozen CONTENT of a delivered resume — the words. This is presentation,
+      exactly like `template_id` (035). Keeping them apart means a styling
+      control cannot become another route to rewriting a paid document; it is
+      true by construction rather than by being careful.
+
+      **NAMED OPTIONS, NEVER FREE TEXT — the security decision in this ticket.**
+      These values end up inside inline `style` attributes in HTML that Puppeteer
+      renders server-side to produce the paid PDF. Accepting an arbitrary
+      font-family or colour string would be putting client input into a
+      stylesheet. So the request carries a KEY, the key is looked up in a frozen
+      table in `lib/resumeStyle.ts`, and the CSS comes from the table. An unknown
+      key is **rejected**, never defaulted, so a malformed request cannot quietly
+      produce a document the user did not choose. One file holds the tables, the
+      validator and the apply function, so the options the UI offers and the
+      options the API accepts cannot drift.
+
+      **Two deliberate design constraints, both real rather than cosmetic.**
+      (1) Size is a MULTIPLIER, not a point value: name, headings and body scale
+      together, so a user cannot flatten the typographic hierarchy the template
+      established. (2) The accent palette is restricted to eight tones, every one
+      dark enough to carry white text — the accent is what the banded and railed
+      templates reverse the name out of, so a pale accent would produce an
+      unreadable name. Verified numerically: all eight measure **>=4.5:1** against
+      white.
+
+      Threaded through `makeTemplate` -> `applyStyleOverrides`, which is **pure**;
+      the theme objects are module-level and shared by every request, so mutating
+      one would leak a user's colour choice into the next person's PDF. Read back
+      with `readStyleOverrides()`, which drops unknown keys, so a corrupt row
+      renders at template defaults instead of 500ing on a paid download. The PDF
+      route reads the same column, so the download matches the screen.
+
+      UI sits in the resume screen's left rail above the template list: font,
+      size, an eight-swatch colour row, live preview on the DRAFT, then an
+      explicit **Save**. Nothing is written until Save — a picker that rewrote a
+      paid document on every click would repeat the mistake the template gallery
+      avoided by previewing rather than applying. "Default" is an option in each
+      row, so returning to the template's own style is the same gesture as
+      choosing one, and Reset stores NULL rather than `{}` so there is exactly one
+      representation of "defaults".
+
+      **Honest gap, surfaced in the UI rather than hidden — Unplanned #26.**
+      `gulf_premium` (the DEFAULT template) and `ats_classic` are hand-written
+      with an explicit face and size on every element, so there is nothing for an
+      override to reach. A new `styleable` flag on the registry marks them, and
+      the panel says which template cannot be adjusted and that any other one can,
+      instead of showing four dead controls. 13 of 15 templates support it.
+
+      **Verified.** 20 direct assertions on the validator and the apply function,
+      all passing: valid payloads accepted; unknown font/size/accent rejected;
+      arrays rejected; a CSS/HTML injection attempt in `font` rejected; unrelated
+      keys never stored; a corrupt row degrading to `{}`; the base theme provably
+      not mutated; and name/heading scaling with body. Then in a real browser, by
+      computed style: body 13.33px -> 14.4px at Large with the name moving
+      26.67px -> 28.8px in step; Georgia applied; a rail changing plum -> teal; a
+      band changing navy -> bronze; A4 height held at 1123px in every case; and
+      `gulf_premium` confirmed unchanged at its own font and size, which is the
+      documented behaviour. `tsc`, `lint`, a full production build (45 routes) and
+      the 32,768-permutation golden baseline all clean.
+
+      **Not verified:** the save round trip against a real logged-in paid
+      package, which needs an account — the standing environment gap. The
+      validator and the write path were exercised directly instead.
+
+      Depends on: TASK-151 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
@@ -2803,6 +2879,7 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 | 18 | This Supabase project's default privileges (found via `redeem_promo_code`, migration 021/TASK-051) | **Real, live, exploitable security hole**, found 2026-08-07 while independently verifying TASK-051's migration rather than trusting the migration file's own `REVOKE ... FROM PUBLIC` line. This Supabase project grants `EXECUTE` on newly created `public` schema functions directly to `anon` and `authenticated` — a project-level default privilege, and a *separate* ACL entry from a grant to `PUBLIC`. Every `SECURITY DEFINER` RPC function in this project, including ones already reviewed and believed locked down (migrations 016, 018), only ever revoked `FROM PUBLIC` — which never touched the direct `anon`/`authenticated` grants, leaving them callable by any client (even unauthenticated) via Supabase's auto-exposed REST RPC, with attacker-chosen arguments, bypassing every app-level ownership and rate-limit check. **Confirmed exploitable and fixed** on `redeem_promo_code` (would have unlocked any user's package for free), `increment_rate_limit` (migration 016 — would have let anyone manipulate any other user's rate-limit counters), and `consume_optimization_credit` (migration 018/TASK-045 — would have let anyone burn another user's credit or flip `is_paid` on a package they don't own), each with `REVOKE EXECUTE ... FROM anon, authenticated`, then re-verified via `information_schema.routine_privileges`. `handle_new_user_profile` and `set_updated_at` also showed the same grant but are trigger-only, argument-less functions Postgres refuses to execute outside trigger context — left as-is. | HIGH — was live and exploitable in production for weeks (since migration 016) before being found; `supabase/migrations/README.md`'s apply checklist should gain a step requiring this exact query be run against `anon`/`authenticated` for every new `SECURITY DEFINER` function, not just a REVOKE FROM PUBLIC by inspection |
 | 22 | `lib/jobMatch/requirementMapping.ts` | **Job Match under-scores strong candidates, on the product's differentiator.** Verified live 2026-08-16 against the real pipeline: a CV with 12 years oil-and-gas experience in Abu Dhabi and Jubail, against a matching Senior Piping Engineer JD, scored 48/100 with `gcc_experience: 0`, `experience_level: 0`, `education: 0`, while the semantic layer scored the same candidate 85/95/100. `gccExperienceCategory()` counts only work entries with a non-null `gccCountry`, which is a Career Profile column (TASK-067) that extraction never populates — so **for every anonymous scan that category is structurally always 0**, whatever the CV says. Education scored 0 because `B.Tech` does not substring-match a JD asking for `B.Eng`. The file's own header is honest that matching is "deliberately simple case-insensitive substring matching"; the problem is that a 0 is then presented to the user as a real finding | **HIGH for product quality** — not a crash, which is worse in one sense: it is confidently wrong on the feature the product is differentiated by, and the number is shown to real users. Needs its own ticket; deciding what "GCC experience" means for an un-tagged resume, and how degree equivalence works, are product decisions, not typos |
 | 25 | `app/api/packages/[id]/preview-image/route.ts` | **Dead route, and the one renderer that never adopted the snapshot.** Two separate points. (a) After TASK-145 removed the blurred preview, this route has no consumer left in the app — grepped, zero references outside its own file. It still launches Chromium and renders a full resume on request. Owner-scoped and auth-gated, so not a leak, but it is live surface with no caller. (b) More interesting for correctness: unlike the PDF route and the resume screen, it never read `document_snapshot` — it always rendered from the live profile. Had it stayed wired up, the thumbnail and the downloaded PDF could have shown different documents for the same package, and the thumbnail would still have drifted whenever the profile changed, which is the exact bug migration 034 exists to close. **Not deleted** — removing a route is a bigger call than fixing the defect that stranded it, and it wants the founder's yes | LOW as it now stands (unreachable). Worth a small cleanup ticket to delete the route, its Chromium dependency at that path, and the TASK-044 comments that still describe a blurred-preview flow the product no longer has |
+| 26 | `components/templates/GulfPremium.tsx`, `components/templates/AtsClassic.tsx` | **The default template cannot be restyled.** TASK-152 lets a user change font, size and accent on 13 of 15 templates; these two are hand-written with an explicit face, size and colour on every element, so an override has nothing to cascade into. `gulf_premium` is `DEFAULT_TEMPLATE_ID`, so the template most users hold is the one that cannot be adjusted. Surfaced honestly in the UI (a `styleable` registry flag, and the panel names the limitation) rather than shown as dead controls, so it is a gap and not a lie — but it is still the wrong default. **Fix is to port GulfPremium onto the engine**, which would also bring it under the 32,768-permutation golden baseline that currently covers it only as a black box. Non-trivial: its exact output is what already-delivered resumes were rendered with, so the port has to be byte-identical — and the baseline is the tool that would prove it | MEDIUM — product quality, not correctness. Worth its own ticket, and the golden baseline makes it a checkable one rather than a risky one |
 | 24 | `app/api/optimize/route.ts` (TASK-131) | Two small things noted in the 2026-08-17 review and deliberately **not** fixed, because neither is a defect today and both are cheap to get wrong. (a) Two concurrent Phase B requests for the same paid, ungenerated package both pass the `optimized_content IS NULL` idempotence check, so both call the model — the guard is a read, not a lock. The generate screen has a `started` ref and the window is one request, so a double-click is already handled client-side; the exposure is a deliberate retry or two tabs, costing one extra model call and a last-write-wins overwrite, never a double charge. A conditional update (`.is('optimized_content', null)`) would close it properly. (b) Phase A creates a package row with no AI call and spends no rate-limit slot, so package rows can be created without limit — storage only, no cost, no user-visible effect | LOW both. Recorded so the next person to touch this route knows the idempotence check was seen and understood, rather than rediscovering it as a surprise |
 | 23 | `app/api/packages/[id]/route.ts` + `app/optimize/preview/[packageId]/page.tsx` | **RESOLVED by TASK-145** (2026-08-17). Two defects from the same session, each created by a correct ticket that did not notice the other. (1) `document_snapshot` (TASK-132) had exactly one writer — generation — and generation refuses to run twice, while PATCH updated only `optimized_content`; both real renderers prefer the snapshot, so every user text edit was saved and then silently ignored by the resume screen and the downloaded PDF. (2) TASK-131 made `/optimize/preview` paid-only but left the pre-payment sales pitch on it, so the only people who could reach that screen were paying customers, shown their own CV blurred under "Unlock to download" with a button that bounced off `/optimize/pay` back to where they started. Found by review, not by report; confirmed no live data affected (both existing packages pre-date migration 034) | HIGH for (1) — it made a paid, user-editable deliverable silently ignore the user, and it would have hit the first customer to generate and then edit. MEDIUM for (2). **The common cause is worth more than either fix: both tickets were individually correct and were verified individually.** Neither commit's verification exercised the path the *other* ticket had just changed. A ticket that inverts a funnel or freezes a document should list the screens and writers downstream of it and check each, not just its own diff |
 | 21 | `app/api/ats-scan/route.ts` (TASK-108/109) | Anonymous-session persistence stayed gated on the extracted draft after extraction became conditional on a job description, so no session row and no cookie were written for any scan without a JD — the default path. A refresh of `/gulf-readiness` then showed "Your scan is unavailable", the page's "kept for 7 days" promise was false, and signup had nothing to claim. Found 2026-08-16 reviewing the undocumented TASK-105–121 batch; confirmed empirically (`GET /api/ats-scan/session` returned 404 for a scan that had just succeeded) rather than by reading. **RESOLVED by TASK-122** | MEDIUM — user-visible on the product's main free-traffic funnel, and it made a printed promise untrue. Notable for review purposes: TASK-108's own commit message stated the resume text was still being persisted, which was not what the code did — a reminder that a report describing intent reads exactly like one describing behaviour |

@@ -1,6 +1,7 @@
 import type { GulfPremiumProps } from './GulfPremium'
 import { buildResumeDocument, type ResumeDocument, type ResumeContactItem } from '@/lib/resumeDocument'
 import { PAGE } from './tokens'
+import { applyStyleOverrides } from '@/lib/resumeStyle'
 
 /**
  * The shared resume rendering engine (TASK-137).
@@ -782,7 +783,12 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
 
 /** Build a template component from a theme. */
 export function makeTemplate(theme: TemplateTheme) {
-  const Component = (props: GulfPremiumProps) => renderTemplate(theme, props)
+  // The user's font/size/accent choices are applied here, once, producing a new
+  // theme per render (TASK-152). `applyStyleOverrides` is pure: the module-level
+  // theme object is shared by every request and must never be mutated, or one
+  // user's colour choice would leak into the next person's PDF.
+  const Component = (props: GulfPremiumProps) =>
+    renderTemplate(applyStyleOverrides(theme, props.styleOverrides), props)
   Component.displayName = 'ResumeTemplate'
   return Component
 }

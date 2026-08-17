@@ -102,6 +102,18 @@ export interface Package {
    */
   document_snapshot?: unknown | null
   /**
+   * The user's font / size / accent choices (migration 037, TASK-152).
+   *
+   * `unknown` for the same reason as `document_snapshot` above: typing it here
+   * would pull lib/resumeStyle into every bundle that merely passes a package
+   * through. Read it with `readStyleOverrides()`, which drops anything that is
+   * not a known option rather than trusting the column.
+   *
+   * Presentation only — nothing reachable from here can change a word of the
+   * resume, which is why it is a separate column from `document_snapshot`.
+   */
+  style_overrides?: unknown | null
+  /**
    * What the user chose to optimize, captured at creation (migration 033) so
    * generation can run later, in a request that carries only a package id.
    */

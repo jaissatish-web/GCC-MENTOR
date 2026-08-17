@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PACKAGE_STATUSES } from '@/lib/utils'
 import { TEMPLATES, isTemplateId } from '@/lib/templates'
 import { applyContentEditsToDocument } from '@/lib/resumeDocument'
+import { parseStyleOverrides, type ResumeStyleOverrides } from '@/lib/resumeStyle'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
 
@@ -275,7 +276,24 @@ export async function PATCH(
   // string clears it back to "never named" rather than storing a blank — so the
   // Library falls back to the target job title instead of showing a nameless
   // row.
-  const metaUpdate: { name?: string | null; status?: PackageStatus } = {}
+  // ---- Style overrides (TASK-152, migration 037) ----------------------------
+  // Presentation only, and validated against the frozen allow-list in
+  // lib/resumeStyle.ts before any write — these values end up inside inline
+  // style attributes in HTML that Puppeteer renders to produce the paid PDF, so
+  // the request carries KEYS and the CSS comes from the table, never from the
+  // client. An unknown key is rejected rather than defaulted.
+  const metaUpdate: {
+    name?: string | null
+    status?: PackageStatus
+    style_overrides?: ResumeStyleOverrides | null
+  } = {}
+  if (b.styleOverrides !== undefined) {
+    const parsedStyle = parseStyleOverrides(b.styleOverrides)
+    if ('error' in parsedStyle) {
+      return NextResponse.json({ error: `Invalid field: ${parsedStyle.error}` }, { status: 400 })
+    }
+    metaUpdate.style_overrides = parsedStyle.value
+  }
   if (b.name !== undefined) {
     if (b.name !== null && typeof b.name !== 'string') {
       return NextResponse.json({ error: 'Invalid field: name' }, { status: 400 })
@@ -313,7 +331,7 @@ export async function PATCH(
       .update({ ...(templateUpdate ?? {}), ...metaUpdate })
       .eq('id', packageId)
       .eq('user_id', user.id)
-      .select('id, name, status, template_id, template_version')
+      .select('id, name, status, template_id, template_version, style_overrides')
       .maybeSingle()
     if (metaErr) {
       console.error('packages patch meta failed user=' + user.id + ' pkg=' + packageId, metaErr.message)

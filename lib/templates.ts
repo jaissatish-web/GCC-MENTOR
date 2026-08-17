@@ -78,6 +78,15 @@ export interface TemplateEntry {
   direction: 'ltr' | 'rtl'
   languages: string[]
   atsLevel: AtsLevel
+  /**
+   * Whether this template honours the user's font/size/accent choices
+   * (TASK-152). True for every engine-driven template. FALSE for gulf_premium
+   * and ats_classic, which are hand-written with an explicit face and size on
+   * each element, so there is nothing for an override to reach. The resume
+   * screen reads this to disable the controls with a reason, rather than
+   * offering settings that do nothing.
+   */
+  styleable: boolean
   /** False until the renderer exists — the picker only offers real templates. */
   available: boolean
   /**
@@ -107,6 +116,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: false,
     component: GulfPremium,
   },
   ats_classic: {
@@ -121,6 +131,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'maximum',
     available: true,
+    styleable: false,
     component: AtsClassic,
   },
   gcc_engineering: {
@@ -135,6 +146,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.GCC_ENGINEERING),
   },
   executive_gcc: {
@@ -149,6 +161,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.EXECUTIVE_GCC),
   },
   modern_professional: {
@@ -163,6 +176,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.MODERN_PROFESSIONAL),
   },
   senior_compact: {
@@ -177,6 +191,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.SENIOR_COMPACT),
   },
   gulf_minimal: {
@@ -191,6 +206,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'maximum',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.GULF_MINIMAL),
   },
   corporate_band: {
@@ -205,6 +221,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.CORPORATE_BAND),
   },
   technical_sidebar: {
@@ -219,6 +236,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.TECHNICAL_SIDEBAR),
   },
   graduate_entry: {
@@ -233,6 +251,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.GRADUATE_ENTRY),
   },
   portrait_right: {
@@ -247,6 +266,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.PORTRAIT_RIGHT),
   },
   consultant_right: {
@@ -261,6 +281,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.CONSULTANT_RIGHT),
   },
   heritage_left: {
@@ -275,6 +296,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.HERITAGE_LEFT),
   },
   project_twocol: {
@@ -289,6 +311,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.PROJECT_TWOCOL),
   },
   creative_gcc: {
@@ -303,6 +326,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     languages: ['en'],
     atsLevel: 'high',
     available: true,
+    styleable: true,
     component: makeTemplate(themes.CREATIVE_GCC),
   },
 }

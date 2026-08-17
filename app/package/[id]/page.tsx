@@ -7,6 +7,16 @@ import { getTemplate, type TemplateId } from '@/lib/templates'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
+import {
+  ACCENT_OPTIONS,
+  FONT_OPTIONS,
+  SIZE_OPTIONS,
+  readStyleOverrides,
+  type AccentKey,
+  type FontKey,
+  type ResumeStyleOverrides,
+  type SizeKey,
+} from '@/lib/resumeStyle'
 import { buttonVariants } from '@/components/ui/Button'
 import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
@@ -41,6 +51,19 @@ function PackageScreenInner({ id }: { id: string }) {
   const [downloaded, setDownloaded] = useState(false)
   const [switchingTo, setSwitchingTo] = useState<TemplateId | null>(null)
   const [templateError, setTemplateError] = useState<string | null>(null)
+  /**
+   * Style is edited live and saved explicitly (TASK-152).
+   *
+   * `draftStyle` drives the preview immediately so the user sees the change as
+   * they pick it; nothing is written until Save. That distinction matters here
+   * more than elsewhere in the app — this resume is a document the user has paid
+   * for, and a picker that silently rewrote it on every click would be the same
+   * mistake the template gallery avoided by previewing rather than applying.
+   */
+  const [draftStyle, setDraftStyle] = useState<ResumeStyleOverrides>({})
+  const [savedStyle, setSavedStyle] = useState<ResumeStyleOverrides>({})
+  const [styleBusy, setStyleBusy] = useState(false)
+  const [styleMsg, setStyleMsg] = useState<string | null>(null)
   const [nameDraft, setNameDraft] = useState('')
   const [nameState, setNameState] = useState<string | null>(null)
 
@@ -72,6 +95,37 @@ function PackageScreenInner({ id }: { id: string }) {
       }
     },
     [id, router, switchingTo],
+  )
+
+  /** Persist the style. Sends null when nothing is set, which is Reset. */
+  const saveStyle = useCallback(
+    async (next: ResumeStyleOverrides) => {
+      setStyleBusy(true)
+      setStyleMsg(null)
+      try {
+        const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            styleOverrides: Object.keys(next).length === 0 ? null : next,
+          }),
+        })
+        if (!res.ok) {
+          const bd = await res.json().catch(() => ({}))
+          setStyleMsg((bd?.error as string) ?? 'Could not save the style.')
+          return
+        }
+        setSavedStyle(next)
+        setPkg((prev) => (prev ? { ...prev, style_overrides: next } : prev))
+        setStyleMsg('Saved — your PDF will download with this style.')
+        window.setTimeout(() => setStyleMsg(null), 2600)
+      } catch {
+        setStyleMsg('Network error. Could not save the style.')
+      } finally {
+        setStyleBusy(false)
+      }
+    },
+    [id],
   )
 
   // Saves only when the value actually changed, so tabbing through the field
@@ -123,6 +177,12 @@ function PackageScreenInner({ id }: { id: string }) {
         }
         setPkg(p)
         setNameDraft(((p as { name?: string | null }).name ?? '') as string)
+        // readStyleOverrides, not a cast: the column is jsonb and a row could
+        // hold anything a future bug writes. Unknown keys are dropped so the
+        // controls open on a real state rather than a broken one.
+        const style = readStyleOverrides((p as { style_overrides?: unknown }).style_overrides)
+        setDraftStyle(style)
+        setSavedStyle(style)
         setProfile(profileData as CareerProfileFull | null)
       })
       .catch(() => setError('Could not load this package.'))
@@ -152,10 +212,13 @@ function PackageScreenInner({ id }: { id: string }) {
    * delivered. Anything unknown falls back to the saved template.
    */
   const savedTemplateId = getTemplate((pkg as { template_id?: string | null }).template_id).id
+  const styleDirty = JSON.stringify(draftStyle) !== JSON.stringify(savedStyle)
+  const hasStyle = Object.keys(savedStyle).length > 0
   const tryingTemplateId = requestedTemplate ? getTemplate(requestedTemplate).id : null
   const isTrying = !!tryingTemplateId && tryingTemplateId !== savedTemplateId
   const activeTemplateId = isTrying ? (tryingTemplateId as TemplateId) : savedTemplateId
   const Template = getTemplate(activeTemplateId).component
+  const styleable = getTemplate(activeTemplateId).styleable
   /**
    * The document the picker previews.
    *
@@ -359,6 +422,9 @@ function PackageScreenInner({ id }: { id: string }) {
                     }) as OptimizedContent}
                     skillsOrder={pkg.skills_order ?? []}
                     fieldVisibility={pkg.field_visibility_snapshot ?? null}
+                    // The DRAFT, not the saved value — the point of the panel is
+                    // that the change is visible before it is committed.
+                    styleOverrides={draftStyle}
                   />
                 </ResumeDocumentView>
                 <p className="mt-4 text-center text-[11.5px] text-ink-400">
@@ -382,7 +448,122 @@ function PackageScreenInner({ id }: { id: string }) {
                     {templateError}
                   </p>
                 ) : null}
-                <div className="mt-4">
+                {/* ---- Text style (TASK-152) --------------------------------
+                    Above the template list, because it applies to whichever
+                    template is active and the user reaches for it after
+                    choosing one, not before. */}
+                <div className="mt-4 border-t border-line-light pt-4">
+                  <h3 className="text-[12px] font-bold uppercase tracking-wider text-ink-700">
+                    Text style
+                  </h3>
+                  {styleable ? (
+                    <>
+                      <StyleChoice
+                        label="Font"
+                        options={Object.entries(FONT_OPTIONS).map(([k, v]) => [k, v.label])}
+                        value={draftStyle.font ?? ''}
+                        onChange={(v) =>
+                          setDraftStyle((s) => ({ ...s, font: (v || undefined) as FontKey | undefined }))
+                        }
+                      />
+                      <StyleChoice
+                        label="Size"
+                        options={Object.entries(SIZE_OPTIONS).map(([k, v]) => [k, v.label])}
+                        value={draftStyle.size ?? ''}
+                        onChange={(v) =>
+                          setDraftStyle((s) => ({ ...s, size: (v || undefined) as SizeKey | undefined }))
+                        }
+                      />
+                      <div className="mt-3">
+                        <span className="text-[11px] text-ink-400">Colour</span>
+                        <div className="mt-1.5 flex flex-wrap gap-1.5">
+                          {Object.entries(ACCENT_OPTIONS).map(([k, v]) => {
+                            const active = draftStyle.accent === k
+                            return (
+                              <button
+                                key={k}
+                                type="button"
+                                title={v.label}
+                                aria-label={v.label}
+                                aria-pressed={active}
+                                onClick={() =>
+                                  setDraftStyle((s) => ({
+                                    ...s,
+                                    accent: active ? undefined : (k as AccentKey),
+                                  }))
+                                }
+                                style={{ background: v.hex }}
+                                className={
+                                  'size-7 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 ' +
+                                  (active
+                                    ? 'ring-2 ring-forest ring-offset-2'
+                                    : 'ring-1 ring-line-light hover:ring-forest/60')
+                                }
+                              />
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {styleDirty ? (
+                        <div className="mt-3 flex gap-2">
+                          <button
+                            type="button"
+                            disabled={styleBusy}
+                            onClick={() => void saveStyle(draftStyle)}
+                            className={buttonVariants({ variant: 'primary', size: 'sm' })}
+                          >
+                            {styleBusy ? 'Saving…' : 'Save style'}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={styleBusy}
+                            onClick={() => setDraftStyle(savedStyle)}
+                            className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+                          >
+                            Undo
+                          </button>
+                        </div>
+                      ) : hasStyle ? (
+                        <button
+                          type="button"
+                          disabled={styleBusy}
+                          onClick={() => {
+                            setDraftStyle({})
+                            void saveStyle({})
+                          }}
+                          className={'mt-3 ' + buttonVariants({ variant: 'ghost', size: 'sm' })}
+                        >
+                          Reset to template default
+                        </button>
+                      ) : (
+                        <p className="mt-2 text-[11px] text-ink-400">
+                          Using the template&apos;s own style.
+                        </p>
+                      )}
+                      {styleMsg ? (
+                        <p role="status" className="mt-2 text-[11.5px] text-forest">
+                          {styleMsg}
+                        </p>
+                      ) : null}
+                    </>
+                  ) : (
+                    // Honest rather than decorative: these two templates are
+                    // hand-written with a fixed face and size on every element,
+                    // so a control here would do nothing. Say which templates
+                    // do support it instead of greying out four dead pickers.
+                    <p className="mt-2 text-[11.5px] leading-relaxed text-ink-400">
+                      <strong className="text-ink-700">{getTemplate(activeTemplateId).name}</strong>{' '}
+                      has a fixed style that cannot be adjusted. Pick any other template below to
+                      change the font, size and colour.
+                    </p>
+                  )}
+                </div>
+
+                <div className="mt-4 border-t border-line-light pt-4">
+                  <h3 className="mb-3 text-[12px] font-bold uppercase tracking-wider text-ink-700">
+                    Template
+                  </h3>
                   <TemplatePicker
                     layout="rail"
                     document={previewDocument}
@@ -400,6 +581,53 @@ function PackageScreenInner({ id }: { id: string }) {
         </div>
       </div>
     </main>
+  )
+}
+
+/**
+ * A labelled row of mutually exclusive choices, with "Default" always present.
+ *
+ * Real buttons with aria-pressed rather than a <select>: there are three options
+ * and the choice is visual, so showing them all beats opening a dropdown to read
+ * three words. "Default" is an option rather than a separate reset control, so
+ * going back to the template's own style is the same gesture as picking one.
+ */
+function StyleChoice({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: [string, string][]
+  value: string
+  onChange: (v: string) => void
+}) {
+  return (
+    <div className="mt-3">
+      <span className="text-[11px] text-ink-400">{label}</span>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
+        {([['', 'Default'], ...options] as [string, string][]).map(([k, lbl]) => {
+          const active = value === k
+          return (
+            <button
+              key={k || 'default'}
+              type="button"
+              aria-pressed={active}
+              onClick={() => onChange(k)}
+              className={
+                'min-h-8 rounded-radius-md px-2.5 py-1 text-[11.5px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-1 ' +
+                (active
+                  ? 'bg-forest text-white'
+                  : 'border border-line-light bg-surface-light text-ink-700 hover:border-forest/60')
+              }
+            >
+              {lbl}
+            </button>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 

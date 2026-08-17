@@ -2,6 +2,7 @@ import type { CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { OptimizedContent } from '@/types/package'
 import { T, PAGE, SIZE } from './tokens'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
+import type { ResumeStyleOverrides } from '@/lib/resumeStyle'
 
 /**
  * GulfPremium — the single MVP resume template (TASK-031).
@@ -66,6 +67,18 @@ export interface GulfPremiumProps {
    * they always did.
    */
   document?: ResumeDocument | null
+  /**
+   * The user's own font / size / accent choices (TASK-152, migration 037).
+   *
+   * Honoured by every engine-driven template. **Ignored by this component and by
+   * AtsClassic**, which are hand-written with explicit sizes and faces on each
+   * element, so there is nothing for an override to cascade into. That is a real
+   * gap rather than a design choice — Gulf Premium is the DEFAULT template — and
+   * `/package/[id]` says so plainly instead of showing controls that do nothing.
+   * Recorded as Unplanned #26: porting this component onto the engine would fix
+   * it and would also bring it under the golden baseline's protection.
+   */
+  styleOverrides?: ResumeStyleOverrides | null
 }
 
 const sectionLabelStyle: React.CSSProperties = {
