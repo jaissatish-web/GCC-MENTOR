@@ -2690,6 +2690,69 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-151: five more photo templates — right-side, left-side, two-column coloured**
+
+      Founder asked for five more photo styles, specifically some with the photo
+      on the RIGHT, some on the LEFT, and some two-column with colour. Filled
+      that grid deliberately rather than adding five near-copies: **Portrait
+      Right** (photo right, no colour block — the restrained option),
+      **Consultant Right** (photo right inside a warm band, circular),
+      **Heritage Left** (formal serif name on a deep navy band, photo left),
+      **Project Two-Column** (coloured rail on the RIGHT), **Creative GCC**
+      (coloured rail on the LEFT). Fifteen templates now, ten of them with a
+      photo.
+
+      Two new engine fields, `photoSide` and `sidebarSide`, both implemented as
+      `flex-direction: row-reverse` rather than by reordering the JSX — so a left
+      and a right variant emit identical markup and differ only in paint order.
+
+      **A real ATS defect found and fixed on the way, in the EXISTING two-column
+      template.** Dumping each page's `innerText` showed the first text on
+      `sidebar-filled` layouts was "Saudi · Riyadh, Saudi Arabia" — not the
+      candidate's name — because the rail was emitted before the main column. A
+      parser flattening that document met contact details before it met who the
+      person was. Fixed by emitting the main column first and positioning the
+      rail with `flex-direction`; all fifteen templates now report the name as
+      their first text. Found by measuring, not by reading the JSX.
+
+      **A regression I introduced and caught the same way.** Inverting the
+      flex direction moved Technical Sidebar's rail from left to right, because
+      it does not set `sidebarSide` and the new default was 'right'. That
+      template shipped in TASK-149 with a left rail and is already deployed.
+      Absence now means LEFT, preserving it.
+
+      **The exported preview files I sent the founder for TASK-147 and TASK-149
+      were TRUNCATED, and I did not notice.** The export script matched
+      `<section ...>([\s\S]*?)</section>` — but every template renders inner
+      `<section>` elements per CV section, so the non-greedy match stopped at the
+      first one and cut each resume off after its header. The files rendered
+      convincingly, which is why it passed unchallenged; it only surfaced when
+      the DOM reorder above moved the photo behind the first inner section and
+      the photo count dropped from 10 to 7. Wrapper changed to `<article>`
+      (confirmed unused by any template) and the export re-verified by counting
+      "Education", "Certifications" and the CV's own last line across all
+      fifteen: 15/15 each. **The lesson is the one this project keeps relearning
+      — a rendered artefact that looks plausible is not evidence it is complete.
+      Counting beat looking, twice in one ticket.**
+
+      **Verified in a real browser by measurement:** 15 templates; photo side
+      LEFT/RIGHT correct on all ten photo templates; rails LEFT (Technical
+      Sidebar, Creative GCC) and RIGHT (Project Two-Column), all three measuring
+      1123px — full A4 height; `alt=""` on every photo so none contributes text;
+      name is the first text on all fifteen; no horizontal overflow on any.
+      `tsc`, `lint`, a full production build (45 routes) and the
+      32,768-permutation golden baseline all clean.
+
+      **Not done — the founder also asked for user-editable text style, size and
+      colour in the resume preview, saved per resume.** That is a separate build:
+      it needs a new `packages` column, overrides threaded through the engine,
+      the PDF and preview routes reading them, and controls on `/package/[id]`.
+      Deliberately not started inside this ticket rather than half-built.
+
+      Depends on: TASK-149 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*

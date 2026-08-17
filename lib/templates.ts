@@ -35,6 +35,13 @@ export type TemplateId =
   | 'corporate_band'
   | 'technical_sidebar'
   | 'graduate_entry'
+  // TASK-151 — five more photo templates: two right-side, one left-side, two
+  // two-column with a coloured rail.
+  | 'portrait_right'
+  | 'consultant_right'
+  | 'heritage_left'
+  | 'project_twocol'
+  | 'creative_gcc'
 
 export const DEFAULT_TEMPLATE_ID: TemplateId = 'gulf_premium'
 
@@ -227,6 +234,76 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     atsLevel: 'high',
     available: true,
     component: makeTemplate(themes.GRADUATE_ENTRY),
+  },
+  portrait_right: {
+    id: 'portrait_right',
+    version: 1,
+    name: 'Portrait Right',
+    description: 'Photo on the right, no colour block',
+    recommendedFor: ['Engineering', 'Operations', 'Management'],
+    category: 'professional',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: true,
+    component: makeTemplate(themes.PORTRAIT_RIGHT),
+  },
+  consultant_right: {
+    id: 'consultant_right',
+    version: 1,
+    name: 'Consultant Right',
+    description: 'Warm banded header with the photo on the right',
+    recommendedFor: ['Consulting', 'Client-facing', 'Advisory'],
+    category: 'professional',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: true,
+    component: makeTemplate(themes.CONSULTANT_RIGHT),
+  },
+  heritage_left: {
+    id: 'heritage_left',
+    version: 1,
+    name: 'Heritage Left',
+    description: 'Formal serif name on a deep navy band, photo left',
+    recommendedFor: ['Directors', 'Government', 'Banking'],
+    category: 'executive',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: true,
+    component: makeTemplate(themes.HERITAGE_LEFT),
+  },
+  project_twocol: {
+    id: 'project_twocol',
+    version: 1,
+    name: 'Project Two-Column',
+    description: 'Coloured rail on the right, reads as a project data sheet',
+    recommendedFor: ['EPC', 'Projects', 'Site roles'],
+    category: 'engineering',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: true,
+    component: makeTemplate(themes.PROJECT_TWOCOL),
+  },
+  creative_gcc: {
+    id: 'creative_gcc',
+    version: 1,
+    name: 'Creative GCC',
+    description: 'Coloured rail on the left, warmest of the set',
+    recommendedFor: ['Marketing', 'Design', 'Communications'],
+    category: 'professional',
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: 'high',
+    available: true,
+    component: makeTemplate(themes.CREATIVE_GCC),
   },
 }
 

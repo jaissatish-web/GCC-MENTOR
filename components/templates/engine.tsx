@@ -41,9 +41,14 @@ export type LayoutStyle =
   /**
    * Full-bleed coloured rail running the whole page height, text reversed out
    * of it, photo inside it (TASK-149). The layout the commercial builders are
-   * recognised by. Structurally the same document as `sidebar` — supporting
-   * facts left, summary and experience right, reading order preserved when
-   * flattened — it simply commits visually.
+   * recognised by: supporting facts in the rail, summary and experience in the
+   * main column.
+   *
+   * THE MAIN COLUMN IS FIRST IN THE MARKUP, and the rail is positioned by
+   * `flex-direction` (TASK-151). The first version emitted the rail first, which
+   * measured out as a parser reading "Saudi · Riyadh" before the candidate's
+   * name — found by dumping `innerText` rather than by reading the JSX. Emitting
+   * the name first costs nothing visually and fixes that.
    */
   | 'sidebar-filled'
 
@@ -90,6 +95,18 @@ export interface TemplateTheme {
   headerBand?: boolean
   /** Circular crop on the photo. Reads modern; rectangular reads formal/Gulf. */
   photoShape?: 'rect' | 'circle'
+  /**
+   * Which side the photo sits on (TASK-151).
+   *
+   * Implemented as `flex-direction: row-reverse`, never by reordering the JSX,
+   * so the left and right variants emit **identical markup** and differ only in
+   * paint order. The image also carries `alt=""` — it is decorative, the person's
+   * name is already the <h1> — so it contributes no text and the first thing a
+   * parser reads is the name either way.
+   */
+  photoSide?: 'left' | 'right'
+  /** Which side the filled rail sits on. Same row-reverse reasoning. */
+  sidebarSide?: 'left' | 'right'
   /** Defaults to 'inline' so every existing theme is unchanged. */
   skillStyle?: SkillStyle
   /**
@@ -367,7 +384,17 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
     )
 
   const HeaderBlock = header.hasHeaderText ? (
-    <header style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', marginBottom: `${6 * theme.density}px` }}>
+    <header
+      style={{
+        display: 'flex',
+        // row-reverse, not a reordered DOM: the name stays first in the markup
+        // so a parser reads it first whatever the photo does visually.
+        flexDirection: theme.photoSide === 'right' ? 'row-reverse' : 'row',
+        gap: '14px',
+        alignItems: 'flex-start',
+        marginBottom: `${6 * theme.density}px`,
+      }}
+    >
       {showPhoto ? (
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
@@ -511,6 +538,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
         margin: `-${PAGE.padding.split(' ')[0]} -${PAGE.padding.split(' ')[1]} ${16 * theme.density}px`,
         padding: `${20 * theme.density}px ${PAGE.padding.split(' ')[1]}`,
         display: 'flex',
+        flexDirection: theme.photoSide === 'right' ? 'row-reverse' : 'row',
         gap: '16px',
         alignItems: 'center',
       }}
@@ -579,8 +607,57 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
     return (
       <div
         id="resume-render"
-        style={{ ...page, padding: 0, display: 'flex', alignItems: 'stretch' }}
+        style={{
+          ...page,
+          padding: 0,
+          display: 'flex',
+          // DOM order below is MAIN COLUMN FIRST, so the candidate's name is the
+          // first text on the page for a parser. The visual side is then set
+          // here: 'row' puts the main column left and the rail right, so a rail
+          // on the LEFT needs the reverse.
+          //
+          // Absence means LEFT, deliberately: Technical Sidebar shipped in
+          // TASK-149 with a left rail and does not set this field, and inverting
+          // the default silently moved it — caught by measuring after the DOM
+          // swap, not by reading.
+          flexDirection: theme.sidebarSide === 'right' ? 'row' : 'row-reverse',
+          alignItems: 'stretch',
+        }}
       >
+        <div style={{ minWidth: 0, flex: 1, padding: '30px 30px 30px 26px', boxSizing: 'border-box' }}>
+          {header.displayName ? (
+            <h1
+              style={{
+                fontFamily: theme.displayFont,
+                fontSize: pt(theme.nameSize),
+                fontWeight: 700,
+                letterSpacing: theme.uppercaseName ? '0.06em' : '0.01em',
+                textTransform: theme.uppercaseName ? 'uppercase' : 'none',
+                color: theme.ink,
+                margin: 0,
+                lineHeight: 1.14,
+              }}
+            >
+              {header.displayName}
+            </h1>
+          ) : null}
+          {header.targetJobTitle ? (
+            <p
+              style={{
+                ...body,
+                fontSize: pt(theme.bodySize + 1.4),
+                color: theme.accent,
+                margin: '3px 0 0',
+                fontWeight: 600,
+              }}
+            >
+              {header.targetJobTitle}
+            </p>
+          ) : null}
+          {SummaryBlock}
+          {ExperienceBlock}
+          {AdditionalBlock}
+        </div>
         <aside
           style={{
             width: '238px',
@@ -642,40 +719,6 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
             )
           })()}
         </aside>
-        <div style={{ minWidth: 0, flex: 1, padding: '30px 30px 30px 26px', boxSizing: 'border-box' }}>
-          {header.displayName ? (
-            <h1
-              style={{
-                fontFamily: theme.displayFont,
-                fontSize: pt(theme.nameSize),
-                fontWeight: 700,
-                letterSpacing: theme.uppercaseName ? '0.06em' : '0.01em',
-                textTransform: theme.uppercaseName ? 'uppercase' : 'none',
-                color: theme.ink,
-                margin: 0,
-                lineHeight: 1.14,
-              }}
-            >
-              {header.displayName}
-            </h1>
-          ) : null}
-          {header.targetJobTitle ? (
-            <p
-              style={{
-                ...body,
-                fontSize: pt(theme.bodySize + 1.4),
-                color: theme.accent,
-                margin: '3px 0 0',
-                fontWeight: 600,
-              }}
-            >
-              {header.targetJobTitle}
-            </p>
-          ) : null}
-          {SummaryBlock}
-          {ExperienceBlock}
-          {AdditionalBlock}
-        </div>
       </div>
     )
   }

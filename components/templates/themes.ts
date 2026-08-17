@@ -217,3 +217,134 @@ export const GRADUATE_ENTRY: TemplateTheme = {
   contactIcons: true,
   labels: { summary: 'Career Objective' },
 }
+
+/* ------------------------------------------------------------------------- *
+ * TASK-151 — five more photo templates.
+ *
+ * Founder asked for more photo styles, specifically: some with the photo on the
+ * RIGHT, some on the LEFT, and some two-column with colour. These five fill
+ * that grid deliberately rather than adding five near-copies:
+ *
+ *   RIGHT-side photo   PORTRAIT_RIGHT (plain header), CONSULTANT_RIGHT (band)
+ *   LEFT-side photo    HERITAGE_LEFT (formal serif band)
+ *   TWO-COLUMN colour  PROJECT_TWOCOL (rail right), CREATIVE_GCC (rail left)
+ *
+ * Photo side is `flex-direction: row-reverse`, never a reordered DOM, so the
+ * name is still the first thing a parser reads on every one of them.
+ * ------------------------------------------------------------------------- */
+
+/** Photo right, no colour block — the restrained right-aligned option. */
+export const PORTRAIT_RIGHT: TemplateTheme = {
+  displayFont: SANS,
+  bodyFont: SANS,
+  bodySize: 10.1,
+  nameSize: 20,
+  headingSize: 9.8,
+  density: 0.95,
+  ink: INK,
+  muted: MUTED,
+  rule: RULE,
+  accent: NAVY,
+  accentSoft: '#EEF3F8',
+  headingStyle: 'rule',
+  layout: 'single',
+  uppercaseName: false,
+  allowPhoto: true,
+  photoShape: 'rect',
+  photoSide: 'right',
+  contactIcons: true,
+}
+
+/** Photo right, inside a warm band. Client-facing / advisory tone. */
+export const CONSULTANT_RIGHT: TemplateTheme = {
+  displayFont: GROTESK,
+  bodyFont: GROTESK,
+  bodySize: 10,
+  nameSize: 21,
+  headingSize: 9.8,
+  density: 0.95,
+  ink: INK,
+  muted: MUTED,
+  rule: '#D8CFC0',
+  accent: '#7A4E1D',
+  accentSoft: '#F6EFE6',
+  headingStyle: 'plain',
+  layout: 'single',
+  uppercaseName: false,
+  allowPhoto: true,
+  photoShape: 'circle',
+  photoSide: 'right',
+  headerBand: true,
+  skillStyle: 'chips',
+  contactIcons: true,
+}
+
+/** Photo left in a deep navy band, serif name. The most formal of the five. */
+export const HERITAGE_LEFT: TemplateTheme = {
+  displayFont: SERIF,
+  bodyFont: SANS,
+  bodySize: 10.1,
+  nameSize: 22,
+  headingSize: 9.6,
+  density: 1,
+  ink: INK,
+  muted: MUTED,
+  rule: RULE,
+  accent: NAVY_DEEP,
+  accentSoft: '#EDF1F6',
+  headingStyle: 'rule',
+  layout: 'single',
+  uppercaseName: true,
+  allowPhoto: true,
+  photoShape: 'rect',
+  photoSide: 'left',
+  headerBand: true,
+  contactIcons: true,
+}
+
+/** Two column, coloured rail on the RIGHT. Reads as a project data sheet. */
+export const PROJECT_TWOCOL: TemplateTheme = {
+  displayFont: SANS,
+  bodyFont: SANS,
+  bodySize: 9.8,
+  nameSize: 19,
+  headingSize: 9.6,
+  density: 0.85,
+  ink: INK,
+  muted: MUTED,
+  rule: RULE,
+  accent: '#2F4858',
+  accentSoft: '#EDF1F4',
+  headingStyle: 'plain',
+  layout: 'sidebar-filled',
+  sidebarSide: 'right',
+  uppercaseName: false,
+  allowPhoto: true,
+  photoShape: 'rect',
+  skillStyle: 'chips',
+  contactIcons: true,
+  labels: { skills: 'Technical Skills', additional: 'Projects & Additional' },
+}
+
+/** Two column, coloured rail on the LEFT, warmest palette of the set. */
+export const CREATIVE_GCC: TemplateTheme = {
+  displayFont: GROTESK,
+  bodyFont: GROTESK,
+  bodySize: 10,
+  nameSize: 20,
+  headingSize: 9.6,
+  density: 0.9,
+  ink: INK,
+  muted: MUTED,
+  rule: RULE,
+  accent: '#6B2D5B',
+  accentSoft: '#F5EBF2',
+  headingStyle: 'plain',
+  layout: 'sidebar-filled',
+  sidebarSide: 'left',
+  uppercaseName: false,
+  allowPhoto: true,
+  photoShape: 'circle',
+  skillStyle: 'chips',
+  contactIcons: true,
+}
