@@ -3231,6 +3231,46 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-161: Career Profile — Save at the top right, free CV download removed**
+
+      Founder, from the deployed `/profile`: remove the download option, put Save at
+      the top right.
+
+      **Save added to the header row**, right-aligned beside the readiness ring and
+      greeting. It stays at the bottom as well — reaching the end of a nine-section
+      form is also a natural moment to save — and both call the identical
+      `onSubmit('exit')`, so there is one save path rather than two behaviours to keep
+      in step. Previously the only save was at the very bottom, which meant saving
+      required scrolling past every section still unfilled.
+
+      **Free CV download link removed** from this page, with its explanatory line.
+
+      **ONE CONSEQUENCE WORTH THE FOUNDER'S ATTENTION, not buried.** `/profile` was
+      the ONLY place linking `GET /api/resume/pdf` — grepped every `.ts`/`.tsx` to
+      confirm. So removing the link does not merely tidy this page: it makes the free
+      CV download **unreachable anywhere in the product**. That feature was the
+      founder's own decision three days earlier (TASK-134) — "someone who types their
+      career history in by hand can download a real Gulf-format CV for nothing; what
+      is paid for is the AI optimization, not the act of putting your own facts on a
+      page."
+
+      The route is deliberately left in place, working and unlinked, rather than
+      deleted. The request was to remove it from this page, which is done, and
+      whether the free tier exists is a pricing decision rather than a layout one.
+      Recorded as **Unplanned #27** so it stays a decision rather than becoming an
+      accident.
+
+      **Verified** at 1440px and 375px on a throwaway carrying the real header
+      classes: Save is the rightmost element in the header, 20px off the right edge,
+      on the same row as the title, and the greeting text never overlaps it at either
+      width; no horizontal overflow; the download string appears nowhere in the file.
+      `tsc`, `lint` and a full production build (45 routes) clean. **Not verified in a
+      browser** — `/profile` needs a login.
+
+      Depends on: TASK-134, TASK-160 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
@@ -3282,6 +3322,7 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 | 22 | `lib/jobMatch/requirementMapping.ts` | **Job Match under-scores strong candidates, on the product's differentiator.** Verified live 2026-08-16 against the real pipeline: a CV with 12 years oil-and-gas experience in Abu Dhabi and Jubail, against a matching Senior Piping Engineer JD, scored 48/100 with `gcc_experience: 0`, `experience_level: 0`, `education: 0`, while the semantic layer scored the same candidate 85/95/100. `gccExperienceCategory()` counts only work entries with a non-null `gccCountry`, which is a Career Profile column (TASK-067) that extraction never populates — so **for every anonymous scan that category is structurally always 0**, whatever the CV says. Education scored 0 because `B.Tech` does not substring-match a JD asking for `B.Eng`. The file's own header is honest that matching is "deliberately simple case-insensitive substring matching"; the problem is that a 0 is then presented to the user as a real finding | **HIGH for product quality** — not a crash, which is worse in one sense: it is confidently wrong on the feature the product is differentiated by, and the number is shown to real users. Needs its own ticket; deciding what "GCC experience" means for an un-tagged resume, and how degree equivalence works, are product decisions, not typos |
 | 25 | `app/api/packages/[id]/preview-image/route.ts` | **RESOLVED by TASK-160** (2026-08-17) — the founder gave the explicit go-ahead to remove all blurred-preview code, and the route is deleted. Original finding follows. Dead route, and the one renderer that never adopted the snapshot. After TASK-145 removed the blurred preview it had no consumer left in the app — grepped, zero references outside its own file — yet it still launched Chromium and rendered a full resume on request. Owner-scoped and auth-gated, so not a leak, but live surface with no caller. More interesting for correctness: unlike the PDF route and the resume screen it never read `document_snapshot`, so had it stayed wired up the thumbnail and the downloaded PDF could have shown different documents for the same package | LOW as it stood (unreachable). Deleting it also removed the last `filter: blur` and watermark from the codebase |
 | 26 | `components/templates/GulfPremium.tsx`, `components/templates/AtsClassic.tsx` | **The default template cannot be restyled.** TASK-152 lets a user change font, size and accent on 13 of 15 templates; these two are hand-written with an explicit face, size and colour on every element, so an override has nothing to cascade into. `gulf_premium` is `DEFAULT_TEMPLATE_ID`, so the template most users hold is the one that cannot be adjusted. Surfaced honestly in the UI (a `styleable` registry flag, and the panel names the limitation) rather than shown as dead controls, so it is a gap and not a lie — but it is still the wrong default. **Fix is to port GulfPremium onto the engine**, which would also bring it under the 32,768-permutation golden baseline that currently covers it only as a black box. Non-trivial: its exact output is what already-delivered resumes were rendered with, so the port has to be byte-identical — and the baseline is the tool that would prove it | MEDIUM — product quality, not correctness. Worth its own ticket, and the golden baseline makes it a checkable one rather than a risky one |
+| 27 | `app/api/resume/pdf/route.ts` | **The free CV download is now unreachable.** TASK-161 removed its link from `/profile` at the founder's request, and `/profile` was the only caller — confirmed by grepping every `.ts`/`.tsx`. The route still exists and still works; nothing in the UI points at it. This matters because the free download was the founder's own decision in TASK-134, on the reasoning that the AI rewrite is the paid product and putting your own facts on a page is not. Left in place rather than deleted, since the request was about this page's layout and the existence of a free tier is a pricing call | MEDIUM — a deliberate founder decision is currently switched off as a side effect of a layout change. Needs an explicit choice: link it from the Library or the dashboard where documents belong, or retire the free tier on purpose. Not a defect, but it should not sit unresolved |
 | 24 | `app/api/optimize/route.ts` (TASK-131) | Two small things noted in the 2026-08-17 review and deliberately **not** fixed, because neither is a defect today and both are cheap to get wrong. (a) Two concurrent Phase B requests for the same paid, ungenerated package both pass the `optimized_content IS NULL` idempotence check, so both call the model — the guard is a read, not a lock. The generate screen has a `started` ref and the window is one request, so a double-click is already handled client-side; the exposure is a deliberate retry or two tabs, costing one extra model call and a last-write-wins overwrite, never a double charge. A conditional update (`.is('optimized_content', null)`) would close it properly. (b) Phase A creates a package row with no AI call and spends no rate-limit slot, so package rows can be created without limit — storage only, no cost, no user-visible effect | LOW both. Recorded so the next person to touch this route knows the idempotence check was seen and understood, rather than rediscovering it as a surprise |
 | 23 | `app/api/packages/[id]/route.ts` + `app/optimize/preview/[packageId]/page.tsx` | **RESOLVED by TASK-145** (2026-08-17). Two defects from the same session, each created by a correct ticket that did not notice the other. (1) `document_snapshot` (TASK-132) had exactly one writer — generation — and generation refuses to run twice, while PATCH updated only `optimized_content`; both real renderers prefer the snapshot, so every user text edit was saved and then silently ignored by the resume screen and the downloaded PDF. (2) TASK-131 made `/optimize/preview` paid-only but left the pre-payment sales pitch on it, so the only people who could reach that screen were paying customers, shown their own CV blurred under "Unlock to download" with a button that bounced off `/optimize/pay` back to where they started. Found by review, not by report; confirmed no live data affected (both existing packages pre-date migration 034) | HIGH for (1) — it made a paid, user-editable deliverable silently ignore the user, and it would have hit the first customer to generate and then edit. MEDIUM for (2). **The common cause is worth more than either fix: both tickets were individually correct and were verified individually.** Neither commit's verification exercised the path the *other* ticket had just changed. A ticket that inverts a funnel or freezes a document should list the screens and writers downstream of it and check each, not just its own diff |
 | 21 | `app/api/ats-scan/route.ts` (TASK-108/109) | Anonymous-session persistence stayed gated on the extracted draft after extraction became conditional on a job description, so no session row and no cookie were written for any scan without a JD — the default path. A refresh of `/gulf-readiness` then showed "Your scan is unavailable", the page's "kept for 7 days" promise was false, and signup had nothing to claim. Found 2026-08-16 reviewing the undocumented TASK-105–121 batch; confirmed empirically (`GET /api/ats-scan/session` returned 404 for a scan that had just succeeded) rather than by reading. **RESOLVED by TASK-122** | MEDIUM — user-visible on the product's main free-traffic funnel, and it made a printed promise untrue. Notable for review purposes: TASK-108's own commit message stated the resume text was still being persisted, which was not what the code did — a reminder that a report describing intent reads exactly like one describing behaviour |

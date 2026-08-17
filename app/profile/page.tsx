@@ -1267,7 +1267,7 @@ function ProfileScreen() {
           <div className="shrink-0">
             <ReadinessRing score={readiness.score} size={68} />
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex min-w-0 flex-col gap-1.5">
             <h1 className="font-serif text-[20px] leading-tight text-ink-900">
               Almost there, {firstName}
             </h1>
@@ -1276,6 +1276,24 @@ function ProfileScreen() {
               Profiles like yours — <span className="font-semibold text-gold-text">{categoryCopy.highlight}</span> —{' '}
               {categoryCopy.rest}
             </p>
+          </div>
+
+          {/* SAVE AT THE TOP RIGHT (TASK-161, founder's call).
+              It was only at the very bottom of a nine-section form, which meant
+              saving required scrolling past everything still unfilled. It stays
+              at the bottom too — reaching the end of the form is also a natural
+              moment to save — and both call the identical onSubmit('exit'), so
+              there is one save path and not two behaviours to keep in step. */}
+          <div className="ml-auto shrink-0 self-start">
+            <Button
+              variant="primary"
+              size="sm"
+              busy={submitting}
+              busyLabel="Saving…"
+              onClick={() => onSubmit('exit')}
+            >
+              Save
+            </Button>
           </div>
         </div>
       </header>
@@ -1949,25 +1967,11 @@ function ProfileScreen() {
         >
           Save &amp; exit
         </Button>
-        {/*
-          FREE CV download (TASK-134). The free tier previously ended here with
-          nothing to take away: a user could type their whole history in and had
-          no way to get a document out, because every download route was gated
-          on a paid package. What is paid for is the AI rewrite, not putting
-          your own facts on a page.
-
-          Deliberately secondary styling: this is a useful exit, not the action
-          the page is trying to get you to take.
-        */}
-        <a
-          href="/api/resume/pdf"
-          className="inline-flex min-h-11 w-full items-center justify-center rounded-radius-md border border-line-light bg-surface-light px-4 py-3 text-[13px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
-        >
-          Download my CV (PDF) — free
-        </a>
-        <p className="text-center text-[11.5px] text-ink-400">
-          Downloads what you have saved. Optimizing it for a specific job is the paid step.
-        </p>
+        {/* The free CV download that used to sit here was removed at the
+            founder's request (TASK-161): this page is for entering data, and a
+            download belongs where documents live. GET /api/resume/pdf still
+            exists and still works — it is simply not linked from here. See
+            Unplanned #27 before deleting it. */}
       </div>
     </main>
   )
