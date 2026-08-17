@@ -90,12 +90,17 @@ primary genuinely fails.
 fallback model — a natural reading of "same provider, cheaper model" — silently does
 nothing, with no error.
 
-**The `default` row is a *configuration* fallback, not a runtime one.** It is used when a
-service has no row of its own, decided before any call is made. If a service's own
-primary and fallback both fail mid-call, the request throws — the default provider is
-**not** tried. A third runtime tier is planned, and it must skip the default when that is
-the same provider and model already attempted, so a broken call does not pay twice for
-the identical failure.
+**Three runtime tiers**, since 2026-08-17: the service's own provider, its own fallback,
+then the **`default` row as a last resort**. Before that the default was only a
+*configuration* fallback — used when a service had no row of its own, decided before any
+call — so a service whose own primary and fallback both failed simply failed, even with a
+healthy default configured.
+
+**Each tier is skipped when it names the same provider and model as one already tried.**
+Without that guard, a service with no row of its own resolves *to* the default row, and
+the last resort would re-run the identical failing call: paying twice for one failure and
+making the user wait through two timeouts for the same message. The thrown error names
+every tier that failed and why.
 
 **Every call is logged** to `ai_usage_log` with the model string that was actually
 used — never a hard-coded constant.
@@ -153,10 +158,14 @@ work.
 **Founder-owned by design.** The founder changes and optimises prompts from the admin
 panel without a developer, because prompt quality *is* product quality here.
 
-**State today: roughly 5% built, and inert.** Storage is one row per key, edited in
-place — no version, no history, no rollback — and `LIVE_PROMPT_TEMPLATE_KEYS` is an
-empty array, so **no AI call reads a stored prompt template at all.** The screen is
-honestly labelled but it currently edits nothing.
+**Built 2026-08-17.** `prompt_versions` (migration 041), `lib/ai/prompts.ts`, and a
+rebuilt `/admin/prompts` with draft, publish and rollback. The old `prompt_templates`
+table is superseded and left in place; it should gain no new keys.
+
+**Nothing is published yet, and that is the correct state.** A prompt with no published
+version runs on the prompt written in its own module, so this can be adopted one service
+at a time. `ai_usage_log.prompt_version_id` is null for those calls, meaning "ran on the
+in-code prompt" — not "unknown".
 
 ### The floor — three parts, not equally editable
 
@@ -174,6 +183,16 @@ schema breaks every call for every user. Everything else is free to change.
 
 Never edit in place. A new version each time; **exactly one active per prompt**;
 publishing is a flip and rollback is a flip back; nothing is deleted.
+
+**One active version per prompt is enforced by the database**, not only by the code that
+writes it — a partial unique index, the same technique as the one-free-resume quota.
+Publishing is archive-then-activate in that order, so if those two steps ever race the
+second fails loudly instead of leaving two active versions and a silent coin-flip over
+which prompt a user gets. Proven to bite: a second active version is rejected, and an
+invalid status is rejected.
+
+The version number is derived from the current maximum and cannot be supplied by a
+caller, so history cannot be overwritten by passing a number that already exists.
 
 **Every generation records the prompt version that produced it.** That is the point of
 versioning here — without it, when output quality moves you cannot tell whether it was

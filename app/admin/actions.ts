@@ -7,6 +7,7 @@ import { grantOptimizationCredit } from '@/lib/admin/credits'
 import { AI_CONFIG_KEY_DEFAULT, getProviderConfigExact, setProviderConfig, deleteProviderConfig } from '@/lib/ai/providerConfig'
 import { createPromoCode, deactivatePromoCode } from '@/lib/admin/promoCodes'
 import { setPromptTemplate } from '@/lib/ai/promptTemplates'
+import { createDraft, publishVersion, revertToBuiltIn, isPromptKey } from '@/lib/ai/prompts'
 import { createServicePackage, setServicePackageActive } from '@/lib/admin/servicePackages'
 import { setEntitlement } from '@/lib/entitlements'
 
@@ -20,6 +21,50 @@ export async function grantCreditAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin(); const targetUserId = String(formData.get('userId') ?? '').trim(); const reason = String(formData.get('reason') ?? '').trim(); const q = String(formData.get('q') ?? '')
   if (targetUserId && reason) await grantOptimizationCredit({ targetUserId, adminUserId: admin.id, reason })
   const params = new URLSearchParams(); if (q) params.set('q', q); if (targetUserId) params.set('user', targetUserId); const suffix = params.toString(); redirect(`/admin/users${suffix ? `?${suffix}` : ''}`)
+}
+
+/**
+ * Prompt versioning — draft, publish, revert.
+ *
+ * Each re-verifies admin status itself. A server action is its own POST endpoint
+ * and is NOT covered by the page's render-time requireAdmin() — the standing rule
+ * for every action in this file.
+ *
+ * These three write the instructions the product runs on for every user, so they
+ * are as security-relevant as the API-key form below.
+ */
+export async function savePromptDraftAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  const key = String(formData.get('promptKey') ?? '').trim()
+  const body = String(formData.get('body') ?? '')
+  const notes = String(formData.get('notes') ?? '').trim()
+
+  if (!isPromptKey(key)) redirect('/admin/prompts?promptError=Unknown+prompt')
+
+  const result = await createDraft({ key, body, notes, createdBy: admin.id })
+  if (!result.ok) redirect(`/admin/prompts?prompt=${key}&promptError=${encodeURIComponent(result.error)}`)
+  redirect(`/admin/prompts?prompt=${key}&promptSaved=draft+v${result.version}`)
+}
+
+export async function publishPromptAction(formData: FormData): Promise<void> {
+  await requireAdmin()
+  const versionId = String(formData.get('versionId') ?? '').trim()
+  const key = String(formData.get('promptKey') ?? '').trim()
+  if (!versionId) redirect('/admin/prompts?promptError=Nothing+to+publish')
+
+  const result = await publishVersion(versionId)
+  if (!result.ok) redirect(`/admin/prompts?prompt=${key}&promptError=${encodeURIComponent(result.error)}`)
+  redirect(`/admin/prompts?prompt=${result.key}&promptSaved=v${result.version}+is+live`)
+}
+
+export async function revertPromptAction(formData: FormData): Promise<void> {
+  await requireAdmin()
+  const key = String(formData.get('promptKey') ?? '').trim()
+  if (!isPromptKey(key)) redirect('/admin/prompts?promptError=Unknown+prompt')
+
+  const result = await revertToBuiltIn(key)
+  if (!result.ok) redirect(`/admin/prompts?prompt=${key}&promptError=${encodeURIComponent(result.error ?? 'Failed')}`)
+  redirect(`/admin/prompts?prompt=${key}&promptSaved=now+using+the+built-in+prompt`)
 }
 
 export async function updateProviderConfigAction(formData: FormData): Promise<void> {

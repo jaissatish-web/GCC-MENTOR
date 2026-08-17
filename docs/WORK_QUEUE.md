@@ -21,9 +21,19 @@ output. Additive — services adopt it one at a time.
 
 ---
 
+## Done
+
+### ✅ Prompt versioning, draft-then-publish · ✅ the three provider fixes · ✅ one service registry
+Migration 041, `lib/ai/prompts.ts`, a rebuilt `/admin/prompts`, version stamping on every
+generation, the third runtime fallback tier, and the service list collapsed from three
+places to one. **Nothing is published yet** — each service adopts a stored prompt as it
+moves onto the control layer.
+
+---
+
 ## In progress
 
-### P1 · Prompt registry and versioning — **active**
+### ~~P1 · Prompt registry and versioning~~ — **done 2026-08-17**
 Draft-then-publish, founder-approved. A versions table; exactly one active version per
 prompt; publish and rollback are a flip; nothing edited in place, nothing deleted.
 **Every generation stamped with the prompt version that produced it** — without that,

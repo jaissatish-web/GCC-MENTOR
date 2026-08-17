@@ -2,6 +2,8 @@ import type { CareerProfileFull } from '@/types/careerProfile'
 import { generate, AIProviderError } from '@/lib/ai/provider'
 import { GROUNDING_INSTRUCTION } from '@/lib/ai/grounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
+import { getActivePrompt } from '@/lib/ai/prompts'
+import { TOKEN_BUDGET, type ServiceKey } from '@/lib/ai/services'
 
 /**
  * THE LLM CONTROL LAYER — one place that owns every model call.
@@ -37,53 +39,20 @@ import { extractJsonObject } from '@/lib/ai/extractionPrompt'
  */
 
 // ---------------------------------------------------------------------------
-// Services
+// Services — the registry lives in one module, imported by everything
 // ---------------------------------------------------------------------------
 
-/**
- * Every AI service in the product. One list, because there were two: the admin
- * screen carried its own copy and `providerConfig` another, so adding a service
- * meant remembering both.
- *
- * A key here is also the config key the model is resolved through, so a founder
- * changing the model for "cover_letter" in /admin changes exactly this task.
- */
-export const AI_SERVICES = {
-  extraction: { label: 'Resume Parsing', built: true },
-  optimization: { label: 'Resume Optimization', built: true },
-  ats_scan: { label: 'ATS / GCC Scanner', built: true },
-  job_description: { label: 'Job Description Structuring', built: true },
-  job_match_explanation: { label: 'Job Match Explanation', built: true },
-  cover_letter: { label: 'Cover Letter', built: true },
-  qa_generation: { label: 'Interview Q&A', built: false },
-  mock_interview: { label: 'Mock Interview', built: false },
-} as const
-
-export type ServiceKey = keyof typeof AI_SERVICES
+// Re-exported so existing callers keep working and there is still exactly one
+// definition. A service key is simultaneously the AI config key, the prompt key
+// and the package service key — deliberately the same string everywhere.
+export { AI_SERVICES, SERVICE_KEYS, isServiceKey } from '@/lib/ai/services'
+export type { ServiceKey } from '@/lib/ai/services'
 
 /**
- * Token budgets per service.
- *
- * REASONING MODELS SPEND THIS BUDGET BEFORE WRITING ANYTHING. The configured
- * default is one, and an under-budgeted call comes back with a populated
- * `reasoning` field and null content — which reads like a refusal and is not one.
- * `provider.ts` already reports that case properly; these numbers exist so it
- * happens less often.
- *
- * A caller may override, but the floor still applies: a budget too small to hold
- * an answer wastes the whole call rather than truncating it usefully.
+ * A caller may override the budget, but this floor still applies: a budget too
+ * small to hold an answer wastes the whole call rather than truncating it
+ * usefully.
  */
-const TOKEN_BUDGET: Record<ServiceKey, number> = {
-  extraction: 8000,
-  optimization: 8000,
-  ats_scan: 4000,
-  job_description: 3000,
-  job_match_explanation: 3000,
-  cover_letter: 4000,
-  qa_generation: 4000,
-  mock_interview: 4000,
-}
-
 const MIN_TOKENS = 1500
 
 /**
@@ -226,7 +195,22 @@ export async function runAiTask<T>(task: AiTask<T>): Promise<AiTaskResult<T>> {
   const repairAttempts = task.repairAttempts ?? 1
   const maxTokens = Math.max(MIN_TOKENS, task.maxTokens ?? TOKEN_BUDGET[task.service])
   const temperature = task.temperature ?? DEFAULT_TEMPERATURE
-  const system = buildSystemPrompt(task as AiTask<unknown>)
+
+  // THE ADMIN-EDITED PROMPT, IF ONE IS PUBLISHED. It replaces the instructions
+  // the caller passed — and only those. The grounding block is still injected
+  // below from the constant, and the output schema still belongs to the parser,
+  // so an admin edit can change quality and cannot change safety.
+  //
+  // No published version means the service runs on its in-code prompt. That is
+  // the correct state until a service has been migrated, and it means an
+  // unreadable table degrades to today's behaviour rather than to an outage.
+  const published = await getActivePrompt(task.service)
+  const effective = published
+    ? ({ ...task, instructions: published.body } as AiTask<unknown>)
+    : (task as AiTask<unknown>)
+  if (published) notes.push(`prompt v${published.version}`)
+
+  const system = buildSystemPrompt(effective)
 
   let input = task.input
   let lastDetail = ''
@@ -245,6 +229,9 @@ export async function runAiTask<T>(task: AiTask<T>): Promise<AiTaskResult<T>> {
         // The service key IS the config key, so /admin's per-service model
         // choice applies without any mapping table in between.
         configKey: task.service,
+        // Stamped on the usage row, so a change in output quality can be traced
+        // to the prompt rather than guessed at.
+        promptVersionId: published?.id ?? null,
       })
     } catch (e) {
       // A provider failure is not retried here. `provider.ts` already tried the

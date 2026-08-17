@@ -1,11 +1,11 @@
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
-import { getProviderConfig } from '@/lib/ai/providerConfig'
+import { getProviderConfig, getProviderConfigExact, AI_CONFIG_KEY_DEFAULT } from '@/lib/ai/providerConfig'
 
 export class AIProviderError extends Error {
   constructor(message: string, readonly cause?: unknown) { super(message); this.name = 'AIProviderError' }
 }
 
-interface GenerateParams { system: string; user: string; maxTokens: number; temperature: number; userId?: string; route: string; configKey?: string }
+interface GenerateParams { system: string; user: string; maxTokens: number; temperature: number; userId?: string; route: string; configKey?: string; promptVersionId?: string | null }
 interface GenerateResult { text: string; inputTokens: number; outputTokens: number }
 
 const INR_PER_USD = 84
@@ -16,10 +16,21 @@ function estimateCostInr(inputTokens: number, outputTokens: number) {
   return Math.round(((inputTokens / 1000) * DEFAULT_INR_PER_1K_INPUT + (outputTokens / 1000) * DEFAULT_INR_PER_1K_OUTPUT) * 100) / 100
 }
 
-async function logUsage(userId: string | null, route: string, model: string, inputTokens: number, outputTokens: number) {
+async function logUsage(userId: string | null, route: string, model: string, inputTokens: number, outputTokens: number, promptVersionId?: string | null) {
   try {
     const supabase = createServiceRoleClient()
-    await supabase.from('ai_usage_log').insert({ user_id: userId, route, model, input_tokens: inputTokens, output_tokens: outputTokens, estimated_cost_inr: estimateCostInr(inputTokens, outputTokens) })
+    await supabase.from('ai_usage_log').insert({
+      user_id: userId,
+      route,
+      model,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      estimated_cost_inr: estimateCostInr(inputTokens, outputTokens),
+      // Which prompt version produced this. NULL = the service ran on its
+      // in-code prompt. This is what makes a change in output quality
+      // attributable to the prompt rather than guessed at (migration 041).
+      prompt_version_id: promptVersionId ?? null,
+    })
   } catch (e) { console.error('ai_usage_log insert failed', e instanceof Error ? e.message : String(e)) }
 }
 
@@ -67,31 +78,66 @@ async function callProvider(provider: string, apiKey: string, model: string, sys
   throw new AIProviderError(`Unsupported AI provider: ${provider}`)
 }
 
-export async function generate({ system, user, maxTokens, temperature, userId, route, configKey }: GenerateParams): Promise<GenerateResult> {
+/**
+ * THREE RUNTIME TIERS: this service's provider, this service's fallback, then the
+ * `default` row as a last resort (founder request 2026-08-17).
+ *
+ * The third tier did not exist before. The `default` row was only ever a
+ * CONFIGURATION fallback — used when a service had no row of its own, decided
+ * before any call — so a service whose own primary and fallback both failed
+ * mid-call simply failed, even with a perfectly healthy default configured.
+ *
+ * THE GUARD THAT MATTERS: each tier is skipped when it names the same
+ * provider-and-model as one already attempted. Without it, a service with no row
+ * of its own resolves TO the default row, and the last resort would re-run the
+ * identical failing call — paying twice for one failure and making the user wait
+ * through two timeouts for the same error message.
+ */
+export async function generate({ system, user, maxTokens, temperature, userId, route, configKey, promptVersionId }: GenerateParams): Promise<GenerateResult> {
   const config = await getProviderConfig(configKey)
   if (!config) throw new AIProviderError('AI provider is not configured. Set it in /admin first.')
 
-  try {
-    const result = await callProvider(config.provider, config.apiKey, config.model, system, user, maxTokens, temperature)
-    void logUsage(userId ?? null, route, config.model, result.inputTokens, result.outputTokens)
-    return result
-  } catch (primaryError) {
-    // Carry the real reason INTO the message. It was previously passed only as
-    // `cause`, which nothing logs, so every failure surfaced as the same
-    // uninformative sentence and the actual provider error was unrecoverable.
-    const why = primaryError instanceof Error ? primaryError.message : String(primaryError)
-    if (!config.fallbackProvider || !config.fallbackModel || !config.fallbackApiKey) {
-      throw new AIProviderError(
-        `Primary AI provider (${config.provider}/${config.model}) failed and no fallback is configured — ${why}`,
-        primaryError
-      )
-    }
-    try {
-      const result = await callProvider(config.fallbackProvider, config.fallbackApiKey, config.fallbackModel, system, user, maxTokens, temperature)
-      void logUsage(userId ?? null, route, config.fallbackModel, result.inputTokens, result.outputTokens)
-      return result
-    } catch (fallbackError) {
-      throw new AIProviderError('Both primary and fallback AI providers failed', { primaryError, fallbackError })
+  interface Tier { label: string; provider: string; apiKey: string; model: string }
+  const tiers: Tier[] = [{ label: 'primary', provider: config.provider, apiKey: config.apiKey, model: config.model }]
+
+  // Fallback needs all three of provider, model and key. A fallback model on its
+  // own does nothing — the admin screen says so, because it is otherwise silent.
+  if (config.fallbackProvider && config.fallbackModel && config.fallbackApiKey) {
+    tiers.push({ label: 'fallback', provider: config.fallbackProvider, apiKey: config.fallbackApiKey, model: config.fallbackModel })
+  }
+
+  // Last resort: the default row, read EXACTLY (never re-resolved through the
+  // key, which would just hand back the same config again).
+  if (configKey && configKey !== AI_CONFIG_KEY_DEFAULT) {
+    const fallbackDefault = await getProviderConfigExact(AI_CONFIG_KEY_DEFAULT)
+    if (fallbackDefault) {
+      tiers.push({ label: 'default', provider: fallbackDefault.provider, apiKey: fallbackDefault.apiKey, model: fallbackDefault.model })
     }
   }
+
+  const attempted = new Set<string>()
+  const failures: string[] = []
+
+  for (const tier of tiers) {
+    const signature = `${tier.provider.toLowerCase()}/${tier.model}`
+    if (attempted.has(signature)) continue
+    attempted.add(signature)
+
+    try {
+      const result = await callProvider(tier.provider, tier.apiKey, tier.model, system, user, maxTokens, temperature)
+      void logUsage(userId ?? null, route, tier.model, result.inputTokens, result.outputTokens, promptVersionId)
+      return result
+    } catch (e) {
+      // Carry the real reason INTO the message. It was once passed only as
+      // `cause`, which nothing logs, so every failure surfaced as the same
+      // uninformative sentence and the actual provider error was unrecoverable.
+      failures.push(`${tier.label} (${signature}): ${e instanceof Error ? e.message : String(e)}`)
+    }
+  }
+
+  throw new AIProviderError(
+    tiers.length === 1
+      ? `AI provider failed and no fallback is configured — ${failures.join('; ')}`
+      : `Every configured AI provider failed — ${failures.join('; ')}`,
+  )
 }

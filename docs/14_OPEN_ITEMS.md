@@ -185,36 +185,23 @@ real defects that reached the founder: near-black text on a navy button (1.69:1)
 white labels on a white card. **Remaining work:** migrate usages, then delete the
 aliases.
 
-### B7b · Three gaps on the AI provider control panel
+### ~~B7b · Three gaps on the AI provider control panel~~ — **resolved 2026-08-17**
 
-Found 2026-08-17 by reading the code rather than the screen. The per-service
-configuration itself is correct and genuinely wired — all ten call sites pass their own
-service key — but three things do not behave the way the screen implies.
+All three fixed: the third runtime tier exists (default as last resort, skipping any
+provider-and-model already tried), the screen now states that a fallback needs provider,
+model *and* key together, and the service cards are generated from the single registry —
+so `job_description` and `job_match_explanation` are first-class rather than buried under
+"other overrides", and a new service appears the moment it exists.
 
-1. **Fallback silently does nothing unless provider, model *and* key are all set.**
-   Setting only a fallback model — a natural reading of "same provider, cheaper model" —
-   produces no fallback and no error. The screen should say so.
-2. **The default row is a configuration fallback, not a runtime one.** It applies when a
-   service has no row of its own; it is **not** tried when a service's own primary and
-   fallback both fail mid-call. A third runtime tier is planned, and must skip the
-   default when it is the same provider and model already attempted — otherwise a broken
-   call pays twice for the identical failure and the user waits longer for the same
-   error.
-3. **Two live, money-spending calls have no named card.** `job_description` and
-   `job_match_explanation` appear only under "other overrides". You cannot tune what you
-   cannot see.
+**The service list is now in one place**, which also removes the silent-typo class of bug
+the bundle screen warns about on its own face.
 
-Also: **the service list lives in three places** — this screen, the provider config and
-the control-layer registry. Collapsing it to one removes the silent-typo class of bug
-that the bundle screen already warns about on its own face.
+### ~~B7c · The prompt admin screen edits nothing~~ — **resolved 2026-08-17**
 
-### B7c · The prompt admin screen edits nothing
-
-`LIVE_PROMPT_TEMPLATE_KEYS` is an empty array, so **no AI call reads a stored prompt
-template.** Every field on `/admin/prompts` currently writes to a table nothing consumes.
-It is labelled rather than left looking functional, which is the right handling — but it
-is being replaced by a versioned, draft-then-publish system. See
-[`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b.
+Replaced by versioned prompts with draft-then-publish. See
+[`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b. **Nothing is published yet**, which is the
+correct state — each service adopts a stored prompt as it is migrated onto the control
+layer, and until then runs on its in-code prompt.
 
 ### B8 · Two small things on the optimize route, seen and accepted
 

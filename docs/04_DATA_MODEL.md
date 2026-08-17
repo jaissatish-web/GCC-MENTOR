@@ -3,7 +3,7 @@
 **Schema changes only ever happen through a numbered migration in
 `supabase/migrations/`.** Never edit schema directly against the live database.
 
-**Migrations 010 through 040 are applied and independently confirmed against the
+**Migrations 010 through 041 are applied and independently confirmed against the
 live database** — by querying the catalogue for the column, constraint, index and
 grants, not by the migration running without error. See
 [`05_SECURITY.md`](05_SECURITY.md) §5 for why that distinction is not pedantry.
@@ -160,7 +160,8 @@ gate.**
 | `pricing` | Prices by key | Public read. Founder edits in Supabase directly |
 | `plan_entitlements` | One row per feature: what free includes | Public read (the free tier is public information). **No write policy** — writes go through the service role from the admin panel |
 | `ai_provider_config` | Provider, model, key, fallback, per feature | Service role only |
-| `prompt_templates` | Editable prompt text | Service role only |
+| `prompt_versions` | Versioned, admin-editable prompt bodies. **One active per key, enforced by a partial unique index.** The grounding block and output schema are *not* here — they are injected in code | Service role only |
+| `prompt_templates` | Superseded by `prompt_versions`. Left in place, should gain no new keys | Service role only |
 | `promo_codes` | Codes, and the package they unlock | Service role only |
 | `service_packages`, `service_package_items` | Bundle definitions | Service role only |
 | `user_service_credits` | Credits a user holds | Service role only |

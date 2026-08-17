@@ -4,6 +4,7 @@ import { updateProviderConfigAction, deleteProviderConfigAction } from '@/app/ad
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { AI_SERVICES, SERVICE_KEYS } from '@/lib/ai/services'
 
 /** Never render a full secret into the page HTML — a short masked hint only. */
 function maskSecret(secret: string): string {
@@ -18,6 +19,22 @@ interface ServiceDef {
   /** 'planned' = no AI call in this codebase uses this key yet. */
   status: 'live' | 'planned'
 }
+
+/**
+ * Derived from the ONE service registry (lib/ai/services.ts), not hand-listed.
+ *
+ * This array used to be its own copy, and it had already drifted: two live,
+ * money-spending calls — job_description and job_match_explanation — were missing
+ * from it entirely and appeared only under "Other overrides", where nobody would
+ * think to tune them. Reading the registry means a new service shows up here the
+ * moment it exists, and a key cannot be mistyped into existence.
+ */
+const SERVICES_FROM_REGISTRY: ServiceDef[] = SERVICE_KEYS.map((k) => ({
+  key: k,
+  name: AI_SERVICES[k].label,
+  description: AI_SERVICES[k].description,
+  status: AI_SERVICES[k].built ? 'live' : 'planned',
+}))
 
 // Every provider `lib/ai/provider.ts`'s callProvider() actually knows how to
 // call. No "Other" option: there is no free-text field to pair it with, and
@@ -46,14 +63,7 @@ const providerLabel = (p: string) => PROVIDER_LABELS[p] ?? p
  * codebase passes those configKeys yet — inert until a real feature reads
  * that key (founder decision, 2026-08-11 — see docs/TASKS.md TASK-099).
  */
-const SERVICES: ServiceDef[] = [
-  { key: 'extraction', name: 'Resume Parsing', description: 'Reads an uploaded or pasted resume and extracts structured candidate data.', status: 'live' },
-  { key: 'optimization', name: 'Resume Optimization', description: 'Tailors a resume to a specific target job, using only facts already in the profile.', status: 'live' },
-  { key: 'ats_scan', name: 'ATS Scanner', description: 'Scores a resume for ATS/GCC readiness and produces the Job Match breakdown.', status: 'live' },
-  { key: 'cover_letter', name: 'Cover Letter Generation', description: 'Generates a tailored cover letter for a paid package.', status: 'live' },
-  { key: 'qa_generation', name: 'Interview Q&A', description: 'Planned interview preparation content. Not built yet — no route calls this key.', status: 'planned' },
-  { key: 'mock_interview', name: 'Mock Interview', description: 'Planned AI mock-interview review. Not built yet — no route calls this key.', status: 'planned' },
-]
+const SERVICES: ServiceDef[] = SERVICES_FROM_REGISTRY
 const KNOWN_KEYS = new Set<string>([...SERVICES.map((s) => s.key), 'default'])
 
 function ProviderSelect({ name, value, required = false }: { name: string; value?: string | null; required?: boolean }) {
@@ -113,6 +123,18 @@ function ServiceForm({ config, keyName, submitLabel }: { config: AiProviderConfi
           <Input name="fallbackApiKey" type="password" label="Fallback API key" placeholder={config?.fallbackApiKey ? 'Blank keeps current key' : 'Enter fallback key'} className="min-w-[220px] flex-1" />
         </div>
         <p className="text-[11px] text-ink-400">Tried only if the primary call genuinely fails. When disabled, fallback fields are ignored and cleared on save.</p>
+        {/* Stated because it is otherwise silent: a partly-filled fallback does
+            nothing at all, with no error anywhere. Setting only a model is the
+            natural reading of "same provider, cheaper model" and is inert. */}
+        <p className="text-[11px] font-semibold text-terra">
+          All three are required. A fallback with only a model, or without its own key, is
+          ignored at run time — with no error.
+        </p>
+        <p className="text-[11px] text-ink-400">
+          If both the primary and this fallback fail, the <strong>Default AI</strong> configuration
+          is tried last. It is skipped when it names the same provider and model that already
+          failed.
+        </p>
       </div>
 
       <div className="flex items-center justify-between gap-3 border-t border-line-light pt-3">
