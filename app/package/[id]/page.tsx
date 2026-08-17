@@ -288,29 +288,33 @@ function PackageScreenInner({ id }: { id: string }) {
      * nested scroll areas on a touch screen are how you lose the user.
      */
     <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-bg font-redesign-sans">
-      <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5 lg:shrink-0 lg:gap-1.5 lg:pb-2">
-        <button
-          type="button"
-          aria-label="Go back"
-          onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
-        >
-          ←
-        </button>
+      {/* ONE HEADER ROW (TASK-160, founder-directed).
+          This was five stacked rows — back arrow, "Unlocked & saved to Library"
+          badge, title, name field, then the action toolbar below — each one full
+          width with empty space to its right, which spent well over 200px of
+          vertical room to say very little. Title, rename and actions now share a
+          single wrapping row across that width, so the document gets the height
+          back.
 
-        <span className="self-start rounded-[5px] bg-forest-tint px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-forest">
-          ✓ Unlocked &amp; saved to Library
-        </span>
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900 lg:text-[21px]">Your Gulf CV is ready, {firstName}</h1>
+          The arrow and the badge are gone outright, at the founder's call. The
+          arrow duplicated the browser's own Back and the sidebar; the badge
+          announced a state the user cannot be in any other way — an unpaid
+          package never reaches this screen, it is redirected — so it was telling
+          them something that is always true. */}
+      <div className="flex flex-col gap-3 px-5 pb-3 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
+        <h1 className="font-serif text-[24px] leading-tight text-ink-900 lg:shrink-0 lg:text-[20px]">
+          Your Gulf CV is ready, {firstName}
+        </h1>
 
         {/* Rename, in place. A user with three attempts at the same role sees
             three identical rows in the Library otherwise — the target job
             title is not something they can change. Saves on blur or Enter;
             clearing it falls back to the job title rather than storing blank. */}
-        <label className="flex flex-wrap items-center gap-2 text-[12px] text-ink-400">
-          <span>Resume name</span>
+        <label className="flex flex-1 flex-wrap items-center gap-2 text-[12px] text-ink-400 lg:max-w-[420px]">
+          <span className="sr-only lg:not-sr-only">Name</span>
           <input
             type="text"
+            aria-label="Resume name"
             value={nameDraft}
             maxLength={120}
             placeholder={pkg.target_job_title}
@@ -321,122 +325,103 @@ function PackageScreenInner({ id }: { id: string }) {
                 e.currentTarget.blur()
               }
             }}
-            className="min-w-[220px] flex-1 rounded-radius-md border border-line-light bg-surface-light px-3 py-2 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+            className="min-w-[180px] flex-1 rounded-radius-md border border-line-light bg-surface-light px-3 py-1.5 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
           />
-          {nameState ? <span className="text-forest">{nameState}</span> : null}
+          {nameState ? <span className="shrink-0 text-forest">{nameState}</span> : null}
         </label>
-      </div>
 
-      {/* Actions ABOVE the document, templates BESIDE it (TASK-129 + TASK-146).
-          The distinction is deliberate. The four actions are a toolbar: they
-          are used once, so they earn a horizontal strip and no width. The ten
-          templates are a browse-and-compare choice, which needs to stay on
-          screen next to the thing it changes — so those get the left rail, and
-          the rail is paid for by widening the shell rather than by squeezing
-          the A4 page. */}
-      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
-        {/* Toolbar — sticks to the top of the viewport while scrolling a long
-            CV, so Download is always one click away without costing any width. */}
-        <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-bg/80 lg:py-2">
-          {/*
-            One button system, one size, one rhythm.
-            These four controls were hand-styled with three different paddings,
-            two text sizes and two focus-ring colours, which is what made the
-            row read as unaligned. They now all come from buttonVariants at
-            size="sm", so their heights and hit areas match by construction and
-            cannot drift again. On a phone each is full-width and stacked —
-            four 44px targets in a row do not fit 375px without shrinking below
-            the touch-target floor.
-          */}
-          <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center">
-            <a
-              href={pdfUrl}
-              onClick={() => setDownloaded(true)}
-              className={buttonVariants({ variant: 'primary', size: 'sm' })}
-            >
-              Download PDF
-            </a>
-            <Link
-              href={`/optimize/preview/${encodeURIComponent(id)}`}
-              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-            >
-              Edit text
-            </Link>
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noreferrer"
-              className={buttonVariants({ variant: 'ghost', size: 'sm' })}
-            >
-              Share to WhatsApp
-            </a>
-
-            {/* SAVE SITS BESIDE DOWNLOAD (TASK-156, founder's call).
-                It was at the bottom of the left rail, under the colour swatches
-                — which meant the confirmation for a change you make on the left
-                appeared nowhere near the button you press next. Save belongs with
-                the other actions on this document. It appears only when there is
-                something unsaved, so the row does not carry a permanently inert
-                button, and `ml-auto` pushes it clear of the three navigation
-                actions rather than sitting in the middle of them. */}
-            {styleable && styleDirty ? (
-              <span className="flex flex-wrap items-center gap-2 sm:ml-auto">
-                <span className="text-[11.5px] text-ink-400">Unsaved style change</span>
-                <button
-                  type="button"
-                  disabled={styleBusy}
-                  onClick={() => void saveStyle(draftStyle)}
-                  className={buttonVariants({ variant: 'primary', size: 'sm' })}
-                >
-                  {styleBusy ? 'Saving…' : 'Save style'}
-                </button>
-                <button
-                  type="button"
-                  disabled={styleBusy}
-                  onClick={() => setDraftStyle(savedStyle)}
-                  className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-                >
-                  Undo
-                </button>
-              </span>
-            ) : styleMsg ? (
-              <span role="status" className="text-[11.5px] text-forest sm:ml-auto">
-                {styleMsg}
-              </span>
-            ) : null}
-          </div>
-          {isTrying ? (
-            <div className="flex flex-col gap-2 rounded-radius-lg border border-forest/50 bg-forest-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-[12.5px] text-forest">
-                Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Not saved yet —
-                your download still uses{' '}
-                <strong>{getTemplate(savedTemplateId).name}</strong>.
-              </p>
-              <span className="flex shrink-0 gap-2">
-                <button
-                  type="button"
-                  onClick={() => void applyTemplate(activeTemplateId)}
-                  disabled={!!switchingTo}
-                  className={buttonVariants({ variant: 'primary', size: 'sm' })}
-                >
-                  {switchingTo ? 'Saving…' : 'Save this template'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.replace(`/package/${encodeURIComponent(id)}`)}
-                  className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-                >
-                  Discard
-                </button>
-              </span>
-            </div>
-          ) : null}
-          {downloaded ? (
-            <div className="rounded-radius-lg border border-forest/40 bg-forest-tint px-3.5 py-3 text-[12.5px] text-forest">
-              Applying somewhere else? Your profile is saved — next one takes a minute.
-            </div>
+        {/* The document's actions, pushed to the right of the same row. */}
+        <div className="flex flex-wrap items-center gap-2 lg:ml-auto lg:justify-end">
+          <a
+            href={pdfUrl}
+            onClick={() => setDownloaded(true)}
+            className={buttonVariants({ variant: 'primary', size: 'sm' })}
+          >
+            Download PDF
+          </a>
+          <Link
+            href={`/optimize/preview/${encodeURIComponent(id)}`}
+            className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+          >
+            Edit text
+          </Link>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+          >
+            Share to WhatsApp
+          </a>
+          {styleable && styleDirty ? (
+            <>
+              <span className="text-[11.5px] text-ink-400">Unsaved</span>
+              <button
+                type="button"
+                disabled={styleBusy}
+                onClick={() => void saveStyle(draftStyle)}
+                className={buttonVariants({ variant: 'primary', size: 'sm' })}
+              >
+                {styleBusy ? 'Saving…' : 'Save style'}
+              </button>
+              <button
+                type="button"
+                disabled={styleBusy}
+                onClick={() => setDraftStyle(savedStyle)}
+                className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+              >
+                Undo
+              </button>
+            </>
+          ) : styleMsg ? (
+            <span role="status" className="text-[11.5px] text-forest">
+              {styleMsg}
+            </span>
           ) : null}
         </div>
+      </div>
+
+      {/* Actions live in the header row now (TASK-160); the templates stay in the
+          left rail beside the document (TASK-146). What remains here is the two
+          transient notices, which only occupy height when they have something to
+          say. */}
+      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
+        {/* Trying a template from the gallery. This must stay: a click in the
+            gallery arrives as ?template= and renders immediately WITHOUT being
+            saved, so the user needs an explicit way to keep or discard it —
+            otherwise browsing would silently restyle a delivered resume
+            (TASK-141). */}
+        {isTrying ? (
+          <div className="flex flex-col gap-2 rounded-radius-lg border border-forest/50 bg-forest-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[12.5px] text-forest">
+              Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Not saved yet — your
+              download still uses <strong>{getTemplate(savedTemplateId).name}</strong>.
+            </p>
+            <span className="flex shrink-0 gap-2">
+              <button
+                type="button"
+                onClick={() => void applyTemplate(activeTemplateId)}
+                disabled={!!switchingTo}
+                className={buttonVariants({ variant: 'primary', size: 'sm' })}
+              >
+                {switchingTo ? 'Saving…' : 'Save this template'}
+              </button>
+              <button
+                type="button"
+                onClick={() => router.replace(`/package/${encodeURIComponent(id)}`)}
+                className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+              >
+                Discard
+              </button>
+            </span>
+          </div>
+        ) : null}
+
+        {downloaded ? (
+          <div className="rounded-radius-lg border border-forest/40 bg-forest-tint px-3.5 py-3 text-[12.5px] text-forest">
+            Applying somewhere else? Your profile is saved — next one takes a minute.
+          </div>
+        ) : null}
 
         {/* TEMPLATES LEFT, DOCUMENT CENTRED (TASK-146, founder-directed).
             The templates used to hide behind a "Change template" toggle that
