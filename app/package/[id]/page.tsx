@@ -18,6 +18,7 @@ import {
   type ResumeStyleOverrides,
   type SizeKey,
 } from '@/lib/resumeStyle'
+import { canServeDocument, resumeKind } from '@/lib/packageAccess'
 import { buttonVariants } from '@/components/ui/Button'
 import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
@@ -171,8 +172,13 @@ function PackageScreenInner({ id }: { id: string }) {
           setError('Package not found.')
           return
         }
-        // Security gate: never show the real deliverable to an unpaid load.
-        if (!p.is_paid) {
+        // SECURITY GATE (TASK-162). Gates the AI-written text, not the
+        // container: a resume with no optimized_content is the user's own typing
+        // in a template — the free tier — and refusing to show it protected
+        // nothing. A resume WITH generated content still requires payment, with
+        // the decision made server-side-shaped in lib/packageAccess.ts so this
+        // screen and the PDF route cannot disagree.
+        if (!canServeDocument(p)) {
           router.replace(`/optimize/pay/${encodeURIComponent(id)}`)
           return
         }
@@ -224,6 +230,12 @@ function PackageScreenInner({ id }: { id: string }) {
   const isTrying = !!tryingTemplateId && tryingTemplateId !== savedTemplateId
   const activeTemplateId = isTrying ? (tryingTemplateId as TemplateId) : savedTemplateId
   const Template = getTemplate(activeTemplateId).component
+  /**
+   * Free resume (TASK-162): no AI text in it, so it is the user's own profile in
+   * a template. Drives the copy and where "Edit" goes — NOT access, which is
+   * decided by canServeDocument above.
+   */
+  const isFree = resumeKind(pkg) === 'free'
   const styleable = getTemplate(activeTemplateId).styleable
   const allowsPhoto = getTemplate(activeTemplateId).allowsPhoto
   /**
@@ -303,7 +315,10 @@ function PackageScreenInner({ id }: { id: string }) {
           them something that is always true. */}
       <div className="flex flex-col gap-3 px-5 pb-3 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
         <h1 className="font-serif text-[24px] leading-tight text-ink-900 lg:shrink-0 lg:text-[20px]">
-          Your Gulf CV is ready, {firstName}
+          {/* Never call a free resume "optimized" — it has not been through the
+              model, and claiming otherwise is the one thing this product does not
+              do (docs/RULES.md). */}
+          {isFree ? `Your CV, ${firstName}` : `Your Gulf CV is ready, ${firstName}`}
         </h1>
 
         {/* Rename, in place. A user with three attempts at the same role sees
@@ -339,11 +354,19 @@ function PackageScreenInner({ id }: { id: string }) {
           >
             Download PDF
           </a>
+          {/* WHERE "EDIT" GOES DEPENDS ON WHAT THIS RESUME IS (TASK-162).
+              /optimize/preview edits `optimized_content`, and a free resume has
+              none — its guard would send the user to /optimize/generate, which
+              402s because the row is unpaid, which returns them to /optimize/pay.
+              A loop, from a button labelled Edit. A free resume's words live in
+              the Career Profile, so that is where its Edit goes, and the CV
+              follows because a free resume renders from the live profile rather
+              than from a frozen snapshot. */}
           <Link
-            href={`/optimize/preview/${encodeURIComponent(id)}`}
+            href={isFree ? '/profile' : `/optimize/preview/${encodeURIComponent(id)}`}
             className={buttonVariants({ variant: 'secondary', size: 'sm' })}
           >
-            Edit text
+            {isFree ? 'Edit my details' : 'Edit text'}
           </Link>
           <a
             href={waUrl}
@@ -417,7 +440,25 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         ) : null}
 
-        {downloaded ? (
+        {/* The upsell, stated as what it actually adds rather than as a lock.
+            Shown on a free resume only, and it names the difference: the words
+            are yours until you pay for them to be rewritten for one job. */}
+        {isFree ? (
+          <div className="flex flex-col gap-2 rounded-radius-lg border border-line-light bg-surface-light px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[12.5px] text-ink-700">
+              This is your own wording in a Gulf format — yours to download free. The paid step
+              rewrites it for one specific job.
+            </p>
+            <Link
+              href="/optimize/target"
+              className={'shrink-0 ' + buttonVariants({ variant: 'primary', size: 'sm' })}
+            >
+              Optimize for a job
+            </Link>
+          </div>
+        ) : null}
+
+        {downloaded && !isFree ? (
           <div className="rounded-radius-lg border border-forest/40 bg-forest-tint px-3.5 py-3 text-[12.5px] text-forest">
             Applying somewhere else? Your profile is saved — next one takes a minute.
           </div>

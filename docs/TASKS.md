@@ -3271,6 +3271,82 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-162: free-tier foundation — gate the AI text, not the container**
+
+      Founder design decision 2026-08-17: a free user keeps ONE resume built from
+      their own typed profile, can use any template, edit it, and download the PDF.
+      The paid product is the AI rewrite. Founder chose, from two options put to
+      them: free users edit via the Career Profile and the CV follows; one free
+      resume saved at a time, deletable.
+
+      **THE KEY REALISATION, and it is what makes this small.** The old gate was on
+      the wrong thing. Both the PDF route and the resume screen refused any package
+      with `is_paid = false` — that gates the CONTAINER. What the user pays for is
+      the AI-written summary and bullets, and a package that never went through the
+      optimizer holds none of it: every word is the user's own typing from their own
+      profile. Refusing to show it protected nothing, and it was the only reason a
+      free tier looked like it needed a second rendering path, a second PDF route and
+      duplicated template logic.
+
+      **The gate is now: does this row hold AI-written text?** `optimized_content IS
+      NULL` → nothing generated → serve it whatever `is_paid` says. Content present
+      → the paid deliverable → `is_paid` required. Strictly safer than the old rule,
+      because the thing being protected and the thing being checked are now the same
+      thing; previously they were only correlated, and the correlation held by luck.
+
+      **The invariant the gate rests on, written down:** content cannot exist without
+      payment. `/api/optimize` Phase B refuses with 402 unless the row is genuinely
+      paid (TASK-131); nothing else writes `optimized_content` except PATCH, which
+      only edits text that already exists; and there is no refund path that flips
+      `is_paid` back. **If a refund flow is ever added, that is the invariant it must
+      preserve.** One helper, `lib/packageAccess.ts`, used by both call sites — two
+      copies of a payment check eventually disagree, and the wrong one is always the
+      permissive one.
+
+      **Migration 038** adds `tier` ('free'|'paid'; NULL = pre-migration, treated as
+      paid) plus a **partial unique index** enforcing one free resume per user in the
+      database, not only in the route that writes it. A column rather than an
+      inference because a free resume and an abandoned checkout are currently the
+      same shape — since pay-before-generate, clicking Optimize inserts
+      `is_paid=false` with `optimized_content=NULL` — so counting unpaid rows for the
+      quota would let a user who changed their mind lose their free CV. `tier` drives
+      the quota and the labelling and is explicitly **not** the access gate.
+
+      **A REAL LOOP FOUND AND FIXED** while wiring the copy. A free resume clicking
+      "Edit text" would hit `/optimize/preview`, whose guard sends a row with no
+      `optimized_content` to `/optimize/generate`, which POSTs to `/api/optimize` and
+      gets 402 because the row is unpaid, which returns it to `/optimize/pay`. A loop,
+      from a button labelled Edit. A free resume's Edit now goes to `/profile` —
+      exactly the model chosen, and it works because a free resume has no
+      `document_snapshot` and therefore already renders from the live profile. Also:
+      the heading no longer says "Your Gulf CV is ready" for a resume that was never
+      optimized, and a free resume carries an honest upsell naming what the paid step
+      adds rather than presenting a lock.
+
+      **Verified.** Migration applied to the live database and confirmed three ways
+      against the catalogue — column, check-constraint definition, partial-index
+      definition. The quota was then proven to **bite**: first free resume inserts,
+      second rejected by `packages_one_free_per_user`, a paid resume alongside it
+      still allowed, an invalid `tier` rejected by the check constraint; all test rows
+      deleted and the 2 real rows confirmed untouched. **18 assertions on the gate,
+      every malformed shape failing CLOSED:** AI content with `is_paid` undefined,
+      null, the string `"true"`, or the number `1` all blocked; `optimized_content` of
+      `{}`, `""`, `0` or `false` all counted as content and blocked; `tier` proven
+      irrelevant to access. `tsc`, `lint`, a full production build (45 routes) and the
+      32,768-permutation golden baseline all clean.
+
+      **NOT BUILT YET — the free tier is not reachable.** There is no way to CREATE a
+      free resume: no route, no entry point, and the Library neither lists nor labels
+      them. This is the foundation — gate, quota, schema — and it is safe to ship
+      alone because it only ever widens access to rows containing no AI text. Next:
+      a POST creating a `tier='free'` package (note `skills_order` and
+      `field_visibility_snapshot` are both NOT NULL and must be supplied), an entry
+      point on `/create-resume`, and Library listing plus labelling.
+
+      Depends on: TASK-131, TASK-134, TASK-161 · Status: foundation done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
