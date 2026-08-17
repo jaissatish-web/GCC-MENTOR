@@ -1,0 +1,203 @@
+# OPEN ITEMS — every known defect and every undecided decision
+
+**This is the only to-do surface.** Anything not here is either done or not agreed.
+
+Nothing is removed from this file until it is genuinely resolved, and when it is
+resolved it is deleted rather than marked — the part-document it affects carries the
+outcome instead.
+
+**Last reviewed:** 2026-08-17
+
+---
+
+## A. Decisions only the founder can make
+
+These block work. Nothing else in this file matters as much as the first one.
+
+### A1 · Which payment provider — **blocking all revenue**
+
+Razorpay's KYC is India-only and the founder is based in Saudi Arabia. There is **no
+self-serve checkout**. Today a customer pays only via a promo code issued by hand or an
+admin credit grant.
+
+Everything downstream of the decision is a normal build. The decision itself is not
+technical: it is which provider to use from Saudi Arabia, taking payments from a
+primarily India-based audience.
+
+**Until this is answered the product cannot take money from a stranger.**
+
+### A2 · Finish the free tier, or shelve it
+
+The gate, the database quota and the admin control panel are built and verified. **No
+route creates a free resume and no UI offers one.** The remaining work is a creation
+route, an entry point, and Library listing plus labelling — plus wiring the first gate
+to the entitlements table and removing the "not live yet" notice in the same change.
+
+Related and unresolved: the free profile-only CV download still works but **nothing
+links to it** (§B4).
+
+### A3 · Long-term pricing model
+
+One-time versus usage versus subscription. Undecided on purpose; the data model stays
+neutral. The two bundle tiers are real prices with no purchase path.
+
+### A4 · Legal content
+
+Privacy policy, terms and refund policy are clearly-marked placeholders.
+
+### A5 · Login method
+
+Email magic link is what ships. Mobile+OTP and Google were both once open options. The
+auth layer is provider-agnostic, so this is still changeable — but it should be decided
+rather than defaulted into.
+
+### A6 · Package and batch rules
+
+Whether one payment is always one resume, or whether a batch across multiple targets is
+possible. No database constraint assumes either answer.
+
+---
+
+## B. Defects and gaps, by severity
+
+### B1 · Job Match scores zero on GCC experience for every anonymous scan — **highest-value defect in the product**
+
+The category counts only work entries carrying a GCC country value, and that field is
+written by exactly one thing: a dropdown in the profile editor. **Extraction never
+derives it.** So on the free funnel the category is structurally always zero, whatever
+the CV says.
+
+Measured: a CV with 12 years in Abu Dhabi and Jubail against a matching Senior Piping
+Engineer job description scored **48/100**, with three categories at zero, while the
+semantic layer scored the same candidate 85/95/100.
+
+**Why it outranks everything else here:** it is confidently wrong, on the feature the
+product is named after, and the number is shown to real users as a judgement of them.
+
+**The fix is more available than it looks.** Extraction already returns free-text
+location per work entry — "Abu Dhabi, UAE" is already reaching us and is simply not
+being read. Mapping that to a GCC country is deterministic and does not touch the
+grounding rule: it reads a fact the resume states. Degree equivalence (`B.Tech` not
+matching a job asking for `B.Eng`) is the second half.
+
+**It needs a product answer first:** what "GCC experience" means for an untagged
+resume, and how degree equivalence should work.
+
+### B2 · The landing page makes two claims that are not true — **public-facing**
+
+Both found 2026-08-17 while verifying pricing for this documentation.
+
+1. The ₹499 tier lists **"PDF + DOCX Download"**. The Word download was withdrawn and
+   nothing links to it.
+2. The pricing section says **"Instant self-serve checkout today covers Resume
+   Optimization"**. There is no self-serve checkout for anything.
+
+A paying customer could reasonably expect a Word file and an instant purchase, and
+receive neither. This is the exact failure mode
+[`02_PHILOSOPHY.md`](02_PHILOSOPHY.md) §2 exists to prevent, and it is copy drift rather
+than a coding error: both sentences were true of an earlier version of the product.
+
+### B3 · The default resume template cannot be restyled
+
+A user can change font, size and accent on 13 of 15 templates. The two exceptions are
+hand-written with explicit styling on every element, so an override has nothing to
+cascade into — and one of them is the **default**, which means the template most users
+hold is the one that cannot be adjusted.
+
+Surfaced honestly in the UI rather than shown as dead controls, so it is a gap and not a
+lie. The fix is to port it onto the shared engine, which would also bring it under the
+exhaustive rendering baseline that currently covers it only as a black box.
+
+**Non-trivial but checkable:** its exact output is what already-delivered resumes were
+rendered with, so the port must be byte-identical — and the 32,768-combination baseline
+is exactly the tool that proves it.
+
+### B4 · The free CV download is unreachable
+
+The route works. Its only link was removed from the profile page during a layout change,
+and nothing else points at it.
+
+This matters because the free profile-only download was a deliberate founder decision,
+on the reasoning that the AI rewrite is the paid product and putting your own facts on a
+page is not. **A deliberate decision is currently switched off as a side effect of a
+layout change.** It needs an explicit choice: link it from the Library or the dashboard,
+or retire the free download on purpose.
+
+### B5 · Unsaved profile edits are lost on navigation
+
+Leaving the editor for the visibility screen mid-typing unmounts the form's state with
+no warning; returning reloads the last **saved** state. Silent data loss on the product's
+main "confirm your profile" screen.
+
+Several reasonable fixes exist — auto-save before navigating, an unsaved-changes
+warning, or carrying draft state through session storage the way the extraction handoff
+already does. **Deliberately not chosen unilaterally.**
+
+### B6 · Two routes one letter apart mean different things
+
+`/gulf-readiness` is the **anonymous scan's results**. `/gcc-readiness` is a **signed-in
+user's readiness against their saved profile**. Both are legitimate; the names are a
+trap for anyone maintaining either.
+
+Related: **`/gcc-readiness` is not in the navigation** at all. It is reachable only from
+the dashboard's readiness card. That may be correct, but it should be deliberate.
+
+### B7 · Colour tokens are named for the wrong colours
+
+`forest` is navy; `forest-dark` is a light blue. Correct aliases (`navy`, `navy-deep`,
+`navy-tint`, `sky`) exist in the config and `forest*` is marked deprecated, **but the
+app still uses the old names throughout.**
+
+Choosing a colour by its name produces a wrong result, and it has already shipped two
+real defects that reached the founder: near-black text on a navy button (1.69:1), and
+white labels on a white card. **Remaining work:** migrate usages, then delete the
+aliases.
+
+### B8 · Two small things on the optimize route, seen and accepted
+
+Recorded so the next person does not rediscover them as surprises.
+
+1. Two concurrent generate requests for the same paid, ungenerated package both pass the
+   "nothing generated yet" check, because that check is a read and not a lock. The client
+   guards a double-click; the real exposure is a deliberate retry or two tabs, costing one
+   extra model call — **never a double charge.** A conditional update would close it.
+2. Creating a package spends no rate-limit slot, so package rows can be created without
+   limit. Storage only — no cost, no user-visible effect.
+
+### B9 · Accepted tradeoffs, not defects
+
+- **A malformed model response does not consume a rate-limit slot**, though the call cost
+  money. Charging a user's daily attempt for a random model hiccup is worse.
+- **The profile API assumes a full-object save.** A partial save would undercount
+  readiness by scoring omitted-but-filled fields as empty. Nothing at the boundary enforces
+  it; the editor simply always sends a full object.
+- **Rate-limit windows use server-local time**, so the reset time shown to a user may not
+  be a locally meaningful hour. Phone and email secondary keys are matched by exact string,
+  so two formats of the same number are not recognised as one identity.
+- **Nothing rejects "optimize nothing"** — no blocks selected and no experience entries.
+  Self-inflicted only; costs the user their own rate-limit slot for a no-op.
+- **Revisiting onboarding with an existing profile** would give a draft-only editor whose
+  save could overwrite existing customisations. No UI path reaches it today.
+- **The print tokens file and the Tailwind config must be kept in step by hand.** Print
+  templates cannot use Tailwind classes at all — see
+  [`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) §5.
+- **`next.config.mjs` still ships Chromium to a deleted route.** The blurred-preview
+  renderer is gone; its file-tracing entry remains. Harmless, and worth removing next time
+  that file is touched.
+
+---
+
+## C. Standing environment limitations
+
+Not defects. They constrain how confidently anything can be verified, and every
+statement of "verified" in this documentation should be read against them.
+
+1. **No authenticated page has ever been checked in a live browser** from the CTO's
+   environment — there is no real login session available. Every signed-in screen is
+   verified by diff, build and reasoning, not by being seen.
+2. **This machine has ~4GB of RAM.** Running a dev server and a production build
+   simultaneously reliably corrupts the build cache and produces module-not-found errors
+   that look exactly like real defects. If that happens: stop all Node processes, delete
+   `.next`, start once.
+3. **The direct database host is unreachable** from this environment; migrations are
+   applied through the pooler connection string.
