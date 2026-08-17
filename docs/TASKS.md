@@ -2662,6 +2662,34 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-150: shorten the template thumbnails to 75%**
+
+      Founder's call: the full-page thumbnail from TASK-148 was too tall. Cut to
+      the top 75%, clipped from the bottom.
+
+      TASK-148's full-page preview was right in principle and wrong in practice —
+      ten A4 pages made the gallery a 1546px scroll for a decision that is made
+      in the top half of the page. Replaced `fullPage: boolean` with
+      `pageFraction: number`, so height is a stated proportion of the true page
+      height rather than a magic pixel value that could drift from A4 again.
+      Gallery 0.75, rail 0.66.
+
+      **The page WIDTH is untouched**, which is the part that matters: the
+      thumbnail is clipped by `overflow-hidden`, never scaled differently in one
+      axis, so no template can appear distorted. Header, summary and the first
+      job all sit inside the visible 75%, which is what a layout is actually
+      judged on.
+
+      **Verified by measurement:** at 1240px the gallery window is 238×252 where
+      the full page at that width is 337 — a visible fraction of **0.748** —
+      page width still 238, and the page's top edge flush with the window's, so
+      the cut is from the bottom. Rail 0.660. Gallery total height 1546px →
+      **1175px**. `tsc`, `lint` and a full production build (45 routes) clean.
+
+      Depends on: TASK-148 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*

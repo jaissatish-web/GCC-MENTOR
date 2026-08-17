@@ -44,19 +44,21 @@ const PAGE_H = 1123
  * read its parent's width), so the card is sized to the preview instead and the
  * row is centred — deterministic, and no ResizeObserver.
  *
- * The gallery preview now shows the WHOLE A4 page rather than a 260px slice of
- * its top. A resume thumbnail that stops a third of the way down reads as a
- * broken fragment; the full page is what every resume builder shows, and it is
- * what lets someone actually judge a layout. The rail stays clipped, because
- * ten full pages in a sticky column is a very long scroll.
+ * HEIGHT IS A FRACTION OF THE PAGE, cut from the bottom (TASK-150, founder's
+ * call). A full-page thumbnail was right in principle and too tall in practice:
+ * ten of them made the gallery a long scroll for information that is decided in
+ * the top half. `pageFraction` keeps the page at true A4 WIDTH — so the layout
+ * is never distorted — and simply shows the top portion, letting
+ * `overflow-hidden` clip the rest. Header, summary and the first job are what a
+ * template is judged on, and all three sit inside 75%.
  */
 const CARD_BORDER = 1
 
 const LAYOUT = {
-  /** Whole page, so the thumbnail is a resume rather than a cropped fragment. */
-  grid: { cardW: 240, fullPage: true, previewH: 0, wrap: 'flex flex-wrap justify-center gap-5' },
-  /** Clipped to the top: ten full pages in a sticky column is too long a scroll. */
-  rail: { cardW: 212, fullPage: false, previewH: 200, wrap: 'flex flex-col items-center gap-3' },
+  /** Top three-quarters of the page. */
+  grid: { cardW: 240, pageFraction: 0.75, wrap: 'flex flex-wrap justify-center gap-5' },
+  /** Shorter still: ten previews in a sticky column must stay scannable. */
+  rail: { cardW: 212, pageFraction: 0.66, wrap: 'flex flex-col items-center gap-3' },
 } as const
 
 export function TemplatePicker({
@@ -74,14 +76,16 @@ export function TemplatePicker({
 }) {
   const [hovered, setHovered] = useState<TemplateId | null>(null)
   const templates = availableTemplates()
-  const { cardW, fullPage, previewH: fixedH, wrap } = LAYOUT[layout]
+  const { cardW, pageFraction, wrap } = LAYOUT[layout]
   // Scale against the card's CONTENT width, not its outer width. Tailwind sets
   // border-box, so a 240px card with a 1px border has a 238px content box — and
   // scaling to 240 pushed 2px of the page's right edge under `overflow-hidden`,
   // quietly shaving the margin off every thumbnail.
   const innerW = cardW - CARD_BORDER * 2
   const SCALE = innerW / PAGE_W
-  const previewH = fullPage ? Math.round(innerW * (PAGE_H / PAGE_W)) : fixedH
+  // True page height at this width, then the visible fraction of it. Width is
+  // never touched, so the page is clipped rather than squashed.
+  const previewH = Math.round(innerW * (PAGE_H / PAGE_W) * pageFraction)
 
   return (
     <div role="group" aria-label="Resume templates" className={wrap}>
