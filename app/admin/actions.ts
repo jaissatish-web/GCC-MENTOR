@@ -8,6 +8,7 @@ import { AI_CONFIG_KEY_DEFAULT, getProviderConfigExact, setProviderConfig, delet
 import { createPromoCode, deactivatePromoCode } from '@/lib/admin/promoCodes'
 import { setPromptTemplate } from '@/lib/ai/promptTemplates'
 import { createServicePackage, setServicePackageActive } from '@/lib/admin/servicePackages'
+import { setEntitlement } from '@/lib/entitlements'
 
 export async function overrideRateLimitAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin(); const userId = String(formData.get('userId') ?? '').trim(); const action = String(formData.get('action') ?? '').trim(); const rawOverride = String(formData.get('override') ?? '').trim(); const reason = String(formData.get('reason') ?? '').trim(); const q = String(formData.get('q') ?? ''); const override = rawOverride === '' ? null : Number.parseInt(rawOverride, 10)
@@ -74,3 +75,31 @@ export async function deactivatePromoCodeAction(formData: FormData): Promise<voi
 export async function updatePromptTemplateAction(formData: FormData): Promise<void> { const admin = await requireAdmin(); const key = String(formData.get('key') ?? '').trim(); const content = String(formData.get('content') ?? '').trim(); if (!key || !content) redirect('/admin/prompts?promptError=Key+and+content+are+required'); const result = await setPromptTemplate({ key, content, adminId: admin.id }); if (!result.ok) redirect(`/admin/prompts?promptError=${encodeURIComponent(result.error)}`); redirect('/admin/prompts?promptSaved=1') }
 export async function createServicePackageAction(formData: FormData): Promise<void> { const admin = await requireAdmin(); const name = String(formData.get('name') ?? '').trim(); const description = String(formData.get('description') ?? '').trim(); const rawPrice = String(formData.get('priceInr') ?? '').trim(); const priceInr = rawPrice ? Number(rawPrice) : 0; if (!name) { redirect('/admin/packages?spError=Package+name+is+required'); return }; const items: { serviceKey: string; quota: number }[] = []; for (const [key, value] of Array.from(formData.entries())) { const match = /^service_key_(\d+)$/.exec(key); if (match && value) { const quotaRaw = formData.get(`quota_${match[1]}`); const quota = quotaRaw ? Number(quotaRaw) : 0; if (Number.isInteger(quota) && quota > 0) items.push({ serviceKey: String(value).trim(), quota }) } }; const result = await createServicePackage({ name, description: description || null, priceInr, items, adminUserId: admin.id }); if (!result.ok) redirect(`/admin/packages?spError=${encodeURIComponent(result.error)}`); redirect('/admin/packages?spSaved=1') }
 export async function setServicePackageActiveAction(formData: FormData): Promise<void> { const admin = await requireAdmin(); const packageId = String(formData.get('packageId') ?? '').trim(); const isActive = formData.get('isActive') === 'true'; if (!packageId) redirect('/admin/packages?spError=Missing+package+id'); const result = await setServicePackageActive(packageId, isActive, admin.id); if (!result.ok) redirect(`/admin/packages?spError=${encodeURIComponent(result.error)}`); redirect('/admin/packages?spSaved=1') }
+
+/**
+ * Save one row of the free plan (TASK-163).
+ *
+ * requireAdmin() FIRST, before anything is read off the form. A server action is a
+ * POST endpoint like any other — the page's own admin check is a convenience for
+ * the UI, not a gate, and this is the gate.
+ */
+export async function updateEntitlementAction(formData: FormData): Promise<void> {
+  await requireAdmin()
+  const feature = String(formData.get('feature') ?? '').trim()
+  if (!feature) redirect('/admin/plan')
+
+  const freeAllowed = String(formData.get('freeAllowed') ?? 'off') === 'on'
+  const rawLimit = String(formData.get('freeLimit') ?? '').trim()
+  const freeLimit = rawLimit === '' ? null : Number.parseInt(rawLimit, 10)
+  // getAll: an unchecked box sends nothing, so an empty list is a real answer
+  // meaning "no templates", not a missing field.
+  const freeTemplates = formData.getAll('freeTemplates').map((v) => String(v))
+
+  await setEntitlement({
+    feature,
+    freeAllowed,
+    freeLimit: freeLimit === null || Number.isNaN(freeLimit) ? null : freeLimit,
+    freeTemplates: feature === 'templates' ? freeTemplates : null,
+  })
+  redirect('/admin/plan')
+}

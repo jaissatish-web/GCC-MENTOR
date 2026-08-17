@@ -3347,6 +3347,70 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-163: one table that decides the free plan — and a real security find**
+
+      Founder chose "control panel first" over screens first, and chose to pick the
+      free template list himself from `/admin`.
+
+      **Migration 039** adds `plan_entitlements`: one row per feature, seeded with the
+      nine the product has. `free_allowed` answers most gates; `free_limit` carries a
+      count where allowed is not enough; `free_value` carries a list where the answer
+      is not yes/no — which templates the free plan may use. `requires_ai` is **not a
+      gate**: it tells the admin screen which rows cost real money, so opening one up
+      is an informed decision rather than a surprise on the bill.
+
+      `lib/entitlements.ts` is the single reader, with **deliberately asymmetric
+      failure**: if the table cannot be read, the three costless features stay
+      available and everything that spends money stays refused. An unknown feature
+      also fails shut. Kept separate from `lib/packageAccess.ts` on purpose — that
+      gate decides whether an ALREADY SOLD resume may be served and must never become
+      editable from an admin screen.
+
+      **A REAL SECURITY FIND, and it only surfaced because 039's own grants were
+      verified rather than assumed.** The new table came back holding **TRUNCATE for
+      `anon`** even after an explicit REVOKE of insert/update/delete — and the rest of
+      the schema had it too, **12 of 12 tables**, including `packages` and
+      `career_profiles`.
+
+      Why that matters more than the other grants: RLS is what makes
+      INSERT/UPDATE/DELETE/SELECT safe for `anon` here. **TRUNCATE is not subject to
+      RLS at all** — Postgres checks the privilege and empties the table, consulting
+      no policy. One successful `TRUNCATE public.career_profiles` as `anon` would
+      erase every user's profile; `packages` every paid resume. Not exploitable by any
+      route found (PostgREST exposes no TRUNCATE verb; a REST DELETE becomes an
+      RLS-filtered SQL DELETE; no SECURITY INVOKER function issues one) — so a latent
+      privilege, not an open door. But it is exactly the shape of **Unplanned #18**: a
+      default grant nobody asked for, on the most destructive operation available, with
+      the schema's main defence not applying to it. **Migration 040** revokes TRUNCATE,
+      TRIGGER and REFERENCES from `anon`/`authenticated` on every public table and sets
+      default privileges so new tables do not arrive with them.
+
+      **Verified.** Both migrations applied live and confirmed against the catalogue,
+      not by absence of error. 039: RLS on, exactly one policy and it is SELECT-only,
+      nine rows seeded correctly. 040: TRUNCATE/TRIGGER/REFERENCES grants **72 → 0**,
+      while the **90** SELECT/INSERT/UPDATE/DELETE grants the app uses are untouched,
+      checked table by table. Then the strongest check available: a real PATCH with the
+      **live anon key** returned **401 / Postgres 42501 insufficient_privilege** and the
+      row was confirmed unchanged, while an anon SELECT correctly returned 200 because
+      the free tier is public information. `tsc`, `lint`, a full production build and
+      the 32,768-permutation golden baseline all clean.
+
+      **NOT ENFORCED YET, AND THE SCREEN SAYS SO.** `freeAllows()` and
+      `freeTemplateIds()` exist and the editor persists real values, but no
+      user-facing gate calls them. That is the exact shape of the `/admin/prompts`
+      mistake, so `/admin/plan` carries a plain "Not live yet" notice explaining what
+      does and does not happen — removed in the same commit that wires the first gate.
+
+      **One honest limitation on 040:** `ALTER DEFAULT PRIVILEGES` is per-role, so the
+      new default only covers tables created by the role our migrations run as
+      (`postgres`). A table created through the Supabase dashboard as `supabase_admin`
+      would arrive with TRUNCATE again — re-running 040's loop fixes it, and it is
+      idempotent.
+
+      Depends on: TASK-162 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
@@ -3399,6 +3463,7 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 | 25 | `app/api/packages/[id]/preview-image/route.ts` | **RESOLVED by TASK-160** (2026-08-17) — the founder gave the explicit go-ahead to remove all blurred-preview code, and the route is deleted. Original finding follows. Dead route, and the one renderer that never adopted the snapshot. After TASK-145 removed the blurred preview it had no consumer left in the app — grepped, zero references outside its own file — yet it still launched Chromium and rendered a full resume on request. Owner-scoped and auth-gated, so not a leak, but live surface with no caller. More interesting for correctness: unlike the PDF route and the resume screen it never read `document_snapshot`, so had it stayed wired up the thumbnail and the downloaded PDF could have shown different documents for the same package | LOW as it stood (unreachable). Deleting it also removed the last `filter: blur` and watermark from the codebase |
 | 26 | `components/templates/GulfPremium.tsx`, `components/templates/AtsClassic.tsx` | **The default template cannot be restyled.** TASK-152 lets a user change font, size and accent on 13 of 15 templates; these two are hand-written with an explicit face, size and colour on every element, so an override has nothing to cascade into. `gulf_premium` is `DEFAULT_TEMPLATE_ID`, so the template most users hold is the one that cannot be adjusted. Surfaced honestly in the UI (a `styleable` registry flag, and the panel names the limitation) rather than shown as dead controls, so it is a gap and not a lie — but it is still the wrong default. **Fix is to port GulfPremium onto the engine**, which would also bring it under the 32,768-permutation golden baseline that currently covers it only as a black box. Non-trivial: its exact output is what already-delivered resumes were rendered with, so the port has to be byte-identical — and the baseline is the tool that would prove it | MEDIUM — product quality, not correctness. Worth its own ticket, and the golden baseline makes it a checkable one rather than a risky one |
 | 27 | `app/api/resume/pdf/route.ts` | **The free CV download is now unreachable.** TASK-161 removed its link from `/profile` at the founder's request, and `/profile` was the only caller — confirmed by grepping every `.ts`/`.tsx`. The route still exists and still works; nothing in the UI points at it. This matters because the free download was the founder's own decision in TASK-134, on the reasoning that the AI rewrite is the paid product and putting your own facts on a page is not. Left in place rather than deleted, since the request was about this page's layout and the existence of a free tier is a pricing call | MEDIUM — a deliberate founder decision is currently switched off as a side effect of a layout change. Needs an explicit choice: link it from the Library or the dashboard where documents belong, or retire the free tier on purpose. Not a defect, but it should not sit unresolved |
+| 28 | Every table in `public` (found via migration 039) | **`TRUNCATE` was granted to `anon` and `authenticated` on all 12 tables, and TRUNCATE ignores row-level security.** RLS is what makes the other write grants safe here — a policy scopes each statement to the caller's own rows — but Postgres checks only the TRUNCATE privilege and empties the table, consulting no policy. `TRUNCATE public.career_profiles` as `anon` would have erased every profile; `packages` every paid resume. No exploit route found: PostgREST exposes no TRUNCATE verb, a REST DELETE becomes an RLS-filtered SQL DELETE, and no SECURITY INVOKER function issues one — so latent rather than open. Found only because migration 039's own grants were checked rather than assumed, which is the same discipline that caught Unplanned #18. `TRIGGER` and `REFERENCES` were also granted and also unnecessary. **RESOLVED by migration 040** — 72 grants removed, the 90 the app uses untouched, verified table by table and with a live anon-key write returning 42501 | HIGH by impact if ever reachable, LOW by likelihood today. The standing lesson is now twice-proven: in this Supabase project, a new table's grants must be read back from `information_schema` after every migration — a REVOKE aimed at what you expect will miss what the project actually grants |
 | 24 | `app/api/optimize/route.ts` (TASK-131) | Two small things noted in the 2026-08-17 review and deliberately **not** fixed, because neither is a defect today and both are cheap to get wrong. (a) Two concurrent Phase B requests for the same paid, ungenerated package both pass the `optimized_content IS NULL` idempotence check, so both call the model — the guard is a read, not a lock. The generate screen has a `started` ref and the window is one request, so a double-click is already handled client-side; the exposure is a deliberate retry or two tabs, costing one extra model call and a last-write-wins overwrite, never a double charge. A conditional update (`.is('optimized_content', null)`) would close it properly. (b) Phase A creates a package row with no AI call and spends no rate-limit slot, so package rows can be created without limit — storage only, no cost, no user-visible effect | LOW both. Recorded so the next person to touch this route knows the idempotence check was seen and understood, rather than rediscovering it as a surprise |
 | 23 | `app/api/packages/[id]/route.ts` + `app/optimize/preview/[packageId]/page.tsx` | **RESOLVED by TASK-145** (2026-08-17). Two defects from the same session, each created by a correct ticket that did not notice the other. (1) `document_snapshot` (TASK-132) had exactly one writer — generation — and generation refuses to run twice, while PATCH updated only `optimized_content`; both real renderers prefer the snapshot, so every user text edit was saved and then silently ignored by the resume screen and the downloaded PDF. (2) TASK-131 made `/optimize/preview` paid-only but left the pre-payment sales pitch on it, so the only people who could reach that screen were paying customers, shown their own CV blurred under "Unlock to download" with a button that bounced off `/optimize/pay` back to where they started. Found by review, not by report; confirmed no live data affected (both existing packages pre-date migration 034) | HIGH for (1) — it made a paid, user-editable deliverable silently ignore the user, and it would have hit the first customer to generate and then edit. MEDIUM for (2). **The common cause is worth more than either fix: both tickets were individually correct and were verified individually.** Neither commit's verification exercised the path the *other* ticket had just changed. A ticket that inverts a funnel or freezes a document should list the screens and writers downstream of it and check each, not just its own diff |
 | 21 | `app/api/ats-scan/route.ts` (TASK-108/109) | Anonymous-session persistence stayed gated on the extracted draft after extraction became conditional on a job description, so no session row and no cookie were written for any scan without a JD — the default path. A refresh of `/gulf-readiness` then showed "Your scan is unavailable", the page's "kept for 7 days" promise was false, and signup had nothing to claim. Found 2026-08-16 reviewing the undocumented TASK-105–121 batch; confirmed empirically (`GET /api/ats-scan/session` returned 404 for a scan that had just succeeded) rather than by reading. **RESOLVED by TASK-122** | MEDIUM — user-visible on the product's main free-traffic funnel, and it made a printed promise untrue. Notable for review purposes: TASK-108's own commit message stated the resume text was still being persisted, which was not what the code did — a reminder that a report describing intent reads exactly like one describing behaviour |
