@@ -5,6 +5,74 @@ everything in this document.** Nothing here overrides it.
 
 ---
 
+## 0. The control layer — `lib/ai/runTask.ts`
+
+**One place that owns every model call.** Built first, ahead of the individual
+services, so services plug into it rather than being retrofitted later.
+
+**The problem it solves.** The provider layer below is a good *transport*, but
+everything above transport was re-implemented by each route: building the system
+prompt, remembering the grounding block, pulling JSON out of a chat response,
+deciding whether the output was acceptable, and retrying. Seven services, seven
+chances to forget one. The rule says a generation route without the grounding
+instruction is a critical bug — but nothing structurally stopped one being
+written.
+
+**What it owns:** model resolution per service · prompt assembly with grounding
+injected from the constant · the token budget · parse, shape check, and one repair
+attempt · refusing to return output that failed validation · diagnostics.
+
+**What it deliberately does not own:** authentication, ownership and rate
+limiting — those belong to the route, in front of the call. A module that quietly
+enforced them would hide where the real gate is. And it never authors prompt
+*text*; that stays in the per-service prompt modules.
+
+### Grounding is declared, never defaulted
+
+Every task must say which it is, as a discriminated union — so "I forgot" is a
+**type error**, not a silent hole. Same technique that stops the Job Match
+semantic layer overriding a deterministic score.
+
+- **`enforced`** — the task writes prose from the user's profile. The grounding
+  block is injected verbatim and the output is validated before it is returned.
+- **`not_applicable`** — the task does not write from the profile (structuring an
+  employer's job advert, say). **A written reason is required**, because an
+  unexplained exemption is indistinguishable from a mistake.
+
+### The repair attempt, and its personal-data contract
+
+Invalid output gets **one** repair attempt: the model is told what was wrong and
+asked to return the same format. Provider *failures* are never retried here — the
+transport already tried the configured fallback, and retrying an outage in a loop
+turns one failure into several billable calls.
+
+The repair prompt may include the offending text, because the model needs to know
+what to remove. **That value is never logged.** Only the personal-data-free
+description reaches a log line.
+
+### Token budgets are per service, with a floor
+
+**Reasoning models spend the budget before writing anything** — an
+under-budgeted call returns thinking tokens and null content, which reads like a
+refusal and is not one. Budgets are set per service and a minimum applies: a
+budget too small to hold an answer wastes the whole call rather than truncating it
+usefully.
+
+### Verified
+
+`scripts/verify-runtask.ts` asserts the part that needs no model call: the
+grounding block is present when enforced, absent when exempt, ordered before the
+task instructions, and the repair prompt carries what the model needs. **12
+assertions, all passing.** The transport, the repair loop and the refusal to
+return ungrounded output need a live model and are exercised by the first service
+migrated onto the layer.
+
+**Adoption is one service at a time.** The layer is additive — the existing
+`generate()` transport is unchanged and every service still works — so nothing has
+to move at once.
+
+---
+
 ## 1. The provider layer
 
 Calls go to **OpenRouter** over its OpenAI-compatible chat completions endpoint,
