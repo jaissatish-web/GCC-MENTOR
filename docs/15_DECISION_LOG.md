@@ -12,6 +12,60 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-17 — Stage 1 funnel: ask the user, do not infer
+
+**Founder design, approved and agreed.** The anonymous entry point becomes: a
+"Check your GCC Readiness" call to action on the landing page → a window opens →
+upload or paste a resume → then two or three short questions → the score.
+
+```
+Gulf experience?  →  YES  →  In the Gulf right now?  →  YES → currently_in_gulf
+                                                     →  NO  → returner
+                  →  NO   →  Years of domestic exp?  →  0   → fresher
+                                                     →  1+  → experienced
+```
+
+**Why this matters more than it looks: it fixes the product's worst live defect at
+the source.** Job Match scores GCC experience as **zero on every anonymous scan**,
+because the only field it counts is set by a dropdown an anonymous visitor has never
+seen. Asking the user directly replaces a fragile inference from resume text with a
+fact the user states — so the grounding rule is intact, and there is no parsing to
+get wrong.
+
+**The four categories already exist and already score differently.**
+`lib/readiness.ts` derives fresher / experienced / returner / currently_in_gulf and
+carries separate weight tables for each, every one asserted to sum to 100. None of
+it was reachable anonymously because nothing asked. The funnel is the missing input,
+not new scoring logic.
+
+**"In the Gulf right now" is worth the extra tap** — the founder's two questions give
+two buckets, this third gives all four. A returner and someone already in-country are
+genuinely different to a Gulf employer: one needs relocation and a new visa, the
+other has a transferable visa and can start next month. The existing weights already
+reflect that.
+
+**No country question. Founder decision, final.** Not which Gulf country, not
+country of experience. It follows that `gcc_country` on work experience becomes
+redundant as a scoring input — it exists only for this purpose and is the field
+behind the zero defect. Whether the country columns are removed from the product
+entirely is a separate, unanswered question; **no column is dropped without an
+explicit instruction.**
+
+**Self-declared answers are scoring input, never resume content.** If someone states
+ten years of Gulf experience and their CV shows none, we **trust them for scoring** —
+it is their claim about their own life, and a badly written CV is exactly why we ask.
+But that number must **never** become a bullet or a summary line unless the resume
+supports it. Scoring input and generated content are different things, and blurring
+them is how the grounding rule gets broken by accident rather than on purpose. To be
+enforced in code, not by convention.
+
+**Order:** upload first, questions second. The file is the commitment; someone who
+has already uploaded will answer two more taps. Answers are stored on the anonymous
+scan session alongside the resume text, so they carry into signup and pre-fill the
+profile — the user never answers twice.
+
+---
+
 ## 2026-08-17 — the build plan, agreed
 
 **Core product first, commerce afterwards.** Founder's decision, stated twice and

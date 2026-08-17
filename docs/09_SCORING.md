@@ -21,15 +21,28 @@ correction.
 **Completeness and market-readiness of the user's own profile.** It never judges
 their career; it tells them what is missing or weak for a Gulf application.
 
-### The category is derived, not asked
+### The category — derived when signed in, asked when anonymous
 
 **fresher · experienced · returner · currently in Gulf**
 
-Derived from the profile itself, in a fixed order of precedence, because a fresher and
-a returning Gulf professional are not missing the same things. Weighting differs per
-category, and **every category's weights are asserted at module load to sum to
-exactly 100** — a weighting table that silently drifts from 100 produces a score that
-looks fine and means nothing.
+For a signed-in user it is derived from the profile, in a fixed order of precedence,
+because a fresher and a returning Gulf professional are not missing the same things.
+Weighting differs per category, and **every category's weights are asserted at module
+load to sum to exactly 100** — a weighting table that silently drifts from 100 produces
+a score that looks fine and means nothing.
+
+**For an anonymous scan the category is asked directly** (agreed 2026-08-17): Gulf
+experience yes/no → years → in the Gulf right now? Those answers pick the category.
+Asking beats inferring — the user's own statement is a fact they gave us, so nothing
+has to be parsed out of resume text and guessed at. **No country is asked.**
+
+This scoring already existed and was simply unreachable anonymously, because nothing
+asked the visitor which category they were in.
+
+⚠ **A self-declared answer is scoring input only.** It is trusted for the score,
+because it is the user's own statement about their own life. It must **never** reach a
+generated resume as content unless the resume itself supports it — to be enforced in
+code, not by convention.
 
 ### Weights are per field group, distributed across fields
 

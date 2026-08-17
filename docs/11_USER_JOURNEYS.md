@@ -7,16 +7,34 @@
 
 ## 1. The free funnel — no login required
 
+**Agreed design, 2026-08-17.** The entry point is a "Check your GCC Readiness" call to
+action on the landing page, opening a short flow:
+
 ```
-/                landing page
+/                landing page — "Check your GCC Readiness"
    ↓
-/ats-scan        upload or paste a resume · optionally paste a job description
+   upload or paste a resume            ← the file first: it is the commitment
    ↓
-/gulf-readiness  the results: GCC Readiness score, strengths, improvements,
-                 and a Job Match report if a job description was given
+   Gulf experience?  yes → years · in the Gulf now?
+                     no  → years of domestic experience
    ↓
-/signup          the scan's extracted data comes with them
+/gulf-readiness  the results: GCC Readiness scored for THIS user's category,
+                 strengths, improvements, and a Job Match report if a job
+                 description was given
+   ↓
+/signup          the scan's data and the answers come with them
 ```
+
+**The answers pick which scoring logic runs.** Four categories — fresher, experienced,
+returner, currently in the Gulf — each with its own weighting, because a fresher and a
+returning Gulf professional are not missing the same things. This logic already existed
+and was unreachable anonymously; nothing asked the user which one they were.
+
+**No country is asked** — not which Gulf country, not country of experience.
+
+**Self-declared experience is scoring input only.** It is trusted for the score, because
+it is the user's own statement about their life. It must never become a line in a
+generated resume unless the resume itself supports it.
 
 **The scan costs nothing to serve** — the readiness score is arithmetic, not a model
 call. That is what makes it safe as the top of the funnel.
