@@ -23,29 +23,68 @@ import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
  */
 
 const PAGE_W = 794
-const CARD_W = 200
-const SCALE = CARD_W / PAGE_W
+const PAGE_H = 1123
+
+/**
+ * Two layouts, one picker (TASK-146).
+ *
+ * `grid` is the gallery at /templates — browse ten designs side by side.
+ * `rail` is the persistent left column on the resume screen: one card per row,
+ * narrower and shorter, so all ten stay scannable beside the document instead
+ * of hiding behind a toggle. Same component either way, because two pickers
+ * would be two things that can disagree about which template is in use.
+ *
+ * THE CARD IS EXACTLY AS WIDE AS THE PREVIEW (TASK-148). It used to be a
+ * `grid-cols-4`, which stretched each card to whatever a quarter of the
+ * container happened to be — ~298px at the gallery's 1240px — while the page
+ * inside was scaled to a fixed 200px and pinned `left-0`. Every thumbnail
+ * therefore sat shoved against the left edge of its own card with ~98px of dead
+ * white space to its right. Reported by the founder off the deployed site.
+ * Fixing the scale to the card is not possible in plain CSS (a transform cannot
+ * read its parent's width), so the card is sized to the preview instead and the
+ * row is centred — deterministic, and no ResizeObserver.
+ *
+ * The gallery preview now shows the WHOLE A4 page rather than a 260px slice of
+ * its top. A resume thumbnail that stops a third of the way down reads as a
+ * broken fragment; the full page is what every resume builder shows, and it is
+ * what lets someone actually judge a layout. The rail stays clipped, because
+ * ten full pages in a sticky column is a very long scroll.
+ */
+const CARD_BORDER = 1
+
+const LAYOUT = {
+  /** Whole page, so the thumbnail is a resume rather than a cropped fragment. */
+  grid: { cardW: 240, fullPage: true, previewH: 0, wrap: 'flex flex-wrap justify-center gap-5' },
+  /** Clipped to the top: ten full pages in a sticky column is too long a scroll. */
+  rail: { cardW: 212, fullPage: false, previewH: 200, wrap: 'flex flex-col items-center gap-3' },
+} as const
 
 export function TemplatePicker({
   document,
   current,
   onSelect,
   busyId,
+  layout = 'grid',
 }: {
   document: ResumeDocument
   current: TemplateId
   onSelect: (id: TemplateId) => void
   busyId?: TemplateId | null
+  layout?: keyof typeof LAYOUT
 }) {
   const [hovered, setHovered] = useState<TemplateId | null>(null)
   const templates = availableTemplates()
+  const { cardW, fullPage, previewH: fixedH, wrap } = LAYOUT[layout]
+  // Scale against the card's CONTENT width, not its outer width. Tailwind sets
+  // border-box, so a 240px card with a 1px border has a 238px content box — and
+  // scaling to 240 pushed 2px of the page's right edge under `overflow-hidden`,
+  // quietly shaving the margin off every thumbnail.
+  const innerW = cardW - CARD_BORDER * 2
+  const SCALE = innerW / PAGE_W
+  const previewH = fullPage ? Math.round(innerW * (PAGE_H / PAGE_W)) : fixedH
 
   return (
-    <div
-      role="group"
-      aria-label="Resume templates"
-      className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
-    >
+    <div role="group" aria-label="Resume templates" className={wrap}>
       {templates.map((t) => {
         const Template = getTemplate(t.id).component
         const isCurrent = t.id === current
@@ -57,11 +96,14 @@ export function TemplatePicker({
             aria-pressed={isCurrent}
             aria-label={`${t.name} — ${t.description}`}
             disabled={isBusy}
+            // Width pinned to the preview, so the scaled page fills its card
+            // exactly and cannot sit off to one side (TASK-148).
+            style={{ width: cardW }}
             onClick={() => onSelect(t.id)}
             onMouseEnter={() => setHovered(t.id)}
             onMouseLeave={() => setHovered(null)}
             className={
-              'group flex flex-col overflow-hidden rounded-radius-lg border text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 ' +
+              'group flex flex-col overflow-hidden rounded-radius-lg border bg-surface-light text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 ' +
               (isCurrent
                 ? 'border-forest ring-2 ring-forest/30'
                 : 'border-line-light hover:border-forest/60')
@@ -71,7 +113,7 @@ export function TemplatePicker({
             <span
               aria-hidden="true"
               className="relative block overflow-hidden bg-surface-2-light"
-              style={{ height: 260 }}
+              style={{ height: previewH }}
             >
               <span
                 className="absolute left-0 top-0 block origin-top-left"

@@ -8,6 +8,29 @@ specification — `docs/RULES.md`, `docs/TASKS.md`, and the rest of `docs/`
 remain the source of truth. This file just tells you where things stand
 right now and points you at what to read next.
 
+**Last updated:** 2026-08-17 (**Reviewed and documented the twenty-two tickets that shipped on 2026-08-16/17 without a record, and fixed the two real defects in them — TASK-145.**
+
+**The docs had fallen 22 tickets behind the code — the third time this has happened.** `main` ran to TASK-144 while `docs/TASKS.md` and this file both stopped at TASK-122. All twenty-two now have entries under "TASK-123 to TASK-144 — the 2026-08-16/17 session, recorded retroactively". The pattern is stable enough to name: the docs fall behind whenever a session runs long, and the gap is closed by the *next* session rather than by the one that made it.
+
+**Migrations 033, 034, 035 and 036 are genuinely applied to the live database** — confirmed by querying `information_schema.columns` directly, not by assuming. `optimized_content` is confirmed nullable, which is the change TASK-131's whole flow depends on.
+
+**What that batch contains.** The two that matter most are business changes, not cosmetics: **TASK-131** inverted the funnel to *pay before generate* — optimization used to run before payment, so every visitor who never bought still spent real model tokens and the product then sold a blurred preview of work it had already paid for. **TASK-132** froze the delivered document (migration 034), closing a real bug where editing your Career Profile silently rewrote resumes you had already paid for. Also: the hand-rolled PDF extractor was replaced with PDF.js (**TASK-124**, ~900 lines deleted, licence checked — MIT/Apache, and AGPL OpenResume deliberately rejected), Chromium was actually shipped to the lambda so PDF download works deployed (**TASK-128**), a free profile-only CV download was added (**TASK-134**), re-uploading a CV now merges instead of destroying hand-typed data (**TASK-133**), ten templates behind a registry with versioning arrived (**136–142**), and a shared `PageShell` landed on 5 of ~24 signed-in pages (**143/144**, which state that scope honestly rather than overclaiming).
+
+**The two defects found in review — TASK-145, fixed and verified.** Both were created by *correct* tickets interacting badly, and neither was reported by the work that introduced them.
+
+1. **Every text edit to a paid resume was silently discarded.** `document_snapshot` has exactly one writer — generation — and generation refuses to run twice, while "Edit text" only ever updated `optimized_content`. Both real renderers prefer the snapshot. So a user edited a bullet, saw it saved, and the resume on screen and the PDF they downloaded both still said the old thing. Fixed by re-applying *only* the summary and bullets onto the frozen document — deliberately not a rebuild, since rebuilding would read the live profile and reintroduce the exact bug migration 034 exists to prevent.
+2. **The paywall was still pointed at people who had already paid.** TASK-131 correctly made `/optimize/preview` paid-only but left the pre-payment sales pitch on it — so the only people who could reach that screen were paying customers, shown their own CV blurred and watermarked "Unlock to download", above a gold button that bounced off `/optimize/pay` back to where they started. The file's own comment claimed the branch "is being removed with its route". It was not. Removed now.
+
+**No live data was affected** — only two packages exist and both pre-date migration 034, so defect 1 had not yet reached a real user. It would have hit the first customer to generate and then edit. Verified with `tsc`, `lint`, a full production build, and 11 direct assertions against the new snapshot-edit helper; migrations re-confirmed against the live DB.
+
+**The lesson is worth more than either fix, and is recorded as Unplanned #23:** both tickets were individually correct and individually verified. Neither one's verification exercised the path the *other* had just changed.
+
+**Still open and unticketed — the highest-value item in the file.** Unplanned #22, the Job Match GCC-zero defect, is **still live**, re-confirmed by grep this session: `gcc_country` is written by exactly one thing, a dropdown in the profile editor. Extraction never derives it, so on every anonymous scan — the free funnel — `gcc_experience` scores 0 whenever the JD asks for it, which is the category the product is named after. Worth noting the fix is more available than it first looked: extraction already returns a free-text `location` per work entry, so "Abu Dhabi, UAE" is already reaching us and simply is not being read. Mapping that to a GCC country is deterministic and does not touch the grounding rule — it reads a fact the resume states rather than inventing one. Education's `B.Tech` vs `B.Eng` mismatch is the second half of the same ticket.
+
+**Also flagged, not fixed:** `/api/packages/[id]/preview-image` now has no caller anywhere in the app (Unplanned #25) — it was the blurred-preview renderer. Deleting a route is a bigger call than fixing the defect that stranded it, so it wants an explicit yes. Two low-severity notes on the new optimize route are recorded as Unplanned #24 so the next person to touch it knows they were seen.
+
+---
+
 **Last updated:** 2026-08-16 (**Reviewed and documented the seventeen tickets that shipped on 2026-08-15 without a record, and fixed the one real defect in them — TASK-122.**
 
 **The docs had fallen 17 tickets behind the code.** `main` ran to TASK-121 while `docs/TASKS.md` stopped at TASK-104 and this file at TASK-103. The work itself was reviewed and clean as it was built; only the written record was missing. All seventeen now have entries in `docs/TASKS.md` under "TASK-105 to TASK-121 — the 2026-08-15 session, recorded retroactively". Same class of gap as Unplanned #15, milder form.

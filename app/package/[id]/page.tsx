@@ -39,7 +39,6 @@ function PackageScreenInner({ id }: { id: string }) {
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [downloaded, setDownloaded] = useState(false)
-  const [pickerOpen, setPickerOpen] = useState(false)
   const [switchingTo, setSwitchingTo] = useState<TemplateId | null>(null)
   const [templateError, setTemplateError] = useState<string | null>(null)
   const [nameDraft, setNameDraft] = useState('')
@@ -161,12 +160,12 @@ function PackageScreenInner({ id }: { id: string }) {
    * The document the picker previews.
    *
    * Prefer the frozen snapshot, but FALL BACK to building it from the live
-   * profile. Without this fallback the "Change template" button was hidden on
-   * exactly the resumes a real user would try it on: every package generated
-   * before migration 034 has no snapshot, so `document_snapshot` is null and
-   * the button never rendered. Reported by the founder as "I can't find the
-   * option anywhere" — it was there, and invisible to everyone who already
-   * had resumes.
+   * profile. Without this fallback the template rail is hidden on exactly the
+   * resumes a real user would try it on: every package generated before
+   * migration 034 has no snapshot, so `document_snapshot` is null and the rail
+   * never renders. Reported by the founder against the old "Change template"
+   * button as "I can't find the option anywhere" — it was there, and invisible
+   * to everyone who already had resumes. The rail inherits the same fallback.
    */
   const previewDocument: ResumeDocument | null =
     (pkg.document_snapshot as ResumeDocument | null) ??
@@ -192,11 +191,12 @@ function PackageScreenInner({ id }: { id: string }) {
   const waUrl = `https://wa.me/?text=${whatsappText}`
 
   return (
-    // Wider than the old max-w-5xl: at 1024px, minus a 300px action rail and
-    // padding, the document column was narrower than the template's own 794px
-    // page, so the resume was being scaled down harder than it needed to be —
-    // or, before ResumeDocumentView existed, clipped outright.
-    <main className="mx-auto flex min-h-dvh w-full max-w-[1240px] flex-col bg-bg font-redesign-sans">
+    // 1400px, widened from 1240 in TASK-146 to pay for the 260px template rail
+    // while leaving the document column well clear of the template's own 794px
+    // page. The rule this shell exists to protect, unchanged since TASK-129:
+    // the A4 sheet must render at true size, never scaled down to make room
+    // for chrome around it.
+    <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-bg font-redesign-sans">
       <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5">
         <button
           type="button"
@@ -236,12 +236,13 @@ function PackageScreenInner({ id }: { id: string }) {
         </label>
       </div>
 
-      {/* Single column, actions ABOVE the document.
-          The previous lg two-column layout spent a fixed 300px of every desktop
-          screen on four buttons, which left the A4 page (794px) scaled down
-          inside whatever remained. Moving the actions to a horizontal toolbar
-          gives the page the full 1240px, so the resume renders at its true size
-          and is simply read top to bottom, the way a document is. */}
+      {/* Actions ABOVE the document, templates BESIDE it (TASK-129 + TASK-146).
+          The distinction is deliberate. The four actions are a toolbar: they
+          are used once, so they earn a horizontal strip and no width. The ten
+          templates are a browse-and-compare choice, which needs to stay on
+          screen next to the thing it changes — so those get the left rail, and
+          the rail is paid for by widening the shell rather than by squeezing
+          the A4 page. */}
       <div className="flex w-full flex-col gap-4 px-5 pb-8">
         {/* Toolbar — sticks to the top of the viewport while scrolling a long
             CV, so Download is always one click away without costing any width. */}
@@ -264,16 +265,6 @@ function PackageScreenInner({ id }: { id: string }) {
             >
               Download PDF
             </a>
-            {previewDocument ? (
-              <button
-                type="button"
-                aria-expanded={pickerOpen}
-                onClick={() => setPickerOpen((v) => !v)}
-                className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-              >
-                {pickerOpen ? 'Close templates' : 'Change template'}
-              </button>
-            ) : null}
             <Link
               href={`/optimize/preview/${encodeURIComponent(id)}`}
               className={buttonVariants({ variant: 'secondary', size: 'sm' })}
@@ -315,28 +306,6 @@ function PackageScreenInner({ id }: { id: string }) {
               </span>
             </div>
           ) : null}
-          {pickerOpen && previewDocument ? (
-            <div className="rounded-radius-lg border border-line-light bg-surface-2-light p-4">
-              <p className="mb-3 text-[12.5px] text-ink-700">
-                Pick a look. Your wording, dates and details stay exactly as they are — only the
-                design changes, and your PDF changes with it.
-              </p>
-              {templateError ? (
-                <p role="alert" className="mb-3 text-[12px] text-terra">
-                  {templateError}
-                </p>
-              ) : null}
-              <TemplatePicker
-                document={previewDocument}
-                current={activeTemplateId}
-                busyId={switchingTo}
-                onSelect={(nextId) => {
-                  if (nextId === activeTemplateId) return
-                  void applyTemplate(nextId)
-                }}
-              />
-            </div>
-          ) : null}
           {downloaded ? (
             <div className="rounded-radius-lg border border-forest/40 bg-forest-tint px-3.5 py-3 text-[12.5px] text-forest">
               Applying somewhere else? Your profile is saved — next one takes a minute.
@@ -344,39 +313,91 @@ function PackageScreenInner({ id }: { id: string }) {
           ) : null}
         </div>
 
-        {/* The document itself: a page on a desk. Capped at the template's own
-            794px and centred, so a wide screen shows the sheet at true size
-            rather than a stretched one, and a narrow screen scales it down
-            instead of clipping it. The generous surrounding surface is what
-            makes it read as a document being reviewed rather than a widget
-            floating in a page. */}
-        {profile ? (
-          <div className="flex justify-center rounded-radius-lg bg-surface-2-light p-3 sm:p-6 lg:p-8">
-            <ResumeDocumentView className="mx-auto w-full max-w-[794px]">
-              {/* Registry lookup, not a hard-coded import: the screen must show
-                  the same template the PDF and Word routes resolve, or "what
-                  you see is what downloads" stops being true the moment a
-                  second template exists. */}
-              <Template
-                // The delivered document wins over the live profile — see
-                // migration 034. Without this the on-screen resume silently
-                // changes whenever the Career Profile is edited, including for
-                // resumes already paid for.
-                document={(pkg.document_snapshot as ResumeDocument | null) ?? null}
-                profile={profile}
-                optimizedContent={(pkg.optimized_content ?? {
-                  summary: { generated: '', source_profile_summary: '' },
-                  experience_blocks: [],
-                }) as OptimizedContent}
-                skillsOrder={pkg.skills_order ?? []}
-                fieldVisibility={pkg.field_visibility_snapshot ?? null}
-              />
-            </ResumeDocumentView>
-            <p className="mt-3 text-center text-[11.5px] text-ink-400">
-              This is exactly what downloads as your PDF.
-            </p>
-          </div>
-        ) : null}
+        {/* TEMPLATES LEFT, DOCUMENT CENTRED (TASK-146, founder-directed).
+            The templates used to hide behind a "Change template" toggle that
+            pushed a four-across grid above the resume, so choosing a design
+            meant losing sight of the thing being designed. They now sit in a
+            persistent left rail and the document holds the centre, which is
+            the arrangement every document editor uses for the same reason:
+            the choices are peripheral, the page is the subject.
+
+            The rail is 260px and the shell is 1400px, so the document column
+            keeps ~1050px — comfortably more than the template's own 794px
+            page. That was the constraint that killed the ORIGINAL two-column
+            layout in TASK-129, where a 300px rail inside a 1240px shell left
+            the A4 sheet scaled down; widening the shell is what makes a rail
+            affordable again, and the sheet still renders at true size.
+
+            Below lg it stacks: document first, templates under it. On a phone
+            the resume is what you came to see, and a rail would push it off
+            the first screen. */}
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
+          {profile ? (
+            <section className="order-1 min-w-0 flex-1 lg:order-2">
+              {/* A page on a desk. The wrapper is flex-COL: it used to be a
+                  plain `flex justify-center`, which made the caption below a
+                  second flex ITEM sitting beside the sheet — so the resume was
+                  pushed off-centre to the left with its caption stranded on the
+                  right. That is the "not centred" the founder reported, and it
+                  was a one-word layout bug, not a design decision. */}
+              <div className="flex flex-col items-center rounded-radius-lg bg-gradient-to-b from-surface-2-light to-surface-2-light/60 p-3 ring-1 ring-line-light/70 sm:p-6 lg:p-8">
+                <ResumeDocumentView className="w-full max-w-[794px] overflow-hidden rounded-[3px] shadow-[0_1px_2px_rgba(16,24,40,0.06),0_12px_32px_-8px_rgba(16,24,40,0.18)] ring-1 ring-line-light/80">
+                  {/* Registry lookup, not a hard-coded import: the screen must
+                      show the same template the PDF and Word routes resolve, or
+                      "what you see is what downloads" stops being true the
+                      moment a second template exists. */}
+                  <Template
+                    // The delivered document wins over the live profile — see
+                    // migration 034. Without this the on-screen resume silently
+                    // changes whenever the Career Profile is edited, including
+                    // for resumes already paid for.
+                    document={(pkg.document_snapshot as ResumeDocument | null) ?? null}
+                    profile={profile}
+                    optimizedContent={(pkg.optimized_content ?? {
+                      summary: { generated: '', source_profile_summary: '' },
+                      experience_blocks: [],
+                    }) as OptimizedContent}
+                    skillsOrder={pkg.skills_order ?? []}
+                    fieldVisibility={pkg.field_visibility_snapshot ?? null}
+                  />
+                </ResumeDocumentView>
+                <p className="mt-4 text-center text-[11.5px] text-ink-400">
+                  A4 · {getTemplate(activeTemplateId).name} · this is exactly what downloads as your
+                  PDF.
+                </p>
+              </div>
+            </section>
+          ) : null}
+
+          {previewDocument ? (
+            <aside className="order-2 shrink-0 lg:order-1 lg:w-[260px]">
+              <div className="rounded-radius-lg border border-line-light bg-surface-light p-4 lg:sticky lg:top-[104px] lg:max-h-[calc(100dvh-128px)] lg:overflow-y-auto">
+                <h2 className="font-serif text-[17px] leading-tight text-ink-900">Templates</h2>
+                <p className="mt-1 text-[11.5px] leading-snug text-ink-400">
+                  Your wording, dates and details stay exactly as they are — only the design
+                  changes, and your PDF changes with it.
+                </p>
+                {templateError ? (
+                  <p role="alert" className="mt-3 text-[12px] text-terra">
+                    {templateError}
+                  </p>
+                ) : null}
+                <div className="mt-4">
+                  <TemplatePicker
+                    layout="rail"
+                    document={previewDocument}
+                    current={activeTemplateId}
+                    busyId={switchingTo}
+                    onSelect={(nextId) => {
+                      if (nextId === activeTemplateId) return
+                      void applyTemplate(nextId)
+                    }}
+                  />
+                </div>
+              </div>
+            </aside>
+          ) : null}
+        </div>
       </div>
     </main>
   )

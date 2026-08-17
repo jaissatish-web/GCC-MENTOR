@@ -34,7 +34,25 @@ const SAMPLE_PROFILE = {
   nationality: 'Saudi',
   professional_summary:
     'Senior Mechanical Engineer with 15 years across oil & gas, EPC and construction projects in Saudi Arabia and the UAE. Led multidiscipline teams through commissioning and handover on refinery and petrochemical scopes.',
-  photo_url: null,
+  /**
+   * The showcase photo (TASK-147, founder-supplied 2026-08-17).
+   *
+   * A Gulf CV normally carries a photograph, and the four templates whose
+   * themes set `allowPhoto` were rendering their photo slot empty in every
+   * gallery preview — so half the reason to pick those templates was invisible.
+   * Zety and Enhancv both demo with a photo for the same reason.
+   *
+   * Served from /public, not Supabase storage: this is a static marketing
+   * asset on a page that must render for a signed-out visitor, and it must
+   * never touch the private `profile-photos` bucket (TASK-113), whose objects
+   * are deliberately not publicly readable and require a signed URL per user.
+   *
+   * A REAL USER NEVER SEES THIS ON THEIR OWN CV. It lives only on
+   * SAMPLE_PROFILE, which only /templates renders; /package/[id] builds from
+   * the signed-in user's own profile, and a user without a photo gets
+   * showPhoto=false, not this one.
+   */
+  photo_url: '/sample/sample-headshot.jpg',
   field_visibility: null,
   work_experience: [
     {

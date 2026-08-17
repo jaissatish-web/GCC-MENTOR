@@ -2284,6 +2284,293 @@ message on each is the long form.
 
 ---
 
+### TASK-123 to TASK-144 — the 2026-08-16/17 session, recorded retroactively
+
+**Process note, recorded because this is now the third occurrence.** These
+twenty-two tickets were built and pushed across 2026-08-16 and the early hours
+of 2026-08-17 with no entry here: `docs/TASKS.md` stopped at TASK-122 and
+`PROJECT_STATUS.md` at the same point, while `main` ran to TASK-144. Same class
+as Unplanned #15 and the TASK-105–121 batch before it. The pattern is stable
+enough to name: **the docs fall behind whenever a session runs long**, and the
+gap is found by the next session rather than closed by the one that made it.
+Written up 2026-08-17 from the commits and a full read of the diff. Entries are
+deliberately shorter than a live ticket write-up; each commit message is the
+long form. **Two real defects were found reviewing this batch — see TASK-145.**
+
+**Extraction and PDF rendering (123–130, 135)**
+
+- [x] **TASK-123: keep line breaks when extracting PDF text** — Td/TD/T*/Tm line-position operators were not parsed, so lines fused ("Engineerrajesh.kumar@example.com"). Fixed by hand — and then neutered by a final `\s+ -> ' '` that collapsed every newline just inserted. Measured on the founder's two resumes: one non-empty line out of 227 and 149. Status: done, 2026-08-16.
+- [x] **TASK-124: replace the hand-rolled PDF extractor with PDF.js (`unpdf`)** — ~900 lines of hand-rolled parser deleted after it produced two launch-grade defects in two days (TASK-107's fabricated numbers, TASK-123's fused lines). PDF.js matched the hand-rolled extractor character for character (9,893 vs 9,898) and digit for digit (257 and 328 exactly) on the same two resumes while recovering the line structure. Licence checked before adopting: `unpdf` is MIT, bundles Apache-2.0 PDF.js; OpenResume was deliberately rejected as AGPL-3.0. The garbled-output guard and the embedded-image count were kept — they are product behaviour, not parsing. **Reviewed 2026-08-17: 5MB PDF cap still enforced at the call site, never throws, garbled text still refused loudly rather than guessed at.** Status: done, 2026-08-16.
+- [x] **TASK-125 / TASK-128: make PDF download work on the deployed site** — Chromium was not actually shipped to the lambda; 128 is the one that fixed it, 125 the first attempt. New `lib/pdf/browser.ts` centralises launch + image-wait. Status: done, 2026-08-16.
+- [x] **TASK-126 / TASK-129 / TASK-135: the resume reads as a document** — new `components/resume/ResumeDocumentView.tsx`; actions moved above the resume; equal top and bottom margins on every printed page. 129 also closed the printed gap caused by `pageBreakInside: avoid` on a section too tall to fit — the browser tried, failed, and pushed the whole block, leaving a blank half-page. Status: done, 2026-08-16.
+- [x] **TASK-127: resolve the resume template through the registry everywhere** — no more hard-coded `GulfPremium` at render sites. Status: done, 2026-08-16.
+- [x] **TASK-130: PDF only — withdraw the Word download** — founder decision. The `.docx` route still exists and works; it is simply not linked, because its layout does not match the on-screen resume and a download that disagrees with the preview is worse than no download. Re-link when the generator mirrors the template. Status: done, 2026-08-16.
+
+**Business rules (131–134)**
+
+- [x] **TASK-131: pay before generate** — **the significant business change in this batch.** Optimization used to run before payment, so every visitor who never bought still spent real model tokens (~8k output per run), and the product then sold a blurred preview of work it had already paid for. Payment applies to an *existing* package (`redeem_promo_code` takes a package_id), so the flow became: create the package unpaid and empty → pay → generate into it. Migration 033 adds `selected_blocks` (previously only ever in the request body, because generation happened in the same request) and makes `optimized_content` nullable, which is what distinguishes "bought but not yet generated" from "generated". One route, two phases; **Phase B reads the target fields back off the row, never from the request, so a caller cannot pay for one job title and generate against another.** Idempotent: a package that already has content returns `alreadyGenerated` and spends nothing. Status: done, 2026-08-16.
+- [x] **TASK-132: freeze the delivered resume** — a package froze only the AI-written text; every fixed field (name, contact, nationality, education, certifications, photo) was read live from `career_profiles` at render time, so editing the profile silently rewrote resumes already paid for. Migration 034 stores `document_snapshot`: the output of `buildResumeDocument()`, field visibility already applied — deliberately the *rendered document*, not a copy of the profile, so a hidden field is absent rather than duplicated into a second unencrypted table. NULL means "generated before this migration" and keeps rendering live. **Incomplete as shipped — see TASK-145.** Status: done with a defect, 2026-08-16.
+- [x] **TASK-133: ask before overwriting a profile with an uploaded CV** — new `lib/profileMerge.ts`. Uploading a resume was treated as first-time onboarding for everyone, and saving deleted every child row missing from the payload, so a returning user who uploaded a newer CV lost driving licence, visa status, notice period, passport validity, target role, and anything typed by hand. Predicted by Unplanned #13 the moment a re-upload entry point existed; TASK-103 added one. The rule is deliberately conservative: **merging never deletes and never overwrites** — a human typed one value and a parser guessed the other. Replacing is still available as an explicit choice with the losses named up front. Status: done, 2026-08-16.
+- [x] **TASK-134: complete the free tier, and name the two scores apart** — founder decision: someone who types their career history in by hand can download a real Gulf-format CV for nothing; what is paid for is the AI *optimization*, not the act of putting your own facts on a page. New `GET /api/resume/pdf` renders straight from the profile with an empty `optimizedContent`, so nothing on it is model-written and the grounding rule cannot be violated — there is no generation step to violate it. **Deliberately a separate route with no package id in it, so it cannot weaken the `is_paid` gate on the paid downloads.** Status: done, 2026-08-16.
+
+**Template system (136–142)**
+
+- [x] **TASK-136: template system foundation** — registry, versioning, ATS Classic. Migration 035 adds `template_id` + `template_version`. Both columns, not just the id: when a template ships a revision, every resume generated with the old one would silently change shape on next open. Not backfilled — a written value would claim the user chose it. Status: done, 2026-08-16.
+- [x] **TASK-137: ten English resume templates, one shared engine** — `components/templates/engine.tsx` + `themes.ts`. Status: done, 2026-08-16.
+- [x] **TASK-138 / TASK-139: picker, stamping, switching, naming** — template switch is presentation-only by construction: it writes `template_id`/`template_version` and never touches `optimized_content` or `document_snapshot`. 139 also fixed an invisible picker and added migration 036's `name`, because someone with four attempts at "Senior Mechanical Engineer" saw four identical Library rows. Status: done, 2026-08-16.
+- [x] **TASK-140 / TASK-141 / TASK-142: Library rename, clickable dashboard metrics, and the gallery** — the gallery renders a fictional GCC engineering CV (`lib/sampleResume.ts`) rather than the signed-in user's, because a brand-new user saw ten empty pages and could not judge a single one. Preview opens the real resume screen instead of rebuilding save/download/edit in a second place that could disagree. Status: done, 2026-08-16/17.
+
+**Consistency pass (143–144)**
+
+- [x] **TASK-143 / TASK-144: one page frame instead of eight** — new `components/layout/PageShell.tsx`; three different max-widths and hand-repeated h1 sizes replaced by one component. Applied to `/templates`, `/package/[id]`, `/job-match`, `/cover-letter`, `/gcc-readiness`. Both commits state the scope honestly rather than overclaiming: roughly 5 of ~24 signed-in pages share the frame; the dashboard, profile editor and resume screen were deliberately left for their own pass. Status: done, 2026-08-17.
+
+---
+
+- [x] **TASK-145: make an edited resume actually change, and stop selling a paid customer their own CV**
+
+      **Both defects found reviewing TASK-123–144 on 2026-08-17. Neither was
+      reported by the work that introduced them; both were introduced by
+      correct tickets interacting badly.**
+
+      **Defect 1 — every text edit was silently discarded (HIGH).**
+      `document_snapshot` (TASK-132) is written exactly once, in
+      `/api/optimize`'s Phase B, and generation refuses to run twice. But
+      "Edit text" on `/package/[id]` → `/optimize/preview/[id]` → `PATCH
+      /api/packages/[id]` updates `optimized_content` **and nothing else**,
+      while both renderers that matter — the on-screen document
+      (`app/package/[id]/page.tsx`) and the PDF route — *prefer* the snapshot,
+      and `GulfPremium`'s own contract is that when a document is present "it
+      is rendered verbatim and the profile is ignored". So a user edited a
+      bullet, saw it saved on the edit screen, and the resume they looked at
+      and the PDF they downloaded both still said the old thing. Traced by
+      grep: `document_snapshot` had exactly one writer.
+
+      Fixed with `applyContentEditsToDocument()` in `lib/resumeDocument.ts`,
+      called from PATCH whenever the content actually changed. **Deliberately
+      not a rebuild**: calling `buildResumeDocument()` again would read the
+      *live* profile, which is exactly what migration 034 exists to prevent —
+      a user who changed their job title and then fixed a typo would have the
+      title change leak into a delivered resume. It re-applies only the summary
+      and the bullets, the two things a user can edit, and every fixed field
+      stays as delivered. Fallbacks point at the frozen document rather than
+      the profile, so clearing an edit restores the delivered wording instead
+      of blanking a paid document. Packages with no snapshot (pre-034) are left
+      alone. Lives beside `buildResumeDocument` because the two precedence
+      rules must agree.
+
+      **Defect 2 — the paywall was still pointed at people who had already
+      paid (MEDIUM, but bad).** TASK-131 inverted the funnel and correctly
+      added a guard to `/optimize/preview/[packageId]` sending unpaid packages
+      to `/optimize/pay` and ungenerated ones to `/optimize/generate`. The
+      guard shipped; the sales pitch it made unreachable did not come out with
+      it. Net effect: **the only people who could reach that screen were paying
+      customers, and they were shown their own resume blurred and watermarked
+      "Unlock to download", above a gold "Unlock full CV" button** — which
+      pushed to `/optimize/pay`, which detects `is_paid` and bounces straight
+      back, so the button silently did nothing. The file's own comment said the
+      branch "is being removed with its route"; it was not. A comment stating
+      intent reads exactly like one stating behaviour — the same lesson as
+      Unplanned #21.
+
+      Removed: the Full CV tab, the blurred preview in both the tab and the
+      desktop rail, and all three Unlock CTAs. The screen is now what it
+      actually is — the text editor for a resume already bought — and its CTA
+      returns to `/package/[id]`, where the real document, downloading and
+      template switching already live. The document is deliberately **not**
+      re-rendered here: that would be the duplicate TASK-141 avoided.
+
+      **Verified:** `tsc` 0 errors, `eslint` clean, full production build clean
+      across all routes. `applyContentEditsToDocument` exercised directly
+      against a frozen document with 11 assertions, all passing — edited
+      summary and bullet reach the document; an unedited bullet in the same
+      block and an untouched job are preserved byte-for-byte; name, target
+      title and company line stay frozen; the input object is not mutated;
+      clearing either edit falls back to the delivered wording; and an
+      experience id absent from the document cannot add one. Migrations 033–036
+      independently confirmed applied to the live database by querying
+      `information_schema.columns`, not by assuming. **Not verified:** a real
+      logged-in round trip, which needs an account and a paid package — the
+      standing environment gap. Confirmed no live data is affected: only two
+      packages exist and both pre-date migration 034, so the edit defect had
+      not yet reached a real user, but it would have hit the first customer to
+      generate and then edit.
+
+      Depends on: TASK-131, TASK-132 · Status: done, 2026-08-17.
+
+---
+
+- [x] **TASK-146: centre the resume, and put the templates beside it**
+
+      Founder-directed, 2026-08-17: the resume "is not in the center", and the
+      templates should sit on the left of the card. Presentation only — no
+      route, API, query or AI behaviour touched.
+
+      **The off-centre complaint was a real one-word bug, not taste.** The
+      document's wrapper was `flex justify-center` with TWO children: the sheet
+      and its "this is exactly what downloads" caption. A row flex made the
+      caption a second flex ITEM, so it sat *beside* the sheet and pushed the
+      resume left of centre with its caption stranded on the right. Introduced
+      by TASK-143, whose own commit claimed the document was "explicitly
+      centred" — it was `justify-center`, which is true and was not the same
+      thing. Now `flex-col items-center`; measured live at 1280px, the sheet
+      sits 73px from the left of its surface and 74px from the right.
+
+      **Templates moved from a toggle to a persistent left rail.** "Change
+      template" opened a four-across grid *above* the resume, so choosing a
+      design meant scrolling the design out of view. `TemplatePicker` gained a
+      `layout` prop — `grid` for the gallery, `rail` for a 168px single column —
+      rather than a second picker component, since two pickers are two things
+      that can disagree about which template is in use. The shell widened
+      1240 → 1400px to pay for the 260px rail: TASK-129 removed the *original*
+      two-column layout because a 300px rail inside 1240px scaled the A4 page
+      down, and that constraint is still respected — the sheet was measured
+      rendering at exactly 794px, its true size. Below `lg` it stacks with the
+      document first, because on a phone the resume is what you came to see.
+
+      Also: a soft page shadow and ring on the sheet so it reads as paper on a
+      desk, hover lift on the template cards, and the caption now names the
+      active template ("A4 · Gulf Premium · this is exactly what downloads").
+
+      **Verified in a real browser**, not by reading. `/package/[id]` needs a
+      login and a paid package, so a throwaway unauthenticated page rendered
+      the identical markup with the real components against
+      `SAMPLE_RESUME_DOCUMENT` — the same technique used to reproduce the
+      TASK-061 picker bug — and was deleted afterwards. Measured at 1280px:
+      rail at x=20 width 260, sheet 794px wide, left/right gaps 73/74px,
+      caption below the sheet rather than beside it, all ten templates in the
+      rail. At 375px: document renders before the rail, sheet scales to 311px,
+      `scrollWidth` equals the viewport so nothing overflows. `tsc`, `lint` and
+      a full production build (45 pages) all clean.
+
+      **Not done — the founder's profile-photo request is blocked on a file.**
+      He sent a headshot in chat to see how a photo sits on the resume. An
+      image pasted into a conversation cannot be written to the repository from
+      here; it needs saving to a path first. Separately, and worth his
+      decision rather than mine: `lib/sampleResume.ts` is deliberately and
+      explicitly fictional ("Ahmed Al-Hassan", invented employers and
+      certifications), so putting a real, identifiable face on it would attach
+      a real person to invented credentials on every user's gallery — the same
+      objection that removed the photographed testimonials in TASK-100. Using
+      it as a private layout test is fine; shipping it as the public sample is
+      the part that needs a yes.
+
+      Depends on: TASK-138, TASK-143 · Status: done, 2026-08-17.
+
+---
+
+- [x] **TASK-147: put a photo on the demo CV**
+
+      Founder-supplied a headshot 2026-08-17 and asked for the demo resume to
+      look like the ones Zety and Enhancv show. **The photo slot already
+      existed** — `themes.ts` sets `allowPhoto` on five of the ten templates and
+      `engine.tsx` renders it — but `SAMPLE_PROFILE.photo_url` was `null`, so
+      every gallery preview rendered its photo slot empty and half the reason
+      to choose those five templates was invisible.
+
+      `public/sample/sample-headshot.jpg`. Note this is the **first file this
+      repo has ever had in `public/`** — the directory did not exist, because
+      the landing page's images are remote Unsplash URLs (TASK-101). Confirmed
+      not gitignored, so it deploys.
+
+      **Processed rather than dropped in.** The source was 1254×1254 PNG,
+      1.78MB, with wide white margins. The template slot is 72×90 — a 4:5
+      portrait — so `object-fit: cover` on a square source cropped the sides and
+      left the face small in frame. Cropped to a 4:5 head-and-shoulders region
+      and resized to 400×500 JPEG q90: **1.78MB → 35KB, 51× smaller**, and the
+      face now fills the frame like a real CV photo.
+
+      **Served from `/public`, deliberately not from Supabase storage.** The
+      gallery must render for a signed-out visitor, and the `profile-photos`
+      bucket (TASK-113, migration 032) is private by design — its objects need a
+      per-user signed URL and must not gain a public read path to serve a
+      marketing asset.
+
+      **A real user can never see this on their own CV**, which was the
+      founder's own stated requirement ("once the user will load that one, this
+      will populate the user data only"). Verified by grep rather than assumed:
+      `SAMPLE_RESUME_DOCUMENT` has exactly one consumer, `app/templates/page.tsx`.
+      `/package/[id]` builds from the signed-in user's own profile, and
+      `buildResumeDocument` sets `showPhoto = visible(fv,'photo') && Boolean(profile.photo_url)`,
+      so a user with no photo gets no photo — never this one.
+
+      **Verified in a real browser.** A throwaway server-rendered page mounted
+      all ten templates against the sample document; the image was confirmed
+      loading (`complete`, `naturalWidth` 400) in all five photo templates and
+      correctly absent from the other five. An early pass reported four as
+      not-loaded, which was an artefact of clicking through them at 120ms
+      intervals rather than a defect — re-checked at 900ms, all five load. The
+      same page was then exported to a standalone HTML file for the founder with
+      the image inlined as a data URI. Page and export script both deleted.
+      `tsc`, `lint` and a full production build (45 routes) clean.
+
+      **One thing recorded rather than done.** The founder was told, and
+      confirmed by re-asking, that the photo goes on `lib/sampleResume.ts` —
+      which is explicitly fictional ("Ahmed Al-Hassan", invented employers and
+      certifications). So a real, identifiable face now sits on invented
+      credentials in every user's gallery. That is the founder's call and it
+      matches what Zety and Enhancv do with their own demo photos; it is noted
+      here because TASK-100 removed photographed testimonials for a related
+      reason, and the distinction — a labelled example CV versus a testimonial
+      asserting a real customer — is the thing that makes this acceptable and
+      that one not. **Not** used anywhere that implies a real customer or a real
+      outcome.
+
+      Depends on: TASK-137, TASK-146 · Status: done, 2026-08-17.
+
+---
+
+- [x] **TASK-148: template thumbnails were pinned to the left of their own cards**
+
+      Founder reported it off the **deployed** site with a screenshot, which is
+      also how the docs-vs-reality gap surfaced again: he was asking why his
+      photo was not on `/templates`, and the answer was that TASK-146/147 were
+      still uncommitted on the build machine. Vercel was serving `origin/main`.
+      Recorded because "it is not on the site" is going to keep meaning "it was
+      never pushed" as long as work sits in a dirty tree at the end of a session.
+
+      **The real bug in the screenshot.** The gallery wrapped the cards in
+      `grid-cols-2 sm:grid-cols-3 lg:grid-cols-4`, so each card stretched to a
+      quarter of the container — about 298px at the gallery's 1240px — while the
+      page inside was scaled to a fixed 200px and positioned `absolute left-0`.
+      Every thumbnail therefore sat against the left edge of its card with
+      ~98px of dead white space to its right. Same family as TASK-146's
+      off-centre document: a fixed-size child inside a flexible parent, with
+      nothing telling it to centre.
+
+      Fixing the scale to the card is not possible in plain CSS — a transform
+      cannot read its parent's width — so the **card is sized to the preview**
+      instead (`style={{ width: cardW }}`) and the row is centred with
+      `flex-wrap justify-center`. Deterministic, responsive by wrapping, and no
+      ResizeObserver.
+
+      **Caught while verifying, not by reading:** scaling to `cardW` overflowed
+      by 2px. Tailwind sets `border-box`, so a 240px card with a 1px border has
+      a 238px content box, and the extra 2px of page went under
+      `overflow-hidden` — shaving the right margin off all ten thumbnails. The
+      scale now derives from `cardW - CARD_BORDER * 2`.
+
+      **Gallery thumbnails now show the whole A4 page** rather than a 260px
+      slice of the top. A resume preview that stops a third of the way down
+      reads as a broken fragment, and it is not what a template gallery is for
+      — you cannot judge a layout you can only see the head of. Height is
+      derived from the width at the true page ratio, so it can never drift from
+      A4. The rail on `/package/[id]` stays clipped: ten full pages in a sticky
+      column is far too long a scroll.
+
+      **Verified in a real browser**, measured rather than eyeballed, on a
+      throwaway page reproducing the gallery's real 1240px container (the harness
+      kept bouncing navigation back to `/`; a fresh tab loaded it — the same
+      quirk TASK-143 hit). At 1280px: 10 cards, card 240px, preview window
+      238px, page 238px, **0px dead space either side**, aspect ratio 1.410
+      against A4's 1.414, no horizontal page overflow, and the rail's 212px
+      cards fit its 260px column without overflowing. All five photo templates
+      confirmed rendering the headshot, all loaded. Throwaway deleted. `tsc`,
+      `lint` and a full production build (45 routes) clean.
+
+      Depends on: TASK-146, TASK-147 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*
@@ -2333,6 +2620,9 @@ message on each is the long form.
 | 17 | `supabase/migrations/013_operations.sql` | Real gap, found applying migrations to a genuinely fresh Supabase project for the first time, 2026-08-07: 013's `ALTER TABLE public.profiles ADD COLUMN is_admin...` assumed `profiles` already existed — every migration from 013 onward, and `docs/ADMIN.md` §1, inherited that assumption from whatever project this was originally written against. It does not exist on a new project; 013 would fail outright. **Resolved** with a new migration, `020_profiles_base.sql`, scoped to exactly what the live app reads (grepped every `.from('profiles')` call — only `middleware.ts` and `lib/admin/adminAuth.ts`, both read-only `is_admin` keyed by `user_id`; `reference/*.reference.ts` files touch it more broadly but are parked donor code, not live). Applied out of numeric order (020 before 013, since 013 has a hard runtime dependency on it) — numbers were kept as originally assigned rather than renumbering, since 013–019 were already reviewed under those numbers. **Real security decision, not just a CREATE TABLE**: `lib/admin/adminAuth.ts`'s own existing comment establishes callers need SELECT on their own `is_admin` row — but an owner-ALL policy (this project's usual pattern) would let a user UPDATE their own row and self-grant admin, a genuine privilege-escalation hole. Fixed with SELECT-only RLS for `authenticated` on their own row, no INSERT/UPDATE/DELETE policy at all; row creation is automatic via a `SECURITY DEFINER` trigger on `auth.users` insert, and `is_admin` itself is only ever changed by direct SQL or the service-role client, matching `docs/ADMIN.md` §1's "set the founder's flag manually via SQL." All 11 migrations (010–020) applied and independently verified against the live database afterward — 14 tables, RLS confirmed enabled on all 14, no exceptions | Found and fixed before any other migration depended on the gap; documented so the next fresh-project setup doesn't rediscover it from a failed `ALTER TABLE` |
 | 18 | This Supabase project's default privileges (found via `redeem_promo_code`, migration 021/TASK-051) | **Real, live, exploitable security hole**, found 2026-08-07 while independently verifying TASK-051's migration rather than trusting the migration file's own `REVOKE ... FROM PUBLIC` line. This Supabase project grants `EXECUTE` on newly created `public` schema functions directly to `anon` and `authenticated` — a project-level default privilege, and a *separate* ACL entry from a grant to `PUBLIC`. Every `SECURITY DEFINER` RPC function in this project, including ones already reviewed and believed locked down (migrations 016, 018), only ever revoked `FROM PUBLIC` — which never touched the direct `anon`/`authenticated` grants, leaving them callable by any client (even unauthenticated) via Supabase's auto-exposed REST RPC, with attacker-chosen arguments, bypassing every app-level ownership and rate-limit check. **Confirmed exploitable and fixed** on `redeem_promo_code` (would have unlocked any user's package for free), `increment_rate_limit` (migration 016 — would have let anyone manipulate any other user's rate-limit counters), and `consume_optimization_credit` (migration 018/TASK-045 — would have let anyone burn another user's credit or flip `is_paid` on a package they don't own), each with `REVOKE EXECUTE ... FROM anon, authenticated`, then re-verified via `information_schema.routine_privileges`. `handle_new_user_profile` and `set_updated_at` also showed the same grant but are trigger-only, argument-less functions Postgres refuses to execute outside trigger context — left as-is. | HIGH — was live and exploitable in production for weeks (since migration 016) before being found; `supabase/migrations/README.md`'s apply checklist should gain a step requiring this exact query be run against `anon`/`authenticated` for every new `SECURITY DEFINER` function, not just a REVOKE FROM PUBLIC by inspection |
 | 22 | `lib/jobMatch/requirementMapping.ts` | **Job Match under-scores strong candidates, on the product's differentiator.** Verified live 2026-08-16 against the real pipeline: a CV with 12 years oil-and-gas experience in Abu Dhabi and Jubail, against a matching Senior Piping Engineer JD, scored 48/100 with `gcc_experience: 0`, `experience_level: 0`, `education: 0`, while the semantic layer scored the same candidate 85/95/100. `gccExperienceCategory()` counts only work entries with a non-null `gccCountry`, which is a Career Profile column (TASK-067) that extraction never populates — so **for every anonymous scan that category is structurally always 0**, whatever the CV says. Education scored 0 because `B.Tech` does not substring-match a JD asking for `B.Eng`. The file's own header is honest that matching is "deliberately simple case-insensitive substring matching"; the problem is that a 0 is then presented to the user as a real finding | **HIGH for product quality** — not a crash, which is worse in one sense: it is confidently wrong on the feature the product is differentiated by, and the number is shown to real users. Needs its own ticket; deciding what "GCC experience" means for an un-tagged resume, and how degree equivalence works, are product decisions, not typos |
+| 25 | `app/api/packages/[id]/preview-image/route.ts` | **Dead route, and the one renderer that never adopted the snapshot.** Two separate points. (a) After TASK-145 removed the blurred preview, this route has no consumer left in the app — grepped, zero references outside its own file. It still launches Chromium and renders a full resume on request. Owner-scoped and auth-gated, so not a leak, but it is live surface with no caller. (b) More interesting for correctness: unlike the PDF route and the resume screen, it never read `document_snapshot` — it always rendered from the live profile. Had it stayed wired up, the thumbnail and the downloaded PDF could have shown different documents for the same package, and the thumbnail would still have drifted whenever the profile changed, which is the exact bug migration 034 exists to close. **Not deleted** — removing a route is a bigger call than fixing the defect that stranded it, and it wants the founder's yes | LOW as it now stands (unreachable). Worth a small cleanup ticket to delete the route, its Chromium dependency at that path, and the TASK-044 comments that still describe a blurred-preview flow the product no longer has |
+| 24 | `app/api/optimize/route.ts` (TASK-131) | Two small things noted in the 2026-08-17 review and deliberately **not** fixed, because neither is a defect today and both are cheap to get wrong. (a) Two concurrent Phase B requests for the same paid, ungenerated package both pass the `optimized_content IS NULL` idempotence check, so both call the model — the guard is a read, not a lock. The generate screen has a `started` ref and the window is one request, so a double-click is already handled client-side; the exposure is a deliberate retry or two tabs, costing one extra model call and a last-write-wins overwrite, never a double charge. A conditional update (`.is('optimized_content', null)`) would close it properly. (b) Phase A creates a package row with no AI call and spends no rate-limit slot, so package rows can be created without limit — storage only, no cost, no user-visible effect | LOW both. Recorded so the next person to touch this route knows the idempotence check was seen and understood, rather than rediscovering it as a surprise |
+| 23 | `app/api/packages/[id]/route.ts` + `app/optimize/preview/[packageId]/page.tsx` | **RESOLVED by TASK-145** (2026-08-17). Two defects from the same session, each created by a correct ticket that did not notice the other. (1) `document_snapshot` (TASK-132) had exactly one writer — generation — and generation refuses to run twice, while PATCH updated only `optimized_content`; both real renderers prefer the snapshot, so every user text edit was saved and then silently ignored by the resume screen and the downloaded PDF. (2) TASK-131 made `/optimize/preview` paid-only but left the pre-payment sales pitch on it, so the only people who could reach that screen were paying customers, shown their own CV blurred under "Unlock to download" with a button that bounced off `/optimize/pay` back to where they started. Found by review, not by report; confirmed no live data affected (both existing packages pre-date migration 034) | HIGH for (1) — it made a paid, user-editable deliverable silently ignore the user, and it would have hit the first customer to generate and then edit. MEDIUM for (2). **The common cause is worth more than either fix: both tickets were individually correct and were verified individually.** Neither commit's verification exercised the path the *other* ticket had just changed. A ticket that inverts a funnel or freezes a document should list the screens and writers downstream of it and check each, not just its own diff |
 | 21 | `app/api/ats-scan/route.ts` (TASK-108/109) | Anonymous-session persistence stayed gated on the extracted draft after extraction became conditional on a job description, so no session row and no cookie were written for any scan without a JD — the default path. A refresh of `/gulf-readiness` then showed "Your scan is unavailable", the page's "kept for 7 days" promise was false, and signup had nothing to claim. Found 2026-08-16 reviewing the undocumented TASK-105–121 batch; confirmed empirically (`GET /api/ats-scan/session` returned 404 for a scan that had just succeeded) rather than by reading. **RESOLVED by TASK-122** | MEDIUM — user-visible on the product's main free-traffic funnel, and it made a printed promise untrue. Notable for review purposes: TASK-108's own commit message stated the resume text was still being persisted, which was not what the code did — a reminder that a report describing intent reads exactly like one describing behaviour |
 | 20 | `app/auth/callback/route.ts` | **RESOLVED by TASK-117** (2026-08-15) — `components/auth/AuthHashHandler.tsx` completes the implicit flow client-side on `/login` and clears the fragment via `replaceState`. Original finding follows. Magic-link sign-in cannot complete. The callback only handles the PKCE flow (`?code=` → `exchangeCodeForSession`) and redirects to `/login?error=auth_callback_failed` for anything else. Supabase's admin `generateLink` returns an **implicit-flow** link whose tokens arrive in the URL *fragment* (`#access_token=…`), which a server route cannot read at all — so the callback never sees a `code` and always fails. Confirmed live 2026-08-14: Supabase itself authenticated the user correctly (valid JWT returned in the fragment) and only the app-side callback rejected it. Pre-existing; found while trying to verify TASK-103's authenticated pages, not caused by it. Whether it affects real users depends on which flow the hosted Supabase project is configured to send for emailed links — if it sends implicit-flow links, emailed magic-link login is broken in production too | MEDIUM — unknown production impact until the project's auth flow setting is checked. It also blocks Claude from ever visually verifying an authenticated page, which is why every ticket this session carries the same "not seen rendered in a browser" caveat. Worth a ticket: either handle the fragment client-side on `/login`, or confirm the project is on PKCE and leave the route as-is |
 | 19 | `lib/pdfTextExtract.ts` | **RESOLVED by TASK-107** (2026-08-15), and it was worse than this entry estimated: the failure did not merely garble text, it caused the model to fabricate achievement numbers on the founder's own resume. Original finding follows. Font-encoding gap, found 2026-08-14 while hand-decoding the founder's own resume PDF for TASK-101's credibility copy: the extractor has no support for `/Differences` arrays or `ToUnicode` CMaps, so a PDF using a custom/subsetted font encoding (confirmed: a constant +29 shift across the ASCII 33–126 range) extracts as garbled text. Letters happen to still shift-decode by hand for a one-off task, but **digits do not decode at all under such an encoding** — any numeric resume content (dates, phone numbers, quantities) silently vanishes rather than erroring. Not fixed as part of TASK-101 (out of scope — the founder's stated priority was the landing page); the decode script used was scratchpad-only, not committed | MEDIUM — production-relevant: the ATS-scan/resume-upload pipeline this same extractor serves real users through would silently drop numeric resume content for anyone whose PDF happens to use a similarly encoded font. Needs its own ticket: either detect and reject/flag unrecoverable encodings rather than silently emitting garbage, or add `/Differences`/`ToUnicode` support |
