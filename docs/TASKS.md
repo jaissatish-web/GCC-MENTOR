@@ -3048,6 +3048,45 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-157: Library tidy — drop Country, drop company, colour Open**
+
+      Founder, from the deployed Library page: Country is not needed, the company is
+      not needed (keep the date only), and Open should be coloured.
+
+      All three are the same underlying point — the row was spending its width on
+      fields that are almost never populated, so it read as a list of absences: "Not
+      specified" under COUNTRY, "No company · 16 Aug" under the name.
+
+      **Country column removed**, header and row cells, both grid templates going
+      from 5 columns to 4. `target_country` became OPTIONAL in migration 030
+      precisely because it never affected the generated CV —
+      `buildOptimizationPrompt`'s Gulf conventions have been country-agnostic since
+      TASK-018 — so a column reading "Not specified" on essentially every row was
+      displaying the consequence of a decision already taken, not information.
+
+      **Company dropped** from the row subtitle in both the desktop table and the
+      mobile card, leaving the created date alone.
+
+      **Open is now a filled forest control** rather than forest-on-white text,
+      which read as a label rather than the row's primary action. Applied to the
+      desktop table and the mobile card together so the two cannot drift.
+
+      **Dead code removed while there:** `countryLabel()` had no remaining caller,
+      and the `GULF_COUNTRIES` import existed only for it. Neither `tsc` nor
+      `next lint` flags an unused local function or a partially-unused import — the
+      same class of miss as TASK-078's dead icon import and TASK-083's dead
+      `useCallback`. Worth checking by hand every time a display field is removed.
+
+      **Verified:** header and row each carry exactly 4 cells against a 4-column
+      template, so the columns stay aligned; the "No company" string appears nowhere
+      in the file; both Open links are filled controls. `tsc`, `lint` and a full
+      production build (45 routes) clean. **Not verified in a browser** — the Library
+      needs a login; the column-count check was done against the JSX structure.
+
+      Depends on: TASK-156 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*

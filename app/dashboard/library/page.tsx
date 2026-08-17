@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/Button'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn, GULF_COUNTRIES, PACKAGE_STATUSES, resumeLabel } from '@/lib/utils'
+import { cn, PACKAGE_STATUSES, resumeLabel } from '@/lib/utils'
 import { getTemplate } from '@/lib/templates'
 import type { Package, PackageStatus } from '@/types/package'
 
@@ -13,7 +13,12 @@ import type { Package, PackageStatus } from '@/types/package'
  * Lists the caller's packages (from GET /api/packages, scoped to user_id).
  * Mobile: cards (target title, "company · country · date", status dropdown,
  * artifact chips, Open / Re-optimize / Delete). Desktop (lg+): a table with the
- * same data model — Target / Country / Level / Status (inline dropdown) / Open.
+ * same data model — Target / Level / Status (inline dropdown) / Open.
+ *
+ * Country was dropped in TASK-157: target_country became optional in migration 030
+ * and never affected the generated CV, so the column printed "Not specified" for
+ * essentially every row. The company was dropped from the row subtitle for the
+ * same reason — it read "No company · 16 Aug" — leaving just the date.
  *
  * STATUS dropdown (PUT /api/packages/[id]): writes packages.status
  * (applied / shortlisted / interview / visa_processing / offer), optimistic then
@@ -33,11 +38,6 @@ function formatDay(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
   return `${d.getDate()} ${MONTHS[d.getMonth()] ?? ''}`
-}
-
-function countryLabel(c: string | null): string {
-  if (!c) return 'Not specified'
-  return GULF_COUNTRIES.find((x) => x.value === c)?.label ?? c
 }
 
 function levelLabel(level: string): string {
@@ -316,7 +316,7 @@ export default function DashboardLibraryPage() {
                     onSave={(next) => renamePackage(pkg.id, next)}
                   />
                   <span className="text-[11px] text-ink-400">
-                    {pkg.target_company || 'No company'} · {formatDay(pkg.created_at)}
+                    {formatDay(pkg.created_at)}
                   </span>
                   <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10.5px] text-ink-400">
                     {/* Short id: enough to quote in a support message, without
@@ -345,7 +345,7 @@ export default function DashboardLibraryPage() {
               <div className="mt-3.5 flex items-center gap-4">
                 <Link
                   href={`/package/${pkg.id}`}
-                  className="min-h-11 px-1 text-[11px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-forest px-4 text-[11.5px] font-semibold text-white transition-colors hover:bg-forest-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
                 >
                   Open
                 </Link>
@@ -376,9 +376,8 @@ export default function DashboardLibraryPage() {
 
       {/* ── DESKTOP: table ── */}
       <div className="hidden overflow-hidden rounded-radius-lg border border-line-light bg-surface-light lg:block">
-        <div className="grid grid-cols-[2fr_1fr_1fr_1.2fr_90px] gap-4 border-b border-line-light bg-surface-2-light px-5 py-3 text-[9.5px] font-semibold uppercase tracking-[0.1em] text-ink-400">
+        <div className="grid grid-cols-[2fr_1fr_1.2fr_90px] gap-4 border-b border-line-light bg-surface-2-light px-5 py-3 text-[9.5px] font-semibold uppercase tracking-[0.1em] text-ink-400">
           <span>Target</span>
-          <span>Country</span>
           <span>Level</span>
           <span>Status</span>
           <span />
@@ -386,22 +385,23 @@ export default function DashboardLibraryPage() {
         {packages.map((pkg) => (
           <div
             key={pkg.id}
-            className="grid grid-cols-[2fr_1fr_1fr_1.2fr_90px] items-center gap-4 border-b border-line-light px-5 py-3.5 last:border-0"
+            className="grid grid-cols-[2fr_1fr_1.2fr_90px] items-center gap-4 border-b border-line-light px-5 py-3.5 last:border-0"
           >
             <div className="flex flex-col gap-0.5">
               <span className="text-[12.5px] font-semibold text-ink-900">{resumeLabel(pkg)}</span>
               <span className="text-[10.5px] text-ink-400">
-                {pkg.target_company || 'No company'} · {formatDay(pkg.created_at)}
+                {formatDay(pkg.created_at)}
               </span>
             </div>
-            <span className="text-[12px] text-ink-700">{countryLabel(pkg.target_country)}</span>
             <span className="text-[12px] text-ink-700">{levelLabel(pkg.optimization_level)}</span>
             <div className="justify-self-start">
               <StatusSelect initial={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
             </div>
+            {/* The primary action on the row, so it is a filled control rather
+                than forest-on-white text that read as a label (TASK-157). */}
             <Link
               href={`/package/${pkg.id}`}
-              className="min-h-11 px-1 text-[11.5px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+              className="inline-flex min-h-9 items-center justify-center rounded-radius-md bg-forest px-3.5 text-[11.5px] font-semibold text-white transition-colors hover:bg-forest-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
             >
               Open
             </Link>
