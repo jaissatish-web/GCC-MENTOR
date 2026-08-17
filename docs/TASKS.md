@@ -2944,6 +2944,61 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-155: resume at full size, page scrollbar back, sidebar scroller removed**
+
+      Founder's call, reversing part of TASK-153/154: no scroller on the left nav,
+      a full-page scrollbar on the right, the options rail and the resume preview
+      each scrolling on their own, and **the resume shown at FULL SIZE in its box
+      rather than scaled to a percentage**.
+
+      The resume is the substantive change. TASK-154 fitted a whole page into the
+      viewport, which meant scaling it to 0.5–0.58 on a laptop — a 458px-wide
+      page. That answered "show me a whole page" and lost the thing that actually
+      matters, which is being able to read it. It now renders at 794px, its true
+      printed size, and the user scrolls it.
+
+      **`fitToHeight` is REMOVED, not left in place unused.** A prop documented as
+      driving `/package/[id]` that nothing calls is a comment that lies, and this
+      file already carries enough hard-won notes to be worth keeping honest.
+
+      Layout: `main` drops `h-dvh`/`overflow-hidden` so the document scrolls again
+      and the right-hand page scrollbar is back. Both columns become `sticky top-3`
+      with `max-h-[calc(100dvh-1.5rem)]` and their own `overflow-y-auto`, so each
+      holds position while scrolling its own content. The sidebar keeps
+      `lg:sticky lg:top-0 lg:h-dvh` — it still holds still, which he asked for two
+      turns ago — but loses `overflow-y-auto`; that second scrollbar beside the
+      page's own was the clutter, and nine nav items fit a laptop screen anyway.
+
+      **Kept from TASK-154**, because both were real bugs unaffected by this
+      reversal: the reserved box is sized with `offsetHeight` rather than
+      `getBoundingClientRect().height`, and the box is sized to the scaled page and
+      centred rather than `w-full`.
+
+      **Verified by measurement at 1440×820**, on a throwaway whose class strings
+      were extracted from the real page at build time so it could not drift: resume
+      scale exactly **1** at 794px with reserved height 1123 matching the page's own
+      1123; document pane scrolls and reaches its bottom; rail scrolls
+      independently, reaches its bottom, and did not move while the document
+      scrolled; nav has no scroller of its own (`overflow-y` computes `visible`) and
+      stays pinned at top 0; no horizontal overflow. At 375px: width-fit 0.392,
+      311px page, reserved 440px exactly matching, no nested scrollers, one natural
+      page scroll, no horizontal overflow.
+
+      **Two readings NOT treated as verified, recorded rather than quietly
+      dropped.** The page reports 97px of overflow but would not respond to
+      programmatic scrolling — `html` clientHeight 820 against `body` clientHeight
+      916 shows the harness's emulated viewport disagreeing with the real window, so
+      that is an artefact of the emulation and not evidence either way about the
+      page scrollbar. And a mid-resize probe caught the box at a stale 1123px on
+      mobile; a clean load measured 440px exactly.
+
+      `tsc`, `lint`, a full production build (45 routes) and the
+      32,768-permutation golden baseline all clean.
+
+      Depends on: TASK-153, TASK-154 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*

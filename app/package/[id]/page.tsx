@@ -280,7 +280,7 @@ function PackageScreenInner({ id }: { id: string }) {
      * Below `lg` nothing changes: a phone keeps one natural page scroll, because
      * nested scroll areas on a touch screen are how you lose the user.
      */
-    <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-bg font-redesign-sans lg:h-dvh lg:min-h-0 lg:overflow-hidden">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-bg font-redesign-sans">
       <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5 lg:shrink-0 lg:gap-1.5 lg:pb-2">
         <button
           type="button"
@@ -327,10 +327,10 @@ function PackageScreenInner({ id }: { id: string }) {
           screen next to the thing it changes — so those get the left rail, and
           the rail is paid for by widening the shell rather than by squeezing
           the A4 page. */}
-      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:min-h-0 lg:flex-1 lg:gap-2 lg:pb-3">
+      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
         {/* Toolbar — sticks to the top of the viewport while scrolling a long
             CV, so Download is always one click away without costing any width. */}
-        <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-bg/80 lg:static lg:shrink-0 lg:py-2">
+        <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-bg/80 lg:py-2">
           {/*
             One button system, one size, one rhythm.
             These four controls were hand-styled with three different paddings,
@@ -415,23 +415,20 @@ function PackageScreenInner({ id }: { id: string }) {
             Below lg it stacks: document first, templates under it. On a phone
             the resume is what you came to see, and a rail would push it off
             the first screen. */}
-        <div className="flex flex-col gap-5 lg:min-h-0 lg:flex-1 lg:flex-row lg:items-stretch lg:gap-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
           {profile ? (
-            <section className="order-1 min-w-0 flex-1 lg:order-2 lg:min-h-0 lg:overflow-y-auto lg:pr-1">
+            <section className="order-1 min-w-0 flex-1 lg:order-2 lg:sticky lg:top-3 lg:max-h-[calc(100dvh-1.5rem)] lg:overflow-y-auto">
               {/* A page on a desk. The wrapper is flex-COL: it used to be a
                   plain `flex justify-center`, which made the caption below a
                   second flex ITEM sitting beside the sheet — so the resume was
                   pushed off-centre to the left with its caption stranded on the
                   right. That is the "not centred" the founder reported, and it
                   was a one-word layout bug, not a design decision. */}
-              <div className="flex flex-col items-center rounded-radius-lg bg-gradient-to-b from-surface-2-light to-surface-2-light/60 p-3 ring-1 ring-line-light/70 sm:p-6 lg:p-4">
+              <div className="flex flex-col items-center rounded-radius-lg bg-gradient-to-b from-surface-2-light to-surface-2-light/60 p-3 ring-1 ring-line-light/70 sm:p-5 lg:p-5">
                 {/* fitToHeight: show a WHOLE page, then scroll for the next one
                     (TASK-154). Without it the pane from TASK-153 showed roughly
                     half a page at true size. */}
-                <ResumeDocumentView
-                  fitToHeight
-                  className="w-full max-w-[794px] rounded-[3px]"
-                >
+                <ResumeDocumentView className="w-full max-w-[794px] rounded-[3px]">
                   {/* Registry lookup, not a hard-coded import: the screen must
                       show the same template the PDF and Word routes resolve, or
                       "what you see is what downloads" stops being true the
@@ -463,7 +460,7 @@ function PackageScreenInner({ id }: { id: string }) {
           ) : null}
 
           {previewDocument ? (
-            <aside className="order-2 shrink-0 lg:order-1 lg:min-h-0 lg:w-[260px] lg:overflow-y-auto">
+            <aside className="order-2 shrink-0 lg:order-1 lg:sticky lg:top-3 lg:max-h-[calc(100dvh-1.5rem)] lg:w-[260px] lg:overflow-y-auto">
               <div className="rounded-radius-lg border border-line-light bg-surface-light p-4">
                 <h2 className="font-serif text-[17px] leading-tight text-ink-900">Templates</h2>
                 <p className="mt-1 text-[11.5px] leading-snug text-ink-400">

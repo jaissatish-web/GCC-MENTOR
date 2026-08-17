@@ -182,12 +182,13 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar — ≥1024px */}
-      {/* Pinned to the viewport on desktop (TASK-153). It was a plain flex item,
-          so on any long page the nav scrolled off the top and the user had to
-          scroll back up to reach it. `h-dvh` + its own `overflow-y-auto` means
-          the rail holds still and, if the nav ever outgrows the screen, it
-          scrolls itself rather than the page. */}
-      <aside className="hidden w-[248px] flex-none flex-col gap-7 border-r border-line-dark bg-forest-deep-dark px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-dvh lg:overflow-y-auto">
+      {/* Pinned to the viewport on desktop (TASK-153), with NO scroller of its
+          own (TASK-155, founder's call). It was a plain flex item, so on any long
+          page the nav scrolled off the top. `sticky` + `h-dvh` holds it still;
+          the `overflow-y-auto` that came with it added a second scrollbar beside
+          the page's own, which read as clutter. The nav is nine items and fits a
+          laptop screen, so it does not need one. */}
+      <aside className="hidden w-[248px] flex-none flex-col gap-7 border-r border-line-dark bg-forest-deep-dark px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-dvh">
         {navContent}
       </aside>
 
