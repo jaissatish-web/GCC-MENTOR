@@ -2829,6 +2829,57 @@ long form. **Two real defects were found reviewing this batch — see TASK-145.*
 
 ---
 
+- [x] **TASK-153: three independent scroll panes on the resume screen**
+
+      Founder, on desktop: dragging the right-hand scrollbar moved the whole
+      page, so the app nav and the template rail slid off the top while he was
+      reading the resume. He asked for the left nav to hold still, the options
+      rail to keep its own scroller, and the resume to scroll on its own from top
+      to end. That is the right model for a document editor — the tools hold
+      still, the document moves — and it was wrong here because the page was a
+      single scroll region.
+
+      At `lg` the page is now exactly one viewport tall and does not scroll at all
+      (`h-dvh` + `overflow-hidden`). Header and toolbar are fixed rows; the two
+      columns each get their own `overflow-y-auto`. The toolbar's `sticky top-0`
+      becomes `lg:static`, because sticky is meaningless once its scroll container
+      cannot scroll.
+
+      **`Sidebar.tsx` changed too, and this is the one part that touches every
+      authenticated page.** The desktop nav rail was a plain flex item, so it
+      scrolled away on any long page, not only this one — the profile editor and
+      the library had the same problem. Now `lg:sticky lg:top-0 lg:h-dvh` with its
+      own `overflow-y-auto`, so it holds still and scrolls itself if the nav ever
+      outgrows the screen.
+
+      **`min-h-0` on every flex child in the chain is load-bearing, not tidying.**
+      A flex item defaults to `min-height: auto` and refuses to shrink below its
+      content, so without it the columns grow to full content height and the page
+      scrolls again — the exact bug being fixed, silently reintroduced. Worth
+      knowing before anyone "cleans up" those classes.
+
+      **Below `lg` nothing changes.** A phone keeps one natural page scroll and
+      gets no nested scrollers, because nested scroll areas on a touch screen are
+      how you lose the user.
+
+      **Verified by measurement**, on a throwaway page mirroring the real class
+      chain inside `AppShell`. At 1280×720: page `scrollHeight` equals
+      `clientHeight` (720), so the page does not scroll; the document pane scrolls,
+      reaches 2730px and confirms it can reach its end; the rail scrolls
+      independently to 1586px and reaches its end; scrolling the document left the
+      sidebar at top 0 and the rail at 123px **unmoved**; scrolling the rail left
+      the document at 0. At 375px: the page scrolls normally, neither pane has its
+      own scroller (`overflow-y` computes `visible`), no horizontal overflow.
+      `tsc`, `lint` and a full production build (45 routes) clean.
+
+      **Not verified:** the real `/package/[id]` with a live session, which needs a
+      login — the standing gap. The structure measured is the same class chain the
+      page now uses.
+
+      Depends on: TASK-146, TASK-152 · Status: done, 2026-08-17.
+
+---
+
 ## Blocked / Needs Review
 
 *Payment, security and profile-storage tasks live here by default. **Never self-assign a ticket from this section.** The founder or CTO assigns it after review.*

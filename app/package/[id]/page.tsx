@@ -259,8 +259,29 @@ function PackageScreenInner({ id }: { id: string }) {
     // page. The rule this shell exists to protect, unchanged since TASK-129:
     // the A4 sheet must render at true size, never scaled down to make room
     // for chrome around it.
-    <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-bg font-redesign-sans">
-      <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5">
+    /**
+     * THREE INDEPENDENT SCROLL PANES ON DESKTOP (TASK-153, founder-directed).
+     *
+     * Before this the whole page scrolled as one, so dragging the scrollbar to
+     * read the bottom of the resume also dragged the app nav and the template
+     * rail off the top. On a laptop that is the wrong model for a document
+     * editor: the tools should hold still while the document moves.
+     *
+     * So at `lg` the page is exactly one viewport tall and does not scroll at
+     * all (`h-dvh overflow-hidden`). The header and toolbar are fixed rows, and
+     * the two columns below each get their own `overflow-y-auto`. The nav rail
+     * is pinned separately in Sidebar.tsx.
+     *
+     * `min-h-0` on every flex child in that chain is load-bearing: a flex item
+     * defaults to `min-height: auto`, which refuses to shrink below its content,
+     * and without it the columns grow to their full content height and the page
+     * scrolls again — the exact bug this is fixing, silently reintroduced.
+     *
+     * Below `lg` nothing changes: a phone keeps one natural page scroll, because
+     * nested scroll areas on a touch screen are how you lose the user.
+     */
+    <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-bg font-redesign-sans lg:h-dvh lg:min-h-0 lg:overflow-hidden">
+      <div className="flex flex-col gap-3 px-5 pb-4 pt-1.5 lg:shrink-0">
         <button
           type="button"
           aria-label="Go back"
@@ -306,10 +327,10 @@ function PackageScreenInner({ id }: { id: string }) {
           screen next to the thing it changes — so those get the left rail, and
           the rail is paid for by widening the shell rather than by squeezing
           the A4 page. */}
-      <div className="flex w-full flex-col gap-4 px-5 pb-8">
+      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:min-h-0 lg:flex-1 lg:pb-5">
         {/* Toolbar — sticks to the top of the viewport while scrolling a long
             CV, so Download is always one click away without costing any width. */}
-        <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-bg/80">
+        <div className="sticky top-0 z-20 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur supports-[backdrop-filter]:bg-bg/80 lg:static lg:shrink-0">
           {/*
             One button system, one size, one rhythm.
             These four controls were hand-styled with three different paddings,
@@ -394,9 +415,9 @@ function PackageScreenInner({ id }: { id: string }) {
             Below lg it stacks: document first, templates under it. On a phone
             the resume is what you came to see, and a rail would push it off
             the first screen. */}
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
+        <div className="flex flex-col gap-5 lg:min-h-0 lg:flex-1 lg:flex-row lg:items-stretch lg:gap-6">
           {profile ? (
-            <section className="order-1 min-w-0 flex-1 lg:order-2">
+            <section className="order-1 min-w-0 flex-1 lg:order-2 lg:min-h-0 lg:overflow-y-auto lg:pr-1">
               {/* A page on a desk. The wrapper is flex-COL: it used to be a
                   plain `flex justify-center`, which made the caption below a
                   second flex ITEM sitting beside the sheet — so the resume was
@@ -436,8 +457,8 @@ function PackageScreenInner({ id }: { id: string }) {
           ) : null}
 
           {previewDocument ? (
-            <aside className="order-2 shrink-0 lg:order-1 lg:w-[260px]">
-              <div className="rounded-radius-lg border border-line-light bg-surface-light p-4 lg:sticky lg:top-[104px] lg:max-h-[calc(100dvh-128px)] lg:overflow-y-auto">
+            <aside className="order-2 shrink-0 lg:order-1 lg:min-h-0 lg:w-[260px] lg:overflow-y-auto">
+              <div className="rounded-radius-lg border border-line-light bg-surface-light p-4">
                 <h2 className="font-serif text-[17px] leading-tight text-ink-900">Templates</h2>
                 <p className="mt-1 text-[11.5px] leading-snug text-ink-400">
                   Your wording, dates and details stay exactly as they are — only the design
