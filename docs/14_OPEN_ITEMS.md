@@ -36,6 +36,24 @@ a deliberate number rather than an inherited one.
 
 ---
 
+## ATS / Job Readiness — the next build (decided 2026-08-18)
+
+A paid-plan, LLM-based score of readiness against a *specific* job — distinct from the
+free arithmetic GCC Readiness. Three parts:
+
+1. **Gate it behind the paid plan**, with admin credit / promo unlock so it is testable
+   before a checkout exists. Requires an account — never anonymous.
+2. **Add a title + industry input path**, so it runs when no job description is given.
+   The current Job Match engine structures a JD first and cannot run without one.
+3. **Close the free anonymous LLM leak on `/ats-scan`** — today it fires extraction, JD
+   structuring and the explanation for a logged-out visitor when a JD is pasted, which
+   the two-tier decision forbids. Retire or repurpose that path; the free anonymous entry
+   point is now the arithmetic Scorecard only.
+
+Design and reasoning: [`15_DECISION_LOG.md`](15_DECISION_LOG.md), 2026-08-18.
+
+---
+
 ## Gulf Readiness Scorecard — what remains
 
 The anonymous flow is built and verified live (funnel → arithmetic score → result →

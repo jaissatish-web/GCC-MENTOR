@@ -12,6 +12,44 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — two scores, two tiers: readiness is free, ATS is paid
+
+**Founder decision.** The product has two different scores and they sit in different
+tiers:
+
+| | **GCC Readiness** | **ATS Score / Job Readiness** |
+|---|---|---|
+| Question | Ready for the Gulf market in general? | Ready for *this specific job*? |
+| Method | Arithmetic, no LLM | **LLM** — costs real tokens |
+| Input | Resume + funnel answers | Resume + a job description, or **job title + industry** when no JD |
+| Tier | **Free, anonymous** | **Paid plan** — not free, not anonymous |
+
+The logic is honest: the free score is free *because* it costs nothing to run; the
+score that spends tokens is the one that is charged for.
+
+**The contradiction this closes.** Today the anonymous `/ats-scan` fires LLM calls —
+extraction, JD structuring, job-match explanation — for a logged-out visitor whenever a
+job description is pasted. That is exactly the free-LLM giveaway this decision forbids.
+The free anonymous path is now **only** the arithmetic GCC Readiness Scorecard; the
+LLM job-readiness score moves behind the paid plan and requires an account.
+
+**"Paid" is inert until there is a checkout.** Razorpay KYC is still blocked, so a
+paid-only gate means the *only* way to run ATS — including for the founder's own
+testing — is an admin credit or a promo code, exactly like resume optimization. This is
+consistent with the whole product once the locks return; it just means ATS is not
+self-serve until the payment-provider decision (§A1 of open items) is made. The founder
+chose "paid plan" over "signed-in, open during the build" with that understood.
+
+**A build note carried by this decision:** the current Job Match engine *requires* a job
+description (it structures the JD first). ATS must also run on **job title + industry
+alone** when no JD is given — a new, smaller input path to add.
+
+**Not built in this decision — recorded for the next step:** gating ATS behind the paid
+plan (with admin/promo unlock), adding the title+industry fallback, and retiring or
+repurposing the old anonymous `/ats-scan` free path.
+
+---
+
 ## 2026-08-17 — the Gulf Readiness Scorecard is fully arithmetic
 
 **Founder decision, final: the entire readiness engine — score, scenario, strengths,
