@@ -220,7 +220,11 @@ function validateEducation(list: unknown): string | null {
   for (const item of list) {
     if (!isObject(item)) return 'education'
     if (requireString(item.degree, 'degree')) return 'education.degree'
-    if (requireString(item.institution, 'institution')) return 'education.institution'
+    // Institution is OPTIONAL (2026-08-18): resumes commonly list a degree and
+    // year with no institution, and an auto-save right after extraction must not
+    // fail on it. No migration needed — an empty string satisfies the column's
+    // NOT NULL, and the user can add the institution later.
+    if (optional(item.institution, 'institution', (x) => typeof x === 'string')) return 'education.institution'
     if (optional(item.start_year, 'start_year', (x) => typeof x === 'number')) return 'education.start_year'
     if (optional(item.end_year, 'end_year', (x) => typeof x === 'number')) return 'education.end_year'
     if (typeof item.sort_order !== 'number') return 'education.sort_order'
