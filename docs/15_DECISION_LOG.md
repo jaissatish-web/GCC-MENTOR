@@ -12,6 +12,43 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — post-signup: build the Career Profile first, tier-based input
+
+**Founder decision, all points confirmed.** After signup the first screen is **Build
+your Career Profile**, and how the profile gets filled depends on the tier:
+
+- **Free → type.** Manual entry, no LLM.
+- **Paid → upload.** LLM extraction reads the resume and auto-fills the profile.
+
+**This formally puts LLM extraction in the paid tier**, and it is an honest paywall:
+extraction is a model call that costs money, so a free user does the typing themselves
+and a paid user pays for us to do it for them. Not an arbitrary gate — one that reflects
+a real cost.
+
+**Three points settled with it:**
+
+1. **Neither tier re-uploads.** The Gulf Readiness Scorecard already captured the resume
+   *text* into the browser handoff. A free (type) user sees that text beside the form to
+   copy from — never a blank page. A paid user's extraction runs on that same text. The
+   handoff is what makes this work; the resume is given once.
+
+2. **GCC Readiness updates live as the profile is built, and the score is allowed to
+   rise.** It is arithmetic, so it recomputes instantly as fields fill. The framing is
+   **"your score improves as you complete your profile"** — not "fixed after signup." The
+   reproducibility promise still holds for *identical* inputs; more profile data
+   legitimately means a higher number, and that is honest because the user can see why.
+
+3. **One scoring engine, not two.** The live profile-based readiness runs the **same
+   arithmetic engine** as the anonymous scorecard, fed from the structured profile once it
+   exists rather than from raw text. Two different engines would make the number jump for
+   a reason the user cannot see; the same engine keeps the pre- and post-signup scores
+   consistent.
+
+**Still to come:** the founder has a further piece to discuss after this. Not yet
+designed. Build happens next session.
+
+---
+
 ## 2026-08-18 — two scores, two tiers: readiness is free, ATS is paid
 
 **Founder decision.** The product has two different scores and they sit in different

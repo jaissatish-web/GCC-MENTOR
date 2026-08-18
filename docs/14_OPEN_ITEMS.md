@@ -36,6 +36,18 @@ a deliberate number rather than an inherited one.
 
 ---
 
+## Post-signup Career Profile build — next session (decided 2026-08-18)
+
+After signup, first screen is Build your Career Profile. Free tier types (no LLM); paid
+tier uploads (LLM extraction auto-fills). Neither re-uploads — the Scorecard handoff
+carries the resume text: free users copy from it, paid users' extraction runs on it. GCC
+Readiness updates live from the same arithmetic engine fed from profile fields, framed as
+"improves as you complete your profile". Full design:
+[`15_DECISION_LOG.md`](15_DECISION_LOG.md), 2026-08-18. Founder has a further piece to
+discuss first.
+
+---
+
 ## ATS / Job Readiness — the next build (decided 2026-08-18)
 
 A paid-plan, LLM-based score of readiness against a *specific* job — distinct from the
