@@ -333,7 +333,7 @@ export function buildResumeDocument({
       showPhoto,
       photoUrl: profile.photo_url,
       displayName,
-      targetJobTitle: profile.target_job_title,
+      targetJobTitle: profile.target_job_title ?? '',
       hasAnyIdentity,
       identityPrimary,
       identityContact,

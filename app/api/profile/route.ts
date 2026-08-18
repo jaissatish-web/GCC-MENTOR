@@ -100,9 +100,12 @@ function validateProfile(p: Record<string, unknown>): string | null {
     return null
   }
 
-  const requiredStringErr = requiredString(
-    'target_job_title', 'target_industry', 'full_name', 'phone', 'email'
-  )
+  // target_job_title and target_industry are OPTIONAL since migration 042: a
+  // resume does not state the job the user is aiming for, so an auto-save right
+  // after extraction must not require them. They are stored as null when empty
+  // (see the parent build below). full_name / phone / email stay required — a
+  // profile with no way to identify or contact the person is not usable.
+  const requiredStringErr = requiredString('full_name', 'phone', 'email')
   if (requiredStringErr) return requiredStringErr
 
   if (typeof p.currently_in_gulf !== 'boolean') return 'currently_in_gulf'

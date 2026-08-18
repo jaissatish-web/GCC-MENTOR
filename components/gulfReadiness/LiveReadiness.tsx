@@ -40,11 +40,14 @@ export function LiveReadiness({
   return (
     <div className="rounded-radius-lg border border-line-light bg-surface-light px-4 py-4">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-bold uppercase tracking-wide text-ink-400">Your Gulf readiness</span>
+        <span className="text-[11px] font-bold uppercase tracking-wide text-ink-400">Gulf Readiness</span>
         <span className="rounded-full bg-surface-2-light px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-400">
           {result.scenarioLabel}
         </span>
       </div>
+      <p className="mt-0.5 text-[11px] text-ink-400">
+        How ready you are for the Gulf job market — different from how complete your profile is.
+      </p>
       <div className="mt-2 flex items-end gap-2">
         <span className={`font-mono text-3xl font-bold ${tone}`}>{result.finalScore}</span>
         <span className="pb-1 text-[11px] text-ink-400">/ 100 · {result.band.label}</span>

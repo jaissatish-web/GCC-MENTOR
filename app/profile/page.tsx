@@ -359,8 +359,9 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
     currently_in_gulf: e.currently_in_gulf,
     current_employer: optNull(e.current_employer),
     current_project: optNull(e.current_project),
-    target_job_title: e.target_job_title,
-    target_industry: e.target_industry,
+    // Optional since migration 042 — empty becomes null, like target_country.
+    target_job_title: optNull(e.target_job_title),
+    target_industry: optNull(e.target_industry),
     // optNull, not the raw value — same treatment as target_company. Without
     // this, leaving the field unselected sends '' (fails enum validation
     // server-side) instead of null (now valid, migration 030).
@@ -460,12 +461,13 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
 // behavior, so requiring it was misleading. It's still an editable field
 // below and still contributes to the readiness score if filled
 // (lib/readiness.ts), same standing as target_company and current_location.
+// target_job_title / target_industry are optional since migration 042 — a resume
+// does not state the job you are aiming for, so the profile can save (and
+// auto-save after extraction) without them. They are set later, per optimization.
 const REQUIRED_LABELS: Array<[keyof EditorData, string]> = [
   ['full_name', 'Full name'],
   ['phone', 'Phone'],
   ['email', 'Email'],
-  ['target_job_title', 'Target job title'],
-  ['target_industry', 'Target industry'],
 ]
 
 function requiredMissing(e: EditorData): Array<{ key: keyof EditorData; label: string }> {
@@ -785,6 +787,9 @@ function ProfileScreen() {
   // readiness score below uses the same scenario the user already saw. Read once
   // on mount; null until then and if the user never ran the scan.
   const [readinessAnswers, setReadinessAnswers] = useState<FunnelAnswers | null>(null)
+  // Set true when a freshly-extracted draft loads into the editor, so it is
+  // auto-saved (founder decision 2026-08-18). Consumed once by the effect below.
+  const [autoSaveOnLoad, setAutoSaveOnLoad] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   // Computed employment gaps from GET /api/profile (TASK-067). Read-only,
@@ -871,6 +876,10 @@ function ProfileScreen() {
 
             if (!hasSavedContent) {
               setEditor(fromDraft(capturedDraft))
+              // First-time extracted profile — auto-save it (no existing data to
+              // overwrite, so this is safe; the "you already have a profile"
+              // choice screen still guards the returning-user case below).
+              setAutoSaveOnLoad(true)
               setLoaded(true)
               return
             }
@@ -1112,7 +1121,7 @@ function ProfileScreen() {
   )
 
   const onSubmit = useCallback(
-    async (destination: 'exit' | 'confirm') => {
+    async (destination: 'exit' | 'confirm' | 'stay') => {
       if (!editor) return
       setSaveError(null)
 
@@ -1171,6 +1180,13 @@ function ProfileScreen() {
           setSubmitting(false)
           return
         }
+        // 'stay' is the auto-save after extraction: persist and remain on the
+        // page so the user reviews and edits, without a navigation they did not
+        // ask for.
+        if (destination === 'stay') {
+          setSubmitting(false)
+          return
+        }
         router.push(destination === 'confirm' ? '/optimize/target' : '/dashboard')
       } catch {
         setSaveError('Network error. Please check your connection and try again.')
@@ -1179,6 +1195,18 @@ function ProfileScreen() {
     },
     [editor, router]
   )
+
+  // AUTO-SAVE AFTER EXTRACTION (founder decision 2026-08-18). When a resume was
+  // just extracted into the editor, persist it immediately — the user should not
+  // have to press Save, and an unsaved extraction that is lost on navigation was a
+  // real defect. Fires once, only for a freshly-extracted first-time profile, and
+  // only when the required fields (name, phone, email) are present; if they are
+  // not, it stays a draft the user completes by hand. Best-effort by design.
+  useEffect(() => {
+    if (!autoSaveOnLoad || !editor || !loaded) return
+    setAutoSaveOnLoad(false)
+    if (requiredMissing(editor).length === 0) void onSubmit('stay')
+  }, [autoSaveOnLoad, editor, loaded, onSubmit])
 
   // The upload decision comes BEFORE the editor exists, so nothing can be
   // saved — accidentally or otherwise — until the user has chosen.
@@ -1278,17 +1306,22 @@ function ProfileScreen() {
             photoUrl={editor.photo_url || null}
             onChange={(next) => setField({ photo_url: next ?? '' })}
           />
-          {/* The score is the headline of this page, so it stays visible on a
-              phone rather than being hidden to make room — just smaller. */}
-          <div className="shrink-0">
+          {/* CAREER PROFILE COMPLETENESS — one of two distinct numbers on this
+              page, and it is now labelled as such. This ring is "how complete your
+              profile is" (it drops as you fill sections). The other number, the
+              Gulf Readiness widget below, is "how ready you are for the Gulf
+              market" — a different thing, so each carries its own label. */}
+          <div className="flex shrink-0 flex-col items-center gap-1">
             <ReadinessRing score={readiness.score} size={68} />
+            <span className="text-[9px] font-bold uppercase tracking-wide text-ink-400">Profile complete</span>
           </div>
           <div className="flex min-w-0 flex-col gap-1.5">
             <h1 className="font-serif text-[20px] leading-tight text-ink-900">
               Almost there, {firstName}
             </h1>
             <p className="text-[12px] leading-relaxed text-ink-700">
-              <span className="font-semibold text-ink-900">{itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
+              <span className="font-semibold text-ink-900">Career Profile — {readiness.score}% complete,{' '}
+              {itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
               Profiles like yours — <span className="font-semibold text-gold-text">{categoryCopy.highlight}</span> —{' '}
               {categoryCopy.rest}
             </p>
@@ -1992,35 +2025,17 @@ function ProfileScreen() {
         </CardSection>
       </div>
 
-      {/* Save & exit / Confirm profile — same full-object PUT, differ in navigation */}
+      {/* The bottom "Save & exit" button was removed at the founder's request
+          (2026-08-18). Saving is now the top-right Save button plus the automatic
+          save that runs the moment an extraction fills the profile, so a second
+          save control at the foot of a long form was redundant. The error display
+          stays — it is where a failed save reports. */}
       {saveError ? (
-        <div className="mx-5 mb-3 rounded-radius-md border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mb-5 mt-3 rounded-radius-md border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
           {saveError}
         </div>
       ) : null}
-      {/*
-        ONE action, not two.
-        "Save & exit" and "Confirm profile" wrote the identical full-object PUT
-        and differed only in where they navigated afterwards — a distinction the
-        product understood and the user did not, presented as the last decision
-        on a long form. There is now a single way out.
-      */}
-      <div className="sticky bottom-0 flex flex-col gap-2 bg-gradient-to-t from-bg via-bg/95 to-transparent px-5 pb-5 pt-4">
-        <Button
-          variant="primary"
-          className="w-full"
-          busy={submitting}
-          busyLabel="Saving…"
-          onClick={() => onSubmit('exit')}
-        >
-          Save &amp; exit
-        </Button>
-        {/* The free CV download that used to sit here was removed at the
-            founder's request (TASK-161): this page is for entering data, and a
-            download belongs where documents live. GET /api/resume/pdf still
-            exists and still works — it is simply not linked from here. See
-            Unplanned #27 before deleting it. */}
-      </div>
+      <div className="pb-8" />
     </main>
   )
 }

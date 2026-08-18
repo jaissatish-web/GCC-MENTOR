@@ -67,9 +67,11 @@ export interface CareerProfile {
   current_employer: string | null
   current_project: string | null
 
-  // Target
-  target_job_title: string
-  target_industry: string
+  // Target — optional since migration 042: a resume does not state the job the
+  // user is aiming for, so the profile saves without it and it is set per
+  // optimization at /optimize/target.
+  target_job_title: string | null
+  target_industry: string | null
   // Optional (migration 030) — informational targeting context, same
   // standing as target_company. Never rendered on the resume itself and
   // never changes generation behavior (lib/ai/buildOptimizationPrompt.ts's
