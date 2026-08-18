@@ -119,6 +119,15 @@ attached where nothing read it. Two fixes worth preserving:
 Also observed: an identical retry succeeded after a failure, so **there is real
 intermittency here.** Worth remembering before assuming a code defect.
 
+**Acted on 2026-08-18.** This is exactly what was failing "optimize with a job
+description" — a longer, JD-heavy prompt makes the configured model
+(`deepseek/deepseek-v4-flash`, the only row currently in `ai_provider_config`, no
+fallback set) reason for longer, so it is disproportionately likely to exhaust the
+budget before writing any output. `callOpenAICompatible` now retries automatically,
+ONCE, at roughly double the token budget (capped at 16,384) the moment it detects a
+reasoning-only, empty-content response — the same behaviour the manual retry above
+showed worked, now built in rather than depended on a human happening to try again.
+
 ---
 
 ## 2. Per-feature model configuration
@@ -183,7 +192,7 @@ against what the built-in prompt produced, and roll back in one click if it is w
 | `job_description` | Paste a job description into the same scan, or into `/optimize/target` |
 | `job_match_explanation` | A scan **with** a job description → `/gulf-readiness`, or `/job-match` |
 | `optimization` | `/optimize/target` → setup → generate |
-| `cover_letter` | `/cover-letter`, pick a resume, generate |
+| `cover_letter` | `/cover-letter`, pick a resume, pick a tone, generate |
 
 **What the seeded drafts contain, and deliberately do not.** Only the quality-deciding
 part: what may be touched, how to write it, and what to do when the input is thin. The
@@ -316,6 +325,13 @@ user content goes in a separate field that callers **must not** log — it exist
 only so a retry prompt can tell the model what to remove.
 
 A cover-letter-specific validator applies the same discipline to that path.
+
+**Cover letter tone (2026-08-18):** `/cover-letter` offers four styles — Professional,
+Short, Technical, Explanatory (`lib/ai/buildCoverLetterPrompt.ts`'s
+`TONE_INSTRUCTIONS`). Each is an ADDITIONAL system instruction layered on top of the
+same base persona, grounding rule and format conventions — never a different validator
+or a looser grounding standard. A short letter can still only say what the profile
+supports; it just says less of it.
 
 ---
 

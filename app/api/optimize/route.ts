@@ -56,6 +56,15 @@ import type { OptimizationLevel, OptimizedContent, ExperienceBlock } from '@/typ
  * 404s. `profileId` is never trusted alone.
  */
 
+// This route can now make up to three sequential model calls when a job
+// description is given (structure the JD, generate, one grounding retry) and
+// lib/ai/provider.ts may itself retry a call once on a reasoning-budget
+// exhaustion (2026-08-18 fix — see its header). No route-level timeout was
+// ever set, which left this at whatever the platform's default is; a
+// generous explicit ceiling matters more now that a single request can carry
+// several sequential provider calls.
+export const maxDuration = 60
+
 const TARGET_COUNTRIES: TargetCountry[] = [
   'saudi_arabia', 'uae', 'qatar', 'oman', 'kuwait', 'bahrain', 'generic_gulf',
 ]

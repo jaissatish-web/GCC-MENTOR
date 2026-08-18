@@ -34,12 +34,46 @@ async function logUsage(userId: string | null, route: string, model: string, inp
   } catch (e) { console.error('ai_usage_log insert failed', e instanceof Error ? e.message : String(e)) }
 }
 
-async function callOpenAICompatible(baseUrl: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number) {
+/**
+ * One HTTP attempt at a given token budget. Split out of
+ * callOpenAICompatible so that function can retry it with a larger budget
+ * without duplicating the request/response handling.
+ */
+async function attemptOpenAICompatible(baseUrl: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number) {
   const res = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, { role: 'user', content: user }], max_tokens: maxTokens, temperature }) })
   const json = await res.json().catch(() => null) as any
   if (!res.ok) throw new AIProviderError(`${res.status}: ${json?.error?.message ?? res.statusText}`)
   const choice = json?.choices?.[0]
   const text = choice?.message?.content
+  const reasoningChars = String(choice?.message?.reasoning ?? '').length
+  return { text, choice, reasoningChars, usage: json?.usage }
+}
+
+async function callOpenAICompatible(baseUrl: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number) {
+  let attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, maxTokens, temperature)
+
+  // REASONING-BUDGET RETRY (found while diagnosing "optimize with a job
+  // description fails, without one it works" — 2026-08-18). Reasoning models
+  // (deepseek-v4-flash, the configured default, confirmed live in
+  // ai_provider_config with no fallback set) spend their thinking tokens
+  // against the SAME max_tokens budget before emitting any visible content.
+  // A longer, more complex prompt — exactly what adding a job description and
+  // its Job Match Findings section produces on this route
+  // (lib/ai/buildOptimizationPrompt.ts) — makes the model reason for longer,
+  // so it is disproportionately likely to exhaust the budget before writing
+  // any JSON at all. That failure was previously terminal: one silent
+  // "no content" error, no retry, whatever the caller's fixed maxTokens was.
+  // One retry at roughly double the budget (capped, so a runaway prompt can't
+  // silently balloon cost) gives the SAME request room to finish reasoning
+  // and still emit its answer, rather than failing the whole optimization.
+  if (!attempt.text && attempt.reasoningChars > 0) {
+    const retryBudget = Math.min(maxTokens * 2, 16384)
+    if (retryBudget > maxTokens) {
+      attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, retryBudget, temperature)
+    }
+  }
+
+  const { text, choice, reasoningChars, usage } = attempt
   if (!text) {
     // Reasoning models (deepseek-v4-flash, the configured default) spend their
     // thinking tokens against the SAME max_tokens budget before emitting any
@@ -47,7 +81,6 @@ async function callOpenAICompatible(baseUrl: string, apiKey: string, model: stri
     // `reasoning` field and a null `content`. That is a completely different
     // problem from a refusal or a bad key, and the bare old message
     // ("no text content") sent every diagnosis down the wrong path.
-    const reasoningChars = String(choice?.message?.reasoning ?? '').length
     throw new AIProviderError(
       `Model returned no content (finish_reason=${choice?.finish_reason ?? 'unknown'}` +
         (reasoningChars
@@ -56,7 +89,7 @@ async function callOpenAICompatible(baseUrl: string, apiKey: string, model: stri
         ')'
     )
   }
-  return { text, inputTokens: json?.usage?.prompt_tokens ?? 0, outputTokens: json?.usage?.completion_tokens ?? 0 }
+  return { text, inputTokens: usage?.prompt_tokens ?? 0, outputTokens: usage?.completion_tokens ?? 0 }
 }
 
 async function callAnthropic(apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number) {

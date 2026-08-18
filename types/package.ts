@@ -51,11 +51,22 @@ export interface OptimizedContent {
 // requested from the model — same reasoning as OptimizedContent: storage
 // can never diverge from what was actually grounding-checked.
 
+/**
+ * The four writing styles offered on /cover-letter (2026-08-18, founder
+ * decision). See lib/ai/buildCoverLetterPrompt.ts's TONE_INSTRUCTIONS for what
+ * each one actually asks the model to do.
+ */
+export type CoverLetterTone = 'professional' | 'short' | 'technical' | 'explanatory'
+
 export interface CoverLetter {
   id: string
   generated_at: string // ISO
   target_job_title: string
   target_company: string | null
+  // Optional: absent on every letter generated before 2026-08-18, when tone
+  // selection did not exist. Never backfilled with a guess — a letter's real
+  // tone at generation time is either known or it isn't.
+  tone?: CoverLetterTone
   greeting: string
   opening_paragraph: string
   body_paragraphs: string[]

@@ -98,7 +98,7 @@ user correctly. It is completed on the login page and the fragment is cleared.
 | `/templates` | The template gallery, previewed on an example CV |
 | `/gcc-readiness` | Readiness against the saved profile |
 | `/job-match` | A Job Match report |
-| `/cover-letter` | Cover letter generation for a paid package |
+| `/cover-letter` | Cover letter generation for a paid package — pick a tone (2026-08-18: Professional, Short, Technical, Explanatory) |
 | `/settings` | Account · email · current package · payments · delete data |
 | `/payments` | An honest placeholder. No payment-history feature exists |
 | `/package/[id]` | A finished resume: view, style, edit, download |

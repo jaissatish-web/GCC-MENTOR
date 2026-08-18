@@ -12,6 +12,56 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — cover letter tone selection, and the fix for optimize-with-JD failing
+
+**Bug reported: optimizing a resume WITH a job description was failing; without one it
+worked, and the cover letter (a single, simpler AI call) worked fine.** Diagnosed from
+the live `ai_provider_config` (one row, `openrouter` / `deepseek/deepseek-v4-flash`, no
+fallback configured — confirmed by direct query) together with a failure mode the
+codebase already documented but had no defence against: `deepseek-v4-flash` is a
+reasoning model that spends its thinking tokens out of the SAME `max_tokens` budget
+before writing any visible output, so an under-budgeted call can silently return empty
+content. Adding a job description lengthens and complicates the optimization prompt (the
+JD text plus its Job Match Findings section, per `lib/ai/buildOptimizationPrompt.ts`),
+which is exactly what makes the model reason for longer — so this call was
+disproportionately likely to exhaust its budget precisely when a JD was supplied.
+
+**The fix, in `lib/ai/provider.ts`, benefits every AI call site, not just optimize:**
+when a call returns reasoning-only, empty content, it is retried ONCE automatically at
+roughly double the token budget (capped at 16,384, so a runaway prompt cannot silently
+balloon cost) before the call is treated as failed. This was previously terminal — one
+silent "no content" error, no retry, whatever budget the caller happened to pass.
+`export const maxDuration = 60` was added to `/api/optimize` and the cover-letter route,
+since a request can now legitimately make several sequential model calls (JD
+structuring, the main call, a possible reasoning retry, a possible grounding retry) and
+no route had ever set an explicit function timeout — it ran on whatever the platform
+default was.
+
+**Caveat, stated plainly:** diagnosed from code, live config and usage logs, not from a
+reproduced failure or a server stack trace — there is no way to run the app in a browser
+from the CTO's environment. If optimizing with a JD still fails after this deploy, the
+next report should include the exact error text shown on `/optimize/generate/[id]`'s
+failure card; that pins the cause precisely.
+
+**Separately, cover letter tone selection was added** (founder request, same session).
+This resolves a gap `app/cover-letter/page.tsx`'s own header comment had flagged: the
+screen spec called for persona/tone selection, but the route accepted no such input, so
+a picker had been deliberately left out as a "fake control that sends nothing." It is no
+longer fake. Four styles — **Professional, Short, Technical, Explanatory**
+(`lib/ai/buildCoverLetterPrompt.ts`'s `TONE_INSTRUCTIONS`) — are real, additional system
+instructions layered on top of the existing base persona and grounding rules, never a
+replacement of them. `POST /api/packages/[id]/cover-letter` now accepts `{ tone }`,
+defaulting to `professional` on anything absent or unrecognized so the pre-existing
+empty-body client call remains valid. Each generated letter stores which tone produced
+it (`CoverLetter.tone`, optional — a letter generated before this change has none, and
+none is guessed for it) and shows it as a small label once several styles exist in the
+same list.
+
+Surfaces updated: [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) (the per-service test-run
+table), [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §4 and the cover-letter row.
+
+---
+
 ## 2026-08-18 — /optimize/target cut to one required field
 
 **Founder decision: the resume optimization target screen should ask for as

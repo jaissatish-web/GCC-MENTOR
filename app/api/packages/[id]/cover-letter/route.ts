@@ -17,14 +17,21 @@ import type {
   ProfileSkill,
   ProfileWorkExperience,
 } from '@/types/careerProfile'
-import type { CoverLetter } from '@/types/package'
+import type { CoverLetter, CoverLetterTone } from '@/types/package'
+
+const COVER_LETTER_TONES: CoverLetterTone[] = ['professional', 'short', 'technical', 'explanatory']
 
 /**
  * Cover letter generation route (TASK-065).
  *
- * POST /api/packages/[id]/cover-letter   body: {} (nothing needed — target
- * and job description are read from the package itself, matching
- * docs/PROMPTS.md §8: "no new data or mechanism required").
+ * POST /api/packages/[id]/cover-letter   body: { tone? }. Target and job
+ * description are read from the package itself, matching docs/PROMPTS.md
+ * §8: "no new data or mechanism required" — tone (2026-08-18) is the one
+ * exception, and it is a STYLE choice, not new data: professional / short /
+ * technical / explanatory, all drawing on the exact same profile and target.
+ * An absent or unrecognized value falls back to 'professional', so the
+ * pre-2026-08-18 client (which always sent an empty body) keeps working
+ * unchanged.
  *
  * Gated on TWO things, both server-side, neither trusted from the client:
  *   1. package.is_paid — same gate as PDF/DOCX download. A letter costs a
@@ -43,6 +50,13 @@ import type { CoverLetter } from '@/types/package'
  * Repeatable per package (docs/DASHBOARD_LIBRARY.md §7) — each successful
  * generation appends to packages.cover_letters rather than replacing it.
  */
+
+// lib/ai/provider.ts may retry a single call once on a reasoning-budget
+// exhaustion (2026-08-18), and this route can already retry once on a
+// grounding failure — up to four sequential model calls in the worst case.
+// No route-level timeout was ever set before; an explicit ceiling matters
+// more now. See app/api/optimize/route.ts's identical note.
+export const maxDuration = 60
 
 const CHILD_TABLES = [
   'profile_work_experience',
@@ -93,6 +107,20 @@ export async function POST(
   if (typeof packageId !== 'string' || packageId.trim() === '') {
     return NextResponse.json({ error: 'Invalid package id' }, { status: 400 })
   }
+
+  // TONE (2026-08-18, founder decision): the one real input this route now
+  // takes. Absent/malformed body, or an unrecognized value, falls back to
+  // 'professional' rather than 400ing — a stale client sending the old empty
+  // '{}' body must keep working exactly as it did before this existed.
+  const rawBody = await request.json().catch(() => null)
+  const requestedTone =
+    rawBody && typeof rawBody === 'object' && !Array.isArray(rawBody)
+      ? (rawBody as Record<string, unknown>).tone
+      : undefined
+  const tone: CoverLetterTone =
+    typeof requestedTone === 'string' && COVER_LETTER_TONES.includes(requestedTone as CoverLetterTone)
+      ? (requestedTone as CoverLetterTone)
+      : 'professional'
 
   // Owner-scoped in one query — a foreign package id simply matches no row
   // and 404s, never leaking existence. Same pattern as every other
@@ -166,7 +194,7 @@ export async function POST(
     target_company: pkgRow.target_company,
   }
 
-  const { system, user: userPrompt } = buildCoverLetterPrompt(profile, target, pkgRow.job_description)
+  const { system, user: userPrompt } = buildCoverLetterPrompt(profile, target, pkgRow.job_description, tone)
 
   const runOnce = async (userMessage: string) => {
     const result = await generate({
@@ -225,6 +253,7 @@ export async function POST(
     generated_at: new Date().toISOString(),
     target_job_title: pkgRow.target_job_title,
     target_company: pkgRow.target_company,
+    tone,
     greeting: parsedLetter.greeting,
     opening_paragraph: parsedLetter.opening_paragraph,
     body_paragraphs: parsedLetter.body_paragraphs,

@@ -17,6 +17,7 @@
 
 import { GROUNDING_INSTRUCTION } from './grounding'
 import type { CareerProfileFull, ProfileWorkExperience, TargetCountry } from '@/types/careerProfile'
+import type { CoverLetterTone } from '@/types/package'
 
 // Byte-for-byte from docs/PROMPTS.md §8 — the one persona line the spec
 // gives for this feature. Not a per-industry persona (lib/ai/personas.ts is
@@ -41,6 +42,39 @@ than inventing a name. Confident and specific, never generic filler — every
 claim of skill or experience must be something the profile actually
 supports. Avoid restating the resume verbatim; this is a persuasive
 narrative, not a bullet list.`
+
+/**
+ * The four styles offered on /cover-letter (2026-08-18, founder decision).
+ * Each is an ADDITION on top of LETTER_FORMAT_NOTE above, not a replacement
+ * of it — the base conventions (greeting, grounding, no invented recipient)
+ * always apply; a tone only shifts word choice, emphasis and length within
+ * those conventions. `professional` restates the base tone explicitly so
+ * every tone is an equally real, equally instructed choice — not three
+ * special cases plus one implicit default.
+ */
+const TONE_INSTRUCTIONS: Record<CoverLetterTone, string> = {
+  professional: `TONE: PROFESSIONAL (standard).
+Polished, formal and courteous — the standard register expected in a Gulf
+corporate application. Confident without being casual.`,
+  short: `TONE: SHORT.
+Keep the whole letter brief: exactly ONE body paragraph, and the entire
+letter (opening through sign-off) under roughly 130 words. Cut every
+sentence that does not directly support why the candidate fits the role — no
+throat-clearing, no restating the job posting back at the reader.`,
+  technical: `TONE: TECHNICAL.
+Lead with concrete technical substance: specific tools, systems, standards,
+methodologies and certifications drawn from the profile, and quantified
+technical outcomes wherever the profile supports them. Written for a
+technical hiring manager or engineering lead who judges competence by
+specificity, not warmth — but still a courteous letter, never a list of
+fragments.`,
+  explanatory: `TONE: EXPLANATORY.
+Take the space to make the REASONING visible: connect specific past
+experience to specific expectations of the target role, so the logic of the
+career move is shown, not just asserted. Slightly longer and more narrative
+than the standard letter — up to 3 body paragraphs — while staying strictly
+grounded in the profile throughout.`,
+}
 
 const FIXED_FIELD_INSTRUCTION =
   'Everything in the CAREER PROFILE section below is read-only reference material. ' +
@@ -171,8 +205,14 @@ export function buildCoverLetterPrompt(
   profile: CareerProfileFull,
   target: CoverLetterTarget,
   jobDescription?: string | null,
+  tone: CoverLetterTone = 'professional',
 ): BuiltPrompt {
-  const system = [COVER_LETTER_PERSONA, GROUNDING_INSTRUCTION, LETTER_FORMAT_NOTE].join('\n\n')
+  const system = [
+    COVER_LETTER_PERSONA,
+    GROUNDING_INSTRUCTION,
+    LETTER_FORMAT_NOTE,
+    TONE_INSTRUCTIONS[tone],
+  ].join('\n\n')
 
   const user = [
     renderCareerProfile(profile),

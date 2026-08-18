@@ -6,7 +6,7 @@ import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
-import type { CoverLetter, Package } from '@/types/package'
+import type { CoverLetter, CoverLetterTone, Package } from '@/types/package'
 
 /**
  * Cover Letter — new route (TASK-093, PAGE_SPECS §C / TASK-066 frontend).
@@ -27,12 +27,15 @@ import type { CoverLetter, Package } from '@/types/package'
  * authority: this page surfaces the server's verbatim error strings and never
  * decides anything itself.
  *
- * NOTE (flagged for CTO): §C lists "form field set (persona/tone selection)",
- * but the backend's POST body is empty — `buildCoverLetterPrompt` derives
- * tone internally from the profile + target + JD, and the route accepts no
- * persona/tone input. Building a tone picker that sent nothing would be a
- * fake control, so it is deliberately omitted; the only form field here is
- * the package selector, which the backend actually requires.
+ * TONE SELECTION (2026-08-18, founder decision — resolves the gap once
+ * flagged here): §C's "form field set (persona/tone selection)" is now real.
+ * Four styles — Professional / Short / Technical / Explanatory
+ * (lib/ai/buildCoverLetterPrompt.ts's TONE_INSTRUCTIONS) — are sent as
+ * `{ tone }` in the POST body and genuinely change what the model writes;
+ * this is not a control that sends nothing. Each generated letter records
+ * which tone produced it and shows it as a small label, so a letter list
+ * with several styles stays legible. Pre-2026-08-18 letters have no `tone`
+ * on their stored record and simply show no label — never a guessed one.
  */
 
 function letterTarget(pkg: Package): string {
@@ -40,10 +43,18 @@ function letterTarget(pkg: Package): string {
   return bits.join(' · ')
 }
 
+const TONE_OPTIONS: ReadonlyArray<{ value: CoverLetterTone; label: string; description: string }> = [
+  { value: 'professional', label: 'Professional', description: 'Polished and formal — the standard choice' },
+  { value: 'short', label: 'Short', description: 'One brief paragraph, straight to the point' },
+  { value: 'technical', label: 'Technical', description: 'Leads with tools, standards and measurable results' },
+  { value: 'explanatory', label: 'Explanatory', description: 'Walks through why the experience fits the role' },
+]
+
 function CoverLetterScreen() {
   const [packages, setPackages] = useState<Package[] | null>(null)
   const [available, setAvailable] = useState<number | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [tone, setTone] = useState<CoverLetterTone>('professional')
   const [loadError, setLoadError] = useState<string | null>(null)
 
   const [generating, setGenerating] = useState(false)
@@ -102,7 +113,7 @@ function CoverLetterScreen() {
       const res = await fetch(`/api/packages/${encodeURIComponent(selected.id)}/cover-letter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: '{}',
+        body: JSON.stringify({ tone }),
       })
       const payload = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -238,6 +249,35 @@ function CoverLetterScreen() {
               </select>
             </label>
 
+            <fieldset className="flex flex-col gap-1.5">
+              <legend className="text-[13px] font-semibold text-ink-900">Tone</legend>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {TONE_OPTIONS.map((opt) => {
+                  const active = tone === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setTone(opt.value)}
+                      title={opt.description}
+                      className={cn(
+                        'flex min-h-11 flex-col items-start gap-0.5 rounded-radius-md border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
+                        active
+                          ? 'border-redesign-gold bg-redesign-gold/[0.08]'
+                          : 'border-line-light/70 bg-surface-2-light/40 hover:border-line-light-strong',
+                      )}
+                    >
+                      <span className={cn('text-[12.5px] font-semibold', active ? 'text-gold-text' : 'text-ink-900')}>
+                        {opt.label}
+                      </span>
+                      <span className="text-[10.5px] leading-snug text-ink-400">{opt.description}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </fieldset>
+
             {genError ? (
               <p role="alert" className="rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra">
                 {genError}
@@ -302,10 +342,19 @@ function CoverLetterScreen() {
           {letters.map((letter) => (
             <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-6">
               <div className="flex flex-col gap-1">
-                <p className="text-[13px] font-bold text-ink-900">
-                  {letter.target_job_title}
-                  {letter.target_company ? ` · ${letter.target_company}` : ''}
-                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-[13px] font-bold text-ink-900">
+                    {letter.target_job_title}
+                    {letter.target_company ? ` · ${letter.target_company}` : ''}
+                  </p>
+                  {/* No badge for a pre-tone letter (letter.tone absent) —
+                      showing one would be a guess, not a fact. */}
+                  {letter.tone ? (
+                    <span className="rounded-full bg-redesign-gold-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gold-text">
+                      {TONE_OPTIONS.find((o) => o.value === letter.tone)?.label ?? letter.tone}
+                    </span>
+                  ) : null}
+                </div>
                 <p className="text-[11px] text-ink-400">
                   Generated {new Date(letter.generated_at).toLocaleString()}
                 </p>
