@@ -36,6 +36,18 @@ a deliberate number rather than an inherited one.
 
 ---
 
+## Auto-save edge: work_experience.start_date still required (2026-08-18)
+
+The auto-save after extraction works. Target fields (migration 042) and
+`education.institution` are optional, so an extracted profile saves without them. But
+`work_experience.start_date` is **still required** — a resume that lists a job with no
+dates would block the auto-save. Left as-is: making `start_date` nullable ripples into
+readiness scoring and date rendering, and the failure is graceful (the draft stays on
+screen, the user fixes and saves). Do the deeper fix only if real resumes often omit job
+dates.
+
+---
+
 ## Post-signup Career Profile build — partly built 2026-08-18
 
 **Built:** the profile→readiness adapter (`lib/gulfReadiness/fromProfile.ts`, same engine,
