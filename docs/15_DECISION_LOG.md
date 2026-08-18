@@ -12,6 +12,46 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — the free/paid model, spelled out (spec; enforced when locks return)
+
+**Founder decision.** The full freemium shape. Recorded now as the entitlement spec;
+**not enforced yet** — the product is in the locks-off build phase and there is no
+checkout, so hard gates would block everyone. It maps onto the existing
+`plan_entitlements` table and is wired to real gates in the same pass that re-applies the
+paid locks.
+
+**Free user gets:**
+- **One** GCC Readiness scan, ever — not repeatable (today the scan is IP-rate-limited;
+  the per-account "once" limit is part of this spec).
+- The auto-filled Career Profile (one free LLM extraction at signup) — editable by hand.
+- **One template download per month** — choose a template, download the free resume,
+  capped at once per calendar month.
+- Everything else — AI optimization, ATS / Job Readiness, cover letter — **shown but
+  frozen**: visible as locked tiles to motivate upgrading, never hidden, never a
+  dead-looking control.
+
+**Paid user gets:**
+- **All options open.** Payment unlocks the full set of services.
+- A **dashboard showing their package / bundle** — what they bought and what it includes.
+- **Guided navigation** through the services.
+
+**Assumed monthly and recurring** (consistent with the earlier monthly-plans decision):
+paid opens everything while subscribed, and the free "one download per month" resets each
+month. To be reconfirmed if the founder meant one-time-unlocks-forever.
+
+**How it maps to what exists:** `plan_entitlements` already carries `free_allowed`,
+`free_limit` and `free_value` per feature — one scan, one download/month, and which
+features are frozen are exactly those columns. `lib/entitlements.ts` already reads them
+and fails closed on paid features. The remaining work is the per-feature *gates* that
+call it, plus the monthly-reset counter, plus the dashboard bundle view and the guided
+nav — all in the re-apply-the-locks pass.
+
+**The standing rule still holds:** the signup extraction and the GCC Readiness scan stay
+free when the locks return; the gates go on optimization / ATS / cover letter and on the
+download cap, not on reading the user's own resume or scoring it.
+
+---
+
 ## 2026-08-18 — one free extraction at signup (Option B), paywall moves
 
 **Founder decision, and it revises the tier split below.** The earlier plan was

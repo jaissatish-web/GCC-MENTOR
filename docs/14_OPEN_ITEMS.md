@@ -61,6 +61,20 @@ screens have not been seen rendered. The founder should check them on the deploy
 
 ---
 
+## The free/paid gates — build with the lock re-application (spec 2026-08-18)
+
+The full freemium model is decided and recorded ([`15_DECISION_LOG.md`](15_DECISION_LOG.md),
+2026-08-18) but **not enforced** — it lands when the paid locks return. To wire then:
+- **One scan per account**, one template **download per month** (monthly-reset counter),
+  the signup extraction free, everything else frozen for free users as visible locked
+  tiles.
+- Paid unlocks all services; **dashboard shows the user's bundle**; **guided navigation**.
+- It maps onto `plan_entitlements` + `lib/entitlements.ts`, which already exist — the gap
+  is the per-feature gates that call them, the monthly counter, and the dashboard/nav.
+- **Confirm:** monthly recurring (assumed) vs one-time-unlocks-forever.
+
+---
+
 ## ATS / Job Readiness — the next build (decided 2026-08-18)
 
 A paid-plan, LLM-based score of readiness against a *specific* job — distinct from the
