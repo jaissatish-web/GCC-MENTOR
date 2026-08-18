@@ -17,6 +17,8 @@ import { Card } from '@/components/ui/Card'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Toggle } from '@/components/ui/Toggle'
 import { PhotoUpload } from '@/components/profile/PhotoUpload'
+import { LiveReadiness } from '@/components/gulfReadiness/LiveReadiness'
+import type { FunnelAnswers } from '@/lib/gulfReadiness/types'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
@@ -779,6 +781,10 @@ function ProfileScreen() {
   const [editor, setEditor] = useState<EditorData | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+  // Gulf-experience answers carried from the anonymous Scorecard, so the live
+  // readiness score below uses the same scenario the user already saw. Read once
+  // on mount; null until then and if the user never ran the scan.
+  const [readinessAnswers, setReadinessAnswers] = useState<FunnelAnswers | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   // Computed employment gaps from GET /api/profile (TASK-067). Read-only,
@@ -802,6 +808,16 @@ function ProfileScreen() {
   useEffect(() => {
     if (didInit.current) return
     didInit.current = true
+
+    // Gulf-experience answers carried from the anonymous Scorecard (via
+    // /onboarding). Not cleared here: the live score needs them for the whole
+    // editing session, and they hold no resume content — only which scenario.
+    try {
+      const raw = window.sessionStorage.getItem('gulf_readiness_answers')
+      if (raw) setReadinessAnswers(JSON.parse(raw) as FunnelAnswers)
+    } catch {
+      /* absent or malformed — the widget just prompts for the scenario */
+    }
 
     // CLAIMED_SCAN_RESULT_KEY — one-time "welcome back" handoff (TASK-070).
     // Reads and clears it here regardless of the draft branch below, so the
@@ -1297,6 +1313,38 @@ function ProfileScreen() {
           </div>
         </div>
       </header>
+
+      {/* Live Gulf Readiness (the arithmetic Scorecard engine), updating as the
+          profile is built. Shown only when the Gulf-experience scenario is known,
+          i.e. the user came through the anonymous scan. It reads the SAME engine as
+          that scan, so the number is consistent with what they already saw and
+          rises as they complete the profile. The legacy ReadinessRing above is a
+          separate, older completeness score; reconciling the two onto one engine is
+          a recorded follow-up. */}
+      {readinessAnswers ? (
+        <div className="mx-5 mt-4">
+          <LiveReadiness
+            answers={readinessAnswers}
+            profile={{
+              professional_summary: editor.professional_summary,
+              phone: editor.phone,
+              email: editor.email,
+              work_experience: editor.work_experience.map((w) => ({
+                company: w.company,
+                role: w.role,
+                start_date: w.start_date,
+                end_date: w.end_date,
+                location: w.location,
+                description: w.description,
+                highlights: w.highlights ? w.highlights.split('\n').filter(Boolean) : [],
+              })),
+              skills: editor.skills.map((s) => ({ name: s.name })),
+              certifications: editor.certifications.map((c) => ({ name: c.name, issuer: c.issuer })),
+              education: editor.education.map((e) => ({ degree: e.degree, institution: e.institution, field_of_study: e.field_of_study })),
+            }}
+          />
+        </div>
+      ) : null}
 
       {loadError ? (
         <div className="mx-5 mt-4 rounded-radius-md border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">

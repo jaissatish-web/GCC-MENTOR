@@ -36,15 +36,28 @@ a deliberate number rather than an inherited one.
 
 ---
 
-## Post-signup Career Profile build — next session (decided 2026-08-18)
+## Post-signup Career Profile build — partly built 2026-08-18
 
-After signup, first screen is Build your Career Profile. Free tier types (no LLM); paid
-tier uploads (LLM extraction auto-fills). Neither re-uploads — the Scorecard handoff
-carries the resume text: free users copy from it, paid users' extraction runs on it. GCC
-Readiness updates live from the same arithmetic engine fed from profile fields, framed as
-"improves as you complete your profile". Full design:
-[`15_DECISION_LOG.md`](15_DECISION_LOG.md), 2026-08-18. Founder has a further piece to
-discuss first.
+**Built:** the profile→readiness adapter (`lib/gulfReadiness/fromProfile.ts`, same engine,
+9 assertions), the live-readiness widget (`components/gulfReadiness/LiveReadiness.tsx`)
+wired into the profile editor, and the Scorecard-handoff restore in `/onboarding` so the
+resume text is carried forward — neither tier re-uploads. GCC Readiness now updates live
+as the profile is filled, using the same arithmetic engine as the anonymous scan.
+
+**Verified by tsc, lint, a full production build and the test suites — NOT in a browser.**
+There is no authenticated session in the CTO environment, so the profile and onboarding
+screens have not been seen rendered. The founder should check them on the deployed site.
+
+**Still to do:**
+- **The tier-gated chooser** (free → type, paid → upload). The restore and all three
+  input paths work, but the chooser is not yet gated by tier — inert anyway while the
+  locks are off, so it lands with the paid locks.
+- **One engine, not two.** The profile editor still shows the older `lib/readiness.ts`
+  completeness ring *alongside* the new live Gulf Readiness widget. Reconcile onto the
+  single arithmetic engine — deferred because rewiring the legacy ring on the 1,400-line
+  editor is delicate and untestable here.
+- **Signup restore of the full report** (the `locked={false}` Scorecard view) is still not
+  wired — see below.
 
 ---
 
