@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Suspense,
   useCallback,
@@ -17,6 +17,7 @@ import { Card } from '@/components/ui/Card'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Toggle } from '@/components/ui/Toggle'
 import { PhotoUpload } from '@/components/profile/PhotoUpload'
+import { ResumeImport } from '@/components/profile/ResumeImport'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
@@ -29,6 +30,22 @@ import { TextField, TextAreaField, SelectField, DateField, PhoneField } from '@/
 import type { ReadinessCategory, PassportType } from '@/types/careerProfile'
 import type { CareerProfileDraft, CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
+
+/**
+ * Does the saved profile hold real content worth protecting? Used to decide
+ * whether an incoming draft (from the sessionStorage handoff at mount, or from
+ * the inline ResumeImport panel) loads straight into the editor or must go
+ * through the add-or-replace choice. Module scope so both call sites share the
+ * one heuristic and it cannot drift between them.
+ */
+function hasSavedProfileContent(saved: CareerProfileFull | null): boolean {
+  return (
+    !!saved &&
+    (!!saved.full_name?.trim() ||
+      (saved.work_experience?.length ?? 0) > 0 ||
+      (saved.education?.length ?? 0) > 0)
+  )
+}
 
 /**
  * Career Profile review screen — screen 04 (TASK-024), route /profile.
@@ -778,6 +795,11 @@ function ConfirmToggle({
 
 function ProfileScreen() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  // Deep-link intent from the dashboard nudge / CTA (?import=upload|paste) so the
+  // matching panel opens on arrival. Absent → the import row shows just its buttons.
+  const importParam = searchParams.get('import')
+  const initialImportMode = importParam === 'upload' ? 'upload' : importParam === 'paste' ? 'paste' : 'idle'
   const [editor, setEditor] = useState<EditorData | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -852,13 +874,7 @@ function ProfileScreen() {
           .then((res) => (res.status === 200 ? res.json() : null))
           .then((data) => {
             const saved = data as CareerProfileFull | null
-            const hasSavedContent =
-              !!saved &&
-              (!!saved.full_name?.trim() ||
-                (saved.work_experience?.length ?? 0) > 0 ||
-                (saved.education?.length ?? 0) > 0)
-
-            if (!hasSavedContent) {
+            if (!hasSavedProfileContent(saved)) {
               setEditor(fromDraft(capturedDraft))
               // First-time extracted profile — auto-save it (no existing data to
               // overwrite, so this is safe; the "you already have a profile"
@@ -904,6 +920,35 @@ function ProfileScreen() {
         setLoadError('Could not load your saved profile. You can still edit below.')
         setLoaded(true)
       })
+  }, [])
+
+  // Ingest a draft produced inline by the ResumeImport panel — the same decision
+  // the mount effect makes for a sessionStorage handoff: against a profile that
+  // already has content, go through the add-or-replace choice; otherwise load it
+  // straight in and let the auto-save fire. Compared against the SAVED profile
+  // (a fresh GET), never the possibly-unsaved editor, matching that contract.
+  const ingestDraft = useCallback((draft: CareerProfileDraft) => {
+    fetch('/api/profile', { cache: 'no-store' })
+      .then((res) => (res.status === 200 ? res.json() : null))
+      .then((data) => {
+        const saved = data as CareerProfileFull | null
+        if (!hasSavedProfileContent(saved)) {
+          setEditor(fromDraft(draft))
+          setAutoSaveOnLoad(true)
+          return
+        }
+        setPendingDraft({ draft, existing: saved as CareerProfileFull })
+      })
+      .catch(() => {
+        // Could not confirm whether a saved profile exists. Do not assume none —
+        // that assumption is what silently wipes data. Show the draft in the
+        // editor (replace unavailable), never auto-save over unknown state.
+        setEditor(fromDraft(draft))
+      })
+  }, [])
+
+  const scrollToEditor = useCallback(() => {
+    document.getElementById('profile-editor')?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
   // ---- Live readiness from the current editor state ------------------------
@@ -1333,39 +1378,16 @@ function ProfileScreen() {
 
       {/* START OR UPDATE FROM A RESUME — the three ways in that used to live on
           the /create-resume screen and in the sidebar (founder decision
-          2026-08-18: fold them onto the Career Profile itself). A returning user
-          opens their profile, sees their data, and can re-import from a file or
-          pasted text, or keep editing by hand below. Upload/paste route into the
-          SAME extraction pipeline as before; when a draft returns and a saved
-          profile already exists, the page's own add-or-replace step (below)
-          decides what to keep — nothing is overwritten silently. */}
-      <div className="mx-5 mt-4 rounded-radius-lg border border-line-light bg-surface-2-light/40 p-4">
-        <h2 className="text-[13px] font-bold text-ink-900">Start or update from a resume</h2>
-        <p className="mt-1 text-[11.5px] leading-relaxed text-ink-400">
-          Bring in a resume to fill your profile, or just edit the details below. Importing shows an
-          add-or-replace step first — nothing is overwritten until you choose.
-        </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          <Link
-            href="/onboarding/extracting?path=upload"
-            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full justify-center')}
-          >
-            Upload a file
-          </Link>
-          <Link
-            href="/onboarding/extracting?path=paste"
-            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full justify-center')}
-          >
-            Paste text
-          </Link>
-          <a
-            href="#profile-editor"
-            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full justify-center')}
-          >
-            Fill in manually
-          </a>
-        </div>
-      </div>
+          2026-08-18: fold them onto the Career Profile itself, and 2026-08-18:
+          do the import INLINE so it is one screen with a consistent back, not a
+          hop out to /onboarding/extracting). Upload/paste run the SAME parse
+          endpoints; the resulting draft goes through ingestDraft, which reuses
+          the page's own add-or-replace step — nothing is overwritten silently. */}
+      <ResumeImport
+        initialMode={initialImportMode}
+        onDraft={ingestDraft}
+        onFillManually={scrollToEditor}
+      />
 
       {loadError ? (
         <div className="mx-5 mt-4 rounded-radius-md border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">

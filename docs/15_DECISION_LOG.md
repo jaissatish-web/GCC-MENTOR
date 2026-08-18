@@ -12,6 +12,38 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — resume import is inline on the profile; the Create Resume walk is retired
+
+**The multi-screen "Create Resume" flow is gone.** Starting a resume used to walk
+`/create-resume` (a chooser, inside the app shell) → `/onboarding/extracting` (a separate
+screen, *outside* the shell, where the file was actually picked) → back to `/profile`.
+Two problems the founder hit: it was two windows for one action, and the extraction
+screen had two conflicting "back" affordances — its on-screen arrow went to the first-run
+`/onboarding` flow while the browser back went to wherever you came from — so returning
+"went to another page".
+
+**Now it is one screen.** `components/profile/ResumeImport.tsx` does upload / paste / fill
+inline on the Career Profile page, inside the shell. It calls the same parse endpoints
+(`/api/parse/upload`, `/api/parse/text`) and hands the resulting draft to the page's
+existing add-or-replace decision (`ingestDraft` → the same choice the sessionStorage
+handoff already used), so re-importing over a real profile is still guarded — nothing is
+overwritten silently. No navigation, so there is no inconsistent back button.
+
+**What was rewired:** `/create-resume` is retired to a redirect to `/profile` (kept so old
+links, the dashboard CTA and the onboarding fallback still land right). The dashboard
+first-run CTA and the `ProfileKickstart` popup now deep-link to `/profile?import=upload`
+(or `?import=paste`), which opens the matching panel on arrival. The onboarding fallback
+sends returning users straight to `/profile`.
+
+**Kept:** `/onboarding/extracting` still serves the **signup** auto-extraction
+(`path=claimed`) — that path is automatic, in-flow, and not the confusing part. Its now
+unreachable upload/paste collect stage is dormant, left in place to avoid touching the
+critical signup path; a later trim is safe cleanup, not urgent.
+
+Surfaces updated: [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §3.
+
+---
+
 ## 2026-08-18 — Gulf Readiness to the dashboard, Create Resume onto the profile
 
 **Founder decision, two position swaps, no logic change.**

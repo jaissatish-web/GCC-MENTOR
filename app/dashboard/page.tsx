@@ -202,7 +202,7 @@ export default function DashboardPage() {
           title: 'Create your first resume',
           body: 'Upload an existing CV, paste the text, or type it in — whichever is easiest. We build your profile from it.',
           cta: 'Create resume',
-          href: '/create-resume',
+          href: '/profile?import=upload',
         }
       : score < 40
       ? {

@@ -153,13 +153,14 @@ export default function OnboardingPage() {
           return
         }
 
-        // Nothing to auto-extract. This page's own three-way chooser is retired
-        // (founder decision 2026-08-18: one profile-build route). Send them to the
-        // single canonical door, Create Resume, rather than showing a duplicate.
-        router.replace('/create-resume')
+        // Nothing to auto-extract. The Career Profile is the one place a user
+        // builds their profile now (founder decision 2026-08-18): its inline
+        // import row offers upload/paste/fill, so send them there directly rather
+        // than to a separate chooser.
+        router.replace('/profile')
       })
       .catch(() => {
-        if (!cancelled) router.replace('/create-resume')
+        if (!cancelled) router.replace('/profile')
       })
     return () => {
       cancelled = true

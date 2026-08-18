@@ -91,8 +91,8 @@ user correctly. It is completed on the login page and the fragment is cleared.
 | Route | What it is |
 |---|---|
 | `/dashboard` | Metrics, next step, recent activity, **two readiness cards — Profile Strength (completeness) and Gulf Readiness (market score)** — quick actions, Library preview |
-| `/create-resume` | The creation entry point (upload, paste or type). **No longer in the nav** (2026-08-18); reached only from the dashboard first-run CTA and the onboarding fallback. Its three ways to start now also live on `/profile`. |
-| `/profile` | The Career Profile editor. Opens with a **"start or update from a resume"** row (upload · paste · fill manually) above the user's data, so re-importing and hand-editing sit in one place. |
+| `/create-resume` | **Retired 2026-08-18 to a redirect → `/profile`.** Resume creation now happens inline on the profile; this route is kept only so old links, the dashboard CTA and the onboarding fallback still land right. |
+| `/profile` | The Career Profile editor. Opens with an inline **"start or update from a resume"** panel (upload · paste · fill manually) above the user's data — the import runs the parse endpoints *on this screen* and feeds the add-or-replace choice, so building/re-importing and hand-editing are one place with no navigation. `?import=upload`/`?import=paste` opens the matching panel on arrival. |
 | `/profile/visibility` | What appears on a CV |
 | `/dashboard/library` | Every resume — desktop table, mobile cards |
 | `/templates` | The template gallery, previewed on an example CV |

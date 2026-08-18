@@ -81,8 +81,8 @@ export function ProfileKickstart({ show }: { show: boolean }) {
 
         {/* The three ways in, at the top, one click to instant. */}
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-          <Option href="/onboarding/extracting?path=upload" badge="Fastest" title="Upload" desc="PDF or DOCX — we read it and fill everything in." />
-          <Option href="/onboarding/extracting?path=paste" title="Paste" desc="Paste your resume text straight in." />
+          <Option href="/profile?import=upload" badge="Fastest" title="Upload" desc="PDF or DOCX — we read it and fill everything in." />
+          <Option href="/profile?import=paste" title="Paste" desc="Paste your resume text straight in." />
           <Option href="/profile" title="Type" desc="No resume handy? Fill it in yourself." />
         </div>
 
