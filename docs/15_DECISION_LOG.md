@@ -12,6 +12,49 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — the real cause of "Could not start your optimization": a NOT NULL gap in migration 033
+
+**The reasoning-budget retry shipped earlier the same day did not fix this** — it
+couldn't have, because the founder's exact error text ("Could not start your
+optimization. Please try again.") comes from `/api/optimize`'s PHASE A, the package
+creation insert, which runs BEFORE any model is ever called. An instant failure with no
+delay was the tell: this was never a slow-model problem.
+
+**Root cause, confirmed by querying the live `packages` schema directly:**
+`skills_order` has been `NOT NULL` since the original table (migration 012). Migration
+033 (2026-08-16) introduced the two-phase "create empty, pay, generate later" flow and
+correctly dropped `NOT NULL` from `optimized_content` so a row could express "not yet
+generated" — but `skills_order` needed the exact same relaxation and was missed.
+`app/api/optimize/route.ts`'s Phase A insert has always written `skills_order: null`
+(correct, by the same "not yet generated" logic — no skills have been ordered before the
+model runs), and the database has rejected every single one of those inserts ever since.
+**Every attempt to start an optimization through this flow has failed**, with or without
+a job description — the founder's tests happened to always include one.
+
+**Fix: migration 044**, `alter table packages alter column skills_order drop not null`,
+applied directly to the live database (standing dev-phase practice — migrations here are
+applied, not just written; see [`16_WORKING_AGREEMENT.md`](16_WORKING_AGREEMENT.md)).
+Same nullability semantics as `optimized_content` — NULL means not yet generated. No code
+change was needed; `skills_order: null` at Phase A was already correct, only the schema
+disagreed with it.
+
+**On the earlier retry fix:** it stands — a real, documented failure mode
+(`deepseek-v4-flash` exhausting its shared reasoning/output budget) that remains fixed
+and worth keeping. It just was not what this specific error was. The founder was right
+to push back on a context-window explanation too: the model's 1M-token context has
+never been the constraint anywhere in this pipeline; the earlier fix was about the
+OUTPUT budget (`max_tokens`), a different axis, and neither one is what broke this.
+
+**Separately, the cover-letter promo-code UI was removed** (founder decision: not
+needed there). `/cover-letter` no longer renders the "redeem a code" form or reads
+`/api/service-credits`; `redeemCode`/`redeeming`/`redeemMsg`/`available` and the
+`refreshCredits`/`redeem` functions are gone from that page. The underlying routes
+(`/api/redeem-package-promo`, `/api/service-credits`) are untouched — they are shared
+credit infrastructure, not owned by this page, and remain meaningful once the paid locks
+return.
+
+---
+
 ## 2026-08-18 — cover letter tone selection, and the fix for optimize-with-JD failing
 
 **Bug reported: optimizing a resume WITH a job description was failing; without one it

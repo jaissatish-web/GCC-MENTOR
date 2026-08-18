@@ -114,7 +114,13 @@ Career Profile's own defaults) but are no longer collected on
   [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md).
 - `document_snapshot` — **the frozen delivered document.** The rendered lines
   exactly as delivered, with visibility already applied.
-- `skills_order` — relevance-ordered skill IDs for this target only
+- `skills_order` — relevance-ordered skill IDs for this target only. **Nullable since
+  migration 044** (2026-08-18) — same "not yet generated" convention as
+  `optimized_content`. It was NOT NULL from the original table until then, which is a bug
+  fix, not a design choice: the two-phase create-then-generate flow (migration 033)
+  always wrote `null` here at creation, and the database rejected every one of those
+  inserts until migration 044 caught up. See
+  [`15_DECISION_LOG.md`](15_DECISION_LOG.md).
 - `field_visibility_snapshot` — visibility state at generation time
 
 **Presentation** — deliberately separate from content, so restyling can never

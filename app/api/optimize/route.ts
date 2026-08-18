@@ -417,6 +417,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         template_version: chosenTemplate.version,
         // NULL until generated — the distinction migration 033 exists to make
         // expressible, and still the honest description of an empty row.
+        // skills_order was NOT NULL here from migration 012 until migration 044
+        // (2026-08-18) — this insert was rejected by the database on EVERY call
+        // until that fix, which is why "Could not start your optimization" fired
+        // instantly, before any model was ever reached. See 15_DECISION_LOG.md.
         optimized_content: null,
         skills_order: null,
         field_visibility_snapshot: profile.field_visibility,

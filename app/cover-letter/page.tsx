@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AppShell } from '@/components/layout/AppShell'
 import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
@@ -21,11 +21,14 @@ import type { CoverLetter, CoverLetterTone, Package } from '@/types/package'
  * available, and to show the credit balance. Both requirements are gone, and the
  * balance is no longer displayed — a counter implies something is spending it.
  *
- * The redeem-a-code entry point below still works and still adds credits; it is
- * left in place because topping up is not blocked by anything, and the codes
- * become meaningful again with the locks. Server-side is still the only
- * authority: this page surfaces the server's verbatim error strings and never
- * decides anything itself.
+ * REDEEM-A-CODE REMOVED (2026-08-18, founder decision: not needed here). This
+ * page used to also carry a "redeem a promo code" form and the credit-balance
+ * plumbing behind it (GET /api/service-credits, POST /api/redeem-package-promo).
+ * Both routes still exist — they are shared credit infrastructure, not owned by
+ * this page, and become meaningful again once the paid locks return — but this
+ * screen no longer calls either. Server-side is still the only authority: this
+ * page surfaces the server's verbatim error strings and never decides anything
+ * itself.
  *
  * TONE SELECTION (2026-08-18, founder decision — resolves the gap once
  * flagged here): §C's "form field set (persona/tone selection)" is now real.
@@ -52,7 +55,6 @@ const TONE_OPTIONS: ReadonlyArray<{ value: CoverLetterTone; label: string; descr
 
 function CoverLetterScreen() {
   const [packages, setPackages] = useState<Package[] | null>(null)
-  const [available, setAvailable] = useState<number | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [tone, setTone] = useState<CoverLetterTone>('professional')
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -60,36 +62,22 @@ function CoverLetterScreen() {
   const [generating, setGenerating] = useState(false)
   const [genError, setGenError] = useState<string | null>(null)
 
-  const [redeemCode, setRedeemCode] = useState('')
-  const [redeeming, setRedeeming] = useState(false)
-  const [redeemMsg, setRedeemMsg] = useState<{ ok: boolean; text: string } | null>(null)
-
   // Local edits (edit-in-place textarea per letter) — never persisted.
   const [edits, setEdits] = useState<Record<string, string>>({})
   const didInit = useRef(false)
 
-  const refreshCredits = useCallback(async () => {
-    const res = await fetch('/api/service-credits?service=cover_letter', { cache: 'no-store' })
-    if (res.ok) {
-      const data = (await res.json().catch(() => ({}))) as { available?: number }
-      if (typeof data.available === 'number') setAvailable(data.available)
-    }
-  }, [])
-
   useEffect(() => {
     if (didInit.current) return
     didInit.current = true
-    Promise.all([
-      fetch('/api/packages', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : { packages: [] })),
-      refreshCredits(),
-    ])
-      .then(([data]) => {
+    fetch('/api/packages', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : { packages: [] }))
+      .then((data) => {
         const list = (data?.packages as Package[] | undefined) ?? []
         setPackages(list)
         setSelectedId(list[0]?.id ?? null)
       })
       .catch(() => setLoadError('Could not load your packages. Please try again.'))
-  }, [refreshCredits])
+  }, [])
 
   // EVERY resume is eligible while the locks are off (founder decision
   // 2026-08-17). This used to filter to paid packages only; leaving that filter
@@ -122,49 +110,17 @@ function CoverLetterScreen() {
       }
       const letter = payload?.letter as CoverLetter | undefined
       if (letter) {
-        // Add to the selected package's list + drop the credit count by one
-        // (authoritative refresh is cheap; optimistic is fine here).
         setPackages((prev) =>
           prev
             ? prev.map((p) => (p.id === selected.id ? { ...p, cover_letters: [...(p.cover_letters ?? []), letter] } : p))
             : prev,
         )
-        setAvailable((a) => (a === null ? a : a - 1))
         setEdits((e) => ({ ...e, [letter.id]: letter.full_text }))
       }
     } catch {
       setGenError('Could not generate your cover letter. Please try again.')
     } finally {
       setGenerating(false)
-    }
-  }
-
-  async function redeem() {
-    const code = redeemCode.trim()
-    if (!code) {
-      setRedeemMsg({ ok: false, text: 'Enter a promo code.' })
-      return
-    }
-    setRedeeming(true)
-    setRedeemMsg(null)
-    try {
-      const res = await fetch('/api/redeem-package-promo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
-      })
-      const payload = await res.json().catch(() => ({}))
-      if (res.ok) {
-        setRedeemMsg({ ok: true, text: 'Code redeemed — your credits were updated.' })
-        setRedeemCode('')
-        await refreshCredits()
-      } else {
-        setRedeemMsg({ ok: false, text: (payload?.error as string | undefined) ?? 'That code could not be redeemed.' })
-      }
-    } catch {
-      setRedeemMsg({ ok: false, text: 'Network error. Could not redeem that code.' })
-    } finally {
-      setRedeeming(false)
     }
   }
 
@@ -294,42 +250,6 @@ function CoverLetterScreen() {
             ) : null}
           </div>
         )}
-      </Card>
-
-      {/* Redeem entry point (reachable from here per §C) */}
-      <Card tone="light" className="mt-4 p-6">
-        <h2 className="text-[14px] font-bold text-ink-900">Redeem a code</h2>
-        <p className="mt-1 text-[12px] text-ink-400">A package-promo code adds credits to your account.</p>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            void redeem()
-          }}
-          className="mt-3 flex flex-col gap-3 sm:flex-row"
-        >
-          <input
-            value={redeemCode}
-            onChange={(e) => setRedeemCode(e.target.value)}
-            placeholder="Paste your code"
-            autoComplete="off"
-            className="min-h-11 flex-1 rounded-radius-md border border-line-light/70 bg-surface-2-light/50 px-3 text-[14px] text-ink-900 outline-none placeholder:text-ink-400 focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25"
-          />
-          <Button type="submit" variant="primary" disabled={redeeming || redeemCode.trim().length === 0}>
-            {redeeming ? 'Redeeming…' : 'Redeem'}
-          </Button>
-        </form>
-        {redeemMsg ? (
-          <p
-            className={cn(
-              'mt-3 rounded-radius-md px-3.5 py-2 text-[12.5px]',
-              redeemMsg.ok
-                ? 'border border-forest/40 bg-forest-tint text-forest'
-                : 'border border-terra/40 bg-terra-tint text-terra',
-            )}
-          >
-            {redeemMsg.text}
-          </p>
-        ) : null}
       </Card>
 
       {/* Generated letters — full width once present (§C) */}
