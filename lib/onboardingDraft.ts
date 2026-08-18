@@ -64,3 +64,21 @@ export const CLAIMED_SCAN_RESULT_KEY = 'claimed_scan_result'
  * every other key here.
  */
 export const CLAIMED_RESUME_TEXT_KEY = 'claimed_resume_text'
+
+/**
+ * Session-storage handoff for the anonymous Gulf Readiness RESULT the user saw
+ * before signing up (2026-08-18: signup-restore of the full report).
+ *
+ * The anonymous scorecard hands off through `gulf_readiness_handoff`
+ * (lib/gulfReadiness/handoff.ts). When /onboarding picks that handoff up after
+ * signup it stashes the computed result here and sends the user to
+ * /onboarding/report, which re-renders the SAME result object with
+ * `locked={false}` — the full, unblurred report the signup gate promised. It is
+ * shown before extraction so the reward is instant (the score is already
+ * computed, no AI call), and the ~20s profile extraction follows on the CTA.
+ *
+ * Unlike the other keys here this one is NOT cleared on read: the report is
+ * derived, non-sensitive, and leaving it lets a refresh of /onboarding/report
+ * survive. It expires with the tab like the handoff it came from.
+ */
+export const CLAIMED_READINESS_RESULT_KEY = 'claimed_readiness_result'

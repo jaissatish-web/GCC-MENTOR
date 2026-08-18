@@ -7,6 +7,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar'
 import { cn } from '@/lib/utils'
 import {
   CAREER_PROFILE_DRAFT_KEY,
+  CLAIMED_READINESS_RESULT_KEY,
   CLAIMED_RESUME_TEXT_KEY,
   CLAIMED_SCAN_RESULT_KEY,
 } from '@/lib/onboardingDraft'
@@ -110,8 +111,12 @@ export default function OnboardingPage() {
     if (handoff && handoff.resumeText.trim().length >= 50) {
       window.sessionStorage.setItem(CLAIMED_RESUME_TEXT_KEY, handoff.resumeText)
       window.sessionStorage.setItem('gulf_readiness_answers', JSON.stringify(handoff.answers))
+      // Carry the computed result so /onboarding/report can reveal it in full —
+      // the "unlock the full report" the signup gate promised. Shown first,
+      // instantly (no AI call), before the ~20s profile extraction the CTA runs.
+      window.sessionStorage.setItem(CLAIMED_READINESS_RESULT_KEY, JSON.stringify(handoff.result))
       clearHandoff()
-      router.replace('/onboarding/extracting?path=claimed')
+      router.replace('/onboarding/report')
       return
     }
 

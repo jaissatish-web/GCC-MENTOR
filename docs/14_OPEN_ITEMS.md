@@ -6,7 +6,7 @@ Nothing is removed from this file until it is genuinely resolved, and when it is
 resolved it is deleted rather than marked — the part-document it affects carries the
 outcome instead.
 
-**Last reviewed:** 2026-08-17
+**Last reviewed:** 2026-08-18
 
 ---
 
@@ -68,8 +68,6 @@ screens have not been seen rendered. The founder should check them on the deploy
   completeness ring *alongside* the new live Gulf Readiness widget. Reconcile onto the
   single arithmetic engine — deferred because rewiring the legacy ring on the 1,400-line
   editor is delicate and untestable here.
-- **Signup restore of the full report** (the `locked={false}` Scorecard view) is still not
-  wired — see below.
 
 ---
 
@@ -108,13 +106,12 @@ Design and reasoning: [`15_DECISION_LOG.md`](15_DECISION_LOG.md), 2026-08-18.
 ## Gulf Readiness Scorecard — what remains
 
 The anonymous flow is built and verified live (funnel → arithmetic score → result →
-browser handoff). Two pieces remain before it is fully end-to-end:
+browser handoff). The signup restore is now wired (2026-08-18): after account creation
+`/onboarding/report` re-renders the same result with `locked={false}` and the carried
+resume text feeds the profile extraction — see
+[`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §2. One piece remains before the readiness
+routes are fully tidy:
 
-- **The signup restore + full report is not wired yet.** The anonymous result, answers
-  and resume text are saved to `sessionStorage` and the signup CTA points to `/signup`,
-  but nothing yet reads that handoff after account creation to show the unblurred report
-  (`ScorecardResult` with `locked={false}`) and build the profile from the carried resume
-  text. This is the next step.
 - **The old `/ats-scan` → `/gulf-readiness` flow still exists** alongside the new
   `/gulf-readiness-score`. They overlap. Decide whether the old one is retired or kept for
   the job-description/Job Match path. Three readiness route names now coexist

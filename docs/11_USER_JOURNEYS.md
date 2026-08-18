@@ -54,7 +54,9 @@ readiness score.
 /login  /signup                  magic link
    ↓
 /onboarding                      three ways in: upload · paste · type
-   ↓
+   ↓                             (from a free scan: skips straight through)
+/onboarding/report               the full Gulf Readiness report, unlocked
+   ↓                             — scan arrivals only; shown before extraction
 /onboarding/extracting           collect → extract → review
    ↓
 /profile                         confirm and correct — never a blank form
@@ -64,6 +66,18 @@ readiness score.
 
 Someone arriving from a free scan skips the upload entirely: their data is already
 there to claim.
+
+**The full report is the first thing they see after signing up.** The anonymous
+scorecard shows a subset behind an honest gate that promises "unlock the full
+breakdown". `/onboarding/report` keeps that promise: it re-renders the **same computed
+result** the visitor already saw, now with `locked={false}` — every dimension and the
+full ranked plan, no gate. It is shown *before* extraction on purpose: the score is
+arithmetic and already computed, so the reward is instant with no AI call, and the ~20s
+profile extraction follows on the CTA as the second payoff rather than a barrier in
+front of the first. The result rides across in the browser only
+(`claimed_readiness_result`, tab-scoped); a user who reaches `/onboarding/report` with no
+handoff (a closed tab, a direct visit) is signed in already and is sent to their
+dashboard, never stranded.
 
 **Magic-link sign-in needed a client-side handler.** Supabase returns implicit-flow
 tokens in the URL *fragment*, which a server route cannot read at all, so the callback

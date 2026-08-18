@@ -12,6 +12,32 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — signup reveals the full readiness report, before extraction
+
+**The signup gate's promise is now kept.** The anonymous scorecard shows a subset behind
+an honest gate whose CTA says "create a free account to unlock the full breakdown". Until
+now nothing read that handoff after signup, so the full report was never actually shown —
+only the profile was pre-filled. New route `/onboarding/report` re-renders the **same
+computed result** the visitor already saw, now with `locked={false}`.
+
+**Shown before extraction, deliberately.** The score is arithmetic and already computed,
+so revealing it costs no AI call and no wait — the reward is instant. The ~20s profile
+extraction follows on the CTA as the second payoff, not a barrier in front of the first.
+This sequences with the 2026-08-18 "one free extraction at signup" decision below: report
+first, then the auto-filled profile.
+
+**The result rides across the browser only** (`claimed_readiness_result` in
+sessionStorage, tab-scoped), consistent with the founder rule that an anonymous scan
+writes nothing to the server. Unlike the other one-time handoff keys it is not cleared on
+read — it is derived, non-sensitive, and leaving it lets a page refresh survive; it dies
+with the tab. A user who reaches `/onboarding/report` with no handoff is already signed
+in and is sent to the dashboard, never stranded.
+
+Closes the "signup restore of the full report" open item. Detail in
+[`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §2.
+
+---
+
 ## 2026-08-18 — one route to the Career Profile, and a first-run nudge
 
 **Founder decision: the Career Profile is the single, direct target for every user,
