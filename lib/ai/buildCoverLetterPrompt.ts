@@ -49,7 +49,10 @@ const FIXED_FIELD_INSTRUCTION =
 
 export interface CoverLetterTarget {
   target_job_title: string
-  target_industry: string
+  // Optional (migration 043) — see lib/ai/personas.ts's fallback note. Not
+  // used for a per-industry persona here (this file's persona is fixed —
+  // see COVER_LETTER_PERSONA above), only carried through as context.
+  target_industry: string | null
   // Optional (migration 030) — see types/careerProfile.ts's note.
   target_country: TargetCountry | null
   target_company: string | null
@@ -129,11 +132,10 @@ function renderCareerProfile(profile: CareerProfileFull): string {
 }
 
 function renderTarget(target: CoverLetterTarget): string {
-  const lines = [
-    `Job title: ${target.target_job_title}`,
-    `Industry: ${target.target_industry}`,
-  ]
-  // Optional (migration 030) — only add the line when actually set.
+  const lines = [`Job title: ${target.target_job_title}`]
+  // Optional (migration 043 for industry, 030 for country/company) — only
+  // add a line when actually set.
+  if (target.target_industry) lines.push(`Industry: ${target.target_industry}`)
   if (target.target_country) lines.push(`Country: ${target.target_country}`)
   if (target.target_company) lines.push(`Company: ${target.target_company}`)
   return lines.join('\n')

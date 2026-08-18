@@ -92,7 +92,9 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
   if (typeof tf.target_job_title !== 'string' || tf.target_job_title.trim() === '') {
     return { error: 'targetFields.target_job_title' }
   }
-  if (typeof tf.target_industry !== 'string' || tf.target_industry.trim() === '') {
+  // Optional (migration 043) — see lib/ai/personas.ts's fallback note.
+  // null/absent is valid; if present it must at least be a string.
+  if (tf.target_industry !== undefined && tf.target_industry !== null && typeof tf.target_industry !== 'string') {
     return { error: 'targetFields.target_industry' }
   }
   // Optional (migration 030) â€” see types/careerProfile.ts's note. null/absent
@@ -126,7 +128,7 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
       profileId: body.profileId,
       targetFields: {
         target_job_title: tf.target_job_title,
-        target_industry: tf.target_industry,
+        target_industry: (tf.target_industry as string | null | undefined) ?? null,
         target_country: (tf.target_country as TargetCountry | null | undefined) ?? null,
         target_company: (tf.target_company as string | null | undefined) ?? null,
       },
@@ -317,7 +319,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     profileId = pkgRow.profile_id as string
     targetFields = {
       target_job_title: pkgRow.target_job_title as string,
-      target_industry: pkgRow.target_industry as string,
+      target_industry: pkgRow.target_industry as string | null,
       target_country: (pkgRow.target_country as string | null) ?? null,
       target_company: (pkgRow.target_company as string | null) ?? null,
     } as OptimizationTarget

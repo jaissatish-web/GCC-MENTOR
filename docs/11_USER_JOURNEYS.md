@@ -116,8 +116,9 @@ broke exactly that. Treat it as load-bearing.
 ## 4. The optimize flow
 
 ```
-/optimize/target             target job title, country, company, industry,
-                             and the job description
+/optimize/target             target job title (required) — industry and a job
+                             description are both optional, one-question-first
+                             (2026-08-18: country and company removed — see below)
    ↓
 /optimize/setup              which blocks to optimize · framing intensity
                              (Easy / Moderate / High)
@@ -134,6 +135,17 @@ broke exactly that. Treat it as load-bearing.
 **forwards** any package onward instead of asking for money: the flow no longer
 routes through it, but old links and the back button do, and landing on a payment
 form for an open service would be a dead end.
+
+**`/optimize/target` simplified 2026-08-18 (founder decision) to one required
+field.** Target country and target company are removed from this screen
+entirely — neither ever changed generation, only display (target country never
+varied the Gulf CV format; target company only ever changed a CTA label).
+Target industry stays, now optional — it drives the writing persona
+(`lib/ai/personas.ts`), a real effect, but the pipeline already falls back to a
+generic Gulf-recruiter persona when it is unset. The job description keeps its
+"Best results" framing as the one field with a clear, direct payoff; its dead
+"upload the PDF" stub (never wired to any extraction route) is gone — paste is
+the one real path.
 
 **Generation still has its own screen**, which matters independently of payment: a long
 model call deserves a progress surface, and the screen is idempotent, so a refresh

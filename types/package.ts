@@ -77,7 +77,9 @@ export interface Package {
   // reasoning applies here.
   target_country: TargetCountry | null
   target_company: string | null
-  target_industry: string // persona selection
+  // Optional (migration 043) — see lib/ai/personas.ts's fallback note; the
+  // same reasoning as target_country and target_company above.
+  target_industry: string | null // persona selection
   job_description: string | null // the JD it was optimized against, if provided
 
   // Optimization

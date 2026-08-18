@@ -5,7 +5,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { cn, GULF_COUNTRIES } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
 import type { OptimizationLevel } from '@/types/package'
 
@@ -23,6 +23,11 @@ import type { OptimizationLevel } from '@/types/package'
  * [OPTIMIZATION_TARGET_DRAFT_KEY], then CLEARS it (same read-and-clear pattern
  * TASK-024 uses). If absent, there is nothing to optimize — redirect to
  * /optimize/target (mirrors TASK-023's "no path → back" pattern).
+ *
+ * TargetDraft narrowed 2026-08-18: target_country and target_company were
+ * removed from /optimize/target entirely (founder decision — neither ever
+ * changed generation, only display), so this screen no longer carries or
+ * sends them. The CTA names the target role rather than a company.
  *
  * BLOCKS from the real profile (contract #2): GET /api/profile gives caller's
  * profileId and work_experience (id, company, role, highlights length for the
@@ -50,8 +55,6 @@ import type { OptimizationLevel } from '@/types/package'
 interface TargetDraft {
   target_job_title: string
   target_industry: string
-  target_country: string
-  target_company: string
   job_description: string
 }
 
@@ -171,8 +174,7 @@ function SetupScreen() {
     setExpOn((prev) => ({ ...prev, [id]: !prev[id] }))
   }, [])
 
-  const ctaName =
-    draft && draft.target_company.trim() !== '' ? draft.target_company.trim() : draft?.target_job_title ?? ''
+  const ctaName = draft?.target_job_title ?? ''
 
   const onSubmit = useCallback(async () => {
     if (!draft || !profileId || submitting) return
@@ -183,12 +185,9 @@ function SetupScreen() {
         profileId,
         targetFields: {
           target_job_title: draft.target_job_title,
-          target_industry: draft.target_industry,
-          // Optional (migration 030) — empty means null, same convention as
-          // target_company right below (an empty string would otherwise fail
-          // the server's enum check).
-          target_country: draft.target_country.trim() !== '' ? draft.target_country : null,
-          target_company: draft.target_company.trim() !== '' ? draft.target_company : null,
+          // Optional (migration 043) — empty means null, same convention the
+          // API already applies to target_country/target_company.
+          target_industry: draft.target_industry.trim() !== '' ? draft.target_industry : null,
         },
         jobDescription: draft.job_description.trim() !== '' ? draft.job_description : null,
         selectedBlocks: {

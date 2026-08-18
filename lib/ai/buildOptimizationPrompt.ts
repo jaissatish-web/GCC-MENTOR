@@ -99,7 +99,8 @@ export interface SelectedBlocks {
 
 export interface OptimizationTarget {
   target_job_title: string
-  target_industry: string
+  // Optional (migration 043) — see lib/ai/personas.ts's fallback note.
+  target_industry: string | null
   // Optional (migration 030) — see types/careerProfile.ts's note.
   target_country: TargetCountry | null
   target_company?: string | null
@@ -221,13 +222,11 @@ function renderCareerProfile(
 }
 
 function renderTarget(target: OptimizationTarget): string {
-  const lines = [
-    `Job title: ${target.target_job_title}`,
-    `Industry: ${target.target_industry}`,
-  ]
-  // Optional (migration 030) — only add the line when actually set; omitting
-  // it entirely (not "Country: none") avoids implying it was ever a
-  // required input the model should expect.
+  const lines = [`Job title: ${target.target_job_title}`]
+  // Optional (migration 043 for industry, 030 for country/company) — only add
+  // a line when actually set; omitting it entirely (not "Industry: none")
+  // avoids implying it was ever a required input the model should expect.
+  if (target.target_industry) lines.push(`Industry: ${target.target_industry}`)
   if (target.target_country) lines.push(`Country: ${target.target_country}`)
   if (target.target_company) lines.push(`Company: ${target.target_company}`)
   return lines.join('\n')
@@ -319,7 +318,7 @@ export function buildOptimizationPrompt(
   jobDescription?: string | null,
   jobMatchCategories?: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null,
 ): BuiltPrompt {
-  const persona = getPersona(target.target_industry)
+  const persona = getPersona(target.target_industry ?? '')
   const levelInstruction = LEVEL_INSTRUCTIONS[level]
 
   const system = [persona, GROUNDING_INSTRUCTION, GULF_FORMAT_NOTE, levelInstruction].join(

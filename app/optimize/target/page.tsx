@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Card } from '@/components/ui/Card'
-import { cn, GULF_COUNTRIES, PERSONA_INDUSTRIES } from '@/lib/utils'
+import { PERSONA_INDUSTRIES } from '@/lib/utils'
 import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
 import { findSimilarPackage } from '@/lib/reuseDetection'
 import type { Package } from '@/types/package'
@@ -15,30 +15,38 @@ import type { Package } from '@/types/package'
 /**
  * Target selection — screen 05 (TASK-027), route /optimize/target.
  *
- * Conversion of the "05 · Target selection" screen in
- * design-reference/MVP Screens.dc.html (lines 720–767). Country is a CHIP ROW
- * (always, not a dropdown — unlike /profile), JD is framed as an upgrade never
- * a blocker, and the footer reassures "still free — you'll see what changes
- * before you pay."
+ * Simplified 2026-08-18 (founder decision) to one required question — the
+ * target job title — plus two optional ones that sharpen the result. This
+ * matches how a resume-optimization SaaS actually gets used: the user wants
+ * their resume tailored to a ROLE first; everything else is a lever they can
+ * pull if they have it, never a form to fill in before they're allowed to
+ * start.
  *
- * PRE-FILL from the profile (contract #2): career_profiles.target_* are the
- * profile-level DEFAULTS (set on /profile, TASK-024). We load GET /api/profile
- * and prefill this screen's fields as editable STARTING VALUES — this is a
- * per-optimization override, not a fresh ask each time. (A target_industry
- * free-text from /profile is preselected only if it exactly matches a
- * PERSONA_INDUSTRIES value; otherwise the select stays on its placeholder so
- * the user picks the persona-driving value.)
+ * WHAT CHANGED and why each field survived or didn't:
+ *  - Target country: REMOVED from this screen entirely. It never changed CV
+ *    format or generation behaviour (migration 030's own reasoning — the Gulf
+ *    writing convention has always been one country-agnostic set of rules,
+ *    lib/ai/buildOptimizationPrompt.ts's GULF_FORMAT_NOTE) so asking for it
+ *    here was a question with no effect on the output.
+ *  - Target company: REMOVED from this screen entirely, for the same reason
+ *    — it only ever changed the CTA label ("Optimize for {company}"), never
+ *    the writing itself. The CTA now names the target role instead.
+ *  - Target industry: kept, but now OPTIONAL (migration 043). It drives which
+ *    reviewer persona writes the resume (lib/ai/personas.ts) — a real effect,
+ *    worth keeping — but the prompt pipeline already has a graceful fallback
+ *    persona for "unset", so nothing forces the choice.
+ *  - Job description: kept, still optional with a "Best results" framing —
+ *    this is the field with the clearest, most direct payoff (exact keyword
+ *    and requirement matching), so it earns emphasis without being required.
+ *    The disabled "upload the PDF" stub is gone — it was never wired to
+ *    anything (no JD-PDF extraction route exists or is speced) and sat there
+ *    as a dead button. Paste is the one real path and is what is offered.
  *
- * INDUSTRY (contract #1): absent from the visual mockup but required by the
- * spec — docs/USER_FLOW.md's own field table lists it ("Target industry | yes |
- * select — drives persona"). Trusted over the mockup's visual completeness.
- * Required <select> using PERSONA_INDUSTRIES from lib/utils.ts.
- *
- * JD (contract #4): paste is real and needs no backend — the text is carried
- * forward as a plain string. Upload is a DISABLED "coming soon" stub: there is
- * NO speced/equivalent of /api/parse/upload for a JD PDF (a JD is a different
- * document; no such route exists or is speced). Whoever builds JD-PDF text
- * extraction should wire the real upload here. No upload API is invented.
+ * PRE-FILL from the profile (contract #2, narrowed to what remains): GET
+ * /api/profile still prefills target_job_title and, when it exactly matches a
+ * PERSONA_INDUSTRIES value, target_industry — both are profile-level DEFAULTS
+ * (set on /profile) offered here as editable starting values for this one
+ * optimization run.
  *
  * REUSE DETECTION (TASK-036): once the user types a target title, if a
  * similar-titled package exists in their Library (GET /api/packages) a prompt
@@ -48,27 +56,20 @@ import type { Package } from '@/types/package'
  * new one is confirmed created. Pure rule-based title matching — no
  * automated %-matching (that is Phase 2).
  *
- * HANDOFF (contract #6): /optimize/setup (TASK-028) does not exist yet either —
- * it is still the TASK-003 placeholder and there is nothing to POST to. On
- * "Choose what to optimize" we WRITE the collected target to sessionStorage
- * under OPTIMIZATION_TARGET_DRAFT_KEY (same pattern TASK-023 used for the
- * extraction draft), then navigate to /optimize/setup (it shows its placeholder
- * for now — expected). TASK-028 will read + clear this key when built.
+ * HANDOFF: on "Choose what to optimize" the collected target is written to
+ * sessionStorage under OPTIMIZATION_TARGET_DRAFT_KEY; /optimize/setup reads
+ * and clears it.
  */
 
 interface TargetDraft {
   target_job_title: string
   target_industry: string
-  target_country: string
-  target_company: string
   job_description: string
 }
 
 const EMPTY: TargetDraft = {
   target_job_title: '',
   target_industry: '',
-  target_country: '',
-  target_company: '',
   job_description: '',
 }
 
@@ -105,8 +106,6 @@ function TargetScreen() {
         setDraft({
           target_job_title: data?.target_job_title ?? '',
           target_industry: matchedIndustry,
-          target_country: data?.target_country ?? '',
-          target_company: data?.target_company ?? '',
           job_description: '',
         })
         setLoaded(true)
@@ -150,13 +149,11 @@ function TargetScreen() {
     }
   }, [similar])
 
-  // Title and industry are required; country, company and JD are not.
-  // Country is optional (migration 030, founder decision 2026-08-10) — it
-  // never actually changed CV format or generation behavior, so requiring
-  // it was misleading. See file header.
-  const canContinue =
-    draft.target_job_title.trim() !== '' &&
-    draft.target_industry !== ''
+  // Only the target job title is required (migration 043, founder decision
+  // 2026-08-18). Industry and job description both sharpen the result but
+  // neither blocks starting — see the file header for why each field is or
+  // isn't required.
+  const canContinue = draft.target_job_title.trim() !== ''
 
   const onContinue = useCallback(() => {
     if (!canContinue) return
@@ -201,7 +198,11 @@ function TargetScreen() {
 
       {/* Heading */}
       <div className="px-5 pb-4">
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900">Who are we targeting?</h1>
+        <h1 className="font-serif text-[27px] leading-tight text-ink-900">Set your target role</h1>
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-700">
+          One required field. Add a job description or industry too and we&rsquo;ll tailor the wording
+          more precisely — but your resume is optimized either way.
+        </p>
       </div>
 
       {loadError ? (
@@ -278,7 +279,7 @@ function TargetScreen() {
 
         <div className="flex flex-col gap-2">
           <label htmlFor="f_target_industry" className="text-[11px] font-semibold tracking-wide text-ink-700">
-            Target industry <span className="text-terra">*</span> <span className="font-normal text-ink-400">— drives the writing persona</span>
+            Target industry <span className="font-normal text-ink-400">— optional, drives the writing persona</span>
           </label>
           <select
             id="f_target_industry"
@@ -286,55 +287,13 @@ function TargetScreen() {
             value={draft.target_industry}
             onChange={(e) => set('target_industry', e.target.value)}
           >
-            <option value="" disabled>
-              Select an industry
-            </option>
+            <option value="">No preference — general Gulf recruiter</option>
             {PERSONA_INDUSTRIES.map((i) => (
               <option key={i.value} value={i.value}>
                 {i.label}
               </option>
             ))}
           </select>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <div className="text-[11px] font-semibold tracking-wide text-ink-700">
-            Target country <span className="font-normal text-ink-400">— optional</span>
-          </div>
-          <div className="flex flex-wrap gap-[7px]">
-            {GULF_COUNTRIES.map((c) => {
-              const selected = draft.target_country === c.value
-              return (
-                <button
-                  key={c.value}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => set('target_country', c.value)}
-                  className={cn(
-                    'min-h-11 rounded-[99px] px-[14px] py-[10px] text-[12px] font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
-                    selected
-                      ? 'bg-forest-deep text-white'
-                      : 'border border-line-light bg-surface-light font-medium text-ink-700'
-                  )}
-                >
-                  {c.label}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_company" className="text-[11px] font-semibold tracking-wide text-ink-700">
-            Target company <span className="font-normal text-ink-400">— optional, sharpens framing</span>
-          </label>
-          <Input
-            id="f_target_company"
-            value={draft.target_company}
-            onChange={(e) => set('target_company', e.target.value)}
-            placeholder="Any employer"
-            tone="light"
-          />
         </div>
 
         <div className="flex flex-col gap-2">
@@ -348,11 +307,11 @@ function TargetScreen() {
           </div>
           <div className="flex flex-col gap-2.5 rounded-radius-lg border border-dashed border-redesign-gold p-4">
             <div className="text-[13px] font-medium leading-snug text-ink-900">
-              Paste the posting, or upload the PDF
+              Paste the job posting for the closest match
             </div>
             <p className="text-[11px] leading-snug text-ink-400">
-              With a JD we match the employer&apos;s exact wording. Without one, we optimize to your title,
-              industry and country.
+              With a job description, we match the employer&apos;s exact wording and requirements. Without
+              one, we still optimize your resume using your target role and industry.
             </p>
             <textarea
               id="f_job_description"
@@ -362,19 +321,6 @@ function TargetScreen() {
               placeholder="Paste the job posting text here…"
               className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none placeholder:text-ink-400 focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20"
             />
-            {/* JD-PDF UPLOAD STUB (TASK-027 contract #4): no speced route exists
-                to extract text from an uploaded JD PDF — /api/parse/upload is for
-                RESUME upload only. Disabled "coming soon"; no invented API. When
-                JD-PDF extraction is built, wire the real upload + text extraction
-                here and carry the parsed text into job_description. */}
-            <button
-              type="button"
-              disabled
-              title="JD PDF upload coming soon"
-              className="min-h-11 cursor-not-allowed rounded-radius-md border border-line-light-strong bg-surface-light px-3 py-3 text-[11px] font-semibold text-ink-900 opacity-50"
-            >
-              Upload the PDF
-            </button>
           </div>
         </div>
       </Card>
@@ -389,7 +335,7 @@ function TargetScreen() {
         </Button>
         {!canContinue ? (
           <p className="text-center text-[11px] text-ink-400">
-            Add your job title and industry to continue.
+            Add a target job title to continue.
           </p>
         ) : null}
       </div>

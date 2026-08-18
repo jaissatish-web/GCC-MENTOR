@@ -94,9 +94,19 @@ dropdown in the profile editor — and extraction never derives it. Consequences
 
 The most-evolved table in the schema. Grouped by what each part is for.
 
-**Target** — what this resume aims at: `target_job_title`, `target_country`,
-`target_company`, `target_industry`, `job_description`, `optimization_level`,
+**Target** — what this resume aims at: `target_job_title` (required),
+`target_country`, `target_company`, `target_industry` (nullable since
+migration 043 — see below), `job_description`, `optimization_level`,
 `selected_blocks`
+
+**`target_industry` is nullable and optional at the `/optimize/target` UI
+level too** (2026-08-18, same standing as `target_country` above): it drives
+which reviewer persona writes the resume (`lib/ai/personas.ts`), a real
+effect, but the prompt pipeline already falls back to a generic Gulf-recruiter
+persona when it is unset, so nothing forces the choice. `target_country` and
+`target_company` remain in the schema (existing rows, the admin listing, the
+Career Profile's own defaults) but are no longer collected on
+`/optimize/target` — new packages carry them as `null`.
 
 **Content** — what the user gets:
 - `optimized_content` — **the AI-written text. Nullable.** Null means nothing has

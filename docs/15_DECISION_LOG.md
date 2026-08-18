@@ -12,6 +12,56 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — /optimize/target cut to one required field
+
+**Founder decision: the resume optimization target screen should ask for as
+little as possible before it lets a user start.** Migration 043 makes
+`packages.target_industry` nullable (mirroring migration 030's
+`target_country`, migration 042's `career_profiles.target_job_title` /
+`target_industry`) — the last NOT NULL target field on the packages table.
+
+**What changed on `/optimize/target`:**
+- **Target country — removed from the screen entirely.** It never changed CV
+  format or generation behaviour: `GULF_FORMAT_NOTE`
+  (`lib/ai/buildOptimizationPrompt.ts`) has always been one country-agnostic
+  Gulf writing convention (migration 030's own reasoning), and the field was
+  never rendered on the resume itself. Asking for it bought nothing.
+- **Target company — removed from the screen entirely.** It only ever changed
+  the setup screen's CTA label ("Optimize for {company}"); never the writing.
+  The CTA now names the target role instead.
+- **Target industry — kept, made optional.** It genuinely drives which
+  reviewer persona writes the resume (`lib/ai/personas.ts`), so it is not a
+  no-op field like the two above — but `getPersona()` already had a graceful
+  fallback (the generic Gulf-recruitment-specialist persona) for any unset or
+  unrecognized value, so requiring the choice was never load-bearing. The
+  select now opens on "No preference — general Gulf recruiter" rather than a
+  disabled placeholder.
+- **Job description — kept, still optional, still framed "Best results".**
+  This is the one field with a clear, direct payoff (exact keyword and
+  requirement matching), so it earns the emphasis without being required. Its
+  disabled "upload the PDF" stub — never wired to any extraction route, since
+  none exists or is speced for a JD PDF — is removed; paste was always the one
+  real path.
+
+**Only the target job title remains required.** `canContinue` on the screen,
+and the DB constraint behind it, now agree on exactly one thing.
+
+**Downstream, made null-safe in the same change:** `types/package.ts`
+(`Package.target_industry: string | null`), both prompt builders
+(`lib/ai/buildOptimizationPrompt.ts`, `lib/ai/buildCoverLetterPrompt.ts` —
+`renderTarget()` omits the Industry line when unset, matching how Country and
+Company were already handled), and `/api/optimize`'s validation (industry is
+now optional/nullable, matching the existing country/company pattern). Cover
+letters read `target_industry` straight off the package row, so this also
+required their type to accept null — they already carry a fixed persona line
+and never called `getPersona()`, so no behavioural change there beyond the
+type.
+
+Surfaces updated: [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §4,
+[`04_DATA_MODEL.md`](04_DATA_MODEL.md) §3.
+
+---
+
 ## 2026-08-18 — resume import is inline on the profile; the Create Resume walk is retired
 
 **The multi-screen "Create Resume" flow is gone.** Starting a resume used to walk
