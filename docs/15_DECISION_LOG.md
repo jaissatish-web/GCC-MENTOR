@@ -12,6 +12,34 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — pricing: one-time bundles now, recurring later
+
+**Founder decision, revising the earlier "monthly recurring" assumption.** The paid
+model is **one-time purchases**, not subscriptions — recurring billing is explicitly
+deferred ("later we can think about monthly recurring").
+
+**Free** — one resume download per calendar month (resets monthly), edit and save the
+profile anytime, full visibility of the dashboard and the whole platform. The monthly
+reset applies only to the free download cap.
+
+**Paid — four one-time bundles:**
+1. **Single resume** — one-time purchase
+2. **Small package**
+3. **Big package**
+4. **Quarterly package** — for someone actively applying; one payment, ~3 months of access
+
+**Why this keeps options open:** every bundle is a single payment, including the
+quarterly one (time-bound access, not a recurring charge). So **no recurring-billing
+provider is required**, which widens the payment-provider shortlist in §A1 of open items
+rather than narrowing it. The quarterly bundle does need a time-bound access window
+(purchase date + ~3 months), which is a small addition to the entitlement model.
+
+**Supersedes** the "assumed monthly recurring" note in the earlier free/paid entry below.
+The `service_packages` table already models named bundles with per-service quotas, so the
+four bundles are rows in it; the quarterly access window is the one new concept.
+
+---
+
 ## 2026-08-18 — the free/paid model, spelled out (spec; enforced when locks return)
 
 **Founder decision.** The full freemium shape. Recorded now as the entitlement spec;
