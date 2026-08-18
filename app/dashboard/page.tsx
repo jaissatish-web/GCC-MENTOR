@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card'
 import { Pill } from '@/components/ui/Pill'
 import { LockedTile } from '@/components/ui/LockedTile'
 import { Reveal } from '@/components/ui/Reveal'
+import { ProfileKickstart } from '@/components/profile/ProfileKickstart'
 import { buttonVariants } from '@/components/ui/Button'
 import { cn, GULF_COUNTRIES, resumeLabel } from '@/lib/utils'
 import { calculateReadiness } from '@/lib/readiness'
@@ -108,6 +109,7 @@ function latestJobMatch(packages: Package[]): { score: number; title?: string } 
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
+  const [profileLoaded, setProfileLoaded] = useState(false)
   const [packages, setPackages] = useState<Package[]>([])
   const [packagesLoaded, setPackagesLoaded] = useState(false)
   const didInit = useRef(false)
@@ -122,6 +124,9 @@ export default function DashboardPage() {
       .catch(() => {
         /* non-fatal: dashboard renders with defaults */
       })
+      // Loaded flag so the "create your profile" nudge shows only after we KNOW
+      // there is no profile — never a flash before the fetch resolves.
+      .finally(() => setProfileLoaded(true))
     // Same /api/packages call as before — now keeping the rows, not just
     // the count, so Recent Activity, the metric row and "Latest Job Match"
     // can use real data.
@@ -216,6 +221,10 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6 p-5 pb-8 sm:p-8 lg:p-10 font-redesign-sans">
+      {/* First-run nudge to build the Career Profile — shown only once we KNOW
+          there is no profile yet. Dismissible; the dashboard's own CTA persists. */}
+      <ProfileKickstart show={profileLoaded && profile === null} />
+
       {/* ── Header: greeting + readiness ring ── */}
       <Reveal>
         <div className="flex items-center justify-between gap-4">

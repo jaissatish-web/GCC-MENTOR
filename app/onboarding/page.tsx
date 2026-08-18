@@ -148,10 +148,13 @@ export default function OnboardingPage() {
           return
         }
 
-        setCheckingClaim(false)
+        // Nothing to auto-extract. This page's own three-way chooser is retired
+        // (founder decision 2026-08-18: one profile-build route). Send them to the
+        // single canonical door, Create Resume, rather than showing a duplicate.
+        router.replace('/create-resume')
       })
       .catch(() => {
-        if (!cancelled) setCheckingClaim(false)
+        if (!cancelled) router.replace('/create-resume')
       })
     return () => {
       cancelled = true

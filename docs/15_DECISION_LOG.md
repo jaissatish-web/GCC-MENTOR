@@ -12,6 +12,42 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — one route to the Career Profile, and a first-run nudge
+
+**Founder decision: the Career Profile is the single, direct target for every user,
+free or paid — one road to it, nothing else.** Everything (resume, readiness, cover
+letter) is built from the profile, so the whole post-signup job is: get them to a
+completed profile, then unlock the rest.
+
+**What was built:**
+- **A first-run pop-up** on the dashboard — dismissible, shown only when there is no
+  profile yet. It leads with the three ways in — **Upload / Paste / Type** at the top,
+  one click straight into the fill flow. Crossing it drops the user on the dashboard,
+  where the same call to action persists. A nudge, never a wall.
+- **One profile-build door.** `/create-resume` is the single route. `/onboarding`'s
+  duplicate three-way chooser is retired — it now either auto-extracts a scanned resume
+  (the handoff/claim path, kept) or redirects to `/create-resume`. `/ats-scan` (the old
+  anonymous scanner) is retired and redirects to `/gulf-readiness-score`.
+- **The free scan and the profile build are separate on purpose:** the scan
+  (`/gulf-readiness-score`) is the anonymous lead-gen hook and only scores; the profile
+  is built through the one door above. The confusion that prompted this was uploading on
+  the scan and expecting a filled profile.
+
+**Rate limit:** 5 profile extractions per day, per user — already in place
+(`RATE_LIMIT_EXTRACTIONS_PER_DAY`, default 5), which is exactly the abuse cap the founder
+asked for. It is cost control, not a paywall, so it applies to everyone now.
+
+**The influence pattern, agreed:** pull users to the profile without forcing them —
+(1) the dismissible first-run pop-up, (2) an honestly-empty dashboard with one bright CTA
+if dismissed, (3) the other tools shown locked *on the profile* (not on payment) so they
+read "complete your Career Profile first", and (4) a visible strength bar for momentum.
+
+**Still to build:** layer (3) — locking Optimize / Cover Letter / Job Match behind the
+profile's existence (honest gate, not a paywall, safe to enforce now). And the free
+monthly limits (1 upload + 1 download/month) wire in with the paid locks.
+
+---
+
 ## 2026-08-18 — pricing: one-time bundles now, recurring later
 
 **Founder decision, revising the earlier "monthly recurring" assumption.** The paid
