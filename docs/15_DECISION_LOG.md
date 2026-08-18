@@ -12,6 +12,50 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — one free extraction at signup (Option B), paywall moves
+
+**Founder decision, and it revises the tier split below.** The earlier plan was
+free = type / paid = upload-and-extract. On reflection that was friction for no good
+reason: after a free user has already given us their resume for the readiness scan, we
+*have* their resume text — making them retype it by hand is a wall to lose them at.
+
+**So: everyone gets one free LLM extraction at signup.** The first Career Profile build
+auto-fills from the resume the visitor already scanned — the "wow" moment right after the
+account is made. This is the same LLM extraction that was going to be paid.
+
+**The paywall moves off extraction and onto the things that are genuinely the paid
+product:** the AI resume optimization, the ATS / Job Readiness score, and the cover
+letter. That is a cleaner line anyway — the paid product is the AI *rewrite* and the
+job-specific analysis, not reading a document the user handed us.
+
+**Why this is the right trade:** one extraction call is cheap next to losing a signed-up
+user to manual typing, and an auto-filled profile is the strongest possible first
+impression. It also corrects a misconception worth stating plainly: **arithmetic cannot
+build the Career Profile.** The arithmetic engine only *scores*; turning a messy resume
+into structured fields is the LLM's job and only the LLM's — which is exactly why the
+old non-LLM extractor was thrown away for fabricating data.
+
+**What stays free vs paid now:**
+
+| Free | Paid |
+|---|---|
+| GCC Readiness scan (arithmetic) | AI resume optimization |
+| One profile extraction at signup (LLM) | ATS / Job Readiness score |
+| Typing / editing the profile | Cover letter |
+| The free resume (own facts in a template), PDF download | |
+
+**Open, not decided now:** whether a *later* re-upload / re-extraction (a second resume,
+months on) is also free or is gated. Left for when it matters; the signup extraction is
+the one that is settled as free.
+
+**Built the same day:** the Scorecard handoff now routes straight into the existing
+extraction screen (`/onboarding/extracting?path=claimed`), so a user who came through the
+scan is auto-extracted and lands on a filled profile. Reused proven plumbing; the handoff
+is cleared once consumed. **When the paid locks return, this signup extraction must stay
+free** — the gate goes on optimization / ATS / cover letter, not here.
+
+---
+
 ## 2026-08-18 — post-signup: build the Career Profile first, tier-based input
 
 **Founder decision, all points confirmed.** After signup the first screen is **Build

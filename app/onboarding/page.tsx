@@ -10,7 +10,7 @@ import {
   CLAIMED_RESUME_TEXT_KEY,
   CLAIMED_SCAN_RESULT_KEY,
 } from '@/lib/onboardingDraft'
-import { readHandoff } from '@/lib/gulfReadiness/handoff'
+import { readHandoff, clearHandoff } from '@/lib/gulfReadiness/handoff'
 
 /**
  * Onboarding path chooser — screen 02 (TASK-022), route /onboarding.
@@ -97,17 +97,22 @@ export default function OnboardingPage() {
 
     // The new free funnel (the arithmetic Gulf Readiness Scorecard) hands off
     // through sessionStorage, not the older server-side anonymous session. If that
-    // handoff is present, the visitor already gave us their resume for the score,
-    // so carry the text forward rather than asking for it again — the "neither tier
-    // re-uploads" rule (founder decision 2026-08-18). A free user copies from it
-    // while typing; a paid user's extraction runs on it. Checked before the older
-    // claim so the newer path wins when both somehow exist.
+    // handoff is present, the visitor already gave us their resume for the score.
+    //
+    // ONE FREE EXTRACTION AT SIGNUP, FOR EVERYONE (founder decision 2026-08-18,
+    // Option B). Rather than make a free user retype what we can already read, we
+    // run the LLM extraction once, free, and auto-fill their Career Profile — the
+    // "wow" moment right after signup. The paywall moved off extraction and onto
+    // the AI optimization, the ATS/Job Readiness score and the cover letter. So the
+    // handoff routes straight into the same extraction screen the older claim used,
+    // and the answers travel so the profile's live readiness knows the scenario.
     const handoff = readHandoff()
     if (handoff && handoff.resumeText.trim().length >= 50) {
       window.sessionStorage.setItem(CLAIMED_RESUME_TEXT_KEY, handoff.resumeText)
-      // The scenario answers travel with it, so the profile screen's live score
-      // knows which scenario to use without asking again.
       window.sessionStorage.setItem('gulf_readiness_answers', JSON.stringify(handoff.answers))
+      clearHandoff()
+      router.replace('/onboarding/extracting?path=claimed')
+      return
     }
 
     fetch('/api/anonymous-session/claim', { method: 'POST', cache: 'no-store' })

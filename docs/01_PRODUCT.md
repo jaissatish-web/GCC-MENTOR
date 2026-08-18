@@ -129,10 +129,16 @@ landing page cannot break; the database always wins.
 
 | Tier | Price | Self-serve checkout? |
 |---|---|---|
-| Free — GCC Readiness scan, Job Match | ₹0 | n/a |
+| Free — GCC Readiness scan, one profile extraction at signup, the free resume | ₹0 | n/a |
 | **Resume Optimization** (single resume) | **₹499** | No — promo code or admin grant only |
 | Resume + Cover Letter (bundle) | ₹999 | No |
 | Complete Package | ₹2,499 | No |
+
+**The free/paid line (decided 2026-08-18):** free = the GCC Readiness scan, one LLM
+profile extraction at signup, typing/editing the profile, and the free resume (own facts
+in a template). Paid = the AI resume optimization, the ATS / Job Readiness score, and the
+cover letter. The paid product is the AI *rewrite* and the job-specific analysis — not
+reading a resume the user handed us. See [`15_DECISION_LOG.md`](15_DECISION_LOG.md).
 
 The single ₹499 tier is the only one the product has any purchase path for at
 all, and even that path is manual. The two bundles are marked "coming soon" on
