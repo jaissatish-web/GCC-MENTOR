@@ -1,4 +1,5 @@
 import type { FunnelAnswers, GulfReadinessResult } from '@/lib/gulfReadiness/types'
+import type { ReadinessCategory } from '@/types/careerProfile'
 import { calculateGulfReadiness } from '@/lib/gulfReadiness/engine'
 
 /**
@@ -101,4 +102,30 @@ function dateRange(start?: string | null, end?: string | null): string {
 /** Score a profile with the same engine and scenario logic as the anonymous scan. */
 export function scoreProfileReadiness(profile: ProfileScoringInput, answers: FunnelAnswers): GulfReadinessResult {
   return calculateGulfReadiness({ answers, resumeText: profileToScoringText(profile) })
+}
+
+/**
+ * Reconstruct the funnel scenario from the completeness engine's category.
+ *
+ * The anonymous scan carries its funnel answers in sessionStorage, but a
+ * signed-in surface reached later — the dashboard — has no such handoff. The
+ * four readiness categories (lib/readiness.ts) map 1:1 onto the four funnel
+ * scenarios (scenarioFromAnswers in engine.ts), and the category is derived from
+ * the same saved profile fields, so this lets the dashboard show Gulf Readiness
+ * for any user without persisting a separate answer set. It can differ from a
+ * self-declared funnel answer only where the profile data itself disagrees
+ * (e.g. no employment gap ⇒ 'experienced' rather than 'returner') — which is the
+ * more accurate reading, not a fabricated one.
+ */
+export function answersFromReadinessCategory(category: ReadinessCategory): FunnelAnswers {
+  switch (category) {
+    case 'currently_in_gulf':
+      return { hasGulfExperience: true, currentlyInGulf: true }
+    case 'returner':
+      return { hasGulfExperience: true, currentlyInGulf: false }
+    case 'experienced_not_in_gulf':
+      return { hasGulfExperience: false, hasProfessionalExperience: true }
+    case 'fresher':
+      return { hasGulfExperience: false, hasProfessionalExperience: false }
+  }
 }

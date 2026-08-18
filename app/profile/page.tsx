@@ -17,8 +17,6 @@ import { Card } from '@/components/ui/Card'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Toggle } from '@/components/ui/Toggle'
 import { PhotoUpload } from '@/components/profile/PhotoUpload'
-import { LiveReadiness } from '@/components/gulfReadiness/LiveReadiness'
-import type { FunnelAnswers } from '@/lib/gulfReadiness/types'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
@@ -783,10 +781,6 @@ function ProfileScreen() {
   const [editor, setEditor] = useState<EditorData | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
-  // Gulf-experience answers carried from the anonymous Scorecard, so the live
-  // readiness score below uses the same scenario the user already saw. Read once
-  // on mount; null until then and if the user never ran the scan.
-  const [readinessAnswers, setReadinessAnswers] = useState<FunnelAnswers | null>(null)
   // Set true when a freshly-extracted draft loads into the editor, so it is
   // auto-saved (founder decision 2026-08-18). Consumed once by the effect below.
   const [autoSaveOnLoad, setAutoSaveOnLoad] = useState(false)
@@ -813,16 +807,6 @@ function ProfileScreen() {
   useEffect(() => {
     if (didInit.current) return
     didInit.current = true
-
-    // Gulf-experience answers carried from the anonymous Scorecard (via
-    // /onboarding). Not cleared here: the live score needs them for the whole
-    // editing session, and they hold no resume content — only which scenario.
-    try {
-      const raw = window.sessionStorage.getItem('gulf_readiness_answers')
-      if (raw) setReadinessAnswers(JSON.parse(raw) as FunnelAnswers)
-    } catch {
-      /* absent or malformed — the widget just prompts for the scenario */
-    }
 
     // CLAIMED_SCAN_RESULT_KEY — one-time "welcome back" handoff (TASK-070).
     // Reads and clears it here regardless of the draft branch below, so the
@@ -1347,37 +1331,41 @@ function ProfileScreen() {
         </div>
       </header>
 
-      {/* Live Gulf Readiness (the arithmetic Scorecard engine), updating as the
-          profile is built. Shown only when the Gulf-experience scenario is known,
-          i.e. the user came through the anonymous scan. It reads the SAME engine as
-          that scan, so the number is consistent with what they already saw and
-          rises as they complete the profile. The legacy ReadinessRing above is a
-          separate, older completeness score; reconciling the two onto one engine is
-          a recorded follow-up. */}
-      {readinessAnswers ? (
-        <div className="mx-5 mt-4">
-          <LiveReadiness
-            answers={readinessAnswers}
-            profile={{
-              professional_summary: editor.professional_summary,
-              phone: editor.phone,
-              email: editor.email,
-              work_experience: editor.work_experience.map((w) => ({
-                company: w.company,
-                role: w.role,
-                start_date: w.start_date,
-                end_date: w.end_date,
-                location: w.location,
-                description: w.description,
-                highlights: w.highlights ? w.highlights.split('\n').filter(Boolean) : [],
-              })),
-              skills: editor.skills.map((s) => ({ name: s.name })),
-              certifications: editor.certifications.map((c) => ({ name: c.name, issuer: c.issuer })),
-              education: editor.education.map((e) => ({ degree: e.degree, institution: e.institution, field_of_study: e.field_of_study })),
-            }}
-          />
+      {/* START OR UPDATE FROM A RESUME — the three ways in that used to live on
+          the /create-resume screen and in the sidebar (founder decision
+          2026-08-18: fold them onto the Career Profile itself). A returning user
+          opens their profile, sees their data, and can re-import from a file or
+          pasted text, or keep editing by hand below. Upload/paste route into the
+          SAME extraction pipeline as before; when a draft returns and a saved
+          profile already exists, the page's own add-or-replace step (below)
+          decides what to keep — nothing is overwritten silently. */}
+      <div className="mx-5 mt-4 rounded-radius-lg border border-line-light bg-surface-2-light/40 p-4">
+        <h2 className="text-[13px] font-bold text-ink-900">Start or update from a resume</h2>
+        <p className="mt-1 text-[11.5px] leading-relaxed text-ink-400">
+          Bring in a resume to fill your profile, or just edit the details below. Importing shows an
+          add-or-replace step first — nothing is overwritten until you choose.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Link
+            href="/onboarding/extracting?path=upload"
+            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full justify-center')}
+          >
+            Upload a file
+          </Link>
+          <Link
+            href="/onboarding/extracting?path=paste"
+            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full justify-center')}
+          >
+            Paste text
+          </Link>
+          <a
+            href="#profile-editor"
+            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full justify-center')}
+          >
+            Fill in manually
+          </a>
         </div>
-      ) : null}
+      </div>
 
       {loadError ? (
         <div className="mx-5 mt-4 rounded-radius-md border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
@@ -1428,7 +1416,7 @@ function ProfileScreen() {
           shows the score; the chips show where the remaining points are. */}
 
       {/* Editor body */}
-      <div className="flex flex-col gap-2.5 px-5 py-4">
+      <div id="profile-editor" className="flex flex-col gap-2.5 px-5 py-4 scroll-mt-4">
         {/* One plain sentence naming the whole job before the first step, so
             the user knows how long this is and where they are inside it. The
             old page opened straight into nine expanded blocks with no such

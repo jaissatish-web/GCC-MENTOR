@@ -7,7 +7,6 @@ import {
   RectangleStackIcon,
   UserCircleIcon,
   ShieldCheckIcon,
-  PlusCircleIcon,
   MagnifyingGlassIcon,
   DocumentTextIcon,
   EnvelopeIcon,
@@ -24,9 +23,15 @@ import {
  *
  * Order is the founder-specified one (2026-08-14) and is deliberate: the two
  * things a returning user does most (open the Library, finish the Profile)
- * sit directly under Dashboard, and the creation entry point comes before the
- * tools that operate on what was created. Payments is intentionally absent —
- * it now lives inside Settings.
+ * sit directly under Dashboard, and the tools that operate on what was created
+ * follow. Payments is intentionally absent — it now lives inside Settings.
+ *
+ * "Create Resume" was removed from this menu (founder decision 2026-08-18): the
+ * three ways to start (upload · paste · fill manually) now live on the Career
+ * Profile page itself, so the profile is the one place a user both sees their
+ * data and (re)builds it. The /create-resume route still exists for the
+ * dashboard's first-run CTA and the onboarding fallback — it is only gone from
+ * the nav.
  */
 export interface NavItem {
   label: string
@@ -55,7 +60,6 @@ export interface NavItem {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, exact: true },
-  { label: 'Create Resume', href: '/create-resume', icon: PlusCircleIcon },
   { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true },
   { label: 'Resume Library', href: '/dashboard/library', icon: BookOpenIcon },
   { label: 'Resume Templates', href: '/templates', icon: RectangleStackIcon },
@@ -103,7 +107,6 @@ export const MOBILE_PRIMARY_HREFS: readonly string[] = [
   '/dashboard',
   '/dashboard/library',
   '/profile',
-  '/create-resume',
 ]
 
 export const MOBILE_PRIMARY_ITEMS: readonly NavItem[] = NAV_ITEMS.filter((i) =>

@@ -51,10 +51,15 @@ dates.
 ## Post-signup Career Profile build — partly built 2026-08-18
 
 **Built:** the profile→readiness adapter (`lib/gulfReadiness/fromProfile.ts`, same engine,
-9 assertions), the live-readiness widget (`components/gulfReadiness/LiveReadiness.tsx`)
-wired into the profile editor, and the Scorecard-handoff restore in `/onboarding` so the
-resume text is carried forward — neither tier re-uploads. GCC Readiness now updates live
-as the profile is filled, using the same arithmetic engine as the anonymous scan.
+9 assertions), the live-readiness widget (`components/gulfReadiness/LiveReadiness.tsx`),
+and the Scorecard-handoff restore in `/onboarding` so the resume text is carried forward —
+neither tier re-uploads. GCC Readiness uses the same arithmetic engine as the anonymous
+scan.
+
+**Moved 2026-08-18 (founder decision):** the live Gulf Readiness widget now renders on the
+**dashboard**, not the profile editor. The dashboard reconstructs the funnel scenario from
+the saved profile's readiness category (`answersFromReadinessCategory`), so it needs no
+sessionStorage handoff and works for any signed-in user.
 
 **Verified by tsc, lint, a full production build and the test suites — NOT in a browser.**
 There is no authenticated session in the CTO environment, so the profile and onboarding
@@ -64,10 +69,13 @@ screens have not been seen rendered. The founder should check them on the deploy
 - **The tier-gated chooser** (free → type, paid → upload). The restore and all three
   input paths work, but the chooser is not yet gated by tier — inert anyway while the
   locks are off, so it lands with the paid locks.
-- **One engine, not two.** The profile editor still shows the older `lib/readiness.ts`
-  completeness ring *alongside* the new live Gulf Readiness widget. Reconcile onto the
-  single arithmetic engine — deferred because rewiring the legacy ring on the 1,400-line
-  editor is delicate and untestable here.
+- **One engine, not two.** Two readiness numbers still coexist — the older
+  `lib/readiness.ts` completeness score (Profile Strength) and the arithmetic Gulf
+  Readiness market score. They no longer sit on the same screen: completeness is on the
+  profile editor, Gulf Readiness on the dashboard, and the founder chose **2026-08-18 to
+  show both** (each clearly labelled as a different thing). So this is now a deliberate
+  two-number design, not an accidental duplication — reconciling onto a single engine is
+  deferred by that decision, not outstanding cleanup.
 
 ---
 

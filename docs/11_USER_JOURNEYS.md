@@ -90,9 +90,9 @@ user correctly. It is completed on the login page and the fragment is cleared.
 
 | Route | What it is |
 |---|---|
-| `/dashboard` | Metrics, next step, recent activity, readiness card, quick actions, Library preview |
-| `/create-resume` | The creation entry point: upload, paste or type |
-| `/profile` | The Career Profile editor |
+| `/dashboard` | Metrics, next step, recent activity, **two readiness cards — Profile Strength (completeness) and Gulf Readiness (market score)** — quick actions, Library preview |
+| `/create-resume` | The creation entry point (upload, paste or type). **No longer in the nav** (2026-08-18); reached only from the dashboard first-run CTA and the onboarding fallback. Its three ways to start now also live on `/profile`. |
+| `/profile` | The Career Profile editor. Opens with a **"start or update from a resume"** row (upload · paste · fill manually) above the user's data, so re-importing and hand-editing sit in one place. |
 | `/profile/visibility` | What appears on a CV |
 | `/dashboard/library` | Every resume — desktop table, mobile cards |
 | `/templates` | The template gallery, previewed on an example CV |

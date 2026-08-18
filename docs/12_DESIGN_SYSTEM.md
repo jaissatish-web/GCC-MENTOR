@@ -151,14 +151,18 @@ The desktop sidebar, the mobile bottom bar and the "More" drawer all render from
 They used to be three separate copies, and they had **already drifted** — the mobile
 bar still showed a renamed item and a destination that had moved.
 
-**Nine destinations, in this founder-specified order:**
+**Eight destinations, in this founder-specified order:**
 
-Dashboard · Create Resume · Career Profile · Resume Library · Resume Templates ·
+Dashboard · Career Profile · Resume Library · Resume Templates ·
 Job Match · Resume Optimizer · Cover Letter · Settings
 
 The order is deliberate: the two things a returning user does most sit directly under
-Dashboard, and the creation entry point comes before the tools that operate on what was
-created. **Payments is deliberately absent** — it lives inside Settings.
+Dashboard, and the tools that operate on what was created follow. **Payments is
+deliberately absent** — it lives inside Settings. **"Create Resume" was removed from
+the nav (2026-08-18):** its three ways to start (upload · paste · fill manually) now live
+on the Career Profile page itself, so the profile is the one place a user both sees their
+data and rebuilds it. The `/create-resume` route still exists for the dashboard's
+first-run CTA and the onboarding fallback — it is only gone from the menu.
 
 **Breakpoints:** desktop (≥1024px) shows the full 248px rail; tablet (768–1023px)
 collapses to icon-only, expandable on tap, with nothing hidden; mobile (<768px) uses a

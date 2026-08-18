@@ -12,6 +12,36 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-18 — Gulf Readiness to the dashboard, Create Resume onto the profile
+
+**Founder decision, two position swaps, no logic change.**
+
+**1. Gulf Readiness moves from the profile editor to the dashboard.** The profile editor
+showed two numbers — the completeness ring ("Profile Strength") and the arithmetic Gulf
+Readiness market score. The Gulf Readiness card now renders on the dashboard instead,
+next to Profile Strength. The founder chose to **show both** there (they measure different
+things and are labelled as such), rather than replace one. The dashboard has no
+sessionStorage handoff to carry the funnel scenario, so it is reconstructed from the saved
+profile's readiness category via `answersFromReadinessCategory` — the four categories map
+1:1 onto the four funnel scenarios, so the number is the same engine's output and works for
+any signed-in user, not only those fresh from the scan.
+
+**2. "Create Resume" leaves the nav; its three ways in move onto the Career Profile
+page.** The sidebar/mobile "Create Resume" item is gone. The Career Profile page now opens
+with a "start or update from a resume" row — upload · paste · fill manually — above the
+user's data, so the profile is the single place a user both sees their information and
+(re)builds it. This tightens the 2026-08-18 "one profile-build door" decision below rather
+than reversing it: the `/create-resume` route still exists for the dashboard's first-run
+CTA and the onboarding fallback, so those paths are unaffected — it is only removed from
+the menu. Re-importing over an existing profile is safe: the editor's existing
+add-or-replace step (it describes what a replace would lose) still governs, so nothing is
+overwritten silently.
+
+Surfaces updated: [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §3,
+[`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) nav, and the "one engine, not two" open item.
+
+---
+
 ## 2026-08-18 — signup reveals the full readiness report, before extraction
 
 **The signup gate's promise is now kept.** The anonymous scorecard shows a subset behind

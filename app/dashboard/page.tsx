@@ -9,9 +9,11 @@ import { Pill } from '@/components/ui/Pill'
 import { LockedTile } from '@/components/ui/LockedTile'
 import { Reveal } from '@/components/ui/Reveal'
 import { ProfileKickstart } from '@/components/profile/ProfileKickstart'
+import { LiveReadiness } from '@/components/gulfReadiness/LiveReadiness'
 import { buttonVariants } from '@/components/ui/Button'
 import { cn, GULF_COUNTRIES, resumeLabel } from '@/lib/utils'
 import { calculateReadiness } from '@/lib/readiness'
+import { answersFromReadinessCategory } from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { Package } from '@/types/package'
 
@@ -177,6 +179,12 @@ export default function DashboardPage() {
     : null
   const score = profile?.readiness_score ?? readiness?.score ?? 0
   const missing = readiness?.missing ?? []
+  // Gulf Readiness (the arithmetic market score, distinct from Profile Strength
+  // above) now lives on the dashboard too — founder decision 2026-08-18. It needs
+  // the funnel scenario, which the dashboard has no sessionStorage handoff for, so
+  // it is reconstructed from the same category the completeness engine already
+  // derived. Same engine, same number the user saw; shown only once a profile exists.
+  const gulfAnswers = readiness ? answersFromReadinessCategory(readiness.category) : null
   const packageCount = packages.length
   const recentPackages = packages.slice(0, 3)
   const jobMatch = latestJobMatch(packages)
@@ -405,6 +413,39 @@ export default function DashboardPage() {
               </Link>
             </Card>
           </Reveal>
+
+          {/* Gulf Readiness — the arithmetic market score, moved here from the
+              Career Profile (founder decision 2026-08-18). Distinct from Profile
+              Strength above: this is "how ready for the Gulf market", that is "how
+              complete your profile is". Rendered only when a profile exists. */}
+          {gulfAnswers && profile ? (
+            <Reveal delay={185}>
+              <LiveReadiness
+                answers={gulfAnswers}
+                profile={{
+                  professional_summary: profile.professional_summary,
+                  phone: profile.phone,
+                  email: profile.email,
+                  work_experience: profile.work_experience.map((w) => ({
+                    company: w.company,
+                    role: w.role,
+                    start_date: w.start_date,
+                    end_date: w.end_date,
+                    location: w.location,
+                    description: w.description,
+                    highlights: w.highlights,
+                  })),
+                  skills: profile.skills.map((s) => ({ name: s.name })),
+                  certifications: profile.certifications.map((c) => ({ name: c.name, issuer: c.issuer })),
+                  education: profile.education.map((e) => ({
+                    degree: e.degree,
+                    institution: e.institution,
+                    field_of_study: e.field_of_study,
+                  })),
+                }}
+              />
+            </Reveal>
+          ) : null}
 
           {/* Quick Actions */}
           <Reveal delay={200}>
