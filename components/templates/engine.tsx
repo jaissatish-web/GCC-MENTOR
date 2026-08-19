@@ -121,6 +121,15 @@ export interface TemplateTheme {
    * was designed with. Driven by the user's slider via applyStyleOverrides.
    */
   photoScale?: number
+  /**
+   * Explicit photo on/off, driven by the user's toggle via applyStyleOverrides
+   * (2026-08-19). Undefined/true = show it if the template and the document
+   * otherwise would; false = hide it regardless. Layered on TOP of
+   * `allowPhoto` and the document's own `header.showPhoto` — this can only
+   * ever remove a photo that would otherwise render, never add one a
+   * photo-less template or a photo-less resume doesn't have.
+   */
+  photoVisible?: boolean
 }
 
 type SectionKey =
@@ -340,7 +349,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
     lineHeight: 1.28 + 0.16 * theme.density,
     color: theme.ink,
   }
-  const showPhoto = theme.allowPhoto && header.showPhoto && !!header.photoUrl
+  const showPhoto = theme.allowPhoto && header.showPhoto && !!header.photoUrl && theme.photoVisible !== false
 
   const contactLine = [header.identityPrimary, header.identityContact, header.identityGulf]
     .filter(Boolean)
@@ -464,7 +473,22 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
       <Section theme={theme} title={label('experience')}>
         {experience.map((item) => (
           <div key={item.entry.id} style={{ marginBottom: `${9 * theme.density}px`, pageBreakInside: 'avoid' }}>
-            <p style={{ ...body, margin: 0, fontWeight: 700 }}>{item.entry.role}</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+              <p style={{ ...body, margin: 0, fontWeight: 700 }}>{item.entry.role}</p>
+              {item.range ? (
+                <span
+                  style={{
+                    ...body,
+                    fontSize: pt(theme.bodySize - 0.5),
+                    color: theme.muted,
+                    whiteSpace: 'nowrap',
+                    flex: 'none',
+                  }}
+                >
+                  {item.range}
+                </span>
+              ) : null}
+            </div>
             {item.companyLine ? (
               <p style={{ ...body, margin: '1px 0 0', fontSize: pt(theme.bodySize - 0.5), color: theme.muted }}>
                 {item.companyLine}

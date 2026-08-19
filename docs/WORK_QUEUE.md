@@ -134,9 +134,11 @@ Traces to: open items §A1.
 ## Later, deliberately
 
 ### W6 · Port the default template onto the shared engine
-The template most users hold is the one that cannot be restyled. Must be byte-identical,
-because already-delivered resumes were rendered with it — the 32,768-combination baseline
-is what proves that.
+**The user-facing complaint this traced to is resolved (2026-08-19)** — Gulf Premium is
+now styleable through its own dedicated logic, not this port. What remains here is purely
+architectural: one rendering implementation instead of two. Must be byte-identical if
+ever done, because already-delivered resumes were rendered with the current one — the
+32,768-combination baseline is what proves that.
 Traces to: open items §B3 · CTO or a carefully-specified Hermes job · Large.
 
 ### W7 · Migrate the colour tokens to their correct names

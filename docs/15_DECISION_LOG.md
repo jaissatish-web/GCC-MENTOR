@@ -12,6 +12,60 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-19 — dates on every template, photo everywhere except ATS Classic, Gulf Premium styleable
+
+**Three founder-directed changes to the resume templates, shipped together.**
+
+**1. Every template now shows the work-experience date range.** Investigated first: the
+date string (`ResumeExperienceItem.range`, e.g. "Mar 2019 — Present") was already
+computed by `lib/resumeDocument.ts` for every experience entry — Gulf Premium was simply
+the only renderer that read it. The shared engine (`components/templates/engine.tsx`)
+never read it at all, silently dropping it across all 13 engine-driven templates, and
+ATS Classic didn't either. Fixed at the two actual points of failure: one addition to
+the engine's experience block (covers 13 templates in one place — that is the point of
+having a shared engine), and one addition to ATS Classic in its own plain
+" | "-joined convention, not the engine's right-aligned column, so a parser reading it
+linearly gets role and dates in reading order.
+
+**2. Photo added to GCC Engineering, Executive GCC, Senior Compact and Gulf Minimal.**
+These four `layout: 'single'` engine themes had `allowPhoto: false` — deliberate at
+build time (they were the "restrained, text-first" category), but Gulf convention
+generally expects a photo, and the founder asked for it. Confirmed before changing
+anything that this is architecturally safe: `allowPhoto`, `photoShape` and `photoSide`
+are generic theme fields the engine already renders identically regardless of which
+template supplies them (nine other themes already prove this), so flipping the flag is
+the entire change — no per-template layout work needed, and the "no gap when no photo"
+reflow the founder asked for already exists (it is literally what these four templates
+looked like before this change).
+
+**ATS Classic is the deliberate, sole exception — asked directly, decided not to
+override it.** Its whole reason to exist is "maximum ATS compatibility"; a photo can
+make real-world parsers drop the entire header block, working directly against the one
+thing this template sells. Left exactly as built.
+
+**3. Gulf Premium (the default template) is now styleable — font, size, accent, photo
+size, and the new photo on/off toggle.** Asked directly whether to do this via the Large,
+separately-tracked shared-engine port (open items §B3/W6, still deferred — real risk on
+the most-used template) or a smaller, dedicated fix. Chose the smaller fix:
+`GulfPremium.tsx` gained its own derivation logic reading the same
+`ResumeStyleOverrides` the engine templates use, mapping onto its own literal constants
+(`components/templates/tokens.ts`), falling back to the EXACT original constant whenever
+an override is unset. **Verified, not assumed:** the full 32,768-permutation golden
+baseline (`scripts/verify-resume.ts`) was re-run with no overrides supplied and passed
+byte-identical — already-delivered resumes are provably unaffected.
+
+**New shared control: "show photo" on/off**, `ResumeStyleOverrides.showPhoto` /
+`TemplateTheme.photoVisible`. Only `false` is ever stored (showing is the default, same
+convention as the existing photo-size slider) — it can only ever hide a photo a template
+and a resume would otherwise show, never add one where the theme disallows it or the
+resume has none. Available on every photo-capable template, Gulf Premium included, in
+the same panel as the size slider on `/package/[id]`.
+
+Surfaces updated: [`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) §2/§6,
+[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md) §B3, `WORK_QUEUE.md` W6.
+
+---
+
 ## 2026-08-18 — the real cause of "Could not start your optimization": a NOT NULL gap in migration 033
 
 **The reasoning-budget retry shipped earlier the same day did not fix this** — it

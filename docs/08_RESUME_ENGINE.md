@@ -28,35 +28,61 @@ registry everywhere** — never by a hard-coded component reference.
 
 **15 templates:**
 
-| | Template | User-adjustable style |
-|---|---|---|
-| 1 | **Gulf Premium** — the default | **No** |
-| 2 | **ATS Classic** | **No** |
-| 3 | GCC Engineering | Yes |
-| 4 | Executive GCC | Yes |
-| 5 | Modern Professional | Yes |
-| 6 | Senior Compact | Yes |
-| 7 | Gulf Minimal | Yes |
-| 8 | Corporate Band | Yes |
-| 9 | Technical Sidebar | Yes |
-| 10 | Graduate Entry | Yes |
-| 11 | Portrait Right | Yes |
-| 12 | Consultant Right | Yes |
-| 13 | Heritage Left | Yes |
-| 14 | Project Two-Column | Yes |
-| 15 | Creative GCC | Yes |
+| | Template | User-adjustable style | Photo |
+|---|---|---|---|
+| 1 | **Gulf Premium** — the default | Yes (own logic, 2026-08-19) | Yes |
+| 2 | **ATS Classic** | **No, on purpose** | **No, on purpose** |
+| 3 | GCC Engineering | Yes | Yes (2026-08-19) |
+| 4 | Executive GCC | Yes | Yes (2026-08-19) |
+| 5 | Modern Professional | Yes | Yes |
+| 6 | Senior Compact | Yes | Yes (2026-08-19) |
+| 7 | Gulf Minimal | Yes | Yes (2026-08-19) |
+| 8 | Corporate Band | Yes | Yes |
+| 9 | Technical Sidebar | Yes | Yes |
+| 10 | Graduate Entry | Yes | Yes |
+| 11 | Portrait Right | Yes | Yes |
+| 12 | Consultant Right | Yes | Yes |
+| 13 | Heritage Left | Yes | Yes |
+| 14 | Project Two-Column | Yes | Yes |
+| 15 | Creative GCC | Yes | Yes |
 
-13 of the 15 run on a **shared rendering engine** (`components/templates/engine.tsx`)
-and are therefore styleable. Gulf Premium and ATS Classic are hand-written with an
-explicit face, size and colour on every element, so a style override has nothing to
-cascade into.
+13 of the 15 run on a **shared rendering engine** (`components/templates/engine.tsx`).
+Gulf Premium and ATS Classic are hand-written with an explicit face, size and colour
+on every element, so a shared style override has nothing to cascade into.
 
-**That is a real problem, honestly surfaced rather than hidden: the default template
-is the one that cannot be adjusted.** The registry carries a `styleable` flag and
-the styling panel names the limitation, so the controls are never shown dead. The
-fix — porting the default onto the engine — is recorded in
-[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md), and it must be byte-identical because
-already-delivered resumes were rendered with it.
+**Gulf Premium is styleable anyway, since 2026-08-19 — through its own small,
+dedicated derivation, not the shared engine.** `GulfPremium.tsx` reads the same
+`ResumeStyleOverrides` (font, size, accent, photo size, photo on/off) and maps them
+onto its own literal constants, falling back to the EXACT original constant whenever an
+override is unset. **Verified byte-identical against the full 32,768-permutation golden
+baseline with no overrides applied** — the default output, and therefore every
+already-delivered resume, is provably unchanged. Porting it onto the shared engine
+proper remains a separate, larger, deliberately deferred item (open items §B3/W6) —
+this is a narrower fix, not that one.
+
+**ATS Classic stays fixed on purpose, and that is now the honest exception rather than
+one of two.** Its whole reason to exist is "maximum ATS compatibility" — a styling
+control, and especially a photo, works against that. The styling panel names this
+directly rather than showing dead controls.
+
+**Every template now shows the work-experience date range.** Until 2026-08-19 only
+Gulf Premium rendered it — `lib/resumeDocument.ts` had always computed it
+(`ResumeExperienceItem.range`), the shared engine and AtsClassic simply never read
+it. One addition to `engine.tsx`'s experience block covers all 13 engine-driven
+templates; AtsClassic got its own, in the same plain " | "-joined convention it
+already uses for its contact line, deliberately not the engine's right-aligned flex
+column — a parser reading it linearly should get role and dates in order, not a
+layout trick to reconstruct.
+
+**Photo coverage widened the same day.** GCC Engineering, Executive GCC, Senior
+Compact and Gulf Minimal now allow a photo (`allowPhoto: true` in
+`components/templates/themes.ts`) — they were the four "text-first" engine themes with
+no photo slot at all, which is not what a Gulf CV convention expects. ATS Classic is the
+deliberate, sole exception, for the ATS reason above. **A per-resume "show photo"
+toggle** (`ResumeStyleOverrides.showPhoto`) sits alongside the existing photo-size
+slider in the style panel on every photo-capable template, including Gulf Premium — it
+can only ever hide a photo a template and a resume would otherwise show, never
+conjure one from nothing.
 
 ### Why version, and not only id
 
@@ -166,3 +192,8 @@ refactor touching this area has been checked against it.
 It also makes the default-template port a **checkable** job rather than a risky one:
 byte-identical output across all 32,768 combinations is exactly the proof needed
 that already-delivered resumes still render the way they were delivered.
+
+**Re-run and passed 2026-08-19** against GulfPremium.tsx's new style-override logic,
+with no overrides supplied (the baseline's own fixture never passes any) —
+`VERIFY PASS — all 32768 permutations produce byte-identical HTML`. That is the actual
+evidence behind "already-delivered resumes are unaffected", not just the intent.

@@ -596,41 +596,72 @@ function PackageScreenInner({ id }: { id: string }) {
                       {/* Save/Undo moved up beside Download PDF (TASK-156). Only
                           Reset stays here, because it belongs with the controls it
                           clears rather than with the document's actions. */}
-                      {/* PHOTO SIZE (TASK-158, founder-directed).
-                          A slider rather than named steps because size is the one
-                          property where "a bit bigger" is the actual request, and a
-                          number is safe to accept: it is validated as an integer in
-                          range and only ever multiplied into a pixel dimension, so
-                          unlike a font name it has no route into arbitrary CSS.
-
-                          Hidden when the template prints no photo. A control that
-                          cannot move is worse than an absent one. */}
+                      {/* PHOTO — show/hide plus size, both TASK-158/2026-08-19.
+                          Hidden entirely when the template prints no photo, or
+                          the resume has none to show. A control that cannot
+                          move is worse than an absent one. */}
                       {allowsPhoto && hasPhoto ? (
                         <div className="mt-4">
-                          <label
-                            htmlFor="photo-size"
-                            className="flex items-baseline justify-between text-[11px] text-ink-400"
-                          >
-                            <span>Photo size</span>
-                            <span className="text-ink-700">{photoPos}%</span>
+                          {/* SHOW PHOTO (2026-08-19, founder-directed). Only
+                              `false` is ever stored — see ResumeStyleOverrides's
+                              own doc — so unchecking writes `showPhoto: false`
+                              and re-checking removes the key entirely rather
+                              than writing `true`. */}
+                          <label className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] text-ink-400">
+                            <span className="text-ink-700">Show photo</span>
+                            <input
+                              type="checkbox"
+                              checked={draftStyle.showPhoto !== false}
+                              onChange={(e) =>
+                                setDraftStyle((st) => {
+                                  const next = { ...st }
+                                  if (e.target.checked) delete next.showPhoto
+                                  else next.showPhoto = false
+                                  return next
+                                })
+                              }
+                              className="size-5 cursor-pointer accent-forest"
+                            />
                           </label>
-                          <input
-                            id="photo-size"
-                            type="range"
-                            min={0}
-                            max={100}
-                            step={5}
-                            value={photoPos}
-                            onChange={(e) =>
-                              setDraftStyle((st) => ({ ...st, photo: Number(e.target.value) }))
-                            }
-                            className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-2-light accent-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
-                          />
-                          <div className="mt-1 flex justify-between text-[10px] text-ink-400">
-                            <span>Smaller</span>
-                            <span>50% = template default</span>
-                            <span>Larger</span>
-                          </div>
+
+                          {/* PHOTO SIZE (TASK-158). A slider rather than named
+                              steps because size is the one property where "a bit
+                              bigger" is the actual request, and a number is safe
+                              to accept: validated as an integer in range and only
+                              ever multiplied into a pixel dimension, so unlike a
+                              font name it has no route into arbitrary CSS.
+
+                              Hidden while the photo itself is toggled off — a
+                              size control for something invisible is confusing,
+                              not merely redundant. */}
+                          {draftStyle.showPhoto !== false ? (
+                            <div className="mt-3">
+                              <label
+                                htmlFor="photo-size"
+                                className="flex items-baseline justify-between text-[11px] text-ink-400"
+                              >
+                                <span>Photo size</span>
+                                <span className="text-ink-700">{photoPos}%</span>
+                              </label>
+                              <input
+                                id="photo-size"
+                                type="range"
+                                min={0}
+                                max={100}
+                                step={5}
+                                value={photoPos}
+                                onChange={(e) =>
+                                  setDraftStyle((st) => ({ ...st, photo: Number(e.target.value) }))
+                                }
+                                className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-2-light accent-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                              />
+                              <div className="mt-1 flex justify-between text-[10px] text-ink-400">
+                                <span>Smaller</span>
+                                <span>50% = template default</span>
+                                <span>Larger</span>
+                              </div>
+                            </div>
+                          ) : null}
                         </div>
                       ) : null}
 
@@ -658,14 +689,17 @@ function PackageScreenInner({ id }: { id: string }) {
                       )}
                     </>
                   ) : (
-                    // Honest rather than decorative: these two templates are
-                    // hand-written with a fixed face and size on every element,
-                    // so a control here would do nothing. Say which templates
-                    // do support it instead of greying out four dead pickers.
+                    // Honest rather than decorative (2026-08-19: now true of
+                    // only ATS Classic — Gulf Premium gained its own controls).
+                    // Its fixed, colourless, photo-less style IS the product:
+                    // maximum ATS compatibility. A styling control — the photo
+                    // especially — would work against the one thing this
+                    // template sells, so it stays fixed on purpose.
                     <p className="mt-2 text-[11.5px] leading-relaxed text-ink-400">
                       <strong className="text-ink-700">{getTemplate(activeTemplateId).name}</strong>{' '}
-                      has a fixed style that cannot be adjusted. Pick any other template below to
-                      change the font, size and colour.
+                      keeps a fixed, colourless style on purpose — that is what maximum ATS
+                      compatibility means. Pick any other template below for a photo, font, size and
+                      colour choices.
                     </p>
                   )}
                 </div>

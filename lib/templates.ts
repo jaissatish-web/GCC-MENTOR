@@ -79,12 +79,16 @@ export interface TemplateEntry {
   languages: string[]
   atsLevel: AtsLevel
   /**
-   * Whether this template honours the user's font/size/accent choices
-   * (TASK-152). True for every engine-driven template. FALSE for gulf_premium
-   * and ats_classic, which are hand-written with an explicit face and size on
-   * each element, so there is nothing for an override to reach. The resume
-   * screen reads this to disable the controls with a reason, rather than
-   * offering settings that do nothing.
+   * Whether this template honours the user's font/size/accent/photo choices.
+   * True for every engine-driven template via `applyStyleOverrides`
+   * (TASK-152), and TRUE for gulf_premium since 2026-08-19 via its own small,
+   * dedicated override logic (GulfPremium.tsx) — kept hand-written rather
+   * than ported onto the shared engine (that port is Large, separately
+   * tracked, and stays deferred; see 14_OPEN_ITEMS.md). FALSE only for
+   * ats_classic, which stays fixed on purpose: "maximum ATS compatibility"
+   * is the one thing it sells, and a styling control (including a photo) works
+   * against that. The resume screen reads this flag to disable the controls
+   * with a reason, rather than offering settings that do nothing.
    */
   styleable: boolean
   /**
@@ -124,7 +128,9 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     atsLevel: 'high',
     available: true,
     allowsPhoto: true,
-    styleable: false,
+    // Styleable since 2026-08-19 (founder decision) via GulfPremium.tsx's own
+    // dedicated override logic — see the `styleable` doc above.
+    styleable: true,
     component: GulfPremium,
   },
   ats_classic: {

@@ -144,7 +144,14 @@ export default function AtsClassic({
           <h2 style={h2Style}>Work Experience</h2>
           {experience.map((item) => (
             <div key={item.entry.id} style={entryStyle}>
-              <p style={{ ...bodyStyle, margin: 0, fontWeight: 700 }}>{item.entry.role}</p>
+              <p style={{ ...bodyStyle, margin: 0, fontWeight: 700 }}>
+                {item.entry.role}
+                {/* Plain pipe, same convention as the contact line above — one
+                    text node, no flex positioning, so a parser reading this
+                    line linearly gets role and dates in reading order rather
+                    than a layout trick it has to reconstruct. */}
+                {item.range ? ` | ${item.range}` : ''}
+              </p>
               {item.companyLine ? (
                 <p style={{ ...bodyStyle, margin: '1px 0 0', fontSize: '10pt', color: MUTED }}>
                   {item.companyLine}

@@ -2,7 +2,13 @@ import type { CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { OptimizedContent } from '@/types/package'
 import { T, PAGE, SIZE } from './tokens'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
-import type { ResumeStyleOverrides } from '@/lib/resumeStyle'
+import {
+  FONT_OPTIONS,
+  SIZE_OPTIONS,
+  ACCENT_OPTIONS,
+  photoMultiplier,
+  type ResumeStyleOverrides,
+} from '@/lib/resumeStyle'
 
 /**
  * GulfPremium — the single MVP resume template (TASK-031).
@@ -68,15 +74,23 @@ export interface GulfPremiumProps {
    */
   document?: ResumeDocument | null
   /**
-   * The user's own font / size / accent choices (TASK-152, migration 037).
+   * The user's own font / size / accent / photo choices (TASK-152, migration
+   * 037; photo visibility 2026-08-19).
    *
-   * Honoured by every engine-driven template. **Ignored by this component and by
-   * AtsClassic**, which are hand-written with explicit sizes and faces on each
-   * element, so there is nothing for an override to cascade into. That is a real
-   * gap rather than a design choice — Gulf Premium is the DEFAULT template — and
-   * `/package/[id]` says so plainly instead of showing controls that do nothing.
-   * Recorded as Unplanned #26: porting this component onto the engine would fix
-   * it and would also bring it under the golden baseline's protection.
+   * Honoured by every engine-driven template via `applyStyleOverrides`
+   * (lib/resumeStyle.ts) — and, since 2026-08-19, by this component too,
+   * through its OWN small derivation below rather than that shared function
+   * (which targets `TemplateTheme`, a shape this hand-written component does
+   * not have). Still ignored by AtsClassic on purpose: "maximum ATS
+   * compatibility" is that template's whole reason to exist, and a styling
+   * control — the photo especially — works against it.
+   *
+   * BYTE-IDENTICAL BY DEFAULT IS THE HARD REQUIREMENT. Absent/empty overrides
+   * must render EXACTLY what this component always rendered — that is what the
+   * 32,768-permutation golden baseline in scripts/resume.golden.txt verifies,
+   * and what makes already-delivered resumes safe from silently changing.
+   * Every derived value below therefore falls back to the ORIGINAL literal
+   * constant, never a recomputed equivalent, when its override is unset.
    */
   styleOverrides?: ResumeStyleOverrides | null
 }
@@ -118,13 +132,35 @@ const bodyTextStyle: React.CSSProperties = {
  * with its first entry by breakAfter on the label, so it can never be stranded
  * alone at the foot of a page.
  */
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  labelStyle,
+  children,
+}: {
+  title: string
+  /** Defaults to the original constant — see the style-overrides note above. */
+  labelStyle?: React.CSSProperties
+  children: React.ReactNode
+}) {
   return (
     <div>
-      <div style={sectionLabelStyle}>{title}</div>
+      <div style={labelStyle ?? sectionLabelStyle}>{title}</div>
       {children}
     </div>
   )
+}
+
+/**
+ * `value * mult`, rounded to 2dp, formatted back as a px string. `mult === 1`
+ * returns the ORIGINAL string unchanged (not a recomputed equal value) — the
+ * cheapest possible guarantee that "no size override" means byte-identical
+ * output.
+ */
+function scalePx(value: string, mult: number): string {
+  if (mult === 1) return value
+  const n = parseFloat(value)
+  if (!Number.isFinite(n)) return value
+  return `${Math.round(n * mult * 100) / 100}px`
 }
 
 export default function GulfPremium({
@@ -133,6 +169,7 @@ export default function GulfPremium({
   skillsOrder,
   fieldVisibility,
   document,
+  styleOverrides,
 }: GulfPremiumProps) {
   const {
     header,
@@ -144,6 +181,34 @@ export default function GulfPremium({
     additional,
   } = document ?? buildResumeDocument({ profile, optimizedContent, skillsOrder, fieldVisibility })
 
+  // ---- Style overrides, derived once, falling back to the ORIGINAL literal
+  // constants whenever unset — see the prop's own doc for why that matters.
+  const fontStack = styleOverrides?.font ? FONT_OPTIONS[styleOverrides.font].stack : null
+  const nameFont = fontStack ?? T.serif
+  const sansFont = fontStack ?? T.sans
+  const monoFont = fontStack ?? T.mono
+
+  const sizeMult = styleOverrides?.size ? SIZE_OPTIONS[styleOverrides.size].scale : 1
+  const sz = (px: string) => scalePx(px, sizeMult)
+
+  const accentHex = styleOverrides?.accent ? ACCENT_OPTIONS[styleOverrides.accent].hex : null
+  const identityColor = accentHex ?? T.midnight // name, header rule, role titles
+  const targetTitleColor = accentHex ?? T.goldText
+
+  const photoScale = photoMultiplier(styleOverrides?.photo)
+  const photoVisible = header.showPhoto && styleOverrides?.showPhoto !== false
+
+  // Section labels and body text follow font + size only — never accent, same
+  // separation the shared engine keeps between `accent` and `ink`/`muted`.
+  // Equal to the original module-level constants whenever nothing is
+  // overridden (fontStack null, sizeMult 1), so default output is unaffected.
+  const labelStyle: React.CSSProperties = {
+    ...sectionLabelStyle,
+    fontFamily: sansFont,
+    fontSize: sz(SIZE.sectionLabel),
+  }
+  const body: React.CSSProperties = { ...bodyTextStyle, fontFamily: sansFont, fontSize: sz(SIZE.body) }
+
   return (
     <div
       id="resume-render"
@@ -154,26 +219,26 @@ export default function GulfPremium({
         boxSizing: 'border-box',
         margin: '0 auto',
         background: T.white,
-        fontFamily: T.sans,
+        fontFamily: sansFont,
         color: T.inkBody,
       }}
     >
       {/* ── HEADER ── photo + name + target title + identity lines ── */}
-      {header.hasHeaderText || header.showPhoto ? (
+      {header.hasHeaderText || photoVisible ? (
         <div
           style={{
             display: 'flex',
-            gap: header.showPhoto ? '18px' : '0',
+            gap: photoVisible ? '18px' : '0',
             alignItems: 'flex-start',
             paddingBottom: '14px',
-            borderBottom: `2px solid ${T.midnight}`,
+            borderBottom: `2px solid ${identityColor}`,
           }}
         >
-          {header.showPhoto ? (
+          {photoVisible ? (
             <div
               style={{
-                width: '78px',
-                height: '96px',
+                width: `${Math.round(78 * photoScale)}px`,
+                height: `${Math.round(96 * photoScale)}px`,
                 flex: 'none',
                 borderRadius: '4px',
                 overflow: 'hidden',
@@ -197,10 +262,10 @@ export default function GulfPremium({
             {header.displayName ? (
               <div
                 style={{
-                  fontFamily: T.serif,
-                  fontSize: SIZE.name,
+                  fontFamily: nameFont,
+                  fontSize: sz(SIZE.name),
                   lineHeight: 1.1,
-                  color: T.midnight,
+                  color: identityColor,
                 }}
               >
                 {header.displayName}
@@ -210,12 +275,12 @@ export default function GulfPremium({
             {header.targetJobTitle ? (
               <div
                 style={{
-                  fontFamily: T.sans,
-                  fontSize: SIZE.targetTitle,
+                  fontFamily: sansFont,
+                  fontSize: sz(SIZE.targetTitle),
                   fontWeight: 600,
                   letterSpacing: '0.05em',
                   textTransform: 'uppercase',
-                  color: T.goldText,
+                  color: targetTitleColor,
                 }}
               >
                 {header.targetJobTitle}
@@ -225,8 +290,8 @@ export default function GulfPremium({
             {header.hasAnyIdentity ? (
               <div
                 style={{
-                  fontFamily: T.sans,
-                  fontSize: SIZE.identity,
+                  fontFamily: sansFont,
+                  fontSize: sz(SIZE.identity),
                   lineHeight: 1.5,
                   color: T.inkMuted,
                   marginTop: '2px',
@@ -243,14 +308,14 @@ export default function GulfPremium({
 
       {/* ── PROFESSIONAL SUMMARY ── */}
       {summary ? (
-        <Section title="Professional summary">
-          <div style={bodyTextStyle}>{summary}</div>
+        <Section title="Professional summary" labelStyle={labelStyle}>
+          <div style={body}>{summary}</div>
         </Section>
       ) : null}
 
       {/* ── EXPERIENCE ── */}
       {experience.length > 0 ? (
-        <Section title="Experience">
+        <Section title="Experience" labelStyle={labelStyle}>
           {experience.map(({ entry, bullets, range, companyLine }) => {
             return (
               <div key={entry.id} style={{ marginBottom: '11px', pageBreakInside: 'avoid' }}>
@@ -264,10 +329,10 @@ export default function GulfPremium({
                 >
                   <span
                     style={{
-                      fontFamily: T.sans,
-                      fontSize: SIZE.roleTitle,
+                      fontFamily: sansFont,
+                      fontSize: sz(SIZE.roleTitle),
                       fontWeight: 600,
-                      color: T.midnight,
+                      color: identityColor,
                     }}
                   >
                     {entry.role}
@@ -275,8 +340,8 @@ export default function GulfPremium({
                   {range ? (
                     <span
                       style={{
-                        fontFamily: T.mono,
-                        fontSize: SIZE.date,
+                        fontFamily: monoFont,
+                        fontSize: sz(SIZE.date),
                         color: T.inkMuted,
                         whiteSpace: 'nowrap',
                         flex: 'none',
@@ -290,8 +355,8 @@ export default function GulfPremium({
                 {companyLine ? (
                   <div
                     style={{
-                      fontFamily: T.sans,
-                      fontSize: SIZE.meta,
+                      fontFamily: sansFont,
+                      fontSize: sz(SIZE.meta),
                       color: T.inkMuted,
                       marginTop: '1px',
                     }}
@@ -301,7 +366,7 @@ export default function GulfPremium({
                 ) : null}
 
                 {entry.description ? (
-                  <div style={{ ...bodyTextStyle, marginTop: '3px' }}>{entry.description}</div>
+                  <div style={{ ...body, marginTop: '3px' }}>{entry.description}</div>
                 ) : null}
 
                 {bullets.length > 0 ? (
@@ -309,7 +374,7 @@ export default function GulfPremium({
                     {bullets.map((b, i) => (
                       <div
                         key={i}
-                        style={{ ...bodyTextStyle, display: 'flex', gap: '6px', marginBottom: '1px' }}
+                        style={{ ...body, display: 'flex', gap: '6px', marginBottom: '1px' }}
                       >
                         <span style={{ flex: 'none' }}>•</span>
                         <span>{b}</span>
@@ -325,15 +390,15 @@ export default function GulfPremium({
 
       {/* ── KEY SKILLS ── reordered by relevance, never reworded ── */}
       {skills.length > 0 ? (
-        <Section title="Key skills">
-          <div style={bodyTextStyle}>{skills.map((s) => s.name).join(' · ')}</div>
+        <Section title="Key skills" labelStyle={labelStyle}>
+          <div style={body}>{skills.map((s) => s.name).join(' · ')}</div>
         </Section>
       ) : null}
 
       {/* ── CERTIFICATIONS ── */}
       {certifications.length > 0 ? (
-        <Section title="Certifications">
-          <div style={bodyTextStyle}>
+        <Section title="Certifications" labelStyle={labelStyle}>
+          <div style={body}>
             {certifications.map((c) => c.display).filter(Boolean).join(' · ')}
           </div>
         </Section>
@@ -341,7 +406,7 @@ export default function GulfPremium({
 
       {/* ── EDUCATION ── */}
       {education.length > 0 ? (
-        <Section title="Education">
+        <Section title="Education" labelStyle={labelStyle}>
           {education.map((ed) => (
             <div
               key={ed.entry.id}
@@ -354,12 +419,12 @@ export default function GulfPremium({
                 pageBreakInside: 'avoid',
               }}
             >
-              <span style={bodyTextStyle}>{ed.line}</span>
+              <span style={body}>{ed.line}</span>
               {ed.years ? (
                 <span
                   style={{
-                    fontFamily: T.mono,
-                    fontSize: SIZE.date,
+                    fontFamily: monoFont,
+                    fontSize: sz(SIZE.date),
                     color: T.inkMuted,
                     whiteSpace: 'nowrap',
                     flex: 'none',
@@ -375,8 +440,8 @@ export default function GulfPremium({
 
       {/* ── ADDITIONAL INFORMATION ── one block, one toggle (MVP scope) ── */}
       {additional.length > 0 ? (
-        <Section title="Additional information">
-          <div style={bodyTextStyle}>
+        <Section title="Additional information" labelStyle={labelStyle}>
+          <div style={body}>
             {additional.map((a) => a.display).filter(Boolean).join(' · ')}
           </div>
         </Section>

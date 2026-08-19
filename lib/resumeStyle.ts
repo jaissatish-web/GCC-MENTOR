@@ -119,6 +119,16 @@ export interface ResumeStyleOverrides {
   accent?: AccentKey
   /** Slider position 0-100. Absent means PHOTO_DEFAULT. */
   photo?: number
+  /**
+   * Explicit photo on/off (2026-08-19, founder decision). Only `false` is ever
+   * stored — showing the photo is the template's own default, so storing `true`
+   * would claim a choice nobody made, same reasoning as PHOTO_DEFAULT above.
+   * Has no effect on a template whose theme disallows a photo altogether
+   * (`allowPhoto: false`) or on a resume with no photo to show in the first
+   * place — this can only ever hide a photo that would otherwise appear, never
+   * conjure one from nothing.
+   */
+  showPhoto?: boolean
 }
 
 export function isFontKey(v: unknown): v is FontKey {
@@ -170,6 +180,11 @@ export function parseStyleOverrides(
     if (rounded < 0 || rounded > 100) return { error: 'styleOverrides.photo' }
     // The default is not an override — storing it would claim a choice.
     if (rounded !== PHOTO_DEFAULT) out.photo = rounded
+  }
+  if (o.showPhoto !== undefined && o.showPhoto !== null) {
+    if (typeof o.showPhoto !== 'boolean') return { error: 'styleOverrides.showPhoto' }
+    // Only the non-default direction is ever stored — see the field's own doc.
+    if (o.showPhoto === false) out.showPhoto = false
   }
 
   // Nothing set is stored as NULL rather than `{}` — one representation for
@@ -233,6 +248,12 @@ export function applyStyleOverrides(
 
   if (overrides.photo !== undefined) {
     next.photoScale = photoMultiplier(overrides.photo)
+  }
+
+  // Only `false` is ever stored (see the field's own doc on
+  // ResumeStyleOverrides), so its mere presence here means "hide it".
+  if (overrides.showPhoto === false) {
+    next.photoVisible = false
   }
 
   return next

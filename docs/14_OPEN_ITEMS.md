@@ -224,20 +224,25 @@ receive neither. This is the exact failure mode
 [`02_PHILOSOPHY.md`](02_PHILOSOPHY.md) §2 exists to prevent, and it is copy drift rather
 than a coding error: both sentences were true of an earlier version of the product.
 
-### B3 · The default resume template cannot be restyled
+### ~~B3 · The default resume template cannot be restyled~~ — narrower fix shipped 2026-08-19
 
-A user can change font, size and accent on 13 of 15 templates. The two exceptions are
-hand-written with explicit styling on every element, so an override has nothing to
-cascade into — and one of them is the **default**, which means the template most users
-hold is the one that cannot be adjusted.
+**Gulf Premium is now styleable** — font, size, accent, photo size and photo on/off —
+through its own small, dedicated derivation in `GulfPremium.tsx`, not a port onto the
+shared engine. Every derived value falls back to the exact original constant when no
+override is set, and this was verified rather than assumed: the full 32,768-permutation
+golden baseline was re-run with no overrides and passed byte-identical
+(`docs/08_RESUME_ENGINE.md` §6).
 
-Surfaced honestly in the UI rather than shown as dead controls, so it is a gap and not a
-lie. The fix is to port it onto the shared engine, which would also bring it under the
-exhaustive rendering baseline that currently covers it only as a black box.
+**ATS Classic remains the one true exception, and that is now deliberate rather than
+incidental.** Its whole reason to exist is "maximum ATS compatibility" — a styling
+control, especially a photo, works against that, so it stays fixed on purpose. The
+styling panel says so directly.
 
-**Non-trivial but checkable:** its exact output is what already-delivered resumes were
-rendered with, so the port must be byte-identical — and the 32,768-combination baseline
-is exactly the tool that proves it.
+**The full port onto the shared engine (W6, `WORK_QUEUE.md`) is still open and still
+deferred.** This fix closes the user-facing gap without taking on that Large,
+higher-risk rework — it is a narrower, safer answer to the same complaint, not a
+substitute for the eventual port if one is still wanted for its own sake (one rendering
+implementation instead of two, not a defect this leaves behind).
 
 ### B4 · The free CV download is unreachable
 

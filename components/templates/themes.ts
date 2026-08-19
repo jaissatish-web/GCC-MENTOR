@@ -46,7 +46,10 @@ export const GCC_ENGINEERING: TemplateTheme = {
   headingStyle: 'side',
   layout: 'single',
   uppercaseName: false,
-  allowPhoto: false,
+  // Photo added 2026-08-19 (founder decision) — Gulf employers generally
+  // expect one, and the engine's own header hides it cleanly when a resume
+  // has none or the user turns it off, same as every other photo theme.
+  allowPhoto: true,
   // Engineering CVs in the Gulf lead with capability, not narrative.
   labels: {
     summary: 'Professional Profile',
@@ -71,7 +74,8 @@ export const EXECUTIVE_GCC: TemplateTheme = {
   headingStyle: 'plain',
   layout: 'single',
   uppercaseName: true,
-  allowPhoto: false,
+  // Photo added 2026-08-19 (founder decision) — see GCC_ENGINEERING's note.
+  allowPhoto: true,
   labels: {
     summary: 'Executive Profile',
     experience: 'Career Experience',
@@ -121,7 +125,8 @@ export const SENIOR_COMPACT: TemplateTheme = {
   headingStyle: 'rule',
   layout: 'single',
   uppercaseName: false,
-  allowPhoto: false,
+  // Photo added 2026-08-19 (founder decision) — see GCC_ENGINEERING's note.
+  allowPhoto: true,
 }
 
 export const GULF_MINIMAL: TemplateTheme = {
@@ -139,7 +144,10 @@ export const GULF_MINIMAL: TemplateTheme = {
   headingStyle: 'plain',
   layout: 'single',
   uppercaseName: false,
-  allowPhoto: false,
+  // Photo added 2026-08-19 (founder decision) — see GCC_ENGINEERING's note.
+  // The engine's photo box carries no colour of its own, so it does not
+  // conflict with this theme's deliberate restraint.
+  allowPhoto: true,
 }
 
 export const CORPORATE_BAND: TemplateTheme = {
