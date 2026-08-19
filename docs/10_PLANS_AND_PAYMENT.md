@@ -148,7 +148,14 @@ nothing counts against it. The database index below still exists and would still
   free resume per user — a quota enforced only in application code is a quota a
   second code path forgets
 - The entitlements table, its reader, and the admin control panel
-- A free resume's Edit correctly routes to the profile
+- ~~A free resume's Edit correctly routes to the profile~~ — **changed 2026-08-19.**
+  This never actually governed a real `tier: 'free'` resume (none can exist — see
+  below); it governed any ordinary package that simply had no generated content yet,
+  which `resumeKind()` also labels "free". That case now runs generation instead —
+  see [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §6 for the full reasoning,
+  including why the loop noted below cannot recur for it. **What "Edit" should do for
+  the genuine free-tier resume, once one can exist, is still open** — flagged in
+  `WORK_QUEUE.md` W2, not decided here.
 
 **What does not exist:**
 - No route creates a free resume
@@ -166,6 +173,12 @@ these paths interact: a free resume clicking "Edit text" reached the preview scr
 whose guard sent a row with no content to the generate screen, which requested
 generation, which refused because the row was unpaid, which returned it to the payment
 screen. **A loop, from a button labelled Edit.**
+
+**Cannot recur today** (2026-08-19 note): the "unpaid → refused" step required a payment
+check in `/api/optimize` that no longer exists — generation now simply runs. This is
+exactly why "Edit" was safe to point at generation again for an ordinary ungenerated
+package, above. It would need re-checking if the payment lock returns before the free
+tier is reachable.
 
 ---
 

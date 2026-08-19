@@ -350,19 +350,26 @@ function PackageScreenInner({ id }: { id: string }) {
           </a>
           {/* WHERE "EDIT" GOES DEPENDS ON WHAT THIS RESUME IS.
               /optimize/preview edits the model-written text, and a resume that
-              has never been optimized has none — so its Edit goes to the Career
-              Profile, where its words actually live, and the CV follows because
-              an unoptimized resume renders from the live profile rather than from
-              a frozen snapshot.
-              This also used to be a genuine loop: preview sent an ungenerated row
-              to generate, which refused with a payment error, which sent it back
-              to pay. The payment leg is gone, but the routing rule below is right
-              on its own merits and stays. */}
+              has never been optimized has none of its own — its wording is the
+              live Career Profile, so there is nothing here yet for a per-resume
+              editor to open (2026-08-19, founder-directed change from the old
+              behaviour, which sent this case to /profile instead).
+              So for a free/ungenerated package this button runs generation
+              first — /optimize/generate/[id] already reads every target field
+              off the row (set at creation) and needs nothing new from here. On
+              success it lands back on THIS page, where optimized_content is now
+              set, isFree flips to false, and this exact button becomes "Edit
+              text" pointing at the real per-resume editor — no separate wiring
+              needed for that second step. */}
           <Link
-            href={isFree ? '/profile' : `/optimize/preview/${encodeURIComponent(id)}`}
+            href={
+              isFree
+                ? `/optimize/generate/${encodeURIComponent(id)}`
+                : `/optimize/preview/${encodeURIComponent(id)}`
+            }
             className={buttonVariants({ variant: 'secondary', size: 'sm' })}
           >
-            {isFree ? 'Edit my details' : 'Edit text'}
+            {isFree ? 'Optimize this resume' : 'Edit text'}
           </Link>
           <a
             href={waUrl}
@@ -436,24 +443,10 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         ) : null}
 
-        {/* Shown on an un-optimized resume: what optimizing would add. Worded as
-            a next step rather than as a paid step, because while the locks are off
-            it is not one — and describing it as paid would be untrue copy, which
-            is the one thing this product does not do. */}
-        {isFree ? (
-          <div className="flex flex-col gap-2 rounded-radius-lg border border-line-light bg-surface-light px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[12.5px] text-ink-700">
-              This is your own wording in a Gulf format. Optimizing rewrites it for one specific
-              job, using only the facts already in your profile.
-            </p>
-            <Link
-              href="/optimize/target"
-              className={'shrink-0 ' + buttonVariants({ variant: 'primary', size: 'sm' })}
-            >
-              Optimize for a job
-            </Link>
-          </div>
-        ) : null}
+        {/* The "optimize for a job" nudge block that used to sit here (shown on
+            an un-optimized resume) was removed 2026-08-19 at the founder's
+            request — /optimize/target is still reachable from the dashboard and
+            the nav, so nothing is lost, just this in-page prompt. */}
 
         {downloaded && !isFree ? (
           <div className="rounded-radius-lg border border-forest/40 bg-forest-tint px-3.5 py-3 text-[12.5px] text-forest">

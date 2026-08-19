@@ -12,6 +12,44 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-19 — remove the "optimize for a job" nudge; ungenerated-resume Edit runs generation
+
+**Two founder-directed changes to `/package/[id]`, the second investigated before
+building because it touches a documented design decision.**
+
+**1. The "This is your own wording in a Gulf format..." nudge block and its "Optimize
+for a job" CTA are removed**, per direct instruction. `/optimize/target` is still
+reachable from the dashboard and nav — nothing else about optimizing changed.
+
+**2. "Edit my details" → `/profile` for an ungenerated resume now runs generation
+instead**, landing the user on the real per-resume text editor once it completes.
+Investigated before changing: this button's destination was not arbitrary — the file's
+own comment explained it was chosen specifically to route around a real, previously-hit
+infinite loop (documented in `10_PLANS_AND_PAYMENT.md` §4): Edit → preview (no content)
+→ generate → refused, unpaid → payment screen → back to preview. Confirmed that loop is
+now structurally impossible: the refusal it depended on required a payment check in
+`/api/optimize` that no longer exists (locks off since 2026-08-17) — generation simply
+runs. Asked the founder directly given the tension, rather than picking a side: they
+confirmed "run optimization first, then edit."
+
+**Also discovered while investigating:** the label "free" here never referred to the
+product's genuine free-tier concept (`10_PLANS_AND_PAYMENT.md`'s `tier: 'free'`, which
+is fully unbuilt — no route creates one, `types/package.ts` does not even carry a `tier`
+field). `resumeKind()` (`lib/resumeKind.ts`) uses the same word for any package with no
+generated content yet, for any reason — which today can only mean an ordinary
+`/optimize/target` package abandoned or interrupted before generation ran. So this
+change is safe for every resume a real user can actually hit. **What Edit should do for
+the genuine free-tier resume, once W2 makes one reachable, is still open** — flagged
+there rather than guessed at now, since it is a different question (should something
+meant to stay free forever ever spend a real model call?) with no live case to test
+against yet.
+
+Surfaces updated: [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §6,
+[`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4, open items §A0 (a fourth
+restore-checklist item for when the paid lock returns), `WORK_QUEUE.md` W2.
+
+---
+
 ## 2026-08-19 — dates on every template, photo everywhere except ATS Classic, Gulf Premium styleable
 
 **Three founder-directed changes to the resume templates, shipped together.**

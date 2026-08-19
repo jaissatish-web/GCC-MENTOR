@@ -187,7 +187,7 @@ screen.
 
 ## 6. The free resume journey — designed, not reachable
 
-The intended flow:
+The intended flow, as designed (still not reachable — see below):
 
 ```
 /create-resume  →  "type it myself"  →  /profile  →  a free resume appears
@@ -200,11 +200,43 @@ The intended flow:
 
 **Nothing creates that resume yet.** The gate, the one-per-user quota and the admin
 control panel all exist and are verified; the route, the entry point and the Library
-labelling do not. See [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4.
+labelling do not. `types/package.ts`'s `Package` type does not even carry a `tier`
+field yet. See [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4.
 
-**A free resume edits through the profile** — the founder's explicit choice between two
-options. It works because a free resume has no frozen snapshot and already renders from
-the live profile.
+**"Edit → /profile" ONLY ever fired for a different case: any ordinary package that
+simply had not been generated yet** — created via the normal `/optimize/target` →
+`/optimize/setup` flow, whose Phase A always writes the row with `optimized_content:
+null`, then abandoned or interrupted before Phase B ran. `resumeKind()`
+(`lib/resumeKind.ts`) labels ANY such row "free" — the same word as the product-tier
+concept above, but a different thing: "nothing generated yet," not "designed to always
+be free." Since no route creates an actual `tier: 'free'` row, every real user who ever
+saw this "Edit" button was in that second case, never the first.
+
+**Changed 2026-08-19 (founder decision):** for that reachable case, "Edit" now runs
+generation (`/optimize/generate/[id]`, already built, already reads every target field
+off the row) rather than sending the user to the profile. It lands back on
+`/package/[id]` on success, where the button becomes the real per-resume text editor —
+so the user can edit only that resume, not the shared profile. Safe to change now
+because the loop this profile-routing was built to avoid (below) is structurally
+impossible today: it depended on generation refusing an unpaid row, and there is no
+payment check left in `/api/optimize` to refuse it.
+
+**This does NOT resolve the still-undesigned question of what "Edit" should do for the
+genuine, once-and-only-ever-free product tier**, if/when W2 makes it reachable —
+running a real model call to "optimize" something meant to stay free forever is a
+different call than for an ordinary in-flight package, and the loop below could return
+if payment comes back before that is resolved. Flagged in `WORK_QUEUE.md` W2 rather than
+guessed at here.
+
+**The historical loop this routing existed to prevent, recorded so it is not
+rediscovered:** a free/ungenerated resume's "Edit text" once reached the preview
+screen, whose guard sent the contentless row to the generate screen, which requested
+generation, which refused because the row was unpaid, which returned it to the payment
+screen — a loop, from a button labelled Edit. See
+[`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4 for the full account. The fix at
+the time was exactly the "Edit → /profile" routing this section now replaces for the
+reachable case — worth understanding why that fix existed before assuming it is safe to
+remove twice.
 
 ---
 

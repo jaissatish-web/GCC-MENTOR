@@ -28,6 +28,14 @@ a restore guide. Three parts, none optional:
    refused. **They must be purged or marked**, not assumed away.
 3. **The credit consume on the cover letter**, restored *after* a validated success,
    never before, with a failed consume discarding the generation.
+4. **`/package/[id]`'s "Edit" button for an ungenerated resume** (changed 2026-08-19)
+   now runs generation directly rather than routing to the profile. That is safe only
+   because generation currently has no payment check to refuse it — the exact
+   condition that once produced a real loop (a free resume's Edit bounced from preview
+   → generate → payment → back to preview). **Check this specifically** before the
+   lock returns, not just generally re-test the flow. See
+   [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4 and
+   [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §6.
 
 **A0b · Review the generation rate limit.** Payment was one of two limits on model
 spend; the daily per-user limit is now the only one. Its value was set when a paywall
