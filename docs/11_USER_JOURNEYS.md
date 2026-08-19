@@ -102,6 +102,7 @@ user correctly. It is completed on the login page and the fragment is cleared.
 | `/settings` | Account · email · current package · payments · delete data |
 | `/payments` | An honest placeholder. No payment-history feature exists |
 | `/package/[id]` | A finished resume: view, style, edit, download |
+| `/package/[id]/edit` | **That resume's own editor** (2026-08-19): summary and bullets, section by section, with a live preview of the real template. Batched save, then back to the resume |
 
 **`/gcc-readiness` is not in the navigation.** It exists and works, and is reachable
 from the dashboard's readiness card. Noted in
@@ -128,7 +129,27 @@ broke exactly that. Treat it as load-bearing.
 /optimize/preview/[id]       before/after diff, per block, word-level
    ↓
 /package/[id]                the finished resume
+   ↓                         "Edit text"
+/package/[id]/edit           edit this resume's own wording, then back
 ```
+
+**Two different editing screens, deliberately** (2026-08-19, founder-directed).
+`/optimize/preview/[id]` is a **diff viewer** — "here is what the optimizer changed",
+with before/after panels, strike-through and JD-term counts — and editing was bolted
+onto it one field at a time. `/package/[id]/edit` is the **editor**: every section of
+this resume laid out at once, a live preview of the real template beside it, one
+explicit batched Save, and a CTA back to the resume. The founder asked for the second;
+the first keeps its own job and its own route. **"Edit text" on `/package/[id]` now
+opens the editor, not the diff.**
+
+**What that editor can change, and what it deliberately cannot.** Only this package's
+own words: the professional summary and each experience entry's bullets. Name, contact,
+employers, roles, dates, education, certifications and skills are fixed fields, frozen
+into `document_snapshot` at generation ([`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) §4)
+and shared by every resume — so they are edited once on the Career Profile, and the
+editor says so with a link rather than showing inputs that refuse to work. Saving goes
+through the same `PATCH /api/packages/[id]` the diff screen used, which already
+re-applies edits onto the frozen snapshot so the screen and the PDF cannot disagree.
 
 **The payment step is gone from this flow** — every paid lock was removed on
 2026-08-17 while the pipeline is built. `/optimize/pay/[id]` still exists and now

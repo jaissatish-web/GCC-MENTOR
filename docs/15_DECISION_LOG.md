@@ -12,6 +12,46 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-19 — a real editor for a resume, separate from the diff viewer
+
+**Founder-directed: "Edit text" must open a page where the resume is edited part by
+part, visually, and saved back to that resume — not the optimization-detail page.**
+
+**Why a new route rather than reworking the existing one.**
+`/optimize/preview/[packageId]` is a **diff viewer**: before/after panels,
+strike-through, "+N JD terms" counters, one inline textarea opened at a time. It answers
+"what did the optimizer change?" — a genuinely useful question, and a different one from
+"let me rewrite this". Bending it into an editor would have destroyed the diff view to
+build something it was not shaped for. So `/package/[id]/edit` is new, and the diff
+screen keeps its route and its purpose. The only behaviour change to it is that
+`/package/[id]`'s "Edit text" no longer points there.
+
+**What the new page is:** every section of the resume laid out at once — the summary,
+then one card per experience entry with its bullets individually editable, addable and
+removable — beside a **live preview rendered by the real template component** (the same
+one the PDF route uses, fed a document with the in-progress edits applied), so "what you
+see is what downloads" survives editing. One explicit **batched Save**, then a CTA back
+to `/package/[id]`.
+
+**Batched save, not save-per-field** (the diff screen's behaviour). The user changes
+several things and presses Save once: that is a single PATCH, which is also the only
+shape that keeps `document_snapshot` consistent in one read-modify-write. Leaving with
+unsaved edits warns rather than silently discarding — the same defect recorded against
+the profile editor in open items §B5, and worse on a paid document.
+
+**Scope of what is editable is unchanged and deliberate:** the summary and the bullets,
+because those are the only things that are this *package's* own words. Name, contact,
+employers, roles, dates, education, certifications and skills are fixed fields frozen
+into `document_snapshot` at generation (migration 034) and shared across every resume —
+they are edited once on the Career Profile. The page says this plainly with a link,
+rather than rendering inputs that refuse to work. **No API change was needed:** the
+existing `PATCH /api/packages/[id]` already accepts exactly this shape and already
+re-applies edits onto the frozen snapshot so the screen and the PDF cannot disagree.
+
+Surfaces updated: [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §3 and §4.
+
+---
+
 ## 2026-08-19 — remove the "optimize for a job" nudge; ungenerated-resume Edit runs generation
 
 **Two founder-directed changes to `/package/[id]`, the second investigated before

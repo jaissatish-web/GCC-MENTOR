@@ -37,8 +37,9 @@ import type { OptimizedContent, Package } from '@/types/package'
  * (the is_paid-gated GET /api/packages/[id]/pdf; the parallel /docx route
  * exists but is deliberately unlinked — see the note at docxUrl's old site),
  * Share to WhatsApp (a wa.me link, no backend), and
- * "Edit text" → back to the Changes tab of this package
- * (/optimize/preview/[id]). A repeat-purchase prompt appears after a download,
+ * "Edit text" → this package's own editor (/package/[id]/edit, 2026-08-19 —
+ * previously the diff viewer at /optimize/preview/[id], which still exists for
+ * its own purpose). A repeat-purchase prompt appears after a download,
  * per docs/DASHBOARD_LIBRARY.md: "Applying somewhere else? Your profile is
  * saved — next one takes a minute."
  */
@@ -349,23 +350,24 @@ function PackageScreenInner({ id }: { id: string }) {
             Download PDF
           </a>
           {/* WHERE "EDIT" GOES DEPENDS ON WHAT THIS RESUME IS.
-              /optimize/preview edits the model-written text, and a resume that
-              has never been optimized has none of its own — its wording is the
-              live Career Profile, so there is nothing here yet for a per-resume
-              editor to open (2026-08-19, founder-directed change from the old
-              behaviour, which sent this case to /profile instead).
-              So for a free/ungenerated package this button runs generation
-              first — /optimize/generate/[id] already reads every target field
-              off the row (set at creation) and needs nothing new from here. On
-              success it lands back on THIS page, where optimized_content is now
-              set, isFree flips to false, and this exact button becomes "Edit
-              text" pointing at the real per-resume editor — no separate wiring
-              needed for that second step. */}
+              A resume that has never been optimized has no wording of its own —
+              it renders the live Career Profile — so there is nothing yet for a
+              per-resume editor to open. That case runs generation first
+              (2026-08-19, founder-directed change from the old behaviour, which
+              sent it to /profile): /optimize/generate/[id] already reads every
+              target field off the row and needs nothing new from here, and on
+              success lands back on THIS page, where isFree flips to false and
+              this same button becomes the editor below.
+              Once generated, Edit opens /package/[id]/edit — the section-by-
+              section editor with a live preview (2026-08-19). It deliberately
+              does NOT open /optimize/preview/[id], which is the diff viewer
+              ("here's what the optimizer changed"); that screen keeps its own
+              job and its own route. */}
           <Link
             href={
               isFree
                 ? `/optimize/generate/${encodeURIComponent(id)}`
-                : `/optimize/preview/${encodeURIComponent(id)}`
+                : `/package/${encodeURIComponent(id)}/edit`
             }
             className={buttonVariants({ variant: 'secondary', size: 'sm' })}
           >
