@@ -14,13 +14,28 @@ import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
  * page an anchor; keeping the whole screen white would read as unfinished.
  * `dark-scope` is scoped to the rail so the dark scrollbar styling follows it
  * instead of the content.
+ *
+ * `hideNav` (2026-08-19): drops the rail and the mobile bar entirely, for a
+ * screen that wants the full width and no way to wander off mid-task —
+ * `/package/[id]/edit`, so an in-progress resume edit is not one tap from
+ * "Dashboard" with unsaved changes still open. Every other caller is
+ * unaffected: the prop defaults to false, so omitting it keeps today's shell
+ * byte-for-byte.
  */
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  hideNav = false,
+}: {
+  children: React.ReactNode
+  hideNav?: boolean
+}) {
   return (
     <div className="flex min-h-screen bg-bg">
-      <div className="dark-scope contents">
-        <Sidebar />
-      </div>
+      {hideNav ? null : (
+        <div className="dark-scope contents">
+          <Sidebar />
+        </div>
+      )}
       {/*
         min-w-0 is load-bearing, not tidying.
 
@@ -30,10 +45,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         had to pan around to reach controls. One property, and it is the single
         biggest mobile defect in the app.
       */}
-      <main className="min-h-screen min-w-0 flex-1 pb-24 lg:pb-0">{children}</main>
-      <div className="dark-scope contents">
-        <MobileBottomNav />
-      </div>
+      <main className={hideNav ? 'min-h-screen min-w-0 flex-1' : 'min-h-screen min-w-0 flex-1 pb-24 lg:pb-0'}>
+        {children}
+      </main>
+      {hideNav ? null : (
+        <div className="dark-scope contents">
+          <MobileBottomNav />
+        </div>
+      )}
     </div>
   )
 }

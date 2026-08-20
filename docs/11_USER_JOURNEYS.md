@@ -285,6 +285,12 @@ that specific case. Flagged in `WORK_QUEUE.md` W2, not decided here.
   anonymous request has been seen redirecting to login.
 - **Every destination stays reachable on a phone.** The "More" drawer holds everything
   not in the bottom bar; nothing may become unreachable at any breakpoint.
+- **The sidebar and mobile nav are shown on every screen — one deliberate exception.**
+  `AppShell`'s `hideNav` prop (2026-08-19) drops both, used only by
+  `/package/[id]/edit`: a focused, easy-to-lose-work screen where a nav rail is an
+  invitation to tap away mid-edit. "Back to resume" is the one way out and warns first
+  on unsaved changes. Not a pattern to reach for casually — it removes the one-tap route
+  to everything else in the app, which is exactly why it needed a specific reason here.
 - **A page never claims behaviour it does not have.** If it says data is kept for 7
   days, it is.
 - **An unbuilt feature is honestly disabled or shown as planned — never a live-looking

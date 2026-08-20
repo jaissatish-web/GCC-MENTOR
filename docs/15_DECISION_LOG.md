@@ -12,6 +12,34 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-19 — the sidebar hides on the resume editor, returns on the resume screen
+
+**Founder-directed: `/package/[id]/edit` should hide the left nav while editing, and
+show it again once the user saves and returns to `/package/[id]`.**
+
+**`AppShell` gained a `hideNav` prop** rather than the editor page building its own,
+separate frame. It drops both the desktop rail and the mobile bottom bar and defaults to
+`false`, so every other screen's shell is byte-for-byte unchanged by this addition — the
+one call site that passes it is the new editor.
+
+**No extra state or navigation logic needed for "returns on the resume screen":** the
+nav was never actually gone from the app, only from this one screen's own render. The
+editor's "Back to resume" already routes to `/package/[id]`, which renders through the
+ordinary `AppShell()` call with no `hideNav` — so the rail is simply there again the
+moment that navigation happens, the same way it always has been for every other page.
+
+**Why hide it at all, recorded so this is not read as a stray oversight later:** the
+editor holds an easy-to-lose, in-progress edit (`docs/15_DECISION_LOG.md`'s two prior
+2026-08-19 entries on this same screen). A nav rail sitting right there is a one-tap way
+to wander onto "Dashboard" or "Library" mid-edit, on the one screen where that costs the
+most. "Back to resume" is left as the sole way out, and it already warns before
+discarding unsaved changes — removing the rail does not remove a safety net, it removes
+a second, unguarded way to leave that bypassed the one that already exists.
+
+Surfaces updated: [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §7.
+
+---
+
 ## 2026-08-19 — "Edit" opens the editor directly, never runs generation first
 
 **Same-day correction to the decision above.** That version had "Edit" on a

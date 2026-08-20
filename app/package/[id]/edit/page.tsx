@@ -416,8 +416,13 @@ function EditResumeInner({ packageId }: { packageId: string }) {
 }
 
 export default function EditResumePage({ params }: { params: { id: string } }) {
+  // No sidebar / mobile nav here on purpose (2026-08-19, founder-directed):
+  // this screen holds an in-progress, easy-to-lose edit, and a nav rail is an
+  // invitation to tap away from it. "Back to resume" above is the one way out,
+  // and it warns first when there is unsaved work — see EditResumeInner. The
+  // nav returns the moment the user is back on /package/[id].
   return (
-    <AppShell>
+    <AppShell hideNav>
       <Suspense>
         <EditResumeInner packageId={params.id} />
       </Suspense>
