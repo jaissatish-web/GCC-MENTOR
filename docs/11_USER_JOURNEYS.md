@@ -151,6 +151,15 @@ editor says so with a link rather than showing inputs that refuse to work. Savin
 through the same `PATCH /api/packages/[id]` the diff screen used, which already
 re-applies edits onto the frozen snapshot so the screen and the PDF cannot disagree.
 
+**"Edit text" opens the editor for ANY resume, generated or not** (2026-08-19, second
+pass — corrects the first version of this change, which sent a never-optimized resume to
+`/optimize/generate` first). Not needed: `lib/resumeDocument.ts` already resolves text as
+`user_edited ?? generated ?? the profile's own`, so a hand edit saved as `user_edited`
+is honoured whether or not the model ever ran, and the editor derives its starting text
+the same way the resume itself renders. `PATCH /api/packages/[id]` now creates the
+experience-block row on first edit if generation never did — still scoped to entries
+that are genuinely this profile's own, same grounding discipline as everywhere else.
+
 **The payment step is gone from this flow** — every paid lock was removed on
 2026-08-17 while the pipeline is built. `/optimize/pay/[id]` still exists and now
 **forwards** any package onward instead of asking for money: the flow no longer
@@ -233,31 +242,39 @@ concept above, but a different thing: "nothing generated yet," not "designed to 
 be free." Since no route creates an actual `tier: 'free'` row, every real user who ever
 saw this "Edit" button was in that second case, never the first.
 
-**Changed 2026-08-19 (founder decision):** for that reachable case, "Edit" now runs
-generation (`/optimize/generate/[id]`, already built, already reads every target field
-off the row) rather than sending the user to the profile. It lands back on
-`/package/[id]` on success, where the button becomes the real per-resume text editor —
-so the user can edit only that resume, not the shared profile. Safe to change now
-because the loop this profile-routing was built to avoid (below) is structurally
-impossible today: it depended on generation refusing an unpaid row, and there is no
-payment check left in `/api/optimize` to refuse it.
+**Changed twice on 2026-08-19, settled on the second pass.** First change: for that
+reachable case, "Edit" ran generation (`/optimize/generate/[id]`) before handing off to
+an editor, rather than sending the user to the profile. The founder's follow-up
+correction: clicking Edit must open the editor directly, never spend a model call first.
+It does not need to — `/package/[id]/edit` (§4 above) derives its starting text the same
+way the resume itself renders (`user_edited ?? generated ?? the profile's own`,
+`lib/resumeDocument.ts`), so a hand edit on a never-generated resume is honoured exactly
+like an edit on a generated one. `PATCH /api/packages/[id]` was extended to create the
+experience-block row on first edit when generation never did, so nothing is silently
+dropped. **"Edit" now always opens `/package/[id]/edit`, with no branch on whether the
+resume has been optimized.**
 
-**This does NOT resolve the still-undesigned question of what "Edit" should do for the
-genuine, once-and-only-ever-free product tier**, if/when W2 makes it reachable —
-running a real model call to "optimize" something meant to stay free forever is a
-different call than for an ordinary in-flight package, and the loop below could return
-if payment comes back before that is resolved. Flagged in `WORK_QUEUE.md` W2 rather than
-guessed at here.
+**A side effect worth naming:** this makes `resumeKind()` a stricter check than it used
+to be. It once meant "does `optimized_content` exist at all"; a hand edit alone can now
+make that true without the model ever running, which would have mislabelled the user's
+own writing as AI output. `hasGeneratedContent()` (`lib/resumeKind.ts`) now checks for
+actual `generated` / `generated_bullets` text specifically, so "free" still means what it
+says regardless of how many hand edits a resume has.
 
-**The historical loop this routing existed to prevent, recorded so it is not
-rediscovered:** a free/ungenerated resume's "Edit text" once reached the preview
-screen, whose guard sent the contentless row to the generate screen, which requested
-generation, which refused because the row was unpaid, which returned it to the payment
-screen — a loop, from a button labelled Edit. See
-[`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4 for the full account. The fix at
-the time was exactly the "Edit → /profile" routing this section now replaces for the
-reachable case — worth understanding why that fix existed before assuming it is safe to
-remove twice.
+**Why this is safe from the historical loop, recorded so it is not rediscovered:** a
+free/ungenerated resume's "Edit text" once reached the preview screen, whose guard sent
+the contentless row to the generate screen, which requested generation, which refused
+because the row was unpaid, which returned it to the payment screen — a loop, from a
+button labelled Edit. See [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4 for the
+full account. That loop needed generation to run as a step in the Edit path; this design
+never calls generation from Edit at all, so there is no step left for the payment refusal
+to interrupt.
+
+**Still not resolved: what "Edit" should do for the genuine, once-and-only-ever-free
+product tier**, if/when W2 makes it reachable. Arguably this change is now the right
+plumbing for it — hand-editing a resume with no AI involved is exactly what a free tier
+should allow — but no route creates a `tier: 'free'` row yet, so this is unproven for
+that specific case. Flagged in `WORK_QUEUE.md` W2, not decided here.
 
 ---
 

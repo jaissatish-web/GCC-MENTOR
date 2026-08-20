@@ -11,7 +11,7 @@ import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { readStyleOverrides } from '@/lib/resumeStyle'
 import { cn } from '@/lib/utils'
 import type { CareerProfileFull } from '@/types/careerProfile'
-import type { ExperienceBlock, OptimizedContent, Package } from '@/types/package'
+import type { OptimizedContent, Package } from '@/types/package'
 
 /**
  * Edit this resume — route /package/[id]/edit (2026-08-19, founder-directed).
@@ -24,8 +24,18 @@ import type { ExperienceBlock, OptimizedContent, Package } from '@/types/package
  * page where the resume is edited part by part, visually, against the document
  * itself. That is this page; the diff screen keeps its own job.
  *
+ * WORKS ON ANY RESUME, OPTIMIZED OR NOT (2026-08-19, second pass). An earlier
+ * version bounced a never-optimized resume to /optimize/generate first, on the
+ * reasoning that it had no wording "of its own" to edit. The founder's answer:
+ * clicking Edit must open the editor, not spend a model call. It does not need
+ * to — lib/resumeDocument.ts already resolves text as
+ * `user_edited ?? generated ?? the profile's own`, so a hand edit saved as
+ * `user_edited` is honoured whether or not the model ever ran. Both cases are
+ * therefore driven off the RENDERED DOCUMENT below rather than off
+ * optimized_content, which is what makes them one code path instead of two.
+ *
  * WHAT IS EDITABLE, AND WHY ONLY THIS. Exactly the two things that are this
- * PACKAGE's own words: the professional summary and each experience entry's
+ * RESUME's own words: the professional summary and each experience entry's
  * bullets. Everything else on the CV — name, contact, employers, roles, dates,
  * education, certifications, skills — is a FIXED FIELD read from the profile
  * and frozen into document_snapshot at generation (migration 034,
@@ -48,30 +58,21 @@ import type { ExperienceBlock, OptimizedContent, Package } from '@/types/package
 
 interface Draft {
   summary: string
-  /** Keyed by profile_experience_id -> that block's bullets, in order. */
+  /** Keyed by profile_experience_id -> that entry's bullets, in order. */
   bullets: Record<string, string[]>
 }
 
-function effectiveSummary(oc: OptimizedContent | null): string {
-  return oc?.summary?.user_edited?.trim() || oc?.summary?.generated?.trim() || ''
-}
-
-function effectiveBullets(block: ExperienceBlock): string[] {
-  return block.user_edited_bullets ?? block.generated_bullets ?? []
-}
-
-function buildDraft(oc: OptimizedContent | null): Draft {
-  const bullets: Record<string, string[]> = {}
-  for (const block of oc?.experience_blocks ?? []) {
-    bullets[block.profile_experience_id] = [...effectiveBullets(block)]
-  }
-  return { summary: effectiveSummary(oc), bullets }
+const EMPTY_CONTENT: OptimizedContent = {
+  summary: { generated: '', source_profile_summary: '' },
+  experience_blocks: [],
 }
 
 function EditResumeInner({ packageId }: { packageId: string }) {
   const router = useRouter()
   const [pkg, setPkg] = useState<Package | null>(null)
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
+  /** The resume as it stands on the server — the baseline the editor starts from. */
+  const [baseDoc, setBaseDoc] = useState<ResumeDocument | null>(null)
   const [draft, setDraft] = useState<Draft | null>(null)
   const [saved, setSaved] = useState<Draft | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -94,20 +95,40 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           return
         }
         const p = pkgData.package as Package
-        // Nothing of this package's own to edit until the model has run — its
-        // wording is still the live profile's. Same rule the diff screen uses.
-        if (!p.optimized_content) {
-          router.replace(`/optimize/generate/${encodeURIComponent(packageId)}`)
+        const prof = (profileData as CareerProfileFull | null) ?? null
+
+        // Prefer the frozen delivered document; otherwise build it from the live
+        // profile, exactly as the resume screen and the PDF route do. Either way
+        // this already has the user_edited ?? generated ?? profile precedence
+        // resolved, so the editor starts from what the user actually sees.
+        const base =
+          (p.document_snapshot as ResumeDocument | null) ??
+          (prof
+            ? buildResumeDocument({
+                profile: prof,
+                optimizedContent: (p.optimized_content as OptimizedContent | null) ?? EMPTY_CONTENT,
+                skillsOrder: p.skills_order ?? [],
+                fieldVisibility: p.field_visibility_snapshot ?? null,
+              })
+            : null)
+
+        if (!base) {
+          setError('Could not load this resume. Please try again.')
           return
         }
-        const initial = buildDraft(p.optimized_content as OptimizedContent)
+
+        const initial: Draft = {
+          summary: base.summary,
+          bullets: Object.fromEntries(base.experience.map((i) => [i.entry.id, [...i.bullets]])),
+        }
         setPkg(p)
-        setProfile(profileData as CareerProfileFull | null)
+        setProfile(prof)
+        setBaseDoc(base)
         setDraft(initial)
         setSaved(initial)
       })
       .catch(() => setError('Could not load this resume.'))
-  }, [packageId, router])
+  }, [packageId])
 
   const dirty = useMemo(
     () => (draft && saved ? JSON.stringify(draft) !== JSON.stringify(saved) : false),
@@ -115,7 +136,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   )
 
   // Warn before losing unsaved edits — open items §B5 is the same defect on the
-  // profile editor, and repeating it on a PAID document would be worse.
+  // profile editor, and repeating it on a delivered document would be worse.
   useEffect(() => {
     if (!dirty) return
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -128,27 +149,16 @@ function EditResumeInner({ packageId }: { packageId: string }) {
 
   /** The document as it would render RIGHT NOW, edits included. */
   const previewDocument: ResumeDocument | null = useMemo(() => {
-    if (!pkg || !draft) return null
-    const base =
-      (pkg.document_snapshot as ResumeDocument | null) ??
-      (profile
-        ? buildResumeDocument({
-            profile,
-            optimizedContent: pkg.optimized_content as OptimizedContent,
-            skillsOrder: pkg.skills_order ?? [],
-            fieldVisibility: pkg.field_visibility_snapshot ?? null,
-          })
-        : null)
-    if (!base) return null
+    if (!baseDoc || !draft) return null
     return {
-      ...base,
+      ...baseDoc,
       summary: draft.summary,
-      experience: base.experience.map((item) => {
+      experience: baseDoc.experience.map((item) => {
         const edited = draft.bullets[item.entry.id]
         return edited ? { ...item, bullets: edited } : item
       }),
     }
-  }, [pkg, profile, draft])
+  }, [baseDoc, draft])
 
   const save = useCallback(async () => {
     if (!pkg || !draft) return
@@ -174,24 +184,20 @@ function EditResumeInner({ packageId }: { packageId: string }) {
         setError((body?.error as string) ?? 'Could not save your changes. Please try again.')
         return
       }
-      // Mirror the write locally so the preview and the dirty check agree with
-      // the server without a refetch.
-      setPkg((prev) => {
-        if (!prev) return prev
-        const oc = prev.optimized_content as OptimizedContent
-        return {
-          ...prev,
-          optimized_content: {
-            ...oc,
-            summary: { ...oc.summary, user_edited: draft.summary },
-            experience_blocks: oc.experience_blocks.map((b) =>
-              draft.bullets[b.profile_experience_id]
-                ? { ...b, user_edited_bullets: draft.bullets[b.profile_experience_id] }
-                : b,
-            ),
-          },
-        }
-      })
+      // Move the baseline to what was just written, so the preview and the
+      // dirty check agree with the server without a refetch.
+      setBaseDoc((prev) =>
+        prev
+          ? {
+              ...prev,
+              summary: draft.summary,
+              experience: prev.experience.map((item) => {
+                const edited = draft.bullets[item.entry.id]
+                return edited ? { ...item, bullets: edited } : item
+              }),
+            }
+          : prev,
+      )
       setSaved(draft)
       setJustSaved(true)
     } catch {
@@ -208,7 +214,10 @@ function EditResumeInner({ packageId }: { packageId: string }) {
       <main className="flex min-h-dvh items-center justify-center bg-bg px-5">
         <div className="text-center">
           <p className="text-sm text-terra">{error}</p>
-          <Link href="/dashboard/library" className={cn('mt-4 inline-block', buttonVariants({ variant: 'secondary', size: 'sm' }))}>
+          <Link
+            href="/dashboard/library"
+            className={cn('mt-4 inline-block', buttonVariants({ variant: 'secondary', size: 'sm' }))}
+          >
             Back to your Library
           </Link>
         </div>
@@ -216,7 +225,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
     )
   }
 
-  if (!pkg || !draft) {
+  if (!pkg || !draft || !baseDoc) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-bg">
         <p className="font-mono text-sm text-ink-400">Loading…</p>
@@ -226,7 +235,6 @@ function EditResumeInner({ packageId }: { packageId: string }) {
 
   const Template = getTemplate((pkg as { template_id?: string | null }).template_id).component
   const styleOverrides = readStyleOverrides((pkg as { style_overrides?: unknown }).style_overrides)
-  const blocks = (pkg.optimized_content as OptimizedContent).experience_blocks ?? []
 
   return (
     <main className="mx-auto w-full max-w-[1400px] px-5 py-6 sm:px-8 font-redesign-sans">
@@ -240,13 +248,20 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {dirty ? <span className="text-[11.5px] font-semibold text-gold-text">Unsaved changes</span> : null}
-          {justSaved && !dirty ? <span className="text-[11.5px] font-semibold text-forest">Saved</span> : null}
+          {dirty ? (
+            <span className="text-[11.5px] font-semibold text-gold-text">Unsaved changes</span>
+          ) : null}
+          {justSaved && !dirty ? (
+            <span className="text-[11.5px] font-semibold text-forest">Saved</span>
+          ) : null}
           <button
             type="button"
             onClick={() => void save()}
             disabled={saveBusy || !dirty}
-            className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'disabled:cursor-not-allowed disabled:opacity-50')}
+            className={cn(
+              buttonVariants({ variant: 'primary', size: 'sm' }),
+              'disabled:cursor-not-allowed disabled:opacity-50',
+            )}
           >
             {saveBusy ? 'Saving…' : 'Save changes'}
           </button>
@@ -264,7 +279,10 @@ function EditResumeInner({ packageId }: { packageId: string }) {
       </div>
 
       {error ? (
-        <p role="alert" className="mt-4 rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra">
+        <p
+          role="alert"
+          className="mt-4 rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra"
+        >
           {error}
         </p>
       ) : null}
@@ -275,9 +293,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           {/* Professional summary */}
           <section className="rounded-radius-lg border border-line-light bg-surface-light p-5">
             <h2 className="text-[13px] font-bold text-ink-900">Professional summary</h2>
-            <p className="mt-1 text-[11.5px] text-ink-400">
-              The opening paragraph of your CV.
-            </p>
+            <p className="mt-1 text-[11.5px] text-ink-400">The opening paragraph of your CV.</p>
             <textarea
               value={draft.summary}
               onChange={(e) => setDraft((d) => (d ? { ...d, summary: e.target.value } : d))}
@@ -287,32 +303,34 @@ function EditResumeInner({ packageId }: { packageId: string }) {
             />
           </section>
 
-          {/* One card per experience entry, its bullets individually editable */}
-          {blocks.map((block) => {
-            const entry = profile?.work_experience?.find((w) => w.id === block.profile_experience_id)
-            const list = draft.bullets[block.profile_experience_id] ?? []
+          {/* One card per experience entry ON THE DOCUMENT — so the editor shows
+              exactly the entries the CV shows, in the same order, whether they
+              came from the optimizer or straight from the profile. */}
+          {baseDoc.experience.map((item) => {
+            const id = item.entry.id
+            const list = draft.bullets[id] ?? []
             const setList = (next: string[]) =>
-              setDraft((d) =>
-                d ? { ...d, bullets: { ...d.bullets, [block.profile_experience_id]: next } } : d,
-              )
+              setDraft((d) => (d ? { ...d, bullets: { ...d.bullets, [id]: next } } : d))
             return (
-              <section
-                key={block.profile_experience_id}
-                className="rounded-radius-lg border border-line-light bg-surface-light p-5"
-              >
+              <section key={id} className="rounded-radius-lg border border-line-light bg-surface-light p-5">
                 <h2 className="text-[13px] font-bold text-ink-900">
-                  {entry?.role || 'Experience'}
-                  {entry?.company ? <span className="font-normal text-ink-400"> · {entry.company}</span> : null}
+                  {item.entry.role || 'Experience'}
+                  {item.entry.company ? (
+                    <span className="font-normal text-ink-400"> · {item.entry.company}</span>
+                  ) : null}
                 </h2>
                 <p className="mt-1 text-[11.5px] text-ink-400">
-                  {list.length} {list.length === 1 ? 'bullet' : 'bullets'}. The role, employer and
-                  dates come from your Career Profile.
+                  {list.length} {list.length === 1 ? 'bullet' : 'bullets'}
+                  {item.range ? ` · ${item.range}` : ''} — the role, employer and dates come from
+                  your Career Profile.
                 </p>
 
                 <div className="mt-3 flex flex-col gap-2">
                   {list.map((bullet, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <span aria-hidden className="pt-2.5 text-[13px] text-ink-400">•</span>
+                      <span aria-hidden className="pt-2.5 text-[13px] text-ink-400">
+                        •
+                      </span>
                       <textarea
                         value={bullet}
                         onChange={(e) => setList(list.map((b, j) => (j === i ? e.target.value : b)))}
@@ -331,6 +349,11 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                       </button>
                     </div>
                   ))}
+                  {list.length === 0 ? (
+                    <p className="text-[11.5px] text-ink-400">
+                      No bullets yet — add one to describe this role.
+                    </p>
+                  ) : null}
                 </div>
 
                 <button
@@ -366,7 +389,9 @@ function EditResumeInner({ packageId }: { packageId: string }) {
         {previewDocument ? (
           <aside className="shrink-0 lg:sticky lg:top-4 lg:w-[420px]">
             <div className="rounded-radius-lg border border-line-light bg-surface-light p-4">
-              <h2 className="text-[12px] font-bold uppercase tracking-wider text-ink-700">Live preview</h2>
+              <h2 className="text-[12px] font-bold uppercase tracking-wider text-ink-700">
+                Live preview
+              </h2>
               <p className="mt-1 text-[11px] text-ink-400">
                 Exactly what your PDF will contain once you save.
               </p>
@@ -374,7 +399,9 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                 <Template
                   document={previewDocument}
                   profile={profile as CareerProfileFull}
-                  optimizedContent={pkg.optimized_content as OptimizedContent}
+                  optimizedContent={
+                    (pkg.optimized_content as OptimizedContent | null) ?? EMPTY_CONTENT
+                  }
                   skillsOrder={pkg.skills_order ?? []}
                   fieldVisibility={pkg.field_visibility_snapshot ?? null}
                   styleOverrides={styleOverrides}

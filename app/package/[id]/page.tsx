@@ -349,29 +349,25 @@ function PackageScreenInner({ id }: { id: string }) {
           >
             Download PDF
           </a>
-          {/* WHERE "EDIT" GOES DEPENDS ON WHAT THIS RESUME IS.
-              A resume that has never been optimized has no wording of its own —
-              it renders the live Career Profile — so there is nothing yet for a
-              per-resume editor to open. That case runs generation first
-              (2026-08-19, founder-directed change from the old behaviour, which
-              sent it to /profile): /optimize/generate/[id] already reads every
-              target field off the row and needs nothing new from here, and on
-              success lands back on THIS page, where isFree flips to false and
-              this same button becomes the editor below.
-              Once generated, Edit opens /package/[id]/edit — the section-by-
-              section editor with a live preview (2026-08-19). It deliberately
-              does NOT open /optimize/preview/[id], which is the diff viewer
-              ("here's what the optimizer changed"); that screen keeps its own
-              job and its own route. */}
+          {/* EDIT ALWAYS OPENS THE SAME EDITOR NOW (2026-08-19, second pass).
+              An earlier version sent a never-optimized resume to
+              /optimize/generate first, reasoning it had no wording "of its
+              own" to edit yet. The founder's answer: clicking Edit must open
+              the editor, not spend a model call. It does not need to — the
+              editor already derives its starting text the same way the resume
+              itself renders (user_edited ?? generated ?? the profile's own,
+              lib/resumeDocument.ts), and a hand edit saves the same way either
+              case. So there is no branch left: every resume, optimized or not,
+              goes straight to /package/[id]/edit.
+              This deliberately does NOT open /optimize/preview/[id], which is
+              the diff viewer ("here's what the optimizer changed") for a
+              resume that HAS been optimized; that screen keeps its own job and
+              its own route. */}
           <Link
-            href={
-              isFree
-                ? `/optimize/generate/${encodeURIComponent(id)}`
-                : `/package/${encodeURIComponent(id)}/edit`
-            }
+            href={`/package/${encodeURIComponent(id)}/edit`}
             className={buttonVariants({ variant: 'secondary', size: 'sm' })}
           >
-            {isFree ? 'Optimize this resume' : 'Edit text'}
+            Edit text
           </Link>
           <a
             href={waUrl}

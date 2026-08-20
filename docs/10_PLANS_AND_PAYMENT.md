@@ -151,11 +151,14 @@ nothing counts against it. The database index below still exists and would still
 - ~~A free resume's Edit correctly routes to the profile~~ — **changed 2026-08-19.**
   This never actually governed a real `tier: 'free'` resume (none can exist — see
   below); it governed any ordinary package that simply had no generated content yet,
-  which `resumeKind()` also labels "free". That case now runs generation instead —
-  see [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §6 for the full reasoning,
-  including why the loop noted below cannot recur for it. **What "Edit" should do for
-  the genuine free-tier resume, once one can exist, is still open** — flagged in
-  `WORK_QUEUE.md` W2, not decided here.
+  which `resumeKind()` also labels "free". That case now opens the same per-resume
+  editor every generated resume gets (`/package/[id]/edit`) directly — no detour
+  through generation — since the editor derives its starting text the same way the
+  resume itself renders and saves a hand edit the same way either case. See
+  [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §6 for the full reasoning, including why
+  the loop noted below cannot recur for it. **What "Edit" should do for the genuine
+  free-tier resume, once one can exist, is still open** — flagged in `WORK_QUEUE.md` W2,
+  not decided here.
 
 **What does not exist:**
 - No route creates a free resume
@@ -174,11 +177,13 @@ whose guard sent a row with no content to the generate screen, which requested
 generation, which refused because the row was unpaid, which returned it to the payment
 screen. **A loop, from a button labelled Edit.**
 
-**Cannot recur today** (2026-08-19 note): the "unpaid → refused" step required a payment
-check in `/api/optimize` that no longer exists — generation now simply runs. This is
-exactly why "Edit" was safe to point at generation again for an ordinary ungenerated
-package, above. It would need re-checking if the payment lock returns before the free
-tier is reachable.
+**Cannot recur today, and more structurally than before** (2026-08-19 note, second
+pass): the loop needed generation to run as a step reached FROM Edit. The current design
+never calls generation from Edit at all — the editor above writes straight to
+`optimized_content` via `PATCH /api/packages/[id]`, whether or not the model has ever
+run — so there is no "unpaid → refused" step left in that path to interrupt, payment
+check present or not. Still worth re-reading this note before the paid lock returns
+(open items §A0), because the free-tier question above is still open.
 
 ---
 

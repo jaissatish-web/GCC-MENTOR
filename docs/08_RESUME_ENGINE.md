@@ -138,8 +138,15 @@ The snapshot stores the rendered document as delivered. Three rules follow:
    document.** It deliberately does **not** rebuild, because rebuilding would read
    the live profile and reintroduce the exact bug the snapshot exists to prevent.
 3. **A free resume has no snapshot on purpose** and therefore renders from the live
-   profile. That is why a free user edits their CV by editing their profile, and it
-   is consistent: nothing has been sold, so nothing needs freezing.
+   profile. Fixed fields (name, contact, employers, education, certifications, skills)
+   are still only edited by editing the profile — that is unchanged, and it is
+   consistent: nothing has been sold, so nothing needs freezing. **Summary and bullets
+   are the one exception since 2026-08-19:** `/package/[id]/edit`
+   ([`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §4) lets those be hand-written per
+   resume even before generation, saved as `user_edited` values that
+   `buildResumeDocument`'s `user_edited ?? generated ?? the profile's own` precedence
+   already knew how to prefer — no rebuild, no new mechanism, just a second writer
+   using a resolution order that already existed.
 
 **This is where the worst defect in the project's history lived.** The snapshot had
 exactly one writer — generation — and generation refuses to run twice, while the

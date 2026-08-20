@@ -28,12 +28,14 @@ a restore guide. Three parts, none optional:
    refused. **They must be purged or marked**, not assumed away.
 3. **The credit consume on the cover letter**, restored *after* a validated success,
    never before, with a failed consume discarding the generation.
-4. **`/package/[id]`'s "Edit" button for an ungenerated resume** (changed 2026-08-19)
-   now runs generation directly rather than routing to the profile. That is safe only
-   because generation currently has no payment check to refuse it — the exact
-   condition that once produced a real loop (a free resume's Edit bounced from preview
-   → generate → payment → back to preview). **Check this specifically** before the
-   lock returns, not just generally re-test the flow. See
+4. **`/package/[id]`'s "Edit" button** now opens `/package/[id]/edit` for every
+   resume, generated or not (settled 2026-08-19 after a same-day correction — an
+   intermediate version ran generation from Edit; the current one never does). Nothing
+   here depends on the payment check that used to guard generation, so there is no
+   loop condition to re-verify from this specific change. What DOES still need a
+   decision before the lock returns: whether hand-editing an ungenerated resume for
+   free should keep working once payment gates something, given it is now real, working
+   plumbing for the free-tier question in W2. See
    [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4 and
    [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §6.
 

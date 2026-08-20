@@ -12,6 +12,47 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-19 — "Edit" opens the editor directly, never runs generation first
+
+**Same-day correction to the decision above.** That version had "Edit" on a
+never-optimized resume run generation first, then land on `/package/[id]/edit`. The
+founder's follow-up: clicking Edit must go straight to the visual editor with the live
+resume shown, not into an optimization process.
+
+**Turned out not to need generation at all.** `lib/resumeDocument.ts` already resolves
+every editable field as `user_edited ?? generated ?? the profile's own` — that
+precedence exists specifically so a hand edit always wins once made, with or without the
+model ever running. The editor already derives its starting text through that same
+resolution (it reads the rendered document, not `optimized_content` directly), so it
+works unmodified on a resume with no AI text at all. Two things needed fixing for the
+save half to match:
+
+1. **`PATCH /api/packages/[id]`** silently dropped a bullet edit for a
+   `profile_experience_id` with no existing block (true of every never-optimized
+   resume — there are no blocks yet). It now creates the block on first edit,
+   `was_optimized: false`, source_bullets from the real profile entry — still scoped to
+   entries that are genuinely this profile's own work experience, the same grounding
+   discipline as everywhere else, now enforced by a lookup rather than an existing row.
+2. **`hasGeneratedContent()`** (`lib/resumeKind.ts`) used to mean "`optimized_content` is
+   non-null". A hand edit alone can now make that true without the model ever running,
+   which would have mislabelled the user's own writing as AI output the moment someone
+   used the new editor on a free resume — a real regression to the "never claim the
+   model wrote something it didn't" rule this file's own header states. Rewritten to
+   check for actual `generated` / `generated_bullets` text specifically.
+
+**"Edit" is now unconditional** on `/package/[id]` — no branch on whether the resume has
+been optimized, always `/package/[id]/edit`. This also fully retires the
+generation-detour from the previous entry; nothing calls `/optimize/generate` from Edit
+any more, which makes the historical payment-refusal loop (`10_PLANS_AND_PAYMENT.md` §4)
+even less reachable than the previous fix already made it — there is no step left in this
+path for a payment check to interrupt, present or not.
+
+Surfaces updated: [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §4 and §6,
+[`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4,
+[`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) §4, open items §A0 item 4.
+
+---
+
 ## 2026-08-19 — a real editor for a resume, separate from the diff viewer
 
 **Founder-directed: "Edit text" must open a page where the resume is edited part by

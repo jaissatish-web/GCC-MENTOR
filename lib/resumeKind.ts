@@ -15,10 +15,16 @@
  * WHEN THE PAID LOCK RETURNS, the rule it enforced is worth restoring exactly,
  * because it took a while to get right:
  *
- *   optimized_content IS NULL   -> nothing was generated. Free to view and
- *                                  download, whatever is_paid says.
- *   optimized_content present   -> the paid deliverable. is_paid required, read
- *                                  server-side from the row, no exceptions.
+ *   no generated text  -> nothing was generated. Free to view and download,
+ *                         whatever is_paid says.
+ *   generated text     -> the paid deliverable. is_paid required, read
+ *                         server-side from the row, no exceptions.
+ *
+ * **That rule was once phrased as "optimized_content IS NULL" vs "present", and
+ * restoring it in those terms would now be wrong** (2026-08-19): a hand-edit on
+ * a never-optimized resume writes user_edited values into that column, so it can
+ * be present while holding no model output at all. Use hasGeneratedContent()
+ * below — which tests for real generated text — not a null check.
  *
  * That gates the AI-WRITTEN TEXT rather than the container, which is what the
  * user actually pays for. An earlier version refused any row that was not marked
@@ -43,9 +49,35 @@ export interface PackageContentInput {
   optimized_content?: unknown | null
 }
 
-/** True when the row holds model-written text. */
+/**
+ * True when the row holds MODEL-WRITTEN text.
+ *
+ * Checks for actual generated text rather than merely for the column being
+ * non-null (2026-08-19). It used to be a presence check, which was equivalent
+ * while generation was the only writer of `optimized_content`. It no longer is:
+ * `/package/[id]/edit` lets a user hand-edit a resume that was never optimized,
+ * and that writes `user_edited` values into an otherwise-empty
+ * `optimized_content`. A presence check would then call a resume the model never
+ * touched "optimized" — false by this function's own stated purpose, and it
+ * would label the user's own writing as AI output, which this product does not
+ * do.
+ *
+ * `generated` / `generated_bullets` are written by generation and nothing else,
+ * so they are the honest signal. `user_edited*` is deliberately NOT counted.
+ */
 export function hasGeneratedContent(pkg: PackageContentInput): boolean {
-  return pkg.optimized_content !== null && pkg.optimized_content !== undefined
+  const oc = pkg.optimized_content
+  if (oc === null || oc === undefined || typeof oc !== 'object' || Array.isArray(oc)) return false
+  const c = oc as { summary?: unknown; experience_blocks?: unknown }
+
+  const summary = c.summary as { generated?: unknown } | undefined
+  if (typeof summary?.generated === 'string' && summary.generated.trim() !== '') return true
+
+  const blocks = Array.isArray(c.experience_blocks) ? c.experience_blocks : []
+  return blocks.some((b) => {
+    const gen = (b as { generated_bullets?: unknown } | null)?.generated_bullets
+    return Array.isArray(gen) && gen.some((x) => typeof x === 'string' && x.trim() !== '')
+  })
 }
 
 /**

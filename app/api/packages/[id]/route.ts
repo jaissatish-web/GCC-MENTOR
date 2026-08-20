@@ -179,7 +179,7 @@ export async function PATCH(
   // ---- Load the current package (owner-scoped) to read its optimized_content -
   const { data: pkg, error: loadErr } = await supabase
     .from('packages')
-    .select('id, optimized_content, document_snapshot')
+    .select('id, profile_id, optimized_content, document_snapshot')
     .eq('id', packageId)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -351,12 +351,54 @@ export async function PATCH(
   if (summaryEdit.user_edited !== undefined) {
     oc.summary.user_edited = summaryEdit.user_edited
   }
+  // A block may legitimately not exist yet: a resume that was never optimized
+  // has an empty (or null) optimized_content, and /package/[id]/edit lets its
+  // wording be edited anyway — the user's own text, saved as user_edited_bullets
+  // (2026-08-19). Before this, such an edit was silently dropped.
+  //
+  // THE GROUNDING GUARD IS PRESERVED, and is why the profile is read here: a
+  // block is created ONLY for a profile_experience_id that genuinely belongs to
+  // this package's own profile. An id from anywhere else is still ignored, never
+  // fabricated into the document — same discipline as the optimize route's
+  // buildOptimizedContent.
+  const missingBlockIds = blockEdits
+    .filter((e) => !oc.experience_blocks.some((x) => x.profile_experience_id === e.profile_experience_id))
+    .map((e) => e.profile_experience_id)
+
+  if (missingBlockIds.length > 0) {
+    const { data: entries, error: entriesErr } = await supabase
+      .from('profile_work_experience')
+      .select('id, highlights')
+      .eq('profile_id', pkg.profile_id as string)
+      .in('id', missingBlockIds)
+    if (entriesErr) {
+      console.error(
+        'packages patch experience lookup error user=' + user.id + ' pkg=' + packageId,
+        entriesErr.message,
+      )
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    }
+    const rows = (entries as Array<{ id: string; highlights: string[] | null }> | null) ?? []
+    for (const row of rows) {
+      oc.experience_blocks.push({
+        profile_experience_id: row.id,
+        // FALSE, and that matters: the model never touched this block. It is
+        // what keeps hasGeneratedContent() honest and stops a hand-edited
+        // resume from being labelled as AI-optimized.
+        was_optimized: false,
+        generated_bullets: null,
+        user_edited_bullets: null,
+        // The "before" side stays the profile's real highlights, never invented.
+        source_bullets: row.highlights ?? [],
+        claims: [],
+      })
+    }
+  }
+
   for (const edit of blockEdits) {
     const block = oc.experience_blocks.find((x) => x.profile_experience_id === edit.profile_experience_id)
     if (block) block.user_edited_bullets = edit.user_edited_bullets
-    // A profile_experience_id not on this package is silently ignored — never
-    // fabricated into the document (same grounding-adjacent discipline as the
-    // optimize route's buildOptimizedContent).
+    // Still silently ignored when the id is not this profile's — see above.
   }
 
   // KEEP THE FROZEN DOCUMENT IN STEP WITH THE EDIT (TASK-145).
