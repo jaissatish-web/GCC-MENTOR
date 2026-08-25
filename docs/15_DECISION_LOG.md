@@ -12,6 +12,45 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-19 — Library: rename and delete now exist on desktop
+
+**"GCP cabinet" turned out to mean the Resume Library** (filing cabinet). Worth recording
+because the term appears nowhere in the codebase or docs, and the next person to hear it
+will search for it just as fruitlessly.
+
+**The real defect it surfaced: rename and delete did not exist on desktop at all.** The
+Library renders mobile cards below `lg` and a table above it, and the two had drifted —
+the cards carried an editable name, the template, artifact chips, Open, Re-optimize and
+Delete; the table carried Target / Level / Status / Open and nothing else. So a desktop
+user could not rename a resume, and **had no way whatsoever to delete one** — the only
+route to either was to shrink the browser window below the `lg` breakpoint. Both now
+exist in the table, wired to the *same* handlers the cards use, so the two views cannot
+drift apart in behaviour again. The template column came across for the same reason: it
+is the only place a user can see which of the 15 designs a resume actually uses.
+
+**The new per-resume editor was unreachable from the Library.** `/package/[id]/edit`
+could only be found by opening a resume and spotting "Edit text" inside it. The card's
+"Re-optimize" link — which went to `/optimize/target` and started an unrelated new flow
+rather than acting on that row — was replaced with a direct "Edit" link to that row's own
+editor.
+
+**The Q&A artifact chip was dropped.** A dashed `Q&A —` reads as "not generated yet" and
+invites the user to go and generate one, but Interview Q&A is not built and there is
+nothing to reach. Same rule the cover-letter tone picker was held to on 2026-08-18: do
+not render a slot for something that cannot happen. It returns with the feature. ATS and
+Letter stay — both are real columns that genuinely populate.
+
+**Also removed: a stale comment** claiming the page rendered "dark cards/table" from a
+long-superseded dark pass. Every class on the page is light and has been for months.
+
+**Not verified in a browser:** the Library is behind auth and there is no session in the
+CTO environment. tsc, lint and a production build are clean, and the table's header and
+row grids were checked to declare the same five columns — but the founder should click
+rename and delete on a desktop width, since those are the two paths that never worked
+there.
+
+---
+
 ## 2026-08-19 — landing page reworked for a pitch; W1's untrue claims fixed; SEO added
 
 **Context: the founder needs to show the live site to someone.** Asked what the deliverable

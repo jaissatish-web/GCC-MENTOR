@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/Button'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn, PACKAGE_STATUSES, resumeLabel } from '@/lib/utils'
+import { cn, PACKAGE_STATUSES } from '@/lib/utils'
 import { getTemplate } from '@/lib/templates'
 import type { Package, PackageStatus } from '@/types/package'
 
@@ -263,16 +263,16 @@ export default function DashboardLibraryPage() {
   }
 
   return (
-    // TASK-088: dark forest pass (PAGE_SPECS §C). This page sits in the dark
-        // AppShell (bg-bg); the old `bg-marble` light placeholder wrapper and its
-        // mobile "sheet" radius are gone — the library now renders dark cards/table
-        // on the shell, consistent with the dark dashboard.
-        <div className="flex min-h-screen flex-col gap-4 p-5 sm:p-8 lg:p-10">
+    // The comment that stood here described a "dark forest pass" and dark
+    // cards. The page renders LIGHT cards on the light shell and has for a long
+    // time — every class below says so. Removed 2026-08-19 rather than left to
+    // mislead the next reader.
+    <div className="flex min-h-screen flex-col gap-4 p-5 sm:p-8 lg:p-10">
       {/* Header */}
       <div className="flex flex-col gap-1">
         <h1 className="font-serif text-[27px] leading-tight text-ink-900">Library</h1>
         <p className="text-[12.5px] text-ink-700">
-          {packages.length} package{packages.length === 1 ? '' : 's'} · every optimization you&apos;ve run
+          {packages.length} resume{packages.length === 1 ? '' : 's'} · rename, edit, track status and download
         </p>
       </div>
 
@@ -302,7 +302,6 @@ export default function DashboardLibraryPage() {
         {packages.map((pkg) => {
           const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
           const atsPresent = pkg.ats_score_card != null
-          const qaPresent = pkg.interview_questions != null
           return (
             <div key={pkg.id} className="rounded-radius-lg border border-line-light bg-surface-light p-4">
               <div className="flex items-start justify-between gap-3">
@@ -335,11 +334,17 @@ export default function DashboardLibraryPage() {
                 <StatusSelect initial={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
               </div>
 
+              {/* The Q&A chip was dropped 2026-08-19. A dashed "Q&A —" reads as
+                  "not generated yet", which invites the user to go and generate
+                  one — but Interview Q&A is not built, so there is nothing to
+                  reach. Same rule the cover-letter tone picker was held to: do
+                  not render a control or a slot for something that cannot
+                  happen. It returns with the feature. ATS and Letter stay: both
+                  are real columns that genuinely do populate. */}
               <div className="mt-3 flex flex-wrap gap-1.5">
                 <ArtifactChip label="CV ✓" present />
                 <ArtifactChip label={atsPresent ? 'ATS ✓' : 'ATS —'} present={atsPresent} />
                 <ArtifactChip label={letterPresent ? 'Letter ✓' : 'Letter —'} present={letterPresent} />
-                <ArtifactChip label={qaPresent ? 'Q&A ✓' : 'Q&A —'} present={qaPresent} />
               </div>
 
               <div className="mt-3.5 flex items-center gap-4">
@@ -349,11 +354,14 @@ export default function DashboardLibraryPage() {
                 >
                   Open
                 </Link>
+                {/* Straight into this resume's own editor (2026-08-19). It was
+                    not reachable from the Library at all — only by opening the
+                    resume first and finding "Edit text" there. */}
                 <Link
-                  href="/optimize/target"
+                  href={`/package/${pkg.id}/edit`}
                   className="min-h-11 px-1 text-[11px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
                 >
-                  Re-optimize
+                  Edit
                 </Link>
                 <button
                   type="button"
@@ -374,37 +382,73 @@ export default function DashboardLibraryPage() {
         })}
       </div>
 
-      {/* ── DESKTOP: table ── */}
+      {/* ── DESKTOP: table ──
+          PARITY WITH THE MOBILE CARDS, added 2026-08-19. This table used to
+          carry only Target / Level / Status / Open, which meant RENAME AND
+          DELETE SIMPLY DID NOT EXIST ON DESKTOP — both were reachable only by
+          shrinking the window below lg. Renaming is the whole reason the name
+          column is an input, and a hard delete has no other entry point at all,
+          so a desktop user could accumulate rows they had no way to remove.
+          The template column came across for the same reason: it is the only
+          place a user can see which of the 15 designs a resume actually uses. */}
       <div className="hidden overflow-hidden rounded-radius-lg border border-line-light bg-surface-light lg:block">
-        <div className="grid grid-cols-[2fr_1fr_1.2fr_90px] gap-4 border-b border-line-light bg-surface-2-light px-5 py-3 text-[9.5px] font-semibold uppercase tracking-[0.1em] text-ink-400">
-          <span>Target</span>
+        <div className="grid grid-cols-[2.2fr_1fr_0.9fr_1.1fr_170px] gap-4 border-b border-line-light bg-surface-2-light px-5 py-3 text-[9.5px] font-semibold uppercase tracking-[0.1em] text-ink-400">
+          <span>Resume</span>
+          <span>Template</span>
           <span>Level</span>
           <span>Status</span>
-          <span />
+          <span className="text-right">Actions</span>
         </div>
         {packages.map((pkg) => (
           <div
             key={pkg.id}
-            className="grid grid-cols-[2fr_1fr_1.2fr_90px] items-center gap-4 border-b border-line-light px-5 py-3.5 last:border-0"
+            className="grid grid-cols-[2.2fr_1fr_0.9fr_1.1fr_170px] items-center gap-4 border-b border-line-light px-5 py-3.5 last:border-0"
           >
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[12.5px] font-semibold text-ink-900">{resumeLabel(pkg)}</span>
-              <span className="text-[10.5px] text-ink-400">
-                {formatDay(pkg.created_at)}
+            <div className="flex min-w-0 flex-col gap-0.5">
+              {/* Editable in place, exactly as on mobile — same handler, so the
+                  two views cannot drift apart in behaviour. */}
+              <NameField
+                value={pkg.name ?? ''}
+                placeholder={pkg.target_job_title}
+                onSave={(next) => renamePackage(pkg.id, next)}
+              />
+              <span className="flex items-center gap-1.5 px-1.5 text-[10.5px] text-ink-400">
+                <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
+                <span aria-hidden>·</span>
+                <span>{formatDay(pkg.created_at)}</span>
               </span>
             </div>
+            <span className="truncate text-[11.5px] font-semibold text-ink-700">
+              {templateNameFor(pkg.template_id)}
+            </span>
             <span className="text-[12px] text-ink-700">{levelLabel(pkg.optimization_level)}</span>
             <div className="justify-self-start">
               <StatusSelect initial={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
             </div>
-            {/* The primary action on the row, so it is a filled control rather
-                than forest-on-white text that read as a label (TASK-157). */}
-            <Link
-              href={`/package/${pkg.id}`}
-              className="inline-flex min-h-9 items-center justify-center rounded-radius-md bg-forest px-3.5 text-[11.5px] font-semibold text-white transition-colors hover:bg-forest-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
-            >
-              Open
-            </Link>
+            <div className="flex items-center justify-end gap-2">
+              {/* The primary action on the row, so it is a filled control rather
+                  than forest-on-white text that read as a label (TASK-157). */}
+              <Link
+                href={`/package/${pkg.id}`}
+                className="inline-flex min-h-9 items-center justify-center rounded-radius-md bg-forest px-3.5 text-[11.5px] font-semibold text-white transition-colors hover:bg-forest-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+              >
+                Open
+              </Link>
+              <button
+                type="button"
+                onClick={() =>
+                  confirmingDelete === pkg.id ? deletePackage(pkg.id) : setConfirmingDelete(pkg.id)
+                }
+                aria-pressed={confirmingDelete === pkg.id}
+                title="Delete this resume"
+                className={cn(
+                  'min-h-9 rounded-radius-md px-2 text-[11px] font-semibold text-ink-400 transition-colors hover:bg-terra-tint hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra',
+                  confirmingDelete === pkg.id && 'bg-terra-tint text-terra',
+                )}
+              >
+                {confirmingDelete === pkg.id ? 'Confirm?' : 'Delete'}
+              </button>
+            </div>
           </div>
         ))}
       </div>
