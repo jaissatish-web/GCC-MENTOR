@@ -25,11 +25,11 @@ export function SiteNav() {
         </nav>
         <div className="flex items-center gap-3">
           <Link href="/login" className="hidden text-[13px] font-semibold text-ink-400 hover:text-ink-900 sm:inline">Log in</Link>
-          <Link href="/onboarding" className={buttonVariants({ variant: 'purchase', size: 'sm' }) + ' hidden sm:inline-flex'}>Get Started Free</Link>
+          <Link href="/gulf-readiness-score" className={buttonVariants({ variant: 'purchase', size: 'sm' }) + ' hidden sm:inline-flex'}>Score My CV Free</Link>
           <button type="button" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen(v => !v)} className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-ink-900 lg:hidden">{open ? '✕' : '☰'}</button>
         </div>
       </div>
-      {open ? <div className="border-t border-line bg-bg px-5 py-5 lg:hidden"><nav className="mx-auto flex max-w-[1280px] flex-col gap-1">{ITEMS.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)} className="min-h-11 rounded-lg px-3 py-3 text-[15px] font-semibold text-ink-900">{label}</a>)}<Link href="/onboarding" onClick={() => setOpen(false)} className="mt-3 min-h-11 rounded-lg bg-forest-deep px-4 py-3 text-center font-bold text-white">Get Started Free</Link></nav></div> : null}
+      {open ? <div className="border-t border-line bg-bg px-5 py-5 lg:hidden"><nav className="mx-auto flex max-w-[1280px] flex-col gap-1">{ITEMS.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)} className="min-h-11 rounded-lg px-3 py-3 text-[15px] font-semibold text-ink-900">{label}</a>)}<Link href="/gulf-readiness-score" onClick={() => setOpen(false)} className="mt-3 min-h-11 rounded-lg bg-forest-deep px-4 py-3 text-center font-bold text-white">Score My CV Free</Link></nav></div> : null}
     </header>
   )
 }

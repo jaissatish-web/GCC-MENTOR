@@ -34,11 +34,66 @@ const plexMono = IBM_Plex_Mono({
   display: 'swap',
 })
 
-// Product name decided 2026-08-08 — "GCC MENTOR", see docs/RULES.md §5.
+/**
+ * Site metadata. Product name decided 2026-08-08 — "GCC MENTOR".
+ *
+ * `metadataBase` is what makes the Open Graph image and canonical URLs
+ * absolute; without it Next emits relative URLs and every social preview
+ * (WhatsApp, LinkedIn, X) silently falls back to a bare link with no card.
+ * Env-driven so a preview deployment does not advertise the production domain.
+ *
+ * The OG image is the site's own hero photograph rather than a generated card:
+ * it already exists, it is licensed for this use, and a real Gulf plant reads
+ * as more credible in a feed than a logo on a colour block.
+ */
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gcc-mentor.vercel.app'
+const OG_IMAGE =
+  'https://images.unsplash.com/photo-1509390288171-ce2088f7d08e?auto=format&fit=crop&w=1200&h=630&q=80'
+
+const TITLE = 'GCC MENTOR — Gulf Career Platform'
+const DESCRIPTION =
+  'Score your CV against Gulf hiring standards free, then rebuild it in Gulf format for the exact role you are targeting — using only facts you already have. Built by a 15+ year Gulf E&I Superintendent.'
+
 export const metadata: Metadata = {
-  title: 'GCC MENTOR — Gulf Career Platform',
-  description:
-    'Rebuild your resume in Gulf format and reframe it for the exact role you are targeting — using only facts you already have.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: TITLE,
+    // Every other page gets "<its title> — GCC MENTOR" without repeating itself.
+    template: '%s — GCC MENTOR',
+  },
+  description: DESCRIPTION,
+  applicationName: 'GCC MENTOR',
+  keywords: [
+    'Gulf jobs',
+    'GCC resume',
+    'Saudi Arabia jobs',
+    'UAE jobs',
+    'ATS resume',
+    'Gulf CV format',
+    'resume optimization',
+    'Gulf career',
+  ],
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    siteName: 'GCC MENTOR',
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    locale: 'en_US',
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'GCC MENTOR — Gulf Career Platform' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [OG_IMAGE],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

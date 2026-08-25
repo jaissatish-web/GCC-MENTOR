@@ -220,7 +220,12 @@ matching a job asking for `B.Eng`) is the second half.
 **It needs a product answer first:** what "GCC experience" means for an untagged
 resume, and how degree equivalence should work.
 
-### B2 · The landing page makes two claims that are not true — **public-facing**
+### ~~B2 · The landing page makes two claims that are not true~~ — **fixed 2026-08-19**
+
+Both are gone: DOCX is no longer listed on any tier, and the checkout sentence now says
+plainly that card checkout is not live and a purchase is arranged directly. The pricing
+CTAs were corrected in the same pass — "Get Started" pointed at a checkout that does not
+exist. Kept below because the *reason* it happened is the durable part.
 
 Both found 2026-08-17 while verifying pricing for this documentation.
 

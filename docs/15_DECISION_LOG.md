@@ -12,6 +12,62 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-08-19 — landing page reworked for a pitch; W1's untrue claims fixed; SEO added
+
+**Context: the founder needs to show the live site to someone.** Asked what the deliverable
+actually was before building, because "fix the homepage, landing page, alignment, design,
+UI/UX, all the services, SEO, images, cover letter, CV generation" is not one task. It is
+a demo, and the priority chosen was: the landing page tells the whole story.
+
+**Three items in that request do not exist in the product at all** — "GCP cabinet", a
+mediation system, and platform-side verification of candidates or employers. Nothing by
+those names appears anywhere in `docs/` or the code. They were **not** built and **not**
+implied on the page. Each is a new product, and verification in particular is a legal and
+trust surface, not a feature — building any of them inside a UI-polish request would also
+have quietly changed what GCC MENTOR claims to be, against
+[`02_PHILOSOPHY.md`](02_PHILOSOPHY.md).
+
+**Broken links were the real emergency, and they were found by checking rather than
+reading.** Several CTAs pointed at routes this session had retired or that sit behind
+auth: `/ats-scan` (retired → redirect), and `/onboarding` + `/dashboard`, which resolve to
+protected routes — an anonymous visitor clicking the hero's "Get Started Free" got a flash
+of "Loading…" and then a login wall. On a page being shown to an investor that is fatal.
+Every public CTA now points at `/gulf-readiness-score` (genuinely free, no login, instant
+result, and the designed top of the funnel) or `/signup`. Verified by loading the page and
+enumerating every rendered href, not by trusting the source.
+
+**W1 / open items §B2 closed in the same pass.** DOCX removed from every tier (the product
+is PDF-only), and "instant self-serve checkout" replaced with the truth — there is no live
+card checkout, purchases are arranged directly. The pricing CTAs went with it: "Get
+Started" pointed at a checkout that does not exist.
+
+**Services and journey rewritten to answer the founder's actual ask** — that a visitor
+"visually see and understand what you are going to provide". Six real live services, each
+labelled Live or Free, plus a separate, explicitly-labelled "in development" block for
+Interview Q&A and Mock Interview. The journey became a five-step guided path showing what
+the user *does* and what they *get* at each step, with the free steps marked — replacing
+six numbered boxes of four words each, which did not carry the "we train you" story.
+
+**SEO and image work, both previously absent:** full Open Graph and Twitter card metadata
+with `metadataBase` (without it Next emits relative URLs and every shared link renders as
+a bare link with no preview card — directly relevant to a pitch), plus `app/robots.ts` and
+`app/sitemap.ts`. The sitemap lists only the four genuinely public routes: submitting URLs
+that answer every crawl with a login redirect is how a site teaches a crawler to distrust
+its sitemap. All three `fill` images gained `sizes`, which they lacked — Next was serving
+the largest srcset candidate to phones, and the hero is the LCP element.
+
+**Verified in a real browser this time** (the landing page is public, unlike everything
+else this session): page loads with zero console errors, all six public routes return 200,
+`robots.txt`/`sitemap.xml`/OG tags render correctly, and there is **no horizontal overflow
+at 375px or 800px** — zero elements exceeding the viewport, which is the alignment failure
+this codebase has hit repeatedly.
+
+**One deployment dependency, flagged not fixed:** `NEXT_PUBLIC_APP_URL` must be set to the
+production URL on Vercel. It drives `metadataBase`, the sitemap and robots — if unset,
+they advertise `localhost`.
+
+---
+
 ## 2026-08-19 — the sidebar hides on the resume editor, returns on the resume screen
 
 **Founder-directed: `/package/[id]/edit` should hide the left nav while editing, and

@@ -93,12 +93,11 @@ Includes purging or marking the rows generated during this phase.
 
 ## Ready to start, whenever priority allows
 
-### W1 · Fix the two untrue claims on the landing page
-**Why first: it is public-facing, it is small, and it is the kind of thing this product
-refuses to do.** Remove the DOCX download from the ₹499 tier's feature list, and correct
-the "instant self-serve checkout" sentence to describe how a purchase actually works
-today. Copy-only. No logic, no routes.
-Traces to: open items §B2 · Owner: either track · Small.
+### ~~W1 · Fix the two untrue claims on the landing page~~ — **done 2026-08-19**
+DOCX removed from every tier (the product is PDF-only), and the "instant self-serve
+checkout" sentence replaced with the truth: there is no live card checkout at all yet, so
+a purchase is arranged directly. The pricing CTAs changed with it — "Get Started" pointed
+at a checkout that does not exist and now reads "Start free" → `/signup`.
 
 ### W2 · Make the free tier reachable
 The foundation is built and verified; nothing creates a free resume. Needs: a route that
