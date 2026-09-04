@@ -12,6 +12,41 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-04 — The site URL is normalised in one module, never read raw from env
+
+**Production had been serving the 2026-08-20 build for two weeks.** The two commits
+after it — `fd78a02` (the landing-page truthfulness fix that closed W1/B2) and
+`7d9c555` (Library rename and delete) — both failed to deploy on Vercel on 2026-08-25
+and nobody noticed, because the site stayed up on the last good build and the repo
+looked healthy. `npm run build` passed locally the whole time.
+
+**The cause:** `fd78a02` added `metadataBase: new URL(SITE_URL)` to the root layout,
+where `SITE_URL` was `process.env.NEXT_PUBLIC_APP_URL ?? 'https://gcc-mentor.vercel.app'`.
+That expression runs while the root layout's module is evaluated, so a value `new URL()`
+cannot parse throws `TypeError: Invalid URL` and fails the **whole build**, every route
+at once, not the one page. Two obvious env values do it: a bare domain
+(`gcc-mentor.vercel.app`, no scheme) and an empty string — `??` falls back only on
+null/undefined, never on `''`. Locally the value is a well-formed `http://localhost:3000`,
+which is why this was invisible outside Vercel.
+
+**Reproduced before fixing**, not inferred: `NEXT_PUBLIC_APP_URL=gcc-mentor.vercel.app
+npx next build` failed with `Invalid URL` / "Failed to collect page data for /_not-found"
+on the unmodified tree.
+
+**The decision:** one module, `lib/siteUrl.ts`, owns this resolution for all three
+consumers (`app/layout.tsx`, `app/robots.ts`, `app/sitemap.ts`). It promotes a
+scheme-less value to `https://`, falls back when the result is still unparseable, and
+returns an origin with no trailing slash. A misconfigured env var can now produce a
+wrong canonical URL — a content bug someone sees — but it can no longer take the entire
+site off the air.
+
+**The durable lesson, which is why this is here and not just in the open items:** a
+green local build is not evidence that a deploy will succeed, because the environment
+differs in exactly the values that are read at module scope. **Deployment state is now
+part of "done"** — a commit is not shipped until its deployment is confirmed green.
+
+---
+
 ## 2026-08-19 — Library: rename and delete now exist on desktop
 
 **"GCP cabinet" turned out to mean the Resume Library** (filing cabinet). Worth recording

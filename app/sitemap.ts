@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/siteUrl'
 
 /**
  * sitemap.xml (2026-08-19).
@@ -13,7 +14,6 @@ import type { MetadataRoute } from 'next'
  * ones that are half-built or deliberately unlinked — the retired /ats-scan and
  * /create-resume redirects being live examples.
  */
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gcc-mentor.vercel.app'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()

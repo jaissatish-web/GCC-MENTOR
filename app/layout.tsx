@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Instrument_Serif, Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
+import { SITE_URL } from '@/lib/siteUrl'
 
 // Typography per docs/redesign/DESIGN_SYSTEM.md §2.
 // Instrument Serif = headlines · Inter = UI/body · IBM Plex Mono = scores
@@ -46,7 +47,6 @@ const plexMono = IBM_Plex_Mono({
  * it already exists, it is licensed for this use, and a real Gulf plant reads
  * as more credible in a feed than a logo on a colour block.
  */
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gcc-mentor.vercel.app'
 const OG_IMAGE =
   'https://images.unsplash.com/photo-1509390288171-ce2088f7d08e?auto=format&fit=crop&w=1200&h=630&q=80'
 

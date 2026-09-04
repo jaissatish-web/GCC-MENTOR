@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/siteUrl'
 
 /**
  * robots.txt (2026-08-19).
@@ -12,7 +13,6 @@ import type { MetadataRoute } from 'next'
  * is a public file and a request, never a control; the actual protection is the
  * server-side admin check on every action.
  */
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://gcc-mentor.vercel.app'
 
 export default function robots(): MetadataRoute.Robots {
   return {
