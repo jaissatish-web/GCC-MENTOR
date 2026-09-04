@@ -122,6 +122,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       user: buildJobDescriptionUserPrompt(jobDescription),
       maxTokens: 1536,
       temperature: 0.1,
+      // Attribute the spend. Both calls on this route omitted `userId`, so every
+      // Job Match generation landed in ai_usage_log with user_id NULL — two
+      // live, money-spending calls with no owner. Measured 2026-09-04: 31 of 56
+      // rows in the table were unattributed, and this route is nearly all of
+      // them. That matters twice over — it is the feature metering will have to
+      // charge for when the paid locks return, and an unattributable cost
+      // cannot be charged to anyone.
+      userId: user.id,
       route: '/api/job-match',
       configKey: 'job_description',
     })
@@ -145,6 +153,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         }),
         maxTokens: 2048,
         temperature: 0.3,
+        userId: user.id,
         route: '/api/job-match',
         configKey: 'job_match_explanation',
       })

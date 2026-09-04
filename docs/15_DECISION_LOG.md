@@ -12,6 +12,48 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-04 — There is an end-to-end smoke test, and it found two things
+
+`docs/14_OPEN_ITEMS.md` §C1 has said from the beginning that **no authenticated page
+had ever been checked** — there is no login session in the CTO environment, so every
+signed-in route was verified by diff, build and reasoning. `scripts/e2e-smoke.mjs`
+closes that: it creates a throwaway account through the admin API, mints the same
+chunked cookie `@supabase/ssr` writes, and calls the real routes in the order a real
+user calls them. **56 assertions, all passing**, against the live database with real
+model calls — including a real PDF out of Chromium.
+
+**It costs money and says so.** About **₹10.27 for one complete journey** (extraction,
+Job Match's two calls, optimization, cover letter) — a per-user cost figure this project
+had never measured. `--no-ai` skips every model call for a wiring-only run. Everything
+it creates is deleted in a `finally`, so a crash still tidies up.
+
+**Finding 1 — Job Match spent money with no owner.** Neither of its two `generate`
+calls passed `userId`, so every Job Match generation landed in `ai_usage_log` with
+`user_id` NULL. Measured: 31 of 56 rows unattributed, nearly all from this route. It
+matters twice — Job Match is a feature metering will have to charge for when the paid
+locks return, and **an unattributable cost cannot be charged to anyone.** Fixed. Every
+`generate` call in the codebase now passes `userId`, with one deliberate exception:
+`/api/ats-scan` is the anonymous route and has no user to attribute to.
+
+**Finding 2 — deleting a user erases what you spent on them.**
+`ai_usage_log.user_id` is `ON DELETE CASCADE`, so removing an account takes its whole
+spend history with it. That is how Finding 1 surfaced: after the test deleted its
+throwaway user, the only surviving rows were the NULL-attributed Job Match ones.
+**Not changed, because it is a retention decision, not a bug** — it belongs with the
+privacy policy in open items §A4. The likely answer is `ON DELETE SET NULL`: the
+financial record survives, the link to the person does not, which is both better
+accounting and better privacy. Recorded in §B9 until that is decided.
+
+**The regression guard that matters most:** the suite now asserts that every model call
+wrote a row, that its tokens are non-zero, and that **its cost is not zero**. The ₹0.00
+defect found earlier today would have failed this check the day it was introduced.
+
+**What this does NOT cover, so it is not over-claimed:** it drives HTTP routes, not
+screens. No page has been clicked through in a browser. §C1's limitation is narrowed to
+the visual layer, not removed.
+
+---
+
 ## 2026-09-04 — GCC experience is read from the resume; degrees match on level and field
 
 **Two founder decisions, both taken to close §B1 — the highest-value defect in the

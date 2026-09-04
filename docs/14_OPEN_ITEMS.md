@@ -367,6 +367,19 @@ Recorded so the next person does not rediscover them as surprises.
 - **`next.config.mjs` still ships Chromium to a deleted route.** The blurred-preview
   renderer is gone; its file-tracing entry remains. Harmless, and worth removing next time
   that file is touched.
+- **Deleting a user erases what was spent on them.** `ai_usage_log.user_id` is
+  `ON DELETE CASCADE`. Found 2026-09-04 when the new smoke test's cleanup made its own
+  spend rows vanish. Left alone deliberately: it is a retention decision that belongs
+  with the privacy policy (§A4), not a defect to fix unilaterally. The likely answer is
+  `ON DELETE SET NULL` — the financial record survives, the link to the person does not.
+- **Extraction can never produce `currently_in_gulf`, and saving a profile requires it.**
+  The extraction prompt explicitly forbids the key and `normalizeDraft` strips it, while
+  `PUT /api/profile` rejects a body without it as `Invalid field: currently_in_gulf`.
+  Nothing is broken today — the profile editor is the only caller and it defaults the
+  field to `false` — but the two contracts contradict each other and only a client-side
+  default bridges them. **Anyone writing a second caller (an auto-save, a mobile client,
+  a new route) will hit a 400 naming a field a resume can never supply.** Found
+  2026-09-04 by the smoke test doing exactly that.
 
 ---
 
@@ -375,9 +388,15 @@ Recorded so the next person does not rediscover them as surprises.
 Not defects. They constrain how confidently anything can be verified, and every
 statement of "verified" in this documentation should be read against them.
 
-1. **No authenticated page has ever been checked in a live browser** from the CTO's
-   environment — there is no real login session available. Every signed-in screen is
-   verified by diff, build and reasoning, not by being seen.
+1. **No authenticated page has ever been SEEN in a live browser** from the CTO's
+   environment — there is no real login session available, so every signed-in screen is
+   verified by diff, build and reasoning rather than by being looked at.
+   **Narrowed 2026-09-04 to the visual layer only.** `scripts/e2e-smoke.mjs` now creates
+   a throwaway account, mints a real session cookie and drives the authenticated ROUTES
+   end to end — 56 assertions covering extraction, profile save, Job Match, package
+   creation and generation, PDF download and the cover letter, plus the auth wall and
+   spend logging. What remains unverified is rendering: layout, styling and anything a
+   person would notice by looking.
 2. **This machine has ~4GB of RAM.** Running a dev server and a production build
    simultaneously reliably corrupts the build cache and produces module-not-found errors
    that look exactly like real defects. If that happens: stop all Node processes, delete
