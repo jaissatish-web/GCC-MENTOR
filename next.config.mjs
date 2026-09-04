@@ -37,7 +37,6 @@ const nextConfig = {
       // listed so a stray import cannot silently get bundled.
       'puppeteer',
       '@puppeteer/browsers',
-      'pdf-parse',
       'mammoth',
       'docx',
     ],
