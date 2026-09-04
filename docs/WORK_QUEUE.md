@@ -125,12 +125,10 @@ Traces to: open items §B4 · **Needs a founder answer before building.**
 
 ## Needs a product answer before any code
 
-### W4 · Job Match scores zero on GCC experience
-**The highest-value defect in the product.** The fix is available — extraction already
-returns a free-text location per work entry that nothing reads — but two product questions
-come first: what "GCC experience" means for an untagged resume, and how degree equivalence
-works. See open items §B1 for the measured evidence.
-Traces to: open items §B1 · CTO build once the answers exist · Medium.
+### ~~W4 · Job Match scores zero on GCC experience~~ — **answered and built 2026-09-04**
+Both questions were answered by the founder: derive the country from the resume's own
+words including city names, and match degrees on level plus field. Built, verified and
+shipped the same day — see open items §B1 and the decision log.
 
 ### W5 · Choose a payment provider
 Not a build item until answered. Razorpay is impossible from Saudi Arabia. **This is what

@@ -12,6 +12,55 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-04 — GCC experience is read from the resume; degrees match on level and field
+
+**Two founder decisions, both taken to close §B1 — the highest-value defect in the
+product.** Job Match scored the `gcc_experience` category from `gcc_country`, a column
+written by exactly one thing: a dropdown in the profile editor. An anonymous visitor
+never touches it, so on the free funnel that category was **structurally always zero,
+whatever the CV said** — confidently wrong, about the Gulf, on the product named GCC
+MENTOR, shown to a real person as a judgement of them.
+
+**Decision 1 — derive the country from the resume's own words, city names included.**
+Rejected: requiring a spelled-out country name. Real Gulf CVs are written "Jubail",
+"Dubai", "Ras Laffan", so a country-only rule would leave most of them undercounted —
+the same defect in a smaller size. Also rejected: prompting the user to confirm each
+job, which cannot work on the anonymous scan where there is no user to ask.
+
+**This does not weaken the grounding rule, and the distinction is the whole design.**
+It reads a fact the resume literally states and translates it into the vocabulary the
+scorer already uses. It never infers from an employer's name, a nationality, a phone
+country code or a job title — those are inferences about the candidate, which is what
+the product forbids. No stated location means no country, still.
+
+**Decision 2 — degrees match on level plus field.** A job asking for a `B.Eng` was not
+matched by a candidate's `B.Tech`; they are the same qualification, and that exact
+mismatch is our audience's most common one. A higher qualification satisfies a lower
+requirement, never the reverse. A named discipline must genuinely overlap. Rejected:
+matching on level alone, which would have scored an arts graduate as fully qualified
+for a piping engineer role.
+
+**Three properties that were designed in, not discovered afterwards:**
+
+1. **Derivation never overwrites a confirmed answer.** A country the user picked from
+   the dropdown always wins. Only an empty column is filled by reading.
+2. **The evidence says which is which.** A derived country scores identically to a
+   confirmed one, and the evidence line still states it was read from the resume rather
+   than confirmed — the user is entitled to know the difference, and to correct it.
+3. **Degree equivalence is additive.** The original substring comparison is kept and the
+   two are UNION-ed, so nothing that matched before can stop matching. The new path can
+   only ever find matches.
+
+**Both resolved in the shared adapter** (`lib/jobMatch/profileAdapters.ts`), not in the
+two routes, so the anonymous funnel and a signed-in profile cannot drift apart on it.
+
+**Verified** by `scripts/verify-gcc-experience.ts` — 47 assertions, including the
+measured 48/100 case reconstructed end to end (`gcc_experience` 0 → 100) and the
+false-positive set that matters most: "Bucharest, Romania" and "Ottoman Street" must not
+read as Oman, and "Sharjah Road, Karachi, Pakistan" must not become UAE experience.
+
+---
+
 ## 2026-09-04 — Cost rates are validated, and zero is treated as "not configured"
 
 **Every AI call ever made has been logged at ₹0.00.** Measured, not suspected: all 52

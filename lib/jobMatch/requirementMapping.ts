@@ -1,6 +1,7 @@
 import type { StructuredJobProfile, JobMatchCategoryResult, JobMatchCategoryKey } from '@/types/jobMatch'
 import { DETERMINISTIC_CATEGORIES, JOB_MATCH_SCORING_VERSION } from '@/types/jobMatch'
 import type { TargetCountry } from '@/types/careerProfile'
+import { anySatisfiesRequirement } from './degreeEquivalence'
 
 /**
  * Deterministic requirement/evidence mapping (TASK-071, docs/GCC_READINESS_JOB_MATCH.md
@@ -31,6 +32,15 @@ export interface JobMatchWorkExperienceInput {
   description: string | null
   highlights: string[]
   gccCountry: TargetCountry | null
+  /**
+   * Where `gccCountry` came from, so the evidence line can say so honestly.
+   * 'profile'  — the user picked it from the dropdown.
+   * 'derived'  — read from the location this resume states for the job
+   *              (lib/jobMatch/gccLocation.ts). Scored identically; only the
+   *              wording differs, because a user is entitled to know the
+   *              difference between what they confirmed and what we read.
+   */
+  gccCountrySource: 'profile' | 'derived' | null
 }
 
 export interface JobMatchProfileInput {
@@ -161,11 +171,20 @@ function gccExperienceCategory(profile: JobMatchProfileInput, job: StructuredJob
     score = hasGcc ? (countryMatch ? 100 : 85) : 60
   }
 
+  const derivedCount = gccEntries.filter((w) => w.gccCountrySource === 'derived').length
   const evidence = [
     hasGcc
       ? `GCC experience found: ${gccEntries.map((w) => `${w.role} (${w.gccCountry})`).join(', ')}`
-      : 'No GCC-tagged work experience found on the profile',
+      : 'No GCC work experience found — no entry names a Gulf country or city',
   ]
+  // Say plainly when a country was read off the resume rather than confirmed by
+  // the user. The score is the same either way; the user is still entitled to
+  // know which is which, and to correct it.
+  if (derivedCount > 0) {
+    evidence.push(
+      `${derivedCount} of these ${derivedCount === 1 ? 'was' : 'were'} read from the location stated on the resume, not confirmed on the profile`,
+    )
+  }
   if (job.target_countries.length > 0) evidence.push(`Job targets: ${job.target_countries.join(', ')}`)
 
   return { score, applicable: true, evidence, explanation: '' }
@@ -176,14 +195,27 @@ function educationCategory(profile: JobMatchProfileInput, job: StructuredJobProf
     return { score: 0, applicable: false, evidence: [], explanation: '' }
   }
   const candidateText = profile.educationEntries.map((e) => `${e.degree} ${e.fieldOfStudy ?? ''}`)
-  const matched = job.education_requirements.filter((req) => candidateText.some((c) => fuzzyMatch(c, req)))
+
+  // Two paths, UNION-ed. The original substring comparison is kept exactly as
+  // it was so nothing that matched before can stop matching; equivalence only
+  // ever adds. It closes the case the substring match structurally cannot see —
+  // a job asking for a "B.Eng" against a candidate holding a "B.Tech", which is
+  // the same qualification under a different country's naming, and the single
+  // most common education mismatch for this product's audience.
+  const bySubstring = new Set(job.education_requirements.filter((req) => candidateText.some((c) => fuzzyMatch(c, req))))
+  const byEquivalence = job.education_requirements.filter(
+    (req) => !bySubstring.has(req) && anySatisfiesRequirement(candidateText, req),
+  )
+  const matched = job.education_requirements.filter((req) => bySubstring.has(req) || byEquivalence.includes(req))
+
   const score = Math.round((matched.length / job.education_requirements.length) * 100)
-  return {
-    score,
-    applicable: true,
-    evidence: [`${matched.length} of ${job.education_requirements.length} education requirements matched: ${matched.join(', ') || 'none'}`],
-    explanation: '',
+  const evidence = [
+    `${matched.length} of ${job.education_requirements.length} education requirements matched: ${matched.join(', ') || 'none'}`,
+  ]
+  if (byEquivalence.length > 0) {
+    evidence.push(`Counted as equivalent qualifications: ${byEquivalence.join(', ')}`)
   }
+  return { score, applicable: true, evidence, explanation: '' }
 }
 
 function certificationsCategory(profile: JobMatchProfileInput, job: StructuredJobProfile): JobMatchCategoryResult {

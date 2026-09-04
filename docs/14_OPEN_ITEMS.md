@@ -6,7 +6,7 @@ Nothing is removed from this file until it is genuinely resolved, and when it is
 resolved it is deleted rather than marked — the part-document it affects carries the
 outcome instead.
 
-**Last reviewed:** 2026-08-18
+**Last reviewed:** 2026-09-04
 
 ---
 
@@ -197,28 +197,46 @@ possible. No database constraint assumes either answer.
 
 ## B. Defects and gaps, by severity
 
-### B1 · Job Match scores zero on GCC experience for every anonymous scan — **highest-value defect in the product**
+### ~~B1 · Job Match scores zero on GCC experience for every anonymous scan~~ — **fixed 2026-09-04**
 
-The category counts only work entries carrying a GCC country value, and that field is
-written by exactly one thing: a dropdown in the profile editor. **Extraction never
-derives it.** So on the free funnel the category is structurally always zero, whatever
-the CV says.
-
-Measured: a CV with 12 years in Abu Dhabi and Jubail against a matching Senior Piping
-Engineer job description scored **48/100**, with three categories at zero, while the
+The category counted only work entries carrying a `gcc_country` value, and that column is
+written by exactly one thing: a dropdown in the profile editor. Extraction never derived
+it, so on the free funnel the category was structurally always zero, whatever the CV said.
+Measured: a CV with 12 years in Abu Dhabi and Jubail, against a matching Senior Piping
+Engineer job description, scored **48/100 with three categories at zero**, while the
 semantic layer scored the same candidate 85/95/100.
 
-**Why it outranks everything else here:** it is confidently wrong, on the feature the
-product is named after, and the number is shown to real users as a judgement of them.
+**Both halves are now closed** — see [`15_DECISION_LOG.md`](15_DECISION_LOG.md),
+2026-09-04, for the two founder decisions and what was rejected.
 
-**The fix is more available than it looks.** Extraction already returns free-text
-location per work entry — "Abu Dhabi, UAE" is already reaching us and is simply not
-being read. Mapping that to a GCC country is deterministic and does not touch the
-grounding rule: it reads a fact the resume states. Degree equivalence (`B.Tech` not
-matching a job asking for `B.Eng`) is the second half.
+- `lib/jobMatch/gccLocation.ts` reads a GCC country out of the free-text location the
+  resume already states per job, country names and city names both.
+- `lib/jobMatch/degreeEquivalence.ts` matches degrees on level plus field, so a `B.Tech`
+  satisfies a job asking for a `B.Eng`.
+- Both are resolved in the shared adapter, so the anonymous funnel and a signed-in
+  profile cannot drift apart on it.
 
-**It needs a product answer first:** what "GCC experience" means for an untagged
-resume, and how degree equivalence should work.
+**Kept below the line because the reasoning is durable:**
+
+**A derived country never overwrites a confirmed one**, and the evidence line says which
+is which. Scoring is identical either way; the user is still told the country was read
+from their resume rather than confirmed, so they can correct it. **Degree equivalence is
+additive** — the original substring match is kept and the two are UNION-ed, so nothing
+that matched before can stop matching.
+
+**The grounding rule is untouched, and that was the design constraint, not an
+afterthought.** This reads a fact the resume literally states. It never infers a location
+from an employer's name, a nationality, a phone country code or a job title. No stated
+location still means no country.
+
+**Verified:** `scripts/verify-gcc-experience.ts`, 47 assertions, including the measured
+case end to end and the false-positive set — "Bucharest, Romania" and "Ottoman Street"
+must not read as Oman, "Sharjah Road, Karachi, Pakistan" must not become UAE experience,
+and Yemen and Iraq are Middle East but not GCC.
+
+**Two cities were deliberately left out** of the city list: Hail (Saudi) and Sur (Oman).
+Both are real, and both are ordinary English words that would fire on ordinary prose.
+Anyone extending the list should apply the same test.
 
 ### ~~B2 · The landing page makes two claims that are not true~~ — **fixed 2026-08-19**
 

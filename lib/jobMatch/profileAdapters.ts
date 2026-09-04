@@ -1,5 +1,29 @@
-import type { JobMatchProfileInput } from './requirementMapping'
-import type { CareerProfileDraft, CareerProfileFull } from '@/types/careerProfile'
+import type { JobMatchProfileInput, JobMatchWorkExperienceInput } from './requirementMapping'
+import type { CareerProfileDraft, CareerProfileFull, TargetCountry } from '@/types/careerProfile'
+import { gccCountryFromLocation } from './gccLocation'
+
+/**
+ * Settle one work entry's GCC country from the two things that can say it.
+ *
+ * A country the user picked from the dropdown ALWAYS wins — it is a confirmed
+ * answer, and a derived reading must never overwrite one. Only when that column
+ * is empty do we read the free-text location the resume states for the job.
+ *
+ * This is the fix for open items §B1. `location` has always been extracted and
+ * has never been read by anything, so the GCC category was pinned to zero for
+ * every anonymous scan no matter what the CV said. Deriving here rather than in
+ * the scorer keeps it in the one place both callers already share, so the
+ * anonymous funnel and a signed-in profile cannot drift apart on it.
+ */
+function resolveGccCountry(
+  explicit: TargetCountry | null,
+  location: string | null,
+): Pick<JobMatchWorkExperienceInput, 'gccCountry' | 'gccCountrySource'> {
+  if (explicit) return { gccCountry: explicit, gccCountrySource: 'profile' }
+  const derived = gccCountryFromLocation(location)
+  if (derived) return { gccCountry: derived.country, gccCountrySource: 'derived' }
+  return { gccCountry: null, gccCountrySource: null }
+}
 
 /**
  * Adapts the two shapes a candidate's data can arrive in — an anonymous
@@ -20,7 +44,7 @@ export function buildJobMatchProfileInputFromDraft(draft: CareerProfileDraft): J
       endDate: w.end_date ?? null,
       description: w.description ?? null,
       highlights: w.highlights ?? [],
-      gccCountry: w.gcc_country ?? null,
+      ...resolveGccCountry(w.gcc_country ?? null, w.location ?? null),
     })),
     skillNames: (draft.skills ?? []).map((s) => s.name ?? '').filter(Boolean),
     certificationNames: (draft.certifications ?? []).map((c) => c.name ?? '').filter(Boolean),
@@ -42,7 +66,7 @@ export function buildJobMatchProfileInputFromFullProfile(profile: CareerProfileF
       endDate: w.end_date,
       description: w.description,
       highlights: w.highlights ?? [],
-      gccCountry: w.gcc_country,
+      ...resolveGccCountry(w.gcc_country, w.location),
     })),
     skillNames: (profile.skills ?? []).map((s) => s.name),
     certificationNames: (profile.certifications ?? []).map((c) => c.name),
