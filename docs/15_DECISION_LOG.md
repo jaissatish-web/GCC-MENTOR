@@ -12,6 +12,32 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-04 — Cost rates are validated, and zero is treated as "not configured"
+
+**Every AI call ever made has been logged at ₹0.00.** Measured, not suspected: all 52
+rows in `ai_usage_log` carry `estimated_cost_inr = 0` while their `input_tokens` and
+`output_tokens` are correct and non-zero.
+
+**Same root cause as the site-URL failure above, on the same day, in a different file.**
+`Number(process.env.AI_INR_PER_1K_INPUT ?? fallback)` falls back only on
+null/undefined, and `.env.local` sets `AI_INR_PER_1K_INPUT=` — an empty string, which
+sails past `??` into `Number('')`, which is `0`. Both rates were zero, so every
+estimate was zero.
+
+**The decision:** blank, absent, non-numeric, negative **and zero** all mean "not
+configured" and take the fallback rate. Zero is deliberately not honoured as a real
+rate — no provider is free, and a legitimate-looking zero is exactly what let this sit
+unnoticed. The tokens were always recorded correctly, so historical spend can be
+recomputed from them whenever it is wanted; nothing is lost.
+
+**The pattern worth naming, since it has now bitten twice in one file-read:** `??`
+against `process.env` is unsafe for any variable a human types into a dashboard or a
+`.env` file, because the natural way to "unset" one is to leave it blank, not to delete
+the line. Every env read that matters should validate its value, not merely check that
+it exists.
+
+---
+
 ## 2026-09-04 — The site URL is normalised in one module, never read raw from env
 
 **Production had been serving the 2026-08-20 build for two weeks.** The two commits

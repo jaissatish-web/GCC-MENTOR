@@ -9,8 +9,30 @@ interface GenerateParams { system: string; user: string; maxTokens: number; temp
 interface GenerateResult { text: string; inputTokens: number; outputTokens: number }
 
 const INR_PER_USD = 84
-const DEFAULT_INR_PER_1K_INPUT = Number(process.env.AI_INR_PER_1K_INPUT ?? (3 / 1000) * INR_PER_USD)
-const DEFAULT_INR_PER_1K_OUTPUT = Number(process.env.AI_INR_PER_1K_OUTPUT ?? (15 / 1000) * INR_PER_USD)
+
+/**
+ * Read a rupees-per-1k-tokens rate from the environment.
+ *
+ * `Number(process.env.X ?? fallback)` was wrong and had been silently zeroing
+ * every cost estimate since the rates were added: `??` falls back only on
+ * null/undefined, and `.env.local` carries `AI_INR_PER_1K_INPUT=` — an EMPTY
+ * STRING, which `??` passes straight through to `Number('')` === 0. Measured
+ * 2026-09-04: all 52 rows in `ai_usage_log` carry `estimated_cost_inr = 0`
+ * while their token counts are correct and non-zero, so the whole cost side of
+ * the usage log was reading as free.
+ *
+ * A blank, absent, non-numeric or negative value therefore means "not
+ * configured" and takes the fallback. Zero is not accepted as a deliberate
+ * rate: no provider is free, and a real zero here is what hid this for weeks.
+ */
+function rateFromEnv(raw: string | undefined, fallbackUsdPer1k: number): number {
+  const parsed = Number(raw?.trim())
+  if (Number.isFinite(parsed) && parsed > 0) return parsed
+  return fallbackUsdPer1k * INR_PER_USD
+}
+
+const DEFAULT_INR_PER_1K_INPUT = rateFromEnv(process.env.AI_INR_PER_1K_INPUT, 3 / 1000)
+const DEFAULT_INR_PER_1K_OUTPUT = rateFromEnv(process.env.AI_INR_PER_1K_OUTPUT, 15 / 1000)
 
 function estimateCostInr(inputTokens: number, outputTokens: number) {
   return Math.round(((inputTokens / 1000) * DEFAULT_INR_PER_1K_INPUT + (outputTokens / 1000) * DEFAULT_INR_PER_1K_OUTPUT) * 100) / 100
