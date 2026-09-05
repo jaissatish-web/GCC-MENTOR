@@ -356,8 +356,18 @@ async function run() {
     check('Phase A creates the package and spends no model call', a.status === 200 && Boolean(packageId), `status ${a.status} ${short(a.body)}`)
 
     if (packageId && !SKIP_AI) {
+      // TIMED. Phase B makes TWO sequential model calls when a job description
+      // is present — structuring the advert, then the 8192-token rewrite, which
+      // can itself retry at double budget on a reasoning-only response. The
+      // route declares maxDuration = 60, and on 2026-09-04 this returned
+      // FUNCTION_INVOCATION_TIMEOUT (504) against production while passing
+      // locally. The number below is the margin, so it stops being a guess.
+      const t0 = Date.now()
       const b = await req('/api/optimize', { method: 'POST', json: { packageId } })
+      const secs = (Date.now() - t0) / 1000
+      console.log(`        generation took ${secs.toFixed(1)}s (Vercel limit for this route: 60s)`)
       check('Phase B generates the optimized resume', b.status === 200 && b.body?.success === true, `status ${b.status} ${short(b.body)}`)
+      check('generation finished inside the serverless timeout, with margin', secs < 50, `${secs.toFixed(1)}s — too close to the 60s ceiling`)
 
       const again = await req('/api/optimize', { method: 'POST', json: { packageId } })
       check('a repeat generate is refused as already-done, not charged twice', again.body?.alreadyGenerated === true, short(again.body))
