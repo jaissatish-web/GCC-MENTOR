@@ -16,7 +16,6 @@ import {
   ArrowRightIcon,
   BoltIcon,
   RectangleStackIcon,
-  MagnifyingGlassIcon,
   EnvelopeIcon,
   ChatBubbleLeftRightIcon,
   QuestionMarkCircleIcon,
@@ -46,9 +45,8 @@ const countryFlags: Record<string, string> = {
 const services = [
   { icon: ChartBarIcon, title: 'Gulf Readiness Score', desc: 'Answer two questions, upload a CV, and get a scored breakdown across six dimensions with a ranked plan of what to fix first.', href: '/gulf-readiness-score', status: 'Free · no login' },
   { icon: UserCircleIcon, title: 'Career Profile', desc: 'Your experience, read from your CV once and stored as structured facts. Every other tool draws from it, so you never retype anything.', href: '/signup', status: 'Live' },
-  { icon: SparklesIcon, title: 'GCC Resume Optimizer', desc: 'Reframes your real experience for one specific role and Gulf market — grounded, so it can never invent a job you did not do.', href: '/signup', status: 'Live' },
+  { icon: SparklesIcon, title: 'GCC Resume Optimizer', desc: 'Paste the job description and it reframes your real experience for that specific role and the Gulf market — grounded, so it can never invent a job you did not do.', href: '/signup', status: 'Live' },
   { icon: RectangleStackIcon, title: '15 Gulf CV Templates', desc: 'ATS-safe through to photo-led Gulf formats. Switch template, font, colour and photo without retyping a word.', href: '/signup', status: 'Live' },
-  { icon: MagnifyingGlassIcon, title: 'Job Match Report', desc: 'Paste a job description and see where you match, where you fall short, and what to strengthen before applying.', href: '/signup', status: 'Live' },
   { icon: EnvelopeIcon, title: 'Cover Letter', desc: 'Written from the same profile, in the tone you choose — Professional, Short, Technical or Explanatory.', href: '/signup', status: 'Live' },
 ]
 
@@ -114,13 +112,13 @@ const pricing = [
   { name: 'Free', price: null, tag: 'GCC Readiness', items: ['Gulf Readiness Score', 'Six-dimension breakdown', 'Ranked improvement plan'], featured: false, live: true },
   { name: 'Resume Optimization', price: '₹499', tag: 'Single resume', items: ['Career Profile', 'GCC-Optimized Resume', '15 Gulf templates', 'PDF download'], featured: true, live: true },
   { name: 'Resume + Cover Letter', price: '₹999', tag: 'Bundle', items: ['Optimized resume', 'Professional cover letter', 'PDF download'], featured: false, live: false },
-  { name: 'Complete Package', price: '₹2,499', tag: 'Full preparation', items: ['Resume + cover letter', 'Multiple target versions', 'Job Match reports'], featured: false, live: false }
+  { name: 'Complete Package', price: '₹2,499', tag: 'Full preparation', items: ['Resume + cover letter', 'Multiple target versions', 'Priority support'], featured: false, live: false }
 ]
 
 const faq = [
   { q: 'Will GCC MENTOR invent anything on my CV?', a: 'No. The optimizer uses only facts in your Career Profile. It improves framing, never your history. Every generated line is validated against your profile before you see it.' },
   { q: 'Which Gulf countries are supported?', a: 'Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain. The CV format and readiness scoring follow conventions shared across the Gulf, so one profile prepares you for all six rather than locking you to one.' },
-  { q: 'Are all tools available today?', a: 'No, and we mark which is which. The Gulf Readiness Score, Career Profile, resume optimizer, 15 templates, Job Match and cover letters are live. Interview Q&A and Mock Interview are still in development and are labelled as such.' },
+  { q: 'Are all tools available today?', a: 'No, and we mark which is which. The Gulf Readiness Score, Career Profile, resume optimizer, 15 templates and cover letters are live. Interview Q&A and Mock Interview are still in development and are labelled as such.' },
   { q: 'How do I pay?', a: 'Card checkout is not live yet — we are still completing our payment provider setup. You can use the free Gulf Readiness Score and build your Career Profile today at no cost; when you want a paid service we arrange it with you directly and unlock it on your account.' },
   { q: 'Can I see changes before paying?', a: 'Yes. You see the full optimized resume, and can edit it, before any payment is arranged.' },
   { q: 'How is my data protected?', a: 'Passport, visa and contact fields are encrypted. Every internal access is logged. You can delete your profile and all data at any time from Settings.' },

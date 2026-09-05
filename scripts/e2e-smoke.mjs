@@ -75,8 +75,9 @@ function section(t) {
  * A resume with a deliberate shape: Gulf work stated only as free-text
  * locations ("Abu Dhabi, UAE", "Jubail"), and an Indian-named degree against a
  * job that will ask for the British name. That is the §B1 defect's exact
- * fingerprint, so the Job Match check below proves the fix on the live wire and
- * not only in the unit suite.
+ * fingerprint. It is optimized against a job description that asks for GCC
+ * experience and a B.Eng, so the optimization below exercises the same matching
+ * engine the removed standalone service used to expose.
  */
 const RESUME_TEXT = `RAJESH KUMAR
 Senior Piping Engineer
@@ -321,25 +322,17 @@ async function run() {
     check('employment gaps were computed', Array.isArray(saved.employment_gaps), short(saved.employment_gaps))
   }
 
-  if (profileId && !SKIP_AI) {
-    section('Job Match — the §B1 fix, on the live wire')
-    const r = await req('/api/job-match', { method: 'POST', json: { job_description: JOB_DESCRIPTION } })
-    const result = r.body?.jobMatch ?? null
-    check('POST /api/job-match returns a scored result', r.status === 200 && Boolean(result), `status ${r.status} ${short(r.body)}`)
-    if (result) {
-      const cats = result.categories ?? {}
-      const gcc = cats.gcc_experience?.score
-      const edu = cats.education?.score
-      console.log(`        overall: ${result.overall_score}`)
-      check('overall score is a number in 0..100', typeof result.overall_score === 'number' && result.overall_score >= 0 && result.overall_score <= 100, `got ${result.overall_score}`)
-      check('the semantic layer ran too', typeof cats.summary_match?.score === 'number', short(Object.keys(cats)))
-      console.log(`        gcc_experience: ${gcc}   education: ${edu}`)
-      check('gcc_experience is NOT zero — this was the defect', typeof gcc === 'number' && gcc > 0, `got ${gcc}`)
-      check('education matched B.Tech against the job\'s B.Eng', typeof edu === 'number' && edu > 0, `got ${edu}`)
-      const ev = JSON.stringify(cats.gcc_experience?.evidence ?? [])
-      check('the evidence says the country was READ, not confirmed', ev.includes('read from the location stated on the resume'), ev)
-    }
-  }
+  // The standalone Job Match service was removed 2026-09-04 (founder decision):
+  // it is no longer something a user opens on its own. The MATCHING ENGINE is
+  // very much alive — /api/optimize structures the pasted job description and
+  // runs computeDeterministicCategories to build the "Job Match Findings"
+  // section of the optimization prompt. So this suite no longer calls a
+  // Job Match endpoint; instead it proves the same work still happens INSIDE
+  // optimization, below, by asserting a job_description model call was made.
+  //
+  // The §B1 scoring itself (Gulf location read from the resume, B.Tech vs
+  // B.Eng) is pure and is covered exhaustively by
+  // scripts/verify-gcc-experience.ts — 47 assertions, no network, no cost.
 
   let packageId = null
   if (profileId) {
@@ -400,12 +393,19 @@ async function run() {
     const routes = [...new Set(logged.map((r) => r.route))].sort()
     console.log(`        ${logged.length} calls logged: ${routes.join(', ')}`)
 
-    check('every model call was written to ai_usage_log', logged.length >= 4, `only ${logged.length}`)
+    check('every model call was written to ai_usage_log', logged.length >= 3, `only ${logged.length}`)
+    // Proof the job-description analysis still runs INSIDE optimization after the
+    // standalone Job Match service was removed. /api/optimize makes a second,
+    // separate model call to structure the pasted JD before it writes the resume;
+    // if that ever stops happening, the optimizer silently goes back to ignoring
+    // the job description and this count drops.
+    const optimizeCalls = logged.filter((r) => r.route === '/api/optimize').length
+    check('optimization structured the pasted job description as well as writing the resume', optimizeCalls >= 2, `only ${optimizeCalls} call(s) on /api/optimize`)
     check('token counts are real, never zero', logged.every((r) => r.input_tokens > 0 && r.output_tokens > 0))
     // The regression guard for the 2026-09-04 defect: an empty rate env var made
     // Number('') === 0, so every row logged at ₹0.00 while the tokens looked fine.
     check('cost is priced, not silently zero', logged.every((r) => Number(r.estimated_cost_inr) > 0), JSON.stringify(logged.map((r) => r.estimated_cost_inr)))
-    check('job-match attributed its spend to the user', routes.includes('/api/job-match'), routes.join(','))
+    check('extraction and optimization both attributed their spend', routes.includes('/api/optimize'), routes.join(','))
     check('extraction attributed its spend to the user', routes.includes('/api/parse/text'), routes.join(','))
     const total = logged.reduce((n, r) => n + Number(r.estimated_cost_inr), 0)
     console.log(`        this run cost about ₹${total.toFixed(2)}`)

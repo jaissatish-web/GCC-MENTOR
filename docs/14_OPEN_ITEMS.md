@@ -141,6 +141,28 @@ The weights and the twelve band messages are first-draft numbers in
 
 ---
 
+## The anonymous Job Match twin — dead code that still spends money (2026-09-04)
+
+The standalone Job Match service was removed on 2026-09-04 (see the decision log). Its
+**anonymous counterpart survives in `/api/ats-scan`'s POST handler**, which still runs
+extraction, job-description structuring and the LLM match explanation.
+
+**Nothing reaches it.** `/ats-scan` has redirected to `/gulf-readiness-score` since
+2026-08-18, and that POST is the only writer of anonymous sessions — so
+`/api/ats-scan/session`, the signup claim in `/api/anonymous-session/claim`, and the
+Job Match block on the `/gulf-readiness` results page are all already unreachable in
+practice. It is also the last caller of `lib/ai/jobMatchExplanation.ts` and the only
+user of the `job_match_explanation` service key.
+
+**Why it is still here:** it is a live endpoint that would spend real money for a
+logged-out caller who found it, which is the "free anonymous LLM leak" recorded above.
+But deleting it touches the anonymous funnel and the signup claim path, and those are
+worth a deliberate change rather than a side effect of removing a different feature.
+
+**Needs a founder answer:** remove it, or keep the anonymous scan path for later reuse.
+
+---
+
 ## A. Decisions only the founder can make
 
 These block work. Nothing else in this file matters as much as the first one.

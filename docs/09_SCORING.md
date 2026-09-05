@@ -90,6 +90,12 @@ free traffic costs nothing to serve.
 
 ## 2. Job Match — fit against one specific advert
 
+> **2026-09-04: this is no longer a screen a user opens.** The standalone service was
+> removed by founder decision. The engine described below is unchanged and very much
+> live — `/api/optimize` runs it whenever a job description is pasted, and renders the
+> result into the optimization prompt as its "Job Match Findings". Read this section as
+> a description of machinery inside resume optimization, not of a product surface.
+
 Pipeline, in order:
 
 ```
@@ -137,7 +143,6 @@ looks authoritative would be worse than an honest equal split.
 | `/ats-scan` | The free scan entry point — upload or paste, optional job description |
 | `/gulf-readiness` | The free scan **results** |
 | `/gcc-readiness` | A signed-in user's readiness against their **saved profile** |
-| `/job-match` | A signed-in user's Job Match report |
 
 **`/gulf-readiness` and `/gcc-readiness` are one letter apart and are different
 things.** That naming is a live problem, not a quirk — recorded in

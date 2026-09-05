@@ -7,7 +7,6 @@ import {
   RectangleStackIcon,
   UserCircleIcon,
   ShieldCheckIcon,
-  MagnifyingGlassIcon,
   DocumentTextIcon,
   EnvelopeIcon,
   Cog6ToothIcon,
@@ -25,6 +24,12 @@ import {
  * things a returning user does most (open the Library, finish the Profile)
  * sit directly under Dashboard, and the tools that operate on what was created
  * follow. Payments is intentionally absent — it now lives inside Settings.
+ *
+ * "Job Match" was removed entirely (founder decision 2026-09-04): it is no longer
+ * a service a user opens on its own. Pasting a job description now happens inside
+ * Resume Optimizer, which already ran the same matching engine internally to build
+ * its "Job Match Findings" — so the analysis did not go away, only the separate
+ * screen that made it look like a second product.
  *
  * "Create Resume" was removed from this menu (founder decision 2026-08-18): the
  * three ways to start (upload · paste · fill manually) now live on the Career
@@ -63,7 +68,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true },
   { label: 'Resume Library', href: '/dashboard/library', icon: BookOpenIcon },
   { label: 'Resume Templates', href: '/templates', icon: RectangleStackIcon },
-  { label: 'Job Match', href: '/job-match', icon: MagnifyingGlassIcon },
   { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },
   { label: 'Settings', href: '/settings', icon: Cog6ToothIcon },

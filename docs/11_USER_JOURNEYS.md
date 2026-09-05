@@ -19,7 +19,8 @@ action on the landing page, opening a short flow:
                      no  → years of domestic experience
    ↓
 /gulf-readiness  the results: GCC Readiness scored for THIS user's category,
-                 strengths, improvements, and a Job Match report if a job
+                 strengths and improvements (a job description now belongs to
+                 Resume Optimizer, not a separate report — 2026-09-04)
                  description was given
    ↓
 /signup          the scan's data and the answers come with them
@@ -43,7 +44,8 @@ call. That is what makes it safe as the top of the funnel.
 claimable **only by a new account** so a stale cookie can never overwrite an existing
 user's profile. The page's promise about retention is true, which it once was not.
 
-A job description is optional. Without one there is no Job Match report — only the
+A job description is optional. Since 2026-09-04 it is read by Resume Optimizer rather
+than producing a separate report; without one there is no job-specific tailoring — only the
 readiness score.
 
 ---
@@ -97,7 +99,6 @@ user correctly. It is completed on the login page and the fragment is cleared.
 | `/dashboard/library` | Every resume — desktop table, mobile cards |
 | `/templates` | The template gallery, previewed on an example CV |
 | `/gcc-readiness` | Readiness against the saved profile |
-| `/job-match` | A Job Match report |
 | `/cover-letter` | Cover letter generation for a paid package — pick a tone (2026-08-18: Professional, Short, Technical, Explanatory) |
 | `/settings` | Account · email · current package · payments · delete data |
 | `/payments` | An honest placeholder. No payment-history feature exists |

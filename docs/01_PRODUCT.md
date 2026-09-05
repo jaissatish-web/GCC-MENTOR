@@ -56,8 +56,6 @@ Everything in this section is built, deployed and working.
 **Free, no login required**
 - Upload or paste a resume and get a **GCC Readiness** score with strengths and
   improvements — fully deterministic arithmetic, no model call, sub-second.
-- Paste a job description with it and get a **Job Match** report against that
-  specific advert.
 - The scan is kept for 7 days against a signed cookie, so signing up afterwards
   carries the extracted data across with no second upload.
 
@@ -181,8 +179,10 @@ Not built, not accommodated, not to be added without an explicit decision:
 - One-click apply
 - Multi-language support, native mobile app
 
-The **Job Match** feature is not a job board. It scores a resume against one job
-description the user pastes in. It never sources, stores or lists jobs.
+**Job matching is not a separate feature, and never a job board.** Removed as a
+standalone service 2026-09-04: pasting a job description is a step inside **Resume
+Optimizer**, where the advert is structured and matched against the profile to steer
+the rewrite. GCC MENTOR never sources, stores or lists jobs.
 
 ---
 

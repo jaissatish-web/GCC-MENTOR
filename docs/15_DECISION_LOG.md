@@ -12,6 +12,57 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-04 — Job Match is not a service. It is a step inside resume optimization
+
+**Founder decision:** remove Job Match as a thing a user opens on its own. The journey
+is Dashboard → Optimise Resume → choose the resume, paste the job description →
+the resume is optimized against it. One flow, one outcome.
+
+**The reasoning, which is a product judgement rather than a technical one:** a match
+report is not what anyone is buying. Someone who pastes a job description wants a
+better resume for that job, not a score telling them they are a 78% fit. Selling the
+diagnosis separately from the cure made the product look like two products and gave
+the user a screen that ends in advice instead of a document.
+
+**WHAT WAS REMOVED — the user-facing service only:**
+`app/job-match/page.tsx`, `app/api/job-match/route.ts`, the sidebar entry, the
+dashboard's "Latest Job Match" tile and its "Analyze a Job Match" quick action, the
+landing page's service card, its mention in the Complete Package bundle, and the FAQ
+line listing it as a live tool. Also the middleware guard and matcher for a route that
+no longer exists.
+
+**WHAT WAS KEPT, deliberately, and why deleting it would have broken the founder's own
+requirement:** everything under `lib/jobMatch/` plus `lib/ai/jobDescriptionPrompt.ts`.
+**`/api/optimize` has always run this engine internally** — when a job description is
+present it structures it with a model call, runs `computeDeterministicCategories`, and
+renders the result into the optimization prompt as its "Job Match Findings" section.
+That IS the mechanism by which pasting a job description improves the resume. Removing
+the engine would have left a textarea whose contents changed nothing.
+
+So the analysis did not go away. **The separate screen did.** The same reasoning covers
+today's §B1 work — Gulf location read from the resume, B.Tech satisfying B.Eng — which
+feeds that engine and therefore still shapes every optimization.
+
+**Measured effects, not estimated:**
+- The end-to-end suite is 51 assertions, all passing, with a new one that fails if
+  optimization ever stops making its job-description call — the regression that would
+  silently return the product to ignoring the pasted JD.
+- **Cost per complete user journey fell from ₹10.27 to ₹7.94**, about 23%, because the
+  standalone service made two model calls that the optimization path already makes one
+  of.
+- Route count 51 → 49.
+
+**Left alone, and flagged rather than deleted:** `/api/ats-scan`'s POST handler is the
+anonymous twin of the same feature and still contains the LLM job-match path. Nothing
+calls it — `/ats-scan` has redirected to `/gulf-readiness-score` since 2026-08-18, and
+it is the only writer of anonymous sessions, so the session GET, the signup claim and
+the `/gulf-readiness` page's match block are all already unreachable. It is dead code
+that would still spend money if probed directly. Removing it touches the anonymous
+funnel and the signup claim flow, so it needs its own decision rather than riding along
+with this one. See open items.
+
+---
+
 ## 2026-09-04 — There is an end-to-end smoke test, and it found two things
 
 `docs/14_OPEN_ITEMS.md` §C1 has said from the beginning that **no authenticated page

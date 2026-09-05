@@ -26,7 +26,7 @@ import type { Package } from '@/types/package'
  * calculateReadiness() — same calls, same fields, same logic. No new query.
  *
  * Composition per §C: left column = greeting + metric row (Profile Strength,
- * Resumes Created, Latest Job Match) + next-step hero strip + Recent
+ * Resumes Created) + next-step hero strip + Recent
  * Activity + new "Planned" row (LockedTile); right rail (≥1280px) = Readiness
  * ring card, Quick Actions list, Library preview. On tablet the rail drops
  * below the main column; metric row 2-up; on mobile the Planned row is a
@@ -35,13 +35,10 @@ import type { Package } from '@/types/package'
  * Two approved corrections, not scope creep:
  *  (1) the stale "ATS score check" locked tile is DROPPED (the scanner has
  *      been live since TASK-058) — it no longer appears anywhere.
- *  (2) a third metric tile, "Latest Job Match," is added, sourced from the
- *      most recent package's already-computed JobMatchResult
- *      (`ats_score_card.job_match`, returned by the existing
- *      `GET /api/packages` `.select('*')` — display-only, no computation).
- *      `ats_score_card` is a Phase-2 reservation slot, so when no Job Match
- *      has been computed yet the tile renders a neutral "No match yet"
- *      state, never a fabricated number.
+ *  (2) a third metric tile, "Latest Job Match", once sat beside those two.
+ *      REMOVED 2026-09-04 with the standalone Job Match service (founder
+ *      decision). Not replaced: the Gulf Readiness figure already has its own
+ *      widget on this page, so a third tile would have repeated it.
  */
 
 const PLANNED_SERVICES: ReadonlyArray<{ title: string; description: string }> = [
@@ -61,7 +58,6 @@ const PLANNED_SERVICES: ReadonlyArray<{ title: string; description: string }> = 
 
 const QUICK_ACTIONS: ReadonlyArray<{ label: string; href: string }> = [
   { label: 'Profile Strength', href: '/gcc-readiness' },
-  { label: 'Analyze a Job Match', href: '/job-match' },
   { label: 'Optimize Resume', href: '/optimize/target' },
   { label: 'Generate Cover Letter', href: '/cover-letter' },
   { label: 'View Library', href: '/dashboard/library' },
@@ -90,24 +86,6 @@ const STATUS_LABEL: Record<Package['status'], string> = {
 // Pull a JobMatchResult out of the most recent package's already-fetched
 // `ats_score_card` jsonb (Phase-2 reservation slot; the ATS scan stores
 // `job_match` there when a JD was provided). Display-only — no computation.
-function latestJobMatch(packages: Package[]): { score: number; title?: string } | null {
-  for (const p of packages) {
-    const ats = p.ats_score_card
-    if (ats && typeof ats === 'object' && !Array.isArray(ats)) {
-      const jm = (ats as { job_match?: unknown }).job_match
-      if (jm && typeof jm === 'object') {
-        const score = (jm as { match_score?: unknown }).match_score
-        if (typeof score === 'number' && Number.isFinite(score)) {
-          // job_match (lib/ai/atsScorePrompt.ts's AtsScoreResult) has no
-          // title field of its own — the package row it's stored on
-          // already has the real target_job_title.
-          return { score, title: p.target_job_title || undefined }
-        }
-      }
-    }
-  }
-  return null
-}
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
@@ -129,9 +107,8 @@ export default function DashboardPage() {
       // Loaded flag so the "create your profile" nudge shows only after we KNOW
       // there is no profile — never a flash before the fetch resolves.
       .finally(() => setProfileLoaded(true))
-    // Same /api/packages call as before — now keeping the rows, not just
-    // the count, so Recent Activity, the metric row and "Latest Job Match"
-    // can use real data.
+    // Same /api/packages call as before — keeping the rows, not just the
+    // count, so Recent Activity and the metric row use real data.
     fetch('/api/packages', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json().catch(() => null) : null))
       .then((data) => {
@@ -187,7 +164,6 @@ export default function DashboardPage() {
   const gulfAnswers = readiness ? answersFromReadinessCategory(readiness.category) : null
   const packageCount = packages.length
   const recentPackages = packages.slice(0, 3)
-  const jobMatch = latestJobMatch(packages)
 
   // Next Best Action — a simple three-tier rule over real state, not a
   // recommendation engine (explicitly out of scope).
@@ -263,9 +239,15 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[minmax(0,1fr)_340px]">
         {/* ── LEFT column ── */}
         <div className="flex min-w-0 flex-col gap-6">
-          {/* Metric row: Profile Strength · Resumes Created · Latest Job Match */}
+          {/* Metric row: Profile Strength · Resumes Created.
+              A third tile, "Latest Job Match", was removed 2026-09-04 with the
+              standalone Job Match service. It is deliberately NOT replaced: the
+              Gulf Readiness number already has its own widget further down this
+              page, so a third tile would have shown the same figure twice. Two
+              tiles on a two-column grid, rather than three on a three-column
+              one that would leave a gap. */}
           <Reveal delay={40}>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <MetricTile
                 label="Profile Strength"
                 value={`${score}%`}
@@ -277,13 +259,6 @@ export default function DashboardPage() {
                 value={packagesLoaded ? String(packageCount) : '—'}
                 sub={packageCount > 0 ? 'In your Library' : undefined}
                 href="/dashboard/library"
-              />
-              <MetricTile
-                label="Latest Job Match"
-                value={jobMatch ? `${jobMatch.score}%` : '—'}
-                sub={jobMatch?.title ?? (jobMatch ? 'Match score' : 'No match yet')}
-                muted={!jobMatch}
-                href="/job-match"
               />
             </div>
           </Reveal>

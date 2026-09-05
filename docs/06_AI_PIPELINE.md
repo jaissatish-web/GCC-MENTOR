@@ -190,7 +190,7 @@ against what the built-in prompt produced, and roll back in one click if it is w
 |---|---|
 | `extraction` | Upload or paste a resume at `/ats-scan` or `/onboarding` |
 | `job_description` | Paste a job description into the same scan, or into `/optimize/target` |
-| `job_match_explanation` | A scan **with** a job description → `/gulf-readiness`, or `/job-match` |
+| `job_match_explanation` | **No live caller since 2026-09-04.** Its only remaining reference is `/api/ats-scan`'s POST, which nothing reaches — see `14_OPEN_ITEMS.md`. Resume optimization uses the deterministic categories, not this explanation call |
 | `optimization` | `/optimize/target` → setup → generate |
 | `cover_letter` | `/cover-letter`, pick a resume, pick a tone, generate |
 

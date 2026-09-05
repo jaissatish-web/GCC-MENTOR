@@ -38,7 +38,6 @@ type TabId = (typeof TABS)[number]['id']
 const SERVICE_LABELS: Record<string, string> = {
   cover_letter: 'Cover Letter',
   resume_optimization: 'Resume Optimization',
-  job_match: 'Job Match',
 }
 
 function serviceLabel(key: string): string {

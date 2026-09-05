@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GCC MENTOR — Gulf Career Platform (Redesign Concept)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#060F1D;
+    --surface:#0F2542;
+    --surface-2:#16304F;
+    --surface-3:#1E3A5C;
+    --hairline:#1E3A5C;
+    --gold:#C98A2E;
+    --gold-bright:#E8B15C;
+    --gold-tint:#FBF1DF;
+    --emerald:#0E5C4A;
+    --sky:#6BA3E0;
+    --marble:#FBF9F5;
+    --ink:#E8EDF4;
+    --ink-soft:#A9B8CC;
+    --ink-faint:#6E819A;
+    --radius:16px;
+    --maxw:1180px;
+    --font-serif:'Instrument Serif',Georgia,serif;
+    --font-sans:'Inter',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--void);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  h1,h2,h3{font-family:var(--font-serif);font-weight:400;line-height:1.08;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  .kicker{
+    font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--gold-bright);
+  }
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-weight:600;font-size:15px;border-radius:999px;padding:13px 22px;
+    transition:.25s ease;cursor:pointer;border:1px solid transparent;
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-bright));color:#1a1206;box-shadow:0 8px 28px -8px rgba(201,138,46,.55)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 38px -8px rgba(201,138,46,.7)}
+  .btn-ghost{border-color:rgba(255,255,255,.18);color:var(--ink);background:rgba(255,255,255,.04)}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold-bright);background:rgba(201,138,46,.08)}
+
+  /* ═══ NAV ═══ */
+  .nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(6,15,29,.82);border-bottom:1px solid rgba(255,255,255,.06)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.04em;font-size:16px}
+  .brand .dot{width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,var(--gold),var(--gold-bright));box-shadow:0 0 14px rgba(201,138,46,.7)}
+  .nav-links{display:flex;gap:30px;font-size:14px;color:var(--ink-soft)}
+  .nav-links a:hover{color:var(--gold-bright)}
+  .nav-cta{display:flex;align-items:center;gap:12px}
+  @media(max-width:860px){.nav-links{display:none}}
+
+  /* ═══ HERO ═══ */
+  .hero{position:relative;padding:70px 0 80px;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:900px;height:600px;
+    background:radial-gradient(60% 60% at 50% 0%,rgba(201,138,46,.18) 0%,rgba(201,138,46,0) 70%);pointer-events:none}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+  @media(max-width:920px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+  .hero h1{font-size:clamp(40px,6vw,68px);margin:18px 0 18px}
+  .hero h1 .hl{color:var(--gold-bright)}
+  .hero p.lead{font-size:18px;color:var(--ink-soft);max-width:54ch;margin-bottom:26px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .hero-note{font-size:12.5px;color:var(--ink-faint)}
+  .flags{display:flex;flex-wrap:wrap;gap:14px 20px;margin-top:22px;font-size:13px;color:var(--ink-soft);font-weight:600}
+  .flags span{display:inline-flex;align-items:center;gap:7px}
+
+  /* scorecard preview */
+  .scorecard{
+    background:linear-gradient(180deg,var(--surface),var(--surface-2));
+    border:1px solid var(--hairline);border-radius:22px;padding:26px;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.05);
+    position:relative;
+  }
+  .sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+  .sc-top .tag{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-bright);
+    background:rgba(201,138,46,.12);border:1px solid rgba(201,138,46,.25);padding:5px 10px;border-radius:999px}
+  .sc-ring{position:relative;width:140px;height:140px;margin:6px auto 4px}
+  .sc-ring svg{transform:rotate(-90deg)}
+  .sc-ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .sc-ring .num b{font-size:38px;font-family:var(--font-serif);line-height:1}
+  .sc-ring .num small{font-size:11px;color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase}
+  .sc-name{text-align:center;font-size:13px;color:var(--ink-soft);margin-top:6px}
+  .sc-bars{margin-top:18px;display:flex;flex-direction:column;gap:12px}
+  .bar .bl{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin-bottom:5px}
+  .bar .track{height:8px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}
+  .bar .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--emerald),#16a085)}
+  .sc-foot{margin-top:18px;display:flex;gap:8px;font-size:11px;color:var(--ink-faint);border-top:1px solid var(--hairline);padding-top:14px}
+  .sc-foot span{display:inline-flex;align-items:center;gap:5px;color:var(--emerald)}
+
+  /* ═══ TRUTH BAR ═══ */
+  .truth{border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);background:linear-gradient(90deg,rgba(201,138,46,.06),rgba(14,92,74,.06))}
+  .truth-in{display:flex;flex-wrap:wrap;gap:14px 30px;justify-content:center;padding:16px 0;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .truth-in span{display:inline-flex;align-items:center;gap:8px}
+  .truth-in .ic{color:var(--gold-bright)}
+
+  /* ═══ SECTION SHELL ═══ */
+  section.block{padding:80px 0}
+  .sec-head{max-width:680px;margin-bottom:46px}
+  .sec-head h2{font-size:clamp(32px,4.5vw,46px);margin:14px 0 14px}
+  .sec-head p{color:var(--ink-soft);font-size:17px}
+
+  /* journey */
+  .journey{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+  @media(max-width:920px){.journey{grid-template-columns:1fr}}
+  .step{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--radius);padding:22px;position:relative;transition:.25s}
+  .step:hover{transform:translateY(-4px);border-color:rgba(201,138,46,.4)}
+  .step .n{font-family:var(--font-serif);font-size:28px;color:var(--gold-bright)}
+  .step h3{font-family:var(--font-sans);font-weight:700;font-size:15px;margin:8px 0 8px}
+  .step .do{font-size:13px;color:var(--ink-soft)}
+  .step .get{font-size:12.5px;color:var(--emerald);margin-top:10px;font-weight:600}
+  .step .free{position:absolute;top:16px;right:16px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-bright);background:rgba(201,138,46,.12);padding:3px 8px;border-radius:999px}
+
+  /* services */
+  .services{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:920px){.services{grid-template-columns:1fr}}
+  .svc{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:.3s}
+  .svc:hover{transform:translateY(-5px);border-color:rgba(201,138,46,.45);box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
+  .svc .img{height:150px;position:relative;overflow:hidden}
+  .svc .img img{width:100%;height:100%;object-fit:cover;transition:.5s}
+  .svc:hover .img img{transform:scale(1.06)}
+  .svc .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,37,66,0) 30%,rgba(15,37,66,.95) 100%)}
+  .svc .badge{position:absolute;top:12px;left:12px;z-index:2;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px}
+  .badge.live{background:rgba(14,92,74,.85);color:#bfeede}
+  .badge.free{background:rgba(201,138,46,.85);color:#1a1206}
+  .svc .body{padding:20px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .svc .body h3{font-family:var(--font-sans);font-weight:700;font-size:17px}
+  .svc .body p{font-size:13.5px;color:var(--ink-soft)}
+  .svc .body .go{margin-top:auto;font-size:13px;font-weight:700;color:var(--gold-bright);display:inline-flex;align-items:center;gap:6px}
+
+  /* before/after */
+  .ba{display:grid;grid-template-columns:1fr auto 1fr;gap:22px;align-items:center}
+  @media(max-width:920px){.ba{grid-template-columns:1fr}.ba .arrow{transform:rotate(90deg);justify-self:center}}
+  .ba .card{border-radius:var(--radius);padding:22px;border:1px solid var(--hairline)}
+  .ba .before{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08)}
+  .ba .after{background:linear-gradient(180deg,rgba(14,92,74,.18),rgba(15,37,66,.4));border-color:rgba(14,92,74,.4)}
+  .ba .lbl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;display:inline-block;margin-bottom:12px}
+  .ba .before .lbl{background:rgba(255,255,255,.08);color:var(--ink-soft)}
+  .ba .after .lbl{background:rgba(14,92,74,.4);color:#bfeede}
+  .ba p{font-size:14px;color:var(--ink)}
+  .ba .arrow{color:var(--gold-bright);font-size:26px}
+  .ba .note{font-size:11px;color:var(--ink-faint);margin-top:12px;text-transform:uppercase;letter-spacing:.08em}
+  .scorebars{margin-top:34px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:720px){.scorebars{grid-template-columns:1fr}}
+  .sb .bl{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);margin-bottom:6px}
+  .sb .bl b{color:var(--gold-bright);font-family:var(--font-serif);font-size:18px}
+  .sb .track{height:10px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
+  .sb .track .b{position:absolute;inset:0;width:34%;background:rgba(255,255,255,.18);border-radius:999px}
+  .sb .track .a{position:absolute;inset:0;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));border-radius:999px}
+
+  /* markets */
+  .markets{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:720px){.markets{grid-template-columns:repeat(2,1fr)}}
+  .mkt{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:6px;transition:.25s}
+  .mkt:hover{border-color:rgba(201,138,46,.4);transform:translateY(-3px)}
+  .mkt .fl{font-size:30px}
+  .mkt h3{font-family:var(--font-sans);font-weight:700;font-size:16px}
+  .mkt p{font-size:12px;color:var(--ink-faint)}
+
+  /* founder */
+  .founder{display:grid;grid-template-columns:.85fr 1.15fr;gap:44px;align-items:center}
+  @media(max-width:920px){.founder{grid-template-columns:1fr}}
+  .founder .ph{height:380px;border-radius:22px;overflow:hidden;position:relative;border:1px solid var(--hairline)}
+  .founder .ph img{width:100%;height:100%;object-fit:cover}
+  .founder .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,15,29,0) 40%,rgba(6,15,29,.85) 100%)}
+  .creds{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  .cred{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:14px;font-size:12.5px}
+  .cred b{display:block;font-size:13px;color:var(--ink);margin-bottom:3px}
+  .cred span{color:var(--ink-faint)}
+
+  /* pricing */
+  .pricing{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:920px){.pricing{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.pricing{grid-template-columns:1fr}}
+  .plan{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;gap:14px}
+  .plan.feature{border-color:var(--gold);background:linear-gradient(180deg,rgba(201,138,46,.1),var(--surface));position:relative}
+  .plan.feature::before{content:"Most chosen";position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold-bright));color:#1a1206;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:999px}
+  .plan h3{font-family:var(--font-sans);font-weight:700;font-size:15px;color:var(--ink-soft)}
+  .plan .price{font-family:var(--font-serif);font-size:40px;color:var(--ink)}
+  .plan .price small{font-size:13px;color:var(--ink-faint);font-family:var(--font-sans)}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:9px;font-size:13px;color:var(--ink-soft)}
+  .plan ul li{display:flex;gap:9px;align-items:flex-start}
+  .plan ul li .ck{color:var(--emerald);flex-shrink:0;margin-top:2px}
+  .plan .btn{justify-content:center;width:100%}
+  .paynote{margin-top:22px;font-size:13px;color:var(--ink-faint);text-align:center;border:1px dashed var(--hairline);border-radius:12px;padding:16px}
+
+  /* faq */
+  .faq{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.faq{grid-template-columns:1fr}}
+  .faq .q{background:var(--surface);border:1px solid var(--hairline);border-radius:14px;padding:18px}
+  .faq .q h3{font-family:var(--font-sans);font-weight:700;font-size:15px;margin-bottom:8px;color:var(--gold-bright)}
+  .faq .q p{font-size:13.5px;color:var(--ink-soft)}
+
+  /* cta */
+  .cta{text-align:center;padding:90px 0}
+  .cta h2{font-size:clamp(34px,5vw,52px);margin-bottom:16px}
+  .cta p{color:var(--ink-soft);font-size:17px;margin-bottom:28px}
+
+  /* footer */
+  footer{border-top:1px solid var(--hairline);padding:40px 0;color:var(--ink-faint);font-size:13px}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;align-items:center}
+
+  /* ── APP-LIKE MOBILE (560px and below) ───────────────────── */
+  @media(max-width:560px){
+    /* BOTTOM TAB BAR — native app style */
+    .bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;
+      background:rgba(6,15,29,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-top:1px solid var(--hairline);padding:0;height:60px}
+    .bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:2px;flex:1;height:100%;font-size:11px;font-weight:600;letter-spacing:.02em;
+      color:var(--ink-faint);-webkit-tap-highlight-color:transparent;
+      transition:color .2s;position:relative;min-height:52px}
+    .bottom-nav a .bi{font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center}
+    .bottom-nav a.act{color:var(--gold-bright)}
+    .bottom-nav a.act::after{content:"";position:absolute;top:0;left:20%;right:20%;height:2px;
+      border-radius:0 0 2px 2px;background:var(--gold-bright)}
+    body{padding-bottom:72px}
+
+    /* STICKY NAV — tighter on mobile */
+    .nav-in{height:56px;padding:0 16px}
+    .nav-cta .btn{padding:9px 16px;font-size:13px}
+
+    /* HERO — bigger type, full-width buttons on mobile */
+    .hero{padding:48px 0 56px}
+    .hero h1{font-size:clamp(34px,10vw,44px)}
+    .hero-cta{flex-direction:column;gap:10px}
+    .hero-cta .btn{width:100%;justify-content:center;padding:14px 20px;font-size:16px}
+    .hero-note{font-size:12px}
+    .flags{gap:8px 16px;font-size:12px}
+
+    /* SCORECARD — adjusted padding */
+    .scorecard{padding:20px;border-radius:16px}
+    .sc-ring{width:120px;height:120px}
+    .sc-ring svg{width:120px;height:120px}
+    .sc-ring .num b{font-size:32px}
+    .sc-bars{gap:10px}
+    .sc-foot{flex-wrap:wrap;gap:6px}
+
+    /* SECTIONS */
+    section.block{padding:50px 0}
+    .sec-head{margin-bottom:30px}
+    .sec-head h2{font-size:clamp(28px,8vw,36px);margin:10px 0 10px}
+    .sec-head p{font-size:15px}
+    .wrap{padding:0 18px}
+
+    /* JOURNEY STEPS — bigger touch area */
+    .step{padding:18px}
+    .step .n{font-size:24px}
+    .step h3{font-size:15px;margin:6px 0 6px}
+    .step .do,.step .get{font-size:13px;line-height:1.5}
+
+    /* SERVICE CARDS — full-width, reduced image height */
+    .svc .img{height:120px}
+    .svc .body{padding:16px}
+    .svc .body h3{font-size:16px}
+    .svc .body p{font-size:13px}
+
+    /* BEFORE/AFTER — tighter */
+    .ba{gap:16px}
+    .ba .card{padding:16px;font-size:13px}
+    .scorebars{gap:14px}
+
+    /* MARKET CARDS */
+    .mkt{padding:16px;min-height:72px}
+
+    /* FOUNDER — smaller photo on mobile */
+    .founder .ph{height:200px;border-radius:14px}
+
+    /* PRICING — single column on phone */
+    .pricing{grid-template-columns:1fr;gap:12px}
+    .plan{padding:20px}
+    .plan .price{font-size:34px}
+    .plan.feature::before{font-size:9px;padding:3px 10px;top:-10px}
+    .paynote{font-size:12px;padding:12px}
+
+    /* FAQ */
+    .faq{gap:12px}
+    .faq .q{padding:14px}
+    .faq .q h3{font-size:14px}
+
+    /* CTA */
+    .cta{padding:60px 0}
+    .cta .btn{width:100%;justify-content:center}
+
+    /* FOOTER */
+    footer{padding:28px 0;font-size:12px}
+    .foot-in{flex-direction:column;gap:10px;text-align:center}
+
+    /* CREDENTIALS — single column on mobile */
+    .creds{grid-template-columns:1fr}
+  }
+  .reveal{opacity:0;transform:translateY(22px);transition:.6s cubic-bezier(.22,1,.36,1)}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="wrap nav-in">
+    <div class="brand"><span class="dot"></span>GCC MENTOR</div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#services">Services</a>
+      <a href="#markets">Markets</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#trust">Why us</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#score" class="btn btn-primary">Score my CV free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="score">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="kicker">Built by a 15+ year Gulf E&amp;I Superintendent</p>
+      <h1>Your career,<br><span class="hl">Gulf-ready.</span></h1>
+      <p class="lead">Prepare for your next role in Saudi Arabia, UAE, Qatar, Oman, Kuwait or Bahrain. We rebuild your real experience into Gulf format for the exact job you're targeting — using only facts you already have.</p>
+      <div class="hero-cta">
+        <a href="#score" class="btn btn-primary">Score my CV free →</a>
+        <a href="#how" class="btn btn-ghost">See how it works</a>
+      </div>
+      <p class="hero-note">No card required · Instant result · Nothing saved unless you sign up</p>
+      <div class="flags">
+        <span>🇸🇦 Saudi Arabia</span><span>🇦🇪 UAE</span><span>🇶🇦 Qatar</span>
+        <span>🇴🇲 Oman</span><span>🇰🇼 Kuwait</span><span>🇧🇭 Bahrain</span>
+      </div>
+    </div>
+
+    <!-- SCORECARD PREVIEW (the product output IS the hero) -->
+    <div class="scorecard">
+      <div class="sc-top">
+        <div>
+          <p style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-bright)">GCC Readiness</p>
+          <p style="font-size:13px;color:var(--ink-soft);margin-top:4px">Senior Instrument Engineer</p>
+        </div>
+        <span class="tag">Illustrative</span>
+      </div>
+      <div class="sc-ring">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
+          <circle cx="70" cy="70" r="60" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="377" stroke-dashoffset="103"/>
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#0E5C4A"/><stop offset="1" stop-color="#E8B15C"/></linearGradient></defs>
+        </svg>
+        <div class="num"><b>72</b><small>Score</small></div>
+      </div>
+      <p class="sc-name">Ready — a few gaps to close</p>
+      <div class="sc-bars">
+        <div class="bar"><div class="bl"><span>ATS keyword match</span><span>88%</span></div><div class="track"><div class="fill" style="width:88%"></div></div></div>
+        <div class="bar"><div class="bl"><span>Format compliance</span><span>96%</span></div><div class="track"><div class="fill" style="width:96%"></div></div></div>
+        <div class="bar"><div class="bl"><span>Recruiter-ready</span><span>91%</span></div><div class="track"><div class="fill" style="width:91%"></div></div></div>
+      </div>
+      <div class="sc-foot">
+        <span>✓ ATS-safe</span><span>✓ No invented facts</span><span>✓ Instant</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- TRUTH BAR -->
+<div class="truth" id="trust">
+  <div class="wrap truth-in">
+    <span><span class="ic">◆</span> The AI never invents a fact you didn't give us</span>
+    <span><span class="ic">◆</span> Built by a real Gulf engineer, not a template</span>
+    <span><span class="ic">◆</span> No placement scams — ever</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="block" id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker">From "I want a Gulf job" to "I'm ready to apply"</p>
+      <h2>We walk you through it, step by step.</h2>
+      <p>Each step tells you what to do and gives you something back. The first two cost nothing.</p>
+    </div>
+    <div class="journey">
+      <div class="step reveal"><span class="free">Free</span><div class="n">01</div><h3>See where you stand</h3><p class="do">Upload your CV, answer two questions. Get a scored readiness breakdown.</p><p class="get">You get → a ranked fix list</p></div>
+      <div class="step reveal"><span class="free">Free</span><div class="n">02</div><h3>Build your profile</h3><p class="do">We read your CV and fill in your history, skills and certs for you.</p><p class="get">You get → one structured profile</p></div>
+      <div class="step reveal"><div class="n">03</div><h3>Target a real job</h3><p class="do">Pick the role, paste the JD if you have one.</p><p class="get">You get → a match report</p></div>
+      <div class="step reveal"><div class="n">04</div><h3>Generate your Gulf CV</h3><p class="do">The optimizer reframes your real experience for that role.</p><p class="get">You get → an ATS-ready CV</p></div>
+      <div class="step reveal"><div class="n">05</div><h3>Complete the package</h3><p class="do">Add a cover letter in the tone that fits the employer.</p><p class="get">You get → a ready application</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="block" id="services" style="background:linear-gradient(180deg,var(--void),rgba(15,37,66,.4))">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker">Everything you need to prepare for the Gulf</p>
+      <h2>One profile. Every application.</h2>
+      <p>Your experience lives in one place. Every tool draws from the same trusted source.</p>
+    </div>
+    <div class="services">
+      <div class="svc reveal">
+        <div class="img"><span class="badge free">Free · no login</span><img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=700&q=80" alt=""></div>
+        <div class="body"><h3>Gulf Readiness Score</h3><p>Answer two questions, upload a CV, and get a scored breakdown across six dimensions with a ranked plan of what to fix first.</p><span class="go">Try it free →</span></div>
+      </div>
+      <div class="svc reveal">
+        <div class="img"><span class="badge live">Live</span><img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=700&q=80" alt=""></div>
+        <div class="body"><h3>Career Profile</h3><p>Your experience read from your CV once and stored as structured facts. Every tool draws from it — never retype.</p><span class="go">Start free →</span></div>
+      </div>
+      <div class="svc reveal">
+        <div class="img"><span class="badge live">Live</span><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=700&q=80" alt=""></div>
+        <div class="body"><h3>GCC Resume Optimizer</h3><p>Reframes your real experience for one specific role and Gulf market — grounded, so it can never invent a job.</p><span class="go">Optimize →</span></div>
+      </div>
+      <div class="svc reveal">
+        <div class="img"><span class="badge live">Live</span><img src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&w=700&q=80" alt=""></div>
+        <div class="body"><h3>15 Gulf CV Templates</h3><p>ATS-safe through to photo-led Gulf formats. Switch template, font, colour and photo without retyping a word.</p><span class="go">Browse →</span></div>
+      </div>
+      <div class="svc reveal">
+        <div class="img"><span class="badge live">Live</span><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=700&q=80" alt=""></div>
+        <div class="body"><h3>Job Match Report</h3><p>Paste a job description and see where you match, where you fall short, and what to strengthen before applying.</p><span class="go">Match a job →</span></div>
+      </div>
+      <div class="svc reveal">
+        <div class="img"><span class="badge live">Live</span><img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=700&q=80" alt=""></div>
+        <div class="body"><h3>Cover Letter</h3><p>Written from the same profile, in the tone you choose — Professional, Short, Technical or Explanatory.</p><span class="go">Generate →</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE / AFTER -->
+<section class="block">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker">What GCC-optimization actually changes</p>
+      <h2>Same experience. Recruiter-ready framing.</h2>
+      <p>The facts never change — only how clearly a Gulf recruiter can see them.</p>
+    </div>
+    <div class="ba reveal">
+      <div class="card before">
+        <span class="lbl">Before</span>
+        <p>"Handled instrumentation and electrical testing tasks at the plant site."</p>
+        <p class="note">Illustrative example — not a real customer</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="card after">
+        <span class="lbl">After</span>
+        <p>"Directed LV/MV switchgear and cable-testing programs across multiple substations, aligned to Saudi Aramco and ADNOC engineering standards."</p>
+        <p class="note">Same facts · Gulf framing</p>
+      </div>
+    </div>
+    <div class="scorebars reveal">
+      <div class="sb"><div class="bl"><span>ATS keyword match</span><b>34→88</b></div><div class="track"><div class="b"></div><div class="a" style="width:88%"></div></div></div>
+      <div class="sb"><div class="bl"><span>Format compliance</span><b>52→96</b></div><div class="track"><div class="b"></div><div class="a" style="width:96%"></div></div></div>
+      <div class="sb"><div class="bl"><span>Recruiter-ready</span><b>41→91</b></div><div class="track"><div class="b"></div><div class="a" style="width:91%"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKETS -->
+<section class="block" id="markets" style="background:linear-gradient(180deg,rgba(15,37,66,.4),var(--void))">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker">One career profile. Six Gulf markets.</p>
+      <h2>Your experience is ready for any of them.</h2>
+    </div>
+    <div class="markets">
+      <div class="mkt reveal"><span class="fl">🇸🇦</span><h3>Saudi Arabia</h3><p>CV support live · Readiness available</p></div>
+      <div class="mkt reveal"><span class="fl">🇦🇪</span><h3>UAE</h3><p>CV support live · Readiness available</p></div>
+      <div class="mkt reveal"><span class="fl">🇶🇦</span><h3>Qatar</h3><p>CV support live · Readiness available</p></div>
+      <div class="mkt reveal"><span class="fl">🇴🇲</span><h3>Oman</h3><p>CV support live · Readiness available</p></div>
+      <div class="mkt reveal"><span class="fl">🇰🇼</span><h3>Kuwait</h3><p>CV support live · Readiness available</p></div>
+      <div class="mkt reveal"><span class="fl">🇧🇭</span><h3>Bahrain</h3><p>CV support live · Readiness available</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER -->
+<section class="block">
+  <div class="wrap founder">
+    <div class="ph reveal"><img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80" alt="Engineer on Gulf site"></div>
+    <div class="reveal">
+      <p class="kicker">Not built by a template. Built by an engineer.</p>
+      <h2 style="font-size:clamp(30px,4vw,42px);margin:14px 0 16px">15+ years commissioning the Gulf's largest projects.</h2>
+      <p style="color:var(--ink-soft);font-size:16px">GCC MENTOR is founded by an E&amp;I Superintendent whose career was built on the same mega-scale EPC projects you're trying to break into — not a marketing team guessing what Gulf recruiters want.</p>
+      <div class="creds">
+        <div class="cred"><b>NEOM Green Hydrogen</b><span>World's largest green H₂ facility — Saudi Arabia</span></div>
+        <div class="cred"><b>ADNOC TAKREER</b><span>Base Oil Unit — Abu Dhabi, UAE</span></div>
+        <div class="cred"><b>Bechtel · Al Taweelah</b><span>Largest alumina refinery, ME — UAE</span></div>
+        <div class="cred"><b>NSRP Refinery</b><span>Asia's largest single-train refinery</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="block" id="pricing" style="background:linear-gradient(180deg,var(--void),rgba(15,37,66,.4))">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="kicker">Simple, honest pricing</p>
+      <h2>Pay only for the AI rewrite.</h2>
+      <p>Everything else — your own facts, a template, a PDF, a readiness score — is free or could be.</p>
+    </div>
+    <div class="pricing">
+      <div class="plan reveal"><h3>Free</h3><div class="price">₹0</div><ul>
+        <li><span class="ck">✓</span> Gulf Readiness Score</li><li><span class="ck">✓</span> Six-dimension breakdown</li><li><span class="ck">✓</span> Ranked improvement plan</li></ul>
+        <a href="#score" class="btn btn-ghost">Start free</a></div>
+
+      <div class="plan feature reveal"><h3>Resume Optimization</h3><div class="price">₹499 <small>/ resume</small></div><ul>
+        <li><span class="ck">✓</span> Career Profile</li><li><span class="ck">✓</span> GCC-Optimized Resume</li><li><span class="ck">✓</span> 15 Gulf templates</li><li><span class="ck">✓</span> PDF download</li></ul>
+        <a href="#score" class="btn btn-primary">Get optimized</a></div>
+
+      <div class="plan reveal"><h3>Resume + Letter</h3><div class="price">₹999 <small>/ bundle</small></div><ul>
+        <li><span class="ck">✓</span> Optimized resume</li><li><span class="ck">✓</span> Professional cover letter</li><li><span class="ck">✓</span> PDF download</li></ul>
+        <a href="#score" class="btn btn-ghost">Choose bundle</a></div>
+
+      <div class="plan reveal"><h3>Complete</h3><div class="price">₹2,499 <small>/ package</small></div><ul>
+        <li><span class="ck">✓</span> Resume + cover letter</li><li><span class="ck">✓</span> Multiple target versions</li><li><span class="ck">✓</span> Job Match reports</li></ul>
+        <a href="#score" class="btn btn-ghost">Go complete</a></div>
+    </div>
+    <div class="paynote reveal">Card checkout is being completed. You can use the free Gulf Readiness Score and build your Career Profile today at no cost; when you want a paid service we arrange it with you directly and unlock it on your account. No surprise charges — ever.</div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="block">
+  <div class="wrap">
+    <div class="sec-head reveal"><p class="kicker">Questions, answered plainly</p><h2>What people ask before they start.</h2></div>
+    <div class="faq">
+      <div class="q reveal"><h3>Will GCC MENTOR invent anything on my CV?</h3><p>No. The optimizer uses only facts in your Career Profile. It improves framing, never your history. Every generated line is validated against your profile before you see it.</p></div>
+      <div class="q reveal"><h3>Which Gulf countries are supported?</h3><p>Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain. One profile prepares you for all six.</p></div>
+      <div class="q reveal"><h3>How do I pay?</h3><p>Card checkout is not live yet. You can use everything free today; paid services are arranged directly and unlocked on your account.</p></div>
+      <div class="q reveal"><h3>How is my data protected?</h3><p>Sensitive fields are encrypted, every internal access is logged, and you can delete all your data at any time from Settings.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="wrap reveal">
+    <h2>Your Gulf career starts with a free score.</h2>
+    <p>See where you stand in two minutes. No account needed.</p>
+    <a href="#score" class="btn btn-primary" style="font-size:16px;padding:15px 28px">Score my CV free →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap foot-in">
+    <div class="brand"><span class="dot"></span>GCC MENTOR</div>
+    <div>© 2026 GCC MENTOR · Built by a Gulf engineer · No invented facts</div>
+  </div>
+</footer>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="bottom-nav">
+  <a href="#score" class="act"><span class="bi">🎯</span><span>Score</span></a>
+  <a href="#how"><span class="bi">📋</span><span>How</span></a>
+  <a href="#services"><span class="bi">🛠️</span><span>Services</span></a>
+  <a href="#pricing"><span class="bi">💼</span><span>Plans</span></a>
+</div>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
