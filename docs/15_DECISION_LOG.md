@@ -12,6 +12,74 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-05 — Phase A structures the job description, because Hobby caps functions at 60s
+
+**Two production defects fixed, both found by the end-to-end suite.**
+
+### The optimizer timed out on Vercel
+
+`/api/optimize` Phase B returned **504 `FUNCTION_INVOCATION_TIMEOUT`** in production while
+passing locally. Per-call timing added to `lib/ai/provider.ts` gave the split on one
+request:
+
+```
+JD structuring    9.6s   (budget 1536)
+optimization     18.4s   (budget 8192)
+                 ─────
+                 29.6s locally — over 60s on Vercel
+```
+
+**The founder is on the Hobby plan, where 60s is a hard cap that no `maxDuration` can
+raise.** So the only available fix is to make Phase B do less.
+
+**The decision: structure the advert in Phase A** (migration 045 adds
+`packages.structured_job`). Structuring depends only on the advert, never on the
+profile, so it does not belong at generation time. Phase A previously made no model call
+and returned in milliseconds; it now spends ~9s of its own 60s budget, and Phase B keeps
+its whole budget for the one call that writes the resume.
+
+**Measured after: Phase A 9.2s, Phase B 16.1s — down from 29.6s, a 46% reduction** on
+the call that was timing out.
+
+**Storing the structured job and NOT the computed categories** is deliberate: categories
+depend on the profile, which the user may edit between creating a package and generating
+it. Phase B recomputes them from this column against the profile as it stands at
+generation time, so the findings stay correct.
+
+**The consequence that must not be forgotten: Phase A now costs money.** The route header
+previously stated it never did, and metering will rely on that. The charge point is still
+Phase B, but a package created and abandoned now costs one structuring call. Nothing is
+backfilled and the inline fallback stays, so pre-045 rows and any package whose Phase A
+structuring failed behave exactly as before.
+
+### The reasoning retry is now deadline-aware
+
+`lib/ai/provider.ts` retries a reasoning-only response at double the token budget. That
+retry takes at least as long as the attempt that just failed — so inside a 60s ceiling it
+converts a recoverable failure into a timeout, and the user pays for two calls to see a
+bare server error. `generate()` now accepts an optional `deadlineAt`; when a doubled
+retry cannot finish before it, the retry is skipped and the real reason surfaces through
+the existing error. A caller that sets no deadline keeps the old unconditional behaviour.
+
+### The profile save 500
+
+Extraction can return `start_date: "January 2020"` — prose, not ISO. Three layers each
+behaved reasonably and together produced a server error: `requireString` accepts any
+non-empty string; `normalizeProfileDate` cannot parse it and returns null, which is the
+right call; and the column is NOT NULL, so Postgres rejects it and the route answers 500.
+
+It fires **on resumes that do state their dates**, because extraction is
+non-deterministic, and it lands immediately after a user has waited for their CV to be
+read. Now validated for shape at the boundary, so it is a **400 naming
+`work_experience.start_date`** instead. No storage behaviour changed — anything that
+reaches the database still goes through the same normaliser.
+
+**The pattern worth naming:** every layer here was individually correct. A validator that
+checks a type but not whether the value can survive the next layer is how three correct
+layers produce a 500.
+
+---
+
 ## 2026-09-04 — Job Match is not a service. It is a step inside resume optimization
 
 **Founder decision:** remove Job Match as a thing a user opens on its own. The journey

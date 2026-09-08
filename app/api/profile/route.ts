@@ -174,6 +174,33 @@ function validateProfile(p: Record<string, unknown>): string | null {
   return null
 }
 
+/**
+ * A date the database refuses to store as NULL must be readable HERE, not
+ * discovered to be unreadable by Postgres.
+ *
+ * THE 500 THIS CLOSES (found end-to-end 2026-09-05). Three layers each behaved
+ * reasonably and together produced a server error:
+ *
+ *   1. `requireString` accepts any non-empty string, so extraction returning
+ *      `start_date: "January 2020"` — prose rather than ISO — passes validation.
+ *   2. `normalizeProfileDate` cannot parse it and returns null, which is the
+ *      right call: a date we cannot read is absent, and guessing would be worse.
+ *   3. `profile_work_experience.start_date` is NOT NULL, so Postgres rejects the
+ *      insert and the route answers 500 Internal Server Error.
+ *
+ * The user sees a server error immediately after waiting for their CV to be
+ * read, and nothing tells them which job is missing a date. Extraction is
+ * non-deterministic, so this fires intermittently on resumes that DO state
+ * their dates.
+ *
+ * Validating the shape at the boundary turns it into a 400 that names the
+ * field. It changes no storage behaviour: a value that reaches the database
+ * still goes through exactly the same normaliser.
+ */
+function requireStorableDate(value: unknown): boolean {
+  return normalizeProfileDate(value) === null
+}
+
 function validateWorkExperience(list: unknown): string | null {
   if (!Array.isArray(list)) return 'work_experience'
   for (const item of list) {
@@ -181,6 +208,8 @@ function validateWorkExperience(list: unknown): string | null {
     if (requireString(item.company, 'company')) return 'work_experience.company'
     if (requireString(item.role, 'role')) return 'work_experience.role'
     if (requireString(item.start_date, 'start_date')) return 'work_experience.start_date'
+    // NOT NULL in the database, so it must be readable here — see above.
+    if (requireStorableDate(item.start_date)) return 'work_experience.start_date'
     if (optional(item.end_date, 'end_date', (x) => typeof x === 'string')) return 'work_experience.end_date'
     if (typeof item.sort_order !== 'number') return 'work_experience.sort_order'
     // migration 027 — null/absent = not GCC experience, otherwise must be a

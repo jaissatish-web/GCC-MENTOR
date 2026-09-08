@@ -337,6 +337,7 @@ async function run() {
   let packageId = null
   if (profileId) {
     section('Resume package — create, generate, list, download')
+    const tA = Date.now()
     const a = await req('/api/optimize', {
       method: 'POST',
       json: {
@@ -353,7 +354,15 @@ async function run() {
       },
     })
     packageId = a.body?.packageId ?? a.body?.id ?? null
-    check('Phase A creates the package and spends no model call', a.status === 200 && Boolean(packageId), `status ${a.status} ${short(a.body)}`)
+    // Phase A DOES now spend a model call when a job description is present:
+    // migration 045 moved the advert-structuring call here so Phase B stays
+    // inside Vercel's 60s Hobby ceiling. Timed, because it has gone from
+    // milliseconds to ~10s and it is now on the critical path of a user
+    // pressing "Optimize".
+    const phaseASecs = (Date.now() - tA) / 1000
+    console.log(`        package setup took ${phaseASecs.toFixed(1)}s (structures the job description)`)
+    check('Phase A creates the package', a.status === 200 && Boolean(packageId), `status ${a.status} ${short(a.body)}`)
+    check('package setup finishes well inside the timeout', phaseASecs < 40, `${phaseASecs.toFixed(1)}s`)
 
     if (packageId && !SKIP_AI) {
       // TIMED. Phase B makes TWO sequential model calls when a job description
@@ -404,11 +413,11 @@ async function run() {
     console.log(`        ${logged.length} calls logged: ${routes.join(', ')}`)
 
     check('every model call was written to ai_usage_log', logged.length >= 3, `only ${logged.length}`)
-    // Proof the job-description analysis still runs INSIDE optimization after the
-    // standalone Job Match service was removed. /api/optimize makes a second,
-    // separate model call to structure the pasted JD before it writes the resume;
-    // if that ever stops happening, the optimizer silently goes back to ignoring
-    // the job description and this count drops.
+    // Proof the job-description analysis still runs after the standalone Job
+    // Match service was removed. Since migration 045 the two /api/optimize calls
+    // are SPLIT ACROSS THE TWO PHASES — structuring at package setup, writing at
+    // generation — but the count is the same, and if either stops happening the
+    // optimizer silently goes back to ignoring the pasted job description.
     const optimizeCalls = logged.filter((r) => r.route === '/api/optimize').length
     check('optimization structured the pasted job description as well as writing the resume', optimizeCalls >= 2, `only ${optimizeCalls} call(s) on /api/optimize`)
     check('token counts are real, never zero', logged.every((r) => r.input_tokens > 0 && r.output_tokens > 0))

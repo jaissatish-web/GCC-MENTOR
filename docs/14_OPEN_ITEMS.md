@@ -141,56 +141,36 @@ The weights and the twelve band messages are first-draft numbers in
 
 ---
 
-## Resume optimization can exceed Vercel's function timeout (2026-09-04) — **production defect**
+## ~~Resume optimization can exceed Vercel's function timeout~~ — **fixed 2026-09-05**
 
-**Measured against the live site, not theorised.** `/api/optimize` Phase B returned
-**504 `FUNCTION_INVOCATION_TIMEOUT`** on `gcc-mentor.vercel.app` while the identical
-request passed locally in **31.4 s**. The route declares `maxDuration = 60`.
+Phase B returned 504 `FUNCTION_INVOCATION_TIMEOUT` in production while passing locally.
+Measured split: 9.6s to structure the advert, 18.4s to write the resume, 29.6s total.
+The account is on the **Hobby plan, where 60s is a hard cap** no setting can raise.
 
-**Why it is close to the edge.** With a job description present, Phase B makes **two
-sequential model calls** — structuring the advert (1,536 tokens), then the rewrite
-(8,192 tokens) — and `lib/ai/provider.ts` may retry the second at *double* budget
-(up to 16,384) when a reasoning model returns thinking tokens and no content. Two
-calls plus a possible retry, inside 60 seconds, on a reasoning model.
+Fixed by moving the structuring call into Phase A (migration 045,
+`packages.structured_job`), and by making the provider's doubled-budget reasoning retry
+deadline-aware so it cannot turn a recoverable failure into a timeout.
+**After: Phase A 9.2s, Phase B 16.1s.** See the decision log for the full reasoning.
 
-**What the user experiences:** the optimization fails with a server error *after* the
-model call has already been paid for. A retry then succeeds, so it reads as flaky
-rather than broken — and it costs twice.
-
-**Two ways out, and they are not equivalent:**
-1. **Raise `maxDuration`.** One line, but Vercel's Hobby plan caps functions at 60 s
-   regardless of the setting; only Pro honours a higher value. Needs to know the plan.
-2. **Move the job-description structuring call into Phase A.** Phase B then makes one
-   call instead of two, roughly halving it, and works on any plan. But it breaks the
-   documented invariant that **Phase A creates the package and spends nothing** — which
-   matters for metering when the paid locks return.
-
-**Needs a founder answer** (which plan / which trade), then it is a small change.
-The smoke test now prints the generation time and fails if it passes 50 s, so the
-margin is visible on every run instead of being discovered by a customer.
+**What this leaves open, deliberately:** Phase A now costs a model call, which the route
+previously guaranteed it never did. **Metering must not assume Phase A is free** when the
+paid locks return — a package created and abandoned costs one structuring call. The
+charge point is still Phase B.
 
 ---
 
-## Extraction can produce a work entry with no start date, and the save 500s (2026-09-04)
+## ~~Extraction can produce a work entry with no start date, and the save 500s~~ — **fixed 2026-09-05**
 
-The "auto-save edge" noted above says a job with no dates blocks the auto-save and
-calls the failure graceful. **Observed behaviour is worse than that.** The smoke test
-hit it with a resume that *does* state dates for both jobs — the model simply returned
-one entry without a usable `start_date` on that run — and the save failed with:
+`PUT /api/profile` now validates that a NOT NULL date can actually be stored, and answers
+**400 `work_experience.start_date`** instead of letting Postgres raise a 500. Storage
+behaviour is unchanged.
 
-```
-null value in column "start_date" of relation "profile_work_experience"
-violates not-null constraint
-```
+The deeper question is still open and still deliberately unanswered: **whether
+`start_date` should become nullable.** It ripples into readiness scoring and date
+rendering, which is why it was left alone. Do it only if real resumes often omit job
+dates.
 
-surfaced to the caller as a bare **500 Internal Server Error**, not a message naming
-the field. It is intermittent because extraction is non-deterministic, and it lands on
-the main onboarding path right after a user has waited for their resume to be read.
-
-**Two things to decide:** whether `start_date` becomes nullable (it ripples into
-readiness scoring and date rendering, which is why it was left alone), and — regardless
-of that — the route should reject this at validation with a field-named 400 rather than
-letting the database raise a 500.
+---
 
 ---
 

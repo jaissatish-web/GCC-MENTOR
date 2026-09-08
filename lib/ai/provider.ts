@@ -5,7 +5,22 @@ export class AIProviderError extends Error {
   constructor(message: string, readonly cause?: unknown) { super(message); this.name = 'AIProviderError' }
 }
 
-interface GenerateParams { system: string; user: string; maxTokens: number; temperature: number; userId?: string; route: string; configKey?: string; promptVersionId?: string | null }
+interface GenerateParams {
+  system: string
+  user: string
+  maxTokens: number
+  temperature: number
+  userId?: string
+  route: string
+  configKey?: string
+  promptVersionId?: string | null
+  /**
+   * Epoch-ms deadline for the whole call, when the caller runs inside a
+   * serverless function with a hard ceiling. Used only to decide whether the
+   * reasoning-budget retry below has room to run; nothing is aborted mid-flight.
+   */
+  deadlineAt?: number
+}
 interface GenerateResult { text: string; inputTokens: number; outputTokens: number }
 
 const INR_PER_USD = 84
@@ -71,7 +86,8 @@ async function attemptOpenAICompatible(baseUrl: string, apiKey: string, model: s
   return { text, choice, reasoningChars, usage: json?.usage }
 }
 
-async function callOpenAICompatible(baseUrl: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number) {
+async function callOpenAICompatible(baseUrl: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number, deadlineAt?: number) {
+  const firstStartedAt = Date.now()
   let attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, maxTokens, temperature)
 
   // REASONING-BUDGET RETRY (found while diagnosing "optimize with a job
@@ -90,8 +106,33 @@ async function callOpenAICompatible(baseUrl: string, apiKey: string, model: stri
   // and still emit its answer, rather than failing the whole optimization.
   if (!attempt.text && attempt.reasoningChars > 0) {
     const retryBudget = Math.min(maxTokens * 2, 16384)
-    if (retryBudget > maxTokens) {
+
+    // ONLY RETRY IF THERE IS TIME TO FINISH IT.
+    //
+    // The retry doubles the token budget, so it takes AT LEAST as long as the
+    // attempt that just failed and usually longer. Inside a serverless function
+    // with a hard ceiling that turns a recoverable failure into a timeout:
+    // measured 2026-09-05, the optimization call alone runs 18.4s locally and
+    // roughly twice that on Vercel, whose Hobby plan caps a function at 60s
+    // and cannot be raised. Retrying there guarantees a
+    // 504 FUNCTION_INVOCATION_TIMEOUT — the user sees a bare server error and
+    // TWO model calls have been paid for.
+    //
+    // Refusing the retry instead surfaces the real reason through the error
+    // below, costs one call rather than two, and lets the route answer with
+    // something a person can act on. A caller that sets no deadline (a script,
+    // a longer-limit environment) keeps the old unconditional behaviour.
+    const firstAttemptMs = Date.now() - firstStartedAt
+    const roomForRetry =
+      deadlineAt === undefined || Date.now() + firstAttemptMs * 1.5 < deadlineAt
+
+    if (retryBudget > maxTokens && roomForRetry) {
       attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, retryBudget, temperature)
+    } else if (retryBudget > maxTokens) {
+      console.warn(
+        `ai retry skipped: first attempt took ${(firstAttemptMs / 1000).toFixed(1)}s and a doubled-budget ` +
+          `retry would not finish before the function deadline`,
+      )
     }
   }
 
@@ -123,13 +164,13 @@ async function callAnthropic(apiKey: string, model: string, system: string, user
   return { text, inputTokens: json?.usage?.input_tokens ?? 0, outputTokens: json?.usage?.output_tokens ?? 0 }
 }
 
-async function callProvider(provider: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number) {
+async function callProvider(provider: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number, deadlineAt?: number) {
   const p = provider.toLowerCase()
   if (p === 'anthropic') return callAnthropic(apiKey, model, system, user, maxTokens, temperature)
-  if (p === 'openrouter') return callOpenAICompatible('https://openrouter.ai/api/v1', apiKey, model, system, user, maxTokens, temperature)
-  if (p === 'openai') return callOpenAICompatible('https://api.openai.com/v1', apiKey, model, system, user, maxTokens, temperature)
-  if (p === 'google') return callOpenAICompatible('https://generativelanguage.googleapis.com/v1beta/openai', apiKey, model, system, user, maxTokens, temperature)
-  if (p === 'mistral') return callOpenAICompatible('https://api.mistral.ai/v1', apiKey, model, system, user, maxTokens, temperature)
+  if (p === 'openrouter') return callOpenAICompatible('https://openrouter.ai/api/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt)
+  if (p === 'openai') return callOpenAICompatible('https://api.openai.com/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt)
+  if (p === 'google') return callOpenAICompatible('https://generativelanguage.googleapis.com/v1beta/openai', apiKey, model, system, user, maxTokens, temperature, deadlineAt)
+  if (p === 'mistral') return callOpenAICompatible('https://api.mistral.ai/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt)
   throw new AIProviderError(`Unsupported AI provider: ${provider}`)
 }
 
@@ -148,7 +189,7 @@ async function callProvider(provider: string, apiKey: string, model: string, sys
  * identical failing call — paying twice for one failure and making the user wait
  * through two timeouts for the same error message.
  */
-export async function generate({ system, user, maxTokens, temperature, userId, route, configKey, promptVersionId }: GenerateParams): Promise<GenerateResult> {
+export async function generate({ system, user, maxTokens, temperature, userId, route, configKey, promptVersionId, deadlineAt }: GenerateParams): Promise<GenerateResult> {
   const config = await getProviderConfig(configKey)
   if (!config) throw new AIProviderError('AI provider is not configured. Set it in /admin first.')
 
@@ -178,8 +219,20 @@ export async function generate({ system, user, maxTokens, temperature, userId, r
     if (attempted.has(signature)) continue
     attempted.add(signature)
 
+    const startedAt = Date.now()
     try {
-      const result = await callProvider(tier.provider, tier.apiKey, tier.model, system, user, maxTokens, temperature)
+      const result = await callProvider(tier.provider, tier.apiKey, tier.model, system, user, maxTokens, temperature, deadlineAt)
+      // DURATION MATTERS NOW. Vercel's Hobby plan hard-caps a function at 60s,
+      // and /api/optimize has already returned FUNCTION_INVOCATION_TIMEOUT in
+      // production while passing locally. Without a per-call duration there is
+      // no way to tell which call in a multi-call route is the expensive one,
+      // which is exactly the question a timeout raises. Logged rather than
+      // stored: this is an operational signal, not a business record, and
+      // ai_usage_log would need a migration to hold it.
+      console.log(
+        `ai ${route} ${tier.provider}/${tier.model} ${((Date.now() - startedAt) / 1000).toFixed(1)}s ` +
+          `in=${result.inputTokens} out=${result.outputTokens} budget=${maxTokens}`,
+      )
       void logUsage(userId ?? null, route, tier.model, result.inputTokens, result.outputTokens, promptVersionId)
       return result
     } catch (e) {

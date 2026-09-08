@@ -57,7 +57,9 @@ import type { OptimizationLevel, OptimizedContent, ExperienceBlock } from '@/typ
  */
 
 // This route can now make up to three sequential model calls when a job
-// description is given (structure the JD, generate, one grounding retry) and
+// description is given (generate, one grounding retry — the JD is structured
+// in Phase A since migration 045, precisely so this request carries one
+// model call rather than two) and
 // lib/ai/provider.ts may itself retry a call once on a reasoning-budget
 // exhaustion (2026-08-18 fix — see its header). No route-level timeout was
 // ever set, which left this at whatever the platform's default is; a
@@ -258,6 +260,11 @@ function buildOptimizedContent(
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // The function's own ceiling, as a wall-clock deadline the provider can
+  // reason about. `maxDuration = 60` above is a Vercel setting, not something
+  // the code can read back, so it is restated here — and the margin exists
+  // because the platform starts its clock before this handler does.
+  const deadlineAt = Date.now() + (maxDuration - 6) * 1000
   const supabase = await createClient()
   const {
     data: { user },
@@ -300,6 +307,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let profileId: string
   let targetFields: OptimizationTarget
   let jobDescription: string | null
+  /** Phase A's structured advert (migration 045). Null on pre-045 rows. */
+  let storedStructuredJob: unknown = null
   let selectedBlocks: SelectedBlocks
   let level: OptimizationLevel
 
@@ -333,6 +342,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       target_company: (pkgRow.target_company as string | null) ?? null,
     } as OptimizationTarget
     jobDescription = (pkgRow.job_description as string | null) ?? null
+    storedStructuredJob = pkgRow.structured_job ?? null
     level = pkgRow.optimization_level as OptimizationLevel
     selectedBlocks = (pkgRow.selected_blocks as SelectedBlocks | null) ?? {
       summary: true,
@@ -398,6 +408,49 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Everything generation will need is written to the row now, because the
   // request that generates runs later and carries only a package id.
   if (!generatePackageId) {
+    // STRUCTURE THE ADVERT HERE, NOT AT GENERATION TIME.
+    //
+    // Phase B used to make two sequential model calls when a job description
+    // was present. Measured 2026-09-05 on one request: 9.6s to structure the
+    // advert, 18.4s to write the resume, 29.6s in total locally — which on
+    // production exceeded Vercel's function ceiling and returned
+    // 504 FUNCTION_INVOCATION_TIMEOUT. The account is on the Hobby plan, where
+    // 60s is a hard cap no `maxDuration` can raise, so Phase B has to do less.
+    //
+    // Structuring depends only on the advert, never on the profile, so it
+    // belongs here: Phase A previously made no model call at all and returned
+    // in milliseconds. It now spends ~10s of a 60s budget and Phase B keeps
+    // its whole budget for the call that writes the resume.
+    //
+    // FAILURE IS NON-FATAL, exactly as it was in Phase B. A package must still
+    // be creatable when the provider is having a bad minute; Phase B falls
+    // back to structuring inline when this column is null.
+    //
+    // NOTE FOR METERING: this makes Phase A a call that costs money, which the
+    // route header previously stated it never did. When the paid locks return,
+    // the charge point is still Phase B — but a package created and abandoned
+    // now costs one structuring call. Recorded in docs/15_DECISION_LOG.md.
+    let structuredJobForRow: unknown = null
+    if (jobDescription) {
+      try {
+        const jdResult = await generate({
+          system: JOB_DESCRIPTION_SYSTEM_PROMPT,
+          user: buildJobDescriptionUserPrompt(jobDescription),
+          maxTokens: 1536,
+          temperature: 0.1,
+          userId: user.id,
+          route: '/api/optimize',
+          configKey: 'job_description',
+        })
+        structuredJobForRow = validateStructuredJobProfile(extractJsonObject(jdResult.text))
+      } catch (e) {
+        console.error(
+          'optimize: phase A job-description structuring failed (non-fatal) user=' + user.id,
+          e instanceof Error ? e.message : String(e),
+        )
+      }
+    }
+
     const { data: createdRow, error: createError } = await supabase
       .from('packages')
       .insert({
@@ -408,6 +461,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         target_country: targetFields.target_country,
         target_company: targetFields.target_company,
         job_description: jobDescription,
+        // NULL when there is no advert, or when structuring failed above.
+        // Phase B treats both the same way and structures inline.
+        structured_job: structuredJobForRow,
         optimization_level: level,
         selected_blocks: selectedBlocks,
         // Stamp the template AND its version at creation (migration 035). The
@@ -482,19 +538,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // categories only â€” the LLM semantic explanation layer used on /ats-scan
   // is skipped here on purpose: nothing in this flow displays it, so paying
   // for a second AI call to produce prose nobody sees would be pure waste.
+  //
+  // THE STRUCTURING CALL NORMALLY HAPPENED IN PHASE A (migration 045), so the
+  // common path here spends no model call at all — it reads the stored result
+  // and recomputes the categories against the profile as it stands NOW. That
+  // recomputation is the point of storing the structured job rather than the
+  // categories: the user may have edited their profile between creating the
+  // package and generating it, and the findings must reflect the current one.
+  //
+  // The inline fallback stays for two real cases: a package created before
+  // migration 045, and one whose Phase A structuring failed. Those pay the
+  // extra ~10s and risk the timeout exactly as every package used to.
   let jobMatchCategories: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null = null
   if (jobDescription) {
     try {
-      const jdResult = await generate({
-        system: JOB_DESCRIPTION_SYSTEM_PROMPT,
-        user: buildJobDescriptionUserPrompt(jobDescription),
-        maxTokens: 1536,
-        temperature: 0.1,
-        userId: user.id,
-        route: '/api/optimize',
-        configKey: 'job_description',
-      })
-      const structuredJob = validateStructuredJobProfile(extractJsonObject(jdResult.text))
+      let structuredJob = validateStructuredJobProfile(storedStructuredJob)
+      if (!structuredJob) {
+        const jdResult = await generate({
+          system: JOB_DESCRIPTION_SYSTEM_PROMPT,
+          user: buildJobDescriptionUserPrompt(jobDescription),
+          maxTokens: 1536,
+          temperature: 0.1,
+          userId: user.id,
+          route: '/api/optimize',
+          configKey: 'job_description',
+        })
+        structuredJob = validateStructuredJobProfile(extractJsonObject(jdResult.text))
+      }
       if (structuredJob) {
         const profileInput = buildJobMatchProfileInputFromFullProfile(profile)
         jobMatchCategories = computeDeterministicCategories(profileInput, structuredJob)
@@ -522,6 +592,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       userId: user.id,
       route: '/api/optimize',
       configKey: 'optimization',
+      // The one call big enough that a doubled-budget retry cannot finish
+      // inside the function's ceiling. See lib/ai/provider.ts's retry block.
+      deadlineAt,
     })
     const parsed = extractJsonObject(result.text)
     const parsedSkillsOrder = isObject(parsed) ? parsed.skills_order : undefined
