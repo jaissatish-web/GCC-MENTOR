@@ -67,6 +67,32 @@ because they have the room and the full name is clearer.
 
 ---
 
+## 1d. Contrast is measured, not judged
+
+**Every text/surface pair in this system has a measured ratio.** Two defects had already
+shipped from eyeballing it — near-black on navy at 1.69:1, and white labels on a white
+card — and a third was caught during this work: `Alert`'s first draft used `text-info`,
+which is not a token, so no rule was generated and the text inherited the body's
+near-white at **1.05:1**.
+
+A missing Tailwind colour produces no error. It produces no rule. That is why measuring
+is the standard here and not a nicety.
+
+| Pair | Ratio |
+|---|---|
+| `ink-900` on `surface-light` | 17.15 |
+| `ink-700` on `surface-light` | 7.71 |
+| `ink-400` on `surface-light` | 5.29 |
+| `ink-400` on `bg` | 5.02 |
+| `ink-400` on `surface-2-light` | 4.67 |
+| Alert `danger` / `warning` / `info` / `success` | 4.51 / 5.26 / 8.69 / 7.01 |
+
+**The floor is 4.5:1** for body text, 3:1 for large text and UI boundaries. `ink-400` was
+darkened from `#6B7A8D` to `#5F6D7D` on 2026-09-08 to meet it — it had been failing on
+all three surfaces across 314 call sites.
+
+---
+
 ## 1c. Shared state components
 
 **Added 2026-09-08.** Three components that did not exist, which is why call sites

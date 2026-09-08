@@ -379,36 +379,23 @@ trap for anyone maintaining either.
 Related: **`/gcc-readiness` is not in the navigation** at all. It is reachable only from
 the dashboard's readiness card. That may be correct, but it should be deliberate.
 
-### `text-ink-400` fails contrast on every surface — **needs a decision** (2026-09-08)
+### ~~`text-ink-400` fails contrast on every surface~~ — **fixed 2026-09-08**
 
-Found while contrast-checking the new components. `ink-400` (`#6B7A8D`) is the app's
-standard muted-text colour and it **fails 4.5:1 everywhere it is used**:
+`ink-400` is the app's muted-text colour — helper text, timestamps, field hints,
+secondary labels — across **314 call sites in 53 files**. At `#6B7A8D` it failed WCAG AA
+on every surface it was used on: 4.38:1 on white cards, 4.15:1 on the page ground,
+3.86:1 on insets.
 
-| On | Ratio | |
-|---|---|---|
-| `surface-light` (white cards) | **4.38:1** | fails |
-| `bg` (the page ground) | **4.15:1** | fails |
-| `surface-2-light` (insets) | **3.86:1** | fails |
+**Founder decision 2026-09-08: darken the token** rather than move 314 uses to a
+different one. Same hue at 89% lightness, `#5F6D7D` — 5.29 / 5.02 / 4.67, all passing,
+and no call site touched.
 
-For comparison `ink-700` gives 7.71 / 7.31 / 6.81 on the same three, and passes
-everywhere.
+**Verified the way the `forest` rename was:** every colour declaration in the compiled
+stylesheet compared before and after. Exactly two changed, both the `ink-400` value.
+Nothing else moved.
 
-**314 occurrences across 53 files.** It is used for helper text, timestamps, secondary
-labels and empty-state copy — body-sized text that has to meet 4.5:1.
-
-**Not changed unilaterally, because the fix is visible.** Darkening the token would
-alter muted text on essentially every screen. That is a legitimate accessibility fix and
-it is inside the approved plan (redesign audit Part 27 sets 4.5:1 for body text), but it
-is a deliberate visual change and belongs to the founder, not to a component ticket.
-
-**Two ways to take it:**
-1. **Darken `ink-400`** to roughly `#5B6A7C` so it passes on all three surfaces. One
-   token, app-wide, no call site touched.
-2. **Reserve `ink-400` for large text only** (3:1 is the standard there) and move the
-   314 body-sized uses to `ink-700`. More accurate, far more churn.
-
-Recommendation: option 1. `New components already use `ink-700` so they are not born
-failing.
+`ink-400-dark` was checked in the same pass and needed no change — 7.37:1 on
+`navy-deepest`, 6.24:1 on `surface-dark`.
 
 ---
 

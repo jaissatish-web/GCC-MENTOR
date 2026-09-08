@@ -126,7 +126,29 @@ const config: Config = {
         'ink-900-dark': '#F3F6FA',
         'ink-700': '#44546A',
         'ink-700-dark': '#C4D0DE',
-        'ink-400': '#6B7A8D',
+        /**
+         * Muted / secondary text.
+         *
+         * DARKENED 2026-09-08 from #6B7A8D, which failed WCAG AA on every
+         * surface it was used on — measured, not estimated:
+         *
+         *   on surface-light (white cards)   4.38:1   fail
+         *   on bg (the page ground)          4.15:1   fail
+         *   on surface-2-light (insets)      3.86:1   fail
+         *
+         * It carries helper text, timestamps, field hints and secondary labels
+         * across 314 call sites — body-sized text, which has to meet 4.5:1.
+         * This value is the same hue at 89% lightness, so the design intent is
+         * unchanged and nothing needed rewriting:
+         *
+         *   on surface-light                 5.29:1   pass
+         *   on bg                            5.02:1   pass
+         *   on surface-2-light               4.67:1   pass
+         *
+         * It matters most for exactly this product's users: older eyes, and
+         * phone screens read outdoors on a Gulf site.
+         */
+        'ink-400': '#5F6D7D',
         'ink-400-dark': '#93A7BD',
         'ink-200': '#DDE3EC',
         'ink-200-dark': '#2A4468',
