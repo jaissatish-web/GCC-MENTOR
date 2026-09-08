@@ -72,6 +72,38 @@ const config: Config = {
           removed: '#A89A8A',
         },
 
+        // ── SECTION IDENTITY ─────────────────────────────────────────────────
+        //
+        // Nine hues, one per block of the Career Profile. Founder request
+        // 2026-09-09: nine identical black headings made a long form hard to
+        // navigate — "so user can feel easy to identify and read and fill".
+        //
+        // THIS IS A DELIBERATE EXCEPTION to Blueprint's one-accent rule, and it
+        // only works because these colours mean exactly one thing: WHICH BLOCK
+        // YOU ARE IN. They are never used for an action, a status or a value.
+        // `signal` remains the only colour that means "do this", which is why
+        // none of these sits near it in hue.
+        //
+        // Body text, field labels and values stay `graphite` — colouring what a
+        // user reads and types would hurt the reading it is meant to help. Only
+        // the block's own title and its step marker carry the hue.
+        //
+        // Muted and industrial on purpose: these are drawing-layer colours, not
+        // sweets. Every one is >=4.5:1 on both white and paper, and the closest
+        // pair is 30 apart in RGB and never adjacent in the list.
+        //   status 6.36 · identity 6.11 · license 5.08 · summary 6.58
+        //   experience 6.25 · education 5.35 · skills 6.34
+        //   certifications 7.21 · additional 7.25      (all on paper)
+        'sec-status': '#1F5A8A',
+        'sec-identity': '#1D6360',
+        'sec-license': '#5F6B24',
+        'sec-summary': '#5B4A8A',
+        'sec-experience': '#7A4E1F',
+        'sec-education': '#2C6E49',
+        'sec-skills': '#8A3A6B',
+        'sec-certifications': '#8A3030',
+        'sec-additional': '#4A4E5C',
+
         // ── BLUEPRINT ────────────────────────────────────────────────────────
         //
         // The new visual identity, chosen by the founder 2026-09-08 from three

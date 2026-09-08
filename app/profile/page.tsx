@@ -625,6 +625,7 @@ function CardSection({
   total,
   open,
   onToggle,
+  accent,
   children,
 }: {
   id?: string
@@ -637,6 +638,8 @@ function CardSection({
   total?: number
   open: boolean
   onToggle: () => void
+  /** This block's identity colour. See SECTION_ACCENT. */
+  accent?: { text: string; chip: string; rule: string }
   children: React.ReactNode
 }) {
   const panelId = `${id ?? `step-${step}`}-panel`
@@ -646,8 +649,9 @@ function CardSection({
       id={id}
       tone="light"
       className={cn(
-        'flex scroll-mt-24 flex-col overflow-hidden p-0 transition-colors',
-        open && 'border-signal/40'
+        'flex scroll-mt-24 flex-col overflow-hidden border-l-[3px] p-0 transition-colors',
+        accent?.rule ?? 'border-l-edge',
+        open && 'border-signal/40',
       )}
     >
       <h2>
@@ -663,11 +667,13 @@ function CardSection({
           <span
             className={cn(
               'flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-bold tabular-nums',
-              done
+              done || open
+                // Open or finished, the marker is `signal`: the one colour that
+                // means "this is where you are acting".
                 ? 'bg-signal text-white'
-                : open
-                  ? 'bg-signal text-white'
-                  : 'bg-paper text-slate'
+                // Closed, it carries the block's own hue, so the numbers column
+                // alone tells you which block is which.
+                : (accent?.chip ?? 'bg-paper text-slate')
             )}
             aria-hidden="true"
           >
@@ -676,7 +682,17 @@ function CardSection({
 
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="flex flex-wrap items-center gap-2">
-              <span className="text-[15px] font-bold leading-snug text-graphite">{title}</span>
+              <span
+                className={cn(
+                  'text-[15px] font-bold leading-snug',
+                  // Open, the title is plain graphite — you are reading the
+                  // block, not looking for it. Closed, it is its own colour so
+                  // you can find it again.
+                  open ? 'text-graphite' : (accent?.text ?? 'text-graphite'),
+                )}
+              >
+                {title}
+              </span>
               {badge ? (
                 <span className="rounded-[5px] bg-paper px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-graphite-soft">
                   {badge}
@@ -745,6 +761,39 @@ const SECTION_FIELDS: Record<string, readonly string[]> = {
   sec_education: ['education'],
   sec_skills: ['skills'],
   sec_certifications: ['certifications'],
+}
+
+/**
+ * SECTION IDENTITY — one colour per block of this form.
+ *
+ * Founder request 2026-09-09: nine identical black headings made a long form
+ * hard to navigate. A colour per block means you can tell where you are
+ * without reading, and find your way back to a block you half-filled.
+ *
+ * A DELIBERATE EXCEPTION to Blueprint's one-accent rule, and it holds only
+ * because these mean exactly one thing: WHICH BLOCK THIS IS. Never an action,
+ * never a status, never a value. `signal` stays the only colour that means
+ * "do this" — which is why the title turns to `signal` when a block is open,
+ * and to its own hue when it is not.
+ *
+ * WHAT IS NOT COLOURED, on purpose: every field label, every value, every
+ * helper line. Colouring what a person reads and types works against the
+ * reading this is meant to help.
+ *
+ * Written as whole class strings rather than composed at runtime — Tailwind
+ * only emits classes it can see literally in the source, and a template
+ * literal here would compile to nothing at all.
+ */
+const SECTION_ACCENT: Record<string, { text: string; chip: string; rule: string }> = {
+  sec_status: { text: 'text-sec-status', chip: 'bg-sec-status/10 text-sec-status', rule: 'border-l-sec-status' },
+  sec_identity: { text: 'text-sec-identity', chip: 'bg-sec-identity/10 text-sec-identity', rule: 'border-l-sec-identity' },
+  sec_license: { text: 'text-sec-license', chip: 'bg-sec-license/10 text-sec-license', rule: 'border-l-sec-license' },
+  sec_summary: { text: 'text-sec-summary', chip: 'bg-sec-summary/10 text-sec-summary', rule: 'border-l-sec-summary' },
+  sec_work_experience: { text: 'text-sec-experience', chip: 'bg-sec-experience/10 text-sec-experience', rule: 'border-l-sec-experience' },
+  sec_education: { text: 'text-sec-education', chip: 'bg-sec-education/10 text-sec-education', rule: 'border-l-sec-education' },
+  sec_skills: { text: 'text-sec-skills', chip: 'bg-sec-skills/10 text-sec-skills', rule: 'border-l-sec-skills' },
+  sec_certifications: { text: 'text-sec-certifications', chip: 'bg-sec-certifications/10 text-sec-certifications', rule: 'border-l-sec-certifications' },
+  sec_additional: { text: 'text-sec-additional', chip: 'bg-sec-additional/10 text-sec-additional', rule: 'border-l-sec-additional' },
 }
 
 const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
@@ -1045,6 +1094,7 @@ function ProfileScreen() {
         ...pointsFor(sectionId),
         open: Boolean(openSections[sectionId]),
         onToggle: () => toggleSection(sectionId),
+        accent: SECTION_ACCENT[sectionId],
       }
     },
     [pointsFor, openSections, toggleSection]

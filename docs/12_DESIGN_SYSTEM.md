@@ -30,6 +30,45 @@ figures, sharp corners, and ONE signal colour that means "act".
 every figure, always with `tabular-nums` so a changing number does not shift its
 neighbours.
 
+### Section identity — the one exception to "one accent"
+
+**Founder request 2026-09-09.** Nine identical black headings made the Career Profile
+hard to navigate: *"so user can feel easy to identify and read and fill"*.
+
+Each block of the profile carries its own colour on **its title and its step marker
+only**. Nine muted, industrial hues — drawing-layer colours, not sweets:
+
+| Block | Colour | On paper |
+|---|---|---|
+| Status & target | `#1F5A8A` | 6.36 |
+| Identity & contact | `#1D6360` | 6.11 |
+| Driving license | `#5F6B24` | 5.08 |
+| Professional summary | `#5B4A8A` | 6.58 |
+| Work experience | `#7A4E1F` | 6.25 |
+| Education | `#2C6E49` | 5.35 |
+| Skills | `#8A3A6B` | 6.34 |
+| Certifications | `#8A3030` | 7.21 |
+| Additional information | `#4A4E5C` | 7.25 |
+
+**Why this does not break the one-accent rule.** These colours mean exactly one thing —
+*which block this is*. Never an action, never a status, never a value. `signal` remains
+the only colour that means "do this", which is why **an open block's title turns back to
+graphite and its marker to `signal`**: while you are working in a block, the accent
+belongs to the action, not to the label.
+
+**What is deliberately NOT coloured:** every field label, every value, every helper
+line. Colouring what a person reads and types works against the reading it is meant to
+help. The request was to make blocks easier to *identify*; the answer is identity on the
+heading, not colour on the content.
+
+**Two constraints they were designed against, both measured:**
+- Every hue is ≥4.5:1 on white and on paper.
+- The closest pair is 30 apart in RGB and never adjacent in the list — a first attempt
+  put two blues (`#2C5578`, `#1F5A8A`) 23 apart, which read as the same colour.
+
+Written as whole class strings in `SECTION_ACCENT`, not composed at runtime: Tailwind
+only emits classes it can see literally, so a template literal there compiles to nothing.
+
 ### The rules that make it work
 
 1. **One accent, spent once per screen.** The moment `signal` appears twice it stops
