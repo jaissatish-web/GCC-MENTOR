@@ -2,6 +2,7 @@ import { requireAdmin } from '@/lib/admin/adminAuth'
 import { loadEntitlements } from '@/lib/entitlements'
 import { availableTemplates } from '@/lib/templates'
 import { updateEntitlementAction } from '../actions'
+import { PageShell } from '@/components/layout/PageShell'
 
 /**
  * Free plan — the one screen that decides what a free user gets (TASK-163).
@@ -27,8 +28,7 @@ export default async function AdminPlanPage() {
   const templates = availableTemplates()
 
   return (
-    <main className="mx-auto w-full max-w-[960px] px-5 py-8">
-      <h1 className="font-serif text-[26px] leading-tight text-ink-900">Free plan</h1>
+    <PageShell title="Free plan">
       <p className="mt-2 max-w-[68ch] text-[14px] leading-relaxed text-ink-700">
         What a user gets without paying. Changes take effect immediately — no deploy.
         Rows marked <strong className="text-terra">costs money</strong> spend real tokens on every
@@ -152,6 +152,6 @@ export default async function AdminPlanPage() {
           )
         })}
       </div>
-    </main>
+    </PageShell>
   )
 }

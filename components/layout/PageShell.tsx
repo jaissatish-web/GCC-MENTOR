@@ -51,7 +51,13 @@ export function PageShell({
   className?: string
 }) {
   return (
-    <main className={cn('mx-auto flex w-full flex-col gap-6 px-5 pb-12 pt-4 sm:px-6', WIDTH[width], className)}>
+    // THE FRAME OWNS THE TYPEFACE. Among the first three adopters, two set
+    // `font-redesign-sans` themselves and one did not — so `/templates`
+    // rendered in a different face from `/cover-letter` and nobody noticed.
+    // That is precisely the drift this component exists to prevent, and a page
+    // cannot own its own font if the frame is meant to make pages feel like one
+    // product.
+    <main className={cn('mx-auto flex w-full flex-col gap-6 px-5 pb-12 pt-4 font-redesign-sans sm:px-6', WIDTH[width], className)}>
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1.5">
           <h1 className="font-serif text-[26px] leading-tight text-ink-900 sm:text-[30px]">

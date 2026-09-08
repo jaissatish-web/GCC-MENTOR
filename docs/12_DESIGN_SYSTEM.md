@@ -93,6 +93,37 @@ all three surfaces across 314 call sites.
 
 ---
 
+## 1b2. The page frame — and the limit of one frame
+
+**`PageShell` adoption began 2026-09-08.** It went from 3 screens to 11: the eight admin
+screens now share one width, one heading size and one header rhythm, where six were
+`max-w-3xl`/`text-2xl`, one was `960px`/`text-2xl` and one was `960px`/`text-[26px]`.
+
+**The frame now owns the typeface.** Among the first three adopters, two set
+`font-redesign-sans` themselves and one did not — so `/templates` rendered in a different
+face from `/cover-letter` and nobody had noticed. A page cannot own its own font if the
+frame exists to make screens feel like one product.
+
+### The audit said 31 screens. That number was too blunt.
+
+Reading each screen's actual shape rather than its width value, the app has **three page
+shapes, not one**, and `PageShell` only fits the first:
+
+| Shape | Screens | Frame |
+|---|---|---|
+| **Page** — title, then content, scrolls | admin ×8, templates, cover letter, GCC readiness, library, settings, visibility, package view | `PageShell` |
+| **Focused task** — one centred card, no page furniture | pay, generate, login, signup, onboarding steps | **No shared frame yet** |
+| **Staged wizard** — full-height, its own stage header | optimize target, optimize setup | Deliberately bespoke |
+
+**Forcing a centred task screen into a top-aligned page header would make it worse, not
+more consistent.** Consistency means the same shape gets the same treatment — not that
+every screen gets the same treatment.
+
+**Next:** the remaining page-shaped screens, then a `FocusShell` for the centred group,
+which has five real adopters waiting and so is worth building.
+
+---
+
 ## 1c. Shared state components
 
 **Added 2026-09-08.** Three components that did not exist, which is why call sites

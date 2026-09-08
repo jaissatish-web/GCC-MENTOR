@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { AI_SERVICES, SERVICE_KEYS } from '@/lib/ai/services'
+import { PageShell } from '@/components/layout/PageShell'
 
 /** Never render a full secret into the page HTML — a short masked hint only. */
 function maskSecret(secret: string): string {
@@ -159,11 +160,10 @@ export default async function AiProviderPage({
   const otherConfigs = allProviderConfigs.filter((c) => !KNOWN_KEYS.has(c.key))
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 font-redesign-sans">
-      <div>
-        <h1 className="font-serif text-2xl text-ink-900">AI provider</h1>
-        <p className="text-sm text-ink-400">Signed in as {admin.email ?? admin.id}</p>
-      </div>
+    <PageShell
+      title="AI provider"
+      subtitle={`Signed in as ${admin.email ?? admin.id}`}
+    >
 
       {providerSaved ? (
         <div className="rounded-radius-lg border border-navy/50 bg-navy-tint px-3.5 py-2.5 text-[12px] text-navy">Saved.</div>
@@ -289,6 +289,6 @@ export default async function AiProviderPage({
           <Button type="submit" variant="primary" className="self-start">Add override</Button>
         </form>
       </Card>
-    </main>
+    </PageShell>
   )
 }

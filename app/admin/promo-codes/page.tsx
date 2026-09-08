@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Pill } from '@/components/ui/Pill'
+import { PageShell } from '@/components/layout/PageShell'
 
 /**
  * Admin · Promo codes (TASK-075 split — moved verbatim from the old
@@ -37,11 +38,10 @@ export default async function PromoCodesPage({
   const activePackages = servicePackages.filter((p) => p.isActive)
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 font-redesign-sans">
-      <div>
-        <h1 className="font-serif text-2xl text-ink-900">Promo codes</h1>
-        <p className="text-sm text-ink-400">Signed in as {admin.email ?? admin.id}</p>
-      </div>
+    <PageShell
+      title="Promo codes"
+      subtitle={`Signed in as ${admin.email ?? admin.id}`}
+    >
 
       <Card className="flex flex-col gap-4 p-5">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
@@ -160,6 +160,6 @@ export default async function PromoCodesPage({
           <p className="text-[12px] text-ink-400">No promo codes created yet.</p>
         )}
       </Card>
-    </main>
+    </PageShell>
   )
 }

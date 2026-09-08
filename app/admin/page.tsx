@@ -6,6 +6,7 @@ import { listPromoCodes } from '@/lib/admin/promoCodes'
 import { getAllPromptTemplates } from '@/lib/ai/promptTemplates'
 import { listServicePackages } from '@/lib/admin/servicePackages'
 import { Card } from '@/components/ui/Card'
+import { PageShell } from '@/components/layout/PageShell'
 
 function plural(n: number, singular: string, pluralForm: string): string {
   return n === 1 ? singular : pluralForm
@@ -79,14 +80,10 @@ export default async function AdminDashboardPage() {
   ]
 
   return (
-    <main className="mx-auto flex max-w-[960px] flex-col gap-6 px-5 py-8 font-redesign-sans">
-      <div>
-        <h1 className="font-serif text-2xl text-ink-900">Admin</h1>
-        <p className="text-sm text-ink-400">
-          Signed in as {admin.email ?? admin.id}. Operational tooling — one dashboard,
-          one page per function.
-        </p>
-      </div>
+    <PageShell
+      title="Admin"
+      subtitle={`Signed in as ${admin.email ?? admin.id}. Operational tooling — one dashboard, one page per function.`}
+    >
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {sections.map((s) => (
@@ -117,6 +114,6 @@ export default async function AdminDashboardPage() {
           </Link>
         ))}
       </div>
-    </main>
+    </PageShell>
   )
 }

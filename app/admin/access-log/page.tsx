@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/admin/adminAuth'
 import { listPiiAccessLog } from '@/lib/admin/adminData'
 import { Card } from '@/components/ui/Card'
+import { PageShell } from '@/components/layout/PageShell'
 
 /**
  * Admin · PII access log (TASK-075 split — moved verbatim from the old
@@ -16,11 +17,10 @@ export default async function AccessLogPage() {
   const recentAccessLog = await listPiiAccessLog(50)
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 font-redesign-sans">
-      <div>
-        <h1 className="font-serif text-2xl text-ink-900">PII access log</h1>
-        <p className="text-sm text-ink-400">Signed in as {admin.email ?? admin.id}</p>
-      </div>
+    <PageShell
+      title="PII access log"
+      subtitle={`Signed in as ${admin.email ?? admin.id}`}
+    >
 
       <Card className="flex flex-col gap-4 p-5">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
@@ -88,6 +88,6 @@ export default async function AccessLogPage() {
           </>
         )}
       </Card>
-    </main>
+    </PageShell>
   )
 }

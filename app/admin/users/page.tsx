@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Pill } from '@/components/ui/Pill'
+import { PageShell } from '@/components/layout/PageShell'
 
 function fmtDate(iso: string | null): string {
   if (!iso) return '—'
@@ -42,11 +43,10 @@ export default async function UsersPage({
   const selectedCredits = selectedUserId ? await listCreditsForUser(selectedUserId) : []
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 font-redesign-sans">
-      <div>
-        <h1 className="font-serif text-2xl text-ink-900">Users</h1>
-        <p className="text-sm text-ink-400">Signed in as {admin.email ?? admin.id}</p>
-      </div>
+    <PageShell
+      title="Users"
+      subtitle={`Signed in as ${admin.email ?? admin.id}`}
+    >
 
       {/* ---- Users list (docs/ADMIN.md §2.1) --------------------------- */}
       <Card className="flex flex-col gap-4 p-5">
@@ -223,6 +223,6 @@ export default async function UsersPage({
           </Card>
         </>
       ) : null}
-    </main>
+    </PageShell>
   )
 }
