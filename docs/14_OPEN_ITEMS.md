@@ -379,6 +379,39 @@ trap for anyone maintaining either.
 Related: **`/gcc-readiness` is not in the navigation** at all. It is reachable only from
 the dashboard's readiness card. That may be correct, but it should be deliberate.
 
+### `text-ink-400` fails contrast on every surface — **needs a decision** (2026-09-08)
+
+Found while contrast-checking the new components. `ink-400` (`#6B7A8D`) is the app's
+standard muted-text colour and it **fails 4.5:1 everywhere it is used**:
+
+| On | Ratio | |
+|---|---|---|
+| `surface-light` (white cards) | **4.38:1** | fails |
+| `bg` (the page ground) | **4.15:1** | fails |
+| `surface-2-light` (insets) | **3.86:1** | fails |
+
+For comparison `ink-700` gives 7.71 / 7.31 / 6.81 on the same three, and passes
+everywhere.
+
+**314 occurrences across 53 files.** It is used for helper text, timestamps, secondary
+labels and empty-state copy — body-sized text that has to meet 4.5:1.
+
+**Not changed unilaterally, because the fix is visible.** Darkening the token would
+alter muted text on essentially every screen. That is a legitimate accessibility fix and
+it is inside the approved plan (redesign audit Part 27 sets 4.5:1 for body text), but it
+is a deliberate visual change and belongs to the founder, not to a component ticket.
+
+**Two ways to take it:**
+1. **Darken `ink-400`** to roughly `#5B6A7C` so it passes on all three surfaces. One
+   token, app-wide, no call site touched.
+2. **Reserve `ink-400` for large text only** (3:1 is the standard there) and move the
+   314 body-sized uses to `ink-700`. More accurate, far more churn.
+
+Recommendation: option 1. `New components already use `ink-700` so they are not born
+failing.
+
+---
+
 ### ~~Text below 12px, 238 occurrences~~ — **fixed 2026-09-08**
 
 Raised to a 12px floor and consolidated: 305 sizes across 46 files, 24 distinct sizes

@@ -6,6 +6,7 @@ import { buttonVariants } from '@/components/ui/Button'
 import { ScorecardResult } from '@/components/gulfReadiness/ScorecardResult'
 import { saveHandoff } from '@/lib/gulfReadiness/handoff'
 import type { FunnelAnswers, GulfReadinessResult } from '@/lib/gulfReadiness/types'
+import { Alert } from '@/components/ui/Alert'
 
 /**
  * The free anonymous Gulf Readiness Scorecard — upload, three short questions, a
@@ -124,7 +125,7 @@ export default function GulfReadinessScorePage() {
           </button>
         ))}
       </div>
-      {error ? <p role="alert" className="mt-5 text-sm text-terra">{error}</p> : null}
+      {error ? <Alert variant="danger" className="mt-5">{error}</Alert> : null}
     </div>
   )
 

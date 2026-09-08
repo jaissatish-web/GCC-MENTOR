@@ -6,6 +6,7 @@ import { diffWords } from 'diff'
 import { cn } from '@/lib/utils'
 import type { CareerProfileFull, ProfileSkill } from '@/types/careerProfile'
 import type { OptimizedContent, Package } from '@/types/package'
+import { Alert } from '@/components/ui/Alert'
 
 /**
  * Before / after preview — screen 08 (TASK-033), route
@@ -184,7 +185,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
   if (error) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-bg px-5">
-        <p className="text-sm text-terra">{error}</p>
+        <Alert variant="danger">{error}</Alert>
       </div>
     )
   }

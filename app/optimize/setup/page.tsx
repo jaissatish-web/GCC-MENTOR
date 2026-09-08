@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card'
 import { cn } from '@/lib/utils'
 import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
 import type { OptimizationLevel } from '@/types/package'
+import { Alert } from '@/components/ui/Alert'
 
 /**
  * Optimization setup — screen 06 (TASK-028), route /optimize/setup.
@@ -379,7 +380,7 @@ function SetupScreen() {
 
       {loadError ? (
         <div className="mx-5 mb-3 flex flex-col gap-3 rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-3">
-          <p className="text-[12px] text-terra">{loadError}</p>
+          <Alert variant="danger">{loadError}</Alert>
           <Button variant="secondary" className="w-full" onClick={() => router.push('/optimize/target')}>
             Back to choose target
           </Button>

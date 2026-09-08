@@ -67,6 +67,30 @@ because they have the room and the full name is clearer.
 
 ---
 
+## 1c. Shared state components
+
+**Added 2026-09-08.** Three components that did not exist, which is why call sites
+hand-rolled their own.
+
+| Component | Replaces | Why it is a component |
+|---|---|---|
+| `Alert` | 70 hand-written `text-terra` strings | There was no way to tell a field problem from a failed request from a standing warning — all three rendered identically. The four variants are that distinction. `role`/`aria-live` are set by variant, not left to the call site. |
+| `EmptyState` | 9 different phrasings | Almost none offered the action that would fill the space. `action` is a first-class prop: on the resume library an empty list is a new user's FIRST screen, so a dead end there is a lost user. |
+| `Skeleton` | 3 of 34 screens had any loading design | These users are on Gulf mobile networks and several screens wait 8–45s on a model call. The loading state is one of the most-seen screens in the app and was the least designed. Motion sits behind `prefers-reduced-motion`; the group carries one `aria-live` announcement so a screen reader hears "loading" once, not nine bars. |
+
+**Every variant is contrast-checked before it ships.** That is not ceremony — the first
+version of `Alert` used `text-info`, which is **not a token**, so it generated no rule,
+the text inherited the dark body's near-white `marble`, and the result was white on pale
+blue at **1.05:1**. Silent, because a missing Tailwind colour produces no error. Measured
+and fixed to `text-navy` (8.69:1). Current ratios: danger 4.51, warning 5.26, info 8.69,
+success 7.01.
+
+`SectionNav` and `ScoreDisplay` were in the audit's list and are **deliberately not built
+yet**: their only adopters are the Career Profile and Readiness screens. Building them
+now would create the exact unused-component problem this whole effort exists to undo.
+
+---
+
 ## 2. The colour intent
 
 **navy = action · gold = purchase and readiness · terracotta = caution**

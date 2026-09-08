@@ -2,10 +2,13 @@
 
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/Button'
+import { Alert } from '@/components/ui/Alert'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn, PACKAGE_STATUSES } from '@/lib/utils'
 import { getTemplate } from '@/lib/templates'
 import type { Package, PackageStatus } from '@/types/package'
+import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 
 /**
  * Library — screen 11 (TASK-035), route /dashboard/library.
@@ -248,16 +251,24 @@ export default function DashboardLibraryPage() {
 
   if (packages === null) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="font-mono text-sm text-ink-400">Loading…</p>
-      </div>
+      // The shape of what is coming: a list of resume rows. A centred
+      // "Loading…" told the user nothing and let the layout jump when the
+      // rows arrived.
+      <SkeletonGroup label="Loading your resumes" className="py-6">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="rounded-radius-lg border border-line-light bg-surface-light p-4">
+            <Skeleton shape="title" className="mb-2.5" />
+            <Skeleton className="w-2/3" />
+          </div>
+        ))}
+      </SkeletonGroup>
     )
   }
 
   if (loadError) {
     return (
       <div className="flex items-center justify-center px-5 py-20">
-        <p className="text-sm text-terra">{loadError}</p>
+        <Alert variant="danger">{loadError}</Alert>
       </div>
     )
   }
@@ -283,18 +294,15 @@ export default function DashboardLibraryPage() {
       ) : null}
 
       {packages.length === 0 ? (
-        <div className="rounded-radius-lg border border-line-light bg-surface-light p-8 text-center">
-          <p className="text-sm font-medium text-ink-900">No packages yet</p>
-          <p className="mt-1 text-[13px] text-ink-400">
-            Optimize a resume and it will appear here.
-          </p>
-          <Link
-            href="/optimize/target"
-            className={buttonVariants({ variant: 'primary' }) + ' mt-4'}
-          >
-            Optimize your resume
-          </Link>
-        </div>
+        <EmptyState
+          title="No resumes yet"
+          body="Optimize a resume and it will appear here."
+          action={
+            <Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>
+              Optimize your resume
+            </Link>
+          }
+        />
       ) : null}
 
       {/* ── MOBILE: cards ── */}

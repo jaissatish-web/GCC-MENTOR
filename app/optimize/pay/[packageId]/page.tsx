@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Card } from '@/components/ui/Card'
+import { Alert } from '@/components/ui/Alert'
 import type { Package } from '@/types/package'
 
 /**
@@ -92,7 +93,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
   if (error) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-bg px-5">
-        <p className="text-sm text-terra">{error}</p>
+        <Alert variant="danger">{error}</Alert>
       </div>
     )
   }
@@ -167,7 +168,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
               {redeeming ? 'Checking…' : 'Unlock'}
             </button>
           </div>
-          {redeemError ? <p className="text-[12px] text-terra">{redeemError}</p> : null}
+          {redeemError ? <Alert variant="danger">{redeemError}</Alert> : null}
         </div>
 
         {/* Razorpay — honestly disabled, not a dead link */}

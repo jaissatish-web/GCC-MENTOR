@@ -5,8 +5,10 @@ import { AppShell } from '@/components/layout/AppShell'
 import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { cn } from '@/lib/utils'
 import type { CoverLetter, CoverLetterTone, Package } from '@/types/package'
+import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 
 /**
  * Cover Letter — new route (TASK-093, PAGE_SPECS §C / TASK-066 frontend).
@@ -162,7 +164,11 @@ function CoverLetterScreen() {
   if (packages === null) {
     return (
       <main className="mx-auto w-full max-w-[900px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
-        <p className="font-mono text-sm text-ink-400">Loading…</p>
+        <SkeletonGroup label="Loading your resumes">
+          <Skeleton shape="title" />
+          <Skeleton />
+          <Skeleton className="w-3/4" />
+        </SkeletonGroup>
       </main>
     )
   }
@@ -178,16 +184,17 @@ function CoverLetterScreen() {
       {/* Centered generation form (720px, §C) */}
       <Card tone="light" className="mt-5 p-6">
         {eligiblePackages.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 p-4 text-center">
-            <p className="text-[13px] font-semibold text-ink-900/85">No resumes yet</p>
-            <p className="max-w-sm text-[13px] text-ink-400">
-              A cover letter is written from one of your resumes — it takes the target role and job
-              description from it. Create a resume first.
-            </p>
-            <a href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
-              Optimize a resume
-            </a>
-          </div>
+          <EmptyState
+            tone="inline"
+            className="border-0 bg-transparent"
+            title="No resumes yet"
+            body="A cover letter is written from one of your resumes — it takes the target role and job description from it."
+            action={
+              <a href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
+                Optimize a resume
+              </a>
+            }
+          />
         ) : (
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-ink-900">
