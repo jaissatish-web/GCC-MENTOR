@@ -152,6 +152,23 @@ Fixed by moving the structuring call into Phase A (migration 045,
 deadline-aware so it cannot turn a recoverable failure into a timeout.
 **After: Phase A 9.2s, Phase B 16.1s.** See the decision log for the full reasoning.
 
+**Verified on production after the fix: Phase A 8.0s, Phase B 45.5s, 53/53 green.**
+
+**The margin is thin and should not be read as comfortable.** Production runs about 2.8x
+slower than local (16.1s → 45.5s), so 45.5s of a 60s ceiling leaves roughly 15 seconds.
+A longer resume, a slower provider minute, or a colder function could still cross it.
+
+Two things stand between that and a repeat of the 504:
+1. **The deadline-aware retry**, which now refuses a doubled-budget retry it cannot
+   finish — so the bad case is a clean error naming the reason, not a timeout.
+2. **The smoke test fails above 50s**, so a regression shows up in a test run rather than
+   in a customer's face.
+
+**The two real levers if it gets tighter**, neither taken here because both are the
+founder's call: a faster model (`deepseek-v4-flash` is a reasoning model and spends
+thinking tokens before it writes anything — a non-reasoning model would be markedly
+quicker), or Vercel Pro, which raises the ceiling to 300s.
+
 **What this leaves open, deliberately:** Phase A now costs a model call, which the route
 previously guaranteed it never did. **Metering must not assume Phase A is free** when the
 paid locks return — a package created and abandoned costs one structuring call. The
