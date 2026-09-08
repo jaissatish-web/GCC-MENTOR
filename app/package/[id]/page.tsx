@@ -379,7 +379,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </a>
           {styleable && styleDirty ? (
             <>
-              <span className="text-[11.5px] text-ink-400">Unsaved</span>
+              <span className="text-[12px] text-ink-400">Unsaved</span>
               <button
                 type="button"
                 disabled={styleBusy}
@@ -398,7 +398,7 @@ function PackageScreenInner({ id }: { id: string }) {
               </button>
             </>
           ) : styleMsg ? (
-            <span role="status" className="text-[11.5px] text-navy">
+            <span role="status" className="text-[12px] text-navy">
               {styleMsg}
             </span>
           ) : null}
@@ -417,7 +417,7 @@ function PackageScreenInner({ id }: { id: string }) {
             (TASK-141). */}
         {isTrying ? (
           <div className="flex flex-col gap-2 rounded-radius-lg border border-navy/50 bg-navy-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[12.5px] text-navy">
+            <p className="text-[13px] text-navy">
               Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Not saved yet — your
               download still uses <strong>{getTemplate(savedTemplateId).name}</strong>.
             </p>
@@ -447,7 +447,7 @@ function PackageScreenInner({ id }: { id: string }) {
             the nav, so nothing is lost, just this in-page prompt. */}
 
         {downloaded && !isFree ? (
-          <div className="rounded-radius-lg border border-navy/40 bg-navy-tint px-3.5 py-3 text-[12.5px] text-navy">
+          <div className="rounded-radius-lg border border-navy/40 bg-navy-tint px-3.5 py-3 text-[13px] text-navy">
             Applying somewhere else? Your profile is saved — next one takes a minute.
           </div>
         ) : null}
@@ -506,7 +506,7 @@ function PackageScreenInner({ id }: { id: string }) {
                     styleOverrides={draftStyle}
                   />
                 </ResumeDocumentView>
-                <p className="mt-4 text-center text-[11.5px] text-ink-400">
+                <p className="mt-4 text-center text-[12px] text-ink-400">
                   A4 · {getTemplate(activeTemplateId).name} · this is exactly what downloads as your
                   PDF.
                 </p>
@@ -518,7 +518,7 @@ function PackageScreenInner({ id }: { id: string }) {
             <aside className="order-2 shrink-0 lg:order-1 lg:sticky lg:top-3 lg:max-h-[calc(100dvh-1.5rem)] lg:w-[260px] lg:overflow-y-auto">
               <div className="rounded-radius-lg border border-line-light bg-surface-light p-4">
                 <h2 className="font-serif text-[17px] leading-tight text-ink-900">Templates</h2>
-                <p className="mt-1 text-[11.5px] leading-snug text-ink-400">
+                <p className="mt-1 text-[12px] leading-snug text-ink-400">
                   Your wording, dates and details stay exactly as they are — only the design
                   changes, and your PDF changes with it.
                 </p>
@@ -554,7 +554,7 @@ function PackageScreenInner({ id }: { id: string }) {
                         }
                       />
                       <div className="mt-3">
-                        <span className="text-[11px] text-ink-400">Colour</span>
+                        <span className="text-[12px] text-ink-400">Colour</span>
                         <div className="mt-1.5 flex flex-wrap gap-1.5">
                           {Object.entries(ACCENT_OPTIONS).map(([k, v]) => {
                             const active = draftStyle.accent === k
@@ -598,7 +598,7 @@ function PackageScreenInner({ id }: { id: string }) {
                               own doc — so unchecking writes `showPhoto: false`
                               and re-checking removes the key entirely rather
                               than writing `true`. */}
-                          <label className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] text-ink-400">
+                          <label className="flex min-h-11 cursor-pointer items-center justify-between text-[12px] text-ink-400">
                             <span className="text-ink-700">Show photo</span>
                             <input
                               type="checkbox"
@@ -629,7 +629,7 @@ function PackageScreenInner({ id }: { id: string }) {
                             <div className="mt-3">
                               <label
                                 htmlFor="photo-size"
-                                className="flex items-baseline justify-between text-[11px] text-ink-400"
+                                className="flex items-baseline justify-between text-[12px] text-ink-400"
                               >
                                 <span>Photo size</span>
                                 <span className="text-ink-700">{photoPos}%</span>
@@ -646,7 +646,7 @@ function PackageScreenInner({ id }: { id: string }) {
                                 }
                                 className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-2-light accent-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
                               />
-                              <div className="mt-1 flex justify-between text-[10px] text-ink-400">
+                              <div className="mt-1 flex justify-between text-[12px] text-ink-400">
                                 <span>Smaller</span>
                                 <span>50% = template default</span>
                                 <span>Larger</span>
@@ -657,7 +657,7 @@ function PackageScreenInner({ id }: { id: string }) {
                       ) : null}
 
                       {styleDirty ? (
-                        <p className="mt-3 text-[11.5px] text-ink-400">
+                        <p className="mt-3 text-[12px] text-ink-400">
                           Unsaved — use <strong className="text-ink-700">Save style</strong> at the
                           top.
                         </p>
@@ -674,7 +674,7 @@ function PackageScreenInner({ id }: { id: string }) {
                           Reset to template default
                         </button>
                       ) : (
-                        <p className="mt-2 text-[11px] text-ink-400">
+                        <p className="mt-2 text-[12px] text-ink-400">
                           Using the template&apos;s own style.
                         </p>
                       )}
@@ -686,7 +686,7 @@ function PackageScreenInner({ id }: { id: string }) {
                     // maximum ATS compatibility. A styling control — the photo
                     // especially — would work against the one thing this
                     // template sells, so it stays fixed on purpose.
-                    <p className="mt-2 text-[11.5px] leading-relaxed text-ink-400">
+                    <p className="mt-2 text-[12px] leading-relaxed text-ink-400">
                       <strong className="text-ink-700">{getTemplate(activeTemplateId).name}</strong>{' '}
                       keeps a fixed, colourless style on purpose — that is what maximum ATS
                       compatibility means. Pick any other template below for a photo, font, size and
@@ -740,7 +740,7 @@ function StyleChoice({
 }) {
   return (
     <div className="mt-3">
-      <span className="text-[11px] text-ink-400">{label}</span>
+      <span className="text-[12px] text-ink-400">{label}</span>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
         {([['', 'Default'], ...options] as [string, string][]).map(([k, lbl]) => {
           const active = value === k
@@ -751,7 +751,7 @@ function StyleChoice({
               aria-pressed={active}
               onClick={() => onChange(k)}
               className={
-                'min-h-8 rounded-radius-md px-2.5 py-1 text-[11.5px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-1 ' +
+                'min-h-8 rounded-radius-md px-2.5 py-1 text-[12px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-1 ' +
                 (active
                   ? 'bg-navy text-white'
                   : 'border border-line-light bg-surface-light text-ink-700 hover:border-navy/60')

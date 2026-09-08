@@ -44,7 +44,7 @@ export function AuthShell({
 
         <div className="mt-7 inline-flex w-fit items-center gap-2 rounded-full border border-redesign-gold/40 bg-redesign-gold-tint px-3.5 py-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-redesign-gold" />
-          <span className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-gold-text">
+          <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-gold-text">
             Saudi · UAE · Qatar · Oman · Kuwait · Bahrain
           </span>
         </div>
@@ -58,13 +58,13 @@ export function AuthShell({
 
         <div className="mt-9 flex flex-col items-center gap-2.5 border-t border-line-light pt-6">
           {STORY_TRUST.map((t) => (
-            <div key={t} className="flex items-center gap-2 text-[12.5px] font-medium text-ink-400">
+            <div key={t} className="flex items-center gap-2 text-[13px] font-medium text-ink-400">
               <span className="text-gold-text">◈</span> {t}
             </div>
           ))}
         </div>
 
-        <p className="mt-7 text-center text-[11.5px] leading-relaxed text-ink-400">
+        <p className="mt-7 text-center text-[12px] leading-relaxed text-ink-400">
           Only facts already in your profile are used anywhere in this product.
           Nothing is invented — ever.
         </p>

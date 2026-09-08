@@ -124,7 +124,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
             <span className="text-[13px] font-semibold text-ink-900">Optimized Gulf CV</span>
             <span className="font-mono text-[15px] text-ink-900">₹499</span>
           </div>
-          <p className="text-[11px] text-ink-400">
+          <p className="text-[12px] text-ink-400">
             {pkg.target_job_title}
             {pkg.target_company ? ` · ${pkg.target_company}` : ''}
           </p>
@@ -144,7 +144,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
               <span className="text-navy">✓</span> Saved to your Library forever
             </div>
           </div>
-          <p className="text-[10.5px] text-ink-400">No subscription. No auto-renewal. Taxes included.</p>
+          <p className="text-[12px] text-ink-400">No subscription. No auto-renewal. Taxes included.</p>
         </div>
 
         {/* Promo code — the actual unlock path while Razorpay is blocked */}
@@ -167,18 +167,18 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
               {redeeming ? 'Checking…' : 'Unlock'}
             </button>
           </div>
-          {redeemError ? <p className="text-[11.5px] text-terra">{redeemError}</p> : null}
+          {redeemError ? <p className="text-[12px] text-terra">{redeemError}</p> : null}
         </div>
 
         {/* Razorpay — honestly disabled, not a dead link */}
         <div className="flex flex-col gap-2 rounded-radius-lg border border-dashed border-line-light-strong bg-surface-2-light p-4.5 opacity-70">
           <span className="text-[12px] font-bold text-ink-900">Card · UPI · Netbanking · Wallet</span>
-          <p className="text-[11px] text-ink-400">
+          <p className="text-[12px] text-ink-400">
             Coming soon. We never see or store your card details.
           </p>
         </div>
 
-        <p className="mt-1 text-center text-[11px] text-ink-400">
+        <p className="mt-1 text-center text-[12px] text-ink-400">
           Something went wrong with your order? Email the founder directly — replies within a day.
         </p>
       </Card>

@@ -573,7 +573,7 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
 function PointsChip({ earned, total }: { earned: number; total: number }) {
   if (total === 0) {
     return (
-      <span className="shrink-0 whitespace-nowrap rounded-full border border-line-light-strong px-2.5 py-1 text-[10.5px] font-semibold text-ink-400">
+      <span className="shrink-0 whitespace-nowrap rounded-full border border-line-light-strong px-2.5 py-1 text-[12px] font-semibold text-ink-400">
         Optional
       </span>
     )
@@ -582,7 +582,7 @@ function PointsChip({ earned, total }: { earned: number; total: number }) {
   return (
     <span
       className={cn(
-        'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[10.5px] font-bold tabular-nums',
+        'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-bold tabular-nums',
         complete
           ? 'bg-navy-tint text-navy'
           : 'bg-redesign-gold-tint text-gold-text'
@@ -678,7 +678,7 @@ function CardSection({
             <span className="flex flex-wrap items-center gap-2">
               <span className="text-[15px] font-bold leading-snug text-ink-900">{title}</span>
               {badge ? (
-                <span className="rounded-[5px] bg-surface-2-light px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-700">
+                <span className="rounded-[5px] bg-surface-2-light px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-700">
                   {badge}
                 </span>
               ) : null}
@@ -1264,7 +1264,7 @@ function ProfileScreen() {
         >
           <span className="flex items-center gap-2">
             <span className="text-[15px] font-bold text-ink-900">Add it to my profile</span>
-            <span className="rounded-[5px] bg-navy-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-navy">
+            <span className="rounded-[5px] bg-navy-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-navy">
               Recommended
             </span>
           </span>
@@ -1342,7 +1342,7 @@ function ProfileScreen() {
               market" — a different thing, so each carries its own label. */}
           <div className="flex shrink-0 flex-col items-center gap-1">
             <ReadinessRing score={readiness.score} size={68} />
-            <span className="text-[9px] font-bold uppercase tracking-wide text-ink-400">Profile complete</span>
+            <span className="text-[12px] font-bold uppercase tracking-wide text-ink-400">Profile complete</span>
           </div>
           <div className="flex min-w-0 flex-col gap-1.5">
             <h1 className="font-serif text-[20px] leading-tight text-ink-900">
@@ -1403,7 +1403,7 @@ function ProfileScreen() {
       {claimedScan ? (
         <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-radius-md border border-redesign-gold/40 bg-surface-light px-4 py-3">
           <div className="flex flex-col gap-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-text">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-gold-text">
               Welcome back
             </p>
             <p className="text-[13px] font-medium text-ink-900">
@@ -1443,7 +1443,7 @@ function ProfileScreen() {
             the user knows how long this is and where they are inside it. The
             old page opened straight into nine expanded blocks with no such
             framing, which is what made it feel endless. */}
-        <p className="px-1 pb-1 text-[12.5px] leading-relaxed text-ink-400">
+        <p className="px-1 pb-1 text-[13px] leading-relaxed text-ink-400">
           {doneCount === scoredCount ? (
             <>All {scoredCount} scored sections are complete — review anything below, then confirm.</>
           ) : (
@@ -1544,7 +1544,7 @@ function ProfileScreen() {
           action={
             <Link
               href="/profile/visibility"
-              className="text-[11px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+              className="text-[12px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
             >
               What appears on your CV →
             </Link>
@@ -1736,7 +1736,7 @@ function ProfileScreen() {
             onChange={(e) => setField({ professional_summary: e.target.value })}
             placeholder="A short summary of who you are and what you bring."
           />
-          <p className="text-[11px] leading-snug text-ink-400">
+          <p className="text-[12px] leading-snug text-ink-400">
             This is your own summary — the AI never writes back into it. It is the &ldquo;before&rdquo; the
             optimizer diffs against.
           </p>
@@ -1762,7 +1762,7 @@ function ProfileScreen() {
             {editor.work_experience.map((w, i) => (
               <div key={w.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-ink-400">#{i + 1}</span>
+                  <span className="font-mono text-[12px] text-ink-400">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1817,7 +1817,7 @@ function ProfileScreen() {
                   />
                 </label>
                 <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900">
-                  Highlights <span className="text-[11px] font-normal text-ink-400">one per line</span>
+                  Highlights <span className="text-[12px] font-normal text-ink-400">one per line</span>
                   <textarea
                     rows={3}
                     className={textareaClass}
@@ -1842,7 +1842,7 @@ function ProfileScreen() {
               Employment gaps &mdash; just for your awareness
             </span>
             {employmentGaps.map((g, i) => (
-              <p key={i} className="text-[11px] leading-snug text-ink-400">
+              <p key={i} className="text-[12px] leading-snug text-ink-400">
                 We noticed a {g.gapMonths}-month gap between {g.precedingCompany || 'a previous role'} and{' '}
                 {g.followingCompany || 'your next role'}. This isn&rsquo;t scored &mdash; just something to be aware of.
               </p>
@@ -1870,7 +1870,7 @@ function ProfileScreen() {
             {editor.education.map((x, i) => (
               <div key={x.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-ink-400">#{i + 1}</span>
+                  <span className="font-mono text-[12px] text-ink-400">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1913,7 +1913,7 @@ function ProfileScreen() {
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
-                <span className="font-mono text-[11px] text-ink-400">{i + 1}</span>
+                <span className="font-mono text-[12px] text-ink-400">{i + 1}</span>
                 <Input tone="light"
                   value={s.name}
                   aria-label={`Skill ${i + 1}`}
@@ -1955,7 +1955,7 @@ function ProfileScreen() {
             {editor.certifications.map((c, i) => (
               <div key={c.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] text-ink-400">#{i + 1}</span>
+                  <span className="font-mono text-[12px] text-ink-400">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1994,7 +1994,7 @@ function ProfileScreen() {
               </button>
             }
         >
-          <p className="text-[11px] leading-snug text-ink-400">
+          <p className="text-[12px] leading-snug text-ink-400">
             AI-labelled · you can rename the label on each item.
           </p>
           <div className="flex flex-col gap-3">

@@ -379,6 +379,13 @@ trap for anyone maintaining either.
 Related: **`/gcc-readiness` is not in the navigation** at all. It is reachable only from
 the dashboard's readiness card. That may be correct, but it should be deliberate.
 
+### ~~Text below 12px, 238 occurrences~~ — **fixed 2026-09-08**
+
+Raised to a 12px floor and consolidated: 305 sizes across 46 files, 24 distinct sizes
+down to 16. Headings (17px+) deliberately untouched — they belong with `PageShell`
+adoption. Two mobile nav labels stopped fitting at the larger size and now use a
+bar-only short label. See [`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) §1b.
+
 ### ~~B7 · Colour tokens are named for the wrong colours~~ — **fixed 2026-09-08**
 
 `forest` was navy and `forest-dark` was a light blue. Renamed across 50 files to

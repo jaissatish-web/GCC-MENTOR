@@ -54,8 +54,8 @@ function formatDate(iso: string | null): string {
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1 border-b border-line-light py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-      <span className="text-[12.5px] font-medium text-ink-400">{label}</span>
-      <span className="break-words text-[13.5px] font-semibold text-ink-900 sm:text-right">
+      <span className="text-[13px] font-medium text-ink-400">{label}</span>
+      <span className="break-words text-[14px] font-semibold text-ink-900 sm:text-right">
         {value}
       </span>
     </div>
@@ -64,7 +64,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-radius-md border border-dashed border-line-light-strong bg-bg px-4 py-6 text-center text-[12.5px] leading-relaxed text-ink-400">
+    <div className="rounded-radius-md border border-dashed border-line-light-strong bg-bg px-4 py-6 text-center text-[13px] leading-relaxed text-ink-400">
       {children}
     </div>
   )
@@ -217,10 +217,10 @@ export default async function SettingsPage({
                       key={key}
                       className="flex items-center justify-between gap-4 rounded-radius-md border border-line-light bg-bg px-4 py-3"
                     >
-                      <span className="text-[13.5px] font-semibold text-ink-900">
+                      <span className="text-[14px] font-semibold text-ink-900">
                         {serviceLabel(key)}
                       </span>
-                      <span className="rounded-full bg-navy-tint px-2.5 py-1 text-[11px] font-bold text-navy">
+                      <span className="rounded-full bg-navy-tint px-2.5 py-1 text-[12px] font-bold text-navy">
                         {count} available
                       </span>
                     </li>
@@ -242,10 +242,10 @@ export default async function SettingsPage({
                         key={c.id}
                         className="flex items-center justify-between gap-4 border-b border-line-light py-2.5 last:border-b-0"
                       >
-                        <span className="text-[12.5px] text-ink-700">
+                        <span className="text-[13px] text-ink-700">
                           {serviceLabel(c.serviceKey)}
                         </span>
-                        <span className="text-[11.5px] text-ink-400">
+                        <span className="text-[12px] text-ink-400">
                           {formatDate(c.consumedAt)}
                         </span>
                       </li>
@@ -269,16 +269,16 @@ export default async function SettingsPage({
                       className="flex flex-col gap-1 rounded-radius-md border border-line-light bg-bg px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                     >
                       <span className="min-w-0">
-                        <span className="block truncate text-[13.5px] font-semibold text-ink-900">
+                        <span className="block truncate text-[14px] font-semibold text-ink-900">
                           {(p.target_job_title as string) || 'Untitled resume'}
                         </span>
-                        <span className="block text-[11.5px] text-ink-400">
+                        <span className="block text-[12px] text-ink-400">
                           Unlocked {formatDate(p.created_at as string)}
                         </span>
                       </span>
                       <Link
                         href={`/package/${p.id as string}`}
-                        className="shrink-0 text-[12.5px] font-semibold text-redesign-gold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
+                        className="shrink-0 text-[13px] font-semibold text-redesign-gold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
                       >
                         Open
                       </Link>

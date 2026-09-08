@@ -116,7 +116,7 @@ export default async function PromoCodesPage({
 
         {promoCodes.length > 0 ? (
           <div className="flex flex-col gap-1.5">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+            <div className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">
               Existing codes
             </div>
             {promoCodes.map((c) => (
@@ -128,7 +128,7 @@ export default async function PromoCodesPage({
                   <span className="flex items-center gap-2">
                     <span className="font-mono font-semibold text-ink-900">{c.code}</span>
                     {c.packageName ? (
-                      <span className="rounded-full border border-line-light-strong px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ink-400">
+                      <span className="rounded-full border border-line-light-strong px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-ink-400">
                         {c.packageName}
                       </span>
                     ) : null}
@@ -146,7 +146,7 @@ export default async function PromoCodesPage({
                       <input type="hidden" name="code" value={c.code} />
                       <button
                         type="submit"
-                        className="text-[11px] font-semibold text-terra underline-offset-2 hover:underline"
+                        className="text-[12px] font-semibold text-terra underline-offset-2 hover:underline"
                       >
                         Deactivate
                       </button>

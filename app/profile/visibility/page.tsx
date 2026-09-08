@@ -170,7 +170,7 @@ function VisibilityScreen() {
           >
             <div className="flex min-w-0 flex-col gap-0.5">
               <span className="text-[13px] font-semibold text-ink-900">{label}</span>
-              <span className="text-[11px] leading-snug text-ink-400">{hint}</span>
+              <span className="text-[12px] leading-snug text-ink-400">{hint}</span>
             </div>
             <Toggle checked={vis[key]} onCheckedChange={(v) => flip(key, v)} aria-label={label} />
           </div>
@@ -186,7 +186,7 @@ function VisibilityScreen() {
       <div className="flex flex-col gap-3 px-5 pb-6 pt-4">
         <div className="flex items-start gap-2.5 rounded-radius-md border border-line-light/60 bg-surface-light px-3.5 py-3">
           <span className="text-[13px] text-navy">⌾</span>
-          <p className="text-[11px] leading-snug text-ink-700">
+          <p className="text-[12px] leading-snug text-ink-700">
             Passport and visa fields are encrypted. Every internal access is logged. You can delete
             your profile and all packages at any time from Settings.
           </p>

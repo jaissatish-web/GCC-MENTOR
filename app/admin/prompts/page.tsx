@@ -94,14 +94,14 @@ export default async function PromptsPage({
                 <span className="font-semibold">
                   {s.label}
                   {!s.built ? (
-                    <span className="ml-2 rounded-full border border-line-light px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                    <span className="ml-2 rounded-full border border-line-light px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-ink-400">
                       not built yet
                     </span>
                   ) : null}
                 </span>
-                <span className="font-mono text-[11px] text-ink-400">{s.key}</span>
+                <span className="font-mono text-[12px] text-ink-400">{s.key}</span>
               </span>
-              <span className="shrink-0 text-[11.5px] text-ink-400">
+              <span className="shrink-0 text-[12px] text-ink-400">
                 {s.active ? (
                   <span className="font-mono font-bold text-navy">v{s.active.version} live</span>
                 ) : (
@@ -124,7 +124,7 @@ export default async function PromptsPage({
             <p className="text-[12px] text-ink-400">{selected.active ? `Pre-filled with v${selected.active.version}, the version that is live now. Saving creates a new draft; nothing changes for users until you publish it.` : 'This prompt has no stored version yet, so it is running on the text built into the code. Saving creates your first draft.'}</p>
             <form action={savePromptDraftAction} className="flex flex-col gap-3">
               <input type="hidden" name="promptKey" value={selected.key} />
-              <Textarea name="body" rows={14} defaultValue={activeBody} className="font-mono text-[12.5px]" />
+              <Textarea name="body" rows={14} defaultValue={activeBody} className="font-mono text-[13px]" />
               <input
                 name="notes"
                 placeholder="What did you change, and why? (shown in the version list)"
@@ -133,7 +133,7 @@ export default async function PromptsPage({
               <div className="flex items-center gap-2">
                 <Button type="submit" variant="primary">Save as draft</Button>
                 {selected.active ? (
-                  <span className="text-[11.5px] text-ink-400">v{selected.active.version} stays live until you publish something else.</span>
+                  <span className="text-[12px] text-ink-400">v{selected.active.version} stays live until you publish something else.</span>
                 ) : null}
               </div>
             </form>
@@ -153,7 +153,7 @@ export default async function PromptsPage({
                         <span className="font-mono">v{v.version}</span>
                         <span
                           className={
-                            'ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ' +
+                            'ml-2 rounded-full px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider ' +
                             (v.status === 'active'
                               ? 'bg-navy-tint text-navy'
                               : v.status === 'draft'
@@ -165,7 +165,7 @@ export default async function PromptsPage({
                         </span>
                       </span>
                       {v.notes ? <span className="text-[12px] text-ink-700">{v.notes}</span> : null}
-                      <span className="font-mono text-[11px] text-ink-400">{new Date(v.createdAt).toLocaleString()}</span>
+                      <span className="font-mono text-[12px] text-ink-400">{new Date(v.createdAt).toLocaleString()}</span>
                     </div>
                     {v.status !== 'active' ? (
                       <form action={publishPromptAction}>
@@ -185,7 +185,7 @@ export default async function PromptsPage({
               <form action={revertPromptAction} className="mt-1 flex items-center gap-3 border-t border-line-light pt-3">
                 <input type="hidden" name="promptKey" value={selected.key} />
                 <Button type="submit" variant="ghost" size="sm">Use the built-in prompt instead</Button>
-                <span className="text-[11.5px] text-ink-400">Stops using any stored version. Nothing is deleted.</span>
+                <span className="text-[12px] text-ink-400">Stops using any stored version. Nothing is deleted.</span>
               </form>
             ) : null}
           </Card>

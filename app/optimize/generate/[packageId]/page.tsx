@@ -111,11 +111,11 @@ export default function GeneratePage({ params }: { params: { packageId: string }
           {STEPS.map((label, i) => {
             const state = i < step ? 'done' : i === step ? 'active' : 'todo'
             return (
-              <li key={label} className="flex items-center gap-3 text-[13.5px]">
+              <li key={label} className="flex items-center gap-3 text-[14px]">
                 <span
                   aria-hidden
                   className={
-                    'flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] ' +
+                    'flex size-6 shrink-0 items-center justify-center rounded-full border text-[12px] ' +
                     (state === 'done'
                       ? 'border-redesign-gold bg-redesign-gold text-navy-deep'
                       : state === 'active'

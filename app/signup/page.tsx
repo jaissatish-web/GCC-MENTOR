@@ -19,11 +19,11 @@ export default function SignupPage() {
     >
       <Card tone="light" className="flex w-full flex-col gap-1 p-8">
         <h1 className="font-serif text-[26px] text-ink-900">Create your account</h1>
-        <p className="mb-5 text-[13.5px] leading-relaxed text-ink-400">
+        <p className="mb-5 text-[14px] leading-relaxed text-ink-400">
           Build your Career Profile once. Every application reuses it.
         </p>
         <AuthForm action={signup} submitLabel="Create your account" tone="light" />
-        <p className="mt-6 text-center text-[12.5px] text-ink-400">
+        <p className="mt-6 text-center text-[13px] text-ink-400">
           Already have an account?{' '}
           <Link href="/login" className="font-semibold text-navy hover:text-sky">
             Sign in

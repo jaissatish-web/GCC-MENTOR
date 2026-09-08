@@ -344,13 +344,13 @@ function SetupScreen() {
                 style={{ width: `${percent}%` }}
               />
             </div>
-            <div className="flex justify-between font-mono text-[11px] text-ink-400-dark">
+            <div className="flex justify-between font-mono text-[12px] text-ink-400-dark">
               <span>{percent}%</span>
               <span>~{secsLeft}s left</span>
             </div>
           </div>
 
-          <p className="text-center text-[11px] leading-relaxed text-ink-400-dark">
+          <p className="text-center text-[12px] leading-relaxed text-ink-400-dark">
             Only facts already in your profile are used. Nothing is invented.
           </p>
         </div>
@@ -390,13 +390,13 @@ function SetupScreen() {
       <Card tone="light" className="mt-5 flex flex-1 flex-col gap-2.5 overflow-y-auto p-5">
         {/* Blocks */}
         <div className="flex items-center justify-between">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">Blocks</div>
+          <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">Blocks</div>
           <button
             type="button"
             aria-pressed={allOn}
             onClick={toggleAll}
             className={cn(
-              'rounded-radius-md border px-3 py-2 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
+              'rounded-radius-md border px-3 py-2 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
               allOn
                 ? 'border-redesign-gold/50 bg-redesign-gold-tint text-gold-text'
                 : 'border-line-light bg-surface-light text-ink-700'
@@ -418,7 +418,7 @@ function SetupScreen() {
         >
           <span
             className={cn(
-              'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[11px] text-white',
+              'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
               summaryOn ? 'bg-navy' : 'border-[1.5px] border-line-light-strong'
             )}
           >
@@ -426,7 +426,7 @@ function SetupScreen() {
           </span>
           <span className="flex flex-col gap-0.5">
             <span className="text-[13px] font-semibold text-ink-900">Professional summary</span>
-            <span className="text-[11px] text-ink-400">Rewritten for this target</span>
+            <span className="text-[12px] text-ink-400">Rewritten for this target</span>
           </span>
         </button>
 
@@ -446,7 +446,7 @@ function SetupScreen() {
             >
               <span
                 className={cn(
-                  'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[11px] text-white',
+                  'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
                   on ? 'bg-navy' : 'border-[1.5px] border-line-light-strong'
                 )}
               >
@@ -454,7 +454,7 @@ function SetupScreen() {
               </span>
               <span className="flex flex-col gap-0.5">
                 <span className="text-[13px] font-semibold text-ink-900">{e.label}</span>
-                <span className="text-[11px] text-ink-400">
+                <span className="text-[12px] text-ink-400">
                   {e.bullets} bullet{e.bullets === 1 ? '' : 's'}
                 </span>
               </span>
@@ -466,13 +466,13 @@ function SetupScreen() {
         <div className="flex min-h-11 items-center justify-between rounded-radius-lg border border-line-light bg-surface-2-light px-4 py-3">
           <span className="flex flex-col gap-0.5">
             <span className="text-[13px] font-semibold text-ink-900">Skills &amp; certifications</span>
-            <span className="text-[11px] text-ink-400">Reordered by relevance — never reworded</span>
+            <span className="text-[12px] text-ink-400">Reordered by relevance — never reworded</span>
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-navy">Automatic</span>
+          <span className="text-[12px] font-semibold uppercase tracking-wider text-navy">Automatic</span>
         </div>
 
         {/* Optimization level */}
-        <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+        <div className="mt-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
           Optimization level
         </div>
         <div className="flex gap-[7px]">
@@ -494,7 +494,7 @@ function SetupScreen() {
                 <span className={cn('text-[13px] font-semibold', selected ? 'text-ink-900' : 'text-ink-900')}>
                   {l.label}
                 </span>
-                <span className={cn('font-mono text-[10px]', selected ? 'text-gold-text' : 'text-ink-400')}>
+                <span className={cn('font-mono text-[12px]', selected ? 'text-gold-text' : 'text-ink-400')}>
                   {l.range}
                 </span>
               </button>
@@ -506,7 +506,7 @@ function SetupScreen() {
         {level !== 'easy' ? (
           <div className="mt-1 flex items-start gap-2.5 rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3">
             <span className="text-[13px] text-terra">△</span>
-            <p className="text-[11px] leading-snug text-terra">{RISK_COPY}</p>
+            <p className="text-[12px] leading-snug text-terra">{RISK_COPY}</p>
           </div>
         ) : null}
       </Card>

@@ -60,7 +60,7 @@ export function PageShell({
           {subtitle ? (
             // ~70 characters: long enough for a real sentence, short enough to
             // stay comfortably readable on a wide screen.
-            <p className="max-w-[70ch] text-[13.5px] leading-relaxed text-ink-700">{subtitle}</p>
+            <p className="max-w-[70ch] text-[14px] leading-relaxed text-ink-700">{subtitle}</p>
           ) : null}
         </div>
         {actions ? (

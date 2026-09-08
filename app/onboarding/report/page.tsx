@@ -77,7 +77,7 @@ export default function OnboardingReportPage() {
 
       <div className="mx-auto max-w-[820px] px-5 py-12 sm:px-8 lg:py-16">
         <div className="mb-6 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-text">Your full Gulf readiness report</p>
+          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-text">Your full Gulf readiness report</p>
           <h1 className="mt-3 font-serif text-3xl leading-tight sm:text-4xl">Unlocked — here&rsquo;s everything we found</h1>
           <p className="mx-auto mt-3 max-w-md text-[14px] leading-relaxed text-ink-700">
             The complete breakdown of the score you saw, with every dimension and your full ranked action plan. Next,
@@ -101,7 +101,7 @@ export default function OnboardingReportPage() {
               Build my Career Profile
             </Button>
           </div>
-          <p className="mt-3 text-[11px] text-ink-400">Takes about 20 seconds. Nothing is saved until you confirm.</p>
+          <p className="mt-3 text-[12px] text-ink-400">Takes about 20 seconds. Nothing is saved until you confirm.</p>
         </div>
       </div>
     </main>

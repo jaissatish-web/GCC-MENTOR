@@ -242,17 +242,17 @@ function EditResumeInner({ packageId }: { packageId: string }) {
       <div className="flex flex-col gap-3 border-b border-line-light pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="font-serif text-[24px] leading-tight text-ink-900">Edit your resume</h1>
-          <p className="text-[12.5px] text-ink-400">
+          <p className="text-[13px] text-ink-400">
             Rewrite any part below. The preview updates as you type; nothing is saved until you
             press Save.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {dirty ? (
-            <span className="text-[11.5px] font-semibold text-gold-text">Unsaved changes</span>
+            <span className="text-[12px] font-semibold text-gold-text">Unsaved changes</span>
           ) : null}
           {justSaved && !dirty ? (
-            <span className="text-[11.5px] font-semibold text-navy">Saved</span>
+            <span className="text-[12px] font-semibold text-navy">Saved</span>
           ) : null}
           <button
             type="button"
@@ -281,7 +281,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
       {error ? (
         <p
           role="alert"
-          className="mt-4 rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra"
+          className="mt-4 rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra"
         >
           {error}
         </p>
@@ -293,7 +293,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           {/* Professional summary */}
           <section className="rounded-radius-lg border border-line-light bg-surface-light p-5">
             <h2 className="text-[13px] font-bold text-ink-900">Professional summary</h2>
-            <p className="mt-1 text-[11.5px] text-ink-400">The opening paragraph of your CV.</p>
+            <p className="mt-1 text-[12px] text-ink-400">The opening paragraph of your CV.</p>
             <textarea
               value={draft.summary}
               onChange={(e) => setDraft((d) => (d ? { ...d, summary: e.target.value } : d))}
@@ -319,7 +319,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                     <span className="font-normal text-ink-400"> · {item.entry.company}</span>
                   ) : null}
                 </h2>
-                <p className="mt-1 text-[11.5px] text-ink-400">
+                <p className="mt-1 text-[12px] text-ink-400">
                   {list.length} {list.length === 1 ? 'bullet' : 'bullets'}
                   {item.range ? ` · ${item.range}` : ''} — the role, employer and dates come from
                   your Career Profile.
@@ -336,7 +336,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                         onChange={(e) => setList(list.map((b, j) => (j === i ? e.target.value : b)))}
                         rows={2}
                         aria-label={`Bullet ${i + 1}`}
-                        className="min-w-0 flex-1 resize-y rounded-radius-md border border-line-light bg-surface-2-light/40 p-2.5 text-[12.5px] leading-relaxed text-ink-900 outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25"
+                        className="min-w-0 flex-1 resize-y rounded-radius-md border border-line-light bg-surface-2-light/40 p-2.5 text-[13px] leading-relaxed text-ink-900 outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25"
                       />
                       <button
                         type="button"
@@ -350,7 +350,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                     </div>
                   ))}
                   {list.length === 0 ? (
-                    <p className="text-[11.5px] text-ink-400">
+                    <p className="text-[12px] text-ink-400">
                       No bullets yet — add one to describe this role.
                     </p>
                   ) : null}
@@ -371,7 +371,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
               shown as inputs that refuse to work. */}
           <section className="rounded-radius-lg border border-line-light bg-surface-2-light/40 p-5">
             <h2 className="text-[13px] font-bold text-ink-900">Everything else</h2>
-            <p className="mt-1.5 text-[11.5px] leading-relaxed text-ink-400">
+            <p className="mt-1.5 text-[12px] leading-relaxed text-ink-400">
               Your name, contact details, employers, job titles, dates, education, certifications
               and skills are the same on every resume, so they are edited once in your Career
               Profile rather than per resume.
@@ -392,7 +392,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
               <h2 className="text-[12px] font-bold uppercase tracking-wider text-ink-700">
                 Live preview
               </h2>
-              <p className="mt-1 text-[11px] text-ink-400">
+              <p className="mt-1 text-[12px] text-ink-400">
                 Exactly what your PDF will contain once you save.
               </p>
               <ResumeDocumentView className="mt-3 w-full rounded-[3px]">

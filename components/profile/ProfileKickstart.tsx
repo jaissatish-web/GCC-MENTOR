@@ -48,7 +48,7 @@ export function ProfileKickstart({ show }: { show: boolean }) {
       <span className="flex items-center gap-2">
         <span className="text-[14px] font-bold text-ink-900">{title}</span>
         {badge ? (
-          <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-gold-text">
+          <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-gold-text">
             {badge}
           </span>
         ) : null}
@@ -62,7 +62,7 @@ export function ProfileKickstart({ show }: { show: boolean }) {
       <div className="w-full max-w-[640px] rounded-radius-xl border border-line-light bg-surface-2-light p-6 shadow-redesign-lg sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gold-text">First, the important bit</p>
+            <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-gold-text">First, the important bit</p>
             <h2 className="mt-2 font-serif text-2xl text-ink-900">Create your Career Profile</h2>
             <p className="mt-1.5 text-[13px] leading-relaxed text-ink-700">
               Everything — your resume, your Gulf readiness, your cover letters — is built from one Career

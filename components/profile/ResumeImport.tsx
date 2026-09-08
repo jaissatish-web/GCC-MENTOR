@@ -100,7 +100,7 @@ export function ResumeImport({
   return (
     <div className="mx-5 mt-4 rounded-radius-lg border border-line-light bg-surface-2-light/40 p-4">
       <h2 className="text-[13px] font-bold text-ink-900">Start or update from a resume</h2>
-      <p className="mt-1 text-[11.5px] leading-relaxed text-ink-400">
+      <p className="mt-1 text-[12px] leading-relaxed text-ink-400">
         Bring in a resume to fill your profile, or just edit the details below. If you already have a
         profile, you&rsquo;ll get an add-or-replace choice first — nothing is overwritten until you pick.
       </p>
@@ -108,7 +108,7 @@ export function ResumeImport({
       {parsing ? (
         <div className="mt-3 flex items-center gap-3 rounded-radius-md border border-line-light bg-surface-light px-4 py-3.5">
           <span className="size-2.5 animate-pulse rounded-full bg-redesign-gold" />
-          <span className="text-[12.5px] text-ink-700">Reading your resume… usually about 20 seconds.</span>
+          <span className="text-[13px] text-ink-700">Reading your resume… usually about 20 seconds.</span>
         </div>
       ) : (
         <>
@@ -172,7 +172,7 @@ export function ResumeImport({
                 className="sr-only"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => chooseFile(e.target.files?.[0] ?? null)}
               />
-              <p className="text-[12.5px] text-ink-700">Drop your resume here, or</p>
+              <p className="text-[13px] text-ink-700">Drop your resume here, or</p>
               <button
                 type="button"
                 onClick={() => fileInput.current?.click()}
@@ -180,7 +180,7 @@ export function ResumeImport({
               >
                 Choose a file
               </button>
-              <p className="mt-2 text-[11px] text-ink-400">PDF up to 5MB · Word up to 2MB</p>
+              <p className="mt-2 text-[12px] text-ink-400">PDF up to 5MB · Word up to 2MB</p>
             </div>
           ) : null}
 
@@ -195,7 +195,7 @@ export function ResumeImport({
                 className="w-full rounded-radius-md border border-line-light bg-surface-light p-3.5 text-[13px] outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25"
               />
               <div className="mt-2 flex items-center justify-between">
-                <span className="text-[11px] text-ink-400">{text.length.toLocaleString()} / {MAX_TEXT.toLocaleString()}</span>
+                <span className="text-[12px] text-ink-400">{text.length.toLocaleString()} / {MAX_TEXT.toLocaleString()}</span>
                 <Button variant="primary" size="sm" onClick={submitText}>
                   Read this text
                 </Button>

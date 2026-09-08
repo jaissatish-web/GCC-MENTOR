@@ -193,13 +193,13 @@ function TargetScreen() {
         <div className="flex-1">
           <ProgressBar value={60} tone="light" />
         </div>
-        <span className="font-mono text-[11px] text-ink-400">3/5</span>
+        <span className="font-mono text-[12px] text-ink-400">3/5</span>
       </div>
 
       {/* Heading */}
       <div className="px-5 pb-4">
         <h1 className="font-serif text-[27px] leading-tight text-ink-900">Set your target role</h1>
-        <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-700">
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-700">
           One required field. Add a job description or industry too and we&rsquo;ll tailor the wording
           more precisely — but your resume is optimized either way.
         </p>
@@ -214,7 +214,7 @@ function TargetScreen() {
       {/* Fields */}
       <Card tone="light" className="mt-5 flex flex-1 flex-col gap-4 overflow-y-auto p-5">
         <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_job_title" className="text-[11px] font-semibold tracking-wide text-ink-700">
+          <label htmlFor="f_target_job_title" className="text-[12px] font-semibold tracking-wide text-ink-700">
             Target job title <span className="text-terra">*</span>
           </label>
           <Input
@@ -234,7 +234,7 @@ function TargetScreen() {
               You already have a &ldquo;{similar.title}&rdquo; package — re-optimize it (overwrites its
               current text), or start fresh?
             </p>
-            <p className="mt-0.5 text-[10.5px] text-ink-400">Keeping past versions arrives in Phase 2.</p>
+            <p className="mt-0.5 text-[12px] text-ink-400">Keeping past versions arrives in Phase 2.</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <button
                 type="button"
@@ -242,7 +242,7 @@ function TargetScreen() {
                   setReplacingId(similar.id)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-radius-md bg-navy-deep px-3.5 py-2 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+                className="min-h-11 rounded-radius-md bg-navy-deep px-3.5 py-2 text-[12px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
               >
                 Re-optimize
               </button>
@@ -252,7 +252,7 @@ function TargetScreen() {
                   setReplacingId(null)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-3.5 py-2 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+                className="min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-3.5 py-2 text-[12px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
               >
                 Start fresh
               </button>
@@ -261,7 +261,7 @@ function TargetScreen() {
         ) : null}
 
         {similar && replacingId ? (
-          <div className="rounded-radius-lg border border-navy/30 bg-navy-tint px-3.5 py-3 text-[11.5px] leading-snug text-navy">
+          <div className="rounded-radius-lg border border-navy/30 bg-navy-tint px-3.5 py-3 text-[12px] leading-snug text-navy">
             Will re-optimize your existing &ldquo;{similar.title}&rdquo; package — its current text will be
             replaced.{' '}
             <button
@@ -278,7 +278,7 @@ function TargetScreen() {
         ) : null}
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_industry" className="text-[11px] font-semibold tracking-wide text-ink-700">
+          <label htmlFor="f_target_industry" className="text-[12px] font-semibold tracking-wide text-ink-700">
             Target industry <span className="font-normal text-ink-400">— optional, drives the writing persona</span>
           </label>
           <select
@@ -298,10 +298,10 @@ function TargetScreen() {
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <div className="text-[11px] font-semibold tracking-wide text-ink-700">
+            <div className="text-[12px] font-semibold tracking-wide text-ink-700">
               Job description <span className="font-normal text-ink-400">— optional</span>
             </div>
-            <span className="rounded-[5px] bg-redesign-gold-tint px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-gold-text">
+            <span className="rounded-[5px] bg-redesign-gold-tint px-2 py-1 text-[12px] font-semibold uppercase tracking-wider text-gold-text">
               Best results
             </span>
           </div>
@@ -309,7 +309,7 @@ function TargetScreen() {
             <div className="text-[13px] font-medium leading-snug text-ink-900">
               Paste the job posting for the closest match
             </div>
-            <p className="text-[11px] leading-snug text-ink-400">
+            <p className="text-[12px] leading-snug text-ink-400">
               With a job description, we match the employer&apos;s exact wording and requirements. Without
               one, we still optimize your resume using your target role and industry.
             </p>
@@ -327,14 +327,14 @@ function TargetScreen() {
 
       {/* Footer */}
       <div className="flex flex-col gap-2.5 px-5 pb-6 pt-4">
-        <p className="text-center text-[11px] leading-snug text-ink-400">
+        <p className="text-center text-[12px] leading-snug text-ink-400">
           Still free — you&apos;ll see what changes before you pay.
         </p>
         <Button variant="progress" className="w-full" disabled={!canContinue} onClick={onContinue}>
           Choose what to optimize
         </Button>
         {!canContinue ? (
-          <p className="text-center text-[11px] text-ink-400">
+          <p className="text-center text-[12px] text-ink-400">
             Add a target job title to continue.
           </p>
         ) : null}

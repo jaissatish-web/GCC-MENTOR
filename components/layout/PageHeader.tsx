@@ -110,7 +110,7 @@ export function SectionCard({
         <div className="flex min-w-0 flex-col gap-1">
           <h2 className="text-[16px] font-bold leading-snug text-ink-900">{title}</h2>
           {helper ? (
-            <p className="max-w-[70ch] text-[12.5px] leading-relaxed text-ink-400">{helper}</p>
+            <p className="max-w-[70ch] text-[13px] leading-relaxed text-ink-400">{helper}</p>
           ) : null}
         </div>
         {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}

@@ -95,13 +95,13 @@ export function PhotoUpload({
               <span aria-hidden="true" className="text-[18px] leading-none text-navy">
                 +
               </span>
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-ink-400">
+              <span className="text-[12px] font-semibold uppercase tracking-wider text-ink-400">
                 Photo
               </span>
             </span>
           )}
           {/* Affordance on hover/focus so it is discoverable without a label. */}
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-navy-deep/80 py-0.5 text-center text-[9px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-navy-deep/80 py-0.5 text-center text-[12px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             {busy ? '…' : photoUrl ? 'Change' : 'Add'}
           </span>
         </button>
@@ -122,14 +122,14 @@ export function PhotoUpload({
             type="button"
             onClick={() => void remove()}
             disabled={busy}
-            className="text-[10.5px] font-semibold text-ink-400 underline underline-offset-2 hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra disabled:opacity-60"
+            className="text-[12px] font-semibold text-ink-400 underline underline-offset-2 hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra disabled:opacity-60"
           >
             Remove
           </button>
         ) : null}
 
         {error ? (
-          <p role="alert" className="max-w-[120px] text-center text-[10px] font-medium text-terra">
+          <p role="alert" className="max-w-[120px] text-center text-[12px] font-medium text-terra">
             {error}
           </p>
         ) : null}
@@ -146,7 +146,7 @@ export function PhotoUpload({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photoUrl} alt="Your profile photo" className="h-full w-full object-cover" />
           ) : (
-            <span className="px-1 text-center text-[9px] font-semibold uppercase tracking-wider text-gold-text">
+            <span className="px-1 text-center text-[12px] font-semibold uppercase tracking-wider text-gold-text">
               No photo
             </span>
           )}
@@ -155,11 +155,11 @@ export function PhotoUpload({
         <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[13px] font-bold text-ink-900">Photo</span>
-            <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text">
+            <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-gold-text">
               Expected in Gulf CVs
             </span>
           </div>
-          <p className="text-[11px] leading-snug text-ink-400">
+          <p className="text-[12px] leading-snug text-ink-400">
             Passport-style, plain background. Used on your CV wherever the template has a photo
             slot. JPG, PNG or WebP, up to 5MB.
           </p>
@@ -202,7 +202,7 @@ export function PhotoUpload({
       </div>
 
       {error ? (
-        <p role="alert" className="text-[11.5px] font-medium text-terra">
+        <p role="alert" className="text-[12px] font-medium text-terra">
           {error}
         </p>
       ) : null}

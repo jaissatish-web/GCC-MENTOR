@@ -35,7 +35,7 @@ export function ServicePackageItemsFields() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+      <div className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">
         Quota line items
       </div>
       <div className="flex flex-col gap-2" id="service-items">

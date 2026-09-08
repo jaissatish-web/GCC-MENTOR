@@ -246,7 +246,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
         />
 
         <aside className="hidden shrink-0 flex-col gap-3 lg:flex lg:w-[340px] lg:border-l lg:border-line-light lg:pl-5">
-          <p className="text-[11.5px] leading-relaxed text-ink-400">
+          <p className="text-[12px] leading-relaxed text-ink-400">
             Edit the generated wording here. Every change saves as you make it, and appears on your
             CV and in the PDF you download.
           </p>
@@ -326,27 +326,27 @@ function ChangesTab({
         <div className="flex flex-col gap-3 rounded-radius-lg border border-line-light bg-surface-light p-4">
           <div className="flex items-center justify-between">
             <span className="text-[12px] font-bold text-ink-900">Professional summary</span>
-            <span className="rounded-[5px] bg-navy-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-navy">
+            <span className="rounded-[5px] bg-navy-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-navy">
               Rewritten
             </span>
           </div>
 
           <div className="rounded-[9px] border-l-2 border-terra/40 bg-surface-2-light p-3">
-            <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-terra">Before</div>
-            <p className="text-[11.5px] leading-relaxed text-ink-400">{summaryBefore}</p>
+            <div className="mb-1 text-[12px] font-semibold uppercase tracking-[0.1em] text-terra">Before</div>
+            <p className="text-[12px] leading-relaxed text-ink-400">{summaryBefore}</p>
           </div>
 
           <div className="rounded-[9px] border-l-2 border-navy bg-navy-tint p-3">
-            <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-navy">After</div>
+            <div className="mb-1 text-[12px] font-semibold uppercase tracking-[0.1em] text-navy">After</div>
             {editing.summary ? (
               <textarea
                 value={draftSummary}
                 onChange={(e) => setDraftSummary(e.target.value)}
                 rows={5}
-                className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[11.5px] text-ink-700 outline-none focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20"
+                className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[12px] text-ink-700 outline-none focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20"
               />
             ) : (
-              <p className="text-[11.5px] leading-relaxed text-ink-900">
+              <p className="text-[12px] leading-relaxed text-ink-900">
                 {renderDiffParts(diffWords(summaryBefore, summaryAfter || '').filter((p) => !p.removed))}
               </p>
             )}
@@ -355,18 +355,18 @@ function ChangesTab({
           {editing.summary ? (
             <div className="flex gap-2">
               <button type="button" disabled={saveBusy} onClick={() => saveSummary()}
-                className="min-h-11 rounded-radius-md bg-navy px-3.5 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2">
+                className="min-h-11 rounded-radius-md bg-navy px-3.5 text-[12px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2">
                 {saveBusy ? 'Saving…' : 'Save'}
               </button>
               <button type="button" disabled={saveBusy} onClick={() => setEditing({})}
-                className="min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-3.5 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-2">
+                className="min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-3.5 text-[12px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-2">
                 Cancel
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold text-navy">Edit this text</span>
-              <span className="text-[10px] text-ink-400">· any generated line</span>
+              <span className="text-[12px] font-semibold text-navy">Edit this text</span>
+              <span className="text-[12px] text-ink-400">· any generated line</span>
             </div>
           )}
         </div>
@@ -387,17 +387,17 @@ function ChangesTab({
               <div key={block.profile_experience_id + ':' + bi} className="flex flex-col gap-2 rounded-radius-lg border border-line-light bg-surface-light p-4">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[12px] font-bold text-ink-900">{company} — bullet {bi + 1} of {effective.length}</span>
-                  {src ? <span className="font-mono text-[10px] text-ink-400">+{wordsIn(added.map((p) => p.value).join(' '))} JD terms</span> : null}
+                  {src ? <span className="font-mono text-[12px] text-ink-400">+{wordsIn(added.map((p) => p.value).join(' '))} JD terms</span> : null}
                 </div>
                 {isEditing ? (
                   <textarea
                     value={draftBullet}
                     onChange={(e) => setDraftBullet(e.target.value)}
                     rows={3}
-                    className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[11.5px] text-ink-700 outline-none focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20"
+                    className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[12px] text-ink-700 outline-none focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20"
                   />
                 ) : (
-                  <p className="text-[11.5px] leading-relaxed text-ink-900">
+                  <p className="text-[12px] leading-relaxed text-ink-900">
                     {removedParts.length ? (
                       <>
                         <span className="text-diff-removed line-through">{removedParts.map((p) => p.value).join('')}</span>{' '}
@@ -415,11 +415,11 @@ function ChangesTab({
                   {isEditing ? (
                     <>
                       <button type="button" disabled={saveBusy} onClick={() => saveBullet()}
-                        className="min-h-9 rounded-radius-md bg-navy px-3 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2">
+                        className="min-h-9 rounded-radius-md bg-navy px-3 text-[12px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2">
                         Save
                       </button>
                       <button type="button" disabled={saveBusy} onClick={() => setEditing({})}
-                        className="min-h-9 rounded-radius-md border border-line-light-strong bg-surface-light px-3 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-2">
+                        className="min-h-9 rounded-radius-md border border-line-light-strong bg-surface-light px-3 text-[12px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-2">
                         Cancel
                       </button>
                     </>
@@ -430,7 +430,7 @@ function ChangesTab({
                         setEditing({ blockId: block.profile_experience_id, index: bi })
                         setDraftBullet(bullet)
                       }}
-                      className="min-h-11 px-1 text-[11px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+                      className="min-h-11 px-1 text-[12px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
                     >
                       Edit this text
                     </button>
@@ -450,7 +450,7 @@ function ChangesTab({
                 <span
                   key={i}
                   className={cn(
-                    'rounded-[99px] border px-2.5 py-1 text-[11px] font-medium',
+                    'rounded-[99px] border px-2.5 py-1 text-[12px] font-medium',
                     s.movement !== 0
                       ? 'border-navy/40 bg-navy-tint text-navy'
                       : 'border-line-light bg-surface-2-light text-ink-700'
@@ -473,7 +473,7 @@ function ChangesTab({
         >
           Back to your CV
         </button>
-        <p className="text-center text-[11px] text-ink-400">Edits save as you make them</p>
+        <p className="text-center text-[12px] text-ink-400">Edits save as you make them</p>
       </div>
     </>
   )

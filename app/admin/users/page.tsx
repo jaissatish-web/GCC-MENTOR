@@ -158,7 +158,7 @@ export default async function UsersPage({
 
             {selectedCredits.length > 0 ? (
               <div className="flex flex-col gap-1.5">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+                <div className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">
                   Grant history
                 </div>
                 {selectedCredits.map((c) => (

@@ -26,7 +26,7 @@ export function MoreSheet() {
         aria-expanded={open}
         aria-haspopup="menu"
         className={cn(
-          'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] leading-tight font-redesign-sans transition-colors',
+          'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-xl px-1 text-[12px] leading-tight font-redesign-sans transition-colors',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold',
           open ? 'font-semibold text-redesign-gold' : 'font-medium text-ink-400-dark'
         )}
@@ -66,7 +66,7 @@ export function MoreSheet() {
                     onClick={() => setOpen(false)}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex min-h-11 items-center gap-3 rounded-xl px-3 text-[13.5px] font-redesign-sans transition-colors',
+                      'flex min-h-11 items-center gap-3 rounded-xl px-3 text-[14px] font-redesign-sans transition-colors',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold',
                       active
                         ? 'border border-redesign-gold/25 bg-redesign-gold/[0.09] font-semibold text-redesign-gold'

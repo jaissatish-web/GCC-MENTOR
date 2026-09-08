@@ -36,6 +36,37 @@ rename changed no rendered pixel.
 accent called **Forest** (`#2A6F4E`) — a genuine green a user picks for their own CV.
 It is unrelated to this palette and was left untouched.
 
+## 1b. The type floor — nothing readable is under 12px
+
+**Applied 2026-09-08.** The app carried **238 occurrences of text below 12px**, including
+20 at 9px and 30 at 10px, and not only in admin — they were in the optimizer, the resume
+library, onboarding and the landing page. On a 375px phone held at arm's length, 9px is
+decoration rather than text.
+
+**12px is a hard floor** and is reserved for captions, eyebrows and pill labels. Nothing
+a user must act on — a value, a field label, anything inside a form — goes below 13px.
+
+305 sizes were raised or consolidated across 46 files:
+
+| Was | Is | Why |
+|---|---|---|
+| 9, 9.5, 10, 10.5, 11, 11.5px | **12px** | Below the readable floor |
+| 12.5px | 13px | Half a pixel is not a distinction a reader can see |
+| 13.5px | 14px | ” |
+| 14.5px | 14px | ” |
+
+Distinct sizes fell from **24 to 16**. The remaining ten are 17px and above — heading
+sizes, deliberately untouched, because they are a per-screen composition decision and
+belong with `PageShell` adoption where one component will own them.
+
+**What raising a floor surfaces.** Two mobile bottom-nav labels stopped fitting: measured
+with the real font at 12px, a 4-item bar on a 320px screen gives each item 80px, and
+"Resume Library" renders at 84px. `NavItem.shortLabel` now supplies a bar-only label
+("Library", "Profile", "Optimize"); the sidebar and the More sheet keep the full names,
+because they have the room and the full name is clearer.
+
+---
+
 ## 2. The colour intent
 
 **navy = action · gold = purchase and readiness · terracotta = caution**

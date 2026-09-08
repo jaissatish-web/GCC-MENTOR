@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
  * use the redesign semantic and neutral tokens from DESIGN_SYSTEM.md §8.
  */
 const pillVariants = cva(
-  'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-[11px] py-[6px] font-redesign-sans text-[11px] font-semibold leading-none',
+  'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-[11px] py-[6px] font-redesign-sans text-[12px] font-semibold leading-none',
   {
     variants: {
       variant: {

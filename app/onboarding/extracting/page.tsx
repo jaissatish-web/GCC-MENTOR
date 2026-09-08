@@ -278,7 +278,7 @@ function ExtractingScreen() {
           })}
         </Card>
 
-        <p className="text-center text-[11px] leading-relaxed text-ink-400">
+        <p className="text-center text-[12px] leading-relaxed text-ink-400">
           You&apos;ll get to review and correct everything on the next screen —{' '}
           <span className="text-ink-700">nothing is saved until you confirm.</span>
         </p>

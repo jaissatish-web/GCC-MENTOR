@@ -61,14 +61,29 @@ export interface NavItem {
    * making clear it is not the first step.
    */
   needsProfile?: boolean
+  /**
+   * The label the MOBILE BOTTOM BAR uses, when the sidebar's wording is too
+   * long for a bar slot.
+   *
+   * Measured 2026-09-08, with the real font at the new 12px floor: a 4-item bar
+   * on a 320px screen gives each item 80px, and "Resume Library" renders at
+   * 84px — it overflows. "Career Profile" lands at 74px, which fits only by
+   * touching its neighbours. Both were fine at the old 10px, which is exactly
+   * the kind of thing raising a type floor surfaces.
+   *
+   * Shortening only the bar, and never the sidebar, is deliberate: the rail has
+   * room for the full name and the full name is clearer. A bottom bar is
+   * glanced at, not read, and one word is what fits.
+   */
+  shortLabel?: string
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, exact: true },
-  { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true },
-  { label: 'Resume Library', href: '/dashboard/library', icon: BookOpenIcon },
-  { label: 'Resume Templates', href: '/templates', icon: RectangleStackIcon },
-  { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon },
+  { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
+  { label: 'Resume Library', href: '/dashboard/library', icon: BookOpenIcon, shortLabel: 'Library' },
+  { label: 'Resume Templates', href: '/templates', icon: RectangleStackIcon, shortLabel: 'Templates' },
+  { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon, shortLabel: 'Optimize' },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },
   { label: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ] as const

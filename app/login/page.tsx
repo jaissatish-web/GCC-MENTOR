@@ -25,9 +25,9 @@ export default function LoginPage() {
       <Card tone="light" className="flex w-full flex-col gap-1 p-8">
         <AuthHashHandler />
         <h1 className="font-serif text-[26px] text-ink-900">Sign in</h1>
-        <p className="mb-5 text-[13.5px] text-ink-400">Welcome back to GCC MENTOR.</p>
+        <p className="mb-5 text-[14px] text-ink-400">Welcome back to GCC MENTOR.</p>
         <AuthForm action={login} submitLabel="Sign in" tone="light" />
-        <p className="mt-6 text-center text-[12.5px] text-ink-400">
+        <p className="mt-6 text-center text-[13px] text-ink-400">
           Don&apos;t have an account?{' '}
           <Link href="/signup" className="font-semibold text-navy hover:text-sky">
             Create one

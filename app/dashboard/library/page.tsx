@@ -90,7 +90,7 @@ function NameField({
           e.currentTarget.blur()
         }
       }}
-      className="w-full rounded-radius-md border border-transparent bg-transparent px-1.5 py-1 text-[13.5px] font-bold leading-snug text-ink-900 hover:border-line-light focus:border-navy focus:bg-surface-light focus-visible:outline-none"
+      className="w-full rounded-radius-md border border-transparent bg-transparent px-1.5 py-1 text-[14px] font-bold leading-snug text-ink-900 hover:border-line-light focus:border-navy focus:bg-surface-light focus-visible:outline-none"
     />
   )
 }
@@ -111,7 +111,7 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
   return (
     <span
       className={cn(
-        'rounded-[6px] px-2 py-1 text-[9.5px] font-semibold leading-none',
+        'rounded-[6px] px-2 py-1 text-[12px] font-semibold leading-none',
         present
           ? 'bg-navy-tint text-navy'
           : 'border border-dashed border-line-light-strong bg-surface-2-light text-ink-400'
@@ -140,7 +140,7 @@ function StatusSelect({
       }}
       aria-label="Package status"
       className={cn(
-        'min-h-11 cursor-pointer rounded-full border px-[11px] py-[6px] text-[11px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
+        'min-h-11 cursor-pointer rounded-full border px-[11px] py-[6px] text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
         statusSelectClass(initial)
       )}
     >
@@ -271,7 +271,7 @@ export default function DashboardLibraryPage() {
       {/* Header */}
       <div className="flex flex-col gap-1">
         <h1 className="font-serif text-[27px] leading-tight text-ink-900">Library</h1>
-        <p className="text-[12.5px] text-ink-700">
+        <p className="text-[13px] text-ink-700">
           {packages.length} resume{packages.length === 1 ? '' : 's'} · rename, edit, track status and download
         </p>
       </div>
@@ -285,7 +285,7 @@ export default function DashboardLibraryPage() {
       {packages.length === 0 ? (
         <div className="rounded-radius-lg border border-line-light bg-surface-light p-8 text-center">
           <p className="text-sm font-medium text-ink-900">No packages yet</p>
-          <p className="mt-1 text-[12.5px] text-ink-400">
+          <p className="mt-1 text-[13px] text-ink-400">
             Optimize a resume and it will appear here.
           </p>
           <Link
@@ -314,10 +314,10 @@ export default function DashboardLibraryPage() {
                     placeholder={pkg.target_job_title}
                     onSave={(next) => renamePackage(pkg.id, next)}
                   />
-                  <span className="text-[11px] text-ink-400">
+                  <span className="text-[12px] text-ink-400">
                     {formatDay(pkg.created_at)}
                   </span>
-                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10.5px] text-ink-400">
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-ink-400">
                     {/* Short id: enough to quote in a support message, without
                         a 36-character UUID dominating the card. */}
                     <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
@@ -350,7 +350,7 @@ export default function DashboardLibraryPage() {
               <div className="mt-3.5 flex items-center gap-4">
                 <Link
                   href={`/package/${pkg.id}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-navy px-4 text-[11.5px] font-semibold text-white transition-colors hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-navy px-4 text-[12px] font-semibold text-white transition-colors hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
                 >
                   Open
                 </Link>
@@ -359,7 +359,7 @@ export default function DashboardLibraryPage() {
                     resume first and finding "Edit text" there. */}
                 <Link
                   href={`/package/${pkg.id}/edit`}
-                  className="min-h-11 px-1 text-[11px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+                  className="min-h-11 px-1 text-[12px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
                 >
                   Edit
                 </Link>
@@ -370,7 +370,7 @@ export default function DashboardLibraryPage() {
                   }
                   aria-pressed={confirmingDelete === pkg.id}
                   className={cn(
-                    'min-h-11 px-1 text-[11px] font-semibold underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra focus-visible:ring-offset-2',
+                    'min-h-11 px-1 text-[12px] font-semibold underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra focus-visible:ring-offset-2',
                     confirmingDelete === pkg.id && 'text-terra underline'
                   )}
                 >
@@ -392,7 +392,7 @@ export default function DashboardLibraryPage() {
           The template column came across for the same reason: it is the only
           place a user can see which of the 15 designs a resume actually uses. */}
       <div className="hidden overflow-hidden rounded-radius-lg border border-line-light bg-surface-light lg:block">
-        <div className="grid grid-cols-[2.2fr_1fr_0.9fr_1.1fr_170px] gap-4 border-b border-line-light bg-surface-2-light px-5 py-3 text-[9.5px] font-semibold uppercase tracking-[0.1em] text-ink-400">
+        <div className="grid grid-cols-[2.2fr_1fr_0.9fr_1.1fr_170px] gap-4 border-b border-line-light bg-surface-2-light px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-400">
           <span>Resume</span>
           <span>Template</span>
           <span>Level</span>
@@ -412,13 +412,13 @@ export default function DashboardLibraryPage() {
                 placeholder={pkg.target_job_title}
                 onSave={(next) => renamePackage(pkg.id, next)}
               />
-              <span className="flex items-center gap-1.5 px-1.5 text-[10.5px] text-ink-400">
+              <span className="flex items-center gap-1.5 px-1.5 text-[12px] text-ink-400">
                 <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
                 <span aria-hidden>·</span>
                 <span>{formatDay(pkg.created_at)}</span>
               </span>
             </div>
-            <span className="truncate text-[11.5px] font-semibold text-ink-700">
+            <span className="truncate text-[12px] font-semibold text-ink-700">
               {templateNameFor(pkg.template_id)}
             </span>
             <span className="text-[12px] text-ink-700">{levelLabel(pkg.optimization_level)}</span>
@@ -430,7 +430,7 @@ export default function DashboardLibraryPage() {
                   than forest-on-white text that read as a label (TASK-157). */}
               <Link
                 href={`/package/${pkg.id}`}
-                className="inline-flex min-h-9 items-center justify-center rounded-radius-md bg-navy px-3.5 text-[11.5px] font-semibold text-white transition-colors hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+                className="inline-flex min-h-9 items-center justify-center rounded-radius-md bg-navy px-3.5 text-[12px] font-semibold text-white transition-colors hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
               >
                 Open
               </Link>
@@ -442,7 +442,7 @@ export default function DashboardLibraryPage() {
                 aria-pressed={confirmingDelete === pkg.id}
                 title="Delete this resume"
                 className={cn(
-                  'min-h-9 rounded-radius-md px-2 text-[11px] font-semibold text-ink-400 transition-colors hover:bg-terra-tint hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra',
+                  'min-h-9 rounded-radius-md px-2 text-[12px] font-semibold text-ink-400 transition-colors hover:bg-terra-tint hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra',
                   confirmingDelete === pkg.id && 'bg-terra-tint text-terra',
                 )}
               >

@@ -63,15 +63,15 @@ export function ScorecardResult({
             <ScoreRing score={result.finalScore} colour={colour.ring} />
             <div className="absolute flex flex-col items-center">
               <span className="font-mono text-4xl font-bold text-ink-900">{result.finalScore}</span>
-              <span className="text-[11px] text-ink-400">/ 100</span>
+              <span className="text-[12px] text-ink-400">/ 100</span>
             </div>
           </div>
           <div className="flex flex-1 flex-col items-center gap-2 text-center sm:items-start sm:text-left">
-            <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider ${colour.tint} ${colour.text}`}>
+            <span className={`rounded-full px-3 py-1 text-[12px] font-bold uppercase tracking-wider ${colour.tint} ${colour.text}`}>
               {result.scenarioLabel}
             </span>
             <h2 className="font-serif text-2xl text-ink-900">{result.band.label}</h2>
-            <p className="text-[13.5px] leading-relaxed text-ink-700">{result.band.message}</p>
+            <p className="text-[14px] leading-relaxed text-ink-700">{result.band.message}</p>
           </div>
         </div>
 
@@ -91,11 +91,11 @@ export function ScorecardResult({
             const pct = d.max === 0 ? 0 : Math.round((d.score / d.max) * 100)
             return (
               <div key={d.key} className="flex flex-col gap-1">
-                <div className="flex items-center justify-between text-[12.5px]">
+                <div className="flex items-center justify-between text-[13px]">
                   <span className="font-semibold text-ink-900">
                     {d.label}
                     {d.confidence === 'low' ? (
-                      <span className="ml-2 text-[10px] font-normal uppercase tracking-wide text-ink-400">low confidence</span>
+                      <span className="ml-2 text-[12px] font-normal uppercase tracking-wide text-ink-400">low confidence</span>
                     ) : null}
                   </span>
                   <span className="font-mono text-ink-400">
@@ -156,13 +156,13 @@ export function ScorecardResult({
           {(locked ? result.recommendations.slice(0, 1) : result.recommendations).map((r, i) => (
             <div key={i} className="rounded-radius-lg border border-line-light bg-surface-2-light/50 p-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono text-[11px] text-ink-400">#{i + 1}</span>
-                <span className="text-[13.5px] font-semibold text-ink-900">{r.title}</span>
-                <span className="rounded-full bg-surface-light px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-400">
+                <span className="font-mono text-[12px] text-ink-400">#{i + 1}</span>
+                <span className="text-[14px] font-semibold text-ink-900">{r.title}</span>
+                <span className="rounded-full bg-surface-light px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide text-ink-400">
                   {r.impact} impact · {r.difficulty} effort
                 </span>
               </div>
-              <p className="mt-1.5 text-[12.5px] text-ink-700">{r.why}</p>
+              <p className="mt-1.5 text-[13px] text-ink-700">{r.why}</p>
             </div>
           ))}
           {locked && result.recommendations.length > 1 ? (
@@ -186,7 +186,7 @@ export function ScorecardResult({
               Create my free account &amp; unlock the full report
             </Link>
           </div>
-          <p className="mt-3 text-[11px] text-ink-400">
+          <p className="mt-3 text-[12px] text-ink-400">
             Free account. We don&rsquo;t create a saved profile from this check unless you sign up.
           </p>
         </section>

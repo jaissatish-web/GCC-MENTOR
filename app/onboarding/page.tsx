@@ -72,7 +72,7 @@ function OptionCard({
         <span className="flex items-center gap-2">
           <span className="text-[15px] font-bold text-ink-900">{title}</span>
           {badge ? (
-            <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gold-text">
+            <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-gold-text">
               {badge}
             </span>
           ) : null}
@@ -205,7 +205,7 @@ export default function OnboardingPage() {
           <div className="flex-1">
             <ProgressBar value={20} tone="light" />
           </div>
-          <span className="font-mono text-[11px] text-ink-400">1/5</span>
+          <span className="font-mono text-[12px] text-ink-400">1/5</span>
         </div>
 
         {/* Heading */}
@@ -213,7 +213,7 @@ export default function OnboardingPage() {
           <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">
             Let&apos;s build your Career Profile
           </h1>
-          <p className="text-[13.5px] leading-relaxed text-ink-700">
+          <p className="text-[14px] leading-relaxed text-ink-700">
             Built once, reused for every future application. Choose whichever is easiest — all three
             end up in the same place.
           </p>
@@ -249,7 +249,7 @@ export default function OnboardingPage() {
         <div className="mt-auto flex flex-col gap-3 pt-8">
           <div className="flex items-start gap-2.5 rounded-radius-lg border border-line-light bg-surface-2-light px-3.5 py-3">
             <span className="text-[13px] text-gold-text">⌾</span>
-            <p className="text-[11px] leading-snug text-ink-700">
+            <p className="text-[12px] leading-snug text-ink-700">
               Your file is used only to build your profile. Passport, visa and contact fields are
               encrypted and never shown publicly.
             </p>

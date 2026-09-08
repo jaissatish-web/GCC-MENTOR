@@ -35,9 +35,9 @@ export default async function PackagesPage({
         <p className="text-[12px] text-ink-400">
           Create and manage bundles of services (e.g. &ldquo;Pro = 3 optimizations + 2 cover letters&rdquo;).
           Service keys must exactly match what the code checks for&mdash;currently known values:
-          <code className="mx-1 rounded bg-surface-2-light px-1.5 py-0.5 font-mono text-[11px]">resume_optimization</code>
+          <code className="mx-1 rounded bg-surface-2-light px-1.5 py-0.5 font-mono text-[12px]">resume_optimization</code>
           and
-          <code className="mx-1 rounded bg-surface-2-light px-1.5 py-0.5 font-mono text-[11px]">cover_letter</code>.
+          <code className="mx-1 rounded bg-surface-2-light px-1.5 py-0.5 font-mono text-[12px]">cover_letter</code>.
           A typo means the quota silently never matches any route.
         </p>
 
@@ -60,8 +60,8 @@ export default async function PackagesPage({
             <Input name="priceInr" type="number" min={0} label="Price (₹)" placeholder="e.g. 1499" required className="w-[140px]" />
           </div>
           <div className="flex flex-col gap-2">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">Quota line items</div>
-            <p className="text-[11px] text-ink-400">The service package is only available for purchase from here.</p>
+            <div className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">Quota line items</div>
+            <p className="text-[12px] text-ink-400">The service package is only available for purchase from here.</p>
             <ServicePackageItemsFields />
           </div>
           <Button type="submit" variant="primary" className="self-start">
@@ -72,7 +72,7 @@ export default async function PackagesPage({
         {/* Existing packages list */}
         {servicePackages.length > 0 ? (
           <div className="flex flex-col gap-2">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+            <div className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">
               Existing packages
             </div>
             {servicePackages.map((p) => (
@@ -89,20 +89,20 @@ export default async function PackagesPage({
                       <form action={setServicePackageActiveAction}>
                         <input type="hidden" name="packageId" value={p.id} />
                         <input type="hidden" name="isActive" value="false" />
-                        <button type="submit" className="text-[11px] font-semibold text-terra underline-offset-2 hover:underline">Deactivate</button>
+                        <button type="submit" className="text-[12px] font-semibold text-terra underline-offset-2 hover:underline">Deactivate</button>
                       </form>
                     ) : (
                       <form action={setServicePackageActiveAction}>
                         <input type="hidden" name="packageId" value={p.id} />
                         <input type="hidden" name="isActive" value="true" />
-                        <button type="submit" className="text-[11px] font-semibold text-navy underline-offset-2 hover:underline">Activate</button>
+                        <button type="submit" className="text-[12px] font-semibold text-navy underline-offset-2 hover:underline">Activate</button>
                       </form>
                     )}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {p.items.map((item) => (
-                    <span key={item.serviceKey} className="rounded-md border border-line-light bg-surface-2-light px-2 py-0.5 text-[11px] font-mono text-ink-700">
+                    <span key={item.serviceKey} className="rounded-md border border-line-light bg-surface-2-light px-2 py-0.5 text-[12px] font-mono text-ink-700">
                       {item.serviceKey} &times;{item.quota}
                     </span>
                   ))}

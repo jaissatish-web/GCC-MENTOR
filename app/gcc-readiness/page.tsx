@@ -116,7 +116,7 @@ function GccReadinessScreen() {
       subtitle="How complete is the profile your future Gulf applications are built from."
     >
       {loadError ? (
-        <div className="rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra">
+        <div className="rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra">
           {loadError}
         </div>
       ) : (
@@ -133,14 +133,14 @@ function GccReadinessScreen() {
                 </span>
               </div>
               {category ? <Pill variant="grounded">{categoryLabel(category)}</Pill> : null}
-              <p className="text-[12.5px] leading-relaxed text-ink-400">
+              <p className="text-[13px] leading-relaxed text-ink-400">
                 {missing.length === 0
                   ? 'Every section complete.'
                   : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed.`}
               </p>
               <Link
                 href="/profile"
-                className={cn(buttonVariants({ variant: 'primary' }), 'w-full text-[13.5px]')}
+                className={cn(buttonVariants({ variant: 'primary' }), 'w-full text-[14px]')}
               >
                 {missing.length === 0 ? 'View Career Profile' : 'Complete profile'}
               </Link>
@@ -149,7 +149,7 @@ function GccReadinessScreen() {
             {/* Breakdown list */}
             <Card tone="light" className="flex flex-1 flex-col gap-4 p-6">
               <div className="flex flex-col gap-1">
-                <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                   Finish these to reach 100
                 </span>
                 <p className="text-[12px] text-ink-400">Each one raises your score. Tap to edit on your profile.</p>
@@ -158,7 +158,7 @@ function GccReadinessScreen() {
               {missing.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 rounded-radius-lg border border-dashed border-line-light bg-surface-2-light/50 p-8 text-center">
                   <span className="font-serif text-2xl text-navy">All complete</span>
-                  <p className="max-w-sm text-[12.5px] leading-relaxed text-ink-400">
+                  <p className="max-w-sm text-[13px] leading-relaxed text-ink-400">
                     Your profile is 100% ready. Every section used by a future Gulf application is filled in.
                   </p>
                 </div>
@@ -172,9 +172,9 @@ function GccReadinessScreen() {
                     >
                       <span className="flex min-w-0 flex-col gap-0.5">
                         <span className="truncate text-[13px] font-semibold text-ink-900/85">{m.label}</span>
-                        <span className="text-[11px] text-ink-400">+{m.points} points</span>
+                        <span className="text-[12px] text-ink-400">+{m.points} points</span>
                       </span>
-                      <span className="shrink-0 text-[11px] font-semibold text-navy">Add →</span>
+                      <span className="shrink-0 text-[12px] font-semibold text-navy">Add →</span>
                     </Link>
                   ))}
                 </div>

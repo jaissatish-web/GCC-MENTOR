@@ -56,7 +56,7 @@ export function FieldShell({
       <label htmlFor={id} className="text-[13px] font-semibold leading-snug text-ink-900">
         {label}
         {required ? (
-          <span className="ml-1.5 text-[11px] font-normal text-terra">Required</span>
+          <span className="ml-1.5 text-[12px] font-normal text-terra">Required</span>
         ) : null}
       </label>
       {children}
@@ -65,7 +65,7 @@ export function FieldShell({
           {error}
         </p>
       ) : helper ? (
-        <p id={helperId} className="text-[11.5px] leading-relaxed text-ink-400">
+        <p id={helperId} className="text-[12px] leading-relaxed text-ink-400">
           {helper}
         </p>
       ) : null}

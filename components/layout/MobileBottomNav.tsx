@@ -34,13 +34,13 @@ export function MobileBottomNav() {
             href={navHref(item)}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[10px] leading-tight font-redesign-sans transition-colors',
+              'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[12px] leading-tight font-redesign-sans transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold',
               active ? 'font-semibold text-redesign-gold' : 'font-medium text-ink-400-dark'
             )}
           >
             <Icon className={cn('size-5 shrink-0', active ? 'text-redesign-gold' : 'text-ink-400-dark')} />
-            {item.label}
+            {item.shortLabel ?? item.label}
           </Link>
         )
       })}

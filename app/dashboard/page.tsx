@@ -267,15 +267,15 @@ export default function DashboardPage() {
           <Reveal delay={80}>
             <Card tone="light" className="flex h-full flex-col justify-between gap-5 border-redesign-gold/25 bg-redesign-gold/[0.06] p-6">
               <div className="flex flex-col gap-2">
-                <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-gold-text">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-gold-text">
                   Your next best action
                 </span>
                 <h2 className="font-serif text-[22px] leading-snug text-ink-900">{nextAction.title}</h2>
-                <p className="text-[13.5px] leading-relaxed text-ink-400">{nextAction.body}</p>
+                <p className="text-[14px] leading-relaxed text-ink-400">{nextAction.body}</p>
               </div>
               <Link
                 href={nextAction.href}
-                className={cn(buttonVariants({ variant: 'primary' }), 'w-fit text-[13.5px]')}
+                className={cn(buttonVariants({ variant: 'primary' }), 'w-fit text-[14px]')}
               >
                 {nextAction.cta} →
               </Link>
@@ -285,7 +285,7 @@ export default function DashboardPage() {
           {/* Recent Activity */}
           <Reveal delay={110}>
             <Card tone="light" className="flex h-full flex-col gap-3 p-6">
-              <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                 Recent activity
               </div>
               {!packagesLoaded ? (
@@ -296,7 +296,7 @@ export default function DashboardPage() {
               ) : recentPackages.length === 0 ? (
                 <div className="flex flex-col gap-1 rounded-radius-md border border-dashed border-line-light bg-surface-2-light/50 p-5">
                   <span className="text-[13px] font-semibold text-ink-400">No activity yet</span>
-                  <span className="text-[12.5px] leading-relaxed text-ink-400">
+                  <span className="text-[13px] leading-relaxed text-ink-400">
                     Optimize a resume and it will show up here.
                   </span>
                 </div>
@@ -312,7 +312,7 @@ export default function DashboardPage() {
                         <span className="text-[13px] font-semibold text-ink-900/85">
                           Optimized for {resumeLabel(pkg)}
                         </span>
-                        <span className="text-[11.5px] text-ink-400">{relativeTime(pkg.created_at)}</span>
+                        <span className="text-[12px] text-ink-400">{relativeTime(pkg.created_at)}</span>
                       </span>
                       <Pill variant={pkg.status}>{STATUS_LABEL[pkg.status]}</Pill>
                     </Link>
@@ -325,7 +325,7 @@ export default function DashboardPage() {
           {/* New "Planned" row — LockedTile, per PLANNED_SERVICES.md */}
           <Reveal delay={140}>
             <section className="flex flex-col gap-3">
-              <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                 Planned for you
               </div>
               {/* Horizontally-scrollable strip on mobile; static grid on larger */}
@@ -352,7 +352,7 @@ export default function DashboardPage() {
             <Card tone="light" className="flex flex-col gap-5 p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                     Profile Strength
                   </span>
                   <span className="text-[13px] text-ink-400">
@@ -372,7 +372,7 @@ export default function DashboardPage() {
                     <Link
                       key={m.field}
                       href="/profile"
-                      className="rounded-full border border-line-light bg-surface-2-light/60 px-3 py-1.5 text-[11.5px] font-medium text-ink-400 transition-colors hover:border-redesign-gold/40 hover:text-gold-text"
+                      className="rounded-full border border-line-light bg-surface-2-light/60 px-3 py-1.5 text-[12px] font-medium text-ink-400 transition-colors hover:border-redesign-gold/40 hover:text-gold-text"
                     >
                       {m.label}
                     </Link>
@@ -382,7 +382,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/profile"
-                className={cn(buttonVariants({ variant: 'primary' }), 'mt-1 w-full text-[13.5px]')}
+                className={cn(buttonVariants({ variant: 'primary' }), 'mt-1 w-full text-[14px]')}
               >
                 {missing.length === 0 ? 'View Career Profile' : 'Improve Score'}
               </Link>
@@ -425,7 +425,7 @@ export default function DashboardPage() {
           {/* Quick Actions */}
           <Reveal delay={200}>
             <Card tone="light" className="flex flex-col gap-2 p-6">
-              <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                 Quick actions
               </div>
               <div className="mt-1 flex flex-col">
@@ -433,7 +433,7 @@ export default function DashboardPage() {
                   <Link
                     key={a.href}
                     href={a.href}
-                    className="flex min-h-11 items-center justify-between gap-3 rounded-radius-md px-2 py-2.5 text-[13.5px] font-semibold text-ink-900/85 transition-colors hover:bg-surface-2-light/60 hover:text-gold-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
+                    className="flex min-h-11 items-center justify-between gap-3 rounded-radius-md px-2 py-2.5 text-[14px] font-semibold text-ink-900/85 transition-colors hover:bg-surface-2-light/60 hover:text-gold-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
                   >
                     {a.label}
                     <span aria-hidden className="text-ink-400">→</span>
@@ -447,7 +447,7 @@ export default function DashboardPage() {
           <Reveal delay={230}>
             <Card tone="light" className="flex h-full flex-col gap-4 p-6">
               <div className="flex items-baseline justify-between">
-                <span className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
                   Library · {packagesLoaded ? packageCount : '—'} package{packageCount === 1 ? '' : 's'}
                 </span>
                 <Link
@@ -458,7 +458,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
               {packageCount === 0 ? (
-                <div className="flex flex-1 items-center rounded-radius-md border border-dashed border-line-light bg-surface-2-light/50 p-5 text-[12.5px] leading-relaxed text-ink-400">
+                <div className="flex flex-1 items-center rounded-radius-md border border-dashed border-line-light bg-surface-2-light/50 p-5 text-[13px] leading-relaxed text-ink-400">
                   No packages yet — optimize a resume and it will appear here.
                 </div>
               ) : (
@@ -472,7 +472,7 @@ export default function DashboardPage() {
                         {resumeLabel(pkg)} ·{' '}
                         {GULF_COUNTRIES.find((c) => c.value === pkg.target_country)?.label ?? pkg.target_country}
                       </span>
-                      <span className="text-[11px] text-ink-400">v{pkg.generation_count}</span>
+                      <span className="text-[12px] text-ink-400">v{pkg.generation_count}</span>
                     </div>
                   ))}
                 </div>
@@ -526,13 +526,13 @@ function MetricTile({
 }) {
   const inner = (
     <>
-      <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-400">
+      <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-400">
         {label}
       </span>
       <span className={cn('font-mono text-[26px] leading-none', muted ? 'text-ink-400' : 'text-gold-text')}>
         {value}
       </span>
-      {sub ? <span className={cn('text-[11px]', muted ? 'text-ink-400' : 'text-navy')}>{sub}</span> : null}
+      {sub ? <span className={cn('text-[12px]', muted ? 'text-ink-400' : 'text-navy')}>{sub}</span> : null}
     </>
   )
 
@@ -551,7 +551,7 @@ function MetricTile({
       className="group flex flex-col gap-1.5 rounded-radius-lg border border-line-light bg-surface-light p-4 transition hover:border-navy/60 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
     >
       {inner}
-      <span aria-hidden className="mt-0.5 text-[10.5px] font-semibold text-navy opacity-0 transition group-hover:opacity-100">
+      <span aria-hidden className="mt-0.5 text-[12px] font-semibold text-navy opacity-0 transition group-hover:opacity-100">
         Open →
       </span>
     </Link>

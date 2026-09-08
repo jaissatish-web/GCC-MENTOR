@@ -67,7 +67,7 @@ function TemplatesInner() {
       {/* The action bar sticks to the top so the choice made at the bottom of a
           long gallery is still actionable without scrolling back. */}
       <div className="sticky top-0 z-20 -mt-2 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[12.5px] text-ink-700">
+        <p className="text-[13px] text-ink-700">
           Selected: <strong className="text-ink-900">{templateName}</strong>
         </p>
 
@@ -111,7 +111,7 @@ function TemplatesInner() {
       </div>
 
       {error ? (
-        <p role="alert" className="text-[12.5px] text-terra">
+        <p role="alert" className="text-[13px] text-terra">
           {error}
         </p>
       ) : null}
@@ -122,7 +122,7 @@ function TemplatesInner() {
         onSelect={(id) => setTemplateId(id)}
       />
 
-      <p className="text-center text-[11.5px] text-ink-400">
+      <p className="text-center text-[12px] text-ink-400">
         Previews use an example CV. Your own wording, dates and details are never changed by
         switching template.
       </p>

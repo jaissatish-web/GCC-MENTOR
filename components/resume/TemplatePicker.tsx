@@ -142,18 +142,18 @@ export function TemplatePicker({
               <span className="flex items-center justify-between gap-2">
                 <span className="text-[13px] font-bold text-ink-900">{t.name}</span>
                 {isCurrent ? (
-                  <span className="rounded-[4px] bg-navy-tint px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-navy">
+                  <span className="rounded-[4px] bg-navy-tint px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-navy">
                     In use
                   </span>
                 ) : t.atsLevel === 'maximum' ? (
-                  <span className="rounded-[4px] bg-surface-2-light px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-700">
+                  <span className="rounded-[4px] bg-surface-2-light px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-700">
                     Max ATS
                   </span>
                 ) : null}
               </span>
-              <span className="text-[11.5px] leading-snug text-ink-700">{t.description}</span>
-              <span className="text-[10.5px] text-ink-400">Best for {t.recommendedFor.join(' · ')}</span>
-              <span className="mt-1 text-[11px] font-semibold text-navy">
+              <span className="text-[12px] leading-snug text-ink-700">{t.description}</span>
+              <span className="text-[12px] text-ink-400">Best for {t.recommendedFor.join(' · ')}</span>
+              <span className="mt-1 text-[12px] font-semibold text-navy">
                 {isBusy ? 'Applying…' : isCurrent ? 'Current template' : 'Use this template'}
               </span>
             </span>

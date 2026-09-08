@@ -56,7 +56,7 @@ export function LockedTile({ title, description, note, tone = 'light', className
       <div className="flex items-center gap-2">
         <span
           className={cn(
-            'inline-flex items-center rounded-full border px-[9px] py-[3px] text-[10px] font-semibold leading-none tracking-wider uppercase font-redesign-sans',
+            'inline-flex items-center rounded-full border px-[9px] py-[3px] text-[12px] font-semibold leading-none tracking-wider uppercase font-redesign-sans',
             isDark ? 'border-line-dark text-ink-400-dark' : 'border-line-light text-ink-400'
           )}
         >
@@ -78,7 +78,7 @@ export function LockedTile({ title, description, note, tone = 'light', className
       {showNote && (
         <div
           className={cn(
-            'mt-1 rounded-lg border px-3 py-2 text-[11.5px]',
+            'mt-1 rounded-lg border px-3 py-2 text-[12px]',
             isDark
               ? 'border-ink-200-dark bg-ink-200-dark/30 text-ink-700-dark'
               : 'border-ink-200 bg-ink-200/30 text-ink-700'

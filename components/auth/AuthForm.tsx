@@ -74,7 +74,7 @@ export function AuthForm({
         <p
           role="alert"
           className={cn(
-            'rounded-lg border px-3.5 py-2.5 text-[12.5px] leading-snug',
+            'rounded-lg border px-3.5 py-2.5 text-[13px] leading-snug',
             isDark
               ? 'border-terracotta/40 bg-terracotta/10 text-terracotta'
               : 'border-state-terra-line bg-state-terra-bg text-state-terra-text'
@@ -87,7 +87,7 @@ export function AuthForm({
         <p
           role="status"
           className={cn(
-            'rounded-lg border px-3.5 py-2.5 text-[12.5px] leading-snug',
+            'rounded-lg border px-3.5 py-2.5 text-[13px] leading-snug',
             isDark
               ? 'border-state-emerald-line/35 bg-emerald/15 text-state-emerald-line'
               : 'border-state-emerald-line bg-state-emerald-bg text-emerald'

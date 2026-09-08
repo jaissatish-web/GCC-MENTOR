@@ -125,7 +125,7 @@ const faq = [
 ]
 
 function Kicker({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
-  return <p className={cn('text-[11px] font-bold uppercase tracking-[0.2em]', light ? 'text-redesign-gold-dark' : 'text-navy')}>{children}</p>
+  return <p className={cn('text-[12px] font-bold uppercase tracking-[0.2em]', light ? 'text-redesign-gold-dark' : 'text-navy')}>{children}</p>
 }
 
 function StaticScoreRing({ score, size = 64 }: { score: number; size?: number }) {
@@ -199,7 +199,7 @@ export default function Home() {
                     Create Free Account
                   </Link>
                 </div>
-                <p className="text-[12.5px] text-white/60">
+                <p className="text-[13px] text-white/60">
                   No card required. Your score is instant, and nothing is saved unless you sign up.
                 </p>
                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-semibold text-white/70">
@@ -214,24 +214,24 @@ export default function Home() {
                 <div className="rounded-radius-2xl border border-line bg-surface-light p-5 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.45)] sm:p-7">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-navy">GCC Career Profile</p>
+                      <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-navy">GCC Career Profile</p>
                       <p className="mt-1 text-[13px] text-ink-700">Senior Instrument Engineer</p>
                     </div>
-                    <span className="rounded-full bg-navy-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">Illustrative profile</span>
+                    <span className="rounded-full bg-navy-tint px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-navy">Illustrative profile</span>
                   </div>
-                  <p className="mt-5 text-[10px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — not a real customer result</p>
+                  <p className="mt-5 text-[12px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — not a real customer result</p>
                   <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
                       <CheckCircleIcon className="h-10 w-10 text-navy" />
-                      <span className="text-center text-[10px] font-bold text-ink-700">ATS-ready format</span>
+                      <span className="text-center text-[12px] font-bold text-ink-700">ATS-ready format</span>
                     </div>
                     <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
                       <ChartBarIcon className="h-10 w-10 text-navy" />
-                      <span className="text-center text-[10px] font-bold text-ink-700">Readiness review</span>
+                      <span className="text-center text-[12px] font-bold text-ink-700">Readiness review</span>
                     </div>
                     <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
                       <SparklesIcon className="h-10 w-10 text-navy" />
-                      <span className="text-center text-[10px] font-bold text-ink-700">Role targeting</span>
+                      <span className="text-center text-[12px] font-bold text-ink-700">Role targeting</span>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center gap-4 text-[12px] text-navy">
@@ -246,7 +246,7 @@ export default function Home() {
                     <div className="mt-2 h-2 rounded-full bg-navy-tint">
                       <div className="h-2 w-3/4 rounded-full bg-navy" />
                     </div>
-                    <p className="mt-2 text-[11px] text-ink-400">Complete your profile to strengthen future applications</p>
+                    <p className="mt-2 text-[12px] text-ink-400">Complete your profile to strengthen future applications</p>
                   </div>
                 </div>
                 {/* Decorative glow */}
@@ -328,7 +328,7 @@ export default function Home() {
                       <s.icon className="h-5 w-5" />
                     </span>
                     <span className={cn(
-                      'rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider',
+                      'rounded-full px-2.5 py-1 text-[12px] font-bold uppercase tracking-wider',
                       s.status === 'Live' ? 'bg-navy-tint text-navy' : 'bg-redesign-gold-tint text-gold-text',
                     )}>
                       {s.status}
@@ -348,7 +348,7 @@ export default function Home() {
               the story, and marked unbuilt because claiming otherwise is exactly
               what this product refuses to do. */}
           <div className="mt-10 rounded-radius-xl border border-dashed border-line bg-surface-2-light/60 p-6">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-ink-400">In development — not available yet</p>
+            <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-ink-400">In development — not available yet</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {plannedServices.map((s) => (
                 <div key={s.title} className="flex gap-3">
@@ -357,7 +357,7 @@ export default function Home() {
                   </span>
                   <div>
                     <h3 className="text-sm font-bold text-ink-700">{s.title}</h3>
-                    <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-400">{s.desc}</p>
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-ink-400">{s.desc}</p>
                   </div>
                 </div>
               ))}
@@ -376,14 +376,14 @@ export default function Home() {
             <div className="mt-12 grid gap-6 lg:grid-cols-2">
               <div className="flex flex-col gap-4">
                 <Card tone="light" className="flex flex-col gap-2 border-ink-200 p-6">
-                  <span className="w-fit rounded-full bg-ink-200 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-700">Before</span>
+                  <span className="w-fit rounded-full bg-ink-200 px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-ink-700">Before</span>
                   <p className="text-[15px] leading-relaxed text-ink-700">{beforeAfter.before}</p>
                 </Card>
                 <Card tone="light" className="flex flex-col gap-2 border-navy/40 bg-navy-tint/40 p-6">
-                  <span className="w-fit rounded-full bg-navy px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">After</span>
+                  <span className="w-fit rounded-full bg-navy px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-white">After</span>
                   <p className="text-[15px] leading-relaxed text-ink-900">{beforeAfter.after}</p>
                 </Card>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — the format real GCC recruiters expect, not a real customer result</p>
+                <p className="text-[12px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — the format real GCC recruiters expect, not a real customer result</p>
               </div>
               <Card tone="light" className="flex flex-col gap-5 p-6">
                 <div>
@@ -450,7 +450,7 @@ export default function Home() {
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     {step.free ? (
-                      <span className="rounded-full bg-navy-tint px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">
+                      <span className="rounded-full bg-navy-tint px-2.5 py-1 text-[12px] font-bold uppercase tracking-wider text-navy">
                         Free
                       </span>
                     ) : null}
@@ -462,7 +462,7 @@ export default function Home() {
                   </div>
 
                   <div className="rounded-radius-lg border border-navy/25 bg-navy-tint/40 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-navy">You get</p>
+                    <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-navy">You get</p>
                     <p className="mt-1.5 text-sm leading-relaxed text-ink-900">{step.gain}</p>
                   </div>
                 </li>
@@ -537,9 +537,9 @@ export default function Home() {
               {pricing.map((p) => (
                 <Card key={p.name} tone="light" className={cn('flex flex-col gap-5 p-6', p.featured && 'border-navy shadow-md ring-1 ring-navy/30')}>
                   {p.featured ? (
-                    <span className="w-fit rounded-full bg-navy-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">Most popular</span>
+                    <span className="w-fit rounded-full bg-navy-tint px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-navy">Most popular</span>
                   ) : !p.live ? (
-                    <span className="w-fit rounded-full bg-redesign-gold-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-text">Self-serve checkout coming soon</span>
+                    <span className="w-fit rounded-full bg-redesign-gold-tint px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-gold-text">Self-serve checkout coming soon</span>
                   ) : null}
                   <div>
                     <h3 className="font-serif text-xl text-ink-900">{p.name}</h3>

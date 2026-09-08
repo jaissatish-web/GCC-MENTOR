@@ -150,7 +150,7 @@ function CoverLetterScreen() {
   if (loadError) {
     return (
       <main className="mx-auto w-full max-w-[900px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
-        <div className="rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra">
+        <div className="rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra">
           {loadError}
         </div>
       </main>
@@ -180,11 +180,11 @@ function CoverLetterScreen() {
         {eligiblePackages.length === 0 ? (
           <div className="flex flex-col items-center gap-3 p-4 text-center">
             <p className="text-[13px] font-semibold text-ink-900/85">No resumes yet</p>
-            <p className="max-w-sm text-[12.5px] text-ink-400">
+            <p className="max-w-sm text-[13px] text-ink-400">
               A cover letter is written from one of your resumes — it takes the target role and job
               description from it. Create a resume first.
             </p>
-            <a href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[13.5px]')}>
+            <a href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
               Optimize a resume
             </a>
           </div>
@@ -224,10 +224,10 @@ function CoverLetterScreen() {
                           : 'border-line-light/70 bg-surface-2-light/40 hover:border-line-light-strong',
                       )}
                     >
-                      <span className={cn('text-[12.5px] font-semibold', active ? 'text-gold-text' : 'text-ink-900')}>
+                      <span className={cn('text-[13px] font-semibold', active ? 'text-gold-text' : 'text-ink-900')}>
                         {opt.label}
                       </span>
-                      <span className="text-[10.5px] leading-snug text-ink-400">{opt.description}</span>
+                      <span className="text-[12px] leading-snug text-ink-400">{opt.description}</span>
                     </button>
                   )
                 })}
@@ -235,7 +235,7 @@ function CoverLetterScreen() {
             </fieldset>
 
             {genError ? (
-              <p role="alert" className="rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-3 text-[12.5px] text-terra">
+              <p role="alert" className="rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra">
                 {genError}
               </p>
             ) : null}
@@ -270,12 +270,12 @@ function CoverLetterScreen() {
                   {/* No badge for a pre-tone letter (letter.tone absent) —
                       showing one would be a guess, not a fact. */}
                   {letter.tone ? (
-                    <span className="rounded-full bg-redesign-gold-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gold-text">
+                    <span className="rounded-full bg-redesign-gold-tint px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-gold-text">
                       {TONE_OPTIONS.find((o) => o.value === letter.tone)?.label ?? letter.tone}
                     </span>
                   ) : null}
                 </div>
-                <p className="text-[11px] text-ink-400">
+                <p className="text-[12px] text-ink-400">
                   Generated {new Date(letter.generated_at).toLocaleString()}
                 </p>
               </div>
@@ -300,7 +300,7 @@ function CoverLetterScreen() {
       ) : null}
 
       {/* Grounding notice */}
-      <p className="mt-6 text-center text-[11.5px] text-ink-400">
+      <p className="mt-6 text-center text-[12px] text-ink-400">
         Based strictly on your saved Career Profile and the resume&apos;s target — nothing invented.
       </p>
     </PageShell>

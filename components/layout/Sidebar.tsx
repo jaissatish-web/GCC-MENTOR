@@ -37,7 +37,7 @@ import {
 function PlannedGroup() {
   return (
     <div className="mt-6 flex flex-col gap-1">
-      <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark/70">
+      <div className="px-3 pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400-dark/70">
         Coming soon
       </div>
       {PLANNED_NAV_ITEMS.map((item) => {
@@ -46,11 +46,11 @@ function PlannedGroup() {
           <div
             key={item.label}
             aria-disabled="true"
-            className="flex min-h-11 cursor-default items-center gap-3 rounded-xl px-3 text-[13.5px] font-medium text-ink-400-dark/55"
+            className="flex min-h-11 cursor-default items-center gap-3 rounded-xl px-3 text-[14px] font-medium text-ink-400-dark/55"
           >
             <Icon className="size-5 shrink-0 text-ink-400-dark/45" />
             <span className="flex-1 truncate">{item.label}</span>
-            <span className="shrink-0 rounded-[5px] border border-line-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-400-dark/70">
+            <span className="shrink-0 rounded-[5px] border border-line-dark px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-400-dark/70">
               Soon
             </span>
           </div>
@@ -99,7 +99,7 @@ function NavItem({
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex min-h-11 items-center gap-3 rounded-xl text-[13.5px] font-redesign-sans transition-colors',
+        'flex min-h-11 items-center gap-3 rounded-xl text-[14px] font-redesign-sans transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deepest',
         collapsed ? 'justify-center px-0' : 'px-3',
         pending && !active && 'opacity-60',
@@ -113,7 +113,7 @@ function NavItem({
       />
       {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
       {!collapsed && pending ? (
-        <span className="shrink-0 rounded-[5px] border border-line-dark px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-400-dark/70">
+        <span className="shrink-0 rounded-[5px] border border-line-dark px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-400-dark/70">
           Set up
         </span>
       ) : null}
@@ -172,7 +172,7 @@ export function Sidebar() {
       </nav>
       <div className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-line-dark bg-surface-dark p-4 shadow-sm">
         <div className="text-[12px] font-semibold leading-normal text-redesign-gold">Need help?</div>
-        <div className="text-[11.5px] leading-snug text-ink-400-dark">
+        <div className="text-[12px] leading-snug text-ink-400-dark">
           Email the founder — replies within a day.
         </div>
       </div>
@@ -212,7 +212,7 @@ export function Sidebar() {
                   setTabletExpanded(true)
                 }}
                 className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-xl text-[13.5px] font-redesign-sans transition-colors',
+                  'flex h-11 w-11 items-center justify-center rounded-xl text-[14px] font-redesign-sans transition-colors',
                   active
                     ? 'border border-redesign-gold/25 bg-redesign-gold/[0.09] font-semibold text-redesign-gold'
                     : 'border border-transparent font-medium text-ink-400-dark hover:bg-marble/[0.05] hover:text-ink-900-dark'
@@ -260,7 +260,7 @@ export function Sidebar() {
             </nav>
             <div className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-line-dark bg-surface-dark p-4 shadow-sm">
               <div className="text-[12px] font-semibold leading-normal text-redesign-gold">Need help?</div>
-              <div className="text-[11.5px] leading-snug text-ink-400-dark">
+              <div className="text-[12px] leading-snug text-ink-400-dark">
                 Email the founder — replies within a day.
               </div>
             </div>
