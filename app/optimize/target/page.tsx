@@ -172,7 +172,7 @@ function TargetScreen() {
   if (!loaded) {
     return (
       <main className="flex min-h-dvh items-center justify-center">
-        <p className="font-mono text-sm text-ink-400">Loading…</p>
+        <p className="font-mono text-sm text-slate">Loading…</p>
       </main>
     )
   }
@@ -186,27 +186,27 @@ function TargetScreen() {
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-bp text-[20px] leading-none text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
         >
           ←
         </button>
         <div className="flex-1">
           <ProgressBar value={60} tone="light" />
         </div>
-        <span className="font-mono text-[12px] text-ink-400">3/5</span>
+        <span className="font-mono text-[12px] text-slate">3/5</span>
       </div>
 
       {/* Heading */}
       <div className="px-5 pb-4">
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900">Set your target role</h1>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-700">
+        <h1 className="font-bp-display text-[27px] leading-tight text-graphite">Set your target role</h1>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-graphite-soft">
           One required field. Add a job description or industry too and we&rsquo;ll tailor the wording
           more precisely — but your resume is optimized either way.
         </p>
       </div>
 
       {loadError ? (
-        <div className="mx-5 mb-3 rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mb-3 rounded-bp-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
           {loadError}
         </div>
       ) : null}
@@ -214,7 +214,7 @@ function TargetScreen() {
       {/* Fields */}
       <Card tone="light" className="mt-5 flex flex-1 flex-col gap-4 overflow-y-auto p-5">
         <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_job_title" className="text-[12px] font-semibold tracking-wide text-ink-700">
+          <label htmlFor="f_target_job_title" className="text-[12px] font-semibold tracking-wide text-graphite-soft">
             Target job title <span className="text-terra">*</span>
           </label>
           <Input
@@ -229,12 +229,12 @@ function TargetScreen() {
         {/* Reuse detection prompt (TASK-036) — fires when a similar-titled
             package already exists */}
         {similar && !dismissed ? (
-          <div className="rounded-radius-lg border border-redesign-gold/50 bg-redesign-gold-tint p-3.5">
-            <p className="text-[12px] leading-snug text-gold-text">
+          <div className="rounded-bp-lg border border-signal/50 bg-signal-tint p-3.5">
+            <p className="text-[12px] leading-snug text-signal-ink">
               You already have a &ldquo;{similar.title}&rdquo; package — re-optimize it (overwrites its
               current text), or start fresh?
             </p>
-            <p className="mt-0.5 text-[12px] text-ink-400">Keeping past versions arrives in Phase 2.</p>
+            <p className="mt-0.5 text-[12px] text-slate">Keeping past versions arrives in Phase 2.</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <button
                 type="button"
@@ -242,7 +242,7 @@ function TargetScreen() {
                   setReplacingId(similar.id)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-radius-md bg-navy-deep px-3.5 py-2 text-[12px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+                className="min-h-11 rounded-bp bg-signal-ink px-3.5 py-2 text-[12px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
               >
                 Re-optimize
               </button>
@@ -252,7 +252,7 @@ function TargetScreen() {
                   setReplacingId(null)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-3.5 py-2 text-[12px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+                className="min-h-11 rounded-bp border border-edge-strong bg-white px-3.5 py-2 text-[12px] font-semibold text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
               >
                 Start fresh
               </button>
@@ -261,7 +261,7 @@ function TargetScreen() {
         ) : null}
 
         {similar && replacingId ? (
-          <div className="rounded-radius-lg border border-navy/30 bg-navy-tint px-3.5 py-3 text-[12px] leading-snug text-navy">
+          <div className="rounded-bp-lg border border-signal/30 bg-signal-tint px-3.5 py-3 text-[12px] leading-snug text-signal-ink">
             Will re-optimize your existing &ldquo;{similar.title}&rdquo; package — its current text will be
             replaced.{' '}
             <button
@@ -278,12 +278,12 @@ function TargetScreen() {
         ) : null}
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_industry" className="text-[12px] font-semibold tracking-wide text-ink-700">
-            Target industry <span className="font-normal text-ink-400">— optional, drives the writing persona</span>
+          <label htmlFor="f_target_industry" className="text-[12px] font-semibold tracking-wide text-graphite-soft">
+            Target industry <span className="font-normal text-slate">— optional, drives the writing persona</span>
           </label>
           <select
             id="f_target_industry"
-            className="min-h-11 w-full rounded-radius-md border border-line-light bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none transition-colors focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20"
+            className="min-h-11 w-full rounded-bp border border-edge bg-white px-[15px] py-[13px] text-sm font-medium text-graphite outline-none transition-colors focus:border-signal focus:ring-2 focus:ring-signal/20"
             value={draft.target_industry}
             onChange={(e) => set('target_industry', e.target.value)}
           >
@@ -298,18 +298,18 @@ function TargetScreen() {
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <div className="text-[12px] font-semibold tracking-wide text-ink-700">
-              Job description <span className="font-normal text-ink-400">— optional</span>
+            <div className="text-[12px] font-semibold tracking-wide text-graphite-soft">
+              Job description <span className="font-normal text-slate">— optional</span>
             </div>
-            <span className="rounded-[5px] bg-redesign-gold-tint px-2 py-1 text-[12px] font-semibold uppercase tracking-wider text-gold-text">
+            <span className="rounded-[5px] bg-signal-tint px-2 py-1 text-[12px] font-semibold uppercase tracking-wider text-signal-ink">
               Best results
             </span>
           </div>
-          <div className="flex flex-col gap-2.5 rounded-radius-lg border border-dashed border-redesign-gold p-4">
-            <div className="text-[13px] font-medium leading-snug text-ink-900">
+          <div className="flex flex-col gap-2.5 rounded-bp-lg border border-dashed border-signal p-4">
+            <div className="text-[13px] font-medium leading-snug text-graphite">
               Paste the job posting for the closest match
             </div>
-            <p className="text-[12px] leading-snug text-ink-400">
+            <p className="text-[12px] leading-snug text-slate">
               With a job description, we match the employer&apos;s exact wording and requirements. Without
               one, we still optimize your resume using your target role and industry.
             </p>
@@ -319,7 +319,7 @@ function TargetScreen() {
               value={draft.job_description}
               onChange={(e) => set('job_description', e.target.value)}
               placeholder="Paste the job posting text here…"
-              className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none placeholder:text-ink-400 focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20"
+              className="min-h-11 w-full resize-none rounded-bp border border-edge bg-white px-[15px] py-[13px] text-sm font-medium text-graphite outline-none placeholder:text-slate focus:border-signal focus:ring-2 focus:ring-signal/20"
             />
           </div>
         </div>
@@ -327,14 +327,14 @@ function TargetScreen() {
 
       {/* Footer */}
       <div className="flex flex-col gap-2.5 px-5 pb-6 pt-4">
-        <p className="text-center text-[12px] leading-snug text-ink-400">
+        <p className="text-center text-[12px] leading-snug text-slate">
           Still free — you&apos;ll see what changes before you pay.
         </p>
         <Button variant="progress" className="w-full" disabled={!canContinue} onClick={onContinue}>
           Choose what to optimize
         </Button>
         {!canContinue ? (
-          <p className="text-center text-[12px] text-ink-400">
+          <p className="text-center text-[12px] text-slate">
             Add a target job title to continue.
           </p>
         ) : null}

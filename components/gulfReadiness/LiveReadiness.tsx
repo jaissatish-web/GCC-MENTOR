@@ -28,37 +28,37 @@ export function LiveReadiness({
 
   if (!result) {
     return (
-      <div className="rounded-radius-lg border border-line-light bg-surface-2-light/50 px-4 py-3 text-[12px] text-ink-400">
+      <div className="rounded-bp-lg border border-edge bg-paper/50 px-4 py-3 text-[12px] text-slate">
         Answer the Gulf-experience questions to see your live readiness score.
       </div>
     )
   }
 
   const tone =
-    result.band.key === 'ready' ? 'text-navy' : result.band.key === 'mid' ? 'text-gold-text' : 'text-terra'
+    result.band.key === 'ready' ? 'text-signal' : result.band.key === 'mid' ? 'text-signal-ink' : 'text-terra'
 
   return (
-    <div className="rounded-radius-lg border border-line-light bg-surface-light px-4 py-4">
+    <div className="rounded-bp-lg border border-edge bg-white px-4 py-4">
       <div className="flex items-center justify-between">
-        <span className="text-[12px] font-bold uppercase tracking-wide text-ink-400">Gulf Readiness</span>
-        <span className="rounded-full bg-surface-2-light px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide text-ink-400">
+        <span className="text-[12px] font-bold uppercase tracking-wide text-slate">Gulf Readiness</span>
+        <span className="rounded-full bg-paper px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide text-slate">
           {result.scenarioLabel}
         </span>
       </div>
-      <p className="mt-0.5 text-[12px] text-ink-400">
+      <p className="mt-0.5 text-[12px] text-slate">
         How ready you are for the Gulf job market — different from how complete your profile is.
       </p>
       <div className="mt-2 flex items-end gap-2">
         <span className={`font-mono text-3xl font-bold ${tone}`}>{result.finalScore}</span>
-        <span className="pb-1 text-[12px] text-ink-400">/ 100 · {result.band.label}</span>
+        <span className="pb-1 text-[12px] text-slate">/ 100 · {result.band.label}</span>
       </div>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2-light">
+      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-paper">
         <div
-          className={`h-1.5 rounded-full transition-all duration-500 ${result.band.key === 'ready' ? 'bg-navy' : result.band.key === 'mid' ? 'bg-redesign-gold' : 'bg-terra'}`}
+          className={`h-1.5 rounded-full transition-all duration-500 ${result.band.key === 'ready' ? 'bg-signal' : result.band.key === 'mid' ? 'bg-signal' : 'bg-terra'}`}
           style={{ width: `${result.finalScore}%` }}
         />
       </div>
-      <p className="mt-2.5 text-[12px] leading-snug text-ink-700">
+      <p className="mt-2.5 text-[12px] leading-snug text-graphite-soft">
         Your score improves as you complete your profile. {result.recommendations[0]?.title ? `Next: ${result.recommendations[0].title.toLowerCase()}.` : 'Add more detail to strengthen it.'}
       </p>
     </div>

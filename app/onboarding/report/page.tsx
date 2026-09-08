@@ -58,18 +58,18 @@ export default function OnboardingReportPage() {
 
   if (!checked || !result) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-bg font-redesign-sans">
-        <p className="font-mono text-sm text-ink-400">Loading…</p>
+      <main className="flex min-h-dvh items-center justify-center bg-paper font-redesign-sans">
+        <p className="font-mono text-sm text-slate">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="min-h-dvh bg-bg text-ink-900">
-      <header className="border-b border-line-light bg-bg/95">
+    <main className="min-h-dvh bg-paper text-graphite">
+      <header className="border-b border-edge bg-paper/95">
         <div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-5 sm:px-8">
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <span className="font-serif flex h-9 w-9 items-center justify-center rounded-radius-md bg-navy-deep text-lg text-gold-text-dark">G</span>
+            <span className="font-bp-display flex h-9 w-9 items-center justify-center rounded-bp bg-signal text-lg text-white">G</span>
             <span className="font-bold tracking-wide">GCC MENTOR</span>
           </Link>
         </div>
@@ -77,9 +77,9 @@ export default function OnboardingReportPage() {
 
       <div className="mx-auto max-w-[820px] px-5 py-12 sm:px-8 lg:py-16">
         <div className="mb-6 text-center">
-          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-text">Your full Gulf readiness report</p>
-          <h1 className="mt-3 font-serif text-3xl leading-tight sm:text-4xl">Unlocked — here&rsquo;s everything we found</h1>
-          <p className="mx-auto mt-3 max-w-md text-[14px] leading-relaxed text-ink-700">
+          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">Your full Gulf readiness report</p>
+          <h1 className="mt-3 font-bp-display text-3xl leading-tight sm:text-4xl">Unlocked — here&rsquo;s everything we found</h1>
+          <p className="mx-auto mt-3 max-w-md text-[14px] leading-relaxed text-graphite-soft">
             The complete breakdown of the score you saw, with every dimension and your full ranked action plan. Next,
             we&rsquo;ll build your Career Profile so you can act on it.
           </p>
@@ -87,9 +87,9 @@ export default function OnboardingReportPage() {
 
         <ScorecardResult result={result} locked={false} />
 
-        <div className="mt-8 rounded-radius-xl border border-redesign-gold/40 bg-gold-tint/40 p-6 text-center sm:p-8">
-          <h2 className="font-serif text-2xl text-ink-900">Now let&rsquo;s build your Career Profile</h2>
-          <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-ink-700">
+        <div className="mt-8 rounded-bp-lg border border-signal/40 bg-gold-tint/40 p-6 text-center sm:p-8">
+          <h2 className="font-bp-display text-2xl text-graphite">Now let&rsquo;s build your Career Profile</h2>
+          <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-graphite-soft">
             We already have your resume — we&rsquo;ll read it once, free, and fill in everything we can. You review and
             confirm before anything is saved.
           </p>
@@ -101,7 +101,7 @@ export default function OnboardingReportPage() {
               Build my Career Profile
             </Button>
           </div>
-          <p className="mt-3 text-[12px] text-ink-400">Takes about 20 seconds. Nothing is saved until you confirm.</p>
+          <p className="mt-3 text-[12px] text-slate">Takes about 20 seconds. Nothing is saved until you confirm.</p>
         </div>
       </div>
     </main>

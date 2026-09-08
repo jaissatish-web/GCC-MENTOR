@@ -92,20 +92,20 @@ export default async function AdminDashboardPage() {
               className={`flex flex-col gap-1 p-5 transition-colors ${
                 s.warn
                   ? 'border-terra/40 bg-terra-tint'
-                  : 'hover:border-redesign-gold/50'
+                  : 'hover:border-signal/50'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
+                <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">
                   {s.title}
                 </h2>
-                <span className="text-sm text-navy">→</span>
+                <span className="text-sm text-signal">→</span>
               </div>
               <p
                 className={
                   s.warn
                     ? 'text-[13px] font-semibold text-terra'
-                    : 'text-[13px] text-ink-700'
+                    : 'text-[13px] text-graphite-soft'
                 }
               >
                 {s.summary}

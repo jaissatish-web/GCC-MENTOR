@@ -22,7 +22,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         {label ? (
           <label
             htmlFor={selectId}
-            className={cn('text-sm font-medium', isDark ? 'text-ink-900-dark' : 'text-ink-900')}
+            className={cn('text-sm font-medium', isDark ? 'text-white' : 'text-graphite')}
           >
             {label}
           </label>
@@ -33,19 +33,19 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${selectId}-error` : undefined}
           className={cn(
-            'min-h-11 w-full cursor-pointer appearance-none rounded-radius-md border px-[15px] py-[13px] font-redesign-sans text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
+            'min-h-11 w-full cursor-pointer appearance-none rounded-bp border px-[15px] py-[13px] font-redesign-sans text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
             isDark
               ? cn(
-                  'bg-bg-dark text-ink-900-dark',
+                  'bg-paper text-white',
                   error
                     ? 'border-terra-dark focus:border-terra-dark focus:ring-2 focus:ring-terra-dark/25'
-                    : 'border-line-dark-strong focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/25'
+                    : 'border-edge-strong focus:border-signal-ink focus:ring-2 focus:ring-signal-ink/25'
                 )
               : cn(
-                  'bg-surface-light text-ink-900',
+                  'bg-white text-graphite',
                   error
                     ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/20'
-                    : 'border-line-light focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20'
+                    : 'border-edge focus:border-signal-ink focus:ring-2 focus:ring-signal-ink/20'
                 ),
             className
           )}

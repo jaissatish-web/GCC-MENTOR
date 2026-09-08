@@ -4,6 +4,71 @@
 
 ---
 
+## 0. BLUEPRINT — the current identity
+
+**Chosen by the founder 2026-09-08** from three mocked directions, and rolled out across
+the whole application. The brief it answers: the product should look like an
+**instrument, not a brochure**. Its users are piping, E&I and commissioning engineers who
+read technical drawings all day, so the language is drawn from that — a tight grid, mono
+figures, sharp corners, and ONE signal colour that means "act".
+
+| Token | Value | Role |
+|---|---|---|
+| `paper` | `#EEF0F1` | Page ground |
+| `white` | `#FFFFFF` | Panels, the surfaces that matter |
+| `graphite` | `#101519` | Headings, dark stages |
+| `graphite-soft` | `#3B4650` | Body text |
+| `slate` | `#5B6B76` | Muted, secondary |
+| `signal` | `#C2410C` | The one accent. Primary action, money, current tab |
+| `signal-ink` | `#9A3412` | Text ON a signal tint; hover |
+| `signal-tint` | `#FCE9E1` | Soft signal fill |
+| `edge` | `#D8DDE0` | Hairline. Decorative, never carries meaning |
+| `edge-strong` | `#76838E` | Input borders, which DO carry meaning |
+
+**Radius 4px** (`rounded-bp`) and 6px (`rounded-bp-lg`) — drawn, not rounded.
+**Type:** Archivo (`font-bp-display`) for headings, Inter for body, IBM Plex Mono for
+every figure, always with `tabular-nums` so a changing number does not shift its
+neighbours.
+
+### The rules that make it work
+
+1. **One accent, spent once per screen.** The moment `signal` appears twice it stops
+   meaning "this is the thing to do". The old palette had navy for primary AND gold for
+   purchase; both collapsed into `signal`.
+2. **Not everything is a panel.** Metrics are figures on a rule. Lists are rows divided
+   by rules. A border, a fill and a shadow each say "separate object" — spend them on
+   things that are one.
+3. **`edge` is decorative, `edge-strong` is meaningful.** A hairline separating two
+   sections may sit below 3:1; the border of an input may not.
+
+### Contrast, measured
+
+| Pair | Ratio |
+|---|---|
+| `graphite` on `paper` / `white` | 16.07 / 18.37 |
+| `graphite-soft` on `paper` / `white` | 8.43 / 9.64 |
+| `slate` on `paper` / `white` | 4.82 / 5.51 |
+| `signal` on `white`, and white on `signal` | 5.18 / 5.18 |
+| `signal-ink` on `signal-tint` | 6.22 |
+| `edge-strong` on `paper` / `white` | 3.40 / 3.88 |
+
+**Two traps, both found by measuring rather than looking:**
+- **`signal` on `signal-tint` is 4.41 and FAILS.** Text on a tinted fill uses
+  `signal-ink`. A hue never pairs with its own tint.
+- **`signal-ink` on `signal` is 1.41.** Text on the solid accent is white.
+
+### What is deliberately NOT Blueprint
+
+- **`components/templates/**`** — the CV renderers. A delivered resume is a frozen
+  document whose styling is the user's own choice. Repainting the app must never repaint
+  someone's CV.
+- **The landing page and `components/marketing/`** — dark navy and gold, and the
+  strongest visual asset the product owns. Converting it is a separate decision. When the
+  global serif default was removed from `globals.css`, three landing headings that
+  relied on it were pinned explicitly so the page renders exactly as before.
+
+---
+
 ## 1. One name per colour
 
 **Resolved 2026-09-08.** This section used to open with a warning: read the value,

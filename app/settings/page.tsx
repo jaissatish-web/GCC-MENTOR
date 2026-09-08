@@ -53,9 +53,9 @@ function formatDate(iso: string | null): string {
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1 border-b border-line-light py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-      <span className="text-[13px] font-medium text-ink-400">{label}</span>
-      <span className="break-words text-[14px] font-semibold text-ink-900 sm:text-right">
+    <div className="flex flex-col gap-1 border-b border-edge py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <span className="text-[13px] font-medium text-slate">{label}</span>
+      <span className="break-words text-[14px] font-semibold text-graphite sm:text-right">
         {value}
       </span>
     </div>
@@ -64,7 +64,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-radius-md border border-dashed border-line-light-strong bg-bg px-4 py-6 text-center text-[13px] leading-relaxed text-ink-400">
+    <div className="rounded-bp border border-dashed border-edge-strong bg-paper px-4 py-6 text-center text-[13px] leading-relaxed text-slate">
       {children}
     </div>
   )
@@ -133,7 +133,7 @@ export default async function SettingsPage({
         />
 
         {/* Tabs — real links, so each section is bookmarkable and keyboard-navigable */}
-        <nav aria-label="Settings sections" className="mt-6 border-b border-line-light">
+        <nav aria-label="Settings sections" className="mt-6 border-b border-edge">
           <ul className="-mb-px flex flex-wrap gap-1">
             {TABS.map((t) => {
               const active = t.id === tab
@@ -144,10 +144,10 @@ export default async function SettingsPage({
                     aria-current={active ? 'page' : undefined}
                     className={cn(
                       'flex min-h-11 items-center rounded-t-radius-md px-3.5 text-[13px] font-redesign-sans transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-paper',
                       active
-                        ? 'border-b-2 border-redesign-gold font-semibold text-redesign-gold'
-                        : 'border-b-2 border-transparent font-medium text-ink-400 hover:text-ink-900'
+                        ? 'border-b-2 border-signal font-semibold text-signal'
+                        : 'border-b-2 border-transparent font-medium text-slate hover:text-graphite'
                     )}
                   >
                     {t.label}
@@ -166,7 +166,7 @@ export default async function SettingsPage({
               actions={
                 <Link
                   href="/profile"
-                  className="flex min-h-11 items-center rounded-radius-md border border-line-light-strong px-4 text-[13px] font-semibold text-ink-900 transition-colors hover:bg-surface-2-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
+                  className="flex min-h-11 items-center rounded-bp border border-edge-strong px-4 text-[13px] font-semibold text-graphite transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
                 >
                   Edit Career Profile
                 </Link>
@@ -191,14 +191,14 @@ export default async function SettingsPage({
                   label="Status"
                   value={
                     user.email_confirmed_at ? (
-                      <span className="text-navy">Confirmed</span>
+                      <span className="text-signal">Confirmed</span>
                     ) : (
                       <span className="text-amber">Not confirmed</span>
                     )
                   }
                 />
               </div>
-              <p className="mt-4 text-[12px] leading-relaxed text-ink-400">
+              <p className="mt-4 text-[12px] leading-relaxed text-slate">
                 Changing your sign-in email is not available in the app yet. Deleting your data does
                 not delete your login — see the Delete Data tab for exactly what is removed.
               </p>
@@ -215,12 +215,12 @@ export default async function SettingsPage({
                   {Object.entries(availableByService).map(([key, count]) => (
                     <li
                       key={key}
-                      className="flex items-center justify-between gap-4 rounded-radius-md border border-line-light bg-bg px-4 py-3"
+                      className="flex items-center justify-between gap-4 rounded-bp border border-edge bg-paper px-4 py-3"
                     >
-                      <span className="text-[14px] font-semibold text-ink-900">
+                      <span className="text-[14px] font-semibold text-graphite">
                         {serviceLabel(key)}
                       </span>
-                      <span className="rounded-full bg-navy-tint px-2.5 py-1 text-[12px] font-bold text-navy">
+                      <span className="rounded-full bg-signal-tint px-2.5 py-1 text-[12px] font-bold text-signal-ink">
                         {count} available
                       </span>
                     </li>
@@ -235,17 +235,17 @@ export default async function SettingsPage({
 
               {used.length > 0 ? (
                 <div className="mt-5">
-                  <h3 className="text-[13px] font-semibold text-ink-900">Recently used</h3>
+                  <h3 className="text-[13px] font-semibold text-graphite">Recently used</h3>
                   <ul className="mt-2 flex flex-col">
                     {used.slice(0, 5).map((c) => (
                       <li
                         key={c.id}
-                        className="flex items-center justify-between gap-4 border-b border-line-light py-2.5 last:border-b-0"
+                        className="flex items-center justify-between gap-4 border-b border-edge py-2.5 last:border-b-0"
                       >
-                        <span className="text-[13px] text-ink-700">
+                        <span className="text-[13px] text-graphite-soft">
                           {serviceLabel(c.serviceKey)}
                         </span>
-                        <span className="text-[12px] text-ink-400">
+                        <span className="text-[12px] text-slate">
                           {formatDate(c.consumedAt)}
                         </span>
                       </li>
@@ -266,19 +266,19 @@ export default async function SettingsPage({
                   {unlocked.map((p) => (
                     <li
                       key={p.id as string}
-                      className="flex flex-col gap-1 rounded-radius-md border border-line-light bg-bg px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+                      className="flex flex-col gap-1 rounded-bp border border-edge bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                     >
                       <span className="min-w-0">
-                        <span className="block truncate text-[14px] font-semibold text-ink-900">
+                        <span className="block truncate text-[14px] font-semibold text-graphite">
                           {(p.target_job_title as string) || 'Untitled resume'}
                         </span>
-                        <span className="block text-[12px] text-ink-400">
+                        <span className="block text-[12px] text-slate">
                           Unlocked {formatDate(p.created_at as string)}
                         </span>
                       </span>
                       <Link
                         href={`/package/${p.id as string}`}
-                        className="shrink-0 text-[13px] font-semibold text-redesign-gold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
+                        className="shrink-0 text-[13px] font-semibold text-signal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
                       >
                         Open
                       </Link>
@@ -289,7 +289,7 @@ export default async function SettingsPage({
                 <EmptyState>You have not unlocked any paid resumes yet.</EmptyState>
               )}
 
-              <p className="mt-5 rounded-radius-md border border-line-light bg-bg px-4 py-3 text-[12px] leading-relaxed text-ink-400">
+              <p className="mt-5 rounded-bp border border-edge bg-paper px-4 py-3 text-[12px] leading-relaxed text-slate">
                 Online card payment is not switched on yet, so there is no saved card, invoice
                 history or billing address to show here. Access is currently granted directly or by
                 redeeming a code. This section will show real transactions once checkout goes live.

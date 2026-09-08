@@ -294,7 +294,7 @@ function SetupScreen() {
   if (!draft) {
     return (
       <main className="flex min-h-dvh items-center justify-center">
-        <p className="font-mono text-sm text-ink-400">Loading…</p>
+        <p className="font-mono text-sm text-slate">Loading…</p>
       </main>
     )
   }
@@ -305,33 +305,33 @@ function SetupScreen() {
   // on error it resets submitting → back to the form below.
   if (submitting) {
     return (
-      <main className="flex min-h-dvh flex-col bg-navy-deep font-redesign-sans">
+      <main className="flex min-h-dvh flex-col bg-graphite font-redesign-sans">
         <div className="flex flex-1 flex-col justify-center gap-6 px-6">
           <div className="flex flex-col gap-2.5 text-center">
-            <h1 className="font-serif text-[30px] leading-tight text-ink-900-dark">
+            <h1 className="font-bp-display text-[30px] leading-tight text-white">
               Optimizing for
-              <span className="block text-gold-text-dark">{ctaName}</span>
+              <span className="block text-signal-ink">{ctaName}</span>
             </h1>
-            <p className="text-[13px] leading-relaxed text-ink-400-dark">
+            <p className="text-[13px] leading-relaxed text-slate">
               Reviewed as {personaLabel(draft.target_industry)} would.
             </p>
           </div>
 
           {/* Named steps — dynamic, only what was selected */}
-          <div className="flex flex-col gap-3.5 rounded-radius-lg border border-ink-900-dark/20 bg-ink-900-dark/10 p-5">
+          <div className="flex flex-col gap-3.5 rounded-bp-lg border border-white/20 bg-white/10 p-5">
             {steps.map((s, i) => {
               const isDone = i < activeIndex
               const isActive = i === activeIndex
               const icon = isDone ? '✓' : isActive ? '◍' : '○'
               const iconColor = isDone
-                ? 'text-sky'
+                ? 'text-signal'
                 : isActive
-                  ? 'text-gold-text-dark'
-                  : 'text-ink-400-dark'
+                  ? 'text-signal-ink'
+                  : 'text-slate'
               return (
                 <div key={s} className="flex items-center gap-3 text-[13px] font-medium">
                   <span className={cn('w-4 shrink-0 text-center', iconColor)}>{icon}</span>
-                  <span className={isDone || isActive ? 'text-ink-900-dark' : 'text-ink-400-dark'}>{s}</span>
+                  <span className={isDone || isActive ? 'text-white' : 'text-slate'}>{s}</span>
                 </div>
               )
             })}
@@ -339,19 +339,19 @@ function SetupScreen() {
 
           {/* Progress: % and ~Ns left from elapsed vs the 60s target */}
           <div className="flex flex-col gap-2">
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink-900-dark/10">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-redesign-gold transition-[width] duration-300"
+                className="h-full rounded-full bg-signal transition-[width] duration-300"
                 style={{ width: `${percent}%` }}
               />
             </div>
-            <div className="flex justify-between font-mono text-[12px] text-ink-400-dark">
+            <div className="flex justify-between font-mono text-[12px] text-slate">
               <span>{percent}%</span>
               <span>~{secsLeft}s left</span>
             </div>
           </div>
 
-          <p className="text-center text-[12px] leading-relaxed text-ink-400-dark">
+          <p className="text-center text-[12px] leading-relaxed text-slate">
             Only facts already in your profile are used. Nothing is invented.
           </p>
         </div>
@@ -368,18 +368,18 @@ function SetupScreen() {
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-bp text-[20px] leading-none text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
         >
           ←
         </button>
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900">What should we sharpen?</h1>
-        <p className="text-[12px] leading-normal text-ink-700">
+        <h1 className="font-bp-display text-[27px] leading-tight text-graphite">What should we sharpen?</h1>
+        <p className="text-[12px] leading-normal text-graphite-soft">
           Your dates, employers, titles and certifications are never touched. Only framing changes.
         </p>
       </div>
 
       {loadError ? (
-        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-3">
+        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-bp-lg border border-terra/30 bg-terra-tint px-3.5 py-3">
           <Alert variant="danger">{loadError}</Alert>
           <Button variant="secondary" className="w-full" onClick={() => router.push('/optimize/target')}>
             Back to choose target
@@ -391,16 +391,16 @@ function SetupScreen() {
       <Card tone="light" className="mt-5 flex flex-1 flex-col gap-2.5 overflow-y-auto p-5">
         {/* Blocks */}
         <div className="flex items-center justify-between">
-          <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">Blocks</div>
+          <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">Blocks</div>
           <button
             type="button"
             aria-pressed={allOn}
             onClick={toggleAll}
             className={cn(
-              'rounded-radius-md border px-3 py-2 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
+              'rounded-bp border px-3 py-2 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
               allOn
-                ? 'border-redesign-gold/50 bg-redesign-gold-tint text-gold-text'
-                : 'border-line-light bg-surface-light text-ink-700'
+                ? 'border-signal/50 bg-signal-tint text-signal-ink'
+                : 'border-edge bg-white text-graphite-soft'
             )}
           >
             Optimize all
@@ -413,21 +413,21 @@ function SetupScreen() {
           onClick={() => setSummaryOn((v) => !v)}
           aria-pressed={summaryOn}
           className={cn(
-            'flex min-h-11 items-center gap-3 rounded-radius-lg border bg-surface-light px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
-            summaryOn ? 'border-navy' : 'border-line-light'
+            'flex min-h-11 items-center gap-3 rounded-bp-lg border bg-white px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
+            summaryOn ? 'border-signal' : 'border-edge'
           )}
         >
           <span
             className={cn(
               'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
-              summaryOn ? 'bg-navy' : 'border-[1.5px] border-line-light-strong'
+              summaryOn ? 'bg-signal' : 'border-[1.5px] border-edge-strong'
             )}
           >
             {summaryOn ? '✓' : ''}
           </span>
           <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-semibold text-ink-900">Professional summary</span>
-            <span className="text-[12px] text-ink-400">Rewritten for this target</span>
+            <span className="text-[13px] font-semibold text-graphite">Professional summary</span>
+            <span className="text-[12px] text-slate">Rewritten for this target</span>
           </span>
         </button>
 
@@ -441,21 +441,21 @@ function SetupScreen() {
               onClick={() => toggleExp(e.id)}
               aria-pressed={on}
               className={cn(
-                'flex min-h-11 items-center gap-3 rounded-radius-lg border bg-surface-light px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
-                on ? 'border-navy' : 'border-line-light'
+                'flex min-h-11 items-center gap-3 rounded-bp-lg border bg-white px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
+                on ? 'border-signal' : 'border-edge'
               )}
             >
               <span
                 className={cn(
                   'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
-                  on ? 'bg-navy' : 'border-[1.5px] border-line-light-strong'
+                  on ? 'bg-signal' : 'border-[1.5px] border-edge-strong'
                 )}
               >
                 {on ? '✓' : ''}
               </span>
               <span className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-semibold text-ink-900">{e.label}</span>
-                <span className="text-[12px] text-ink-400">
+                <span className="text-[13px] font-semibold text-graphite">{e.label}</span>
+                <span className="text-[12px] text-slate">
                   {e.bullets} bullet{e.bullets === 1 ? '' : 's'}
                 </span>
               </span>
@@ -464,16 +464,16 @@ function SetupScreen() {
         })}
 
         {/* Skills & certifications — informational only, no checkbox */}
-        <div className="flex min-h-11 items-center justify-between rounded-radius-lg border border-line-light bg-surface-2-light px-4 py-3">
+        <div className="flex min-h-11 items-center justify-between rounded-bp-lg border border-edge bg-paper px-4 py-3">
           <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-semibold text-ink-900">Skills &amp; certifications</span>
-            <span className="text-[12px] text-ink-400">Reordered by relevance — never reworded</span>
+            <span className="text-[13px] font-semibold text-graphite">Skills &amp; certifications</span>
+            <span className="text-[12px] text-slate">Reordered by relevance — never reworded</span>
           </span>
-          <span className="text-[12px] font-semibold uppercase tracking-wider text-navy">Automatic</span>
+          <span className="text-[12px] font-semibold uppercase tracking-wider text-signal">Automatic</span>
         </div>
 
         {/* Optimization level */}
-        <div className="mt-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+        <div className="mt-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
           Optimization level
         </div>
         <div className="flex gap-[7px]">
@@ -486,16 +486,16 @@ function SetupScreen() {
                 aria-pressed={selected}
                 onClick={() => setLevel(l.value)}
                 className={cn(
-                  'flex min-h-11 flex-1 flex-col items-center gap-1 rounded-radius-lg border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
+                  'flex min-h-11 flex-1 flex-col items-center gap-1 rounded-bp-lg border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
                   selected
-                    ? 'border-redesign-gold bg-navy-deep'
-                    : 'border-line-light bg-surface-light'
+                    ? 'border-signal bg-signal-ink'
+                    : 'border-edge bg-white'
                 )}
               >
-                <span className={cn('text-[13px] font-semibold', selected ? 'text-ink-900' : 'text-ink-900')}>
+                <span className={cn('text-[13px] font-semibold', selected ? 'text-graphite' : 'text-graphite')}>
                   {l.label}
                 </span>
-                <span className={cn('font-mono text-[12px]', selected ? 'text-gold-text' : 'text-ink-400')}>
+                <span className={cn('font-mono text-[12px]', selected ? 'text-signal-ink' : 'text-slate')}>
                   {l.range}
                 </span>
               </button>
@@ -505,7 +505,7 @@ function SetupScreen() {
 
         {/* Risk indicator — ONLY at Moderate/High */}
         {level !== 'easy' ? (
-          <div className="mt-1 flex items-start gap-2.5 rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3">
+          <div className="mt-1 flex items-start gap-2.5 rounded-bp-lg border border-terra/40 bg-terra-tint px-3.5 py-3">
             <span className="text-[13px] text-terra">△</span>
             <p className="text-[12px] leading-snug text-terra">{RISK_COPY}</p>
           </div>
@@ -514,7 +514,7 @@ function SetupScreen() {
 
       {/* Footer CTA */}
       {error ? (
-        <div className="mx-5 mb-3 rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mb-3 rounded-bp-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
           {error}
         </div>
       ) : null}

@@ -52,6 +52,13 @@ const plexMono = IBM_Plex_Mono({
  * (WhatsApp, LinkedIn, X) silently falls back to a bare link with no card.
  * Env-driven so a preview deployment does not advertise the production domain.
  *
+ * The BODY ground is `paper`, not `void`. It was dark for a long time while
+ * every signed-in page painted itself light on top — a light product on a dark
+ * body, which worked only because each page covered the ground completely and
+ * failed anywhere one did not. Recorded as a defect in 14_OPEN_ITEMS.md and
+ * fixed with the Blueprint rollout. The landing page paints its own dark hero
+ * and its own ground, so it is unaffected.
+ *
  * The OG image is the site's own hero photograph rather than a generated card:
  * it already exists, it is licensed for this use, and a real Gulf plant reads
  * as more credible in a feed than a logo on a colour block.
@@ -127,7 +134,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className={`${instrumentSerif.variable} ${inter.variable} ${jakarta.variable} ${plexMono.variable} ${archivo.variable} font-sans bg-void text-marble antialiased`}
+        className={`${instrumentSerif.variable} ${inter.variable} ${jakarta.variable} ${plexMono.variable} ${archivo.variable} font-redesign-sans bg-paper text-graphite antialiased`}
       >
         {children}
       </body>

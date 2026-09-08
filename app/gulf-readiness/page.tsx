@@ -39,12 +39,12 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 function ScoreCard({ label, value, tone }: { label: string; value: number; tone: 'green' | 'gold' | 'terra' }) {
-  const ring = tone === 'green' ? 'border-navy bg-navy-tint' : tone === 'gold' ? 'border-redesign-gold bg-redesign-gold-tint' : 'border-terra bg-terra-tint'
-  return <div className={`rounded-radius-xl border-2 ${ring} p-5`}><p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-500">{label}</p><div className="mt-2 flex items-end gap-1"><span className="font-mono text-4xl font-bold text-ink-900">{value}</span><span className="mb-1 text-sm text-ink-500">/100</span></div></div>
+  const ring = tone === 'green' ? 'border-signal bg-signal-tint' : tone === 'gold' ? 'border-signal bg-signal-tint' : 'border-terra bg-terra-tint'
+  return <div className={`rounded-bp-lg border-2 ${ring} p-5`}><p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-500">{label}</p><div className="mt-2 flex items-end gap-1"><span className="font-mono text-4xl font-bold text-graphite">{value}</span><span className="mb-1 text-sm text-ink-500">/100</span></div></div>
 }
 
 function List({ title, items, icon }: { title: string; items: string[]; icon: string }) {
-  return <section className="rounded-radius-xl border border-line-light bg-surface-light p-6"><h2 className="font-serif text-2xl">{title}</h2><div className="mt-4 space-y-3">{items.map((item, i) => <div key={`${item}-${i}`} className="flex gap-3 rounded-radius-md bg-surface-2-light p-3 text-sm leading-relaxed"><span className="shrink-0 text-gold-text">{icon}</span><span>{item}</span></div>)}</div></section>
+  return <section className="rounded-bp-lg border border-edge bg-white p-6"><h2 className="font-bp-display text-2xl">{title}</h2><div className="mt-4 space-y-3">{items.map((item, i) => <div key={`${item}-${i}`} className="flex gap-3 rounded-bp bg-paper p-3 text-sm leading-relaxed"><span className="shrink-0 text-signal-ink">{icon}</span><span>{item}</span></div>)}</div></section>
 }
 
 /**
@@ -59,9 +59,9 @@ function List({ title, items, icon }: { title: string; items: string[]; icon: st
 function Checklist({ title, signals }: { title: string; signals: Signal[] }) {
   const done = signals.filter((x) => x.present).length
   return (
-    <section className="rounded-radius-xl border border-line-light bg-surface-light p-6">
+    <section className="rounded-bp-lg border border-edge bg-white p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-serif text-2xl">{title}</h2>
+        <h2 className="font-bp-display text-2xl">{title}</h2>
         <span className="font-mono text-sm text-ink-500">
           {done}/{signals.length} passed
         </span>
@@ -70,26 +70,26 @@ function Checklist({ title, signals }: { title: string; signals: Signal[] }) {
         {signals.map((sig) => (
           <li
             key={sig.id}
-            className={`flex gap-3 rounded-radius-md border p-3 ${
+            className={`flex gap-3 rounded-bp border p-3 ${
               sig.present
-                ? 'border-navy/30 bg-navy-tint/50'
-                : 'border-redesign-gold/40 bg-redesign-gold-tint/60'
+                ? 'border-signal/30 bg-signal-tint/50'
+                : 'border-signal/40 bg-signal-tint/60'
             }`}
           >
             <span
               aria-hidden="true"
               className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${
-                sig.present ? 'bg-navy text-white' : 'bg-redesign-gold text-navy-deep'
+                sig.present ? 'bg-signal text-white' : 'bg-signal text-white'
               }`}
             >
               {sig.present ? '✓' : '!'}
             </span>
             <span className="min-w-0">
-              <span className="block text-sm font-semibold text-ink-900">
+              <span className="block text-sm font-semibold text-graphite">
                 {sig.label}
                 <span className="sr-only">{sig.present ? ' — passed' : ' — needs attention'}</span>
               </span>
-              <span className="mt-0.5 block text-[13px] leading-relaxed text-ink-700">
+              <span className="mt-0.5 block text-[13px] leading-relaxed text-graphite-soft">
                 {sig.present ? sig.credit : sig.fix}
               </span>
             </span>
@@ -130,13 +130,13 @@ function NextStep({ score }: { score: Score }) {
   const gain = Math.max(0, potential - score.overall_score)
 
   return (
-    <section className="mx-auto mt-10 max-w-4xl overflow-hidden rounded-radius-xl bg-navy-deep text-ink-900-dark shadow-redesign-cta-glow">
+    <section className="mx-auto mt-10 max-w-4xl overflow-hidden rounded-bp-lg bg-graphite text-white shadow-redesign-cta-glow">
       <div className="p-8 sm:p-10">
-        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-text-dark">
+        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">
           {ready ? 'You are ready to apply' : 'You are close'}
         </p>
 
-        <h2 className="mt-3 font-serif text-3xl leading-tight sm:text-4xl">
+        <h2 className="mt-3 font-bp-display text-3xl leading-tight sm:text-4xl">
           {ready
             ? 'Your CV clears the Gulf basics. Now aim it at a specific role.'
             : gain > 0
@@ -144,7 +144,7 @@ function NextStep({ score }: { score: Score }) {
               : 'Create your free account to keep this report.'}
         </h2>
 
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-ink-900-dark/80">
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-white/80">
           {ready
             ? 'A strong general CV still loses to a targeted one. Create your free account to build your Career Profile once, then generate a version tuned to each Gulf role you apply for.'
             : 'Gulf recruiters filter on the exact fields below before a human ever reads your CV. Create your free account and we will walk you through fixing each one.'}
@@ -152,20 +152,20 @@ function NextStep({ score }: { score: Score }) {
 
         {/* The specific, checkable promise — what fixing the gaps is worth. */}
         {!ready && wins.length > 0 ? (
-          <div className="mx-auto mt-6 max-w-xl rounded-radius-lg border border-ink-900-dark/15 bg-ink-900-dark/[0.06] p-5 text-left">
+          <div className="mx-auto mt-6 max-w-xl rounded-bp-lg border border-white/15 bg-white/[0.06] p-5 text-left">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[12px] font-semibold uppercase tracking-wider text-gold-text-dark">
+              <span className="text-[12px] font-semibold uppercase tracking-wider text-signal-ink">
                 Your quickest wins
               </span>
-              <span className="font-mono text-sm text-ink-900-dark/70">
-                {score.overall_score} → <span className="font-bold text-gold-text-dark">{potential}</span>
+              <span className="font-mono text-sm text-white/70">
+                {score.overall_score} → <span className="font-bold text-signal-ink">{potential}</span>
               </span>
             </div>
             <ul className="mt-3 space-y-2">
               {wins.map((w) => (
                 <li key={w.id} className="flex items-center justify-between gap-4 text-sm">
-                  <span className="text-ink-900-dark/85">{w.label}</span>
-                  <span className="shrink-0 font-mono text-[13px] font-bold text-gold-text-dark">
+                  <span className="text-white/85">{w.label}</span>
+                  <span className="shrink-0 font-mono text-[13px] font-bold text-signal-ink">
                     +{w.impact}
                   </span>
                 </li>
@@ -183,7 +183,7 @@ function NextStep({ score }: { score: Score }) {
           </Link>
           <Link
             href="/login"
-            className={buttonVariants({ variant: 'ghost' }) + ' w-full border-ink-900-dark/25 text-ink-900-dark hover:bg-ink-900-dark/10 sm:w-auto'}
+            className={buttonVariants({ variant: 'ghost' }) + ' w-full border-white/25 text-white hover:bg-white/10 sm:w-auto'}
           >
             I already have an account
           </Link>
@@ -197,7 +197,7 @@ function NextStep({ score }: { score: Score }) {
           signing up genuinely does is carry this scan over so the CV does not
           have to be uploaded again.
         */}
-        <p className="mt-4 text-center text-xs text-ink-400-dark">
+        <p className="mt-4 text-center text-xs text-slate">
           Free to create. This scan is kept for 7 days — sign up within that time and we carry it
           straight into your profile, so you never upload your CV twice.
         </p>
@@ -234,13 +234,13 @@ export default function GulfReadinessPage() {
         .catch(err => setError(err instanceof Error ? err.message : 'Your scan could not be found.'))
     }, [])
 
-  if (error) return <main className="min-h-dvh bg-bg px-5 py-20 text-center"><h1 className="font-serif text-4xl">Your scan is unavailable</h1><p className="mx-auto mt-4 max-w-lg text-ink-700">{error}</p><Link href="/ats-scan" className="mt-8 inline-flex rounded-radius-md bg-navy-deep px-6 py-3 font-bold text-ink-900-dark">Scan my CV again</Link></main>
-  if (!score) return <main className="flex min-h-dvh items-center justify-center bg-bg"><p className="font-mono text-sm text-ink-500">Preparing your CV scan…</p></main>
+  if (error) return <main className="min-h-dvh bg-paper px-5 py-20 text-center"><h1 className="font-bp-display text-4xl">Your scan is unavailable</h1><p className="mx-auto mt-4 max-w-lg text-graphite-soft">{error}</p><Link href="/ats-scan" className="mt-8 inline-flex rounded-bp bg-signal px-6 py-3 font-bold text-white">Scan my CV again</Link></main>
+  if (!score) return <main className="flex min-h-dvh items-center justify-center bg-paper"><p className="font-mono text-sm text-ink-500">Preparing your CV scan…</p></main>
 
   const overallTone = score.overall_score >= 75 ? 'green' : score.overall_score >= 55 ? 'gold' : 'terra'
-  return <main className="min-h-dvh bg-bg text-ink-900"><header className="border-b border-line-light bg-bg/95"><div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-5 sm:px-8"><Link href="/" className="flex items-center gap-2.5"><span className="font-serif flex h-9 w-9 items-center justify-center rounded-radius-md bg-navy-deep text-lg text-gold-text-dark">G</span><span className="font-bold tracking-wide">GCC MENTOR</span></Link><Link href="/login" className="text-sm font-semibold text-ink-400">Log in</Link></div></header>
-    <div className="mx-auto max-w-[1100px] px-5 py-12 sm:px-8 lg:py-16"><div className="mx-auto max-w-4xl text-center"><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-text">Your free CV scan</p><h1 className="mt-4 font-serif text-5xl leading-tight sm:text-6xl">Here is what is holding your CV back.</h1><p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-ink-700">{score.summary}</p></div>
-      <section className={`mx-auto mt-10 max-w-4xl rounded-radius-xl border-2 ${overallTone === 'green' ? 'border-navy bg-navy-tint' : overallTone === 'gold' ? 'border-redesign-gold bg-redesign-gold-tint' : 'border-terra bg-terra-tint'} p-7 sm:p-10`}><div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left"><div className="flex size-32 shrink-0 flex-col items-center justify-center rounded-full border-8 border-white/70 bg-surface-light shadow-sm"><span className="font-mono text-5xl font-bold">{score.overall_score}</span><span className="text-xs text-ink-500">out of 100</span></div><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-500">Overall CV score</p><h2 className="mt-2 font-serif text-3xl">{score.overall_score >= 75 ? 'Strong foundation' : score.overall_score >= 55 ? 'Good foundation, but needs work' : 'Needs attention before you apply'}</h2><p className="mt-2 text-sm leading-relaxed text-ink-700">This score is based only on what your submitted resume actually contains. It is a diagnostic, not a promise of employment.</p></div></div></section>
+  return <main className="min-h-dvh bg-paper text-graphite"><header className="border-b border-edge bg-paper/95"><div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-5 sm:px-8"><Link href="/" className="flex items-center gap-2.5"><span className="font-bp-display flex h-9 w-9 items-center justify-center rounded-bp bg-signal text-lg text-white">G</span><span className="font-bold tracking-wide">GCC MENTOR</span></Link><Link href="/login" className="text-sm font-semibold text-slate">Log in</Link></div></header>
+    <div className="mx-auto max-w-[1100px] px-5 py-12 sm:px-8 lg:py-16"><div className="mx-auto max-w-4xl text-center"><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">Your free CV scan</p><h1 className="mt-4 font-bp-display text-5xl leading-tight sm:text-6xl">Here is what is holding your CV back.</h1><p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-graphite-soft">{score.summary}</p></div>
+      <section className={`mx-auto mt-10 max-w-4xl rounded-bp-lg border-2 ${overallTone === 'green' ? 'border-signal bg-signal-tint' : overallTone === 'gold' ? 'border-signal bg-signal-tint' : 'border-terra bg-terra-tint'} p-7 sm:p-10`}><div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left"><div className="flex size-32 shrink-0 flex-col items-center justify-center rounded-full border-8 border-white/70 bg-white shadow-sm"><span className="font-mono text-5xl font-bold">{score.overall_score}</span><span className="text-xs text-ink-500">out of 100</span></div><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-500">Overall CV score</p><h2 className="mt-2 font-bp-display text-3xl">{score.overall_score >= 75 ? 'Strong foundation' : score.overall_score >= 55 ? 'Good foundation, but needs work' : 'Needs attention before you apply'}</h2><p className="mt-2 text-sm leading-relaxed text-graphite-soft">This score is based only on what your submitted resume actually contains. It is a diagnostic, not a promise of employment.</p></div></div></section>
       <section className="mx-auto mt-8 grid max-w-4xl gap-4 md:grid-cols-3"><ScoreCard label="Structure" value={score.category_scores.structure} tone="green" /><ScoreCard label="Clarity & impact" value={score.category_scores.clarity_and_impact} tone="gold" /><ScoreCard label="Gulf readiness" value={score.category_scores.gulf_readiness} tone="terra" /></section>
       {score.signals ? (
         <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">
@@ -255,7 +255,7 @@ export default function GulfReadinessPage() {
       )}
 
       {/* Job Match section — only shown when a JD was provided */}
-      {jobMatch ? <section className="mx-auto mt-8 max-w-4xl rounded-radius-xl border border-redesign-gold/50 bg-surface-light p-6 sm:p-8"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:text-left"><div><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-text">Job match</p><h2 className="mt-2 font-serif text-3xl">How you fit this role</h2></div><div className="flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-6 border-redesign-gold/40 bg-surface-2-light shadow-sm"><span className="font-mono text-4xl font-bold">{jobMatch.overall_score}</span><span className="text-xs text-ink-500">/100</span></div></div><p className="mt-5 border-l-4 border-redesign-gold bg-surface-2-light p-4 text-sm leading-relaxed text-ink-700">{jobMatch.diagnosis}</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{Object.entries(jobMatch.categories).filter(([, c]) => c.applicable).map(([key, c]) => <div key={key} className="rounded-radius-md border border-line-light bg-surface-2-light p-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-500">{CATEGORY_LABELS[key] ?? key}</p><span className="font-mono text-lg font-bold text-navy">{c.score}<span className="text-xs text-ink-400">/100</span></span></div><p className="mt-2 text-[13px] leading-relaxed text-ink-700">{c.explanation}</p></div>)}</div></section> : null}
+      {jobMatch ? <section className="mx-auto mt-8 max-w-4xl rounded-bp-lg border border-signal/50 bg-white p-6 sm:p-8"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:text-left"><div><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">Job match</p><h2 className="mt-2 font-bp-display text-3xl">How you fit this role</h2></div><div className="flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-6 border-signal/40 bg-paper shadow-sm"><span className="font-mono text-4xl font-bold">{jobMatch.overall_score}</span><span className="text-xs text-ink-500">/100</span></div></div><p className="mt-5 border-l-4 border-signal bg-paper p-4 text-sm leading-relaxed text-graphite-soft">{jobMatch.diagnosis}</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{Object.entries(jobMatch.categories).filter(([, c]) => c.applicable).map(([key, c]) => <div key={key} className="rounded-bp border border-edge bg-paper p-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-500">{CATEGORY_LABELS[key] ?? key}</p><span className="font-mono text-lg font-bold text-signal">{c.score}<span className="text-xs text-slate">/100</span></span></div><p className="mt-2 text-[13px] leading-relaxed text-graphite-soft">{c.explanation}</p></div>)}</div></section> : null}
 
       <NextStep score={score} />
     </div></main>

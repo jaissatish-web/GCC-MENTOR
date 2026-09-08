@@ -25,12 +25,12 @@ import { ALL_DIAL_CODES, PRIMARY_DIAL_CODES, OTHER_DIAL_CODES } from '@/lib/phon
  */
 
 const controlBase =
-  'min-h-11 w-full rounded-radius-md border bg-surface-light px-[15px] py-[13px] text-[16px] sm:text-sm font-medium text-ink-900 outline-none transition-colors placeholder:font-normal placeholder:text-ink-400 motion-reduce:transition-none'
+  'min-h-11 w-full rounded-bp border bg-white px-[15px] py-[13px] text-[16px] sm:text-sm font-medium text-graphite outline-none transition-colors placeholder:font-normal placeholder:text-slate motion-reduce:transition-none'
 
 const controlState = (invalid?: boolean) =>
   invalid
     ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/25'
-    : 'border-line-light-strong focus:border-navy focus:ring-2 focus:ring-navy/25'
+    : 'border-edge-strong focus:border-signal focus:ring-2 focus:ring-signal/25'
 
 export function FieldShell({
   id,
@@ -53,7 +53,7 @@ export function FieldShell({
   const errorId = error ? `${id}-error` : undefined
   return (
     <div className={cn('flex w-full flex-col gap-1.5 font-redesign-sans', className)}>
-      <label htmlFor={id} className="text-[13px] font-semibold leading-snug text-ink-900">
+      <label htmlFor={id} className="text-[13px] font-semibold leading-snug text-graphite">
         {label}
         {required ? (
           <span className="ml-1.5 text-[12px] font-normal text-terra">Required</span>
@@ -65,7 +65,7 @@ export function FieldShell({
           {error}
         </p>
       ) : helper ? (
-        <p id={helperId} className="text-[12px] leading-relaxed text-ink-400">
+        <p id={helperId} className="text-[12px] leading-relaxed text-slate">
           {helper}
         </p>
       ) : null}

@@ -76,11 +76,11 @@ export default function GeneratePage({ params }: { params: { packageId: string }
 
   if (error) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-bg px-6 py-12 font-redesign-sans">
-        <div className="w-full max-w-[480px] rounded-radius-lg border border-line-light bg-surface-light p-8 text-center">
-          <h1 className="font-serif text-[26px] leading-tight text-ink-900">We couldn&apos;t build it</h1>
-          <p className="mt-3 text-sm leading-relaxed text-ink-700">{error}</p>
-          <p className="mt-3 text-[12px] text-ink-400">
+      <main className="flex min-h-dvh items-center justify-center bg-paper px-6 py-12 font-redesign-sans">
+        <div className="w-full max-w-[480px] rounded-bp-lg border border-edge bg-white p-8 text-center">
+          <h1 className="font-bp-display text-[26px] leading-tight text-graphite">We couldn&apos;t build it</h1>
+          <p className="mt-3 text-sm leading-relaxed text-graphite-soft">{error}</p>
+          <p className="mt-3 text-[12px] text-slate">
             Your payment is safe — this resume stays in your Library and can be built again without
             paying twice.
           </p>
@@ -98,12 +98,12 @@ export default function GeneratePage({ params }: { params: { packageId: string }
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-navy-deep px-6 py-12 font-redesign-sans">
+    <main className="flex min-h-dvh items-center justify-center bg-graphite px-6 py-12 font-redesign-sans">
       <div className="w-full max-w-[440px]">
-        <h1 className="font-serif text-[28px] leading-tight text-ink-900-dark">
+        <h1 className="font-bp-display text-[28px] leading-tight text-white">
           Building your Gulf CV…
         </h1>
-        <p className="mt-2 text-[13px] text-ink-400-dark">
+        <p className="mt-2 text-[13px] text-slate">
           This takes about a minute. Every line is checked against your profile — nothing is
           invented.
         </p>
@@ -117,15 +117,15 @@ export default function GeneratePage({ params }: { params: { packageId: string }
                   className={
                     'flex size-6 shrink-0 items-center justify-center rounded-full border text-[12px] ' +
                     (state === 'done'
-                      ? 'border-redesign-gold bg-redesign-gold text-navy-deep'
+                      ? 'border-signal bg-signal text-white'
                       : state === 'active'
-                        ? 'border-redesign-gold text-gold-text-dark'
-                        : 'border-ink-900-dark/25 text-ink-400-dark')
+                        ? 'border-signal text-signal-ink'
+                        : 'border-white/25 text-slate')
                   }
                 >
                   {state === 'done' ? '✓' : i + 1}
                 </span>
-                <span className={state === 'todo' ? 'text-ink-400-dark' : 'text-ink-900-dark'}>
+                <span className={state === 'todo' ? 'text-slate' : 'text-white'}>
                   {label}
                 </span>
               </li>

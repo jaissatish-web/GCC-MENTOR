@@ -192,7 +192,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
   if (error) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-bg px-5">
+      <div className="flex min-h-dvh items-center justify-center bg-paper px-5">
         <p className="text-sm text-terra">{error}</p>
       </div>
     )
@@ -201,8 +201,8 @@ function PackageScreenInner({ id }: { id: string }) {
   if (!pkg) {
     // While checking is_paid we show nothing but a loader — never content.
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-bg">
-        <p className="font-mono text-sm text-ink-400">Loading…</p>
+      <div className="flex min-h-dvh items-center justify-center bg-paper">
+        <p className="font-mono text-sm text-slate">Loading…</p>
       </div>
     )
   }
@@ -294,7 +294,7 @@ function PackageScreenInner({ id }: { id: string }) {
      * Below `lg` nothing changes: a phone keeps one natural page scroll, because
      * nested scroll areas on a touch screen are how you lose the user.
      */
-    <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-bg font-redesign-sans">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-paper font-redesign-sans">
       {/* ONE HEADER ROW (TASK-160, founder-directed).
           This was five stacked rows — back arrow, "Unlocked & saved to Library"
           badge, title, name field, then the action toolbar below — each one full
@@ -309,7 +309,7 @@ function PackageScreenInner({ id }: { id: string }) {
           package never reaches this screen, it is redirected — so it was telling
           them something that is always true. */}
       <div className="flex flex-col gap-3 px-5 pb-3 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
-        <h1 className="font-serif text-[24px] leading-tight text-ink-900 lg:shrink-0 lg:text-[20px]">
+        <h1 className="font-bp-display text-[24px] leading-tight text-graphite lg:shrink-0 lg:text-[20px]">
           {/* Never call a free resume "optimized" — it has not been through the
               model, and claiming otherwise is the one thing this product does not
               do (docs/RULES.md). */}
@@ -320,7 +320,7 @@ function PackageScreenInner({ id }: { id: string }) {
             three identical rows in the Library otherwise — the target job
             title is not something they can change. Saves on blur or Enter;
             clearing it falls back to the job title rather than storing blank. */}
-        <label className="flex flex-1 flex-wrap items-center gap-2 text-[12px] text-ink-400 lg:max-w-[420px]">
+        <label className="flex flex-1 flex-wrap items-center gap-2 text-[12px] text-slate lg:max-w-[420px]">
           <span className="sr-only lg:not-sr-only">Name</span>
           <input
             type="text"
@@ -335,9 +335,9 @@ function PackageScreenInner({ id }: { id: string }) {
                 e.currentTarget.blur()
               }
             }}
-            className="min-w-[180px] flex-1 rounded-radius-md border border-line-light bg-surface-light px-3 py-1.5 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+            className="min-w-[180px] flex-1 rounded-bp border border-edge bg-white px-3 py-1.5 text-[13px] text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
           />
-          {nameState ? <span className="shrink-0 text-navy">{nameState}</span> : null}
+          {nameState ? <span className="shrink-0 text-signal">{nameState}</span> : null}
         </label>
 
         {/* The document's actions, pushed to the right of the same row. */}
@@ -379,7 +379,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </a>
           {styleable && styleDirty ? (
             <>
-              <span className="text-[12px] text-ink-400">Unsaved</span>
+              <span className="text-[12px] text-slate">Unsaved</span>
               <button
                 type="button"
                 disabled={styleBusy}
@@ -398,7 +398,7 @@ function PackageScreenInner({ id }: { id: string }) {
               </button>
             </>
           ) : styleMsg ? (
-            <span role="status" className="text-[12px] text-navy">
+            <span role="status" className="text-[12px] text-signal">
               {styleMsg}
             </span>
           ) : null}
@@ -416,8 +416,8 @@ function PackageScreenInner({ id }: { id: string }) {
             otherwise browsing would silently restyle a delivered resume
             (TASK-141). */}
         {isTrying ? (
-          <div className="flex flex-col gap-2 rounded-radius-lg border border-navy/50 bg-navy-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[13px] text-navy">
+          <div className="flex flex-col gap-2 rounded-bp-lg border border-signal/50 bg-signal-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[13px] text-signal">
               Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Not saved yet — your
               download still uses <strong>{getTemplate(savedTemplateId).name}</strong>.
             </p>
@@ -447,7 +447,7 @@ function PackageScreenInner({ id }: { id: string }) {
             the nav, so nothing is lost, just this in-page prompt. */}
 
         {downloaded && !isFree ? (
-          <div className="rounded-radius-lg border border-navy/40 bg-navy-tint px-3.5 py-3 text-[13px] text-navy">
+          <div className="rounded-bp-lg border border-signal/40 bg-signal-tint px-3.5 py-3 text-[13px] text-signal-ink">
             Applying somewhere else? Your profile is saved — next one takes a minute.
           </div>
         ) : null}
@@ -479,7 +479,7 @@ function PackageScreenInner({ id }: { id: string }) {
                   pushed off-centre to the left with its caption stranded on the
                   right. That is the "not centred" the founder reported, and it
                   was a one-word layout bug, not a design decision. */}
-              <div className="flex flex-col items-center rounded-radius-lg bg-gradient-to-b from-surface-2-light to-surface-2-light/60 p-3 ring-1 ring-line-light/70 sm:p-5 lg:p-5">
+              <div className="flex flex-col items-center rounded-bp-lg bg-gradient-to-b from-paper to-paper/60 p-3 ring-1 ring-edge/70 sm:p-5 lg:p-5">
                 {/* fitToHeight: show a WHOLE page, then scroll for the next one
                     (TASK-154). Without it the pane from TASK-153 showed roughly
                     half a page at true size. */}
@@ -506,7 +506,7 @@ function PackageScreenInner({ id }: { id: string }) {
                     styleOverrides={draftStyle}
                   />
                 </ResumeDocumentView>
-                <p className="mt-4 text-center text-[12px] text-ink-400">
+                <p className="mt-4 text-center text-[12px] text-slate">
                   A4 · {getTemplate(activeTemplateId).name} · this is exactly what downloads as your
                   PDF.
                 </p>
@@ -516,9 +516,9 @@ function PackageScreenInner({ id }: { id: string }) {
 
           {previewDocument ? (
             <aside className="order-2 shrink-0 lg:order-1 lg:sticky lg:top-3 lg:max-h-[calc(100dvh-1.5rem)] lg:w-[260px] lg:overflow-y-auto">
-              <div className="rounded-radius-lg border border-line-light bg-surface-light p-4">
-                <h2 className="font-serif text-[17px] leading-tight text-ink-900">Templates</h2>
-                <p className="mt-1 text-[12px] leading-snug text-ink-400">
+              <div className="rounded-bp-lg border border-edge bg-white p-4">
+                <h2 className="font-bp-display text-[17px] leading-tight text-graphite">Templates</h2>
+                <p className="mt-1 text-[12px] leading-snug text-slate">
                   Your wording, dates and details stay exactly as they are — only the design
                   changes, and your PDF changes with it.
                 </p>
@@ -531,8 +531,8 @@ function PackageScreenInner({ id }: { id: string }) {
                     Above the template list, because it applies to whichever
                     template is active and the user reaches for it after
                     choosing one, not before. */}
-                <div className="mt-4 border-t border-line-light pt-4">
-                  <h3 className="text-[12px] font-bold uppercase tracking-wider text-ink-700">
+                <div className="mt-4 border-t border-edge pt-4">
+                  <h3 className="text-[12px] font-bold uppercase tracking-wider text-graphite-soft">
                     Text style
                   </h3>
                   {styleable ? (
@@ -554,7 +554,7 @@ function PackageScreenInner({ id }: { id: string }) {
                         }
                       />
                       <div className="mt-3">
-                        <span className="text-[12px] text-ink-400">Colour</span>
+                        <span className="text-[12px] text-slate">Colour</span>
                         <div className="mt-1.5 flex flex-wrap gap-1.5">
                           {Object.entries(ACCENT_OPTIONS).map(([k, v]) => {
                             const active = draftStyle.accent === k
@@ -573,10 +573,10 @@ function PackageScreenInner({ id }: { id: string }) {
                                 }
                                 style={{ background: v.hex }}
                                 className={
-                                  'size-7 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 ' +
+                                  'size-7 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 ' +
                                   (active
-                                    ? 'ring-2 ring-navy ring-offset-2'
-                                    : 'ring-1 ring-line-light hover:ring-navy/60')
+                                    ? 'ring-2 ring-signal ring-offset-2'
+                                    : 'ring-1 ring-edge hover:ring-signal/60')
                                 }
                               />
                             )
@@ -598,8 +598,8 @@ function PackageScreenInner({ id }: { id: string }) {
                               own doc — so unchecking writes `showPhoto: false`
                               and re-checking removes the key entirely rather
                               than writing `true`. */}
-                          <label className="flex min-h-11 cursor-pointer items-center justify-between text-[12px] text-ink-400">
-                            <span className="text-ink-700">Show photo</span>
+                          <label className="flex min-h-11 cursor-pointer items-center justify-between text-[12px] text-slate">
+                            <span className="text-graphite-soft">Show photo</span>
                             <input
                               type="checkbox"
                               checked={draftStyle.showPhoto !== false}
@@ -611,7 +611,7 @@ function PackageScreenInner({ id }: { id: string }) {
                                   return next
                                 })
                               }
-                              className="size-5 cursor-pointer accent-navy"
+                              className="size-5 cursor-pointer accent-signal"
                             />
                           </label>
 
@@ -629,10 +629,10 @@ function PackageScreenInner({ id }: { id: string }) {
                             <div className="mt-3">
                               <label
                                 htmlFor="photo-size"
-                                className="flex items-baseline justify-between text-[12px] text-ink-400"
+                                className="flex items-baseline justify-between text-[12px] text-slate"
                               >
                                 <span>Photo size</span>
-                                <span className="text-ink-700">{photoPos}%</span>
+                                <span className="text-graphite-soft">{photoPos}%</span>
                               </label>
                               <input
                                 id="photo-size"
@@ -644,9 +644,9 @@ function PackageScreenInner({ id }: { id: string }) {
                                 onChange={(e) =>
                                   setDraftStyle((st) => ({ ...st, photo: Number(e.target.value) }))
                                 }
-                                className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-2-light accent-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+                                className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-full bg-paper accent-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
                               />
-                              <div className="mt-1 flex justify-between text-[12px] text-ink-400">
+                              <div className="mt-1 flex justify-between text-[12px] text-slate">
                                 <span>Smaller</span>
                                 <span>50% = template default</span>
                                 <span>Larger</span>
@@ -657,8 +657,8 @@ function PackageScreenInner({ id }: { id: string }) {
                       ) : null}
 
                       {styleDirty ? (
-                        <p className="mt-3 text-[12px] text-ink-400">
-                          Unsaved — use <strong className="text-ink-700">Save style</strong> at the
+                        <p className="mt-3 text-[12px] text-slate">
+                          Unsaved — use <strong className="text-graphite-soft">Save style</strong> at the
                           top.
                         </p>
                       ) : hasStyle ? (
@@ -674,7 +674,7 @@ function PackageScreenInner({ id }: { id: string }) {
                           Reset to template default
                         </button>
                       ) : (
-                        <p className="mt-2 text-[12px] text-ink-400">
+                        <p className="mt-2 text-[12px] text-slate">
                           Using the template&apos;s own style.
                         </p>
                       )}
@@ -686,8 +686,8 @@ function PackageScreenInner({ id }: { id: string }) {
                     // maximum ATS compatibility. A styling control — the photo
                     // especially — would work against the one thing this
                     // template sells, so it stays fixed on purpose.
-                    <p className="mt-2 text-[12px] leading-relaxed text-ink-400">
-                      <strong className="text-ink-700">{getTemplate(activeTemplateId).name}</strong>{' '}
+                    <p className="mt-2 text-[12px] leading-relaxed text-slate">
+                      <strong className="text-graphite-soft">{getTemplate(activeTemplateId).name}</strong>{' '}
                       keeps a fixed, colourless style on purpose — that is what maximum ATS
                       compatibility means. Pick any other template below for a photo, font, size and
                       colour choices.
@@ -695,8 +695,8 @@ function PackageScreenInner({ id }: { id: string }) {
                   )}
                 </div>
 
-                <div className="mt-4 border-t border-line-light pt-4">
-                  <h3 className="mb-3 text-[12px] font-bold uppercase tracking-wider text-ink-700">
+                <div className="mt-4 border-t border-edge pt-4">
+                  <h3 className="mb-3 text-[12px] font-bold uppercase tracking-wider text-graphite-soft">
                     Template
                   </h3>
                   <TemplatePicker
@@ -740,7 +740,7 @@ function StyleChoice({
 }) {
   return (
     <div className="mt-3">
-      <span className="text-[12px] text-ink-400">{label}</span>
+      <span className="text-[12px] text-slate">{label}</span>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
         {([['', 'Default'], ...options] as [string, string][]).map(([k, lbl]) => {
           const active = value === k
@@ -751,10 +751,10 @@ function StyleChoice({
               aria-pressed={active}
               onClick={() => onChange(k)}
               className={
-                'min-h-8 rounded-radius-md px-2.5 py-1 text-[12px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-1 ' +
+                'min-h-8 rounded-bp px-2.5 py-1 text-[12px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-1 ' +
                 (active
-                  ? 'bg-navy text-white'
-                  : 'border border-line-light bg-surface-light text-ink-700 hover:border-navy/60')
+                  ? 'bg-signal text-white'
+                  : 'border border-edge bg-white text-graphite-soft hover:border-signal/60')
               }
             >
               {lbl}

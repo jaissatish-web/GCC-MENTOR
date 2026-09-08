@@ -85,23 +85,23 @@ export function PhotoUpload({
           onClick={() => inputRef.current?.click()}
           disabled={busy}
           aria-label={photoUrl ? 'Change your profile photo' : 'Upload a profile photo'}
-          className="group relative h-[86px] w-[68px] shrink-0 overflow-hidden rounded-radius-md border border-line-light-strong bg-surface-2-light transition-colors hover:border-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 disabled:opacity-60"
+          className="group relative h-[86px] w-[68px] shrink-0 overflow-hidden rounded-bp border border-edge-strong bg-paper transition-colors hover:border-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 disabled:opacity-60"
         >
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photoUrl} alt="Your profile photo" className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-center">
-              <span aria-hidden="true" className="text-[18px] leading-none text-navy">
+              <span aria-hidden="true" className="text-[18px] leading-none text-signal">
                 +
               </span>
-              <span className="text-[12px] font-semibold uppercase tracking-wider text-ink-400">
+              <span className="text-[12px] font-semibold uppercase tracking-wider text-slate">
                 Photo
               </span>
             </span>
           )}
           {/* Affordance on hover/focus so it is discoverable without a label. */}
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-navy-deep/80 py-0.5 text-center text-[12px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-signal-ink/80 py-0.5 text-center text-[12px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             {busy ? '…' : photoUrl ? 'Change' : 'Add'}
           </span>
         </button>
@@ -122,7 +122,7 @@ export function PhotoUpload({
             type="button"
             onClick={() => void remove()}
             disabled={busy}
-            className="text-[12px] font-semibold text-ink-400 underline underline-offset-2 hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra disabled:opacity-60"
+            className="text-[12px] font-semibold text-slate underline underline-offset-2 hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra disabled:opacity-60"
           >
             Remove
           </button>
@@ -141,12 +141,12 @@ export function PhotoUpload({
     <div className="flex flex-col gap-2">
       <div className="flex items-start gap-3.5">
         {/* Passport-ratio frame, matching how it renders on the CV. */}
-        <div className="flex h-[92px] w-[74px] shrink-0 items-center justify-center overflow-hidden rounded-[7px] border border-dashed border-redesign-gold bg-surface-2-light">
+        <div className="flex h-[92px] w-[74px] shrink-0 items-center justify-center overflow-hidden rounded-[7px] border border-dashed border-signal bg-paper">
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photoUrl} alt="Your profile photo" className="h-full w-full object-cover" />
           ) : (
-            <span className="px-1 text-center text-[12px] font-semibold uppercase tracking-wider text-gold-text">
+            <span className="px-1 text-center text-[12px] font-semibold uppercase tracking-wider text-signal-ink">
               No photo
             </span>
           )}
@@ -154,12 +154,12 @@ export function PhotoUpload({
 
         <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[13px] font-bold text-ink-900">Photo</span>
-            <span className="rounded-[5px] bg-redesign-gold-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-gold-text">
+            <span className="text-[13px] font-bold text-graphite">Photo</span>
+            <span className="rounded-[5px] bg-signal-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-signal-ink">
               Expected in Gulf CVs
             </span>
           </div>
-          <p className="text-[12px] leading-snug text-ink-400">
+          <p className="text-[12px] leading-snug text-slate">
             Passport-style, plain background. Used on your CV wherever the template has a photo
             slot. JPG, PNG or WebP, up to 5MB.
           </p>

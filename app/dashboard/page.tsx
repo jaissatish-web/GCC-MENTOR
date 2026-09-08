@@ -227,7 +227,7 @@ export default function DashboardPage() {
           <Link
             href="/profile"
             aria-label="Profile readiness"
-            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deep"
+            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-signal-ink"
           >
             <ReadinessRing score={score} size={52} dark />
           </Link>
@@ -470,7 +470,7 @@ export default function DashboardPage() {
                 </span>
                 <Link
                   href="/dashboard/library"
-                  className="text-[12px] font-semibold text-navy transition-colors hover:text-navy/80"
+                  className="text-[12px] font-semibold text-signal transition-colors hover:text-signal/80"
                 >
                   View Library →
                 </Link>

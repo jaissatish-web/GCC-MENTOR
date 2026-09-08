@@ -70,12 +70,12 @@ const KNOWN_KEYS = new Set<string>([...SERVICES.map((s) => s.key), 'default'])
 function ProviderSelect({ name, value, required = false }: { name: string; value?: string | null; required?: boolean }) {
   return (
     <label className="flex min-w-[160px] flex-1 flex-col gap-1.5">
-      <span className="text-[12px] font-semibold tracking-wide text-ink-400">Provider</span>
+      <span className="text-[12px] font-semibold tracking-wide text-slate">Provider</span>
       <select
         name={name}
         defaultValue={value ?? ''}
         required={required}
-        className="min-h-11 w-full rounded-radius-md border border-line-light bg-surface-light px-3 text-sm font-medium text-ink-900 outline-none transition-colors focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20"
+        className="min-h-11 w-full rounded-bp border border-edge bg-white px-3 text-sm font-medium text-graphite outline-none transition-colors focus:border-signal focus:ring-2 focus:ring-signal/20"
       >
         <option value="">{required ? 'Select provider' : 'No fallback — use primary only'}</option>
         {PROVIDERS.map((p) => (
@@ -92,9 +92,9 @@ function ServiceForm({ config, keyName, submitLabel }: { config: AiProviderConfi
     <form action={updateProviderConfigAction} className="flex flex-col gap-4">
       <input type="hidden" name="key" value={keyName} />
 
-      <div className="flex flex-col gap-3 rounded-radius-lg border border-line-light bg-surface-2-light p-4">
+      <div className="flex flex-col gap-3 rounded-bp-lg border border-edge bg-paper p-4">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">Primary</span>
+          <span className="text-[12px] font-semibold uppercase tracking-wide text-slate">Primary</span>
         </div>
         <div className="flex flex-wrap gap-3">
           <ProviderSelect name="provider" value={config?.provider} required={isDefault} />
@@ -110,11 +110,11 @@ function ServiceForm({ config, keyName, submitLabel }: { config: AiProviderConfi
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-radius-lg border border-dashed border-line-light-strong p-4">
+      <div className="flex flex-col gap-3 rounded-bp-lg border border-dashed border-edge-strong p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <span className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">Fallback (optional, different provider)</span>
-          <label className="inline-flex cursor-pointer items-center gap-2 text-[12px] font-semibold text-ink-700">
-            <input type="checkbox" name="fallbackEnabled" value="on" defaultChecked={Boolean(config?.fallbackEnabled)} className="size-4 accent-navy" />
+          <span className="text-[12px] font-semibold uppercase tracking-wide text-slate">Fallback (optional, different provider)</span>
+          <label className="inline-flex cursor-pointer items-center gap-2 text-[12px] font-semibold text-graphite-soft">
+            <input type="checkbox" name="fallbackEnabled" value="on" defaultChecked={Boolean(config?.fallbackEnabled)} className="size-4 accent-signal" />
             Enable
           </label>
         </div>
@@ -123,7 +123,7 @@ function ServiceForm({ config, keyName, submitLabel }: { config: AiProviderConfi
           <Input name="fallbackModel" label="Fallback model ID" defaultValue={config?.fallbackModel ?? ''} placeholder="e.g. gpt-5.4" className="min-w-[220px] flex-1" />
           <Input name="fallbackApiKey" type="password" label="Fallback API key" placeholder={config?.fallbackApiKey ? 'Blank keeps current key' : 'Enter fallback key'} className="min-w-[220px] flex-1" />
         </div>
-        <p className="text-[12px] text-ink-400">Tried only if the primary call genuinely fails. When disabled, fallback fields are ignored and cleared on save.</p>
+        <p className="text-[12px] text-slate">Tried only if the primary call genuinely fails. When disabled, fallback fields are ignored and cleared on save.</p>
         {/* Stated because it is otherwise silent: a partly-filled fallback does
             nothing at all, with no error anywhere. Setting only a model is the
             natural reading of "same provider, cheaper model" and is inert. */}
@@ -131,15 +131,15 @@ function ServiceForm({ config, keyName, submitLabel }: { config: AiProviderConfi
           All three are required. A fallback with only a model, or without its own key, is
           ignored at run time — with no error.
         </p>
-        <p className="text-[12px] text-ink-400">
+        <p className="text-[12px] text-slate">
           If both the primary and this fallback fail, the <strong>Default AI</strong> configuration
           is tried last. It is skipped when it names the same provider and model that already
           failed.
         </p>
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-line-light pt-3">
-        <span className="text-[12px] text-ink-400">Leaving provider/model/key blank on an existing override removes it — the service falls back to Default.</span>
+      <div className="flex items-center justify-between gap-3 border-t border-edge pt-3">
+        <span className="text-[12px] text-slate">Leaving provider/model/key blank on an existing override removes it — the service falls back to Default.</span>
         <Button type="submit" variant="primary" className="shrink-0">{submitLabel}</Button>
       </div>
     </form>
@@ -166,30 +166,30 @@ export default async function AiProviderPage({
     >
 
       {providerSaved ? (
-        <div className="rounded-radius-lg border border-navy/50 bg-navy-tint px-3.5 py-2.5 text-[12px] text-navy">Saved.</div>
+        <div className="rounded-bp-lg border border-signal/50 bg-signal-tint px-3.5 py-2.5 text-[12px] text-signal-ink">Saved.</div>
       ) : null}
       {providerError ? (
-        <div className="rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">{providerError}</div>
+        <div className="rounded-bp-lg border border-terra/30 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">{providerError}</div>
       ) : null}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Card tone="light" className="p-4">
-          <p className="text-[12px] text-ink-400">AI services</p>
-          <p className="mt-1 text-xl font-bold text-ink-900">{SERVICES.length}</p>
+          <p className="text-[12px] text-slate">AI services</p>
+          <p className="mt-1 text-xl font-bold text-graphite">{SERVICES.length}</p>
         </Card>
         <Card tone="light" className="p-4">
-          <p className="text-[12px] text-ink-400">Configured</p>
-          <p className="mt-1 text-xl font-bold text-navy">{SERVICES.filter((s) => byKey.has(s.key)).length}</p>
+          <p className="text-[12px] text-slate">Configured</p>
+          <p className="mt-1 text-xl font-bold text-signal">{SERVICES.filter((s) => byKey.has(s.key)).length}</p>
         </Card>
         <Card tone="light" className="p-4">
-          <p className="text-[12px] text-ink-400">Default AI</p>
-          <p className="mt-1 text-sm font-bold text-ink-900">{defaultConfig ? 'Configured' : 'Not configured'}</p>
+          <p className="text-[12px] text-slate">Default AI</p>
+          <p className="mt-1 text-sm font-bold text-graphite">{defaultConfig ? 'Configured' : 'Not configured'}</p>
         </Card>
       </div>
 
       <div>
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">Services</h2>
-        <p className="mt-1 text-[12px] text-ink-400">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">Services</h2>
+        <p className="mt-1 text-[12px] text-slate">
           Each service can run on its own provider, model and API key, with an optional fallback on a
           different provider. Leave a service unconfigured and it falls back to Default.
         </p>
@@ -202,19 +202,19 @@ export default async function AiProviderPage({
             <Card key={service.key} tone="light" className="flex flex-col gap-3 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-ink-900">{service.name}</h3>
+                  <h3 className="text-sm font-bold text-graphite">{service.name}</h3>
                   <span
                     className={
                       service.status === 'live'
-                        ? 'rounded-full bg-navy-tint px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-navy'
-                        : 'rounded-full border border-line-light-strong px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-ink-400'
+                        ? 'rounded-full bg-signal-tint px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-signal-ink'
+                        : 'rounded-full border border-edge-strong px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-slate'
                     }
                   >
                     {service.status === 'live' ? 'Live' : 'Planned — not live yet'}
                   </span>
                 </div>
                 {config ? (
-                  <span className="text-[12px] text-ink-400">
+                  <span className="text-[12px] text-slate">
                     {providerLabel(config.provider)} · <span className="font-mono">{config.model}</span> · key{' '}
                     <span className="font-mono">{maskSecret(config.apiKey)}</span>
                     {config.fallbackEnabled ? (
@@ -225,7 +225,7 @@ export default async function AiProviderPage({
                   <span className="text-[12px] text-terra">Not configured — falls back to Default</span>
                 )}
               </div>
-              <p className="text-[12px] text-ink-400">{service.description}</p>
+              <p className="text-[12px] text-slate">{service.description}</p>
               <ServiceForm config={config} keyName={service.key} submitLabel={`Save ${service.name}`} />
             </Card>
           )
@@ -234,8 +234,8 @@ export default async function AiProviderPage({
 
       <Card tone="light" className="flex flex-col gap-4 p-5">
         <div>
-          <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">Default</h2>
-          <p className="mt-1 text-[12px] text-ink-400">
+          <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">Default</h2>
+          <p className="mt-1 text-[12px] text-slate">
             Used by any service above with nothing saved, and by internal steps like job-description parsing.
           </p>
         </div>
@@ -244,22 +244,22 @@ export default async function AiProviderPage({
 
       <Card tone="light" className="flex flex-col gap-4 p-5">
         <div>
-          <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">Other overrides</h2>
-          <p className="mt-1 text-[12px] text-ink-400">
+          <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">Other overrides</h2>
+          <p className="mt-1 text-[12px] text-slate">
             Advanced — internal AI sub-steps (e.g. job-description parsing) that aren&apos;t one of the named
             services above.
           </p>
         </div>
 
         {otherConfigs.length === 0 ? (
-          <p className="text-[12px] text-ink-400">No other overrides configured.</p>
+          <p className="text-[12px] text-slate">No other overrides configured.</p>
         ) : (
           <div className="flex flex-col gap-2">
             {otherConfigs.map((cfg) => (
-              <div key={cfg.key} className="flex flex-wrap items-center justify-between gap-2 rounded-radius-md border border-line-light p-3">
+              <div key={cfg.key} className="flex flex-wrap items-center justify-between gap-2 rounded-bp border border-edge p-3">
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-mono text-sm font-semibold text-ink-900">{cfg.key}</span>
-                  <span className="text-[12px] text-ink-400">
+                  <span className="font-mono text-sm font-semibold text-graphite">{cfg.key}</span>
+                  <span className="text-[12px] text-slate">
                     {providerLabel(cfg.provider)} · <span className="font-mono">{cfg.model}</span> · key{' '}
                     <span className="font-mono">{maskSecret(cfg.apiKey)}</span>
                   </span>

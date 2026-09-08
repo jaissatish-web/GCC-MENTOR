@@ -29,9 +29,9 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const SHAPES: Record<NonNullable<SkeletonProps['shape']>, string> = {
-  text: 'h-[13px] rounded-radius-sm',
-  title: 'h-[19px] w-1/2 rounded-radius-sm',
-  block: 'h-24 rounded-radius-md',
+  text: 'h-[13px] rounded-bp',
+  title: 'h-[19px] w-1/2 rounded-bp',
+  block: 'h-24 rounded-bp',
   circle: 'size-10 rounded-full',
 }
 
@@ -41,7 +41,7 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
       ref={ref}
       aria-hidden="true"
       className={cn(
-        'w-full bg-surface-2-light',
+        'w-full bg-paper',
         'motion-safe:animate-pulse',
         SHAPES[shape],
         className,

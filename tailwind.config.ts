@@ -94,8 +94,18 @@ const config: Config = {
         //   edge-strong on paper 3.40     on surface        3.88
         // `edge` is a decorative hairline and is deliberately below 3:1 — it
         // never carries meaning. `edge-strong` is for input borders, which do.
+        //
+        // ONE TRAP, measured: `signal` ON `signal-tint` is 4.41:1 and FAILS.
+        // Text on a tinted signal fill must use `signal-ink` (6.22:1). The
+        // tint is a background, never a text colour pairing with its own hue.
         paper: '#EEF0F1',
         graphite: '#101519',
+        /**
+         * Body text. `graphite` is a heading weight and too heavy for a
+         * paragraph; `slate` is a muted weight and too light for one.
+         * 8.43:1 on paper, 9.64:1 on white.
+         */
+        'graphite-soft': '#3B4650',
         slate: '#5B6B76',
         signal: '#C2410C',
         'signal-tint': '#FCE9E1',

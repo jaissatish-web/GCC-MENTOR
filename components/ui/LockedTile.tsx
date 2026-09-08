@@ -37,8 +37,8 @@ export function LockedTile({ title, description, note, tone = 'light', className
   return (
     <div
       className={cn(
-        'flex cursor-default flex-col gap-2 rounded-radius-lg border-2 border-dashed p-4 font-redesign-sans',
-        isDark ? 'border-line-dark-strong bg-surface-2-dark' : 'border-line-light-strong bg-surface-2-light',
+        'flex cursor-default flex-col gap-2 rounded-bp-lg border-2 border-dashed p-4 font-redesign-sans',
+        isDark ? 'border-edge-strong bg-surface-2-dark' : 'border-edge-strong bg-paper',
         className
       )}
       onClick={() => setShowNote((prev) => !prev)}
@@ -57,7 +57,7 @@ export function LockedTile({ title, description, note, tone = 'light', className
         <span
           className={cn(
             'inline-flex items-center rounded-full border px-[9px] py-[3px] text-[12px] font-semibold leading-none tracking-wider uppercase font-redesign-sans',
-            isDark ? 'border-line-dark text-ink-400-dark' : 'border-line-light text-ink-400'
+            isDark ? 'border-edge text-slate' : 'border-edge text-slate'
           )}
         >
           Planned
@@ -65,12 +65,12 @@ export function LockedTile({ title, description, note, tone = 'light', className
       </div>
 
       {/* Title */}
-      <span className={cn('text-sm font-semibold', isDark ? 'text-ink-900-dark' : 'text-ink-900')}>
+      <span className={cn('text-sm font-semibold', isDark ? 'text-white' : 'text-graphite')}>
         {title}
       </span>
 
       {/* Description */}
-      <span className={cn('text-[12px] leading-snug', isDark ? 'text-ink-700-dark' : 'text-ink-700')}>
+      <span className={cn('text-[12px] leading-snug', isDark ? 'text-paper' : 'text-graphite-soft')}>
         {description}
       </span>
 
@@ -80,8 +80,8 @@ export function LockedTile({ title, description, note, tone = 'light', className
           className={cn(
             'mt-1 rounded-lg border px-3 py-2 text-[12px]',
             isDark
-              ? 'border-ink-200-dark bg-ink-200-dark/30 text-ink-700-dark'
-              : 'border-ink-200 bg-ink-200/30 text-ink-700'
+              ? 'border-edge bg-paper text-slate'
+              : 'border-edge bg-edge/30 text-graphite-soft'
           )}
         >
           {note ?? DEFAULT_NOTE}

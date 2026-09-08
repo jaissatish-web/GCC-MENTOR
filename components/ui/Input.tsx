@@ -22,7 +22,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label ? (
           <label
             htmlFor={inputId}
-            className={cn('text-sm font-medium', isDark ? 'text-ink-900-dark' : 'text-ink-900')}
+            className={cn('text-sm font-medium', isDark ? 'text-white' : 'text-graphite')}
           >
             {label}
           </label>
@@ -34,19 +34,19 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${inputId}-error` : undefined}
           className={cn(
-            'min-h-11 w-full rounded-radius-md border px-[15px] py-[13px] font-redesign-sans text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
+            'min-h-11 w-full rounded-bp border px-[15px] py-[13px] font-redesign-sans text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
             isDark
               ? cn(
-                  'bg-bg-dark text-ink-900-dark placeholder:text-ink-400-dark',
+                  'bg-paper text-white placeholder:text-slate',
                   error
                     ? 'border-terra-dark focus:border-terra-dark focus:ring-2 focus:ring-terra-dark/25'
-                    : 'border-line-dark-strong focus:border-redesign-gold-dark focus:ring-2 focus:ring-redesign-gold-dark/25'
+                    : 'border-edge-strong focus:border-signal-ink focus:ring-2 focus:ring-signal-ink/25'
                 )
               : cn(
-                  'bg-surface-light text-ink-900 placeholder:text-ink-400',
+                  'bg-white text-graphite placeholder:text-slate',
                   error
                     ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/20'
-                    : 'border-line-light focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20'
+                    : 'border-edge focus:border-signal-ink focus:ring-2 focus:ring-signal-ink/20'
                 ),
             className
           )}

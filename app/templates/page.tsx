@@ -66,13 +66,13 @@ function TemplatesInner() {
     >
       {/* The action bar sticks to the top so the choice made at the bottom of a
           long gallery is still actionable without scrolling back. */}
-      <div className="sticky top-0 z-20 -mt-2 flex flex-col gap-3 border-b border-line-light/60 bg-bg/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[13px] text-ink-700">
-          Selected: <strong className="text-ink-900">{templateName}</strong>
+      <div className="sticky top-0 z-20 -mt-2 flex flex-col gap-3 border-b border-edge/60 bg-paper/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[13px] text-graphite-soft">
+          Selected: <strong className="text-graphite">{templateName}</strong>
         </p>
 
         {packages === null ? (
-          <span className="text-[12px] text-ink-400">Loading your resumes…</span>
+          <span className="text-[12px] text-slate">Loading your resumes…</span>
         ) : hasResumes ? (
           <div className="flex flex-wrap items-center gap-2">
             <label className="sr-only" htmlFor="resume-select">
@@ -82,7 +82,7 @@ function TemplatesInner() {
               id="resume-select"
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
-              className="min-h-11 min-w-[220px] rounded-radius-md border border-line-light bg-surface-light px-3 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+              className="min-h-11 min-w-[220px] rounded-bp border border-edge bg-white px-3 text-[13px] text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
             >
               {packages.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -104,7 +104,7 @@ function TemplatesInner() {
             </button>
           </div>
         ) : (
-          <span className="text-[12px] text-ink-400">
+          <span className="text-[12px] text-slate">
             Create a resume to try these with your own details.
           </span>
         )}
@@ -122,7 +122,7 @@ function TemplatesInner() {
         onSelect={(id) => setTemplateId(id)}
       />
 
-      <p className="text-center text-[12px] text-ink-400">
+      <p className="text-center text-[12px] text-slate">
         Previews use an example CV. Your own wording, dates and details are never changed by
         switching template.
       </p>

@@ -45,12 +45,16 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Headlines use Instrument Serif at weight 400 — docs/DESIGN.md §3 */
+  /* Headings carry NO font by default any more.
+     They were globally Instrument Serif at weight 400, which meant every
+     heading in the app inherited the landing page's voice and any screen
+     wanting a different one had to override it. Blueprint's app voice is
+     Archivo (`font-bp-display`) and the landing page keeps the serif by
+     asking for it — a global default that half the product fights is not a
+     default, it is a tax. */
   h1,
   h2,
   h3 {
-    font-family: var(--font-instrument-serif), Georgia, serif;
-    font-weight: 400;
     text-wrap: pretty;
   }
 

@@ -13,13 +13,13 @@ const pillVariants = cva(
   {
     variants: {
       variant: {
-        applied: 'border border-line-light-strong bg-surface-2-light text-ink-700',
-        shortlisted: 'border border-redesign-gold bg-redesign-gold-tint text-gold-text',
-        interview: 'border border-navy-tint bg-navy-tint text-navy',
-        visa_processing: 'border border-ink-200 bg-ink-200 text-ink-700',
-        offer: 'bg-navy text-surface-light',
+        applied: 'border border-edge-strong bg-paper text-graphite-soft',
+        shortlisted: 'border border-signal bg-signal-tint text-signal-ink',
+        interview: 'border border-signal-tint bg-signal-tint text-signal-ink',
+        visa_processing: 'border border-edge bg-edge text-graphite-soft',
+        offer: 'bg-signal text-white',
         risk: 'rounded-[7px] border border-terra bg-terra-tint text-terra',
-        grounded: 'rounded-[7px] border border-navy-tint bg-navy-tint text-navy',
+        grounded: 'rounded-[7px] border border-signal-tint bg-signal-tint text-signal-ink',
       },
     },
     defaultVariants: {

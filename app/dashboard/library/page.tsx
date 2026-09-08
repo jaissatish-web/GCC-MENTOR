@@ -93,7 +93,7 @@ function NameField({
           e.currentTarget.blur()
         }
       }}
-      className="w-full rounded-radius-md border border-transparent bg-transparent px-1.5 py-1 text-[14px] font-bold leading-snug text-ink-900 hover:border-line-light focus:border-navy focus:bg-surface-light focus-visible:outline-none"
+      className="w-full rounded-bp border border-transparent bg-transparent px-1.5 py-1 text-[14px] font-bold leading-snug text-graphite hover:border-edge focus:border-signal focus:bg-white focus-visible:outline-none"
     />
   )
 }
@@ -101,11 +101,11 @@ function NameField({
 // Status dropdown styling mirrors Pill's status variant colours (never hard hex).
 function statusSelectClass(status: PackageStatus): string {
   const map: Record<PackageStatus, string> = {
-    applied: 'border-line-light-strong bg-surface-2-light text-ink-700',
-    shortlisted: 'border-redesign-gold/50 bg-redesign-gold-tint text-gold-text',
-    interview: 'border-navy/50 bg-navy-tint text-navy',
-    visa_processing: 'border-line-light bg-surface-2-light text-ink-400',
-    offer: 'border-navy bg-navy text-white',
+    applied: 'border-edge-strong bg-paper text-graphite-soft',
+    shortlisted: 'border-signal/50 bg-signal-tint text-signal-ink',
+    interview: 'border-signal/50 bg-signal-tint text-signal-ink',
+    visa_processing: 'border-edge bg-paper text-slate',
+    offer: 'border-signal bg-signal text-white',
   }
   return map[status]
 }
@@ -116,8 +116,8 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
       className={cn(
         'rounded-[6px] px-2 py-1 text-[12px] font-semibold leading-none',
         present
-          ? 'bg-navy-tint text-navy'
-          : 'border border-dashed border-line-light-strong bg-surface-2-light text-ink-400'
+          ? 'bg-signal-tint text-signal-ink'
+          : 'border border-dashed border-edge-strong bg-paper text-slate'
       )}
     >
       {label}
@@ -143,12 +143,12 @@ function StatusSelect({
       }}
       aria-label="Package status"
       className={cn(
-        'min-h-11 cursor-pointer rounded-full border px-[11px] py-[6px] text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
+        'min-h-11 cursor-pointer rounded-full border px-[11px] py-[6px] text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
         statusSelectClass(initial)
       )}
     >
       {PACKAGE_STATUSES.map((s) => (
-        <option key={s.value} value={s.value} className="bg-surface-light text-ink-700">
+        <option key={s.value} value={s.value} className="bg-white text-graphite-soft">
           {s.label} ▾
         </option>
       ))}
@@ -256,7 +256,7 @@ export default function DashboardLibraryPage() {
       // rows arrived.
       <SkeletonGroup label="Loading your resumes" className="py-6">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-radius-lg border border-line-light bg-surface-light p-4">
+          <div key={i} className="rounded-bp-lg border border-edge bg-white p-4">
             <Skeleton shape="title" className="mb-2.5" />
             <Skeleton className="w-2/3" />
           </div>
@@ -281,14 +281,14 @@ export default function DashboardLibraryPage() {
     <div className="flex min-h-screen flex-col gap-4 p-5 sm:p-8 lg:p-10">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="font-serif text-[27px] leading-tight text-ink-900">Library</h1>
-        <p className="text-[13px] text-ink-700">
+        <h1 className="font-bp-display text-[27px] leading-tight text-graphite">Library</h1>
+        <p className="text-[13px] text-graphite-soft">
           {packages.length} resume{packages.length === 1 ? '' : 's'} · rename, edit, track status and download
         </p>
       </div>
 
       {opError ? (
-        <div className="rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="rounded-bp-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
           {opError}
         </div>
       ) : null}
@@ -311,7 +311,7 @@ export default function DashboardLibraryPage() {
           const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
           const atsPresent = pkg.ats_score_card != null
           return (
-            <div key={pkg.id} className="rounded-radius-lg border border-line-light bg-surface-light p-4">
+            <div key={pkg.id} className="rounded-bp-lg border border-edge bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                   {/* Editable in place. The row's identity is whatever the user
@@ -322,15 +322,15 @@ export default function DashboardLibraryPage() {
                     placeholder={pkg.target_job_title}
                     onSave={(next) => renamePackage(pkg.id, next)}
                   />
-                  <span className="text-[12px] text-ink-400">
+                  <span className="text-[12px] text-slate">
                     {formatDay(pkg.created_at)}
                   </span>
-                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-ink-400">
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-slate">
                     {/* Short id: enough to quote in a support message, without
                         a 36-character UUID dominating the card. */}
                     <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
                     <span aria-hidden>·</span>
-                    <span className="rounded-[4px] bg-surface-2-light px-1.5 py-0.5 font-semibold text-ink-700">
+                    <span className="rounded-[4px] bg-paper px-1.5 py-0.5 font-semibold text-graphite-soft">
                       {templateNameFor(pkg.template_id)}
                     </span>
                     <span aria-hidden>·</span>
@@ -358,7 +358,7 @@ export default function DashboardLibraryPage() {
               <div className="mt-3.5 flex items-center gap-4">
                 <Link
                   href={`/package/${pkg.id}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-navy px-4 text-[12px] font-semibold text-white transition-colors hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 items-center justify-center rounded-bp bg-signal px-4 text-[12px] font-semibold text-white transition-colors hover:bg-signal-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
                 >
                   Open
                 </Link>
@@ -367,7 +367,7 @@ export default function DashboardLibraryPage() {
                     resume first and finding "Edit text" there. */}
                 <Link
                   href={`/package/${pkg.id}/edit`}
-                  className="min-h-11 px-1 text-[12px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+                  className="min-h-11 px-1 text-[12px] font-semibold text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
                 >
                   Edit
                 </Link>
@@ -399,8 +399,8 @@ export default function DashboardLibraryPage() {
           so a desktop user could accumulate rows they had no way to remove.
           The template column came across for the same reason: it is the only
           place a user can see which of the 15 designs a resume actually uses. */}
-      <div className="hidden overflow-hidden rounded-radius-lg border border-line-light bg-surface-light lg:block">
-        <div className="grid grid-cols-[2.2fr_1fr_0.9fr_1.1fr_170px] gap-4 border-b border-line-light bg-surface-2-light px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-400">
+      <div className="hidden overflow-hidden rounded-bp-lg border border-edge bg-white lg:block">
+        <div className="grid grid-cols-[2.2fr_1fr_0.9fr_1.1fr_170px] gap-4 border-b border-edge bg-paper px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.1em] text-slate">
           <span>Resume</span>
           <span>Template</span>
           <span>Level</span>
@@ -410,7 +410,7 @@ export default function DashboardLibraryPage() {
         {packages.map((pkg) => (
           <div
             key={pkg.id}
-            className="grid grid-cols-[2.2fr_1fr_0.9fr_1.1fr_170px] items-center gap-4 border-b border-line-light px-5 py-3.5 last:border-0"
+            className="grid grid-cols-[2.2fr_1fr_0.9fr_1.1fr_170px] items-center gap-4 border-b border-edge px-5 py-3.5 last:border-0"
           >
             <div className="flex min-w-0 flex-col gap-0.5">
               {/* Editable in place, exactly as on mobile — same handler, so the
@@ -420,16 +420,16 @@ export default function DashboardLibraryPage() {
                 placeholder={pkg.target_job_title}
                 onSave={(next) => renamePackage(pkg.id, next)}
               />
-              <span className="flex items-center gap-1.5 px-1.5 text-[12px] text-ink-400">
+              <span className="flex items-center gap-1.5 px-1.5 text-[12px] text-slate">
                 <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
                 <span aria-hidden>·</span>
                 <span>{formatDay(pkg.created_at)}</span>
               </span>
             </div>
-            <span className="truncate text-[12px] font-semibold text-ink-700">
+            <span className="truncate text-[12px] font-semibold text-graphite-soft">
               {templateNameFor(pkg.template_id)}
             </span>
-            <span className="text-[12px] text-ink-700">{levelLabel(pkg.optimization_level)}</span>
+            <span className="text-[12px] text-graphite-soft">{levelLabel(pkg.optimization_level)}</span>
             <div className="justify-self-start">
               <StatusSelect initial={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
             </div>
@@ -438,7 +438,7 @@ export default function DashboardLibraryPage() {
                   than forest-on-white text that read as a label (TASK-157). */}
               <Link
                 href={`/package/${pkg.id}`}
-                className="inline-flex min-h-9 items-center justify-center rounded-radius-md bg-navy px-3.5 text-[12px] font-semibold text-white transition-colors hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+                className="inline-flex min-h-9 items-center justify-center rounded-bp bg-signal px-3.5 text-[12px] font-semibold text-white transition-colors hover:bg-signal-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
               >
                 Open
               </Link>
@@ -450,7 +450,7 @@ export default function DashboardLibraryPage() {
                 aria-pressed={confirmingDelete === pkg.id}
                 title="Delete this resume"
                 className={cn(
-                  'min-h-9 rounded-radius-md px-2 text-[12px] font-semibold text-ink-400 transition-colors hover:bg-terra-tint hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra',
+                  'min-h-9 rounded-bp px-2 text-[12px] font-semibold text-slate transition-colors hover:bg-terra-tint hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra',
                   confirmingDelete === pkg.id && 'bg-terra-tint text-terra',
                 )}
               >

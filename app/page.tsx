@@ -295,7 +295,7 @@ export default function Home() {
                     <div key={c.label} className="flex gap-3 rounded-radius-lg border border-line bg-surface-light p-4">
                       <RocketLaunchIcon className="mt-0.5 h-5 w-5 shrink-0 text-navy" />
                       <div>
-                        <h3 className="text-sm font-bold text-ink-900">{c.label}</h3>
+                        <h3 className="font-serif text-sm font-bold text-ink-900">{c.label}</h3>
                         <p className="mt-0.5 text-[12px] leading-relaxed text-ink-400">{c.detail}</p>
                       </div>
                     </div>
@@ -356,7 +356,7 @@ export default function Home() {
                     <s.icon className="h-4.5 w-4.5" />
                   </span>
                   <div>
-                    <h3 className="text-sm font-bold text-ink-700">{s.title}</h3>
+                    <h3 className="font-serif text-sm font-bold text-ink-700">{s.title}</h3>
                     <p className="mt-0.5 text-[13px] leading-relaxed text-ink-400">{s.desc}</p>
                   </div>
                 </div>
@@ -505,7 +505,7 @@ export default function Home() {
                   <div key={t.title} className="flex gap-3">
                     <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-navy" />
                     <div>
-                      <h3 className="font-bold text-ink-900">{t.title}</h3>
+                      <h3 className="font-serif font-bold text-ink-900">{t.title}</h3>
                       <p className="text-sm leading-relaxed text-ink-700">{t.desc}</p>
                     </div>
                   </div>

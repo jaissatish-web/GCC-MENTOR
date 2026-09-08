@@ -152,7 +152,7 @@ function CoverLetterScreen() {
   if (loadError) {
     return (
       <main className="mx-auto w-full max-w-[900px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
-        <div className="rounded-radius-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra">
+        <div className="rounded-bp-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra">
           {loadError}
         </div>
       </main>
@@ -197,15 +197,15 @@ function CoverLetterScreen() {
           />
         ) : (
           <div className="flex flex-col gap-4">
-            <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-ink-900">
+            <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-graphite">
               Resume package
               <select
                 value={selectedId ?? ''}
                 onChange={(e) => setSelectedId(e.target.value)}
-                className="min-h-11 w-full cursor-pointer rounded-radius-md border border-line-light/70 bg-surface-2-light/50 px-3 text-[14px] text-ink-900 outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25"
+                className="min-h-11 w-full cursor-pointer rounded-bp border border-edge/70 bg-paper/50 px-3 text-[14px] text-graphite outline-none focus:border-signal focus:ring-2 focus:ring-signal/25"
               >
                 {eligiblePackages.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-surface-light text-ink-900">
+                  <option key={p.id} value={p.id} className="bg-white text-graphite">
                     {letterTarget(p)}
                   </option>
                 ))}
@@ -213,7 +213,7 @@ function CoverLetterScreen() {
             </label>
 
             <fieldset className="flex flex-col gap-1.5">
-              <legend className="text-[13px] font-semibold text-ink-900">Tone</legend>
+              <legend className="text-[13px] font-semibold text-graphite">Tone</legend>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {TONE_OPTIONS.map((opt) => {
                   const active = tone === opt.value
@@ -225,16 +225,16 @@ function CoverLetterScreen() {
                       onClick={() => setTone(opt.value)}
                       title={opt.description}
                       className={cn(
-                        'flex min-h-11 flex-col items-start gap-0.5 rounded-radius-md border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
+                        'flex min-h-11 flex-col items-start gap-0.5 rounded-bp border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
                         active
-                          ? 'border-redesign-gold bg-redesign-gold/[0.08]'
-                          : 'border-line-light/70 bg-surface-2-light/40 hover:border-line-light-strong',
+                          ? 'border-signal bg-signal/[0.08]'
+                          : 'border-edge/70 bg-paper/40 hover:border-edge-strong',
                       )}
                     >
-                      <span className={cn('text-[13px] font-semibold', active ? 'text-gold-text' : 'text-ink-900')}>
+                      <span className={cn('text-[13px] font-semibold', active ? 'text-signal-ink' : 'text-graphite')}>
                         {opt.label}
                       </span>
-                      <span className="text-[12px] leading-snug text-ink-400">{opt.description}</span>
+                      <span className="text-[12px] leading-snug text-slate">{opt.description}</span>
                     </button>
                   )
                 })}
@@ -242,14 +242,14 @@ function CoverLetterScreen() {
             </fieldset>
 
             {genError ? (
-              <p role="alert" className="rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra">
+              <p role="alert" className="rounded-bp border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra">
                 {genError}
               </p>
             ) : null}
 
             {selected ? (
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[12px] text-ink-400">Target: {letterTarget(selected)}</p>
+                <p className="text-[12px] text-slate">Target: {letterTarget(selected)}</p>
                 <Button type="button" variant="primary" onClick={generate} disabled={!canGenerate}>
                   {generating ? 'Generating…' : 'Generate cover letter'}
                 </Button>
@@ -263,26 +263,26 @@ function CoverLetterScreen() {
       {letters.length > 0 ? (
         <section className="mt-6 flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-[20px] text-ink-900">Generated letters</h2>
-            <span className="text-[12px] text-ink-400">{letters.length} total</span>
+            <h2 className="font-bp-display text-[20px] text-graphite">Generated letters</h2>
+            <span className="text-[12px] text-slate">{letters.length} total</span>
           </div>
           {letters.map((letter) => (
             <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-6">
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[13px] font-bold text-ink-900">
+                  <p className="text-[13px] font-bold text-graphite">
                     {letter.target_job_title}
                     {letter.target_company ? ` · ${letter.target_company}` : ''}
                   </p>
                   {/* No badge for a pre-tone letter (letter.tone absent) —
                       showing one would be a guess, not a fact. */}
                   {letter.tone ? (
-                    <span className="rounded-full bg-redesign-gold-tint px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-gold-text">
+                    <span className="rounded-full bg-signal-tint px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-signal-ink">
                       {TONE_OPTIONS.find((o) => o.value === letter.tone)?.label ?? letter.tone}
                     </span>
                   ) : null}
                 </div>
-                <p className="text-[12px] text-ink-400">
+                <p className="text-[12px] text-slate">
                   Generated {new Date(letter.generated_at).toLocaleString()}
                 </p>
               </div>
@@ -291,7 +291,7 @@ function CoverLetterScreen() {
                 onChange={(e) => setEdits((prev) => ({ ...prev, [letter.id]: e.target.value }))}
                 rows={Math.min(20, (edits[letter.id] ?? letter.full_text).split('\n').length)}
                 aria-label="Cover letter text (editable)"
-                className="w-full resize-y rounded-radius-md border border-line-light/70 bg-surface-2-light/50 p-4 font-sans text-[13px] leading-relaxed text-ink-900 outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25"
+                className="w-full resize-y rounded-bp border border-edge/70 bg-paper/50 p-4 font-sans text-[13px] leading-relaxed text-graphite outline-none focus:border-signal focus:ring-2 focus:ring-signal/25"
               />
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="secondary" onClick={() => void copyLetter(letter.id)}>
@@ -307,7 +307,7 @@ function CoverLetterScreen() {
       ) : null}
 
       {/* Grounding notice */}
-      <p className="mt-6 text-center text-[12px] text-ink-400">
+      <p className="mt-6 text-center text-[12px] text-slate">
         Based strictly on your saved Career Profile and the resume&apos;s target — nothing invented.
       </p>
     </PageShell>

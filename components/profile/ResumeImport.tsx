@@ -98,17 +98,17 @@ export function ResumeImport({
   }
 
   return (
-    <div className="mx-5 mt-4 rounded-radius-lg border border-line-light bg-surface-2-light/40 p-4">
-      <h2 className="text-[13px] font-bold text-ink-900">Start or update from a resume</h2>
-      <p className="mt-1 text-[12px] leading-relaxed text-ink-400">
+    <div className="mx-5 mt-4 rounded-bp-lg border border-edge bg-paper/40 p-4">
+      <h2 className="text-[13px] font-bold text-graphite">Start or update from a resume</h2>
+      <p className="mt-1 text-[12px] leading-relaxed text-slate">
         Bring in a resume to fill your profile, or just edit the details below. If you already have a
         profile, you&rsquo;ll get an add-or-replace choice first — nothing is overwritten until you pick.
       </p>
 
       {parsing ? (
-        <div className="mt-3 flex items-center gap-3 rounded-radius-md border border-line-light bg-surface-light px-4 py-3.5">
-          <span className="size-2.5 animate-pulse rounded-full bg-redesign-gold" />
-          <span className="text-[13px] text-ink-700">Reading your resume… usually about 20 seconds.</span>
+        <div className="mt-3 flex items-center gap-3 rounded-bp border border-edge bg-white px-4 py-3.5">
+          <span className="size-2.5 animate-pulse rounded-full bg-signal" />
+          <span className="text-[13px] text-graphite-soft">Reading your resume… usually about 20 seconds.</span>
         </div>
       ) : (
         <>
@@ -151,8 +151,8 @@ export function ResumeImport({
           {mode === 'upload' ? (
             <div
               className={cn(
-                'mt-3 rounded-radius-md border-2 border-dashed p-5 text-center transition-colors',
-                dragging ? 'border-redesign-gold bg-redesign-gold/10' : 'border-line-light-strong bg-surface-light',
+                'mt-3 rounded-bp border-2 border-dashed p-5 text-center transition-colors',
+                dragging ? 'border-signal bg-signal/10' : 'border-edge-strong bg-white',
               )}
               onDragOver={(e: DragEvent) => {
                 e.preventDefault()
@@ -172,7 +172,7 @@ export function ResumeImport({
                 className="sr-only"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => chooseFile(e.target.files?.[0] ?? null)}
               />
-              <p className="text-[13px] text-ink-700">Drop your resume here, or</p>
+              <p className="text-[13px] text-graphite-soft">Drop your resume here, or</p>
               <button
                 type="button"
                 onClick={() => fileInput.current?.click()}
@@ -180,7 +180,7 @@ export function ResumeImport({
               >
                 Choose a file
               </button>
-              <p className="mt-2 text-[12px] text-ink-400">PDF up to 5MB · Word up to 2MB</p>
+              <p className="mt-2 text-[12px] text-slate">PDF up to 5MB · Word up to 2MB</p>
             </div>
           ) : null}
 
@@ -192,10 +192,10 @@ export function ResumeImport({
                 maxLength={MAX_TEXT}
                 rows={7}
                 placeholder="Paste your resume text (50–20,000 characters)"
-                className="w-full rounded-radius-md border border-line-light bg-surface-light p-3.5 text-[13px] outline-none focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/25"
+                className="w-full rounded-bp border border-edge bg-white p-3.5 text-[13px] outline-none focus:border-signal focus:ring-2 focus:ring-signal/25"
               />
               <div className="mt-2 flex items-center justify-between">
-                <span className="text-[12px] text-ink-400">{text.length.toLocaleString()} / {MAX_TEXT.toLocaleString()}</span>
+                <span className="text-[12px] text-slate">{text.length.toLocaleString()} / {MAX_TEXT.toLocaleString()}</span>
                 <Button variant="primary" size="sm" onClick={submitText}>
                   Read this text
                 </Button>
@@ -206,7 +206,7 @@ export function ResumeImport({
       )}
 
       {error ? (
-        <p role="alert" className="mt-3 rounded-radius-md border border-terra/40 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">
+        <p role="alert" className="mt-3 rounded-bp border border-terra/40 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">
           {error}
         </p>
       ) : null}

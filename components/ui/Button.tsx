@@ -24,22 +24,22 @@ import { cn } from '@/lib/utils'
  * the pair adjacent so they cannot drift.
  */
 const buttonVariants = cva(
-  'inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-radius-md font-redesign-sans leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none',
+  'inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-bp font-redesign-sans leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none',
   {
     variants: {
       variant: {
-        primary: 'bg-navy font-bold text-white hover:bg-navy-deep',
+        primary: 'bg-signal font-bold text-white hover:bg-signal-ink',
         purchase:
-          'bg-redesign-gold font-bold text-navy-deep shadow-redesign-cta-glow hover:bg-redesign-gold-dark hover:shadow-redesign-lg hover:-translate-y-px',
-        progress: 'bg-navy font-bold text-white shadow-redesign-md hover:bg-navy-deep',
+          'bg-signal font-bold text-white shadow-redesign-cta-glow hover:bg-signal-ink hover:shadow-redesign-lg hover:-translate-y-px',
+        progress: 'bg-signal font-bold text-white shadow-redesign-md hover:bg-signal-ink',
         secondary:
-          'border border-line-light-strong bg-surface-light font-semibold text-ink-900 hover:bg-surface-2-light',
+          'border border-edge-strong bg-white font-semibold text-graphite hover:bg-paper',
         ghost:
-          'border border-transparent bg-transparent font-semibold text-navy hover:bg-navy-tint',
+          'border border-transparent bg-transparent font-semibold text-signal-ink hover:bg-signal-tint',
         danger:
-          'border border-terra bg-surface-light font-semibold text-terra hover:bg-terra-tint',
+          'border border-terra bg-white font-semibold text-terra hover:bg-terra-tint',
         'danger-solid': 'bg-terra font-bold text-white hover:opacity-90',
-        disabled: 'bg-surface-2-light font-semibold text-ink-400',
+        disabled: 'bg-paper font-semibold text-slate',
       },
       size: {
         // 44px minimum — the touch-target floor. Anything smaller is a link.

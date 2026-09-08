@@ -50,7 +50,7 @@ export default async function UsersPage({
 
       {/* ---- Users list (docs/ADMIN.md §2.1) --------------------------- */}
       <Card className="flex flex-col gap-4 p-5">
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">
           Find a user
         </h2>
         <form method="get" action="/admin/users" className="flex gap-2">
@@ -68,29 +68,29 @@ export default async function UsersPage({
 
         {q ? (
           results.length === 0 ? (
-            <p className="text-sm text-ink-400">No matches for &ldquo;{q}&rdquo;.</p>
+            <p className="text-sm text-slate">No matches for &ldquo;{q}&rdquo;.</p>
           ) : (
             <div className="flex flex-col gap-2">
               {results.map((r) => (
                 <div
                   key={r.userId}
-                  className="flex flex-col gap-2 rounded-radius-lg border border-line-light p-3 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 rounded-bp-lg border border-edge p-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-semibold text-ink-900">
+                    <span className="text-sm font-semibold text-graphite">
                       {r.fullName || 'Unnamed profile'}
                     </span>
-                    <span className="text-[12px] text-ink-400">
+                    <span className="text-[12px] text-slate">
                       {r.phone || '—'} · {r.email || '—'}
                     </span>
-                    <span className="text-[12px] text-ink-400">
+                    <span className="text-[12px] text-slate">
                       Readiness: {r.readinessScore ?? '—'} ({readableCategory(r.readinessCategory)}) ·
                       Signed up {fmtDate(r.signupDate)}
                     </span>
                   </div>
                   <Link
                     href={`/admin/users?${new URLSearchParams({ q: q ?? '', user: r.userId }).toString()}`}
-                    className="text-[12px] font-semibold text-navy"
+                    className="text-[12px] font-semibold text-signal"
                   >
                     View packages →
                   </Link>
@@ -99,7 +99,7 @@ export default async function UsersPage({
             </div>
           )
         ) : (
-          <p className="text-sm text-ink-400">
+          <p className="text-sm text-slate">
             Search for a user to view their packages or override their rate limit.
           </p>
         )}
@@ -109,21 +109,21 @@ export default async function UsersPage({
       {selectedUserId ? (
         <>
           <Card className="flex flex-col gap-4 p-5">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">
               Packages — read-only (docs/ADMIN.md §2.2)
             </h2>
             {selectedPackages.length === 0 ? (
-              <p className="text-sm text-ink-400">No packages for this user.</p>
+              <p className="text-sm text-slate">No packages for this user.</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {selectedPackages.map((p) => (
                   <div
                     key={p.id}
-                    className="flex flex-col gap-1 rounded-radius-lg border border-line-light p-3 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-1 rounded-bp-lg border border-edge p-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-semibold text-ink-900">{p.targetJobTitle}</span>
-                      <span className="text-[12px] text-ink-400">
+                      <span className="text-sm font-semibold text-graphite">{p.targetJobTitle}</span>
+                      <span className="text-[12px] text-slate">
                         {p.targetCountry ?? 'No country'} · created {fmtDate(p.createdAt)}
                       </span>
                     </div>
@@ -139,10 +139,10 @@ export default async function UsersPage({
 
           {/* ---- Manual credit grant (docs/ADMIN.md §2.3) ---------------- */}
           <Card className="flex flex-col gap-4 p-5">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">
               Grant a free optimization (docs/ADMIN.md §2.3)
             </h2>
-            <p className="text-[12px] text-ink-400">
+            <p className="text-[12px] text-slate">
               The fix for &ldquo;I paid but something broke&rdquo;. One grant = one free
               optimization; it is applied automatically the next time this user optimizes.
               Every grant is logged with your admin ID, the reason, and the timestamp.
@@ -158,15 +158,15 @@ export default async function UsersPage({
 
             {selectedCredits.length > 0 ? (
               <div className="flex flex-col gap-1.5">
-                <div className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">
+                <div className="text-[12px] font-semibold uppercase tracking-wide text-slate">
                   Grant history
                 </div>
                 {selectedCredits.map((c) => (
                   <div
                     key={c.id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-radius-md border border-line-light px-3 py-2 text-[12px]"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-bp border border-edge px-3 py-2 text-[12px]"
                   >
-                    <span className="text-ink-700">
+                    <span className="text-graphite-soft">
                       {c.grantedAt.slice(0, 10)} · {c.reason}
                     </span>
                     <Pill
@@ -177,12 +177,12 @@ export default async function UsersPage({
                 ))}
               </div>
             ) : (
-              <p className="text-[12px] text-ink-400">No credits granted to this user yet.</p>
+              <p className="text-[12px] text-slate">No credits granted to this user yet.</p>
             )}
           </Card>
 
           <Card className="flex flex-col gap-4 p-5">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">
               Rate-limit override (docs/ADMIN.md §2.4) — today only
             </h2>
             <div className="flex flex-col gap-4">
@@ -190,16 +190,16 @@ export default async function UsersPage({
                 <form
                   key={rl.action}
                   action={overrideRateLimitAction}
-                  className="flex flex-col gap-2 rounded-radius-lg border border-line-light p-3"
+                  className="flex flex-col gap-2 rounded-bp-lg border border-edge p-3"
                 >
                   <input type="hidden" name="userId" value={selectedUserId} />
                   <input type="hidden" name="action" value={rl.action} />
                   <input type="hidden" name="q" value={q ?? ''} />
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-ink-900">
+                    <span className="text-sm font-semibold text-graphite">
                       {rl.action.replace(/_/g, ' ')}
                     </span>
-                    <span className="text-[12px] text-ink-400">
+                    <span className="text-[12px] text-slate">
                       {rl.count} used today
                       {rl.limitOverride != null ? ` · override: ${rl.limitOverride}` : ' · default limit'}
                     </span>

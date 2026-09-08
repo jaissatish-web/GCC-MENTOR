@@ -528,7 +528,7 @@ const CATEGORY_COPY: Record<ReadinessCategory, { highlight: string; rest: string
  * `helper` is the guided remark shown under the title — one short line saying
  * what to put in this block and what makes it useful to a Gulf recruiter. It
  * renders on `ink-400-dark`, a real token, rather than an opacity wash of the
- * body colour (the whole file used `text-ink-900/55` and similar, which
+ * body colour (the whole file used `text-graphite/55` and similar, which
  * is what made the guidance hard to read against the card).
  *
  * `optional` marks blocks a user can legitimately skip, so required vs
@@ -547,7 +547,7 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-radius-md border border-dashed border-line-light-strong px-4 py-3 text-[13px] font-semibold text-navy transition-colors hover:border-navy hover:bg-navy-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 focus-visible:ring-offset-surface-light"
+      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-bp border border-dashed border-edge-strong px-4 py-3 text-[13px] font-semibold text-signal-ink transition-colors hover:border-signal hover:bg-signal-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-white"
     >
       <span aria-hidden="true" className="text-[15px] leading-none">
         +
@@ -573,7 +573,7 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
 function PointsChip({ earned, total }: { earned: number; total: number }) {
   if (total === 0) {
     return (
-      <span className="shrink-0 whitespace-nowrap rounded-full border border-line-light-strong px-2.5 py-1 text-[12px] font-semibold text-ink-400">
+      <span className="shrink-0 whitespace-nowrap rounded-full border border-edge-strong px-2.5 py-1 text-[12px] font-semibold text-slate">
         Optional
       </span>
     )
@@ -584,8 +584,8 @@ function PointsChip({ earned, total }: { earned: number; total: number }) {
       className={cn(
         'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-bold tabular-nums',
         complete
-          ? 'bg-navy-tint text-navy'
-          : 'bg-redesign-gold-tint text-gold-text'
+          ? 'bg-signal-tint text-signal-ink'
+          : 'bg-signal-tint text-signal-ink'
       )}
     >
       {complete ? 'Done' : `+${total - earned} pts`}
@@ -647,7 +647,7 @@ function CardSection({
       tone="light"
       className={cn(
         'flex scroll-mt-24 flex-col overflow-hidden p-0 transition-colors',
-        open && 'border-redesign-gold/40'
+        open && 'border-signal/40'
       )}
     >
       <h2>
@@ -656,7 +656,7 @@ function CardSection({
           onClick={onToggle}
           aria-expanded={open}
           aria-controls={panelId}
-          className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-surface-2-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-redesign-gold sm:p-5"
+          className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal sm:p-5"
         >
           {/* Step marker — a tick once the block is complete, so progress is
               readable from the numbers column alone without reading any text. */}
@@ -664,10 +664,10 @@ function CardSection({
             className={cn(
               'flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-bold tabular-nums',
               done
-                ? 'bg-navy text-navy-deep'
+                ? 'bg-signal text-white'
                 : open
-                  ? 'bg-redesign-gold text-navy-deep'
-                  : 'bg-surface-2-light text-ink-400'
+                  ? 'bg-signal text-white'
+                  : 'bg-paper text-slate'
             )}
             aria-hidden="true"
           >
@@ -676,9 +676,9 @@ function CardSection({
 
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="flex flex-wrap items-center gap-2">
-              <span className="text-[15px] font-bold leading-snug text-ink-900">{title}</span>
+              <span className="text-[15px] font-bold leading-snug text-graphite">{title}</span>
               {badge ? (
-                <span className="rounded-[5px] bg-surface-2-light px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-700">
+                <span className="rounded-[5px] bg-paper px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-graphite-soft">
                   {badge}
                 </span>
               ) : null}
@@ -686,7 +686,7 @@ function CardSection({
             {helper ? (
               <span
                 className={cn(
-                  'text-[12px] leading-relaxed text-ink-400',
+                  'text-[12px] leading-relaxed text-slate',
                   !open && 'line-clamp-1'
                 )}
               >
@@ -700,7 +700,7 @@ function CardSection({
             <span
               aria-hidden="true"
               className={cn(
-                'text-[12px] text-ink-400 transition-transform',
+                'text-[12px] text-slate transition-transform',
                 open && 'rotate-180'
               )}
             >
@@ -711,7 +711,7 @@ function CardSection({
       </h2>
 
       {open ? (
-        <div id={panelId} className="border-t border-line-light p-4 sm:p-5">
+        <div id={panelId} className="border-t border-edge p-4 sm:p-5">
           {action ? <div className="mb-4 flex flex-wrap gap-2">{action}</div> : null}
           {children}
         </div>
@@ -760,10 +760,10 @@ const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
 ]
 
 const selectClass =
-  'min-h-11 w-full rounded-radius-md border border-line-light-strong bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none transition-colors focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20'
+  'min-h-11 w-full rounded-bp border border-edge-strong bg-white px-[15px] py-[13px] text-sm font-medium text-graphite outline-none transition-colors focus:border-signal focus:ring-2 focus:ring-signal/20'
 
 const textareaClass =
-  'min-h-11 w-full resize-none rounded-radius-md border border-line-light-strong bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-redesign-gold focus:ring-2 focus:ring-redesign-gold/20'
+  'min-h-11 w-full resize-none rounded-bp border border-edge-strong bg-white px-[15px] py-[13px] text-sm font-medium text-graphite outline-none transition-colors placeholder:text-slate focus:border-signal focus:ring-2 focus:ring-signal/20'
 
 function ConfirmToggle({
   id,
@@ -781,8 +781,8 @@ function ConfirmToggle({
   return (
     <div id={id} className="flex items-start justify-between gap-3 py-1">
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-ink-900">{label}</span>
-        {hint ? <span className="text-[12px] text-ink-400">{hint}</span> : null}
+        <span className="text-sm font-medium text-graphite">{label}</span>
+        {hint ? <span className="text-[12px] text-slate">{hint}</span> : null}
       </div>
       <Toggle checked={checked} onCheckedChange={onChange} aria-label={label} />
     </div>
@@ -1246,11 +1246,11 @@ function ProfileScreen() {
     const lostEntries = Object.values(losses.entries).reduce((n, c) => n + c, 0)
 
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-bg px-5 py-10">
-        <h1 className="font-serif text-[28px] leading-tight text-ink-900">
+      <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-paper px-5 py-10">
+        <h1 className="font-bp-display text-[28px] leading-tight text-graphite">
           You already have a profile
         </h1>
-        <p className="mt-3 text-[14px] leading-relaxed text-ink-700">
+        <p className="mt-3 text-[14px] leading-relaxed text-graphite-soft">
           We read your uploaded CV. What would you like to do with it?
         </p>
 
@@ -1260,17 +1260,17 @@ function ProfileScreen() {
             setEditor(fromFull(merged.profile))
             setPendingDraft(null)
           }}
-          className="mt-6 rounded-radius-lg border-2 border-navy bg-surface-light p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+          className="mt-6 rounded-bp-lg border-2 border-signal bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
         >
           <span className="flex items-center gap-2">
-            <span className="text-[15px] font-bold text-ink-900">Add it to my profile</span>
-            <span className="rounded-[5px] bg-navy-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-navy">
+            <span className="text-[15px] font-bold text-graphite">Add it to my profile</span>
+            <span className="rounded-[5px] bg-signal-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-signal-ink">
               Recommended
             </span>
           </span>
-          <span className="mt-1.5 block text-[13px] leading-relaxed text-ink-700">
+          <span className="mt-1.5 block text-[13px] leading-relaxed text-graphite-soft">
             Keeps everything you already have. Adds{' '}
-            <strong className="text-ink-900">
+            <strong className="text-graphite">
               {addedTotal} new {addedTotal === 1 ? 'entry' : 'entries'}
             </strong>{' '}
             from the CV
@@ -1287,14 +1287,14 @@ function ProfileScreen() {
             setEditor(fromDraft(pendingDraft.draft))
             setPendingDraft(null)
           }}
-          className="mt-3 rounded-radius-lg border border-line-light bg-surface-light p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
+          className="mt-3 rounded-bp-lg border border-edge bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
         >
-          <span className="text-[15px] font-bold text-ink-900">Replace my profile</span>
-          <span className="mt-1.5 block text-[13px] leading-relaxed text-ink-700">
+          <span className="text-[15px] font-bold text-graphite">Replace my profile</span>
+          <span className="mt-1.5 block text-[13px] leading-relaxed text-graphite-soft">
             Starts fresh from this CV only.
           </span>
           {lostEntries > 0 || losses.fields.length > 0 ? (
-            <span className="mt-3 block rounded-radius-md border border-terra/40 bg-terra-tint px-3 py-2.5 text-[12px] leading-relaxed text-terra">
+            <span className="mt-3 block rounded-bp border border-terra/40 bg-terra-tint px-3 py-2.5 text-[12px] leading-relaxed text-terra">
               This removes{' '}
               {lostEntries > 0 ? (
                 <strong>
@@ -1308,7 +1308,7 @@ function ProfileScreen() {
           ) : null}
         </button>
 
-        <p className="mt-6 text-center text-[12px] text-ink-400">
+        <p className="mt-6 text-center text-[12px] text-slate">
           Nothing is saved either way until you press Save on the next screen.
         </p>
       </main>
@@ -1317,17 +1317,26 @@ function ProfileScreen() {
 
   if (!loaded || !editor) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-bg">
-        <p className="font-mono text-sm text-ink-400">Loading…</p>
+      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-paper">
+        <p className="font-mono text-sm text-slate">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-bg">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-paper">
       {/* Readiness header — the ring IS the header, on dark navy */}
-      <header className="flex flex-col gap-4 bg-surface-light px-5 pb-6 pt-4">
-        <div className="flex items-center gap-4">
+      <header className="flex flex-col gap-4 bg-white px-5 pb-6 pt-4">
+        {/* STACKS ON MOBILE, and must.
+            Three items in one nowrap row — photo, ring, text — squeezed the
+            text column to 33px inside a 335px phone: one word per line. The
+            ring block is `shrink-0` and its label is ~110px wide, so the text
+            was the only thing that could give. Pre-existing, and the 12px type
+            floor made it worse by widening that label.
+            Photo and ring share a row; the text gets its own below until there
+            is room for all three. */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-4">
           {/* Photo first: it is what a Gulf recruiter looks at first, and it
               used to sit buried between form sections. */}
           <PhotoUpload
@@ -1342,16 +1351,17 @@ function ProfileScreen() {
               market" — a different thing, so each carries its own label. */}
           <div className="flex shrink-0 flex-col items-center gap-1">
             <ReadinessRing score={readiness.score} size={68} />
-            <span className="text-[12px] font-bold uppercase tracking-wide text-ink-400">Profile complete</span>
+            <span className="text-[12px] font-bold uppercase tracking-wide text-slate">Profile complete</span>
           </div>
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <h1 className="font-serif text-[20px] leading-tight text-ink-900">
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <h1 className="font-bp-display text-[20px] font-bold leading-tight tracking-[-0.015em] text-graphite">
               Almost there, {firstName}
             </h1>
-            <p className="text-[12px] leading-relaxed text-ink-700">
-              <span className="font-semibold text-ink-900">Career Profile — {readiness.score}% complete,{' '}
+            <p className="text-[12px] leading-relaxed text-graphite-soft">
+              <span className="font-semibold text-graphite">Career Profile — {readiness.score}% complete,{' '}
               {itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
-              Profiles like yours — <span className="font-semibold text-gold-text">{categoryCopy.highlight}</span> —{' '}
+              Profiles like yours — <span className="font-semibold text-signal-ink">{categoryCopy.highlight}</span> —{' '}
               {categoryCopy.rest}
             </p>
           </div>
@@ -1390,7 +1400,7 @@ function ProfileScreen() {
       />
 
       {loadError ? (
-        <div className="mx-5 mt-4 rounded-radius-md border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mt-4 rounded-bp border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
           {loadError}
         </div>
       ) : null}
@@ -1401,29 +1411,29 @@ function ProfileScreen() {
           that key was already read+cleared in the mount pass, so this can never
           reappear after a reload. */}
       {claimedScan ? (
-        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-radius-md border border-redesign-gold/40 bg-surface-light px-4 py-3">
+        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-bp border border-signal/40 bg-white px-4 py-3">
           <div className="flex flex-col gap-1">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-gold-text">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-signal-ink">
               Welcome back
             </p>
-            <p className="text-[13px] font-medium text-ink-900">
+            <p className="text-[13px] font-medium text-graphite">
               Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
             </p>
             <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="font-mono text-2xl font-bold text-navy">
+              <span className="font-mono text-2xl font-bold text-signal">
                 {claimedScan.overall_score}
                 <span className="text-sm">/100</span>
               </span>
-              <span className="font-mono text-[12px] text-ink-700">Structure {claimedScan.category_scores.structure}</span>
-              <span className="font-mono text-[12px] text-ink-700">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
-              <span className="font-mono text-[12px] text-ink-700">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
+              <span className="font-mono text-[12px] text-graphite-soft">Structure {claimedScan.category_scores.structure}</span>
+              <span className="font-mono text-[12px] text-graphite-soft">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
+              <span className="font-mono text-[12px] text-graphite-soft">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setClaimedScan(null)}
             aria-label="Dismiss welcome back banner"
-            className="min-h-11 shrink-0 px-1 text-ink-400 transition-colors hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
+            className="min-h-11 shrink-0 px-1 text-slate transition-colors hover:text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
           >
             ✕
           </button>
@@ -1443,12 +1453,12 @@ function ProfileScreen() {
             the user knows how long this is and where they are inside it. The
             old page opened straight into nine expanded blocks with no such
             framing, which is what made it feel endless. */}
-        <p className="px-1 pb-1 text-[13px] leading-relaxed text-ink-400">
+        <p className="px-1 pb-1 text-[13px] leading-relaxed text-slate">
           {doneCount === scoredCount ? (
             <>All {scoredCount} scored sections are complete — review anything below, then confirm.</>
           ) : (
             <>
-              <span className="font-semibold text-ink-900">
+              <span className="font-semibold text-graphite">
                 {doneCount} of {scoredCount} sections done.
               </span>{' '}
               Open a step to fill it in. Your work is kept as you move between them.
@@ -1507,8 +1517,8 @@ function ProfileScreen() {
               ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_target_country" className="text-sm font-medium text-ink-900">
-                Target country <span className="font-normal text-ink-400">(optional)</span>
+              <label htmlFor="f_target_country" className="text-sm font-medium text-graphite">
+                Target country <span className="font-normal text-slate">(optional)</span>
               </label>
               <select
                 id="f_target_country"
@@ -1544,7 +1554,7 @@ function ProfileScreen() {
           action={
             <Link
               href="/profile/visibility"
-              className="text-[12px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+              className="text-[12px] font-semibold text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
             >
               What appears on your CV →
             </Link>
@@ -1623,7 +1633,7 @@ function ProfileScreen() {
               onChange={(e) => setField({ date_of_birth: e.target.value })}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_passport_type" className="text-sm font-medium text-ink-900">
+              <label htmlFor="f_passport_type" className="text-sm font-medium text-graphite">
                 Passport type
               </label>
               <select
@@ -1679,7 +1689,7 @@ function ProfileScreen() {
           helper="Not scored, but Gulf employers ask for it outright on site and field roles — and its absence is often what filters a CV out. Skip it only if you genuinely do not hold one."
         >
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-ink-900">
+            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-graphite">
               Do you have a driving license?
             </label>
             <select
@@ -1736,7 +1746,7 @@ function ProfileScreen() {
             onChange={(e) => setField({ professional_summary: e.target.value })}
             placeholder="A short summary of who you are and what you bring."
           />
-          <p className="text-[12px] leading-snug text-ink-400">
+          <p className="text-[12px] leading-snug text-slate">
             This is your own summary — the AI never writes back into it. It is the &ldquo;before&rdquo; the
             optimizer diffs against.
           </p>
@@ -1760,9 +1770,9 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-4">
             {editor.work_experience.map((w, i) => (
-              <div key={w.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
+              <div key={w.key} className="flex flex-col gap-2.5 border border-edge-strong rounded-bp p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] text-ink-400">#{i + 1}</span>
+                  <span className="font-mono text-[12px] text-slate">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1788,7 +1798,7 @@ function ProfileScreen() {
                 </div>
                 <Input tone="light" label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-ink-900">
+                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-graphite">
                     Gulf experience
                   </label>
                   <select
@@ -1807,7 +1817,7 @@ function ProfileScreen() {
                     ))}
                   </select>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-graphite">
                   Description
                   <textarea
                     rows={3}
@@ -1816,8 +1826,8 @@ function ProfileScreen() {
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { description: e.target.value }) }))}
                   />
                 </label>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900">
-                  Highlights <span className="text-[12px] font-normal text-ink-400">one per line</span>
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-graphite">
+                  Highlights <span className="text-[12px] font-normal text-slate">one per line</span>
                   <textarea
                     rows={3}
                     className={textareaClass}
@@ -1837,12 +1847,12 @@ function ProfileScreen() {
             An empty array renders nothing (silence is correct here, not a
             manufactured "no gaps!"). */}
         {employmentGaps.length > 0 ? (
-          <div className="flex flex-col gap-2 rounded-radius-md border border-line-light/70 bg-surface-light px-3.5 py-3">
-            <span className="text-[12px] font-semibold text-ink-700">
+          <div className="flex flex-col gap-2 rounded-bp border border-edge/70 bg-white px-3.5 py-3">
+            <span className="text-[12px] font-semibold text-graphite-soft">
               Employment gaps &mdash; just for your awareness
             </span>
             {employmentGaps.map((g, i) => (
-              <p key={i} className="text-[12px] leading-snug text-ink-400">
+              <p key={i} className="text-[12px] leading-snug text-slate">
                 We noticed a {g.gapMonths}-month gap between {g.precedingCompany || 'a previous role'} and{' '}
                 {g.followingCompany || 'your next role'}. This isn&rsquo;t scored &mdash; just something to be aware of.
               </p>
@@ -1868,9 +1878,9 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.education.map((x, i) => (
-              <div key={x.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
+              <div key={x.key} className="flex flex-col gap-2.5 border border-edge-strong rounded-bp p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] text-ink-400">#{i + 1}</span>
+                  <span className="font-mono text-[12px] text-slate">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1913,7 +1923,7 @@ function ProfileScreen() {
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
-                <span className="font-mono text-[12px] text-ink-400">{i + 1}</span>
+                <span className="font-mono text-[12px] text-slate">{i + 1}</span>
                 <Input tone="light"
                   value={s.name}
                   aria-label={`Skill ${i + 1}`}
@@ -1953,9 +1963,9 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.certifications.map((c, i) => (
-              <div key={c.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
+              <div key={c.key} className="flex flex-col gap-2.5 border border-edge-strong rounded-bp p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] text-ink-400">#{i + 1}</span>
+                  <span className="font-mono text-[12px] text-slate">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1994,12 +2004,12 @@ function ProfileScreen() {
               </button>
             }
         >
-          <p className="text-[12px] leading-snug text-ink-400">
+          <p className="text-[12px] leading-snug text-slate">
             AI-labelled · you can rename the label on each item.
           </p>
           <div className="flex flex-col gap-3">
             {editor.additional_information.map((a) => (
-              <div key={a.key} className="flex flex-col gap-2.5 border border-line-light-strong rounded-radius-md p-3">
+              <div key={a.key} className="flex flex-col gap-2.5 border border-edge-strong rounded-bp p-3">
                 <div className="flex gap-2">
                   <Input tone="light"
                     label="Label"
@@ -2019,7 +2029,7 @@ function ProfileScreen() {
                     </button>
                   </div>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-900">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-graphite">
                   Value
                   <textarea
                     rows={2}
@@ -2041,7 +2051,7 @@ function ProfileScreen() {
           save control at the foot of a long form was redundant. The error display
           stays — it is where a failed save reports. */}
       {saveError ? (
-        <div className="mx-5 mb-5 mt-3 rounded-radius-md border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mb-5 mt-3 rounded-bp border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
           {saveError}
         </div>
       ) : null}
