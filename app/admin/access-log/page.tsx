@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card'
  * Admin · PII access log (TASK-075 split — moved verbatim from the old
  * monolithic /admin page). Shows when and by whom a user's sensitive profile
  * data was viewed (docs/ADMIN.md §2.5). Same read-only 50-row query as
- * before — TASK-098 restyles it (forest/gold light) and adds the §D mobile
+ * before — TASK-098 restyles it (navy/gold light) and adds the §D mobile
  * stacked-card fallback (desktop/tablet table; mobile card-per-row, labeled
  * rows — the same treatment as the Library's mobile fallback). The mono IDs
  * are kept (§D: mono for every ID/config value).

@@ -85,14 +85,14 @@ export function PhotoUpload({
           onClick={() => inputRef.current?.click()}
           disabled={busy}
           aria-label={photoUrl ? 'Change your profile photo' : 'Upload a profile photo'}
-          className="group relative h-[86px] w-[68px] shrink-0 overflow-hidden rounded-radius-md border border-line-light-strong bg-surface-2-light transition-colors hover:border-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 disabled:opacity-60"
+          className="group relative h-[86px] w-[68px] shrink-0 overflow-hidden rounded-radius-md border border-line-light-strong bg-surface-2-light transition-colors hover:border-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 disabled:opacity-60"
         >
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photoUrl} alt="Your profile photo" className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-center">
-              <span aria-hidden="true" className="text-[18px] leading-none text-forest">
+              <span aria-hidden="true" className="text-[18px] leading-none text-navy">
                 +
               </span>
               <span className="text-[9px] font-semibold uppercase tracking-wider text-ink-400">
@@ -101,7 +101,7 @@ export function PhotoUpload({
             </span>
           )}
           {/* Affordance on hover/focus so it is discoverable without a label. */}
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-forest-deep/80 py-0.5 text-center text-[9px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-navy-deep/80 py-0.5 text-center text-[9px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             {busy ? '…' : photoUrl ? 'Change' : 'Add'}
           </span>
         </button>

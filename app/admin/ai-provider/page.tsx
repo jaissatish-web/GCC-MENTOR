@@ -113,7 +113,7 @@ function ServiceForm({ config, keyName, submitLabel }: { config: AiProviderConfi
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">Fallback (optional, different provider)</span>
           <label className="inline-flex cursor-pointer items-center gap-2 text-[12px] font-semibold text-ink-700">
-            <input type="checkbox" name="fallbackEnabled" value="on" defaultChecked={Boolean(config?.fallbackEnabled)} className="size-4 accent-forest" />
+            <input type="checkbox" name="fallbackEnabled" value="on" defaultChecked={Boolean(config?.fallbackEnabled)} className="size-4 accent-navy" />
             Enable
           </label>
         </div>
@@ -166,7 +166,7 @@ export default async function AiProviderPage({
       </div>
 
       {providerSaved ? (
-        <div className="rounded-radius-lg border border-forest/50 bg-forest-tint px-3.5 py-2.5 text-[12px] text-forest">Saved.</div>
+        <div className="rounded-radius-lg border border-navy/50 bg-navy-tint px-3.5 py-2.5 text-[12px] text-navy">Saved.</div>
       ) : null}
       {providerError ? (
         <div className="rounded-radius-lg border border-terra/30 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">{providerError}</div>
@@ -179,7 +179,7 @@ export default async function AiProviderPage({
         </Card>
         <Card tone="light" className="p-4">
           <p className="text-[11px] text-ink-400">Configured</p>
-          <p className="mt-1 text-xl font-bold text-forest">{SERVICES.filter((s) => byKey.has(s.key)).length}</p>
+          <p className="mt-1 text-xl font-bold text-navy">{SERVICES.filter((s) => byKey.has(s.key)).length}</p>
         </Card>
         <Card tone="light" className="p-4">
           <p className="text-[11px] text-ink-400">Default AI</p>
@@ -206,7 +206,7 @@ export default async function AiProviderPage({
                   <span
                     className={
                       service.status === 'live'
-                        ? 'rounded-full bg-forest-tint px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-forest'
+                        ? 'rounded-full bg-navy-tint px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-navy'
                         : 'rounded-full border border-line-light-strong px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ink-400'
                     }
                   >

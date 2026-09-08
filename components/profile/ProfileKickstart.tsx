@@ -58,7 +58,7 @@ export function ProfileKickstart({ show }: { show: boolean }) {
   )
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-forest-deep/50 px-4 pt-[8vh] font-redesign-sans backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-navy-deep/50 px-4 pt-[8vh] font-redesign-sans backdrop-blur-sm">
       <div className="w-full max-w-[640px] rounded-radius-xl border border-line-light bg-surface-2-light p-6 shadow-redesign-lg sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>

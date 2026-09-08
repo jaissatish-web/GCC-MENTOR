@@ -74,7 +74,7 @@ export function ServicePackageItemsFields() {
       <button
         type="button"
         onClick={addRow}
-        className="self-start rounded-radius-md border border-dashed border-line-light-strong px-4 py-2 text-[12px] font-semibold text-forest hover:border-forest"
+        className="self-start rounded-radius-md border border-dashed border-line-light-strong px-4 py-2 text-[12px] font-semibold text-navy hover:border-navy"
       >
         + Add another service
       </button>

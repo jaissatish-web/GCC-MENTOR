@@ -42,7 +42,7 @@ export default async function PackagesPage({
         </p>
 
         {spSaved ? (
-          <div className="rounded-radius-lg border border-forest/50 bg-forest-tint px-3.5 py-2.5 text-[12px] text-forest">
+          <div className="rounded-radius-lg border border-navy/50 bg-navy-tint px-3.5 py-2.5 text-[12px] text-navy">
             Saved.
           </div>
         ) : null}
@@ -95,7 +95,7 @@ export default async function PackagesPage({
                       <form action={setServicePackageActiveAction}>
                         <input type="hidden" name="packageId" value={p.id} />
                         <input type="hidden" name="isActive" value="true" />
-                        <button type="submit" className="text-[11px] font-semibold text-forest underline-offset-2 hover:underline">Activate</button>
+                        <button type="submit" className="text-[11px] font-semibold text-navy underline-offset-2 hover:underline">Activate</button>
                       </form>
                     )}
                   </div>

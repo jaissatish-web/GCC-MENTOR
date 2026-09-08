@@ -30,7 +30,7 @@ const controlBase =
 const controlState = (invalid?: boolean) =>
   invalid
     ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/25'
-    : 'border-line-light-strong focus:border-forest focus:ring-2 focus:ring-forest/25'
+    : 'border-line-light-strong focus:border-navy focus:ring-2 focus:ring-navy/25'
 
 export function FieldShell({
   id,

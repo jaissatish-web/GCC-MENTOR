@@ -90,7 +90,7 @@ export default async function UsersPage({
                   </div>
                   <Link
                     href={`/admin/users?${new URLSearchParams({ q: q ?? '', user: r.userId }).toString()}`}
-                    className="text-[12px] font-semibold text-forest"
+                    className="text-[12px] font-semibold text-navy"
                   >
                     View packages →
                   </Link>

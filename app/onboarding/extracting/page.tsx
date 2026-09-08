@@ -268,7 +268,7 @@ function ExtractingScreen() {
             const isDone = i <= rowCount - 2
             const isActive = i === rowCount - 1
             const icon = isDone ? '✓' : isActive ? '◍' : '○'
-            const color = isDone ? 'text-forest' : isActive ? 'text-redesign-gold' : 'text-ink-400'
+            const color = isDone ? 'text-navy' : isActive ? 'text-redesign-gold' : 'text-ink-400'
             return (
               <div key={label} className="flex items-center gap-2.5 text-[13px] font-medium text-ink-900">
                 <span className={cn('w-4 text-center', color)}>{icon}</span>

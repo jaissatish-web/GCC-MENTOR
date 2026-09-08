@@ -28,14 +28,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-forest font-bold text-white hover:bg-forest-deep',
+        primary: 'bg-navy font-bold text-white hover:bg-navy-deep',
         purchase:
-          'bg-redesign-gold font-bold text-forest-deep shadow-redesign-cta-glow hover:bg-redesign-gold-dark hover:shadow-redesign-lg hover:-translate-y-px',
-        progress: 'bg-forest font-bold text-white shadow-redesign-md hover:bg-forest-deep',
+          'bg-redesign-gold font-bold text-navy-deep shadow-redesign-cta-glow hover:bg-redesign-gold-dark hover:shadow-redesign-lg hover:-translate-y-px',
+        progress: 'bg-navy font-bold text-white shadow-redesign-md hover:bg-navy-deep',
         secondary:
           'border border-line-light-strong bg-surface-light font-semibold text-ink-900 hover:bg-surface-2-light',
         ghost:
-          'border border-transparent bg-transparent font-semibold text-forest hover:bg-forest-tint',
+          'border border-transparent bg-transparent font-semibold text-navy hover:bg-navy-tint',
         danger:
           'border border-terra bg-surface-light font-semibold text-terra hover:bg-terra-tint',
         'danger-solid': 'bg-terra font-bold text-white hover:opacity-90',

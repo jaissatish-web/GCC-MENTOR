@@ -36,7 +36,7 @@ export function AuthShell({
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-[420px] flex-col items-center justify-center px-5 py-12 sm:px-8">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="font-serif flex h-9 w-9 items-center justify-center rounded-radius-lg bg-redesign-gold text-[15px] text-forest-deep shadow-redesign-cta-glow">
+          <span className="font-serif flex h-9 w-9 items-center justify-center rounded-radius-lg bg-redesign-gold text-[15px] text-navy-deep shadow-redesign-cta-glow">
             G
           </span>
           <span className="text-[15px] font-bold text-ink-900">GCC MENTOR</span>

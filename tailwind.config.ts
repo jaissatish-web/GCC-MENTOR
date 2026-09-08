@@ -72,39 +72,41 @@ const config: Config = {
           removed: '#A89A8A',
         },
 
-        // ── Redesign token foundation (docs/redesign/DESIGN_SYSTEM.md §1) ──
-        // Existing tokens above are retained for current call sites. The
-        // redesign palette is additive; explicit *-dark aliases expose the
-        // approved dark-theme values without silently changing legacy colors.
-        forest: '#1B4272',
-        'forest-dark': '#6BA3E0',
-        'forest-deep': '#0B1F38',
-        'forest-deep-dark': '#081627',
-        'forest-tint': '#E7EEF8',
-        'forest-tint-dark': '#14304F',
-
-        // ── TRUTHFUL NAMES FOR THE SAME COLOURS ──────────────────────────────
+        // ── THE NAVY PALETTE ─────────────────────────────────────────────────
         //
-        // The palette moved from green to navy (TASK-112) by changing the
-        // VALUES and keeping the green NAMES. `forest` is navy. `forest-dark`
-        // is a LIGHT BLUE — despite "dark" — because it exists to sit ON a dark
-        // surface. Anyone choosing a colour by its name chooses wrong, and that
-        // has already shipped two real defects: near-black text on a navy
-        // button (1.69:1, invisible) and white labels on a white card.
+        // These colours were once named `forest*`. The palette moved from green
+        // to navy (TASK-112) by changing the VALUES and keeping the green
+        // NAMES, so `forest` was navy and `forest-dark` was a LIGHT BLUE —
+        // despite "dark" — because it existed to sit ON a dark surface.
         //
-        // These aliases point at the identical values, so nothing renders
-        // differently today. New code uses the honest name; the old names stay
-        // valid, so no page has to be rewritten to benefit. A mass rename would
-        // touch every file in the app for zero visual change — the risk belongs
-        // to a dedicated pass, not to every ticket that needs a blue.
+        // Choosing a colour by its name therefore produced a wrong result, and
+        // it shipped two real defects: near-black text on a navy button
+        // (1.69:1, invisible) and white labels on a white card.
         //
-        // USE THESE. Treat `forest*` as deprecated.
+        // Honest aliases were added first, pointing at identical values, with
+        // the old names left valid so no page had to be rewritten immediately.
+        // That was the right first move and the wrong place to stop: while both
+        // names resolved, the trap was still fully armed and the app still used
+        // the misleading name in 291 places.
+        //
+        // RENAMED AND THE ALIASES DELETED 2026-09-08, in one pass across 50
+        // files, verified by comparing every colour declaration in the compiled
+        // stylesheet before and after — identical. There is now exactly one
+        // name per colour, and it is the true one.
         navy: '#1B4272',
         'navy-deep': '#0B1F38',
         'navy-tint': '#E7EEF8',
         'navy-tint-dark': '#14304F',
         /** Light blue for text and borders ON dark navy surfaces. */
         sky: '#6BA3E0',
+        /**
+         * Darker than `navy-deep`. The ground for dark chrome — the sidebar and
+         * the mobile navigation bar. Added 2026-09-08 during the `forest*`
+         * rename: it was the one deprecated token with no honest name to move
+         * to, and `bg-dark` (the same value) reads as a page background rather
+         * than as a navy.
+         */
+        'navy-deepest': '#081627',
         // Collision-safe redesign names: the existing `gold` token above is
         // retained for current pages; redesign tickets use these exact §1.1
         // CTA/accent and tint values.

@@ -90,7 +90,7 @@ function NameField({
           e.currentTarget.blur()
         }
       }}
-      className="w-full rounded-radius-md border border-transparent bg-transparent px-1.5 py-1 text-[13.5px] font-bold leading-snug text-ink-900 hover:border-line-light focus:border-forest focus:bg-surface-light focus-visible:outline-none"
+      className="w-full rounded-radius-md border border-transparent bg-transparent px-1.5 py-1 text-[13.5px] font-bold leading-snug text-ink-900 hover:border-line-light focus:border-navy focus:bg-surface-light focus-visible:outline-none"
     />
   )
 }
@@ -100,9 +100,9 @@ function statusSelectClass(status: PackageStatus): string {
   const map: Record<PackageStatus, string> = {
     applied: 'border-line-light-strong bg-surface-2-light text-ink-700',
     shortlisted: 'border-redesign-gold/50 bg-redesign-gold-tint text-gold-text',
-    interview: 'border-forest/50 bg-forest-tint text-forest',
+    interview: 'border-navy/50 bg-navy-tint text-navy',
     visa_processing: 'border-line-light bg-surface-2-light text-ink-400',
-    offer: 'border-forest bg-forest text-white',
+    offer: 'border-navy bg-navy text-white',
   }
   return map[status]
 }
@@ -113,7 +113,7 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
       className={cn(
         'rounded-[6px] px-2 py-1 text-[9.5px] font-semibold leading-none',
         present
-          ? 'bg-forest-tint text-forest'
+          ? 'bg-navy-tint text-navy'
           : 'border border-dashed border-line-light-strong bg-surface-2-light text-ink-400'
       )}
     >
@@ -350,7 +350,7 @@ export default function DashboardLibraryPage() {
               <div className="mt-3.5 flex items-center gap-4">
                 <Link
                   href={`/package/${pkg.id}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-forest px-4 text-[11.5px] font-semibold text-white transition-colors hover:bg-forest-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 items-center justify-center rounded-radius-md bg-navy px-4 text-[11.5px] font-semibold text-white transition-colors hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
                 >
                   Open
                 </Link>
@@ -359,7 +359,7 @@ export default function DashboardLibraryPage() {
                     resume first and finding "Edit text" there. */}
                 <Link
                   href={`/package/${pkg.id}/edit`}
-                  className="min-h-11 px-1 text-[11px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                  className="min-h-11 px-1 text-[11px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
                 >
                   Edit
                 </Link>
@@ -430,7 +430,7 @@ export default function DashboardLibraryPage() {
                   than forest-on-white text that read as a label (TASK-157). */}
               <Link
                 href={`/package/${pkg.id}`}
-                className="inline-flex min-h-9 items-center justify-center rounded-radius-md bg-forest px-3.5 text-[11.5px] font-semibold text-white transition-colors hover:bg-forest-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                className="inline-flex min-h-9 items-center justify-center rounded-radius-md bg-navy px-3.5 text-[11.5px] font-semibold text-white transition-colors hover:bg-navy-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
               >
                 Open
               </Link>

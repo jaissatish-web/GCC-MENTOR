@@ -63,7 +63,7 @@ function PlannedGroup() {
 function BrandMark() {
   return (
     <Link href="/dashboard" className="flex items-center gap-2.5 px-2">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-redesign-gold text-[15px] font-bold text-forest-deep shadow-redesign-sm">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-redesign-gold text-[15px] font-bold text-navy-deep shadow-redesign-sm">
         G
       </div>
       <span className="text-[14px] font-semibold text-ink-900-dark">GCC MENTOR</span>
@@ -100,7 +100,7 @@ function NavItem({
       aria-current={active ? 'page' : undefined}
       className={cn(
         'flex min-h-11 items-center gap-3 rounded-xl text-[13.5px] font-redesign-sans transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-forest-deep-dark',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deepest',
         collapsed ? 'justify-center px-0' : 'px-3',
         pending && !active && 'opacity-60',
         active
@@ -188,15 +188,15 @@ export function Sidebar() {
           the `overflow-y-auto` that came with it added a second scrollbar beside
           the page's own, which read as clutter. The nav is nine items and fits a
           laptop screen, so it does not need one. */}
-      <aside className="hidden w-[248px] flex-none flex-col gap-7 border-r border-line-dark bg-forest-deep-dark px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-dvh">
+      <aside className="hidden w-[248px] flex-none flex-col gap-7 border-r border-line-dark bg-navy-deepest px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-dvh">
         {navContent}
       </aside>
 
       {/* Tablet collapsed sidebar — 768–1023px */}
-      <aside className="relative hidden w-[48px] flex-none flex-col items-center gap-5 border-r border-line-dark bg-forest-deep-dark px-2 py-4 md:flex lg:hidden">
+      <aside className="relative hidden w-[48px] flex-none flex-col items-center gap-5 border-r border-line-dark bg-navy-deepest px-2 py-4 md:flex lg:hidden">
         <Link
           href="/dashboard"
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-redesign-gold text-[15px] font-bold text-forest-deep shadow-redesign-sm"
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-redesign-gold text-[15px] font-bold text-navy-deep shadow-redesign-sm"
         >
           G
         </Link>
@@ -231,11 +231,11 @@ export function Sidebar() {
         <div className="fixed inset-0 z-40 md:flex lg:hidden">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-forest-deep/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-navy-deep/60 backdrop-blur-sm"
             onClick={() => setTabletExpanded(false)}
           />
           {/* Slide-in drawer */}
-          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-7 border-r border-line-dark bg-forest-deep-dark px-4 py-6 shadow-redesign-lg">
+          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-7 border-r border-line-dark bg-navy-deepest px-4 py-6 shadow-redesign-lg">
             <button
               type="button"
               onClick={() => setTabletExpanded(false)}

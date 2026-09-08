@@ -252,7 +252,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
             <span className="text-[11.5px] font-semibold text-gold-text">Unsaved changes</span>
           ) : null}
           {justSaved && !dirty ? (
-            <span className="text-[11.5px] font-semibold text-forest">Saved</span>
+            <span className="text-[11.5px] font-semibold text-navy">Saved</span>
           ) : null}
           <button
             type="button"

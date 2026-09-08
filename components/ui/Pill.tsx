@@ -15,11 +15,11 @@ const pillVariants = cva(
       variant: {
         applied: 'border border-line-light-strong bg-surface-2-light text-ink-700',
         shortlisted: 'border border-redesign-gold bg-redesign-gold-tint text-gold-text',
-        interview: 'border border-forest-tint bg-forest-tint text-forest',
+        interview: 'border border-navy-tint bg-navy-tint text-navy',
         visa_processing: 'border border-ink-200 bg-ink-200 text-ink-700',
-        offer: 'bg-forest text-surface-light',
+        offer: 'bg-navy text-surface-light',
         risk: 'rounded-[7px] border border-terra bg-terra-tint text-terra',
-        grounded: 'rounded-[7px] border border-forest-tint bg-forest-tint text-forest',
+        grounded: 'rounded-[7px] border border-navy-tint bg-navy-tint text-navy',
       },
     },
     defaultVariants: {

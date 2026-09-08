@@ -31,7 +31,7 @@ const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
         aria-valuetext={getValueLabel ? getValueLabel(clamped) : undefined}
         className={cn(
           'relative h-1.5 w-full overflow-hidden rounded-full font-redesign-sans',
-          isDark ? 'bg-forest-tint-dark' : 'bg-surface-2-light',
+          isDark ? 'bg-navy-tint-dark' : 'bg-surface-2-light',
           className
         )}
       >
@@ -46,7 +46,7 @@ const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
           <div
             className={cn(
               'h-full rounded-full transition-[width] duration-500 ease-out motion-reduce:transition-none',
-              isDark ? 'bg-redesign-gold-dark shadow-redesign-cta-glow' : 'bg-forest'
+              isDark ? 'bg-redesign-gold-dark shadow-redesign-cta-glow' : 'bg-navy'
             )}
             style={{ width: `${clamped}%` }}
           />

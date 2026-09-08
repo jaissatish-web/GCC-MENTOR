@@ -40,7 +40,7 @@ export function MoreSheet() {
       {open && (
         <div className="fixed inset-0 z-50 flex items-end md:hidden">
           <div
-            className="absolute inset-0 bg-forest-deep/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-navy-deep/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
           <div className="relative z-10 max-h-[80vh] w-full overflow-y-auto rounded-t-2xl border-t border-line-dark bg-surface-dark p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-redesign-lg">

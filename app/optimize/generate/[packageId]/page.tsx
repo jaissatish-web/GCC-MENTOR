@@ -98,7 +98,7 @@ export default function GeneratePage({ params }: { params: { packageId: string }
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-forest-deep px-6 py-12 font-redesign-sans">
+    <main className="flex min-h-dvh items-center justify-center bg-navy-deep px-6 py-12 font-redesign-sans">
       <div className="w-full max-w-[440px]">
         <h1 className="font-serif text-[28px] leading-tight text-ink-900-dark">
           Building your Gulf CV…
@@ -117,7 +117,7 @@ export default function GeneratePage({ params }: { params: { packageId: string }
                   className={
                     'flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] ' +
                     (state === 'done'
-                      ? 'border-redesign-gold bg-redesign-gold text-forest-deep'
+                      ? 'border-redesign-gold bg-redesign-gold text-navy-deep'
                       : state === 'active'
                         ? 'border-redesign-gold text-gold-text-dark'
                         : 'border-ink-900-dark/25 text-ink-400-dark')

@@ -76,7 +76,7 @@ export default async function AdminPlanPage() {
                         Costs money
                       </span>
                     ) : (
-                      <span className="rounded-[4px] bg-forest-tint px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-forest">
+                      <span className="rounded-[4px] bg-navy-tint px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-navy">
                         Free to run
                       </span>
                     )}
@@ -91,7 +91,7 @@ export default async function AdminPlanPage() {
                     type="checkbox"
                     name="freeAllowed"
                     defaultChecked={row.free_allowed}
-                    className="size-4 accent-forest"
+                    className="size-4 accent-navy"
                   />
                   Included for free
                 </label>
@@ -126,7 +126,7 @@ export default async function AdminPlanPage() {
                             name="freeTemplates"
                             value={t.id}
                             defaultChecked={chosen.includes(t.id)}
-                            className="size-3.5 accent-forest"
+                            className="size-3.5 accent-navy"
                           />
                           {t.name}
                           {t.allowsPhoto ? (
@@ -143,7 +143,7 @@ export default async function AdminPlanPage() {
 
                 <button
                   type="submit"
-                  className="ml-auto min-h-9 shrink-0 rounded-radius-md bg-forest px-4 text-[12.5px] font-semibold text-white"
+                  className="ml-auto min-h-9 shrink-0 rounded-radius-md bg-navy px-4 text-[12.5px] font-semibold text-white"
                 >
                   Save
                 </button>

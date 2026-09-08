@@ -82,7 +82,7 @@ function TemplatesInner() {
               id="resume-select"
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
-              className="min-h-11 min-w-[220px] rounded-radius-md border border-line-light bg-surface-light px-3 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+              className="min-h-11 min-w-[220px] rounded-radius-md border border-line-light bg-surface-light px-3 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
             >
               {packages.map((p) => (
                 <option key={p.id} value={p.id}>

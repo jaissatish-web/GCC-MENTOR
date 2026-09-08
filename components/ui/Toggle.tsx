@@ -26,7 +26,7 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
           'inline-flex min-h-11 items-center justify-center rounded-full p-[9px] font-redesign-sans transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           isDark
             ? 'focus-visible:ring-redesign-gold-dark focus-visible:ring-offset-bg-dark'
-            : 'focus-visible:ring-forest-deep focus-visible:ring-offset-bg',
+            : 'focus-visible:ring-navy-deep focus-visible:ring-offset-bg',
           className
         )}
         onClick={(event) => {
@@ -38,7 +38,7 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
         <span
           className={cn(
             'flex h-[27px] w-[46px] items-center rounded-full p-[3px] transition-colors',
-            checked ? 'justify-end bg-forest' : isDark ? 'justify-start bg-forest-tint-dark' : 'justify-start bg-ink-200'
+            checked ? 'justify-end bg-navy' : isDark ? 'justify-start bg-navy-tint-dark' : 'justify-start bg-ink-200'
           )}
         >
           <span className="h-[21px] w-[21px] rounded-full bg-surface-light shadow-redesign-sm" />

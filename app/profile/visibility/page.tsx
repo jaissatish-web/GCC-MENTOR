@@ -185,7 +185,7 @@ function VisibilityScreen() {
       ) : null}
       <div className="flex flex-col gap-3 px-5 pb-6 pt-4">
         <div className="flex items-start gap-2.5 rounded-radius-md border border-line-light/60 bg-surface-light px-3.5 py-3">
-          <span className="text-[13px] text-forest">⌾</span>
+          <span className="text-[13px] text-navy">⌾</span>
           <p className="text-[11px] leading-snug text-ink-700">
             Passport and visa fields are encrypted. Every internal access is logged. You can delete
             your profile and all packages at any time from Settings.

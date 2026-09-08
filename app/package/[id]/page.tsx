@@ -335,9 +335,9 @@ function PackageScreenInner({ id }: { id: string }) {
                 e.currentTarget.blur()
               }
             }}
-            className="min-w-[180px] flex-1 rounded-radius-md border border-line-light bg-surface-light px-3 py-1.5 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+            className="min-w-[180px] flex-1 rounded-radius-md border border-line-light bg-surface-light px-3 py-1.5 text-[13px] text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
           />
-          {nameState ? <span className="shrink-0 text-forest">{nameState}</span> : null}
+          {nameState ? <span className="shrink-0 text-navy">{nameState}</span> : null}
         </label>
 
         {/* The document's actions, pushed to the right of the same row. */}
@@ -398,7 +398,7 @@ function PackageScreenInner({ id }: { id: string }) {
               </button>
             </>
           ) : styleMsg ? (
-            <span role="status" className="text-[11.5px] text-forest">
+            <span role="status" className="text-[11.5px] text-navy">
               {styleMsg}
             </span>
           ) : null}
@@ -416,8 +416,8 @@ function PackageScreenInner({ id }: { id: string }) {
             otherwise browsing would silently restyle a delivered resume
             (TASK-141). */}
         {isTrying ? (
-          <div className="flex flex-col gap-2 rounded-radius-lg border border-forest/50 bg-forest-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[12.5px] text-forest">
+          <div className="flex flex-col gap-2 rounded-radius-lg border border-navy/50 bg-navy-tint px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[12.5px] text-navy">
               Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Not saved yet — your
               download still uses <strong>{getTemplate(savedTemplateId).name}</strong>.
             </p>
@@ -447,7 +447,7 @@ function PackageScreenInner({ id }: { id: string }) {
             the nav, so nothing is lost, just this in-page prompt. */}
 
         {downloaded && !isFree ? (
-          <div className="rounded-radius-lg border border-forest/40 bg-forest-tint px-3.5 py-3 text-[12.5px] text-forest">
+          <div className="rounded-radius-lg border border-navy/40 bg-navy-tint px-3.5 py-3 text-[12.5px] text-navy">
             Applying somewhere else? Your profile is saved — next one takes a minute.
           </div>
         ) : null}
@@ -573,10 +573,10 @@ function PackageScreenInner({ id }: { id: string }) {
                                 }
                                 style={{ background: v.hex }}
                                 className={
-                                  'size-7 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 ' +
+                                  'size-7 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 ' +
                                   (active
-                                    ? 'ring-2 ring-forest ring-offset-2'
-                                    : 'ring-1 ring-line-light hover:ring-forest/60')
+                                    ? 'ring-2 ring-navy ring-offset-2'
+                                    : 'ring-1 ring-line-light hover:ring-navy/60')
                                 }
                               />
                             )
@@ -611,7 +611,7 @@ function PackageScreenInner({ id }: { id: string }) {
                                   return next
                                 })
                               }
-                              className="size-5 cursor-pointer accent-forest"
+                              className="size-5 cursor-pointer accent-navy"
                             />
                           </label>
 
@@ -644,7 +644,7 @@ function PackageScreenInner({ id }: { id: string }) {
                                 onChange={(e) =>
                                   setDraftStyle((st) => ({ ...st, photo: Number(e.target.value) }))
                                 }
-                                className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-2-light accent-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                                className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-2-light accent-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
                               />
                               <div className="mt-1 flex justify-between text-[10px] text-ink-400">
                                 <span>Smaller</span>
@@ -751,10 +751,10 @@ function StyleChoice({
               aria-pressed={active}
               onClick={() => onChange(k)}
               className={
-                'min-h-8 rounded-radius-md px-2.5 py-1 text-[11.5px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-1 ' +
+                'min-h-8 rounded-radius-md px-2.5 py-1 text-[11.5px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-1 ' +
                 (active
-                  ? 'bg-forest text-white'
-                  : 'border border-line-light bg-surface-light text-ink-700 hover:border-forest/60')
+                  ? 'bg-navy text-white'
+                  : 'border border-line-light bg-surface-light text-ink-700 hover:border-navy/60')
               }
             >
               {lbl}

@@ -62,7 +62,7 @@ function OptionCard({
       aria-pressed={selected}
       className={cn(
         'flex w-full min-h-11 items-start gap-3.5 rounded-radius-lg border bg-surface-light px-4 py-4 text-left font-redesign-sans transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
-        selected ? 'border-forest shadow-redesign-md' : 'border-line-light'
+        selected ? 'border-navy shadow-redesign-md' : 'border-line-light'
       )}
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-surface-2-light text-ink-900">
@@ -222,7 +222,7 @@ export default function OnboardingPage() {
         {/* Option cards */}
         <div className="mt-7 flex flex-col gap-3">
           <OptionCard
-            icon={<span className="text-[17px] text-forest">↑</span>}
+            icon={<span className="text-[17px] text-navy">↑</span>}
             title="Upload a file"
             badge="Fastest"
             description="Resume PDF/DOCX, or your LinkedIn profile export. We read it and fill in everything we can."

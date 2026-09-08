@@ -125,7 +125,7 @@ const faq = [
 ]
 
 function Kicker({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
-  return <p className={cn('text-[11px] font-bold uppercase tracking-[0.2em]', light ? 'text-redesign-gold-dark' : 'text-forest')}>{children}</p>
+  return <p className={cn('text-[11px] font-bold uppercase tracking-[0.2em]', light ? 'text-redesign-gold-dark' : 'text-navy')}>{children}</p>
 }
 
 function StaticScoreRing({ score, size = 64 }: { score: number; size?: number }) {
@@ -133,9 +133,9 @@ function StaticScoreRing({ score, size = 64 }: { score: number; size?: number })
   const offset = circumference * (1 - score / 100)
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} className="-rotate-90" aria-hidden="true">
-      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className="stroke-forest-tint" />
-      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="stroke-forest" />
-      <text x="50" y="50" dy="0.35em" textAnchor="middle" className="font-mono text-[22px] fill-forest" style={{ transform: 'rotate(90deg)', transformOrigin: '50px 50px' }}>{score}</text>
+      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className="stroke-navy-tint" />
+      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="stroke-navy" />
+      <text x="50" y="50" dy="0.35em" textAnchor="middle" className="font-mono text-[22px] fill-navy" style={{ transform: 'rotate(90deg)', transformOrigin: '50px 50px' }}>{score}</text>
     </svg>
   )
 }
@@ -145,11 +145,11 @@ function ReadinessBar({ label, before, after }: { label: string; before: number;
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between text-[12px] font-semibold text-ink-700">
         <span>{label}</span>
-        <span className="font-mono text-forest">{before}% → {after}%</span>
+        <span className="font-mono text-navy">{before}% → {after}%</span>
       </div>
       <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-ink-200">
         <div className="absolute inset-y-0 left-0 rounded-full bg-ink-400/50" style={{ width: `${before}%` }} />
-        <div className="absolute inset-y-0 left-0 rounded-full bg-forest" style={{ width: `${after}%` }} />
+        <div className="absolute inset-y-0 left-0 rounded-full bg-navy" style={{ width: `${after}%` }} />
       </div>
     </div>
   )
@@ -161,7 +161,7 @@ export default function Home() {
       <SiteNav />
       <main>
         {/* ════ HERO ════ */}
-        <section className="relative overflow-hidden bg-forest-deep">
+        <section className="relative overflow-hidden bg-navy-deep">
           <div className="absolute inset-0">
             {/* `sizes` is required on a `fill` image (2026-08-19). Without it
                 Next assumes the image spans the viewport at every breakpoint and
@@ -169,8 +169,8 @@ export default function Home() {
                 element, so that was the single most expensive byte on the page.
                 `priority` stays: it IS the LCP element and must not lazy-load. */}
             <Image src={photos.plant} alt="" fill priority sizes="100vw" className="object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-forest-deep via-forest-deep/90 to-forest-deep/40" />
-            <div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-transparent to-forest-deep/50" />
+            <div className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/90 to-navy-deep/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-navy-deep via-transparent to-navy-deep/50" />
           </div>
           <div className="relative mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
             <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
@@ -214,37 +214,37 @@ export default function Home() {
                 <div className="rounded-radius-2xl border border-line bg-surface-light p-5 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.45)] sm:p-7">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-forest">GCC Career Profile</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-navy">GCC Career Profile</p>
                       <p className="mt-1 text-[13px] text-ink-700">Senior Instrument Engineer</p>
                     </div>
-                    <span className="rounded-full bg-forest-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest">Illustrative profile</span>
+                    <span className="rounded-full bg-navy-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">Illustrative profile</span>
                   </div>
                   <p className="mt-5 text-[10px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — not a real customer result</p>
                   <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
-                      <CheckCircleIcon className="h-10 w-10 text-forest" />
+                      <CheckCircleIcon className="h-10 w-10 text-navy" />
                       <span className="text-center text-[10px] font-bold text-ink-700">ATS-ready format</span>
                     </div>
                     <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
-                      <ChartBarIcon className="h-10 w-10 text-forest" />
+                      <ChartBarIcon className="h-10 w-10 text-navy" />
                       <span className="text-center text-[10px] font-bold text-ink-700">Readiness review</span>
                     </div>
                     <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
-                      <SparklesIcon className="h-10 w-10 text-forest" />
+                      <SparklesIcon className="h-10 w-10 text-navy" />
                       <span className="text-center text-[10px] font-bold text-ink-700">Role targeting</span>
                     </div>
                   </div>
-                  <div className="mt-4 flex items-center gap-4 text-[12px] text-forest">
+                  <div className="mt-4 flex items-center gap-4 text-[12px] text-navy">
                     <span className="flex items-center gap-1.5"><CheckCircleIcon className="h-4 w-4" /> Saudi Arabia ✓</span>
                     <span className="flex items-center gap-1.5"><CheckCircleIcon className="h-4 w-4" /> UAE ✓</span>
                   </div>
-                  <div className="mt-4 rounded-radius-lg border border-line bg-forest-tint/50 p-4">
+                  <div className="mt-4 rounded-radius-lg border border-line bg-navy-tint/50 p-4">
                     <div className="flex items-center justify-between text-[13px]">
                       <span className="font-semibold">Profile completeness</span>
-                      <span className="font-bold text-forest">Ready to review</span>
+                      <span className="font-bold text-navy">Ready to review</span>
                     </div>
-                    <div className="mt-2 h-2 rounded-full bg-forest-tint">
-                      <div className="h-2 w-3/4 rounded-full bg-forest" />
+                    <div className="mt-2 h-2 rounded-full bg-navy-tint">
+                      <div className="h-2 w-3/4 rounded-full bg-navy" />
                     </div>
                     <p className="mt-2 text-[11px] text-ink-400">Complete your profile to strengthen future applications</p>
                   </div>
@@ -259,10 +259,10 @@ export default function Home() {
         {/* ════ TRUST BAND ════ */}
         <section className="border-y border-line bg-surface-2-light">
           <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-center gap-x-10 gap-y-3 px-5 py-5 text-[13px] font-semibold text-ink-700 sm:px-8 lg:px-12">
-            <span className="flex items-center gap-2"><ShieldCheckIcon className="h-4 w-4 text-forest" /> No invented facts</span>
-            <span className="flex items-center gap-2"><BoltIcon className="h-4 w-4 text-forest" /> Zero LTI safety record</span>
-            <span className="flex items-center gap-2"><GlobeAltIcon className="h-4 w-4 text-forest" /> GCC + Asia mega-projects</span>
-            <span className="flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-forest" /> Professional preparation</span>
+            <span className="flex items-center gap-2"><ShieldCheckIcon className="h-4 w-4 text-navy" /> No invented facts</span>
+            <span className="flex items-center gap-2"><BoltIcon className="h-4 w-4 text-navy" /> Zero LTI safety record</span>
+            <span className="flex items-center gap-2"><GlobeAltIcon className="h-4 w-4 text-navy" /> GCC + Asia mega-projects</span>
+            <span className="flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-navy" /> Professional preparation</span>
           </div>
         </section>
 
@@ -279,7 +279,7 @@ export default function Home() {
                   sizes="(min-width: 1024px) 50vw, 100vw"
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/70 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/70 to-transparent" />
               </div>
               <div className="flex flex-col gap-6">
                 <Kicker>Not built by a template. Built by an engineer.</Kicker>
@@ -293,7 +293,7 @@ export default function Home() {
                 <div className="mt-2 grid gap-4 sm:grid-cols-2">
                   {credentials.map(c => (
                     <div key={c.label} className="flex gap-3 rounded-radius-lg border border-line bg-surface-light p-4">
-                      <RocketLaunchIcon className="mt-0.5 h-5 w-5 shrink-0 text-forest" />
+                      <RocketLaunchIcon className="mt-0.5 h-5 w-5 shrink-0 text-navy" />
                       <div>
                         <h3 className="text-sm font-bold text-ink-900">{c.label}</h3>
                         <p className="mt-0.5 text-[12px] leading-relaxed text-ink-400">{c.detail}</p>
@@ -322,21 +322,21 @@ export default function Home() {
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((s) => (
               <Link key={s.title} href={s.href} className="group">
-                <Card tone="light" className="flex h-full min-h-[260px] flex-col gap-4 p-6 transition-all hover:-translate-y-1 hover:border-forest/40 hover:shadow-sm">
+                <Card tone="light" className="flex h-full min-h-[260px] flex-col gap-4 p-6 transition-all hover:-translate-y-1 hover:border-navy/40 hover:shadow-sm">
                   <div className="flex items-start justify-between gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-radius-lg bg-forest-tint text-forest">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-radius-lg bg-navy-tint text-navy">
                       <s.icon className="h-5 w-5" />
                     </span>
                     <span className={cn(
                       'rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider',
-                      s.status === 'Live' ? 'bg-forest-tint text-forest' : 'bg-redesign-gold-tint text-gold-text',
+                      s.status === 'Live' ? 'bg-navy-tint text-navy' : 'bg-redesign-gold-tint text-gold-text',
                     )}>
                       {s.status}
                     </span>
                   </div>
                   <h3 className="font-serif text-xl text-ink-900">{s.title}</h3>
                   <p className="text-sm leading-relaxed text-ink-700">{s.desc}</p>
-                  <span className="mt-auto text-sm font-bold text-forest group-hover:text-forest-dark">
+                  <span className="mt-auto text-sm font-bold text-navy group-hover:text-sky">
                     {s.status === 'Live' ? 'Start free →' : 'Try it now →'}
                   </span>
                 </Card>
@@ -379,8 +379,8 @@ export default function Home() {
                   <span className="w-fit rounded-full bg-ink-200 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-700">Before</span>
                   <p className="text-[15px] leading-relaxed text-ink-700">{beforeAfter.before}</p>
                 </Card>
-                <Card tone="light" className="flex flex-col gap-2 border-forest/40 bg-forest-tint/40 p-6">
-                  <span className="w-fit rounded-full bg-forest px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">After</span>
+                <Card tone="light" className="flex flex-col gap-2 border-navy/40 bg-navy-tint/40 p-6">
+                  <span className="w-fit rounded-full bg-navy px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">After</span>
                   <p className="text-[15px] leading-relaxed text-ink-900">{beforeAfter.after}</p>
                 </Card>
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — the format real GCC recruiters expect, not a real customer result</p>
@@ -411,7 +411,7 @@ export default function Home() {
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {GULF_COUNTRIES.filter(c => c.value !== 'generic_gulf').map((c) => (
               <Link key={c.value} href="/gulf-readiness-score" className="group">
-                <Card tone="light" className="flex h-full min-h-[130px] flex-col gap-2 p-5 transition-all hover:-translate-y-0.5 hover:border-forest/40">
+                <Card tone="light" className="flex h-full min-h-[130px] flex-col gap-2 p-5 transition-all hover:-translate-y-0.5 hover:border-navy/40">
                   <span className="text-2xl">{countryFlags[c.value]}</span>
                   <h3 className="font-serif text-xl text-ink-900">{c.label}</h3>
                   <p className="text-[12px] leading-relaxed text-ink-400">CV support live · GCC Readiness available</p>
@@ -446,11 +446,11 @@ export default function Home() {
                   className="grid items-start gap-4 rounded-radius-xl border border-line bg-surface-light p-5 sm:p-6 md:grid-cols-[auto_1fr_1fr] md:gap-6"
                 >
                   <div className="flex items-center gap-3 md:flex-col md:items-start">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-radius-xl bg-forest-deep font-mono text-[15px] font-bold text-white">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-radius-xl bg-navy-deep font-mono text-[15px] font-bold text-white">
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     {step.free ? (
-                      <span className="rounded-full bg-forest-tint px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-forest">
+                      <span className="rounded-full bg-navy-tint px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">
                         Free
                       </span>
                     ) : null}
@@ -461,8 +461,8 @@ export default function Home() {
                     <p className="mt-1.5 text-sm leading-relaxed text-ink-700">{step.doing}</p>
                   </div>
 
-                  <div className="rounded-radius-lg border border-forest/25 bg-forest-tint/40 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-forest">You get</p>
+                  <div className="rounded-radius-lg border border-navy/25 bg-navy-tint/40 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-navy">You get</p>
                     <p className="mt-1.5 text-sm leading-relaxed text-ink-900">{step.gain}</p>
                   </div>
                 </li>
@@ -489,12 +489,12 @@ export default function Home() {
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/60 to-transparent" />
             </div>
             <div className="flex flex-col gap-6 lg:order-1">
               <Kicker>Your career data stays factual</Kicker>
               <h2 className="font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">
-                AI that works from <span className="text-forest">your experience</span> — never invents it.
+                AI that works from <span className="text-navy">your experience</span> — never invents it.
               </h2>
               <div className="mt-2 grid gap-5">
                 {[
@@ -503,7 +503,7 @@ export default function Home() {
                   { title: 'Professional, transparent preparation', desc: 'Know what you are getting before you pay. See the changes, review the output, then decide.' },
                 ].map(t => (
                   <div key={t.title} className="flex gap-3">
-                    <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-forest" />
+                    <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-navy" />
                     <div>
                       <h3 className="font-bold text-ink-900">{t.title}</h3>
                       <p className="text-sm leading-relaxed text-ink-700">{t.desc}</p>
@@ -535,25 +535,25 @@ export default function Home() {
             </div>
             <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {pricing.map((p) => (
-                <Card key={p.name} tone="light" className={cn('flex flex-col gap-5 p-6', p.featured && 'border-forest shadow-md ring-1 ring-forest/30')}>
+                <Card key={p.name} tone="light" className={cn('flex flex-col gap-5 p-6', p.featured && 'border-navy shadow-md ring-1 ring-navy/30')}>
                   {p.featured ? (
-                    <span className="w-fit rounded-full bg-forest-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-forest">Most popular</span>
+                    <span className="w-fit rounded-full bg-navy-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-navy">Most popular</span>
                   ) : !p.live ? (
                     <span className="w-fit rounded-full bg-redesign-gold-tint px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-text">Self-serve checkout coming soon</span>
                   ) : null}
                   <div>
                     <h3 className="font-serif text-xl text-ink-900">{p.name}</h3>
-                    <p className="text-sm text-forest">{p.tag}</p>
+                    <p className="text-sm text-navy">{p.tag}</p>
                   </div>
                   {p.price ? (
                     <p className="font-mono text-4xl font-bold text-ink-900">{p.price}</p>
                   ) : (
-                    <p className="font-mono text-4xl font-bold text-forest">Free</p>
+                    <p className="font-mono text-4xl font-bold text-navy">Free</p>
                   )}
                   <ul className="flex flex-col gap-2.5 text-sm text-ink-700">
                     {p.items.map(item => (
                       <li key={item} className="flex items-center gap-2">
-                        <CheckCircleIcon className="h-4 w-4 shrink-0 text-forest" />
+                        <CheckCircleIcon className="h-4 w-4 shrink-0 text-navy" />
                         {item}
                       </li>
                     ))}
@@ -602,7 +602,7 @@ export default function Home() {
         </section>
 
         {/* ════ FINAL CTA ════ */}
-        <section className="border-t border-line bg-forest-deep">
+        <section className="border-t border-line bg-navy-deep">
           <div className="mx-auto max-w-[900px] px-5 py-24 text-center sm:px-8 lg:py-28">
             <Kicker light>Ready to begin</Kicker>
             <h2 className="mt-4 font-serif text-4xl leading-tight text-white sm:text-5xl">
@@ -624,7 +624,7 @@ export default function Home() {
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-radius-lg bg-forest-deep text-lg font-bold text-white">G</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-radius-lg bg-navy-deep text-lg font-bold text-white">G</span>
                 <span className="font-bold text-ink-900">GCC MENTOR</span>
               </div>
               <p className="mt-4 max-w-[320px] text-sm text-ink-400">Your career intelligence platform for Indian professionals targeting GCC opportunities. Built by a 15+ year Gulf E&amp;I Superintendent.</p>

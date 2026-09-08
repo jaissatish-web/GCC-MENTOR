@@ -206,7 +206,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-2"
         >
           ←
         </button>
@@ -326,7 +326,7 @@ function ChangesTab({
         <div className="flex flex-col gap-3 rounded-radius-lg border border-line-light bg-surface-light p-4">
           <div className="flex items-center justify-between">
             <span className="text-[12px] font-bold text-ink-900">Professional summary</span>
-            <span className="rounded-[5px] bg-forest-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-forest">
+            <span className="rounded-[5px] bg-navy-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-navy">
               Rewritten
             </span>
           </div>
@@ -336,14 +336,14 @@ function ChangesTab({
             <p className="text-[11.5px] leading-relaxed text-ink-400">{summaryBefore}</p>
           </div>
 
-          <div className="rounded-[9px] border-l-2 border-forest bg-forest-tint p-3">
-            <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-forest">After</div>
+          <div className="rounded-[9px] border-l-2 border-navy bg-navy-tint p-3">
+            <div className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-navy">After</div>
             {editing.summary ? (
               <textarea
                 value={draftSummary}
                 onChange={(e) => setDraftSummary(e.target.value)}
                 rows={5}
-                className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[11.5px] text-ink-700 outline-none focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
+                className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[11.5px] text-ink-700 outline-none focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20"
               />
             ) : (
               <p className="text-[11.5px] leading-relaxed text-ink-900">
@@ -355,17 +355,17 @@ function ChangesTab({
           {editing.summary ? (
             <div className="flex gap-2">
               <button type="button" disabled={saveBusy} onClick={() => saveSummary()}
-                className="min-h-11 rounded-radius-md bg-forest px-3.5 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2">
+                className="min-h-11 rounded-radius-md bg-navy px-3.5 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2">
                 {saveBusy ? 'Saving…' : 'Save'}
               </button>
               <button type="button" disabled={saveBusy} onClick={() => setEditing({})}
-                className="min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-3.5 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2">
+                className="min-h-11 rounded-radius-md border border-line-light-strong bg-surface-light px-3.5 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-2">
                 Cancel
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold text-forest">Edit this text</span>
+              <span className="text-[11px] font-semibold text-navy">Edit this text</span>
               <span className="text-[10px] text-ink-400">· any generated line</span>
             </div>
           )}
@@ -394,7 +394,7 @@ function ChangesTab({
                     value={draftBullet}
                     onChange={(e) => setDraftBullet(e.target.value)}
                     rows={3}
-                    className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[11.5px] text-ink-700 outline-none focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
+                    className="min-h-11 w-full resize-none rounded-radius-md border border-line-light bg-surface-light p-2 text-[11.5px] text-ink-700 outline-none focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20"
                   />
                 ) : (
                   <p className="text-[11.5px] leading-relaxed text-ink-900">
@@ -415,11 +415,11 @@ function ChangesTab({
                   {isEditing ? (
                     <>
                       <button type="button" disabled={saveBusy} onClick={() => saveBullet()}
-                        className="min-h-9 rounded-radius-md bg-forest px-3 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2">
+                        className="min-h-9 rounded-radius-md bg-navy px-3 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2">
                         Save
                       </button>
                       <button type="button" disabled={saveBusy} onClick={() => setEditing({})}
-                        className="min-h-9 rounded-radius-md border border-line-light-strong bg-surface-light px-3 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2">
+                        className="min-h-9 rounded-radius-md border border-line-light-strong bg-surface-light px-3 text-[11px] font-semibold text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-2">
                         Cancel
                       </button>
                     </>
@@ -430,7 +430,7 @@ function ChangesTab({
                         setEditing({ blockId: block.profile_experience_id, index: bi })
                         setDraftBullet(bullet)
                       }}
-                      className="min-h-11 px-1 text-[11px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                      className="min-h-11 px-1 text-[11px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
                     >
                       Edit this text
                     </button>
@@ -452,7 +452,7 @@ function ChangesTab({
                   className={cn(
                     'rounded-[99px] border px-2.5 py-1 text-[11px] font-medium',
                     s.movement !== 0
-                      ? 'border-forest/40 bg-forest-tint text-forest'
+                      ? 'border-navy/40 bg-navy-tint text-navy'
                       : 'border-line-light bg-surface-2-light text-ink-700'
                   )}
                 >

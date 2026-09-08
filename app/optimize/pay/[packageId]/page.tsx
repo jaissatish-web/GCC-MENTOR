@@ -112,7 +112,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-deep focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-radius-md text-[20px] leading-none text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-2"
         >
           ←
         </button>
@@ -135,20 +135,20 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
                   decision, 2026-08-16) — this line sits on the PAYMENT screen,
                   so promising a format the buyer cannot then download is the
                   one place that mistake actually costs money and trust. */}
-              <span className="text-forest">✓</span> PDF download
+              <span className="text-navy">✓</span> PDF download
             </div>
             <div className="flex gap-2">
-              <span className="text-forest">✓</span> Edit and re-download anytime
+              <span className="text-navy">✓</span> Edit and re-download anytime
             </div>
             <div className="flex gap-2">
-              <span className="text-forest">✓</span> Saved to your Library forever
+              <span className="text-navy">✓</span> Saved to your Library forever
             </div>
           </div>
           <p className="text-[10.5px] text-ink-400">No subscription. No auto-renewal. Taxes included.</p>
         </div>
 
         {/* Promo code — the actual unlock path while Razorpay is blocked */}
-        <div className="flex flex-col gap-2.5 rounded-radius-lg border border-forest/30 bg-forest-tint p-4.5">
+        <div className="flex flex-col gap-2.5 rounded-radius-lg border border-navy/30 bg-navy-tint p-4.5">
           <span className="text-[12px] font-bold text-ink-900">Have a promo code?</span>
           <div className="flex gap-2">
             <input
@@ -156,13 +156,13 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
               onChange={(e) => setCode(e.target.value)}
               placeholder="Enter code"
               aria-label="Promo code"
-              className="min-h-11 flex-1 rounded-radius-md border border-line-light bg-surface-light px-3 text-[13px] uppercase tracking-wide text-ink-700 outline-none focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
+              className="min-h-11 flex-1 rounded-radius-md border border-line-light bg-surface-light px-3 text-[13px] uppercase tracking-wide text-ink-700 outline-none focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20"
             />
             <button
               type="button"
               disabled={!code.trim() || redeeming}
               onClick={() => redeem()}
-              className="min-h-11 rounded-radius-md bg-forest px-4 text-[13px] font-bold text-marble disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+              className="min-h-11 rounded-radius-md bg-navy px-4 text-[13px] font-bold text-marble disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
             >
               {redeeming ? 'Checking…' : 'Unlock'}
             </button>

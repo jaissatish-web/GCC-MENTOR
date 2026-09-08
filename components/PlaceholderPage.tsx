@@ -29,7 +29,7 @@ export function PlaceholderPage({ title, ticket, route, next }: PlaceholderPageP
         <h1 className="mt-3 text-4xl text-ink-900">{title}</h1>
         <p className="mt-2 text-sm leading-relaxed text-ink-700">
           Placeholder screen — wireframe only. Built in{' '}
-          <span className="font-mono text-forest">{ticket}</span>.
+          <span className="font-mono text-navy">{ticket}</span>.
         </p>
         <div className="mt-6">
           {next ? (

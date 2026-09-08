@@ -48,7 +48,7 @@ export default async function PromptsPage({
       </div>
 
       {promptSaved ? (
-        <div className="rounded-radius-lg border border-forest/50 bg-forest-tint px-3.5 py-2.5 text-[12px] text-forest">
+        <div className="rounded-radius-lg border border-navy/50 bg-navy-tint px-3.5 py-2.5 text-[12px] text-navy">
           Saved — {promptSaved.replace(/\+/g, ' ')}.
         </div>
       ) : null}
@@ -103,7 +103,7 @@ export default async function PromptsPage({
               </span>
               <span className="shrink-0 text-[11.5px] text-ink-400">
                 {s.active ? (
-                  <span className="font-mono font-bold text-forest">v{s.active.version} live</span>
+                  <span className="font-mono font-bold text-navy">v{s.active.version} live</span>
                 ) : (
                   <span>built-in prompt</span>
                 )}
@@ -155,7 +155,7 @@ export default async function PromptsPage({
                           className={
                             'ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ' +
                             (v.status === 'active'
-                              ? 'bg-forest-tint text-forest'
+                              ? 'bg-navy-tint text-navy'
                               : v.status === 'draft'
                                 ? 'bg-gold-tint text-gold-text'
                                 : 'border border-line-light text-ink-400')

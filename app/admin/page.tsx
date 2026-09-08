@@ -102,7 +102,7 @@ export default async function AdminDashboardPage() {
                 <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-400">
                   {s.title}
                 </h2>
-                <span className="text-sm text-forest">→</span>
+                <span className="text-sm text-navy">→</span>
               </div>
               <p
                 className={

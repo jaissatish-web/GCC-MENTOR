@@ -304,7 +304,7 @@ function SetupScreen() {
   // on error it resets submitting → back to the form below.
   if (submitting) {
     return (
-      <main className="flex min-h-dvh flex-col bg-forest-deep font-redesign-sans">
+      <main className="flex min-h-dvh flex-col bg-navy-deep font-redesign-sans">
         <div className="flex flex-1 flex-col justify-center gap-6 px-6">
           <div className="flex flex-col gap-2.5 text-center">
             <h1 className="font-serif text-[30px] leading-tight text-ink-900-dark">
@@ -323,7 +323,7 @@ function SetupScreen() {
               const isActive = i === activeIndex
               const icon = isDone ? '✓' : isActive ? '◍' : '○'
               const iconColor = isDone
-                ? 'text-forest-dark'
+                ? 'text-sky'
                 : isActive
                   ? 'text-gold-text-dark'
                   : 'text-ink-400-dark'
@@ -413,13 +413,13 @@ function SetupScreen() {
           aria-pressed={summaryOn}
           className={cn(
             'flex min-h-11 items-center gap-3 rounded-radius-lg border bg-surface-light px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
-            summaryOn ? 'border-forest' : 'border-line-light'
+            summaryOn ? 'border-navy' : 'border-line-light'
           )}
         >
           <span
             className={cn(
               'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[11px] text-white',
-              summaryOn ? 'bg-forest' : 'border-[1.5px] border-line-light-strong'
+              summaryOn ? 'bg-navy' : 'border-[1.5px] border-line-light-strong'
             )}
           >
             {summaryOn ? '✓' : ''}
@@ -441,13 +441,13 @@ function SetupScreen() {
               aria-pressed={on}
               className={cn(
                 'flex min-h-11 items-center gap-3 rounded-radius-lg border bg-surface-light px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
-                on ? 'border-forest' : 'border-line-light'
+                on ? 'border-navy' : 'border-line-light'
               )}
             >
               <span
                 className={cn(
                   'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[11px] text-white',
-                  on ? 'bg-forest' : 'border-[1.5px] border-line-light-strong'
+                  on ? 'bg-navy' : 'border-[1.5px] border-line-light-strong'
                 )}
               >
                 {on ? '✓' : ''}
@@ -468,7 +468,7 @@ function SetupScreen() {
             <span className="text-[13px] font-semibold text-ink-900">Skills &amp; certifications</span>
             <span className="text-[11px] text-ink-400">Reordered by relevance — never reworded</span>
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-forest">Automatic</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-navy">Automatic</span>
         </div>
 
         {/* Optimization level */}
@@ -487,7 +487,7 @@ function SetupScreen() {
                 className={cn(
                   'flex min-h-11 flex-1 flex-col items-center gap-1 rounded-radius-lg border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2',
                   selected
-                    ? 'border-redesign-gold bg-forest-deep'
+                    ? 'border-redesign-gold bg-navy-deep'
                     : 'border-line-light bg-surface-light'
                 )}
               >

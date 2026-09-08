@@ -19,7 +19,7 @@ import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
  */
 
 function bandColour(key: string): { ring: string; text: string; tint: string } {
-  if (key === 'ready') return { ring: 'text-forest', text: 'text-forest', tint: 'bg-forest-tint' }
+  if (key === 'ready') return { ring: 'text-navy', text: 'text-navy', tint: 'bg-navy-tint' }
   if (key === 'mid') return { ring: 'text-gold-text', text: 'text-gold-text', tint: 'bg-gold-tint' }
   return { ring: 'text-terra', text: 'text-terra', tint: 'bg-terra-tint' }
 }
@@ -104,7 +104,7 @@ export function ScorecardResult({
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-surface-2-light">
                   <div
-                    className={`h-2 rounded-full ${pct >= 70 ? 'bg-forest' : pct >= 40 ? 'bg-redesign-gold' : 'bg-terra'} transition-all duration-700`}
+                    className={`h-2 rounded-full ${pct >= 70 ? 'bg-navy' : pct >= 40 ? 'bg-redesign-gold' : 'bg-terra'} transition-all duration-700`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
@@ -117,12 +117,12 @@ export function ScorecardResult({
       {/* Strengths + gaps */}
       <div className="grid gap-6 sm:grid-cols-2">
         <section className="rounded-radius-xl border border-line-light bg-surface-light p-6">
-          <h3 className="text-[13px] font-bold uppercase tracking-wide text-forest">Working in your favour</h3>
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-navy">Working in your favour</h3>
           <ul className="mt-3 flex flex-col gap-2.5">
             {result.strengths.length ? (
               result.strengths.map((s, i) => (
                 <li key={i} className="flex gap-2 text-[13px] text-ink-700">
-                  <span className="text-forest">✓</span>
+                  <span className="text-navy">✓</span>
                   {s}
                 </li>
               ))

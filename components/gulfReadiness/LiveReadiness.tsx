@@ -35,7 +35,7 @@ export function LiveReadiness({
   }
 
   const tone =
-    result.band.key === 'ready' ? 'text-forest' : result.band.key === 'mid' ? 'text-gold-text' : 'text-terra'
+    result.band.key === 'ready' ? 'text-navy' : result.band.key === 'mid' ? 'text-gold-text' : 'text-terra'
 
   return (
     <div className="rounded-radius-lg border border-line-light bg-surface-light px-4 py-4">
@@ -54,7 +54,7 @@ export function LiveReadiness({
       </div>
       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2-light">
         <div
-          className={`h-1.5 rounded-full transition-all duration-500 ${result.band.key === 'ready' ? 'bg-forest' : result.band.key === 'mid' ? 'bg-redesign-gold' : 'bg-terra'}`}
+          className={`h-1.5 rounded-full transition-all duration-500 ${result.band.key === 'ready' ? 'bg-navy' : result.band.key === 'mid' ? 'bg-redesign-gold' : 'bg-terra'}`}
           style={{ width: `${result.finalScore}%` }}
         />
       </div>

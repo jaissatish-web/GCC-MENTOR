@@ -23,7 +23,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-line-dark bg-forest-deep-dark/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-line-dark bg-navy-deepest/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
     >
       {MOBILE_PRIMARY_ITEMS.map((item) => {
         const Icon = item.icon

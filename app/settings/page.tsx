@@ -191,7 +191,7 @@ export default async function SettingsPage({
                   label="Status"
                   value={
                     user.email_confirmed_at ? (
-                      <span className="text-forest">Confirmed</span>
+                      <span className="text-navy">Confirmed</span>
                     ) : (
                       <span className="text-amber">Not confirmed</span>
                     )
@@ -220,7 +220,7 @@ export default async function SettingsPage({
                       <span className="text-[13.5px] font-semibold text-ink-900">
                         {serviceLabel(key)}
                       </span>
-                      <span className="rounded-full bg-forest-tint px-2.5 py-1 text-[11px] font-bold text-forest">
+                      <span className="rounded-full bg-navy-tint px-2.5 py-1 text-[11px] font-bold text-navy">
                         {count} available
                       </span>
                     </li>

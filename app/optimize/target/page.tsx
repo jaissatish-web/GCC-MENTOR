@@ -242,7 +242,7 @@ function TargetScreen() {
                   setReplacingId(similar.id)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-radius-md bg-forest-deep px-3.5 py-2 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
+                className="min-h-11 rounded-radius-md bg-navy-deep px-3.5 py-2 text-[11px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2"
               >
                 Re-optimize
               </button>
@@ -261,7 +261,7 @@ function TargetScreen() {
         ) : null}
 
         {similar && replacingId ? (
-          <div className="rounded-radius-lg border border-forest/30 bg-forest-tint px-3.5 py-3 text-[11.5px] leading-snug text-forest">
+          <div className="rounded-radius-lg border border-navy/30 bg-navy-tint px-3.5 py-3 text-[11.5px] leading-snug text-navy">
             Will re-optimize your existing &ldquo;{similar.title}&rdquo; package — its current text will be
             replaced.{' '}
             <button

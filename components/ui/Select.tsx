@@ -45,7 +45,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                   'bg-surface-light text-ink-900',
                   error
                     ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/20'
-                    : 'border-line-light focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20'
+                    : 'border-line-light focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20'
                 ),
             className
           )}

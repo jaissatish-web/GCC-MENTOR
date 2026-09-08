@@ -4,34 +4,37 @@
 
 ---
 
-## ⚠ 1. Read the value, never the name
+## 1. One name per colour
 
-**The colour tokens are named for the wrong colours.**
+**Resolved 2026-09-08.** This section used to open with a warning: read the value,
+never the name, because `forest` was navy and `forest-dark` was a light blue. That
+warning is gone because the condition it described is gone.
 
-The palette moved from green to **navy** by changing the token **values** and keeping
-the green **names**. So `forest` is navy, and `forest-dark` is a **light blue** meant
-for use *on* dark surfaces.
+The `forest*` tokens were renamed across 50 files and **the aliases were deleted**, so
+there is now exactly one name for each colour and it is the true one:
 
-**This is a live hazard, not a cosmetic annoyance.** Anyone — human or AI — choosing a
-colour by its name chooses wrong, and it has already shipped two real defects that
-reached the founder in normal use: near-black text on a navy button (1.69:1 contrast,
-effectively invisible), and white form labels on a white card, where "Full name" could
-not be seen at all.
+| Was | Is | Value | Role |
+|---|---|---|---|
+| `forest` | `navy` | `#1B4272` | Structure, primary action |
+| `forest-deep` | `navy-deep` | `#0B1F38` | Hover, headers |
+| `forest-deep-dark` | `navy-deepest` | `#081627` | Dark chrome — sidebar, mobile nav |
+| `forest-tint` | `navy-tint` | `#E7EEF8` | Soft fill, active nav |
+| `forest-tint-dark` | `navy-tint-dark` | `#14304F` | Soft fill on dark |
+| `forest-dark` | `sky` | `#6BA3E0` | Text and borders ON dark navy |
 
-**Correct aliases exist. Use them. Treat `forest*` as deprecated.**
+**Why the aliases had to go, and not just be deprecated.** Honest aliases were added
+first, pointing at identical values, with the old names left valid so nothing had to be
+rewritten at once. That was the right first move and the wrong place to stop: while both
+names resolved, the trap stayed fully armed, and the app went on using the misleading
+name in 291 places. A deprecated name that still works is not deprecated.
 
-| Use this | Value | Is |
-|---|---|---|
-| `navy` | `#1B4272` | Primary action |
-| `navy-deep` | `#0B1F38` | Dark surfaces — sidebar, hero, optimizing screen |
-| `navy-tint` | `#E7EEF8` | Pale tint fill |
-| `sky` | `#6BA3E0` | Light blue **for text and borders on dark navy** |
+**Verified, not assumed:** every colour declaration in the compiled stylesheet was
+captured before and after the rename and compared. 191 declarations, identical. The
+rename changed no rendered pixel.
 
-**Outstanding work:** migrate the remaining `forest*` usages across the app to the
-correct names, then delete the aliases. Recorded in
-[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md).
-
----
+**One name is deliberately NOT in this table.** `lib/resumeStyle.ts` offers a resume
+accent called **Forest** (`#2A6F4E`) — a genuine green a user picks for their own CV.
+It is unrelated to this palette and was left untouched.
 
 ## 2. The colour intent
 

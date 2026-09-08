@@ -54,7 +54,7 @@ export default async function PromoCodesPage({
         </p>
 
         {promoSaved ? (
-          <div className="rounded-radius-lg border border-forest/50 bg-forest-tint px-3.5 py-2.5 text-[12px] text-forest">
+          <div className="rounded-radius-lg border border-navy/50 bg-navy-tint px-3.5 py-2.5 text-[12px] text-navy">
             Saved.
           </div>
         ) : null}
@@ -99,7 +99,7 @@ export default async function PromoCodesPage({
               id="f_promo_package"
               name="packageId"
               defaultValue=""
-              className="min-h-11 w-full max-w-[320px] rounded-radius-md border border-line-light bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none transition-colors focus:border-forest-deep focus:ring-2 focus:ring-forest-deep/20"
+              className="min-h-11 w-full max-w-[320px] rounded-radius-md border border-line-light bg-surface-light px-[15px] py-[13px] text-sm font-medium text-ink-900 outline-none transition-colors focus:border-navy-deep focus:ring-2 focus:ring-navy-deep/20"
             >
               <option value="">None — original single-resume code</option>
               {activePackages.map((p) => (

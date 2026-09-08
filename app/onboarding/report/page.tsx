@@ -69,7 +69,7 @@ export default function OnboardingReportPage() {
       <header className="border-b border-line-light bg-bg/95">
         <div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-5 sm:px-8">
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <span className="font-serif flex h-9 w-9 items-center justify-center rounded-radius-md bg-forest-deep text-lg text-gold-text-dark">G</span>
+            <span className="font-serif flex h-9 w-9 items-center justify-center rounded-radius-md bg-navy-deep text-lg text-gold-text-dark">G</span>
             <span className="font-bold tracking-wide">GCC MENTOR</span>
           </Link>
         </div>

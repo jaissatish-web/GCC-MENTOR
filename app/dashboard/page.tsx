@@ -223,7 +223,7 @@ export default function DashboardPage() {
           <Link
             href="/profile"
             aria-label="Profile readiness"
-            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-forest-deep"
+            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deep"
           >
             <ReadinessRing score={score} size={52} dark />
           </Link>
@@ -452,7 +452,7 @@ export default function DashboardPage() {
                 </span>
                 <Link
                   href="/dashboard/library"
-                  className="text-[12px] font-semibold text-forest transition-colors hover:text-forest/80"
+                  className="text-[12px] font-semibold text-navy transition-colors hover:text-navy/80"
                 >
                   View Library →
                 </Link>
@@ -532,7 +532,7 @@ function MetricTile({
       <span className={cn('font-mono text-[26px] leading-none', muted ? 'text-ink-400' : 'text-gold-text')}>
         {value}
       </span>
-      {sub ? <span className={cn('text-[11px]', muted ? 'text-ink-400' : 'text-forest')}>{sub}</span> : null}
+      {sub ? <span className={cn('text-[11px]', muted ? 'text-ink-400' : 'text-navy')}>{sub}</span> : null}
     </>
   )
 
@@ -548,10 +548,10 @@ function MetricTile({
     <Link
       href={href}
       aria-label={`${label}: ${value ?? 'not available'}`}
-      className="group flex flex-col gap-1.5 rounded-radius-lg border border-line-light bg-surface-light p-4 transition hover:border-forest/60 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+      className="group flex flex-col gap-1.5 rounded-radius-lg border border-line-light bg-surface-light p-4 transition hover:border-navy/60 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
     >
       {inner}
-      <span aria-hidden className="mt-0.5 text-[10.5px] font-semibold text-forest opacity-0 transition group-hover:opacity-100">
+      <span aria-hidden className="mt-0.5 text-[10.5px] font-semibold text-navy opacity-0 transition group-hover:opacity-100">
         Open →
       </span>
     </Link>

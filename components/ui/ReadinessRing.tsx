@@ -29,14 +29,14 @@ export default function ReadinessRing({
   }, [clamped])
 
   const isComplete = clamped === 100
-  const progressClass = isComplete ? 'stroke-forest' : dark ? 'stroke-redesign-gold-dark' : 'stroke-redesign-gold'
-  const trackClass = dark ? 'stroke-forest-tint-dark' : 'stroke-surface-2-light'
+  const progressClass = isComplete ? 'stroke-navy' : dark ? 'stroke-redesign-gold-dark' : 'stroke-redesign-gold'
+  const trackClass = dark ? 'stroke-navy-tint-dark' : 'stroke-surface-2-light'
   const textClass = dark
     ? isComplete
-      ? 'fill-forest-dark'
+      ? 'fill-sky'
       : 'fill-redesign-gold-dark'
     : isComplete
-      ? 'fill-forest'
+      ? 'fill-navy'
       : 'fill-gold-text'
 
   return (

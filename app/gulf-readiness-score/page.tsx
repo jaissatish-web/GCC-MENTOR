@@ -90,7 +90,7 @@ export default function GulfReadinessScorePage() {
       <header className="border-b border-line-light bg-bg/95">
         <div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-5 sm:px-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="font-serif flex h-9 w-9 items-center justify-center rounded-radius-md bg-forest-deep text-lg text-gold-text-dark">G</span>
+            <span className="font-serif flex h-9 w-9 items-center justify-center rounded-radius-md bg-navy-deep text-lg text-gold-text-dark">G</span>
             <span className="font-bold tracking-wide">GCC MENTOR</span>
           </Link>
           <Link href="/login" className="text-sm font-semibold text-ink-400 hover:text-ink-900">Log in</Link>
@@ -171,7 +171,7 @@ export default function GulfReadinessScorePage() {
               setFile(null)
               setError(null)
             }}
-            className="mx-auto mt-4 block text-[13px] font-bold text-forest underline underline-offset-4"
+            className="mx-auto mt-4 block text-[13px] font-bold text-navy underline underline-offset-4"
           >
             {pasteMode ? 'Use file upload instead' : 'Paste text instead'}
           </button>

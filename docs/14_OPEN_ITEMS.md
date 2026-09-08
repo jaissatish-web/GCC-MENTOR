@@ -379,16 +379,18 @@ trap for anyone maintaining either.
 Related: **`/gcc-readiness` is not in the navigation** at all. It is reachable only from
 the dashboard's readiness card. That may be correct, but it should be deliberate.
 
-### B7 · Colour tokens are named for the wrong colours
+### ~~B7 · Colour tokens are named for the wrong colours~~ — **fixed 2026-09-08**
 
-`forest` is navy; `forest-dark` is a light blue. Correct aliases (`navy`, `navy-deep`,
-`navy-tint`, `sky`) exist in the config and `forest*` is marked deprecated, **but the
-app still uses the old names throughout.**
+`forest` was navy and `forest-dark` was a light blue. Renamed across 50 files to
+`navy` / `navy-deep` / `navy-deepest` / `navy-tint` / `navy-tint-dark` / `sky`, and
+**the `forest*` aliases were deleted** — which is the part that actually closes it. While
+both names resolved, the trap stayed armed.
 
-Choosing a colour by its name produces a wrong result, and it has already shipped two
-real defects that reached the founder: near-black text on a navy button (1.69:1), and
-white labels on a white card. **Remaining work:** migrate usages, then delete the
-aliases.
+Verified by comparing all 191 colour declarations in the compiled stylesheet before and
+after: identical. `lib/resumeStyle.ts`'s **Forest** resume accent (`#2A6F4E`) is a real
+green a user picks for their CV, is unrelated, and was left alone.
+
+Detail in [`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) §1.
 
 ### ~~B7b · Three gaps on the AI provider control panel~~ — **resolved 2026-08-17**
 

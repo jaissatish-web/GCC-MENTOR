@@ -547,7 +547,7 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-radius-md border border-dashed border-line-light-strong px-4 py-3 text-[13px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 focus-visible:ring-offset-surface-light"
+      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-radius-md border border-dashed border-line-light-strong px-4 py-3 text-[13px] font-semibold text-navy transition-colors hover:border-navy hover:bg-navy-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 focus-visible:ring-offset-surface-light"
     >
       <span aria-hidden="true" className="text-[15px] leading-none">
         +
@@ -584,7 +584,7 @@ function PointsChip({ earned, total }: { earned: number; total: number }) {
       className={cn(
         'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[10.5px] font-bold tabular-nums',
         complete
-          ? 'bg-forest-tint text-forest'
+          ? 'bg-navy-tint text-navy'
           : 'bg-redesign-gold-tint text-gold-text'
       )}
     >
@@ -664,9 +664,9 @@ function CardSection({
             className={cn(
               'flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-bold tabular-nums',
               done
-                ? 'bg-forest text-forest-deep'
+                ? 'bg-navy text-navy-deep'
                 : open
-                  ? 'bg-redesign-gold text-forest-deep'
+                  ? 'bg-redesign-gold text-navy-deep'
                   : 'bg-surface-2-light text-ink-400'
             )}
             aria-hidden="true"
@@ -1260,11 +1260,11 @@ function ProfileScreen() {
             setEditor(fromFull(merged.profile))
             setPendingDraft(null)
           }}
-          className="mt-6 rounded-radius-lg border-2 border-forest bg-surface-light p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+          className="mt-6 rounded-radius-lg border-2 border-navy bg-surface-light p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
         >
           <span className="flex items-center gap-2">
             <span className="text-[15px] font-bold text-ink-900">Add it to my profile</span>
-            <span className="rounded-[5px] bg-forest-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-forest">
+            <span className="rounded-[5px] bg-navy-tint px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-navy">
               Recommended
             </span>
           </span>
@@ -1410,7 +1410,7 @@ function ProfileScreen() {
               Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
             </p>
             <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="font-mono text-2xl font-bold text-forest">
+              <span className="font-mono text-2xl font-bold text-navy">
                 {claimedScan.overall_score}
                 <span className="text-sm">/100</span>
               </span>
@@ -1544,7 +1544,7 @@ function ProfileScreen() {
           action={
             <Link
               href="/profile/visibility"
-              className="text-[11px] font-semibold text-forest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+              className="text-[11px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
             >
               What appears on your CV →
             </Link>
