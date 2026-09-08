@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Instrument_Serif, Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
+import { Archivo, Instrument_Serif, Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import { SITE_URL } from '@/lib/siteUrl'
 
@@ -25,6 +25,15 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-jakarta',
+  display: 'swap',
+})
+
+// Blueprint display face (2026-09-08). Loaded alongside the others while the
+// new identity rolls out screen by screen.
+const archivo = Archivo({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-archivo',
   display: 'swap',
 })
 
@@ -118,7 +127,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className={`${instrumentSerif.variable} ${inter.variable} ${jakarta.variable} ${plexMono.variable} font-sans bg-void text-marble antialiased`}
+        className={`${instrumentSerif.variable} ${inter.variable} ${jakarta.variable} ${plexMono.variable} ${archivo.variable} font-sans bg-void text-marble antialiased`}
       >
         {children}
       </body>

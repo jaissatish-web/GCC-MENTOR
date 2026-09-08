@@ -72,6 +72,37 @@ const config: Config = {
           removed: '#A89A8A',
         },
 
+        // ── BLUEPRINT ────────────────────────────────────────────────────────
+        //
+        // The new visual identity, chosen by the founder 2026-09-08 from three
+        // mocked directions. The brief it answers: the product should look like
+        // an instrument, not a brochure. Its users are piping, E&I and
+        // commissioning engineers who read technical drawings all day, so the
+        // language is drawn from that — a tight grid, mono figures, sharp
+        // corners, and ONE signal colour that means "act".
+        //
+        // ADDITIVE AND ISOLATED on purpose. The navy palette below stays live
+        // and untouched, so this rolls out one screen at a time and reverts in
+        // one commit if it is wrong. Names are collision-free and permanent, so
+        // nothing needs renaming if it stays.
+        //
+        // EVERY VALUE WAS CONTRAST-CHECKED BEFORE IT WAS WRITTEN — the previous
+        // palette shipped white-on-white and 1.69:1 text because it was not:
+        //   graphite on paper   16.07     slate on paper    4.82
+        //   graphite on surface 18.37     slate on surface  5.51
+        //   signal on surface    5.18     white on signal   5.18
+        //   edge-strong on paper 3.40     on surface        3.88
+        // `edge` is a decorative hairline and is deliberately below 3:1 — it
+        // never carries meaning. `edge-strong` is for input borders, which do.
+        paper: '#EEF0F1',
+        graphite: '#101519',
+        slate: '#5B6B76',
+        signal: '#C2410C',
+        'signal-tint': '#FCE9E1',
+        'signal-ink': '#9A3412',
+        edge: '#D8DDE0',
+        'edge-strong': '#76838E',
+
         // ── THE NAVY PALETTE ─────────────────────────────────────────────────
         //
         // These colours were once named `forest*`. The palette moved from green
@@ -186,11 +217,18 @@ const config: Config = {
         // (Jakarta) unchanged until their own page-level ticket migrates
         // them to `font-redesign-sans`.
         'redesign-sans': ['var(--font-inter)', 'var(--font-jakarta)', 'system-ui', 'sans-serif'],
+        // Blueprint display face — a grotesque with enough weight to hold a
+        // heading without a serif's warmth. Paired with Inter for body and
+        // IBM Plex Mono for every figure.
+        'bp-display': ['var(--font-archivo)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
         mono:  ['var(--font-plex-mono)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
         // Existing lg/xl/2xl/3xl values are retained for current call sites.
         // The redesign scale is additive under explicit radius-* names.
+        // Blueprint: drawn, not rounded. A technical drawing has corners.
+        'bp': '4px',
+        'bp-lg': '6px',
         'radius-sm': '6px',
         'radius-md': '12px',
         'radius-lg': '16px',

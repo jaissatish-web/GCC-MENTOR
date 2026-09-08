@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { ProgressBar } from '@/components/ui/ProgressBar'
-import { Card } from '@/components/ui/Card'
 import { Pill } from '@/components/ui/Pill'
 import { LockedTile } from '@/components/ui/LockedTile'
 import { Reveal } from '@/components/ui/Reveal'
@@ -204,7 +203,10 @@ export default function DashboardPage() {
           }
 
   return (
-    <div className="flex flex-col gap-6 p-5 pb-8 sm:p-8 lg:p-10 font-redesign-sans">
+    // BLUEPRINT (2026-09-08). Ground is `paper`, not white: the surfaces that
+    // matter then sit on top of it as white, which is what gives the screen a
+    // figure/ground relationship instead of a single flat sheet.
+    <div className="flex min-h-full flex-col gap-6 bg-paper p-4 pb-8 font-redesign-sans sm:p-7 lg:p-9">
       {/* First-run nudge to build the Career Profile — shown only once we KNOW
           there is no profile yet. Dismissible; the dashboard's own CTA persists. */}
       <ProfileKickstart show={profileLoaded && profile === null} />
@@ -212,18 +214,20 @@ export default function DashboardPage() {
       {/* ── Header: greeting + readiness ring ── */}
       <Reveal>
         <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <h1 className="font-serif text-[28px] leading-tight text-ink-900 sm:text-[32px]">
-              Good {greeting()}, {firstName} <span aria-hidden>👋</span>
+          <div className="flex min-w-0 flex-col gap-1">
+            {/* Archivo, not the serif. Blueprint's voice is an instrument
+                label: tight tracking, real weight, no flourish. */}
+            <h1 className="font-bp-display text-[24px] font-bold leading-[1.1] tracking-[-0.02em] text-graphite sm:text-[30px]">
+              Good {greeting()}, {firstName}
             </h1>
-            <p className="text-[13px] text-ink-400">
+            <p className="text-[13px] text-slate">
               {targetParts ? `Targeting ${targetParts}` : "Let's get you closer to your next opportunity."}
             </p>
           </div>
           <Link
             href="/profile"
             aria-label="Profile readiness"
-            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deep"
+            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deep"
           >
             <ReadinessRing score={score} size={52} dark />
           </Link>
@@ -239,23 +243,27 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[minmax(0,1fr)_340px]">
         {/* ── LEFT column ── */}
         <div className="flex min-w-0 flex-col gap-6">
-          {/* Metric row: Profile Strength · Resumes Created.
+          {/* METRICS ARE NOT CARDS ANY MORE.
+              Two numbers in two bordered boxes ate most of a phone screen and
+              pushed the actual next action below the fold — confirmed by
+              looking at the live dashboard on 2026-09-08, not inferred. A
+              border, a fill and a shadow each say "separate object"; a figure
+              and its label are neither. They sit on the page, divided by one
+              rule, and the space that bought goes to the thing the user came
+              to do.
+
               A third tile, "Latest Job Match", was removed 2026-09-04 with the
-              standalone Job Match service. It is deliberately NOT replaced: the
-              Gulf Readiness number already has its own widget further down this
-              page, so a third tile would have shown the same figure twice. Two
-              tiles on a two-column grid, rather than three on a three-column
-              one that would leave a gap. */}
+              standalone service and is deliberately not replaced. */}
           <Reveal delay={40}>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="flex divide-x divide-edge border-y border-edge">
               <MetricTile
-                label="Profile Strength"
+                label="Profile strength"
                 value={`${score}%`}
                 sub={readiness?.category ? categoryLabel(readiness.category) : undefined}
                 href="/gcc-readiness"
               />
               <MetricTile
-                label="Resumes Created"
+                label="Resumes created"
                 value={packagesLoaded ? String(packageCount) : '—'}
                 sub={packageCount > 0 ? 'In your Library' : undefined}
                 href="/dashboard/library"
@@ -265,67 +273,77 @@ export default function DashboardPage() {
 
           {/* Next-step hero strip */}
           <Reveal delay={80}>
-            <Card tone="light" className="flex h-full flex-col justify-between gap-5 border-redesign-gold/25 bg-redesign-gold/[0.06] p-6">
+            {/* THE ONE PLACE SIGNAL IS SPENT on this screen. A single accent
+                that always means "this is the thing to do" is worth more than
+                a palette of tints — the moment it appears twice it means
+                nothing. The left rule carries it; the panel stays white. */}
+            <div className="flex h-full flex-col justify-between gap-5 border border-l-[3px] border-edge border-l-signal bg-white p-5 sm:p-6">
               <div className="flex flex-col gap-2">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-gold-text">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-signal-ink">
                   Your next best action
                 </span>
-                <h2 className="font-serif text-[22px] leading-snug text-ink-900">{nextAction.title}</h2>
-                <p className="text-[14px] leading-relaxed text-ink-400">{nextAction.body}</p>
+                <h2 className="font-bp-display text-[19px] font-semibold leading-snug tracking-[-0.01em] text-graphite sm:text-[21px]">
+                  {nextAction.title}
+                </h2>
+                <p className="text-[14px] leading-relaxed text-slate">{nextAction.body}</p>
               </div>
               <Link
                 href={nextAction.href}
-                className={cn(buttonVariants({ variant: 'primary' }), 'w-fit text-[14px]')}
+                className="inline-flex w-full items-center justify-center rounded-bp bg-signal px-5 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-signal-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 sm:w-fit"
               >
-                {nextAction.cta} →
+                {nextAction.cta}
               </Link>
-            </Card>
+            </div>
           </Reveal>
 
           {/* Recent Activity */}
           <Reveal delay={110}>
-            <Card tone="light" className="flex h-full flex-col gap-3 p-6">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+            {/* A LIST, NOT A CARD OF CARDS. This was a bordered panel whose
+                rows were themselves bordered panels — two containers to say one
+                thing. Blueprint puts the section label on the page and divides
+                the rows with a single rule, which is how a register reads. */}
+            <section className="flex flex-col gap-3">
+              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
                 Recent activity
               </div>
               {!packagesLoaded ? (
-                <div className="flex flex-col gap-2">
-                  <div className="h-14 animate-pulse rounded-radius-md bg-surface-2-light/60" />
-                  <div className="h-14 animate-pulse rounded-radius-md bg-surface-2-light/60" />
+                <div className="flex flex-col divide-y divide-edge border-y border-edge bg-white">
+                  <div className="h-14 animate-pulse bg-paper/70" />
+                  <div className="h-14 animate-pulse bg-paper/70" />
                 </div>
               ) : recentPackages.length === 0 ? (
-                <div className="flex flex-col gap-1 rounded-radius-md border border-dashed border-line-light bg-surface-2-light/50 p-5">
-                  <span className="text-[13px] font-semibold text-ink-400">No activity yet</span>
-                  <span className="text-[13px] leading-relaxed text-ink-400">
+                <div className="flex flex-col gap-1 border border-dashed border-edge-strong/50 bg-white p-5">
+                  <span className="text-[13px] font-semibold text-graphite">No activity yet</span>
+                  <span className="text-[13px] leading-relaxed text-slate">
                     Optimize a resume and it will show up here.
                   </span>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col divide-y divide-edge border-y border-edge bg-white">
                   {recentPackages.map((pkg) => (
                     <Link
                       key={pkg.id}
                       href={`/package/${pkg.id}`}
-                      className="flex items-center justify-between gap-3 rounded-radius-md border border-line-light/70 bg-surface-2-light/50 px-4 py-3 transition-colors hover:border-redesign-gold/40"
+                      className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal"
                     >
-                      <span className="flex flex-col gap-0.5">
-                        <span className="text-[13px] font-semibold text-ink-900/85">
+                      <span className="flex min-w-0 flex-col gap-0.5">
+                        <span className="truncate text-[13px] font-semibold text-graphite">
                           Optimized for {resumeLabel(pkg)}
                         </span>
-                        <span className="text-[12px] text-ink-400">{relativeTime(pkg.created_at)}</span>
+                        <span className="text-[12px] text-slate">{relativeTime(pkg.created_at)}</span>
                       </span>
                       <Pill variant={pkg.status}>{STATUS_LABEL[pkg.status]}</Pill>
                     </Link>
                   ))}
                 </div>
               )}
-            </Card>
+            </section>
           </Reveal>
 
           {/* New "Planned" row — LockedTile, per PLANNED_SERVICES.md */}
           <Reveal delay={140}>
             <section className="flex flex-col gap-3">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
                 Planned for you
               </div>
               {/* Horizontally-scrollable strip on mobile; static grid on larger */}
@@ -349,13 +367,13 @@ export default function DashboardPage() {
         <div className="flex min-w-0 flex-col gap-6">
           {/* Readiness ring card */}
           <Reveal delay={170}>
-            <Card tone="light" className="flex flex-col gap-5 p-6">
+            <div className="border border-edge bg-white flex flex-col gap-5 p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                  <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
                     Profile Strength
                   </span>
-                  <span className="text-[13px] text-ink-400">
+                  <span className="text-[13px] text-slate">
                     {missing.length === 0 && profile
                       ? 'Every section complete'
                       : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed`}
@@ -372,7 +390,7 @@ export default function DashboardPage() {
                     <Link
                       key={m.field}
                       href="/profile"
-                      className="rounded-full border border-line-light bg-surface-2-light/60 px-3 py-1.5 text-[12px] font-medium text-ink-400 transition-colors hover:border-redesign-gold/40 hover:text-gold-text"
+                      className="rounded-full border border-edge bg-paper px-3 py-1.5 text-[12px] font-medium text-slate transition-colors hover:border-signal/50 hover:text-signal-ink"
                     >
                       {m.label}
                     </Link>
@@ -386,7 +404,7 @@ export default function DashboardPage() {
               >
                 {missing.length === 0 ? 'View Career Profile' : 'Improve Score'}
               </Link>
-            </Card>
+            </div>
           </Reveal>
 
           {/* Gulf Readiness — the arithmetic market score, moved here from the
@@ -424,8 +442,8 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <Reveal delay={200}>
-            <Card tone="light" className="flex flex-col gap-2 p-6">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+            <div className="border border-edge bg-white flex flex-col gap-2 p-6">
+              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
                 Quick actions
               </div>
               <div className="mt-1 flex flex-col">
@@ -433,21 +451,21 @@ export default function DashboardPage() {
                   <Link
                     key={a.href}
                     href={a.href}
-                    className="flex min-h-11 items-center justify-between gap-3 rounded-radius-md px-2 py-2.5 text-[14px] font-semibold text-ink-900/85 transition-colors hover:bg-surface-2-light/60 hover:text-gold-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold"
+                    className="flex min-h-11 items-center justify-between gap-3 rounded-bp px-2 py-2.5 text-[14px] font-semibold text-graphite transition-colors hover:bg-paper hover:text-signal-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
                   >
                     {a.label}
-                    <span aria-hidden className="text-ink-400">→</span>
+                    <span aria-hidden className="text-slate">→</span>
                   </Link>
                 ))}
               </div>
-            </Card>
+            </div>
           </Reveal>
 
           {/* Library preview */}
           <Reveal delay={230}>
-            <Card tone="light" className="flex h-full flex-col gap-4 p-6">
+            <div className="border border-edge bg-white flex h-full flex-col gap-4 p-6">
               <div className="flex items-baseline justify-between">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
                   Library · {packagesLoaded ? packageCount : '—'} package{packageCount === 1 ? '' : 's'}
                 </span>
                 <Link
@@ -458,7 +476,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
               {packageCount === 0 ? (
-                <div className="flex flex-1 items-center rounded-radius-md border border-dashed border-line-light bg-surface-2-light/50 p-5 text-[13px] leading-relaxed text-ink-400">
+                <div className="flex flex-1 items-center rounded-bp border border-dashed border-edge bg-paper p-5 text-[13px] leading-relaxed text-slate">
                   No packages yet — optimize a resume and it will appear here.
                 </div>
               ) : (
@@ -466,18 +484,18 @@ export default function DashboardPage() {
                   {recentPackages.slice(0, 3).map((pkg) => (
                     <div
                       key={pkg.id}
-                      className="flex items-center justify-between rounded-radius-md bg-surface-2-light/50 px-4 py-2.5 text-[13px] font-medium text-ink-900/75"
+                      className="flex items-center justify-between rounded-bp bg-paper px-4 py-2.5 text-[13px] font-medium text-graphite"
                     >
                       <span>
                         {resumeLabel(pkg)} ·{' '}
                         {GULF_COUNTRIES.find((c) => c.value === pkg.target_country)?.label ?? pkg.target_country}
                       </span>
-                      <span className="text-[12px] text-ink-400">v{pkg.generation_count}</span>
+                      <span className="text-[12px] text-slate">v{pkg.generation_count}</span>
                     </div>
                   ))}
                 </div>
               )}
-            </Card>
+            </div>
           </Reveal>
         </div>
       </div>
@@ -524,36 +542,37 @@ function MetricTile({
   muted?: boolean
   href?: string
 }) {
+  // Blueprint: a figure and its label, with no container. The mono face and
+  // tabular figures are the point — a number that changes must not shift the
+  // ones beside it.
   const inner = (
     <>
-      <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-400">
+      <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-slate">
         {label}
       </span>
-      <span className={cn('font-mono text-[26px] leading-none', muted ? 'text-ink-400' : 'text-gold-text')}>
+      <span
+        className={cn(
+          'font-mono text-[28px] font-medium leading-none tracking-[-0.02em] tabular-nums',
+          muted ? 'text-slate' : 'text-graphite',
+        )}
+      >
         {value}
       </span>
-      {sub ? <span className={cn('text-[12px]', muted ? 'text-ink-400' : 'text-navy')}>{sub}</span> : null}
+      {sub ? <span className="text-[12px] text-slate">{sub}</span> : null}
     </>
   )
 
   if (!href) {
-    return (
-      <Card tone="light" className="flex flex-col gap-1.5 p-4">
-        {inner}
-      </Card>
-    )
+    return <div className="flex flex-1 flex-col gap-1.5 py-4 pr-4 first:pl-0 [&:not(:first-child)]:pl-4">{inner}</div>
   }
 
   return (
     <Link
       href={href}
       aria-label={`${label}: ${value ?? 'not available'}`}
-      className="group flex flex-col gap-1.5 rounded-radius-lg border border-line-light bg-surface-light p-4 transition hover:border-navy/60 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
+      className="group flex flex-1 flex-col gap-1.5 py-4 pr-4 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 [&:not(:first-child)]:pl-4"
     >
       {inner}
-      <span aria-hidden className="mt-0.5 text-[12px] font-semibold text-navy opacity-0 transition group-hover:opacity-100">
-        Open →
-      </span>
     </Link>
   )
 }

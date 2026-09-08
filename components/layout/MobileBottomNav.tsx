@@ -23,7 +23,13 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-line-dark bg-navy-deepest/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
+      // BLUEPRINT (2026-09-08). Was a dark navy bar with a GOLD active state,
+      // which fought the oxide signal the moment the dashboard changed — two
+      // accents on one screen, and neither reading as "the important one".
+      // White bar, hairline top, signal for the current tab: the same colour
+      // that marks the primary action everywhere else.
+      // Contrast checked: signal 5.18:1 and slate 5.51:1 on white.
+      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-edge bg-white/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
     >
       {MOBILE_PRIMARY_ITEMS.map((item) => {
         const Icon = item.icon
@@ -34,12 +40,12 @@ export function MobileBottomNav() {
             href={navHref(item)}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[12px] leading-tight font-redesign-sans transition-colors',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redesign-gold',
-              active ? 'font-semibold text-redesign-gold' : 'font-medium text-ink-400-dark'
+              'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-bp px-1 text-center text-[12px] leading-tight font-redesign-sans transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal',
+              active ? 'font-semibold text-signal' : 'font-medium text-slate'
             )}
           >
-            <Icon className={cn('size-5 shrink-0', active ? 'text-redesign-gold' : 'text-ink-400-dark')} />
+            <Icon className={cn('size-5 shrink-0', active ? 'text-signal' : 'text-slate')} />
             {item.shortLabel ?? item.label}
           </Link>
         )
