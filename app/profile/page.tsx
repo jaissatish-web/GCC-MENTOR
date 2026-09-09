@@ -11,7 +11,6 @@ import {
   useState,
 } from 'react'
 import { Button, buttonVariants } from '@/components/ui/Button'
-import { AppShell } from '@/components/layout/AppShell'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import ReadinessRing from '@/components/ui/ReadinessRing'
@@ -2115,10 +2114,10 @@ function ProfileScreen() {
 // next.js CSR-bailout during static generation.
 export default function ProfilePage() {
   return (
-    <AppShell>
+    <>
       <Suspense>
         <ProfileScreen />
       </Suspense>
-    </AppShell>
+    </>
   )
 }

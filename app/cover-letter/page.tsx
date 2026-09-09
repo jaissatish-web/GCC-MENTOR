@@ -1,7 +1,6 @@
 'use client'
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
 import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
@@ -316,10 +315,10 @@ function CoverLetterScreen() {
 
 export default function CoverLetterPage() {
   return (
-    <AppShell>
+    <>
       <Suspense>
         <CoverLetterScreen />
       </Suspense>
-    </AppShell>
+    </>
   )
 }

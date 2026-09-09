@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { cn } from '@/lib/utils'
@@ -541,10 +540,10 @@ function SetupScreen() {
 // Keep a Suspense boundary for future useSearchParams safety during prerender.
 export default function OptimizeSetupPage() {
   return (
-    <AppShell>
+    <>
       <Suspense>
         <SetupScreen />
       </Suspense>
-    </AppShell>
+    </>
   )
 }

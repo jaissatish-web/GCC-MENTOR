@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { buttonVariants } from '@/components/ui/Button'
-import { AppShell } from '@/components/layout/AppShell'
 import { PageShell } from '@/components/layout/PageShell'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { getTemplate, DEFAULT_TEMPLATE_ID, type TemplateId } from '@/lib/templates'
@@ -131,8 +130,8 @@ function TemplatesInner() {
 
 export default function TemplatesPage() {
   return (
-    <AppShell>
+    <>
       <TemplatesInner />
-    </AppShell>
+    </>
   )
 }

@@ -77,36 +77,58 @@ function templateNameFor(id?: string | null): string {
 /**
  * The job's own name, edited where it is read.
  *
+ * IT SHOWS THE TITLE AS A REAL VALUE, not as a placeholder. When this list was
+ * a document library the row's identity was the file, and an unnamed row could
+ * sensibly show its target job title in placeholder grey. Now the row IS the
+ * job, so the title is the headline — and a placeholder is the wrong element
+ * for a headline twice over: it renders at placeholder contrast, and it is not
+ * content, so it is absent from the accessibility tree and from anything that
+ * reads the page as text.
+ *
+ * `name` stays nullable and nothing about storage changed. The field simply
+ * falls back to `target_job_title` for display, and saves an EMPTY name when
+ * the text is left equal to that title — so "never renamed" is still stored as
+ * NULL rather than as a copy of the job title.
+ *
  * Saves on blur or Enter and only when the value actually changed, so moving
  * through the list with the keyboard never fires a write. Escape abandons the
  * edit and restores what was there.
  */
 function NameField({
   value,
-  placeholder,
+  fallback,
   onSave,
 }: {
   value: string
-  placeholder: string
+  fallback: string
   onSave: (next: string) => void
 }) {
-  const [draft, setDraft] = useState(value)
-  useEffect(() => setDraft(value), [value])
+  const shown = value || fallback
+  const [draft, setDraft] = useState(shown)
+  useEffect(() => setDraft(value || fallback), [value, fallback])
+
+  const commit = (raw: string) => {
+    const next = raw.trim()
+    if (next === shown.trim()) return
+    // Typing the target job title back in means "no custom name", not "name it
+    // the same as the title" — otherwise the fallback would quietly become a
+    // stored duplicate that no longer tracks the job.
+    onSave(next === fallback.trim() ? '' : next)
+  }
+
   return (
     <input
       type="text"
       value={draft}
-      placeholder={placeholder}
+      placeholder={fallback}
       maxLength={120}
       aria-label="Job name"
       onChange={(e) => setDraft(e.target.value)}
-      onBlur={() => {
-        if (draft.trim() !== value.trim()) onSave(draft.trim())
-      }}
+      onBlur={(e) => commit(e.target.value)}
       onKeyDown={(e) => {
         if (e.key === 'Enter') e.currentTarget.blur()
         if (e.key === 'Escape') {
-          setDraft(value)
+          setDraft(shown)
           e.currentTarget.blur()
         }
       }}
@@ -402,7 +424,7 @@ export default function TargetJobsPage() {
                       unnamed job looks exactly as it always did. */}
                   <NameField
                     value={pkg.name ?? ''}
-                    placeholder={pkg.target_job_title}
+                    fallback={pkg.target_job_title}
                     onSave={(next) => renamePackage(pkg.id, next)}
                   />
                   <div className="px-1.5">
@@ -488,7 +510,7 @@ export default function TargetJobsPage() {
                     drift apart in behaviour. */}
                 <NameField
                   value={pkg.name ?? ''}
-                  placeholder={pkg.target_job_title}
+                  fallback={pkg.target_job_title}
                   onSave={(next) => renamePackage(pkg.id, next)}
                 />
                 <span className="flex items-center gap-1.5 px-1.5 text-[12px] text-slate">

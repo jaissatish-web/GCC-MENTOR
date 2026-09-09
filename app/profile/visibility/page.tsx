@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { AppShell } from '@/components/layout/AppShell'
 import { Toggle } from '@/components/ui/Toggle'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import type { FieldVisibility } from '@/types/careerProfile'
@@ -201,10 +200,10 @@ function VisibilityScreen() {
 // next.js CSR-bailout during static generation.
 export default function ProfileVisibilityPage() {
   return (
-    <AppShell>
+    <>
       <Suspense>
         <VisibilityScreen />
       </Suspense>
-    </AppShell>
+    </>
   )
 }

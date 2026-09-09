@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { Suspense, useEffect, useRef, useState } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
 import { PageShell } from '@/components/layout/PageShell'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Card } from '@/components/ui/Card'
@@ -189,10 +188,10 @@ function GccReadinessScreen() {
 
 export default function GccReadinessPage() {
   return (
-    <AppShell>
+    <>
       <Suspense>
         <GccReadinessScreen />
       </Suspense>
-    </AppShell>
+    </>
   )
 }

@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { ProgressBar } from '@/components/ui/ProgressBar'
@@ -345,10 +344,10 @@ function TargetScreen() {
 // Keep a Suspense boundary for future useSearchParams safety during prerender.
 export default function OptimizeTargetPage() {
   return (
-    <AppShell>
+    <>
       <Suspense>
         <TargetScreen />
       </Suspense>
-    </AppShell>
+    </>
   )
 }
