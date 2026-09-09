@@ -37,8 +37,8 @@ export function LockedTile({ title, description, note, tone = 'light', className
   return (
     <div
       className={cn(
-        'flex cursor-default flex-col gap-2 rounded-bp-lg border-2 border-dashed p-4 font-redesign-sans',
-        isDark ? 'border-edge-strong bg-surface-2-dark' : 'border-edge-strong bg-paper',
+        'flex cursor-default flex-col gap-2 rounded-card border-2 border-dashed p-4 font-redesign-sans',
+        isDark ? 'border-line-strong bg-surface-2-dark' : 'border-line-strong bg-canvas',
         className
       )}
       onClick={() => setShowNote((prev) => !prev)}
@@ -57,7 +57,7 @@ export function LockedTile({ title, description, note, tone = 'light', className
         <span
           className={cn(
             'inline-flex items-center rounded-full border px-[9px] py-[3px] text-[12px] font-semibold leading-none tracking-wider uppercase font-redesign-sans',
-            isDark ? 'border-edge text-slate' : 'border-edge text-slate'
+            isDark ? 'border-line text-ink-muted' : 'border-line text-ink-muted'
           )}
         >
           Planned
@@ -65,12 +65,12 @@ export function LockedTile({ title, description, note, tone = 'light', className
       </div>
 
       {/* Title */}
-      <span className={cn('text-sm font-semibold', isDark ? 'text-white' : 'text-graphite')}>
+      <span className={cn('text-sm font-semibold', isDark ? 'text-white' : 'text-ink')}>
         {title}
       </span>
 
       {/* Description */}
-      <span className={cn('text-[12px] leading-snug', isDark ? 'text-paper' : 'text-graphite-soft')}>
+      <span className={cn('text-[12px] leading-snug', isDark ? 'text-canvas' : 'text-ink-soft')}>
         {description}
       </span>
 
@@ -80,8 +80,8 @@ export function LockedTile({ title, description, note, tone = 'light', className
           className={cn(
             'mt-1 rounded-lg border px-3 py-2 text-[12px]',
             isDark
-              ? 'border-edge bg-paper text-slate'
-              : 'border-edge bg-edge/30 text-graphite-soft'
+              ? 'border-line bg-canvas text-ink-muted'
+              : 'border-line bg-line/30 text-ink-soft'
           )}
         >
           {note ?? DEFAULT_NOTE}

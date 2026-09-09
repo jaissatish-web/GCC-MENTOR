@@ -53,9 +53,9 @@ function formatDate(iso: string | null): string {
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1 border-b border-edge py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-      <span className="text-[13px] font-medium text-slate">{label}</span>
-      <span className="break-words text-[14px] font-semibold text-graphite sm:text-right">
+    <div className="flex flex-col gap-1 border-b border-line py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <span className="text-[13px] font-medium text-ink-muted">{label}</span>
+      <span className="break-words text-[14px] font-semibold text-ink sm:text-right">
         {value}
       </span>
     </div>
@@ -64,7 +64,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-bp border border-dashed border-edge-strong bg-paper px-4 py-6 text-center text-[13px] leading-relaxed text-slate">
+    <div className="rounded-ctl border border-dashed border-line-strong bg-canvas px-4 py-6 text-center text-[13px] leading-relaxed text-ink-muted">
       {children}
     </div>
   )
@@ -133,7 +133,7 @@ export default async function SettingsPage({
         />
 
         {/* Tabs — real links, so each section is bookmarkable and keyboard-navigable */}
-        <nav aria-label="Settings sections" className="mt-6 border-b border-edge">
+        <nav aria-label="Settings sections" className="mt-6 border-b border-line">
           <ul className="-mb-px flex flex-wrap gap-1">
             {TABS.map((t) => {
               const active = t.id === tab
@@ -144,10 +144,10 @@ export default async function SettingsPage({
                     aria-current={active ? 'page' : undefined}
                     className={cn(
                       'flex min-h-11 items-center rounded-t-radius-md px-3.5 text-[13px] font-redesign-sans transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-paper',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
                       active
-                        ? 'border-b-2 border-signal font-semibold text-signal'
-                        : 'border-b-2 border-transparent font-medium text-slate hover:text-graphite'
+                        ? 'border-b-2 border-teal font-semibold text-teal'
+                        : 'border-b-2 border-transparent font-medium text-ink-muted hover:text-ink'
                     )}
                   >
                     {t.label}
@@ -166,7 +166,7 @@ export default async function SettingsPage({
               actions={
                 <Link
                   href="/profile"
-                  className="flex min-h-11 items-center rounded-bp border border-edge-strong px-4 text-[13px] font-semibold text-graphite transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+                  className="flex min-h-11 items-center rounded-ctl border border-line-strong px-4 text-[13px] font-semibold text-ink transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   Edit Career Profile
                 </Link>
@@ -191,14 +191,14 @@ export default async function SettingsPage({
                   label="Status"
                   value={
                     user.email_confirmed_at ? (
-                      <span className="text-signal">Confirmed</span>
+                      <span className="text-teal">Confirmed</span>
                     ) : (
                       <span className="text-amber">Not confirmed</span>
                     )
                   }
                 />
               </div>
-              <p className="mt-4 text-[12px] leading-relaxed text-slate">
+              <p className="mt-4 text-[12px] leading-relaxed text-ink-muted">
                 You cannot change your sign-in email here yet. Deleting your data does not delete your login.
               </p>
             </SectionCard>
@@ -214,12 +214,12 @@ export default async function SettingsPage({
                   {Object.entries(availableByService).map(([key, count]) => (
                     <li
                       key={key}
-                      className="flex items-center justify-between gap-4 rounded-bp border border-edge bg-paper px-4 py-3"
+                      className="flex items-center justify-between gap-4 rounded-ctl border border-line bg-canvas px-4 py-3"
                     >
-                      <span className="text-[14px] font-semibold text-graphite">
+                      <span className="text-[14px] font-semibold text-ink">
                         {serviceLabel(key)}
                       </span>
-                      <span className="rounded-full bg-signal-tint px-2.5 py-1 text-[12px] font-bold text-signal-ink">
+                      <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[12px] font-bold text-teal">
                         {count} available
                       </span>
                     </li>
@@ -233,17 +233,17 @@ export default async function SettingsPage({
 
               {used.length > 0 ? (
                 <div className="mt-5">
-                  <h3 className="text-[13px] font-semibold text-graphite">Recently used</h3>
+                  <h3 className="text-[13px] font-semibold text-ink">Recently used</h3>
                   <ul className="mt-2 flex flex-col">
                     {used.slice(0, 5).map((c) => (
                       <li
                         key={c.id}
-                        className="flex items-center justify-between gap-4 border-b border-edge py-2.5 last:border-b-0"
+                        className="flex items-center justify-between gap-4 border-b border-line py-2.5 last:border-b-0"
                       >
-                        <span className="text-[13px] text-graphite-soft">
+                        <span className="text-[13px] text-ink-soft">
                           {serviceLabel(c.serviceKey)}
                         </span>
-                        <span className="text-[12px] text-slate">
+                        <span className="text-[12px] text-ink-muted">
                           {formatDate(c.consumedAt)}
                         </span>
                       </li>
@@ -264,19 +264,19 @@ export default async function SettingsPage({
                   {unlocked.map((p) => (
                     <li
                       key={p.id as string}
-                      className="flex flex-col gap-1 rounded-bp border border-edge bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+                      className="flex flex-col gap-1 rounded-ctl border border-line bg-canvas px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                     >
                       <span className="min-w-0">
-                        <span className="block truncate text-[14px] font-semibold text-graphite">
+                        <span className="block truncate text-[14px] font-semibold text-ink">
                           {(p.target_job_title as string) || 'Untitled resume'}
                         </span>
-                        <span className="block text-[12px] text-slate">
+                        <span className="block text-[12px] text-ink-muted">
                           Unlocked {formatDate(p.created_at as string)}
                         </span>
                       </span>
                       <Link
                         href={`/package/${p.id as string}`}
-                        className="shrink-0 text-[13px] font-semibold text-signal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+                        className="shrink-0 text-[13px] font-semibold text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                       >
                         Open
                       </Link>
@@ -287,7 +287,7 @@ export default async function SettingsPage({
                 <EmptyState>You have not unlocked any paid resumes yet.</EmptyState>
               )}
 
-              <p className="mt-5 rounded-bp border border-edge bg-paper px-4 py-3 text-[12px] leading-relaxed text-slate">
+              <p className="mt-5 rounded-ctl border border-line bg-canvas px-4 py-3 text-[12px] leading-relaxed text-ink-muted">
                 Card payment is not switched on yet, so there is nothing to show here. Access is granted directly or by redeeming a code.
               </p>
             </SectionCard>

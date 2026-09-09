@@ -25,11 +25,11 @@ export function PlaceholderPage({ title, ticket, route, next }: PlaceholderPageP
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[560px] items-center justify-center px-6 py-16 font-redesign-sans">
       <Card className="w-full border-dashed p-8">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-slate">{route}</p>
-        <h1 className="mt-3 text-4xl text-graphite">{title}</h1>
-        <p className="mt-2 text-sm leading-relaxed text-graphite-soft">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-muted">{route}</p>
+        <h1 className="mt-3 text-4xl text-ink">{title}</h1>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">
           Placeholder screen — wireframe only. Built in{' '}
-          <span className="font-mono text-signal">{ticket}</span>.
+          <span className="font-mono text-teal">{ticket}</span>.
         </p>
         <div className="mt-6">
           {next ? (

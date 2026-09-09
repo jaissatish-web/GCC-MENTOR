@@ -44,22 +44,22 @@ export default async function PromoCodesPage({
     >
 
       <Card className="flex flex-col gap-4 p-5">
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">
           Promo codes
         </h2>
-        <p className="text-[12px] text-slate">
+        <p className="text-[12px] text-ink-muted">
           Unlocks a package&apos;s paid deliverable without Razorpay — for beta testers while
           KYC stays blocked. A user enters a code on the payment screen. Reusable up to the
           redemption limit you set (blank = unlimited).
         </p>
 
         {promoSaved ? (
-          <div className="rounded-bp-lg border border-signal/50 bg-signal-tint px-3.5 py-2.5 text-[12px] text-signal-ink">
+          <div className="rounded-card border border-teal/50 bg-teal-soft px-3.5 py-2.5 text-[12px] text-teal">
             Saved.
           </div>
         ) : null}
         {promoError ? (
-          <div className="rounded-bp-lg border border-terra/30 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">
+          <div className="rounded-card border border-alert/30 bg-alert-soft px-3.5 py-2.5 text-[12px] text-alert">
             {promoError}
           </div>
         ) : null}
@@ -92,14 +92,14 @@ export default async function PromoCodesPage({
             <Input name="expiresAt" type="datetime-local" label="Expires (optional)" className="w-[220px]" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="f_promo_package" className="text-sm font-medium text-graphite">
-              Package <span className="font-normal text-slate">(optional — leave blank for the original single-resume code)</span>
+            <label htmlFor="f_promo_package" className="text-sm font-medium text-ink">
+              Package <span className="font-normal text-ink-muted">(optional — leave blank for the original single-resume code)</span>
             </label>
             <select
               id="f_promo_package"
               name="packageId"
               defaultValue=""
-              className="min-h-11 w-full max-w-[320px] rounded-bp border border-edge bg-white px-[15px] py-[13px] text-sm font-medium text-graphite outline-none transition-colors focus:border-signal-ink focus:ring-2 focus:ring-signal-ink/20"
+              className="min-h-11 w-full max-w-[320px] rounded-ctl border border-line bg-white px-[15px] py-[13px] text-sm font-medium text-ink outline-none transition-colors focus:border-teal focus:ring-2 focus:ring-teal/20"
             >
               <option value="">None — original single-resume code</option>
               {activePackages.map((p) => (
@@ -116,24 +116,24 @@ export default async function PromoCodesPage({
 
         {promoCodes.length > 0 ? (
           <div className="flex flex-col gap-1.5">
-            <div className="text-[12px] font-semibold uppercase tracking-wide text-slate">
+            <div className="text-[12px] font-semibold uppercase tracking-wide text-ink-muted">
               Existing codes
             </div>
             {promoCodes.map((c) => (
               <div
                 key={c.code}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-bp border border-edge px-3 py-2 text-[12px]"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-ctl border border-line px-3 py-2 text-[12px]"
               >
                 <div className="flex flex-col gap-0.5">
                   <span className="flex items-center gap-2">
-                    <span className="font-mono font-semibold text-graphite">{c.code}</span>
+                    <span className="font-mono font-semibold text-ink">{c.code}</span>
                     {c.packageName ? (
-                      <span className="rounded-full border border-edge-strong px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-slate">
+                      <span className="rounded-full border border-line-strong px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-ink-muted">
                         {c.packageName}
                       </span>
                     ) : null}
                   </span>
-                  <span className="text-slate">
+                  <span className="text-ink-muted">
                     {c.description} · {c.redemptionCount}
                     {c.maxRedemptions != null ? ` / ${c.maxRedemptions}` : ''} used
                     {c.expiresAt ? ` · expires ${c.expiresAt.slice(0, 10)}` : ''}
@@ -146,7 +146,7 @@ export default async function PromoCodesPage({
                       <input type="hidden" name="code" value={c.code} />
                       <button
                         type="submit"
-                        className="text-[12px] font-semibold text-terra underline-offset-2 hover:underline"
+                        className="text-[12px] font-semibold text-alert underline-offset-2 hover:underline"
                       >
                         Deactivate
                       </button>
@@ -157,7 +157,7 @@ export default async function PromoCodesPage({
             ))}
           </div>
         ) : (
-          <p className="text-[12px] text-slate">No promo codes created yet.</p>
+          <p className="text-[12px] text-ink-muted">No promo codes created yet.</p>
         )}
       </Card>
     </PageShell>

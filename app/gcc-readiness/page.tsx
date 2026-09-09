@@ -93,8 +93,8 @@ function GccReadinessScreen() {
 
   if (!loaded) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-paper font-redesign-sans">
-        <p className="font-mono text-sm text-slate">Loading…</p>
+      <main className="flex min-h-dvh items-center justify-center bg-canvas font-redesign-sans">
+        <p className="font-mono text-sm text-ink-muted">Loading…</p>
       </main>
     )
   }
@@ -115,7 +115,7 @@ function GccReadinessScreen() {
       subtitle="How complete is the profile your future Gulf applications are built from."
     >
       {loadError ? (
-        <div className="rounded-bp-lg border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra">
+        <div className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
           {loadError}
         </div>
       ) : (
@@ -126,13 +126,13 @@ function GccReadinessScreen() {
             <Card tone="light" className="flex flex-col items-center gap-4 p-8 text-center xl:w-[340px] xl:shrink-0">
               <div className="flex flex-col items-center gap-3">
                 <ReadinessRing score={score} size={132} dark />
-                <span className="font-mono text-[26px] leading-none text-signal-ink">
+                <span className="font-mono text-[26px] leading-none text-teal">
                   {score}
-                  <span className="text-[15px] text-slate">/100</span>
+                  <span className="text-[15px] text-ink-muted">/100</span>
                 </span>
               </div>
               {category ? <Pill variant="grounded">{categoryLabel(category)}</Pill> : null}
-              <p className="text-[13px] leading-relaxed text-slate">
+              <p className="text-[13px] leading-relaxed text-ink-muted">
                 {missing.length === 0
                   ? 'Every section complete.'
                   : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed.`}
@@ -148,16 +148,16 @@ function GccReadinessScreen() {
             {/* Breakdown list */}
             <Card tone="light" className="flex flex-1 flex-col gap-4 p-6">
               <div className="flex flex-col gap-1">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
                   Finish these to reach 100
                 </span>
-                <p className="text-[12px] text-slate">Each one raises your score. Tap to edit on your profile.</p>
+                <p className="text-[12px] text-ink-muted">Each one raises your score. Tap to edit on your profile.</p>
               </div>
 
               {missing.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 rounded-bp-lg border border-dashed border-edge bg-paper/50 p-8 text-center">
-                  <span className="font-bp-display text-2xl text-signal">All complete</span>
-                  <p className="max-w-sm text-[13px] leading-relaxed text-slate">
+                <div className="flex flex-col items-center gap-3 rounded-card border border-dashed border-line bg-canvas/50 p-8 text-center">
+                  <span className="font-display text-2xl text-teal">All complete</span>
+                  <p className="max-w-sm text-[13px] leading-relaxed text-ink-muted">
                     Your profile is 100% ready. Every section used by a future Gulf application is filled in.
                   </p>
                 </div>
@@ -167,13 +167,13 @@ function GccReadinessScreen() {
                     <Link
                       key={m.field}
                       href="/profile"
-                      className="flex min-h-11 items-center justify-between gap-3 rounded-bp border border-edge/70 bg-paper/50 px-4 py-3 transition-colors hover:border-signal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+                      className="flex min-h-11 items-center justify-between gap-3 rounded-ctl border border-line/70 bg-canvas/50 px-4 py-3 transition-colors hover:border-teal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                     >
                       <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate text-[13px] font-semibold text-graphite/85">{m.label}</span>
-                        <span className="text-[12px] text-slate">+{m.points} points</span>
+                        <span className="truncate text-[13px] font-semibold text-ink/85">{m.label}</span>
+                        <span className="text-[12px] text-ink-muted">+{m.points} points</span>
                       </span>
-                      <span className="shrink-0 text-[12px] font-semibold text-signal">Add →</span>
+                      <span className="shrink-0 text-[12px] font-semibold text-teal">Add →</span>
                     </Link>
                   ))}
                 </div>

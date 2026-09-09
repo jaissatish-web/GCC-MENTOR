@@ -104,21 +104,21 @@ export default async function AdminDashboardPage() {
             <Card
               className={`flex flex-col gap-1 p-5 transition-colors ${
                 s.warn
-                  ? 'border-terra/40 bg-terra-tint'
-                  : 'hover:border-signal/50'
+                  ? 'border-alert/40 bg-alert-soft'
+                  : 'hover:border-teal/50'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">
+                <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">
                   {s.title}
                 </h2>
-                <span className="text-sm text-signal">→</span>
+                <span className="text-sm text-teal">→</span>
               </div>
               <p
                 className={
                   s.warn
-                    ? 'text-[13px] font-semibold text-terra'
-                    : 'text-[13px] text-graphite-soft'
+                    ? 'text-[13px] font-semibold text-alert'
+                    : 'text-[13px] text-ink-soft'
                 }
               >
                 {s.summary}

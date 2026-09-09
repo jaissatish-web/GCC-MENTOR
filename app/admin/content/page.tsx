@@ -51,52 +51,52 @@ export default async function AdminContentPage({
       </Alert>
 
       <section className="flex flex-col gap-4">
-        <h2 className="font-bp-display text-[17px] font-semibold text-graphite">Legal pages</h2>
+        <h2 className="font-display text-[17px] font-semibold text-ink">Legal pages</h2>
         {legal.map((row) => (
           <form
             key={row.slug}
             action={saveSiteContentAction}
-            className="flex flex-col gap-3 border border-edge bg-white p-4 sm:p-5"
+            className="flex flex-col gap-3 border border-line bg-white p-4 sm:p-5"
           >
             <input type="hidden" name="slug" value={row.slug} />
 
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[12px] text-slate">/{row.slug}</span>
+                <span className="font-mono text-[12px] text-ink-muted">/{row.slug}</span>
                 {row.published && row.body.trim() ? (
-                  <span className="rounded-full bg-signal-tint px-2 py-0.5 text-[12px] font-semibold text-signal-ink">
+                  <span className="rounded-full bg-teal-soft px-2 py-0.5 text-[12px] font-semibold text-teal">
                     Live
                   </span>
                 ) : (
-                  <span className="rounded-full bg-paper px-2 py-0.5 text-[12px] font-semibold text-slate">
+                  <span className="rounded-full bg-canvas px-2 py-0.5 text-[12px] font-semibold text-ink-muted">
                     Not live
                   </span>
                 )}
               </div>
-              <span className="text-[12px] text-slate">
+              <span className="text-[12px] text-ink-muted">
                 {row.body.trim() ? `${row.body.trim().split(/\s+/).length} words` : 'empty'}
               </span>
             </div>
 
             <label className="flex flex-col gap-1.5">
-              <span className="text-[13px] font-semibold text-graphite">Page title</span>
+              <span className="text-[13px] font-semibold text-ink">Page title</span>
               <input
                 name="title"
                 defaultValue={row.title}
-                className="min-h-11 w-full rounded-bp border border-edge-strong bg-white px-3 py-2 text-[14px] text-graphite outline-none focus:border-signal focus:ring-2 focus:ring-signal/20"
+                className="min-h-11 w-full rounded-ctl border border-line-strong bg-white px-3 py-2 text-[14px] text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
               />
             </label>
 
             <label className="flex flex-col gap-1.5">
-              <span className="text-[13px] font-semibold text-graphite">Page text</span>
+              <span className="text-[13px] font-semibold text-ink">Page text</span>
               <textarea
                 name="body"
                 defaultValue={row.body}
                 rows={12}
                 placeholder={`Write the ${row.title.toLowerCase()} here.\n\nA blank line starts a new paragraph.\nA line ending in a colon becomes a heading.`}
-                className="w-full rounded-bp border border-edge-strong bg-white px-3 py-2.5 text-[14px] leading-relaxed text-graphite outline-none focus:border-signal focus:ring-2 focus:ring-signal/20"
+                className="w-full rounded-ctl border border-line-strong bg-white px-3 py-2.5 text-[14px] leading-relaxed text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
               />
-              <span className="text-[12px] text-slate">
+              <span className="text-[12px] text-ink-muted">
                 Plain text. Blank line = new paragraph. A line ending in &ldquo;:&rdquo; becomes a heading.
               </span>
             </label>
@@ -107,9 +107,9 @@ export default async function AdminContentPage({
                   type="checkbox"
                   name="published"
                   defaultChecked={row.published}
-                  className="size-4 accent-signal"
+                  className="size-4 accent-teal"
                 />
-                <span className="text-[13px] text-graphite-soft">
+                <span className="text-[13px] text-ink-soft">
                   Publish — show this page and link it from the footer
                 </span>
               </label>
@@ -122,27 +122,27 @@ export default async function AdminContentPage({
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="font-bp-display text-[17px] font-semibold text-graphite">Footer</h2>
+        <h2 className="font-display text-[17px] font-semibold text-ink">Footer</h2>
         {footer.map((row) => (
           <form
             key={row.slug}
             action={saveSiteContentAction}
-            className="flex flex-col gap-3 border border-edge bg-white p-4 sm:p-5"
+            className="flex flex-col gap-3 border border-line bg-white p-4 sm:p-5"
           >
             <input type="hidden" name="slug" value={row.slug} />
             <input type="hidden" name="title" value={row.title} />
             <input type="hidden" name="published" value="on" />
             <label className="flex flex-col gap-1.5">
-              <span className="text-[13px] font-semibold text-graphite">
+              <span className="text-[13px] font-semibold text-ink">
                 The line under the logo
               </span>
               <textarea
                 name="body"
                 defaultValue={row.body}
                 rows={3}
-                className="w-full rounded-bp border border-edge-strong bg-white px-3 py-2.5 text-[14px] leading-relaxed text-graphite outline-none focus:border-signal focus:ring-2 focus:ring-signal/20"
+                className="w-full rounded-ctl border border-line-strong bg-white px-3 py-2.5 text-[14px] leading-relaxed text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
               />
-              <span className="text-[12px] text-slate">
+              <span className="text-[12px] text-ink-muted">
                 Appears in the footer of every signed-in page. Keep it to a sentence or two.
               </span>
             </label>

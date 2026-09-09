@@ -31,40 +31,40 @@ export function AuthShell({
   children: React.ReactNode
 }) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-paper">
+    <div className="relative min-h-screen overflow-hidden bg-canvas">
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-glow-radial" />
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-[420px] flex-col items-center justify-center px-5 py-12 sm:px-8">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="font-bp-display flex h-9 w-9 items-center justify-center rounded-bp-lg bg-signal text-[15px] text-white shadow-redesign-cta-glow">
+          <span className="font-display flex h-9 w-9 items-center justify-center rounded-card bg-teal text-[15px] text-white shadow-redesign-cta-glow">
             G
           </span>
-          <span className="text-[15px] font-bold text-graphite">GCC MENTOR</span>
+          <span className="text-[15px] font-bold text-ink">GCC MENTOR</span>
         </Link>
 
-        <div className="mt-7 inline-flex w-fit items-center gap-2 rounded-full border border-signal/40 bg-signal-tint px-3.5 py-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-signal" />
-          <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-signal-ink">
+        <div className="mt-7 inline-flex w-fit items-center gap-2 rounded-full border border-teal/40 bg-teal-soft px-3.5 py-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-teal" />
+          <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal">
             Saudi · UAE · Qatar · Oman · Kuwait · Bahrain
           </span>
         </div>
 
-        <h1 className="mt-6 text-center font-bp-display text-[32px] leading-[1.12] text-graphite">{headline}</h1>
-        <p className="mt-3 text-center text-[15px] leading-relaxed text-graphite-soft">{body}</p>
+        <h1 className="mt-6 text-center font-display text-[32px] leading-[1.12] text-ink">{headline}</h1>
+        <p className="mt-3 text-center text-[15px] leading-relaxed text-ink-soft">{body}</p>
 
         <div className="mt-8 w-full">
           <Reveal>{children}</Reveal>
         </div>
 
-        <div className="mt-9 flex flex-col items-center gap-2.5 border-t border-edge pt-6">
+        <div className="mt-9 flex flex-col items-center gap-2.5 border-t border-line pt-6">
           {STORY_TRUST.map((t) => (
-            <div key={t} className="flex items-center gap-2 text-[13px] font-medium text-slate">
-              <span className="text-signal-ink">◈</span> {t}
+            <div key={t} className="flex items-center gap-2 text-[13px] font-medium text-ink-muted">
+              <span className="text-teal">◈</span> {t}
             </div>
           ))}
         </div>
 
-        <p className="mt-7 text-center text-[12px] leading-relaxed text-slate">
+        <p className="mt-7 text-center text-[12px] leading-relaxed text-ink-muted">
           Only facts already in your profile are used anywhere in this product.
           Nothing is invented — ever.
         </p>

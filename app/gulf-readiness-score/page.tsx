@@ -87,14 +87,14 @@ export default function GulfReadinessScorePage() {
 
   // ---- shared chrome --------------------------------------------------------
   const Shell = ({ children, wide }: { children: React.ReactNode; wide?: boolean }) => (
-    <main className="min-h-dvh bg-paper text-graphite">
-      <header className="border-b border-edge bg-paper/95">
+    <main className="min-h-dvh bg-canvas text-ink">
+      <header className="border-b border-line bg-canvas/95">
         <div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-5 sm:px-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="font-bp-display flex h-9 w-9 items-center justify-center rounded-bp bg-signal text-lg text-white">G</span>
+            <span className="font-display flex h-9 w-9 items-center justify-center rounded-ctl bg-teal text-lg text-white">G</span>
             <span className="font-bold tracking-wide">GCC MENTOR</span>
           </Link>
-          <Link href="/login" className="text-sm font-semibold text-slate hover:text-graphite">Log in</Link>
+          <Link href="/login" className="text-sm font-semibold text-ink-muted hover:text-ink">Log in</Link>
         </div>
       </header>
       <div className={`mx-auto px-5 py-12 sm:px-8 lg:py-16 ${wide ? 'max-w-[820px]' : 'max-w-[600px]'}`}>{children}</div>
@@ -111,15 +111,15 @@ export default function GulfReadinessScorePage() {
     options: { label: string; onClick: () => void }[]
   }) => (
     <div className="text-center">
-      <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">{eyebrow}</p>
-      <h1 className="mt-4 font-bp-display text-3xl leading-tight sm:text-4xl">{title}</h1>
+      <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">{eyebrow}</p>
+      <h1 className="mt-4 font-display text-3xl leading-tight sm:text-4xl">{title}</h1>
       <div className="mx-auto mt-8 flex max-w-md flex-col gap-3">
         {options.map((o) => (
           <button
             key={o.label}
             type="button"
             onClick={o.onClick}
-            className="rounded-bp-lg border border-edge-strong bg-white px-5 py-4 text-left text-[14px] font-semibold text-graphite transition-colors hover:border-signal hover:bg-gold-tint/30"
+            className="rounded-card border border-line-strong bg-white px-5 py-4 text-left text-[14px] font-semibold text-ink transition-colors hover:border-teal hover:bg-gold-tint/30"
           >
             {o.label}
           </button>
@@ -134,16 +134,16 @@ export default function GulfReadinessScorePage() {
     return (
       <Shell>
         <div className="text-center">
-          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">Free Gulf readiness score</p>
-          <h1 className="mt-4 font-bp-display text-4xl leading-tight sm:text-5xl">How Gulf-ready is your career?</h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-graphite-soft">
+          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Free Gulf readiness score</p>
+          <h1 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">How Gulf-ready is your career?</h1>
+          <p className="mt-4 text-[15px] leading-relaxed text-ink-soft">
             Two questions and your CV. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
           </p>
         </div>
 
-        <div className="mt-8 rounded-bp-lg border border-edge bg-paper p-5 shadow-redesign-md sm:p-7">
+        <div className="mt-8 rounded-card border border-line bg-canvas p-5 shadow-redesign-md sm:p-7">
           <div
-            className={`rounded-bp-lg border-2 border-dashed p-7 text-center transition-colors ${dragging ? 'border-signal bg-signal/10' : 'border-edge-strong bg-white'}`}
+            className={`rounded-card border-2 border-dashed p-7 text-center transition-colors ${dragging ? 'border-teal bg-teal/10' : 'border-line-strong bg-white'}`}
             onDragOver={(e: DragEvent) => {
               e.preventDefault()
               setDragging(true)
@@ -156,9 +156,9 @@ export default function GulfReadinessScorePage() {
             }}
           >
             <input ref={fileInput} type="file" accept=".pdf,.doc,.docx" className="sr-only" onChange={(e: ChangeEvent<HTMLInputElement>) => chooseFile(e.target.files?.[0] ?? null)} />
-            <p className="text-2xl text-signal-ink">↑</p>
-            <h2 className="mt-2 font-bp-display text-xl">{file ? file.name : 'Drop your resume here'}</h2>
-            <p className="mt-1.5 text-[13px] text-graphite-soft">PDF up to 10MB · Word up to 5MB</p>
+            <p className="text-2xl text-teal">↑</p>
+            <h2 className="mt-2 font-display text-xl">{file ? file.name : 'Drop your resume here'}</h2>
+            <p className="mt-1.5 text-[13px] text-ink-soft">PDF up to 10MB · Word up to 5MB</p>
             <button type="button" onClick={() => fileInput.current?.click()} className={buttonVariants({ variant: 'secondary', size: 'sm' }) + ' mt-4'}>
               Choose a file
             </button>
@@ -171,7 +171,7 @@ export default function GulfReadinessScorePage() {
               setFile(null)
               setError(null)
             }}
-            className="mx-auto mt-4 block text-[13px] font-bold text-signal underline underline-offset-4"
+            className="mx-auto mt-4 block text-[13px] font-bold text-teal underline underline-offset-4"
           >
             {pasteMode ? 'Use file upload instead' : 'Paste text instead'}
           </button>
@@ -185,17 +185,17 @@ export default function GulfReadinessScorePage() {
                 maxLength={MAX_TEXT}
                 rows={9}
                 placeholder="Paste your resume text (50–20,000 characters)"
-                className="mt-2 w-full rounded-bp border border-edge bg-white p-3.5 font-sans text-[13px] font-normal outline-none focus:border-signal focus:ring-2 focus:ring-signal/25"
+                className="mt-2 w-full rounded-ctl border border-line bg-white p-3.5 font-sans text-[13px] font-normal outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
               />
-              <span className="mt-1 block text-right text-[12px] font-normal text-slate">{resumeText.length.toLocaleString()} / {MAX_TEXT.toLocaleString()}</span>
+              <span className="mt-1 block text-right text-[12px] font-normal text-ink-muted">{resumeText.length.toLocaleString()} / {MAX_TEXT.toLocaleString()}</span>
             </label>
           ) : null}
 
           <button type="button" onClick={startQuestions} className={buttonVariants({ variant: 'primary' }) + ' mt-4 w-full'}>
             Continue
           </button>
-          {error ? <p role="alert" className="mt-3 rounded-bp border border-terra bg-terra-tint px-4 py-3 text-sm text-terra">{error}</p> : null}
-          <p className="mt-4 text-center text-[12px] text-slate">Your anonymous check isn&rsquo;t saved to our servers.</p>
+          {error ? <p role="alert" className="mt-3 rounded-ctl border border-alert bg-alert-soft px-4 py-3 text-sm text-alert">{error}</p> : null}
+          <p className="mt-4 text-center text-[12px] text-ink-muted">Your anonymous check isn&rsquo;t saved to our servers.</p>
         </div>
       </Shell>
     )
@@ -250,12 +250,12 @@ export default function GulfReadinessScorePage() {
     return (
       <Shell>
         <div className="py-16 text-center">
-          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">Building your scorecard</p>
-          <h1 className="mt-4 font-bp-display text-3xl">Scoring your Gulf readiness…</h1>
+          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Building your scorecard</p>
+          <h1 className="mt-4 font-display text-3xl">Scoring your Gulf readiness…</h1>
           <div className="mx-auto mt-8 flex max-w-sm flex-col gap-2.5">
             {ANALYZE_STEPS.map((s) => (
-              <div key={s} className="flex items-center gap-3 rounded-bp-lg border border-edge bg-white p-3.5 text-[13px] text-graphite-soft">
-                <span className="size-2.5 animate-pulse rounded-full bg-signal" />
+              <div key={s} className="flex items-center gap-3 rounded-card border border-line bg-white p-3.5 text-[13px] text-ink-soft">
+                <span className="size-2.5 animate-pulse rounded-full bg-teal" />
                 {s}
               </div>
             ))}
@@ -269,8 +269,8 @@ export default function GulfReadinessScorePage() {
   return (
     <Shell wide>
       <div className="mb-6 text-center">
-        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">Your Gulf readiness</p>
-        <h1 className="mt-3 font-bp-display text-3xl">Here&rsquo;s where your career stands</h1>
+        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your Gulf readiness</p>
+        <h1 className="mt-3 font-display text-3xl">Here&rsquo;s where your career stands</h1>
       </div>
       {result ? <ScorecardResult result={result} locked /> : null}
     </Shell>

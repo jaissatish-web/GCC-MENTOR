@@ -527,7 +527,7 @@ const CATEGORY_COPY: Record<ReadinessCategory, { highlight: string; rest: string
  * `helper` is the guided remark shown under the title — one short line saying
  * what to put in this block and what makes it useful to a Gulf recruiter. It
  * renders on `ink-400-dark`, a real token, rather than an opacity wash of the
- * body colour (the whole file used `text-graphite/55` and similar, which
+ * body colour (the whole file used `text-ink/55` and similar, which
  * is what made the guidance hard to read against the card).
  *
  * `optional` marks blocks a user can legitimately skip, so required vs
@@ -546,7 +546,7 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-bp border border-dashed border-edge-strong px-4 py-3 text-[13px] font-semibold text-signal-ink transition-colors hover:border-signal hover:bg-signal-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-ctl border border-dashed border-line-strong px-4 py-3 text-[13px] font-semibold text-teal transition-colors hover:border-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-white"
     >
       <span aria-hidden="true" className="text-[15px] leading-none">
         +
@@ -572,7 +572,7 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
 function PointsChip({ earned, total }: { earned: number; total: number }) {
   if (total === 0) {
     return (
-      <span className="shrink-0 whitespace-nowrap rounded-full border border-edge-strong px-2.5 py-1 text-[12px] font-semibold text-slate">
+      <span className="shrink-0 whitespace-nowrap rounded-full border border-line-strong px-2.5 py-1 text-[12px] font-semibold text-ink-muted">
         Optional
       </span>
     )
@@ -583,8 +583,8 @@ function PointsChip({ earned, total }: { earned: number; total: number }) {
       className={cn(
         'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-bold tabular-nums',
         complete
-          ? 'bg-signal-tint text-signal-ink'
-          : 'bg-signal-tint text-signal-ink'
+          ? 'bg-teal-soft text-teal'
+          : 'bg-teal-soft text-teal'
       )}
     >
       {complete ? 'Done' : `+${total - earned} pts`}
@@ -649,8 +649,8 @@ function CardSection({
       tone="light"
       className={cn(
         'flex scroll-mt-24 flex-col overflow-hidden border-l-[3px] p-0 transition-colors',
-        accent?.rule ?? 'border-l-edge',
-        open && 'border-signal/40',
+        accent?.rule ?? 'border-l-line',
+        open && 'border-teal/40',
       )}
     >
       <h2>
@@ -659,7 +659,7 @@ function CardSection({
           onClick={onToggle}
           aria-expanded={open}
           aria-controls={panelId}
-          className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal sm:p-5"
+          className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal sm:p-5"
         >
           {/* Step marker — a tick once the block is complete, so progress is
               readable from the numbers column alone without reading any text. */}
@@ -669,10 +669,10 @@ function CardSection({
               done || open
                 // Open or finished, the marker is `signal`: the one colour that
                 // means "this is where you are acting".
-                ? 'bg-signal text-white'
+                ? 'bg-teal text-white'
                 // Closed, it carries the block's own hue, so the numbers column
                 // alone tells you which block is which.
-                : (accent?.chip ?? 'bg-paper text-slate')
+                : (accent?.chip ?? 'bg-canvas text-ink-muted')
             )}
             aria-hidden="true"
           >
@@ -687,13 +687,13 @@ function CardSection({
                   // Open, the title is plain graphite — you are reading the
                   // block, not looking for it. Closed, it is its own colour so
                   // you can find it again.
-                  open ? 'text-graphite' : (accent?.text ?? 'text-graphite'),
+                  open ? 'text-ink' : (accent?.text ?? 'text-ink'),
                 )}
               >
                 {title}
               </span>
               {badge ? (
-                <span className="rounded-[5px] bg-paper px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-graphite-soft">
+                <span className="rounded-[5px] bg-canvas px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-soft">
                   {badge}
                 </span>
               ) : null}
@@ -701,7 +701,7 @@ function CardSection({
             {helper ? (
               <span
                 className={cn(
-                  'text-[12px] leading-relaxed text-slate',
+                  'text-[12px] leading-relaxed text-ink-muted',
                   !open && 'line-clamp-1'
                 )}
               >
@@ -715,7 +715,7 @@ function CardSection({
             <span
               aria-hidden="true"
               className={cn(
-                'text-[12px] text-slate transition-transform',
+                'text-[12px] text-ink-muted transition-transform',
                 open && 'rotate-180'
               )}
             >
@@ -726,7 +726,7 @@ function CardSection({
       </h2>
 
       {open ? (
-        <div id={panelId} className="border-t border-edge p-4 sm:p-5">
+        <div id={panelId} className="border-t border-line p-4 sm:p-5">
           {action ? <div className="mb-4 flex flex-wrap gap-2">{action}</div> : null}
           {children}
         </div>
@@ -808,10 +808,10 @@ const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
 ]
 
 const selectClass =
-  'min-h-11 w-full rounded-bp border border-edge-strong bg-white px-[15px] py-[13px] text-sm font-medium text-graphite outline-none transition-colors focus:border-signal focus:ring-2 focus:ring-signal/20'
+  'min-h-11 w-full rounded-ctl border border-line-strong bg-white px-[15px] py-[13px] text-sm font-medium text-ink outline-none transition-colors focus:border-teal focus:ring-2 focus:ring-teal/20'
 
 const textareaClass =
-  'min-h-11 w-full resize-none rounded-bp border border-edge-strong bg-white px-[15px] py-[13px] text-sm font-medium text-graphite outline-none transition-colors placeholder:text-slate focus:border-signal focus:ring-2 focus:ring-signal/20'
+  'min-h-11 w-full resize-none rounded-ctl border border-line-strong bg-white px-[15px] py-[13px] text-sm font-medium text-ink outline-none transition-colors placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/20'
 
 function ConfirmToggle({
   id,
@@ -829,8 +829,8 @@ function ConfirmToggle({
   return (
     <div id={id} className="flex items-start justify-between gap-3 py-1">
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-graphite">{label}</span>
-        {hint ? <span className="text-[12px] text-slate">{hint}</span> : null}
+        <span className="text-sm font-medium text-ink">{label}</span>
+        {hint ? <span className="text-[12px] text-ink-muted">{hint}</span> : null}
       </div>
       <Toggle checked={checked} onCheckedChange={onChange} aria-label={label} />
     </div>
@@ -1295,11 +1295,11 @@ function ProfileScreen() {
     const lostEntries = Object.values(losses.entries).reduce((n, c) => n + c, 0)
 
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-paper px-5 py-10">
-        <h1 className="font-bp-display text-[28px] leading-tight text-graphite">
+      <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-canvas px-5 py-10">
+        <h1 className="font-display text-[28px] leading-tight text-ink">
           You already have a profile
         </h1>
-        <p className="mt-3 text-[14px] leading-relaxed text-graphite-soft">
+        <p className="mt-3 text-[14px] leading-relaxed text-ink-soft">
           We read your uploaded CV. What would you like to do with it?
         </p>
 
@@ -1309,17 +1309,17 @@ function ProfileScreen() {
             setEditor(fromFull(merged.profile))
             setPendingDraft(null)
           }}
-          className="mt-6 rounded-bp-lg border-2 border-signal bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+          className="mt-6 rounded-card border-2 border-teal bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
           <span className="flex items-center gap-2">
-            <span className="text-[15px] font-bold text-graphite">Add it to my profile</span>
-            <span className="rounded-[5px] bg-signal-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-signal-ink">
+            <span className="text-[15px] font-bold text-ink">Add it to my profile</span>
+            <span className="rounded-[5px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-teal">
               Recommended
             </span>
           </span>
-          <span className="mt-1.5 block text-[13px] leading-relaxed text-graphite-soft">
+          <span className="mt-1.5 block text-[13px] leading-relaxed text-ink-soft">
             Keeps everything you already have. Adds{' '}
-            <strong className="text-graphite">
+            <strong className="text-ink">
               {addedTotal} new {addedTotal === 1 ? 'entry' : 'entries'}
             </strong>{' '}
             from the CV
@@ -1336,14 +1336,14 @@ function ProfileScreen() {
             setEditor(fromDraft(pendingDraft.draft))
             setPendingDraft(null)
           }}
-          className="mt-3 rounded-bp-lg border border-edge bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
+          className="mt-3 rounded-card border border-line bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert"
         >
-          <span className="text-[15px] font-bold text-graphite">Replace my profile</span>
-          <span className="mt-1.5 block text-[13px] leading-relaxed text-graphite-soft">
+          <span className="text-[15px] font-bold text-ink">Replace my profile</span>
+          <span className="mt-1.5 block text-[13px] leading-relaxed text-ink-soft">
             Starts fresh from this CV only.
           </span>
           {lostEntries > 0 || losses.fields.length > 0 ? (
-            <span className="mt-3 block rounded-bp border border-terra/40 bg-terra-tint px-3 py-2.5 text-[12px] leading-relaxed text-terra">
+            <span className="mt-3 block rounded-ctl border border-alert/40 bg-alert-soft px-3 py-2.5 text-[12px] leading-relaxed text-alert">
               This removes{' '}
               {lostEntries > 0 ? (
                 <strong>
@@ -1357,7 +1357,7 @@ function ProfileScreen() {
           ) : null}
         </button>
 
-        <p className="mt-6 text-center text-[12px] text-slate">
+        <p className="mt-6 text-center text-[12px] text-ink-muted">
           Nothing is saved either way until you press Save on the next screen.
         </p>
       </main>
@@ -1366,14 +1366,14 @@ function ProfileScreen() {
 
   if (!loaded || !editor) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-paper">
-        <p className="font-mono text-sm text-slate">Loading…</p>
+      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-canvas">
+        <p className="font-mono text-sm text-ink-muted">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-paper">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-canvas">
       {/* Readiness header — the ring IS the header, on dark navy */}
       <header className="flex flex-col gap-4 bg-white px-5 pb-6 pt-4">
         {/* STACKS ON MOBILE, and must.
@@ -1400,17 +1400,17 @@ function ProfileScreen() {
               market" — a different thing, so each carries its own label. */}
           <div className="flex shrink-0 flex-col items-center gap-1">
             <ReadinessRing score={readiness.score} size={68} />
-            <span className="text-[12px] font-bold uppercase tracking-wide text-slate">Profile complete</span>
+            <span className="text-[12px] font-bold uppercase tracking-wide text-ink-muted">Profile complete</span>
           </div>
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <h1 className="font-bp-display text-[20px] font-bold leading-tight tracking-[-0.015em] text-graphite">
+            <h1 className="font-display text-[20px] font-bold leading-tight tracking-[-0.015em] text-ink">
               Almost there, {firstName}
             </h1>
-            <p className="text-[12px] leading-relaxed text-graphite-soft">
-              <span className="font-semibold text-graphite">Career Profile — {readiness.score}% complete,{' '}
+            <p className="text-[12px] leading-relaxed text-ink-soft">
+              <span className="font-semibold text-ink">Career Profile — {readiness.score}% complete,{' '}
               {itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
-              Profiles like yours — <span className="font-semibold text-signal-ink">{categoryCopy.highlight}</span> —{' '}
+              Profiles like yours — <span className="font-semibold text-teal">{categoryCopy.highlight}</span> —{' '}
               {categoryCopy.rest}
             </p>
           </div>
@@ -1449,7 +1449,7 @@ function ProfileScreen() {
       />
 
       {loadError ? (
-        <div className="mx-5 mt-4 rounded-bp border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mt-4 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">
           {loadError}
         </div>
       ) : null}
@@ -1460,29 +1460,29 @@ function ProfileScreen() {
           that key was already read+cleared in the mount pass, so this can never
           reappear after a reload. */}
       {claimedScan ? (
-        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-bp border border-signal/40 bg-white px-4 py-3">
+        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-ctl border border-teal/40 bg-white px-4 py-3">
           <div className="flex flex-col gap-1">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-signal-ink">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-teal">
               Welcome back
             </p>
-            <p className="text-[13px] font-medium text-graphite">
+            <p className="text-[13px] font-medium text-ink">
               Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
             </p>
             <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="font-mono text-2xl font-bold text-signal">
+              <span className="font-mono text-2xl font-bold text-teal">
                 {claimedScan.overall_score}
                 <span className="text-sm">/100</span>
               </span>
-              <span className="font-mono text-[12px] text-graphite-soft">Structure {claimedScan.category_scores.structure}</span>
-              <span className="font-mono text-[12px] text-graphite-soft">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
-              <span className="font-mono text-[12px] text-graphite-soft">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
+              <span className="font-mono text-[12px] text-ink-soft">Structure {claimedScan.category_scores.structure}</span>
+              <span className="font-mono text-[12px] text-ink-soft">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
+              <span className="font-mono text-[12px] text-ink-soft">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setClaimedScan(null)}
             aria-label="Dismiss welcome back banner"
-            className="min-h-11 shrink-0 px-1 text-slate transition-colors hover:text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+            className="min-h-11 shrink-0 px-1 text-ink-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             ✕
           </button>
@@ -1502,12 +1502,12 @@ function ProfileScreen() {
             the user knows how long this is and where they are inside it. The
             old page opened straight into nine expanded blocks with no such
             framing, which is what made it feel endless. */}
-        <p className="px-1 pb-1 text-[13px] leading-relaxed text-slate">
+        <p className="px-1 pb-1 text-[13px] leading-relaxed text-ink-muted">
           {doneCount === scoredCount ? (
             <>All {scoredCount} scored sections are complete — review anything below, then confirm.</>
           ) : (
             <>
-              <span className="font-semibold text-graphite">
+              <span className="font-semibold text-ink">
                 {doneCount} of {scoredCount} sections done.
               </span>{' '}
               Open a step to fill it in. Your work is kept as you move between them.
@@ -1547,10 +1547,10 @@ function ProfileScreen() {
                 label="Target job title"
                 value={editor.target_job_title}
                 onChange={(e) => setField({ target_job_title: e.target.value })}
-                className={invalidFields.has('target_job_title') ? 'border-terra focus:border-terra focus:ring-terra/25' : undefined}
+                className={invalidFields.has('target_job_title') ? 'border-alert focus:border-alert focus:ring-alert/25' : undefined}
               />
               {invalidFields.has('target_job_title') ? (
-                <p role="alert" className="text-[12px] font-medium text-terra">Target job title is required.</p>
+                <p role="alert" className="text-[12px] font-medium text-alert">Target job title is required.</p>
               ) : null}
             </div>
             <div className="flex flex-col gap-1">
@@ -1559,15 +1559,15 @@ function ProfileScreen() {
                 label="Target industry"
                 value={editor.target_industry}
                 onChange={(e) => setField({ target_industry: e.target.value })}
-                className={invalidFields.has('target_industry') ? 'border-terra focus:border-terra focus:ring-terra/25' : undefined}
+                className={invalidFields.has('target_industry') ? 'border-alert focus:border-alert focus:ring-alert/25' : undefined}
               />
               {invalidFields.has('target_industry') ? (
-                <p role="alert" className="text-[12px] font-medium text-terra">Target industry is required.</p>
+                <p role="alert" className="text-[12px] font-medium text-alert">Target industry is required.</p>
               ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_target_country" className="text-sm font-medium text-graphite">
-                Target country <span className="font-normal text-slate">(optional)</span>
+              <label htmlFor="f_target_country" className="text-sm font-medium text-ink">
+                Target country <span className="font-normal text-ink-muted">(optional)</span>
               </label>
               <select
                 id="f_target_country"
@@ -1603,7 +1603,7 @@ function ProfileScreen() {
           action={
             <Link
               href="/profile/visibility"
-              className="text-[12px] font-semibold text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+              className="text-[12px] font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               What appears on your CV →
             </Link>
@@ -1682,7 +1682,7 @@ function ProfileScreen() {
               onChange={(e) => setField({ date_of_birth: e.target.value })}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_passport_type" className="text-sm font-medium text-graphite">
+              <label htmlFor="f_passport_type" className="text-sm font-medium text-ink">
                 Passport type
               </label>
               <select
@@ -1738,7 +1738,7 @@ function ProfileScreen() {
           helper="Site and field roles ask for this outright. Leaving it blank filters CVs out."
         >
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-graphite">
+            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-ink">
               Do you have a driving license?
             </label>
             <select
@@ -1795,7 +1795,7 @@ function ProfileScreen() {
             onChange={(e) => setField({ professional_summary: e.target.value })}
             placeholder="A short summary of who you are and what you bring."
           />
-          <p className="text-[12px] leading-snug text-slate">
+          <p className="text-[12px] leading-snug text-ink-muted">
             This is your own summary — the AI never writes back into it. It is the &ldquo;before&rdquo; the
             optimizer diffs against.
           </p>
@@ -1819,9 +1819,9 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-4">
             {editor.work_experience.map((w, i) => (
-              <div key={w.key} className="flex flex-col gap-2.5 border border-edge-strong rounded-bp p-3">
+              <div key={w.key} className="flex flex-col gap-2.5 border border-line-strong rounded-ctl p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] text-slate">#{i + 1}</span>
+                  <span className="font-mono text-[12px] text-ink-muted">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1834,7 +1834,7 @@ function ProfileScreen() {
                           : e
                       )
                     }
-                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
                   >
                     Remove
                   </button>
@@ -1847,7 +1847,7 @@ function ProfileScreen() {
                 </div>
                 <Input tone="light" label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-graphite">
+                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-ink">
                     Gulf experience
                   </label>
                   <select
@@ -1866,7 +1866,7 @@ function ProfileScreen() {
                     ))}
                   </select>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-graphite">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
                   Description
                   <textarea
                     rows={3}
@@ -1875,8 +1875,8 @@ function ProfileScreen() {
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { description: e.target.value }) }))}
                   />
                 </label>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-graphite">
-                  Highlights <span className="text-[12px] font-normal text-slate">one per line</span>
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
+                  Highlights <span className="text-[12px] font-normal text-ink-muted">one per line</span>
                   <textarea
                     rows={3}
                     className={textareaClass}
@@ -1896,12 +1896,12 @@ function ProfileScreen() {
             An empty array renders nothing (silence is correct here, not a
             manufactured "no gaps!"). */}
         {employmentGaps.length > 0 ? (
-          <div className="flex flex-col gap-2 rounded-bp border border-edge/70 bg-white px-3.5 py-3">
-            <span className="text-[12px] font-semibold text-graphite-soft">
+          <div className="flex flex-col gap-2 rounded-ctl border border-line/70 bg-white px-3.5 py-3">
+            <span className="text-[12px] font-semibold text-ink-soft">
               Employment gaps &mdash; just for your awareness
             </span>
             {employmentGaps.map((g, i) => (
-              <p key={i} className="text-[12px] leading-snug text-slate">
+              <p key={i} className="text-[12px] leading-snug text-ink-muted">
                 We noticed a {g.gapMonths}-month gap between {g.precedingCompany || 'a previous role'} and{' '}
                 {g.followingCompany || 'your next role'}. This isn&rsquo;t scored &mdash; just something to be aware of.
               </p>
@@ -1927,15 +1927,15 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.education.map((x, i) => (
-              <div key={x.key} className="flex flex-col gap-2.5 border border-edge-strong rounded-bp p-3">
+              <div key={x.key} className="flex flex-col gap-2.5 border border-line-strong rounded-ctl p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] text-slate">#{i + 1}</span>
+                  <span className="font-mono text-[12px] text-ink-muted">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
                       setEditor((e) => (e ? { ...e, education: e.education.filter((y) => y.key !== x.key) } : e))
                     }
-                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
                   >
                     Remove
                   </button>
@@ -1972,7 +1972,7 @@ function ProfileScreen() {
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
-                <span className="font-mono text-[12px] text-slate">{i + 1}</span>
+                <span className="font-mono text-[12px] text-ink-muted">{i + 1}</span>
                 <Input tone="light"
                   value={s.name}
                   aria-label={`Skill ${i + 1}`}
@@ -1984,7 +1984,7 @@ function ProfileScreen() {
                     setEditor((e) => (e ? { ...e, skills: e.skills.filter((x) => x.key !== s.key) } : e))
                   }
                   aria-label={`Remove skill ${i + 1}`}
-                  className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
+                  className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
                 >
                   ✕
                 </button>
@@ -2012,15 +2012,15 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.certifications.map((c, i) => (
-              <div key={c.key} className="flex flex-col gap-2.5 border border-edge-strong rounded-bp p-3">
+              <div key={c.key} className="flex flex-col gap-2.5 border border-line-strong rounded-ctl p-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] text-slate">#{i + 1}</span>
+                  <span className="font-mono text-[12px] text-ink-muted">#{i + 1}</span>
                   <button
                     type="button"
                     onClick={() =>
                       setEditor((e) => (e ? { ...e, certifications: e.certifications.filter((x) => x.key !== c.key) } : e))
                     }
-                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
                   >
                     Remove
                   </button>
@@ -2053,12 +2053,12 @@ function ProfileScreen() {
               </button>
             }
         >
-          <p className="text-[12px] leading-snug text-slate">
+          <p className="text-[12px] leading-snug text-ink-muted">
             AI-labelled · you can rename the label on each item.
           </p>
           <div className="flex flex-col gap-3">
             {editor.additional_information.map((a) => (
-              <div key={a.key} className="flex flex-col gap-2.5 border border-edge-strong rounded-bp p-3">
+              <div key={a.key} className="flex flex-col gap-2.5 border border-line-strong rounded-ctl p-3">
                 <div className="flex gap-2">
                   <Input tone="light"
                     label="Label"
@@ -2072,13 +2072,13 @@ function ProfileScreen() {
                         setEditor((e) => (e ? { ...e, additional_information: e.additional_information.filter((x) => x.key !== a.key) } : e))
                       }
                       aria-label="Remove item"
-                      className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-terra hover:bg-terra-tint'}
+                      className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
                     >
                       ✕
                     </button>
                   </div>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-graphite">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
                   Value
                   <textarea
                     rows={2}
@@ -2100,7 +2100,7 @@ function ProfileScreen() {
           save control at the foot of a long form was redundant. The error display
           stays — it is where a failed save reports. */}
       {saveError ? (
-        <div className="mx-5 mb-5 mt-3 rounded-bp border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mb-5 mt-3 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">
           {saveError}
         </div>
       ) : null}

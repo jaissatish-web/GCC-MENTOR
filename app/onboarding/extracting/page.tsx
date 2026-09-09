@@ -159,8 +159,8 @@ function ExtractingScreen() {
   // this the paste card would flash for one frame before the effect above runs.
   if (path === 'claimed' && stage === 'collect') {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-paper px-6 py-12 font-redesign-sans">
-        <p className="text-sm text-graphite-soft">Picking up your scan…</p>
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
+        <p className="text-sm text-ink-soft">Picking up your scan…</p>
       </main>
     )
   }
@@ -168,17 +168,17 @@ function ExtractingScreen() {
   // ---- Collect stage (deferred upload/paste interaction) -------------------
   if (stage === 'collect') {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-paper px-6 py-12 font-redesign-sans">
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
         <Card tone="light" className="w-full max-w-[560px] p-6 sm:p-8">
           <Link
             href="/onboarding"
             aria-label="Back to choose how to start"
-            className="inline-flex size-11 items-center justify-center rounded-bp text-2xl leading-none text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            className="inline-flex size-11 items-center justify-center rounded-ctl text-2xl leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
           >
             ←
           </Link>
 
-          <h1 className="mt-4 font-bp-display text-[30px] leading-snug text-graphite">
+          <h1 className="mt-4 font-display text-[30px] leading-snug text-ink">
             {path === 'upload' ? 'Upload your resume' : 'Paste your resume'}
           </h1>
 
@@ -194,7 +194,7 @@ function ExtractingScreen() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-bp border border-dashed border-edge-strong bg-paper px-4 py-6 text-sm text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+                className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-ctl border border-dashed border-line-strong bg-canvas px-4 py-6 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
               >
                 {file ? file.name : 'Choose a file — PDF/DOCX'}
               </button>
@@ -205,7 +205,7 @@ function ExtractingScreen() {
               onChange={(e) => setText(e.target.value)}
               rows={8}
               placeholder="Paste your resume text here…"
-              className="mt-6 w-full resize-none rounded-bp border border-edge bg-white px-4 py-3 text-sm text-graphite placeholder:text-slate focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+              className="mt-6 w-full resize-none rounded-ctl border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             />
           )}
 
@@ -220,15 +220,15 @@ function ExtractingScreen() {
   // ---- Error stage: give the user a way back, never strand on the screen
   if (stage === 'error') {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-paper px-6 py-12 font-redesign-sans">
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
         <Card tone="light" className="w-full max-w-[480px] p-8 text-center">
-          <div className="mx-auto flex size-24 items-center justify-center rounded-bp-lg border border-edge bg-paper font-bp-display text-3xl text-signal-ink">
+          <div className="mx-auto flex size-24 items-center justify-center rounded-card border border-line bg-canvas font-display text-3xl text-teal">
             !
           </div>
-          <h1 className="mt-6 font-bp-display text-[27px] leading-tight text-graphite">
+          <h1 className="mt-6 font-display text-[27px] leading-tight text-ink">
             We couldn&apos;t read that
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-graphite-soft">{serverMessage}</p>
+          <p className="mt-3 text-sm leading-relaxed text-ink-soft">{serverMessage}</p>
           <div className="mt-8 flex flex-col gap-3">
             <Button
               variant="primary"
@@ -248,17 +248,17 @@ function ExtractingScreen() {
 
   // ---- Extracting stage: single centered card with the step checklist ------
   return (
-    <main className="flex min-h-dvh flex-col bg-paper font-redesign-sans">
+    <main className="flex min-h-dvh flex-col bg-canvas font-redesign-sans">
       <div className="mx-auto flex w-full max-w-[520px] flex-1 flex-col items-center justify-center gap-6 px-6 py-12">
         {/* Sweep-animated CV badge — reuses the existing animate-sweep keyframe */}
-        <div className="relative flex size-24 items-center justify-center overflow-hidden rounded-bp-lg border border-edge bg-paper">
-          <span className="font-bp-display text-[34px] leading-none text-signal-ink">CV</span>
-          <span className="absolute inset-0 w-2/5 animate-sweep bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
+        <div className="relative flex size-24 items-center justify-center overflow-hidden rounded-card border border-line bg-canvas">
+          <span className="font-display text-[34px] leading-none text-teal">CV</span>
+          <span className="absolute inset-0 w-2/5 animate-sweep bg-gradient-to-r from-transparent via-teal/30 to-transparent" />
         </div>
 
         <div className="text-center">
-          <h1 className="font-bp-display text-[27px] leading-tight text-graphite">Reading your resume</h1>
-          <p className="mt-2 text-[13px] leading-relaxed text-graphite-soft">
+          <h1 className="font-display text-[27px] leading-tight text-ink">Reading your resume</h1>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
             Usually takes about 20 seconds.
           </p>
         </div>
@@ -268,9 +268,9 @@ function ExtractingScreen() {
             const isDone = i <= rowCount - 2
             const isActive = i === rowCount - 1
             const icon = isDone ? '✓' : isActive ? '◍' : '○'
-            const color = isDone ? 'text-signal' : isActive ? 'text-signal' : 'text-slate'
+            const color = isDone ? 'text-teal' : isActive ? 'text-teal' : 'text-ink-muted'
             return (
-              <div key={label} className="flex items-center gap-2.5 text-[13px] font-medium text-graphite">
+              <div key={label} className="flex items-center gap-2.5 text-[13px] font-medium text-ink">
                 <span className={cn('w-4 text-center', color)}>{icon}</span>
                 {label}
               </div>
@@ -278,9 +278,9 @@ function ExtractingScreen() {
           })}
         </Card>
 
-        <p className="text-center text-[12px] leading-relaxed text-slate">
+        <p className="text-center text-[12px] leading-relaxed text-ink-muted">
           You&apos;ll get to review and correct everything on the next screen —{' '}
-          <span className="text-graphite-soft">nothing is saved until you confirm.</span>
+          <span className="text-ink-soft">nothing is saved until you confirm.</span>
         </p>
       </div>
     </main>

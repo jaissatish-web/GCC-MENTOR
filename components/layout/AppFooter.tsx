@@ -54,26 +54,26 @@ export async function AppFooter() {
   ])
 
   return (
-    <footer className="mt-10 border-t border-edge bg-white">
+    <footer className="mt-10 border-t border-line bg-white">
       <div className="mx-auto grid w-full max-w-[1120px] gap-7 px-5 py-8 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
         {/* ── who is behind this ── */}
         <div className="flex flex-col gap-3">
           <Link
             href="/dashboard"
-            className="-mx-2 flex w-fit min-h-11 items-center gap-2.5 rounded-bp px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+            className="-mx-2 flex w-fit min-h-11 items-center gap-2.5 rounded-ctl px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             <span
               aria-hidden="true"
-              className="flex size-7 items-center justify-center rounded-bp bg-signal font-mono text-[13px] font-semibold text-white"
+              className="flex size-7 items-center justify-center rounded-ctl bg-teal font-mono text-[13px] font-semibold text-white"
             >
               G
             </span>
-            <span className="font-bp-display text-[14px] font-bold tracking-[-0.01em] text-graphite">
+            <span className="font-display text-[14px] font-bold tracking-[-0.01em] text-ink">
               GCC MENTOR
             </span>
           </Link>
-          <p className="max-w-[38ch] text-[13px] leading-relaxed text-graphite-soft">{aboutLine}</p>
-          <p className="max-w-[38ch] text-[13px] leading-relaxed text-slate">
+          <p className="max-w-[38ch] text-[13px] leading-relaxed text-ink-soft">{aboutLine}</p>
+          <p className="max-w-[38ch] text-[13px] leading-relaxed text-ink-muted">
             Every generated line is checked against your own profile before you see it.
             Nothing is invented.
           </p>
@@ -85,7 +85,7 @@ export async function AppFooter() {
             and it was most of the 890px the footer was costing. It earns its
             place on wider screens, where the sidebar scrolls out of view. */}
         <nav aria-label="Services" className="hidden flex-col gap-2.5 sm:flex">
-          <h2 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate">
+          <h2 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
             Services
           </h2>
           <ul className="flex flex-col gap-1.5">
@@ -93,7 +93,7 @@ export async function AppFooter() {
               <li key={s.href}>
                 <Link
                   href={s.href}
-                  className="inline-flex min-h-[26px] items-center text-[13px] text-graphite-soft underline-offset-2 hover:text-signal-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+                  className="inline-flex min-h-[26px] items-center text-[13px] text-ink-soft underline-offset-2 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   {s.label}
                 </Link>
@@ -102,7 +102,7 @@ export async function AppFooter() {
           </ul>
           {/* Named as not built, because saying so is the product's whole
               posture. A "coming soon" that never comes is what the scams do. */}
-          <p className="mt-1 text-[12px] leading-relaxed text-slate">
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-muted">
             Interview Q&amp;A and Mock Interview are <strong className="font-semibold">not built yet</strong>.
             They are labelled everywhere they appear.
           </p>
@@ -110,42 +110,42 @@ export async function AppFooter() {
 
         {/* ── where, and how to reach a person ── */}
         <div className="flex flex-col gap-2.5">
-          <h2 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-slate">
+          <h2 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
             Gulf markets
           </h2>
-          <p className="text-[13px] leading-relaxed text-graphite-soft">
+          <p className="text-[13px] leading-relaxed text-ink-soft">
             {GULF_COUNTRIES.filter((c) => c.value !== 'generic_gulf')
               .map((c) => c.label)
               .join(' · ')}
           </p>
 
-          <h2 className="mt-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-slate">
+          <h2 className="mt-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
             Contact
           </h2>
           <a
             href="mailto:jaissatish@gmail.com"
-            className="inline-flex min-h-11 w-fit items-center text-[13px] font-semibold text-signal-ink underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+            className="inline-flex min-h-11 w-fit items-center text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             jaissatish@gmail.com
           </a>
-          <p className="text-[12px] leading-relaxed text-slate">
+          <p className="text-[12px] leading-relaxed text-ink-muted">
             A real person replies, usually within a day.
           </p>
         </div>
       </div>
 
       {/* ── the honest bottom line ── */}
-      <div className="border-t border-edge">
+      <div className="border-t border-line">
         <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <p className="text-[12px] text-slate">© {year} GCC MENTOR</p>
+            <p className="text-[12px] text-ink-muted">© {year} GCC MENTOR</p>
             {/* Only what is actually written. An empty list renders nothing —
                 the footer never advertises a policy that does not exist. */}
             {legalPages.map((p) => (
               <Link
                 key={p.slug}
                 href={`/${p.slug}`}
-                className="text-[12px] text-slate underline-offset-2 hover:text-signal-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+                className="text-[12px] text-ink-muted underline-offset-2 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
               >
                 {p.title}
               </Link>
@@ -154,7 +154,7 @@ export async function AppFooter() {
           {/* Said plainly rather than hidden. A user deciding whether to trust
               this is better served by knowing there is no card checkout than by
               discovering it at the moment they try to pay. */}
-          <p className="text-[12px] leading-relaxed text-slate">
+          <p className="text-[12px] leading-relaxed text-ink-muted">
             Card checkout is not live yet — a purchase is arranged directly with us.
           </p>
         </div>

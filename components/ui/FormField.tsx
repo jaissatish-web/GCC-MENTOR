@@ -25,12 +25,12 @@ import { ALL_DIAL_CODES, PRIMARY_DIAL_CODES, OTHER_DIAL_CODES } from '@/lib/phon
  */
 
 const controlBase =
-  'min-h-11 w-full rounded-bp border bg-white px-[15px] py-[13px] text-[16px] sm:text-sm font-medium text-graphite outline-none transition-colors placeholder:font-normal placeholder:text-slate motion-reduce:transition-none'
+  'min-h-11 w-full rounded-ctl border bg-white px-[15px] py-[13px] text-[16px] sm:text-sm font-medium text-ink outline-none transition-colors placeholder:font-normal placeholder:text-ink-muted motion-reduce:transition-none'
 
 const controlState = (invalid?: boolean) =>
   invalid
-    ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/25'
-    : 'border-edge-strong focus:border-signal focus:ring-2 focus:ring-signal/25'
+    ? 'border-alert focus:border-alert focus:ring-2 focus:ring-alert/25'
+    : 'border-line-strong focus:border-teal focus:ring-2 focus:ring-teal/25'
 
 export function FieldShell({
   id,
@@ -53,19 +53,19 @@ export function FieldShell({
   const errorId = error ? `${id}-error` : undefined
   return (
     <div className={cn('flex w-full flex-col gap-1.5 font-redesign-sans', className)}>
-      <label htmlFor={id} className="text-[13px] font-semibold leading-snug text-graphite">
+      <label htmlFor={id} className="text-[13px] font-semibold leading-snug text-ink">
         {label}
         {required ? (
-          <span className="ml-1.5 text-[12px] font-normal text-terra">Required</span>
+          <span className="ml-1.5 text-[12px] font-normal text-alert">Required</span>
         ) : null}
       </label>
       {children}
       {error ? (
-        <p id={errorId} role="alert" className="text-[12px] font-medium text-terra">
+        <p id={errorId} role="alert" className="text-[12px] font-medium text-alert">
           {error}
         </p>
       ) : helper ? (
-        <p id={helperId} className="text-[12px] leading-relaxed text-slate">
+        <p id={helperId} className="text-[12px] leading-relaxed text-ink-muted">
           {helper}
         </p>
       ) : null}

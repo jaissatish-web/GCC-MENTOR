@@ -43,28 +43,28 @@ export function ProfileKickstart({ show }: { show: boolean }) {
     <Link
       href={href}
       onClick={dismiss}
-      className="flex flex-1 flex-col gap-1.5 rounded-bp-lg border border-edge bg-white px-4 py-4 text-left transition-colors hover:border-signal hover:bg-gold-tint/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+      className="flex flex-1 flex-col gap-1.5 rounded-card border border-line bg-white px-4 py-4 text-left transition-colors hover:border-teal hover:bg-gold-tint/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
     >
       <span className="flex items-center gap-2">
-        <span className="text-[14px] font-bold text-graphite">{title}</span>
+        <span className="text-[14px] font-bold text-ink">{title}</span>
         {badge ? (
-          <span className="rounded-[5px] bg-signal-tint px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-signal-ink">
+          <span className="rounded-[5px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-teal">
             {badge}
           </span>
         ) : null}
       </span>
-      <span className="text-[12px] leading-snug text-graphite-soft">{desc}</span>
+      <span className="text-[12px] leading-snug text-ink-soft">{desc}</span>
     </Link>
   )
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-signal-ink/50 px-4 pt-[8vh] font-redesign-sans backdrop-blur-sm">
-      <div className="w-full max-w-[640px] rounded-bp-lg border border-edge bg-paper p-6 shadow-redesign-lg sm:p-8">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-teal/50 px-4 pt-[8vh] font-redesign-sans backdrop-blur-sm">
+      <div className="w-full max-w-[640px] rounded-card border border-line bg-canvas p-6 shadow-redesign-lg sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-signal-ink">First, the important bit</p>
-            <h2 className="mt-2 font-bp-display text-2xl text-graphite">Create your Career Profile</h2>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-graphite-soft">
+            <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-teal">First, the important bit</p>
+            <h2 className="mt-2 font-display text-2xl text-ink">Create your Career Profile</h2>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-ink-soft">
               Everything — your resume, your Gulf readiness, your cover letters — is built from one Career
               Profile. Set it up once and the rest takes minutes. Pick the fastest way for you:
             </p>
@@ -73,7 +73,7 @@ export function ProfileKickstart({ show }: { show: boolean }) {
             type="button"
             aria-label="Close"
             onClick={dismiss}
-            className="shrink-0 rounded-bp px-2 py-1 text-[18px] leading-none text-slate hover:text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+            className="shrink-0 rounded-ctl px-2 py-1 text-[18px] leading-none text-ink-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             ✕
           </button>
@@ -89,7 +89,7 @@ export function ProfileKickstart({ show }: { show: boolean }) {
         <button
           type="button"
           onClick={dismiss}
-          className="mt-5 block w-full text-center text-[12px] font-semibold text-slate hover:text-graphite"
+          className="mt-5 block w-full text-center text-[12px] font-semibold text-ink-muted hover:text-ink"
         >
           I&rsquo;ll do this from my dashboard
         </button>

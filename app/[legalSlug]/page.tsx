@@ -54,14 +54,14 @@ function renderBody(body: string) {
         return (
           <h2
             key={i}
-            className="mt-7 font-bp-display text-[17px] font-semibold text-graphite first:mt-0"
+            className="mt-7 font-display text-[17px] font-semibold text-ink first:mt-0"
           >
             {block.replace(/:$/, '')}
           </h2>
         )
       }
       return (
-        <p key={i} className="text-[15px] leading-relaxed text-graphite-soft">
+        <p key={i} className="text-[15px] leading-relaxed text-ink-soft">
           {block}
         </p>
       )
@@ -86,21 +86,21 @@ export default async function LegalPage({
   })
 
   return (
-    <div className="min-h-dvh bg-paper font-redesign-sans">
-      <header className="border-b border-edge bg-white">
+    <div className="min-h-dvh bg-canvas font-redesign-sans">
+      <header className="border-b border-line bg-white">
         <div className="mx-auto flex h-14 max-w-[760px] items-center px-5 sm:px-6">
           <Link
             href="/"
             aria-label="GCC MENTOR — home"
-            className="-mx-2 flex min-h-11 items-center gap-2.5 rounded-bp px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+            className="-mx-2 flex min-h-11 items-center gap-2.5 rounded-ctl px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             <span
               aria-hidden="true"
-              className="flex size-7 items-center justify-center rounded-bp bg-signal font-mono text-[13px] font-semibold text-white"
+              className="flex size-7 items-center justify-center rounded-ctl bg-teal font-mono text-[13px] font-semibold text-white"
             >
               G
             </span>
-            <span className="font-bp-display text-[14px] font-bold tracking-[-0.01em] text-graphite">
+            <span className="font-display text-[14px] font-bold tracking-[-0.01em] text-ink">
               GCC MENTOR
             </span>
           </Link>
@@ -109,27 +109,27 @@ export default async function LegalPage({
 
       <main className="mx-auto flex max-w-[760px] flex-col gap-5 px-5 py-9 sm:px-6">
         <div className="flex flex-col gap-1.5">
-          <h1 className="font-bp-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-graphite sm:text-[30px]">
+          <h1 className="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[30px]">
             {page.title}
           </h1>
-          <p className="text-[13px] text-slate">Last updated {updated}</p>
+          <p className="text-[13px] text-ink-muted">Last updated {updated}</p>
         </div>
-        <div className="h-px w-full bg-edge" />
+        <div className="h-px w-full bg-line" />
         <article className="flex flex-col gap-4">{renderBody(page.body)}</article>
 
-        <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-edge pt-5">
+        <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-5">
           {LEGAL_SLUGS.filter((s) => s !== legalSlug).map((s) => (
             <Link
               key={s}
               href={`/${s}`}
-              className="text-[13px] font-medium text-signal-ink underline-offset-2 hover:underline"
+              className="text-[13px] font-medium text-teal underline-offset-2 hover:underline"
             >
               {s === 'privacy' ? 'Privacy' : s === 'terms' ? 'Terms' : 'Refunds'}
             </Link>
           ))}
           <Link
             href="/"
-            className="text-[13px] font-medium text-signal-ink underline-offset-2 hover:underline"
+            className="text-[13px] font-medium text-teal underline-offset-2 hover:underline"
           >
             Home
           </Link>

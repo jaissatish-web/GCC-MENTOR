@@ -23,11 +23,11 @@ export default async function AccessLogPage() {
     >
 
       <Card className="flex flex-col gap-4 p-5">
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">
           PII access log — most recent
         </h2>
         {recentAccessLog.length === 0 ? (
-          <p className="text-sm text-slate">No access recorded yet.</p>
+          <p className="text-sm text-ink-muted">No access recorded yet.</p>
         ) : (
           <>
             {/* Mobile: stacked card-per-row, labeled rows (§D / Library fallback) */}
@@ -35,23 +35,23 @@ export default async function AccessLogPage() {
               {recentAccessLog.map((row) => (
                 <div
                   key={row.id}
-                  className="flex flex-col gap-1 rounded-bp-lg border border-edge p-3"
+                  className="flex flex-col gap-1 rounded-card border border-line p-3"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[12px] font-semibold text-graphite">
+                    <span className="text-[12px] font-semibold text-ink">
                       {row.accessedAt.slice(0, 19).replace('T', ' ')}
                     </span>
                   </div>
                   <div className="flex flex-col gap-0.5 text-[12px]">
-                    <span className="text-slate">
-                      Admin: <span className="font-mono text-graphite-soft">{row.adminUserId.slice(0, 8)}</span>
+                    <span className="text-ink-muted">
+                      Admin: <span className="font-mono text-ink-soft">{row.adminUserId.slice(0, 8)}</span>
                     </span>
-                    <span className="text-slate">
-                      Target: <span className="font-mono text-graphite-soft">{row.targetUserId.slice(0, 8)}</span>
+                    <span className="text-ink-muted">
+                      Target: <span className="font-mono text-ink-soft">{row.targetUserId.slice(0, 8)}</span>
                     </span>
-                    <span className="text-slate">
+                    <span className="text-ink-muted">
                       Resource:{' '}
-                      <span className="text-graphite-soft">
+                      <span className="text-ink-soft">
                         {row.resource} · <span className="font-mono">{row.resourceId.slice(0, 8)}</span>
                       </span>
                     </span>
@@ -64,7 +64,7 @@ export default async function AccessLogPage() {
             <div className="hidden overflow-x-auto lg:block">
               <table className="w-full text-left text-[12px]">
                 <thead>
-                  <tr className="text-slate">
+                  <tr className="text-ink-muted">
                     <th className="py-1 pr-3 font-semibold">When</th>
                     <th className="py-1 pr-3 font-semibold">Admin</th>
                     <th className="py-1 pr-3 font-semibold">Target user</th>
@@ -73,11 +73,11 @@ export default async function AccessLogPage() {
                 </thead>
                 <tbody>
                   {recentAccessLog.map((row) => (
-                    <tr key={row.id} className="border-t border-edge">
-                      <td className="py-1.5 pr-3 text-graphite-soft">{row.accessedAt.slice(0, 19).replace('T', ' ')}</td>
-                      <td className="py-1.5 pr-3 font-mono text-slate">{row.adminUserId.slice(0, 8)}</td>
-                      <td className="py-1.5 pr-3 font-mono text-slate">{row.targetUserId.slice(0, 8)}</td>
-                      <td className="py-1.5 pr-3 text-graphite-soft">
+                    <tr key={row.id} className="border-t border-line">
+                      <td className="py-1.5 pr-3 text-ink-soft">{row.accessedAt.slice(0, 19).replace('T', ' ')}</td>
+                      <td className="py-1.5 pr-3 font-mono text-ink-muted">{row.adminUserId.slice(0, 8)}</td>
+                      <td className="py-1.5 pr-3 font-mono text-ink-muted">{row.targetUserId.slice(0, 8)}</td>
+                      <td className="py-1.5 pr-3 text-ink-soft">
                         {row.resource} · {row.resourceId.slice(0, 8)}
                       </td>
                     </tr>

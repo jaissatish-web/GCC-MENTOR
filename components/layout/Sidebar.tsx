@@ -37,7 +37,7 @@ import {
 function PlannedGroup() {
   return (
     <div className="mt-6 flex flex-col gap-1">
-      <div className="px-3 pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-slate/70">
+      <div className="px-3 pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted/70">
         Coming soon
       </div>
       {PLANNED_NAV_ITEMS.map((item) => {
@@ -46,11 +46,11 @@ function PlannedGroup() {
           <div
             key={item.label}
             aria-disabled="true"
-            className="flex min-h-11 cursor-default items-center gap-3 rounded-xl px-3 text-[14px] font-medium text-slate/55"
+            className="flex min-h-11 cursor-default items-center gap-3 rounded-xl px-3 text-[14px] font-medium text-ink-muted/55"
           >
-            <Icon className="size-5 shrink-0 text-slate/45" />
+            <Icon className="size-5 shrink-0 text-ink-muted/45" />
             <span className="flex-1 truncate">{item.label}</span>
-            <span className="shrink-0 rounded-[5px] border border-edge px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-slate/70">
+            <span className="shrink-0 rounded-[5px] border border-line px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-muted/70">
               Soon
             </span>
           </div>
@@ -63,10 +63,10 @@ function PlannedGroup() {
 function BrandMark() {
   return (
     <Link href="/dashboard" className="flex items-center gap-2.5 px-2">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-signal text-[15px] font-bold text-white shadow-redesign-sm">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal text-[15px] font-bold text-white shadow-redesign-sm">
         G
       </div>
-      <span className="text-[14px] font-semibold text-graphite">GCC MENTOR</span>
+      <span className="text-[14px] font-semibold text-ink">GCC MENTOR</span>
     </Link>
   )
 }
@@ -99,21 +99,21 @@ function NavItem({
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex min-h-11 items-center gap-3 rounded-bp text-[14px] font-redesign-sans transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-white',
+        'flex min-h-11 items-center gap-3 rounded-ctl text-[14px] font-redesign-sans transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-white',
         collapsed ? 'justify-center px-0' : 'px-3',
         pending && !active && 'opacity-60',
         active
-          ? 'border border-signal/30 bg-signal-tint font-semibold text-signal-ink'
-          : 'border border-transparent font-medium text-graphite-soft hover:bg-paper hover:text-graphite'
+          ? 'border border-teal/30 bg-teal-soft font-semibold text-teal'
+          : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
       )}
     >
       <Icon
-        className={cn('size-5 shrink-0', active ? 'text-signal' : 'text-slate')}
+        className={cn('size-5 shrink-0', active ? 'text-teal' : 'text-ink-muted')}
       />
       {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
       {!collapsed && pending ? (
-        <span className="shrink-0 rounded-[5px] border border-edge px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-slate/70">
+        <span className="shrink-0 rounded-[5px] border border-line px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-muted/70">
           Set up
         </span>
       ) : null}
@@ -170,9 +170,9 @@ export function Sidebar() {
         ))}
         <PlannedGroup />
       </nav>
-      <div className="mt-auto flex flex-col gap-1.5 rounded-bp-lg border border-edge bg-paper p-4">
-        <div className="text-[12px] font-semibold leading-normal text-signal-ink">Need help?</div>
-        <div className="text-[12px] leading-snug text-slate">
+      <div className="mt-auto flex flex-col gap-1.5 rounded-card border border-line bg-canvas p-4">
+        <div className="text-[12px] font-semibold leading-normal text-teal">Need help?</div>
+        <div className="text-[12px] leading-snug text-ink-muted">
           Email the founder — replies within a day.
         </div>
       </div>
@@ -188,15 +188,15 @@ export function Sidebar() {
           the `overflow-y-auto` that came with it added a second scrollbar beside
           the page's own, which read as clutter. The nav is nine items and fits a
           laptop screen, so it does not need one. */}
-      <aside className="hidden w-[248px] flex-none flex-col gap-7 border-r border-edge bg-white px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-dvh">
+      <aside className="hidden w-[248px] flex-none flex-col gap-7 border-r border-line bg-white px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-dvh">
         {navContent}
       </aside>
 
       {/* Tablet collapsed sidebar — 768–1023px */}
-      <aside className="relative hidden w-[48px] flex-none flex-col items-center gap-5 border-r border-edge bg-white px-2 py-4 md:flex lg:hidden">
+      <aside className="relative hidden w-[48px] flex-none flex-col items-center gap-5 border-r border-line bg-white px-2 py-4 md:flex lg:hidden">
         <Link
           href="/dashboard"
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-signal text-[15px] font-bold text-white shadow-redesign-sm"
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal text-[15px] font-bold text-white shadow-redesign-sm"
         >
           G
         </Link>
@@ -212,14 +212,14 @@ export function Sidebar() {
                   setTabletExpanded(true)
                 }}
                 className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-bp text-[14px] font-redesign-sans transition-colors',
+                  'flex h-11 w-11 items-center justify-center rounded-ctl text-[14px] font-redesign-sans transition-colors',
                   active
-                    ? 'border border-signal/25 bg-signal/[0.09] font-semibold text-signal'
-                    : 'border border-transparent font-medium text-graphite-soft hover:bg-paper hover:text-graphite'
+                    ? 'border border-teal/25 bg-teal/[0.09] font-semibold text-teal'
+                    : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
                 )}
                 title={item.label}
               >
-                <Icon className={cn('size-5 shrink-0', active ? 'text-signal' : 'text-slate')} />
+                <Icon className={cn('size-5 shrink-0', active ? 'text-teal' : 'text-ink-muted')} />
               </button>
             )
           })}
@@ -231,15 +231,15 @@ export function Sidebar() {
         <div className="fixed inset-0 z-40 md:flex lg:hidden">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-signal-ink/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-teal/60 backdrop-blur-sm"
             onClick={() => setTabletExpanded(false)}
           />
           {/* Slide-in drawer */}
-          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-7 border-r border-edge bg-white px-4 py-6 shadow-redesign-lg">
+          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-7 border-r border-line bg-white px-4 py-6 shadow-redesign-lg">
             <button
               type="button"
               onClick={() => setTabletExpanded(false)}
-              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-bp text-slate hover:text-graphite"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-ctl text-ink-muted hover:text-ink"
               aria-label="Close navigation"
             >
               ✕
@@ -258,9 +258,9 @@ export function Sidebar() {
               ))}
               <PlannedGroup />
             </nav>
-            <div className="mt-auto flex flex-col gap-1.5 rounded-bp-lg border border-edge bg-paper p-4">
-              <div className="text-[12px] font-semibold leading-normal text-signal-ink">Need help?</div>
-              <div className="text-[12px] leading-snug text-slate">
+            <div className="mt-auto flex flex-col gap-1.5 rounded-card border border-line bg-canvas p-4">
+              <div className="text-[12px] font-semibold leading-normal text-teal">Need help?</div>
+              <div className="text-[12px] leading-snug text-ink-muted">
                 Email the founder — replies within a day.
               </div>
             </div>

@@ -189,7 +189,7 @@ export default function DashboardPage() {
     // BLUEPRINT (2026-09-08). Ground is `paper`, not white: the surfaces that
     // matter then sit on top of it as white, which is what gives the screen a
     // figure/ground relationship instead of a single flat sheet.
-    <div className="flex min-h-full flex-col gap-6 bg-paper p-4 pb-8 font-redesign-sans sm:p-7 lg:p-9">
+    <div className="flex min-h-full flex-col gap-6 bg-canvas p-4 pb-8 font-redesign-sans sm:p-7 lg:p-9">
       {/* First-run nudge to build the Career Profile — shown only once we KNOW
           there is no profile yet. Dismissible; the dashboard's own CTA persists. */}
       <ProfileKickstart show={profileLoaded && profile === null} />
@@ -200,17 +200,17 @@ export default function DashboardPage() {
           <div className="flex min-w-0 flex-col gap-1">
             {/* Archivo, not the serif. Blueprint's voice is an instrument
                 label: tight tracking, real weight, no flourish. */}
-            <h1 className="font-bp-display text-[24px] font-bold leading-[1.1] tracking-[-0.02em] text-graphite sm:text-[30px]">
+            <h1 className="font-display text-[24px] font-bold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[30px]">
               Good {greeting()}, {firstName}
             </h1>
-            <p className="text-[13px] text-slate">
+            <p className="text-[13px] text-ink-muted">
               {targetParts ? `Targeting ${targetParts}` : "Let's get you closer to your next opportunity."}
             </p>
           </div>
           <Link
             href="/profile"
             aria-label="Profile readiness"
-            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-signal-ink"
+            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-teal"
           >
             <ReadinessRing score={score} size={52} dark />
           </Link>
@@ -238,7 +238,7 @@ export default function DashboardPage() {
               A third tile, "Latest Job Match", was removed 2026-09-04 with the
               standalone service and is deliberately not replaced. */}
           <Reveal delay={40}>
-            <div className="flex divide-x divide-edge border-y border-edge">
+            <div className="flex divide-x divide-line border-y border-line">
               <MetricTile
                 label="Profile strength"
                 value={`${score}%`}
@@ -256,23 +256,32 @@ export default function DashboardPage() {
 
           {/* Next-step hero strip */}
           <Reveal delay={80}>
-            {/* THE ONE PLACE SIGNAL IS SPENT on this screen. A single accent
-                that always means "this is the thing to do" is worth more than
-                a palette of tints — the moment it appears twice it means
-                nothing. The left rule carries it; the panel stays white. */}
-            <div className="flex h-full flex-col justify-between gap-5 border border-l-[3px] border-edge border-l-signal bg-white p-5 sm:p-6">
+            {/* THE SIGNATURE ELEMENT of the Meridian dashboard, and the one
+                place gold is spent on this screen.
+
+                Teal is the brand and gold is the action, so the card that
+                carries the single next step is the one place they meet: a
+                solid teal panel with one gold button on it. Blueprint made
+                this a white panel with an orange left rule, which said "this
+                is a section" rather than "this is the thing to do".
+
+                Ink on gold measures 6.70 and white on teal 9.84 — the two
+                pairs this panel depends on. Gold is never text here; the
+                label above the heading is a light teal tint, not gold, for
+                exactly that reason. */}
+            <div className="flex h-full flex-col justify-between gap-5 rounded-card bg-teal p-5 shadow-m-2 sm:p-6">
               <div className="flex flex-col gap-2">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-signal-ink">
-                  Your next best action
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-teal-soft">
+                  Your next step
                 </span>
-                <h2 className="font-bp-display text-[19px] font-semibold leading-snug tracking-[-0.01em] text-graphite sm:text-[21px]">
+                <h2 className="font-display text-[20px] font-semibold leading-snug tracking-[-0.01em] text-white sm:text-[23px]">
                   {nextAction.title}
                 </h2>
-                <p className="text-[14px] leading-relaxed text-slate">{nextAction.body}</p>
+                <p className="text-[14px] leading-relaxed text-teal-soft/90">{nextAction.body}</p>
               </div>
               <Link
                 href={nextAction.href}
-                className="inline-flex w-full items-center justify-center rounded-bp bg-signal px-5 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-signal-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 sm:w-fit"
+                className="inline-flex w-full items-center justify-center rounded-ctl bg-gold px-5 py-3.5 text-[14px] font-bold text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal sm:w-fit"
               >
                 {nextAction.cta}
               </Link>
@@ -293,47 +302,47 @@ export default function DashboardPage() {
                 one thing. */}
             <section className="flex flex-col gap-3">
               <div className="flex items-baseline justify-between gap-3">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
                   Your target jobs
                 </span>
                 {packageCount > 0 ? (
                   <Link
                     href="/dashboard/library"
-                    className="text-[12px] font-semibold text-signal-ink underline-offset-2 hover:underline"
+                    className="text-[12px] font-semibold text-teal underline-offset-2 hover:underline"
                   >
                     See all {packageCount} →
                   </Link>
                 ) : null}
               </div>
               {!packagesLoaded ? (
-                <div className="flex flex-col divide-y divide-edge border-y border-edge bg-white">
-                  <div className="h-14 animate-pulse bg-paper/70" />
-                  <div className="h-14 animate-pulse bg-paper/70" />
+                <div className="flex flex-col divide-y divide-line border-y border-line bg-white">
+                  <div className="h-14 animate-pulse bg-canvas/70" />
+                  <div className="h-14 animate-pulse bg-canvas/70" />
                 </div>
               ) : recentPackages.length === 0 ? (
-                <div className="flex flex-col gap-1 border border-dashed border-edge-strong/50 bg-white p-5">
-                  <span className="text-[13px] font-semibold text-graphite">No target jobs yet</span>
-                  <span className="text-[13px] leading-relaxed text-slate">
+                <div className="flex flex-col gap-1 border border-dashed border-line-strong/50 bg-white p-5">
+                  <span className="text-[13px] font-semibold text-ink">No target jobs yet</span>
+                  <span className="text-[13px] leading-relaxed text-ink-muted">
                     Add the role you are applying for and its CV, letters and stage all live together.
                   </span>
                 </div>
               ) : (
-                <div className="flex flex-col divide-y divide-edge border-y border-edge bg-white">
+                <div className="flex flex-col divide-y divide-line border-y border-line bg-white">
                   {recentPackages.map((pkg) => (
                     <Link
                       key={pkg.id}
                       href={`/package/${pkg.id}`}
-                      className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal"
+                      className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal"
                     >
                       <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate font-bp-display text-[14px] font-semibold text-graphite">
+                        <span className="truncate font-display text-[14px] font-semibold text-ink">
                           {resumeLabel(pkg)}
                         </span>
                         {/* Employer and country only when the user gave them —
                             `target_company` and `target_country` are both
                             nullable, and "· generic_gulf" is our enum leaking
                             onto their dashboard. */}
-                        <span className="truncate text-[12px] text-slate">
+                        <span className="truncate text-[12px] text-ink-muted">
                           {[pkg.target_company, dashboardCountryLabel(pkg.target_country)]
                             .filter(Boolean)
                             .join(' · ') || relativeTime(pkg.created_at)}
@@ -350,7 +359,7 @@ export default function DashboardPage() {
           {/* New "Planned" row — LockedTile, per PLANNED_SERVICES.md */}
           <Reveal delay={140}>
             <section className="flex flex-col gap-3">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
+              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
                 Planned for you
               </div>
               {/* Horizontally-scrollable strip on mobile; static grid on larger */}
@@ -374,13 +383,13 @@ export default function DashboardPage() {
         <div className="flex min-w-0 flex-col gap-6">
           {/* Readiness ring card */}
           <Reveal delay={170}>
-            <div className="border border-edge bg-white flex flex-col gap-5 p-6">
+            <div className="border border-line bg-white flex flex-col gap-5 p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
+                  <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
                     Profile Strength
                   </span>
-                  <span className="text-[13px] text-slate">
+                  <span className="text-[13px] text-ink-muted">
                     {missing.length === 0 && profile
                       ? 'Every section complete'
                       : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed`}
@@ -397,7 +406,7 @@ export default function DashboardPage() {
                     <Link
                       key={m.field}
                       href="/profile"
-                      className="rounded-full border border-edge bg-paper px-3 py-1.5 text-[12px] font-medium text-slate transition-colors hover:border-signal/50 hover:text-signal-ink"
+                      className="rounded-full border border-line bg-canvas px-3 py-1.5 text-[12px] font-medium text-ink-muted transition-colors hover:border-teal/50 hover:text-teal"
                     >
                       {m.label}
                     </Link>
@@ -449,8 +458,8 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <Reveal delay={200}>
-            <div className="border border-edge bg-white flex flex-col gap-2 p-6">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
+            <div className="border border-line bg-white flex flex-col gap-2 p-6">
+              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
                 Quick actions
               </div>
               <div className="mt-1 flex flex-col">
@@ -458,10 +467,10 @@ export default function DashboardPage() {
                   <Link
                     key={a.href}
                     href={a.href}
-                    className="flex min-h-11 items-center justify-between gap-3 rounded-bp px-2 py-2.5 text-[14px] font-semibold text-graphite transition-colors hover:bg-paper hover:text-signal-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+                    className="flex min-h-11 items-center justify-between gap-3 rounded-ctl px-2 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:bg-canvas hover:text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                   >
                     {a.label}
-                    <span aria-hidden className="text-slate">→</span>
+                    <span aria-hidden className="text-ink-muted">→</span>
                   </Link>
                 ))}
               </div>
@@ -518,18 +527,18 @@ function MetricTile({
   // ones beside it.
   const inner = (
     <>
-      <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-slate">
+      <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
         {label}
       </span>
       <span
         className={cn(
           'font-mono text-[28px] font-medium leading-none tracking-[-0.02em] tabular-nums',
-          muted ? 'text-slate' : 'text-graphite',
+          muted ? 'text-ink-muted' : 'text-ink',
         )}
       >
         {value}
       </span>
-      {sub ? <span className="text-[12px] text-slate">{sub}</span> : null}
+      {sub ? <span className="text-[12px] text-ink-muted">{sub}</span> : null}
     </>
   )
 
@@ -541,7 +550,7 @@ function MetricTile({
     <Link
       href={href}
       aria-label={`${label}: ${value ?? 'not available'}`}
-      className="group flex flex-1 flex-col gap-1.5 py-4 pr-4 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 [&:not(:first-child)]:pl-4"
+      className="group flex flex-1 flex-col gap-1.5 py-4 pr-4 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 [&:not(:first-child)]:pl-4"
     >
       {inner}
     </Link>

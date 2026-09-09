@@ -76,11 +76,11 @@ export default function GeneratePage({ params }: { params: { packageId: string }
 
   if (error) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-paper px-6 py-12 font-redesign-sans">
-        <div className="w-full max-w-[480px] rounded-bp-lg border border-edge bg-white p-8 text-center">
-          <h1 className="font-bp-display text-[26px] leading-tight text-graphite">We couldn&apos;t build it</h1>
-          <p className="mt-3 text-sm leading-relaxed text-graphite-soft">{error}</p>
-          <p className="mt-3 text-[12px] text-slate">
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
+        <div className="w-full max-w-[480px] rounded-card border border-line bg-white p-8 text-center">
+          <h1 className="font-display text-[26px] leading-tight text-ink">We couldn&apos;t build it</h1>
+          <p className="mt-3 text-sm leading-relaxed text-ink-soft">{error}</p>
+          <p className="mt-3 text-[12px] text-ink-muted">
             Your payment is safe — this resume stays in your Library and can be built again without
             paying twice.
           </p>
@@ -98,12 +98,12 @@ export default function GeneratePage({ params }: { params: { packageId: string }
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-graphite px-6 py-12 font-redesign-sans">
+    <main className="flex min-h-dvh items-center justify-center bg-ink px-6 py-12 font-redesign-sans">
       <div className="w-full max-w-[440px]">
-        <h1 className="font-bp-display text-[28px] leading-tight text-white">
+        <h1 className="font-display text-[28px] leading-tight text-white">
           Building your Gulf CV…
         </h1>
-        <p className="mt-2 text-[13px] text-slate">
+        <p className="mt-2 text-[13px] text-ink-muted">
           This takes about a minute. Every line is checked against your profile — nothing is
           invented.
         </p>
@@ -117,15 +117,15 @@ export default function GeneratePage({ params }: { params: { packageId: string }
                   className={
                     'flex size-6 shrink-0 items-center justify-center rounded-full border text-[12px] ' +
                     (state === 'done'
-                      ? 'border-signal bg-signal text-white'
+                      ? 'border-teal bg-teal text-white'
                       : state === 'active'
-                        ? 'border-signal text-signal-ink'
-                        : 'border-white/25 text-slate')
+                        ? 'border-teal text-teal'
+                        : 'border-white/25 text-ink-muted')
                   }
                 >
                   {state === 'done' ? '✓' : i + 1}
                 </span>
-                <span className={state === 'todo' ? 'text-slate' : 'text-white'}>
+                <span className={state === 'todo' ? 'text-ink-muted' : 'text-white'}>
                   {label}
                 </span>
               </li>

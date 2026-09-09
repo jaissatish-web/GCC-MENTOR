@@ -24,7 +24,7 @@ const TABS = [
 export function AdminNav() {
   const pathname = usePathname()
   return (
-    <nav className="flex flex-wrap gap-1 border-b border-edge px-5 pt-4 font-redesign-sans">
+    <nav className="flex flex-wrap gap-1 border-b border-line px-5 pt-4 font-redesign-sans">
       {TABS.map((tab) => {
         const active = pathname === tab.href
         return (
@@ -34,8 +34,8 @@ export function AdminNav() {
             aria-current={active ? 'page' : undefined}
             className={`-mb-px rounded-t-radius-md border-b-2 px-3 py-2 text-[13px] font-semibold transition-colors ${
               active
-                ? 'border-signal text-graphite'
-                : 'border-transparent text-slate hover:text-graphite'
+                ? 'border-teal text-ink'
+                : 'border-transparent text-ink-muted hover:text-ink'
             }`}
           >
             {tab.label}

@@ -48,30 +48,30 @@ export default async function PromptsPage({
     >
 
       {promptSaved ? (
-        <div className="rounded-bp-lg border border-signal/50 bg-signal-tint px-3.5 py-2.5 text-[12px] text-signal-ink">
+        <div className="rounded-card border border-teal/50 bg-teal-soft px-3.5 py-2.5 text-[12px] text-teal">
           Saved — {promptSaved.replace(/\+/g, ' ')}.
         </div>
       ) : null}
       {promptError ? (
-        <div className="rounded-bp-lg border border-terra/30 bg-terra-tint px-3.5 py-2.5 text-[12px] text-terra">
+        <div className="rounded-card border border-alert/30 bg-alert-soft px-3.5 py-2.5 text-[12px] text-alert">
           {promptError.replace(/\+/g, ' ')}
         </div>
       ) : null}
 
       {/* What this screen can and cannot change. Stated, not just enforced. */}
       <Card className="flex flex-col gap-2 p-5">
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">What you control here</h2>
-        <p className="text-[12px] text-graphite-soft">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">What you control here</h2>
+        <p className="text-[12px] text-ink-soft">
           <strong>You can change:</strong> the persona, the tone, the task instructions, what to
           emphasise, and any examples. This is where output quality lives.
         </p>
-        <p className="text-[12px] text-graphite-soft">
+        <p className="text-[12px] text-ink-soft">
           <strong>You cannot change, from here or anywhere:</strong> the grounding rule and the
           output format. The grounding rule is what stops the AI inventing facts a user never
           gave us — editing it would switch off the product&rsquo;s one promise with nothing to
           catch it. The output format is what the code reads the answer back through.
         </p>
-        <p className="text-[12px] text-slate">
+        <p className="text-[12px] text-ink-muted">
           A prompt with no published version runs on the text built into the code. Publishing
           replaces it for everyone immediately; rolling back is one click on any earlier version.
         </p>
@@ -79,31 +79,31 @@ export default async function PromptsPage({
 
       {/* Index */}
       <Card className="flex flex-col gap-3 p-5">
-        <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">Services</h2>
-        <div className="flex flex-col divide-y divide-edge">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Services</h2>
+        <div className="flex flex-col divide-y divide-line">
           {summaries.map((s) => (
             <Link
               key={s.key}
               href={`/admin/prompts?prompt=${s.key}`}
               className={
                 'flex items-center justify-between gap-3 py-2.5 text-[13px] ' +
-                (selectedKey === s.key ? 'text-graphite' : 'text-graphite-soft hover:text-graphite')
+                (selectedKey === s.key ? 'text-ink' : 'text-ink-soft hover:text-ink')
               }
             >
               <span className="flex flex-col">
                 <span className="font-semibold">
                   {s.label}
                   {!s.built ? (
-                    <span className="ml-2 rounded-full border border-edge px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-slate">
+                    <span className="ml-2 rounded-full border border-line px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider text-ink-muted">
                       not built yet
                     </span>
                   ) : null}
                 </span>
-                <span className="font-mono text-[12px] text-slate">{s.key}</span>
+                <span className="font-mono text-[12px] text-ink-muted">{s.key}</span>
               </span>
-              <span className="shrink-0 text-[12px] text-slate">
+              <span className="shrink-0 text-[12px] text-ink-muted">
                 {s.active ? (
-                  <span className="font-mono font-bold text-signal">v{s.active.version} live</span>
+                  <span className="font-mono font-bold text-teal">v{s.active.version} live</span>
                 ) : (
                   <span>built-in prompt</span>
                 )}
@@ -118,22 +118,22 @@ export default async function PromptsPage({
         <>
           {/* Editor — always writes a NEW draft, never overwrites what is live. */}
           <Card className="flex flex-col gap-3 p-5">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">
               {selected.label} — new draft
             </h2>
-            <p className="text-[12px] text-slate">{selected.active ? `Pre-filled with v${selected.active.version}, the version that is live now. Saving creates a new draft; nothing changes for users until you publish it.` : 'This prompt has no stored version yet, so it is running on the text built into the code. Saving creates your first draft.'}</p>
+            <p className="text-[12px] text-ink-muted">{selected.active ? `Pre-filled with v${selected.active.version}, the version that is live now. Saving creates a new draft; nothing changes for users until you publish it.` : 'This prompt has no stored version yet, so it is running on the text built into the code. Saving creates your first draft.'}</p>
             <form action={savePromptDraftAction} className="flex flex-col gap-3">
               <input type="hidden" name="promptKey" value={selected.key} />
               <Textarea name="body" rows={14} defaultValue={activeBody} className="font-mono text-[13px]" />
               <input
                 name="notes"
                 placeholder="What did you change, and why? (shown in the version list)"
-                className="min-h-11 w-full rounded-bp border border-edge px-3 text-[13px] text-graphite outline-none focus:border-signal focus:ring-2 focus:ring-signal/25"
+                className="min-h-11 w-full rounded-ctl border border-line px-3 text-[13px] text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
               />
               <div className="flex items-center gap-2">
                 <Button type="submit" variant="primary">Save as draft</Button>
                 {selected.active ? (
-                  <span className="text-[12px] text-slate">v{selected.active.version} stays live until you publish something else.</span>
+                  <span className="text-[12px] text-ink-muted">v{selected.active.version} stays live until you publish something else.</span>
                 ) : null}
               </div>
             </form>
@@ -141,31 +141,31 @@ export default async function PromptsPage({
 
           {/* History — publish and rollback are the same action. */}
           <Card className="flex flex-col gap-3 p-5">
-            <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate">Versions</h2>
+            <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Versions</h2>
             {versions.length === 0 ? (
-              <p className="text-[12px] text-slate">No versions yet.</p>
+              <p className="text-[12px] text-ink-muted">No versions yet.</p>
             ) : (
-              <div className="flex flex-col divide-y divide-edge">
+              <div className="flex flex-col divide-y divide-line">
                 {versions.map((v) => (
                   <div key={v.id} className="flex flex-wrap items-start justify-between gap-3 py-3">
                     <div className="flex min-w-[200px] flex-col gap-0.5">
-                      <span className="text-[13px] font-semibold text-graphite">
+                      <span className="text-[13px] font-semibold text-ink">
                         <span className="font-mono">v{v.version}</span>
                         <span
                           className={
                             'ml-2 rounded-full px-2 py-0.5 text-[12px] font-bold uppercase tracking-wider ' +
                             (v.status === 'active'
-                              ? 'bg-signal-tint text-signal-ink'
+                              ? 'bg-teal-soft text-teal'
                               : v.status === 'draft'
-                                ? 'bg-gold-tint text-signal-ink'
-                                : 'border border-edge text-slate')
+                                ? 'bg-gold-tint text-teal'
+                                : 'border border-line text-ink-muted')
                           }
                         >
                           {v.status === 'active' ? 'live' : v.status}
                         </span>
                       </span>
-                      {v.notes ? <span className="text-[12px] text-graphite-soft">{v.notes}</span> : null}
-                      <span className="font-mono text-[12px] text-slate">{new Date(v.createdAt).toLocaleString()}</span>
+                      {v.notes ? <span className="text-[12px] text-ink-soft">{v.notes}</span> : null}
+                      <span className="font-mono text-[12px] text-ink-muted">{new Date(v.createdAt).toLocaleString()}</span>
                     </div>
                     {v.status !== 'active' ? (
                       <form action={publishPromptAction}>
@@ -182,10 +182,10 @@ export default async function PromptsPage({
             )}
 
             {selected.active ? (
-              <form action={revertPromptAction} className="mt-1 flex items-center gap-3 border-t border-edge pt-3">
+              <form action={revertPromptAction} className="mt-1 flex items-center gap-3 border-t border-line pt-3">
                 <input type="hidden" name="promptKey" value={selected.key} />
                 <Button type="submit" variant="ghost" size="sm">Use the built-in prompt instead</Button>
-                <span className="text-[12px] text-slate">Stops using any stored version. Nothing is deleted.</span>
+                <span className="text-[12px] text-ink-muted">Stops using any stored version. Nothing is deleted.</span>
               </form>
             ) : null}
           </Card>

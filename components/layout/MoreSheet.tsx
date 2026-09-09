@@ -27,12 +27,12 @@ export function MoreSheet() {
         aria-haspopup="menu"
         className={cn(
           'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-xl px-1 text-[12px] leading-tight font-redesign-sans transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal',
-          open ? 'font-semibold text-signal' : 'font-medium text-slate'
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+          open ? 'font-semibold text-teal' : 'font-medium text-ink-muted'
         )}
       >
         <EllipsisHorizontalIcon
-          className={cn('size-5', open ? 'text-signal' : 'text-slate')}
+          className={cn('size-5', open ? 'text-teal' : 'text-ink-muted')}
         />
         More
       </button>
@@ -40,16 +40,16 @@ export function MoreSheet() {
       {open && (
         <div className="fixed inset-0 z-50 flex items-end md:hidden">
           <div
-            className="absolute inset-0 bg-graphite/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-ink/50 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <div className="relative z-10 max-h-[80vh] w-full overflow-y-auto rounded-t-2xl border-t border-edge bg-white p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-redesign-lg">
+          <div className="relative z-10 max-h-[80vh] w-full overflow-y-auto rounded-t-2xl border-t border-line bg-white p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-redesign-lg">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-redesign-sans text-sm font-semibold text-graphite">More</h2>
+              <h2 className="font-redesign-sans text-sm font-semibold text-ink">More</h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="flex h-11 w-11 items-center justify-center rounded-lg text-slate hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+                className="flex h-11 w-11 items-center justify-center rounded-lg text-ink-muted hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                 aria-label="Close"
               >
                 ✕
@@ -67,14 +67,14 @@ export function MoreSheet() {
                     aria-current={active ? 'page' : undefined}
                     className={cn(
                       'flex min-h-11 items-center gap-3 rounded-xl px-3 text-[14px] font-redesign-sans transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
                       active
-                        ? 'border border-signal/30 bg-signal-tint font-semibold text-signal-ink'
-                        : 'border border-transparent font-medium text-graphite-soft hover:bg-paper hover:text-graphite'
+                        ? 'border border-teal/30 bg-teal-soft font-semibold text-teal'
+                        : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
                     )}
                   >
                     <Icon
-                      className={cn('size-5 shrink-0', active ? 'text-signal' : 'text-slate')}
+                      className={cn('size-5 shrink-0', active ? 'text-teal' : 'text-ink-muted')}
                     />
                     {item.label}
                   </Link>

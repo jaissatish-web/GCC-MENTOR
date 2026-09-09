@@ -58,9 +58,22 @@
     text-wrap: pretty;
   }
 
+  /*
+   * Text selection.
+   *
+   * `colors.gold` became an OBJECT when Meridian landed (DEFAULT / ink / soft),
+   * so this lookup started returning an object rather than a colour and
+   * Tailwind warned "The utility `` contains an invalid theme value" on every
+   * build — with an empty name, which is why it took a bisect to find. The
+   * selection highlight had silently stopped being styled at all.
+   *
+   * `.DEFAULT` is explicit here on purpose: a bare `colors.gold` would break
+   * again the moment any other colour is promoted from a string to a scale.
+   * Ink on gold measures 6.70, so selected text stays readable.
+   */
   ::selection {
-    background: theme('colors.gold');
-    color: theme('colors.midnight');
+    background: theme('colors.gold.DEFAULT');
+    color: theme('colors.ink.DEFAULT');
   }
 
   /* Dark scrollbar so the chrome matches the product on dark surfaces. */

@@ -22,7 +22,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label ? (
           <label
             htmlFor={inputId}
-            className={cn('text-sm font-medium', isDark ? 'text-white' : 'text-graphite')}
+            className={cn('text-sm font-medium', isDark ? 'text-white' : 'text-ink')}
           >
             {label}
           </label>
@@ -34,19 +34,19 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? `${inputId}-error` : undefined}
           className={cn(
-            'min-h-11 w-full rounded-bp border px-[15px] py-[13px] font-redesign-sans text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
+            'min-h-11 w-full rounded-ctl border px-[15px] py-[13px] font-redesign-sans text-sm font-medium outline-none transition-colors motion-reduce:transition-none',
             isDark
               ? cn(
-                  'bg-paper text-white placeholder:text-slate',
+                  'bg-canvas text-white placeholder:text-ink-muted',
                   error
                     ? 'border-terra-dark focus:border-terra-dark focus:ring-2 focus:ring-terra-dark/25'
-                    : 'border-edge-strong focus:border-signal-ink focus:ring-2 focus:ring-signal-ink/25'
+                    : 'border-line-strong focus:border-teal focus:ring-2 focus:ring-teal/25'
                 )
               : cn(
-                  'bg-white text-graphite placeholder:text-slate',
+                  'bg-white text-ink placeholder:text-ink-muted',
                   error
-                    ? 'border-terra focus:border-terra focus:ring-2 focus:ring-terra/20'
-                    : 'border-edge focus:border-signal-ink focus:ring-2 focus:ring-signal-ink/20'
+                    ? 'border-alert focus:border-alert focus:ring-2 focus:ring-alert/20'
+                    : 'border-line focus:border-teal focus:ring-2 focus:ring-teal/20'
                 ),
             className
           )}
@@ -55,7 +55,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error ? (
           <p
             id={`${inputId}-error`}
-            className={cn('font-redesign-sans text-xs font-medium', isDark ? 'text-terra-dark' : 'text-terra')}
+            className={cn('font-redesign-sans text-xs font-medium', isDark ? 'text-terra-dark' : 'text-alert')}
           >
             {error}
           </p>

@@ -18,14 +18,14 @@ export default function SignupPage() {
       body="One profile, built once — every future application, resume and interview reuses it."
     >
       <Card tone="light" className="flex w-full flex-col gap-1 p-8">
-        <h1 className="font-bp-display text-[26px] text-graphite">Create your account</h1>
-        <p className="mb-5 text-[14px] leading-relaxed text-slate">
+        <h1 className="font-display text-[26px] text-ink">Create your account</h1>
+        <p className="mb-5 text-[14px] leading-relaxed text-ink-muted">
           Build your Career Profile once. Every application reuses it.
         </p>
         <AuthForm action={signup} submitLabel="Create your account" tone="light" />
-        <p className="mt-6 text-center text-[13px] text-slate">
+        <p className="mt-6 text-center text-[13px] text-ink-muted">
           Already have an account?{' '}
-          <Link href="/login" className="font-semibold text-signal hover:text-signal">
+          <Link href="/login" className="font-semibold text-teal hover:text-teal">
             Sign in
           </Link>
         </p>

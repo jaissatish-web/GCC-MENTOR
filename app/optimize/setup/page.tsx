@@ -293,7 +293,7 @@ function SetupScreen() {
   if (!draft) {
     return (
       <main className="flex min-h-dvh items-center justify-center">
-        <p className="font-mono text-sm text-slate">Loading…</p>
+        <p className="font-mono text-sm text-ink-muted">Loading…</p>
       </main>
     )
   }
@@ -304,33 +304,33 @@ function SetupScreen() {
   // on error it resets submitting → back to the form below.
   if (submitting) {
     return (
-      <main className="flex min-h-dvh flex-col bg-graphite font-redesign-sans">
+      <main className="flex min-h-dvh flex-col bg-ink font-redesign-sans">
         <div className="flex flex-1 flex-col justify-center gap-6 px-6">
           <div className="flex flex-col gap-2.5 text-center">
-            <h1 className="font-bp-display text-[30px] leading-tight text-white">
+            <h1 className="font-display text-[30px] leading-tight text-white">
               Optimizing for
-              <span className="block text-signal-ink">{ctaName}</span>
+              <span className="block text-teal">{ctaName}</span>
             </h1>
-            <p className="text-[13px] leading-relaxed text-slate">
+            <p className="text-[13px] leading-relaxed text-ink-muted">
               Reviewed as {personaLabel(draft.target_industry)} would.
             </p>
           </div>
 
           {/* Named steps — dynamic, only what was selected */}
-          <div className="flex flex-col gap-3.5 rounded-bp-lg border border-white/20 bg-white/10 p-5">
+          <div className="flex flex-col gap-3.5 rounded-card border border-white/20 bg-white/10 p-5">
             {steps.map((s, i) => {
               const isDone = i < activeIndex
               const isActive = i === activeIndex
               const icon = isDone ? '✓' : isActive ? '◍' : '○'
               const iconColor = isDone
-                ? 'text-signal'
+                ? 'text-teal'
                 : isActive
-                  ? 'text-signal-ink'
-                  : 'text-slate'
+                  ? 'text-teal'
+                  : 'text-ink-muted'
               return (
                 <div key={s} className="flex items-center gap-3 text-[13px] font-medium">
                   <span className={cn('w-4 shrink-0 text-center', iconColor)}>{icon}</span>
-                  <span className={isDone || isActive ? 'text-white' : 'text-slate'}>{s}</span>
+                  <span className={isDone || isActive ? 'text-white' : 'text-ink-muted'}>{s}</span>
                 </div>
               )
             })}
@@ -340,17 +340,17 @@ function SetupScreen() {
           <div className="flex flex-col gap-2">
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-signal transition-[width] duration-300"
+                className="h-full rounded-full bg-teal transition-[width] duration-300"
                 style={{ width: `${percent}%` }}
               />
             </div>
-            <div className="flex justify-between font-mono text-[12px] text-slate">
+            <div className="flex justify-between font-mono text-[12px] text-ink-muted">
               <span>{percent}%</span>
               <span>~{secsLeft}s left</span>
             </div>
           </div>
 
-          <p className="text-center text-[12px] leading-relaxed text-slate">
+          <p className="text-center text-[12px] leading-relaxed text-ink-muted">
             Only facts already in your profile are used. Nothing is invented.
           </p>
         </div>
@@ -367,18 +367,18 @@ function SetupScreen() {
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-bp text-[20px] leading-none text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-ctl text-[20px] leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
         >
           ←
         </button>
-        <h1 className="font-bp-display text-[27px] leading-tight text-graphite">What should we sharpen?</h1>
-        <p className="text-[12px] leading-normal text-graphite-soft">
+        <h1 className="font-display text-[27px] leading-tight text-ink">What should we sharpen?</h1>
+        <p className="text-[12px] leading-normal text-ink-soft">
           Your dates, employers, titles and certifications are never touched. Only framing changes.
         </p>
       </div>
 
       {loadError ? (
-        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-bp-lg border border-terra/30 bg-terra-tint px-3.5 py-3">
+        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-card border border-alert/30 bg-alert-soft px-3.5 py-3">
           <Alert variant="danger">{loadError}</Alert>
           <Button variant="secondary" className="w-full" onClick={() => router.push('/optimize/target')}>
             Back to choose target
@@ -390,16 +390,16 @@ function SetupScreen() {
       <Card tone="light" className="mt-5 flex flex-1 flex-col gap-2.5 overflow-y-auto p-5">
         {/* Blocks */}
         <div className="flex items-center justify-between">
-          <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">Blocks</div>
+          <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Blocks</div>
           <button
             type="button"
             aria-pressed={allOn}
             onClick={toggleAll}
             className={cn(
-              'rounded-bp border px-3 py-2 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
+              'rounded-ctl border px-3 py-2 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
               allOn
-                ? 'border-signal/50 bg-signal-tint text-signal-ink'
-                : 'border-edge bg-white text-graphite-soft'
+                ? 'border-teal/50 bg-teal-soft text-teal'
+                : 'border-line bg-white text-ink-soft'
             )}
           >
             Optimize all
@@ -412,21 +412,21 @@ function SetupScreen() {
           onClick={() => setSummaryOn((v) => !v)}
           aria-pressed={summaryOn}
           className={cn(
-            'flex min-h-11 items-center gap-3 rounded-bp-lg border bg-white px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
-            summaryOn ? 'border-signal' : 'border-edge'
+            'flex min-h-11 items-center gap-3 rounded-card border bg-white px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+            summaryOn ? 'border-teal' : 'border-line'
           )}
         >
           <span
             className={cn(
               'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
-              summaryOn ? 'bg-signal' : 'border-[1.5px] border-edge-strong'
+              summaryOn ? 'bg-teal' : 'border-[1.5px] border-line-strong'
             )}
           >
             {summaryOn ? '✓' : ''}
           </span>
           <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-semibold text-graphite">Professional summary</span>
-            <span className="text-[12px] text-slate">Rewritten for this target</span>
+            <span className="text-[13px] font-semibold text-ink">Professional summary</span>
+            <span className="text-[12px] text-ink-muted">Rewritten for this target</span>
           </span>
         </button>
 
@@ -440,21 +440,21 @@ function SetupScreen() {
               onClick={() => toggleExp(e.id)}
               aria-pressed={on}
               className={cn(
-                'flex min-h-11 items-center gap-3 rounded-bp-lg border bg-white px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
-                on ? 'border-signal' : 'border-edge'
+                'flex min-h-11 items-center gap-3 rounded-card border bg-white px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+                on ? 'border-teal' : 'border-line'
               )}
             >
               <span
                 className={cn(
                   'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
-                  on ? 'bg-signal' : 'border-[1.5px] border-edge-strong'
+                  on ? 'bg-teal' : 'border-[1.5px] border-line-strong'
                 )}
               >
                 {on ? '✓' : ''}
               </span>
               <span className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-semibold text-graphite">{e.label}</span>
-                <span className="text-[12px] text-slate">
+                <span className="text-[13px] font-semibold text-ink">{e.label}</span>
+                <span className="text-[12px] text-ink-muted">
                   {e.bullets} bullet{e.bullets === 1 ? '' : 's'}
                 </span>
               </span>
@@ -463,16 +463,16 @@ function SetupScreen() {
         })}
 
         {/* Skills & certifications — informational only, no checkbox */}
-        <div className="flex min-h-11 items-center justify-between rounded-bp-lg border border-edge bg-paper px-4 py-3">
+        <div className="flex min-h-11 items-center justify-between rounded-card border border-line bg-canvas px-4 py-3">
           <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-semibold text-graphite">Skills &amp; certifications</span>
-            <span className="text-[12px] text-slate">Reordered by relevance — never reworded</span>
+            <span className="text-[13px] font-semibold text-ink">Skills &amp; certifications</span>
+            <span className="text-[12px] text-ink-muted">Reordered by relevance — never reworded</span>
           </span>
-          <span className="text-[12px] font-semibold uppercase tracking-wider text-signal">Automatic</span>
+          <span className="text-[12px] font-semibold uppercase tracking-wider text-teal">Automatic</span>
         </div>
 
         {/* Optimization level */}
-        <div className="mt-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
+        <div className="mt-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
           Optimization level
         </div>
         <div className="flex gap-[7px]">
@@ -485,16 +485,16 @@ function SetupScreen() {
                 aria-pressed={selected}
                 onClick={() => setLevel(l.value)}
                 className={cn(
-                  'flex min-h-11 flex-1 flex-col items-center gap-1 rounded-bp-lg border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2',
+                  'flex min-h-11 flex-1 flex-col items-center gap-1 rounded-card border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
                   selected
-                    ? 'border-signal bg-signal-ink'
-                    : 'border-edge bg-white'
+                    ? 'border-teal bg-teal'
+                    : 'border-line bg-white'
                 )}
               >
-                <span className={cn('text-[13px] font-semibold', selected ? 'text-graphite' : 'text-graphite')}>
+                <span className={cn('text-[13px] font-semibold', selected ? 'text-ink' : 'text-ink')}>
                   {l.label}
                 </span>
-                <span className={cn('font-mono text-[12px]', selected ? 'text-signal-ink' : 'text-slate')}>
+                <span className={cn('font-mono text-[12px]', selected ? 'text-teal' : 'text-ink-muted')}>
                   {l.range}
                 </span>
               </button>
@@ -504,16 +504,16 @@ function SetupScreen() {
 
         {/* Risk indicator — ONLY at Moderate/High */}
         {level !== 'easy' ? (
-          <div className="mt-1 flex items-start gap-2.5 rounded-bp-lg border border-terra/40 bg-terra-tint px-3.5 py-3">
-            <span className="text-[13px] text-terra">△</span>
-            <p className="text-[12px] leading-snug text-terra">{RISK_COPY}</p>
+          <div className="mt-1 flex items-start gap-2.5 rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3">
+            <span className="text-[13px] text-alert">△</span>
+            <p className="text-[12px] leading-snug text-alert">{RISK_COPY}</p>
           </div>
         ) : null}
       </Card>
 
       {/* Footer CTA */}
       {error ? (
-        <div className="mx-5 mb-3 rounded-bp-lg border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mb-3 rounded-card border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">
           {error}
         </div>
       ) : null}

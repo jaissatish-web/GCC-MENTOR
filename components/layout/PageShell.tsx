@@ -60,13 +60,13 @@ export function PageShell({
     <main className={cn('mx-auto flex w-full flex-col gap-6 px-5 pb-12 pt-4 font-redesign-sans sm:px-6', WIDTH[width], className)}>
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1.5">
-          <h1 className="font-bp-display text-[26px] leading-tight text-graphite sm:text-[30px]">
+          <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[30px]">
             {title}
           </h1>
           {subtitle ? (
             // ~70 characters: long enough for a real sentence, short enough to
             // stay comfortably readable on a wide screen.
-            <p className="max-w-[70ch] text-[14px] leading-relaxed text-graphite-soft">{subtitle}</p>
+            <p className="max-w-[70ch] text-[14px] leading-relaxed text-ink-soft">{subtitle}</p>
           ) : null}
         </div>
         {actions ? (
@@ -76,7 +76,7 @@ export function PageShell({
 
       {/* A hairline under the header on every page — the cheapest way to make
           screens feel like one product rather than several. */}
-      <div className="h-px w-full bg-edge" />
+      <div className="h-px w-full bg-line" />
 
       {children}
     </main>

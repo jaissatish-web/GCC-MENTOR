@@ -132,7 +132,7 @@ function NameField({
           e.currentTarget.blur()
         }
       }}
-      className="w-full rounded-bp border border-transparent bg-transparent px-1.5 py-1 font-bp-display text-[15px] font-bold leading-snug tracking-[-0.01em] text-graphite hover:border-edge focus:border-signal focus:bg-white focus-visible:outline-none"
+      className="w-full rounded-ctl border border-transparent bg-transparent px-1.5 py-1 font-display text-[15px] font-bold leading-snug tracking-[-0.01em] text-ink hover:border-line focus:border-teal focus:bg-white focus-visible:outline-none"
     />
   )
 }
@@ -151,8 +151,8 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
       className={cn(
         'rounded-[4px] px-2 py-1 text-[12px] font-semibold leading-none',
         present
-          ? 'bg-signal-tint text-signal-ink'
-          : 'border border-dashed border-edge-strong bg-paper text-slate'
+          ? 'bg-teal-soft text-teal'
+          : 'border border-dashed border-line-strong bg-canvas text-ink-muted'
       )}
     >
       {label}
@@ -164,9 +164,9 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
 function JobSubtitle({ pkg }: { pkg: Package }) {
   const parts = [pkg.target_company, countryLabel(pkg.target_country)].filter(Boolean) as string[]
   if (parts.length === 0) {
-    return <span className="text-[13px] text-slate">Added {formatDay(pkg.created_at)}</span>
+    return <span className="text-[13px] text-ink-muted">Added {formatDay(pkg.created_at)}</span>
   }
-  return <span className="truncate text-[13px] font-medium text-graphite-soft">{parts.join(' · ')}</span>
+  return <span className="truncate text-[13px] font-medium text-ink-soft">{parts.join(' · ')}</span>
 }
 
 export default function TargetJobsPage() {
@@ -291,7 +291,7 @@ export default function TargetJobsPage() {
       // nothing and let the layout jump when the rows arrived.
       <SkeletonGroup label="Loading your target jobs" className="py-6">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-bp-lg border border-edge bg-white p-4">
+          <div key={i} className="rounded-card border border-line bg-white p-4">
             <Skeleton shape="title" className="mb-2.5" />
             <Skeleton className="w-2/3" />
           </div>
@@ -309,14 +309,14 @@ export default function TargetJobsPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col gap-5 bg-paper p-5 font-redesign-sans sm:p-8 lg:p-10">
+    <div className="flex min-h-screen flex-col gap-5 bg-canvas p-5 font-redesign-sans sm:p-8 lg:p-10">
       {/* ── Header ── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="font-bp-display text-[27px] font-bold leading-tight tracking-[-0.02em] text-graphite">
+          <h1 className="font-display text-[27px] font-bold leading-tight tracking-[-0.02em] text-ink">
             Target jobs
           </h1>
-          <p className="text-[13px] text-graphite-soft">
+          <p className="text-[13px] text-ink-soft">
             Every role you are going for, with its CV and where it stands.
           </p>
         </div>
@@ -338,20 +338,20 @@ export default function TargetJobsPage() {
           changes and the back button should not walk through filters. */}
       {packages.length > 0 ? (
         <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
-          <div className="flex min-w-max items-stretch divide-x divide-edge border-y border-edge bg-white">
+          <div className="flex min-w-max items-stretch divide-x divide-line border-y border-line bg-white">
             <button
               type="button"
               onClick={() => setStageFilter(null)}
               aria-pressed={stageFilter === null}
               className={cn(
-                'flex min-w-[86px] flex-col gap-0.5 px-4 py-2.5 text-left transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal',
-                stageFilter === null && 'bg-paper'
+                'flex min-w-[86px] flex-col gap-0.5 px-4 py-2.5 text-left transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal',
+                stageFilter === null && 'bg-canvas'
               )}
             >
-              <span className="font-mono text-[17px] font-semibold leading-none text-graphite">
+              <span className="font-mono text-[17px] font-semibold leading-none text-ink">
                 {packages.length}
               </span>
-              <span className="text-[12px] font-medium text-slate">All</span>
+              <span className="text-[12px] font-medium text-ink-muted">All</span>
             </button>
             {PACKAGE_STATUSES.map((s) => {
               const active = stageFilter === s.value
@@ -363,19 +363,19 @@ export default function TargetJobsPage() {
                   onClick={() => setStageFilter(active ? null : (s.value as PackageStatus))}
                   aria-pressed={active}
                   className={cn(
-                    'flex min-w-[86px] flex-col gap-0.5 px-4 py-2.5 text-left transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal',
-                    active && 'bg-paper'
+                    'flex min-w-[86px] flex-col gap-0.5 px-4 py-2.5 text-left transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal',
+                    active && 'bg-canvas'
                   )}
                 >
                   <span
                     className={cn(
                       'font-mono text-[17px] font-semibold leading-none',
-                      count > 0 ? 'text-graphite' : 'text-slate'
+                      count > 0 ? 'text-ink' : 'text-ink-muted'
                     )}
                   >
                     {count}
                   </span>
-                  <span className="text-[12px] font-medium text-slate">{s.label}</span>
+                  <span className="text-[12px] font-medium text-ink-muted">{s.label}</span>
                 </button>
               )
             })}
@@ -396,13 +396,13 @@ export default function TargetJobsPage() {
       ) : null}
 
       {packages.length > 0 && visible.length === 0 ? (
-        <div className="border border-edge bg-white px-5 py-8 text-center">
-          <p className="text-[14px] text-graphite-soft">
+        <div className="border border-line bg-white px-5 py-8 text-center">
+          <p className="text-[14px] text-ink-soft">
             Nothing at this stage yet.{' '}
             <button
               type="button"
               onClick={() => setStageFilter(null)}
-              className="font-semibold text-signal-ink underline underline-offset-2"
+              className="font-semibold text-teal underline underline-offset-2"
             >
               Show all
             </button>
@@ -416,7 +416,7 @@ export default function TargetJobsPage() {
           const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
           const atsPresent = pkg.ats_score_card != null
           return (
-            <div key={pkg.id} className="border border-edge bg-white p-4">
+            <div key={pkg.id} className="border border-line bg-white p-4">
               {/* THE TITLE GETS THE FULL WIDTH ON A PHONE.
                   The stage control was a sibling of the title, and a native
                   <select> sizes itself to its LONGEST option — "Visa
@@ -449,13 +449,13 @@ export default function TargetJobsPage() {
               <div className="mt-3.5 flex items-center gap-4">
                 <Link
                   href={`/package/${pkg.id}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-bp bg-signal px-4 text-[12px] font-semibold text-white transition-colors hover:bg-signal-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 items-center justify-center rounded-ctl bg-teal px-4 text-[12px] font-semibold text-white transition-colors hover:bg-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
                 >
                   Open
                 </Link>
                 <Link
                   href={`/package/${pkg.id}/edit`}
-                  className="min-h-11 px-1 text-[12px] font-semibold text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
+                  className="min-h-11 px-1 text-[12px] font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
                 >
                   Edit
                 </Link>
@@ -466,8 +466,8 @@ export default function TargetJobsPage() {
                   }
                   aria-pressed={confirmingDelete === pkg.id}
                   className={cn(
-                    'min-h-11 px-1 text-[12px] font-semibold underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra focus-visible:ring-offset-2',
-                    confirmingDelete === pkg.id && 'text-terra underline'
+                    'min-h-11 px-1 text-[12px] font-semibold underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert focus-visible:ring-offset-2',
+                    confirmingDelete === pkg.id && 'text-alert underline'
                   )}
                 >
                   {confirmingDelete === pkg.id ? 'Confirm delete?' : 'Delete'}
@@ -477,7 +477,7 @@ export default function TargetJobsPage() {
               {/* The filing-cabinet detail — template, level, id, date — is
                   real and occasionally needed, so it stays. It is simply no
                   longer the headline. */}
-              <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-edge pt-2.5 text-[12px] text-slate">
+              <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line pt-2.5 text-[12px] text-ink-muted">
                 <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
                 <span aria-hidden>·</span>
                 <span>{templateNameFor(pkg.template_id)}</span>
@@ -496,8 +496,8 @@ export default function TargetJobsPage() {
           present here as well as on mobile — both were desktop-unreachable
           until 2026-08-19, and a hard delete with no desktop entry point meant
           rows a desktop user had no way to remove. */}
-      <div className="hidden overflow-hidden border border-edge bg-white lg:block">
-        <div className="grid grid-cols-[2.2fr_1.4fr_1.1fr_1fr_170px] gap-4 border-b border-edge bg-paper px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.1em] text-slate">
+      <div className="hidden overflow-hidden border border-line bg-white lg:block">
+        <div className="grid grid-cols-[2.2fr_1.4fr_1.1fr_1fr_170px] gap-4 border-b border-line bg-canvas px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
           <span>Job</span>
           <span>Employer</span>
           <span>Stage</span>
@@ -509,7 +509,7 @@ export default function TargetJobsPage() {
           return (
             <div
               key={pkg.id}
-              className="grid grid-cols-[2.2fr_1.4fr_1.1fr_1fr_170px] items-center gap-4 border-b border-edge px-5 py-3.5 last:border-0"
+              className="grid grid-cols-[2.2fr_1.4fr_1.1fr_1fr_170px] items-center gap-4 border-b border-line px-5 py-3.5 last:border-0"
             >
               <div className="flex min-w-0 flex-col gap-0.5">
                 {/* Same handler as the mobile card, so the two views cannot
@@ -519,7 +519,7 @@ export default function TargetJobsPage() {
                   fallback={pkg.target_job_title}
                   onSave={(next) => renamePackage(pkg.id, next)}
                 />
-                <span className="flex items-center gap-1.5 px-1.5 text-[12px] text-slate">
+                <span className="flex items-center gap-1.5 px-1.5 text-[12px] text-ink-muted">
                   <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
                   <span aria-hidden>·</span>
                   <span>{templateNameFor(pkg.template_id)}</span>
@@ -527,7 +527,7 @@ export default function TargetJobsPage() {
               </div>
               <div className="flex min-w-0 flex-col gap-0.5">
                 <JobSubtitle pkg={pkg} />
-                <span className="text-[12px] text-slate">Added {formatDay(pkg.created_at)}</span>
+                <span className="text-[12px] text-ink-muted">Added {formatDay(pkg.created_at)}</span>
               </div>
               <div className="justify-self-start">
                 <StageSelect value={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
@@ -539,7 +539,7 @@ export default function TargetJobsPage() {
               <div className="flex items-center justify-end gap-2">
                 <Link
                   href={`/package/${pkg.id}`}
-                  className="inline-flex min-h-9 items-center justify-center rounded-bp bg-signal px-3.5 text-[12px] font-semibold text-white transition-colors hover:bg-signal-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
+                  className="inline-flex min-h-9 items-center justify-center rounded-ctl bg-teal px-3.5 text-[12px] font-semibold text-white transition-colors hover:bg-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
                 >
                   Open
                 </Link>
@@ -551,8 +551,8 @@ export default function TargetJobsPage() {
                   aria-pressed={confirmingDelete === pkg.id}
                   title="Delete this target job"
                   className={cn(
-                    'min-h-9 rounded-bp px-2 text-[12px] font-semibold text-slate transition-colors hover:bg-terra-tint hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra',
-                    confirmingDelete === pkg.id && 'bg-terra-tint text-terra'
+                    'min-h-9 rounded-ctl px-2 text-[12px] font-semibold text-ink-muted transition-colors hover:bg-alert-soft hover:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert',
+                    confirmingDelete === pkg.id && 'bg-alert-soft text-alert'
                   )}
                 >
                   {confirmingDelete === pkg.id ? 'Confirm?' : 'Delete'}

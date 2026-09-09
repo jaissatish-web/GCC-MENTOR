@@ -29,9 +29,9 @@ export default async function AdminPlanPage() {
 
   return (
     <PageShell title="Free plan">
-      <p className="mt-2 max-w-[68ch] text-[14px] leading-relaxed text-graphite-soft">
+      <p className="mt-2 max-w-[68ch] text-[14px] leading-relaxed text-ink-soft">
         What a user gets without paying. Changes take effect immediately — no deploy.
-        Rows marked <strong className="text-terra">costs money</strong> spend real tokens on every
+        Rows marked <strong className="text-alert">costs money</strong> spend real tokens on every
         use, so switching one on for free users will show up on your AI bill.
       </p>
 
@@ -41,15 +41,15 @@ export default async function AdminPlanPage() {
           here is the whole difference between this and /admin/prompts, which looked
           like a working control while editing a row nothing read. This banner comes
           out in the same commit that wires the first gate. */}
-      <p className="mt-5 rounded-bp border border-signal/50 bg-paper px-4 py-3 text-[13px] leading-relaxed text-graphite-soft">
-        <strong className="text-signal-ink">Not live yet.</strong> Your choices here are saved and
+      <p className="mt-5 rounded-ctl border border-teal/50 bg-canvas px-4 py-3 text-[13px] leading-relaxed text-ink-soft">
+        <strong className="text-teal">Not live yet.</strong> Your choices here are saved and
         will be honoured as soon as the free-tier screens are wired to them. Until then the product
         behaves as it does today: everything needs payment except the readiness score and a typed
         profile. This notice disappears when enforcement lands.
       </p>
 
       {rows.length === 0 ? (
-        <p className="mt-6 rounded-bp border border-terra/30 bg-terra-tint px-4 py-3 text-[13px] text-terra">
+        <p className="mt-6 rounded-ctl border border-alert/30 bg-alert-soft px-4 py-3 text-[13px] text-alert">
           Could not read the plan table. Free users are currently limited to the costless features
           only, which is the safe fallback.
         </p>
@@ -63,42 +63,42 @@ export default async function AdminPlanPage() {
             <form
               key={row.feature}
               action={updateEntitlementAction}
-              className="rounded-bp-lg border border-edge bg-white p-4"
+              className="rounded-card border border-line bg-white p-4"
             >
               <input type="hidden" name="feature" value={row.feature} />
 
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[14px] font-semibold text-graphite">{row.label}</span>
+                    <span className="text-[14px] font-semibold text-ink">{row.label}</span>
                     {row.requires_ai ? (
-                      <span className="rounded-[4px] bg-terra-tint px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-terra">
+                      <span className="rounded-[4px] bg-alert-soft px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-alert">
                         Costs money
                       </span>
                     ) : (
-                      <span className="rounded-[4px] bg-signal-tint px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-signal-ink">
+                      <span className="rounded-[4px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-teal">
                         Free to run
                       </span>
                     )}
                   </div>
                   {row.description ? (
-                    <p className="mt-1 text-[13px] leading-relaxed text-slate">{row.description}</p>
+                    <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">{row.description}</p>
                   ) : null}
                 </div>
 
-                <label className="flex shrink-0 items-center gap-2 text-[13px] text-graphite-soft">
+                <label className="flex shrink-0 items-center gap-2 text-[13px] text-ink-soft">
                   <input
                     type="checkbox"
                     name="freeAllowed"
                     defaultChecked={row.free_allowed}
-                    className="size-4 accent-signal"
+                    className="size-4 accent-teal"
                   />
                   Included for free
                 </label>
               </div>
 
               <div className="mt-3 flex flex-wrap items-end gap-4">
-                <label className="flex flex-col gap-1 text-[12px] text-slate">
+                <label className="flex flex-col gap-1 text-[12px] text-ink-muted">
                   <span>Free limit (blank = no limit)</span>
                   <input
                     type="number"
@@ -106,36 +106,36 @@ export default async function AdminPlanPage() {
                     min={0}
                     max={100000}
                     defaultValue={row.free_limit ?? ''}
-                    className="min-h-9 w-[170px] rounded-bp border border-edge bg-white px-2.5 text-[13px] text-graphite"
+                    className="min-h-9 w-[170px] rounded-ctl border border-line bg-white px-2.5 text-[13px] text-ink"
                   />
                 </label>
 
                 {isTemplates ? (
                   <fieldset className="min-w-0 flex-1 border-0 p-0">
-                    <legend className="mb-1 text-[12px] text-slate">
+                    <legend className="mb-1 text-[12px] text-ink-muted">
                       Templates a free user may pick
                     </legend>
                     <div className="flex flex-wrap gap-x-4 gap-y-1.5">
                       {templates.map((t) => (
                         <label
                           key={t.id}
-                          className="flex items-center gap-1.5 text-[13px] text-graphite-soft"
+                          className="flex items-center gap-1.5 text-[13px] text-ink-soft"
                         >
                           <input
                             type="checkbox"
                             name="freeTemplates"
                             value={t.id}
                             defaultChecked={chosen.includes(t.id)}
-                            className="size-3.5 accent-signal"
+                            className="size-3.5 accent-teal"
                           />
                           {t.name}
                           {t.allowsPhoto ? (
-                            <span className="text-[12px] text-slate">(photo)</span>
+                            <span className="text-[12px] text-ink-muted">(photo)</span>
                           ) : null}
                         </label>
                       ))}
                     </div>
-                    <p className="mt-1.5 text-[12px] text-slate">
+                    <p className="mt-1.5 text-[12px] text-ink-muted">
                       Pick photo-free designs to keep photos as a paid feature — no extra rule needed.
                     </p>
                   </fieldset>
@@ -143,7 +143,7 @@ export default async function AdminPlanPage() {
 
                 <button
                   type="submit"
-                  className="ml-auto min-h-9 shrink-0 rounded-bp bg-signal px-4 text-[13px] font-semibold text-white"
+                  className="ml-auto min-h-9 shrink-0 rounded-ctl bg-teal px-4 text-[13px] font-semibold text-white"
                 >
                   Save
                 </button>

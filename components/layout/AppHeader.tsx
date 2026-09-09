@@ -1,58 +1,57 @@
 import Link from 'next/link'
+import { ServicesMenu } from './ServicesMenu'
 
 /**
- * AppHeader — the top bar on mobile and tablet.
+ * AppHeader — the top bar, on every signed-in page and every screen size.
  *
- * WHY IT EXISTS. `AppShell` had no header at all: below 1024px the only chrome
- * was the bottom navigation. That left three real problems on the screen size
- * most of these users are actually on:
+ * LOGO LEFT, THREE-BAR RIGHT. Both are founder requests: the wordmark links
+ * home from anywhere (2026-09-08), and the menu opens every service from
+ * anywhere (2026-09-09).
  *
- *   1. **No way home from the top.** The natural gesture — tap the logo — had
- *      nothing to tap.
- *   2. **No brand present anywhere.** A user who arrives from a link, or
- *      returns after a week, saw a page with no name on it.
- *   3. **No trust signal.** `01_PRODUCT.md` §3 is blunt about this market:
- *      it is "trust-starved more than feature-starved", with documented scam
- *      behaviour targeting exactly this audience. A product with no visible
- *      identity is indistinguishable from the thing they are afraid of.
+ * IT IS NO LONGER MOBILE-ONLY. This used to be `lg:hidden`, on the reasoning
+ * that the desktop sidebar already carried the wordmark so a second bar was
+ * chrome for its own sake. That was right for a bar that only held a logo. It
+ * stopped being right when the bar gained the services menu: the menu is the
+ * only place the full list — including what is not built yet — appears in one
+ * view, and "any time" cannot mean "unless you are on a laptop".
  *
- * DESKTOP DELIBERATELY DOES NOT GET THIS. The sidebar already carries the
- * wordmark, top-left, already linking to the dashboard. A second bar would be
- * the same thing twice — and a header that only exists to be consistent with
- * another header is chrome for its own sake.
+ * WHY THE PRODUCT'S PROMISE SITS HERE. `01_PRODUCT.md` §3: this market is
+ * "trust-starved more than feature-starved", with documented placement-scam
+ * behaviour aimed at exactly these users. "Nothing invented" is the one claim
+ * competitors will not copy, and the top of the page is where someone decides
+ * whether to keep going. It is hidden on the narrowest phones, where the
+ * wordmark and the menu need the whole width.
  *
  * Sticky, because the way back should not require scrolling to the top first.
  */
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b border-edge bg-white/95 backdrop-blur-md lg:hidden">
-      <div className="flex h-14 items-center justify-between px-4">
-        {/* The whole lockup is one target, not just the mark — a 2-character
+    <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 sm:px-6">
+        {/* The whole lockup is one target, not just the mark — a one-character
             square is a precise tap, and this is the most-used escape hatch in
             the product. */}
         <Link
           href="/dashboard"
           aria-label="GCC MENTOR — go to your dashboard"
-          className="-mx-2 flex min-h-11 items-center gap-2.5 rounded-bp px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+          className="-mx-2 flex min-h-11 items-center gap-2.5 rounded-ctl px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
         >
           <span
             aria-hidden="true"
-            className="flex size-7 items-center justify-center rounded-bp bg-signal font-mono text-[13px] font-semibold text-white"
+            className="flex size-8 items-center justify-center rounded-ctl bg-teal font-display text-[14px] font-bold text-white"
           >
             G
           </span>
-          <span className="font-bp-display text-[14px] font-bold tracking-[-0.01em] text-graphite">
+          <span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink">
             GCC MENTOR
           </span>
         </Link>
 
-        {/* The one thing worth saying beside the name. It is the product's
-            actual promise and the reason someone in this market would trust it
-            — see 02_PHILOSOPHY.md. Hidden on the narrowest phones, where the
-            wordmark alone has to be enough. */}
-        <span className="hidden text-[12px] font-medium text-slate min-[380px]:inline">
+        <span className="ml-auto hidden text-[12.5px] font-medium text-ink-muted min-[420px]:inline">
           Nothing invented
         </span>
+
+        <ServicesMenu />
       </div>
     </header>
   )

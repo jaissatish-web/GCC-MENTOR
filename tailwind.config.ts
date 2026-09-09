@@ -17,24 +17,15 @@ const config: Config = {
         midnight:   '#0A1A2F',
         'deep-navy': '#12283F',
         emerald:    '#0E5C4A',
-        gold:       '#C79A3C',
         'gold-light': '#E3C77E',
         sand:       '#EDE3D2',
         marble:     '#FBF9F5',
         terracotta: '#A0562F',
 
-        ink: {
-          DEFAULT: '#0A1A2F',
-          body:    '#5B6675',
-          muted:   '#6B7A8D',
-          warm:    '#93805F',
-          faint:   '#A8A093',
-        },
-        line: {
-          DEFAULT: '#E4DED2',
-          strong:  '#DDD5C6',
-          soft:    '#F1EEE8',
-        },
+        // The navy-era `ink` and `line` scales were deleted 2026-09-09: Meridian
+        // defines both below, and nothing referenced the old sub-keys
+        // (`ink-body`, `ink-warm`, `ink-faint`, `line-soft`) any more. Two
+        // scales with one name is how `forest-dark` came to mean a light blue.
         fill: {
           subtle: '#F4F1EA',
           warm:   '#F7F5F0',
@@ -103,6 +94,83 @@ const config: Config = {
         'sec-skills': '#8A3A6B',
         'sec-certifications': '#8A3030',
         'sec-additional': '#4A4E5C',
+
+        // ══ MERIDIAN ════════════════════════════════════════════════════════
+        //
+        // The current identity, founder decision 2026-09-09. It replaces
+        // Blueprint, which replaced the navy palette. The brief was "neat and
+        // clean premium, mobile optimised, and do not use the old design".
+        //
+        // WHY BLUEPRINT DID NOT READ AS PREMIUM, which is what this fixes.
+        // Its ground was a cold grey-blue, every element carried a hairline
+        // border, and its corners were 4px — so a card, an input and a button
+        // all had the same silhouette and the whole screen read as one long
+        // form. Meridian separates by SURFACE and SHADOW rather than by
+        // border, and gives cards a 16px corner so they read as objects.
+        //
+        // TWO COLOURS DO TWO JOBS, and this is the rule that keeps it calm:
+        //   `teal` is the brand and the voice — headers, dark panels, links,
+        //     the colour of anything that says "this is us".
+        //   `gold` is the ACTION, and only the action. One per screen.
+        // Blueprint had a single `signal` doing both, which is why every
+        // screen was orange. Splitting them is what lets a page be quiet
+        // without being colourless.
+        //
+        // MEASURED BEFORE ANYTHING WAS DRAWN. The first `muted` was #6C7681 —
+        // 4.32:1 on canvas, a fail, and it carries every timestamp and hint in
+        // the product. That is the same defect class as `ink-400` and
+        // `text-info` before it, so it is now measured first, always:
+        //
+        //   ink on canvas / white        16.69 / 17.84
+        //   ink-soft on canvas / white    8.32 / 8.89
+        //   muted on canvas / white       5.07 / 5.42   (was 4.32 — FAILED)
+        //   muted on teal-soft            4.58
+        //   teal on canvas / white        9.20 / 9.84
+        //   white on teal                 9.84
+        //   teal on teal-soft             8.30
+        //   gold-ink on canvas / white    5.17 / 5.53
+        //   ink on gold                   6.70
+        //
+        // `gold` is a FILL, never text: it is 2.66:1 on white. Text that needs
+        // to be gold uses `gold-ink`. That is the same trap `signal` on
+        // `signal-tint` was, written down so it cannot be walked into again.
+        canvas: '#FAF7F2',
+        ink: {
+          DEFAULT: '#14181C',
+          soft: '#414B55',
+          muted: '#616B76',
+        },
+        teal: {
+          DEFAULT: '#0F4C43',
+          bright: '#12695C',
+          soft: '#E4EEEB',
+        },
+        gold: {
+          DEFAULT: '#C9962E',
+          ink: '#8A6114',
+          soft: '#F7EFDD',
+        },
+        line: {
+          DEFAULT: '#EAE4DB',
+          strong: '#D2C9BC',
+        },
+        /**
+         * Status, and deliberately NOT the brand.
+         *
+         * `teal` says "this is us" and `gold` says "do this". Neither may also
+         * mean "this went well" or "this needs attention" — the moment a brand
+         * colour carries a status, a page cannot say both things at once.
+         *   white on ok      6.12      ok on ok-soft      5.18
+         *   white on alert   6.78      alert on alert-soft 5.62
+         */
+        ok: {
+          DEFAULT: '#2C6E49',
+          soft: '#E3EFE8',
+        },
+        alert: {
+          DEFAULT: '#A33528',
+          soft: '#F8E6E2',
+        },
 
         // ── BLUEPRINT ────────────────────────────────────────────────────────
         //
@@ -308,6 +376,8 @@ const config: Config = {
         // heading without a serif's warmth. Paired with Inter for body and
         // IBM Plex Mono for every figure.
         'bp-display': ['var(--font-archivo)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
+        // Meridian's display face. Headings only — never body, never a value.
+        'display': ['var(--font-fraunces)', 'Georgia', 'serif'],
         mono:  ['var(--font-plex-mono)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
@@ -316,6 +386,12 @@ const config: Config = {
         // Blueprint: drawn, not rounded. A technical drawing has corners.
         'bp': '4px',
         'bp-lg': '6px',
+        // Meridian. A card is an object (16px); a control you press is tighter
+        // (11px). Blueprint gave both 4px, which is why a card and an input
+        // were indistinguishable at a glance.
+        'ctl': '11px',
+        'card': '16px',
+        'card-lg': '20px',
         'radius-sm': '6px',
         'radius-md': '12px',
         'radius-lg': '16px',
@@ -329,6 +405,13 @@ const config: Config = {
       // Elevation + glow. On a dark base, depth comes from glow and layered
       // shadow rather than the soft grey shadows a light theme uses.
       boxShadow: {
+        // Meridian elevation. Deliberately shallow — two very soft layers, so
+        // a card lifts off the canvas without announcing itself. Anything
+        // heavier starts to look like a 2015 material card.
+        'm-1': '0 1px 2px rgba(20,24,28,0.05)',
+        'm-2': '0 1px 2px rgba(20,24,28,0.05), 0 6px 18px -8px rgba(20,24,28,0.10)',
+        'm-3': '0 2px 4px rgba(20,24,28,0.06), 0 18px 40px -14px rgba(20,24,28,0.18)',
+        'm-drawer': '-14px 0 34px -12px rgba(20,24,28,0.40)',
         // Redesign §5 scale. Existing elev/glow names remain below for
         // current call sites and are intentionally not changed.
         'redesign-sm': '0 1px 2px rgba(23,36,31,0.07)',

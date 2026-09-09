@@ -4,6 +4,7 @@ import {
   QuestionMarkCircleIcon,
   BookmarkIcon,
   BriefcaseIcon,
+  ChartBarIcon,
   RectangleStackIcon,
   UserCircleIcon,
   ShieldCheckIcon,
@@ -81,6 +82,11 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, exact: true },
   { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
+  // Added 2026-09-09. It was a live, finished screen reachable only from one
+  // dashboard card, so a user who scrolled past that card had no route to it
+  // at all — and it is the free half of the product, the thing someone is
+  // meant to try before paying.
+  { label: 'Gulf Readiness', href: '/gcc-readiness', icon: ChartBarIcon, needsProfile: true, shortLabel: 'Readiness' },
   // "Resume Library" until 2026-09-09. The rows in it were never a library:
   // each one carries a job title, an employer, a country, the advert, and a
   // status running applied → offer. Calling a live application a file is what

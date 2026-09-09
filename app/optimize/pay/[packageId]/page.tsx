@@ -92,7 +92,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
 
   if (error) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-paper px-5">
+      <div className="flex min-h-dvh items-center justify-center bg-canvas px-5">
         <Alert variant="danger">{error}</Alert>
       </div>
     )
@@ -100,70 +100,70 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
 
   if (!pkg) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-paper">
-        <p className="font-mono text-sm text-slate">Loading…</p>
+      <div className="flex min-h-dvh items-center justify-center bg-canvas">
+        <p className="font-mono text-sm text-ink-muted">Loading…</p>
       </div>
     )
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-paper px-5 py-10 font-redesign-sans">
+    <main className="flex min-h-dvh items-center justify-center bg-canvas px-5 py-10 font-redesign-sans">
       <Card tone="light" className="flex w-full max-w-[520px] flex-col gap-3 p-5 sm:p-6">
         <button
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-bp text-[20px] leading-none text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-ink focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-ctl text-[20px] leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
         >
           ←
         </button>
-        <h1 className="font-bp-display text-[27px] leading-tight text-graphite">One payment. No surprises.</h1>
+        <h1 className="font-display text-[27px] leading-tight text-ink">One payment. No surprises.</h1>
 
         {/* Order summary */}
-        <div className="flex flex-col gap-3 rounded-bp-lg border border-edge bg-white p-4.5">
+        <div className="flex flex-col gap-3 rounded-card border border-line bg-white p-4.5">
           <div className="flex items-baseline justify-between">
-            <span className="text-[13px] font-semibold text-graphite">Optimized Gulf CV</span>
-            <span className="font-mono text-[15px] text-graphite">₹499</span>
+            <span className="text-[13px] font-semibold text-ink">Optimized Gulf CV</span>
+            <span className="font-mono text-[15px] text-ink">₹499</span>
           </div>
-          <p className="text-[12px] text-slate">
+          <p className="text-[12px] text-ink-muted">
             {pkg.target_job_title}
             {pkg.target_company ? ` · ${pkg.target_company}` : ''}
           </p>
-          <div className="h-px bg-edge" />
-          <div className="flex flex-col gap-1.5 text-[12px] text-graphite-soft">
+          <div className="h-px bg-line" />
+          <div className="flex flex-col gap-1.5 text-[12px] text-ink-soft">
             <div className="flex gap-2">
               {/* Says PDF only. Word download is not offered yet (founder
                   decision, 2026-08-16) — this line sits on the PAYMENT screen,
                   so promising a format the buyer cannot then download is the
                   one place that mistake actually costs money and trust. */}
-              <span className="text-signal">✓</span> PDF download
+              <span className="text-teal">✓</span> PDF download
             </div>
             <div className="flex gap-2">
-              <span className="text-signal">✓</span> Edit and re-download anytime
+              <span className="text-teal">✓</span> Edit and re-download anytime
             </div>
             <div className="flex gap-2">
-              <span className="text-signal">✓</span> Saved to your Library forever
+              <span className="text-teal">✓</span> Saved to your Library forever
             </div>
           </div>
-          <p className="text-[12px] text-slate">No subscription. No auto-renewal. Taxes included.</p>
+          <p className="text-[12px] text-ink-muted">No subscription. No auto-renewal. Taxes included.</p>
         </div>
 
         {/* Promo code — the actual unlock path while Razorpay is blocked */}
-        <div className="flex flex-col gap-2.5 rounded-bp-lg border border-signal/30 bg-signal-tint p-4.5">
-          <span className="text-[12px] font-bold text-graphite">Have a promo code?</span>
+        <div className="flex flex-col gap-2.5 rounded-card border border-teal/30 bg-teal-soft p-4.5">
+          <span className="text-[12px] font-bold text-ink">Have a promo code?</span>
           <div className="flex gap-2">
             <input
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="Enter code"
               aria-label="Promo code"
-              className="min-h-11 flex-1 rounded-bp border border-edge bg-white px-3 text-[13px] uppercase tracking-wide text-graphite-soft outline-none focus:border-signal-ink focus:ring-2 focus:ring-signal-ink/20"
+              className="min-h-11 flex-1 rounded-ctl border border-line bg-white px-3 text-[13px] uppercase tracking-wide text-ink-soft outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
             />
             <button
               type="button"
               disabled={!code.trim() || redeeming}
               onClick={() => redeem()}
-              className="min-h-11 rounded-bp bg-signal px-4 text-[13px] font-bold text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
+              className="min-h-11 rounded-ctl bg-teal px-4 text-[13px] font-bold text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
             >
               {redeeming ? 'Checking…' : 'Unlock'}
             </button>
@@ -172,14 +172,14 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
         </div>
 
         {/* Razorpay — honestly disabled, not a dead link */}
-        <div className="flex flex-col gap-2 rounded-bp-lg border border-dashed border-edge-strong bg-paper p-4.5 opacity-70">
-          <span className="text-[12px] font-bold text-graphite">Card · UPI · Netbanking · Wallet</span>
-          <p className="text-[12px] text-slate">
+        <div className="flex flex-col gap-2 rounded-card border border-dashed border-line-strong bg-canvas p-4.5 opacity-70">
+          <span className="text-[12px] font-bold text-ink">Card · UPI · Netbanking · Wallet</span>
+          <p className="text-[12px] text-ink-muted">
             Coming soon. We never see or store your card details.
           </p>
         </div>
 
-        <p className="mt-1 text-center text-[12px] text-slate">
+        <p className="mt-1 text-center text-[12px] text-ink-muted">
           Something went wrong with your order? Email the founder directly — replies within a day.
         </p>
       </Card>

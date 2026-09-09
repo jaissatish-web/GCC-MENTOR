@@ -211,9 +211,9 @@ function EditResumeInner({ packageId }: { packageId: string }) {
 
   if (error && !pkg) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-paper px-5">
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-5">
         <div className="text-center">
-          <p className="text-sm text-terra">{error}</p>
+          <p className="text-sm text-alert">{error}</p>
           <Link
             href="/dashboard/library"
             className={cn('mt-4 inline-block', buttonVariants({ variant: 'secondary', size: 'sm' }))}
@@ -227,8 +227,8 @@ function EditResumeInner({ packageId }: { packageId: string }) {
 
   if (!pkg || !draft || !baseDoc) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-paper">
-        <p className="font-mono text-sm text-slate">Loading…</p>
+      <main className="flex min-h-dvh items-center justify-center bg-canvas">
+        <p className="font-mono text-sm text-ink-muted">Loading…</p>
       </main>
     )
   }
@@ -239,20 +239,20 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   return (
     <main className="mx-auto w-full max-w-[1400px] px-5 py-6 sm:px-8 font-redesign-sans">
       {/* Header — the save state lives here, next to the action that clears it */}
-      <div className="flex flex-col gap-3 border-b border-edge pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="font-bp-display text-[24px] leading-tight text-graphite">Edit your resume</h1>
-          <p className="text-[13px] text-slate">
+          <h1 className="font-display text-[24px] leading-tight text-ink">Edit your resume</h1>
+          <p className="text-[13px] text-ink-muted">
             Rewrite any part below. The preview updates as you type; nothing is saved until you
             press Save.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {dirty ? (
-            <span className="text-[12px] font-semibold text-signal-ink">Unsaved changes</span>
+            <span className="text-[12px] font-semibold text-teal">Unsaved changes</span>
           ) : null}
           {justSaved && !dirty ? (
-            <span className="text-[12px] font-semibold text-signal">Saved</span>
+            <span className="text-[12px] font-semibold text-teal">Saved</span>
           ) : null}
           <button
             type="button"
@@ -281,7 +281,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
       {error ? (
         <p
           role="alert"
-          className="mt-4 rounded-bp border border-terra/40 bg-terra-tint px-3.5 py-3 text-[13px] text-terra"
+          className="mt-4 rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert"
         >
           {error}
         </p>
@@ -291,15 +291,15 @@ function EditResumeInner({ packageId }: { packageId: string }) {
         {/* ---- The editor ---- */}
         <div className="flex min-w-0 flex-1 flex-col gap-4">
           {/* Professional summary */}
-          <section className="rounded-bp-lg border border-edge bg-white p-5">
-            <h2 className="text-[13px] font-bold text-graphite">Professional summary</h2>
-            <p className="mt-1 text-[12px] text-slate">The opening paragraph of your CV.</p>
+          <section className="rounded-card border border-line bg-white p-5">
+            <h2 className="text-[13px] font-bold text-ink">Professional summary</h2>
+            <p className="mt-1 text-[12px] text-ink-muted">The opening paragraph of your CV.</p>
             <textarea
               value={draft.summary}
               onChange={(e) => setDraft((d) => (d ? { ...d, summary: e.target.value } : d))}
               rows={6}
               aria-label="Professional summary"
-              className="mt-3 w-full resize-y rounded-bp border border-edge bg-paper/40 p-3 text-[13px] leading-relaxed text-graphite outline-none focus:border-signal focus:ring-2 focus:ring-signal/25"
+              className="mt-3 w-full resize-y rounded-ctl border border-line bg-canvas/40 p-3 text-[13px] leading-relaxed text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
             />
           </section>
 
@@ -312,14 +312,14 @@ function EditResumeInner({ packageId }: { packageId: string }) {
             const setList = (next: string[]) =>
               setDraft((d) => (d ? { ...d, bullets: { ...d.bullets, [id]: next } } : d))
             return (
-              <section key={id} className="rounded-bp-lg border border-edge bg-white p-5">
-                <h2 className="text-[13px] font-bold text-graphite">
+              <section key={id} className="rounded-card border border-line bg-white p-5">
+                <h2 className="text-[13px] font-bold text-ink">
                   {item.entry.role || 'Experience'}
                   {item.entry.company ? (
-                    <span className="font-normal text-slate"> · {item.entry.company}</span>
+                    <span className="font-normal text-ink-muted"> · {item.entry.company}</span>
                   ) : null}
                 </h2>
-                <p className="mt-1 text-[12px] text-slate">
+                <p className="mt-1 text-[12px] text-ink-muted">
                   {list.length} {list.length === 1 ? 'bullet' : 'bullets'}
                   {item.range ? ` · ${item.range}` : ''} — the role, employer and dates come from
                   your Career Profile.
@@ -328,7 +328,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                 <div className="mt-3 flex flex-col gap-2">
                   {list.map((bullet, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <span aria-hidden className="pt-2.5 text-[13px] text-slate">
+                      <span aria-hidden className="pt-2.5 text-[13px] text-ink-muted">
                         •
                       </span>
                       <textarea
@@ -336,21 +336,21 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                         onChange={(e) => setList(list.map((b, j) => (j === i ? e.target.value : b)))}
                         rows={2}
                         aria-label={`Bullet ${i + 1}`}
-                        className="min-w-0 flex-1 resize-y rounded-bp border border-edge bg-paper/40 p-2.5 text-[13px] leading-relaxed text-graphite outline-none focus:border-signal focus:ring-2 focus:ring-signal/25"
+                        className="min-w-0 flex-1 resize-y rounded-ctl border border-line bg-canvas/40 p-2.5 text-[13px] leading-relaxed text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
                       />
                       <button
                         type="button"
                         onClick={() => setList(list.filter((_, j) => j !== i))}
                         aria-label={`Remove bullet ${i + 1}`}
                         title="Remove this bullet"
-                        className="mt-1 shrink-0 rounded-bp px-2 py-1.5 text-[12px] font-semibold text-slate transition-colors hover:bg-terra-tint hover:text-terra focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terra"
+                        className="mt-1 shrink-0 rounded-ctl px-2 py-1.5 text-[12px] font-semibold text-ink-muted transition-colors hover:bg-alert-soft hover:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert"
                       >
                         ✕
                       </button>
                     </div>
                   ))}
                   {list.length === 0 ? (
-                    <p className="text-[12px] text-slate">
+                    <p className="text-[12px] text-ink-muted">
                       No bullets yet — add one to describe this role.
                     </p>
                   ) : null}
@@ -369,9 +369,9 @@ function EditResumeInner({ packageId }: { packageId: string }) {
 
           {/* What is deliberately not editable here, said plainly rather than
               shown as inputs that refuse to work. */}
-          <section className="rounded-bp-lg border border-edge bg-paper/40 p-5">
-            <h2 className="text-[13px] font-bold text-graphite">Everything else</h2>
-            <p className="mt-1.5 text-[12px] leading-relaxed text-slate">
+          <section className="rounded-card border border-line bg-canvas/40 p-5">
+            <h2 className="text-[13px] font-bold text-ink">Everything else</h2>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-ink-muted">
               These are the same on every resume, so they are edited once in your Career Profile.
             </p>
             <Link
@@ -386,11 +386,11 @@ function EditResumeInner({ packageId }: { packageId: string }) {
         {/* ---- Live preview: the real template, with edits applied ---- */}
         {previewDocument ? (
           <aside className="shrink-0 lg:sticky lg:top-4 lg:w-[420px]">
-            <div className="rounded-bp-lg border border-edge bg-white p-4">
-              <h2 className="text-[12px] font-bold uppercase tracking-wider text-graphite-soft">
+            <div className="rounded-card border border-line bg-white p-4">
+              <h2 className="text-[12px] font-bold uppercase tracking-wider text-ink-soft">
                 Live preview
               </h2>
-              <p className="mt-1 text-[12px] text-slate">
+              <p className="mt-1 text-[12px] text-ink-muted">
                 Exactly what your PDF will contain once you save.
               </p>
               <ResumeDocumentView className="mt-3 w-full rounded-[3px]">

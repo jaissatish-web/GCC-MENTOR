@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Archivo, Instrument_Serif, Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
+import { Archivo, Fraunces, Instrument_Serif, Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import { SITE_URL } from '@/lib/siteUrl'
 
@@ -30,6 +30,29 @@ const jakarta = Plus_Jakarta_Sans({
 
 // Blueprint display face (2026-09-08). Loaded alongside the others while the
 // new identity rolls out screen by screen.
+/**
+ * Fraunces — Meridian's display face (founder decision 2026-09-09).
+ *
+ * Headings only, never body. One editorial serif against a clean sans is the
+ * fastest way a product stops reading as a template, and it is the single
+ * clearest signal that this is not the Blueprint grotesque any more.
+ *
+ * `opsz` is what makes it work at both ends: Fraunces is a variable font whose
+ * optical size axis thins the serifs as the size grows, so a 30px page title
+ * and a 15px card heading each get drawn correctly rather than one being a
+ * scaled copy of the other.
+ */
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  // NO `weight` HERE, deliberately. Fraunces is a variable font, and next/font
+  // rejects `axes` alongside a fixed weight list — "Axes can only be defined
+  // for variable fonts". Omitting weight loads the whole `wght` range, which is
+  // what a variable font is for; `axes` then adds `opsz` on top of it.
+  axes: ['opsz'],
+  display: 'swap',
+  variable: '--font-fraunces',
+})
+
 const archivo = Archivo({
   subsets: ['latin'],
   weight: ['500', '600', '700'],
@@ -134,7 +157,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className={`${instrumentSerif.variable} ${inter.variable} ${jakarta.variable} ${plexMono.variable} ${archivo.variable} font-redesign-sans bg-paper text-graphite antialiased`}
+        className={`${instrumentSerif.variable} ${inter.variable} ${jakarta.variable} ${plexMono.variable} ${archivo.variable} ${fraunces.variable} font-redesign-sans bg-canvas text-ink antialiased`}
       >
         {children}
       </body>

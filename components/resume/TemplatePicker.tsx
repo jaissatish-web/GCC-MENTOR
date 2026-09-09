@@ -107,16 +107,16 @@ export function TemplatePicker({
             onMouseEnter={() => setHovered(t.id)}
             onMouseLeave={() => setHovered(null)}
             className={
-              'group flex flex-col overflow-hidden rounded-bp-lg border bg-white text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 ' +
+              'group flex flex-col overflow-hidden rounded-card border bg-white text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ' +
               (isCurrent
-                ? 'border-signal ring-2 ring-signal/30'
-                : 'border-edge hover:border-signal/60')
+                ? 'border-teal ring-2 ring-teal/30'
+                : 'border-line hover:border-teal/60')
             }
           >
             {/* The preview: a real render, clipped to a page-shaped window. */}
             <span
               aria-hidden="true"
-              className="relative block overflow-hidden bg-paper"
+              className="relative block overflow-hidden bg-canvas"
               style={{ height: previewH }}
             >
               <span
@@ -134,26 +134,26 @@ export function TemplatePicker({
                 />
               </span>
               {hovered === t.id && !isCurrent ? (
-                <span className="absolute inset-0 bg-signal/10" />
+                <span className="absolute inset-0 bg-teal/10" />
               ) : null}
             </span>
 
-            <span className="flex flex-col gap-1 border-t border-edge bg-white p-3">
+            <span className="flex flex-col gap-1 border-t border-line bg-white p-3">
               <span className="flex items-center justify-between gap-2">
-                <span className="text-[13px] font-bold text-graphite">{t.name}</span>
+                <span className="text-[13px] font-bold text-ink">{t.name}</span>
                 {isCurrent ? (
-                  <span className="rounded-[4px] bg-signal-tint px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-signal-ink">
+                  <span className="rounded-[4px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-teal">
                     In use
                   </span>
                 ) : t.atsLevel === 'maximum' ? (
-                  <span className="rounded-[4px] bg-paper px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-graphite-soft">
+                  <span className="rounded-[4px] bg-canvas px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-soft">
                     Max ATS
                   </span>
                 ) : null}
               </span>
-              <span className="text-[12px] leading-snug text-graphite-soft">{t.description}</span>
-              <span className="text-[12px] text-slate">Best for {t.recommendedFor.join(' · ')}</span>
-              <span className="mt-1 text-[12px] font-semibold text-signal">
+              <span className="text-[12px] leading-snug text-ink-soft">{t.description}</span>
+              <span className="text-[12px] text-ink-muted">Best for {t.recommendedFor.join(' · ')}</span>
+              <span className="mt-1 text-[12px] font-semibold text-teal">
                 {isBusy ? 'Applying…' : isCurrent ? 'Current template' : 'Use this template'}
               </span>
             </span>

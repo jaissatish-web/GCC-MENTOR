@@ -61,23 +61,23 @@ function OptionCard({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        'flex w-full min-h-11 items-start gap-3.5 rounded-bp-lg border bg-white px-4 py-4 text-left font-redesign-sans transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-paper',
-        selected ? 'border-signal shadow-redesign-md' : 'border-edge'
+        'flex w-full min-h-11 items-start gap-3.5 rounded-card border bg-white px-4 py-4 text-left font-redesign-sans transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
+        selected ? 'border-teal shadow-redesign-md' : 'border-line'
       )}
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-paper text-graphite">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-canvas text-ink">
         {icon}
       </span>
       <span className="flex flex-col gap-1">
         <span className="flex items-center gap-2">
-          <span className="text-[15px] font-bold text-graphite">{title}</span>
+          <span className="text-[15px] font-bold text-ink">{title}</span>
           {badge ? (
-            <span className="rounded-[5px] bg-signal-tint px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-signal-ink">
+            <span className="rounded-[5px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-teal">
               {badge}
             </span>
           ) : null}
         </span>
-        <span className="text-[12px] leading-snug text-graphite-soft">{description}</span>
+        <span className="text-[12px] leading-snug text-ink-soft">{description}</span>
       </span>
     </button>
   )
@@ -183,14 +183,14 @@ export default function OnboardingPage() {
 
   if (checkingClaim) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-paper font-redesign-sans">
-        <p className="font-mono text-sm text-slate">Loading…</p>
+      <main className="flex min-h-dvh items-center justify-center bg-canvas font-redesign-sans">
+        <p className="font-mono text-sm text-ink-muted">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="flex min-h-dvh flex-col bg-paper font-redesign-sans">
+    <main className="flex min-h-dvh flex-col bg-canvas font-redesign-sans">
       <div className="mx-auto flex w-full max-w-[640px] flex-1 flex-col px-5 pb-6 pt-9 sm:px-8 sm:pt-12">
         {/* Back arrow + progress bar 1/5 */}
         <div className="flex items-center gap-3.5">
@@ -198,22 +198,22 @@ export default function OnboardingPage() {
             type="button"
             aria-label="Go back"
             onClick={() => router.back()}
-            className="flex size-11 items-center justify-center rounded-bp text-[20px] leading-none text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            className="flex size-11 items-center justify-center rounded-ctl text-[20px] leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
           >
             ←
           </button>
           <div className="flex-1">
             <ProgressBar value={20} tone="light" />
           </div>
-          <span className="font-mono text-[12px] text-slate">1/5</span>
+          <span className="font-mono text-[12px] text-ink-muted">1/5</span>
         </div>
 
         {/* Heading */}
         <div className="mt-8 flex flex-col gap-2">
-          <h1 className="font-bp-display text-[28px] leading-tight text-graphite sm:text-[32px]">
+          <h1 className="font-display text-[28px] leading-tight text-ink sm:text-[32px]">
             Let&apos;s build your Career Profile
           </h1>
-          <p className="text-[14px] leading-relaxed text-graphite-soft">
+          <p className="text-[14px] leading-relaxed text-ink-soft">
             Built once, reused for every application. All three routes end up in the same place.
           </p>
         </div>
@@ -221,7 +221,7 @@ export default function OnboardingPage() {
         {/* Option cards */}
         <div className="mt-7 flex flex-col gap-3">
           <OptionCard
-            icon={<span className="text-[17px] text-signal">↑</span>}
+            icon={<span className="text-[17px] text-teal">↑</span>}
             title="Upload a file"
             badge="Fastest"
             description="PDF, Word or a LinkedIn export. We read it and fill in what we can."
@@ -229,14 +229,14 @@ export default function OnboardingPage() {
             onClick={() => setPath('upload')}
           />
           <OptionCard
-            icon={<span className="text-[16px] text-graphite-soft">¶</span>}
+            icon={<span className="text-[16px] text-ink-soft">¶</span>}
             title="Paste your resume text"
             description="No file handy? Paste the text straight in."
             selected={path === 'paste'}
             onClick={() => setPath('paste')}
           />
           <OptionCard
-            icon={<span className="text-[16px] text-graphite-soft">✎</span>}
+            icon={<span className="text-[16px] text-ink-soft">✎</span>}
             title="Start from scratch"
             description="Fill it in yourself. Good if you don't have a resume yet."
             selected={path === 'scratch'}
@@ -246,9 +246,9 @@ export default function OnboardingPage() {
 
         {/* Privacy note + Continue — pinned to the bottom like the mockup */}
         <div className="mt-auto flex flex-col gap-3 pt-8">
-          <div className="flex items-start gap-2.5 rounded-bp-lg border border-edge bg-paper px-3.5 py-3">
-            <span className="text-[13px] text-signal-ink">⌾</span>
-            <p className="text-[12px] leading-snug text-graphite-soft">
+          <div className="flex items-start gap-2.5 rounded-card border border-line bg-canvas px-3.5 py-3">
+            <span className="text-[13px] text-teal">⌾</span>
+            <p className="text-[12px] leading-snug text-ink-soft">
               Used only to build your profile. Passport, visa and contact fields are encrypted.
             </p>
           </div>

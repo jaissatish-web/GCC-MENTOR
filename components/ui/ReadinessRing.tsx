@@ -29,15 +29,15 @@ export default function ReadinessRing({
   }, [clamped])
 
   const isComplete = clamped === 100
-  const progressClass = isComplete ? 'stroke-signal' : dark ? 'stroke-signal-ink' : 'stroke-signal'
-  const trackClass = dark ? 'stroke-signal-tint' : 'stroke-paper'
+  const progressClass = isComplete ? 'stroke-teal' : dark ? 'stroke-teal' : 'stroke-teal'
+  const trackClass = dark ? 'stroke-teal-soft' : 'stroke-canvas'
   const textClass = dark
     ? isComplete
-      ? 'fill-signal'
-      : 'fill-signal-ink'
+      ? 'fill-teal'
+      : 'fill-teal'
     : isComplete
-      ? 'fill-signal'
-      : 'fill-signal-ink'
+      ? 'fill-teal'
+      : 'fill-teal'
 
   return (
     <div className="flex flex-col items-center gap-2 font-redesign-sans" role="img" aria-label={`Readiness ${clamped} percent`}>
@@ -72,7 +72,7 @@ export default function ReadinessRing({
         </text>
       </svg>
       {label ? (
-        <span className={`text-[12px] ${dark ? 'text-slate' : 'text-slate'}`}>{label}</span>
+        <span className={`text-[12px] ${dark ? 'text-ink-muted' : 'text-ink-muted'}`}>{label}</span>
       ) : null}
     </div>
   )

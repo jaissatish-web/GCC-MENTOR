@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
  * Alert — one presentation for every message the product needs to hand a user.
  *
  * WHY THIS EXISTS. An audit on 2026-09-05 counted **70 hand-written
- * `text-terra` error strings** and no shared component. Every screen styled its
+ * `text-alert` error strings** and no shared component. Every screen styled its
  * own: a bare red sentence here, a bordered tinted box there, sometimes with
  * `role="alert"` and usually without. Two consequences, and the second is the
  * one that matters:
@@ -29,18 +29,18 @@ import { cn } from '@/lib/utils'
  * ground, so it survives a monochrome screenshot and a colour-blind reader.
  */
 const alertVariants = cva(
-  'flex items-start gap-2.5 rounded-bp border px-3.5 py-3 font-redesign-sans text-[13px] leading-relaxed',
+  'flex items-start gap-2.5 rounded-ctl border px-3.5 py-3 font-redesign-sans text-[13px] leading-relaxed',
   {
     variants: {
       variant: {
         /** Something the user must fix, or something that failed. */
-        danger: 'border-terra/40 bg-terra-tint text-terra',
+        danger: 'border-alert/40 bg-alert-soft text-alert',
         /** True, and worth knowing before continuing. Not a failure. */
-        warning: 'border-amber/40 bg-signal-tint text-signal-ink',
+        warning: 'border-amber/40 bg-teal-soft text-teal',
         /**
          * Neutral context. The commonest and the quietest.
          *
-         * `text-signal`, NOT `text-info`. Caught in review 2026-09-08: there is no
+         * `text-teal`, NOT `text-info`. Caught in review 2026-09-08: there is no
          * `info` colour token, so `text-info` generated no rule at all and the
          * text fell through to the inherited body colour — `marble`, near-white
          * — giving white text on a pale blue ground at roughly 1.05:1.
@@ -48,7 +48,7 @@ const alertVariants = cva(
          * just no rule. It is the same failure that shipped white labels on a
          * white card, which is why every variant here is contrast-checked.
          */
-        info: 'border-signal-tint bg-signal-tint text-signal-ink',
+        info: 'border-teal-soft bg-teal-soft text-teal',
         /** Something completed. Used sparingly — most successes need no box. */
         success: 'border-emerald/25 bg-state-emerald-bg text-emerald',
       },

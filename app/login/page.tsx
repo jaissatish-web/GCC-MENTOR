@@ -24,12 +24,12 @@ export default function LoginPage() {
     >
       <Card tone="light" className="flex w-full flex-col gap-1 p-8">
         <AuthHashHandler />
-        <h1 className="font-bp-display text-[26px] text-graphite">Sign in</h1>
-        <p className="mb-5 text-[14px] text-slate">Welcome back to GCC MENTOR.</p>
+        <h1 className="font-display text-[26px] text-ink">Sign in</h1>
+        <p className="mb-5 text-[14px] text-ink-muted">Welcome back to GCC MENTOR.</p>
         <AuthForm action={login} submitLabel="Sign in" tone="light" />
-        <p className="mt-6 text-center text-[13px] text-slate">
+        <p className="mt-6 text-center text-[13px] text-ink-muted">
           Don&apos;t have an account?{' '}
-          <Link href="/signup" className="font-semibold text-signal hover:text-signal">
+          <Link href="/signup" className="font-semibold text-teal hover:text-teal">
             Create one
           </Link>
         </p>

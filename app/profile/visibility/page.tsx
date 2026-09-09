@@ -135,26 +135,26 @@ function VisibilityScreen() {
 
   if (!loaded || !vis) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-paper">
-        <p className="font-mono text-sm text-slate">Loading…</p>
+      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-canvas">
+        <p className="font-mono text-sm text-ink-muted">Loading…</p>
       </main>
     )
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-paper">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-canvas">
       {/* Back + heading */}
       <div className="flex flex-col gap-2 px-5 pb-4 pt-1.5">
         <button
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-bp text-[20px] leading-none text-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2"
+          className="flex size-11 items-center justify-center rounded-ctl text-[20px] leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
         >
           ←
         </button>
-        <h1 className="font-bp-display text-[27px] leading-tight text-graphite">What appears on your CV</h1>
-        <p className="text-[13px] leading-normal text-graphite-soft [text-wrap:pretty]">
+        <h1 className="font-display text-[27px] leading-tight text-ink">What appears on your CV</h1>
+        <p className="text-[13px] leading-normal text-ink-soft [text-wrap:pretty]">
           Hiding a field never deletes it — the template closes the gap cleanly.
         </p>
       </div>
@@ -164,11 +164,11 @@ function VisibilityScreen() {
         {FIELDS.map(({ key, label, hint }) => (
           <div
             key={key}
-            className="flex items-center justify-between gap-3 rounded-bp border border-edge/60 bg-white px-4 py-3.5"
+            className="flex items-center justify-between gap-3 rounded-ctl border border-line/60 bg-white px-4 py-3.5"
           >
             <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="text-[13px] font-semibold text-graphite">{label}</span>
-              <span className="text-[12px] leading-snug text-slate">{hint}</span>
+              <span className="text-[13px] font-semibold text-ink">{label}</span>
+              <span className="text-[12px] leading-snug text-ink-muted">{hint}</span>
             </div>
             <Toggle checked={vis[key]} onCheckedChange={(v) => flip(key, v)} aria-label={label} />
           </div>
@@ -177,14 +177,14 @@ function VisibilityScreen() {
 
       {/* Static PII footer note (mockup verbatim) + Done */}
       {saveError ? (
-        <div className="mx-5 mt-3 rounded-bp border border-terra/30 bg-terra-tint px-3.5 py-3 text-[12px] text-terra">
+        <div className="mx-5 mt-3 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">
           {saveError}
         </div>
       ) : null}
       <div className="flex flex-col gap-3 px-5 pb-6 pt-4">
-        <div className="flex items-start gap-2.5 rounded-bp border border-edge/60 bg-white px-3.5 py-3">
-          <span className="text-[13px] text-signal">⌾</span>
-          <p className="text-[12px] leading-snug text-graphite-soft">
+        <div className="flex items-start gap-2.5 rounded-ctl border border-line/60 bg-white px-3.5 py-3">
+          <span className="text-[13px] text-teal">⌾</span>
+          <p className="text-[12px] leading-snug text-ink-soft">
             Passport and visa fields are encrypted, and every internal access is logged.
           </p>
         </div>

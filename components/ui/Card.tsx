@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils'
  * Exported props and tone behavior remain unchanged. The redesign uses the
  * shared surface, line, radius, and shadow tokens from DESIGN_SYSTEM.md §8.
  */
-const cardVariants = cva('rounded-bp-lg border font-redesign-sans', {
+const cardVariants = cva('rounded-card border font-redesign-sans', {
   variants: {
     tone: {
-      light: 'border-edge bg-white shadow-redesign-sm',
-      dark: 'border-edge bg-white shadow-redesign-md',
+      light: 'border-line bg-white shadow-redesign-sm',
+      dark: 'border-line bg-white shadow-redesign-md',
       'dark-interactive':
-        'border-edge bg-white shadow-redesign-md transition-all duration-300 hover:-translate-y-1 hover:border-signal hover:shadow-redesign-lg motion-reduce:transform-none motion-reduce:transition-none',
+        'border-line bg-white shadow-redesign-md transition-all duration-300 hover:-translate-y-1 hover:border-teal hover:shadow-redesign-lg motion-reduce:transform-none motion-reduce:transition-none',
     },
   },
   defaultVariants: {

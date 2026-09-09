@@ -32,7 +32,7 @@ export function AppShell({
   hideNav?: boolean
 }) {
   return (
-    <div className="flex min-h-screen bg-paper">
+    <div className="flex min-h-screen bg-canvas">
       {hideNav ? null : (
         <div className="dark-scope contents">
           <Sidebar />

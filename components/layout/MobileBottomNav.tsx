@@ -29,7 +29,7 @@ export function MobileBottomNav() {
       // White bar, hairline top, signal for the current tab: the same colour
       // that marks the primary action everywhere else.
       // Contrast checked: signal 5.18:1 and slate 5.51:1 on white.
-      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-edge bg-white/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-line bg-white/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
     >
       {MOBILE_PRIMARY_ITEMS.map((item) => {
         const Icon = item.icon
@@ -40,12 +40,12 @@ export function MobileBottomNav() {
             href={navHref(item)}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-bp px-1 text-center text-[12px] leading-tight font-redesign-sans transition-colors',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal',
-              active ? 'font-semibold text-signal' : 'font-medium text-slate'
+              'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-ctl px-1 text-center text-[12px] leading-tight font-redesign-sans transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+              active ? 'font-semibold text-teal' : 'font-medium text-ink-muted'
             )}
           >
-            <Icon className={cn('size-5 shrink-0', active ? 'text-signal' : 'text-slate')} />
+            <Icon className={cn('size-5 shrink-0', active ? 'text-teal' : 'text-ink-muted')} />
             {item.shortLabel ?? item.label}
           </Link>
         )

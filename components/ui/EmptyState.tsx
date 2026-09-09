@@ -39,7 +39,7 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
     <div
       ref={ref}
       className={cn(
-        'flex flex-col items-center rounded-bp-lg border border-dashed border-edge-strong bg-white text-center font-redesign-sans',
+        'flex flex-col items-center rounded-card border border-dashed border-line-strong bg-white text-center font-redesign-sans',
         tone === 'page' ? 'gap-2 px-6 py-10' : 'gap-1.5 px-4 py-6',
         className,
       )}
@@ -50,11 +50,11 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
       <span
         aria-hidden="true"
         className={cn(
-          'rounded-bp bg-paper',
+          'rounded-ctl bg-canvas',
           tone === 'page' ? 'mb-1 size-9' : 'mb-0.5 size-7',
         )}
       />
-      <p className={cn('font-semibold text-graphite', tone === 'page' ? 'text-[15px]' : 'text-[13px]')}>
+      <p className={cn('font-semibold text-ink', tone === 'page' ? 'text-[15px]' : 'text-[13px]')}>
         {title}
       </p>
       {/* ink-700, not ink-400. Measured 2026-09-08: ink-400 (#6B7A8D) is
@@ -63,7 +63,7 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
           not be born failing the standard, so this one uses ink-700 (7.71:1).
           The token itself is a wider problem, recorded in 14_OPEN_ITEMS.md. */}
       {body ? (
-        <p className={cn('max-w-[34ch] text-graphite-soft', tone === 'page' ? 'text-[13px]' : 'text-[12px]')}>
+        <p className={cn('max-w-[34ch] text-ink-soft', tone === 'page' ? 'text-[13px]' : 'text-[12px]')}>
           {body}
         </p>
       ) : null}
