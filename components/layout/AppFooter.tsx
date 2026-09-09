@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { getPublishedValue, listPublishedLegal } from '@/lib/admin/siteContent'
+import { NotLiveText } from '@/components/ui/NotLive'
 
 /**
  * AppFooter — on every signed-in page.
@@ -47,9 +48,11 @@ export async function AppFooter() {
   // Both read from site_content (migration 046) — founder-editable, no deploy.
   const [legalPages, aboutLine] = await Promise.all([
     listPublishedLegal(),
+    // The fallback matches what is in the row, so a database hiccup degrades to
+    // the same sentence rather than to a different, older claim about the team.
     getPublishedValue(
       'footer_about',
-      'A Gulf career platform built by a 15-year Gulf E&I Superintendent.',
+      'Built by engineers, not recruiters. Our founder has spent 15 years on EPC and PMC projects for client companies across the Middle East, and the rest of the team comes from the same work.',
     ),
   ])
 
@@ -72,8 +75,21 @@ export async function AppFooter() {
               GCC MENTOR
             </span>
           </Link>
-          <p className="max-w-[38ch] text-[13px] leading-relaxed text-ink-soft">{aboutLine}</p>
-          <p className="max-w-[38ch] text-[13px] leading-relaxed text-ink-muted">
+          <p className="max-w-[40ch] text-[13px] leading-relaxed text-ink-soft">{aboutLine}</p>
+          {/* WHY THIS SENTENCE IS HERE AND NOT ONLY IN THE ABOUT LINE. The
+              founder's point (2026-09-09): in the Gulf, knowing how the market
+              actually works is most of the outcome. It is written as OUR
+              JUDGEMENT — "we put it at" — not as a researched figure, because
+              this product's whole promise is that it does not state things it
+              cannot stand behind. A footer is not the place to invent a
+              statistic. */}
+          <p className="max-w-[40ch] text-[13px] leading-relaxed text-ink-soft">
+            In the Gulf, information decides most of it — what a client expects, how a
+            package is built, what a visa status signals. We put that at around{' '}
+            <strong className="font-semibold text-ink">75% of the outcome</strong>, which
+            is why this exists.
+          </p>
+          <p className="max-w-[40ch] text-[13px] leading-relaxed text-ink-muted">
             Every generated line is checked against your own profile before you see it.
             Nothing is invented.
           </p>
@@ -103,7 +119,7 @@ export async function AppFooter() {
           {/* Named as not built, because saying so is the product's whole
               posture. A "coming soon" that never comes is what the scams do. */}
           <p className="mt-1 text-[12px] leading-relaxed text-ink-muted">
-            Interview Q&amp;A and Mock Interview are <strong className="font-semibold">not built yet</strong>.
+            Interview Q&amp;A and Mock Interview are <NotLiveText>not built yet</NotLiveText>.
             They are labelled everywhere they appear.
           </p>
         </nav>
@@ -113,11 +129,21 @@ export async function AppFooter() {
           <h2 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
             Gulf markets
           </h2>
-          <p className="text-[13px] leading-relaxed text-ink-soft">
-            {GULF_COUNTRIES.filter((c) => c.value !== 'generic_gulf')
-              .map((c) => c.label)
-              .join(' · ')}
-          </p>
+          {/* Flag then name, as a list rather than a run-on sentence — six
+              countries separated by dots read as one long string, and the flag
+              is what makes the row scannable. `aria-hidden` on the glyph: a
+              screen reader announcing "flag of Saudi Arabia, Saudi Arabia" is
+              worse than the name alone. */}
+          <ul className="flex flex-col gap-1">
+            {GULF_COUNTRIES.filter((c) => c.value !== 'generic_gulf').map((c) => (
+              <li key={c.value} className="flex items-center gap-2 text-[13px] text-ink-soft">
+                <span aria-hidden="true" className="text-[15px] leading-none">
+                  {c.flag}
+                </span>
+                {c.label}
+              </li>
+            ))}
+          </ul>
 
           <h2 className="mt-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
             Contact
@@ -128,9 +154,6 @@ export async function AppFooter() {
           >
             jaissatish@gmail.com
           </a>
-          <p className="text-[12px] leading-relaxed text-ink-muted">
-            A real person replies, usually within a day.
-          </p>
         </div>
       </div>
 
@@ -155,7 +178,8 @@ export async function AppFooter() {
               this is better served by knowing there is no card checkout than by
               discovering it at the moment they try to pay. */}
           <p className="text-[12px] leading-relaxed text-ink-muted">
-            Card checkout is not live yet — a purchase is arranged directly with us.
+            <NotLiveText>Card checkout is not live yet</NotLiveText> — a purchase is
+            arranged directly with us.
           </p>
         </div>
       </div>

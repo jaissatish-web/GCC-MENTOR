@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
+import { NotLive, NotLiveText } from '@/components/ui/NotLive'
 import { Card } from '@/components/ui/Card'
 import { SiteNav } from '@/components/marketing/SiteNav'
 import {
@@ -528,9 +529,9 @@ export default function Home() {
                   available from Saudi Arabia), so every purchase is arranged
                   directly today. Corrected 2026-08-19. */}
               <p className="mt-3 text-sm leading-relaxed text-ink-400">
-                Card checkout is not live yet — we are finishing our payment provider setup. Start
-                free today; when you are ready to buy, we arrange it with you directly and unlock it
-                on your account.
+                <NotLiveText>Card checkout is not live yet</NotLiveText> — we are finishing our
+                payment provider setup. Start free today; when you are ready to buy, we arrange it
+                with you directly and unlock it on your account.
               </p>
             </div>
             <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -539,7 +540,7 @@ export default function Home() {
                   {p.featured ? (
                     <span className="w-fit rounded-full bg-navy-tint px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-navy">Most popular</span>
                   ) : !p.live ? (
-                    <span className="w-fit rounded-full bg-redesign-gold-tint px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-gold-text">Self-serve checkout coming soon</span>
+                    <NotLive className="w-fit">Checkout not live</NotLive>
                   ) : null}
                   <div>
                     <h3 className="font-serif text-xl text-ink-900">{p.name}</h3>
@@ -572,10 +573,13 @@ export default function Home() {
                     </Link>
                   ) : (
                     <span
-                      className={cn(buttonVariants({ variant: 'secondary' }), 'mt-auto cursor-not-allowed opacity-60')}
+                      className={cn(
+                        buttonVariants({ variant: 'secondary' }),
+                        'mt-auto cursor-not-allowed border-alert/40 bg-alert-soft/40 text-alert',
+                      )}
                       aria-disabled="true"
                     >
-                      Coming soon
+                      Not live yet
                     </span>
                   )}
                 </Card>

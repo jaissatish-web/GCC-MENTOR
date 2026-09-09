@@ -229,7 +229,8 @@ export function ServicesMenu() {
                   {/* Roadmap, and deliberately not links — see the note at the top
                       of this file. `PlannedNavItem` carries no href by design. */}
                   <div className="flex flex-col gap-2">
-                    <span className="px-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+                    {/* Red, so the roadmap is countable at a glance before launch. */}
+                    <span className="px-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-alert">
                       Not built yet
                     </span>
                     {PLANNED_NAV_ITEMS.map((item) => {
@@ -238,16 +239,16 @@ export function ServicesMenu() {
                         <div
                           key={item.label}
                           aria-disabled="true"
-                          className="flex min-h-[52px] items-center gap-3 rounded-ctl border border-dashed border-line-strong px-3.5 py-3"
+                          className="flex min-h-[52px] items-center gap-3 rounded-ctl border border-dashed border-alert/40 bg-alert-soft/30 px-3.5 py-3"
                         >
                           <span
                             aria-hidden="true"
-                            className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-line/50 text-ink-muted"
+                            className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-alert-soft text-alert"
                           >
                             <Icon className="size-[18px]" />
                           </span>
                           <span className="text-[14px] font-semibold text-ink-muted">{item.label}</span>
-                          <span className="ml-auto rounded-full bg-gold-soft px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-gold-ink">
+                          <span className="ml-auto rounded-full border border-alert/35 bg-alert-soft px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-alert">
                             Soon
                           </span>
                         </div>

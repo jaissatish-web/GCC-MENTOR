@@ -12,6 +12,57 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-09 — Red marks everything unbuilt, and the team is named
+
+Four founder requests, and two of them are worth recording rather than just doing.
+
+### Red for "not built yet"
+
+Every unbuilt thing in the product now carries the same red marker
+(`components/ui/NotLive.tsx`). Before this the idea was written eleven different ways —
+a grey "Planned" badge, a dimmed sidebar heading, a gold "Soon" pill, plain sentences in
+the footer and on Settings — so nothing could be counted. The point is a pre-launch pass
+done by SCANNING the product rather than by remembering.
+
+**The trade-off, accepted knowingly.** Red normally means "something went wrong", so used
+for "not built yet" some users will read a fault rather than a roadmap. The wording beside
+every marker therefore has to say which it is, and the badge carries a dot and a label
+rather than colour alone — colour by itself is not a signal for a colour-blind reader.
+This is one token away from being softened if it starts costing more than it buys.
+
+**What it must never become:** a link, or a marker on something that looks usable. That
+rule is unchanged and is the reason `PlannedNavItem` still has no href field.
+
+### The 75% figure is OURS, and is written as ours
+
+The founder asked to say that information carries 75% of the weight of success in the Gulf
+market. It is in the footer as **"We put that at around 75% of the outcome"** — a stated
+judgement, not a researched statistic, and deliberately not dressed as one.
+
+This product's entire promise is that it does not state things it cannot stand behind
+(`02_PHILOSOPHY.md` §1). A footer that invents a precise-sounding market statistic to sound
+authoritative is the same behaviour the grounding rule exists to prevent, one level up from
+the CV. Attribution costs three words and keeps the claim honest. **If a real source is
+found later, cite it and drop the hedge** — that would be strictly better.
+
+### The team, named
+
+The about line moved from "built by a 15-year Gulf E&I Superintendent" to the founder's
+EPC/PMC client-company experience and the fact that the team comes from the same work. It
+lives in `site_content.footer_about` (migration 046), so it was changed in the ROW as well
+as in the code fallback — the fallback now matches the row, so a database hiccup degrades
+to the same sentence rather than to an older, different claim about who built this.
+
+### Country flags
+
+`GULF_COUNTRIES` gained a `flag`. They are the Unicode emoji, not hand-drawn SVGs, because
+drawing them would mean approximating the Saudi flag, which carries the shahada. **Android
+and iOS render real flags; Windows desktop has no flag glyphs and falls back to the
+two-letter code.** That fallback still names the right country, which is what makes the
+emoji safe here — and the users are on phones.
+
+---
+
 ## 2026-09-09 — The app shell is built in a layout, never in a page
 
 **A regression I introduced the previous day, and the rule that prevents it.**

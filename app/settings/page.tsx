@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { listServiceCreditsForUser } from '@/lib/admin/servicePackages'
 import { DeleteDataSection } from '@/components/settings/DeleteDataSection'
 import { AppShell } from '@/components/layout/AppShell'
+import { NotLiveText } from '@/components/ui/NotLive'
 import { PageHeader, PageContainer, SectionCard } from '@/components/layout/PageHeader'
 import { cn } from '@/lib/utils'
 
@@ -287,8 +288,8 @@ export default async function SettingsPage({
                 <EmptyState>You have not unlocked any paid resumes yet.</EmptyState>
               )}
 
-              <p className="mt-5 rounded-ctl border border-line bg-canvas px-4 py-3 text-[12px] leading-relaxed text-ink-muted">
-                Card payment is not switched on yet, so there is nothing to show here. Access is granted directly or by redeeming a code.
+              <p className="mt-5 rounded-ctl border border-alert/30 bg-alert-soft/40 px-4 py-3 text-[12px] leading-relaxed text-ink-soft">
+                <NotLiveText>Card payment is not switched on yet</NotLiveText>, so there is nothing to show here. Access is granted directly or by redeeming a code.
               </p>
             </SectionCard>
           )}

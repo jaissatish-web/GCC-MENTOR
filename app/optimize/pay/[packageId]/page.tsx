@@ -5,6 +5,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Alert } from '@/components/ui/Alert'
 import type { Package } from '@/types/package'
+import { NotLive } from '@/components/ui/NotLive'
 
 /**
  * Payment — screen 09 (TASK-051), route /optimize/pay/[packageId].
@@ -172,10 +173,13 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
         </div>
 
         {/* Razorpay — honestly disabled, not a dead link */}
-        <div className="flex flex-col gap-2 rounded-card border border-dashed border-line-strong bg-canvas p-4.5 opacity-70">
-          <span className="text-[12px] font-bold text-ink">Card · UPI · Netbanking · Wallet</span>
-          <p className="text-[12px] text-ink-muted">
-            Coming soon. We never see or store your card details.
+        <div className="flex flex-col gap-2 rounded-card border border-dashed border-alert/40 bg-alert-soft/30 p-4.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[12px] font-bold text-ink">Card · UPI · Netbanking · Wallet</span>
+            <NotLive>Not live</NotLive>
+          </div>
+          <p className="text-[12px] text-ink-soft">
+            Not switched on yet. We never see or store your card details.
           </p>
         </div>
 

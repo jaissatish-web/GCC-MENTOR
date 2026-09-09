@@ -11,14 +11,31 @@ export function cn(...inputs: ClassValue[]) {
  * fallback — and drives generic Gulf CV format conventions.
  * See docs/CAREER_PROFILE.md §2.
  */
+/**
+ * `flag` is the country's standard Unicode flag — its own glyph, not a drawing
+ * of one.
+ *
+ * DELIBERATELY NOT AN SVG. Hand-drawing these would mean approximating the
+ * Saudi flag, which carries the shahada, and a rough approximation of that is
+ * not something to ship.
+ *
+ * WHAT IT LOOKS LIKE WHERE. Android and iOS — which is where these users are —
+ * render real flags. Windows desktop has no flag glyphs in its emoji font and
+ * falls back to the two-letter code ("SA", "AE"). That is a Windows font
+ * limitation rather than a defect, and the fallback still names the right
+ * country, which is what makes this safe to use.
+ *
+ * `generic_gulf` has none on purpose: it is the value stored when nobody picked
+ * a country, so there is no flag that would be true.
+ */
 export const GULF_COUNTRIES = [
-  { value: 'saudi_arabia', label: 'Saudi Arabia' },
-  { value: 'uae',          label: 'UAE' },
-  { value: 'qatar',        label: 'Qatar' },
-  { value: 'oman',         label: 'Oman' },
-  { value: 'kuwait',       label: 'Kuwait' },
-  { value: 'bahrain',      label: 'Bahrain' },
-  { value: 'generic_gulf', label: 'Generic Gulf' },
+  { value: 'saudi_arabia', label: 'Saudi Arabia', flag: '🇸🇦' },
+  { value: 'uae',          label: 'UAE',          flag: '🇦🇪' },
+  { value: 'qatar',        label: 'Qatar',        flag: '🇶🇦' },
+  { value: 'oman',         label: 'Oman',         flag: '🇴🇲' },
+  { value: 'kuwait',       label: 'Kuwait',       flag: '🇰🇼' },
+  { value: 'bahrain',      label: 'Bahrain',      flag: '🇧🇭' },
+  { value: 'generic_gulf', label: 'Generic Gulf', flag: '' },
 ] as const
 
 export type GulfCountry = (typeof GULF_COUNTRIES)[number]['value']

@@ -38,7 +38,9 @@ export function LockedTile({ title, description, note, tone = 'light', className
     <div
       className={cn(
         'flex cursor-default flex-col gap-2 rounded-card border-2 border-dashed p-4 font-redesign-sans',
-        isDark ? 'border-line-strong bg-surface-2-dark' : 'border-line-strong bg-canvas',
+        // Red dashed, 2026-09-09: this tile IS the "not built yet" marker on
+        // the dashboard, so it carries the same colour as every other one.
+        isDark ? 'border-alert/40 bg-surface-2-dark' : 'border-alert/40 bg-alert-soft/30',
         className
       )}
       onClick={() => setShowNote((prev) => !prev)}
@@ -56,11 +58,12 @@ export function LockedTile({ title, description, note, tone = 'light', className
       <div className="flex items-center gap-2">
         <span
           className={cn(
-            'inline-flex items-center rounded-full border px-[9px] py-[3px] text-[12px] font-semibold leading-none tracking-wider uppercase font-redesign-sans',
-            isDark ? 'border-line text-ink-muted' : 'border-line text-ink-muted'
+            'inline-flex items-center gap-1.5 rounded-full border px-[9px] py-[3px] text-[11px] font-bold leading-none tracking-wider uppercase font-redesign-sans',
+            'border-alert/35 bg-alert-soft text-alert'
           )}
         >
-          Planned
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-alert" />
+          Not built yet
         </span>
       </div>
 

@@ -37,8 +37,10 @@ import {
 function PlannedGroup() {
   return (
     <div className="mt-6 flex flex-col gap-1">
-      <div className="px-3 pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted/70">
-        Coming soon
+      {/* Red, at the founder's request (2026-09-09), so every unbuilt thing in
+          the product can be found by scanning rather than remembering. */}
+      <div className="px-3 pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-alert">
+        Not built yet
       </div>
       {PLANNED_NAV_ITEMS.map((item) => {
         const Icon = item.icon
@@ -46,11 +48,11 @@ function PlannedGroup() {
           <div
             key={item.label}
             aria-disabled="true"
-            className="flex min-h-11 cursor-default items-center gap-3 rounded-xl px-3 text-[14px] font-medium text-ink-muted/55"
+            className="flex min-h-11 cursor-default items-center gap-3 rounded-xl px-3 text-[14px] font-medium text-ink-muted"
           >
-            <Icon className="size-5 shrink-0 text-ink-muted/45" />
+            <Icon className="size-5 shrink-0 text-alert/70" />
             <span className="flex-1 truncate">{item.label}</span>
-            <span className="shrink-0 rounded-[5px] border border-line px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-muted/70">
+            <span className="shrink-0 rounded-full border border-alert/35 bg-alert-soft px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-alert">
               Soon
             </span>
           </div>
