@@ -417,24 +417,30 @@ export default function TargetJobsPage() {
           const atsPresent = pkg.ats_score_card != null
           return (
             <div key={pkg.id} className="border border-edge bg-white p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  {/* The row's identity is the job. Editable in place, with the
-                      target job title as both fallback and placeholder, so an
-                      unnamed job looks exactly as it always did. */}
-                  <NameField
-                    value={pkg.name ?? ''}
-                    fallback={pkg.target_job_title}
-                    onSave={(next) => renamePackage(pkg.id, next)}
-                  />
-                  <div className="px-1.5">
-                    <JobSubtitle pkg={pkg} />
-                  </div>
+              {/* THE TITLE GETS THE FULL WIDTH ON A PHONE.
+                  The stage control was a sibling of the title, and a native
+                  <select> sizes itself to its LONGEST option — "Visa
+                  processing" — so it claimed about 140px of a 375px screen
+                  whatever stage the job was actually at. That truncated the
+                  role to "Senior Piping E…": the row's own identity cut short
+                  to make room for a control. It drops to the row below, beside
+                  the chips, which is dead space anyway. */}
+              <div className="flex min-w-0 flex-col gap-1">
+                {/* The row's identity is the job. Editable in place, with the
+                    target job title as the fallback, so an unnamed job reads
+                    exactly as it always did. */}
+                <NameField
+                  value={pkg.name ?? ''}
+                  fallback={pkg.target_job_title}
+                  onSave={(next) => renamePackage(pkg.id, next)}
+                />
+                <div className="px-1.5">
+                  <JobSubtitle pkg={pkg} />
                 </div>
-                <StageSelect value={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-1.5">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <StageSelect value={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
                 <ArtifactChip label="CV ✓" present />
                 <ArtifactChip label={atsPresent ? 'ATS ✓' : 'ATS —'} present={atsPresent} />
                 <ArtifactChip label={letterPresent ? 'Letter ✓' : 'Letter —'} present={letterPresent} />
