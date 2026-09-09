@@ -250,6 +250,25 @@ one needs expiry, renewal and reset, which is a schema change, not a config chan
 
 The two bundle tiers on the landing page remain real prices with no purchase path.
 
+### A4 · Legal content — **now a visible gap, 2026-09-09**
+
+**There are no privacy, terms or refund routes at all.** Not placeholder pages — no
+pages. Building the app footer made this concrete: a footer is exactly where a user
+looks for them, and it cannot link to something that does not exist.
+
+**Why this is more urgent than it was.** `01_PRODUCT.md` §3 says this market is
+"trust-starved more than feature-starved", with documented scam behaviour targeting this
+audience. A career product that collects passport details, visa status and a full work
+history, with no privacy policy, is asking for exactly the trust it has not earned. It is
+also a compliance question under India's DPDP Act and GDPR for any EU-resident user.
+
+**The footer says nothing rather than lying**, which is the only honest option available
+to a component. Inventing legal text would be precisely the kind of claim this product
+exists not to make.
+
+**Needs the founder:** the actual content, or a decision to buy it. Three pages —
+privacy, terms, refund — and the routes take an hour once the words exist.
+
 ### A4 · Legal content
 
 Privacy policy, terms and refund policy are clearly-marked placeholders.

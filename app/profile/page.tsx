@@ -1520,7 +1520,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_status')}
           title="Status & target"
-          helper="Where you are now and the role you are aiming for. This steers how every generated resume is framed, so it is worth getting right first."
+          helper="Steers how every resume you generate is framed."
         >
           <ConfirmToggle
             id="f_currently_in_gulf"
@@ -1600,7 +1600,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_identity')}
           title="Identity & contact"
-          helper="Your name, contact details and documents. Passport, visa and contact fields are encrypted, and you control what appears on a generated CV."
+          helper="Passport, visa and contact details are encrypted. You choose what appears on your CV."
           action={
             <Link
               href="/profile/visibility"
@@ -1616,7 +1616,7 @@ function ProfileScreen() {
               label="Full name"
               required
               placeholder="e.g. Satish Kumar Jaiswal"
-              helper="Exactly as it appears on your passport — Gulf employers check this against your documents."
+              helper="Exactly as it appears on your passport — employers check it against your documents."
               value={editor.full_name}
               onChange={(e) => setField({ full_name: e.target.value })}
               error={invalidFields.has('full_name') ? 'Full name is required.' : undefined}
@@ -1651,7 +1651,7 @@ function ProfileScreen() {
               autoComplete="email"
               placeholder="you@example.com"
               error={invalidFields.has('email') ? 'Email is required.' : undefined}
-              helper="Where recruiters will reply. Use one you check daily."
+              helper="Use one you check daily."
               value={editor.email}
               onChange={(e) => setField({ email: e.target.value })}
             />
@@ -1736,7 +1736,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_license')}
           title="Driving license"
-          helper="Not scored, but Gulf employers ask for it outright on site and field roles — and its absence is often what filters a CV out. Skip it only if you genuinely do not hold one."
+          helper="Site and field roles ask for this outright. Leaving it blank filters CVs out."
         >
           <div className="flex flex-col gap-1.5">
             <label htmlFor="f_has_driving_license" className="text-sm font-medium text-graphite">
@@ -1786,7 +1786,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_summary')}
           title="Professional summary"
-          helper="Not scored, but it is the first thing a recruiter reads. Describe your experience, strongest skills, industry background and the role you are targeting — two or three sentences. The optimizer rewrites the framing for each job; it never changes the facts."
+          helper="The first thing a recruiter reads. Two or three sentences — the optimizer reframes it per job, never changing your facts."
         >
           <textarea
             id="f_professional_summary"
@@ -1806,7 +1806,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_work_experience')}
           title="Work experience"
-          helper="Add your most recent role first. Focus on responsibilities, measurable achievements, and the systems or standards you worked to."
+          helper="Most recent first. Responsibilities, measurable results, and the standards you worked to."
           badge={editor.work_experience.length ? `${editor.work_experience.length} found` : undefined}
           action={
               <button
@@ -1914,7 +1914,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_education')}
           title="Education"
-          helper="Degrees and formal qualifications. Include the awarding institution — Gulf employers frequently verify it."
+          helper="Include the awarding institution — employers often verify it."
           badge={editor.education.length ? `${editor.education.length} found` : undefined}
           action={
               <button
@@ -1958,7 +1958,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_skills')}
           title="Skills"
-          helper="List the technical skills and systems you actually worked with. The optimizer reorders these for each job; it never adds a skill you did not enter."
+          helper="Only what you actually worked with. The optimizer reorders these per job, never adds to them."
           badge={editor.skills.length ? `${editor.skills.length} found` : undefined}
           action={
               <button
@@ -1999,7 +1999,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_certifications')}
           title="Certifications"
-          helper="Safety, technical and vendor certifications. These carry real weight in Gulf hiring, so add expiry dates where they apply."
+          helper="Safety, technical and vendor certifications. Add expiry dates where they apply."
           badge={editor.certifications.length ? `${editor.certifications.length} found` : undefined}
           action={
               <button
@@ -2043,7 +2043,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_additional')}
           title="Additional information"
-          helper="Not scored, but it is where you answer the questions a Gulf recruiter asks next — languages, availability, references."
+          helper="Languages, availability, references — what a recruiter asks next."
           action={
               <button
                 type="button"

@@ -1,5 +1,7 @@
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
+import { AppHeader } from '@/components/layout/AppHeader'
+import { AppFooter } from '@/components/layout/AppFooter'
 /**
  * The authenticated app frame.
  *
@@ -45,9 +47,16 @@ export function AppShell({
         had to pan around to reach controls. One property, and it is the single
         biggest mobile defect in the app.
       */}
-      <main className={hideNav ? 'min-h-screen min-w-0 flex-1' : 'min-h-screen min-w-0 flex-1 pb-24 lg:pb-0'}>
-        {children}
-      </main>
+      {/* The header and footer are part of the SHELL, not of each page.
+          They were missing entirely: below 1024px there was no logo, no way
+          home from the top and no brand anywhere, and no signed-in page had a
+          footer at all. Putting them here means a new screen cannot forget
+          them — the same reason the nav lives here. */}
+      <div className={hideNav ? 'flex min-h-screen min-w-0 flex-1 flex-col' : 'flex min-h-screen min-w-0 flex-1 flex-col pb-24 lg:pb-0'}>
+        {hideNav ? null : <AppHeader />}
+        <main className="min-w-0 flex-1">{children}</main>
+        {hideNav ? null : <AppFooter />}
+      </div>
       {hideNav ? null : (
         <div className="dark-scope contents">
           <MobileBottomNav />
