@@ -7,7 +7,7 @@
 -- waiting on a deploy to correct a privacy policy is the wrong shape entirely.
 --
 -- WHY IT MATTERS MORE THAN MOST CONTENT. There are no privacy, terms or refund
--- pages in this product at all, while it collects passport numbers, visa status
+-- pages in this product at all, while it collects passport type and expiry, visa status
 -- and full work histories (14_OPEN_ITEMS.md §A4). That is a trust problem in a
 -- market 01_PRODUCT.md §3 describes as actively targeted by scams, and a DPDP /
 -- GDPR question besides. This table is what lets the founder close it in an

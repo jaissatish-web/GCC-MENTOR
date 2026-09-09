@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
  * Site content — where the founder writes the footer and the legal pages.
  *
  * WHY THIS SCREEN EXISTS. There are no privacy, terms or refund pages in this
- * product, while it collects passport numbers, visa status and full work
+ * product, while it collects passport type and expiry, visa status and full work
  * histories. That is a trust problem in a market `01_PRODUCT.md` §3 describes
  * as actively targeted by scams, and a DPDP / GDPR question besides — and it
  * was blocked on a developer, which is the wrong shape for text. Prices and

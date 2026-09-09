@@ -267,10 +267,16 @@ empty and unpublished.
 404s, and the footer links only what is published — so a half-finished privacy policy
 can never be reachable, and the footer can never advertise a page that says nothing.
 
-**Still the highest-value open item.** The product collects passport numbers, visa status
-and full work histories. No privacy policy is a trust problem in a market
-`01_PRODUCT.md` §3 describes as actively targeted by scams, and a DPDP / GDPR question
-besides. **The remaining work is the founder writing three pages, and a lawyer reading
+**Still the highest-value open item.** The product collects date of birth, nationality,
+passport TYPE and expiry date, visa status and transferability, phone, WhatsApp, email,
+photo and full work histories. (**Corrected 2026-09-09:** this said "passport numbers",
+which is wrong and was repeated into two code comments before anyone checked. Migration
+010 stores `passport_type` — an ECR / Non-ECR enum — and `passport_validity_date`. There
+is no passport number column and there never may be; see
+[`05_SECURITY.md`](05_SECURITY.md) §7. The exposure is real without being that.)
+
+No privacy policy is a trust problem in a market `01_PRODUCT.md` §3 describes as actively
+targeted by scams, and a DPDP / GDPR question besides. **The remaining work is the founder writing three pages, and a lawyer reading
 them.**
 
 ### A5 · Login method
