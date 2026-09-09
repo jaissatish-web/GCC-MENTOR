@@ -25,7 +25,25 @@ import { createClient } from '@supabase/supabase-js'
  * client is for any server-only privileged read/write RLS cannot express for
  * a legitimate reason — not just the pii_access_log write.
  */
-export function createServiceRoleClient() {
+/**
+ * `{ fresh: true }` — READ PAST NEXT'S FETCH CACHE.
+ *
+ * Next patches global `fetch` and caches by default, and supabase-js calls
+ * `fetch`. So a query whose answer was "no row" is remembered and replayed,
+ * even on a `force-dynamic` route.
+ *
+ * Found 2026-09-09 building the founder-editable legal pages: publishing a
+ * page wrote the row correctly and the public URL went on returning 404. The
+ * same query run outside Next found the row at the same moment — proof it was
+ * the cache and not the query. The founder would have published a privacy
+ * policy and watched nothing happen.
+ *
+ * OPT-IN, not the default. Most service-role reads in this app are already
+ * inside dynamic request handlers where the cache is not in play, and flipping
+ * every one of them to `no-store` would be a wide behaviour change made to fix
+ * one symptom. Pass it where a read must reflect a write that just happened.
+ */
+export function createServiceRoleClient(opts?: { fresh?: boolean }) {
   if (typeof window !== 'undefined') {
     throw new Error(
       'createServiceRoleClient must never be called in a browser context',
@@ -34,6 +52,11 @@ export function createServiceRoleClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } },
+    {
+      auth: { autoRefreshToken: false, persistSession: false },
+      ...(opts?.fresh
+        ? { global: { fetch: (input: RequestInfo | URL, init?: RequestInit) => fetch(input, { ...init, cache: 'no-store' }) } }
+        : {}),
+    },
   )
 }

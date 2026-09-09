@@ -10,6 +10,7 @@ import { setPromptTemplate } from '@/lib/ai/promptTemplates'
 import { createDraft, publishVersion, revertToBuiltIn, isPromptKey } from '@/lib/ai/prompts'
 import { createServicePackage, setServicePackageActive } from '@/lib/admin/servicePackages'
 import { setEntitlement } from '@/lib/entitlements'
+import { saveSiteContent } from '@/lib/admin/siteContent'
 
 export async function overrideRateLimitAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin(); const userId = String(formData.get('userId') ?? '').trim(); const action = String(formData.get('action') ?? '').trim(); const rawOverride = String(formData.get('override') ?? '').trim(); const reason = String(formData.get('reason') ?? '').trim(); const q = String(formData.get('q') ?? ''); const override = rawOverride === '' ? null : Number.parseInt(rawOverride, 10)
@@ -147,4 +148,28 @@ export async function updateEntitlementAction(formData: FormData): Promise<void>
     freeTemplates: feature === 'templates' ? freeTemplates : null,
   })
   redirect('/admin/plan')
+}
+
+/**
+ * Save one page of founder-written site content (migration 046).
+ *
+ * requireAdmin() FIRST, before a single field is read. A server action is its
+ * own POST endpoint and the page's render-time check is a convenience for the
+ * UI, not a gate — the standing rule for every action in this file.
+ */
+export async function saveSiteContentAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  const slug = String(formData.get('slug') ?? '').trim()
+  if (!slug) redirect('/admin/content')
+
+  const result = await saveSiteContent({
+    slug,
+    title: String(formData.get('title') ?? '').trim(),
+    // NOT trimmed: paragraph breaks are the only formatting this text has.
+    body: String(formData.get('body') ?? ''),
+    published: String(formData.get('published') ?? '') === 'on',
+    adminId: admin.id,
+  })
+  if (!result.ok) redirect(`/admin/content?error=${encodeURIComponent(result.error)}`)
+  redirect('/admin/content?saved=1')
 }

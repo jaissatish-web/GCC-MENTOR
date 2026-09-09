@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { GULF_COUNTRIES } from '@/lib/utils'
+import { getPublishedValue, listPublishedLegal } from '@/lib/admin/siteContent'
 
 /**
  * AppFooter — on every signed-in page.
@@ -21,12 +22,15 @@ import { GULF_COUNTRIES } from '@/lib/utils'
  * summary; it does not replace them. If the only place a user meets the
  * grounding promise is down here, the product has already failed.
  *
- * NO LEGAL LINKS, and that is a gap rather than a decision. There are no
- * privacy, terms or refund routes in this app — not placeholder pages, no
- * pages at all. Linking to a page that does not exist is worse than not
- * linking, and inventing legal text would be exactly the kind of claim this
- * product exists not to make. Recorded in `14_OPEN_ITEMS.md` §A4 and called
- * out below in the one honest way available: by saying so.
+ * LEGAL LINKS APPEAR ONLY ONCE WRITTEN. Migration 046 put the privacy, terms
+ * and refund pages in a table the founder edits at `/admin/content`, and this
+ * asks that table what is published rather than hard-coding three links. Until
+ * a page is written AND published it does not exist here — a link to a blank
+ * legal page is worse than no link, because it reads as though the policy says
+ * nothing. Nothing about them is written on the founder's behalf.
+ *
+ * The about line comes from the same table, so the sentence under the logo can
+ * be changed without a developer or a deploy.
  */
 
 const LIVE_SERVICES = [
@@ -38,8 +42,16 @@ const LIVE_SERVICES = [
   { label: 'My Resumes', href: '/dashboard/library' },
 ]
 
-export function AppFooter() {
+export async function AppFooter() {
   const year = new Date().getFullYear()
+  // Both read from site_content (migration 046) — founder-editable, no deploy.
+  const [legalPages, aboutLine] = await Promise.all([
+    listPublishedLegal(),
+    getPublishedValue(
+      'footer_about',
+      'A Gulf career platform built by a 15-year Gulf E&I Superintendent.',
+    ),
+  ])
 
   return (
     <footer className="mt-10 border-t border-edge bg-white">
@@ -60,10 +72,7 @@ export function AppFooter() {
               GCC MENTOR
             </span>
           </Link>
-          <p className="max-w-[38ch] text-[13px] leading-relaxed text-graphite-soft">
-            A Gulf career platform built by a 15-year Gulf E&amp;I Superintendent — someone who
-            has actually hired and worked on these sites.
-          </p>
+          <p className="max-w-[38ch] text-[13px] leading-relaxed text-graphite-soft">{aboutLine}</p>
           <p className="max-w-[38ch] text-[13px] leading-relaxed text-slate">
             Every generated line is checked against your own profile before you see it.
             Nothing is invented.
@@ -128,7 +137,20 @@ export function AppFooter() {
       {/* ── the honest bottom line ── */}
       <div className="border-t border-edge">
         <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p className="text-[12px] text-slate">© {year} GCC MENTOR</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <p className="text-[12px] text-slate">© {year} GCC MENTOR</p>
+            {/* Only what is actually written. An empty list renders nothing —
+                the footer never advertises a policy that does not exist. */}
+            {legalPages.map((p) => (
+              <Link
+                key={p.slug}
+                href={`/${p.slug}`}
+                className="text-[12px] text-slate underline-offset-2 hover:text-signal-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+              >
+                {p.title}
+              </Link>
+            ))}
+          </div>
           {/* Said plainly rather than hidden. A user deciding whether to trust
               this is better served by knowing there is no card checkout than by
               discovering it at the moment they try to pay. */}

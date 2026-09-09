@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/admin/adminAuth'
 import { listPiiAccessLog } from '@/lib/admin/adminData'
 import { listProviderConfigs } from '@/lib/ai/providerConfig'
 import { listPromoCodes } from '@/lib/admin/promoCodes'
+import { listPublishedLegal } from '@/lib/admin/siteContent'
 import { getAllPromptTemplates } from '@/lib/ai/promptTemplates'
 import { listServicePackages } from '@/lib/admin/servicePackages'
 import { Card } from '@/components/ui/Card'
@@ -28,6 +29,10 @@ export default async function AdminDashboardPage() {
   const allProviderConfigs = await listProviderConfigs()
   const promptTemplates = await getAllPromptTemplates()
   const promoCodes = await listPromoCodes(50)
+  // How many legal pages are actually live. Surfaced on the dashboard because
+  // "none" is the current answer and it is a trust and compliance gap, not a
+  // cosmetic one — see 14_OPEN_ITEMS.md §A4.
+  const legalLive = (await listPublishedLegal()).length
   const servicePackages = await listServicePackages()
   const recentAccessLog = await listPiiAccessLog(50)
 
@@ -56,6 +61,14 @@ export default async function AdminDashboardPage() {
       title: 'Prompts',
       href: '/admin/prompts',
       summary: `${promptTemplates.length} ${plural(promptTemplates.length, 'template', 'templates')}`,
+    },
+    {
+      title: 'Site content',
+      href: '/admin/content',
+      summary: legalLive
+        ? `${legalLive} of 3 legal pages live`
+        : 'No legal pages written yet — privacy, terms and refund are all empty',
+      warn: legalLive < 3,
     },
     {
       title: 'Promo codes',

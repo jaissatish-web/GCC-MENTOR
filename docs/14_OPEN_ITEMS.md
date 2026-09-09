@@ -250,28 +250,28 @@ one needs expiry, renewal and reset, which is a schema change, not a config chan
 
 The two bundle tiers on the landing page remain real prices with no purchase path.
 
-### A4 · Legal content — **now a visible gap, 2026-09-09**
+### A4 · Legal content — **unblocked 2026-09-09, now waiting only on words**
 
-**There are no privacy, terms or refund routes at all.** Not placeholder pages — no
-pages. Building the app footer made this concrete: a footer is exactly where a user
-looks for them, and it cannot link to something that does not exist.
+There are still no privacy, terms or refund pages. What changed is that writing them no
+longer needs a developer.
 
-**Why this is more urgent than it was.** `01_PRODUCT.md` §3 says this market is
-"trust-starved more than feature-starved", with documented scam behaviour targeting this
-audience. A career product that collects passport details, visa status and a full work
-history, with no privacy policy, is asking for exactly the trust it has not earned. It is
-also a compliance question under India's DPDP Act and GDPR for any EU-resident user.
+**Migration 046 + `/admin/content`.** The three pages live in `site_content` and are
+written and published from the admin panel — same posture as prices and prompt templates
+(`03_ARCHITECTURE.md` §6). Public routes render them at `/privacy`, `/terms`, `/refund`.
 
-**The footer says nothing rather than lying**, which is the only honest option available
-to a component. Inventing legal text would be precisely the kind of claim this product
-exists not to make.
+**Nothing is written on the founder's behalf**, and that is deliberate: inventing legal
+terms is exactly the class of claim `02_PHILOSOPHY.md` forbids. The rows are seeded
+empty and unpublished.
 
-**Needs the founder:** the actual content, or a decision to buy it. Three pages —
-privacy, terms, refund — and the routes take an hour once the words exist.
+**A page is invisible until it is written AND published.** An unpublished or empty page
+404s, and the footer links only what is published — so a half-finished privacy policy
+can never be reachable, and the footer can never advertise a page that says nothing.
 
-### A4 · Legal content
-
-Privacy policy, terms and refund policy are clearly-marked placeholders.
+**Still the highest-value open item.** The product collects passport numbers, visa status
+and full work histories. No privacy policy is a trust problem in a market
+`01_PRODUCT.md` §3 describes as actively targeted by scams, and a DPDP / GDPR question
+besides. **The remaining work is the founder writing three pages, and a lawyer reading
+them.**
 
 ### A5 · Login method
 
