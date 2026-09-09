@@ -13,22 +13,28 @@ import Link from 'next/link'
  * of chrome still on the navy palette, which meant a visitor met one design in
  * the header and another in the page under it.
  *
- * THE ANCHORS HAD DRIFTED. "How It Works" pointed at `#how-it-works`, a section
- * id that no longer exists — the section is `#how`. A nav link that scrolls
- * nowhere is a small thing that reads as a broken site, which is expensive on
- * the one page whose job is to earn trust. Every href here is checked against
- * a real id in `app/page.tsx`.
- *
  * The CTA is the FREE scorecard, never signup: it needs no login, returns a
  * real result in one step, and is the designed top of the funnel.
  */
 
+/**
+ * THE ANCHORS HAVE DRIFTED TWICE, so they are now tested.
+ *
+ * First "How It Works" pointed at `#how-it-works` after the section became
+ * `#how`. Then the landing page was rebuilt from a feature list into the guided
+ * path, and four of five entries pointed at sections that no longer existed.
+ * Both times the build, the types and the lint all passed — a link to a missing
+ * fragment is valid HTML that silently does nothing.
+ *
+ * `scripts/verify-landing-anchors.ts` now checks every href here against the
+ * real ids in `app/page.tsx`. Run it after touching either file.
+ */
 const ITEMS = [
-  ['Services', '#services'],
-  ['How it works', '#how'],
-  ['Templates', '#templates'],
-  ['Gulf markets', '#markets'],
+  ['The path', '#path'],
+  ['Not built yet', '#roadmap'],
+  ['Who built it', '#about'],
   ['Pricing', '#pricing'],
+  ['Questions', '#faq'],
 ] as const
 
 export function SiteNav() {
