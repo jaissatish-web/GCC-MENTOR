@@ -22,7 +22,8 @@ import { resumeKind } from '@/lib/resumeKind'
 import { buttonVariants } from '@/components/ui/Button'
 import { AppShell } from '@/components/layout/AppShell'
 import type { CareerProfileFull } from '@/types/careerProfile'
-import type { OptimizedContent, Package } from '@/types/package'
+import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
+import { StageSelect } from '@/components/package/StageSelect'
 
 /**
  * Results & download — screen 10 (TASK-033), route /package/[id].
@@ -69,6 +70,7 @@ function PackageScreenInner({ id }: { id: string }) {
   const [styleMsg, setStyleMsg] = useState<string | null>(null)
   const [nameDraft, setNameDraft] = useState('')
   const [nameState, setNameState] = useState<string | null>(null)
+  const [stageState, setStageState] = useState<string | null>(null)
 
   /** Persist a template choice. Shared by the picker and the "trying" banner. */
   const applyTemplate = useCallback(
@@ -156,6 +158,39 @@ function PackageScreenInner({ id }: { id: string }) {
       setNameState('Network error.')
     }
   }, [id, nameDraft, pkg])
+
+  /**
+   * Move this job along its pipeline, from the job's own page.
+   *
+   * A `packages` row is an application, and its stage was changeable only from
+   * the list — so a user reading the CV they are about to send had to navigate
+   * away to record that they had sent it. Same endpoint the list uses
+   * (PUT /api/packages/[id]) and the same optimistic-then-reverted handling, so
+   * a failed write never leaves the two screens disagreeing.
+   */
+  const saveStage = useCallback(
+    async (next: PackageStatus) => {
+      if (!pkg || pkg.status === next) return
+      const prev = pkg.status
+      setPkg((p) => (p ? { ...p, status: next } : p))
+      setStageState(null)
+      try {
+        const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: next }),
+        })
+        if (!res.ok) {
+          setPkg((p) => (p ? { ...p, status: prev } : p))
+          setStageState('Could not update the stage.')
+        }
+      } catch {
+        setPkg((p) => (p ? { ...p, status: prev } : p))
+        setStageState('Network error.')
+      }
+    },
+    [id, pkg]
+  )
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -340,8 +375,14 @@ function PackageScreenInner({ id }: { id: string }) {
           {nameState ? <span className="shrink-0 text-signal">{nameState}</span> : null}
         </label>
 
-        {/* The document's actions, pushed to the right of the same row. */}
+        {/* The document's actions, pushed to the right of the same row.
+            The stage control joins them rather than getting a band of its own:
+            TASK-160 collapsed five stacked rows into this one specifically to
+            give the A4 sheet its vertical room back, and a new full-width
+            header would spend exactly what that bought. */}
         <div className="flex flex-wrap items-center gap-2 lg:ml-auto lg:justify-end">
+          <StageSelect value={pkg.status} onChange={(next) => void saveStage(next)} />
+          {stageState ? <span className="text-[12px] text-terra">{stageState}</span> : null}
           <a
             href={pdfUrl}
             onClick={() => setDownloaded(true)}

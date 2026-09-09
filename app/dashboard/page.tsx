@@ -12,6 +12,7 @@ import { LiveReadiness } from '@/components/gulfReadiness/LiveReadiness'
 import { buttonVariants } from '@/components/ui/Button'
 import { cn, GULF_COUNTRIES, resumeLabel } from '@/lib/utils'
 import { calculateReadiness } from '@/lib/readiness'
+import { computeNextAction } from '@/lib/nextAction'
 import { answersFromReadinessCategory } from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { Package } from '@/types/package'
@@ -59,8 +60,19 @@ const QUICK_ACTIONS: ReadonlyArray<{ label: string; href: string }> = [
   { label: 'Profile Strength', href: '/gcc-readiness' },
   { label: 'Optimize Resume', href: '/optimize/target' },
   { label: 'Generate Cover Letter', href: '/cover-letter' },
-  { label: 'View Library', href: '/dashboard/library' },
+  { label: 'Target Jobs', href: '/dashboard/library' },
 ]
+
+/**
+ * A country a user would recognise, or nothing.
+ *
+ * `generic_gulf` is what the form stores when nobody picked a country, so it
+ * returns null rather than printing "Generic Gulf" — our enum, not their job.
+ */
+function dashboardCountryLabel(value: string | null): string | null {
+  if (!value || value === 'generic_gulf') return null
+  return GULF_COUNTRIES.find((c) => c.value === value)?.label ?? null
+}
 
 function relativeTime(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime()
@@ -164,43 +176,14 @@ export default function DashboardPage() {
   const packageCount = packages.length
   const recentPackages = packages.slice(0, 3)
 
-  // Next Best Action — a simple three-tier rule over real state, not a
-  // recommendation engine (explicitly out of scope).
-  const nextAction =
-    // A brand-new user is told to CREATE A RESUME, not to "complete a Career
-    // Profile". They signed up to make a CV; "Career Profile" is our internal
-    // name for the data behind it, and leading with it points a first-time
-    // visitor at an empty form using a term they have never seen. The profile
-    // is what creating a resume produces, so that is the order we ask for it in.
-    !profile
-      ? {
-          title: 'Create your first resume',
-          body: 'Upload an existing CV, paste the text, or type it in — whichever is easiest. We build your profile from it.',
-          cta: 'Create resume',
-          href: '/profile?import=upload',
-        }
-      : score < 40
-      ? {
-          title: 'Complete your Career Profile',
-          body: missing.length
-            ? `${missing.length} item${missing.length === 1 ? '' : 's'} left — each one raises your readiness score.`
-            : 'A complete profile is what every future resume is built from.',
-          cta: 'Complete profile',
-          href: '/profile',
-        }
-      : packageCount === 0
-        ? {
-            title: 'Create your first Gulf-optimized resume',
-            body: 'Pick a target role and country — your profile does the rest.',
-            cta: 'Optimize resume',
-            href: '/optimize/target',
-          }
-        : {
-            title: 'Optimize your next application',
-            body: `You've built ${packageCount} resume${packageCount === 1 ? '' : 's'} so far — targeting a new role takes minutes.`,
-            cta: 'Optimize resume',
-            href: '/optimize/target',
-          }
+  // Next best action — one action, chosen from real state.
+  //
+  // The three-tier ternary that stood here could not see a half-finished job:
+  // a user who set one up and stopped was told to "optimize your next
+  // application", with no route back to the one they had already started. The
+  // rules moved to lib/nextAction.ts, which reads only what these same two
+  // fetches already returned.
+  const nextAction = computeNextAction(profile, packages, score, missing.length)
 
   return (
     // BLUEPRINT (2026-09-08). Ground is `paper`, not white: the surfaces that
@@ -263,9 +246,9 @@ export default function DashboardPage() {
                 href="/gcc-readiness"
               />
               <MetricTile
-                label="Resumes created"
+                label="Target jobs"
                 value={packagesLoaded ? String(packageCount) : '—'}
-                sub={packageCount > 0 ? 'In your Library' : undefined}
+                sub={packageCount > 0 ? 'Open the pipeline' : undefined}
                 href="/dashboard/library"
               />
             </div>
@@ -296,15 +279,31 @@ export default function DashboardPage() {
             </div>
           </Reveal>
 
-          {/* Recent Activity */}
+          {/* ── Your target jobs ── */}
           <Reveal delay={110}>
-            {/* A LIST, NOT A CARD OF CARDS. This was a bordered panel whose
-                rows were themselves bordered panels — two containers to say one
-                thing. Blueprint puts the section label on the page and divides
-                the rows with a single rule, which is how a register reads. */}
+            {/* WAS "RECENT ACTIVITY", whose rows read "Optimized for <role>" —
+                the event, not the thing. A row here is a job the user is going
+                for, so it says the role, the employer and where it stands. The
+                three rows the right rail used to repeat are gone; showing the
+                same three packages twice on one screen made the dashboard look
+                fuller than it was.
+
+                A LIST, NOT A CARD OF CARDS. This was a bordered panel whose
+                rows were themselves bordered panels — two containers to say
+                one thing. */}
             <section className="flex flex-col gap-3">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
-                Recent activity
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
+                  Your target jobs
+                </span>
+                {packageCount > 0 ? (
+                  <Link
+                    href="/dashboard/library"
+                    className="text-[12px] font-semibold text-signal-ink underline-offset-2 hover:underline"
+                  >
+                    See all {packageCount} →
+                  </Link>
+                ) : null}
               </div>
               {!packagesLoaded ? (
                 <div className="flex flex-col divide-y divide-edge border-y border-edge bg-white">
@@ -313,9 +312,9 @@ export default function DashboardPage() {
                 </div>
               ) : recentPackages.length === 0 ? (
                 <div className="flex flex-col gap-1 border border-dashed border-edge-strong/50 bg-white p-5">
-                  <span className="text-[13px] font-semibold text-graphite">No activity yet</span>
+                  <span className="text-[13px] font-semibold text-graphite">No target jobs yet</span>
                   <span className="text-[13px] leading-relaxed text-slate">
-                    Optimize a resume and it will show up here.
+                    Add the role you are applying for and its CV, letters and stage all live together.
                   </span>
                 </div>
               ) : (
@@ -327,10 +326,18 @@ export default function DashboardPage() {
                       className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal"
                     >
                       <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate text-[13px] font-semibold text-graphite">
-                          Optimized for {resumeLabel(pkg)}
+                        <span className="truncate font-bp-display text-[14px] font-semibold text-graphite">
+                          {resumeLabel(pkg)}
                         </span>
-                        <span className="text-[12px] text-slate">{relativeTime(pkg.created_at)}</span>
+                        {/* Employer and country only when the user gave them —
+                            `target_company` and `target_country` are both
+                            nullable, and "· generic_gulf" is our enum leaking
+                            onto their dashboard. */}
+                        <span className="truncate text-[12px] text-slate">
+                          {[pkg.target_company, dashboardCountryLabel(pkg.target_country)]
+                            .filter(Boolean)
+                            .join(' · ') || relativeTime(pkg.created_at)}
+                        </span>
                       </span>
                       <Pill variant={pkg.status}>{STATUS_LABEL[pkg.status]}</Pill>
                     </Link>
@@ -461,42 +468,6 @@ export default function DashboardPage() {
             </div>
           </Reveal>
 
-          {/* Library preview */}
-          <Reveal delay={230}>
-            <div className="border border-edge bg-white flex h-full flex-col gap-4 p-6">
-              <div className="flex items-baseline justify-between">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-slate">
-                  Library · {packagesLoaded ? packageCount : '—'} package{packageCount === 1 ? '' : 's'}
-                </span>
-                <Link
-                  href="/dashboard/library"
-                  className="text-[12px] font-semibold text-signal transition-colors hover:text-signal/80"
-                >
-                  View Library →
-                </Link>
-              </div>
-              {packageCount === 0 ? (
-                <div className="flex flex-1 items-center rounded-bp border border-dashed border-edge bg-paper p-5 text-[13px] leading-relaxed text-slate">
-                  No packages yet — optimize a resume and it will appear here.
-                </div>
-              ) : (
-                <div className="flex flex-1 flex-col gap-2">
-                  {recentPackages.slice(0, 3).map((pkg) => (
-                    <div
-                      key={pkg.id}
-                      className="flex items-center justify-between rounded-bp bg-paper px-4 py-2.5 text-[13px] font-medium text-graphite"
-                    >
-                      <span>
-                        {resumeLabel(pkg)} ·{' '}
-                        {GULF_COUNTRIES.find((c) => c.value === pkg.target_country)?.label ?? pkg.target_country}
-                      </span>
-                      <span className="text-[12px] text-slate">v{pkg.generation_count}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Reveal>
         </div>
       </div>
     </div>

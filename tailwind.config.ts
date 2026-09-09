@@ -145,6 +145,51 @@ const config: Config = {
         edge: '#D8DDE0',
         'edge-strong': '#76838E',
 
+        // ── GULF WARMTH ──────────────────────────────────────────────────────
+        //
+        // Founder decision 2026-09-09, "Option A": the redesign brief asked for
+        // a warm desert palette — navy, sand, ivory. Blueprint had already been
+        // chosen and shipped across 66 files the day before. Repainting the
+        // whole app a second time would have bought warmth at the price of
+        // another week and another round of contrast defects, so instead the
+        // brief's two useful colours join Blueprint as SURFACES.
+        //
+        // THEY ARE SURFACES, NOT ACTIONS. `signal` remains the only colour in
+        // this product that means "do this". A sand panel or a navy header can
+        // hold a button; it can never BE one. The moment navy is used for a CTA
+        // there are two action colours and neither reads as one.
+        //
+        // MEASURED BEFORE THEY WERE WRITTEN, and two pairs failed:
+        //
+        //   graphite on bp-sand        14.14   pass
+        //   graphite-soft on bp-sand    7.42   pass
+        //   slate on bp-sand            4.24   FAIL — use graphite-soft on sand
+        //   signal on bp-sand           3.99   FAIL — use signal-ink on sand
+        //   signal-ink on bp-sand       5.62   pass
+        //   edge-strong on bp-sand      2.99   FAIL — no inputs on sand
+        //   white on bp-navy           13.17   pass
+        //   bp-navy on paper / white   11.52 / 13.17
+        //   bp-navy on bp-navy-tint    10.86   pass
+        //   slate on bp-navy-tint       4.55   pass
+        //
+        // So there are three standing rules on a sand surface: secondary text is
+        // `graphite-soft` and never `slate`; accent text is `signal-ink` and
+        // never `signal`; and no form control sits on it, because its border
+        // cannot reach 3:1.
+        //
+        // `bp-sand` is 1.14 against `paper` and 1.30 against white — the same
+        // near-invisible value step `paper` already has against white. That is
+        // deliberate: it separates by HUE, not by weight, so a sand band warms
+        // a screen without carving it into more boxes.
+        'bp-sand': '#E8E1D5',
+        /** Hairline on sand. Decorative only, deliberately below 3:1 — like `edge`. */
+        'bp-sand-line': '#D6CCBA',
+        /** Dark chrome: page headers, stage bars, the footer. Never a button. */
+        'bp-navy': '#12324F',
+        'bp-navy-tint': '#E3EAF2',
+        /** Text weight navy, for use on `bp-navy-tint`. */
+        'bp-navy-ink': '#0C2338',
+
         // ── THE NAVY PALETTE ─────────────────────────────────────────────────
         //
         // These colours were once named `forest*`. The palette moved from green

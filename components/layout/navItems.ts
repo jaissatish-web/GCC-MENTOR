@@ -3,7 +3,7 @@ import {
   ChatBubbleLeftRightIcon,
   QuestionMarkCircleIcon,
   BookmarkIcon,
-  BookOpenIcon,
+  BriefcaseIcon,
   RectangleStackIcon,
   UserCircleIcon,
   ShieldCheckIcon,
@@ -81,7 +81,11 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, exact: true },
   { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
-  { label: 'Resume Library', href: '/dashboard/library', icon: BookOpenIcon, shortLabel: 'Library' },
+  // "Resume Library" until 2026-09-09. The rows in it were never a library:
+  // each one carries a job title, an employer, a country, the advert, and a
+  // status running applied → offer. Calling a live application a file is what
+  // hid the product's actual shape from its own users.
+  { label: 'Target Jobs', href: '/dashboard/library', icon: BriefcaseIcon, shortLabel: 'Jobs' },
   { label: 'Resume Templates', href: '/templates', icon: RectangleStackIcon, shortLabel: 'Templates' },
   { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon, shortLabel: 'Optimize' },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },
