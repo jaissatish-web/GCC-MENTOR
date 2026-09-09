@@ -15,12 +15,12 @@ import { ServicesMenu } from './ServicesMenu'
  * only place the full list — including what is not built yet — appears in one
  * view, and "any time" cannot mean "unless you are on a laptop".
  *
- * WHY THE PRODUCT'S PROMISE SITS HERE. `01_PRODUCT.md` §3: this market is
- * "trust-starved more than feature-starved", with documented placement-scam
- * behaviour aimed at exactly these users. "Nothing invented" is the one claim
- * competitors will not copy, and the top of the page is where someone decides
- * whether to keep going. It is hidden on the narrowest phones, where the
- * wordmark and the menu need the whole width.
+ * THE BAR HOLDS TWO THINGS AND NOTHING ELSE. "Nothing invented" used to sit
+ * between them; the founder removed it on 2026-09-09 and the call is right.
+ * The promise belongs where someone is deciding whether to trust the product —
+ * the footer of every signed-in page, the login screen's trust strip, and the
+ * moment they hand over a CV — not repeated above every screen they have
+ * already chosen to be on. Repetition is how a claim stops being read.
  *
  * Sticky, because the way back should not require scrolling to the top first.
  */
@@ -46,10 +46,6 @@ export function AppHeader() {
             GCC MENTOR
           </span>
         </Link>
-
-        <span className="ml-auto hidden text-[12.5px] font-medium text-ink-muted min-[420px]:inline">
-          Nothing invented
-        </span>
 
         <ServicesMenu />
       </div>
