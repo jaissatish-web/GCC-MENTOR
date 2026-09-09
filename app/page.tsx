@@ -3,38 +3,57 @@ import Link from 'next/link'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import { NotLive, NotLiveText } from '@/components/ui/NotLive'
-import { Card } from '@/components/ui/Card'
 import { SiteNav } from '@/components/marketing/SiteNav'
+import { TemplateShowcase } from '@/components/landing/TemplateShowcase'
 import {
   ChartBarIcon,
-  DocumentTextIcon,
   SparklesIcon,
   ShieldCheckIcon,
-  GlobeAltIcon,
-  RocketLaunchIcon,
   UserCircleIcon,
   CheckCircleIcon,
   ArrowRightIcon,
-  BoltIcon,
   RectangleStackIcon,
   EnvelopeIcon,
   ChatBubbleLeftRightIcon,
   QuestionMarkCircleIcon,
+  ClockIcon,
+  DocumentMagnifyingGlassIcon,
+  MapPinIcon,
 } from '@heroicons/react/24/outline'
 
-const photos = {
-  // Gulf industrial / energy plant — hero backdrop.
-  plant: 'https://images.unsplash.com/photo-1509390288171-ce2088f7d08e?auto=format&fit=crop&w=1920&q=80',
-  // Second industrial plant image — trust section.
-  plantAlt: 'https://images.unsplash.com/photo-1588011930968-eadac80e6a5a?auto=format&fit=crop&w=1920&q=80',
-  // Commissioning engineer on site, hard hat — credibility section. Atmospheric /
-  // illustrative site photography, not a portrait of the founder.
-  engineer: 'https://images.unsplash.com/photo-1622612023350-b15f063eabe6?auto=format&fit=crop&w=1200&q=80',
-}
+/**
+ * The landing page.
+ *
+ * REBUILT IN MERIDIAN 2026-09-09. It was the last surface still on the navy
+ * palette — the first thing a visitor sees, and the one page that did not look
+ * like the product behind it.
+ *
+ * WHAT IS AND IS NOT ON THIS PAGE, because the line matters more here than
+ * anywhere else. `01_PRODUCT.md` §3: this audience is actively worked by
+ * placement scams. So:
+ *
+ *   · The template previews are REAL — the same components that build the PDF,
+ *     rendered live against the fictional showcase CV. Not screenshots, not
+ *     mockups, and they cannot drift from what a user actually gets.
+ *   · The founder's projects are real and verifiable, taken from his own record.
+ *   · There are NO testimonials, NO customer photos and NO success statistics.
+ *     Inventing social proof is the one thing this product must never do, and a
+ *     smiling stranger captioned "got hired in Dubai" is exactly the move the
+ *     scams make. If real, consented customer stories arrive, they belong here.
+ *   · The photography is industrial and illustrative — plants and sites, never
+ *     a person presented as a customer or as the founder.
+ *   · Every example that is invented says so on the same screen.
+ *   · Everything unbuilt is marked in red (`NotLive`), including in pricing.
+ */
 
-const countryFlags: Record<string, string> = {
-  saudi_arabia: '🇸🇦', uae: '🇦🇪', qatar: '🇶🇦',
-  oman: '🇴🇲', kuwait: '🇰🇼', bahrain: '🇧🇭',
+const photos = {
+  // Gulf industrial / energy plant — hero backdrop. Illustrative, no people.
+  plant: 'https://images.unsplash.com/photo-1509390288171-ce2088f7d08e?auto=format&fit=crop&w=1920&q=80',
+  // Second plant — the "who built this" section.
+  plantAlt: 'https://images.unsplash.com/photo-1588011930968-eadac80e6a5a?auto=format&fit=crop&w=1600&q=80',
+  // Commissioning work on site. Atmospheric site photography, NOT a portrait of
+  // the founder and never captioned as one.
+  engineer: 'https://images.unsplash.com/photo-1622612023350-b15f063eabe6?auto=format&fit=crop&w=1200&q=80',
 }
 
 /**
@@ -44,11 +63,12 @@ const countryFlags: Record<string, string> = {
  * bounce them to a login screen mid-click.
  */
 const services = [
-  { icon: ChartBarIcon, title: 'Gulf Readiness Score', desc: 'Answer two questions, upload a CV, and get a scored breakdown across six dimensions with a ranked plan of what to fix first.', href: '/gulf-readiness-score', status: 'Free · no login' },
+  { icon: ChartBarIcon, title: 'Gulf Readiness Score', desc: 'Upload a CV, answer two questions, and get a scored breakdown across six dimensions with a ranked plan of what to fix first.', href: '/gulf-readiness-score', status: 'Free · no login' },
   { icon: UserCircleIcon, title: 'Career Profile', desc: 'Your experience, read from your CV once and stored as structured facts. Every other tool draws from it, so you never retype anything.', href: '/signup', status: 'Live' },
-  { icon: SparklesIcon, title: 'GCC Resume Optimizer', desc: 'Paste the job description and it reframes your real experience for that specific role and the Gulf market — grounded, so it can never invent a job you did not do.', href: '/signup', status: 'Live' },
+  { icon: SparklesIcon, title: 'GCC Resume Optimizer', desc: 'Paste the job description and it reframes your real experience for that role and market — grounded, so it can never invent a job you did not do.', href: '/signup', status: 'Live' },
   { icon: RectangleStackIcon, title: '15 Gulf CV Templates', desc: 'ATS-safe through to photo-led Gulf formats. Switch template, font, colour and photo without retyping a word.', href: '/signup', status: 'Live' },
   { icon: EnvelopeIcon, title: 'Cover Letter', desc: 'Written from the same profile, in the tone you choose — Professional, Short, Technical or Explanatory.', href: '/signup', status: 'Live' },
+  { icon: DocumentMagnifyingGlassIcon, title: 'Target Jobs', desc: 'Every role you are going for in one place, with its CV, its letters and its stage — applied, shortlisted, interview, visa, offer.', href: '/signup', status: 'Live' },
 ]
 
 /** Named honestly as not-yet-built. Shown because the roadmap is part of the pitch. */
@@ -58,10 +78,30 @@ const plannedServices = [
 ]
 
 /**
- * The guided path, written as what the user DOES and what they GET — the point
- * the founder asked for: someone reading this should understand they are being
- * walked from "I want a Gulf job" to "I am ready to apply", not sold a tool.
+ * What actually goes wrong, in the user's words rather than ours.
+ *
+ * The founder's brief: someone reading this should feel understood before they
+ * are sold anything. These are the three things a Gulf applicant can never
+ * find out on their own — which is the gap the product exists in.
  */
+const problems = [
+  {
+    icon: ClockIcon,
+    title: 'You apply, and nothing comes back',
+    body: 'Forty applications, no replies, no reason given. Nobody tells you whether it was the CV, the experience or the fact that you are not in the Gulf yet.',
+  },
+  {
+    icon: DocumentMagnifyingGlassIcon,
+    title: 'Your CV is written for the wrong reader',
+    body: 'Gulf employers and their screening systems look for a specific shape — client names, standards, scope, visa status. An Indian-format CV can hide a strong career completely.',
+  },
+  {
+    icon: MapPinIcon,
+    title: 'Nobody explains the rules',
+    body: 'What a PMC expects that an EPC does not. What a transferable visa signals. Which certifications matter for which country. It is learned on site, or not at all.',
+  },
+]
+
 const journeySteps = [
   { label: 'See where you stand', doing: 'Upload your current CV and answer two questions about your Gulf experience.', gain: 'A scored readiness breakdown and a ranked list of what is holding you back.', free: true },
   { label: 'Build your Career Profile', doing: 'We read your CV and fill in your history, skills and certifications for you.', gain: 'One structured profile that every future application is built from.', free: true },
@@ -70,9 +110,8 @@ const journeySteps = [
   { label: 'Complete the application', doing: 'Add a cover letter in the tone that fits the employer.', gain: 'A full application package, ready to send.', free: false },
 ]
 
-// Real credentials of the platform's founder, drawn directly from his resume.
-// Only facts that survive verification are used here — no invented figures,
-// percentages, or headcounts. See docs/PROJECT_STATUS.md for the source note.
+// Real projects from the founder's own record. Only facts that survive
+// verification — no invented figures, percentages or headcounts.
 const credentials = [
   { label: 'NEOM Green Hydrogen Complex', detail: "World's largest green hydrogen facility — Duba, Tabuk, Saudi Arabia" },
   { label: 'ADNOC TAKREER', detail: 'Base Oil Unit, direct ADNOC project delivery — Abu Dhabi, UAE' },
@@ -80,6 +119,8 @@ const credentials = [
   { label: 'NSRP Refinery, Vietnam', detail: "Asia's largest single-train refinery and petrochemical complex" },
 ]
 
+// Engineering standards the founder has worked to. NOT a customer list, and
+// deliberately labelled as standards wherever it appears.
 const standards = ['Saudi Aramco', 'ADNOC', 'Bechtel', 'Shell DEP', 'QatarEnergy']
 
 // Illustrative rewrite of a typical instrumentation/EPC resume line — the
@@ -96,485 +137,506 @@ const readinessBars = [
   { label: 'Recruiter-ready score', before: 41, after: 91 },
 ]
 
-// `live: true` = a real visitor can pay this price today via /onboarding →
-// /optimize/pay, which currently only ever charges the single lib/pricing.ts
-// resume_optimization amount (₹499). The two bundle tiers are real (they
-// exist as admin-created service_packages, TASK-061), but are unlocked by a
-// promo code the founder hands out directly while Razorpay stays blocked on
-// KYC — there is no self-serve checkout for them yet. Marking them `live:
-// false` here is what keeps the "Get Started" button honest: a visitor who
-// clicks it should never end up paying for less than the tier promised.
-// DOCX IS NOT OFFERED. The Word download was withdrawn because its output did
-// not match what the screen showed; the product is PDF-only
-// (docs/08_RESUME_ENGINE.md §5). Listing it here was one of the two untrue
-// claims recorded as WORK_QUEUE W1 — removed 2026-08-19, along with the
-// "instant self-serve checkout" line below.
+// `live: true` = a real visitor can pay this today. The two bundles exist as
+// admin-created service_packages but are unlocked by a promo code the founder
+// hands out directly while card checkout stays blocked on KYC — marking them
+// `live: false` is what keeps the button honest.
 const pricing = [
-  { name: 'Free', price: null, tag: 'GCC Readiness', items: ['Gulf Readiness Score', 'Six-dimension breakdown', 'Ranked improvement plan'], featured: false, live: true },
-  { name: 'Resume Optimization', price: '₹499', tag: 'Single resume', items: ['Career Profile', 'GCC-Optimized Resume', '15 Gulf templates', 'PDF download'], featured: true, live: true },
+  { name: 'Free', price: null, tag: 'Gulf Readiness', items: ['Gulf Readiness Score', 'Six-dimension breakdown', 'Ranked improvement plan'], featured: false, live: true },
+  { name: 'Resume Optimization', price: '₹499', tag: 'Single resume', items: ['Career Profile', 'GCC-optimized resume', '15 Gulf templates', 'PDF download'], featured: true, live: true },
   { name: 'Resume + Cover Letter', price: '₹999', tag: 'Bundle', items: ['Optimized resume', 'Professional cover letter', 'PDF download'], featured: false, live: false },
-  { name: 'Complete Package', price: '₹2,499', tag: 'Full preparation', items: ['Resume + cover letter', 'Multiple target versions', 'Priority support'], featured: false, live: false }
+  { name: 'Complete Package', price: '₹2,499', tag: 'Full preparation', items: ['Resume + cover letter', 'Multiple target versions', 'Priority support'], featured: false, live: false },
 ]
 
 const faq = [
   { q: 'Will GCC MENTOR invent anything on my CV?', a: 'No. The optimizer uses only facts in your Career Profile. It improves framing, never your history. Every generated line is validated against your profile before you see it.' },
   { q: 'Which Gulf countries are supported?', a: 'Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain. The CV format and readiness scoring follow conventions shared across the Gulf, so one profile prepares you for all six rather than locking you to one.' },
-  { q: 'Are all tools available today?', a: 'No, and we mark which is which. The Gulf Readiness Score, Career Profile, resume optimizer, 15 templates and cover letters are live. Interview Q&A and Mock Interview are still in development and are labelled as such.' },
+  { q: 'Are all tools available today?', a: 'No, and we mark which is which in red. The Gulf Readiness Score, Career Profile, resume optimizer, 15 templates, target jobs and cover letters are live. Interview Q&A and Mock Interview are still in development.' },
   { q: 'How do I pay?', a: 'Card checkout is not live yet — we are still completing our payment provider setup. You can use the free Gulf Readiness Score and build your Career Profile today at no cost; when you want a paid service we arrange it with you directly and unlock it on your account.' },
   { q: 'Can I see changes before paying?', a: 'Yes. You see the full optimized resume, and can edit it, before any payment is arranged.' },
-  { q: 'How is my data protected?', a: 'Passport, visa and contact fields are encrypted. Every internal access is logged. You can delete your profile and all data at any time from Settings.' },
+  { q: 'How is my data protected?', a: 'Passport and visa fields are encrypted, and every internal access is logged. You can delete your profile and all data at any time from Settings.' },
 ]
 
-function Kicker({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
-  return <p className={cn('text-[12px] font-bold uppercase tracking-[0.2em]', light ? 'text-redesign-gold-dark' : 'text-navy')}>{children}</p>
-}
-
-function StaticScoreRing({ score, size = 64 }: { score: number; size?: number }) {
-  const circumference = 264
-  const offset = circumference * (1 - score / 100)
+function Eyebrow({ children, onDark = false }: { children: React.ReactNode; onDark?: boolean }) {
   return (
-    <svg viewBox="0 0 100 100" width={size} height={size} className="-rotate-90" aria-hidden="true">
-      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className="stroke-navy-tint" />
-      <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="stroke-navy" />
-      <text x="50" y="50" dy="0.35em" textAnchor="middle" className="font-mono text-[22px] fill-navy" style={{ transform: 'rotate(90deg)', transformOrigin: '50px 50px' }}>{score}</text>
-    </svg>
+    <span
+      className={cn(
+        'text-[11.5px] font-bold uppercase tracking-[0.16em]',
+        onDark ? 'text-teal-soft' : 'text-teal',
+      )}
+    >
+      {children}
+    </span>
   )
 }
 
+function SectionHead({
+  eyebrow,
+  title,
+  body,
+  onDark = false,
+  center = false,
+}: {
+  eyebrow: string
+  title: string
+  body?: string
+  onDark?: boolean
+  center?: boolean
+}) {
+  return (
+    <div className={cn('flex flex-col gap-3', center && 'items-center text-center')}>
+      <Eyebrow onDark={onDark}>{eyebrow}</Eyebrow>
+      <h2
+        className={cn(
+          'max-w-[22ch] font-display text-[30px] font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[38px]',
+          onDark ? 'text-white' : 'text-ink',
+          center && 'max-w-[24ch]',
+        )}
+      >
+        {title}
+      </h2>
+      {body ? (
+        <p
+          className={cn(
+            'max-w-[58ch] text-[15.5px] leading-relaxed',
+            onDark ? 'text-teal-soft/90' : 'text-ink-soft',
+          )}
+        >
+          {body}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+/** Illustrative before/after bar. Labelled as illustrative by its section. */
 function ReadinessBar({ label, before, after }: { label: string; before: number; after: number }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between text-[12px] font-semibold text-ink-700">
-        <span>{label}</span>
-        <span className="font-mono text-navy">{before}% → {after}%</span>
+    <div className="flex flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-[13px] font-semibold text-ink">{label}</span>
+        <span className="text-[12.5px] font-semibold tabular-nums text-ink-muted">
+          {before} <span aria-hidden="true">→</span>{' '}
+          <span className="text-teal">{after}</span>
+        </span>
       </div>
-      <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-ink-200">
-        <div className="absolute inset-y-0 left-0 rounded-full bg-ink-400/50" style={{ width: `${before}%` }} />
-        <div className="absolute inset-y-0 left-0 rounded-full bg-navy" style={{ width: `${after}%` }} />
+      <div className="relative h-2 overflow-hidden rounded-full bg-line">
+        <div className="absolute inset-y-0 left-0 rounded-full bg-line-strong" style={{ width: `${before}%` }} />
+        <div className="absolute inset-y-0 left-0 rounded-full bg-teal" style={{ width: `${after}%`, opacity: 0.85 }} />
       </div>
     </div>
   )
 }
 
 export default function Home() {
+  const countries = GULF_COUNTRIES.filter((c) => c.value !== 'generic_gulf')
+
   return (
-    <div className="w-full overflow-x-clip bg-bg text-ink-900">
+    <div className="w-full overflow-x-clip bg-canvas font-redesign-sans text-ink">
       <SiteNav />
       <main>
-        {/* ════ HERO ════ */}
-        <section className="relative overflow-hidden bg-navy-deep">
+        {/* ════════ HERO ════════ */}
+        <section className="relative overflow-hidden bg-teal">
           <div className="absolute inset-0">
-            {/* `sizes` is required on a `fill` image (2026-08-19). Without it
-                Next assumes the image spans the viewport at every breakpoint and
-                serves its largest srcset candidate to a phone — this is the LCP
-                element, so that was the single most expensive byte on the page.
-                `priority` stays: it IS the LCP element and must not lazy-load. */}
-            <Image src={photos.plant} alt="" fill priority sizes="100vw" className="object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/90 to-navy-deep/40" />
-            <div className="absolute inset-0 bg-gradient-to-t from-navy-deep via-transparent to-navy-deep/50" />
+            {/* `sizes` is required on a `fill` image: without it Next serves its
+                largest srcset candidate to a phone, and this is the LCP element.
+                `priority` stays for the same reason. */}
+            <Image src={photos.plant} alt="" fill priority sizes="100vw" className="object-cover opacity-[0.14]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-teal via-teal/95 to-teal" />
           </div>
-          <div className="relative mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-            <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
-              {/* Hero copy */}
+
+          <div className="relative mx-auto max-w-[1240px] px-5 pb-16 pt-14 sm:px-8 lg:px-12 lg:pb-24 lg:pt-20">
+            <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16">
               <div className="flex flex-col gap-6">
-                <Kicker light>Built by a 15+ Year Gulf E&amp;I Superintendent</Kicker>
-                <h1 className="font-serif text-5xl leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">
-                  Your Career,<br />
-                  <span className="text-redesign-gold-dark">Gulf-Ready.</span>
+                <Eyebrow onDark>Built by Middle East EPC &amp; PMC engineers</Eyebrow>
+                <h1 className="max-w-[16ch] font-display text-[42px] font-semibold leading-[1.02] tracking-[-0.03em] text-white sm:text-[56px] lg:text-[64px]">
+                  Your career,{' '}
+                  <span className="text-gold">Gulf-ready.</span>
                 </h1>
-                <p className="max-w-[55ch] text-[17px] leading-relaxed text-white/80 sm:text-lg">
-                  Prepare for your next opportunity in Saudi Arabia, UAE, Qatar, Oman, Kuwait or Bahrain.
-                  Built by an engineer who has commissioned NEOM Green Hydrogen, ADNOC and Bechtel megaprojects — not a generic resume template.
+                <p className="max-w-[52ch] text-[16.5px] leading-relaxed text-teal-soft/90 sm:text-[18px]">
+                  One guided platform for Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain —
+                  read your CV, score your readiness, fix what is holding you back, and build a
+                  Gulf-format application for the job you actually want.
                 </p>
-                {/* Primary CTA is the FREE scorecard, not /onboarding.
-                    /onboarding resolves to /profile, which is behind auth — an
-                    anonymous visitor clicking it saw a flash of "Loading…" and
-                    then a login wall. The scorecard needs no login, delivers a
-                    real result in one step, and is the designed top of the
-                    funnel. Fixed 2026-08-19. */}
+
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <Link href="/gulf-readiness-score" className={cn(buttonVariants({ variant: 'purchase' }), 'text-[15px] px-6')}>
-                    Score My CV Free <ArrowRightIcon className="ml-1 h-4 w-4" />
+                  <Link
+                    href="/gulf-readiness-score"
+                    className={cn(buttonVariants({ variant: 'primary' }), 'px-7 text-[15px]')}
+                  >
+                    Score my CV free <ArrowRightIcon className="ml-1 size-4" />
                   </Link>
-                  <Link href="/signup" className={cn(buttonVariants({ variant: 'secondary' }), 'text-[15px] border-white/30 bg-white/5 text-white hover:bg-white/10')}>
-                    Create Free Account
+                  <Link
+                    href="/signup"
+                    className={cn(
+                      buttonVariants({ variant: 'secondary' }),
+                      'border-white/25 bg-white/10 text-white hover:bg-white/20 text-[15px]',
+                    )}
+                  >
+                    Create free account
                   </Link>
                 </div>
-                <p className="text-[13px] text-white/60">
+                <p className="text-[13px] text-teal-soft/75">
                   No card required. Your score is instant, and nothing is saved unless you sign up.
                 </p>
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-semibold text-white/70">
-                  {GULF_COUNTRIES.filter(c => c.value !== 'generic_gulf').map(c => (
-                    <span key={c.value}>{countryFlags[c.value]} {c.label}</span>
+
+                <ul className="mt-1 flex flex-wrap gap-x-5 gap-y-2">
+                  {countries.map((c) => (
+                    <li key={c.value} className="flex items-center gap-1.5 text-[13px] font-semibold text-teal-soft/85">
+                      <span aria-hidden="true" className="text-[15px] leading-none">{c.flag}</span>
+                      {c.label}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
 
-              {/* Hero visual: scorecard preview */}
+              {/* Hero visual: a real template, rendered live, with the readiness
+                  figure beside it. The number is labelled illustrative — it is
+                  not a customer's score. */}
               <div className="relative">
-                <div className="rounded-radius-2xl border border-line bg-surface-light p-5 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.45)] sm:p-7">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-navy">GCC Career Profile</p>
-                      <p className="mt-1 text-[13px] text-ink-700">Senior Instrument Engineer</p>
-                    </div>
-                    <span className="rounded-full bg-navy-tint px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-navy">Illustrative profile</span>
-                  </div>
-                  <p className="mt-5 text-[12px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — not a real customer result</p>
-                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
-                      <CheckCircleIcon className="h-10 w-10 text-navy" />
-                      <span className="text-center text-[12px] font-bold text-ink-700">ATS-ready format</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
-                      <ChartBarIcon className="h-10 w-10 text-navy" />
-                      <span className="text-center text-[12px] font-bold text-ink-700">Readiness review</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 rounded-radius-lg border border-line bg-bg/60 p-4">
-                      <SparklesIcon className="h-10 w-10 text-navy" />
-                      <span className="text-center text-[12px] font-bold text-ink-700">Role targeting</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex items-center gap-4 text-[12px] text-navy">
-                    <span className="flex items-center gap-1.5"><CheckCircleIcon className="h-4 w-4" /> Saudi Arabia ✓</span>
-                    <span className="flex items-center gap-1.5"><CheckCircleIcon className="h-4 w-4" /> UAE ✓</span>
-                  </div>
-                  <div className="mt-4 rounded-radius-lg border border-line bg-navy-tint/50 p-4">
-                    <div className="flex items-center justify-between text-[13px]">
-                      <span className="font-semibold">Profile completeness</span>
-                      <span className="font-bold text-navy">Ready to review</span>
-                    </div>
-                    <div className="mt-2 h-2 rounded-full bg-navy-tint">
-                      <div className="h-2 w-3/4 rounded-full bg-navy" />
-                    </div>
-                    <p className="mt-2 text-[12px] text-ink-400">Complete your profile to strengthen future applications</p>
-                  </div>
+                <div className="rounded-card-lg bg-white/5 p-3 ring-1 ring-white/15 backdrop-blur-sm sm:p-4">
+                  <TemplateShowcase variant="page" />
                 </div>
-                {/* Decorative glow */}
-                <div className="absolute -bottom-3 -right-3 h-24 w-24 rounded-full bg-redesign-gold/30 blur-2xl" aria-hidden="true" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ════ TRUST BAND ════ */}
-        <section className="border-y border-line bg-surface-2-light">
-          <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-center gap-x-10 gap-y-3 px-5 py-5 text-[13px] font-semibold text-ink-700 sm:px-8 lg:px-12">
-            <span className="flex items-center gap-2"><ShieldCheckIcon className="h-4 w-4 text-navy" /> No invented facts</span>
-            <span className="flex items-center gap-2"><BoltIcon className="h-4 w-4 text-navy" /> Zero LTI safety record</span>
-            <span className="flex items-center gap-2"><GlobeAltIcon className="h-4 w-4 text-navy" /> GCC + Asia mega-projects</span>
-            <span className="flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-navy" /> Professional preparation</span>
-          </div>
-        </section>
-
-        {/* ════ FOUNDER CREDIBILITY ════ */}
-        <section className="border-b border-line bg-surface-2-light">
-          <div className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
-            <div className="grid items-center gap-16 lg:grid-cols-2">
-              <div className="relative min-h-[420px] overflow-hidden rounded-radius-2xl">
-                {/* Half-width from lg up, full-width below — see the hero's note. */}
-                <Image
-                  src={photos.engineer}
-                  alt="Commissioning engineer on a Gulf industrial site"
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/70 to-transparent" />
-              </div>
-              <div className="flex flex-col gap-6">
-                <Kicker>Not built by a template. Built by an engineer.</Kicker>
-                <h2 className="font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">
-                  15+ years commissioning the Gulf&apos;s largest projects.
-                </h2>
-                <p className="text-[15px] leading-relaxed text-ink-700">
-                  GCC MENTOR is founded by an E&amp;I Superintendent whose career was built on the same mega-scale EPC
-                  projects you&apos;re trying to break into — not a marketing team guessing what Gulf recruiters want to see.
-                </p>
-                <div className="mt-2 grid gap-4 sm:grid-cols-2">
-                  {credentials.map(c => (
-                    <div key={c.label} className="flex gap-3 rounded-radius-lg border border-line bg-surface-light p-4">
-                      <RocketLaunchIcon className="mt-0.5 h-5 w-5 shrink-0 text-navy" />
-                      <div>
-                        <h3 className="font-serif text-sm font-bold text-ink-900">{c.label}</h3>
-                        <p className="mt-0.5 text-[12px] leading-relaxed text-ink-400">{c.detail}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-ink-400">
-                  <span className="font-semibold text-ink-700">Delivered to standard:</span>
-                  {standards.map(s => (
-                    <span key={s} className="rounded-full border border-line bg-surface-light px-2.5 py-1 font-semibold text-ink-700">{s}</span>
-                  ))}
+                {/* Top-left, not bottom-left: at the bottom it landed on the
+                    preview's own caption. */}
+                <div className="pointer-events-none absolute -left-3 -top-4 hidden rounded-card border border-line bg-white px-4 py-3 shadow-m-3 lg:block">
+                  <p className="text-[10.5px] font-bold uppercase tracking-[0.13em] text-ink-muted">
+                    Gulf readiness
+                  </p>
+                  <p className="mt-0.5 font-display text-[26px] font-semibold leading-none tabular-nums text-teal">
+                    87<span className="text-[15px] text-ink-muted">/100</span>
+                  </p>
+                  <p className="mt-1 text-[10.5px] text-ink-muted">Illustrative, not a customer</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ════ SERVICE CARDS ════ */}
-        <section id="services" className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
-          <div className="max-w-2xl">
-            <Kicker>Everything you need to prepare for the Gulf</Kicker>
-            <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">One profile. Every application.</h2>
-            <p className="mt-5 text-lg leading-relaxed text-ink-700">Your experience, skills and certifications live in one place. Every tool draws from the same trusted source.</p>
-          </div>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((s) => (
-              <Link key={s.title} href={s.href} className="group">
-                <Card tone="light" className="flex h-full min-h-[260px] flex-col gap-4 p-6 transition-all hover:-translate-y-1 hover:border-navy/40 hover:shadow-sm">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-radius-lg bg-navy-tint text-navy">
-                      <s.icon className="h-5 w-5" />
-                    </span>
-                    <span className={cn(
-                      'rounded-full px-2.5 py-1 text-[12px] font-bold uppercase tracking-wider',
-                      s.status === 'Live' ? 'bg-navy-tint text-navy' : 'bg-redesign-gold-tint text-gold-text',
-                    )}>
-                      {s.status}
-                    </span>
-                  </div>
-                  <h3 className="font-serif text-xl text-ink-900">{s.title}</h3>
-                  <p className="text-sm leading-relaxed text-ink-700">{s.desc}</p>
-                  <span className="mt-auto text-sm font-bold text-navy group-hover:text-sky">
-                    {s.status === 'Live' ? 'Start free →' : 'Try it now →'}
-                  </span>
-                </Card>
-              </Link>
-            ))}
-          </div>
-
-          {/* THE ROADMAP, NAMED AS A ROADMAP. Shown because breadth is part of
-              the story, and marked unbuilt because claiming otherwise is exactly
-              what this product refuses to do. */}
-          <div className="mt-10 rounded-radius-xl border border-dashed border-line bg-surface-2-light/60 p-6">
-            <p className="text-[12px] font-bold uppercase tracking-[0.16em] text-ink-400">In development — not available yet</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {plannedServices.map((s) => (
-                <div key={s.title} className="flex gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-radius-lg bg-surface-light text-ink-400">
-                    <s.icon className="h-4.5 w-4.5" />
-                  </span>
-                  <div>
-                    <h3 className="font-serif text-sm font-bold text-ink-700">{s.title}</h3>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-ink-400">{s.desc}</p>
-                  </div>
-                </div>
+        {/* ════════ STANDARDS STRIP ════════ */}
+        <section className="border-b border-line bg-white">
+          <div className="mx-auto flex max-w-[1240px] flex-col gap-3 px-5 py-6 sm:px-8 lg:flex-row lg:items-center lg:gap-8 lg:px-12">
+            <p className="shrink-0 text-[11.5px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+              Built to the standards we worked to
+            </p>
+            <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
+              {standards.map((s) => (
+                <li key={s} className="font-display text-[15px] font-semibold text-ink-soft">
+                  {s}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
 
-        {/* ════ BEFORE / AFTER TRANSFORMATION ════ */}
-        <section className="border-y border-line bg-surface-2-light">
-          <div className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
-            <div className="max-w-2xl">
-              <Kicker>What GCC-optimization actually changes</Kicker>
-              <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Same experience. Recruiter-ready framing.</h2>
-              <p className="mt-5 text-lg leading-relaxed text-ink-700">The facts never change — only how clearly a Gulf recruiter can see them.</p>
-            </div>
-            <div className="mt-12 grid gap-6 lg:grid-cols-2">
-              <div className="flex flex-col gap-4">
-                <Card tone="light" className="flex flex-col gap-2 border-ink-200 p-6">
-                  <span className="w-fit rounded-full bg-ink-200 px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-ink-700">Before</span>
-                  <p className="text-[15px] leading-relaxed text-ink-700">{beforeAfter.before}</p>
-                </Card>
-                <Card tone="light" className="flex flex-col gap-2 border-navy/40 bg-navy-tint/40 p-6">
-                  <span className="w-fit rounded-full bg-navy px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-white">After</span>
-                  <p className="text-[15px] leading-relaxed text-ink-900">{beforeAfter.after}</p>
-                </Card>
-                <p className="text-[12px] font-semibold uppercase tracking-wider text-ink-400">Illustrative example — the format real GCC recruiters expect, not a real customer result</p>
+        {/* ════════ THE PROBLEM ════════ */}
+        <section className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+          <SectionHead
+            eyebrow="Why applications go quiet"
+            title="You are not getting rejected. You are getting no answer."
+            body="Which is worse, because there is nothing to learn from. These are the three things a Gulf applicant almost never finds out on their own."
+          />
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {problems.map((p) => (
+              <div key={p.title} className="flex flex-col gap-3 rounded-card border border-line bg-white p-6 shadow-m-1">
+                <span className="flex size-11 items-center justify-center rounded-ctl bg-teal-soft text-teal">
+                  <p.icon className="size-[22px]" />
+                </span>
+                <h3 className="font-display text-[17px] font-semibold leading-snug text-ink">{p.title}</h3>
+                <p className="text-[14px] leading-relaxed text-ink-soft">{p.body}</p>
               </div>
-              <Card tone="light" className="flex flex-col gap-5 p-6">
-                <div>
-                  <h3 className="font-serif text-lg text-ink-900">GCC Readiness Score</h3>
-                  <p className="text-[12px] text-ink-400">Illustrative — not aggregated from real customer data</p>
-                </div>
-                {readinessBars.map(b => <ReadinessBar key={b.label} {...b} />)}
-                <div className="mt-2 flex items-center gap-6 border-t border-line pt-5">
-                  <StaticScoreRing score={41} size={56} />
-                  <ArrowRightIcon className="h-5 w-5 shrink-0 text-ink-400" />
-                  <StaticScoreRing score={91} size={56} />
-                  <p className="text-[12px] leading-relaxed text-ink-400">Before → after optimization, on the same underlying facts.</p>
-                </div>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* ════ GULF MARKETS ════ */}
-        <section id="markets" className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
-          <div className="max-w-2xl">
-            <Kicker>One career profile. Six Gulf markets.</Kicker>
-            <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Your experience is ready for any of them.</h2>
-          </div>
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {GULF_COUNTRIES.filter(c => c.value !== 'generic_gulf').map((c) => (
-              <Link key={c.value} href="/gulf-readiness-score" className="group">
-                <Card tone="light" className="flex h-full min-h-[130px] flex-col gap-2 p-5 transition-all hover:-translate-y-0.5 hover:border-navy/40">
-                  <span className="text-2xl">{countryFlags[c.value]}</span>
-                  <h3 className="font-serif text-xl text-ink-900">{c.label}</h3>
-                  <p className="text-[12px] leading-relaxed text-ink-400">CV support live · GCC Readiness available</p>
-                </Card>
-              </Link>
             ))}
           </div>
         </section>
 
-        {/* ════ TRANSFORMATION JOURNEY ════ */}
-        <section className="border-y border-line bg-surface-2-light">
-          <div className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
-            <div className="max-w-2xl">
-              <Kicker>From &ldquo;I want a Gulf job&rdquo; to &ldquo;I&rsquo;m ready to apply.&rdquo;</Kicker>
-              <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">
-                We walk you through it, step by step.
-              </h2>
-              <p className="mt-5 text-lg leading-relaxed text-ink-700">
-                You are never handed a blank form and left to guess. Each step tells you what to do
-                and gives you something back — and the first two cost nothing.
-              </p>
-            </div>
-
-            {/* A vertical, two-column path: what you do on the left, what you
-                get on the right. Deliberately not six small numbered boxes —
-                the founder's ask was that a visitor UNDERSTANDS the guided path,
-                and a box with four words in it does not carry that. */}
-            <ol className="mt-12 flex flex-col gap-3">
-              {journeySteps.map((step, i) => (
-                <li
-                  key={step.label}
-                  className="grid items-start gap-4 rounded-radius-xl border border-line bg-surface-light p-5 sm:p-6 md:grid-cols-[auto_1fr_1fr] md:gap-6"
-                >
-                  <div className="flex items-center gap-3 md:flex-col md:items-start">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-radius-xl bg-navy-deep font-mono text-[15px] font-bold text-white">
-                      {String(i + 1).padStart(2, '0')}
+        {/* ════════ THE GUIDED PATH ════════ */}
+        <section id="how" className="border-y border-line bg-white">
+          <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+            <SectionHead
+              eyebrow="One guided path"
+              title="From “I want a Gulf job” to a finished application."
+              body="Not a box of tools you have to work out. Five steps, in order, and the platform always tells you which one you are on."
+            />
+            <ol className="mt-10 grid gap-4 lg:grid-cols-5">
+              {journeySteps.map((s, i) => (
+                <li key={s.label} className="flex flex-col gap-3 rounded-card border border-line bg-canvas p-5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-teal font-display text-[14px] font-bold text-white">
+                      {i + 1}
                     </span>
-                    {step.free ? (
-                      <span className="rounded-full bg-navy-tint px-2.5 py-1 text-[12px] font-bold uppercase tracking-wider text-navy">
+                    {s.free ? (
+                      <span className="rounded-full bg-teal-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-teal">
                         Free
                       </span>
                     ) : null}
                   </div>
-
-                  <div>
-                    <h3 className="font-serif text-xl leading-snug text-ink-900">{step.label}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-ink-700">{step.doing}</p>
-                  </div>
-
-                  <div className="rounded-radius-lg border border-navy/25 bg-navy-tint/40 p-4">
-                    <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-navy">You get</p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-ink-900">{step.gain}</p>
-                  </div>
+                  <h3 className="font-display text-[15.5px] font-semibold leading-snug text-ink">{s.label}</h3>
+                  <p className="text-[13px] leading-relaxed text-ink-soft">{s.doing}</p>
+                  <p className="mt-auto border-t border-line pt-3 text-[13px] leading-relaxed text-teal">
+                    {s.gain}
+                  </p>
                 </li>
               ))}
             </ol>
+          </div>
+        </section>
 
-            <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-              <Link href="/gulf-readiness-score" className={cn(buttonVariants({ variant: 'purchase' }), 'text-[15px] px-6')}>
-                Start at step one <ArrowRightIcon className="ml-1 h-4 w-4" />
+        {/* ════════ EVERYTHING INCLUDED ════════ */}
+        <section id="services" className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+          <SectionHead
+            eyebrow="All in one place"
+            title="Everything you need, and nothing you have to assemble yourself."
+            body="Your profile is read once. Every service below draws from it, so you never retype your career again."
+          />
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map((s) => (
+              <Link
+                key={s.title}
+                href={s.href}
+                className="group flex flex-col gap-3 rounded-card border border-line bg-white p-6 shadow-m-1 transition-all hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="flex size-11 items-center justify-center rounded-ctl bg-teal-soft text-teal">
+                    <s.icon className="size-[22px]" />
+                  </span>
+                  <span
+                    className={cn(
+                      'rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em]',
+                      s.status.startsWith('Free')
+                        ? 'bg-gold-soft text-gold-ink'
+                        : 'bg-teal-soft text-teal',
+                    )}
+                  >
+                    {s.status}
+                  </span>
+                </div>
+                <h3 className="font-display text-[17px] font-semibold leading-snug text-ink">{s.title}</h3>
+                <p className="text-[14px] leading-relaxed text-ink-soft">{s.desc}</p>
+                <span className="mt-auto inline-flex items-center gap-1 pt-1 text-[13px] font-semibold text-teal">
+                  Open <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                </span>
               </Link>
-              <p className="text-[13px] text-ink-400">Takes about two minutes. No account needed.</p>
+            ))}
+          </div>
+
+          {/* The roadmap, marked in red — same treatment as everywhere else in
+              the product, so a visitor can see exactly what is not built. */}
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            {plannedServices.map((s) => (
+              <div
+                key={s.title}
+                className="flex flex-col gap-3 rounded-card border border-dashed border-alert/40 bg-alert-soft/25 p-6"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="flex size-11 items-center justify-center rounded-ctl bg-alert-soft text-alert">
+                    <s.icon className="size-[22px]" />
+                  </span>
+                  <NotLive />
+                </div>
+                <h3 className="font-display text-[17px] font-semibold leading-snug text-ink-muted">{s.title}</h3>
+                <p className="text-[14px] leading-relaxed text-ink-muted">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ════════ TEMPLATES ════════ */}
+        <section id="templates" className="border-y border-line bg-white">
+          <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+            <SectionHead
+              eyebrow="15 Gulf CV formats"
+              title="See the actual page, before you write a word."
+              body="These are not screenshots. Each preview is rendered by the same component that builds your PDF, so what you see is exactly what you get."
+            />
+            <div className="mt-10">
+              <TemplateShowcase />
             </div>
           </div>
         </section>
 
-        {/* ════ TRUST SECTION ════ */}
-        <section className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
-          <div className="grid items-center gap-16 lg:grid-cols-2">
-            <div className="relative min-h-[400px] overflow-hidden rounded-radius-2xl lg:order-2">
-              <Image
-                src={photos.plantAlt}
-                alt="Gulf industrial and energy facility"
-                fill
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/60 to-transparent" />
+        {/* ════════ BEFORE / AFTER ════════ */}
+        <section className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+          <SectionHead
+            eyebrow="Same career, read properly"
+            title="Your experience does not change. How a Gulf recruiter reads it does."
+            body="The optimizer never adds a job, a skill or a date. It reframes what is already true into the shape this market screens for."
+          />
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="flex flex-col gap-4">
+              <div className="rounded-card border border-line bg-white p-5 shadow-m-1">
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.13em] text-ink-muted">Before</p>
+                <p className="mt-2 text-[14.5px] leading-relaxed text-ink-soft">{beforeAfter.before}</p>
+              </div>
+              <div className="rounded-card border border-teal/30 bg-teal-soft/45 p-5">
+                <p className="text-[10.5px] font-bold uppercase tracking-[0.13em] text-teal">After</p>
+                <p className="mt-2 text-[14.5px] font-medium leading-relaxed text-ink">{beforeAfter.after}</p>
+              </div>
+              <p className="text-[12px] leading-relaxed text-ink-muted">
+                An illustrative rewrite of a typical instrumentation line — not a real customer
+                result. Every claim in it would have to already exist in your profile.
+              </p>
             </div>
-            <div className="flex flex-col gap-6 lg:order-1">
-              <Kicker>Your career data stays factual</Kicker>
-              <h2 className="font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">
-                AI that works from <span className="text-navy">your experience</span> — never invents it.
-              </h2>
-              <div className="mt-2 grid gap-5">
-                {[
-                  { title: 'No fabricated experience', desc: 'Your profile is the source of truth. Every line on your resume traces back to a fact you provided.' },
-                  { title: 'Built for GCC applications', desc: 'Designed around Gulf job-search requirements — format, keywords, and expectations.' },
-                  { title: 'Professional, transparent preparation', desc: 'Know what you are getting before you pay. See the changes, review the output, then decide.' },
-                ].map(t => (
-                  <div key={t.title} className="flex gap-3">
-                    <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-navy" />
-                    <div>
-                      <h3 className="font-serif font-bold text-ink-900">{t.title}</h3>
-                      <p className="text-sm leading-relaxed text-ink-700">{t.desc}</p>
+
+            <div className="flex flex-col gap-5 rounded-card border border-line bg-white p-6 shadow-m-1">
+              <p className="text-[10.5px] font-bold uppercase tracking-[0.13em] text-ink-muted">
+                What that moves
+              </p>
+              {readinessBars.map((b) => (
+                <ReadinessBar key={b.label} {...b} />
+              ))}
+              <p className="mt-auto text-[12px] leading-relaxed text-ink-muted">
+                Illustrative figures, not aggregated from customer data.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ════════ WHO BUILT THIS ════════ */}
+        <section id="about" className="relative overflow-hidden bg-teal">
+          <div className="absolute inset-0">
+            <Image src={photos.plantAlt} alt="" fill sizes="100vw" className="object-cover opacity-[0.12]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-teal via-teal/95 to-teal" />
+          </div>
+          <div className="relative mx-auto max-w-[1240px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+            <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+              <div className="flex flex-col gap-5">
+                <SectionHead
+                  onDark
+                  eyebrow="Who built this"
+                  title="Engineers who worked in the Middle East, not recruiters."
+                  body="15+ years on EPC and PMC projects for client companies across the Gulf. The team comes from the same work — which is why the guidance here knows where a CV is strong and where it quietly fails."
+                />
+                <div className="overflow-hidden rounded-card border border-white/15">
+                  <Image
+                    src={photos.engineer}
+                    alt="Commissioning work on a Gulf industrial site"
+                    width={1200}
+                    height={800}
+                    sizes="(min-width: 1024px) 40vw, 100vw"
+                    className="h-52 w-full object-cover sm:h-64"
+                  />
+                </div>
+                {/* Said plainly: illustrative site photography, not the founder. */}
+                <p className="text-[12px] text-teal-soft/70">
+                  Site photography, illustrative. We do not use stock portraits as customers or
+                  as our team.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <p className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-teal-soft">
+                  Projects delivered
+                </p>
+                {credentials.map((c) => (
+                  <div
+                    key={c.label}
+                    className="flex gap-4 rounded-card border border-white/12 bg-white/[0.06] p-5"
+                  >
+                    <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-gold" />
+                    <div className="flex flex-col gap-1">
+                      <span className="font-display text-[16px] font-semibold text-white">{c.label}</span>
+                      <span className="text-[13.5px] leading-relaxed text-teal-soft/85">{c.detail}</span>
                     </div>
                   </div>
                 ))}
+                <p className="mt-1 text-[12.5px] leading-relaxed text-teal-soft/70">
+                  Real projects from the founder&apos;s own record. No invented figures, no
+                  headcounts, no success percentages.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ════ PRICING ════ */}
-        <section id="pricing" className="border-t border-line bg-surface-2-light">
-          <div className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 lg:px-12 lg:py-28">
-            <div className="max-w-2xl">
-              <Kicker>Choose the help you need</Kicker>
-              <h2 className="mt-4 font-serif text-4xl leading-tight text-ink-900 sm:text-5xl">Services, not subscriptions.</h2>
-              <p className="mt-5 text-lg leading-relaxed text-ink-700">Pay for what you need today. No recurring charges, no hidden fees.</p>
-              {/* W1: the previous sentence claimed "instant self-serve checkout"
-                  for Resume Optimization. There is no live checkout at all yet —
-                  a payment provider is still being selected (Razorpay is not
-                  available from Saudi Arabia), so every purchase is arranged
-                  directly today. Corrected 2026-08-19. */}
-              <p className="mt-3 text-sm leading-relaxed text-ink-400">
-                <NotLiveText>Card checkout is not live yet</NotLiveText> — we are finishing our
-                payment provider setup. Start free today; when you are ready to buy, we arrange it
-                with you directly and unlock it on your account.
-              </p>
-            </div>
-            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {/* ════════ MARKETS ════════ */}
+        <section id="markets" className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+          <SectionHead
+            center
+            eyebrow="Six markets, one profile"
+            title="Prepared for the whole Gulf, not locked to one country."
+            body="CV format and readiness scoring follow conventions shared across the GCC, so the profile you build works for every one of them."
+          />
+          <ul className="mx-auto mt-10 grid max-w-[900px] grid-cols-2 gap-4 sm:grid-cols-3">
+            {countries.map((c) => (
+              <li
+                key={c.value}
+                className="flex items-center gap-3 rounded-card border border-line bg-white px-5 py-4 shadow-m-1"
+              >
+                <span aria-hidden="true" className="text-[26px] leading-none">{c.flag}</span>
+                <span className="font-display text-[15px] font-semibold text-ink">{c.label}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* ════════ PRICING ════════ */}
+        <section id="pricing" className="border-y border-line bg-white">
+          <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+            <SectionHead
+              center
+              eyebrow="Pricing"
+              title="Start free. Pay only when you want the finished CV."
+            />
+            <p className="mx-auto mt-4 max-w-[62ch] text-center text-[14px] leading-relaxed text-ink-soft">
+              <NotLiveText>Card checkout is not live yet</NotLiveText> — we are finishing our
+              payment provider setup. Start free today; when you are ready to buy, we arrange it
+              with you directly and unlock it on your account.
+            </p>
+
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {pricing.map((p) => (
-                <Card key={p.name} tone="light" className={cn('flex flex-col gap-5 p-6', p.featured && 'border-navy shadow-md ring-1 ring-navy/30')}>
+                <div
+                  key={p.name}
+                  className={cn(
+                    'flex flex-col gap-5 rounded-card border bg-white p-6',
+                    p.featured ? 'border-teal shadow-m-2 ring-1 ring-teal/25' : 'border-line shadow-m-1',
+                  )}
+                >
                   {p.featured ? (
-                    <span className="w-fit rounded-full bg-navy-tint px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-navy">Most popular</span>
+                    <span className="w-fit rounded-full bg-teal-soft px-3 py-1 text-[10px] font-bold uppercase tracking-[0.09em] text-teal">
+                      Most popular
+                    </span>
                   ) : !p.live ? (
                     <NotLive className="w-fit">Checkout not live</NotLive>
-                  ) : null}
-                  <div>
-                    <h3 className="font-serif text-xl text-ink-900">{p.name}</h3>
-                    <p className="text-sm text-navy">{p.tag}</p>
-                  </div>
-                  {p.price ? (
-                    <p className="font-mono text-4xl font-bold text-ink-900">{p.price}</p>
                   ) : (
-                    <p className="font-mono text-4xl font-bold text-navy">Free</p>
+                    <span className="w-fit rounded-full bg-canvas px-3 py-1 text-[10px] font-bold uppercase tracking-[0.09em] text-ink-muted">
+                      {p.tag}
+                    </span>
                   )}
-                  <ul className="flex flex-col gap-2.5 text-sm text-ink-700">
-                    {p.items.map(item => (
-                      <li key={item} className="flex items-center gap-2">
-                        <CheckCircleIcon className="h-4 w-4 shrink-0 text-navy" />
-                        {item}
+
+                  <div>
+                    <h3 className="font-display text-[20px] font-semibold text-ink">{p.name}</h3>
+                    <p className="mt-0.5 text-[13px] text-ink-muted">{p.tag}</p>
+                  </div>
+
+                  <p className="font-display text-[32px] font-semibold leading-none tabular-nums text-ink">
+                    {p.price ?? 'Free'}
+                  </p>
+
+                  <ul className="flex flex-col gap-2">
+                    {p.items.map((i) => (
+                      <li key={i} className="flex gap-2 text-[13.5px] leading-snug text-ink-soft">
+                        <CheckCircleIcon className="mt-px size-4 shrink-0 text-teal" />
+                        {i}
                       </li>
                     ))}
                   </ul>
+
                   {p.live ? (
-                    // Both live CTAs go somewhere an anonymous visitor can
-                    // actually use, and neither promises a checkout that does
-                    // not exist yet (W1). The paid tier's honest next step is
-                    // to start free and build the profile the purchase applies
-                    // to — the purchase itself is arranged directly today.
                     <Link
                       href={p.price ? '/signup' : '/gulf-readiness-score'}
-                      className={cn(buttonVariants({ variant: p.featured ? 'purchase' : 'primary' }), 'mt-auto')}
+                      className={cn(
+                        buttonVariants({ variant: p.featured ? 'primary' : 'secondary', size: 'sm' }),
+                        'mt-auto',
+                      )}
                     >
-                      {p.price ? 'Start free' : 'Score my CV'}
+                      {p.price ? 'Get started' : 'Score my CV free'}
                     </Link>
                   ) : (
                     <span
                       className={cn(
-                        buttonVariants({ variant: 'secondary' }),
+                        buttonVariants({ variant: 'secondary', size: 'sm' }),
                         'mt-auto cursor-not-allowed border-alert/40 bg-alert-soft/40 text-alert',
                       )}
                       aria-disabled="true"
@@ -582,77 +644,59 @@ export default function Home() {
                       Not live yet
                     </span>
                   )}
-                </Card>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ════ FAQ ════ */}
-        <section className="mx-auto max-w-[900px] px-5 py-24 sm:px-8 lg:py-28">
-          <Kicker>Common questions</Kicker>
-          <h2 className="mt-4 font-serif text-4xl text-ink-900 sm:text-5xl">Good questions deserve clear answers.</h2>
-          <div className="mt-8 divide-y divide-line rounded-radius-xl border border-line bg-surface-light">
-            {faq.map(({ q, a }) => (
-              <details key={q} className="group px-6">
-                <summary className="flex cursor-pointer items-center justify-between py-5 text-sm font-bold text-ink-900 marker:hidden">
-                  {q}
-                  <span className="text-redesign-gold transition-transform group-open:rotate-45">＋</span>
+        {/* ════════ FAQ ════════ */}
+        <section id="faq" className="mx-auto max-w-[900px] px-5 py-20 sm:px-8 lg:py-24">
+          <SectionHead center eyebrow="Questions" title="The things people ask before they trust us." />
+          <div className="mt-10 flex flex-col gap-3">
+            {faq.map((f) => (
+              <details
+                key={f.q}
+                className="group rounded-card border border-line bg-white px-5 py-4 shadow-m-1 open:shadow-m-2"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-[16px] font-semibold text-ink marker:hidden">
+                  {f.q}
+                  <span
+                    aria-hidden="true"
+                    className="shrink-0 text-[20px] leading-none text-teal transition-transform group-open:rotate-45"
+                  >
+                    +
+                  </span>
                 </summary>
-                <p className="pb-5 text-sm leading-relaxed text-ink-700">{a}</p>
+                <p className="mt-3 text-[14px] leading-relaxed text-ink-soft">{f.a}</p>
               </details>
             ))}
           </div>
         </section>
 
-        {/* ════ FINAL CTA ════ */}
-        <section className="border-t border-line bg-navy-deep">
-          <div className="mx-auto max-w-[900px] px-5 py-24 text-center sm:px-8 lg:py-28">
-            <Kicker light>Ready to begin</Kicker>
-            <h2 className="mt-4 font-serif text-4xl leading-tight text-white sm:text-5xl">
-              Ready for your next Gulf opportunity?
+        {/* ════════ FINAL CTA ════════ */}
+        <section className="border-t border-line bg-teal">
+          <div className="mx-auto flex max-w-[900px] flex-col items-center gap-6 px-5 py-20 text-center sm:px-8 lg:py-24">
+            <h2 className="max-w-[20ch] font-display text-[32px] font-semibold leading-[1.1] tracking-[-0.02em] text-white sm:text-[42px]">
+              Find out where you stand. It takes one upload.
             </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/75">
-              No perfect CV required. No inflated claims. Just a clearer path to prepare, apply and grow.
+            <p className="max-w-[54ch] text-[16px] leading-relaxed text-teal-soft/90">
+              Free, no card, no login. You get a scored breakdown and a ranked plan of what to fix
+              first — whether or not you ever pay us anything.
             </p>
-            <Link href="/gulf-readiness-score" className={cn(buttonVariants({ variant: 'purchase' }), 'mt-8 text-[15px] px-6')}>
-              Score My CV Free <ArrowRightIcon className="ml-1 h-4 w-4" />
+            <Link
+              href="/gulf-readiness-score"
+              className={cn(buttonVariants({ variant: 'primary' }), 'px-8 text-[15px]')}
+            >
+              Score my CV free <ArrowRightIcon className="ml-1 size-4" />
             </Link>
+            <p className="flex items-center gap-2 text-[13px] text-teal-soft/75">
+              <ShieldCheckIcon className="size-4" />
+              Only facts already in your profile are ever used. Nothing is invented.
+            </p>
           </div>
         </section>
       </main>
-
-      {/* ════ FOOTER ════ */}
-      <footer className="border-t border-line bg-surface-2-light">
-        <div className="mx-auto max-w-[1280px] px-5 py-14 sm:px-8 lg:px-12">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="lg:col-span-2">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-radius-lg bg-navy-deep text-lg font-bold text-white">G</span>
-                <span className="font-bold text-ink-900">GCC MENTOR</span>
-              </div>
-              <p className="mt-4 max-w-[320px] text-sm text-ink-400">Your career intelligence platform for Indian professionals targeting GCC opportunities. Built by a 15+ year Gulf E&amp;I Superintendent.</p>
-            </div>
-            <div>
-              <b className="text-sm text-ink-900">Product</b>
-              <div className="mt-4 flex flex-col gap-2.5 text-sm text-ink-400">
-                <Link href="/gulf-readiness-score">Free Gulf Readiness Score</Link>
-                <Link href="/signup">Create account</Link>
-                <a href="#pricing">Pricing</a>
-              </div>
-            </div>
-            <div>
-              <b className="text-sm text-ink-900">Company</b>
-              <div className="mt-4 flex flex-col gap-2.5 text-sm text-ink-400">
-                <Link href="/login">Log in</Link>
-                <span>Privacy</span>
-                <span>Terms</span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-10 border-t border-line pt-6 text-sm text-ink-400">Built for Gulf professionals.</div>
-        </div>
-      </footer>
     </div>
   )
 }

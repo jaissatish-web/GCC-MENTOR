@@ -1,35 +1,122 @@
 'use client'
 
 import * as React from 'react'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
+
+/**
+ * The public site header.
+ *
+ * REBUILT IN MERIDIAN 2026-09-09, with the landing page. It was the last piece
+ * of chrome still on the navy palette, which meant a visitor met one design in
+ * the header and another in the page under it.
+ *
+ * THE ANCHORS HAD DRIFTED. "How It Works" pointed at `#how-it-works`, a section
+ * id that no longer exists — the section is `#how`. A nav link that scrolls
+ * nowhere is a small thing that reads as a broken site, which is expensive on
+ * the one page whose job is to earn trust. Every href here is checked against
+ * a real id in `app/page.tsx`.
+ *
+ * The CTA is the FREE scorecard, never signup: it needs no login, returns a
+ * real result in one step, and is the designed top of the funnel.
+ */
 
 const ITEMS = [
   ['Services', '#services'],
-  ['How It Works', '#how-it-works'],
-  ['Gulf Markets', '#markets'],
+  ['How it works', '#how'],
+  ['Templates', '#templates'],
+  ['Gulf markets', '#markets'],
   ['Pricing', '#pricing'],
 ] as const
 
 export function SiteNav() {
   const [open, setOpen] = React.useState(false)
+
   return (
-    <header className="sticky top-0 z-30 border-b border-line/80 bg-bg/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-5 sm:px-8 lg:px-12">
-        <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
-          <span className="font-serif flex h-9 w-9 items-center justify-center rounded-lg bg-navy-deep text-lg text-redesign-gold">G</span>
-          <span className="text-[16px] font-bold tracking-wide text-ink-900">GCC MENTOR</span>
+    <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur-xl">
+      <div className="mx-auto flex h-[68px] max-w-[1240px] items-center justify-between gap-4 px-5 sm:px-8 lg:px-12">
+        <Link
+          href="/"
+          onClick={() => setOpen(false)}
+          className="flex items-center gap-2.5 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+        >
+          <span className="flex size-9 items-center justify-center rounded-ctl bg-teal font-display text-[16px] font-bold text-white">
+            G
+          </span>
+          <span className="font-display text-[16px] font-bold tracking-[-0.01em] text-ink">
+            GCC MENTOR
+          </span>
         </Link>
+
         <nav className="hidden items-center gap-1 lg:flex">
-          {ITEMS.map(([label, href]) => <a key={href} href={href} className="rounded-lg px-3 py-2 text-[13px] font-semibold text-ink-400 transition-colors hover:text-ink-900">{label}</a>)}
+          {ITEMS.map(([label, href]) => (
+            <a
+              key={href}
+              href={href}
+              className="rounded-ctl px-3 py-2 text-[13.5px] font-semibold text-ink-soft transition-colors hover:bg-teal-soft hover:text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            >
+              {label}
+            </a>
+          ))}
         </nav>
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="hidden text-[13px] font-semibold text-ink-400 hover:text-ink-900 sm:inline">Log in</Link>
-          <Link href="/gulf-readiness-score" className={buttonVariants({ variant: 'purchase', size: 'sm' }) + ' hidden sm:inline-flex'}>Score My CV Free</Link>
-          <button type="button" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen(v => !v)} className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-ink-900 lg:hidden">{open ? '✕' : '☰'}</button>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href="/login"
+            className="hidden rounded-ctl px-2 py-2 text-[13.5px] font-semibold text-ink-soft hover:text-teal sm:inline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          >
+            Log in
+          </Link>
+          <Link
+            href="/gulf-readiness-score"
+            className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'hidden sm:inline-flex')}
+          >
+            Score my CV free
+          </Link>
+          <button
+            type="button"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+            className="flex size-11 items-center justify-center rounded-ctl bg-teal-soft text-teal lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+          >
+            {open ? <XMarkIcon className="size-5" /> : <Bars3Icon className="size-5" />}
+          </button>
         </div>
       </div>
-      {open ? <div className="border-t border-line bg-bg px-5 py-5 lg:hidden"><nav className="mx-auto flex max-w-[1280px] flex-col gap-1">{ITEMS.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)} className="min-h-11 rounded-lg px-3 py-3 text-[15px] font-semibold text-ink-900">{label}</a>)}<Link href="/gulf-readiness-score" onClick={() => setOpen(false)} className="mt-3 min-h-11 rounded-lg bg-navy-deep px-4 py-3 text-center font-bold text-white">Score My CV Free</Link></nav></div> : null}
+
+      {open ? (
+        <div className="border-t border-line bg-white px-5 py-4 lg:hidden">
+          <nav className="mx-auto flex max-w-[1240px] flex-col gap-1">
+            {ITEMS.map(([label, href]) => (
+              <a
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+                className="min-h-11 rounded-ctl px-3 py-3 text-[15px] font-semibold text-ink hover:bg-teal-soft"
+              >
+                {label}
+              </a>
+            ))}
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="min-h-11 rounded-ctl px-3 py-3 text-[15px] font-semibold text-ink hover:bg-teal-soft sm:hidden"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/gulf-readiness-score"
+              onClick={() => setOpen(false)}
+              className={cn(buttonVariants({ variant: 'primary' }), 'mt-2 w-full')}
+            >
+              Score my CV free
+            </Link>
+          </nav>
+        </div>
+      ) : null}
     </header>
   )
 }
