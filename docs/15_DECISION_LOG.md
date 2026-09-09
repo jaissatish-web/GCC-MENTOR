@@ -12,6 +12,59 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-09 — The app shell is built in a layout, never in a page
+
+**A regression I introduced the previous day, and the rule that prevents it.**
+
+`AppFooter` is an **async server component**: it reads the founder-written footer copy and
+the published legal pages through the service-role client. On 2026-09-08 it was placed
+inside `AppShell` so that no new screen could forget the header and footer. That reasoning
+was right; the placement was not.
+
+**Nine signed-in screens render `AppShell` from a page marked `'use client'`.** A module
+imported by a client component is compiled for the browser, so `AppShell` — and
+`AppFooter` with it — became client modules. AppFooter then ran in the browser, hit the
+guard in `lib/supabase/serviceAdmin.ts`, and the rejected promise took hydration with it:
+
+```
+Error: createServiceRoleClient must never be called in a browser context
+Warning: async/await is not yet supported in Client Components
+Warning: An error occurred during hydration — server HTML was replaced with client content
+```
+
+`/dashboard` was the only signed-in screen that never broke, because
+`app/dashboard/layout.tsx` had always built the shell in a **layout**, which is a server
+component. That is now the rule everywhere.
+
+**The rule.** The app shell is constructed in a `layout.tsx`. A page never wraps itself in
+`AppShell`. Anything the shell renders may therefore stay a server component and read the
+database directly, and the page below is still free to be a client component.
+
+**One route could not follow it.** `/package/[id]` has `edit` nested beneath it, and a
+layout at `app/package/[id]/` would wrap the editor too — which deliberately passes
+`hideNav` so an in-progress edit is not one tap from "Dashboard" with unsaved changes open
+(2026-08-19). A parent layout would have handed the sidebar back and silently undone a
+founder decision. So that route file became a server component wrapping a client
+`PackageScreen.tsx` instead. The editor needed no change at all: `hideNav` renders no
+footer, so it never had the bug.
+
+**The service-role key was never exposed.** `SUPABASE_SERVICE_ROLE_KEY` has no
+`NEXT_PUBLIC_` prefix, so Next never inlines it into a browser bundle, and the guard threw
+before any client was constructed. Verified by searching the server HTML of all ten routes
+for the key. **This was a crash, not a leak** — and the guard is the reason it was a crash
+rather than something worse, which is the argument for keeping guards like it.
+
+**Why the build did not catch it.** `next build` compiled all of this without complaint;
+so did `tsc` and ESLint. It is a runtime boundary error, visible only when the page
+actually hydrates in a browser. The previous session verified the footer change by build
+and by reading the diff, and that was not enough — the check that would have found it in
+seconds was loading one signed-in page and reading the console.
+
+**Measured side effect.** Moving the shell out of the client bundles cut first-load JS:
+`/profile` 192→121 kB, `/templates` 188→108 kB, `/package/[id]` 190→124 kB.
+
+---
+
 ## 2026-09-09 — A package is a target job, and Blueprint keeps the accent
 
 ### The Library was never a library
