@@ -137,8 +137,7 @@ export default function GulfReadinessScorePage() {
           <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">Free Gulf readiness score</p>
           <h1 className="mt-4 font-bp-display text-4xl leading-tight sm:text-5xl">How Gulf-ready is your career?</h1>
           <p className="mt-4 text-[15px] leading-relaxed text-graphite-soft">
-            Upload your resume and answer two quick questions. Get a free Gulf Readiness Score — with the strengths,
-            gaps and next steps for your GCC job search. No signup required to see your score.
+            Two questions and your CV. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
           </p>
         </div>
 

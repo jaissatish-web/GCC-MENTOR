@@ -200,8 +200,7 @@ function TargetScreen() {
       <div className="px-5 pb-4">
         <h1 className="font-bp-display text-[27px] leading-tight text-graphite">Set your target role</h1>
         <p className="mt-1.5 text-[13px] leading-relaxed text-graphite-soft">
-          One required field. Add a job description or industry too and we&rsquo;ll tailor the wording
-          more precisely — but your resume is optimized either way.
+          One required field. A job description or industry sharpens the result — neither is needed to start.
         </p>
       </div>
 
@@ -310,8 +309,7 @@ function TargetScreen() {
               Paste the job posting for the closest match
             </div>
             <p className="text-[12px] leading-snug text-slate">
-              With a job description, we match the employer&apos;s exact wording and requirements. Without
-              one, we still optimize your resume using your target role and industry.
+              Paste the advert and we match its exact wording and requirements. Without one we work from your target role.
             </p>
             <textarea
               id="f_job_description"

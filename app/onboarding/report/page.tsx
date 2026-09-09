@@ -80,8 +80,7 @@ export default function OnboardingReportPage() {
           <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-signal-ink">Your full Gulf readiness report</p>
           <h1 className="mt-3 font-bp-display text-3xl leading-tight sm:text-4xl">Unlocked — here&rsquo;s everything we found</h1>
           <p className="mx-auto mt-3 max-w-md text-[14px] leading-relaxed text-graphite-soft">
-            The complete breakdown of the score you saw, with every dimension and your full ranked action plan. Next,
-            we&rsquo;ll build your Career Profile so you can act on it.
+            Every dimension, and your ranked action plan. Next we build your Career Profile so you can act on it.
           </p>
         </div>
 
@@ -90,8 +89,7 @@ export default function OnboardingReportPage() {
         <div className="mt-8 rounded-bp-lg border border-signal/40 bg-gold-tint/40 p-6 text-center sm:p-8">
           <h2 className="font-bp-display text-2xl text-graphite">Now let&rsquo;s build your Career Profile</h2>
           <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-graphite-soft">
-            We already have your resume — we&rsquo;ll read it once, free, and fill in everything we can. You review and
-            confirm before anything is saved.
+            We already have your resume. We read it once, free — you confirm before anything is saved.
           </p>
           <div className="mt-5">
             <Button

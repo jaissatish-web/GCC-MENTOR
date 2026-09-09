@@ -198,8 +198,7 @@ function NextStep({ score }: { score: Score }) {
           have to be uploaded again.
         */}
         <p className="mt-4 text-center text-xs text-slate">
-          Free to create. This scan is kept for 7 days — sign up within that time and we carry it
-          straight into your profile, so you never upload your CV twice.
+          Free. We keep this scan for 7 days — sign up within that time and you never upload your CV twice.
         </p>
       </div>
     </section>

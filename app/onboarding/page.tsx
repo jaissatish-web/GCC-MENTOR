@@ -214,8 +214,7 @@ export default function OnboardingPage() {
             Let&apos;s build your Career Profile
           </h1>
           <p className="text-[14px] leading-relaxed text-graphite-soft">
-            Built once, reused for every future application. Choose whichever is easiest — all three
-            end up in the same place.
+            Built once, reused for every application. All three routes end up in the same place.
           </p>
         </div>
 
@@ -225,7 +224,7 @@ export default function OnboardingPage() {
             icon={<span className="text-[17px] text-signal">↑</span>}
             title="Upload a file"
             badge="Fastest"
-            description="Resume PDF/DOCX, or your LinkedIn profile export. We read it and fill in everything we can."
+            description="PDF, Word or a LinkedIn export. We read it and fill in what we can."
             selected={path === 'upload'}
             onClick={() => setPath('upload')}
           />
@@ -250,8 +249,7 @@ export default function OnboardingPage() {
           <div className="flex items-start gap-2.5 rounded-bp-lg border border-edge bg-paper px-3.5 py-3">
             <span className="text-[13px] text-signal-ink">⌾</span>
             <p className="text-[12px] leading-snug text-graphite-soft">
-              Your file is used only to build your profile. Passport, visa and contact fields are
-              encrypted and never shown publicly.
+              Used only to build your profile. Passport, visa and contact fields are encrypted.
             </p>
           </div>
           <Button

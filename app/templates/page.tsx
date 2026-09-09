@@ -62,7 +62,7 @@ function TemplatesInner() {
     <PageShell
       width="wide"
       title="Resume templates"
-      subtitle="Ten designs, all built for GCC applications. Every preview shows the same example CV, so you can compare them properly."
+      subtitle="Ten designs for GCC applications. Every preview uses the same example CV, so you can compare them."
     >
       {/* The action bar sticks to the top so the choice made at the bottom of a
           long gallery is still actionable without scrolling back. */}
@@ -123,8 +123,7 @@ function TemplatesInner() {
       />
 
       <p className="text-center text-[12px] text-slate">
-        Previews use an example CV. Your own wording, dates and details are never changed by
-        switching template.
+        Switching template never changes your wording, dates or details.
       </p>
     </PageShell>
   )

@@ -156,8 +156,7 @@ function VisibilityScreen() {
         </button>
         <h1 className="font-bp-display text-[27px] leading-tight text-graphite">What appears on your CV</h1>
         <p className="text-[13px] leading-normal text-graphite-soft [text-wrap:pretty]">
-          Gulf employers expect some of these; others you may prefer to hide. Hiding a field never
-          deletes it — the template closes the gap cleanly.
+          Hiding a field never deletes it — the template closes the gap cleanly.
         </p>
       </div>
 
@@ -187,8 +186,7 @@ function VisibilityScreen() {
         <div className="flex items-start gap-2.5 rounded-bp border border-edge/60 bg-white px-3.5 py-3">
           <span className="text-[13px] text-signal">⌾</span>
           <p className="text-[12px] leading-snug text-graphite-soft">
-            Passport and visa fields are encrypted. Every internal access is logged. You can delete
-            your profile and all packages at any time from Settings.
+            Passport and visa fields are encrypted, and every internal access is logged.
           </p>
         </div>
         <Button variant="primary" className="w-full" disabled={saving} onClick={onDone}>

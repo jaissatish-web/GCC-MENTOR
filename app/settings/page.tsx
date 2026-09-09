@@ -129,7 +129,7 @@ export default async function SettingsPage({
       <PageContainer>
         <PageHeader
           title="Settings"
-          description="Your account, what you currently have access to, and control over your data."
+          description="Your account, your access, and control over your data."
         />
 
         {/* Tabs — real links, so each section is bookmarkable and keyboard-navigable */}
@@ -162,7 +162,7 @@ export default async function SettingsPage({
           {tab === 'account' && (
             <SectionCard
               title="Account"
-              helper="Who you are on GCC MENTOR. Your name comes from your Career Profile — edit it there and it updates everywhere."
+              helper="Your name comes from your Career Profile — edit it there and it updates everywhere."
               actions={
                 <Link
                   href="/profile"
@@ -183,7 +183,7 @@ export default async function SettingsPage({
           {tab === 'email' && (
             <SectionCard
               title="Email"
-              helper="The address you sign in with and where account messages are sent."
+              helper="Where you sign in and where account messages go."
             >
               <div className="flex flex-col">
                 <Row label="Email address" value={user.email ?? '—'} />
@@ -199,8 +199,7 @@ export default async function SettingsPage({
                 />
               </div>
               <p className="mt-4 text-[12px] leading-relaxed text-slate">
-                Changing your sign-in email is not available in the app yet. Deleting your data does
-                not delete your login — see the Delete Data tab for exactly what is removed.
+                You cannot change your sign-in email here yet. Deleting your data does not delete your login.
               </p>
             </SectionCard>
           )}
@@ -208,7 +207,7 @@ export default async function SettingsPage({
           {tab === 'package' && (
             <SectionCard
               title="Current Package"
-              helper="GCC MENTOR sells one-off services rather than a subscription, so what you hold is a set of service credits."
+              helper="One-off services, not a subscription — so what you hold is service credits."
             >
               {Object.keys(availableByService).length > 0 ? (
                 <ul className="flex flex-col gap-2.5">
@@ -228,8 +227,7 @@ export default async function SettingsPage({
                 </ul>
               ) : (
                 <EmptyState>
-                  You have no service credits at the moment. Credits are added when you buy a service
-                  or redeem a code.
+                  No credits yet. They arrive when you buy a service or redeem a code.
                 </EmptyState>
               )}
 
@@ -259,7 +257,7 @@ export default async function SettingsPage({
           {tab === 'payments' && (
             <SectionCard
               title="Payments"
-              helper="What you have unlocked so far. Payments moved here from the main menu — nothing about how they work has changed."
+              helper="What you have unlocked so far."
             >
               {unlocked.length > 0 ? (
                 <ul className="flex flex-col gap-2.5">
@@ -290,9 +288,7 @@ export default async function SettingsPage({
               )}
 
               <p className="mt-5 rounded-bp border border-edge bg-paper px-4 py-3 text-[12px] leading-relaxed text-slate">
-                Online card payment is not switched on yet, so there is no saved card, invoice
-                history or billing address to show here. Access is currently granted directly or by
-                redeeming a code. This section will show real transactions once checkout goes live.
+                Card payment is not switched on yet, so there is nothing to show here. Access is granted directly or by redeeming a code.
               </p>
             </SectionCard>
           )}

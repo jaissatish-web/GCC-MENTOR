@@ -372,9 +372,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           <section className="rounded-bp-lg border border-edge bg-paper/40 p-5">
             <h2 className="text-[13px] font-bold text-graphite">Everything else</h2>
             <p className="mt-1.5 text-[12px] leading-relaxed text-slate">
-              Your name, contact details, employers, job titles, dates, education, certifications
-              and skills are the same on every resume, so they are edited once in your Career
-              Profile rather than per resume.
+              These are the same on every resume, so they are edited once in your Career Profile.
             </p>
             <Link
               href="/profile"
