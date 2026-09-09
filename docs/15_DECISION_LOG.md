@@ -12,6 +12,68 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-09 — A package is a target job, and Blueprint keeps the accent
+
+### The Library was never a library
+
+Asked for a product built on **one profile → many target jobs → many applications**, the
+finding was that it already exists. A `packages` row carries `target_job_title`,
+`target_company`, `target_country`, `job_description`, `optimized_content`,
+`cover_letters` and a `status` running `applied → shortlisted → interview →
+visa_processing → offer` — editable as a dropdown since migration 012.
+
+**That is an application tracker presented as a filing cabinet.** Every row was somebody's
+live job application, drawn as a saved document, with the job it was for appearing only as
+a placeholder in a rename field.
+
+So the brief's data model needed **no schema change at all** — it was a naming and
+presentation problem. `/dashboard/library` keeps its route and becomes Target Jobs: the
+row's identity is the job, and the CV and letters are things that job has.
+
+**Company and country came back, conditionally.** TASK-157 removed them because they
+rendered "No company · Not specified" on essentially every row — correct for a subtitle
+that always prints. As the row's identity they render only when supplied, and the line
+simply gets shorter when they are not. `generic_gulf` is treated as unspecified: it is the
+value stored when nobody picked a country, and "Generic Gulf" is our enum, not a place
+anyone is moving to.
+
+### One action, and it never points at something unbuilt
+
+The dashboard's next-best-action was a three-tier ternary with no notion of a half-built
+job, so a user who set one up and stopped was told to *"optimize your next application"* —
+the product walking past the thing they had abandoned. Now `lib/nextAction.ts`, seven
+states, ordered so **finishing what you started outranks starting something new**, with 26
+assertions in `scripts/verify-next-action.ts`.
+
+**There is deliberately no branch for the interview stage.** The status enum has one and
+Interview Prep does not exist. A primary call to action landing on "coming soon" would be
+the product breaking its own promise on the most prominent surface it has.
+
+### Option A: Blueprint keeps the accent, warmth arrives as surfaces
+
+The redesign brief specified navy / forest / gold / ivory — close to the palette Blueprint
+had replaced the previous day, after the founder chose it and approved rolling it across
+66 files. Raised as a conflict rather than silently rebuilt; the founder chose **Option
+A**.
+
+So `bp-sand` and `bp-navy` join Blueprint as **surfaces, never actions**. `signal` remains
+the only colour in this product that means "do this" — the moment navy is used for a CTA
+there are two action colours and neither reads as one.
+
+**Measured before they were written, and two pairs failed.** `slate` on sand is 4.24 and
+`signal` on sand is 3.99. So three standing rules hold on any sand surface: secondary text
+is `graphite-soft`; accent text is `signal-ink`; and no form control sits on it, because
+`edge-strong` reaches only 2.99 against it. Verified afterwards in the compiled stylesheet
+that all five new classes emit rules at exactly the values checked — the `text-info`
+defect was a token that generated no rule at all.
+
+**Bottom navigation stays**, pending an explicit answer. The brief said "not an app with
+bottom navigation"; the recommendation was to keep it, because these users are one-handed
+on a phone and a top hamburger puts every destination two taps away at the far end of the
+screen.
+
+---
+
 ## 2026-09-05 — Phase A structures the job description, because Hobby caps functions at 60s
 
 **Two production defects fixed, both found by the end-to-end suite.**

@@ -6,7 +6,7 @@ Nothing is removed from this file until it is genuinely resolved, and when it is
 resolved it is deleted rather than marked — the part-document it affects carries the
 outcome instead.
 
-**Last reviewed:** 2026-09-04
+**Last reviewed:** 2026-09-09
 
 ---
 
@@ -285,6 +285,20 @@ Whether one payment is always one resume, or whether a batch across multiple tar
 possible. No database constraint assumes either answer.
 
 ---
+
+### A7 · Bottom navigation — keep it, or go full website?
+
+The 2026-09-09 redesign brief said *"not an app with bottom navigation."* The shipped
+product has one: four thumb-reachable destinations, safe-area aware, converted to
+Blueprint and part of what the founder approved on 2026-09-08.
+
+**Recommendation: keep it.** These users are one-handed on a phone, often on site. A top
+hamburger puts every destination two taps away at the far end of the screen.
+
+It is the one point in that brief worth pushing back on, so it stays as it is until the
+founder says otherwise. Recorded here rather than acted on, because reversing it later
+costs more than deciding it now. The palette half of the same conflict **was** decided —
+"Option A", see [`15_DECISION_LOG.md`](15_DECISION_LOG.md) 2026-09-09.
 
 ## B. Defects and gaps, by severity
 

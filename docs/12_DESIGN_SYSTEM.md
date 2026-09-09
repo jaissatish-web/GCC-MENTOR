@@ -24,6 +24,11 @@ figures, sharp corners, and ONE signal colour that means "act".
 | `signal-tint` | `#FCE9E1` | Soft signal fill |
 | `edge` | `#D8DDE0` | Hairline. Decorative, never carries meaning |
 | `edge-strong` | `#76838E` | Input borders, which DO carry meaning |
+| `bp-sand` | `#E8E1D5` | Warm surface. A band or an inset — never an action |
+| `bp-sand-line` | `#D6CCBA` | Hairline on sand. Decorative, like `edge` |
+| `bp-navy` | `#12324F` | Dark chrome: headers, stage bars. Never a button |
+| `bp-navy-tint` | `#E3EAF2` | Informational fill |
+| `bp-navy-ink` | `#0C2338` | Text weight navy, for use on the tint |
 
 **Radius 4px** (`rounded-bp`) and 6px (`rounded-bp-lg`) — drawn, not rounded.
 **Type:** Archivo (`font-bp-display`) for headings, Inter for body, IBM Plex Mono for
@@ -79,6 +84,19 @@ only emits classes it can see literally, so a template literal there compiles to
    things that are one.
 3. **`edge` is decorative, `edge-strong` is meaningful.** A hairline separating two
    sections may sit below 3:1; the border of an input may not.
+4. **Sand and navy are surfaces, not actions** (2026-09-09, founder decision "Option A").
+   The redesign brief asked for a warm desert palette; rather than repaint the app a
+   second time, its two useful colours joined Blueprint as grounds. `signal` is still the
+   only colour that means "do this" — the moment navy is a CTA there are two action
+   colours and neither reads as one.
+5. **On a sand surface, three rules hold.** Secondary text is `graphite-soft`, never
+   `slate`. Accent text is `signal-ink`, never `signal`. And **no form control sits on
+   sand at all**, because `edge-strong` reaches only 2.99 against it. All three come from
+   measurement, not taste — see the failures below.
+
+`bp-sand` is 1.14 against `paper` and 1.30 against white: the same near-invisible value
+step `paper` already has against white. That is deliberate. It separates by **hue**, not
+by weight, so a sand band warms a screen without carving it into more boxes.
 
 ### Contrast, measured
 
@@ -90,8 +108,19 @@ only emits classes it can see literally, so a template literal there compiles to
 | `signal` on `white`, and white on `signal` | 5.18 / 5.18 |
 | `signal-ink` on `signal-tint` | 6.22 |
 | `edge-strong` on `paper` / `white` | 3.40 / 3.88 |
+| `graphite` on `bp-sand` | 14.14 |
+| `graphite-soft` on `bp-sand` | 7.42 |
+| `signal-ink` on `bp-sand` | 5.62 |
+| white on `bp-navy` | 13.17 |
+| `bp-navy` on `paper` / `white` | 11.52 / 13.17 |
+| `bp-navy` on `bp-navy-tint` | 10.86 |
+| `slate` on `bp-navy-tint` | 4.55 |
 
-**Two traps, both found by measuring rather than looking:**
+**Five traps, all found by measuring rather than looking:**
+- **`slate` on `bp-sand` is 4.24 and FAILS.** Sand carries `graphite-soft`.
+- **`signal` on `bp-sand` is 3.99 and FAILS for text.** Sand carries `signal-ink`.
+- **`edge-strong` on `bp-sand` is 2.99 and FAILS**, which is the whole reason no input may
+  sit on sand.
 - **`signal` on `signal-tint` is 4.41 and FAILS.** Text on a tinted fill uses
   `signal-ink`. A hue never pairs with its own tint.
 - **`signal-ink` on `signal` is 1.41.** Text on the solid accent is white.
@@ -166,7 +195,7 @@ belong with `PageShell` adoption where one component will own them.
 **What raising a floor surfaces.** Two mobile bottom-nav labels stopped fitting: measured
 with the real font at 12px, a 4-item bar on a 320px screen gives each item 80px, and
 "Resume Library" renders at 84px. `NavItem.shortLabel` now supplies a bar-only label
-("Library", "Profile", "Optimize"); the sidebar and the More sheet keep the full names,
+("Jobs", "Profile", "Optimize"); the sidebar and the More sheet keep the full names,
 because they have the room and the full name is clearer.
 
 ---
@@ -370,10 +399,16 @@ The desktop sidebar, the mobile bottom bar and the "More" drawer all render from
 They used to be three separate copies, and they had **already drifted** — the mobile
 bar still showed a renamed item and a destination that had moved.
 
-**Eight destinations, in this founder-specified order:**
+**Seven destinations, in this founder-specified order:**
 
-Dashboard · Career Profile · Resume Library · Resume Templates ·
-Job Match · Resume Optimizer · Cover Letter · Settings
+Dashboard · Career Profile · Target Jobs · Resume Templates ·
+Resume Optimizer · Cover Letter · Settings
+
+This list said eight and still named **Job Match**, which was removed with the standalone
+service on 2026-09-04 — corrected 2026-09-09. **"Resume Library" became "Target Jobs"** on
+the same date: the rows in it were never a library, and calling a live application a file
+is what hid the product's actual shape from its own users. The route (`/dashboard/library`)
+is unchanged, so no link anywhere breaks.
 
 The order is deliberate: the two things a returning user does most sit directly under
 Dashboard, and the tools that operate on what was created follow. **Payments is
