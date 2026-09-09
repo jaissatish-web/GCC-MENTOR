@@ -43,16 +43,64 @@ const LIVE_SERVICES = [
   { label: 'My Resumes', href: '/dashboard/library' },
 ]
 
+/**
+ * The about block, written by the founder at `/admin/content`.
+ *
+ * TWO CONVENTIONS, BOTH DELIBERATELY SMALL: a blank line starts a new
+ * paragraph, and `**text**` is bold. That is the whole syntax.
+ *
+ * WHY ANY SYNTAX AT ALL. The founder supplied this copy with `**` around its
+ * first and last lines, because that is how the text is actually shaped — a
+ * claim, the substance behind it, then the promise. Rendering it as one flat
+ * paragraph would have thrown that away, and hard-coding the emphasis in JSX
+ * would have taken the copy back out of his hands, which is the one thing
+ * migration 046 exists to prevent. Supporting `**` costs a regex and leaves
+ * him in control of it permanently.
+ *
+ * A rich text editor would be the wrong answer here for the same reason it was
+ * the wrong answer for the legal pages: text edited a few times a year does not
+ * justify one, and every one of them brings its own escaping bugs. React
+ * escapes the text either way, so nothing here can inject markup.
+ */
+function AboutBlock({ text }: { text: string }) {
+  const paragraphs = text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+
+  return (
+    <>
+      {paragraphs.map((para, i) => (
+        <p key={i} className="max-w-[40ch] text-[13px] leading-relaxed text-ink-soft">
+          {para.split(/(\*\*[^*]+\*\*)/g).map((part, j) =>
+            part.startsWith('**') && part.endsWith('**') && part.length > 4 ? (
+              <strong key={j} className="font-semibold text-ink">
+                {part.slice(2, -2)}
+              </strong>
+            ) : (
+              part
+            ),
+          )}
+        </p>
+      ))}
+    </>
+  )
+}
+
 export async function AppFooter() {
   const year = new Date().getFullYear()
   // Both read from site_content (migration 046) — founder-editable, no deploy.
   const [legalPages, aboutLine] = await Promise.all([
     listPublishedLegal(),
     // The fallback matches what is in the row, so a database hiccup degrades to
-    // the same sentence rather than to a different, older claim about the team.
+    // the same words rather than to a different, older claim about the team.
     getPublishedValue(
       'footer_about',
-      'Built by engineers, not recruiters. Our founder has spent 15 years on EPC and PMC projects for client companies across the Middle East, and the rest of the team comes from the same work.',
+      [
+        '**Built by engineers who understand Gulf careers.**',
+        '15+ years of Middle East EPC & PMC experience — helping professionals present the right experience, skills and achievements clearly for Gulf employers, so their CV has a better chance of getting noticed and shortlisted.',
+        '**Your experience. Better positioning. Better opportunities.**',
+      ].join('\n\n'),
     ),
   ])
 
@@ -75,24 +123,7 @@ export async function AppFooter() {
               GCC MENTOR
             </span>
           </Link>
-          <p className="max-w-[40ch] text-[13px] leading-relaxed text-ink-soft">{aboutLine}</p>
-          {/* WHY THIS SENTENCE IS HERE AND NOT ONLY IN THE ABOUT LINE. The
-              founder's point (2026-09-09): in the Gulf, knowing how the market
-              actually works is most of the outcome. It is written as OUR
-              JUDGEMENT — "we put it at" — not as a researched figure, because
-              this product's whole promise is that it does not state things it
-              cannot stand behind. A footer is not the place to invent a
-              statistic. */}
-          <p className="max-w-[40ch] text-[13px] leading-relaxed text-ink-soft">
-            In the Gulf, information decides most of it — what a client expects, how a
-            package is built, what a visa status signals. We put that at around{' '}
-            <strong className="font-semibold text-ink">75% of the outcome</strong>, which
-            is why this exists.
-          </p>
-          <p className="max-w-[40ch] text-[13px] leading-relaxed text-ink-muted">
-            Every generated line is checked against your own profile before you see it.
-            Nothing is invented.
-          </p>
+          <AboutBlock text={aboutLine} />
         </div>
 
         {/* ── what actually works today ── */}

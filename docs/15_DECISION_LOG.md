@@ -33,17 +33,35 @@ This is one token away from being softened if it starts costing more than it buy
 **What it must never become:** a link, or a marker on something that looks usable. That
 rule is unchanged and is the reason `PlannedNavItem` still has no href field.
 
-### The 75% figure is OURS, and is written as ours
+### The 75% figure was raised, then dropped
 
-The founder asked to say that information carries 75% of the weight of success in the Gulf
-market. It is in the footer as **"We put that at around 75% of the outcome"** — a stated
-judgement, not a researched statistic, and deliberately not dressed as one.
+The founder first asked to say that information carries 75% of the weight of success in the
+Gulf market. It shipped attributed — "We put that at around 75% of the outcome" — a stated
+judgement rather than a researched statistic, because this product's promise is that it does
+not state what it cannot stand behind (`02_PHILOSOPHY.md` §1), and inventing a
+precise-sounding market figure is that same failure one level up from the CV.
 
-This product's entire promise is that it does not state things it cannot stand behind
-(`02_PHILOSOPHY.md` §1). A footer that invents a precise-sounding market statistic to sound
-authoritative is the same behaviour the grounding rule exists to prevent, one level up from
-the CV. Attribution costs three words and keeps the claim honest. **If a real source is
-found later, cite it and drop the hedge** — that would be strictly better.
+**Later the same day the founder replaced the whole block with his own copy, and the figure
+is gone.** Worth keeping in the log: the replacement is better on exactly this axis. It
+claims a "better chance of getting noticed and shortlisted", which is true and checkable,
+instead of a number nobody can source.
+
+### The about block is written by the founder, with two characters of syntax
+
+`site_content.footer_about` now holds three paragraphs, and `AboutBlock` renders them with
+a blank line for a paragraph break and `**text**` for bold. That is the entire syntax.
+
+The founder supplied the copy already written that way, because that is the shape the text
+actually has — a claim, the substance behind it, then the promise. Hard-coding the emphasis
+in JSX would have taken the copy back out of his hands, which is the one thing migration 046
+exists to prevent. A rich text editor is the wrong answer for the same reason it was on the
+legal pages: text edited a few times a year does not justify one, and each brings its own
+escaping bugs.
+
+**"Nothing is invented" no longer appears in the footer** as a result. It remains on the
+login and signup trust strip, the cover-letter screen and the optimizer's setup step — the
+places where someone is actually handing over a CV, which `01_PRODUCT.md` §3 argues is where
+it belongs anyway.
 
 ### The team, named
 
