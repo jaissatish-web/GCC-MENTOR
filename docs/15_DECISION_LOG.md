@@ -81,6 +81,52 @@ emoji safe here — and the users are on phones.
 
 ---
 
+## 2026-09-10 — The public header shows the way in, and both menus share one panel
+
+### Log in and sign up are reachable from every width
+
+Founder request: an existing user had no direct way in from the landing page. "Log in"
+existed but was hidden below 640px, there was no sign-up anywhere in the header, and the
+three-bar appeared only below 1024px as a dropdown rather than the side panel the app uses.
+
+**This reverses a stated decision.** The header's CTA was deliberately the free scorecard
+and "never signup", because the scorecard is the designed top of the funnel. The founder
+chose account access over that. The scorecard stays the hero's primary action and the
+first service in the menu, so the funnel's front door is unchanged — the header just stops
+hiding the other doors.
+
+What fits where was measured at 375px, not assumed: the wordmark, "Log in" and the
+three-bar fill the row exactly (375 of 375). "Sign up free" joins from 640px; below that it
+is the first thing the panel shows, and the hero carries a "Log in · Create free account"
+line above the fold.
+
+**The public menu's service links point at the real pages, not at `/signup`.** Every
+service except the scorecard is protected, and middleware sends a signed-out visitor to
+`/login?redirectTo=<page>` — so a real link lands an existing user on the thing they
+tapped. `/signup` would have dropped them on the dashboard. `/login` and `/signup` already
+redirect a signed-in user to their dashboard, so the account buttons are safe for them too,
+and the landing page did not need to become dynamic to know who is visiting.
+
+### One panel component, because the fix it carries is easy to lose
+
+Both three-bar menus are launched from inside a sticky `backdrop-blur` header, which is
+exactly what made the first app menu 64px tall (2026-09-09): a backdrop filter makes its
+element the containing block for fixed descendants. `components/ui/SideSheet.tsx` now owns
+the portal, the mount guard, Escape-to-close with focus returned to the trigger, and the
+scroll lock. The app menu moved onto it and was re-verified — full height, all destinations,
+and, for the first time actually tested, Escape closing it with focus back on the button.
+
+### Scroll after close from an effect, never from a frame callback
+
+Section links in the public panel close it and then scroll. The first version scrolled in
+`requestAnimationFrame`; in testing the panel closed but nothing moved and the hash never
+changed. rAF does not fire in a tab that is not being painted, so the navigation was
+silently dropped. The target is now remembered and scrolled to in the effect that runs once
+the panel is closed — after SideSheet's cleanup has released the scroll lock, since React
+runs every cleanup before any new effect body.
+
+---
+
 ## 2026-09-09 — The app shell is built in a layout, never in a page
 
 **A regression I introduced the previous day, and the rule that prevents it.**

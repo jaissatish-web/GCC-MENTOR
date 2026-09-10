@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon } from '@heroicons/react/24/outline'
+import { SideSheet, SheetGroupLabel } from '@/components/ui/SideSheet'
 import { cn } from '@/lib/utils'
 import { NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
 
@@ -33,18 +33,12 @@ import { NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } 
  * edge reads as a different object. It is also the reachable corner for a
  * right-handed thumb, which is how these users hold a phone on a site.
  *
- * THE OVERLAY IS PORTALLED TO <body>, AND IT HAS TO BE. The trigger lives in
- * `AppHeader`, which is `backdrop-blur-md` — and a `backdrop-filter` other than
- * `none` makes an element a CONTAINING BLOCK for every fixed-position
- * descendant. Rendered in place, the sheet's `fixed inset-0` therefore resolved
- * against the header's own 64px-tall box rather than the viewport: the panel
- * was 64px tall, its rows spilled out of it, and the page showed through below.
- * It looked like a paint glitch, which is exactly why it survived a review —
- * the DOM was correct and only the geometry was wrong.
- *
- * A portal is the fix rather than removing the blur, because the blur is what
- * keeps the sticky header legible over scrolling content. Anything fixed and
- * full-screen that is triggered from inside that header has to leave it.
+ * THE PANEL ITSELF IS `components/ui/SideSheet.tsx`, shared with the public
+ * site's menu. It is portalled to <body> because this trigger lives inside a
+ * `backdrop-blur` header, and a backdrop filter makes its element the
+ * containing block for fixed descendants — the first version of this menu was
+ * 64px tall for exactly that reason. The fix lives in SideSheet once rather
+ * than in two copies.
  *
  * NAVIGATION IS THE ONLY THING IT DOES. It reads `NAV_ITEMS`, the same array
  * the sidebar and the bottom bar read, so the three can never drift.
@@ -121,36 +115,9 @@ function MenuRow({ item, onNavigate, active }: { item: NavItem; onNavigate: () =
 
 export function ServicesMenu() {
   const [open, setOpen] = useState(false)
-  // `document` does not exist while this renders on the server, so the portal
-  // may only be created after mount.
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
   const pathname = usePathname() ?? ''
-  const panelRef = useRef<HTMLDivElement | null>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
-
   const close = useCallback(() => setOpen(false), [])
-
-  // Escape closes it, and focus goes back to the button that opened it —
-  // otherwise a keyboard user is dropped at the top of the document.
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpen(false)
-        triggerRef.current?.focus()
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    // The page behind must not scroll while a full-height sheet is over it.
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    panelRef.current?.focus()
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prev
-    }
-  }, [open])
 
   // A route change closes it. Without this, tapping a row on a slow connection
   // leaves the sheet sitting over the page it just navigated to.
@@ -174,93 +141,45 @@ export function ServicesMenu() {
         <Bars3Icon className="size-5 text-teal" />
       </button>
 
-      {open && mounted
-        ? createPortal(
-            <div className="fixed inset-0 z-50">
-              {/* The scrim is a button so a tap outside closes, and so the whole
-                  affordance is reachable without a mouse. */}
-              <button
-                type="button"
-                aria-label="Close menu"
-                onClick={close}
-                className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]"
-              />
-              <div
-                ref={panelRef}
-                role="dialog"
-                aria-modal="true"
-                aria-label="All services"
-                tabIndex={-1}
-                className="absolute inset-y-0 right-0 flex w-[87%] max-w-[360px] flex-col bg-canvas shadow-m-drawer focus:outline-none"
-              >
-                <div className="flex items-center justify-between border-b border-line bg-white px-4 py-3.5">
-                  <span className="font-display text-[16px] font-semibold text-ink">All services</span>
-                  <button
-                    type="button"
-                    onClick={close}
-                    aria-label="Close menu"
-                    className="flex size-9 items-center justify-center rounded-ctl bg-canvas text-ink-soft transition-colors hover:bg-line/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-                  >
-                    <XMarkIcon className="size-[18px]" />
-                  </button>
-                </div>
-
-                <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-3.5 py-4 pb-8">
-                  {GROUPS.map((group) => {
-                    const rows = group.hrefs.map(itemFor).filter(Boolean) as NavItem[]
-                    if (rows.length === 0) return null
-                    return (
-                      <div key={group.label} className="flex flex-col gap-2">
-                        <span className="px-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink-muted">
-                          {group.label}
-                        </span>
-                        {rows.map((item) => (
-                          <MenuRow
-                            key={item.href}
-                            item={item}
-                            active={isNavItemActive(item, pathname)}
-                            onNavigate={close}
-                          />
-                        ))}
-                      </div>
-                    )
-                  })}
-
-                  {/* Roadmap, and deliberately not links — see the note at the top
-                      of this file. `PlannedNavItem` carries no href by design. */}
-                  <div className="flex flex-col gap-2">
-                    {/* Red, so the roadmap is countable at a glance before launch. */}
-                    <span className="px-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-alert">
-                      Not built yet
-                    </span>
-                    {PLANNED_NAV_ITEMS.map((item) => {
-                      const Icon = item.icon
-                      return (
-                        <div
-                          key={item.label}
-                          aria-disabled="true"
-                          className="flex min-h-[52px] items-center gap-3 rounded-ctl border border-dashed border-alert/40 bg-alert-soft/30 px-3.5 py-3"
-                        >
-                          <span
-                            aria-hidden="true"
-                            className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-alert-soft text-alert"
-                          >
-                            <Icon className="size-[18px]" />
-                          </span>
-                          <span className="text-[14px] font-semibold text-ink-muted">{item.label}</span>
-                          <span className="ml-auto rounded-full border border-alert/35 bg-alert-soft px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-alert">
-                            Soon
-                          </span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>,
-            document.body,
+      <SideSheet open={open} onClose={close} title="All services" returnFocusTo={triggerRef}>
+        {GROUPS.map((group) => {
+          const rows = group.hrefs.map(itemFor).filter(Boolean) as NavItem[]
+          if (rows.length === 0) return null
+          return (
+            <div key={group.label} className="flex flex-col gap-2">
+              <SheetGroupLabel>{group.label}</SheetGroupLabel>
+              {rows.map((item) => (
+                <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} />
+              ))}
+            </div>
           )
-        : null}
+        })}
+
+        {/* Roadmap, and deliberately not links — see the note at the top of this
+            file. `PlannedNavItem` carries no href by design. Red, so the
+            roadmap is countable at a glance before launch. */}
+        <div className="flex flex-col gap-2">
+          <SheetGroupLabel tone="alert">Not built yet</SheetGroupLabel>
+          {PLANNED_NAV_ITEMS.map((item) => {
+            const Icon = item.icon
+            return (
+              <div
+                key={item.label}
+                aria-disabled="true"
+                className="flex min-h-[52px] items-center gap-3 rounded-ctl border border-dashed border-alert/40 bg-alert-soft/30 px-3.5 py-3"
+              >
+                <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-alert-soft text-alert">
+                  <Icon className="size-[18px]" />
+                </span>
+                <span className="text-[14px] font-semibold text-ink-muted">{item.label}</span>
+                <span className="ml-auto rounded-full border border-alert/35 bg-alert-soft px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-alert">
+                  Soon
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </SideSheet>
     </>
   )
 }

@@ -301,6 +301,18 @@ export default function Home() {
             <p className="text-[13px] text-teal-soft/75">
               No card. Nothing saved unless you sign up. Stations 1&ndash;3 are free.
             </p>
+            {/* For the returning user on a phone, where the header has room for
+                "Log in" but not "Sign up": both, one line, above the fold. */}
+            <p className="text-[14px] text-teal-soft/90">
+              Already have an account?{' '}
+              <Link href="/login" className="font-semibold text-white underline underline-offset-4 hover:text-gold">
+                Log in
+              </Link>
+              <span aria-hidden="true" className="mx-2 text-teal-soft/50">·</span>
+              <Link href="/signup" className="font-semibold text-white underline underline-offset-4 hover:text-gold">
+                Create free account
+              </Link>
+            </p>
 
             {/* The six markets at full size — "specially for the Gulf" is the
                 whole claim, so this is the one place the flags are large. */}

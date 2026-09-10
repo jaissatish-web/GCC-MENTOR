@@ -1,20 +1,32 @@
-'use client'
-
-import * as React from 'react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
-import Link from 'next/link'
+import { PublicMenu } from './PublicMenu'
 
 /**
  * The public site header.
  *
- * REBUILT IN MERIDIAN 2026-09-09, with the landing page. It was the last piece
- * of chrome still on the navy palette, which meant a visitor met one design in
- * the header and another in the page under it.
+ * LOG IN AND SIGN UP ARE ALWAYS REACHABLE (founder request 2026-09-10). The
+ * previous header hid "Log in" on phones, had no sign-up at all, and showed
+ * the three-bar only below 1024px. An existing user on a phone — the person
+ * most likely to come back — had to open a dropdown to find the way in.
  *
- * The CTA is the FREE scorecard, never signup: it needs no login, returns a
- * real result in one step, and is the designed top of the funnel.
+ * WHAT FITS WHERE, measured rather than hoped for:
+ *   · Every width: the wordmark, "Log in", and the three-bar.
+ *   · From 640px: "Sign up free" joins them. Below that there is not room
+ *     for four things beside the wordmark on a 375px phone, so sign-up lives
+ *     at the top of the three-bar panel instead — the first thing it shows —
+ *     and the hero repeats the free start directly under the fold line.
+ *   · From 1024px: the section links appear in the middle.
+ *
+ * THIS REVERSES A STATED DECISION. The header CTA used to be the free
+ * scorecard, deliberately "never signup", because the scorecard is the designed
+ * top of the funnel. The founder chose account access over that; the scorecard
+ * is still the hero's primary action and the first service in the menu, so the
+ * funnel's front door is unchanged — the header just stops hiding the others.
+ *
+ * Server component: nothing here holds state. The only interactive part is the
+ * menu, which is its own client component.
  */
 
 /**
@@ -26,8 +38,9 @@ import Link from 'next/link'
  * Both times the build, the types and the lint all passed — a link to a missing
  * fragment is valid HTML that silently does nothing.
  *
- * `scripts/verify-landing-anchors.ts` now checks every href here against the
- * real ids in `app/page.tsx`. Run it after touching either file.
+ * `scripts/verify-landing-anchors.ts` checks every href here against the real
+ * ids in `app/page.tsx`. Run it after touching either file. The same list feeds
+ * the three-bar panel, so it cannot drift from the header either.
  */
 const ITEMS = [
   ['The path', '#path'],
@@ -38,25 +51,20 @@ const ITEMS = [
 ] as const
 
 export function SiteNav() {
-  const [open, setOpen] = React.useState(false)
-
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-[68px] max-w-[1240px] items-center justify-between gap-4 px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto flex h-[68px] max-w-[1240px] items-center justify-between gap-3 px-5 sm:px-8 lg:px-12">
         <Link
           href="/"
-          onClick={() => setOpen(false)}
-          className="flex items-center gap-2.5 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+          className="flex shrink-0 items-center gap-2.5 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
         >
           <span className="flex size-9 items-center justify-center rounded-ctl bg-teal font-display text-[16px] font-bold text-white">
             G
           </span>
-          <span className="font-display text-[16px] font-bold tracking-[-0.01em] text-ink">
-            GCC MENTOR
-          </span>
+          <span className="font-display text-[16px] font-bold tracking-[-0.01em] text-ink">GCC MENTOR</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex">
+        <nav aria-label="Sections" className="hidden items-center gap-1 lg:flex">
           {ITEMS.map(([label, href]) => (
             <a
               key={href}
@@ -68,61 +76,22 @@ export function SiteNav() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
           <Link
             href="/login"
-            className="hidden rounded-ctl px-2 py-2 text-[13.5px] font-semibold text-ink-soft hover:text-teal sm:inline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="flex min-h-11 items-center rounded-ctl px-2.5 text-[14px] font-semibold text-teal transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             Log in
           </Link>
           <Link
-            href="/gulf-readiness-score"
+            href="/signup"
             className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'hidden sm:inline-flex')}
           >
-            Score my CV free
+            Sign up free
           </Link>
-          <button
-            type="button"
-            aria-label={open ? 'Close menu' : 'Open menu'}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-            className="flex size-11 items-center justify-center rounded-ctl bg-teal-soft text-teal lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
-          >
-            {open ? <XMarkIcon className="size-5" /> : <Bars3Icon className="size-5" />}
-          </button>
+          <PublicMenu anchors={ITEMS} />
         </div>
       </div>
-
-      {open ? (
-        <div className="border-t border-line bg-white px-5 py-4 lg:hidden">
-          <nav className="mx-auto flex max-w-[1240px] flex-col gap-1">
-            {ITEMS.map(([label, href]) => (
-              <a
-                key={href}
-                href={href}
-                onClick={() => setOpen(false)}
-                className="min-h-11 rounded-ctl px-3 py-3 text-[15px] font-semibold text-ink hover:bg-teal-soft"
-              >
-                {label}
-              </a>
-            ))}
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="min-h-11 rounded-ctl px-3 py-3 text-[15px] font-semibold text-ink hover:bg-teal-soft sm:hidden"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/gulf-readiness-score"
-              onClick={() => setOpen(false)}
-              className={cn(buttonVariants({ variant: 'primary' }), 'mt-2 w-full')}
-            >
-              Score my CV free
-            </Link>
-          </nav>
-        </div>
-      ) : null}
     </header>
   )
 }
