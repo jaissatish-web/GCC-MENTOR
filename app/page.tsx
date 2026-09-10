@@ -206,7 +206,7 @@ const faq = [
 
 function Eyebrow({ children, onDark = false }: { children: React.ReactNode; onDark?: boolean }) {
   return (
-    <span className={cn('text-[11.5px] font-bold uppercase tracking-[0.16em]', onDark ? 'text-teal-soft' : 'text-teal')}>
+    <span className={cn('text-[12px] font-bold uppercase tracking-[0.16em]', onDark ? 'text-teal-soft' : 'text-teal')}>
       {children}
     </span>
   )
@@ -306,11 +306,11 @@ export default function Home() {
                 "Log in" but not "Sign up": both, one line, above the fold. */}
             <p className="text-[14px] text-teal-soft/90">
               Already have an account?{' '}
-              <Link href="/login" className="font-semibold text-white underline underline-offset-4 hover:text-gold">
+              <Link href="/login" className="inline-flex min-h-11 items-center font-semibold text-white underline underline-offset-4 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
                 Log in
               </Link>
               <span aria-hidden="true" className="mx-2 text-teal-soft/50">·</span>
-              <Link href="/signup" className="font-semibold text-white underline underline-offset-4 hover:text-gold">
+              <Link href="/signup" className="inline-flex min-h-11 items-center font-semibold text-white underline underline-offset-4 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
                 Create free account
               </Link>
             </p>
@@ -334,7 +334,7 @@ export default function Home() {
         {/* ════════ STANDARDS STRIP ════════ */}
         <section className="border-b border-line bg-white">
           <div className="mx-auto flex max-w-[1240px] flex-col gap-3 px-5 py-6 sm:px-8 lg:flex-row lg:items-center lg:gap-8 lg:px-12">
-            <p className="shrink-0 text-[11.5px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+            <p className="shrink-0 text-[12px] font-bold uppercase tracking-[0.14em] text-ink-muted">
               Built to the standards we worked to
             </p>
             <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -408,7 +408,7 @@ export default function Home() {
                   <div className={cn('flex flex-col gap-4 sm:pl-14 lg:pl-0', i % 2 === 1 && 'lg:order-2 lg:pl-14')}>
                     <span
                       className={cn(
-                        'w-fit rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.09em]',
+                        'w-fit rounded-full px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.06em]',
                         s.free ? 'bg-teal-soft text-teal' : 'bg-gold-soft text-gold-ink',
                       )}
                     >
@@ -437,7 +437,7 @@ export default function Home() {
                   <div className={cn('sm:pl-14 lg:pl-0', i % 2 === 1 && 'lg:order-1')}>
                     <StationVisual kind={s.visual} />
                     {s.visual !== 'templates' ? (
-                      <p className="mt-2.5 text-center text-[11.5px] text-ink-muted">
+                      <p className="mt-2.5 text-center text-[12px] text-ink-muted">
                         Illustrative — figures are examples, not customer data.
                       </p>
                     ) : null}
@@ -503,7 +503,7 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col gap-4">
-                <p className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-teal-soft">
+                <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal-soft">
                   Projects delivered
                 </p>
                 {credentials.map((c) => (
@@ -544,13 +544,13 @@ export default function Home() {
                   )}
                 >
                   {p.featured ? (
-                    <span className="w-fit rounded-full bg-teal-soft px-3 py-1 text-[10px] font-bold uppercase tracking-[0.09em] text-teal">
+                    <span className="w-fit rounded-full bg-teal-soft px-3 py-1 text-[12px] font-bold uppercase tracking-[0.06em] text-teal">
                       Most popular
                     </span>
                   ) : !p.live ? (
                     <NotLive className="w-fit">Checkout not live</NotLive>
                   ) : (
-                    <span className="w-fit rounded-full bg-canvas px-3 py-1 text-[10px] font-bold uppercase tracking-[0.09em] text-ink-muted">
+                    <span className="w-fit rounded-full bg-canvas px-3 py-1 text-[12px] font-bold uppercase tracking-[0.06em] text-ink-muted">
                       {p.tag}
                     </span>
                   )}

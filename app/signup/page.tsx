@@ -14,8 +14,10 @@ import { signup } from './actions'
 export default function SignupPage() {
   return (
     <AuthShell
-      headline="Start Building Your Gulf Career Profile."
-      body="One profile, built once — every future application, resume and interview reuses it."
+      headline="Start building your Gulf Career Profile."
+      // "…and interview reuses it" promised a feature that is not built —
+      // Interview Prep is labelled "Not built yet" everywhere else.
+      body="One profile, built once — every CV, cover letter and application reuses it."
     >
       <Card tone="light" className="flex w-full flex-col gap-1 p-8">
         <h1 className="font-display text-[26px] text-ink">Create your account</h1>
@@ -25,7 +27,10 @@ export default function SignupPage() {
         <AuthForm action={signup} submitLabel="Create your account" tone="light" />
         <p className="mt-6 text-center text-[13px] text-ink-muted">
           Already have an account?{' '}
-          <Link href="/login" className="font-semibold text-teal hover:text-teal">
+          <Link
+            href="/login"
+            className="inline-flex min-h-11 items-center px-1 font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          >
             Sign in
           </Link>
         </p>

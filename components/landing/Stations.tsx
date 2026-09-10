@@ -37,7 +37,7 @@ function Sheet({ children, className }: { children: React.ReactNode; className?:
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+    <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-ink-muted">
       {children}
     </span>
   )
@@ -115,7 +115,7 @@ export function ProfileVisual() {
     <Sheet>
       <div className="flex items-center justify-between gap-3">
         <Label>Career profile</Label>
-        <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-teal">
+        <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.08em] text-teal">
           Read from your CV
         </span>
       </div>
@@ -124,7 +124,7 @@ export function ProfileVisual() {
           <div key={r.label} className="flex items-center gap-3 py-2.5">
             <span
               className={cn(
-                'flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold',
+                'flex size-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold',
                 r.done ? 'bg-teal text-white' : 'border border-dashed border-line-strong text-ink-muted',
               )}
             >
@@ -184,7 +184,7 @@ export function TargetJobsVisual() {
             </span>
             <span
               className={cn(
-                'shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.07em]',
+                'shrink-0 rounded-full px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.07em]',
                 j.tone === 'gold' ? 'bg-gold-soft text-gold-ink' : 'bg-canvas text-ink-soft',
               )}
             >
@@ -203,13 +203,13 @@ export function OptimizerVisual() {
     <Sheet>
       <Label>Same experience, read properly</Label>
       <div className="rounded-ctl border border-line bg-canvas p-3.5">
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-muted">Your line</span>
+        <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">Your line</span>
         <p className="mt-1.5 text-[13px] leading-relaxed text-ink-soft">
           Handled instrumentation and electrical testing tasks at the plant site.
         </p>
       </div>
       <div className="rounded-ctl border border-teal/30 bg-teal-soft/50 p-3.5">
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-teal">
+        <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
           Written for a Gulf reader
         </span>
         <p className="mt-1.5 text-[13px] font-medium leading-relaxed text-ink">
@@ -232,7 +232,7 @@ export function LetterVisual() {
     <Sheet>
       <div className="flex items-center justify-between gap-3">
         <Label>Cover letter</Label>
-        <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-teal">
+        <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.08em] text-teal">
           Four tones
         </span>
       </div>
@@ -241,7 +241,7 @@ export function LetterVisual() {
           <span
             key={t}
             className={cn(
-              'rounded-full px-2.5 py-1 text-[11px] font-semibold',
+              'rounded-full px-2.5 py-1 text-[12px] font-semibold',
               i === 0 ? 'bg-teal text-white' : 'border border-line text-ink-soft',
             )}
           >

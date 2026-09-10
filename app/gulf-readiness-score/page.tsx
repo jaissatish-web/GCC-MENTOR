@@ -95,7 +95,14 @@ export default function GulfReadinessScorePage() {
             <span className="font-display flex h-9 w-9 items-center justify-center rounded-ctl bg-teal text-lg text-white">G</span>
             <span className="font-bold tracking-wide">GCC MENTOR</span>
           </Link>
-          <Link href="/login" className="text-sm font-semibold text-ink-muted hover:text-ink">Log in</Link>
+          {/* 44px tall and teal, like "Log in" everywhere else. It was a 20px
+              grey line, easy to miss for the returning user it exists for. */}
+          <Link
+            href="/login"
+            className="inline-flex min-h-11 items-center rounded-ctl px-2.5 text-sm font-semibold text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          >
+            Log in
+          </Link>
         </div>
       </header>
       <div className={`mx-auto px-5 py-12 sm:px-8 lg:py-16 ${wide ? 'max-w-[820px]' : 'max-w-[600px]'}`}>{children}</div>
@@ -172,7 +179,7 @@ export default function GulfReadinessScorePage() {
               setFile(null)
               setError(null)
             }}
-            className="mx-auto mt-4 block text-[13px] font-bold text-teal underline underline-offset-4"
+            className="mx-auto mt-2 flex min-h-11 items-center px-2 text-[13px] font-bold text-teal underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             {pasteMode ? 'Use file upload instead' : 'Paste text instead'}
           </button>

@@ -19,8 +19,11 @@ import { login } from './actions'
 export default function LoginPage() {
   return (
     <AuthShell
-      headline="Your Gulf Career, Built With Strategy."
-      body="Build a stronger profile, prepare for Gulf interviews and approach opportunities with confidence."
+      // Sentence case, like every heading after it. And no "prepare for Gulf
+      // interviews": Interview Prep is not built, and the login screen is the
+      // worst place to promise it.
+      headline="Your Gulf career, built with strategy."
+      body="Build a stronger profile, tailor your CV to each Gulf job and apply with confidence."
     >
       <Card tone="light" className="flex w-full flex-col gap-1 p-8">
         <AuthHashHandler />
@@ -29,7 +32,12 @@ export default function LoginPage() {
         <AuthForm action={login} submitLabel="Sign in" tone="light" />
         <p className="mt-6 text-center text-[13px] text-ink-muted">
           Don&apos;t have an account?{' '}
-          <Link href="/signup" className="font-semibold text-teal hover:text-teal">
+          {/* 44px tall: it measured 16px — the way in for someone who landed
+              on the wrong form was the hardest thing on the page to tap. */}
+          <Link
+            href="/signup"
+            className="inline-flex min-h-11 items-center px-1 font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          >
             Create one
           </Link>
         </p>
