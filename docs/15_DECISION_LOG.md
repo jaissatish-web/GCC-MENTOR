@@ -81,6 +81,41 @@ emoji safe here — and the users are on phones.
 
 ---
 
+## 2026-09-10 — Full UI/UX test pass: every screen, both widths, signed in and out
+
+**Brief:** "you are a tester of all design, UI/UX, user experience — do all parts of
+testing." Done with a fictional populated account (full profile, three target jobs, a
+generated CV and a cover letter) seeded straight into the database, so no model call
+was needed to reach any screen. One was made by mistake — see below.
+
+**Method.** Every page was loaded at 375px and 1280px and measured, not eyeballed:
+sideways overflow, text clipped with an ellipsis or line clamp, controls under 32–36px,
+text under the 12px floor. No page scrolls sideways at either width.
+
+**Broken, now working:**
+- **"More" in the phone bottom bar did nothing** — the same `backdrop-filter`
+  containing-block trap SideSheet documents. The drawer opened clipped inside the 64px
+  bar while the button reported `aria-expanded="true"`. Portalled to `<body>`.
+- **The summary could not be edited on the before/after screen** — "Edit this text" was
+  a span. **No 404 page existed** — a bad link got the bare Next.js default.
+
+**False on screen, now true:** Target jobs ticked "CV ✓" on a job with no CV; the
+dashboard said "Unlock the CV" with no checkout; the menu called Profile Strength "Gulf
+Readiness"; "+7 JD terms" with no job description pasted; optimizer levels labelled
+"75-80%" etc., computed by nothing; login and signup promised interview preparation,
+which is not built; the sidebar still promised replies "within a day"; the profile said
+"Almost there" at 100%; the cover letter printed "· No company".
+
+**Unreadable, now readable:** the chosen optimizer level and "Back to your CV" were both
+ink on teal, 2.0:1.
+
+**The one model call.** Following "Continue" on an unbuilt job went through the pay page
+(a pass-through while the locks are off) into generation, which starts on arrival. One
+`/api/optimize` call, ₹2.51, on the throwaway account. Working as designed — but worth
+knowing that one tap starts a paid build with no confirmation step.
+
+---
+
 ## 2026-09-10 — End-to-end audit: a field looks like a field, and no screen says what is not true
 
 **The founder's brief:** "lots of misinformation on screen, no colour optimisation, form
