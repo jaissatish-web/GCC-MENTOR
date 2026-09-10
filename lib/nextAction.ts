@@ -138,8 +138,10 @@ export function computeNextAction(
   if (unpaid) {
     return {
       state: 'job_unpaid',
-      title: `Unlock the CV for ${jobLabel(unpaid)}`,
-      body: 'You set this job up but stopped before unlocking it. Pick up where you left off.',
+      // Not "Unlock": there is no checkout, and a heading that implies a
+      // payment the user cannot make is a promise the product cannot keep.
+      title: `Finish the CV for ${jobLabel(unpaid)}`,
+      body: 'You set this job up but its CV is not built yet. Pick up where you left off.',
       cta: 'Continue',
       href: `/optimize/pay/${unpaid.id}`,
     }

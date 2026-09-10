@@ -414,7 +414,9 @@ export default function TargetJobsPage() {
       <div className="grid gap-3 lg:hidden">
         {visible.map((pkg) => {
           const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
-          const atsPresent = pkg.ats_score_card != null
+          // "CV ✓" was hard-coded, so a job set up but never built claimed a CV
+          // it did not have. A CV exists when the generated content does.
+          const cvReady = pkg.optimized_content != null
           return (
             <div key={pkg.id} className="border border-line bg-white p-4">
               {/* THE TITLE GETS THE FULL WIDTH ON A PHONE.
@@ -441,22 +443,24 @@ export default function TargetJobsPage() {
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <StageSelect value={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
-                <ArtifactChip label="CV ✓" present />
-                <ArtifactChip label={atsPresent ? 'ATS ✓' : 'ATS —'} present={atsPresent} />
+                {/* No "ATS —" chip: the ATS score was withdrawn with Job
+                    Match on 2026-09-04, so every row showed a dash for a
+                    service the user cannot get. */}
+                <ArtifactChip label={cvReady ? 'CV ✓' : 'CV not built'} present={cvReady} />
                 <ArtifactChip label={letterPresent ? 'Letter ✓' : 'Letter —'} present={letterPresent} />
               </div>
 
-              <div className="mt-3.5 flex items-center gap-4">
+              {/* Three real buttons. "Edit" and "Delete" were bare words at
+                  different baselines, and Delete was plain black — the one
+                  action that cannot be undone looked like the safest. */}
+              <div className="mt-3.5 flex items-center gap-2">
                 <Link
                   href={`/package/${pkg.id}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-ctl bg-teal px-4 text-[12px] font-semibold text-white transition-colors hover:bg-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+                  className={cn(buttonVariants({ variant: 'progress', size: 'sm' }), 'flex-1')}
                 >
-                  Open
+                  {cvReady ? 'Open CV' : 'Continue'}
                 </Link>
-                <Link
-                  href={`/package/${pkg.id}/edit`}
-                  className="min-h-11 px-1 text-[12px] font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
-                >
+                <Link href={`/package/${pkg.id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
                   Edit
                 </Link>
                 <button
@@ -466,23 +470,19 @@ export default function TargetJobsPage() {
                   }
                   aria-pressed={confirmingDelete === pkg.id}
                   className={cn(
-                    'min-h-11 px-1 text-[12px] font-semibold underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert focus-visible:ring-offset-2',
-                    confirmingDelete === pkg.id && 'text-alert underline'
+                    buttonVariants({ variant: confirmingDelete === pkg.id ? 'danger-solid' : 'danger', size: 'sm' }),
                   )}
                 >
-                  {confirmingDelete === pkg.id ? 'Confirm delete?' : 'Delete'}
+                  {confirmingDelete === pkg.id ? 'Confirm delete' : 'Delete'}
                 </button>
               </div>
 
-              {/* The filing-cabinet detail — template, level, id, date — is
-                  real and occasionally needed, so it stays. It is simply no
-                  longer the headline. */}
+              {/* Template and date only. The row used to lead this line with
+                  "ID e5c09197" and "Moderate optimization" — our database key
+                  and our internal setting, neither of which the user chose or
+                  can act on. */}
               <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line pt-2.5 text-[12px] text-ink-muted">
-                <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
-                <span aria-hidden>·</span>
-                <span>{templateNameFor(pkg.template_id)}</span>
-                <span aria-hidden>·</span>
-                <span>{levelLabel(pkg.optimization_level)} optimization</span>
+                <span>{templateNameFor(pkg.template_id)} template</span>
                 <span aria-hidden>·</span>
                 <span>Updated {formatDay(pkg.updated_at ?? pkg.created_at)}</span>
               </p>
@@ -506,6 +506,7 @@ export default function TargetJobsPage() {
         </div>
         {visible.map((pkg) => {
           const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
+          const cvReady = pkg.optimized_content != null
           return (
             <div
               key={pkg.id}
@@ -519,11 +520,7 @@ export default function TargetJobsPage() {
                   fallback={pkg.target_job_title}
                   onSave={(next) => renamePackage(pkg.id, next)}
                 />
-                <span className="flex items-center gap-1.5 px-1.5 text-[12px] text-ink-muted">
-                  <span className="font-mono">ID {pkg.id.slice(0, 8)}</span>
-                  <span aria-hidden>·</span>
-                  <span>{templateNameFor(pkg.template_id)}</span>
-                </span>
+                <span className="px-1.5 text-[12px] text-ink-muted">{templateNameFor(pkg.template_id)} template</span>
               </div>
               <div className="flex min-w-0 flex-col gap-0.5">
                 <JobSubtitle pkg={pkg} />
@@ -533,7 +530,7 @@ export default function TargetJobsPage() {
                 <StageSelect value={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
               </div>
               <div className="flex flex-wrap gap-1.5">
-                <ArtifactChip label="CV ✓" present />
+                <ArtifactChip label={cvReady ? 'CV ✓' : 'CV not built'} present={cvReady} />
                 <ArtifactChip label={letterPresent ? 'Letter ✓' : 'Letter —'} present={letterPresent} />
               </div>
               <div className="flex items-center justify-end gap-2">
