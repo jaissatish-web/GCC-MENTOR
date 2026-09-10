@@ -75,7 +75,7 @@ const BLURB: Record<string, string> = {
   '/gcc-readiness': 'How ready you are for the Gulf',
   '/dashboard/library': 'Your applications and their stage',
   '/optimize': 'Build a CV for a specific role',
-  '/templates': 'Ten designs to choose from',
+  '/templates': 'Fifteen designs to choose from',
 }
 
 function MenuRow({ item, onNavigate, active }: { item: NavItem; onNavigate: () => void; active: boolean }) {

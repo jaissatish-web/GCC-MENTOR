@@ -186,7 +186,7 @@ export default function GulfReadinessScorePage() {
                 maxLength={MAX_TEXT}
                 rows={9}
                 placeholder="Paste your resume text (50–20,000 characters)"
-                className="mt-2 w-full rounded-ctl border border-line bg-white p-3.5 font-sans text-[13px] font-normal outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
+                className="field mt-2 p-3.5 font-normal"
               />
               <span className="mt-1 block text-right text-[12px] font-normal text-ink-muted">{resumeText.length.toLocaleString()} / {MAX_TEXT.toLocaleString()}</span>
             </label>

@@ -35,8 +35,14 @@ const alertVariants = cva(
       variant: {
         /** Something the user must fix, or something that failed. */
         danger: 'border-alert/40 bg-alert-soft text-alert',
-        /** True, and worth knowing before continuing. Not a failure. */
-        warning: 'border-amber/40 bg-teal-soft text-teal',
+        /**
+         * True, and worth knowing before continuing. Not a failure.
+         *
+         * WAS `bg-teal-soft text-teal` — pixel-identical to `info`, so a
+         * warning looked like a tip and was read as one. Gold is the caution
+         * colour here. gold-ink on gold-soft 4.83.
+         */
+        warning: 'border-gold/50 bg-gold-soft text-gold-ink',
         /**
          * Neutral context. The commonest and the quietest.
          *
@@ -50,7 +56,8 @@ const alertVariants = cva(
          */
         info: 'border-teal-soft bg-teal-soft text-teal',
         /** Something completed. Used sparingly — most successes need no box. */
-        success: 'border-emerald/25 bg-state-emerald-bg text-emerald',
+        // Meridian's status green, not the navy-era `emerald`. ok on ok-soft 5.18.
+        success: 'border-ok/25 bg-ok-soft text-ok',
       },
     },
     defaultVariants: { variant: 'info' },

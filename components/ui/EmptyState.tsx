@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { InboxStackIcon } from '@heroicons/react/24/outline'
 import { cn } from '@/lib/utils'
 
 /**
@@ -32,10 +33,12 @@ export interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Usually a <Button> or a <Link> styled as one. */
   action?: React.ReactNode
   tone?: 'page' | 'inline'
+  /** What this list will hold, as a 24px outline icon. A tray by default. */
+  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>
 }
 
 const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
-  ({ className, title, body, action, tone = 'page', ...props }, ref) => (
+  ({ className, title, body, action, tone = 'page', icon: Icon = InboxStackIcon, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
@@ -45,15 +48,19 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
       )}
       {...props}
     >
-      {/* A quiet placeholder mark. Deliberately abstract: a literal icon per
-          empty list would be nine more decisions and nine more inconsistencies. */}
+      {/* WAS A BLANK SQUARE, "deliberately abstract". On a phone it read as an
+          image that had failed to load — the founder's audit caught it on both
+          Target jobs and Cover letter. An icon of what will live here says
+          "nothing yet" instead of "something broke". */}
       <span
         aria-hidden="true"
         className={cn(
-          'rounded-ctl bg-canvas',
-          tone === 'page' ? 'mb-1 size-9' : 'mb-0.5 size-7',
+          'flex items-center justify-center rounded-full bg-teal-soft text-teal',
+          tone === 'page' ? 'mb-1.5 size-14' : 'mb-1 size-11',
         )}
-      />
+      >
+        <Icon className={tone === 'page' ? 'size-7' : 'size-5'} />
+      </span>
       <p className={cn('font-semibold text-ink', tone === 'page' ? 'text-[15px]' : 'text-[13px]')}>
         {title}
       </p>

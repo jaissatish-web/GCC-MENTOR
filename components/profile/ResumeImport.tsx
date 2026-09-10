@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, type ChangeEvent, type DragEvent } from 'react'
+import { ClipboardDocumentIcon, DocumentArrowUpIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { ProcessingInline } from '@/components/ui/Processing'
@@ -99,12 +100,22 @@ export function ResumeImport({
   }
 
   return (
-    <div className="mx-5 mt-4 rounded-card border border-line bg-canvas/40 p-4">
-      <h2 className="text-[13px] font-bold text-ink">Start or update from a resume</h2>
-      <p className="mt-1 text-[12px] leading-relaxed text-ink-muted">
-        Bring in a resume to fill your profile, or just edit the details below. If you already have a
-        profile, you&rsquo;ll get an add-or-replace choice first — nothing is overwritten until you pick.
-      </p>
+    // A TINTED PANEL, not one more white card. It is a shortcut that fills the
+    // form below, so it must not look like part of the form — on the same white
+    // as the fields it read as a tenth section with three identical buttons.
+    <div className="mx-5 mt-4 rounded-card border border-teal/15 bg-teal-soft/70 p-4">
+      <div className="flex items-start gap-3">
+        <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-ctl bg-teal text-white shadow-m-1">
+          <DocumentArrowUpIcon className="size-5" />
+        </span>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h2 className="text-[14.5px] font-bold text-ink">Fill this in from your CV</h2>
+          <p className="text-[12.5px] leading-relaxed text-ink-soft">
+            Upload or paste your CV and we fill the form for you in about 20 seconds. Already have a
+            profile? You choose what to keep before anything changes.
+          </p>
+        </div>
+      </div>
 
       {parsing ? (
         <ProcessingInline
@@ -120,19 +131,20 @@ export function ResumeImport({
         />
       ) : (
         <>
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          {/* Three equal white buttons gave no answer to "which one do I
+              press?". Upload is the fast path, so it is the filled one. */}
+          <div className="mt-3.5 grid gap-2 sm:grid-cols-3">
             <button
               type="button"
               onClick={() => {
                 setError(null)
                 setMode('upload')
               }}
-              className={cn(
-                buttonVariants({ variant: mode === 'upload' ? 'primary' : 'secondary', size: 'sm' }),
-                'w-full justify-center',
-              )}
+              aria-pressed={mode === 'upload'}
+              className={cn(buttonVariants({ variant: 'progress', size: 'sm' }), 'w-full justify-center')}
             >
-              Upload a file
+              <DocumentArrowUpIcon aria-hidden="true" className="size-4" />
+              Upload CV
             </button>
             <button
               type="button"
@@ -140,19 +152,23 @@ export function ResumeImport({
                 setError(null)
                 setMode('paste')
               }}
+              aria-pressed={mode === 'paste'}
               className={cn(
-                buttonVariants({ variant: mode === 'paste' ? 'primary' : 'secondary', size: 'sm' }),
+                buttonVariants({ variant: 'secondary', size: 'sm' }),
                 'w-full justify-center',
+                mode === 'paste' && 'border-teal text-teal',
               )}
             >
+              <ClipboardDocumentIcon aria-hidden="true" className="size-4" />
               Paste text
             </button>
             <button
               type="button"
               onClick={onFillManually}
-              className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full justify-center')}
+              className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'w-full justify-center')}
             >
-              Fill in manually
+              <PencilSquareIcon aria-hidden="true" className="size-4" />
+              Type it myself
             </button>
           </div>
 
@@ -200,7 +216,7 @@ export function ResumeImport({
                 maxLength={MAX_TEXT}
                 rows={7}
                 placeholder="Paste your resume text (50–20,000 characters)"
-                className="w-full rounded-ctl border border-line bg-white p-3.5 text-[13px] outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
+                className="field"
               />
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-[12px] text-ink-muted">{text.length.toLocaleString()} / {MAX_TEXT.toLocaleString()}</span>

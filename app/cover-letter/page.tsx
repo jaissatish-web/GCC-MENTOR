@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
@@ -176,7 +177,7 @@ function CoverLetterScreen() {
   return (
     <PageShell
       title="Cover Letter"
-      subtitle="Generate a tailored cover letter from any resume in your Library."
+      subtitle="Write a cover letter for any of your target jobs, in the tone you choose."
     >
       {/* The credit counter is deliberately not shown while the locks are off: a
           credit balance implies it is being spent, and nothing is spending it. */}
@@ -186,23 +187,24 @@ function CoverLetterScreen() {
         {eligiblePackages.length === 0 ? (
           <EmptyState
             tone="inline"
+            icon={EnvelopeIcon}
             className="border-0 bg-transparent"
-            title="No resumes yet"
-            body="A cover letter is written from one of your resumes — it takes the target role and job description from it."
+            title="Add a target job first"
+            body="A cover letter is written for one specific job. Add the job and its role and advert carry over here."
             action={
               <a href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
-                Optimize a resume
+                Add a target job
               </a>
             }
           />
         ) : (
           <div className="flex flex-col gap-4">
-            <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-ink">
-              Resume package
+            <label className="flex flex-col gap-1.5">
+              <span className="field-label">Which job is this letter for?</span>
               <select
                 value={selectedId ?? ''}
                 onChange={(e) => setSelectedId(e.target.value)}
-                className="min-h-11 w-full cursor-pointer rounded-ctl border border-line/70 bg-canvas/50 px-3 text-[14px] text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
+                className="field"
               >
                 {eligiblePackages.map((p) => (
                   <option key={p.id} value={p.id} className="bg-white text-ink">
@@ -213,7 +215,7 @@ function CoverLetterScreen() {
             </label>
 
             <fieldset className="flex flex-col gap-1.5">
-              <legend className="text-[13px] font-semibold text-ink">Tone</legend>
+              <legend className="field-label mb-1.5">Tone</legend>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {TONE_OPTIONS.map((opt) => {
                   const active = tone === opt.value
@@ -226,9 +228,11 @@ function CoverLetterScreen() {
                       title={opt.description}
                       className={cn(
                         'flex min-h-11 flex-col items-start gap-0.5 rounded-ctl border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+                        // The chosen tone must look chosen from across the room:
+                        // a 2px teal edge and a tint, against a visible 3:1 edge.
                         active
-                          ? 'border-teal bg-teal/[0.08]'
-                          : 'border-line/70 bg-canvas/40 hover:border-line-strong',
+                          ? 'border-2 border-teal bg-teal-soft'
+                          : 'border-field-line bg-field hover:border-teal-bright',
                       )}
                     >
                       <span className={cn('text-[13px] font-semibold', active ? 'text-teal' : 'text-ink')}>
@@ -316,7 +320,7 @@ function CoverLetterScreen() {
                 onChange={(e) => setEdits((prev) => ({ ...prev, [letter.id]: e.target.value }))}
                 rows={Math.min(20, (edits[letter.id] ?? letter.full_text).split('\n').length)}
                 aria-label="Cover letter text (editable)"
-                className="w-full resize-y rounded-ctl border border-line/70 bg-canvas/50 p-4 font-sans text-[13px] leading-relaxed text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
+                className="field p-4"
               />
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="secondary" onClick={() => void copyLetter(letter.id)}>
@@ -333,7 +337,7 @@ function CoverLetterScreen() {
 
       {/* Grounding notice */}
       <p className="mt-6 text-center text-[12px] text-ink-muted">
-        Based strictly on your saved Career Profile and the resume&apos;s target — nothing invented.
+        Written only from your saved Career Profile and this job&apos;s details.
       </p>
     </PageShell>
   )

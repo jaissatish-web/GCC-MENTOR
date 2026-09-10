@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { getPublishedValue, listPublishedLegal } from '@/lib/admin/siteContent'
 import { NotLiveText } from '@/components/ui/NotLive'
+import { GulfFlag, isGulfFlagCountry } from '@/components/ui/GulfFlag'
 
 /**
  * AppFooter — on every signed-in page.
@@ -165,15 +166,18 @@ export async function AppFooter() {
               is what makes the row scannable. `aria-hidden` on the glyph: a
               screen reader announcing "flag of Saudi Arabia, Saudi Arabia" is
               worse than the name alone. */}
-          <ul className="flex flex-col gap-1">
-            {GULF_COUNTRIES.filter((c) => c.value !== 'generic_gulf').map((c) => (
-              <li key={c.value} className="flex items-center gap-2 text-[13px] text-ink-soft">
-                <span aria-hidden="true" className="text-[15px] leading-none">
-                  {c.flag}
-                </span>
-                {c.label}
-              </li>
-            ))}
+          {/* Drawn flags (GulfFlag), not emoji: Windows has no flag emoji and
+              showed "SA Saudi Arabia". Two columns on a phone — six rows of one
+              short word each wasted most of the width. */}
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-1">
+            {GULF_COUNTRIES.map((c) =>
+              isGulfFlagCountry(c.value) ? (
+                <li key={c.value} className="flex items-center gap-2.5 text-[13px] text-ink-soft">
+                  <GulfFlag country={c.value} />
+                  {c.label}
+                </li>
+              ) : null,
+            )}
           </ul>
 
           <h2 className="mt-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">

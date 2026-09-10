@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { FieldLabel } from '@/components/ui/FieldLabel'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Card } from '@/components/ui/Card'
 import { PERSONA_INDUSTRIES } from '@/lib/utils'
@@ -211,18 +212,16 @@ function TargetScreen() {
 
       {/* Fields */}
       <Card tone="light" className="mt-5 flex flex-1 flex-col gap-4 overflow-y-auto p-5">
-        <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_job_title" className="text-[12px] font-semibold tracking-wide text-ink-soft">
-            Target job title <span className="text-alert">*</span>
-          </label>
-          <Input
-            id="f_target_job_title"
-            value={draft.target_job_title}
-            onChange={(e) => set('target_job_title', e.target.value)}
-            placeholder="e.g. Commissioning Engineer (I&C)"
-            tone="light"
-          />
-        </div>
+        <Input
+          id="f_target_job_title"
+          label="Target job title"
+          requiredMark
+          value={draft.target_job_title}
+          onChange={(e) => set('target_job_title', e.target.value)}
+          placeholder="e.g. Commissioning Engineer (I&C)"
+          hint="Use the title from the job advert if you have one."
+          tone="light"
+        />
 
         {/* Reuse detection prompt (TASK-036) — fires when a similar-titled
             package already exists */}
@@ -275,30 +274,33 @@ function TargetScreen() {
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-2">
-          <label htmlFor="f_target_industry" className="text-[12px] font-semibold tracking-wide text-ink-soft">
-            Target industry <span className="font-normal text-ink-muted">— optional, drives the writing persona</span>
-          </label>
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel htmlFor="f_target_industry" optional>
+            Target industry
+          </FieldLabel>
           <select
             id="f_target_industry"
-            className="min-h-11 w-full rounded-ctl border border-line bg-white px-[15px] py-[13px] text-sm font-medium text-ink outline-none transition-colors focus:border-teal focus:ring-2 focus:ring-teal/20"
+            className="field"
             value={draft.target_industry}
             onChange={(e) => set('target_industry', e.target.value)}
           >
-            <option value="">No preference — general Gulf recruiter</option>
+            {/* Was "No preference — general Gulf recruiter", which a 375px
+                screen cut to "general Gulf recrui". The hint says the rest. */}
+            <option value="">No preference</option>
             {PERSONA_INDUSTRIES.map((i) => (
               <option key={i.value} value={i.value}>
                 {i.label}
               </option>
             ))}
           </select>
+          <p className="field-hint">Picks which kind of Gulf recruiter your CV is written for.</p>
         </div>
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <div className="text-[12px] font-semibold tracking-wide text-ink-soft">
-              Job description <span className="font-normal text-ink-muted">— optional</span>
-            </div>
+            <FieldLabel htmlFor="f_job_description" optional>
+              Job description
+            </FieldLabel>
             <span className="rounded-[5px] bg-teal-soft px-2 py-1 text-[12px] font-semibold uppercase tracking-wider text-teal">
               Best results
             </span>
@@ -316,7 +318,7 @@ function TargetScreen() {
               value={draft.job_description}
               onChange={(e) => set('job_description', e.target.value)}
               placeholder="Paste the job posting text here…"
-              className="min-h-11 w-full resize-none rounded-ctl border border-line bg-white px-[15px] py-[13px] text-sm font-medium text-ink outline-none placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/20"
+              className="field"
             />
           </div>
         </div>
@@ -324,8 +326,11 @@ function TargetScreen() {
 
       {/* Footer */}
       <div className="flex flex-col gap-2.5 px-5 pb-6 pt-4">
+        {/* Was "Still free — you'll see what changes before you pay." There is
+            no checkout yet, so a sentence about paying is a promise about a
+            step that does not exist. What IS true is the preview. */}
         <p className="text-center text-[12px] leading-snug text-ink-muted">
-          Still free — you&apos;ll see what changes before you pay.
+          You see every change to your CV before you download it.
         </p>
         <Button variant="progress" className="w-full" disabled={!canContinue} onClick={onContinue}>
           Choose what to optimize

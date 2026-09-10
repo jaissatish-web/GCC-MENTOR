@@ -209,7 +209,7 @@ function ExtractingScreen() {
               onChange={(e) => setText(e.target.value)}
               rows={8}
               placeholder="Paste your resume text here…"
-              className="mt-6 w-full resize-none rounded-ctl border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              className="field mt-6"
             />
           )}
 

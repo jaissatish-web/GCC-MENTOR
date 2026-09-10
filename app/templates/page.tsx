@@ -61,7 +61,7 @@ function TemplatesInner() {
     <PageShell
       width="wide"
       title="Resume templates"
-      subtitle="Ten designs for GCC applications. Every preview uses the same example CV, so you can compare them."
+      subtitle="Fifteen designs for GCC applications. Every preview uses the same example CV, so you can compare them."
     >
       {/* The action bar sticks to the top so the choice made at the bottom of a
           long gallery is still actionable without scrolling back. */}
@@ -81,7 +81,7 @@ function TemplatesInner() {
               id="resume-select"
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
-              className="min-h-11 min-w-[220px] rounded-ctl border border-line bg-white px-3 text-[13px] text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              className="field w-auto min-w-[220px]"
             >
               {packages.map((p) => (
                 <option key={p.id} value={p.id}>

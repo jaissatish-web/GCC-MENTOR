@@ -299,7 +299,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
               onChange={(e) => setDraft((d) => (d ? { ...d, summary: e.target.value } : d))}
               rows={6}
               aria-label="Professional summary"
-              className="mt-3 w-full resize-y rounded-ctl border border-line bg-canvas/40 p-3 text-[13px] leading-relaxed text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
+              className="field mt-3"
             />
           </section>
 
@@ -336,7 +336,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                         onChange={(e) => setList(list.map((b, j) => (j === i ? e.target.value : b)))}
                         rows={2}
                         aria-label={`Bullet ${i + 1}`}
-                        className="min-w-0 flex-1 resize-y rounded-ctl border border-line bg-canvas/40 p-2.5 text-[13px] leading-relaxed text-ink outline-none focus:border-teal focus:ring-2 focus:ring-teal/25"
+                        className="field min-w-0 flex-1 p-2.5"
                       />
                       <button
                         type="button"

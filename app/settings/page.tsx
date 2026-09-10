@@ -28,9 +28,11 @@ import { cn } from '@/lib/utils'
 const TABS = [
   { id: 'account', label: 'Account' },
   { id: 'email', label: 'Email' },
-  { id: 'package', label: 'Current Package' },
+  // "Current Package" named a thing the product no longer has — what this tab
+  // shows is service credits. The id stays, so old bookmarks still land here.
+  { id: 'package', label: 'Credits' },
   { id: 'payments', label: 'Payments' },
-  { id: 'delete', label: 'Delete Data' },
+  { id: 'delete', label: 'Delete my data' },
 ] as const
 
 type TabId = (typeof TABS)[number]['id']
@@ -135,7 +137,11 @@ export default async function SettingsPage({
 
         {/* Tabs — real links, so each section is bookmarkable and keyboard-navigable */}
         <nav aria-label="Settings sections" className="mt-6 border-b border-line">
-          <ul className="-mb-px flex flex-wrap gap-1">
+          {/* One row that scrolls sideways on a phone. It used to wrap, which
+              put "Payments" and "Delete data" on a second line under the first
+              three and left the underline of the active tab floating between
+              the rows. */}
+          <ul className="-mb-px flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&_a]:whitespace-nowrap [&_li]:shrink-0">
             {TABS.map((t) => {
               const active = t.id === tab
               return (

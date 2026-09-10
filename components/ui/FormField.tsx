@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { ALL_DIAL_CODES, PRIMARY_DIAL_CODES, OTHER_DIAL_CODES } from '@/lib/phone'
+import { FieldError, FieldHint, FieldLabel } from '@/components/ui/FieldLabel'
 
 /**
  * Form primitives for the Career Profile.
@@ -24,13 +25,12 @@ import { ALL_DIAL_CODES, PRIMARY_DIAL_CODES, OTHER_DIAL_CODES } from '@/lib/phon
  * field below 16px, which visibly yanks the page sideways mid-form.
  */
 
-const controlBase =
-  'min-h-11 w-full rounded-ctl border bg-white px-[15px] py-[13px] text-[16px] sm:text-sm font-medium text-ink outline-none transition-colors placeholder:font-normal placeholder:text-ink-muted motion-reduce:transition-none'
-
-const controlState = (invalid?: boolean) =>
-  invalid
-    ? 'border-alert focus:border-alert focus:ring-2 focus:ring-alert/25'
-    : 'border-line-strong focus:border-teal focus:ring-2 focus:ring-teal/25'
+// The box is the shared `.field` class in globals.css — fill, edge, focus,
+// invalid and the select chevron all live there, so these controls and every
+// hand-written one in the app cannot drift apart again. `aria-invalid` drives
+// the error look, so no second class list is needed for it.
+const controlBase = 'field'
+const controlState = (_invalid?: boolean) => ''
 
 export function FieldShell({
   id,
@@ -38,6 +38,7 @@ export function FieldShell({
   helper,
   error,
   required,
+  optional,
   children,
   className,
 }: {
@@ -46,6 +47,7 @@ export function FieldShell({
   helper?: string
   error?: string
   required?: boolean
+  optional?: boolean
   children: React.ReactNode
   className?: string
 }) {
@@ -53,21 +55,14 @@ export function FieldShell({
   const errorId = error ? `${id}-error` : undefined
   return (
     <div className={cn('flex w-full flex-col gap-1.5 font-redesign-sans', className)}>
-      <label htmlFor={id} className="text-[13px] font-semibold leading-snug text-ink">
+      <FieldLabel htmlFor={id} required={required} optional={optional}>
         {label}
-        {required ? (
-          <span className="ml-1.5 text-[12px] font-normal text-alert">Required</span>
-        ) : null}
-      </label>
+      </FieldLabel>
       {children}
       {error ? (
-        <p id={errorId} role="alert" className="text-[12px] font-medium text-alert">
-          {error}
-        </p>
+        <FieldError id={errorId}>{error}</FieldError>
       ) : helper ? (
-        <p id={helperId} className="text-[12px] leading-relaxed text-ink-muted">
-          {helper}
-        </p>
+        <FieldHint id={helperId}>{helper}</FieldHint>
       ) : null}
     </div>
   )

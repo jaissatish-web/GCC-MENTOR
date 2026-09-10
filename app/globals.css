@@ -93,6 +93,78 @@
   }
 }
 
+@layer components {
+  /*
+   * ONE LOOK FOR EVERY BOX A PERSON TYPES INTO.
+   *
+   * There were eleven hand-written control styles across the app — white or
+   * half-transparent canvas, `line` or `line-strong` or `line/70`, 12px to 16px
+   * text — and none of them had an edge a person could see (1.21 to 1.64:1).
+   * The founder read the result exactly: "which is information text and what
+   * need to fill." A class here means a new screen cannot invent a twelfth.
+   *
+   * Tokens and measurements: `colors.field` in tailwind.config.ts.
+   *
+   * 16px on phones is not a style choice — iOS Safari zooms the page on focus
+   * for anything smaller, which yanks the form sideways mid-typing.
+   */
+  /* The two field colours are written out rather than @applied from
+     `colors.field`: a running dev server does not always reload the Tailwind
+     config, and an @apply of an unknown class fails the WHOLE stylesheet —
+     every page lost its CSS the first time this was tried. Same values as the
+     tokens, which JSX can still use. */
+  .field {
+    @apply min-h-11 w-full rounded-ctl border px-3.5 py-3 text-[16px] font-medium leading-snug text-ink outline-none transition-[border-color,background-color,box-shadow] duration-150 motion-reduce:transition-none sm:text-[14px];
+    border-color: #948a7b;
+    background-color: #fbf9f5;
+  }
+  .field::placeholder {
+    @apply font-normal text-ink-muted;
+  }
+  .field:hover:not(:focus):not(:disabled) {
+    @apply border-teal-bright;
+  }
+  .field:focus {
+    @apply border-teal bg-white;
+    box-shadow: 0 0 0 3px rgba(15, 76, 67, 0.16);
+  }
+  .field[aria-invalid='true'] {
+    @apply border-alert bg-alert-soft/40;
+  }
+  .field[aria-invalid='true']:focus {
+    box-shadow: 0 0 0 3px rgba(163, 53, 40, 0.18);
+  }
+  .field:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+  textarea.field {
+    @apply resize-y leading-relaxed;
+  }
+  /* A closed <select> with `appearance: none` has no arrow at all, so it looked
+     like a text box that would not take typing. The chevron is drawn in
+     ink-soft (#414B55), inline so it needs no request. */
+  select.field {
+    @apply cursor-pointer appearance-none bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23414B55'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+    background-size: 1.15rem;
+  }
+  input[type='date'].field,
+  input[type='month'].field {
+    color-scheme: light;
+  }
+
+  /* The words around a field. Three weights that never look alike: the label
+     is ink and bold, the hint is muted and regular, the value in the box is
+     ink and medium. Before this, label and hint were both grey. */
+  .field-label {
+    @apply text-[13.5px] font-semibold leading-snug text-ink;
+  }
+  .field-hint {
+    @apply text-[12.5px] leading-relaxed text-ink-muted;
+  }
+}
+
 @layer utilities {
   /*
    * Scroll reveal.

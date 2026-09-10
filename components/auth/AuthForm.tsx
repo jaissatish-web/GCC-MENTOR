@@ -75,9 +75,10 @@ export function AuthForm({
           role="alert"
           className={cn(
             'rounded-lg border px-3.5 py-2.5 text-[13px] leading-snug',
-            isDark
-              ? 'border-terracotta/40 bg-terracotta/10 text-terracotta'
-              : 'border-state-terra-line bg-state-terra-bg text-state-terra-text'
+            // Meridian status colours, like every other message in the app.
+            // The navy-era terra tokens made the login error a different red
+            // from the one the user will meet on every screen after it.
+            isDark ? 'border-alert/50 bg-alert/15 text-white' : 'border-alert/40 bg-alert-soft text-alert'
           )}
         >
           {state.error}
@@ -88,9 +89,7 @@ export function AuthForm({
           role="status"
           className={cn(
             'rounded-lg border px-3.5 py-2.5 text-[13px] leading-snug',
-            isDark
-              ? 'border-state-emerald-line/35 bg-emerald/15 text-state-emerald-line'
-              : 'border-state-emerald-line bg-state-emerald-bg text-emerald'
+            isDark ? 'border-ok/50 bg-ok/15 text-white' : 'border-ok/30 bg-ok-soft text-ok'
           )}
         >
           {state.success}

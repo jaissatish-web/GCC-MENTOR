@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import { NotLive, NotLiveText } from '@/components/ui/NotLive'
+import { GulfFlag, isGulfFlagCountry } from '@/components/ui/GulfFlag'
 import { SiteNav } from '@/components/marketing/SiteNav'
 import { TemplateShowcase } from '@/components/landing/TemplateShowcase'
 import {
@@ -317,12 +318,15 @@ export default function Home() {
             {/* The six markets at full size — "specially for the Gulf" is the
                 whole claim, so this is the one place the flags are large. */}
             <ul className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-white/15 pt-7">
-              {countries.map((c) => (
-                <li key={c.value} className="flex items-center gap-2 text-[13.5px] font-semibold text-teal-soft/85">
-                  <span aria-hidden="true" className="text-[20px] leading-none">{c.flag}</span>
-                  {c.label}
-                </li>
-              ))}
+              {/* Drawn flags, not emoji — Windows renders flag emoji as "SA". */}
+              {countries.map((c) =>
+                isGulfFlagCountry(c.value) ? (
+                  <li key={c.value} className="flex items-center gap-2.5 text-[13.5px] font-semibold text-teal-soft/85">
+                    <GulfFlag country={c.value} className="h-5 w-[30px] ring-white/25" />
+                    {c.label}
+                  </li>
+                ) : null,
+              )}
             </ul>
           </div>
         </section>

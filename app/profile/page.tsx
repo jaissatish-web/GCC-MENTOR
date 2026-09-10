@@ -26,6 +26,7 @@ import { calculateReadiness, fieldPointsFor, type ReadinessResult } from '@/lib/
 import { toDateInputValue, toMonthInputValue } from '@/lib/partialDates'
 import { splitPhone, joinPhone } from '@/lib/phone'
 import { TextField, TextAreaField, SelectField, DateField, PhoneField } from '@/components/ui/FormField'
+import { FieldLabel } from '@/components/ui/FieldLabel'
 import type { ReadinessCategory, PassportType } from '@/types/careerProfile'
 import type { CareerProfileDraft, CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
@@ -578,13 +579,15 @@ function PointsChip({ earned, total }: { earned: number; total: number }) {
     )
   }
   const complete = earned >= total
+  // Two states, two colours. Both used to be teal, so "Done" and "+12 pts"
+  // looked like the same kind of label. Points still on offer are gold — the
+  // colour of doing something; finished is the status green.
+  //   gold-ink on gold-soft 4.83 · ok on ok-soft 5.18
   return (
     <span
       className={cn(
         'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-bold tabular-nums',
-        complete
-          ? 'bg-teal-soft text-teal'
-          : 'bg-teal-soft text-teal'
+        complete ? 'bg-ok-soft text-ok' : 'bg-gold-soft text-gold-ink'
       )}
     >
       {complete ? 'Done' : `+${total - earned} pts`}
@@ -702,7 +705,9 @@ function CardSection({
               <span
                 className={cn(
                   'text-[12px] leading-relaxed text-ink-muted',
-                  !open && 'line-clamp-1'
+                  // Two lines, not one: clipped to one on a phone, every helper
+                  // ended "Passport, visa and contact..." and read as unfinished.
+                  !open && 'line-clamp-2'
                 )}
               >
                 {helper}
@@ -807,11 +812,10 @@ const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
   { id: 'sec_additional', label: 'Additional information' },
 ]
 
-const selectClass =
-  'min-h-11 w-full rounded-ctl border border-line-strong bg-white px-[15px] py-[13px] text-sm font-medium text-ink outline-none transition-colors focus:border-teal focus:ring-2 focus:ring-teal/20'
-
-const textareaClass =
-  'min-h-11 w-full resize-none rounded-ctl border border-line-strong bg-white px-[15px] py-[13px] text-sm font-medium text-ink outline-none transition-colors placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/20'
+// Both are the shared `.field` control (globals.css). They were hand-written
+// copies with a 1.64:1 edge — the "all boxes black and white" the founder saw.
+const selectClass = 'field'
+const textareaClass = 'field'
 
 function ConfirmToggle({
   id,
@@ -826,11 +830,13 @@ function ConfirmToggle({
   checked: boolean
   onChange: (v: boolean) => void
 }) {
+  // Sits in its own tinted row. Bare on the card, a yes/no switch read as one
+  // more line of text between two boxes, easy to scroll past unanswered.
   return (
-    <div id={id} className="flex items-start justify-between gap-3 py-1">
+    <div id={id} className="flex items-center justify-between gap-3 rounded-ctl border border-line bg-canvas px-3.5 py-2.5">
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-ink">{label}</span>
-        {hint ? <span className="text-[12px] text-ink-muted">{hint}</span> : null}
+        <span className="field-label">{label}</span>
+        {hint ? <span className="field-hint">{hint}</span> : null}
       </div>
       <Toggle checked={checked} onCheckedChange={onChange} aria-label={label} />
     </div>
@@ -1402,10 +1408,24 @@ function ProfileScreen() {
             <ReadinessRing score={readiness.score} size={68} />
             <span className="text-[12px] font-bold uppercase tracking-wide text-ink-muted">Profile complete</span>
           </div>
+          {/* On a phone the Save button joins this row. Alone on its own line it
+              floated at the right edge under the text, detached from anything. */}
+          <div className="ml-auto self-start sm:hidden">
+            <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => onSubmit('exit')}>
+              Save
+            </Button>
+          </div>
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <h1 className="font-display text-[20px] font-bold leading-tight tracking-[-0.015em] text-ink">
-              Almost there, {firstName}
+            {/* "Almost there, there" at 0% was two errors in four words — no
+                name to greet, and nowhere near "almost". The heading now says
+                what is true at each stage. */}
+            <h1 className="font-display text-[22px] font-bold leading-tight tracking-[-0.015em] text-ink">
+              {!editor.full_name.trim()
+                ? 'Build your Career Profile'
+                : readiness.score >= 80
+                  ? `Almost there, ${firstName}`
+                  : `Keep going, ${firstName}`}
             </h1>
             <p className="text-[12px] leading-relaxed text-ink-soft">
               <span className="font-semibold text-ink">Career Profile — {readiness.score}% complete,{' '}
@@ -1421,7 +1441,7 @@ function ProfileScreen() {
               at the bottom too — reaching the end of the form is also a natural
               moment to save — and both call the identical onSubmit('exit'), so
               there is one save path and not two behaviours to keep in step. */}
-          <div className="ml-auto shrink-0 self-start">
+          <div className="ml-auto hidden shrink-0 self-start sm:block">
             <Button
               variant="primary"
               size="sm"
@@ -1523,52 +1543,33 @@ function ProfileScreen() {
         >
           <ConfirmToggle
             id="f_currently_in_gulf"
-            label="Currently in the Gulf"
-            hint="Drives which readiness category applies to your profile."
+            label="I live and work in the Gulf now"
+            hint="Turn on if you are in a GCC country today. It changes what your score rewards."
             checked={editor.currently_in_gulf}
             onChange={(v) => setField({ currently_in_gulf: v })}
           />
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             <Input tone="light"
-              id="f_current_employer"
-              label="Current employer"
-              value={editor.current_employer}
-              onChange={(e) => setField({ current_employer: e.target.value })}
+              id="f_target_job_title"
+              label="Target job title"
+              placeholder="e.g. Senior Piping Engineer"
+              hint="The role you want next. Every CV you build is aimed at it."
+              value={editor.target_job_title}
+              onChange={(e) => setField({ target_job_title: e.target.value })}
+              error={invalidFields.has('target_job_title') ? 'Target job title is required.' : undefined}
             />
             <Input tone="light"
-              id="f_current_project"
-              label="Current project"
-              value={editor.current_project}
-              onChange={(e) => setField({ current_project: e.target.value })}
+              id="f_target_industry"
+              label="Target industry"
+              placeholder="e.g. Oil & Gas, Power, Construction"
+              value={editor.target_industry}
+              onChange={(e) => setField({ target_industry: e.target.value })}
+              error={invalidFields.has('target_industry') ? 'Target industry is required.' : undefined}
             />
-            <div className="flex flex-col gap-1">
-              <Input tone="light"
-                id="f_target_job_title"
-                label="Target job title"
-                value={editor.target_job_title}
-                onChange={(e) => setField({ target_job_title: e.target.value })}
-                className={invalidFields.has('target_job_title') ? 'border-alert focus:border-alert focus:ring-alert/25' : undefined}
-              />
-              {invalidFields.has('target_job_title') ? (
-                <p role="alert" className="text-[12px] font-medium text-alert">Target job title is required.</p>
-              ) : null}
-            </div>
-            <div className="flex flex-col gap-1">
-              <Input tone="light"
-                id="f_target_industry"
-                label="Target industry"
-                value={editor.target_industry}
-                onChange={(e) => setField({ target_industry: e.target.value })}
-                className={invalidFields.has('target_industry') ? 'border-alert focus:border-alert focus:ring-alert/25' : undefined}
-              />
-              {invalidFields.has('target_industry') ? (
-                <p role="alert" className="text-[12px] font-medium text-alert">Target industry is required.</p>
-              ) : null}
-            </div>
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_target_country" className="text-sm font-medium text-ink">
-                Target country <span className="font-normal text-ink-muted">(optional)</span>
-              </label>
+              <FieldLabel htmlFor="f_target_country" optional>
+                Target country
+              </FieldLabel>
               <select
                 id="f_target_country"
                 className={selectClass}
@@ -1576,7 +1577,7 @@ function ProfileScreen() {
                 onChange={(e) => setField({ target_country: e.target.value })}
               >
                 <option value="" disabled>
-                  Select a country
+                  Choose a country
                 </option>
                 {GULF_COUNTRIES.map((c) => (
                   <option key={c.value} value={c.value}>
@@ -1587,9 +1588,27 @@ function ProfileScreen() {
             </div>
             <Input tone="light"
               id="f_target_company"
-              label="Target company (optional)"
+              label="Target company"
+              optional
+              placeholder="e.g. Saudi Aramco"
               value={editor.target_company}
               onChange={(e) => setField({ target_company: e.target.value })}
+            />
+            <Input tone="light"
+              id="f_current_employer"
+              label="Current employer"
+              optional
+              placeholder="e.g. Larsen & Toubro"
+              value={editor.current_employer}
+              onChange={(e) => setField({ current_employer: e.target.value })}
+            />
+            <Input tone="light"
+              id="f_current_project"
+              label="Current project"
+              optional
+              placeholder="e.g. Jafurah Gas Plant, Phase 2"
+              value={editor.current_project}
+              onChange={(e) => setField({ current_project: e.target.value })}
             />
           </div>
         </CardSection>
@@ -1657,19 +1676,24 @@ function ProfileScreen() {
             <Input tone="light"
               id="f_current_location"
               label="Current location"
+              placeholder="e.g. Dammam, Saudi Arabia"
+              hint="City and country. Recruiters filter on it."
               value={editor.current_location}
               onChange={(e) => setField({ current_location: e.target.value })}
             />
             <Input tone="light"
               id="f_nationality"
               label="Nationality"
+              placeholder="e.g. Indian"
               value={editor.nationality}
               onChange={(e) => setField({ nationality: e.target.value })}
             />
             <Input tone="light"
               id="f_linkedin_url"
               label="LinkedIn URL"
+              optional
               type="url"
+              placeholder="linkedin.com/in/your-name"
               value={editor.linkedin_url}
               onChange={(e) => setField({ linkedin_url: e.target.value })}
             />
@@ -1682,16 +1706,14 @@ function ProfileScreen() {
               onChange={(e) => setField({ date_of_birth: e.target.value })}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="f_passport_type" className="text-sm font-medium text-ink">
-                Passport type
-              </label>
+              <FieldLabel htmlFor="f_passport_type">Passport type</FieldLabel>
               <select
                 id="f_passport_type"
                 className={selectClass}
                 value={editor.passport_type}
                 onChange={(e) => setField({ passport_type: e.target.value })}
               >
-                <option value="">—</option>
+                <option value="">Choose ECR or Non-ECR</option>
                 <option value="ECR">ECR</option>
                 <option value="Non-ECR">Non-ECR</option>
               </select>
@@ -1707,22 +1729,26 @@ function ProfileScreen() {
             <Input tone="light"
               id="f_visa_status"
               label="Visa status"
+              placeholder="e.g. Iqama holder, Visit visa, None"
               value={editor.visa_status}
               onChange={(e) => setField({ visa_status: e.target.value })}
-            />
-            <ConfirmToggle
-              id="f_visa_transferable"
-              label="Visa transferable"
-              hint="Iqama/visa transferability."
-              checked={editor.visa_transferable}
-              onChange={(v) => setField({ visa_transferable: v })}
             />
             <Input tone="light"
               id="f_notice_period"
               label="Notice period"
+              placeholder="e.g. 30 days, Immediate"
               value={editor.notice_period}
               onChange={(e) => setField({ notice_period: e.target.value })}
             />
+            <div className="sm:col-span-2">
+              <ConfirmToggle
+                id="f_visa_transferable"
+                label="My visa can be transferred"
+                hint="Can your Iqama or work visa move to a new employer without you leaving the country?"
+                checked={editor.visa_transferable}
+                onChange={(v) => setField({ visa_transferable: v })}
+              />
+            </div>
           </div>
         </CardSection>
 
@@ -1738,9 +1764,7 @@ function ProfileScreen() {
           helper="Site and field roles ask for this outright. Leaving it blank filters CVs out."
         >
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="f_has_driving_license" className="text-sm font-medium text-ink">
-              Do you have a driving license?
-            </label>
+            <FieldLabel htmlFor="f_has_driving_license">Do you have a driving license?</FieldLabel>
             <select
               id="f_has_driving_license"
               className={selectClass}
@@ -1761,12 +1785,14 @@ function ProfileScreen() {
               <Input tone="light"
                 id="f_driving_license_country"
                 label="Country issued"
+                placeholder="e.g. Saudi Arabia, India"
                 value={editor.driving_license_country}
                 onChange={(e) => setField({ driving_license_country: e.target.value })}
               />
               <Input tone="light"
                 id="f_driving_license_category"
                 label="Category / type"
+                placeholder="e.g. Light vehicle"
                 value={editor.driving_license_category}
                 onChange={(e) => setField({ driving_license_category: e.target.value })}
               />
@@ -1795,9 +1821,9 @@ function ProfileScreen() {
             onChange={(e) => setField({ professional_summary: e.target.value })}
             placeholder="A short summary of who you are and what you bring."
           />
-          <p className="text-[12px] leading-snug text-ink-muted">
-            This is your own summary — the AI never writes back into it. It is the &ldquo;before&rdquo; the
-            optimizer diffs against.
+          <p className="field-hint">
+            This stays yours — the AI never writes into it. When you build a CV for a job, you see
+            your words and the new ones side by side.
           </p>
         </CardSection>
 
@@ -1819,9 +1845,11 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-4">
             {editor.work_experience.map((w, i) => (
-              <div key={w.key} className="flex flex-col gap-2.5 border border-line-strong rounded-ctl p-3">
+              <div key={w.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] text-ink-muted">#{i + 1}</span>
+                  <span className="text-[13px] font-bold text-sec-experience">
+                    {w.role.trim() || `Role ${i + 1}`}
+                  </span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1847,9 +1875,7 @@ function ProfileScreen() {
                 </div>
                 <Input tone="light" label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor={`f_work_gcc_${w.key}`} className="text-sm font-medium text-ink">
-                    Gulf experience
-                  </label>
+                  <FieldLabel htmlFor={`f_work_gcc_${w.key}`}>Was this role in the Gulf?</FieldLabel>
                   <select
                     id={`f_work_gcc_${w.key}`}
                     className={selectClass}
@@ -1866,23 +1892,26 @@ function ProfileScreen() {
                     ))}
                   </select>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
-                  Description
+                <label className="flex flex-col gap-1.5">
+                  <span className="field-label">What you did</span>
                   <textarea
                     rows={3}
                     className={textareaClass}
+                    placeholder="e.g. Led piping design for a 3-train gas plant, coordinating with 40 contractor engineers."
                     value={w.description}
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { description: e.target.value }) }))}
                   />
                 </label>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
-                  Highlights <span className="text-[12px] font-normal text-ink-muted">one per line</span>
+                <label className="flex flex-col gap-1.5">
+                  <span className="field-label">Key results</span>
                   <textarea
                     rows={3}
                     className={textareaClass}
+                    placeholder={'One per line, e.g.\nCut rework by 18% with a new isometric check\nZero LTI across 1.2M man-hours'}
                     value={w.highlights}
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { highlights: e.target.value }) }))}
                   />
+                  <span className="field-hint">One result per line. Numbers get noticed.</span>
                 </label>
               </div>
             ))}
@@ -1927,9 +1956,11 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.education.map((x, i) => (
-              <div key={x.key} className="flex flex-col gap-2.5 border border-line-strong rounded-ctl p-3">
+              <div key={x.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] text-ink-muted">#{i + 1}</span>
+                  <span className="text-[13px] font-bold text-sec-education">
+                    {x.degree.trim() || `Qualification ${i + 1}`}
+                  </span>
                   <button
                     type="button"
                     onClick={() =>
@@ -1972,9 +2003,10 @@ function ProfileScreen() {
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
-                <span className="font-mono text-[12px] text-ink-muted">{i + 1}</span>
+                <span className="w-5 shrink-0 text-right text-[12px] font-semibold text-sec-skills">{i + 1}</span>
                 <Input tone="light"
                   value={s.name}
+                  placeholder="e.g. Piping stress analysis (CAESAR II)"
                   aria-label={`Skill ${i + 1}`}
                   onChange={(e) => setEditor((st) => st && ({ ...st, skills: updateList(st.skills, s.key, { name: e.target.value }) }))}
                 />
@@ -2012,9 +2044,11 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.certifications.map((c, i) => (
-              <div key={c.key} className="flex flex-col gap-2.5 border border-line-strong rounded-ctl p-3">
+              <div key={c.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] text-ink-muted">#{i + 1}</span>
+                  <span className="text-[13px] font-bold text-sec-certifications">
+                    {c.name.trim() || `Certification ${i + 1}`}
+                  </span>
                   <button
                     type="button"
                     onClick={() =>
@@ -2053,15 +2087,16 @@ function ProfileScreen() {
               </button>
             }
         >
-          <p className="text-[12px] leading-snug text-ink-muted">
-            AI-labelled · you can rename the label on each item.
+          <p className="field-hint">
+            Anything a recruiter asks next. Name each item however you like.
           </p>
           <div className="flex flex-col gap-3">
             {editor.additional_information.map((a) => (
-              <div key={a.key} className="flex flex-col gap-2.5 border border-line-strong rounded-ctl p-3">
+              <div key={a.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex gap-2">
                   <Input tone="light"
                     label="Label"
+                    placeholder="e.g. Languages"
                     value={a.label}
                     onChange={(e) => setEditor((s) => s && ({ ...s, additional_information: updateList(s.additional_information, a.key, { label: e.target.value }) }))}
                   />
@@ -2078,10 +2113,11 @@ function ProfileScreen() {
                     </button>
                   </div>
                 </div>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-ink">
-                  Value
+                <label className="flex flex-col gap-1.5">
+                  <span className="field-label">Details</span>
                   <textarea
                     rows={2}
+                    placeholder="e.g. English (fluent), Hindi (native), Arabic (basic)"
                     className={textareaClass}
                     value={a.value}
                     onChange={(e) => setEditor((s) => s && ({ ...s, additional_information: updateList(s.additional_information, a.key, { value: e.target.value }) }))}

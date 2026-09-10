@@ -118,6 +118,31 @@ function GccReadinessScreen() {
         <div className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
           {loadError}
         </div>
+      ) : !profile ? (
+        // NO PROFILE IS NOT "ALL COMPLETE".
+        //
+        // With no profile, `missing` is an empty array — because there was
+        // nothing to check, not because nothing is missing. This screen used to
+        // read that as success and tell a brand-new user "0/100 · Every section
+        // complete · Your profile is 100% ready." Three claims, all false, on the
+        // first screen a new user might open. Found in the 2026-09-10 end-to-end
+        // audit. Now the empty case is its own state and says what is true.
+        <Card tone="light" className="mt-6 flex flex-col items-center gap-4 p-8 text-center">
+          <ReadinessRing score={0} size={112} dark />
+          <div className="flex flex-col gap-1.5">
+            <h2 className="font-display text-[22px] font-semibold text-ink">Not started yet</h2>
+            <p className="max-w-[46ch] text-[14px] leading-relaxed text-ink-soft">
+              Your score appears once your Career Profile exists. Upload your CV and we fill it in for
+              you — it takes about a minute.
+            </p>
+          </div>
+          <Link
+            href="/profile?import=upload"
+            className={cn(buttonVariants({ variant: 'primary' }), 'w-full text-[14px] sm:w-auto')}
+          >
+            Build my profile from my CV
+          </Link>
+        </Card>
       ) : (
         <>
           {/* ——— ring / breakdown, §C: side-by-side on xl (rail), stacked below ——— */}

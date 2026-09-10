@@ -171,6 +171,28 @@ const config: Config = {
           DEFAULT: '#A33528',
           soft: '#F8E6E2',
         },
+        /**
+         * Form controls — the box a person types into.
+         *
+         * Founder feedback 2026-09-10: "all boxes are only black and white, user
+         * will confuse which is information text and what need to fill." He was
+         * right, and it was measurable: inputs were white on a white card with a
+         * `line` border at 1.21:1 (or `line-strong` at 1.64:1). WCAG 1.4.11 asks
+         * 3:1 for the edge of a control, so on most screens the box itself was
+         * effectively invisible and only the label said a field was there.
+         *
+         * Two cues now, so a field reads as a field without reading anything:
+         *   · a warm FILL, so a box you type into is a different surface from
+         *     the white card that holds it, and
+         *   · an EDGE that passes: `field.line` on the fill 3.23, on white 3.40.
+         * Focus turns the fill white and the edge teal, so the field in use is
+         * the brightest thing on the card.
+         *   ink on field 16.97 · muted placeholder on field 5.16
+         */
+        field: {
+          DEFAULT: '#FBF9F5',
+          line: '#948A7B',
+        },
 
         // ── BLUEPRINT ────────────────────────────────────────────────────────
         //

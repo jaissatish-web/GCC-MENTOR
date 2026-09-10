@@ -81,6 +81,51 @@ emoji safe here — and the users are on phones.
 
 ---
 
+## 2026-09-10 — End-to-end audit: a field looks like a field, and no screen says what is not true
+
+**The founder's brief:** "lots of misinformation on screen, no colour optimisation, form
+boxes are only black and white — the user will confuse which is information text and
+what needs to be filled. Check as a user end to end."
+
+Walked every signed-in screen as a brand-new user on a 375px phone, with a throwaway
+account. Presentation and copy only — no route, API, schema or scoring change.
+
+**What was false on screen, and is now true:**
+- `/gcc-readiness` with no profile said **"0/100 · Every section complete · Your profile is
+  100% ready."** `missing` was empty because nothing had been checked, and the page read
+  that as success. Now a separate "Not started yet" state. The dashboard's rail had the
+  same fault ("0 items still needed" beside a 0% ring).
+- Templates said **"Ten designs"** in two places; the registry has fifteen, all available.
+- The optimizer target page said **"you'll see what changes before you pay"** — there is
+  no checkout. It now promises only what is real: the preview.
+- The cover letter page still said **"Library"** and **"resumes"** after the rename to
+  target jobs, and carried the "nothing invented" line the founder asked to drop.
+- Profile headings greeted **"Almost there, there"** at 0%, and the dashboard **"Good
+  evening, there"**.
+
+**Why the forms read as black and white, measured.** Inputs were white on a white card
+with an edge of 1.21:1 (`line`) or 1.64:1 (`line-strong`) — WCAG 1.4.11 asks 3:1. The box
+was effectively invisible; only the label said a field existed. Labels and hints were
+the same grey. Eleven hand-written control styles existed.
+
+**The fix is one class, `.field`** (globals.css), with tokens in `colors.field`: a warm
+fill (#FBF9F5) so a box is a different surface from its card, an edge at 3.23:1 (#948A7B),
+teal edge and white fill on focus, a real chevron on selects. `FieldLabel` gives one
+Required tag and one Optional tag, where there had been three and two. Every empty
+profile box now carries an example.
+
+**The colours are written literally inside `.field`, not @applied from the token.** The
+first attempt `@apply`d `border-field-line`; the running dev server had not reloaded the
+Tailwind config, and an unknown @apply fails the WHOLE stylesheet — every page lost its
+CSS. Literal values cannot do that.
+
+**Also:** Windows has no flag emoji, so the footer read "SA Saudi Arabia" on the founder's
+own machine — the flags are now drawn SVG (`GulfFlag`). Empty states showed a blank
+square that read as a failed image; they now carry an icon. The `warning` alert was
+pixel-identical to `info`; it is gold now. Settings tabs no longer wrap to two rows.
+
+---
+
 ## 2026-09-10 — Waiting screens move, and never invent progress
 
 Founder request: while an API call runs the screen looks static — make it circular and

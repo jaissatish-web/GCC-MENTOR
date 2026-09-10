@@ -344,7 +344,7 @@ function ChangesTab({
                 value={draftSummary}
                 onChange={(e) => setDraftSummary(e.target.value)}
                 rows={5}
-                className="min-h-11 w-full resize-none rounded-ctl border border-line bg-white p-2 text-[12px] text-ink-soft outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
+                className="field p-2.5"
               />
             ) : (
               <p className="text-[12px] leading-relaxed text-ink">
@@ -395,7 +395,7 @@ function ChangesTab({
                     value={draftBullet}
                     onChange={(e) => setDraftBullet(e.target.value)}
                     rows={3}
-                    className="min-h-11 w-full resize-none rounded-ctl border border-line bg-white p-2 text-[12px] text-ink-soft outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
+                    className="field p-2.5"
                   />
                 ) : (
                   <p className="text-[12px] leading-relaxed text-ink">

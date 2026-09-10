@@ -10,6 +10,8 @@ import { Reveal } from '@/components/ui/Reveal'
 import { ProfileKickstart } from '@/components/profile/ProfileKickstart'
 import { LiveReadiness } from '@/components/gulfReadiness/LiveReadiness'
 import { buttonVariants } from '@/components/ui/Button'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { BriefcaseIcon, ChartBarIcon, DocumentTextIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import { cn, GULF_COUNTRIES, resumeLabel } from '@/lib/utils'
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
@@ -56,11 +58,19 @@ const PLANNED_SERVICES: ReadonlyArray<{ title: string; description: string }> = 
   },
 ]
 
-const QUICK_ACTIONS: ReadonlyArray<{ label: string; href: string }> = [
-  { label: 'Profile Strength', href: '/gcc-readiness' },
-  { label: 'Optimize Resume', href: '/optimize/target' },
-  { label: 'Generate Cover Letter', href: '/cover-letter' },
-  { label: 'Target Jobs', href: '/dashboard/library' },
+// Each action carries its service's icon and tint, so the list can be scanned
+// by shape and colour instead of read line by line. Tints are literal strings
+// because Tailwind only emits classes it can see whole in the source.
+const QUICK_ACTIONS: ReadonlyArray<{
+  label: string
+  href: string
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+  tint: string
+}> = [
+  { label: 'Check profile strength', href: '/gcc-readiness', icon: ChartBarIcon, tint: 'bg-teal-soft text-teal' },
+  { label: 'Optimize my CV for a job', href: '/optimize/target', icon: DocumentTextIcon, tint: 'bg-gold-soft text-gold-ink' },
+  { label: 'Write a cover letter', href: '/cover-letter', icon: EnvelopeIcon, tint: 'bg-sec-summary/10 text-sec-summary' },
+  { label: 'See my target jobs', href: '/dashboard/library', icon: BriefcaseIcon, tint: 'bg-ok-soft text-ok' },
 ]
 
 /**
@@ -131,7 +141,8 @@ export default function DashboardPage() {
       .finally(() => setPackagesLoaded(true))
   }, [])
 
-  const firstName = profile ? profile.full_name.trim().split(/\s+/)[0] || 'there' : 'there'
+  // No name, no "Good evening, there" — a greeting to nobody reads as a bug.
+  const firstName = profile ? profile.full_name.trim().split(/\s+/)[0] : ''
   const country = profile ? GULF_COUNTRIES.find((c) => c.value === profile.target_country)?.label : undefined
   const targetParts =
     profile !== null
@@ -201,7 +212,7 @@ export default function DashboardPage() {
             {/* Archivo, not the serif. Blueprint's voice is an instrument
                 label: tight tracking, real weight, no flourish. */}
             <h1 className="font-display text-[24px] font-bold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[30px]">
-              Good {greeting()}, {firstName}
+              {firstName ? `Good ${greeting()}, ${firstName}` : 'Welcome to GCC MENTOR'}
             </h1>
             <p className="text-[13px] text-ink-muted">
               {targetParts ? `Targeting ${targetParts}` : "Let's get you closer to your next opportunity."}
@@ -238,17 +249,27 @@ export default function DashboardPage() {
               A third tile, "Latest Job Match", was removed 2026-09-04 with the
               standalone service and is deliberately not replaced. */}
           <Reveal delay={40}>
-            <div className="flex divide-x divide-line border-y border-line">
+            <div className="grid grid-cols-2 gap-3">
               <MetricTile
                 label="Profile strength"
-                value={`${score}%`}
-                sub={readiness?.category ? categoryLabel(readiness.category) : undefined}
+                icon={ChartBarIcon}
+                accent="teal"
+                value={profile ? `${score}%` : '—'}
+                sub={
+                  !profileLoaded
+                    ? undefined
+                    : profile
+                      ? readiness?.category ? categoryLabel(readiness.category) : undefined
+                      : 'Not started'
+                }
                 href="/gcc-readiness"
               />
               <MetricTile
                 label="Target jobs"
+                icon={BriefcaseIcon}
+                accent="gold"
                 value={packagesLoaded ? String(packageCount) : '—'}
-                sub={packageCount > 0 ? 'Open the pipeline' : undefined}
+                sub={packageCount > 0 ? 'Open the pipeline' : 'None yet'}
                 href="/dashboard/library"
               />
             </div>
@@ -320,12 +341,12 @@ export default function DashboardPage() {
                   <div className="h-14 animate-pulse bg-canvas/70" />
                 </div>
               ) : recentPackages.length === 0 ? (
-                <div className="flex flex-col gap-1 border border-dashed border-line-strong/50 bg-white p-5">
-                  <span className="text-[13px] font-semibold text-ink">No target jobs yet</span>
-                  <span className="text-[13px] leading-relaxed text-ink-muted">
-                    Add the role you are applying for and its CV, letters and stage all live together.
-                  </span>
-                </div>
+                <EmptyState
+                  tone="inline"
+                  icon={BriefcaseIcon}
+                  title="No target jobs yet"
+                  body="Each job you apply for keeps its own CV, cover letter and stage together here."
+                />
               ) : (
                 <div className="flex flex-col divide-y divide-line border-y border-line bg-white">
                   {recentPackages.map((pkg) => (
@@ -383,16 +404,21 @@ export default function DashboardPage() {
         <div className="flex min-w-0 flex-col gap-6">
           {/* Readiness ring card */}
           <Reveal delay={170}>
-            <div className="border border-line bg-white flex flex-col gap-5 p-6">
+            <div className="flex flex-col gap-5 rounded-card border border-line bg-white p-6 shadow-m-1">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
                     Profile Strength
                   </span>
-                  <span className="text-[13px] text-ink-muted">
-                    {missing.length === 0 && profile
-                      ? 'Every section complete'
-                      : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed`}
+                  {/* With no profile, `missing` is empty because nothing was
+                      checked — it printed "0 items still needed" beside a 0%
+                      ring. Same false-complete as /gcc-readiness had. */}
+                  <span className="text-[13px] text-ink-soft">
+                    {!profile
+                      ? 'Not started — upload your CV to begin'
+                      : missing.length === 0
+                        ? 'Every section complete'
+                        : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed`}
                   </span>
                 </div>
                 <ReadinessRing score={score} size={64} dark />
@@ -414,11 +440,14 @@ export default function DashboardPage() {
                 </div>
               ) : null}
 
+              {/* Secondary, not gold: the next-step panel above already holds
+                  this screen's one gold action, and two gold buttons stacked a
+                  scroll apart compete for the same thumb. */}
               <Link
-                href="/profile"
-                className={cn(buttonVariants({ variant: 'primary' }), 'mt-1 w-full text-[14px]')}
+                href={profile ? '/profile' : '/profile?import=upload'}
+                className={cn(buttonVariants({ variant: 'secondary' }), 'mt-1 w-full text-[14px]')}
               >
-                {missing.length === 0 ? 'View Career Profile' : 'Improve Score'}
+                {!profile ? 'Build my profile' : missing.length === 0 ? 'View Career Profile' : 'Improve my score'}
               </Link>
             </div>
           </Reveal>
@@ -458,19 +487,22 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <Reveal delay={200}>
-            <div className="border border-line bg-white flex flex-col gap-2 p-6">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+            <div className="flex flex-col gap-2 rounded-card border border-line bg-white p-5 shadow-m-1">
+              <div className="px-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
                 Quick actions
               </div>
-              <div className="mt-1 flex flex-col">
+              <div className="mt-1 flex flex-col gap-1">
                 {QUICK_ACTIONS.map((a) => (
                   <Link
                     key={a.href}
                     href={a.href}
-                    className="flex min-h-11 items-center justify-between gap-3 rounded-ctl px-2 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:bg-canvas hover:text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                    className="group flex min-h-12 items-center gap-3 rounded-ctl px-2 py-2 text-[14px] font-semibold text-ink transition-colors hover:bg-canvas hover:text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                   >
-                    {a.label}
-                    <span aria-hidden className="text-ink-muted">→</span>
+                    <span aria-hidden="true" className={cn('flex size-9 shrink-0 items-center justify-center rounded-ctl', a.tint)}>
+                      <a.icon className="size-[18px]" />
+                    </span>
+                    <span className="flex-1">{a.label}</span>
+                    <span aria-hidden className="text-ink-muted transition-transform group-hover:translate-x-0.5">→</span>
                   </Link>
                 ))}
               </div>
@@ -513,46 +545,50 @@ function MetricTile({
   label,
   value,
   sub,
-  muted,
   href,
+  icon: Icon,
+  accent,
 }: {
   label: string
   value?: string
   sub?: string
-  muted?: boolean
-  href?: string
+  href: string
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+  accent: 'teal' | 'gold'
 }) {
-  // Blueprint: a figure and its label, with no container. The mono face and
-  // tabular figures are the point — a number that changes must not shift the
-  // ones beside it.
-  const inner = (
-    <>
-      <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
-        {label}
-      </span>
-      <span
-        className={cn(
-          'font-mono text-[28px] font-medium leading-none tracking-[-0.02em] tabular-nums',
-          muted ? 'text-ink-muted' : 'text-ink',
-        )}
-      >
-        {value}
-      </span>
-      {sub ? <span className="text-[12px] text-ink-muted">{sub}</span> : null}
-    </>
-  )
-
-  if (!href) {
-    return <div className="flex flex-1 flex-col gap-1.5 py-4 pr-4 first:pl-0 [&:not(:first-child)]:pl-4">{inner}</div>
-  }
-
+  // WAS two mono numbers with grey caps above them and no container — the
+  // founder's "black and white" in its purest form. Each figure now sits in a
+  // small card with its service's icon and colour, so the row reads as two
+  // things you can tap, not two lines of a spreadsheet. Tabular figures stay:
+  // a number that changes must not shift its neighbours.
+  //   teal on teal-soft 8.30 · gold-ink on gold-soft 4.83
   return (
     <Link
       href={href}
       aria-label={`${label}: ${value ?? 'not available'}`}
-      className="group flex flex-1 flex-col gap-1.5 py-4 pr-4 transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 [&:not(:first-child)]:pl-4"
+      className="group flex min-w-0 flex-col gap-2.5 rounded-card border border-line bg-white p-4 shadow-m-1 transition-all hover:-translate-y-px hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 motion-reduce:transform-none"
     >
-      {inner}
+      {/* Icon above the label, not beside it: side by side, a 375px phone
+          cut both labels to "PROFILE ST…" and "TARGET JO…". */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          'flex size-8 shrink-0 items-center justify-center rounded-ctl',
+          accent === 'teal' ? 'bg-teal-soft text-teal' : 'bg-gold-soft text-gold-ink',
+        )}
+      >
+        <Icon className="size-[17px]" />
+      </span>
+      <span className="text-[12.5px] font-semibold leading-tight text-ink-soft">{label}</span>
+      <span
+        className={cn(
+          'font-display text-[30px] font-bold leading-none tracking-[-0.02em] tabular-nums',
+          accent === 'teal' ? 'text-teal' : 'text-gold-ink',
+        )}
+      >
+        {value}
+      </span>
+      {sub ? <span className="text-[12px] text-ink-soft">{sub}</span> : null}
     </Link>
   )
 }
