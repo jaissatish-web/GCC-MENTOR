@@ -171,7 +171,9 @@ export function TargetJobsVisual() {
             <span className={cn('text-[16px] font-semibold tabular-nums', s.on ? 'text-white' : 'text-ink')}>
               {s.n}
             </span>
-            <span className={cn('text-[9.5px]', s.on ? 'text-teal-soft' : 'text-ink-muted')}>{s.k}</span>
+            {/* 12px, the product floor — it was 9.5px. `break-words` so
+                "Shortlisted" wraps inside a narrow column rather than spill. */}
+            <span className={cn('break-words text-[12px] leading-tight', s.on ? 'text-teal-soft' : 'text-ink-muted')}>{s.k}</span>
           </div>
         ))}
       </div>
