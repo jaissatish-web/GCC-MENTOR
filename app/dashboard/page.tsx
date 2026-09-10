@@ -212,7 +212,14 @@ export default function DashboardPage() {
             {/* Archivo, not the serif. Blueprint's voice is an instrument
                 label: tight tracking, real weight, no flourish. */}
             <h1 className="font-display text-[24px] font-bold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[30px]">
-              {firstName ? `Good ${greeting()}, ${firstName}` : 'Welcome to GCC MENTOR'}
+              {/* While the profile is still loading, a plain greeting — not
+                  "Welcome to GCC MENTOR", which flashed at returning users for
+                  the second before their name arrived. */}
+              {firstName
+                ? `Good ${greeting()}, ${firstName}`
+                : profileLoaded
+                  ? 'Welcome to GCC MENTOR'
+                  : `Good ${greeting()}`}
             </h1>
             <p className="text-[13px] text-ink-muted">
               {targetParts ? `Targeting ${targetParts}` : "Let's get you closer to your next opportunity."}
@@ -329,7 +336,8 @@ export default function DashboardPage() {
                 {packageCount > 0 ? (
                   <Link
                     href="/dashboard/library"
-                    className="text-[12px] font-semibold text-teal underline-offset-2 hover:underline"
+                    // 44px tall: it measured 18px — a thumb-sized miss.
+                    className="-my-3 inline-flex min-h-11 items-center px-1 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                   >
                     See all {packageCount} →
                   </Link>

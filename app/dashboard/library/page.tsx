@@ -132,7 +132,9 @@ function NameField({
           e.currentTarget.blur()
         }
       }}
-      className="w-full rounded-ctl border border-transparent bg-transparent px-1.5 py-1 font-display text-[15px] font-bold leading-snug tracking-[-0.01em] text-ink hover:border-line focus:border-teal focus:bg-white focus-visible:outline-none"
+      // 44px tall — it measured 30px, the smallest tap target on the page, and
+      // it is the one control on the card with no visible edge until touched.
+      className="min-h-11 w-full rounded-ctl border border-transparent bg-transparent px-1.5 py-2 font-display text-[15px] font-bold leading-snug tracking-[-0.01em] text-ink hover:border-line focus:border-teal focus:bg-white focus-visible:outline-none"
     />
   )
 }

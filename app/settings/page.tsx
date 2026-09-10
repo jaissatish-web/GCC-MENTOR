@@ -283,7 +283,8 @@ export default async function SettingsPage({
                       </span>
                       <Link
                         href={`/package/${p.id as string}`}
-                        className="shrink-0 text-[13px] font-semibold text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                        // 44px tall — it was a 20px line of text.
+                        className="inline-flex min-h-11 shrink-0 items-center rounded-ctl px-2 text-[13px] font-semibold text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                       >
                         Open
                       </Link>

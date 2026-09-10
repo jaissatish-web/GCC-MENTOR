@@ -369,7 +369,8 @@ function PackageScreenInner({ id }: { id: string }) {
                 e.currentTarget.blur()
               }
             }}
-            className="min-w-[180px] flex-1 rounded-ctl border border-line bg-white px-3 py-1.5 text-[13px] text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            // The shared field, at 44px. It was 34px with a 1.21:1 edge.
+            className="field min-w-[180px] flex-1"
           />
           {nameState ? <span className="shrink-0 text-teal">{nameState}</span> : null}
         </label>
@@ -595,7 +596,10 @@ function PackageScreenInner({ id }: { id: string }) {
                       />
                       <div className="mt-3">
                         <span className="text-[12px] text-ink-muted">Colour</span>
-                        <div className="mt-1.5 flex flex-wrap gap-1.5">
+                        {/* 36px swatches with room between them: they were
+                            28px dots 6px apart, the smallest targets on the
+                            screen, and a miss picks the neighbouring colour. */}
+                        <div className="mt-1.5 flex flex-wrap gap-2.5">
                           {Object.entries(ACCENT_OPTIONS).map(([k, v]) => {
                             const active = draftStyle.accent === k
                             return (
@@ -613,7 +617,7 @@ function PackageScreenInner({ id }: { id: string }) {
                                 }
                                 style={{ background: v.hex }}
                                 className={
-                                  'size-7 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ' +
+                                  'size-9 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ' +
                                   (active
                                     ? 'ring-2 ring-teal ring-offset-2'
                                     : 'ring-1 ring-line hover:ring-teal/60')
@@ -791,7 +795,8 @@ function StyleChoice({
               aria-pressed={active}
               onClick={() => onChange(k)}
               className={
-                'min-h-8 rounded-ctl px-2.5 py-1 text-[12px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1 ' +
+                // 44px: the touch floor Button.tsx sets. These measured 32px.
+                'min-h-11 rounded-ctl px-3 py-2 text-[13px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1 ' +
                 (active
                   ? 'bg-teal text-white'
                   : 'border border-line bg-white text-ink-soft hover:border-teal/60')

@@ -345,7 +345,9 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                         onClick={() => setList(list.filter((_, j) => j !== i))}
                         aria-label={`Remove bullet ${i + 1}`}
                         title="Remove this bullet"
-                        className="mt-1 shrink-0 rounded-ctl px-2 py-1.5 text-[12px] font-semibold text-ink-muted transition-colors hover:bg-alert-soft hover:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert"
+                        // 44px square: it measured 30px, and sits beside a
+                        // text box a thumb is about to tap into.
+                        className="flex size-11 shrink-0 items-center justify-center rounded-ctl text-[13px] font-semibold text-ink-muted transition-colors hover:bg-alert-soft hover:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert"
                       >
                         ✕
                       </button>

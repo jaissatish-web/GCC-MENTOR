@@ -141,7 +141,7 @@ export async function AppFooter() {
               <li key={s.href}>
                 <Link
                   href={s.href}
-                  className="inline-flex min-h-[26px] items-center text-[13px] text-ink-soft underline-offset-2 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                  className="inline-flex min-h-8 items-center text-[13px] text-ink-soft underline-offset-2 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   {s.label}
                 </Link>

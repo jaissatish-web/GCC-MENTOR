@@ -704,10 +704,11 @@ function CardSection({
             {helper ? (
               <span
                 className={cn(
-                  'text-[12px] leading-relaxed text-ink-muted',
-                  // Two lines, not one: clipped to one on a phone, every helper
-                  // ended "Passport, visa and contact..." and read as unfinished.
-                  !open && 'line-clamp-2'
+                  // Never clipped. At one line every helper ended "Passport,
+                  // visa and contact..."; at two, a measured 8 of 9 still did.
+                  // A sentence that stops mid-word reads as unfinished, and
+                  // these are each one sentence — the card can afford it.
+                  'text-[12px] leading-relaxed text-ink-muted'
                 )}
               >
                 {helper}
@@ -1423,9 +1424,11 @@ function ProfileScreen() {
             <h1 className="font-display text-[22px] font-bold leading-tight tracking-[-0.015em] text-ink">
               {!editor.full_name.trim()
                 ? 'Build your Career Profile'
-                : readiness.score >= 80
-                  ? `Almost there, ${firstName}`
-                  : `Keep going, ${firstName}`}
+                : readiness.score >= 100
+                  ? `Your profile is complete, ${firstName}`
+                  : readiness.score >= 80
+                    ? `Almost there, ${firstName}`
+                    : `Keep going, ${firstName}`}
             </h1>
             <p className="text-[12px] leading-relaxed text-ink-soft">
               <span className="font-semibold text-ink">Career Profile — {readiness.score}% complete,{' '}

@@ -51,8 +51,11 @@ function PlannedGroup() {
             className="flex min-h-11 cursor-default items-center gap-3 rounded-xl px-3 text-[14px] font-medium text-ink-muted"
           >
             <Icon className="size-5 shrink-0 text-alert/70" />
-            <span className="flex-1 truncate">{item.label}</span>
-            <span className="shrink-0 rounded-full border border-alert/35 bg-alert-soft px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-alert">
+            {/* Wraps rather than truncates: a 248px rail cut these to "Mock
+                Intervi…" beside the tag. The tag is 12px, the app's floor —
+                it was 10px, the only text in the product below it. */}
+            <span className="flex-1 leading-tight">{item.label}</span>
+            <span className="shrink-0 rounded-full border border-alert/35 bg-alert-soft px-1.5 py-0.5 text-[12px] font-bold leading-none text-alert">
               Soon
             </span>
           </div>
@@ -174,9 +177,14 @@ export function Sidebar() {
       </nav>
       <div className="mt-auto flex flex-col gap-1.5 rounded-card border border-line bg-canvas p-4">
         <div className="text-[12px] font-semibold leading-normal text-teal">Need help?</div>
-        <div className="text-[12px] leading-snug text-ink-muted">
-          Email the founder — replies within a day.
-        </div>
+        {/* The reply-time promise is gone, at the founder's request (it was
+            removed from the footer on 2026-09-09 and missed here). */}
+        <a
+          href="mailto:jaissatish@gmail.com"
+          className="-mx-1 inline-flex min-h-9 items-center rounded-ctl px-1 text-[12px] font-semibold leading-snug text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        >
+          jaissatish@gmail.com
+        </a>
       </div>
     </>
   )
@@ -262,9 +270,12 @@ export function Sidebar() {
             </nav>
             <div className="mt-auto flex flex-col gap-1.5 rounded-card border border-line bg-canvas p-4">
               <div className="text-[12px] font-semibold leading-normal text-teal">Need help?</div>
-              <div className="text-[12px] leading-snug text-ink-muted">
-                Email the founder — replies within a day.
-              </div>
+              <a
+                href="mailto:jaissatish@gmail.com"
+                className="-mx-1 inline-flex min-h-9 items-center rounded-ctl px-1 text-[12px] font-semibold leading-snug text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              >
+                jaissatish@gmail.com
+              </a>
             </div>
           </aside>
         </div>
