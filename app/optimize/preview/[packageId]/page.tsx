@@ -254,7 +254,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
           <button
             type="button"
             onClick={handleDone}
-            className="min-h-11 w-full rounded-ctl bg-teal px-4 py-4 text-[15px] font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+            className="min-h-11 w-full rounded-ctl bg-teal px-4 py-4 text-[15px] font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
           >
             Back to your CV
           </button>
@@ -365,10 +365,19 @@ function ChangesTab({
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-[12px] font-semibold text-teal">Edit this text</span>
-              <span className="text-[12px] text-ink-muted">· any generated line</span>
-            </div>
+            // WAS A SPAN. "Edit this text" looked like every other edit link
+            // on the page but did nothing, so the summary — the first thing a
+            // recruiter reads — could not be edited here at all.
+            <button
+              type="button"
+              onClick={() => {
+                setDraftSummary(summaryAfter)
+                setEditing({ summary: true })
+              }}
+              className="min-h-11 self-start px-1 text-[12.5px] font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            >
+              Edit this text
+            </button>
           )}
         </div>
 
@@ -388,7 +397,14 @@ function ChangesTab({
               <div key={block.profile_experience_id + ':' + bi} className="flex flex-col gap-2 rounded-card border border-line bg-white p-4">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[12px] font-bold text-ink">{company} — bullet {bi + 1} of {effective.length}</span>
-                  {src ? <span className="font-mono text-[12px] text-ink-muted">+{wordsIn(added.map((p) => p.value).join(' '))} JD terms</span> : null}
+                  {/* "+7 JD terms" claimed the words came from a job
+                      description — true only when one was pasted, and "JD" is
+                      recruiter shorthand. It counts words added, so it says so. */}
+                  {src && added.length ? (
+                    <span className="shrink-0 rounded-full bg-teal-soft px-2 py-0.5 text-[12px] font-semibold text-teal">
+                      +{wordsIn(added.map((p) => p.value).join(' '))} new words
+                    </span>
+                  ) : null}
                 </div>
                 {isEditing ? (
                   <textarea
@@ -398,19 +414,31 @@ function ChangesTab({
                     className="field p-2.5"
                   />
                 ) : (
-                  <p className="text-[12px] leading-relaxed text-ink">
-                    {removedParts.length ? (
-                      <>
-                        <span className="text-diff-removed line-through">{removedParts.map((p) => p.value).join('')}</span>{' '}
-                        <span>→</span>{' '}
-                      </>
+                  // BEFORE AND AFTER AS TWO WHOLE LINES, the way the summary
+                  // already does it. The removed words used to be glued into one
+                  // struck-out run — "pipingusingCAESARII →" — because the
+                  // spaces between them belong to the unchanged tokens, which
+                  // the old code dropped. Rendering the full "before" keeps them.
+                  <div className="flex flex-col gap-2">
+                    {src && removedParts.length ? (
+                      <p className="rounded-[9px] border-l-2 border-alert/40 bg-canvas px-3 py-2 text-[12.5px] leading-relaxed text-ink-muted">
+                        {parts.filter((p) => !p.added).map((p, i) =>
+                          p.removed ? (
+                            <del key={i} className="text-alert/80 decoration-alert/60">{p.value}</del>
+                          ) : (
+                            <span key={i}>{p.value}</span>
+                          ),
+                        )}
+                      </p>
                     ) : null}
-                    {afterParts.map((p, i) => (p.added ? (
-                      <mark key={i} className="rounded-sm bg-diff-added px-0.5 text-ink-soft">{p.value}</mark>
-                    ) : (
-                      <span key={i}>{p.value}</span>
-                    )))}
-                  </p>
+                    <p className="rounded-[9px] border-l-2 border-teal bg-teal-soft/60 px-3 py-2 text-[12.5px] leading-relaxed text-ink">
+                      {afterParts.map((p, i) => (p.added ? (
+                        <mark key={i} className="rounded-sm bg-diff-added px-0.5 text-ink">{p.value}</mark>
+                      ) : (
+                        <span key={i}>{p.value}</span>
+                      )))}
+                    </p>
+                  </div>
                 )}
                 <div className="flex items-center gap-2">
                   {isEditing ? (
@@ -470,7 +498,8 @@ function ChangesTab({
         <button
           type="button"
           onClick={onDone}
-          className="min-h-11 rounded-[13px] bg-teal px-4 py-4 text-[15px] font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+          // ink on teal measured 2.0:1 — the page's only exit was unreadable.
+          className="min-h-11 rounded-ctl bg-teal px-4 py-4 text-[15px] font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
         >
           Back to your CV
         </button>

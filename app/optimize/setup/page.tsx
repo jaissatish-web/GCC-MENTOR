@@ -84,10 +84,13 @@ function personaLabel(industry: string): string {
   }
 }
 
+// The second line used to read "75-80%", "80-90%", "90-100%" — percentages of
+// nothing the user can see or check, set in a mono face that made them look
+// measured. They were never computed. Plain words say what the level does.
 const LEVELS: ReadonlyArray<{ value: OptimizationLevel; label: string; range: string }> = [
-  { value: 'easy', label: 'Easy', range: '75-80%' },
-  { value: 'moderate', label: 'Moderate', range: '80-90%' },
-  { value: 'high', label: 'High', range: '90-100%' },
+  { value: 'easy', label: 'Easy', range: 'Light touch' },
+  { value: 'moderate', label: 'Moderate', range: 'Balanced' },
+  { value: 'high', label: 'High', range: 'Closest match' },
 ]
 
 const RISK_COPY =
@@ -473,10 +476,13 @@ function SetupScreen() {
                     : 'border-line bg-white'
                 )}
               >
-                <span className={cn('text-[13px] font-semibold', selected ? 'text-ink' : 'text-ink')}>
+                {/* Selected was ink on teal (2.0:1) over teal on teal — the one
+                    option the user had chosen was the one they could not read.
+                    white on teal 9.84 · teal-soft on teal 8.30 */}
+                <span className={cn('text-[13px] font-semibold', selected ? 'text-white' : 'text-ink')}>
                   {l.label}
                 </span>
-                <span className={cn('font-mono text-[12px]', selected ? 'text-teal' : 'text-ink-muted')}>
+                <span className={cn('text-[12px]', selected ? 'text-teal-soft' : 'text-ink-muted')}>
                   {l.range}
                 </span>
               </button>
@@ -486,10 +492,9 @@ function SetupScreen() {
 
         {/* Risk indicator — ONLY at Moderate/High */}
         {level !== 'easy' ? (
-          <div className="mt-1 flex items-start gap-2.5 rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3">
-            <span className="text-[13px] text-alert">△</span>
-            <p className="text-[12px] leading-snug text-alert">{RISK_COPY}</p>
-          </div>
+          // Gold, not red. This is advice about the interview, not an error —
+          // in alarm red it read as "something is wrong with your choice".
+          <Alert variant="warning" className="mt-1">{RISK_COPY}</Alert>
         ) : null}
       </Card>
 
