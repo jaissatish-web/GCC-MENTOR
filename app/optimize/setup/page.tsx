@@ -333,7 +333,7 @@ function SetupScreen() {
           <ProcessingSteps tone="dark" steps={steps} activeIndex={Math.max(0, activeIndex)} expected="usually under a minute" />
 
           <p className="text-center text-[12px] leading-relaxed text-white/60">
-            Only facts already in your profile are used. Nothing is invented.
+            Only facts already in your Career Profile are used.
           </p>
         </div>
       </main>

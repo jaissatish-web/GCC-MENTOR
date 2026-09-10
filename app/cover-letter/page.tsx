@@ -45,7 +45,10 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
  */
 
 function letterTarget(pkg: Package): string {
-  const bits = [pkg.target_job_title, pkg.target_company ?? 'No company'].filter(Boolean)
+  // The employer only when there is one. "· No company" was our null printed
+  // as if it were the user's words, and it cut the job title short in the
+  // dropdown on a phone.
+  const bits = [pkg.target_job_title, pkg.target_company].filter(Boolean)
   return bits.join(' · ')
 }
 
@@ -270,8 +273,12 @@ function CoverLetterScreen() {
             ) : null}
 
             {selected ? (
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-[12px] text-ink-muted">Target: {letterTarget(selected)}</p>
+              // Stacked on a phone: side by side, the target line was squeezed
+              // into a four-line column beside the button.
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-[12.5px] text-ink-soft">
+                  For <span className="font-semibold text-ink">{letterTarget(selected)}</span>
+                </p>
                 <Button
                   type="button"
                   variant="primary"

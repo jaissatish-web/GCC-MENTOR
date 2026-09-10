@@ -113,7 +113,7 @@ export default function GeneratePage({ params }: { params: { packageId: string }
         <div className="text-center">
           <h1 className="font-display text-[28px] leading-tight text-white">Building your Gulf CV</h1>
           <p className="mt-2 text-[13.5px] leading-relaxed text-white/70">
-            Every line is checked against your profile — nothing is invented.
+            Every line is checked against your Career Profile before you see it.
           </p>
         </div>
         <ProcessingSteps

@@ -137,8 +137,14 @@
   .field:disabled {
     @apply cursor-not-allowed opacity-60;
   }
+  /* Grows with its text where the browser can (Chrome and Android — most of
+     this audience). Fixed-row boxes cut resume bullets off mid-sentence behind
+     a scrollbar once the text went to 16px for iOS. Browsers without
+     `field-sizing` keep the rows the page asks for, and can still be resized. */
   textarea.field {
     @apply resize-y leading-relaxed;
+    field-sizing: content;
+    min-height: 5.5rem;
   }
   /* A closed <select> with `appearance: none` has no arrow at all, so it looked
      like a text box that would not take typing. The chevron is drawn in

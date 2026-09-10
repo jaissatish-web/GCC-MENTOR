@@ -297,7 +297,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
             <textarea
               value={draft.summary}
               onChange={(e) => setDraft((d) => (d ? { ...d, summary: e.target.value } : d))}
-              rows={6}
+              rows={Math.max(6, Math.ceil(draft.summary.length / 32))}
               aria-label="Professional summary"
               className="field mt-3"
             />
@@ -334,7 +334,9 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                       <textarea
                         value={bullet}
                         onChange={(e) => setList(list.map((b, j) => (j === i ? e.target.value : b)))}
-                        rows={2}
+                        // Roughly 32 characters a line at 16px on a phone, so
+                        // the whole bullet shows where field-sizing is absent.
+                        rows={Math.max(2, Math.ceil(bullet.length / 32))}
                         aria-label={`Bullet ${i + 1}`}
                         className="field min-w-0 flex-1 p-2.5"
                       />
