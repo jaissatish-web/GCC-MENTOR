@@ -457,6 +457,27 @@ const config: Config = {
           '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
           '50%':      { transform: 'translate3d(0, -6px, 0)' },
         },
+        // ── Processing (components/ui/Processing.tsx) ────────────────────
+        // Rings that turn at different speeds and directions, a core that
+        // breathes, and ripples that leave it. Transform and opacity only,
+        // so every one of these runs on the compositor and none of them can
+        // cause layout work while a slow phone is also waiting on the server.
+        orbit: {
+          '0%':   { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'orbit-rev': {
+          '0%':   { transform: 'rotate(360deg)' },
+          '100%': { transform: 'rotate(0deg)' },
+        },
+        breathe: {
+          '0%, 100%': { transform: 'scale(0.95)', opacity: '0.92' },
+          '50%':      { transform: 'scale(1.05)', opacity: '1' },
+        },
+        ripple: {
+          '0%':   { transform: 'scale(0.55)', opacity: '0.55' },
+          '100%': { transform: 'scale(1.45)', opacity: '0' },
+        },
       },
       animation: {
         sweep:        'sweep 1.8s linear infinite',
@@ -464,6 +485,11 @@ const config: Config = {
         'reveal-up':  'reveal-up 0.62s cubic-bezier(0.22, 1, 0.36, 1) both',
         'glow-pulse': 'glow-pulse 3.2s ease-in-out infinite',
         float:        'float 5s ease-in-out infinite',
+        'orbit-slow': 'orbit 16s linear infinite',
+        'orbit-mid':  'orbit-rev 9s linear infinite',
+        'orbit-fast': 'orbit 3.2s linear infinite',
+        breathe:      'breathe 2.6s ease-in-out infinite',
+        ripple:       'ripple 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite',
       },
     },
   },

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
+import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 
 /**
  * Generation screen. POSTs { packageId } to /api/optimize, which reads the
@@ -97,41 +98,30 @@ export default function GeneratePage({ params }: { params: { packageId: string }
     )
   }
 
+  // The model call takes up to a minute and reports no progress of its own, so
+  // what is shown is only what is true: it is running (the orbit), which stage
+  // of the pipeline it is in (named, paced by the timer above, holding on the
+  // last one), and how long it has really taken. See components/ui/Processing.
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-ink px-6 py-12 font-redesign-sans">
-      <div className="w-full max-w-[440px]">
-        <h1 className="font-display text-[28px] leading-tight text-white">
-          Building your Gulf CV…
-        </h1>
-        <p className="mt-2 text-[13px] text-ink-muted">
-          This takes about a minute. Every line is checked against your profile — nothing is
-          invented.
-        </p>
-        <ul className="mt-8 flex flex-col gap-3">
-          {STEPS.map((label, i) => {
-            const state = i < step ? 'done' : i === step ? 'active' : 'todo'
-            return (
-              <li key={label} className="flex items-center gap-3 text-[14px]">
-                <span
-                  aria-hidden
-                  className={
-                    'flex size-6 shrink-0 items-center justify-center rounded-full border text-[12px] ' +
-                    (state === 'done'
-                      ? 'border-teal bg-teal text-white'
-                      : state === 'active'
-                        ? 'border-teal text-teal'
-                        : 'border-white/25 text-ink-muted')
-                  }
-                >
-                  {state === 'done' ? '✓' : i + 1}
-                </span>
-                <span className={state === 'todo' ? 'text-ink-muted' : 'text-white'}>
-                  {label}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-ink px-6 py-12 font-redesign-sans">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_28%,rgba(201,150,46,0.16),transparent_70%)]"
+      />
+      <div className="relative flex w-full max-w-[440px] flex-col items-center gap-7">
+        <ProcessingOrbit tone="dark" size={184} />
+        <div className="text-center">
+          <h1 className="font-display text-[28px] leading-tight text-white">Building your Gulf CV</h1>
+          <p className="mt-2 text-[13.5px] leading-relaxed text-white/70">
+            Every line is checked against your profile — nothing is invented.
+          </p>
+        </div>
+        <ProcessingSteps
+          tone="dark"
+          steps={STEPS}
+          activeIndex={Math.max(0, step - 1)}
+          expected="usually about a minute"
+        />
       </div>
     </main>
   )

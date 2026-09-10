@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { Card } from '@/components/ui/Card'
 import { cn } from '@/lib/utils'
 import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
@@ -286,8 +287,12 @@ function SetupScreen() {
 
   const stepMs = steps.length > 0 ? 60000 / steps.length : 60000
   const activeIndex = Math.min(steps.length - 1, Math.floor(elapsedMs / stepMs))
-  const percent = Math.min(100, Math.round((elapsedMs / 60000) * 100))
-  const secsLeft = Math.max(0, Math.round((60000 - elapsedMs) / 1000))
+  // THE PERCENTAGE AND "~Ns LEFT" ARE GONE (2026-09-10). Both were computed
+  // from a 60-second clock, not from anything the server reported, so they
+  // reached 100% at a minute whether or not the work was done and then read
+  // "~0s left" for as long as it took. A number that only looks like progress
+  // is an invented fact on the one screen where someone is waiting to trust
+  // this product. The real elapsed clock in ProcessingSteps replaces it.
 
   // Waiting for the draft handoff / profile load.
   if (!draft) {
@@ -304,53 +309,30 @@ function SetupScreen() {
   // on error it resets submitting → back to the form below.
   if (submitting) {
     return (
-      <main className="flex min-h-dvh flex-col bg-ink font-redesign-sans">
-        <div className="flex flex-1 flex-col justify-center gap-6 px-6">
+      <main className="relative flex min-h-dvh flex-col overflow-hidden bg-ink font-redesign-sans">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_26%,rgba(201,150,46,0.16),transparent_70%)]"
+        />
+        <div className="relative mx-auto flex w-full max-w-[460px] flex-1 flex-col items-center justify-center gap-6 px-6 py-12">
+          <ProcessingOrbit tone="dark" size={168} />
           <div className="flex flex-col gap-2.5 text-center">
+            {/* The role was `text-teal` on near-black — about 1.9:1, close to
+                invisible. Gold on ink is the pair Meridian uses for emphasis. */}
             <h1 className="font-display text-[30px] leading-tight text-white">
               Optimizing for
-              <span className="block text-teal">{ctaName}</span>
+              <span className="block text-gold">{ctaName}</span>
             </h1>
-            <p className="text-[13px] leading-relaxed text-ink-muted">
+            <p className="text-[13px] leading-relaxed text-white/70">
               Reviewed as {personaLabel(draft.target_industry)} would.
             </p>
           </div>
 
-          {/* Named steps — dynamic, only what was selected */}
-          <div className="flex flex-col gap-3.5 rounded-card border border-white/20 bg-white/10 p-5">
-            {steps.map((s, i) => {
-              const isDone = i < activeIndex
-              const isActive = i === activeIndex
-              const icon = isDone ? '✓' : isActive ? '◍' : '○'
-              const iconColor = isDone
-                ? 'text-teal'
-                : isActive
-                  ? 'text-teal'
-                  : 'text-ink-muted'
-              return (
-                <div key={s} className="flex items-center gap-3 text-[13px] font-medium">
-                  <span className={cn('w-4 shrink-0 text-center', iconColor)}>{icon}</span>
-                  <span className={isDone || isActive ? 'text-white' : 'text-ink-muted'}>{s}</span>
-                </div>
-              )
-            })}
-          </div>
+          {/* Named steps — dynamic, only what was selected, drawn by the shared
+              processing component with a real elapsed clock. */}
+          <ProcessingSteps tone="dark" steps={steps} activeIndex={Math.max(0, activeIndex)} expected="usually under a minute" />
 
-          {/* Progress: % and ~Ns left from elapsed vs the 60s target */}
-          <div className="flex flex-col gap-2">
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-teal transition-[width] duration-300"
-                style={{ width: `${percent}%` }}
-              />
-            </div>
-            <div className="flex justify-between font-mono text-[12px] text-ink-muted">
-              <span>{percent}%</span>
-              <span>~{secsLeft}s left</span>
-            </div>
-          </div>
-
-          <p className="text-center text-[12px] leading-relaxed text-ink-muted">
+          <p className="text-center text-[12px] leading-relaxed text-white/60">
             Only facts already in your profile are used. Nothing is invented.
           </p>
         </div>

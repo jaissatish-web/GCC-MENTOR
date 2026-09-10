@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { cn } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_RESUME_TEXT_KEY } from '@/lib/onboardingDraft'
 
@@ -45,9 +46,12 @@ import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_RESUME_TEXT_KEY } from '@/lib/onboard
  */
 type Path = 'upload' | 'paste' | 'claimed'
 
+// "4 work experience entries" used to be the second row, shown to everyone —
+// a fresher with one job and a veteran with nine were both told four. It was a
+// small invented fact on the screen that exists to promise nothing is invented.
 const CHECKLIST = [
   'Contact & identity fields',
-  '4 work experience entries',
+  'Work experience entries',
   'Skills & certifications',
   'Education',
 ]
@@ -250,33 +254,19 @@ function ExtractingScreen() {
   return (
     <main className="flex min-h-dvh flex-col bg-canvas font-redesign-sans">
       <div className="mx-auto flex w-full max-w-[520px] flex-1 flex-col items-center justify-center gap-6 px-6 py-12">
-        {/* Sweep-animated CV badge — reuses the existing animate-sweep keyframe */}
-        <div className="relative flex size-24 items-center justify-center overflow-hidden rounded-card border border-line bg-canvas">
-          <span className="font-display text-[34px] leading-none text-teal">CV</span>
-          <span className="absolute inset-0 w-2/5 animate-sweep bg-gradient-to-r from-transparent via-teal/30 to-transparent" />
-        </div>
+        {/* The shared processing orbit, with "CV" in its core. It replaces a
+            static badge with a light sweeping across it, which on a slow phone
+            read as a frozen screen. */}
+        <ProcessingOrbit size={176} glyph="CV" />
 
         <div className="text-center">
           <h1 className="font-display text-[27px] leading-tight text-ink">Reading your resume</h1>
           <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
-            Usually takes about 20 seconds.
+            Finding your roles, dates, skills and certifications.
           </p>
         </div>
 
-        <Card tone="light" className="flex w-full flex-col gap-3 p-5">
-          {CHECKLIST.map((label, i) => {
-            const isDone = i <= rowCount - 2
-            const isActive = i === rowCount - 1
-            const icon = isDone ? '✓' : isActive ? '◍' : '○'
-            const color = isDone ? 'text-teal' : isActive ? 'text-teal' : 'text-ink-muted'
-            return (
-              <div key={label} className="flex items-center gap-2.5 text-[13px] font-medium text-ink">
-                <span className={cn('w-4 text-center', color)}>{icon}</span>
-                {label}
-              </div>
-            )
-          })}
-        </Card>
+        <ProcessingSteps steps={CHECKLIST} activeIndex={Math.max(0, rowCount - 1)} expected="usually about 20 seconds" />
 
         <p className="text-center text-[12px] leading-relaxed text-ink-muted">
           You&apos;ll get to review and correct everything on the next screen —{' '}

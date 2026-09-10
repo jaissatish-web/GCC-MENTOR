@@ -7,6 +7,7 @@ import { ScorecardResult } from '@/components/gulfReadiness/ScorecardResult'
 import { saveHandoff } from '@/lib/gulfReadiness/handoff'
 import type { FunnelAnswers, GulfReadinessResult } from '@/lib/gulfReadiness/types'
 import { Alert } from '@/components/ui/Alert'
+import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 
 /**
  * The free anonymous Gulf Readiness Scorecard — upload, three short questions, a
@@ -249,16 +250,17 @@ export default function GulfReadinessScorePage() {
   if (step === 'analyzing') {
     return (
       <Shell>
-        <div className="py-16 text-center">
-          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Building your scorecard</p>
-          <h1 className="mt-4 font-display text-3xl">Scoring your Gulf readiness…</h1>
-          <div className="mx-auto mt-8 flex max-w-sm flex-col gap-2.5">
-            {ANALYZE_STEPS.map((s) => (
-              <div key={s} className="flex items-center gap-3 rounded-card border border-line bg-white p-3.5 text-[13px] text-ink-soft">
-                <span className="size-2.5 animate-pulse rounded-full bg-teal" />
-                {s}
-              </div>
-            ))}
+        {/* All three steps used to pulse at once, so the screen never looked
+            like it was getting anywhere. They now advance in order and hold on
+            the last until the score arrives. */}
+        <div className="flex flex-col items-center gap-6 py-12 text-center">
+          <ProcessingOrbit size={168} />
+          <div>
+            <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Building your scorecard</p>
+            <h1 className="mt-3 font-display text-3xl">Scoring your Gulf readiness</h1>
+          </div>
+          <div className="w-full max-w-sm text-left">
+            <ProcessingSteps steps={ANALYZE_STEPS} stepMs={1600} expected="a few seconds" />
           </div>
         </div>
       </Shell>

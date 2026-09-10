@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
+import { ProcessingInline } from '@/components/ui/Processing'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { cn } from '@/lib/utils'
 import type { CoverLetter, CoverLetterTone, Package } from '@/types/package'
@@ -246,11 +247,36 @@ function CoverLetterScreen() {
               </p>
             ) : null}
 
+            {/* A real model call — up to four in sequence if the grounding
+                check sends a draft back — that used to show nothing but the
+                word "Generating…" on its button. The steps name what the route
+                actually does: load the target job, load the profile, write in
+                the chosen tone, then validate every line against the profile. */}
+            {generating ? (
+              <ProcessingInline
+                steps={[
+                  'Reading the target job',
+                  'Drawing on your Career Profile',
+                  `Writing in the ${tone} tone`,
+                  'Checking every line against your profile',
+                ]}
+                stepMs={5000}
+                expected="usually under a minute"
+              />
+            ) : null}
+
             {selected ? (
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[12px] text-ink-muted">Target: {letterTarget(selected)}</p>
-                <Button type="button" variant="primary" onClick={generate} disabled={!canGenerate}>
-                  {generating ? 'Generating…' : 'Generate cover letter'}
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={generate}
+                  disabled={!canGenerate}
+                  busy={generating}
+                  busyLabel="Generating…"
+                >
+                  Generate cover letter
                 </Button>
               </div>
             ) : null}

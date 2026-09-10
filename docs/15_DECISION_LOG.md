@@ -81,6 +81,49 @@ emoji safe here — and the users are on phones.
 
 ---
 
+## 2026-09-10 — Waiting screens move, and never invent progress
+
+Founder request: while an API call runs the screen looks static — make it circular and
+moving, so the user feels something big is being processed.
+
+**He was right about how bad it was.** Cover letter generation — a real model call, up to
+four in sequence if the grounding check sends a draft back — showed only the word
+"Generating…" on its button. The free scorecard pulsed three dots at once, so it never
+looked like it was getting anywhere. The optimizer's dark screens named real steps, but
+nothing moved except a tick every fifteen seconds, and fifteen seconds of stillness on a
+slow connection reads as a crash.
+
+`components/ui/Processing.tsx` now draws every long wait: three rings turning at different
+speeds and in both directions, a dot riding each, a breathing core, ripples leaving it, the
+named steps, and a live elapsed clock. Short saves and uploads get a turning ring inside the
+button. Transform and opacity only, so it runs on the compositor; `motion-reduce` stops
+every animation and keeps the steps and the clock.
+
+### The rule: motion yes, invented numbers no
+
+**No percentage, no bar that fills.** None of these calls reports progress — each is one
+request that answers once — so any number would be made up. The optimizer setup screen
+already showed one: its "%" and "~Ns left" were computed from a 60-second clock, so they
+hit 100% at a minute whether or not the work was done and then read "~0s left" for as long
+as it took. **Removed.** A number that only looks like progress is an invented fact on the
+one screen where someone is waiting to trust this product with their career.
+
+What is shown instead is all true: that it is running (the motion), what stage of the
+pipeline it is in (steps named after what the route actually does, paced by a timer, and
+holding on the last one rather than ticking it done), and how long it has really taken.
+
+### Found on the way
+
+- The extraction checklist told every user "4 work experience entries", whatever their CV
+  held. Now "Work experience entries".
+- The dark optimizer screen drew the target role in teal on near-black — **1.81:1**,
+  nearly invisible — and its subtitle in grey at 3.29. Now gold (6.70) and white at 70%
+  (9.18).
+- My own first dark-tone values were marginal: unreached step labels at exactly 4.50 and
+  their numbers at 3.81, a fail. Both raised to white at 55% (5.8) before shipping.
+
+---
+
 ## 2026-09-10 — The public header shows the way in, and both menus share one panel
 
 ### Log in and sign up are reachable from every width

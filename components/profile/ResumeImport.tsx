@@ -3,6 +3,7 @@
 import { useRef, useState, type ChangeEvent, type DragEvent } from 'react'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
+import { ProcessingInline } from '@/components/ui/Processing'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 
 /**
@@ -106,10 +107,17 @@ export function ResumeImport({
       </p>
 
       {parsing ? (
-        <div className="mt-3 flex items-center gap-3 rounded-ctl border border-line bg-white px-4 py-3.5">
-          <span className="size-2.5 animate-pulse rounded-full bg-teal" />
-          <span className="text-[13px] text-ink-soft">Reading your resume… usually about 20 seconds.</span>
-        </div>
+        <ProcessingInline
+          className="mt-3"
+          steps={[
+            'Reading your resume',
+            'Finding your roles and dates',
+            'Picking out skills and certifications',
+            'Getting it ready for you to check',
+          ]}
+          stepMs={5000}
+          expected="usually about 20 seconds"
+        />
       ) : (
         <>
           <div className="mt-3 grid gap-2 sm:grid-cols-3">

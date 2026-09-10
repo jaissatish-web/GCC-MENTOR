@@ -88,6 +88,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     >
+      {/* A turning ring on every busy button (2026-09-10). Saves and uploads
+          take a second or two — too short for the full processing orbit, long
+          enough that a label change alone reads as a stuck button. It draws in
+          `currentColor`, so it matches every variant without a colour of its
+          own, and it stops for reduced-motion users. */}
+      {busy ? (
+        <span
+          aria-hidden="true"
+          className="size-4 shrink-0 rounded-full border-2 border-current border-r-transparent animate-spin motion-reduce:animate-none"
+        />
+      ) : null}
       {busy && busyLabel ? busyLabel : children}
     </button>
   )
