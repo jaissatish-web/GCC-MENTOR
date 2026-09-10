@@ -36,7 +36,7 @@ import { GulfFlag, isGulfFlagCountry } from '@/components/ui/GulfFlag'
  */
 
 const LIVE_SERVICES = [
-  { label: 'Gulf Readiness Score', href: '/gcc-readiness' },
+  { label: 'Profile Strength', href: '/gcc-readiness' },
   { label: 'Career Profile', href: '/profile' },
   { label: 'Resume Optimizer', href: '/optimize/target' },
   { label: 'Cover Letter', href: '/cover-letter' },

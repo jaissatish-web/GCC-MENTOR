@@ -86,7 +86,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // dashboard card, so a user who scrolled past that card had no route to it
   // at all — and it is the free half of the product, the thing someone is
   // meant to try before paying.
-  { label: 'Gulf Readiness', href: '/gcc-readiness', icon: ChartBarIcon, needsProfile: true, shortLabel: 'Readiness' },
+  // WAS "Gulf Readiness". The page this opens is titled Profile Strength and
+  // measures how complete the profile is; Gulf Readiness is the OTHER score, the
+  // market one on the dashboard. The menu promised one and delivered the other.
+  { label: 'Profile Strength', href: '/gcc-readiness', icon: ChartBarIcon, needsProfile: true, shortLabel: 'Strength' },
   // "Resume Library" until 2026-09-09. The rows in it were never a library:
   // each one carries a job title, an employer, a country, the advert, and a
   // status running applied → offer. Calling a live application a file is what
