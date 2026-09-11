@@ -12,9 +12,11 @@ import type { Package, PackageStatus } from '@/types/package'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 
 /**
- * Target Jobs — route /dashboard/library.
+ * Resume Library — route /dashboard/library.
  *
- * RENAMED FROM "LIBRARY" 2026-09-09, and it is not only a rename.
+ * NAMED "TARGET JOBS" 2026-09-09 → 2026-09-11, then "Resume Library" again by
+ * founder decision. Only the name went back; the job-first rows below stayed,
+ * and the reasoning for them is unchanged.
  *
  * A `packages` row has always held a job title, a country, a company, the
  * pasted advert, the CV built for it, its cover letters, and a status running
@@ -188,7 +190,7 @@ export default function TargetJobsPage() {
         throw new Error(String(res.status))
       })
       .then((data) => setPackages((data?.packages as Package[] | undefined) ?? []))
-      .catch(() => setLoadError('Could not load your target jobs. Please try again.'))
+      .catch(() => setLoadError('Could not load your Resume Library. Please try again.'))
   }, [])
 
   const changeStatus = useCallback(
@@ -291,7 +293,7 @@ export default function TargetJobsPage() {
     return (
       // The shape of what is coming. A centred "Loading…" told the user
       // nothing and let the layout jump when the rows arrived.
-      <SkeletonGroup label="Loading your target jobs" className="py-6">
+      <SkeletonGroup label="Loading your Resume Library" className="py-6">
         {[0, 1, 2].map((i) => (
           <div key={i} className="rounded-card border border-line bg-white p-4">
             <Skeleton shape="title" className="mb-2.5" />
@@ -316,7 +318,7 @@ export default function TargetJobsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1">
           <h1 className="font-display text-[27px] font-bold leading-tight tracking-[-0.02em] text-ink">
-            Target jobs
+            Resume Library
           </h1>
           <p className="text-[13px] text-ink-soft">
             Every role you are going for, with its CV and where it stands.

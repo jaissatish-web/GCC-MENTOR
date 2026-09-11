@@ -158,7 +158,7 @@ export function TargetJobsVisual() {
   ]
   return (
     <Sheet>
-      <Label>Your target jobs</Label>
+      <Label>Your Resume Library</Label>
       <div className="flex gap-2">
         {stages.map((s) => (
           <div

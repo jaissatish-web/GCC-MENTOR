@@ -399,16 +399,17 @@ The desktop sidebar, the mobile bottom bar and the "More" drawer all render from
 They used to be three separate copies, and they had **already drifted** — the mobile
 bar still showed a renamed item and a destination that had moved.
 
-**Seven destinations, in this founder-specified order:**
+**Eight destinations, in this founder-specified order:**
 
-Dashboard · Career Profile · Target Jobs · Resume Templates ·
+Dashboard · Career Profile · Profile Strength · Resume Library · Resume Templates ·
 Resume Optimizer · Cover Letter · Settings
 
-This list said eight and still named **Job Match**, which was removed with the standalone
-service on 2026-09-04 — corrected 2026-09-09. **"Resume Library" became "Target Jobs"** on
-the same date: the rows in it were never a library, and calling a live application a file
-is what hid the product's actual shape from its own users. The route (`/dashboard/library`)
-is unchanged, so no link anywhere breaks.
+**Job Match** was removed with the standalone service on 2026-09-04. **Profile Strength**
+(`/gcc-readiness`) joined on 2026-09-09. **Resume Library** was "Target Jobs" from
+2026-09-09 to 2026-09-11 and is "Resume Library" again by founder decision — only the name
+went back; each row still leads with the job and its stage (see the decision log). The
+bottom bar shortens it to "Library". The route (`/dashboard/library`) never changed, so no
+link anywhere breaks.
 
 The order is deliberate: the two things a returning user does most sit directly under
 Dashboard, and the tools that operate on what was created follow. **Payments is

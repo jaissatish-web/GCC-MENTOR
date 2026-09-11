@@ -55,7 +55,7 @@ import { cn } from '@/lib/utils'
 const SERVICES = [
   { label: 'Gulf Readiness Score', href: '/gulf-readiness-score', icon: ChartBarIcon, blurb: 'Free, no login — one upload', tag: 'Free' },
   { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, blurb: 'Your career, read once and kept', tag: 'Free' },
-  { label: 'Target Jobs', href: '/dashboard/library', icon: BriefcaseIcon, blurb: 'Every application and its stage', tag: 'Free' },
+  { label: 'Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, blurb: 'Every application and its stage', tag: 'Free' },
   { label: 'Resume Optimizer', href: '/optimize/target', icon: DocumentTextIcon, blurb: 'Rewritten for the Gulf, never invented', tag: '₹499' },
   { label: 'CV Templates', href: '/templates', icon: RectangleStackIcon, blurb: 'Fifteen Gulf formats', tag: 'Included' },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon, blurb: 'Four tones, same profile', tag: '₹999' },

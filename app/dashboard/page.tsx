@@ -70,7 +70,7 @@ const QUICK_ACTIONS: ReadonlyArray<{
   { label: 'Check profile strength', href: '/gcc-readiness', icon: ChartBarIcon, tint: 'bg-teal-soft text-teal' },
   { label: 'Optimize my CV for a job', href: '/optimize/target', icon: DocumentTextIcon, tint: 'bg-gold-soft text-gold-ink' },
   { label: 'Write a cover letter', href: '/cover-letter', icon: EnvelopeIcon, tint: 'bg-sec-summary/10 text-sec-summary' },
-  { label: 'See my target jobs', href: '/dashboard/library', icon: BriefcaseIcon, tint: 'bg-ok-soft text-ok' },
+  { label: 'Open my Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, tint: 'bg-ok-soft text-ok' },
 ]
 
 /**
@@ -272,7 +272,7 @@ export default function DashboardPage() {
                 href="/gcc-readiness"
               />
               <MetricTile
-                label="Target jobs"
+                label="Resume Library"
                 icon={BriefcaseIcon}
                 accent="gold"
                 value={packagesLoaded ? String(packageCount) : '—'}
@@ -331,7 +331,7 @@ export default function DashboardPage() {
             <section className="flex flex-col gap-3">
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                  Your target jobs
+                  Your Resume Library
                 </span>
                 {packageCount > 0 ? (
                   <Link

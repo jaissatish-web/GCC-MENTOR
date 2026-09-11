@@ -189,7 +189,7 @@ const credentials = [
 const standards = ['Saudi Aramco', 'ADNOC', 'Bechtel', 'Shell DEP', 'QatarEnergy']
 
 const pricing = [
-  { name: 'Free', price: null, tag: 'Stations 1–3', items: ['Gulf Readiness Score', 'Career Profile', 'Target jobs and stages'], featured: false, live: true },
+  { name: 'Free', price: null, tag: 'Stations 1–3', items: ['Gulf Readiness Score', 'Career Profile', 'Resume Library with job stages'], featured: false, live: true },
   { name: 'Resume Optimization', price: '₹499', tag: 'One job', items: ['Everything free, plus', 'GCC-optimized resume', '15 Gulf templates', 'PDF download'], featured: true, live: true },
   { name: 'Resume + Cover Letter', price: '₹999', tag: 'One job, complete', items: ['Optimized resume', 'Professional cover letter', 'PDF download'], featured: false, live: false },
   { name: 'Complete Package', price: '₹2,499', tag: 'Full preparation', items: ['Resume + cover letter', 'Multiple target versions', 'Priority support'], featured: false, live: false },
@@ -198,7 +198,7 @@ const pricing = [
 const faq = [
   { q: 'Will GCC MENTOR invent anything on my CV?', a: 'No. The optimizer uses only facts in your Career Profile. It improves framing, never your history. Every generated line is validated against your profile before you see it.' },
   { q: 'Which Gulf countries are supported?', a: 'Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain. The CV format and readiness scoring follow conventions shared across the Gulf, so one profile prepares you for all six rather than locking you to one.' },
-  { q: 'Do I have to pay to find out whether this helps me?', a: 'No. Stations one to three are free — the readiness score, your Career Profile and your target jobs. You only pay when you want the optimized CV itself.' },
+  { q: 'Do I have to pay to find out whether this helps me?', a: 'No. Stations one to three are free — the readiness score, your Career Profile and your Resume Library. You only pay when you want the optimized CV itself.' },
   { q: 'Are all the services available today?', a: 'No, and we mark which is which in red. Stations one to six are live. Interview Q&A, Mock Interview and Saved Jobs are still in development and are labelled everywhere they appear.' },
   { q: 'How do I pay?', a: 'Card checkout is not live yet — we are still completing our payment provider setup. Everything free works today; when you want a paid service we arrange it with you directly and unlock it on your account.' },
   { q: 'How is my data protected?', a: 'Passport and visa fields are encrypted, and every internal access is logged. You can delete your profile and all data at any time from Settings.' },

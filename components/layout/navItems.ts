@@ -91,11 +91,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // carries both, as two tabs; the label stays "Profile Strength", the founder's
   // name for it and the first tab.
   { label: 'Profile Strength', href: '/gcc-readiness', icon: ChartBarIcon, needsProfile: true, shortLabel: 'Strength' },
-  // "Resume Library" until 2026-09-09. The rows in it were never a library:
-  // each one carries a job title, an employer, a country, the advert, and a
-  // status running applied → offer. Calling a live application a file is what
-  // hid the product's actual shape from its own users.
-  { label: 'Target Jobs', href: '/dashboard/library', icon: BriefcaseIcon, shortLabel: 'Jobs' },
+  // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
+  // founder decision. Only the name went back: each row still leads with the
+  // job — title, employer, country — and carries its stage, applied → offer.
+  { label: 'Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, shortLabel: 'Library' },
   { label: 'Resume Templates', href: '/templates', icon: RectangleStackIcon, shortLabel: 'Templates' },
   { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon, shortLabel: 'Optimize' },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },

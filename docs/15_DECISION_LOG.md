@@ -12,6 +12,23 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — "Target Jobs" is "Resume Library" again
+
+**Founder decision**, asked for directly and confirmed after the 2026-09-09 reasoning was put
+to him: that entry renamed the page because every row is a live job application, not a
+saved file.
+
+**Only the name is reversed.** The rows stay job-first — job title, company, country, and a
+stage from applied to offer — so what the 2026-09-09 reasoning protected (the job as the
+row's identity, its stage always visible) survives. Controls that act on one row keep saying
+what they act on: "Add a target job", "Delete this target job". What changed is every place
+that NAMES the page: the menu, the bottom bar ("Library"), the page heading, the dashboard's
+tile, section and quick action, the public menu and the landing page.
+
+The route never changed (`/dashboard/library`), so no link anywhere breaks.
+
+---
+
 ## 2026-09-11 — The Profile Strength page shows both scores, and what raises each
 
 **Founder request:** "in the profile strength option only showing resume requirement — the
