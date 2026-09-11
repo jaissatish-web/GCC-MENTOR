@@ -12,6 +12,36 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — The optimizer's 60-second cap was ours too
+
+**Founder report:** building a CV with only a target position and industry — no job
+description — processed for a while and then said it could not build; yet the Library
+held the resume, marked not built, and opening it showed a CV.
+
+**What happened, from production data.** The package was created (Phase A, 10:25 UTC) and
+never received content, and no `/api/optimize` model call has been logged since
+2026-08-20. The generation request was killed at `maxDuration = 60` before the model
+finished, and Vercel's timeout page reached the screen, which could only show its generic
+fallback. The Library was right — the CV was never built — and the "resume" on the job's
+page is the profile rendered as a CV, which is what an unbuilt job shows.
+
+**Why it bit now.** The reasoning model's think varies from run to run (extraction read the
+same CV at 2,246 and 7,847 tokens), and a brief with no advert gives it more to decide.
+45.5s of a 60s ceiling (2026-09-05) was always thin.
+
+**Fix: the cap is removed**, as it was from the parse routes, where a 72.9-second read then
+succeeded live — proof that on this project a route with no `maxDuration` is not held to
+60 seconds. **The 2026-09-05 premise, "the Hobby plan, where 60s is a hard cap no setting
+can raise", was wrong for this project**: the cap was this route's own setting. The Phase A
+split it motivated stays; it is still faster. The provider's retry deadline is unchanged,
+so a doubled-budget retry is still attempted only after a quick first attempt — only the
+first attempt gets more room.
+
+**The screen now says what happened** on a timeout — it took too long and was stopped, the
+job is saved, try again — instead of a generic failure.
+
+---
+
 ## 2026-09-11 — A paid CV reading is never lost
 
 **Founder request:** every API result and every user choice is saved automatically and the

@@ -58,7 +58,14 @@ export default function GeneratePage({ params }: { params: { packageId: string }
         // The 402 branch is gone with the paywall. A 429 is the one remaining
         // refusal the user can act on, and the server's own message names the
         // reset time, so it is shown rather than replaced.
-        setError((body?.error as string) ?? 'Could not build your resume. Please try again.')
+        // No JSON at all is the platform answering, not our route — most often
+        // its timeout page (2026-09-11). Say which; the job itself is kept.
+        setError(
+          (body?.error as string) ??
+            (res.status === 504
+              ? 'Building your CV took too long and was stopped. Your job is saved — please try again.'
+              : 'Could not build your resume. Please try again.'),
+        )
         return
       }
       router.replace(`/package/${encodeURIComponent(packageId)}`)

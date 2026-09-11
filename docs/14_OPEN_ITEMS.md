@@ -148,13 +148,13 @@ Phase B returned 504 `FUNCTION_INVOCATION_TIMEOUT` in production while passing l
 Measured split: 9.6s to structure the advert, 18.4s to write the resume, 29.6s total.
 The account is on the **Hobby plan, where 60s is a hard cap** no setting can raise.
 
-> **Questioned 2026-09-11 — needs checking in Vercel → Settings → Functions.** The resume
-> parse routes, which set no `maxDuration`, have completed reads of roughly 100 seconds in
-> production, and after the cap was removed a ten-job CV read was verified live at 72.9s;
-> adding `maxDuration = 60` to them broke recreate-by-upload. That suggests the
-> project runs on fluid compute with a much longer default, and that the 60s ceiling on
-> `/api/optimize` is its own `maxDuration = 60`, not the plan. If confirmed, the optimizer's
-> margin problem below is a setting, not a wall. Nothing on the optimizer has been changed.
+> **Corrected 2026-09-11: that premise was wrong for this project.** The resume parse
+> routes, which set no `maxDuration`, completed a 72.9s read live; adding `maxDuration =
+> 60` to them broke recreate-by-upload, and the same self-imposed cap on `/api/optimize`
+> then killed a founder build with no job description before the model finished. **The
+> cap is removed from the optimizer too**, so the margin problem below was a setting, not
+> a wall. The provider's retry deadline keeps its old ~54s, so only the first attempt got
+> more room. Worth confirming the actual ceiling in Vercel → Settings → Functions.
 
 Fixed by moving the structuring call into Phase A (migration 045,
 `packages.structured_job`), and by making the provider's doubled-budget reasoning retry

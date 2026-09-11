@@ -56,16 +56,19 @@ import type { OptimizationLevel, OptimizedContent, ExperienceBlock } from '@/typ
  * 404s. `profileId` is never trusted alone.
  */
 
-// This route can now make up to three sequential model calls when a job
-// description is given (generate, one grounding retry — the JD is structured
-// in Phase A since migration 045, precisely so this request carries one
-// model call rather than two) and
-// lib/ai/provider.ts may itself retry a call once on a reasoning-budget
-// exhaustion (2026-08-18 fix — see its header). No route-level timeout was
-// ever set, which left this at whatever the platform's default is; a
-// generous explicit ceiling matters more now that a single request can carry
-// several sequential provider calls.
-export const maxDuration = 60
+// NO `maxDuration` HERE (removed 2026-09-11). It was `60`, set on the belief
+// that the Hobby plan caps every function at 60s — and it was the cap. A
+// founder build with no job description was killed at 60s before the model
+// finished: the package stayed empty, no usage was logged, and Vercel's
+// timeout page reached the screen. The parse routes proved the point first:
+// with no `maxDuration` they have completed a 72.9s read in production, so on
+// this project the platform default is longer. The reasoning model's think
+// varies run to run, and 45.5s of a 60s ceiling was always too thin.
+//
+// The provider's RETRY deadline below is deliberately unchanged: a doubled-
+// budget retry is still only attempted when the first attempt was quick. Only
+// the first attempt gets more room.
+const RETRY_BUDGET_SECONDS = 60
 
 const TARGET_COUNTRIES: TargetCountry[] = [
   'saudi_arabia', 'uae', 'qatar', 'oman', 'kuwait', 'bahrain', 'generic_gulf',
@@ -260,11 +263,11 @@ function buildOptimizedContent(
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // The function's own ceiling, as a wall-clock deadline the provider can
-  // reason about. `maxDuration = 60` above is a Vercel setting, not something
-  // the code can read back, so it is restated here — and the margin exists
-  // because the platform starts its clock before this handler does.
-  const deadlineAt = Date.now() + (maxDuration - 6) * 1000
+  // The deadline the provider uses to decide whether a doubled-budget retry is
+  // worth starting — NOT the function's ceiling any more (there is no
+  // `maxDuration`; see the note at the top). Kept at its old value on purpose,
+  // so a slow first attempt is never followed by an equally slow second one.
+  const deadlineAt = Date.now() + (RETRY_BUDGET_SECONDS - 6) * 1000
   const supabase = await createClient()
   const {
     data: { user },

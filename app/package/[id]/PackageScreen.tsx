@@ -446,6 +446,35 @@ function PackageScreenInner({ id }: { id: string }) {
         </div>
       </div>
 
+      {/* NOT BUILT YET (2026-09-11). Founder report: a job whose CV build had
+          failed opened as "Your CV, <name>" with a full resume under it — the
+          Career Profile laid out as a CV — so it looked built while the
+          Library said it was not. Say which it is, and give the one action that
+          finishes it, routed the way the dashboard's next step routes it.
+          Never on a free-tier resume: that one is meant to stay the profile's
+          own, and offering a paid build there would be wrong. */}
+      {pkg.optimized_content === null && (pkg as { tier?: string | null }).tier !== 'free' ? (
+        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-card border border-gold/40 bg-gold-tint/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-0.5">
+            <p className="text-[14px] font-bold text-ink">The Gulf CV for this job isn&apos;t built yet</p>
+            <p className="text-[12.5px] leading-relaxed text-ink-soft">
+              What you see below is your Career Profile laid out as a CV. Build it to get the version
+              written for {pkg.target_job_title}.
+            </p>
+          </div>
+          <Link
+            href={
+              pkg.is_paid
+                ? `/optimize/generate/${encodeURIComponent(id)}`
+                : `/optimize/pay/${encodeURIComponent(id)}`
+            }
+            className={`${buttonVariants({ variant: 'primary', size: 'sm' })} shrink-0`}
+          >
+            Build my Gulf CV
+          </Link>
+        </div>
+      ) : null}
+
       {/* Actions live in the header row now (TASK-160); the templates stay in the
           left rail beside the document (TASK-146). What remains here is the two
           transient notices, which only occupy height when they have something to
