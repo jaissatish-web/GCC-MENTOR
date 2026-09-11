@@ -12,6 +12,36 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — Waiting screens: no timings, something true to read instead
+
+**Founder request:** remove "usually about 20 seconds" and every timing like it, and give
+each processing wait its own dynamic text so the user keeps reading.
+
+**The estimates were promises production could not keep.** Production runs about 2.8×
+slower than local (open items: the CV build measured 16.1s locally, 45.5s live). "Usually
+about 20 seconds" for reading a CV and "usually about a minute" for a CV build were local
+numbers. An estimate that runs over tells the user something has gone wrong when nothing
+has. **The running elapsed clock went with them:** it was true, but on a slow minute all it
+did was count how long someone had been waiting.
+
+**Instead, each wait rotates its own notes** — one sentence every few seconds, looping,
+under the named steps. **Every note is a fact about THAT service**, checked against the code
+it describes, and `lib/processingNotes.ts` cites the source of each: reading a CV fills in
+only what the CV states; a rewritten line that cannot be traced to the profile is sent back;
+the free scan is fixed arithmetic; a CV build ends on the finished CV. No market
+statistics, no predictions, nothing about how long.
+
+**Unchanged:** the named steps, the motion, and the rule against invented progress — no
+percentage, no filling bar, and the last step holds until the answer arrives.
+
+**Found while doing it: three lines said "nothing is saved until you confirm". That is not
+true for a first-time profile**, which has been auto-saved straight after extraction since
+2026-08-18 (when name, phone and email are present). The post-signup report and the
+extraction screen now say what is true: you review and correct everything on the next
+screen.
+
+---
+
 ## 2026-09-11 — The Career Profile stops asking to be created twice
 
 **Founder request.** A user who had already uploaded a CV was still greeted by "Fill this

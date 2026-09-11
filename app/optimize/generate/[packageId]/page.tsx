@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
+import { GENERATE_NOTES } from '@/lib/processingNotes'
 
 /**
  * Generation screen. POSTs { packageId } to /api/optimize, which reads the
@@ -120,7 +121,7 @@ export default function GeneratePage({ params }: { params: { packageId: string }
           tone="dark"
           steps={STEPS}
           activeIndex={Math.max(0, step - 1)}
-          expected="usually about a minute"
+          notes={GENERATE_NOTES}
         />
       </div>
     </main>

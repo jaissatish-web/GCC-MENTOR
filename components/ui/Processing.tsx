@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
  *   · `ProcessingOrbit` — the moving art. Three rings turning at different
  *     speeds and in both directions, a dot riding each, a core that breathes,
  *     and ripples leaving it.
- *   · `ProcessingSteps` — the named steps, with a live elapsed clock.
+ *   · `ProcessingSteps` — the named steps, and a rotating note beneath them.
  *   · `ProcessingInline` — both, compressed, for a wait inside a card.
  *
  * THE ONE THING IT WILL NOT DO IS INVENT PROGRESS. There is no percentage and
@@ -29,14 +29,26 @@ import { cn } from '@/lib/utils'
  * "73%" on the screen where someone is waiting to trust an AI with their career
  * is this product breaking its own promise at the worst possible moment. What
  * is shown instead is all true: that it is running (the motion), what it is
- * doing (steps that name real stages of the pipeline), and how long it has
- * taken (a real clock). The steps are paced by the page's own timer, and the
- * last one holds until the answer arrives rather than pretending to finish.
+ * doing (steps that name real stages of the pipeline), and a note about what
+ * this service does and why. The steps are paced by the page's own timer, and
+ * the last one holds until the answer arrives rather than pretending to finish.
+ *
+ * NO TIMINGS (founder decision 2026-09-11). This used to show a running clock
+ * and an estimate beside it — "usually about 20 seconds". The estimates were
+ * local measurements, and production runs about 2.8× slower, so they were a
+ * promise the product could not keep; an estimate that runs over tells the
+ * user something is wrong when nothing is. The clock was true, but on a slow
+ * minute all it did was count how long someone had been waiting. In their
+ * place each wait passes its own `notes`: short sentences, each true of THAT
+ * service (lib/processingNotes.ts cites the source of every one), rotating so
+ * there is always something to read.
  *
  * MOTION IS AN ENHANCEMENT. Every animated element carries
  * `motion-reduce:animate-none`, so a user who has asked for reduced motion
- * gets still rings and the same steps and clock. The art is `aria-hidden`;
- * the active step is announced through a polite live region instead.
+ * gets still rings and the same steps and notes. The art is `aria-hidden`;
+ * the active step is announced through a polite live region instead. Notes
+ * are not announced — a sentence every few seconds read aloud would drown the
+ * one announcement that matters, the step changing.
  *
  * Transform and opacity only, so it all runs on the compositor and costs a
  * slow phone nothing while it is also waiting on the network.
@@ -44,19 +56,21 @@ import { cn } from '@/lib/utils'
 
 type Tone = 'dark' | 'light'
 
-/** Real seconds since this wait began. The one number on screen that is true. */
-function useElapsed(): number {
-  const [seconds, setSeconds] = useState(0)
-  useEffect(() => {
-    const started = Date.now()
-    const t = window.setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000)
-    return () => window.clearInterval(t)
-  }, [])
-  return seconds
-}
+/** How long each note stays up — long enough to read one sentence. */
+const NOTE_MS = 5500
 
-function clock(s: number): string {
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+/**
+ * Cycles through `count` notes, looping. Unlike the steps, notes are not
+ * progress, so coming round again claims nothing.
+ */
+function useRotation(count: number, ms: number = NOTE_MS): number {
+  const [i, setI] = useState(0)
+  useEffect(() => {
+    if (count < 2) return
+    const t = window.setInterval(() => setI((n) => (n + 1) % count), ms)
+    return () => window.clearInterval(t)
+  }, [count, ms])
+  return count === 0 ? 0 : i % count
 }
 
 /**
@@ -167,7 +181,7 @@ export function ProcessingOrbit({
 }
 
 /**
- * The named steps, and a real clock.
+ * The named steps, and a rotating note beneath them.
  *
  * Controlled when the page passes `activeIndex` (the optimizer and extraction
  * screens already run their own timers against real call lengths). Otherwise
@@ -179,15 +193,15 @@ export function ProcessingSteps({
   activeIndex,
   stepMs = 4000,
   tone = 'light',
-  expected,
+  notes,
   className,
 }: {
   steps: readonly string[]
   activeIndex?: number
   stepMs?: number
   tone?: Tone
-  /** "Usually about a minute" — the honest expectation, shown beside the clock. */
-  expected?: string
+  /** Sentences true of this service, one at a time (lib/processingNotes.ts). */
+  notes?: readonly string[]
   className?: string
 }) {
   const [auto, setAuto] = useState(0)
@@ -199,7 +213,7 @@ export function ProcessingSteps({
   }, [controlled, stepMs, steps.length])
 
   const active = Math.min(controlled ? (activeIndex as number) : auto, steps.length - 1)
-  const elapsed = useElapsed()
+  const note = useRotation(notes?.length ?? 0)
   const dark = tone === 'dark'
 
   return (
@@ -252,22 +266,22 @@ export function ProcessingSteps({
         })}
       </ol>
 
-      <p
-        className={cn(
-          'flex items-center justify-center gap-2 text-[12.5px] tabular-nums',
-          dark ? 'text-white/60' : 'text-ink-muted',
-        )}
-      >
-        <span className={cn('font-semibold', dark ? 'text-white/85' : 'text-ink-soft')}>{clock(elapsed)}</span>
-        {expected ? (
-          <>
-            <span aria-hidden="true">·</span>
-            {expected}
-          </>
-        ) : null}
-      </p>
+      {/* One note at a time. The fixed height keeps the page from jumping as a
+          one-line note gives way to a two-line one. */}
+      {notes && notes.length > 0 ? (
+        <p
+          className={cn(
+            'flex min-h-[3em] items-start justify-center px-2 text-center text-[13px] leading-relaxed',
+            dark ? 'text-white/75' : 'text-ink-soft',
+          )}
+        >
+          <span key={note} className="animate-fade-in motion-reduce:animate-none">
+            {notes[note]}
+          </span>
+        </p>
+      ) : null}
 
-      {/* Screen readers hear the stage change, not a stream of seconds. */}
+      {/* Screen readers hear the stage change, not a stream of notes. */}
       <p role="status" aria-live="polite" className="sr-only">
         {steps[active]}
       </p>
@@ -275,16 +289,17 @@ export function ProcessingSteps({
   )
 }
 
-/** A wait inside a card: small orbit, the current step, and the clock. */
+/** A wait inside a card: small orbit, the current step, and a rotating note. */
 export function ProcessingInline({
   steps,
   stepMs = 4000,
-  expected,
+  notes,
   className,
 }: {
   steps: readonly string[]
   stepMs?: number
-  expected?: string
+  /** Sentences true of this service, one at a time (lib/processingNotes.ts). */
+  notes?: readonly string[]
   className?: string
 }) {
   const [i, setI] = useState(0)
@@ -292,19 +307,22 @@ export function ProcessingInline({
     const t = window.setInterval(() => setI((n) => Math.min(n + 1, steps.length - 1)), stepMs)
     return () => window.clearInterval(t)
   }, [stepMs, steps.length])
-  const elapsed = useElapsed()
+  const note = useRotation(notes?.length ?? 0)
 
   return (
     <div className={cn('flex items-center gap-4 rounded-card border border-teal/20 bg-teal-soft/40 px-4 py-3.5', className)}>
       <ProcessingOrbit size={48} glyph="" />
-      <div className="flex min-w-0 flex-col gap-0.5">
+      <div className="flex min-w-0 flex-col gap-1">
         <span className="text-[14px] font-semibold text-ink" key={steps[i]}>
           <span className="animate-fade-in">{steps[i]}…</span>
         </span>
-        <span className="text-[12px] tabular-nums text-ink-muted">
-          <span className="font-semibold text-ink-soft">{clock(elapsed)}</span>
-          {expected ? ` · ${expected}` : ''}
-        </span>
+        {notes && notes.length > 0 ? (
+          <span className="block min-h-[2.8em] text-[12.5px] leading-snug text-ink-soft">
+            <span key={note} className="animate-fade-in motion-reduce:animate-none">
+              {notes[note]}
+            </span>
+          </span>
+        ) : null}
       </div>
       <p role="status" aria-live="polite" className="sr-only">
         {steps[i]}

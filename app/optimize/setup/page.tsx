@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
+import { setupNotes } from '@/lib/processingNotes'
 import { Card } from '@/components/ui/Card'
 import { cn } from '@/lib/utils'
 import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
@@ -295,7 +296,8 @@ function SetupScreen() {
   // reached 100% at a minute whether or not the work was done and then read
   // "~0s left" for as long as it took. A number that only looks like progress
   // is an invented fact on the one screen where someone is waiting to trust
-  // this product. The real elapsed clock in ProcessingSteps replaces it.
+  // this product. No clock or estimate replaces it either (2026-09-11) — a
+  // rotating note true of this service does (lib/processingNotes.ts).
 
   // Waiting for the draft handoff / profile load.
   if (!draft) {
@@ -331,9 +333,15 @@ function SetupScreen() {
             </p>
           </div>
 
-          {/* Named steps — dynamic, only what was selected, drawn by the shared
-              processing component with a real elapsed clock. */}
-          <ProcessingSteps tone="dark" steps={steps} activeIndex={Math.max(0, activeIndex)} expected="usually under a minute" />
+          {/* Named steps — dynamic, only what was selected — and a rotating
+              note true of this service, drawn by the shared processing
+              component. */}
+          <ProcessingSteps
+            tone="dark"
+            steps={steps}
+            activeIndex={Math.max(0, activeIndex)}
+            notes={setupNotes(draft.job_description.trim() !== '')}
+          />
 
           <p className="text-center text-[12px] leading-relaxed text-white/60">
             Only facts already in your Career Profile are used.

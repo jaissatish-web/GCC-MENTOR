@@ -89,7 +89,7 @@ export default function OnboardingReportPage() {
         <div className="mt-8 rounded-card border border-teal/40 bg-gold-tint/40 p-6 text-center sm:p-8">
           <h2 className="font-display text-2xl text-ink">Now let&rsquo;s build your Career Profile</h2>
           <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-ink-soft">
-            We already have your resume. We read it once, free — you confirm before anything is saved.
+            We already have your resume. We read it once, free — then you check and correct everything.
           </p>
           <div className="mt-5">
             <Button
@@ -99,7 +99,6 @@ export default function OnboardingReportPage() {
               Build my Career Profile
             </Button>
           </div>
-          <p className="mt-3 text-[12px] text-ink-muted">Takes about 20 seconds. Nothing is saved until you confirm.</p>
         </div>
       </div>
     </main>

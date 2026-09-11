@@ -8,14 +8,17 @@ import { Card } from '@/components/ui/Card'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { cn } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_RESUME_TEXT_KEY } from '@/lib/onboardingDraft'
+import { EXTRACTION_NOTES } from '@/lib/processingNotes'
 
 /**
  * Extraction progress screen — screen 03 (TASK-023), route /onboarding/extracting.
  *
  * Conversion of the "03 · Extracting (transient)" screen in
- * design-reference/MVP Screens.dc.html — sweep-animated "CV" badge,
- * itemised four-row checklist, "usually takes ~20s", and the "nothing is
- * saved until you confirm" footer. Not a spinner.
+ * design-reference/MVP Screens.dc.html — sweep-animated "CV" badge and an
+ * itemised four-row checklist. Not a spinner. The mockup's "usually takes
+ * ~20s" and its "nothing is saved until you confirm" footer are gone
+ * (2026-09-11): the estimate was a local number production runs well past,
+ * and a first-time profile IS saved straight after extraction (2026-08-18).
  *
  * TASK-082 light restyle (2026-08-12, PAGE_SPECS.md §B): the dark navy
  * full-screen mockup frame becomes a single light centered card on the
@@ -266,11 +269,13 @@ function ExtractingScreen() {
           </p>
         </div>
 
-        <ProcessingSteps steps={CHECKLIST} activeIndex={Math.max(0, rowCount - 1)} expected="usually about 20 seconds" />
+        <ProcessingSteps steps={CHECKLIST} activeIndex={Math.max(0, rowCount - 1)} notes={EXTRACTION_NOTES} />
 
+        {/* Was "— nothing is saved until you confirm". Not true for a
+            first-time profile, which is auto-saved straight after this
+            (2026-08-18). What IS true in every case is below. */}
         <p className="text-center text-[12px] leading-relaxed text-ink-muted">
-          You&apos;ll get to review and correct everything on the next screen —{' '}
-          <span className="text-ink-soft">nothing is saved until you confirm.</span>
+          You&apos;ll review and correct everything on the next screen.
         </p>
       </div>
     </main>

@@ -8,6 +8,7 @@ import { saveHandoff } from '@/lib/gulfReadiness/handoff'
 import type { FunnelAnswers, GulfReadinessResult } from '@/lib/gulfReadiness/types'
 import { Alert } from '@/components/ui/Alert'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
+import { SCAN_NOTES } from '@/lib/processingNotes'
 
 /**
  * The free anonymous Gulf Readiness Scorecard — upload, three short questions, a
@@ -267,7 +268,7 @@ export default function GulfReadinessScorePage() {
             <h1 className="mt-3 font-display text-3xl">Scoring your Gulf readiness</h1>
           </div>
           <div className="w-full max-w-sm text-left">
-            <ProcessingSteps steps={ANALYZE_STEPS} stepMs={1600} expected="a few seconds" />
+            <ProcessingSteps steps={ANALYZE_STEPS} stepMs={1600} notes={SCAN_NOTES} />
           </div>
         </div>
       </Shell>

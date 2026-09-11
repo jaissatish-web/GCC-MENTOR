@@ -11,6 +11,7 @@ import {
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { ProcessingInline } from '@/components/ui/Processing'
+import { EXTRACTION_NOTES } from '@/lib/processingNotes'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 
 /**
@@ -180,7 +181,7 @@ export function ResumeImport({
           <p className="text-[12.5px] leading-relaxed text-ink-soft">
             {recreating
               ? 'Upload or paste a newer CV, or edit the form yourself. Nothing changes until you choose what to keep.'
-              : 'Upload or paste your CV and we fill the form for you in about 20 seconds.'}
+              : 'Upload or paste your CV and we fill the form in for you.'}
           </p>
         </div>
         {recreating && !parsing ? (
@@ -204,7 +205,7 @@ export function ResumeImport({
             'Getting it ready for you to check',
           ]}
           stepMs={5000}
-          expected="usually about 20 seconds"
+          notes={EXTRACTION_NOTES}
         />
       ) : (
         <>

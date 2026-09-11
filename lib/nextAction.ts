@@ -155,7 +155,9 @@ export function computeNextAction(
     return {
       state: 'job_not_generated',
       title: `Build the CV for ${jobLabel(ungenerated)}`,
-      body: 'This job is unlocked and ready. Building it takes about a minute.',
+      // No duration (2026-09-11): "takes about a minute" was a local number
+      // production runs past. See lib/processingNotes.ts.
+      body: 'This job is unlocked and ready to build.',
       cta: 'Build the CV',
       href: `/optimize/generate/${ungenerated.id}`,
     }

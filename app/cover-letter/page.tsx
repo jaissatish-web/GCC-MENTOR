@@ -6,6 +6,7 @@ import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { ProcessingInline } from '@/components/ui/Processing'
+import { COVER_LETTER_NOTES } from '@/lib/processingNotes'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { cn } from '@/lib/utils'
 import type { CoverLetter, CoverLetterTone, Package } from '@/types/package'
@@ -268,7 +269,7 @@ function CoverLetterScreen() {
                   'Checking every line against your profile',
                 ]}
                 stepMs={5000}
-                expected="usually under a minute"
+                notes={COVER_LETTER_NOTES}
               />
             ) : null}
 
