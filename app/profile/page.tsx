@@ -942,6 +942,7 @@ function ProfileScreen() {
               return
             }
             setPendingDraft({ draft: capturedDraft, existing: saved as CareerProfileFull })
+            setHasSavedProfile(true)
             setLoaded(true)
           })
           .catch(() => {
@@ -966,6 +967,7 @@ function ProfileScreen() {
       })
       .then((data) => {
         setEditor(data ? fromFull(data as CareerProfileFull) : emptyEditor())
+        setHasSavedProfile(hasSavedProfileContent(data as CareerProfileFull | null))
         // Read-only employment gaps (TASK-067); absent on the draft/empty paths.
         const gaps = (data as { employment_gaps?: unknown } | null)?.employment_gaps
         setEmploymentGaps(Array.isArray(gaps) ? (gaps as EmploymentGap[]) : [])
@@ -979,6 +981,18 @@ function ProfileScreen() {
         setLoaded(true)
       })
   }, [])
+
+  /**
+   * Does a saved profile with content exist? (founder request 2026-09-11)
+   *
+   * When it does, the import panel collapses to "Recreate my profile" rather
+   * than asking a user who already uploaded a CV to create their profile again.
+   * Set by the load above and by the first successful auto-save. Uses the same
+   * test as the add-or-replace screen (hasSavedProfileContent), so the two can
+   * never disagree about whether a profile exists. Declared after the load
+   * effect that sets it — safe, because an effect runs after render.
+   */
+  const [hasSavedProfile, setHasSavedProfile] = useState(false)
 
   // Ingest a draft produced inline by the ResumeImport panel — the same decision
   // the mount effect makes for a sessionStorage handoff: against a profile that
@@ -1133,24 +1147,63 @@ function ProfileScreen() {
   }, [deferredEditor, readiness.category])
 
   /**
-   * A missing item in the panel → open the section that owns the field and
-   * focus it. List fields (work experience, skills, …) have no single input,
-   * so those scroll to their section.
+   * WHICH PART OF THE PROFILE each Improve item belongs to (founder request
+   * 2026-09-11). Named with the section's own label and identity colour — the
+   * colour the section wears below — so an item and the place it is fixed read
+   * as the same thing.
+   */
+  const sectionOfField = useCallback(
+    (field: string) => Object.entries(SECTION_FIELDS).find(([, fields]) => fields.includes(field))?.[0],
+    [],
+  )
+  const sectionTag = useCallback((sectionId: string | undefined) => {
+    const s = FORM_SECTIONS.find((x) => x.id === sectionId)
+    return s ? { id: s.id, label: s.label, chip: SECTION_ACCENT[s.id]?.chip ?? 'bg-canvas text-ink-muted' } : null
+  }, [])
+  const improveMissing = useMemo(
+    () => readiness.missing.map((m) => ({ ...m, section: sectionTag(sectionOfField(m.field)) })),
+    [readiness.missing, sectionTag, sectionOfField],
+  )
+  // Gulf dimensions → the section a user edits to raise them. The situation
+  // dimension (gulf_market_position) is never a recommendation, so it has none.
+  // resume_quality ("quantify achievements and add a targeted summary") →
+  // Professional summary.
+  const gulfSectionFor = useCallback(
+    (dimension: string) => {
+      const map: Record<string, string> = {
+        work_experience: 'sec_work_experience',
+        skills: 'sec_skills',
+        education: 'sec_education',
+        certifications: 'sec_certifications',
+        resume_quality: 'sec_summary',
+      }
+      return sectionTag(map[dimension])
+    },
+    [sectionTag],
+  )
+
+  /**
+   * An Improve item → open its section and, for a single field, focus it. List
+   * fields (work experience, skills, …) have no single input, so those scroll
+   * to their section.
    *
    * The focus runs in an EFFECT — after React has committed the opened
    * section — not in a requestAnimationFrame, which never fires in a tab that
    * is not being painted. Found 2026-09-11: the section opened, the cursor
    * never arrived.
    */
-  const [pendingFocus, setPendingFocus] = useState<{ field: string; sectionId?: string } | null>(null)
-  const focusReadinessField = useCallback((field: string) => {
-    const sectionId = Object.entries(SECTION_FIELDS).find(([, fields]) => fields.includes(field))?.[0]
-    if (sectionId) setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
-    setPendingFocus({ field, sectionId })
-  }, [])
+  const [pendingFocus, setPendingFocus] = useState<{ field?: string; sectionId?: string } | null>(null)
+  const goToProfilePart = useCallback(
+    (target: { field?: string; sectionId?: string }) => {
+      const sectionId = target.sectionId ?? (target.field ? sectionOfField(target.field) : undefined)
+      if (sectionId) setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
+      setPendingFocus({ field: target.field, sectionId })
+    },
+    [sectionOfField],
+  )
   useEffect(() => {
     if (!pendingFocus) return
-    const input = document.getElementById(`f_${pendingFocus.field}`)
+    const input = pendingFocus.field ? document.getElementById(`f_${pendingFocus.field}`) : null
     const target = input ?? (pendingFocus.sectionId ? document.getElementById(pendingFocus.sectionId) : null)
     setPendingFocus(null)
     if (!target) return
@@ -1336,6 +1389,9 @@ function ProfileScreen() {
         // 'stay' is the auto-save after extraction: persist and remain on the
         // page so the user reviews and edits, without a navigation they did not
         // ask for.
+        // A save succeeded, so the profile now exists — the import panel folds
+        // into "Recreate my profile" (2026-09-11).
+        setHasSavedProfile(true)
         if (destination === 'stay') {
           setSubmitting(false)
           return
@@ -1533,10 +1589,12 @@ function ProfileScreen() {
       {editor.full_name.trim() ? (
         <ImprovePanel
           strengthScore={readiness.score}
-          missing={readiness.missing}
+          missing={improveMissing}
           gulf={gulfReadiness}
+          gulfSectionFor={gulfSectionFor}
           initialTab={searchParams.get('improve') === 'gulf' ? 'gulf' : 'strength'}
-          onFix={focusReadinessField}
+          onFix={(field) => goToProfilePart({ field })}
+          onOpenSection={(sectionId) => goToProfilePart({ sectionId })}
         />
       ) : null}
 
@@ -1546,9 +1604,12 @@ function ProfileScreen() {
           do the import INLINE so it is one screen with a consistent back, not a
           hop out to /onboarding/extracting). Upload/paste run the SAME parse
           endpoints; the resulting draft goes through ingestDraft, which reuses
-          the page's own add-or-replace step — nothing is overwritten silently. */}
+          the page's own add-or-replace step — nothing is overwritten silently.
+          Once a saved profile exists it collapses to "Recreate my profile"
+          (2026-09-11), so nobody is asked to create what they already have. */}
       <ResumeImport
         initialMode={initialImportMode}
+        collapsible={hasSavedProfile}
         onDraft={ingestDraft}
         onFillManually={scrollToEditor}
       />

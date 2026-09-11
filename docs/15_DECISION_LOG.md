@@ -12,6 +12,35 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — The Career Profile stops asking to be created twice
+
+**Founder request.** A user who had already uploaded a CV was still greeted by "Fill this
+in from your CV" and three buttons — which reads as "you have not done this yet". And in
+the Improve panel it was not clear which list belonged to which score, or which part of
+the profile each item was about.
+
+**The import panel collapses once a profile exists.** With a saved profile that has
+content — the same test the add-or-replace screen already uses — it becomes one line,
+"Your profile is already created", and one button, **Recreate my profile**, which opens the
+same three ways in. A first-time user still sees them open; `?import=upload|paste` still
+lands expanded; and it collapses itself after the first successful save, because from that
+moment the profile exists. **Recreating stays safe**: it goes through the existing
+add-or-replace choice, so nothing changes until the user decides what to keep.
+
+**Every Improve item names its part of the profile.** Each Profile Strength item and each
+Gulf fix carries a chip with the section it belongs to, in that section's own identity
+colour — the colour the section wears in the form below — so an item and the place it is
+fixed read as the same thing. Gulf fixes open their section on tap as well. Each tab's
+content opens with "What raises your Profile Strength" / "What raises your Gulf
+Readiness", so the list is never ambiguous about which score it serves.
+
+**One additive engine change:** a Gulf recommendation now records the dimension it came
+from (`dimension`), so the UI can map it to a section. Arithmetic, ranking and wording are
+unchanged. `resume_quality` ("quantify achievements and add a targeted summary") points at
+Professional summary.
+
+---
+
 ## 2026-09-11 — Career Profile and Profile Strength become one page
 
 **Founder decision.** He proposed merging them; of the three options put to him he chose

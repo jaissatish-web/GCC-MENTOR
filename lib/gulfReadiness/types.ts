@@ -64,6 +64,11 @@ export type DimensionKey =
 
 /** A ranked thing to fix, so the user is told where to start. */
 export interface Recommendation {
+  /**
+   * The dimension this fix raises (2026-09-11). Lets a UI point at the part of
+   * the profile it is about. Additive — the score and ranking never read it.
+   */
+  dimension: DimensionKey
   title: string
   why: string
   impact: 'high' | 'medium' | 'low'

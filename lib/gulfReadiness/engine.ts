@@ -181,6 +181,7 @@ function rankRecommendations(dimensions: DimensionResult[], scenario: Scenario):
     const impactScore = { high: 3, medium: 2, low: 1 }[impact]
     const diffScore = { low: 3, medium: 2, high: 1 }[difficulty]
     recs.push({
+      dimension: d.key,
       title: recTitle(d.key, scenario),
       why: d.gaps[0] ?? `Strengthen your ${d.label.toLowerCase()}.`,
       impact,
