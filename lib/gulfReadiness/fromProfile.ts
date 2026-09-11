@@ -1,5 +1,5 @@
 import type { FunnelAnswers, GulfReadinessResult } from '@/lib/gulfReadiness/types'
-import type { ReadinessCategory } from '@/types/careerProfile'
+import type { CareerProfileFull, ReadinessCategory } from '@/types/careerProfile'
 import { calculateGulfReadiness } from '@/lib/gulfReadiness/engine'
 
 /**
@@ -39,6 +39,38 @@ export interface ProfileScoringInput {
   skills?: Array<{ name?: string | null }> | null
   certifications?: Array<{ name?: string | null; issuer?: string | null }> | null
   education?: Array<{ degree?: string | null; institution?: string | null; field_of_study?: string | null }> | null
+}
+
+/**
+ * The scoring input for a SAVED Career Profile.
+ *
+ * One mapping for every signed-in surface — the dashboard card and the
+ * /gcc-readiness page — so the two can never show different Gulf Readiness
+ * numbers for the same profile. It used to be written inline on the dashboard;
+ * a second inline copy is exactly how two screens drift apart.
+ */
+export function scoringInputFromProfile(p: CareerProfileFull): ProfileScoringInput {
+  return {
+    professional_summary: p.professional_summary,
+    phone: p.phone,
+    email: p.email,
+    work_experience: p.work_experience.map((w) => ({
+      company: w.company,
+      role: w.role,
+      start_date: w.start_date,
+      end_date: w.end_date,
+      location: w.location,
+      description: w.description,
+      highlights: w.highlights,
+    })),
+    skills: p.skills.map((s) => ({ name: s.name })),
+    certifications: p.certifications.map((c) => ({ name: c.name, issuer: c.issuer })),
+    education: p.education.map((e) => ({
+      degree: e.degree,
+      institution: e.institution,
+      field_of_study: e.field_of_study,
+    })),
+  }
 }
 
 function line(...parts: (string | null | undefined)[]): string {

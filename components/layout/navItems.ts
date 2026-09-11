@@ -86,9 +86,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // dashboard card, so a user who scrolled past that card had no route to it
   // at all — and it is the free half of the product, the thing someone is
   // meant to try before paying.
-  // WAS "Gulf Readiness". The page this opens is titled Profile Strength and
-  // measures how complete the profile is; Gulf Readiness is the OTHER score, the
-  // market one on the dashboard. The menu promised one and delivered the other.
+  // WAS "Gulf Readiness", when the page this opens showed only Profile Strength —
+  // the menu promised one score and delivered the other. Since 2026-09-11 the page
+  // carries both, as two tabs; the label stays "Profile Strength", the founder's
+  // name for it and the first tab.
   { label: 'Profile Strength', href: '/gcc-readiness', icon: ChartBarIcon, needsProfile: true, shortLabel: 'Strength' },
   // "Resume Library" until 2026-09-09. The rows in it were never a library:
   // each one carries a job title, an employer, a country, the advert, and a

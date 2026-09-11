@@ -75,7 +75,7 @@ if (process.env.NODE_ENV !== 'production') {
 const BLURB: Record<string, string> = {
   '/dashboard': 'Your next step, and where you stand',
   '/profile': 'Built once, used by every CV',
-  '/gcc-readiness': 'How complete your Career Profile is',
+  '/gcc-readiness': 'Profile Strength and Gulf Readiness',
   '/cover-letter': 'Four tones, written for one job',
   '/dashboard/library': 'Your applications and their stage',
   '/optimize': 'Build a CV for a specific role',

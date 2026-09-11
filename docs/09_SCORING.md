@@ -142,7 +142,7 @@ looks authoritative would be worse than an honest equal split.
 |---|---|
 | `/ats-scan` | The free scan entry point — upload or paste, optional job description |
 | `/gulf-readiness` | The free scan **results** |
-| `/gcc-readiness` | A signed-in user's readiness against their **saved profile** |
+| `/gcc-readiness` | A signed-in user's **two** scores against their saved profile, as two tabs: Profile Strength (completeness, with the missing-fields list) and Gulf Readiness (the full unlocked report — dimensions, strengths, gaps, every ranked recommendation). `?tab=gulf` opens the second. Since 2026-09-11. |
 
 **`/gulf-readiness` and `/gcc-readiness` are one letter apart and are different
 things.** That naming is a live problem, not a quirk — recorded in

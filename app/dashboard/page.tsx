@@ -15,7 +15,7 @@ import { BriefcaseIcon, ChartBarIcon, DocumentTextIcon, EnvelopeIcon } from '@he
 import { cn, GULF_COUNTRIES, resumeLabel } from '@/lib/utils'
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
-import { answersFromReadinessCategory } from '@/lib/gulfReadiness/fromProfile'
+import { answersFromReadinessCategory, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { Package } from '@/types/package'
 
@@ -466,29 +466,12 @@ export default function DashboardPage() {
               complete your profile is". Rendered only when a profile exists. */}
           {gulfAnswers && profile ? (
             <Reveal delay={185}>
+              {/* The mapping is shared with /gcc-readiness, so the card and the
+                  full report there can never show two numbers. */}
               <LiveReadiness
                 answers={gulfAnswers}
-                profile={{
-                  professional_summary: profile.professional_summary,
-                  phone: profile.phone,
-                  email: profile.email,
-                  work_experience: profile.work_experience.map((w) => ({
-                    company: w.company,
-                    role: w.role,
-                    start_date: w.start_date,
-                    end_date: w.end_date,
-                    location: w.location,
-                    description: w.description,
-                    highlights: w.highlights,
-                  })),
-                  skills: profile.skills.map((s) => ({ name: s.name })),
-                  certifications: profile.certifications.map((c) => ({ name: c.name, issuer: c.issuer })),
-                  education: profile.education.map((e) => ({
-                    degree: e.degree,
-                    institution: e.institution,
-                    field_of_study: e.field_of_study,
-                  })),
-                }}
+                profile={scoringInputFromProfile(profile)}
+                detailsHref="/gcc-readiness?tab=gulf"
               />
             </Reveal>
           ) : null}

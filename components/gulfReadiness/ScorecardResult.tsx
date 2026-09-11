@@ -48,9 +48,17 @@ function ScoreRing({ score, colour }: { score: number; colour: string }) {
 export function ScorecardResult({
   result,
   locked,
+  source = 'resume',
 }: {
   result: GulfReadinessResult
   locked: boolean
+  /**
+   * What was scored. Only the thin-input note depends on it: "upload a cleaner
+   * export" is true advice after a resume scan, and false on /gcc-readiness,
+   * where the score is read from the saved Career Profile and there is no
+   * upload to redo.
+   */
+  source?: 'resume' | 'profile'
 }) {
   const colour = bandColour(result.band.key)
 
@@ -77,8 +85,9 @@ export function ScorecardResult({
 
         {result.lowResumeSignal ? (
           <p className="mt-5 rounded-ctl border border-line bg-canvas/60 px-3.5 py-2.5 text-[12px] text-ink-muted">
-            Some of your resume could not be read clearly, so parts of this score are a rough estimate. Pasting your
-            resume text or uploading a cleaner export gives a more accurate result.
+            {source === 'profile'
+              ? 'Your Career Profile is still thin, so parts of this score are a rough estimate. It gets more accurate as you add your work history, skills and education.'
+              : 'Some of your resume could not be read clearly, so parts of this score are a rough estimate. Pasting your resume text or uploading a cleaner export gives a more accurate result.'}
           </p>
         ) : null}
       </section>

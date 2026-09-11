@@ -1,32 +1,41 @@
 'use client'
 
 import Link from 'next/link'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { PageShell } from '@/components/layout/PageShell'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Card } from '@/components/ui/Card'
 import { Pill } from '@/components/ui/Pill'
 import { buttonVariants } from '@/components/ui/Button'
+import { ScorecardResult } from '@/components/gulfReadiness/ScorecardResult'
 import { cn } from '@/lib/utils'
 import { calculateReadiness } from '@/lib/readiness'
 import type { ReadinessInput, ReadinessResult } from '@/lib/readiness'
+import {
+  answersFromReadinessCategory,
+  scoreProfileReadiness,
+  scoringInputFromProfile,
+} from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
 /**
- * GCC Readiness — new route (TASK-091, PAGE_SPECS §C / Stage 1 item 5).
+ * Profile Strength AND Gulf Readiness — the two scores, and what raises each.
  *
- * Standalone view of the GCC Readiness score + "missing" list that today
- * only appears embedded on /dashboard. ZERO new computation — it calls the
- * same `calculateReadiness()` (lib/readiness.ts is read, NEVER modified)
- * with the SAME input construction the dashboard uses, so the score and
- * missing list MATCH /dashboard's readiness card exactly (the ticket's
- * acceptance test: two surfaces, one number, always).
+ * Founder request 2026-09-11: the page showed only Profile Strength; it should
+ * carry both, each with its own requirements. Two tabs, both numbers always
+ * visible in the tab bar — see the decision log for why tabs rather than one
+ * long page.
  *
- * Layout per §C: large readiness ring + category breakdown side-by-side on
- * xl (rail-style), stacked from 1024–1279px, ring-above-list on tablet/
- * mobile. Each incomplete item links back to /profile (same destination the
- * dashboard's "finish these" chips use — the profile editor scopes to the
- * loaded profile and its own inline focus, there is no route-hash autofocus).
+ * ZERO NEW COMPUTATION, on either tab:
+ *   · Profile Strength calls `calculateReadiness()` with the dashboard's exact
+ *     input construction, so the score and missing list match /dashboard.
+ *   · Gulf Readiness renders the same `ScorecardResult` that /onboarding/report
+ *     shows after signup, unlocked, scored through `scoringInputFromProfile` —
+ *     the same function the dashboard card uses. Three surfaces, one number.
+ *
+ * `?tab=gulf` opens the second tab; the dashboard's Gulf Readiness card links
+ * there.
  */
 
 // Mirror the dashboard's EXACT calculateReadiness input construction so the
@@ -66,11 +75,96 @@ function categoryLabel(category: string): string {
   return map[category] ?? category
 }
 
+type Tab = 'strength' | 'gulf'
+const TAB_ORDER: readonly Tab[] = ['strength', 'gulf']
+
+/**
+ * The tab bar IS the summary: each tab carries its score, so switching tabs
+ * never hides a number — only the detail behind it.
+ *
+ * Real tabs for assistive tech (tablist / tab / tabpanel, roving tabindex,
+ * arrow keys), because two buttons that swap content without saying so leave a
+ * screen-reader user guessing what changed.
+ */
+function ScoreTabs({
+  tab,
+  onChange,
+  strength,
+  gulf,
+}: {
+  tab: Tab
+  onChange: (t: Tab) => void
+  strength: number
+  gulf: number
+}) {
+  const tabs: ReadonlyArray<{ key: Tab; label: string; score: number }> = [
+    { key: 'strength', label: 'Profile Strength', score: strength },
+    { key: 'gulf', label: 'Gulf Readiness', score: gulf },
+  ]
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+    e.preventDefault()
+    const next = TAB_ORDER[(TAB_ORDER.indexOf(tab) + 1) % TAB_ORDER.length]
+    onChange(next)
+    document.getElementById(`score-tab-${next}`)?.focus()
+  }
+
+  return (
+    <div
+      role="tablist"
+      aria-label="Your two scores"
+      className="mt-6 grid grid-cols-2 gap-1.5 rounded-card border border-line bg-white p-1.5 shadow-m-1"
+    >
+      {tabs.map((t) => {
+        const selected = tab === t.key
+        return (
+          <button
+            key={t.key}
+            id={`score-tab-${t.key}`}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            aria-controls={`score-panel-${t.key}`}
+            tabIndex={selected ? 0 : -1}
+            onClick={() => onChange(t.key)}
+            onKeyDown={onKeyDown}
+            className={cn(
+              'flex min-h-[64px] flex-col items-start justify-center gap-1 rounded-ctl px-3.5 py-2.5 text-left transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+              selected ? 'bg-teal shadow-m-1' : 'hover:bg-canvas',
+            )}
+          >
+            <span className={cn('text-[13px] font-semibold leading-tight', selected ? 'text-teal-soft' : 'text-ink-muted')}>
+              {t.label}
+            </span>
+            <span className={cn('font-mono text-[22px] leading-none', selected ? 'text-white' : 'text-ink')}>
+              {t.score}
+              <span className={cn('text-[12px]', selected ? 'text-teal-soft' : 'text-ink-muted')}>/100</span>
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function GccReadinessScreen() {
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const didInit = useRef(false)
+
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  const [tab, setTab] = useState<Tab>(searchParams?.get('tab') === 'gulf' ? 'gulf' : 'strength')
+
+  // The URL follows the tab, so a refresh or a shared link reopens the same one.
+  const chooseTab = (t: Tab) => {
+    setTab(t)
+    router.replace(t === 'gulf' ? `${pathname}?tab=gulf` : pathname ?? '/gcc-readiness', { scroll: false })
+  }
 
   useEffect(() => {
     if (didInit.current) return
@@ -91,6 +185,19 @@ function GccReadinessScreen() {
       })
   }, [])
 
+  const readiness: ReadinessResult | null = useMemo(
+    () => (profile ? calculateReadiness(toReadinessInput(profile)) : null),
+    [profile],
+  )
+  // Same scenario reconstruction and same input mapping as the dashboard card.
+  const gulf = useMemo(
+    () =>
+      profile && readiness
+        ? scoreProfileReadiness(scoringInputFromProfile(profile), answersFromReadinessCategory(readiness.category))
+        : null,
+    [profile, readiness],
+  )
+
   if (!loaded) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-canvas font-redesign-sans">
@@ -103,7 +210,6 @@ function GccReadinessScreen() {
   // stored readiness_score (recomputed on save) is authoritative; the
   // "missing" list always comes from the live calculateReadiness() over the
   // same source profile.
-  const readiness: ReadinessResult | null = profile ? calculateReadiness(toReadinessInput(profile)) : null
   const score = profile?.readiness_score ?? readiness?.score ?? 0
   const missing = readiness?.missing ?? []
   const category = readiness?.category
@@ -111,8 +217,8 @@ function GccReadinessScreen() {
   return (
     <PageShell
       width="wide"
-      title="Profile Strength"
-      subtitle="How complete is the profile your future Gulf applications are built from."
+      title="Profile Strength & Gulf Readiness"
+      subtitle="Two scores that measure different things. Each one lists exactly what raises it."
     >
       {loadError ? (
         <div className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
@@ -126,13 +232,14 @@ function GccReadinessScreen() {
         // read that as success and tell a brand-new user "0/100 · Every section
         // complete · Your profile is 100% ready." Three claims, all false, on the
         // first screen a new user might open. Found in the 2026-09-10 end-to-end
-        // audit. Now the empty case is its own state and says what is true.
+        // audit. Now the empty case is its own state and says what is true —
+        // for both scores, since neither can be computed without a profile.
         <Card tone="light" className="mt-6 flex flex-col items-center gap-4 p-8 text-center">
           <ReadinessRing score={0} size={112} dark />
           <div className="flex flex-col gap-1.5">
             <h2 className="font-display text-[22px] font-semibold text-ink">Not started yet</h2>
             <p className="max-w-[46ch] text-[14px] leading-relaxed text-ink-soft">
-              Your score appears once your Career Profile exists. Upload your CV and we fill it in for
+              Both scores appear once your Career Profile exists. Upload your CV and we fill it in for
               you — it takes about a minute.
             </p>
           </div>
@@ -145,66 +252,97 @@ function GccReadinessScreen() {
         </Card>
       ) : (
         <>
-          {/* ——— ring / breakdown, §C: side-by-side on xl (rail), stacked below ——— */}
-          <div className="mt-6 flex flex-col gap-6 xl:flex-row xl:items-start">
-            {/* Readiness ring */}
-            <Card tone="light" className="flex flex-col items-center gap-4 p-8 text-center xl:w-[340px] xl:shrink-0">
-              <div className="flex flex-col items-center gap-3">
-                <ReadinessRing score={score} size={132} dark />
-                <span className="font-mono text-[26px] leading-none text-teal">
-                  {score}
-                  <span className="text-[15px] text-ink-muted">/100</span>
-                </span>
-              </div>
-              {category ? <Pill variant="grounded">{categoryLabel(category)}</Pill> : null}
-              <p className="text-[13px] leading-relaxed text-ink-muted">
-                {missing.length === 0
-                  ? 'Every section complete.'
-                  : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed.`}
+          <ScoreTabs tab={tab} onChange={chooseTab} strength={score} gulf={gulf?.finalScore ?? 0} />
+
+          {tab === 'strength' ? (
+            <div id="score-panel-strength" role="tabpanel" aria-labelledby="score-tab-strength" className="mt-5">
+              <p className="text-[13px] leading-relaxed text-ink-soft">
+                <span className="font-semibold text-ink">How complete your Career Profile is.</span> Every CV and
+                cover letter is built from it, so a missing field is missing from all of them.
               </p>
-              <Link
-                href="/profile"
-                className={cn(buttonVariants({ variant: 'primary' }), 'w-full text-[14px]')}
-              >
-                {missing.length === 0 ? 'View Career Profile' : 'Complete profile'}
-              </Link>
-            </Card>
 
-            {/* Breakdown list */}
-            <Card tone="light" className="flex flex-1 flex-col gap-4 p-6">
-              <div className="flex flex-col gap-1">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                  Finish these to reach 100
-                </span>
-                <p className="text-[12px] text-ink-muted">Each one raises your score. Tap to edit on your profile.</p>
-              </div>
-
-              {missing.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 rounded-card border border-dashed border-line bg-canvas/50 p-8 text-center">
-                  <span className="font-display text-2xl text-teal">All complete</span>
-                  <p className="max-w-sm text-[13px] leading-relaxed text-ink-muted">
-                    Your profile is 100% ready. Every section used by a future Gulf application is filled in.
+              {/* ——— ring / breakdown, §C: side-by-side on xl (rail), stacked below ——— */}
+              <div className="mt-4 flex flex-col gap-6 xl:flex-row xl:items-start">
+                {/* Readiness ring */}
+                <Card tone="light" className="flex flex-col items-center gap-4 p-8 text-center xl:w-[340px] xl:shrink-0">
+                  <div className="flex flex-col items-center gap-3">
+                    <ReadinessRing score={score} size={132} dark />
+                    <span className="font-mono text-[26px] leading-none text-teal">
+                      {score}
+                      <span className="text-[15px] text-ink-muted">/100</span>
+                    </span>
+                  </div>
+                  {category ? <Pill variant="grounded">{categoryLabel(category)}</Pill> : null}
+                  <p className="text-[13px] leading-relaxed text-ink-muted">
+                    {missing.length === 0
+                      ? 'Every section complete.'
+                      : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed.`}
                   </p>
+                  <Link
+                    href="/profile"
+                    className={cn(buttonVariants({ variant: 'primary' }), 'w-full text-[14px]')}
+                  >
+                    {missing.length === 0 ? 'View Career Profile' : 'Complete profile'}
+                  </Link>
+                </Card>
+
+                {/* Breakdown list */}
+                <Card tone="light" className="flex flex-1 flex-col gap-4 p-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+                      Finish these to reach 100
+                    </span>
+                    <p className="text-[12px] text-ink-muted">Each one raises your score. Tap to edit on your profile.</p>
+                  </div>
+
+                  {missing.length === 0 ? (
+                    <div className="flex flex-col items-center gap-3 rounded-card border border-dashed border-line bg-canvas/50 p-8 text-center">
+                      <span className="font-display text-2xl text-teal">All complete</span>
+                      <p className="max-w-sm text-[13px] leading-relaxed text-ink-muted">
+                        Your profile is 100% ready. Every section used by a future Gulf application is filled in.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {missing.map((m) => (
+                        <Link
+                          key={m.field}
+                          href="/profile"
+                          className="flex min-h-11 items-center justify-between gap-3 rounded-ctl border border-line/70 bg-canvas/50 px-4 py-3 transition-colors hover:border-teal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                        >
+                          <span className="flex min-w-0 flex-col gap-0.5">
+                            <span className="truncate text-[13px] font-semibold text-ink/85">{m.label}</span>
+                            <span className="text-[12px] text-ink-muted">+{m.points} points</span>
+                          </span>
+                          <span className="shrink-0 text-[12px] font-semibold text-teal">Add →</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              </div>
+            </div>
+          ) : (
+            <div id="score-panel-gulf" role="tabpanel" aria-labelledby="score-tab-gulf" className="mt-5">
+              <p className="text-[13px] leading-relaxed text-ink-soft">
+                <span className="font-semibold text-ink">How ready you are for the Gulf job market</span>, read from
+                what your Career Profile says. It rises as your profile shows more — the ranked list at the bottom is
+                where to start.
+              </p>
+
+              {gulf ? (
+                <div className="mt-4 flex flex-col gap-6">
+                  <ScorecardResult result={gulf} locked={false} source="profile" />
+                  <Link
+                    href="/profile"
+                    className={cn(buttonVariants({ variant: 'primary' }), 'w-full text-[14px] sm:w-fit')}
+                  >
+                    Improve it on my Career Profile
+                  </Link>
                 </div>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {missing.map((m) => (
-                    <Link
-                      key={m.field}
-                      href="/profile"
-                      className="flex min-h-11 items-center justify-between gap-3 rounded-ctl border border-line/70 bg-canvas/50 px-4 py-3 transition-colors hover:border-teal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-                    >
-                      <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate text-[13px] font-semibold text-ink/85">{m.label}</span>
-                        <span className="text-[12px] text-ink-muted">+{m.points} points</span>
-                      </span>
-                      <span className="shrink-0 text-[12px] font-semibold text-teal">Add →</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </Card>
-          </div>
+              ) : null}
+            </div>
+          )}
         </>
       )}
     </PageShell>

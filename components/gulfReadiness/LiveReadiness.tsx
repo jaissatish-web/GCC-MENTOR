@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo } from 'react'
 import { scoreProfileReadiness, type ProfileScoringInput } from '@/lib/gulfReadiness/fromProfile'
 import type { FunnelAnswers } from '@/lib/gulfReadiness/types'
@@ -15,14 +16,19 @@ import type { FunnelAnswers } from '@/lib/gulfReadiness/types'
  *
  * Pure and driven by props: give it the current profile fields and the funnel
  * answers, it shows a score. No network, no model, no side effects.
+ *
+ * `detailsHref` (2026-09-11): where the full breakdown lives. The card shows one
+ * "Next:" hint; the ranked plan behind it is on /gcc-readiness?tab=gulf.
  */
 
 export function LiveReadiness({
   profile,
   answers,
+  detailsHref,
 }: {
   profile: ProfileScoringInput
   answers: FunnelAnswers | null
+  detailsHref?: string
 }) {
   const result = useMemo(() => (answers ? scoreProfileReadiness(profile, answers) : null), [profile, answers])
 
@@ -61,6 +67,15 @@ export function LiveReadiness({
       <p className="mt-2.5 text-[12px] leading-snug text-ink-soft">
         Your score improves as you complete your profile. {result.recommendations[0]?.title ? `Next: ${result.recommendations[0].title.toLowerCase()}.` : 'Add more detail to strengthen it.'}
       </p>
+      {detailsHref ? (
+        <Link
+          href={detailsHref}
+          // 44px tall, same thumb-sized rule as every other text link.
+          className="-mx-1 -mb-2 mt-1 inline-flex min-h-11 items-center px-1 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        >
+          See everything that raises it →
+        </Link>
+      ) : null}
     </div>
   )
 }

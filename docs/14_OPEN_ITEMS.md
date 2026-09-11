@@ -81,9 +81,9 @@ screens have not been seen rendered. The founder should check them on the deploy
   locks are off, so it lands with the paid locks.
 - **One engine, not two.** Two readiness numbers still coexist — the older
   `lib/readiness.ts` completeness score (Profile Strength) and the arithmetic Gulf
-  Readiness market score. They no longer sit on the same screen: completeness is on the
-  profile editor, Gulf Readiness on the dashboard, and the founder chose **2026-08-18 to
-  show both** (each clearly labelled as a different thing). So this is now a deliberate
+  Readiness market score. The founder chose **2026-08-18 to show both** (each clearly
+  labelled as a different thing): both sit on the dashboard, and since **2026-09-11**
+  `/gcc-readiness` carries both as two tabs, each with what raises it. So this is now a deliberate
   two-number design, not an accidental duplication — reconciling onto a single engine is
   deferred by that decision, not outstanding cleanup.
 

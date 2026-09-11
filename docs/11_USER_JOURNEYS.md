@@ -101,16 +101,15 @@ Settings. It lands on the home page.
 | `/profile/visibility` | What appears on a CV |
 | `/dashboard/library` | Every resume — desktop table, mobile cards |
 | `/templates` | The template gallery, previewed on an example CV |
-| `/gcc-readiness` | Readiness against the saved profile |
+| `/gcc-readiness` | Both scores against the saved profile, as two tabs: **Profile Strength** (completeness + the missing-fields list) and **Gulf Readiness** (the full report — dimensions, strengths, gaps, every ranked recommendation). `?tab=gulf` opens the second; the dashboard's Gulf Readiness card links there. |
 | `/cover-letter` | Cover letter generation for a paid package — pick a tone (2026-08-18: Professional, Short, Technical, Explanatory) |
 | `/settings` | Account · email · current package · payments · delete data |
 | `/payments` | An honest placeholder. No payment-history feature exists |
 | `/package/[id]` | A finished resume: view, style, edit, download |
 | `/package/[id]/edit` | **That resume's own editor** (2026-08-19): summary and bullets, section by section, with a live preview of the real template. Batched save, then back to the resume |
 
-**`/gcc-readiness` is not in the navigation.** It exists and works, and is reachable
-from the dashboard's readiness card. Noted in
-[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md) as something to resolve deliberately.
+**`/gcc-readiness` is in the navigation as "Profile Strength"** (added 2026-09-09), and
+is also reached from the dashboard's Profile Strength metric and its Gulf Readiness card.
 
 **The dashboard's readiness card is the primary "your profile is incomplete" call to
 action.** It once silently changed to point at a route that did not exist yet, which

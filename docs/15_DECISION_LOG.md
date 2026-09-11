@@ -12,6 +12,42 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — The Profile Strength page shows both scores, and what raises each
+
+**Founder request:** "in the profile strength option only showing resume requirement — the
+page [should contain] both options, resume and gulf readiness, and their requirements for
+optimisation."
+
+`/gcc-readiness` showed only Profile Strength — the completeness score and its "finish
+these" list. For a signed-in user, Gulf Readiness existed only as a small dashboard card
+with a single "Next:" hint, although the engine computes a full breakdown and a ranked
+plan for every profile. The full report a new user sees once on `/onboarding/report` could
+never be found again after that visit.
+
+**Now the page has two tabs, each showing its score:** Profile Strength (unchanged — ring
+and the missing-fields list) and Gulf Readiness (the full report — six dimensions, what is
+working, what is holding it back, every recommendation ranked). The Gulf tab renders the
+SAME `ScorecardResult` that `/onboarding/report` uses, unlocked, fed by the SAME mapping as
+the dashboard card — now one shared function (`scoringInputFromProfile`) instead of an
+inline copy — so the page, the dashboard and the post-signup report cannot disagree.
+
+**Tabs, not one long page.** The Gulf report is long on a phone; stacked under Profile
+Strength it would bury it. Both numbers stay visible in the tab bar, so neither score is
+hidden — only its detail. `?tab=gulf` opens the second tab, and the dashboard's Gulf
+Readiness card now links there.
+
+**This extends 2026-08-18's "show both, each clearly labelled" rather than reversing it:**
+each tab says which question its score answers.
+
+**The nav label stays "Profile Strength"** — the founder's name for the page, and its first
+tab. The menu blurb and the page title name both scores.
+
+**One wording fix came with it.** The report's thin-input note said "some of your resume
+could not be read clearly … upload a cleaner export". Scored from a profile there is no
+upload to redo, so here it says the profile is still thin and what to fill in.
+
+---
+
 ## 2026-09-11 — Sign out, from the three-bar menu
 
 **Founder request:** "after login there should be signout cta also in right side three bar
