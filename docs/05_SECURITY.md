@@ -167,6 +167,8 @@ than only an abuse edge case.
   it for someone legitimately blocked.
 - **Anonymous scans:** a separate IP-keyed daily limit, because there is no user id
   to key on.
+- **Profile recreation:** 2 a month on the free plan, 5 for paid users, checked before
+  the model call and counted on success only (`lib/recreateLimit.ts`, 2026-09-11).
 - **Paid actions are not rate-limited** — they are self-limiting.
 - **Authentication precedes every model call.** An anonymous caller cannot spend
   tokens on an authenticated route, which is why a missing middleware entry was

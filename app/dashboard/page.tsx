@@ -113,6 +113,9 @@ export default function DashboardPage() {
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [packages, setPackages] = useState<Package[]>([])
   const [packagesLoaded, setPackagesLoaded] = useState(false)
+  // A CV reading kept on the server until the user decides (migration 047).
+  // When there is one, it is the next step above everything else.
+  const [hasPendingDraft, setHasPendingDraft] = useState(false)
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -139,6 +142,14 @@ export default function DashboardPage() {
         /* non-fatal */
       })
       .finally(() => setPackagesLoaded(true))
+    // A CV reading waiting for a decision (migration 047). Best-effort: if it
+    // cannot be read, the dashboard simply shows its usual next step.
+    fetch('/api/profile/pending-draft', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json().catch(() => null) : null))
+      .then((data) => setHasPendingDraft(Boolean(data?.pending)))
+      .catch(() => {
+        /* non-fatal */
+      })
   }, [])
 
   // No name, no "Good evening, there" — a greeting to nobody reads as a bug.
@@ -194,7 +205,7 @@ export default function DashboardPage() {
   // application", with no route back to the one they had already started. The
   // rules moved to lib/nextAction.ts, which reads only what these same two
   // fetches already returned.
-  const nextAction = computeNextAction(profile, packages, score, missing.length)
+  const nextAction = computeNextAction(profile, packages, score, missing.length, hasPendingDraft)
 
   return (
     // BLUEPRINT (2026-09-08). Ground is `paper`, not white: the surfaces that

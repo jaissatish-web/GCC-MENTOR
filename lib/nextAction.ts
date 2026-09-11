@@ -10,9 +10,10 @@ import type { Package } from '@/types/package'
  * had already paid attention to. Pulled out here so the rules are readable in
  * one place and can be asserted against in a test without rendering a page.
  *
- * IT READS ONLY WHAT THE DASHBOARD ALREADY FETCHES: GET /api/profile and
- * GET /api/packages. No new column, no new query, no new endpoint. Every
- * branch below is a fact those two responses already carry.
+ * IT READS ONLY WHAT THE DASHBOARD ALREADY FETCHES: GET /api/profile,
+ * GET /api/packages, and (since 2026-09-11) whether a CV reading is waiting —
+ * GET /api/profile/pending-draft. Every branch below is a fact those responses
+ * already carry.
  *
  * ONE ACTION, NOT A LIST. The failure mode of a "personalised" dashboard is
  * five suggestions of equal weight, which is the same as none. The order here
@@ -37,6 +38,7 @@ export interface NextAction {
    * machine rather than string-match the copy, which is expected to change.
    */
   state:
+    | 'draft_waiting'
     | 'no_profile'
     | 'profile_thin'
     | 'no_target_job'
@@ -88,8 +90,27 @@ export function computeNextAction(
    * it, only the sentence does, so a caller without it still gets the right
    * action.
    */
-  missingCount = 0
+  missingCount = 0,
+  /** A CV reading is waiting for the user's decision (migration 047). */
+  hasPendingDraft = false
 ): NextAction {
+  // A CV READING WAITING FOR A DECISION COMES FIRST (2026-09-11). It is a paid
+  // call whose result is already in hand, kept on the server until the user
+  // chooses — the purest case of "finish what you started". It outranks even
+  // "no profile": a first-time user whose reading could not be auto-saved has
+  // no profile yet, and the reading IS their profile, one tap away.
+  if (hasPendingDraft) {
+    return {
+      state: 'draft_waiting',
+      title: 'Your CV reading is waiting',
+      body: profile
+        ? 'We read your CV and kept the result. Choose whether to add it to your profile or replace it.'
+        : 'We read your CV and kept the result. Check it and save your profile.',
+      cta: 'Review it',
+      href: '/profile',
+    }
+  }
+
   // A brand-new user is told to CREATE A RESUME, not to "complete a Career
   // Profile". They signed up to make a CV; "Career Profile" is our internal
   // name for the data behind it, and leading with it points a first-time

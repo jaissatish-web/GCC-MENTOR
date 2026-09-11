@@ -24,7 +24,12 @@ signed up has their extracted data waiting to be claimed, so they never upload
 twice. See [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §2.
 
 **Extraction produces a draft, never a saved profile.** The user always reviews and
-corrects before anything is stored. The screen is a *confirm-and-correct* screen,
+corrects before it becomes their profile. **The draft itself is kept, though**
+(2026-09-11): the parse routes save it to `pending_profile_drafts` before answering, so
+a paid reading survives a refresh or a closed browser. The Career Profile page reopens it
+on every load — the keep-or-replace choice against a saved profile, or straight into the
+editor for a first profile — and it is deleted once resolved: the choice saved, the
+profile saved, or "Keep my profile as it is". The screen is a *confirm-and-correct* screen,
 deliberately not a long blank form — the fastest way to a complete profile is to
 fill it in for the user and let them fix what is wrong.
 
@@ -44,7 +49,10 @@ time, a wholesale replacement silently rewrote every resume the user had **alrea
 paid for**. Two separate defects met in one path.
 
 Now the user is **asked before anything is overwritten**, and the merge preserves
-what they typed. The delivered-document freeze in
+what they typed. **The answer is saved straight away** (2026-09-11), and a third option,
+"Keep my profile as it is", discards the reading. Until the user answers, the question
+comes back on every visit, because the reading behind it is kept on the server — and the
+dashboard's next step points at it. The delivered-document freeze in
 [`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) §4 closes the second half.
 
 ---

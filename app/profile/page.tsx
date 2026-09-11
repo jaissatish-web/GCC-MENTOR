@@ -957,17 +957,43 @@ function ProfileScreen() {
       }
     }
 
-    // No draft → load any previously-saved profile (returning user). A 404
-    // means start-from-scratch with nothing saved → empty editor.
+    // No draft handoff → load the saved profile (returning user) AND any CV
+    // reading still waiting for a decision (2026-09-11, migration 047). A 404
+    // profile means start-from-scratch with nothing saved → empty editor.
+    const pendingRequest: Promise<{ draft: CareerProfileDraft } | null> = fetch('/api/profile/pending-draft', {
+      cache: 'no-store',
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body) => (body?.pending ?? null) as { draft: CareerProfileDraft } | null)
+      .catch(() => null)
     fetch('/api/profile', { cache: 'no-store' })
       .then((res) => {
         if (res.status === 200) return res.json()
         if (res.status === 404) return null
         throw new Error(String(res.status))
       })
-      .then((data) => {
-        setEditor(data ? fromFull(data as CareerProfileFull) : emptyEditor())
-        setHasSavedProfile(hasSavedProfileContent(data as CareerProfileFull | null))
+      .then(async (data) => {
+        const saved = data as CareerProfileFull | null
+        // A PAID READING, KEPT FOR THEM (2026-09-11). Reopen the decision
+        // exactly as if the CV had just been read: against a saved profile,
+        // the keep-or-replace choice; with none, straight into the editor and
+        // auto-saved. It survives a refresh, a closed browser, a new device.
+        const pending = await pendingRequest
+        if (pending) {
+          resolvesPendingRef.current = true
+          if (hasSavedProfileContent(saved)) {
+            setPendingDraft({ draft: pending.draft, existing: saved as CareerProfileFull })
+            setHasSavedProfile(true)
+            setLoaded(true)
+            return
+          }
+          setEditor(fromDraft(pending.draft))
+          setAutoSaveOnLoad(true)
+          setLoaded(true)
+          return
+        }
+        setEditor(saved ? fromFull(saved) : emptyEditor())
+        setHasSavedProfile(hasSavedProfileContent(saved))
         // Read-only employment gaps (TASK-067); absent on the draft/empty paths.
         const gaps = (data as { employment_gaps?: unknown } | null)?.employment_gaps
         setEmploymentGaps(Array.isArray(gaps) ? (gaps as EmploymentGap[]) : [])
@@ -993,6 +1019,15 @@ function ProfileScreen() {
    * effect that sets it — safe, because an effect runs after render.
    */
   const [hasSavedProfile, setHasSavedProfile] = useState(false)
+
+  /**
+   * This page has loaded the CV reading kept on the server (migration 047) and
+   * is resolving it. The next successful save resolves it, so the server copy
+   * is deleted then (see onSubmit); "Keep my profile as it is" deletes it
+   * straight away. Declared after the effect that sets it — safe, an effect
+   * runs after render.
+   */
+  const resolvesPendingRef = useRef(false)
 
   // Ingest a draft produced inline by the ResumeImport panel — the same decision
   // the mount effect makes for a sessionStorage handoff: against a profile that
@@ -1392,6 +1427,14 @@ function ProfileScreen() {
         // A save succeeded, so the profile now exists — the import panel folds
         // into "Recreate my profile" (2026-09-11).
         setHasSavedProfile(true)
+        // …and if this save carried a CV reading kept on the server (migration
+        // 047), that reading is now resolved: clear the copy so it is not
+        // offered again. Awaited, so it is gone before any navigation. If the
+        // delete fails the reading is simply offered once more — never lost.
+        if (resolvesPendingRef.current) {
+          resolvesPendingRef.current = false
+          await fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
+        }
         if (destination === 'stay') {
           setSubmitting(false)
           return
@@ -1417,6 +1460,35 @@ function ProfileScreen() {
     if (requiredMissing(editor).length === 0) void onSubmit('stay')
   }, [autoSaveOnLoad, editor, loaded, onSubmit])
 
+  // A CV reading has been loaded — into the choice screen, or into the editor
+  // for auto-save — so this page now owns resolving the server copy
+  // (migration 047). One watcher, instead of a flag at every load path.
+  useEffect(() => {
+    if (pendingDraft || autoSaveOnLoad) resolvesPendingRef.current = true
+  }, [pendingDraft, autoSaveOnLoad])
+
+  // THE CHOICE IS SAVED STRAIGHT AWAY (founder request 2026-09-11). Unlike the
+  // first-time auto-save above, this is not gated on the required fields: the
+  // user has chosen, so if the result cannot be saved — Replace with a CV that
+  // has no phone number — onSubmit names the missing field and opens it, and
+  // the reading stays kept on the server until the profile is saved.
+  const [saveChoice, setSaveChoice] = useState(false)
+  useEffect(() => {
+    if (!saveChoice || !editor) return
+    setSaveChoice(false)
+    void onSubmit('stay')
+  }, [saveChoice, editor, onSubmit])
+
+  // "Keep my profile as it is": the reading is discarded on the user's word,
+  // and nothing in the saved profile changes.
+  const keepCurrentProfile = useCallback(() => {
+    if (!pendingDraft) return
+    setEditor(fromFull(pendingDraft.existing))
+    setPendingDraft(null)
+    resolvesPendingRef.current = false
+    void fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
+  }, [pendingDraft])
+
   // The upload decision comes BEFORE the editor exists, so nothing can be
   // saved — accidentally or otherwise — until the user has chosen.
   if (pendingDraft) {
@@ -1439,6 +1511,7 @@ function ProfileScreen() {
           onClick={() => {
             setEditor(fromFull(merged.profile))
             setPendingDraft(null)
+            setSaveChoice(true)
           }}
           className="mt-6 rounded-card border-2 border-teal bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
@@ -1466,6 +1539,7 @@ function ProfileScreen() {
           onClick={() => {
             setEditor(fromDraft(pendingDraft.draft))
             setPendingDraft(null)
+            setSaveChoice(true)
           }}
           className="mt-3 rounded-card border border-line bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert"
         >
@@ -1488,8 +1562,24 @@ function ProfileScreen() {
           ) : null}
         </button>
 
-        <p className="mt-6 text-center text-[12px] text-ink-muted">
-          Nothing is saved either way until you press Save on the next screen.
+        {/* The way out that costs nothing: without it, a reading the user does
+            not want would be offered on every visit forever. */}
+        <button
+          type="button"
+          onClick={keepCurrentProfile}
+          className="mt-3 rounded-card border border-line bg-canvas p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        >
+          <span className="text-[14px] font-bold text-ink">Keep my profile as it is</span>
+          <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
+            Discards this CV reading. Nothing in your profile changes.
+          </span>
+        </button>
+
+        {/* Was "Nothing is saved either way until you press Save on the next
+            screen." Both halves are now the other way round (2026-09-11). */}
+        <p className="mt-6 text-center text-[12px] leading-relaxed text-ink-muted">
+          Whichever you choose is saved straight away. Until you choose, this CV reading is kept for
+          you — you can close this page and come back to it.
         </p>
       </main>
     )

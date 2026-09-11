@@ -170,5 +170,25 @@ check(
   computeNextAction(PROFILE, [], 10).state === 'profile_thin'
 )
 
+console.log('\nA waiting CV reading comes first (2026-09-11)')
+
+check(
+  'a waiting reading outranks everything, even having no profile yet',
+  computeNextAction(null, [], 0, 0, true).state === 'draft_waiting'
+)
+check(
+  'it outranks a thin profile and an unfinished job',
+  computeNextAction(PROFILE, [pkg({ is_paid: false, optimized_content: null })], 10, 0, true).state ===
+    'draft_waiting'
+)
+check(
+  'it points at the Career Profile, where the decision is made',
+  computeNextAction(PROFILE, [], 80, 0, true).href === '/profile'
+)
+check(
+  'without a waiting reading, nothing else changes',
+  computeNextAction(PROFILE, [pkg()], 80).state === 'add_next_job'
+)
+
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} FAILED\n`)
 process.exit(failures === 0 ? 0 : 1)

@@ -12,6 +12,57 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — A paid CV reading is never lost
+
+**Founder request:** every API result and every user choice is saved automatically and the
+user is asked to confirm — even if they close the browser and come back — because once the
+call is made, the cost is spent.
+
+**Where it could be lost.** Of the paid calls, the CV build writes
+`packages.optimized_content` and the cover letter appends to `packages.cover_letters`
+before either answers, so both already survive a closed browser. **The CV reading did
+not.** A first-time profile was auto-saved only when name, phone and email were all present;
+otherwise the draft lived only in the tab. A RECREATE lived entirely in the tab: the
+keep-or-replace screen was React state, so a refresh or a closed browser threw away a paid
+call — and, since the monthly limit, one of the user's recreations too.
+
+**Now:** the two parse routes save every successful reading to `pending_profile_drafts`
+(migration 047) before answering — one row per user, the latest reading. The profile page
+looks for it on every load: with a saved profile it reopens the keep-or-replace screen;
+without one it loads the reading into the editor and auto-saves as before. The row is
+deleted only when the reading is RESOLVED — the choice is saved, the profile is saved with
+it, or the user picks the new third option, "Keep my profile as it is".
+
+**The choice itself is saved straight away.** The screen used to say "Nothing is saved
+either way until you press Save on the next screen". If a result cannot be saved — Replace
+with a CV that has no phone number — the save error names the missing field, and the reading
+stays waiting until it is.
+
+**The dashboard points at it.** A waiting reading becomes the next step above everything
+else: finishing what was paid for comes before starting something new.
+
+**PII.** The row holds what the profile holds, from the same CV: owner-only RLS, deleted
+with the account, and removed by "Delete my data" before the profile is — it is not reached
+by the profile's cascade, because a first-time user's reading has no profile to hang off.
+Kept until the user decides, with no silent expiry: silently deleting a reading the user
+paid for is exactly what this change exists to stop. The privacy policy (open items §A4)
+must mention it.
+
+**Not covered, deliberately:** unsaved TYPING in the profile editor (open items §B5). No
+API cost is at stake there, and it has its own open decision.
+
+**Found by the live test — "Add it to my profile" had never added a job.** The merge in
+`lib/profileMerge.ts` keyed rows on `job_title` / `company_name`, `skill_name` and
+`certification_name` — names that exist nowhere in the schema, the draft or the editor
+(`role`, `company`, `name`). Every new job, skill and certification keyed as blank, and the
+"no identifying text" rule skipped them all; only education and additional information
+got through. The screen said "Adds 1 new entry" for a CV with a new job, skill and
+qualification, and the save carried the qualification alone. It dates from TASK-133 and
+had no test. Fixed to the real names, with `scripts/verify-profile-merge.ts` asserting that
+new entries are added, duplicates are not, ids are kept and nothing is overwritten.
+
+---
+
 ## 2026-09-11 — Recreate-by-upload failed again: the 60-second cap was ours
 
 **Founder report:** after the truncation fix, recreating via upload showed "We could not

@@ -77,6 +77,22 @@ export async function deleteMyData(
     .eq('user_id', user.id)
     .maybeSingle()
 
+  // A CV reading still waiting for a decision (migration 047) holds the same
+  // data as the profile but is NOT reached by its cascade — a first-time
+  // user's reading has no profile row to hang off. Deleted first, so a failure
+  // here stops the whole action before anything is gone.
+  const { error: pendingError } = await supabase
+    .from('pending_profile_drafts')
+    .delete()
+    .eq('user_id', user.id)
+  if (pendingError) {
+    console.error('pending draft deletion failed: user=' + user.id, pendingError.message)
+    return {
+      error:
+        'Something went wrong deleting your data. Please try again, or email the founder if this persists.',
+    }
+  }
+
   const { error: deleteError } = await supabase
     .from('career_profiles')
     .delete()

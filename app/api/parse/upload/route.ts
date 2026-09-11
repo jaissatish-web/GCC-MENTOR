@@ -4,6 +4,7 @@ import { generate } from '@/lib/ai/provider'
 import { EXTRACTION_MAX_TOKENS, EXTRACTION_SYSTEM_PROMPT, normalizeDraft, extractJsonObject } from '@/lib/ai/extractionPrompt'
 import { getRateLimitStatus, incrementRateLimit, LIMIT_ACTION_EXTRACTION } from '@/lib/rateLimit'
 import { getRecreationStatus, recordRecreation } from '@/lib/recreateLimit'
+import { savePendingDraft } from '@/lib/pendingDraft'
 import { extractPdfText } from '@/lib/pdfTextExtract'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 
@@ -137,6 +138,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // inside generate() (TASK-039) — do not add a second call.
   await incrementRateLimit({ userId: user.id, action: LIMIT_ACTION_EXTRACTION })
   if (recreation.isRecreate) await recordRecreation(user.id)
+
+  // Kept server-side BEFORE answering, so a closed browser cannot lose a paid
+  // reading (2026-09-11, migration 047). The profile page reopens it until the
+  // user decides. See lib/pendingDraft.ts.
+  await savePendingDraft(supabase, user.id, draft, 'upload')
 
   return NextResponse.json({ success: true, draft })
 }

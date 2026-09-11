@@ -46,15 +46,23 @@ function isBlank(v: unknown): boolean {
  * broken. A false merge loses nothing: the existing row is kept intact.
  */
 function rowKey(table: ChildTable, row: Row): string {
+  // THE REAL COLUMN NAMES (fixed 2026-09-11). This read `job_title` and
+  // `company_name`, `certification_name` and `skill_name` — names that exist
+  // nowhere in the schema, the draft or the editor (they are `role`,
+  // `company` and `name`). Every job, certification and skill therefore keyed
+  // as blank, and the "no identifying text" rule below skipped every one: "Add
+  // it to my profile" silently dropped all new jobs, skills and certifications
+  // and kept only education and additional information. Found by a live test
+  // of the pending-reading change; see scripts/verify-profile-merge.ts.
   switch (table) {
     case 'work_experience':
-      return norm(row.job_title) + '|' + norm(row.company_name)
+      return norm(row.role) + '|' + norm(row.company)
     case 'education':
       return norm(row.degree) + '|' + norm(row.institution)
     case 'certifications':
-      return norm(row.certification_name)
+      return norm(row.name)
     case 'skills':
-      return norm(row.skill_name)
+      return norm(row.name)
     case 'additional_information':
       return norm(row.label) + '|' + norm(row.value)
   }
@@ -158,7 +166,9 @@ const RESUME_CANNOT_SUPPLY: Array<[string, string]> = [
   ['visa_transferable', 'Visa transferable'],
   ['notice_period', 'Notice period'],
   ['passport_validity_date', 'Passport validity'],
-  ['f_has_driving_license', 'Driving licence'],
+  // Was 'f_has_driving_license' — the editor's DOM id, not the column — so this
+  // warning could never fire (fixed 2026-09-11).
+  ['has_driving_license', 'Driving licence'],
   ['driving_license_country', 'Driving licence country'],
   ['target_job_title', 'Target job title'],
   ['target_country', 'Target country'],

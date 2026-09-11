@@ -278,7 +278,9 @@ can never be reachable, and the footer can never advertise a page that says noth
 
 **Still the highest-value open item.** The product collects date of birth, nationality,
 passport TYPE and expiry date, visa status and transferability, phone, WhatsApp, email,
-photo and full work histories. (**Corrected 2026-09-09:** this said "passport numbers",
+photo and full work histories — and, since 2026-09-11, keeps an unconfirmed CV reading until
+the user decides what to do with it (`pending_profile_drafts`), which the policy must also
+say. (**Corrected 2026-09-09:** this said "passport numbers",
 which is wrong and was repeated into two code comments before anyone checked. Migration
 010 stores `passport_type` — an ECR / Non-ECR enum — and `passport_validity_date`. There
 is no passport number column and there never may be; see
