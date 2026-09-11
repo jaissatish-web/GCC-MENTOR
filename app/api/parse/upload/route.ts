@@ -11,9 +11,14 @@ import type { CareerProfileDraft } from '@/types/careerProfile'
 const MAX_FILE_SIZE_PDF = 5 * 1024 * 1024   // 5MB
 const MAX_FILE_SIZE_DOCX = 2 * 1024 * 1024  // 2MB
 
-// A model call, like every other model route. Without it this route ran on the
-// platform default, and a CV that makes the model think long needs the room.
-export const maxDuration = 60
+// NO `maxDuration` HERE, deliberately (2026-09-11). One was added — 60, "like
+// every other model route" — and it broke recreate-by-upload in production:
+// the platform default this route had always run on is longer, and a CV that
+// makes the model think long needs it. Reproduced live: a six-job CV read in
+// 60.6s, on the edge; the founder's longer think was killed at 60s and Vercel's
+// timeout page reached the panel instead of JSON. Before the cap, a 7,847-token
+// read (~100s at production speed) completed and was logged. Do not re-add a
+// cap below the platform default without measuring a long read first.
 
 /**
  * What the user sees when the READ fails (2026-09-11). It used to say "Try

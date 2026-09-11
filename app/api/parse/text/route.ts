@@ -6,8 +6,8 @@ import { getRateLimitStatus, incrementRateLimit, LIMIT_ACTION_EXTRACTION } from 
 import { getRecreationStatus, recordRecreation } from '@/lib/recreateLimit'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 
-// A model call, like every other model route. See app/api/parse/upload.
-export const maxDuration = 60
+// NO `maxDuration` here, deliberately — a 60s cap broke long reads in
+// production (2026-09-11). See the note in app/api/parse/upload/route.ts.
 
 /** Same wording and reasoning as the upload route (2026-09-11). */
 const READ_FAILED =

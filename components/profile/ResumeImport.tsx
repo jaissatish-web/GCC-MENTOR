@@ -128,7 +128,15 @@ export function ResumeImport({
         // The server's limit is the source of truth — if it says none are
         // left, show that state rather than a one-off error.
         if (body?.code === 'RECREATE_LIMIT' && body.recreation) setQuota(body.recreation)
-        setError(body?.error || 'We could not read that resume. Please try again.')
+        // No JSON at all means the platform answered, not our route — most
+        // often its timeout page (2026-09-11). Say which, and that it is safe
+        // to retry: nothing is written, and only a success counts.
+        setError(
+          body?.error ||
+            (res.status === 504
+              ? "Reading your CV took too long and was stopped. Nothing was changed, and it didn't count against your limit — please try again."
+              : "Something went wrong on our side while reading your CV. Nothing was changed, and it didn't count against your limit — please try again."),
+        )
         setParsing(false)
         return
       }

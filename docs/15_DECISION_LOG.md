@@ -12,6 +12,38 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — Recreate-by-upload failed again: the 60-second cap was ours
+
+**Founder report:** after the truncation fix, recreating via upload showed "We could not
+read that resume. Please try again." — the upload panel's fallback for a reply that is not
+JSON.
+
+**Reproduced on the live site** (gcc-mentor.vercel.app) with a throwaway account and a
+six-job Word CV: the read succeeded, but took **60.6 seconds** and 4,536 output tokens — on
+the edge. None of the founder's attempts reached the usage log, so the function was being
+killed before the model finished, and Vercel's own timeout page reached the panel instead
+of JSON.
+
+**The 60-second limit came from the previous fix.** `maxDuration = 60` was added to both
+parse routes "like every other model route". Before it, these routes ran on the platform
+default, and the evidence says that default is longer than 60s: extraction routinely takes
+well over ten seconds (so it is not Vercel's legacy 10s default), and on 2026-09-10 a
+7,847-token read completed and was logged — at the ~75 tokens a second measured today,
+roughly 100 seconds. The cap is removed; the larger token ceiling stays.
+
+**An open question this raises:** the 2026-09-05 timeout work rests on "the Hobby plan,
+where 60s is a hard cap no setting can raise". `/api/optimize` sets `maxDuration = 60`
+itself. If the project runs on Vercel's fluid compute — which the parse routes' behaviour
+suggests — its default is far longer and the optimizer's 60s cap is self-imposed. To be
+confirmed in Vercel → Settings → Functions before anything changes there. Recorded in open
+items.
+
+**The panel's fallback now says what happened:** a 504 says the read took too long and was
+stopped; anything else says it failed on our side. Both add that nothing was changed and it
+did not count against the limit — true, since only a success counts.
+
+---
+
 ## 2026-09-11 — Recreating a profile: a monthly limit, and the failure that looked like a recreate bug
 
 **Founder report:** recreating a profile from a CV showed "Could not extract profile from

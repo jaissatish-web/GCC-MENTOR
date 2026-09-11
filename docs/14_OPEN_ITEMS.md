@@ -148,6 +148,13 @@ Phase B returned 504 `FUNCTION_INVOCATION_TIMEOUT` in production while passing l
 Measured split: 9.6s to structure the advert, 18.4s to write the resume, 29.6s total.
 The account is on the **Hobby plan, where 60s is a hard cap** no setting can raise.
 
+> **Questioned 2026-09-11 — needs checking in Vercel → Settings → Functions.** The resume
+> parse routes, which set no `maxDuration`, have completed reads of roughly 100 seconds in
+> production; adding `maxDuration = 60` to them broke recreate-by-upload. That suggests the
+> project runs on fluid compute with a much longer default, and that the 60s ceiling on
+> `/api/optimize` is its own `maxDuration = 60`, not the plan. If confirmed, the optimizer's
+> margin problem below is a setting, not a wall. Nothing on the optimizer has been changed.
+
 Fixed by moving the structuring call into Phase A (migration 045,
 `packages.structured_job`), and by making the provider's doubled-budget reasoning retry
 deadline-aware so it cannot turn a recoverable failure into a timeout.
