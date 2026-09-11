@@ -150,7 +150,8 @@ The account is on the **Hobby plan, where 60s is a hard cap** no setting can rai
 
 > **Questioned 2026-09-11 — needs checking in Vercel → Settings → Functions.** The resume
 > parse routes, which set no `maxDuration`, have completed reads of roughly 100 seconds in
-> production; adding `maxDuration = 60` to them broke recreate-by-upload. That suggests the
+> production, and after the cap was removed a ten-job CV read was verified live at 72.9s;
+> adding `maxDuration = 60` to them broke recreate-by-upload. That suggests the
 > project runs on fluid compute with a much longer default, and that the 60s ceiling on
 > `/api/optimize` is its own `maxDuration = 60`, not the plan. If confirmed, the optimizer's
 > margin problem below is a setting, not a wall. Nothing on the optimizer has been changed.

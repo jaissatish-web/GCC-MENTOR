@@ -106,7 +106,12 @@ function ExtractingScreen() {
 
       if (!res.ok) {
         // Surface the server's own message verbatim (e.g. 429 rate limit).
-        let msg = 'Extraction failed. Please try again.'
+        // A 504 with no JSON is the platform's timeout page, not our route
+        // (2026-09-11) — say so, rather than a generic failure.
+        let msg =
+          res.status === 504
+            ? 'Reading your CV took too long and was stopped. Nothing was changed — please try again.'
+            : 'Extraction failed. Please try again.'
         try {
           const body = await res.json()
           msg = (body?.error ?? body?.message) || msg

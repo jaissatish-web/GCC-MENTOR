@@ -29,7 +29,10 @@ parse routes "like every other model route". Before it, these routes ran on the 
 default, and the evidence says that default is longer than 60s: extraction routinely takes
 well over ten seconds (so it is not Vercel's legacy 10s default), and on 2026-09-10 a
 7,847-token read completed and was logged — at the ~75 tokens a second measured today,
-roughly 100 seconds. The cap is removed; the larger token ceiling stays.
+roughly 100 seconds. The cap is removed; the larger token ceiling stays. **Verified live after
+the fix:** a ten-job Word CV, uploaded as a recreate on gcc-mentor.vercel.app, read in 72.9
+seconds and returned all ten jobs — past the old cap, so on this project a route with no
+`maxDuration` is not held to 60 seconds.
 
 **An open question this raises:** the 2026-09-05 timeout work rests on "the Hobby plan,
 where 60s is a hard cap no setting can raise". `/api/optimize` sets `maxDuration = 60`
