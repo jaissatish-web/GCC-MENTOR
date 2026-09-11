@@ -35,9 +35,21 @@ import type { CareerProfileDraft } from '@/types/careerProfile'
  * `collapsible`, the panel is one line — "Your profile is already created" —
  * and one button, "Recreate my profile", which opens the same three ways in.
  * Recreating stays safe: the parent's add-or-replace choice still governs.
+ *
+ * AND LIMITED (founder decision, same day): 2 recreations a month on the free
+ * plan, 5 for paid users. The server enforces it (lib/recreateLimit.ts); this
+ * panel only says how many are left and, at zero, when they come back.
  */
 
 type Mode = 'idle' | 'upload' | 'paste'
+
+/** The subset of /api/parse/recreate-status this panel shows. */
+interface RecreationQuota {
+  limit: number
+  used: number
+  remaining: number
+  resetsOnLabel: string
+}
 
 const MIN_TEXT = 50
 const MAX_TEXT = 20000
@@ -64,6 +76,7 @@ export function ResumeImport({
   // A deep link (?import=upload|paste) is an explicit intent, so it opens the
   // panel even when a profile exists.
   const [expanded, setExpanded] = useState(!collapsible || initialMode !== 'idle')
+  const [quota, setQuota] = useState<RecreationQuota | null>(null)
 
   // The profile can come into existence while this is mounted — the auto-save
   // right after a first extraction. From then on it is "created", so fold the
@@ -73,6 +86,25 @@ export function ResumeImport({
     // Only react to the profile coming into existence, not to every mode change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collapsible])
+
+  // How many recreations are left — only meaningful once a profile exists.
+  // Best-effort: if it cannot be read, the panel simply does not show a count,
+  // and the server still enforces the limit.
+  useEffect(() => {
+    if (!collapsible) return
+    let alive = true
+    fetch('/api/parse/recreate-status', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: RecreationQuota | null) => {
+        if (alive && data && typeof data.remaining === 'number') setQuota(data)
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [collapsible])
+
+  const exhausted = collapsible && quota !== null && quota.remaining <= 0
 
   const collapse = () => {
     setExpanded(false)
@@ -86,8 +118,16 @@ export function ResumeImport({
     setError(null)
     try {
       const res = await call()
-      const body = (await res.json().catch(() => null)) as { draft?: CareerProfileDraft; error?: string } | null
+      const body = (await res.json().catch(() => null)) as {
+        draft?: CareerProfileDraft
+        error?: string
+        code?: string
+        recreation?: RecreationQuota
+      } | null
       if (!res.ok || !body?.draft) {
+        // The server's limit is the source of truth — if it says none are
+        // left, show that state rather than a one-off error.
+        if (body?.code === 'RECREATE_LIMIT' && body.recreation) setQuota(body.recreation)
         setError(body?.error || 'We could not read that resume. Please try again.')
         setParsing(false)
         return
@@ -135,6 +175,11 @@ export function ResumeImport({
     )
   }
 
+  /** At zero: when they come back, and that editing by hand still works. */
+  const limitReachedText = quota
+    ? `You've used all ${quota.limit} profile recreation${quota.limit === 1 ? '' : 's'} for this month. You can recreate it again from ${quota.resetsOnLabel} — and every field below can still be edited by hand.`
+    : ''
+
   // ── Collapsed: the profile exists, so say so, and offer one way to redo it ──
   if (collapsible && !expanded) {
     return (
@@ -146,15 +191,26 @@ export function ResumeImport({
           <div className="flex min-w-0 flex-col gap-0.5">
             <h2 className="text-[14.5px] font-bold text-ink">Your profile is already created</h2>
             <p className="text-[12.5px] leading-relaxed text-ink-soft">
-              Got a newer CV? Recreate your profile from it — nothing changes until you choose what to keep.
+              {exhausted
+                ? limitReachedText
+                : 'Got a newer CV? Recreate your profile from it — nothing changes until you choose what to keep.'}
             </p>
+            {quota && !exhausted ? (
+              <p className="text-[12px] font-semibold text-ink-muted">
+                {quota.remaining} of {quota.limit} recreation{quota.limit === 1 ? '' : 's'} left this month
+              </p>
+            ) : null}
           </div>
         </div>
         <button
           type="button"
           onClick={() => setExpanded(true)}
+          disabled={exhausted}
           aria-expanded={false}
-          className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full shrink-0 justify-center sm:w-auto')}
+          className={cn(
+            buttonVariants({ variant: 'secondary', size: 'sm' }),
+            'w-full shrink-0 justify-center disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto',
+          )}
         >
           <ArrowPathIcon aria-hidden="true" className="size-4" />
           Recreate my profile
@@ -183,6 +239,11 @@ export function ResumeImport({
               ? 'Upload or paste a newer CV, or edit the form yourself. Nothing changes until you choose what to keep.'
               : 'Upload or paste your CV and we fill the form in for you.'}
           </p>
+          {recreating && quota && !exhausted ? (
+            <p className="text-[12px] font-semibold text-ink-muted">
+              {quota.remaining} of {quota.limit} recreation{quota.limit === 1 ? '' : 's'} left this month
+            </p>
+          ) : null}
         </div>
         {recreating && !parsing ? (
           <button
@@ -207,6 +268,25 @@ export function ResumeImport({
           stepMs={5000}
           notes={EXTRACTION_NOTES}
         />
+      ) : exhausted ? (
+        // None left this month (e.g. arrived by a deep link): say when they
+        // come back, and leave the one way in that costs nothing.
+        <div className="mt-3.5 flex flex-col gap-2.5">
+          <p className="rounded-ctl border border-line bg-white px-3.5 py-3 text-[12.5px] leading-relaxed text-ink-soft">
+            {limitReachedText}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              collapse()
+              onFillManually()
+            }}
+            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full justify-center sm:w-auto sm:self-start')}
+          >
+            <PencilSquareIcon aria-hidden="true" className="size-4" />
+            Edit it myself
+          </button>
+        </div>
       ) : (
         <>
           {/* Three equal white buttons gave no answer to "which one do I

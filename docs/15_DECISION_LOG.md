@@ -12,6 +12,50 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — Recreating a profile: a monthly limit, and the failure that looked like a recreate bug
+
+**Founder report:** recreating a profile from a CV showed "Could not extract profile from
+resume. Try copy-paste instead." instead of the keep-or-replace choice.
+
+**It was not a recreate bug.** Production's usage log shows the SAME CV (2,660 input
+tokens) read twice on 2026-09-10: once with 2,246 output tokens, which worked, and once
+with 7,847 — against the 8,192 ceiling — which failed. The configured model
+(deepseek-v4-flash) reasons before it writes and bills that thinking against the same
+budget, and how long it thinks varies from run to run; on a long think the JSON was cut off
+mid-object. The provider already retried an EMPTY answer; a CUT-OFF answer went straight
+through and failed to parse. The same swing is in the log on 2026-08-16 (3,803 vs 7,824).
+Any user could hit it, on a first upload as much as on a recreate.
+
+**The fix.** Extraction's ceiling is now 16,384 — a ceiling, not a spend: a normal CV costs
+what it did. `generate()` now reports `truncated` (finish_reason=length, or Anthropic's
+stop_reason=max_tokens) and logs it; the two parse routes turn it into a clear "try again"
+instead of handing half an answer to the parser. **No other service changes behaviour** —
+they receive the flag and keep their own retry paths; throwing for everyone would have
+removed the cover letter's chance to be rescued by its retry. "Try copy-paste instead" is
+gone from that failure: pasting the same CV would hit the same ceiling. Both parse routes
+gain `maxDuration = 60`, like every other model route.
+
+**The limit (founder decision): recreating a profile is limited to 2 a month on the free
+plan and 5 for paid users**, because each one is a paid model call.
+- **A recreate** = a successful CV read when the user already has a saved profile. The
+  first build does not count — the signup extraction is free (2026-08-18).
+- **Counted on success only.** A failed read is our failure, not the user's — the same
+  principle as open items §B9. Both failures the founder hit would otherwise have spent his
+  quota for nothing.
+- **Calendar month, UTC, resetting on the 1st** — the same shape as the planned monthly
+  template counter — and the screen states the reset date.
+- **"Paid" = owns a paid resume (`packages.is_paid`) or holds any credit or grant
+  (`user_service_credits`, `optimization_credits`).** While the paid locks are off almost
+  everyone is free; this definition must be revisited when payment goes live.
+- **Enforced server-side before the model call**, on both parse routes, in the existing
+  `rate_limits` table with the first of the month as the window key — no migration. The
+  admin's per-user `limit_override` works on it unchanged, and the daily limit of five
+  extractions still applies on top.
+- **The Recreate panel shows how many are left**, and at zero says when it resets and that
+  every field can still be edited by hand.
+
+---
+
 ## 2026-09-11 — Waiting screens: no timings, something true to read instead
 
 **Founder request:** remove "usually about 20 seconds" and every timing like it, and give

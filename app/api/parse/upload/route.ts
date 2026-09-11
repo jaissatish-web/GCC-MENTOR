@@ -1,14 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generate } from '@/lib/ai/provider'
-import { EXTRACTION_SYSTEM_PROMPT, normalizeDraft, extractJsonObject } from '@/lib/ai/extractionPrompt'
+import { EXTRACTION_MAX_TOKENS, EXTRACTION_SYSTEM_PROMPT, normalizeDraft, extractJsonObject } from '@/lib/ai/extractionPrompt'
 import { getRateLimitStatus, incrementRateLimit, LIMIT_ACTION_EXTRACTION } from '@/lib/rateLimit'
+import { getRecreationStatus, recordRecreation } from '@/lib/recreateLimit'
 import { extractPdfText } from '@/lib/pdfTextExtract'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 
 // File-size limits kept verbatim from reference/parse-upload.reference.ts.
 const MAX_FILE_SIZE_PDF = 5 * 1024 * 1024   // 5MB
 const MAX_FILE_SIZE_DOCX = 2 * 1024 * 1024  // 2MB
+
+// A model call, like every other model route. Without it this route ran on the
+// platform default, and a CV that makes the model think long needs the room.
+export const maxDuration = 60
+
+/**
+ * What the user sees when the READ fails (2026-09-11). It used to say "Try
+ * copy-paste instead" — wrong advice for the real cause, a model answer cut
+ * off at its token budget, because pasting the same CV hits the same ceiling.
+ * Both halves of the sentence are true: nothing is written until a draft is
+ * returned, and only a success counts against either limit.
+ */
+const READ_FAILED =
+  "We couldn't finish reading your CV this time. Nothing was changed, and it didn't count against your limit — please try again."
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
@@ -34,30 +49,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   let extractedText = ''
-    try {
-      if (fileExt === 'pdf') {
-            {
-              // Same guard as /api/ats-scan: unreadable is not the same as
-              // empty, and only the explicit check separates them.
-              const pdf = await extractPdfText(buffer)
-              if (pdf.looksGarbled) {
-                return NextResponse.json(
-                  {
-                    error:
-                      'We could not read the text in this PDF reliably. Please upload a different export (Save as PDF from Word or Google Docs works well), or paste your resume text instead.',
-                    code: 'PDF_UNREADABLE',
-                  },
-                  { status: 400 },
-                )
-              }
-              extractedText = pdf.text
-            }
-          } else if (fileExt === 'docx' || fileExt === 'doc') {
-        const mammoth = await import('mammoth')
-        const result = await mammoth.extractRawText({ buffer })
-        extractedText = result.value
+  try {
+    if (fileExt === 'pdf') {
+      // Same guard as /api/ats-scan: unreadable is not the same as
+      // empty, and only the explicit check separates them.
+      const pdf = await extractPdfText(buffer)
+      if (pdf.looksGarbled) {
+        return NextResponse.json(
+          {
+            error:
+              'We could not read the text in this PDF reliably. Please upload a different export (Save as PDF from Word or Google Docs works well), or paste your resume text instead.',
+            code: 'PDF_UNREADABLE',
+          },
+          { status: 400 },
+        )
       }
-    } catch {
+      extractedText = pdf.text
+    } else if (fileExt === 'docx' || fileExt === 'doc') {
+      const mammoth = await import('mammoth')
+      const result = await mammoth.extractRawText({ buffer })
+      extractedText = result.value
+    }
+  } catch {
+    // The FILE could not be read — here pasting the text genuinely is the fix.
     return NextResponse.json({ error: 'Could not read file. Try copy-paste instead.' }, { status: 422 })
   }
 
@@ -74,31 +88,50 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     )
   }
 
+  // Monthly recreation limit (founder decision 2026-09-11) — only when a saved
+  // profile already exists. Checked before the model call, counted after a
+  // successful read. See lib/recreateLimit.ts.
+  const recreation = await getRecreationStatus(user.id)
+  if (!recreation.allowed) {
+    return NextResponse.json(
+      { error: recreation.message, code: 'RECREATE_LIMIT', recreation },
+      { status: 429 },
+    )
+  }
+
   let draft: CareerProfileDraft
   try {
     const result = await generate({
       system: EXTRACTION_SYSTEM_PROMPT,
       user: `Extract from this resume text:\n\n${extractedText}`,
-      maxTokens: 8192,
+      maxTokens: EXTRACTION_MAX_TOKENS,
       temperature: 0.1,
       userId: user.id,
       route: '/api/parse/upload',
       configKey: 'extraction',
     })
+    // Cut off at the budget: the JSON is incomplete, so do not try to parse it.
+    if (result.truncated) {
+      console.error('parse upload: answer cut off at the token budget user=' + user.id + ' out=' + result.outputTokens)
+      return NextResponse.json({ error: READ_FAILED, code: 'EXTRACTION_TRUNCATED' }, { status: 502 })
+    }
     const parsed = extractJsonObject(result.text)
     const normalized = normalizeDraft(parsed)
     if (!normalized) {
-      return NextResponse.json({ error: 'Could not extract profile from resume. Try copy-paste instead.' }, { status: 422 })
+      console.error('parse upload: answer was not a readable profile user=' + user.id + ' out=' + result.outputTokens)
+      return NextResponse.json({ error: READ_FAILED }, { status: 422 })
     }
     draft = normalized
   } catch (e) {
     console.error('parse upload: AI call failed user=' + user.id + ' route=/api/parse/upload', e instanceof Error ? e.message : String(e))
-    return NextResponse.json({ error: 'Could not extract profile from resume. Please try again.' }, { status: 502 })
+    return NextResponse.json({ error: READ_FAILED }, { status: 502 })
   }
 
-  // A successful extraction consumes a rate-limit slot. usage logging happens
+  // A successful extraction consumes a rate-limit slot — and, when a profile
+  // already existed, one of this month's recreations. usage logging happens
   // inside generate() (TASK-039) — do not add a second call.
   await incrementRateLimit({ userId: user.id, action: LIMIT_ACTION_EXTRACTION })
+  if (recreation.isRecreate) await recordRecreation(user.id)
 
   return NextResponse.json({ success: true, draft })
 }

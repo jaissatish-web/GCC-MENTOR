@@ -182,7 +182,7 @@ gate.**
 | `service_packages`, `service_package_items` | Bundle definitions | Service role only |
 | `user_service_credits` | Credits a user holds | Service role only |
 | `optimization_credits` | Admin-granted free optimizations, as a permanent ledger | Service role only |
-| `rate_limits`, `anonymous_rate_limits` | Daily counters | Owner / service role |
+| `rate_limits`, `anonymous_rate_limits` | Daily counters — plus, in `rate_limits`, one **monthly** counter: `profile_recreation`, keyed on the first of the month (2026-09-11, `lib/recreateLimit.ts`) | Owner / service role |
 | `ai_usage_log` | Every model call, for cost tracking | Service role |
 | `pii_access_log` | Every admin view of a user's profile | Insert + read, service role |
 | `anonymous_analysis_sessions` | A free scan's result, 7-day expiry, single-use | Service role, keyed by a signed cookie |

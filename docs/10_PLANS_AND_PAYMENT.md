@@ -83,6 +83,22 @@ rule they were only correlated, and the correlation held by luck.
 without payment. Rows with content and `is_paid = false` already exist, so the
 restored gate cannot treat that combination as impossible.
 
+### Profile recreation limit — live, and not a paid lock (2026-09-11)
+
+**2 recreations a month on the free plan, 5 for paid users** (founder decision) — a
+cost-abuse limit, enforced now, independent of the locks being off. `lib/recreateLimit.ts`.
+
+- **A recreate** is a successful CV read by someone who already has a saved profile. The
+  first build is free and uncounted.
+- **Only a success counts.** A failed read never spends the user's quota.
+- **Calendar month, UTC**, resetting on the 1st; the screen names the date.
+- **Paid** = owns a paid resume (`packages.is_paid`) or holds any credit or grant
+  (`user_service_credits`, `optimization_credits`). **Revisit this definition when payment
+  goes live** — with the locks off almost everyone reads as free.
+- Stored in `rate_limits` (`action = 'profile_recreation'`, window = the first of the
+  month). Admin's `limit_override` applies. Env overrides: `RECREATIONS_PER_MONTH_FREE`,
+  `RECREATIONS_PER_MONTH_PAID`. The daily extraction limit still applies on top.
+
 ### It was verified to fail closed, and that has to be redone
 
 18 assertions covered the malformed shapes: AI content present with the paid flag

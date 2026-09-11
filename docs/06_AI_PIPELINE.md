@@ -52,6 +52,15 @@ description reaches a log line.
 
 ### Token budgets are per service, with a floor
 
+**A cut-off answer is not a short answer (2026-09-11).** `generate()` now returns
+`truncated` — finish_reason=length, or Anthropic's stop_reason=max_tokens — so a caller
+can tell an answer that stopped because the budget ran out from one that finished. It is
+reported, not thrown, and logged either way (a truncated call was still paid for). Resume
+extraction acts on it: its budget is 16,384 (`EXTRACTION_MAX_TOKENS`) after production read
+the same CV at 2,246 output tokens once and 7,847 the next, against the old 8,192, and cut
+the JSON off; a truncated extraction is refused with a clear "try again" rather than parsed.
+Every other service receives the flag and keeps its existing behaviour.
+
 **Reasoning models spend the budget before writing anything** — an
 under-budgeted call returns thinking tokens and null content, which reads like a
 refusal and is not one. Budgets are set per service and a minimum applies: a

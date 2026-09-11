@@ -136,6 +136,18 @@ export function normalizeDraft(raw: unknown): CareerProfileDraft | null {
 }
 
 /**
+ * The token ceiling for one extraction (2026-09-11: was 8,192).
+ *
+ * A ceiling, not a spend — a call is billed for what it generates, so a normal
+ * CV costs exactly what it did. It was raised because the configured model
+ * reasons before writing and bills that against the same budget: production
+ * read the same CV at 2,246 output tokens once and 7,847 the next, and the
+ * long run cut the JSON off mid-object. 16,384 is the same cap the provider's
+ * own reasoning retry uses.
+ */
+export const EXTRACTION_MAX_TOKENS = 16384
+
+/**
  * Extract the first JSON object from a provider text response, tolerating a
  * leading ```json fence or surrounding prose (defensive, not lenient on facts).
  */

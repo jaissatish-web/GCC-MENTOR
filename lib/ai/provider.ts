@@ -21,7 +21,28 @@ interface GenerateParams {
    */
   deadlineAt?: number
 }
-interface GenerateResult { text: string; inputTokens: number; outputTokens: number }
+interface GenerateResult {
+  text: string
+  inputTokens: number
+  outputTokens: number
+  /**
+   * The model stopped because it ran out of token budget, not because it had
+   * finished — so `text` is INCOMPLETE (2026-09-11).
+   *
+   * Found on resume extraction in production: the same CV read twice produced
+   * 2,246 output tokens once and 7,847 the next time, against an 8,192 ceiling.
+   * A reasoning model's thinking varies run to run and is billed against the
+   * same budget, so a long think left the JSON cut off mid-object. The empty-
+   * answer case below was already retried; a cut-off answer went straight
+   * through and failed to parse downstream, with nothing saying why.
+   *
+   * Reported, not thrown. Callers decide: extraction turns it into a clear
+   * "try again", while services with their own schema retry (the cover letter)
+   * keep the chance that a second attempt comes back shorter — throwing here
+   * would have taken that away from them.
+   */
+  truncated: boolean
+}
 
 const INR_PER_USD = 84
 
@@ -152,7 +173,13 @@ async function callOpenAICompatible(baseUrl: string, apiKey: string, model: stri
         ')'
     )
   }
-  return { text, inputTokens: usage?.prompt_tokens ?? 0, outputTokens: usage?.completion_tokens ?? 0 }
+  return {
+    text,
+    inputTokens: usage?.prompt_tokens ?? 0,
+    outputTokens: usage?.completion_tokens ?? 0,
+    // Content arrived, but the budget ran out before the model finished it.
+    truncated: choice?.finish_reason === 'length',
+  }
 }
 
 async function callAnthropic(apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number) {
@@ -161,7 +188,12 @@ async function callAnthropic(apiKey: string, model: string, system: string, user
   if (!res.ok) throw new AIProviderError(`${res.status}: ${json?.error?.message ?? res.statusText}`)
   const text = (json?.content ?? []).filter((x: any) => x?.type === 'text').map((x: any) => x.text).join('')
   if (!text) throw new AIProviderError('Model response contained no text content')
-  return { text, inputTokens: json?.usage?.input_tokens ?? 0, outputTokens: json?.usage?.output_tokens ?? 0 }
+  return {
+    text,
+    inputTokens: json?.usage?.input_tokens ?? 0,
+    outputTokens: json?.usage?.output_tokens ?? 0,
+    truncated: json?.stop_reason === 'max_tokens',
+  }
 }
 
 async function callProvider(provider: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number, deadlineAt?: number) {
@@ -231,8 +263,10 @@ export async function generate({ system, user, maxTokens, temperature, userId, r
       // ai_usage_log would need a migration to hold it.
       console.log(
         `ai ${route} ${tier.provider}/${tier.model} ${((Date.now() - startedAt) / 1000).toFixed(1)}s ` +
-          `in=${result.inputTokens} out=${result.outputTokens} budget=${maxTokens}`,
+          `in=${result.inputTokens} out=${result.outputTokens} budget=${maxTokens}` +
+          (result.truncated ? ' TRUNCATED (hit the token budget before finishing)' : ''),
       )
+      // Logged whether or not it was cut off: a truncated answer was still paid for.
       void logUsage(userId ?? null, route, tier.model, result.inputTokens, result.outputTokens, promptVersionId)
       return result
     } catch (e) {
