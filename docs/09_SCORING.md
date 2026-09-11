@@ -142,14 +142,17 @@ looks authoritative would be worse than an honest equal split.
 |---|---|
 | `/ats-scan` | The free scan entry point — upload or paste, optional job description |
 | `/gulf-readiness` | The free scan **results** |
-| `/gcc-readiness` | A signed-in user's **two** scores against their saved profile, as two tabs: Profile Strength (completeness, with the missing-fields list) and Gulf Readiness (the full unlocked report — dimensions, strengths, gaps, every ranked recommendation). `?tab=gulf` opens the second. Since 2026-09-11. |
+| `/profile` | A signed-in user's **two** scores, live as they type, in the "Improve your profile" panel under the header: Profile Strength (completeness, missing items that jump to their field) and Gulf Readiness (top three ranked fixes; the full report on tap). `?improve=gulf` opens the second tab. Since 2026-09-11. |
+| `/gcc-readiness` | **A redirect to `/profile`** since 2026-09-11 (`?tab=gulf` → `?improve=gulf`). |
 
-**`/gulf-readiness` and `/gcc-readiness` are one letter apart and are different
-things.** That naming is a live problem, not a quirk — recorded in
-[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md).
+**`/gulf-readiness` and `/gcc-readiness` are one letter apart**, which was a live trap
+until 2026-09-11; `/gcc-readiness` is now only a redirect, so they no longer lead to two
+different pages. What remains is recorded in [`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md) §B6.
 
-The signed-in readiness page derives its input **identically** to the dashboard's
-readiness card — verified field by field, not assumed — so the two can never disagree.
+**The profile page scores the editor; the dashboard scores the saved profile.** Same
+engine, same field mapping, same scenario reconstruction — so the two agree whenever the
+profile is saved, and the profile page runs ahead of the dashboard only while there are
+unsaved edits, which is the point of it being live.
 
 ---
 

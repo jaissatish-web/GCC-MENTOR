@@ -54,9 +54,9 @@ export function ScorecardResult({
   locked: boolean
   /**
    * What was scored. Only the thin-input note depends on it: "upload a cleaner
-   * export" is true advice after a resume scan, and false on /gcc-readiness,
-   * where the score is read from the saved Career Profile and there is no
-   * upload to redo.
+   * export" is true advice after a resume scan, and false in the Career
+   * Profile's Improve panel, where the score is read from the profile and there
+   * is no upload to redo.
    */
   source?: 'resume' | 'profile'
 }) {

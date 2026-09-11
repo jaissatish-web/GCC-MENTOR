@@ -67,7 +67,7 @@ const QUICK_ACTIONS: ReadonlyArray<{
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   tint: string
 }> = [
-  { label: 'Check profile strength', href: '/gcc-readiness', icon: ChartBarIcon, tint: 'bg-teal-soft text-teal' },
+  { label: 'Check profile strength', href: '/profile', icon: ChartBarIcon, tint: 'bg-teal-soft text-teal' },
   { label: 'Optimize my CV for a job', href: '/optimize/target', icon: DocumentTextIcon, tint: 'bg-gold-soft text-gold-ink' },
   { label: 'Write a cover letter', href: '/cover-letter', icon: EnvelopeIcon, tint: 'bg-sec-summary/10 text-sec-summary' },
   { label: 'Open my Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, tint: 'bg-ok-soft text-ok' },
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                       ? readiness?.category ? categoryLabel(readiness.category) : undefined
                       : 'Not started'
                 }
-                href="/gcc-readiness"
+                href="/profile"
               />
               <MetricTile
                 label="Resume Library"
@@ -466,12 +466,12 @@ export default function DashboardPage() {
               complete your profile is". Rendered only when a profile exists. */}
           {gulfAnswers && profile ? (
             <Reveal delay={185}>
-              {/* The mapping is shared with /gcc-readiness, so the card and the
-                  full report there can never show two numbers. */}
+              {/* The mapping is shared, so this card and the Career Profile's
+                  Improve panel read the same facts through the same engine. */}
               <LiveReadiness
                 answers={gulfAnswers}
                 profile={scoringInputFromProfile(profile)}
-                detailsHref="/gcc-readiness?tab=gulf"
+                detailsHref="/profile?improve=gulf"
               />
             </Reveal>
           ) : null}

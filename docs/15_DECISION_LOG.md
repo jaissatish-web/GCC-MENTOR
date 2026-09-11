@@ -12,6 +12,39 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — Career Profile and Profile Strength become one page
+
+**Founder decision.** He proposed merging them; of the three options put to him he chose
+the compact panel over putting the full Gulf report on the profile page.
+
+**Half of it already existed.** The Career Profile page was already the live Profile
+Strength view — the ring, "N items left", points per section — computed from the editor
+as the user types. The separate page read only the SAVED profile, so it could disagree
+with an unsaved edit, and checking it meant leaving the editor, which silently drops
+unsaved edits (open items §B5).
+
+**Now:** an "Improve your profile" panel under the Career Profile header, with two tabs,
+each carrying its live score:
+- **Profile Strength** — the missing items, each opening its section and focusing its field.
+- **Gulf Readiness** — the top three ranked fixes; "Show the full report" expands the same
+  `ScorecardResult` inline.
+
+Both recompute as the user types. Gulf Readiness returns to the editor it left on
+2026-08-18 — compact this time — and the dashboard card stays where it is.
+
+**Not the full report by default.** The page is already an import panel plus nine sections;
+the full report above them would push the form a whole screen down on a phone.
+
+**"Profile Strength" leaves the menu** (seven destinations again). `/gcc-readiness`
+redirects to `/profile` — `?tab=gulf` to `?improve=gulf` — so every old link still lands.
+That also takes one of the two one-letter-apart readiness routes out of use as a
+destination (open items §B6).
+
+**Hidden until the profile has a name.** Before that the page's job is the import panel,
+and a list of every empty field is not a welcome.
+
+---
+
 ## 2026-09-11 — "Target Jobs" is "Resume Library" again
 
 **Founder decision**, asked for directly and confirmed after the 2026-09-09 reasoning was put

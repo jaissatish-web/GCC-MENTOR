@@ -83,7 +83,8 @@ screens have not been seen rendered. The founder should check them on the deploy
   `lib/readiness.ts` completeness score (Profile Strength) and the arithmetic Gulf
   Readiness market score. The founder chose **2026-08-18 to show both** (each clearly
   labelled as a different thing): both sit on the dashboard, and since **2026-09-11**
-  `/gcc-readiness` carries both as two tabs, each with what raises it. So this is now a deliberate
+  the Career Profile's "Improve your profile" panel carries both as two tabs, live as
+  the user types, each with what raises it. So this is now a deliberate
   two-number design, not an accidental duplication — reconciling onto a single engine is
   deferred by that decision, not outstanding cleanup.
 
@@ -132,9 +133,9 @@ routes are fully tidy:
 
 - **The old `/ats-scan` → `/gulf-readiness` flow still exists** alongside the new
   `/gulf-readiness-score`. They overlap. Decide whether the old one is retired or kept for
-  the job-description/Job Match path. Three readiness route names now coexist
-  (`/gulf-readiness`, `/gcc-readiness`, `/gulf-readiness-score`) — worth consolidating
-  deliberately, not urgently.
+  the job-description/Job Match path. Two readiness pages still coexist
+  (`/gulf-readiness`, `/gulf-readiness-score`); `/gcc-readiness` has been only a redirect
+  since 2026-09-11 — worth consolidating deliberately, not urgently.
 
 The weights and the twelve band messages are first-draft numbers in
 `lib/gulfReadiness/config.ts`, meant to be tuned once real scores come in.
@@ -411,12 +412,11 @@ already does. **Deliberately not chosen unilaterally.**
 
 ### B6 · Two routes one letter apart mean different things
 
-`/gulf-readiness` is the **anonymous scan's results**. `/gcc-readiness` is a **signed-in
-user's readiness against their saved profile**. Both are legitimate; the names are a
-trap for anyone maintaining either.
-
-Related: **`/gcc-readiness` is not in the navigation** at all. It is reachable only from
-the dashboard's readiness card. That may be correct, but it should be deliberate.
+**Half-resolved 2026-09-11.** `/gcc-readiness` is now only a redirect into `/profile`
+(Career Profile and Profile Strength became one page), so the one-letter trap no longer
+leads to two different pages. What remains is the anonymous side: `/gulf-readiness` (the
+old scan's results) beside `/gulf-readiness-score` (the current Scorecard) — see
+`WORK_QUEUE.md` W8.
 
 ### ~~`text-ink-400` fails contrast on every surface~~ — **fixed 2026-09-08**
 

@@ -153,10 +153,12 @@ wide-reaching, and it has already caused two shipped defects. Best done in one p
 delete the aliases.
 Traces to: open items §B7 · Hermes · Medium.
 
-### W8 · Resolve the two readiness route names
-`/gulf-readiness` and `/gcc-readiness` are one letter apart and mean different things, and
-one of them is not in the navigation at all. Renaming a route is a route change — it needs
-an explicit decision, not a tidy-up.
+### W8 · Resolve the anonymous readiness route names
+**Half-resolved 2026-09-11:** `/gcc-readiness` is now only a redirect into `/profile`, so
+there is no longer a signed-in page one letter away from `/gulf-readiness`. What remains is
+the anonymous side — `/gulf-readiness` (old scan results) beside `/gulf-readiness-score`
+(the current Scorecard). Renaming a route is a route change — it needs an explicit
+decision, not a tidy-up.
 Traces to: open items §B6 · **Needs a founder answer.**
 
 ### W9 · Close the profile editor's silent data loss

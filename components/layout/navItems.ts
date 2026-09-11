@@ -82,15 +82,10 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, exact: true },
   { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
-  // Added 2026-09-09. It was a live, finished screen reachable only from one
-  // dashboard card, so a user who scrolled past that card had no route to it
-  // at all — and it is the free half of the product, the thing someone is
-  // meant to try before paying.
-  // WAS "Gulf Readiness", when the page this opens showed only Profile Strength —
-  // the menu promised one score and delivered the other. Since 2026-09-11 the page
-  // carries both, as two tabs; the label stays "Profile Strength", the founder's
-  // name for it and the first tab.
-  { label: 'Profile Strength', href: '/gcc-readiness', icon: ChartBarIcon, needsProfile: true, shortLabel: 'Strength' },
+  // "Profile Strength" (/gcc-readiness) sat here from 2026-09-09 to 2026-09-11.
+  // It left when Career Profile and Profile Strength became one page (founder
+  // decision): both scores and what raises each now live on /profile, and
+  // /gcc-readiness redirects there.
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.

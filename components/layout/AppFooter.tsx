@@ -35,8 +35,9 @@ import { GulfFlag, isGulfFlagCountry } from '@/components/ui/GulfFlag'
  * be changed without a developer or a deploy.
  */
 
+// Profile Strength is part of Career Profile since 2026-09-11, so it has no
+// separate link here.
 const LIVE_SERVICES = [
-  { label: 'Profile Strength', href: '/gcc-readiness' },
   { label: 'Career Profile', href: '/profile' },
   { label: 'Resume Optimizer', href: '/optimize/target' },
   { label: 'Cover Letter', href: '/cover-letter' },

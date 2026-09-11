@@ -18,7 +18,8 @@ import type { FunnelAnswers } from '@/lib/gulfReadiness/types'
  * answers, it shows a score. No network, no model, no side effects.
  *
  * `detailsHref` (2026-09-11): where the full breakdown lives. The card shows one
- * "Next:" hint; the ranked plan behind it is on /gcc-readiness?tab=gulf.
+ * "Next:" hint; the ranked plan behind it is in the Career Profile's Improve
+ * panel (/profile?improve=gulf).
  */
 
 export function LiveReadiness({

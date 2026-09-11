@@ -399,13 +399,15 @@ The desktop sidebar, the mobile bottom bar and the "More" drawer all render from
 They used to be three separate copies, and they had **already drifted** — the mobile
 bar still showed a renamed item and a destination that had moved.
 
-**Eight destinations, in this founder-specified order:**
+**Seven destinations, in this founder-specified order:**
 
-Dashboard · Career Profile · Profile Strength · Resume Library · Resume Templates ·
+Dashboard · Career Profile · Resume Library · Resume Templates ·
 Resume Optimizer · Cover Letter · Settings
 
 **Job Match** was removed with the standalone service on 2026-09-04. **Profile Strength**
-(`/gcc-readiness`) joined on 2026-09-09. **Resume Library** was "Target Jobs" from
+(`/gcc-readiness`) was a destination from 2026-09-09 to 2026-09-11; it is now part of
+Career Profile, whose "Improve your profile" panel carries both scores, and the old route
+redirects there. **Resume Library** was "Target Jobs" from
 2026-09-09 to 2026-09-11 and is "Resume Library" again by founder decision — only the name
 went back; each row still leads with the job and its stage (see the decision log). The
 bottom bar shortens it to "Library". The route (`/dashboard/library`) never changed, so no

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Suspense,
   useCallback,
+  useDeferredValue,
   useEffect,
   useMemo,
   useRef,
@@ -17,12 +18,14 @@ import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Toggle } from '@/components/ui/Toggle'
 import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import { ResumeImport } from '@/components/profile/ResumeImport'
+import { ImprovePanel } from '@/components/profile/ImprovePanel'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
 import { mergeDraftIntoProfile, describeReplaceLosses } from '@/lib/profileMerge'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import { calculateReadiness, fieldPointsFor, type ReadinessResult } from '@/lib/readiness'
+import { answersFromReadinessCategory, scoreProfileReadiness } from '@/lib/gulfReadiness/fromProfile'
 import { toDateInputValue, toMonthInputValue } from '@/lib/partialDates'
 import { splitPhone, joinPhone } from '@/lib/phone'
 import { TextField, TextAreaField, SelectField, DateField, PhoneField } from '@/components/ui/FormField'
@@ -1090,6 +1093,71 @@ function ProfileScreen() {
     setOpenSections((prev) => ({ ...prev, [sectionId]: !prev[sectionId] }))
   }, [])
 
+  // ---- "Improve your profile" (2026-09-11) ----------------------------------
+  // Career Profile and Profile Strength are one page (founder decision). The
+  // panel under the header carries both scores: Profile Strength is `readiness`
+  // above, and Gulf Readiness is computed here.
+  //
+  // Same engine, field mapping and scenario reconstruction as the dashboard
+  // card — but fed from the EDITOR, so it moves as the user types, like the
+  // ring. Highlights split the way the save splits them, so a saved profile
+  // scores the same here and on the dashboard. Deferred: it reads every text
+  // field, and a keystroke should never wait on it.
+  const deferredEditor = useDeferredValue(editor)
+  const gulfReadiness = useMemo(() => {
+    if (!deferredEditor) return null
+    return scoreProfileReadiness(
+      {
+        professional_summary: deferredEditor.professional_summary,
+        phone: deferredEditor.phone,
+        email: deferredEditor.email,
+        work_experience: deferredEditor.work_experience.map((w) => ({
+          company: w.company,
+          role: w.role,
+          start_date: w.start_date,
+          end_date: w.end_date || null,
+          location: w.location,
+          description: w.description,
+          highlights: w.highlights.split('\n'),
+        })),
+        skills: deferredEditor.skills.map((s) => ({ name: s.name })),
+        certifications: deferredEditor.certifications.map((c) => ({ name: c.name, issuer: c.issuer })),
+        education: deferredEditor.education.map((e) => ({
+          degree: e.degree,
+          institution: e.institution,
+          field_of_study: e.field_of_study,
+        })),
+      },
+      answersFromReadinessCategory(readiness.category),
+    )
+  }, [deferredEditor, readiness.category])
+
+  /**
+   * A missing item in the panel → open the section that owns the field and
+   * focus it. List fields (work experience, skills, …) have no single input,
+   * so those scroll to their section.
+   *
+   * The focus runs in an EFFECT — after React has committed the opened
+   * section — not in a requestAnimationFrame, which never fires in a tab that
+   * is not being painted. Found 2026-09-11: the section opened, the cursor
+   * never arrived.
+   */
+  const [pendingFocus, setPendingFocus] = useState<{ field: string; sectionId?: string } | null>(null)
+  const focusReadinessField = useCallback((field: string) => {
+    const sectionId = Object.entries(SECTION_FIELDS).find(([, fields]) => fields.includes(field))?.[0]
+    if (sectionId) setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
+    setPendingFocus({ field, sectionId })
+  }, [])
+  useEffect(() => {
+    if (!pendingFocus) return
+    const input = document.getElementById(`f_${pendingFocus.field}`)
+    const target = input ?? (pendingFocus.sectionId ? document.getElementById(pendingFocus.sectionId) : null)
+    setPendingFocus(null)
+    if (!target) return
+    target.scrollIntoView({ behavior: 'smooth', block: input ? 'center' : 'start' })
+    if (input) input.focus({ preventScroll: true })
+  }, [pendingFocus])
+
   /** Everything a CardSection needs, so each call site stays one line of props. */
   const sectionProps = useCallback(
     (sectionId: string) => {
@@ -1457,6 +1525,20 @@ function ProfileScreen() {
           </div>
         </div>
       </header>
+
+      {/* IMPROVE YOUR PROFILE — both scores and what raises each (2026-09-11,
+          Career Profile and Profile Strength merged, founder decision). Hidden
+          until the profile has a name: before that this page's job is the
+          import panel below, and a list of every empty field is not a welcome. */}
+      {editor.full_name.trim() ? (
+        <ImprovePanel
+          strengthScore={readiness.score}
+          missing={readiness.missing}
+          gulf={gulfReadiness}
+          initialTab={searchParams.get('improve') === 'gulf' ? 'gulf' : 'strength'}
+          onFix={focusReadinessField}
+        />
+      ) : null}
 
       {/* START OR UPDATE FROM A RESUME — the three ways in that used to live on
           the /create-resume screen and in the sidebar (founder decision

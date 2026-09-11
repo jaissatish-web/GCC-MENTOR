@@ -49,7 +49,7 @@ import { NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } 
 
 /** Groups the flat nav list into something a person can scan. */
 const GROUPS: ReadonlyArray<{ label: string; hrefs: readonly string[]; withSignOut?: true }> = [
-  { label: 'Your career', hrefs: ['/dashboard', '/profile', '/gcc-readiness'] },
+  { label: 'Your career', hrefs: ['/dashboard', '/profile'] },
   { label: 'Applications', hrefs: ['/dashboard/library', '/optimize', '/cover-letter', '/templates'] },
   { label: 'Account', hrefs: ['/settings'], withSignOut: true },
 ]
@@ -75,7 +75,6 @@ if (process.env.NODE_ENV !== 'production') {
 const BLURB: Record<string, string> = {
   '/dashboard': 'Your next step, and where you stand',
   '/profile': 'Built once, used by every CV',
-  '/gcc-readiness': 'Profile Strength and Gulf Readiness',
   '/cover-letter': 'Four tones, written for one job',
   '/dashboard/library': 'Your applications and their stage',
   '/optimize': 'Build a CV for a specific role',

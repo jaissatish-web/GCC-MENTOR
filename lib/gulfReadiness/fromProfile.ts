@@ -44,10 +44,9 @@ export interface ProfileScoringInput {
 /**
  * The scoring input for a SAVED Career Profile.
  *
- * One mapping for every signed-in surface — the dashboard card and the
- * /gcc-readiness page — so the two can never show different Gulf Readiness
- * numbers for the same profile. It used to be written inline on the dashboard;
- * a second inline copy is exactly how two screens drift apart.
+ * The dashboard card's mapping. The Career Profile's Improve panel maps the
+ * editor's live state field-for-field the same way (app/profile/page.tsx), so
+ * a saved profile scores identically on both — keep the two in step.
  */
 export function scoringInputFromProfile(p: CareerProfileFull): ProfileScoringInput {
   return {

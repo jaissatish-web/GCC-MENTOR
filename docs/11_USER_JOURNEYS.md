@@ -97,19 +97,20 @@ Settings. It lands on the home page.
 |---|---|
 | `/dashboard` | Metrics, next step, recent activity, **two readiness cards — Profile Strength (completeness) and Gulf Readiness (market score)** — quick actions, Library preview |
 | `/create-resume` | **Retired 2026-08-18 to a redirect → `/profile`.** Resume creation now happens inline on the profile; this route is kept only so old links, the dashboard CTA and the onboarding fallback still land right. |
-| `/profile` | The Career Profile editor. Opens with an inline **"start or update from a resume"** panel (upload · paste · fill manually) above the user's data — the import runs the parse endpoints *on this screen* and feeds the add-or-replace choice, so building/re-importing and hand-editing are one place with no navigation. `?import=upload`/`?import=paste` opens the matching panel on arrival. |
+| `/profile` | The Career Profile editor — and since 2026-09-11 also where both scores live: under the header, the **"Improve your profile"** panel shows Profile Strength and Gulf Readiness as two live tabs (missing items that jump to their field; the top three ranked Gulf fixes, full report on tap; `?improve=gulf` opens the second). Then an inline **"start or update from a resume"** panel (upload · paste · fill manually) above the user's data — the import runs the parse endpoints *on this screen* and feeds the add-or-replace choice, so building/re-importing and hand-editing are one place with no navigation. `?import=upload`/`?import=paste` opens the matching panel on arrival. |
 | `/profile/visibility` | What appears on a CV |
 | `/dashboard/library` | Every resume — desktop table, mobile cards |
 | `/templates` | The template gallery, previewed on an example CV |
-| `/gcc-readiness` | Both scores against the saved profile, as two tabs: **Profile Strength** (completeness + the missing-fields list) and **Gulf Readiness** (the full report — dimensions, strengths, gaps, every ranked recommendation). `?tab=gulf` opens the second; the dashboard's Gulf Readiness card links there. |
+| `/gcc-readiness` | **A redirect to `/profile`** since 2026-09-11, when Career Profile and Profile Strength became one page. `?tab=gulf` lands on `/profile?improve=gulf`. |
 | `/cover-letter` | Cover letter generation for a paid package — pick a tone (2026-08-18: Professional, Short, Technical, Explanatory) |
 | `/settings` | Account · email · current package · payments · delete data |
 | `/payments` | An honest placeholder. No payment-history feature exists |
 | `/package/[id]` | A finished resume: view, style, edit, download |
 | `/package/[id]/edit` | **That resume's own editor** (2026-08-19): summary and bullets, section by section, with a live preview of the real template. Batched save, then back to the resume |
 
-**`/gcc-readiness` is in the navigation as "Profile Strength"** (added 2026-09-09), and
-is also reached from the dashboard's Profile Strength metric and its Gulf Readiness card.
+**Both scores live on `/profile`** since 2026-09-11 — the "Improve your profile" panel
+under the header — and the dashboard's Profile Strength tile and Gulf Readiness card both
+link there. `/gcc-readiness` survives only as a redirect, so old links still land.
 
 **The dashboard's readiness card is the primary "your profile is incomplete" call to
 action.** It once silently changed to point at a route that did not exist yet, which
