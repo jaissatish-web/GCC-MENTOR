@@ -12,6 +12,36 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-11 — Sign out, from the three-bar menu
+
+**Founder request:** "after login there should be signout cta also in right side three bar
+option so user can easly signout."
+
+**There was no way to sign out at all.** Not in the menu, not in Settings, nowhere — the
+only `signOut()` in the codebase ran after "delete my data". A session simply lasted until
+its cookie expired. For an audience that often uses a shared or borrowed phone that is a
+privacy defect, not just a missing button: the next person to pick the phone up had the
+previous one's date of birth, passport type, visa status and work history.
+
+**Where.** The three-bar menu, under Account, directly below Settings. The three-bar is the
+only navigation present at every screen size, so one placement covers phone, tablet and
+desktop. Under Account rather than at the very bottom, so it is reachable without scrolling
+past the "Not built yet" group.
+
+**Not red.** In this product red means "not built yet" (2026-09-09). A red Sign out would
+read as an unbuilt feature. It is a neutral row.
+
+**No confirmation step.** Signing out loses nothing and is undone by signing in; a confirm
+would be friction that protects nothing.
+
+**This device only** (`scope: 'local'`) — signing out on a phone does not also sign the
+same person out of their laptop. **If Supabase cannot be reached to revoke the session, the
+session cookies are deleted anyway**: a Sign out that leaves the user signed in is the one
+failure this button must not have. It lands on the home page, the same place deleting your
+data lands.
+
+---
+
 ## 2026-09-09 — Red marks everything unbuilt, and the team is named
 
 Four founder requests, and two of them are worth recording rather than just doing.

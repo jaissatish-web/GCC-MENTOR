@@ -423,6 +423,11 @@ collapses to icon-only, expandable on tap, with nothing hidden; mobile (<768px) 
 5-slot bottom bar plus a "More" drawer holding **every** remaining destination, so
 nothing becomes unreachable on a phone.
 
+**Sign out lives in the three-bar menu** (2026-09-11), under Account, below Settings —
+the one menu present at every width, so one placement covers all three. It is an action,
+not a destination, so it is **not** in `navItems.ts` and never appears in the sidebar or
+the bottom bar. Neutral, never red: red means "not built yet".
+
 **Planned services appear in the nav dimmed and non-interactive**, under their own
 "coming soon" heading — never as links. This was a deliberate change from the original
 rule of "no nav entry at all": the founder wanted the roadmap visible, and chose the

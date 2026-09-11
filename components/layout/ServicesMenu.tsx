@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Bars3Icon } from '@heroicons/react/24/outline'
+import { ArrowRightStartOnRectangleIcon, Bars3Icon } from '@heroicons/react/24/outline'
 import { SideSheet, SheetGroupLabel } from '@/components/ui/SideSheet'
+import { signOut } from '@/app/auth/actions'
 import { cn } from '@/lib/utils'
 import { NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
 
@@ -40,15 +41,17 @@ import { NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } 
  * 64px tall for exactly that reason. The fix lives in SideSheet once rather
  * than in two copies.
  *
- * NAVIGATION IS THE ONLY THING IT DOES. It reads `NAV_ITEMS`, the same array
- * the sidebar and the bottom bar read, so the three can never drift.
+ * NAVIGATION, PLUS ONE ACTION. It reads `NAV_ITEMS`, the same array the sidebar
+ * and the bottom bar read, so the three can never drift. The one thing here
+ * that is not navigation is Sign out (2026-09-11) — an action, not a
+ * destination, so it lives in this file and not in `navItems.ts`.
  */
 
 /** Groups the flat nav list into something a person can scan. */
-const GROUPS: ReadonlyArray<{ label: string; hrefs: readonly string[] }> = [
+const GROUPS: ReadonlyArray<{ label: string; hrefs: readonly string[]; withSignOut?: true }> = [
   { label: 'Your career', hrefs: ['/dashboard', '/profile', '/gcc-readiness'] },
   { label: 'Applications', hrefs: ['/dashboard/library', '/optimize', '/cover-letter', '/templates'] },
-  { label: 'Account', hrefs: ['/settings'] },
+  { label: 'Account', hrefs: ['/settings'], withSignOut: true },
 ]
 
 /**
@@ -114,6 +117,43 @@ function MenuRow({ item, onNavigate, active }: { item: NavItem; onNavigate: () =
   )
 }
 
+/**
+ * Sign out — shaped like a menu row, but a form posting to a server action.
+ *
+ * NEUTRAL, NEVER RED. In this product red means "not built yet"; a red Sign out
+ * would read as an unbuilt feature. The grey chip also keeps it from looking
+ * like one more teal destination.
+ *
+ * NO CONFIRM. Signing out loses nothing and is undone by signing in.
+ *
+ * A form rather than an onClick, so it still works before the page's script
+ * has loaded. The label changes on submit so a slow connection does not look
+ * like a dead button, and the button disables so a second tap does nothing.
+ */
+function SignOutRow() {
+  const [pending, setPending] = useState(false)
+  return (
+    <form action={signOut} onSubmit={() => setPending(true)}>
+      <button
+        type="submit"
+        disabled={pending}
+        className={cn(
+          'flex min-h-[52px] w-full items-center gap-3 rounded-ctl bg-white px-3.5 py-3 text-left shadow-m-1 transition-colors',
+          'hover:bg-canvas disabled:cursor-default disabled:opacity-70',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
+        )}
+      >
+        <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-canvas text-ink-soft">
+          <ArrowRightStartOnRectangleIcon className="size-[18px]" />
+        </span>
+        <span className="text-[14px] font-semibold leading-tight text-ink">
+          {pending ? 'Signing out…' : 'Sign out'}
+        </span>
+      </button>
+    </form>
+  )
+}
+
 export function ServicesMenu() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname() ?? ''
@@ -145,13 +185,16 @@ export function ServicesMenu() {
       <SideSheet open={open} onClose={close} title="All services" returnFocusTo={triggerRef}>
         {GROUPS.map((group) => {
           const rows = group.hrefs.map(itemFor).filter(Boolean) as NavItem[]
-          if (rows.length === 0) return null
+          if (rows.length === 0 && !group.withSignOut) return null
           return (
             <div key={group.label} className="flex flex-col gap-2">
               <SheetGroupLabel>{group.label}</SheetGroupLabel>
               {rows.map((item) => (
                 <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} />
               ))}
+              {/* Under Account, not at the very bottom: reachable without
+                  scrolling past the roadmap. */}
+              {group.withSignOut ? <SignOutRow /> : null}
             </div>
           )
         })}

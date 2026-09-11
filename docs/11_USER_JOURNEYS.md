@@ -86,6 +86,9 @@ tokens in the URL *fragment*, which a server route cannot read at all, so the ca
 never saw a code and always reported failure — while Supabase had authenticated the
 user correctly. It is completed on the login page and the fragment is cleared.
 
+**Signing out** is in the three-bar menu on every signed-in page, under Account, below
+Settings. It lands on the home page.
+
 ---
 
 ## 3. The signed-in surface

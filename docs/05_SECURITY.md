@@ -25,6 +25,12 @@ implicit-flow tokens in the URL *fragment*, which a server route cannot read at
 all, so the callback never saw a code and always failed. The fragment is now
 completed client-side on the login page and cleared from the URL.
 
+**Sign-out** is a server action, `app/auth/actions.ts`, reached from the three-bar
+menu. Until 2026-09-11 there was no way to sign out at all. It revokes **this device's**
+session only (`scope: 'local'`), and if the revoke call fails it deletes the `sb-`
+session cookies regardless — the browser must never stay signed in after the user asked
+to leave.
+
 ---
 
 ## 2. Authorization — the three questions, kept separate
