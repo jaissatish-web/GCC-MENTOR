@@ -6,6 +6,7 @@ import { buttonVariants } from '@/components/ui/Button'
 import { NotLiveText } from '@/components/ui/NotLive'
 import { GulfFlag, isGulfFlagCountry } from '@/components/ui/GulfFlag'
 import { SiteNav } from '@/components/marketing/SiteNav'
+import { PainPointCarousel } from '@/components/landing/PainPointCarousel'
 import { TemplateOrbit } from '@/components/landing/TemplateOrbit'
 import { TemplateShowcase } from '@/components/landing/TemplateShowcase'
 import {
@@ -14,11 +15,8 @@ import {
   ChartBarIcon,
   ChatBubbleLeftRightIcon,
   CheckCircleIcon,
-  ClockIcon,
-  DocumentMagnifyingGlassIcon,
   DocumentTextIcon,
   EnvelopeIcon,
-  MapPinIcon,
   QuestionMarkCircleIcon,
   RectangleStackIcon,
   ShieldCheckIcon,
@@ -28,29 +26,6 @@ type Icon = ComponentType<{ className?: string }>
 
 const countries = GULF_COUNTRIES.filter((country) => country.value !== 'generic_gulf')
 const heroImage = '/landing/hero-gcc-engineer.png'
-
-const painPoints: Array<{ icon: Icon; title: string; body: string }> = [
-  {
-    icon: ClockIcon,
-    title: 'Many applications, no replies',
-    body: 'You keep applying, but recruiters stay silent. The page tells the truth: the problem is often hidden in matching, format, and Gulf-specific signals.',
-  },
-  {
-    icon: DocumentMagnifyingGlassIcon,
-    title: 'One generic CV for every job',
-    body: 'A strong career can look weak when the resume is not rebuilt for the exact job description, keywords, scope, and country expectations.',
-  },
-  {
-    icon: MapPinIcon,
-    title: 'Gulf hiring has its own rules',
-    body: 'Visa position, site exposure, client standards, certifications, project type, and role level all change how your profile is read.',
-  },
-  {
-    icon: ChatBubbleLeftRightIcon,
-    title: 'Shortlisted, but not confident',
-    body: 'A better CV can win the call. The next challenge is answering from your real experience with confidence, structure, and technical clarity.',
-  },
-]
 
 const services: Array<{
   icon: Icon
@@ -199,14 +174,14 @@ function SectionHeader({
       <Eyebrow onDark={onDark}>{eyebrow}</Eyebrow>
       <h2
         className={cn(
-          'max-w-[25ch] font-display text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[40px]',
+          'max-w-[335px] font-display text-[28px] font-semibold leading-[1.08] tracking-[-0.02em] sm:max-w-[25ch] sm:text-[40px]',
           onDark ? 'text-white' : 'text-ink',
         )}
       >
         {title}
       </h2>
       {body ? (
-        <p className={cn('max-w-[66ch] text-[15.5px] leading-relaxed', onDark ? 'text-teal-soft/90' : 'text-ink-soft')}>
+        <p className={cn('max-w-[320px] text-[15.5px] leading-relaxed sm:max-w-[66ch]', onDark ? 'text-teal-soft/90' : 'text-ink-soft')}>
           {body}
         </p>
       ) : null}
@@ -505,17 +480,7 @@ export default function Home() {
             title="The silence after applying is not random."
             body="GCC Mentor is designed around the problems job seekers feel every week: many applications, no recruiter replies, weak ATS fit, generic cover letters, and interview fear after the shortlist."
           />
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {painPoints.map((point) => (
-              <article key={point.title} className="rounded-card border border-line bg-white p-5 shadow-m-1">
-                <span className="flex size-11 items-center justify-center rounded-ctl bg-teal-soft text-teal">
-                  <point.icon className="size-5" />
-                </span>
-                <h3 className="mt-4 font-display text-[18px] font-semibold leading-snug text-ink">{point.title}</h3>
-                <p className="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{point.body}</p>
-              </article>
-            ))}
-          </div>
+          <PainPointCarousel />
         </section>
 
         <section id="services" className="border-y border-line bg-white">

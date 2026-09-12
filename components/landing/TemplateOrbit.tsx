@@ -15,10 +15,10 @@ import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
 
 const PAGE_W = 794
 const PAGE_H = 1123
-const MINI_W = 136
+const MINI_W = 140
 const MINI_INNER_W = MINI_W - 12
 const MINI_SCALE = MINI_INNER_W / PAGE_W
-const MINI_H = 188
+const MINI_H = 194
 const ORBIT_SECONDS = 38
 const FRONT_ANGLE = Math.PI / 2
 
@@ -174,8 +174,9 @@ export function TemplateOrbit() {
     const orbitBox = orbitRef.current
     const width = orbitBox?.clientWidth ?? 620
     const height = orbitBox?.clientHeight ?? 520
-    const radiusX = Math.min(206, Math.max(118, width * 0.31))
-    const radiusY = Math.min(124, Math.max(92, height * 0.21))
+    const isCompact = width < 520
+    const radiusX = Math.min(isCompact ? 148 : 218, Math.max(isCompact ? 92 : 128, width * 0.34))
+    const radiusY = Math.min(isCompact ? 108 : 136, Math.max(isCompact ? 74 : 96, height * 0.21))
     let frontIndex = 0
     let frontDepth = -1
 
@@ -187,13 +188,12 @@ export function TemplateOrbit() {
       const sin = Math.sin(angle)
       const cos = Math.cos(angle)
       const depth = (sin + 1) / 2
-      const scale = 0.58 + depth * 0.78
+      const scale = (isCompact ? 0.5 : 0.52) + depth * (isCompact ? 0.98 : 1.08)
       const x = cos * radiusX
-      const y = sin * radiusY - (1 - depth) * 18
-      const opacity = 0.46 + depth * 0.54
-      const brightness = 0.84 + depth * 0.18
-      const saturation = 0.78 + depth * 0.22
-      const tilt = cos * -3.5
+      const y = sin * radiusY + depth * (isCompact ? 22 : 30) - (1 - depth) * (isCompact ? 12 : 18)
+      const opacity = 0.36 + depth * 0.64
+      const brightness = 0.82 + depth * 0.2
+      const saturation = 0.74 + depth * 0.26
 
       if (depth > frontDepth) {
         frontDepth = depth
@@ -205,7 +205,7 @@ export function TemplateOrbit() {
       slot.style.zIndex = String(Math.round(depth * 100) + 10)
       if (face) {
         face.style.filter = `saturate(${saturation.toFixed(3)}) brightness(${brightness.toFixed(3)})`
-        face.style.transform = `rotate(${tilt.toFixed(2)}deg)`
+        face.style.transform = 'translateZ(0)'
       }
       slot.classList.toggle('is-visual-front', depth > 0.92)
       slot.classList.toggle('is-visual-back', depth < 0.18)
@@ -255,7 +255,7 @@ export function TemplateOrbit() {
         <div>
           <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal">10 actual GCC templates</span>
           <h3 className="mt-2 font-display text-[24px] font-semibold leading-tight text-ink">
-            Real resume previews on a tilted circular path.
+            Real resume previews on an upright circular stage.
           </h3>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-gold-ink">
@@ -267,7 +267,8 @@ export function TemplateOrbit() {
       <div
         ref={orbitRef}
         className={cn(
-          'actual-template-orbit relative mx-auto mt-7 h-[600px] max-w-[620px] overflow-hidden rounded-card border border-line bg-canvas',
+          'actual-template-orbit relative mx-auto mt-7 max-w-[620px] overflow-hidden rounded-card border border-line bg-canvas',
+          'h-[500px] sm:h-[560px] lg:h-[600px]',
           paused && 'is-paused',
         )}
         style={
