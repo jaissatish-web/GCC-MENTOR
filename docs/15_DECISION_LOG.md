@@ -42,6 +42,21 @@ job is saved, try again — instead of a generic failure.
 
 ---
 
+## 2026-09-12 — One service package is one model call
+
+**Founder decision.** Splitting a CV build into one call per job, run in parallel, was
+proposed to cut a large build (14 jobs, ~130s) to ~20–40s. The founder refused: a service
+package is generated in ONE call, for a better result.
+
+**Why that is right.** One call sees the whole career at once — consistent voice, no
+phrase repeated across jobs, skills ordered against everything — and the profile and
+system prompt are sent once rather than once per chunk. **Do not propose chunking a
+package again.** Speed has to come from inside the one call: less reasoning, a faster
+model, or a faster upstream — each measured against the current output before it is
+adopted.
+
+---
+
 ## 2026-09-12 — A stalled AI call can no longer hang a build for five minutes
 
 **Founder report:** optimizing again showed the same error. Vercel's log: `POST
