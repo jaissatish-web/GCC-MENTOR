@@ -43,11 +43,12 @@ import { PublicMenu } from './PublicMenu'
  * the three-bar panel, so it cannot drift from the header either.
  */
 const ITEMS = [
-  ['The path', '#path'],
-  ['Not built yet', '#roadmap'],
-  ['Who built it', '#about'],
+  ['Pain points', '#pain'],
+  ['Services', '#services'],
+  ['Templates', '#templates'],
+  ['Interview prep', '#interview'],
   ['Pricing', '#pricing'],
-  ['Questions', '#faq'],
+  ['FAQ', '#faq'],
 ] as const
 
 export function SiteNav() {

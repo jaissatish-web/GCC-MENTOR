@@ -6,14 +6,15 @@ import {
   Bars3Icon,
   BriefcaseIcon,
   ChartBarIcon,
+  ChatBubbleLeftRightIcon,
   DocumentTextIcon,
   EnvelopeIcon,
+  QuestionMarkCircleIcon,
   RectangleStackIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
 import { SideSheet, SheetGroupLabel } from '@/components/ui/SideSheet'
-import { PLANNED_NAV_ITEMS } from '@/components/layout/navItems'
 import { cn } from '@/lib/utils'
 
 /**
@@ -38,8 +39,8 @@ import { cn } from '@/lib/utils'
  * signed-in user to their dashboard, so the account buttons are safe for them
  * too.
  *
- * NOT BUILT YET reads from `PLANNED_NAV_ITEMS`, the same list the app menu
- * uses, so the roadmap cannot say one thing outside and another inside.
+ * SERVICES mirrors the public landing offer, so the mobile menu cannot drift
+ * from what the page is selling.
  *
  * ANCHOR LINKS CLOSE THE SHEET FIRST, then scroll — from an effect, not from a
  * frame callback. The first version scrolled inside `requestAnimationFrame`,
@@ -59,6 +60,8 @@ const SERVICES = [
   { label: 'Resume Optimizer', href: '/optimize/target', icon: DocumentTextIcon, blurb: 'Rewritten for the Gulf, never invented', tag: '₹499' },
   { label: 'CV Templates', href: '/templates', icon: RectangleStackIcon, blurb: 'Fifteen Gulf formats', tag: 'Included' },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon, blurb: 'Four tones, same profile', tag: '₹999' },
+  { label: 'Interview Q&A', href: '/signup', icon: QuestionMarkCircleIcon, blurb: 'Answers from your optimized resume', tag: 'Live' },
+  { label: 'Mock Interview', href: '/signup', icon: ChatBubbleLeftRightIcon, blurb: 'Speaking and confidence feedback', tag: 'Live' },
 ] as const
 
 export function PublicMenu({ anchors }: { anchors: ReadonlyArray<readonly [string, string]> }) {
@@ -151,26 +154,6 @@ export function PublicMenu({ anchors }: { anchors: ReadonlyArray<readonly [strin
             >
               {label}
             </a>
-          ))}
-        </div>
-
-        {/* ── Roadmap, never links ── */}
-        <div className="flex flex-col gap-2">
-          <SheetGroupLabel tone="alert">Not built yet</SheetGroupLabel>
-          {PLANNED_NAV_ITEMS.map((item) => (
-            <div
-              key={item.label}
-              aria-disabled="true"
-              className="flex min-h-[52px] items-center gap-3 rounded-ctl border border-dashed border-alert/40 bg-alert-soft/30 px-3.5 py-3"
-            >
-              <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-alert-soft text-alert">
-                <item.icon className="size-[18px]" />
-              </span>
-              <span className="text-[14px] font-semibold text-ink-muted">{item.label}</span>
-              <span className="ml-auto rounded-full border border-alert/35 bg-alert-soft px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-alert">
-                Soon
-              </span>
-            </div>
           ))}
         </div>
       </SideSheet>
