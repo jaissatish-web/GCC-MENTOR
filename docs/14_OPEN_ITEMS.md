@@ -154,7 +154,10 @@ The account is on the **Hobby plan, where 60s is a hard cap** no setting can rai
 > then killed a founder build with no job description before the model finished. **The
 > cap is removed from the optimizer too**, so the margin problem below was a setting, not
 > a wall. The provider's retry deadline keeps its old ~54s, so only the first attempt got
-> more room. Worth confirming the actual ceiling in Vercel → Settings → Functions.
+> more room. **Confirmed 2026-09-12: the ceiling is 300s** (Vercel runtime log, "Task
+> timed out after 300 seconds"). Still to do: `app/api/packages/[id]/cover-letter/route.ts`
+> sets its own `maxDuration = 60` — the same self-imposed cap, on a route that can make up
+> to four sequential model calls. Not yet changed.
 
 Fixed by moving the structuring call into Phase A (migration 045,
 `packages.structured_job`), and by making the provider's doubled-budget reasoning retry

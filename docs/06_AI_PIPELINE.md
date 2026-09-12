@@ -61,6 +61,14 @@ the same CV at 2,246 output tokens once and 7,847 the next, against the old 8,19
 the JSON off; a truncated extraction is refused with a clear "try again" rather than parsed.
 Every other service receives the flag and keeps its existing behaviour.
 
+**A stalled answer is not waited on (2026-09-12).** Every provider attempt has a stall
+timeout (150s; `AI_STALL_TIMEOUT_MS` overrides) and a give-up point it never runs past
+(280s from the call by default; a route with several calls passes its own). A stalled
+attempt is retried once when at least 90s remain — OpenRouter routes each request afresh,
+so a retry usually reaches a different, healthy upstream. Each call logs the upstream that
+served it (`via <provider>`) with its duration. Found when a CV build hung for the
+platform's full 300s on one model call that never answered.
+
 **Reasoning models spend the budget before writing anything** — an
 under-budgeted call returns thinking tokens and null content, which reads like a
 refusal and is not one. Budgets are set per service and a minimum applies: a

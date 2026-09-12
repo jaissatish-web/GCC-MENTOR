@@ -268,6 +268,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // `maxDuration`; see the note at the top). Kept at its old value on purpose,
   // so a slow first attempt is never followed by an equally slow second one.
   const deadlineAt = Date.now() + (RETRY_BUDGET_SECONDS - 6) * 1000
+  // THE ROUTE'S OWN GIVE-UP POINT (2026-09-12). The platform ceiling on this
+  // project is 300s — Vercel's log for a founder build: "Task timed out after
+  // 300 seconds". No model attempt starts, or runs, past this point, and the
+  // grounding retry below checks it first, so the route always answers with
+  // its own message instead of the platform's timeout page.
+  const giveUpAt = Date.now() + 280 * 1000
   const supabase = await createClient()
   const {
     data: { user },
@@ -586,7 +592,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     jobMatchCategories,
   )
 
-  const runOnce = async (userMessage: string) => {
+  const runOnce = async (
+    userMessage: string,
+  ): Promise<
+    | { truncated: true; parsed: null; validation: null }
+    | { truncated: false; parsed: unknown; validation: ReturnType<typeof validateGrounding> }
+  > => {
     const result = await generate({
       system,
       user: userMessage,
@@ -598,27 +609,67 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // The one call big enough that a doubled-budget retry cannot finish
       // inside the function's ceiling. See lib/ai/provider.ts's retry block.
       deadlineAt,
+      // Shared by BOTH calls below, so the pair can never outrun the ceiling.
+      giveUpAt,
     })
+    // A cut-off answer is incomplete JSON: never parse or check it (2026-09-12).
+    // It used to fail the grounding check and trigger the corrective retry.
+    if (result.truncated) return { truncated: true, parsed: null, validation: null }
     const parsed = extractJsonObject(result.text)
     const parsedSkillsOrder = isObject(parsed) ? parsed.skills_order : undefined
     const validation = validateGrounding(profile, parsed, parsedSkillsOrder)
-    return { parsed, validation }
+    return { truncated: false, parsed, validation }
   }
+
+  // A second full generation needs room for a whole healthy answer — ~100s
+  // for the largest resume measured (14 jobs, 5,676 output tokens). With less
+  // left, retrying only runs into the ceiling: exactly how a founder build was
+  // lost on 2026-09-11, when the first answer arrived and the untimed
+  // corrective retry did not.
+  const MIN_RETRY_MS = 100_000
 
   let attempt: Awaited<ReturnType<typeof runOnce>>
   try {
     attempt = await runOnce(userPrompt)
 
-    // Retry ONCE with a corrective instruction on a hard failure
-    // (docs/PROMPTS.md Â§7). A flag-only result is already `valid: true` and
-    // does not trigger a retry.
-    if (!attempt.validation.valid) {
-      const corrective = userPrompt + buildCorrectiveAddendum(attempt.validation.failures)
-      attempt = await runOnce(corrective)
+    // Retry ONCE on a hard grounding failure (with a corrective instruction,
+    // docs/PROMPTS.md §7) or on a cut-off answer (as-is — thinking length
+    // varies run to run) — but only when there is time to finish it. A
+    // flag-only result is already `valid: true` and does not trigger a retry.
+    if (attempt.truncated || !attempt.validation.valid) {
+      if (giveUpAt - Date.now() >= MIN_RETRY_MS) {
+        const message = attempt.truncated
+          ? userPrompt
+          : userPrompt + buildCorrectiveAddendum(attempt.validation.failures)
+        attempt = await runOnce(message)
+      } else {
+        console.warn(
+          'optimize: retry skipped, only ' + Math.round((giveUpAt - Date.now()) / 1000) + 's left user=' + user.id,
+        )
+      }
     }
   } catch (e) {
-    console.error('optimize: AI call failed user=' + user.id + ' profile=' + profileId, e instanceof Error ? e.message : String(e))
-    return NextResponse.json({ error: 'Could not generate your optimized resume. Please try again.' }, { status: 502 })
+    const reason = e instanceof Error ? e.message : String(e)
+    console.error('optimize: AI call failed user=' + user.id + ' profile=' + profileId, reason)
+    // A stall (lib/ai/provider.ts) is the AI service not answering — say so,
+    // and that nothing is lost: the job and its settings are saved.
+    const stalled = /stalled|out of time/.test(reason)
+    return NextResponse.json(
+      {
+        error: stalled
+          ? "The AI service didn't answer in time. Your job is saved — please try again."
+          : 'Could not generate your optimized resume. Please try again.',
+      },
+      { status: 502 },
+    )
+  }
+
+  if (attempt.truncated) {
+    console.error('optimize: answer cut off at the token budget user=' + user.id + ' profile=' + profileId)
+    return NextResponse.json(
+      { error: "We couldn't finish writing your CV this time. Your job is saved — please try again." },
+      { status: 502 },
+    )
   }
 
   if (!attempt.validation.valid) {

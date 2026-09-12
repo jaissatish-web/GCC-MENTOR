@@ -42,6 +42,44 @@ job is saved, try again — instead of a generic failure.
 
 ---
 
+## 2026-09-12 — A stalled AI call can no longer hang a build for five minutes
+
+**Founder report:** optimizing again showed the same error. Vercel's log: `POST
+/api/optimize` 504 FUNCTION_INVOCATION_TIMEOUT, "Task timed out after 300 seconds", 13
+GETs and one POST.
+
+**What it proves.** The platform ceiling on this project is **300 seconds** — the open
+question from 2026-09-11 is answered, and every 60s cap really was ours. And the one POST,
+the model call, never answered: no usage row, no duration line. Measured the next morning,
+the same model through OpenRouter answered six calls at 75–111 tokens a second from four
+different upstreams (Baidu, NextBit, Mancer, Phala), so a healthy call for even the largest
+resume is ~100s. **Five minutes is not a slow answer; it is an upstream that stalled.**
+Sorting by throughput made no measurable difference in the same test, so routing is not the
+fix.
+
+**The earlier failure, explained.** The same resume — 14 jobs, 47 bullets, 87 skills, level
+"high", no job description — DID get a first answer on 2026-09-11 at 11:03 (~100s, 5,676
+tokens), yet no CV was saved: the grounding check sent it back, and the corrective second
+call, which nothing time-checked, ran into the ceiling.
+
+**The fix.**
+- **Every provider attempt has a stall timeout** — 150s by default, `AI_STALL_TIMEOUT_MS`
+  to override — and never runs past a give-up point (280s from the call, or the route's).
+- **A stalled attempt is retried once**, when at least 90s remain. OpenRouter routes each
+  request afresh — the six test calls landed on four upstreams — so a retry very likely
+  reaches a healthy one.
+- **The optimizer time-checks its grounding retry** and treats a cut-off answer as a failure
+  rather than checking it. When time runs out it answers with its own message, never the
+  platform's timeout page.
+- **Every call now logs which upstream served it** and how long it took, so the next slow
+  build can be pinned to a provider instead of guessed at.
+
+**Not done, and the founder's call:** a fallback model in /admin — there is none; every
+service runs on one model with no second tier — and a faster or lower-reasoning model for
+the optimizer. Either removes the dependence on one provider's worst upstream.
+
+---
+
 ## 2026-09-11 — A paid CV reading is never lost
 
 **Founder request:** every API result and every user choice is saved automatically and the
