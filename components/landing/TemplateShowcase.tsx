@@ -57,6 +57,8 @@ export function TemplateShowcase({
   const [active, setActive] = useState<TemplateId>('gulf_premium')
   const Template = getTemplate(active).component
   const meta = getTemplate(active)
+  const chooserRef = useRef<HTMLDivElement | null>(null)
+  const optionRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   /**
    * The scale has to come from the real rendered width.
@@ -79,17 +81,27 @@ export function TemplateShowcase({
     return () => ro.disconnect()
   }, [])
 
+  useEffect(() => {
+    const scroller = chooserRef.current
+    const button = optionRefs.current[active]
+    if (!scroller || !button || variant === 'page') return
+    if (window.matchMedia('(min-width: 1024px)').matches) return
+
+    button.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
+  }, [active, variant])
+
   return (
     <div
       className={cn(
-        'flex flex-col gap-6',
+        'flex min-w-0 max-w-full flex-col gap-6 overflow-hidden',
         variant === 'full' && 'lg:flex-row lg:items-start lg:gap-10',
       )}
     >
       {/* ── the chooser ── */}
       <div
+        ref={chooserRef}
         className={cn(
-          'flex gap-3 overflow-x-auto pb-2 lg:w-[300px] lg:shrink-0 lg:flex-col lg:overflow-visible lg:pb-0',
+          'flex w-full min-w-0 max-w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-12 pb-3 [scrollbar-width:none] sm:px-0 lg:w-[300px] lg:shrink-0 lg:snap-none lg:flex-col lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden',
           variant === 'page' && 'hidden',
         )}
       >
@@ -100,10 +112,13 @@ export function TemplateShowcase({
             <button
               key={t.id}
               type="button"
+              ref={(node) => {
+                optionRefs.current[t.id] = node
+              }}
               onClick={() => setActive(t.id)}
               aria-pressed={on}
               className={cn(
-                'flex min-w-[220px] flex-col gap-1 rounded-card border px-4 py-3.5 text-left transition-colors lg:min-w-0',
+                'flex min-w-[224px] snap-center flex-col gap-1 rounded-card border px-4 py-3.5 text-left transition-colors lg:min-w-0',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
                 on
                   ? 'border-teal bg-teal text-white shadow-m-2'
@@ -121,9 +136,14 @@ export function TemplateShowcase({
           Eleven more inside — switch template, font, colour and photo without retyping a word.
         </p>
       </div>
+      {variant === 'full' ? (
+        <p className="-mt-3 text-center text-[12px] font-semibold uppercase tracking-[0.1em] text-teal lg:hidden">
+          Swipe styles, tap to preview
+        </p>
+      ) : null}
 
       {/* ── the live page ── */}
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
+      <div className="flex min-w-0 max-w-full flex-1 flex-col items-center gap-3">
         <div
           ref={boxRef}
           aria-hidden="true"
