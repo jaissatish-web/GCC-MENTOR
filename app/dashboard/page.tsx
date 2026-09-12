@@ -11,8 +11,15 @@ import { ProfileKickstart } from '@/components/profile/ProfileKickstart'
 import { LiveReadiness } from '@/components/gulfReadiness/LiveReadiness'
 import { buttonVariants } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { BriefcaseIcon, ChartBarIcon, DocumentTextIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
-import { cn, GULF_COUNTRIES, resumeLabel } from '@/lib/utils'
+import {
+  BriefcaseIcon,
+  ChartBarIcon,
+  DocumentTextIcon,
+  EnvelopeIcon,
+  RectangleStackIcon,
+  UserCircleIcon,
+} from '@heroicons/react/24/outline'
+import { cn, displayFirstName, GULF_COUNTRIES, resumeLabel } from '@/lib/utils'
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
 import { answersFromReadinessCategory, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
@@ -71,6 +78,19 @@ const QUICK_ACTIONS: ReadonlyArray<{
   { label: 'Optimize my CV for a job', href: '/optimize/target', icon: DocumentTextIcon, tint: 'bg-gold-soft text-gold-ink' },
   { label: 'Write a cover letter', href: '/cover-letter', icon: EnvelopeIcon, tint: 'bg-sec-summary/10 text-sec-summary' },
   { label: 'Open my Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, tint: 'bg-ok-soft text-ok' },
+]
+
+/**
+ * Quick actions before a Career Profile exists (2026-09-12).
+ *
+ * "Optimize my CV for a job" and "Write a cover letter" were offered to a
+ * brand-new user, and both need a profile — the optimizer ended on "Could not
+ * load your profile". Before one exists, the list offers what works: building
+ * it, and browsing the templates (which render an example CV).
+ */
+const NO_PROFILE_ACTIONS: typeof QUICK_ACTIONS = [
+  { label: 'Build my Career Profile', href: '/profile?import=upload', icon: UserCircleIcon, tint: 'bg-teal-soft text-teal' },
+  { label: 'Browse resume templates', href: '/templates', icon: RectangleStackIcon, tint: 'bg-gold-soft text-gold-ink' },
 ]
 
 /**
@@ -153,7 +173,7 @@ export default function DashboardPage() {
   }, [])
 
   // No name, no "Good evening, there" — a greeting to nobody reads as a bug.
-  const firstName = profile ? profile.full_name.trim().split(/\s+/)[0] : ''
+  const firstName = profile ? displayFirstName(profile.full_name) : ''
   const country = profile ? GULF_COUNTRIES.find((c) => c.value === profile.target_country)?.label : undefined
   const targetParts =
     profile !== null
@@ -494,7 +514,7 @@ export default function DashboardPage() {
                 Quick actions
               </div>
               <div className="mt-1 flex flex-col gap-1">
-                {QUICK_ACTIONS.map((a) => (
+                {(profileLoaded && profile === null ? NO_PROFILE_ACTIONS : QUICK_ACTIONS).map((a) => (
                   <Link
                     key={a.href}
                     href={a.href}

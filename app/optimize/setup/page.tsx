@@ -6,8 +6,13 @@ import { Button } from '@/components/ui/Button'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { setupNotes } from '@/lib/processingNotes'
 import { Card } from '@/components/ui/Card'
+import { ProgressBar } from '@/components/ui/ProgressBar'
 import { cn } from '@/lib/utils'
-import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
+import {
+  OPTIMIZATION_BUILD_STEPS_KEY,
+  OPTIMIZATION_REPLACE_PACKAGE_KEY,
+  OPTIMIZATION_TARGET_DRAFT_KEY,
+} from '@/lib/onboardingDraft'
 import type { OptimizationLevel } from '@/types/package'
 import { Alert } from '@/components/ui/Alert'
 
@@ -179,6 +184,27 @@ function SetupScreen() {
     setExpOn((prev) => ({ ...prev, [id]: !prev[id] }))
   }, [])
 
+  // THE BUILD'S NAMED STEPS — built only from what was actually selected, never
+  // claiming work that isn't happening. They are shown on the GENERATE screen,
+  // where this work runs, handed over through OPTIMIZATION_BUILD_STEPS_KEY
+  // (2026-09-12). This screen's own wait only creates the job — see setupSteps.
+  // Deduplicated because the list doubles as React keys, and two jobs at the
+  // same employer would otherwise collide.
+  const buildSteps = useMemo(() => {
+    if (!draft) return []
+    const list: string[] = []
+    if (draft.job_description.trim() !== '') {
+      list.push(`Matching the advert's wording for ${draft.target_job_title}`)
+    }
+    if (summaryOn) list.push('Rewriting your summary')
+    for (const e of experiences) if (expOn[e.id]) list.push(`Rewriting ${e.company || 'your'} bullets`)
+    list.push('Reordering skills by relevance')
+    // Always "Gulf CV format" (migration 030) — the format has never varied by
+    // target_country (lib/ai/buildOptimizationPrompt.ts's GULF_FORMAT_NOTE).
+    list.push('Applying Gulf CV format')
+    return Array.from(new Set(list))
+  }, [draft, summaryOn, experiences, expOn])
+
   const ctaName = draft?.target_job_title ?? ''
 
   const onSubmit = useCallback(async () => {
@@ -214,6 +240,15 @@ function SetupScreen() {
       }
       if (responseBody?.success && responseBody?.packageId) {
         const newPackageId = (responseBody.packageId as string).replace(/[^a-zA-Z0-9-]/g, '')
+        // Display-only handoff: the generate screen names these steps.
+        try {
+          window.sessionStorage.setItem(
+            OPTIMIZATION_BUILD_STEPS_KEY,
+            JSON.stringify({ packageId: newPackageId, steps: buildSteps }),
+          )
+        } catch {
+          /* generate falls back to its generic steps */
+        }
         // Reuse-detection re-optimize (TASK-036): delete the OLD package ONLY
         // now that the new package is confirmed created — never before, so a
         // failed generation can't destroy the user's existing content for
@@ -248,39 +283,30 @@ function SetupScreen() {
       setError('Network error. Please check your connection and try again.')
       setSubmitting(false)
     }
-  }, [draft, profileId, submitting, summaryOn, experiences, expOn, level, router])
+  }, [draft, profileId, submitting, summaryOn, experiences, expOn, level, router, buildSteps])
 
-  // ---- Screen 07 "Optimizing…" transient state (TASK-029) -----------------
-  // Dynamic named steps, built ONLY from what was actually selected — never
-  // claiming work that isn't happening (the grounding ethos applies to this UI
-  // too). JD-match step appears only when a JD was pasted; summary step only
-  // when summaryOn; one "Rewriting {company} bullets" per checked experience;
-  // skills + country steps are always on (server always reorders skills —
-  // TASK-021). If nothing but the two always-on steps is selected, that is
-  // fine — no special case (Unplanned #15).
+  // ---- The wait on THIS screen's call (Phase A) ----------------------------
+  // CORRECTED 2026-09-12. This wait used to list "Reframed your summary" and
+  // "Rewriting <employer> bullets" — but POST /api/optimize here only creates
+  // the job and, when an advert was pasted, reads it. The rewriting happens on
+  // the next screen, which then restarted at step one: two waits, the first
+  // describing work that was not happening. Now this one says what it does and
+  // the build steps move to where the build runs.
   const [elapsedMs, setElapsedMs] = useState(0)
 
-  const steps = useMemo(() => {
-    if (!draft) return []
-    const list: string[] = []
-    if (draft.job_description.trim() !== '') {
-      list.push(`Matched JD language for ${draft.target_job_title}`)
-    }
-    if (summaryOn) list.push('Reframed your summary')
-    for (const e of experiences) if (expOn[e.id]) list.push(`Rewriting ${e.company} bullets`)
-    list.push('Reordering skills by relevance')
-    // Always "Gulf CV format" (migration 030) — the format has never
-    // actually varied by target_country (lib/ai/buildOptimizationPrompt.ts's
-    // GULF_FORMAT_NOTE is one country-agnostic convention), so naming a
-    // specific country here implied a variation that doesn't exist.
-    list.push('Applying Gulf CV format')
-    return list
-  }, [draft, summaryOn, experiences, expOn])
+  const hasJobDescription = !!draft && draft.job_description.trim() !== ''
+  const setupSteps = useMemo(
+    () =>
+      hasJobDescription
+        ? ['Saving your target job', 'Reading the job advert', 'Setting up your CV build']
+        : ['Saving your target job', 'Setting up your CV build'],
+    [hasJobDescription],
+  )
 
   // Non-streaming reality (same as TASK-023): POST /api/optimize is single-shot,
-  // no per-step server progress. Advance the steps client-side, paced at
-  // 60s/stepCount. The interval is cleared when submitting resets (error) or on
-  // unmount (success → navigation), so it never leaks.
+  // no per-step server progress. Advance the steps client-side at the pace
+  // below, holding on the last. The interval is cleared when submitting resets
+  // (error) or on unmount (success → navigation), so it never leaks.
   useEffect(() => {
     if (!submitting) return
     const start = Date.now()
@@ -289,8 +315,9 @@ function SetupScreen() {
     return () => window.clearInterval(id)
   }, [submitting])
 
-  const stepMs = steps.length > 0 ? 60000 / steps.length : 60000
-  const activeIndex = Math.min(steps.length - 1, Math.floor(elapsedMs / stepMs))
+  // Reading an advert is a model call; without one this call is a row insert.
+  const stepMs = hasJobDescription ? 6000 : 2500
+  const activeIndex = Math.min(setupSteps.length - 1, Math.floor(elapsedMs / stepMs))
   // THE PERCENTAGE AND "~Ns LEFT" ARE GONE (2026-09-10). Both were computed
   // from a 60-second clock, not from anything the server reported, so they
   // reached 100% at a minute whether or not the work was done and then read
@@ -325,7 +352,7 @@ function SetupScreen() {
             {/* The role was `text-teal` on near-black — about 1.9:1, close to
                 invisible. Gold on ink is the pair Meridian uses for emphasis. */}
             <h1 className="font-display text-[30px] leading-tight text-white">
-              Optimizing for
+              Setting up your CV for
               <span className="block text-gold">{ctaName}</span>
             </h1>
             <p className="text-[13px] leading-relaxed text-white/70">
@@ -338,7 +365,7 @@ function SetupScreen() {
               component. */}
           <ProcessingSteps
             tone="dark"
-            steps={steps}
+            steps={setupSteps}
             activeIndex={Math.max(0, activeIndex)}
             notes={setupNotes(draft.job_description.trim() !== '')}
           />
@@ -356,14 +383,22 @@ function SetupScreen() {
       <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-5 py-8 sm:px-8 lg:py-12">
       {/* Back + heading */}
       <div className="flex flex-col gap-2">
-        <button
-          type="button"
-          aria-label="Go back"
-          onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-ctl text-[20px] leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
-        >
-          ←
-        </button>
+        {/* Same step row as /optimize/target (Step 1 of 3) and the build
+            screen (Step 3 of 3), so the three screens read as one flow. */}
+        <div className="flex items-center gap-3.5">
+          <button
+            type="button"
+            aria-label="Go back"
+            onClick={() => router.back()}
+            className="flex size-11 items-center justify-center rounded-ctl text-[20px] leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+          >
+            ←
+          </button>
+          <div className="flex-1">
+            <ProgressBar value={67} tone="light" />
+          </div>
+          <span className="font-mono text-[12px] text-ink-muted">Step 2 of 3</span>
+        </div>
         <h1 className="font-display text-[27px] leading-tight text-ink">What should we sharpen?</h1>
         <p className="text-[12px] leading-normal text-ink-soft">
           Your dates, employers, titles and certifications are never touched. Only framing changes.

@@ -424,7 +424,10 @@ first-run CTA and the onboarding fallback — it is only gone from the menu.
 **Breakpoints:** desktop (≥1024px) shows the full 248px rail; tablet (768–1023px)
 collapses to icon-only, expandable on tap, with nothing hidden; mobile (<768px) uses a
 5-slot bottom bar plus a "More" drawer holding **every** remaining destination, so
-nothing becomes unreachable on a phone.
+nothing becomes unreachable on a phone. The bar is Dashboard · Library · Profile ·
+Optimize · More — **Optimize joined 2026-09-12**; the product's core action had been
+behind "More". Slots share the width equally (`flex-1`), because five 64px minimums plus
+padding overflow a 320px screen.
 
 **Sign out lives in the three-bar menu** (2026-09-11), under Account, below Settings —
 the one menu present at every width, so one placement covers all three. It is an action,

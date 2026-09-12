@@ -12,6 +12,58 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-12 — A guided-flow pass: every screen says what is true and points at the next step
+
+**Founder request:** check every function step by step, as a SaaS designer would, so the
+user feels guided and each service is easy to use — **presentation and flow only; backend
+logic stays exactly as it is.** No route, API, schema, prompt, validation or permission
+changed.
+
+**Walked live on production with a throwaway account**, first visit to finished CV:
+dashboard → paste a CV → Career Profile → target → setup → build → the finished resume.
+
+- **The optimizer showed two waits, and the first described work that was not
+  happening.** Setup's wait listed "Rewriting <employer> bullets" while its call only
+  creates the job (and reads an advert, if pasted); the build screen then restarted at
+  step one with four generic steps. Setup's wait now names what it does, and the user's
+  own step list moves to the build screen — a display-only sessionStorage handoff keyed by
+  package id (`OPTIMIZATION_BUILD_STEPS_KEY`).
+- **The before/after diff was unreachable.** Generation lands on `/package/[id]` and
+  nothing linked to `/optimize/preview/[id]`. The finished CV now carries **"See what
+  changed"**, for model-written resumes only.
+- **The Career Profile had no way forward.** Once saved — including the auto-save after a
+  CV is read — its only exit was Save → dashboard. A **"Build a CV for a job"** card now
+  calls the save-then-optimizer path that already existed (`onSubmit('confirm')`) and that
+  nothing called.
+- **Dead ends before a profile exists.** The dashboard's quick actions offered the
+  optimizer and cover letter to a brand-new user, and the optimizer then failed on "Could
+  not load your profile". Quick actions now offer only what works without a profile, and
+  `/optimize/target` says the profile comes first, with a link to build it.
+- **The cover letter lost its job.** "Write the cover letter for X" opened on the newest
+  job, not X. `/cover-letter?package=<id>` now preselects, and the finished CV links there.
+  **Copy put an empty string on the clipboard** for every letter loaded from the server
+  (it read only this visit's edits) — fixed. The page now says edits in its boxes are not
+  saved.
+- **Resume Optimizer joined the mobile bottom bar**; the core action sat behind "More".
+  Slots share the width, so five fit a 320px screen.
+- **Step labels:** "Step 1 of 3" / "2 of 3" / "3 of 3" — target read "3/5" on a flow of three.
+- **Copy that was no longer true, removed:** the build error's "Your payment is safe …
+  without paying twice" (no payment step exists); landing Station 03 asking for country and
+  employer (removed 2026-08-18); Station 04's "match report" (removed 2026-09-04); "next one
+  takes a minute" (a timing claim); preview's "edits save as you make them" (each saves on
+  its own Save); "package" and "Phase 2" in the reuse prompt, which now also says replacing
+  removes the old CV's letters and stage.
+- **Greetings no longer shout** "Good morning, RAJESH" when a CV header is in capitals.
+  `displayFirstName` softens an all-caps first name for display only; stored data and the
+  CV itself are untouched.
+
+**Found and deliberately not changed** — each changes data or scoring, so each is in
+[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md) for a founder answer: auto-saved profiles print
+"Visa not transferable" on the CV; Profile Strength scores two fields the optimizer
+ignores; cover-letter edits are not stored; re-optimize deletes the old job outright.
+
+---
+
 ## 2026-09-11 — The optimizer's 60-second cap was ours too
 
 **Founder report:** building a CV with only a target position and industry — no job

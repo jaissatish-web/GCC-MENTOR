@@ -102,7 +102,7 @@ Settings. It lands on the home page.
 | `/dashboard/library` | Every resume — desktop table, mobile cards |
 | `/templates` | The template gallery, previewed on an example CV |
 | `/gcc-readiness` | **A redirect to `/profile`** since 2026-09-11, when Career Profile and Profile Strength became one page. `?tab=gulf` lands on `/profile?improve=gulf`. |
-| `/cover-letter` | Cover letter generation for a paid package — pick a tone (2026-08-18: Professional, Short, Technical, Explanatory) |
+| `/cover-letter` | Cover letter generation for a paid package — pick a tone (2026-08-18: Professional, Short, Technical, Explanatory). `?package=<id>` preselects the job — the finished CV and the dashboard's next step both use it (2026-09-12). Edits in the letter boxes are not stored, and the page says so |
 | `/settings` | Account · email · current package · payments · delete data |
 | `/payments` | An honest placeholder. No payment-history feature exists |
 | `/package/[id]` | A finished resume: view, style, edit, download |
@@ -128,11 +128,12 @@ broke exactly that. Treat it as load-bearing.
 /optimize/setup              which blocks to optimize · framing intensity
                              (Easy / Moderate / High)
    ↓                         creates the package: empty
-/optimize/generate/[id]      the model runs here
+/optimize/generate/[id]      the model runs here, naming the steps chosen on setup
    ↓
-/optimize/preview/[id]       before/after diff, per block, word-level
-   ↓
-/package/[id]                the finished resume
+/package/[id]                the finished resume — "See what changed" opens the
+                             before/after diff at /optimize/preview/[id]
+                             (generation lands here; the diff was unlinked
+                             until 2026-09-12)
    ↓                         "Edit text"
 /package/[id]/edit           edit this resume's own wording, then back
 ```

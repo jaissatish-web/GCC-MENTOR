@@ -19,7 +19,7 @@ import { Toggle } from '@/components/ui/Toggle'
 import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import { ResumeImport } from '@/components/profile/ResumeImport'
 import { ImprovePanel } from '@/components/profile/ImprovePanel'
-import { cn } from '@/lib/utils'
+import { cn, displayFirstName } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
 import { mergeDraftIntoProfile, describeReplaceLosses } from '@/lib/profileMerge'
@@ -1276,7 +1276,7 @@ function ProfileScreen() {
   const phoneParts = useMemo(() => splitPhone(editor?.phone), [editor?.phone])
   const whatsappParts = useMemo(() => splitPhone(editor?.whatsapp), [editor?.whatsapp])
 
-  const firstName = editor ? (editor.full_name.trim().split(/\s+/)[0] || 'there') : 'there'
+  const firstName = (editor && displayFirstName(editor.full_name)) || 'there'
   const categoryCopy = CATEGORY_COPY[readiness.category]
   const itemsLeft = readiness.missing.length
 
@@ -1688,6 +1688,33 @@ function ProfileScreen() {
         />
       ) : null}
 
+      {/* THE WAY FORWARD (2026-09-12). Once a profile is saved — including the
+          auto-save straight after a CV is read — this page had no next step:
+          the only exit was Save, back to the dashboard. The "save, then go to
+          the optimizer" path already existed (onSubmit('confirm')) with nothing
+          calling it. It saves first, so edits made here are never left behind,
+          and the required-field check still runs. */}
+      {hasSavedProfile && editor.full_name.trim() ? (
+        <div className="mx-5 mt-4 flex flex-col gap-3 rounded-card border border-teal/30 bg-teal-soft/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-0.5">
+            <p className="text-[14px] font-bold text-ink">Your profile is saved. Next: a CV for a specific job.</p>
+            <p className="text-[13px] leading-relaxed text-ink-soft">
+              Tell us the role and we tailor your CV to it — using only what is in this profile.
+            </p>
+          </div>
+          <Button
+            variant="progress"
+            size="sm"
+            className="shrink-0"
+            busy={submitting}
+            busyLabel="Saving…"
+            onClick={() => void onSubmit('confirm')}
+          >
+            Build a CV for a job
+          </Button>
+        </div>
+      ) : null}
+
       {/* START OR UPDATE FROM A RESUME — the three ways in that used to live on
           the /create-resume screen and in the sidebar (founder decision
           2026-08-18: fold them onto the Career Profile itself, and 2026-08-18:
@@ -1764,7 +1791,9 @@ function ProfileScreen() {
           ) : (
             <>
               <span className="font-semibold text-ink">
-                {doneCount} of {scoredCount} sections done.
+                {/* "key": nine steps are listed and only the scored ones are
+                    counted, so "0 of 6 sections" under nine read as a miscount. */}
+                {doneCount} of {scoredCount} key sections done.
               </span>{' '}
               Open a step to fill it in. Your work is kept as you move between them.
             </>

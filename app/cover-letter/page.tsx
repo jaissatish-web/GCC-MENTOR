@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
@@ -61,6 +62,10 @@ const TONE_OPTIONS: ReadonlyArray<{ value: CoverLetterTone; label: string; descr
 ]
 
 function CoverLetterScreen() {
+  // ?package=<id> — arriving from a job's own page or the dashboard's next
+  // step, with that job already chosen. Read once; unknown ids fall back.
+  const searchParams = useSearchParams()
+  const requestedIdRef = useRef(searchParams.get('package'))
   const [packages, setPackages] = useState<Package[] | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [tone, setTone] = useState<CoverLetterTone>('professional')
@@ -71,6 +76,7 @@ function CoverLetterScreen() {
 
   // Local edits (edit-in-place textarea per letter) — never persisted.
   const [edits, setEdits] = useState<Record<string, string>>({})
+  const [copiedId, setCopiedId] = useState<string | null>(null)
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -81,7 +87,7 @@ function CoverLetterScreen() {
       .then((data) => {
         const list = (data?.packages as Package[] | undefined) ?? []
         setPackages(list)
-        setSelectedId(list[0]?.id ?? null)
+        setSelectedId(list.find((p) => p.id === requestedIdRef.current)?.id ?? list[0]?.id ?? null)
       })
       .catch(() => setLoadError('Could not load your packages. Please try again.'))
   }, [])
@@ -131,10 +137,15 @@ function CoverLetterScreen() {
     }
   }
 
-  async function copyLetter(id: string) {
-    const text = edits[id] ?? ''
+  async function copyLetter(letter: CoverLetter) {
+    // Falls back to the stored text, as Download already did. It read only
+    // `edits`, which holds just the letters generated in this visit — so Copy
+    // on any letter loaded from the server put an EMPTY string on the clipboard.
+    const text = edits[letter.id] ?? letter.full_text
     try {
       await navigator.clipboard.writeText(text)
+      setCopiedId(letter.id)
+      window.setTimeout(() => setCopiedId((c) => (c === letter.id ? null : c)), 2000)
     } catch {
       // clipboard unavailable — fall back to a selection hint
       setGenError('Could not copy automatically. Select the text and copy manually.')
@@ -303,6 +314,12 @@ function CoverLetterScreen() {
             <h2 className="font-display text-[20px] text-ink">Generated letters</h2>
             <span className="text-[12px] text-ink-muted">{letters.length} total</span>
           </div>
+          {/* The boxes below are editable but nothing typed in them is stored —
+              say so, rather than let someone polish a letter and lose it. */}
+          <p className="-mt-2 text-[12px] leading-relaxed text-ink-muted">
+            You can edit a letter below, but changes are not saved — copy or download it once it reads
+            right.
+          </p>
           {letters.map((letter) => (
             <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-6">
               <div className="flex flex-col gap-1">
@@ -331,8 +348,8 @@ function CoverLetterScreen() {
                 className="field p-4"
               />
               <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="secondary" onClick={() => void copyLetter(letter.id)}>
-                  Copy
+                <Button type="button" variant="secondary" onClick={() => void copyLetter(letter)}>
+                  {copiedId === letter.id ? 'Copied' : 'Copy'}
                 </Button>
                 <Button type="button" variant="secondary" onClick={() => downloadLetter(letter)}>
                   Download (.txt)

@@ -40,7 +40,9 @@ export function MobileBottomNav() {
             href={navHref(item)}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-h-11 min-w-[64px] flex-col items-center justify-center gap-1 rounded-ctl px-1 text-center text-[12px] leading-tight font-redesign-sans transition-colors',
+              // flex-1, not a 64px minimum: five 64px slots plus the bar's
+              // padding is 336px, wider than a 320px phone.
+              'flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-ctl px-0.5 text-center text-[12px] leading-tight font-redesign-sans transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
               active ? 'font-semibold text-teal' : 'font-medium text-ink-muted'
             )}

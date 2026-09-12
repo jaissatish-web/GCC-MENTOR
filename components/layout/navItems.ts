@@ -130,10 +130,15 @@ export const PLANNED_NAV_ITEMS: readonly PlannedNavItem[] = [
  * NAV_ITEMS appears in the "More" drawer, so every destination stays
  * reachable on a phone without a horizontal scroll.
  */
+// Resume Optimizer joined the bar 2026-09-12. It is the product's core action
+// and was two taps away behind "More" on a phone, while its `shortLabel`
+// ("Optimize") already existed for exactly this bar. Four destinations plus
+// More is the five-slot bar docs/12_DESIGN_SYSTEM.md §7 describes.
 export const MOBILE_PRIMARY_HREFS: readonly string[] = [
   '/dashboard',
   '/dashboard/library',
   '/profile',
+  '/optimize',
 ]
 
 export const MOBILE_PRIMARY_ITEMS: readonly NavItem[] = NAV_ITEMS.filter((i) =>

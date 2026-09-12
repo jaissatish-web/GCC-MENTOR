@@ -91,3 +91,21 @@ export function resumeLabel(pkg: {
 }): string {
   return pkg.name?.trim() || pkg.target_job_title?.trim() || 'Untitled resume'
 }
+
+/**
+ * The first name to greet someone by, in ordinary capitalisation.
+ *
+ * DISPLAY ONLY — the stored name is never changed. A CV header is very often
+ * typed in capitals ("RAJESH KUMAR"), extraction keeps it exactly as written
+ * (it must — the resume prints it), and every greeting then shouted
+ * "Good morning, RAJESH". An all-caps word is softened to "Rajesh"; a name
+ * written in mixed case ("McDonald", "al-Sayed") is left exactly as the user
+ * wrote it, because that casing is theirs.
+ */
+export function displayFirstName(fullName: string | null | undefined): string {
+  const first = (fullName ?? '').trim().split(/\s+/)[0] ?? ''
+  if (first.length > 1 && first === first.toUpperCase() && first !== first.toLowerCase()) {
+    return first.charAt(0) + first.slice(1).toLowerCase()
+  }
+  return first
+}

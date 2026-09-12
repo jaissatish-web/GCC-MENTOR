@@ -191,7 +191,9 @@ export function computeNextAction(
       title: `Write the cover letter for ${jobLabel(needsLetter)}`,
       body: 'Gulf employers read the letter before the CV. Yours is built from the same profile.',
       cta: 'Write the letter',
-      href: '/cover-letter',
+      // Opens with THIS job already chosen. Plain /cover-letter selected the
+      // newest job, which is not always the one this sentence names.
+      href: `/cover-letter?package=${encodeURIComponent(needsLetter.id)}`,
     }
   }
 

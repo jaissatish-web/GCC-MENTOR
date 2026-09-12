@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Button } from '@/components/ui/Button'
+import Link from 'next/link'
+import { Button, buttonVariants } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { FieldLabel } from '@/components/ui/FieldLabel'
 import { ProgressBar } from '@/components/ui/ProgressBar'
@@ -81,6 +82,11 @@ function TargetScreen() {
   const [existingPackages, setExistingPackages] = useState<Package[] | null>(null)
   const [replacingId, setReplacingId] = useState<string | null>(null)
   const [dismissed, setDismissed] = useState(false)
+  // No Career Profile yet (GET /api/profile answered 404). Every CV is built
+  // from the profile, so going on from here only reached "Could not load your
+  // profile" on the next screen — a dead end the dashboard's quick actions and
+  // the cover letter's empty state both led into.
+  const [noProfile, setNoProfile] = useState(false)
   const didInit = useRef(false)
 
   // Prefill from the profile's target defaults on mount (contract #2).
@@ -103,6 +109,7 @@ function TargetScreen() {
         // required-field check without actually selecting a valid persona).
         const rawIndustry = typeof data?.target_industry === 'string' ? data.target_industry : ''
         const matchedIndustry = PERSONA_INDUSTRIES.some((i) => i.value === rawIndustry) ? rawIndustry : ''
+        if (data === null) setNoProfile(true)
         setDraft({
           target_job_title: data?.target_job_title ?? '',
           target_industry: matchedIndustry,
@@ -177,10 +184,36 @@ function TargetScreen() {
     )
   }
 
+  if (noProfile) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-5 py-10 font-redesign-sans">
+        <Card tone="light" className="flex w-full max-w-[520px] flex-col gap-3 p-6 sm:p-8">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+            Before your first CV
+          </p>
+          <h1 className="font-display text-[26px] leading-tight text-ink">First, your Career Profile</h1>
+          <p className="text-[14px] leading-relaxed text-ink-soft">
+            Every CV is written only from the facts in your Career Profile, so it needs to exist before we
+            can tailor one. Upload your CV and we fill it in for you.
+          </p>
+          <div className="mt-3 flex flex-col gap-2.5">
+            <Link href="/profile?import=upload" className={buttonVariants({ variant: 'primary' })}>
+              Build my Career Profile
+            </Link>
+            <Link href="/dashboard" className={buttonVariants({ variant: 'secondary' })}>
+              Back to dashboard
+            </Link>
+          </div>
+        </Card>
+      </main>
+    )
+  }
+
   return (
     <main className="flex min-h-dvh flex-col font-redesign-sans">
       <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-5 py-8 sm:px-8 lg:py-12">
-      {/* Back + progress 3/5 */}
+      {/* Back + step. Was "3/5" of a five-step flow that no longer exists; the
+          optimizer is three screens: target, what to sharpen, build. */}
       <div className="flex items-center gap-3.5">
         <button
           type="button"
@@ -191,9 +224,9 @@ function TargetScreen() {
           ←
         </button>
         <div className="flex-1">
-          <ProgressBar value={60} tone="light" />
+          <ProgressBar value={33} tone="light" />
         </div>
-        <span className="font-mono text-[12px] text-ink-muted">3/5</span>
+        <span className="font-mono text-[12px] text-ink-muted">Step 1 of 3</span>
       </div>
 
       {/* Heading */}
@@ -227,11 +260,16 @@ function TargetScreen() {
             package already exists */}
         {similar && !dismissed ? (
           <div className="rounded-card border border-teal/50 bg-teal-soft p-3.5">
+            {/* Plain words (2026-09-12): "package" is our table name and
+                "Phase 2" our roadmap. And say what replacing really removes —
+                setup deletes the whole old row, letters and stage included. */}
             <p className="text-[12px] leading-snug text-teal">
-              You already have a &ldquo;{similar.title}&rdquo; package — re-optimize it (overwrites its
-              current text), or start fresh?
+              You already have a CV for &ldquo;{similar.title}&rdquo;. Replace it with a new one, or keep
+              both?
             </p>
-            <p className="mt-0.5 text-[12px] text-ink-muted">Keeping past versions arrives in Phase 2.</p>
+            <p className="mt-0.5 text-[12px] text-ink-muted">
+              Replacing removes the old one — its CV, cover letters and stage — once the new one is created.
+            </p>
             <div className="mt-2 flex flex-wrap gap-2">
               <button
                 type="button"
@@ -241,7 +279,7 @@ function TargetScreen() {
                 }}
                 className="min-h-11 rounded-ctl bg-teal px-3.5 py-2 text-[12px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
               >
-                Re-optimize
+                Replace it
               </button>
               <button
                 type="button"
@@ -251,7 +289,7 @@ function TargetScreen() {
                 }}
                 className="min-h-11 rounded-ctl border border-line-strong bg-white px-3.5 py-2 text-[12px] font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
               >
-                Start fresh
+                Keep both
               </button>
             </div>
           </div>
@@ -259,8 +297,7 @@ function TargetScreen() {
 
         {similar && replacingId ? (
           <div className="rounded-card border border-teal/30 bg-teal-soft px-3.5 py-3 text-[12px] leading-snug text-teal">
-            Will re-optimize your existing &ldquo;{similar.title}&rdquo; package — its current text will be
-            replaced.{' '}
+            Your existing &ldquo;{similar.title}&rdquo; CV will be replaced once the new one is created.{' '}
             <button
               type="button"
               onClick={() => {

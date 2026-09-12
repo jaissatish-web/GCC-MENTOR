@@ -36,6 +36,22 @@ export const OPTIMIZATION_TARGET_DRAFT_KEY = 'optimization_target_draft'
 export const OPTIMIZATION_REPLACE_PACKAGE_KEY = 'optimization_replace_package'
 
 /**
+ * Session-storage handoff of the BUILD STEPS from /optimize/setup to
+ * /optimize/generate/[id] (2026-09-12).
+ *
+ * The steps name what the user actually chose — the summary, each selected
+ * employer's bullets — and they belong on the screen where that work happens.
+ * Setup used to show them while its own call only created the job, then the
+ * generate screen restarted with four generic steps: two waits, the first one
+ * describing work that was not happening. Setup now writes the list here and
+ * generate shows it. Display only — nothing is sent to a server from it.
+ *
+ * Keyed by package id so a stale list can never label a different job.
+ * Read (not cleared) by generate, so a refresh mid-build keeps the same steps.
+ */
+export const OPTIMIZATION_BUILD_STEPS_KEY = 'optimization_build_steps'
+
+/**
  * Session-storage handoff for a claimed anonymous scan result (TASK-069 →
  * TASK-070). When /onboarding claims an anonymous_analysis_session on
  * signup, it writes the ATS score + job description here (alongside the

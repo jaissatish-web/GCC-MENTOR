@@ -127,7 +127,9 @@ const stations: Station[] = [
     n: '03',
     eyebrow: 'Free to set up',
     title: 'Add the job you are going for',
-    you: 'Give us the role, the country, the employer, and paste the advert if you have it.',
+    // Country and employer left this screen on 2026-08-18 (neither changed the
+    // CV), so the station no longer asks for them.
+    you: 'Give us the role you want, and paste the advert if you have it.',
     get: 'A target job that holds its own CV, its own letters and its own stage — applied, shortlisted, interview, visa processing, offer — so you always know where every application stands.',
     free: true,
     href: '/signup',
@@ -139,7 +141,10 @@ const stations: Station[] = [
     eyebrow: 'From ₹499',
     title: 'Rewritten for the Gulf, never invented',
     you: 'Choose what to optimize. The engine matches your real experience against that specific advert and market.',
-    get: 'Your experience reframed the way a Gulf recruiter and their screening system reads it — plus a match report showing your gaps against that job.',
+    // Was "— plus a match report showing your gaps against that job". The
+    // separate match report went with the Job Match service on 2026-09-04;
+    // what the user does get is a line-by-line view of what changed.
+    get: 'Your experience reframed the way a Gulf recruiter and their screening system reads it — with every changed line shown beside your original.',
     free: false,
     href: '/signup',
     cta: 'See how it works',

@@ -19,6 +19,7 @@ import {
   type SizeKey,
 } from '@/lib/resumeStyle'
 import { resumeKind } from '@/lib/resumeKind'
+import { displayFirstName } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
@@ -291,7 +292,7 @@ function PackageScreenInner({ id }: { id: string }) {
           fieldVisibility: pkg.field_visibility_snapshot ?? null,
         })
       : null)
-  const firstName = profile ? profile.full_name.trim().split(/\s+/)[0] || 'there' : 'there'
+  const firstName = (profile && displayFirstName(profile.full_name)) || 'there'
   const pdfUrl = `/api/packages/${encodeURIComponent(id)}/pdf`
   // Word download is deliberately not offered yet (founder decision,
   // 2026-08-16). The .docx route still exists and still works — it is simply
@@ -410,6 +411,19 @@ function PackageScreenInner({ id }: { id: string }) {
           >
             Edit text
           </Link>
+          {/* THE DIFF, REACHABLE AGAIN (2026-09-12). Generation lands here, on
+              the finished CV, so /optimize/preview — every changed line beside
+              the original, the product's "nothing invented" made visible — had
+              no link anywhere. Only for a resume the model actually wrote:
+              otherwise there is no change to show. */}
+          {!isFree ? (
+            <Link
+              href={`/optimize/preview/${encodeURIComponent(id)}`}
+              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+            >
+              See what changed
+            </Link>
+          ) : null}
           <a
             href={waUrl}
             target="_blank"
@@ -516,9 +530,29 @@ function PackageScreenInner({ id }: { id: string }) {
             request — /optimize/target is still reachable from the dashboard and
             the nav, so nothing is lost, just this in-page prompt. */}
 
+        {/* No duration: "next one takes a minute" was a timing claim of the
+            kind removed everywhere on 2026-09-11. */}
         {downloaded && !isFree ? (
           <div className="rounded-card border border-teal/40 bg-teal-soft px-3.5 py-3 text-[13px] text-teal">
-            Applying somewhere else? Your profile is saved — next one takes a minute.
+            Applying somewhere else? Your profile is saved — add the next job and it is reused.
+          </div>
+        ) : null}
+
+        {/* The next thing this job needs, from the job's own page (2026-09-12).
+            Opens the cover letter with THIS job already chosen; there was no
+            way from a finished CV to its letter except the menu. */}
+        {!isFree && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
+          <div className="flex flex-col gap-2 rounded-card border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[13px] text-ink-soft">
+              <strong className="text-ink">Next for this job:</strong> a cover letter, written from the same
+              profile.
+            </p>
+            <Link
+              href={`/cover-letter?package=${encodeURIComponent(id)}`}
+              className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} shrink-0`}
+            >
+              Write the cover letter
+            </Link>
           </div>
         ) : null}
 

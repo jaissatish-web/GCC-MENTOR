@@ -6,7 +6,7 @@ Nothing is removed from this file until it is genuinely resolved, and when it is
 resolved it is deleted rather than marked — the part-document it affects carries the
 outcome instead.
 
-**Last reviewed:** 2026-09-09
+**Last reviewed:** 2026-09-12
 
 ---
 
@@ -222,6 +222,33 @@ But deleting it touches the anonymous funnel and the signup claim path, and thos
 worth a deliberate change rather than a side effect of removing a different feature.
 
 **Needs a founder answer:** remove it, or keep the anonymous scan path for later reuse.
+
+---
+
+## Found in the 2026-09-12 walk-through — each needs a founder answer
+
+Seen live on production with a throwaway account. Each changes data, scoring or a write
+path, so none was changed in the presentation pass (see the decision log, 2026-09-12).
+
+**W-1 · Every auto-saved profile prints "Visa not transferable" on its CV.** A CV that says
+nothing about visas becomes `visa_transferable: false` in `fromDraft`
+(`app/profile/page.tsx`), the auto-save stores it, and `lib/resumeDocument.ts` prints
+`false` as "Visa not transferable" — a negative claim the user never made, in the header of
+the document they send to employers. **Recommended fix:** keep "not stated" as null through
+the editor, so nothing prints until the user answers. Small, but it touches the profile
+save contract and the delivered-document builder. Profiles saved before the fix may already
+hold a `false` nobody chose.
+
+**W-2 · Profile Strength awards points for fields the optimizer ignores.** Target country
+(+2) and target company (+1) are scored and listed under "what raises your score", while
+the optimizer stopped reading both on 2026-08-18. Stop scoring them, or say what they are
+for.
+
+**W-3 · Cover-letter edits are not stored.** The boxes are editable and the page now says
+the changes are not saved. Persisting them needs a write path — is it wanted?
+
+**W-4 · Re-optimize deletes the old job outright** — its CV, cover letters and stage — once
+the new one exists. The prompt now says so plainly. Keep that, or keep the old version?
 
 ---
 

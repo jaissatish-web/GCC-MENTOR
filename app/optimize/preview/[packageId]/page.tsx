@@ -248,8 +248,8 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
 
         <aside className="hidden shrink-0 flex-col gap-3 lg:flex lg:w-[340px] lg:border-l lg:border-line lg:pl-5">
           <p className="text-[12px] leading-relaxed text-ink-muted">
-            Edit the generated wording here. Every change saves as you make it, and appears on your
-            CV and in the PDF you download.
+            Edit the generated wording here. Each change is saved when you press its Save, and
+            appears on your CV and in the PDF you download.
           </p>
           <button
             type="button"
@@ -503,7 +503,9 @@ function ChangesTab({
         >
           Back to your CV
         </button>
-        <p className="text-center text-[12px] text-ink-muted">Edits save as you make them</p>
+        {/* Was "Edits save as you make them" — each edit saves when its own
+            Save is pressed, not while typing. */}
+        <p className="text-center text-[12px] text-ink-muted">Each edit is saved when you press its Save</p>
       </div>
     </>
   )

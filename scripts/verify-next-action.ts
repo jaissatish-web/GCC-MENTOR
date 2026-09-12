@@ -128,7 +128,8 @@ for (const status of ['applied', 'shortlisted', 'interview', 'visa_processing', 
   const action = computeNextAction(PROFILE, [pkg({ status })], 80)
   check(
     `status "${status}" resolves to a route that exists (${action.href})`,
-    ['/optimize/target', '/cover-letter', '/profile'].includes(action.href) ||
+    // Path only: the letter action carries ?package=<id> so the job is preselected.
+    ['/optimize/target', '/cover-letter', '/profile'].includes(action.href.split('?')[0]) ||
       action.href.startsWith('/optimize/pay/') ||
       action.href.startsWith('/optimize/generate/')
   )

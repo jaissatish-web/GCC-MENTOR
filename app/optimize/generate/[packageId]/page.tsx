@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { GENERATE_NOTES } from '@/lib/processingNotes'
+import { OPTIMIZATION_BUILD_STEPS_KEY } from '@/lib/onboardingDraft'
 
 /**
  * Generation screen. POSTs { packageId } to /api/optimize, which reads the
@@ -25,6 +26,7 @@ import { GENERATE_NOTES } from '@/lib/processingNotes'
  * preventing a duplicate model call, since no payment check sits in front of it.
  */
 
+/** Shown when setup's own list is not available — a refresh in a new tab, an old link. */
 const STEPS = [
   'Reading your Career Profile',
   'Applying Gulf CV format',
@@ -32,19 +34,26 @@ const STEPS = [
   'Checking every line against your profile',
 ]
 
-const STEP_MS = 15000
+const FINAL_STEP = 'Checking every line against your profile'
+
+/** The whole list is paced across this, then holds on its last step. */
+const PACE_MS = 60000
 
 export default function GeneratePage({ params }: { params: { packageId: string } }) {
   const router = useRouter()
   const packageId = params.packageId
-  const [step, setStep] = useState(0)
+  // The steps the user actually chose on setup — their summary, each employer's
+  // bullets — handed over through OPTIMIZATION_BUILD_STEPS_KEY (2026-09-12).
+  const [steps, setSteps] = useState<readonly string[]>(STEPS)
+  const [elapsedMs, setElapsedMs] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const started = useRef(false)
 
   const run = useCallback(async () => {
     setError(null)
-    setStep(1)
-    const timer = window.setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length)), STEP_MS)
+    const start = Date.now()
+    setElapsedMs(0)
+    const timer = window.setInterval(() => setElapsedMs(Date.now() - start), 500)
     try {
       const res = await fetch('/api/optimize', {
         method: 'POST',
@@ -68,6 +77,11 @@ export default function GeneratePage({ params }: { params: { packageId: string }
         )
         return
       }
+      try {
+        window.sessionStorage.removeItem(OPTIMIZATION_BUILD_STEPS_KEY)
+      } catch {
+        /* display-only handoff */
+      }
       router.replace(`/package/${encodeURIComponent(packageId)}`)
     } catch {
       window.clearInterval(timer)
@@ -80,8 +94,19 @@ export default function GeneratePage({ params }: { params: { packageId: string }
     // one spends a model call and a rate-limit slot.
     if (started.current) return
     started.current = true
+    try {
+      const raw = window.sessionStorage.getItem(OPTIMIZATION_BUILD_STEPS_KEY)
+      const saved = raw ? (JSON.parse(raw) as { packageId?: unknown; steps?: unknown }) : null
+      const list = Array.isArray(saved?.steps) ? saved.steps.filter((s): s is string => typeof s === 'string') : []
+      // Only this job's list — a stale one must never label a different build.
+      if (saved?.packageId === packageId && list.length > 0) setSteps([...list, FINAL_STEP])
+    } catch {
+      /* keep the generic steps */
+    }
     void run()
-  }, [run])
+  }, [run, packageId])
+
+  const activeIndex = Math.min(steps.length - 1, Math.floor(elapsedMs / (PACE_MS / steps.length)))
 
   if (error) {
     return (
@@ -89,9 +114,11 @@ export default function GeneratePage({ params }: { params: { packageId: string }
         <div className="w-full max-w-[480px] rounded-card border border-line bg-white p-8 text-center">
           <h1 className="font-display text-[26px] leading-tight text-ink">We couldn&apos;t build it</h1>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">{error}</p>
+          {/* Was "Your payment is safe … without paying twice" — there is no
+              payment step while the locks are off, so it reassured the user
+              about something that never happened. What is true: the job is kept. */}
           <p className="mt-3 text-[12px] text-ink-muted">
-            Your payment is safe — this resume stays in your Library and can be built again without
-            paying twice.
+            Nothing is lost — this job stays in your Resume Library and can be built again from there.
           </p>
           <div className="mt-7 flex flex-col gap-3">
             <Button variant="primary" className="w-full" onClick={() => void run()}>
@@ -119,6 +146,7 @@ export default function GeneratePage({ params }: { params: { packageId: string }
       <div className="relative flex w-full max-w-[440px] flex-col items-center gap-7">
         <ProcessingOrbit tone="dark" size={184} />
         <div className="text-center">
+          <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">Step 3 of 3</p>
           <h1 className="font-display text-[28px] leading-tight text-white">Building your Gulf CV</h1>
           <p className="mt-2 text-[13.5px] leading-relaxed text-white/70">
             Every line is checked against your Career Profile before you see it.
@@ -126,8 +154,8 @@ export default function GeneratePage({ params }: { params: { packageId: string }
         </div>
         <ProcessingSteps
           tone="dark"
-          steps={STEPS}
-          activeIndex={Math.max(0, step - 1)}
+          steps={steps}
+          activeIndex={Math.max(0, activeIndex)}
           notes={GENERATE_NOTES}
         />
       </div>
