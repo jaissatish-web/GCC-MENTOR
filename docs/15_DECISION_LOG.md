@@ -62,6 +62,25 @@ dashboard → paste a CV → Career Profile → target → setup → build → t
 "Visa not transferable" on the CV; Profile Strength scores two fields the optimizer
 ignores; cover-letter edits are not stored; re-optimize deletes the old job outright.
 
+**Profile recreation, tested live the same day** (founder follow-up), on a fresh account:
+first build free and auto-saved (counter 2 of 2) → recreate with a CV holding a new job and
+no phone → **Add** merged correctly (3 jobs, new skill and certification, phone kept,
+reading cleared, counter 1 of 2) → recreate again → **Replace**. That last path, unverified
+since 2026-09-11, is **safe**: nothing saved, the reading stays kept on the server, the
+screen says "Phone number is required". Four presentation defects found and fixed:
+- Replace never said the CV had no phone — the losses warning lists only fields a CV never
+  states. It now says "This CV has no phone — you'll add it before the new profile is saved."
+- The required-field scroll found nothing for the phone (`PhoneField` ids its input
+  `f_phone_number`), so the error named a field the page never showed. It falls back now.
+- After Add or Replace the URL kept `?import=paste`, so the panel reopened as an empty paste
+  box asking for another CV. The deep link is cleared once a reading arrives.
+- A transient 401 reached the screen as the bare word "Unauthorized". It now says what
+  happened and that nothing counted. "We read your uploaded CV" also said "uploaded" of a
+  pasted one.
+
+**Not changed — needs a founder answer (open items W-5):** the recreation counted although
+the Replace could not save, leaving the user 0 of 2.
+
 ---
 
 ## 2026-09-11 — The optimizer's 60-second cap was ours too

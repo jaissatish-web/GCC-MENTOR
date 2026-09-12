@@ -1035,6 +1035,11 @@ function ProfileScreen() {
   // straight in and let the auto-save fire. Compared against the SAVED profile
   // (a fresh GET), never the possibly-unsaved editor, matching that contract.
   const ingestDraft = useCallback((draft: CareerProfileDraft) => {
+    // The ?import= deep link has done its job once a reading arrives. Left in
+    // the URL, the import panel reopened in paste mode after the user chose
+    // Add or Replace — an empty box asking for another CV (seen live
+    // 2026-09-12) instead of folding to "Your profile is already created".
+    if (importParam) router.replace('/profile', { scroll: false })
     fetch('/api/profile', { cache: 'no-store' })
       .then((res) => (res.status === 200 ? res.json() : null))
       .then((data) => {
@@ -1052,7 +1057,7 @@ function ProfileScreen() {
         // editor (replace unavailable), never auto-save over unknown state.
         setEditor(fromDraft(draft))
       })
-  }, [])
+  }, [importParam, router])
 
   const scrollToEditor = useCallback(() => {
     document.getElementById('profile-editor')?.scrollIntoView({ behavior: 'smooth' })
@@ -1392,7 +1397,12 @@ function ProfileScreen() {
           return next
         })
         window.requestAnimationFrame(() => {
-          const el = document.getElementById(`f_${String(missing[0].key)}`)
+          // PhoneField ids its input `f_<key>_number` (its dial-code select is
+          // `_dial`), so a missing phone scrolled to nothing — seen live
+          // 2026-09-12 on "Replace" with a CV that has no phone.
+          const el =
+            document.getElementById(`f_${String(missing[0].key)}`) ??
+            document.getElementById(`f_${String(missing[0].key)}_number`)
           if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' })
             ;(el as HTMLElement).focus?.()
@@ -1496,6 +1506,11 @@ function ProfileScreen() {
     const losses = describeReplaceLosses(pendingDraft.existing, pendingDraft.draft)
     const addedTotal = Object.values(merged.added).reduce((n, c) => n + c, 0)
     const lostEntries = Object.values(losses.entries).reduce((n, c) => n + c, 0)
+    // Required contact fields this CV does not have. The losses warning lists
+    // only fields a CV never states, so a CV with no phone cleared the phone in
+    // silence and the save then stopped on "Phone number is required" (seen
+    // live 2026-09-12). Said up front instead. Display only.
+    const replaceMissing = requiredMissing(fromDraft(pendingDraft.draft)).map((m) => m.label.toLowerCase())
 
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-canvas px-5 py-10">
@@ -1503,7 +1518,7 @@ function ProfileScreen() {
           You already have a profile
         </h1>
         <p className="mt-3 text-[14px] leading-relaxed text-ink-soft">
-          We read your uploaded CV. What would you like to do with it?
+          We read your CV. What would you like to do with it?
         </p>
 
         <button
@@ -1558,6 +1573,12 @@ function ProfileScreen() {
               {lostEntries > 0 && losses.fields.length > 0 ? ', and clears ' : null}
               {losses.fields.length > 0 ? <strong>{losses.fields.join(', ')}</strong> : null} — a CV
               does not contain {losses.fields.length > 0 ? 'those' : 'them'}.
+            </span>
+          ) : null}
+          {replaceMissing.length > 0 ? (
+            <span className="mt-2 block text-[12px] leading-relaxed text-ink-soft">
+              This CV has no <strong className="text-ink">{replaceMissing.join(', ')}</strong> — you&apos;ll
+              add {replaceMissing.length === 1 ? 'it' : 'them'} before the new profile is saved.
             </span>
           ) : null}
         </button>

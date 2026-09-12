@@ -250,6 +250,12 @@ the changes are not saved. Persisting them needs a write path — is it wanted?
 **W-4 · Re-optimize deletes the old job outright** — its CV, cover letters and stage — once
 the new one exists. The prompt now says so plainly. Keep that, or keep the old version?
 
+**W-5 · A profile recreation counts even when nothing is saved.** `lib/recreateLimit.ts`
+counts a successful CV read, by design (a read is a paid model call). Seen live: a Replace
+with a CV that has no phone stopped on "Phone number is required", saved nothing — and the
+user went from 1 of 2 to 0 of 2. "Keep my profile as it is" also spends one. Keep counting
+at the read (it is the cost), or count only when a reading is saved?
+
 ---
 
 ## A. Decisions only the founder can make

@@ -132,7 +132,13 @@ export function ResumeImport({
         // often its timeout page (2026-09-11). Say which, and that it is safe
         // to retry: nothing is written, and only a success counts.
         setError(
-          body?.error ||
+          // A 401 arrived as the bare word "Unauthorized" (seen live
+          // 2026-09-12): true, but no use to someone holding a CV. Say what
+          // happened and what to do; nothing was read, so nothing counted.
+          (res.status === 401
+            ? "Your sign-in could not be confirmed just now. Nothing was changed and it didn't count against your limit — please try again, or sign in again if it keeps happening."
+            : null) ||
+            body?.error ||
             (res.status === 504
               ? "Reading your CV took too long and was stopped. Nothing was changed, and it didn't count against your limit — please try again."
               : "Something went wrong on our side while reading your CV. Nothing was changed, and it didn't count against your limit — please try again."),
