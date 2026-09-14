@@ -401,7 +401,7 @@ export default function TargetJobsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1">
           <h1 className="font-display text-[27px] font-bold leading-tight tracking-[-0.02em] text-ink">
-            Application Packages
+            Resume Library
           </h1>
           <p className="text-[13px] text-ink-soft">
             Every target job in one card: CV, cover letter, stage and next action.

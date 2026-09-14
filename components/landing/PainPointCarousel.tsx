@@ -26,7 +26,7 @@ const PAIN_POINTS: readonly PainPoint[] = [
   {
     icon: ClockIcon,
     title: 'Many applications, no replies',
-    body: 'You keep applying, but recruiters stay silent. The page tells the truth: the problem is often hidden in matching, format, and Gulf-specific signals.',
+    body: 'You keep applying, but recruiters stay silent. A clearer, more relevant CV helps employers see your fit, even though replies can never be guaranteed.',
     signal: 'Silent recruiter loop',
     lift: 'Find the hidden weak point',
   },
@@ -49,7 +49,7 @@ const PAIN_POINTS: readonly PainPoint[] = [
     title: 'Shortlisted, but not confident',
     body: 'A better CV can win the call. The next challenge is answering from your real experience with confidence, structure, and technical clarity.',
     signal: 'Interview pressure',
-    lift: 'Practice with real answers',
+    lift: 'Interview practice · planned',
   },
 ]
 
@@ -69,7 +69,7 @@ function shortestOffset(index: number, active: number) {
 
 export function PainPointCarousel() {
   const [active, setActive] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
+  const [isPaused, setIsPaused] = useState(true)
   const activePoint = PAIN_POINTS[active]
   const ActiveIcon = activePoint.icon
 
@@ -102,9 +102,9 @@ export function PainPointCarousel() {
       aria-roledescription="carousel"
       aria-label="GCC Mentor pain points"
       onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+
       onFocus={() => setIsPaused(true)}
-      onBlur={() => setIsPaused(false)}
+
       className="mt-10 w-[calc(100vw-40px)] max-w-full min-w-0 overflow-hidden rounded-card border border-line bg-white shadow-m-2 sm:w-full"
     >
       <div className="grid min-w-0 lg:grid-cols-[0.82fr_1.18fr]">
@@ -136,7 +136,10 @@ export function PainPointCarousel() {
               </div>
             </div>
 
-            <div className="mt-7 flex items-center justify-between gap-3">
+            <button type="button" onClick={() => setIsPaused((value) => !value)} aria-pressed={!isPaused} className="mt-5 min-h-11 rounded-ctl border border-white/25 px-3 text-[13px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">
+              {isPaused ? 'Start slideshow' : 'Pause slideshow'}
+            </button>
+            <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
               <div className="flex gap-2">
                 {PAIN_POINTS.map((point, index) => (
                   <button
@@ -146,10 +149,10 @@ export function PainPointCarousel() {
                     aria-current={active === index ? 'true' : undefined}
                     onClick={() => goTo(index)}
                     className={cn(
-                      'h-2.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-teal',
-                      active === index ? 'w-9 bg-gold' : 'w-2.5 bg-white/35 hover:bg-white/65',
+                      'min-h-11 min-w-11 rounded-ctl border border-white/25 text-[12px] font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-teal',
+                      active === index ? 'bg-gold text-ink' : 'bg-white/10 text-white hover:bg-white/20',
                     )}
-                  />
+                  >{index + 1}</button>
                 ))}
               </div>
 
@@ -199,6 +202,8 @@ export function PainPointCarousel() {
                   type="button"
                   aria-label={`Select ${point.title}`}
                   aria-pressed={isActive}
+                  tabIndex={isHidden ? -1 : 0}
+                  aria-hidden={isHidden || undefined}
                   onClick={() => goTo(index)}
                   className={cn(
                     'absolute left-1/2 top-1/2 w-[92%] max-w-[440px] rounded-card border bg-white p-5 text-left shadow-m-3 transition-[opacity,transform,border-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 sm:p-6',

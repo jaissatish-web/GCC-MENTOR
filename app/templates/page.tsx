@@ -73,7 +73,7 @@ function TemplatesInner() {
         {packages === null ? (
           <span className="text-[12px] text-ink-muted">Loading your resumes…</span>
         ) : hasResumes ? (
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <label className="sr-only" htmlFor="resume-select">
               Resume to preview
             </label>
@@ -81,7 +81,7 @@ function TemplatesInner() {
               id="resume-select"
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
-              className="field w-auto min-w-[220px]"
+              className="field w-full min-w-0 max-w-full sm:w-auto sm:max-w-[320px]"
             >
               {packages.map((p) => (
                 <option key={p.id} value={p.id}>

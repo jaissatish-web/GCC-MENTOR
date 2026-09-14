@@ -94,14 +94,14 @@ export function TemplateShowcase({
     <div
       className={cn(
         'flex min-w-0 max-w-full flex-col gap-6 overflow-hidden',
-        variant === 'full' && 'lg:flex-row lg:items-start lg:gap-10',
+        variant === 'full' && 'flex-col',
       )}
     >
       {/* ── the chooser ── */}
       <div
         ref={chooserRef}
         className={cn(
-          'flex w-full min-w-0 max-w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-12 pb-3 [scrollbar-width:none] sm:px-0 lg:w-[300px] lg:shrink-0 lg:snap-none lg:flex-col lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden',
+          'flex w-full min-w-0 max-w-full snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-12 pb-3 [scrollbar-width:none] sm:px-0 lg:grid lg:grid-cols-2 lg:snap-none lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden',
           variant === 'page' && 'hidden',
         )}
       >
@@ -132,7 +132,7 @@ export function TemplateShowcase({
             </button>
           )
         })}
-        <p className="hidden text-[12px] leading-relaxed text-ink-muted lg:block">
+        <p className="hidden text-[12px] leading-relaxed text-ink-muted lg:col-span-2 lg:block">
           Eleven more inside — switch template, font, colour and photo without retyping a word.
         </p>
       </div>
@@ -180,8 +180,7 @@ export function TemplateShowcase({
         </div>
         <p className="text-center text-[12px] leading-relaxed text-ink-muted">
           <span className="font-semibold text-ink-soft">{meta.name}</span>
-          {variant === 'page' ? ', one of 15' : ''} — rendered live by the same component that
-          builds your PDF. The CV shown is fictional.
+          {variant === 'page' ? ', one of 15' : ''} — actual template preview with a fictional example CV.
         </p>
       </div>
     </div>

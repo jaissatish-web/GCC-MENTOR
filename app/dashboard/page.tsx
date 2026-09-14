@@ -323,7 +323,7 @@ export default function DashboardPage() {
         column measured 744px inside a 335px cell on a 375px phone, which is
         what forced the whole dashboard to scroll sideways.
       */}
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr] xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         {/* ── LEFT column ── */}
         <div className="flex min-w-0 flex-col gap-6">
           {/* METRICS ARE NOT CARDS ANY MORE.

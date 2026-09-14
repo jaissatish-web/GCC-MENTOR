@@ -24,7 +24,7 @@ const TABS = [
 export function AdminNav() {
   const pathname = usePathname()
   return (
-    <nav className="flex flex-wrap gap-1 border-b border-line px-5 pt-4 font-redesign-sans">
+    <nav aria-label="Founder controls" className="flex max-w-full gap-1 overflow-x-auto border-b border-line px-5 pt-4 font-redesign-sans sm:flex-wrap">
       {TABS.map((tab) => {
         const active = pathname === tab.href
         return (
@@ -32,7 +32,7 @@ export function AdminNav() {
             key={tab.href}
             href={tab.href}
             aria-current={active ? 'page' : undefined}
-            className={`-mb-px rounded-t-radius-md border-b-2 px-3 py-2 text-[13px] font-semibold transition-colors ${
+            className={`-mb-px inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-t-radius-md border-b-2 px-3 py-2 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal ${
               active
                 ? 'border-teal text-ink'
                 : 'border-transparent text-ink-muted hover:text-ink'

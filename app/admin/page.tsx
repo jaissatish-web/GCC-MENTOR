@@ -109,7 +109,7 @@ export default async function AdminDashboardPage() {
       width="wide"
     >
 
-      <section className="grid gap-3 md:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Card className={aiReady ? 'p-4' : 'border-alert/40 bg-alert-soft p-4'}>
           <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">AI Status</p>
           <p className={aiReady ? 'mt-2 font-display text-[24px] font-semibold text-teal' : 'mt-2 font-display text-[24px] font-semibold text-alert'}>
@@ -144,11 +144,11 @@ export default async function AdminDashboardPage() {
             <div>
               <h2 className="font-display text-[18px] font-semibold text-ink">Launch checklist</h2>
               <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
-                The items that decide whether the SaaS is safe to sell today.
+                Configuration indicators only. Confirm generation, downloads and paid access with a real test account before launch.
               </p>
             </div>
             <span className="rounded-full bg-canvas px-3 py-1 text-[12px] font-semibold text-ink-muted">
-              {launchChecks.filter((c) => c.ok).length}/{launchChecks.length} ready
+              {launchChecks.filter((c) => c.ok).length}/{launchChecks.length} configured
             </span>
           </div>
           <div className="mt-4 flex flex-col divide-y divide-line">
@@ -170,9 +170,9 @@ export default async function AdminDashboardPage() {
         </Card>
 
         <Card className="p-5">
-          <h2 className="font-display text-[18px] font-semibold text-ink">Service control model</h2>
+          <h2 className="font-display text-[18px] font-semibold text-ink">Service availability</h2>
           <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
-            Keep each service honest: live services are configurable, planned services are visible, and paid gates return before launch.
+            Resume and cover letter settings are available below. Interview tools remain planned; their links open provider settings, not an implemented interview service.
           </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {[

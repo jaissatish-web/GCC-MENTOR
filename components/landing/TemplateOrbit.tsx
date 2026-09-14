@@ -140,7 +140,7 @@ function SelectedTemplatePreview({ templateId }: { templateId: TemplateId }) {
       <div className="rounded-card border border-line bg-canvas p-4">
         <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
           <MagnifyingGlassPlusIcon className="size-4" />
-          Clicked template
+          Selected template
         </div>
         <h4 className="mt-3 font-display text-[22px] font-semibold leading-tight text-ink">{template.name}</h4>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{template.description}</p>
@@ -153,7 +153,7 @@ function SelectedTemplatePreview({ templateId }: { templateId: TemplateId }) {
           </span>
         </div>
         <p className="mt-4 text-[12.5px] leading-relaxed text-ink-muted">
-          Rendered from the real resume template engine using the fictional GCC sample CV.
+          Actual template preview using a fictional example CV.
         </p>
       </div>
     </div>
@@ -255,12 +255,12 @@ export function TemplateOrbit() {
         <div>
           <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal">10 actual GCC templates</span>
           <h3 className="mt-2 font-display text-[24px] font-semibold leading-tight text-ink">
-            Real resume previews on an upright circular stage.
+            Find a style that fits your next role.
           </h3>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-gold-ink">
           <ArrowPathIcon className="size-3.5" />
-          Clockwise
+          Explore
         </span>
       </div>
 
@@ -295,18 +295,18 @@ export function TemplateOrbit() {
           })}
         </div>
         <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full border border-teal/20 bg-white/90 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-teal shadow-m-2">
-          front resume is enlarged below
+          Tap a resume to preview
         </div>
       </div>
 
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[12.5px] leading-relaxed text-ink-muted">
-          Click any resume to stop the circulation and inspect that exact template below.
+          Select a resume to pause and see its preview below.
         </p>
         <button
           type="button"
           onClick={() => setPaused((value) => !value)}
-          className="inline-flex items-center justify-center gap-2 rounded-ctl border border-line bg-white px-3 py-2 text-[12.5px] font-bold text-ink shadow-m-1 transition hover:border-teal/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-ctl border border-line bg-white px-3 py-2 text-[12.5px] font-bold text-ink shadow-m-1 transition hover:border-teal/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
         >
           {paused ? <PlayIcon className="size-4" /> : <PauseIcon className="size-4" />}
           {paused ? 'Resume rotation' : 'Pause rotation'}

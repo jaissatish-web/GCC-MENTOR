@@ -540,7 +540,7 @@ function PackageScreenInner({ id }: { id: string }) {
               {pkg.target_company ? `${pkg.target_company} · ` : ''}{pkg.target_country ?? 'GCC target'}
             </p>
           </div>
-          <div className="mt-3 grid gap-2 md:grid-cols-4">
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
             {packageSteps.map((step) => {
               const content = (
                 <>
@@ -591,7 +591,7 @@ function PackageScreenInner({ id }: { id: string }) {
               Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Not saved yet — your
               download still uses <strong>{getTemplate(savedTemplateId).name}</strong>.
             </p>
-            <span className="flex shrink-0 gap-2">
+            <span className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => void applyTemplate(activeTemplateId)}

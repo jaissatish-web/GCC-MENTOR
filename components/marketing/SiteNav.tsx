@@ -43,7 +43,7 @@ import { PublicMenu } from './PublicMenu'
  * the three-bar panel, so it cannot drift from the header either.
  */
 const ITEMS = [
-  ['Pain points', '#pain'],
+  ['Why GCC Mentor', '#pain'],
   ['Services', '#services'],
   ['Templates', '#templates'],
   ['Interview prep', '#interview'],
@@ -57,15 +57,15 @@ export function SiteNav() {
       <div className="mx-auto flex h-[68px] max-w-[1240px] items-center justify-between gap-3 px-5 sm:px-8 lg:px-12">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2.5 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+          className="flex shrink-0 items-center gap-1.5 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
         >
           <span className="flex size-9 items-center justify-center rounded-ctl bg-teal font-display text-[16px] font-bold text-white">
             G
           </span>
-          <span className="font-display text-[16px] font-bold tracking-[-0.01em] text-ink">GCC MENTOR</span>
+          <span className="font-display text-[14px] font-bold tracking-[-0.01em] text-ink sm:text-[16px]">GCC MENTOR</span>
         </Link>
 
-        <nav aria-label="Sections" className="hidden items-center gap-1 lg:flex">
+        <nav aria-label="Sections" className="hidden items-center gap-1 xl:flex">
           {ITEMS.map(([label, href]) => (
             <a
               key={href}
