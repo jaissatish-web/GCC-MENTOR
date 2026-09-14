@@ -14,8 +14,10 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import {
   BriefcaseIcon,
   ChartBarIcon,
+  ChatBubbleLeftRightIcon,
   DocumentTextIcon,
   EnvelopeIcon,
+  QuestionMarkCircleIcon,
   RectangleStackIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline'
@@ -62,6 +64,55 @@ const PLANNED_SERVICES: ReadonlyArray<{ title: string; description: string }> = 
   {
     title: 'Saved Jobs',
     description: 'Keep track of roles you want to apply to.',
+  },
+]
+
+const SERVICE_TILES: ReadonlyArray<{
+  title: string
+  body: string
+  status: 'Ready' | 'Next' | 'Planned'
+  href?: string
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+}> = [
+  {
+    title: 'Career Profile',
+    body: 'One trusted source for every resume, letter and interview answer.',
+    status: 'Ready',
+    href: '/profile',
+    icon: UserCircleIcon,
+  },
+  {
+    title: 'Resume Optimizer',
+    body: 'Build a GCC CV for one target role and job description.',
+    status: 'Ready',
+    href: '/optimize/target',
+    icon: DocumentTextIcon,
+  },
+  {
+    title: 'GCC Templates',
+    body: 'Switch ATS-safe and photo-led resume formats without retyping.',
+    status: 'Ready',
+    href: '/templates',
+    icon: RectangleStackIcon,
+  },
+  {
+    title: 'Cover Letter',
+    body: 'Write a role-specific letter from the same application package.',
+    status: 'Ready',
+    href: '/cover-letter',
+    icon: EnvelopeIcon,
+  },
+  {
+    title: 'Interview Q&A',
+    body: 'Will generate answers from the final CV and target role.',
+    status: 'Planned',
+    icon: QuestionMarkCircleIcon,
+  },
+  {
+    title: 'Mock Interview',
+    body: 'Will score speaking, confidence and technical readiness.',
+    status: 'Planned',
+    icon: ChatBubbleLeftRightIcon,
   },
 ]
 
@@ -416,6 +467,24 @@ export default function DashboardPage() {
             </section>
           </Reveal>
 
+          <Reveal delay={125}>
+            <section className="flex flex-col gap-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+                  Services
+                </span>
+                <span className="text-[12px] font-medium text-ink-muted">
+                  {packageCount > 0 ? `${packageCount} application${packageCount === 1 ? '' : 's'} in progress` : 'Start with one target job'}
+                </span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {SERVICE_TILES.map((service) => (
+                  <ServiceTile key={service.title} {...service} />
+                ))}
+              </div>
+            </section>
+          </Reveal>
+
           {/* New "Planned" row — LockedTile, per PLANNED_SERVICES.md */}
           <Reveal delay={140}>
             <section className="flex flex-col gap-3">
@@ -552,6 +621,67 @@ function categoryLabel(category: string): string {
     currently_in_gulf: 'In the Gulf',
   }
   return map[category] ?? category
+}
+
+function ServiceTile({
+  title,
+  body,
+  status,
+  href,
+  icon: Icon,
+}: {
+  title: string
+  body: string
+  status: 'Ready' | 'Next' | 'Planned'
+  href?: string
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+}) {
+  const content = (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <span
+          aria-hidden="true"
+          className={cn(
+            'flex size-10 shrink-0 items-center justify-center rounded-ctl',
+            status === 'Planned' ? 'bg-canvas text-ink-muted' : 'bg-teal-soft text-teal',
+          )}
+        >
+          <Icon className="size-5" />
+        </span>
+        <span
+          className={cn(
+            'rounded-full px-2 py-1 text-[12px] font-bold uppercase tracking-[0.08em]',
+            status === 'Planned'
+              ? 'border border-line text-ink-muted'
+              : 'bg-teal-soft text-teal',
+          )}
+        >
+          {status}
+        </span>
+      </div>
+      <div className="mt-4">
+        <h3 className="font-display text-[16px] font-semibold leading-snug text-ink">{title}</h3>
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-soft">{body}</p>
+      </div>
+    </>
+  )
+
+  if (!href) {
+    return (
+      <div className="min-h-[154px] rounded-card border border-dashed border-line-strong bg-white p-4 opacity-80">
+        {content}
+      </div>
+    )
+  }
+
+  return (
+    <Link
+      href={href}
+      className="min-h-[154px] rounded-card border border-line bg-white p-4 shadow-m-1 transition-all hover:-translate-y-px hover:border-teal/50 hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 motion-reduce:transform-none"
+    >
+      {content}
+    </Link>
+  )
 }
 
 /**

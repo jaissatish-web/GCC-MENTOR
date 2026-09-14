@@ -301,6 +301,38 @@ function PackageScreenInner({ id }: { id: string }) {
   // shipping one. Re-link it once the generator mirrors the template.
   const whatsappText = encodeURIComponent(`Here is my optimized Gulf CV: ${pkg.target_job_title}`)
   const waUrl = `https://wa.me/?text=${whatsappText}`
+  const cvReady = pkg.optimized_content != null
+  const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
+  const packageSteps = [
+    {
+      title: 'Optimized CV',
+      state: cvReady ? 'Ready' : 'Build',
+      body: cvReady ? 'Role-specific Gulf resume is ready.' : 'Build this CV for the target job.',
+      href: cvReady ? null : pkg.is_paid ? `/optimize/generate/${encodeURIComponent(id)}` : `/optimize/pay/${encodeURIComponent(id)}`,
+      live: true,
+    },
+    {
+      title: 'Cover letter',
+      state: letterReady ? 'Ready' : 'Next',
+      body: letterReady ? 'Letter exists for this package.' : 'Write it from the same resume and role.',
+      href: letterReady ? `/cover-letter` : `/cover-letter?package=${encodeURIComponent(id)}`,
+      live: true,
+    },
+    {
+      title: 'Interview Q&A',
+      state: 'Planned',
+      body: 'Answers should come from this final CV and job description.',
+      href: null,
+      live: false,
+    },
+    {
+      title: 'Mock interview',
+      state: 'Planned',
+      body: 'Practice speaking, confidence and technical depth.',
+      href: null,
+      live: false,
+    },
+  ]
 
   return (
     // 1400px, widened from 1240 in TASK-146 to pay for the 260px template rail
@@ -490,10 +522,64 @@ function PackageScreenInner({ id }: { id: string }) {
       ) : null}
 
       {/* Actions live in the header row now (TASK-160); the templates stay in the
-          left rail beside the document (TASK-146). What remains here is the two
-          transient notices, which only occupy height when they have something to
-          say. */}
+          left rail beside the document (TASK-146). What remains here is the
+          package journey plus transient notices, so the page explains what this
+          job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
+        <section className="rounded-card border border-line bg-white p-3 shadow-m-1 sm:p-4">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+                Application package
+              </p>
+              <h2 className="font-display text-[18px] leading-tight text-ink">
+                {pkg.target_job_title}
+              </h2>
+            </div>
+            <p className="text-[12.5px] text-ink-soft">
+              {pkg.target_company ? `${pkg.target_company} · ` : ''}{pkg.target_country ?? 'GCC target'}
+            </p>
+          </div>
+          <div className="mt-3 grid gap-2 md:grid-cols-4">
+            {packageSteps.map((step) => {
+              const content = (
+                <>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[13px] font-bold text-ink">{step.title}</span>
+                    <span
+                      className={
+                        step.live
+                          ? 'rounded-full bg-teal-soft px-2 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-teal'
+                          : 'rounded-full border border-line px-2 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-muted'
+                      }
+                    >
+                      {step.state}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">{step.body}</p>
+                </>
+              )
+
+              return step.href ? (
+                <Link
+                  key={step.title}
+                  href={step.href}
+                  className="min-h-[98px] rounded-ctl border border-line bg-canvas p-3 transition-colors hover:border-teal/50 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+                >
+                  {content}
+                </Link>
+              ) : (
+                <div
+                  key={step.title}
+                  className="min-h-[98px] rounded-ctl border border-dashed border-line bg-canvas p-3"
+                >
+                  {content}
+                </div>
+              )
+            })}
+          </div>
+        </section>
+
         {/* Trying a template from the gallery. This must stay: a click in the
             gallery arrives as ?template= and renders immediately WITHOUT being
             saved, so the user needs an explicit way to keep or discard it —

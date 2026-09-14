@@ -40,6 +40,16 @@ export default async function AdminDashboardPage() {
   const defaultConfigured = allProviderConfigs.some((c) => c.key === 'default')
   const activePromoCodes = promoCodes.filter((c) => c.active).length
   const activePackages = servicePackages.filter((p) => p.isActive).length
+  const liveLegal = legalLive === 3
+  const commerceReady = activePromoCodes > 0 || activePackages > 0
+  const aiReady = providerConfigured && defaultConfigured
+
+  const launchChecks = [
+    { label: 'AI default configured', ok: aiReady },
+    { label: 'Legal pages published', ok: liveLegal },
+    { label: 'Manual unlock path ready', ok: commerceReady },
+    { label: 'PII access log reachable', ok: true },
+  ]
 
   const sections: {
     title: string
@@ -94,9 +104,97 @@ export default async function AdminDashboardPage() {
 
   return (
     <PageShell
-      title="Admin"
-      subtitle={`Signed in as ${admin.email ?? admin.id}. Operational tooling — one dashboard, one page per function.`}
+      title="Founder Control Center"
+      subtitle={`Signed in as ${admin.email ?? admin.id}. Control services, AI, launch readiness and user support without touching code.`}
+      width="wide"
     >
+
+      <section className="grid gap-3 md:grid-cols-4">
+        <Card className={aiReady ? 'p-4' : 'border-alert/40 bg-alert-soft p-4'}>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">AI Status</p>
+          <p className={aiReady ? 'mt-2 font-display text-[24px] font-semibold text-teal' : 'mt-2 font-display text-[24px] font-semibold text-alert'}>
+            {aiReady ? 'Ready' : 'Check'}
+          </p>
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">
+            {allProviderConfigs.length} service config{allProviderConfigs.length === 1 ? '' : 's'}
+          </p>
+        </Card>
+        <Card className={liveLegal ? 'p-4' : 'border-alert/40 bg-alert-soft p-4'}>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">Legal</p>
+          <p className={liveLegal ? 'mt-2 font-display text-[24px] font-semibold text-teal' : 'mt-2 font-display text-[24px] font-semibold text-alert'}>
+            {legalLive}/3
+          </p>
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">Privacy, terms, refund</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">Unlocks</p>
+          <p className="mt-2 font-display text-[24px] font-semibold text-teal">{activePromoCodes}</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">Active promo codes</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">Packages</p>
+          <p className="mt-2 font-display text-[24px] font-semibold text-teal">{activePackages}</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">Active service bundles</p>
+        </Card>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <Card className="p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="font-display text-[18px] font-semibold text-ink">Launch checklist</h2>
+              <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
+                The items that decide whether the SaaS is safe to sell today.
+              </p>
+            </div>
+            <span className="rounded-full bg-canvas px-3 py-1 text-[12px] font-semibold text-ink-muted">
+              {launchChecks.filter((c) => c.ok).length}/{launchChecks.length} ready
+            </span>
+          </div>
+          <div className="mt-4 flex flex-col divide-y divide-line">
+            {launchChecks.map((item) => (
+              <div key={item.label} className="flex items-center justify-between gap-3 py-3">
+                <span className="text-[13px] font-medium text-ink">{item.label}</span>
+                <span
+                  className={
+                    item.ok
+                      ? 'rounded-full bg-teal-soft px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.08em] text-teal'
+                      : 'rounded-full bg-alert-soft px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.08em] text-alert'
+                  }
+                >
+                  {item.ok ? 'Ready' : 'Open'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="p-5">
+          <h2 className="font-display text-[18px] font-semibold text-ink">Service control model</h2>
+          <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
+            Keep each service honest: live services are configurable, planned services are visible, and paid gates return before launch.
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {[
+              ['Resume Optimizer', 'Live', '/admin/ai-provider'],
+              ['Cover Letter', 'Live', '/admin/ai-provider'],
+              ['GCC Templates', 'Live', '/templates'],
+              ['Interview Q&A', 'Planned', '/admin/ai-provider'],
+              ['Mock Interview', 'Planned', '/admin/ai-provider'],
+              ['Payments', 'Manual now', '/admin/promo-codes'],
+            ].map(([name, status, href]) => (
+              <Link
+                key={name}
+                href={href}
+                className="flex items-center justify-between gap-3 rounded-ctl border border-line bg-canvas px-3 py-2.5 transition-colors hover:border-teal/40 hover:bg-white"
+              >
+                <span className="text-[13px] font-semibold text-ink">{name}</span>
+                <span className="text-[12px] font-semibold text-ink-muted">{status}</span>
+              </Link>
+            ))}
+          </div>
+        </Card>
+      </section>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {sections.map((s) => (

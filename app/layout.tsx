@@ -102,6 +102,9 @@ export const metadata: Metadata = {
   },
   description: DESCRIPTION,
   applicationName: 'GCC MENTOR',
+  icons: {
+    icon: '/favicon.svg',
+  },
   keywords: [
     'Gulf jobs',
     'GCC resume',

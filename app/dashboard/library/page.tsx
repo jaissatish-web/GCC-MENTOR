@@ -173,6 +173,89 @@ function JobSubtitle({ pkg }: { pkg: Package }) {
   return <span className="truncate text-[13px] font-medium text-ink-soft">{parts.join(' · ')}</span>
 }
 
+function ApplicationCard({
+  pkg,
+  confirmingDelete,
+  onRename,
+  onStage,
+  onDelete,
+}: {
+  pkg: Package
+  confirmingDelete: boolean
+  onRename: (next: string) => void
+  onStage: (next: PackageStatus) => void
+  onDelete: () => void
+}) {
+  const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
+  const cvReady = pkg.optimized_content != null
+  const readyCount = Number(cvReady) + Number(letterPresent)
+  const totalCount = 4
+  const progress = Math.round((readyCount / totalCount) * 100)
+
+  return (
+    <article className="flex min-w-0 flex-col gap-4 rounded-card border border-line bg-white p-4 shadow-m-1 transition-shadow hover:shadow-m-2 sm:p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <NameField
+            value={pkg.name ?? ''}
+            fallback={pkg.target_job_title}
+            onSave={onRename}
+          />
+          <div className="px-1.5">
+            <JobSubtitle pkg={pkg} />
+          </div>
+        </div>
+        <StageSelect value={pkg.status} onChange={onStage} className="self-start" />
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-4">
+        <ArtifactChip label={cvReady ? 'CV ready' : 'CV not built'} present={cvReady} />
+        <ArtifactChip label={letterPresent ? 'Letter ready' : 'Letter needed'} present={letterPresent} />
+        <ArtifactChip label="Q&A planned" present={false} />
+        <ArtifactChip label="Mock planned" present={false} />
+      </div>
+
+      <div className="rounded-ctl bg-canvas px-3 py-2">
+        <div className="flex items-center justify-between gap-3 text-[12px] font-semibold text-ink-muted">
+          <span>Application package</span>
+          <span>{readyCount}/{totalCount} ready</span>
+        </div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-line">
+          <span className="block h-full rounded-full bg-teal" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href={`/package/${pkg.id}`}
+          className={cn(buttonVariants({ variant: cvReady ? 'progress' : 'primary', size: 'sm' }), 'flex-1 sm:flex-none')}
+        >
+          {cvReady ? 'Open workspace' : 'Continue build'}
+        </Link>
+        <Link href={`/package/${pkg.id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
+          Edit text
+        </Link>
+        <button
+          type="button"
+          onClick={onDelete}
+          aria-pressed={confirmingDelete}
+          className={cn(buttonVariants({ variant: confirmingDelete ? 'danger-solid' : 'danger', size: 'sm' }))}
+        >
+          {confirmingDelete ? 'Confirm delete' : 'Delete'}
+        </button>
+      </div>
+
+      <p className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line pt-3 text-[12px] text-ink-muted">
+        <span>{templateNameFor(pkg.template_id)} template</span>
+        <span aria-hidden>·</span>
+        <span>{levelLabel(pkg.optimization_level)} optimization</span>
+        <span aria-hidden>·</span>
+        <span>Updated {formatDay(pkg.updated_at ?? pkg.created_at)}</span>
+      </p>
+    </article>
+  )
+}
+
 export default function TargetJobsPage() {
   const [packages, setPackages] = useState<Package[] | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -318,10 +401,10 @@ export default function TargetJobsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1">
           <h1 className="font-display text-[27px] font-bold leading-tight tracking-[-0.02em] text-ink">
-            Resume Library
+            Application Packages
           </h1>
           <p className="text-[13px] text-ink-soft">
-            Every role you are going for, with its CV and where it stands.
+            Every target job in one card: CV, cover letter, stage and next action.
           </p>
         </div>
         {packages.length > 0 ? (
@@ -414,154 +497,19 @@ export default function TargetJobsPage() {
         </div>
       ) : null}
 
-      {/* ── MOBILE: cards ── */}
-      <div className="grid gap-3 lg:hidden">
-        {visible.map((pkg) => {
-          const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
-          // "CV ✓" was hard-coded, so a job set up but never built claimed a CV
-          // it did not have. A CV exists when the generated content does.
-          const cvReady = pkg.optimized_content != null
-          return (
-            <div key={pkg.id} className="border border-line bg-white p-4">
-              {/* THE TITLE GETS THE FULL WIDTH ON A PHONE.
-                  The stage control was a sibling of the title, and a native
-                  <select> sizes itself to its LONGEST option — "Visa
-                  processing" — so it claimed about 140px of a 375px screen
-                  whatever stage the job was actually at. That truncated the
-                  role to "Senior Piping E…": the row's own identity cut short
-                  to make room for a control. It drops to the row below, beside
-                  the chips, which is dead space anyway. */}
-              <div className="flex min-w-0 flex-col gap-1">
-                {/* The row's identity is the job. Editable in place, with the
-                    target job title as the fallback, so an unnamed job reads
-                    exactly as it always did. */}
-                <NameField
-                  value={pkg.name ?? ''}
-                  fallback={pkg.target_job_title}
-                  onSave={(next) => renamePackage(pkg.id, next)}
-                />
-                <div className="px-1.5">
-                  <JobSubtitle pkg={pkg} />
-                </div>
-              </div>
-
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <StageSelect value={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
-                {/* No "ATS —" chip: the ATS score was withdrawn with Job
-                    Match on 2026-09-04, so every row showed a dash for a
-                    service the user cannot get. */}
-                <ArtifactChip label={cvReady ? 'CV ✓' : 'CV not built'} present={cvReady} />
-                <ArtifactChip label={letterPresent ? 'Letter ✓' : 'Letter —'} present={letterPresent} />
-              </div>
-
-              {/* Three real buttons. "Edit" and "Delete" were bare words at
-                  different baselines, and Delete was plain black — the one
-                  action that cannot be undone looked like the safest. */}
-              <div className="mt-3.5 flex items-center gap-2">
-                <Link
-                  href={`/package/${pkg.id}`}
-                  className={cn(buttonVariants({ variant: 'progress', size: 'sm' }), 'flex-1')}
-                >
-                  {cvReady ? 'Open CV' : 'Continue'}
-                </Link>
-                <Link href={`/package/${pkg.id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
-                  Edit
-                </Link>
-                <button
-                  type="button"
-                  onClick={() =>
-                    confirmingDelete === pkg.id ? deletePackage(pkg.id) : setConfirmingDelete(pkg.id)
-                  }
-                  aria-pressed={confirmingDelete === pkg.id}
-                  className={cn(
-                    buttonVariants({ variant: confirmingDelete === pkg.id ? 'danger-solid' : 'danger', size: 'sm' }),
-                  )}
-                >
-                  {confirmingDelete === pkg.id ? 'Confirm delete' : 'Delete'}
-                </button>
-              </div>
-
-              {/* Template and date only. The row used to lead this line with
-                  "ID e5c09197" and "Moderate optimization" — our database key
-                  and our internal setting, neither of which the user chose or
-                  can act on. */}
-              <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line pt-2.5 text-[12px] text-ink-muted">
-                <span>{templateNameFor(pkg.template_id)} template</span>
-                <span aria-hidden>·</span>
-                <span>Updated {formatDay(pkg.updated_at ?? pkg.created_at)}</span>
-              </p>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* ── DESKTOP: table ──
-          Job / Employer / Stage / Documents / Actions. Rename and delete are
-          present here as well as on mobile — both were desktop-unreachable
-          until 2026-08-19, and a hard delete with no desktop entry point meant
-          rows a desktop user had no way to remove. */}
-      <div className="hidden overflow-hidden border border-line bg-white lg:block">
-        <div className="grid grid-cols-[2.2fr_1.4fr_1.1fr_1fr_170px] gap-4 border-b border-line bg-canvas px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
-          <span>Job</span>
-          <span>Employer</span>
-          <span>Stage</span>
-          <span>Documents</span>
-          <span className="text-right">Actions</span>
-        </div>
-        {visible.map((pkg) => {
-          const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
-          const cvReady = pkg.optimized_content != null
-          return (
-            <div
-              key={pkg.id}
-              className="grid grid-cols-[2.2fr_1.4fr_1.1fr_1fr_170px] items-center gap-4 border-b border-line px-5 py-3.5 last:border-0"
-            >
-              <div className="flex min-w-0 flex-col gap-0.5">
-                {/* Same handler as the mobile card, so the two views cannot
-                    drift apart in behaviour. */}
-                <NameField
-                  value={pkg.name ?? ''}
-                  fallback={pkg.target_job_title}
-                  onSave={(next) => renamePackage(pkg.id, next)}
-                />
-                <span className="px-1.5 text-[12px] text-ink-muted">{templateNameFor(pkg.template_id)} template</span>
-              </div>
-              <div className="flex min-w-0 flex-col gap-0.5">
-                <JobSubtitle pkg={pkg} />
-                <span className="text-[12px] text-ink-muted">Added {formatDay(pkg.created_at)}</span>
-              </div>
-              <div className="justify-self-start">
-                <StageSelect value={pkg.status} onChange={(s) => changeStatus(pkg.id, s)} />
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                <ArtifactChip label={cvReady ? 'CV ✓' : 'CV not built'} present={cvReady} />
-                <ArtifactChip label={letterPresent ? 'Letter ✓' : 'Letter —'} present={letterPresent} />
-              </div>
-              <div className="flex items-center justify-end gap-2">
-                <Link
-                  href={`/package/${pkg.id}`}
-                  className="inline-flex min-h-9 items-center justify-center rounded-ctl bg-teal px-3.5 text-[12px] font-semibold text-white transition-colors hover:bg-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
-                >
-                  Open
-                </Link>
-                <button
-                  type="button"
-                  onClick={() =>
-                    confirmingDelete === pkg.id ? deletePackage(pkg.id) : setConfirmingDelete(pkg.id)
-                  }
-                  aria-pressed={confirmingDelete === pkg.id}
-                  title="Delete this target job"
-                  className={cn(
-                    'min-h-9 rounded-ctl px-2 text-[12px] font-semibold text-ink-muted transition-colors hover:bg-alert-soft hover:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert',
-                    confirmingDelete === pkg.id && 'bg-alert-soft text-alert'
-                  )}
-                >
-                  {confirmingDelete === pkg.id ? 'Confirm?' : 'Delete'}
-                </button>
-              </div>
-            </div>
-          )
-        })}
+      <div className="grid gap-4 xl:grid-cols-2">
+        {visible.map((pkg) => (
+          <ApplicationCard
+            key={pkg.id}
+            pkg={pkg}
+            confirmingDelete={confirmingDelete === pkg.id}
+            onRename={(next) => renamePackage(pkg.id, next)}
+            onStage={(s) => changeStatus(pkg.id, s)}
+            onDelete={() =>
+              confirmingDelete === pkg.id ? deletePackage(pkg.id) : setConfirmingDelete(pkg.id)
+            }
+          />
+        ))}
       </div>
     </div>
   )
