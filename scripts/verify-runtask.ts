@@ -71,15 +71,14 @@ check('repair asks for the same format back', /same format/i.test(repair))
 
 console.log('\nService registry')
 const keys = Object.keys(AI_SERVICES)
-// The five keys a route genuinely passes to the provider. Checked by name so
+// The keys a route genuinely passes to the provider. Checked by name so
 // that removing a call site without updating the registry fails here.
-const CALLED = ['extraction', 'optimization', 'job_description', 'job_match_explanation', 'cover_letter'] as const
+const CALLED = ['extraction', 'optimization', 'job_description', 'job_match_explanation', 'cover_letter', 'qa_generation'] as const
 check('every service that makes a model call is present', CALLED.every((k) => keys.includes(k)))
 check('every called service is marked built', CALLED.every((k) => AI_SERVICES[k].built === true))
 check(
   'services with no caller are marked unbuilt',
-  AI_SERVICES.qa_generation.built === false &&
-    AI_SERVICES.mock_interview.built === false &&
+  AI_SERVICES.mock_interview.built === false &&
     // Readiness is deterministic arithmetic; nothing passes this key.
     AI_SERVICES.ats_scan.built === false,
 )

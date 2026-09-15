@@ -15,7 +15,7 @@
  *
  * WHAT IT COSTS, stated plainly because it is not free:
  *   - It writes to the LIVE Supabase project (there is only one).
- *   - It spends roughly SIX real model calls unless `--no-ai` is passed.
+ *   - It spends roughly SEVEN real model calls unless `--no-ai` is passed.
  *   - It consumes rate-limit slots for the throwaway user only.
  * Everything it creates is deleted at the end, including on failure: the user
  * is removed and the schema's cascades take the profile, its children and the
@@ -220,7 +220,7 @@ async function run() {
   }
 
   section('The auth wall actually holds')
-  for (const path of ['/dashboard', '/profile', '/settings', '/dashboard/library']) {
+  for (const path of ['/dashboard', '/profile', '/settings', '/dashboard/library', '/interview-qa']) {
     const r = await req(path, { auth: false })
     const loc = r.headers.get('location') ?? ''
     check(`${path} redirects a signed-out visitor to /login`, r.status === 307 && loc.includes('/login'), `status ${r.status} → ${loc || 'no location'}`)
@@ -395,6 +395,11 @@ async function run() {
     if (packageId && !SKIP_AI) {
       const cl = await req(`/api/packages/${packageId}/cover-letter`, { method: 'POST', json: {} })
       check('POST cover-letter generates a letter', cl.status === 200, `status ${cl.status} ${short(cl.body)}`)
+
+      const qa = await req(`/api/packages/${packageId}/interview-qa`, { method: 'POST' })
+      const questions = qa.body?.interview_questions?.questions ?? []
+      check('POST interview-qa generates 25 saved Q&A items', qa.status === 200 && questions.length === 25, `status ${qa.status} ${short(qa.body)}`)
+      check('interview Q&A contains usable answers', questions.every((q) => q.question && q.answer && q.resume_basis), short(questions[0]))
     }
   }
 
@@ -426,6 +431,7 @@ async function run() {
     check('cost is priced, not silently zero', logged.every((r) => Number(r.estimated_cost_inr) > 0), JSON.stringify(logged.map((r) => r.estimated_cost_inr)))
     check('extraction and optimization both attributed their spend', routes.includes('/api/optimize'), routes.join(','))
     check('extraction attributed its spend to the user', routes.includes('/api/parse/text'), routes.join(','))
+    check('interview Q&A attributed its spend to the user', routes.includes('/api/packages/[id]/interview-qa'), routes.join(','))
     const total = logged.reduce((n, r) => n + Number(r.estimated_cost_inr), 0)
     console.log(`        this run cost about ₹${total.toFixed(2)}`)
   }

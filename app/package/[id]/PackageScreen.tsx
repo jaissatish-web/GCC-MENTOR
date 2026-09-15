@@ -303,6 +303,7 @@ function PackageScreenInner({ id }: { id: string }) {
   const waUrl = `https://wa.me/?text=${whatsappText}`
   const cvReady = pkg.optimized_content != null
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
+  const qaReady = Boolean(pkg.interview_questions?.questions?.length)
   const packageSteps = [
     {
       title: 'Optimized CV',
@@ -320,10 +321,10 @@ function PackageScreenInner({ id }: { id: string }) {
     },
     {
       title: 'Interview Q&A',
-      state: 'Planned',
-      body: 'Answers should come from this final CV and job description.',
-      href: null,
-      live: false,
+      state: qaReady ? 'Ready' : 'Next',
+      body: qaReady ? 'Practice answers are saved for this package.' : 'Generate 25 answers from this final CV and job description.',
+      href: `/interview-qa?package=${encodeURIComponent(id)}`,
+      live: true,
     },
     {
       title: 'Mock interview',
@@ -624,9 +625,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         ) : null}
 
-        {/* The next thing this job needs, from the job's own page (2026-09-12).
-            Opens the cover letter with THIS job already chosen; there was no
-            way from a finished CV to its letter except the menu. */}
+        {/* The next things this job needs, from the job's own page. */}
         {!isFree && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
           <div className="flex flex-col gap-2 rounded-card border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[13px] text-ink-soft">
@@ -638,6 +637,21 @@ function PackageScreenInner({ id }: { id: string }) {
               className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} shrink-0`}
             >
               Write the cover letter
+            </Link>
+          </div>
+        ) : null}
+
+        {!isFree && cvReady && !qaReady ? (
+          <div className="flex flex-col gap-2 rounded-card border border-teal/30 bg-teal-soft/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[13px] text-ink-soft">
+              <strong className="text-ink">Interview prep:</strong> generate 25 practice answers from this
+              optimized CV and target role.
+            </p>
+            <Link
+              href={`/interview-qa?package=${encodeURIComponent(id)}`}
+              className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} shrink-0`}
+            >
+              Prepare Q&amp;A
             </Link>
           </div>
         ) : null}

@@ -33,7 +33,7 @@ export const AI_SERVICES = {
   job_description: { label: 'Job Description Structuring', built: true, description: 'Turns a pasted job advert into structured requirements.' },
   job_match_explanation: { label: 'Job Match Explanation', built: true, description: 'The semantic half of Job Match — why each category scored as it did.' },
   cover_letter: { label: 'Cover Letter', built: true, description: 'Writes a cover letter for a resume package.' },
-  qa_generation: { label: 'Interview Q&A', built: false, description: 'Planned interview preparation. No route calls this yet.' },
+  qa_generation: { label: 'Interview Q&A', built: true, description: 'Generates role-specific interview questions and answers from an optimized resume package.' },
   mock_interview: { label: 'Mock Interview', built: false, description: 'Planned mock-interview review. No route calls this yet.' },
 } as const
 
@@ -61,6 +61,6 @@ export const TOKEN_BUDGET: Record<ServiceKey, number> = {
   job_description: 3000,
   job_match_explanation: 3000,
   cover_letter: 4000,
-  qa_generation: 4000,
+  qa_generation: 6000,
   mock_interview: 4000,
 }

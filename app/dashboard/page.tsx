@@ -58,10 +58,6 @@ const PLANNED_SERVICES: ReadonlyArray<{ title: string; description: string }> = 
     description: 'Practice the conversation with guided AI feedback.',
   },
   {
-    title: 'Q&A / Interview Prep',
-    description: 'Prepare role-specific technical and HR answers.',
-  },
-  {
     title: 'Saved Jobs',
     description: 'Keep track of roles you want to apply to.',
   },
@@ -104,8 +100,9 @@ const SERVICE_TILES: ReadonlyArray<{
   },
   {
     title: 'Interview Q&A',
-    body: 'Will generate answers from the final CV and target role.',
-    status: 'Planned',
+    body: 'Generate 25 role-specific answers from the final CV and target role.',
+    status: 'Ready',
+    href: '/interview-qa',
     icon: QuestionMarkCircleIcon,
   },
   {
@@ -128,6 +125,7 @@ const QUICK_ACTIONS: ReadonlyArray<{
   { label: 'Check profile strength', href: '/profile', icon: ChartBarIcon, tint: 'bg-teal-soft text-teal' },
   { label: 'Optimize my CV for a job', href: '/optimize/target', icon: DocumentTextIcon, tint: 'bg-gold-soft text-gold-ink' },
   { label: 'Write a cover letter', href: '/cover-letter', icon: EnvelopeIcon, tint: 'bg-sec-summary/10 text-sec-summary' },
+  { label: 'Prepare interview Q&A', href: '/interview-qa', icon: QuestionMarkCircleIcon, tint: 'bg-teal-soft text-teal' },
   { label: 'Open my Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, tint: 'bg-ok-soft text-ok' },
 ]
 

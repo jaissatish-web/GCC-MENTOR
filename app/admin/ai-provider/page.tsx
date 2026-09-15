@@ -60,9 +60,9 @@ const providerLabel = (p: string) => PROVIDER_LABELS[p] ?? p
  * `fallback_model` column, which is a same-provider OpenRouter retry list,
  * untouched here.
  *
- * qa_generation / mock_interview are included even though no route in this
- * codebase passes those configKeys yet — inert until a real feature reads
- * that key (founder decision, 2026-08-11 — see docs/TASKS.md TASK-099).
+ * mock_interview is included even though no route in this codebase passes that
+ * configKey yet — inert until a real feature reads that key. qa_generation is
+ * live and used by /api/packages/[id]/interview-qa.
  */
 const SERVICES: ServiceDef[] = SERVICES_FROM_REGISTRY
 const KNOWN_KEYS = new Set<string>([...SERVICES.map((s) => s.key), 'default'])

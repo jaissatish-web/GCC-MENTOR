@@ -60,8 +60,8 @@ const SERVICES = [
   { label: 'Resume Optimizer', href: '/optimize/target', icon: DocumentTextIcon, blurb: 'Rewritten for the Gulf, never invented', tag: '₹499' },
   { label: 'CV Templates', href: '/templates', icon: RectangleStackIcon, blurb: 'Fifteen Gulf formats', tag: 'Included' },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon, blurb: 'Four tones, same profile', tag: '₹999' },
-  { label: 'Interview Q&A', href: '/signup', icon: QuestionMarkCircleIcon, blurb: 'Answers from your optimized resume', tag: 'Live' },
-  { label: 'Mock Interview', href: '/signup', icon: ChatBubbleLeftRightIcon, blurb: 'Speaking and confidence feedback', tag: 'Live' },
+  { label: 'Interview Q&A', href: '/interview-qa', icon: QuestionMarkCircleIcon, blurb: '25 answers from your optimized resume', tag: 'Live' },
+  { label: 'Mock Interview', href: '#interview', icon: ChatBubbleLeftRightIcon, blurb: 'Speaking and confidence feedback', tag: 'Planned' },
 ] as const
 
 export function PublicMenu({ anchors }: { anchors: ReadonlyArray<readonly [string, string]> }) {

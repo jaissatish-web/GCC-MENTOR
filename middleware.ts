@@ -12,6 +12,7 @@ const PROTECTED_ROUTES = [
   '/admin',
   '/gcc-readiness',
   '/cover-letter',
+  '/interview-qa',
   '/create-resume',
   '/templates',
   // /payments is now a redirect into /settings?tab=payments, but it stays
@@ -139,6 +140,7 @@ export const config = {
     '/admin/:path*',
     '/gcc-readiness/:path*',
     '/cover-letter/:path*',
+    '/interview-qa/:path*',
     '/create-resume/:path*',
     '/templates/:path*',
     '/payments/:path*',

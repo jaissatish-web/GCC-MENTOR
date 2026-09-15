@@ -95,9 +95,10 @@ category of dishonesty as fake data**, and this project has made that mistake.
   It is labelled rather than left looking functional. Being rebuilt with versioning and
   draft-then-publish; the grounding block and output schema stay permanently
   non-editable. See [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b.
-- **Interview Q&A and Mock Interview** appear in the AI Provider list as config rows
-  for features that do not exist. The founder chose to add them deliberately, and they
-  are marked **planned** — inert until the features are built.
+- **Interview Q&A** appears in the AI Provider list as a live config row used by
+  `/api/packages/[id]/interview-qa`.
+- **Mock Interview** appears in the AI Provider list as a planned config row and
+  remains inert until that feature is built.
 
 ---
 

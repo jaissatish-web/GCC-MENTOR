@@ -6,7 +6,8 @@
  * supabase/migrations/012_packages.sql.
  *
  * Nullability rule: NOT NULL columns are required; nullable columns are
- * optional (`?`). The four Phase 2–4 slots are optional schema reservations.
+ * optional (`?`). Interview Q&A is live; the remaining Phase 4 mock-interview
+ * slot is still a schema reservation.
  */
 
 import type { TargetCountry, FieldVisibility } from './careerProfile'
@@ -73,6 +74,41 @@ export interface CoverLetter {
   closing_paragraph: string
   sign_off: string
   full_text: string
+}
+
+// ---- interview_questions (JSONB, Phase 4 now live for Q&A) -----------------
+
+export type InterviewQuestionCategory =
+  | 'hr'
+  | 'technical'
+  | 'project'
+  | 'behavioral'
+  | 'gulf_readiness'
+  | 'company_role'
+
+export type InterviewQuestionDifficulty = 'standard' | 'strong' | 'challenging'
+
+export interface InterviewQuestionAnswer {
+  id: string
+  category: InterviewQuestionCategory
+  difficulty: InterviewQuestionDifficulty
+  question: string
+  answer: string
+  why_asked: string
+  resume_basis: string
+  follow_up: string | null
+  tags: string[]
+}
+
+export interface InterviewQuestionSet {
+  id: string
+  generated_at: string
+  target_job_title: string
+  target_company: string | null
+  target_country: TargetCountry | null
+  question_count: number
+  source: 'optimized_resume'
+  questions: InterviewQuestionAnswer[]
 }
 
 // ---- packages (migration 012) ----------------------------------------------
@@ -147,11 +183,11 @@ export interface Package {
   created_at: string // timestamptz
   updated_at: string // timestamptz
 
-  // Phase 2–4 slots — schema reservations only. Created now, left null, no
-  // UI. Docs/DASHBOARD_LIBRARY.md §2. (Required keys: the column is always
-  // present in a returned row, just null.)
+  // Extra package artifacts. Interview Q&A is live; mock_interview_runs remains
+  // a Phase 4 reservation. (Required keys: the columns are always present in a
+  // returned row, just null/empty until generated.)
   ats_score_card: unknown // Phase 2; jsonb
   cover_letters: CoverLetter[] // Phase 3; jsonb[] — typed as of TASK-065
-  interview_questions: unknown // Phase 4; jsonb
+  interview_questions: InterviewQuestionSet | null // Phase 4; jsonb
   mock_interview_runs: unknown[] // Phase 4; jsonb[]
 }

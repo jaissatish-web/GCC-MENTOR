@@ -81,12 +81,12 @@ const services: Array<{
   {
     icon: QuestionMarkCircleIcon,
     title: 'Interview Q&A generation',
-    status: 'Planned',
-    body: 'Planned: practice questions based on your optimized resume and target job.',
-    proof: 'Not available yet. No interview Q&A is included in current purchases.',
+    status: 'Live',
+    body: 'Generate 25 practice questions and answers from your optimized resume and target job.',
+    proof: 'HR, technical, project and Gulf-readiness answers saved inside the resume package.',
     photo: '/landing/service-interview-qa.png',
     photoAlt: 'Interview questions and answers prepared from a Gulf resume and job description',
-    href: '/signup',
+    href: '/interview-qa',
   },
   {
     icon: ChatBubbleLeftRightIcon,
@@ -128,10 +128,10 @@ const pricing = [
   },
   {
     name: 'Interview preparation',
-    price: 'Planned',
-    status: 'Not available yet',
-    items: ['Resume-based Q&A', 'Mock interview practice', 'Feedback on your answers'],
-    href: '',
+    price: 'Q&A live',
+    status: 'Mock interview planned',
+    items: ['25 resume-based Q&A', 'Gulf-readiness answers', 'Mock interview feedback planned'],
+    href: '/interview-qa',
     featured: false,
   },
 ]
@@ -262,7 +262,7 @@ function InterviewPreview() {
           <p className="mt-2 font-display text-[24px] font-semibold leading-tight text-ink">Practice from the resume you will actually send.</p>
         </div>
         <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-teal">
-          Planned
+          Q&A live
         </span>
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
@@ -280,7 +280,7 @@ function InterviewPreview() {
             <MetricBar key={label} label={label} value={value} tone={tone} />
           ))}
           <p className="mt-2 rounded-ctl bg-teal-soft px-3 py-2 text-[12.5px] leading-relaxed text-teal">
-            Illustrative feedback only. This planned feature is not available to use or purchase.
+            Q&A is live for optimized resumes. Speaking and confidence feedback is planned for mock interviews.
           </p>
         </div>
       </div>
@@ -312,7 +312,7 @@ export default function Home() {
                 </Link>
               </div>
               <p className="mt-4 text-[13px] leading-relaxed text-ink-muted">
-                No signup or card needed for the free score. Interview Q&amp;A and mock interviews are planned.
+                No signup or card needed for the free score. Interview Q&amp;A is live; mock interviews are planned.
               </p>
               <ul className="mt-7 flex flex-wrap gap-x-4 gap-y-3 border-t border-line pt-5">
                 {countries.map((country) =>
@@ -494,13 +494,13 @@ export default function Home() {
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
               <div>
                 <SectionHeader
-                  eyebrow="Planned · Interview preparation"
+                  eyebrow="Live Q&A · Mock interview planned"
                   title="Prepare to explain the experience on your resume."
-                  body="We plan to connect interview practice to your target job and resume, helping you structure answers around your own experience."
+                  body="Generate practice answers from your optimized resume now, then use the same package for mock interview feedback when that service launches."
                 />
                 <div className="mt-5 rounded-card border border-teal/25 bg-teal-soft p-5">
                   <p className="text-[13.5px] leading-relaxed text-teal">
-                    Interview Q&A and mock interviews are not available yet and are not included in current purchases. The preview illustrates the planned experience.
+                    Interview Q&amp;A is available for optimized resume packages. Mock interviews are still planned and not included in current purchases.
                   </p>
                 </div>
               </div>
@@ -617,7 +617,7 @@ export default function Home() {
               ['What can I use today?', 'Gulf readiness, Career Profile, job-specific resume optimization, resume templates, Resume Library and cover letters are available. Access requirements are shown inside the app.'],
               ['Will it add experience I do not have?', 'Your drafts should use only the facts in your profile. Check every generated statement, date, skill and qualification before sending your application.'],
               ['Does a higher score guarantee a shortlist?', 'No. Scores are guidance, not hiring predictions or an employer ATS result. Employers make their own decisions based on the role, competition and recruitment process.'],
-              ['Are Q&A and mock interviews live?', 'No. Both are planned. They are not currently available to use or included in purchases.'],
+              ['Are Q&A and mock interviews live?', 'Interview Q&A is live for optimized resume packages. Mock interviews are planned and not currently available to use or included in purchases.'],
               ['Do I need a different resume for every job?', 'Keep your Career Profile as your source of facts. Tailor the emphasis and relevant experience for each job description, then keep that version and its cover letter together in your Resume Library.'],
               ['How do paid services work?', 'Card checkout is not live yet. Create an account to review current options, and confirm pricing and included services directly with GCC Mentor before paying.'],
             ].map(([question, answer]) => (

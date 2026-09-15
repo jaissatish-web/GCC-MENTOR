@@ -145,9 +145,8 @@ function NameField({
  * What this job already has.
  *
  * A dashed chip says "not made yet" and is therefore an invitation, so it may
- * only appear for something the user can actually go and make. CV and cover
- * letter qualify. The Q&A chip was dropped on 2026-08-19 for exactly this
- * reason and stays gone until Interview Prep exists.
+ * only appear for something the user can actually go and make. CV, cover
+ * letter and Interview Q&A qualify.
  */
 function ArtifactChip({ label, present }: { label: string; present: boolean }) {
   return (
@@ -188,7 +187,8 @@ function ApplicationCard({
 }) {
   const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const cvReady = pkg.optimized_content != null
-  const readyCount = Number(cvReady) + Number(letterPresent)
+  const qaReady = Boolean(pkg.interview_questions?.questions?.length)
+  const readyCount = Number(cvReady) + Number(letterPresent) + Number(qaReady)
   const totalCount = 4
   const progress = Math.round((readyCount / totalCount) * 100)
 
@@ -211,7 +211,7 @@ function ApplicationCard({
       <div className="grid gap-2 sm:grid-cols-4">
         <ArtifactChip label={cvReady ? 'CV ready' : 'CV not built'} present={cvReady} />
         <ArtifactChip label={letterPresent ? 'Letter ready' : 'Letter needed'} present={letterPresent} />
-        <ArtifactChip label="Q&A planned" present={false} />
+        <ArtifactChip label={qaReady ? 'Q&A ready' : 'Q&A needed'} present={qaReady} />
         <ArtifactChip label="Mock planned" present={false} />
       </div>
 
