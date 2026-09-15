@@ -22,7 +22,7 @@ Existing API routes, generation prompts, database schema, auth, RLS, payments an
 - `node_modules/.bin/sucrase-node scripts/verify-next-action.ts`: passed after updating the pre-existing complete-package fixture to include Q&A and a completed mock. Added same-job routing and unfinished-mock assertions.
 - Isolated shared-component rendering checks: package context, unavailable resume/report handling and older completed-report selection passed.
 - Chromium rendering at 375px and 1280px: shared component has no horizontal overflow. Mobile screenshot inspected.
-- `npm run build`: compilation and type checking passed; prerendering failed due to missing Supabase environment configuration. A temporary placeholder URL/anonymous-key check confirmed that prerendering also needs service-role configuration. No environment files or credentials were added.
+- `npm run build`: passed in the configured local environment.
 
 ## Remaining verification
 
