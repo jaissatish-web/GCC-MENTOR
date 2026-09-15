@@ -44,6 +44,8 @@ function pkg(over: Partial<Package> = {}): Package {
     is_paid: true,
     optimized_content: {} as Package['optimized_content'],
     cover_letters: [{ id: 'cl-1' }] as unknown as Package['cover_letters'],
+    interview_questions: { questions: [{ id: 'qa-1' }] } as unknown as Package['interview_questions'],
+    mock_interview_runs: [{ id: 'run-1', status: 'completed' }] as Package['mock_interview_runs'],
     status: 'applied',
     created_at: '2026-09-01T00:00:00Z',
     ...over,
@@ -119,17 +121,22 @@ check(
     .state !== 'add_next_job'
 )
 
+check('a saved letter without Q&A points at that same job',
+  computeNextAction(PROFILE, [pkg({ id: 'qa-job', interview_questions: null })], 80).href === '/interview-qa?package=qa-job')
+check('saved Q&A without a completed mock points at that same job',
+  computeNextAction(PROFILE, [pkg({ id: 'mock-job', mock_interview_runs: [] })], 80).href === '/mock-interview?package=mock-job')
+check('an unfinished mock does not count as completion',
+  computeNextAction(PROFILE, [pkg({ mock_interview_runs: [{ status: 'in_progress' }] as Package['mock_interview_runs'] })], 80).state === 'job_needs_mock')
+
 console.log('\nIt never sends the user somewhere that is not built')
 
-// The status enum has an `interview` value and Interview Prep does not exist.
-// A primary call to action landing on "coming soon" would be the product
-// breaking its own promise on its most prominent surface.
+// Application stages do not change which preparation routes are available.
 for (const status of ['applied', 'shortlisted', 'interview', 'visa_processing', 'offer'] as const) {
   const action = computeNextAction(PROFILE, [pkg({ status })], 80)
   check(
     `status "${status}" resolves to a route that exists (${action.href})`,
     // Path only: the letter action carries ?package=<id> so the job is preselected.
-    ['/optimize/target', '/cover-letter', '/profile'].includes(action.href.split('?')[0]) ||
+    ['/optimize/target', '/cover-letter', '/profile', '/interview-qa', '/mock-interview'].includes(action.href.split('?')[0]) ||
       action.href.startsWith('/optimize/pay/') ||
       action.href.startsWith('/optimize/generate/')
   )

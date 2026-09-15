@@ -198,7 +198,7 @@ export function computeNextAction(
     return {
       state: 'job_needs_letter',
       title: `Write the cover letter for ${jobLabel(needsLetter)}`,
-      body: 'Gulf employers read the letter before the CV. Yours is built from the same profile.',
+      body: 'Explain your fit for this role with a letter grounded in the same profile and resume.',
       cta: 'Write the letter',
       // Opens with THIS job already chosen. Plain /cover-letter selected the
       // newest job, which is not always the one this sentence names.

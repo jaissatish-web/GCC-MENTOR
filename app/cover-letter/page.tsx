@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
+import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
@@ -194,6 +195,7 @@ function CoverLetterScreen() {
       title="Cover Letter"
       subtitle="Write a cover letter for any of your target jobs, in the tone you choose."
     >
+      {selected ? <PreparationJourney pkg={selected} current="letter" /> : null}
       {/* The credit counter is deliberately not shown while the locks are off: a
           credit balance implies it is being spent, and nothing is spending it. */}
 

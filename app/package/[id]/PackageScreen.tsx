@@ -23,6 +23,7 @@ import { displayFirstName } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
+import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { StageSelect } from '@/components/package/StageSelect'
 
 const TIMELINE_FORMAT = new Intl.DateTimeFormat('en-IN', {
@@ -400,36 +401,6 @@ function PackageScreenInner({ id }: { id: string }) {
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
   const mockReady = Boolean(pkg.mock_interview_runs?.some((run) => run.status === 'completed'))
-  const packageSteps = [
-    {
-      title: 'Optimized CV',
-      state: cvReady ? 'Ready' : 'Build',
-      body: cvReady ? 'Role-specific Gulf resume is ready.' : 'Build this CV for the target job.',
-      href: cvReady ? null : pkg.is_paid ? `/optimize/generate/${encodeURIComponent(id)}` : `/optimize/pay/${encodeURIComponent(id)}`,
-      live: true,
-    },
-    {
-      title: 'Cover letter',
-      state: letterReady ? 'Ready' : 'Next',
-      body: letterReady ? 'Letter exists for this package.' : 'Write it from the same resume and role.',
-      href: letterReady ? `/cover-letter` : `/cover-letter?package=${encodeURIComponent(id)}`,
-      live: true,
-    },
-    {
-      title: 'Interview Q&A',
-      state: qaReady ? 'Ready' : 'Next',
-      body: qaReady ? 'Practice answers are saved for this package.' : 'Generate 25 answers from this final CV and job description.',
-      href: `/interview-qa?package=${encodeURIComponent(id)}`,
-      live: true,
-    },
-    {
-      title: 'Mock interview',
-      state: mockReady ? 'Ready' : 'Next',
-      body: mockReady ? 'A mock interview report is saved.' : 'Practice this role and save a readiness report.',
-      href: `/mock-interview?package=${encodeURIComponent(id)}`,
-      live: true,
-    },
-  ]
   const serviceTimeline = buildServiceTimeline(pkg)
   const readyCount = Number(cvReady) + Number(letterReady) + Number(qaReady) + Number(mockReady)
   const nextJourneyStep = !cvReady
@@ -688,44 +659,7 @@ function PackageScreenInner({ id }: { id: string }) {
               {nextJourneyStep.cta}
             </Link>
           </div>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-            {packageSteps.map((step) => {
-              const content = (
-                <>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[13px] font-bold text-ink">{step.title}</span>
-                    <span
-                      className={
-                        step.live
-                          ? 'rounded-full bg-teal-soft px-2 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-teal'
-                          : 'rounded-full border border-line px-2 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-muted'
-                      }
-                    >
-                      {step.state}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">{step.body}</p>
-                </>
-              )
-
-              return step.href ? (
-                <Link
-                  key={step.title}
-                  href={step.href}
-                  className="min-h-[98px] rounded-ctl border border-line bg-canvas p-3 transition-colors hover:border-teal/50 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
-                >
-                  {content}
-                </Link>
-              ) : (
-                <div
-                  key={step.title}
-                  className="min-h-[98px] rounded-ctl border border-dashed border-line bg-canvas p-3"
-                >
-                  {content}
-                </div>
-              )
-            })}
-          </div>
+          <PreparationJourney pkg={pkg} current="resume" />
         </section>
 
         <section className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">

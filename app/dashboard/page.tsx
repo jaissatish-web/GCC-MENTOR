@@ -183,6 +183,7 @@ export default function DashboardPage() {
   // A CV reading kept on the server until the user decides (migration 047).
   // When there is one, it is the next step above everything else.
   const [hasPendingDraft, setHasPendingDraft] = useState(false)
+  const [loadError, setLoadError] = useState(false)
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -190,10 +191,10 @@ export default function DashboardPage() {
     didInit.current = true
     // Profile drives the ring, name, target line and "items left".
     fetch('/api/profile', { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json().catch(() => null) : null))
+      .then((res) => { if (res.status === 404) return null; if (!res.ok) throw new Error('Unable to load profile'); return res.json() })
       .then((data) => data && setProfile(data as CareerProfileFull))
       .catch(() => {
-        /* non-fatal: dashboard renders with defaults */
+        setLoadError(true)
       })
       // Loaded flag so the "create your profile" nudge shows only after we KNOW
       // there is no profile — never a flash before the fetch resolves.
@@ -201,12 +202,12 @@ export default function DashboardPage() {
     // Same /api/packages call as before — keeping the rows, not just the
     // count, so Recent Activity and the metric row use real data.
     fetch('/api/packages', { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json().catch(() => null) : null))
+      .then((res) => { if (!res.ok) throw new Error('Unable to load packages'); return res.json() })
       .then((data) => {
         if (Array.isArray(data?.packages)) setPackages(data.packages as Package[])
       })
       .catch(() => {
-        /* non-fatal */
+        setLoadError(true)
       })
       .finally(() => setPackagesLoaded(true))
     // A CV reading waiting for a decision (migration 047). Best-effort: if it
@@ -281,7 +282,7 @@ export default function DashboardPage() {
     <div className="flex min-h-full flex-col gap-6 bg-canvas p-4 pb-8 font-redesign-sans sm:p-7 lg:p-9">
       {/* First-run nudge to build the Career Profile — shown only once we KNOW
           there is no profile yet. Dismissible; the dashboard's own CTA persists. */}
-      <ProfileKickstart show={profileLoaded && profile === null} />
+      <ProfileKickstart show={profileLoaded && !loadError && profile === null} />
 
       {/* ── Header: greeting + readiness ring ── */}
       <Reveal>
@@ -354,7 +355,7 @@ export default function DashboardPage() {
                 icon={BriefcaseIcon}
                 accent="gold"
                 value={packagesLoaded ? String(packageCount) : '—'}
-                sub={packageCount > 0 ? 'Open the pipeline' : 'None yet'}
+                sub={packageCount > 0 ? 'View jobs and application stages' : 'None yet'}
                 href="/dashboard/library"
               />
             </div>
@@ -381,16 +382,18 @@ export default function DashboardPage() {
                   Your next step
                 </span>
                 <h2 className="font-display text-[20px] font-semibold leading-snug tracking-[-0.01em] text-white sm:text-[23px]">
-                  {nextAction.title}
+                  {loadError ? 'Your saved work could not be loaded' : profileLoaded && packagesLoaded ? nextAction.title : 'Loading your next step…'}
                 </h2>
-                <p className="text-[14px] leading-relaxed text-teal-soft/90">{nextAction.body}</p>
+                <p className="text-[14px] leading-relaxed text-teal-soft/90">{loadError ? 'Please try again to see your latest profile and application progress.' : profileLoaded && packagesLoaded ? nextAction.body : 'Checking your profile and saved applications.'}</p>
               </div>
+              {loadError ? <button type="button" onClick={() => window.location.reload()} className="min-h-11 rounded-ctl bg-white px-5 py-3 text-sm font-semibold text-teal">Try again</button> : profileLoaded && packagesLoaded ? (
               <Link
                 href={nextAction.href}
                 className="inline-flex w-full items-center justify-center rounded-ctl bg-gold px-5 py-3.5 text-[14px] font-bold text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal sm:w-fit"
               >
                 {nextAction.cta}
               </Link>
+              ) : null}
             </div>
           </Reveal>
 

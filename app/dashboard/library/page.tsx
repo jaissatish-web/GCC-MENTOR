@@ -214,7 +214,7 @@ function ApplicationCard({
         <StageSelect value={pkg.status} onChange={onStage} className="self-start" />
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <ArtifactChip label={cvReady ? 'CV ready' : 'CV not built'} present={cvReady} />
         <ArtifactChip label={letterPresent ? 'Letter ready' : 'Letter needed'} present={letterPresent} />
         <ArtifactChip label={qaReady ? 'Q&A ready' : 'Q&A needed'} present={qaReady} />
@@ -251,9 +251,9 @@ function ApplicationCard({
         >
           {cvReady ? 'Open workspace' : 'Continue build'}
         </Link>
-        <Link href={`/package/${pkg.id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
+        {cvReady ? <Link href={`/package/${pkg.id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
           Edit text
-        </Link>
+        </Link> : null}
         <button
           type="button"
           onClick={onDelete}
@@ -281,6 +281,7 @@ export default function TargetJobsPage() {
   const [opError, setOpError] = useState<string | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null)
   const [stageFilter, setStageFilter] = useState<PackageStatus | null>(null)
+  const [query, setQuery] = useState('')
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -387,11 +388,16 @@ export default function TargetJobsPage() {
   }, [packages])
 
   const visible = useMemo(
-    () => (packages ?? []).filter((p) => (stageFilter ? p.status === stageFilter : true)),
-    [packages, stageFilter]
+    () => (packages ?? []).filter((p) =>
+      (!stageFilter || p.status === stageFilter) &&
+      [p.name, p.target_job_title, p.target_company, countryLabel(p.target_country)].some((value) =>
+        (value ?? '').toLowerCase().includes(query.trim().toLowerCase())
+      )
+    ),
+    [packages, stageFilter, query]
   )
 
-  if (packages === null) {
+  if (packages === null && !loadError) {
     return (
       // The shape of what is coming. A centred "Loading…" told the user
       // nothing and let the layout jump when the rows arrived.
@@ -406,10 +412,10 @@ export default function TargetJobsPage() {
     )
   }
 
-  if (loadError) {
+  if (loadError || packages === null) {
     return (
       <div className="flex items-center justify-center px-5 py-20">
-        <Alert variant="danger">{loadError}</Alert>
+        <div className="flex flex-col gap-4"><Alert variant="danger">{loadError}</Alert><button type="button" onClick={() => window.location.reload()} className={buttonVariants({ variant: 'secondary' })}>Try again</button></div>
       </div>
     )
   }
@@ -423,7 +429,7 @@ export default function TargetJobsPage() {
             Resume Library
           </h1>
           <p className="text-[13px] text-ink-soft">
-            Every target job in one card: CV, cover letter, stage and next action.
+            Your saved target jobs, preparation materials and application tracker in one place.
           </p>
         </div>
         {packages.length > 0 ? (
@@ -435,6 +441,14 @@ export default function TargetJobsPage() {
           </Link>
         ) : null}
       </div>
+
+      {packages.length > 0 ? (
+        <div className="rounded-card border border-line bg-white p-4">
+          <label htmlFor="library-search" className="mb-2 block text-sm font-semibold text-ink">Find a saved job</label>
+          <input id="library-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search role, company, country or name" className="field w-full" />
+          <p className="mt-2 text-xs text-ink-muted" role="status">{visible.length} of {packages.length} jobs shown. Filter by application stage below.</p>
+        </div>
+      ) : null}
 
       {opError ? <Alert variant="danger">{opError}</Alert> : null}
 
@@ -504,10 +518,10 @@ export default function TargetJobsPage() {
       {packages.length > 0 && visible.length === 0 ? (
         <div className="border border-line bg-white px-5 py-8 text-center">
           <p className="text-[14px] text-ink-soft">
-            Nothing at this stage yet.{' '}
+            No jobs match these filters.{' '}
             <button
               type="button"
-              onClick={() => setStageFilter(null)}
+              onClick={() => { setStageFilter(null); setQuery('') }}
               className="font-semibold text-teal underline underline-offset-2"
             >
               Show all

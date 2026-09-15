@@ -109,6 +109,13 @@ export default async function AdminDashboardPage() {
       width="wide"
     >
 
+      <section aria-label="Service management shortcuts" className="mb-6 grid gap-3 md:grid-cols-3">
+        {[
+          { href: '/admin/ai-provider', title: 'Manage service AI', body: 'Choose the provider and model used by each service.' },
+          { href: '/admin/prompts', title: 'Review service instructions', body: 'Review the instructions that guide resumes, letters and interview preparation.' },
+          { href: '/admin/users', title: 'Help a user', body: 'Find a user and inspect their account with the existing access controls.' },
+        ].map((item) => <Link key={item.href} href={item.href} className="rounded-card border border-line bg-white p-4 transition-colors hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><h2 className="text-sm font-semibold text-teal">{item.title}</h2><p className="mt-2 text-sm leading-relaxed text-ink-soft">{item.body}</p></Link>)}
+      </section>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Card className={aiReady ? 'p-4' : 'border-alert/40 bg-alert-soft p-4'}>
           <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">AI Status</p>

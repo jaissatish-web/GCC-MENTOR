@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
@@ -72,7 +73,7 @@ function InterviewQaScreen() {
     if (didInit.current) return
     didInit.current = true
     fetch('/api/packages', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : { packages: [] }))
+      .then((r) => { if (!r.ok) throw new Error('Unable to load packages'); return r.json() })
       .then((data) => {
         const list = (data?.packages as Package[] | undefined) ?? []
         setPackages(list)
@@ -160,6 +161,7 @@ function InterviewQaScreen() {
       title="Interview Q&A"
       subtitle="Generate 25 role-specific answers from one optimized resume, its job description and your real profile."
     >
+      {selected ? <PreparationJourney pkg={selected} current="qa" /> : null}
       <Card tone="light" className="mt-5 p-5 sm:p-6">
         {packages.length === 0 ? (
           <EmptyState

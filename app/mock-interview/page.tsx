@@ -1,9 +1,10 @@
 'use client'
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
+import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
@@ -50,6 +51,7 @@ function latestRun(pkg: Package | null): MockInterviewRun | null {
 
 function MockInterviewScreen() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const requestedIdRef = useRef(searchParams.get('package'))
   const [packages, setPackages] = useState<Package[] | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -66,7 +68,7 @@ function MockInterviewScreen() {
     if (didInit.current) return
     didInit.current = true
     fetch('/api/packages', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : { packages: [] }))
+      .then((r) => { if (!r.ok) throw new Error('Unable to load packages'); return r.json() })
       .then((data) => {
         const list = (data?.packages as Package[] | undefined) ?? []
         const optimized = list.filter((p) => p.optimized_content != null)
@@ -78,7 +80,8 @@ function MockInterviewScreen() {
 
   const optimizedPackages = useMemo(() => (packages ?? []).filter((p) => p.optimized_content != null), [packages])
   const selected = useMemo(() => optimizedPackages.find((p) => p.id === selectedId) ?? null, [optimizedPackages, selectedId])
-  const run = latestRun(selected)
+  const requestedRunId = searchParams.get('run')
+  const run = selected?.mock_interview_runs?.find((item) => item.id === requestedRunId && item.status === 'completed' && item.final_report) ?? latestRun(selected)
   const currentQuestion = run?.status === 'in_progress' ? run.questions.find((q) => !q.answer) ?? null : null
   const answeredCount = run?.questions.filter((q) => q.answer).length ?? 0
 
@@ -112,6 +115,7 @@ function MockInterviewScreen() {
         return
       }
       updateSelectedRun(payload.run as MockInterviewRun)
+      router.replace(`/mock-interview?package=${encodeURIComponent(selected.id)}`, { scroll: false })
     } catch {
       setOpError('Could not start the mock interview.')
     } finally {
@@ -182,6 +186,7 @@ function MockInterviewScreen() {
       title="Mock Interview"
       subtitle="Practice one role-specific interview from your optimized resume and receive a saved report."
     >
+      {selected ? <PreparationJourney pkg={selected} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
       <Card tone="light" className="mt-5 p-5 sm:p-6">
         {packages.length === 0 ? (
           <EmptyState
@@ -269,7 +274,7 @@ function MockInterviewScreen() {
       </Card>
 
       {run ? (
-        <section className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">
+        <section id="interview-report" className="mt-6 scroll-mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">
           <Card tone="light" className="p-5 sm:p-6">
             <div className="flex flex-col gap-1">
               <h2 className="font-display text-[21px] font-semibold text-ink">
