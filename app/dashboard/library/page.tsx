@@ -188,7 +188,8 @@ function ApplicationCard({
   const letterPresent = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const cvReady = pkg.optimized_content != null
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
-  const readyCount = Number(cvReady) + Number(letterPresent) + Number(qaReady)
+  const mockReady = Boolean(pkg.mock_interview_runs?.some((r) => r.status === 'completed'))
+  const readyCount = Number(cvReady) + Number(letterPresent) + Number(qaReady) + Number(mockReady)
   const totalCount = 4
   const progress = Math.round((readyCount / totalCount) * 100)
 
@@ -212,7 +213,7 @@ function ApplicationCard({
         <ArtifactChip label={cvReady ? 'CV ready' : 'CV not built'} present={cvReady} />
         <ArtifactChip label={letterPresent ? 'Letter ready' : 'Letter needed'} present={letterPresent} />
         <ArtifactChip label={qaReady ? 'Q&A ready' : 'Q&A needed'} present={qaReady} />
-        <ArtifactChip label="Mock planned" present={false} />
+        <ArtifactChip label={mockReady ? 'Mock done' : 'Mock needed'} present={mockReady} />
       </div>
 
       <div className="rounded-ctl bg-canvas px-3 py-2">

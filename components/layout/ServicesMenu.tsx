@@ -21,7 +21,7 @@ import { NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } 
  * on desktop the planned services were visible in the rail while on a phone
  * they were two taps down. One menu, every breakpoint, same contents.
  *
- * "NOT BUILT YET" IS A GROUP, NOT A LINK. Mock Interview and
+ * "NOT BUILT YET" IS A GROUP, NOT A LINK.
  * Saved Jobs render dashed, dimmed and WITHOUT an href — `PlannedNavItem` has
  * no href field at all, so they cannot accidentally become links later. This
  * audience is actively targeted by placement scams (`01_PRODUCT.md` §3), and a
@@ -50,7 +50,7 @@ import { NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } 
 /** Groups the flat nav list into something a person can scan. */
 const GROUPS: ReadonlyArray<{ label: string; hrefs: readonly string[]; withSignOut?: true }> = [
   { label: 'Your career', hrefs: ['/dashboard', '/profile'] },
-  { label: 'Applications', hrefs: ['/dashboard/library', '/optimize', '/cover-letter', '/interview-qa', '/templates'] },
+  { label: 'Applications', hrefs: ['/dashboard/library', '/optimize', '/cover-letter', '/interview-qa', '/mock-interview', '/templates'] },
   { label: 'Account', hrefs: ['/settings'], withSignOut: true },
 ]
 
@@ -77,6 +77,7 @@ const BLURB: Record<string, string> = {
   '/profile': 'Built once, used by every CV',
   '/cover-letter': 'Four tones, written for one job',
   '/interview-qa': '25 answers from each final CV',
+  '/mock-interview': 'Practice and get a saved report',
   '/dashboard/library': 'Your applications and their stage',
   '/optimize': 'Build a CV for a specific role',
   '/templates': 'Fifteen designs to choose from',

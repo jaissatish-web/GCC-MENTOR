@@ -6,8 +6,8 @@
  * supabase/migrations/012_packages.sql.
  *
  * Nullability rule: NOT NULL columns are required; nullable columns are
- * optional (`?`). Interview Q&A is live; the remaining Phase 4 mock-interview
- * slot is still a schema reservation.
+ * optional (`?`). Interview Q&A and text Mock Interview are live package
+ * artifacts.
  */
 
 import type { TargetCountry, FieldVisibility } from './careerProfile'
@@ -111,6 +111,56 @@ export interface InterviewQuestionSet {
   questions: InterviewQuestionAnswer[]
 }
 
+// ---- mock_interview_runs (JSONB[], text MVP) ------------------------------
+
+export type MockInterviewMode = 'hr' | 'technical' | 'gulf_readiness' | 'manager' | 'mixed'
+export type MockInterviewDifficulty = 'standard' | 'strong' | 'challenging'
+export type MockInterviewStatus = 'in_progress' | 'completed'
+
+export interface MockInterviewQuestion {
+  id: string
+  category: InterviewQuestionCategory
+  focus: string
+  question: string
+  ideal_answer_points: string[]
+  answer: string | null
+  feedback: string | null
+  better_answer: string | null
+  follow_up: string | null
+  score: number | null
+  answered_at: string | null
+}
+
+export interface MockInterviewFinalReport {
+  overall_score: number
+  technical_score: number
+  role_fit_score: number
+  gulf_readiness_score: number
+  answer_structure_score: number
+  strengths: string[]
+  weak_points: string[]
+  risky_answers: string[]
+  improvement_plan: string[]
+  next_practice_questions: string[]
+}
+
+export interface MockInterviewRun {
+  id: string
+  generated_at: string
+  completed_at: string | null
+  target_job_title: string
+  target_company: string | null
+  target_country: TargetCountry | null
+  mode: MockInterviewMode
+  difficulty: MockInterviewDifficulty
+  question_count: number
+  current_index: number
+  status: MockInterviewStatus
+  opening_note: string
+  questions: MockInterviewQuestion[]
+  final_report: MockInterviewFinalReport | null
+}
+
 // ---- packages (migration 012) ----------------------------------------------
 
 export interface Package {
@@ -183,11 +233,10 @@ export interface Package {
   created_at: string // timestamptz
   updated_at: string // timestamptz
 
-  // Extra package artifacts. Interview Q&A is live; mock_interview_runs remains
-  // a Phase 4 reservation. (Required keys: the columns are always present in a
-  // returned row, just null/empty until generated.)
+  // Extra package artifacts. (Required keys: the columns are always present in
+  // a returned row, just null/empty until generated.)
   ats_score_card: unknown // Phase 2; jsonb
   cover_letters: CoverLetter[] // Phase 3; jsonb[] — typed as of TASK-065
   interview_questions: InterviewQuestionSet | null // Phase 4; jsonb
-  mock_interview_runs: unknown[] // Phase 4; jsonb[]
+  mock_interview_runs: MockInterviewRun[] // Phase 4; jsonb[]
 }

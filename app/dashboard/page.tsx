@@ -54,10 +54,6 @@ import type { Package } from '@/types/package'
 
 const PLANNED_SERVICES: ReadonlyArray<{ title: string; description: string }> = [
   {
-    title: 'Mock Interview',
-    description: 'Practice the conversation with guided AI feedback.',
-  },
-  {
     title: 'Saved Jobs',
     description: 'Keep track of roles you want to apply to.',
   },
@@ -107,8 +103,9 @@ const SERVICE_TILES: ReadonlyArray<{
   },
   {
     title: 'Mock Interview',
-    body: 'Will score speaking, confidence and technical readiness.',
-    status: 'Planned',
+    body: 'Practice text interviews and save a readiness report per resume.',
+    status: 'Ready',
+    href: '/mock-interview',
     icon: ChatBubbleLeftRightIcon,
   },
 ]
@@ -126,6 +123,7 @@ const QUICK_ACTIONS: ReadonlyArray<{
   { label: 'Optimize my CV for a job', href: '/optimize/target', icon: DocumentTextIcon, tint: 'bg-gold-soft text-gold-ink' },
   { label: 'Write a cover letter', href: '/cover-letter', icon: EnvelopeIcon, tint: 'bg-sec-summary/10 text-sec-summary' },
   { label: 'Prepare interview Q&A', href: '/interview-qa', icon: QuestionMarkCircleIcon, tint: 'bg-teal-soft text-teal' },
+  { label: 'Start a mock interview', href: '/mock-interview', icon: ChatBubbleLeftRightIcon, tint: 'bg-gold-soft text-gold-ink' },
   { label: 'Open my Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, tint: 'bg-ok-soft text-ok' },
 ]
 

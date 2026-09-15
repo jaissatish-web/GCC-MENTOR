@@ -97,8 +97,8 @@ category of dishonesty as fake data**, and this project has made that mistake.
   non-editable. See [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b.
 - **Interview Q&A** appears in the AI Provider list as a live config row used by
   `/api/packages/[id]/interview-qa`.
-- **Mock Interview** appears in the AI Provider list as a planned config row and
-  remains inert until that feature is built.
+- **Mock Interview** appears in the AI Provider list as a live config row used by
+  the text mock-interview routes.
 
 ---
 

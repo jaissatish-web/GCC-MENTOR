@@ -42,6 +42,7 @@ const LIVE_SERVICES = [
   { label: 'Resume Optimizer', href: '/optimize/target' },
   { label: 'Cover Letter', href: '/cover-letter' },
   { label: 'Interview Q&A', href: '/interview-qa' },
+  { label: 'Mock Interview', href: '/mock-interview' },
   { label: 'CV Templates', href: '/templates' },
   { label: 'My Resumes', href: '/dashboard/library' },
 ]
@@ -150,11 +151,6 @@ export async function AppFooter() {
               </li>
             ))}
           </ul>
-          {/* Named as not built, because saying so is the product's whole
-              posture. A "coming soon" that never comes is what the scams do. */}
-          <p className="mt-1 text-[12px] leading-relaxed text-ink-muted">
-            Mock Interview is <NotLiveText>not built yet</NotLiveText> and is labelled everywhere it appears.
-          </p>
         </nav>
 
         {/* ── where, and how to reach a person ── */}

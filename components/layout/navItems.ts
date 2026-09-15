@@ -94,6 +94,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon, shortLabel: 'Optimize' },
   { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },
   { label: 'Interview Q&A', href: '/interview-qa', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
+  { label: 'Mock Interview', href: '/mock-interview', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
   { label: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ] as const
 
@@ -121,7 +122,6 @@ export interface PlannedNavItem {
 }
 
 export const PLANNED_NAV_ITEMS: readonly PlannedNavItem[] = [
-  { label: 'Mock Interview', icon: ChatBubbleLeftRightIcon },
   { label: 'Saved Jobs', icon: BookmarkIcon },
 ] as const
 

@@ -34,7 +34,7 @@ export const AI_SERVICES = {
   job_match_explanation: { label: 'Job Match Explanation', built: true, description: 'The semantic half of Job Match — why each category scored as it did.' },
   cover_letter: { label: 'Cover Letter', built: true, description: 'Writes a cover letter for a resume package.' },
   qa_generation: { label: 'Interview Q&A', built: true, description: 'Generates role-specific interview questions and answers from an optimized resume package.' },
-  mock_interview: { label: 'Mock Interview', built: false, description: 'Planned mock-interview review. No route calls this yet.' },
+  mock_interview: { label: 'Mock Interview', built: true, description: 'Runs text mock interviews and reports from an optimized resume package.' },
 } as const
 
 export type ServiceKey = keyof typeof AI_SERVICES

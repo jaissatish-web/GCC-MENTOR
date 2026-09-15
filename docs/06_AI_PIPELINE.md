@@ -162,10 +162,10 @@ model can do extraction while a stronger one writes resumes.
 | `job_match_explanation` | The semantic half of Job Match | Live |
 | `ats_scan` | — | **No caller.** The readiness score is deterministic arithmetic and makes no model call. Its prompt module survives only because the *result type* is still used to shape a stored scan |
 | `qa_generation` | Interview Q&A | Live — `/api/packages/[id]/interview-qa` |
-| `mock_interview` | Mock interview review | **To be built — no route calls it** |
+| `mock_interview` | Text mock interview review | Live — `/api/packages/[id]/mock-interview/*` |
 
 **Six services make model calls:** extraction, optimization, job_description,
-job_match_explanation, cover_letter and qa_generation. Each has a **draft v1 prompt seeded** and nothing
+job_match_explanation, cover_letter, qa_generation and mock_interview. Each has a **draft v1 prompt seeded** and nothing
 published — see §2b.
 
 Plus a `default` row used when a service has no configuration of its own.

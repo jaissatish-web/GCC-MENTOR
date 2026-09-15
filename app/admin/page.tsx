@@ -172,7 +172,7 @@ export default async function AdminDashboardPage() {
         <Card className="p-5">
           <h2 className="font-display text-[18px] font-semibold text-ink">Service availability</h2>
           <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
-            Resume, cover letter and Interview Q&A settings are available below. Mock Interview remains planned.
+            Resume, cover letter, Interview Q&A and Mock Interview settings are available below.
           </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {[
@@ -180,7 +180,7 @@ export default async function AdminDashboardPage() {
               ['Cover Letter', 'Live', '/admin/ai-provider'],
               ['GCC Templates', 'Live', '/templates'],
               ['Interview Q&A', 'Live', '/admin/ai-provider'],
-              ['Mock Interview', 'Planned', '/admin/ai-provider'],
+              ['Mock Interview', 'Live', '/admin/ai-provider'],
               ['Payments', 'Manual now', '/admin/promo-codes'],
             ].map(([name, status, href]) => (
               <Link

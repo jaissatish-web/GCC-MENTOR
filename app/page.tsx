@@ -90,13 +90,13 @@ const services: Array<{
   },
   {
     icon: ChatBubbleLeftRightIcon,
-    title: 'AI mock interview feedback',
-    status: 'Planned',
-    body: 'Planned: practise answering interview questions and review your responses.',
-    proof: 'Not available yet. Practice modes and feedback details will be confirmed at release.',
+    title: 'Text mock interview feedback',
+    status: 'Live',
+    body: 'Practise a realistic role-specific text interview from your optimized resume.',
+    proof: 'Answer one question at a time and save a readiness report inside the resume package.',
     photo: '/landing/service-mock-interview.png',
     photoAlt: 'AI mock interview practice with feedback dashboard for Gulf job preparation',
-    href: '/signup',
+    href: '/mock-interview',
   },
 ]
 
@@ -128,10 +128,10 @@ const pricing = [
   },
   {
     name: 'Interview preparation',
-    price: 'Q&A live',
-    status: 'Mock interview planned',
-    items: ['25 resume-based Q&A', 'Gulf-readiness answers', 'Mock interview feedback planned'],
-    href: '/interview-qa',
+    price: 'Live',
+    status: 'Q&A + text mock',
+    items: ['25 resume-based Q&A', 'Text mock interview', 'Saved readiness report'],
+    href: '/mock-interview',
     featured: false,
   },
 ]
@@ -280,7 +280,7 @@ function InterviewPreview() {
             <MetricBar key={label} label={label} value={value} tone={tone} />
           ))}
           <p className="mt-2 rounded-ctl bg-teal-soft px-3 py-2 text-[12.5px] leading-relaxed text-teal">
-            Q&A is live for optimized resumes. Speaking and confidence feedback is planned for mock interviews.
+            Q&A and text mock interviews are live for optimized resumes. Voice and speaking feedback come later.
           </p>
         </div>
       </div>
@@ -312,7 +312,7 @@ export default function Home() {
                 </Link>
               </div>
               <p className="mt-4 text-[13px] leading-relaxed text-ink-muted">
-                No signup or card needed for the free score. Interview Q&amp;A is live; mock interviews are planned.
+                No signup or card needed for the free score. Interview Q&amp;A and text mock interviews are live.
               </p>
               <ul className="mt-7 flex flex-wrap gap-x-4 gap-y-3 border-t border-line pt-5">
                 {countries.map((country) =>
@@ -494,13 +494,13 @@ export default function Home() {
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
               <div>
                 <SectionHeader
-                  eyebrow="Live Q&A · Mock interview planned"
+                  eyebrow="Live Q&A · Live text mock interview"
                   title="Prepare to explain the experience on your resume."
-                  body="Generate practice answers from your optimized resume now, then use the same package for mock interview feedback when that service launches."
+                  body="Generate practice answers from your optimized resume, then run a text mock interview and save the readiness report in the same package."
                 />
                 <div className="mt-5 rounded-card border border-teal/25 bg-teal-soft p-5">
                   <p className="text-[13.5px] leading-relaxed text-teal">
-                    Interview Q&amp;A is available for optimized resume packages. Mock interviews are still planned and not included in current purchases.
+                    Text mock interviews are available for optimized resume packages. Voice recording and speaking feedback are still planned.
                   </p>
                 </div>
               </div>
@@ -617,7 +617,7 @@ export default function Home() {
               ['What can I use today?', 'Gulf readiness, Career Profile, job-specific resume optimization, resume templates, Resume Library and cover letters are available. Access requirements are shown inside the app.'],
               ['Will it add experience I do not have?', 'Your drafts should use only the facts in your profile. Check every generated statement, date, skill and qualification before sending your application.'],
               ['Does a higher score guarantee a shortlist?', 'No. Scores are guidance, not hiring predictions or an employer ATS result. Employers make their own decisions based on the role, competition and recruitment process.'],
-              ['Are Q&A and mock interviews live?', 'Interview Q&A is live for optimized resume packages. Mock interviews are planned and not currently available to use or included in purchases.'],
+              ['Are Q&A and mock interviews live?', 'Interview Q&A and text mock interviews are live for optimized resume packages. Voice recording and speaking feedback are planned for a later version.'],
               ['Do I need a different resume for every job?', 'Keep your Career Profile as your source of facts. Tailor the emphasis and relevant experience for each job description, then keep that version and its cover letter together in your Resume Library.'],
               ['How do paid services work?', 'Card checkout is not live yet. Create an account to review current options, and confirm pricing and included services directly with GCC Mentor before paying.'],
             ].map(([question, answer]) => (

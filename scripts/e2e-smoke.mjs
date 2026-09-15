@@ -15,7 +15,7 @@
  *
  * WHAT IT COSTS, stated plainly because it is not free:
  *   - It writes to the LIVE Supabase project (there is only one).
- *   - It spends roughly SEVEN real model calls unless `--no-ai` is passed.
+ *   - It spends roughly TEN real model calls unless `--no-ai` is passed.
  *   - It consumes rate-limit slots for the throwaway user only.
  * Everything it creates is deleted at the end, including on failure: the user
  * is removed and the schema's cascades take the profile, its children and the
@@ -220,7 +220,7 @@ async function run() {
   }
 
   section('The auth wall actually holds')
-  for (const path of ['/dashboard', '/profile', '/settings', '/dashboard/library', '/interview-qa']) {
+  for (const path of ['/dashboard', '/profile', '/settings', '/dashboard/library', '/interview-qa', '/mock-interview']) {
     const r = await req(path, { auth: false })
     const loc = r.headers.get('location') ?? ''
     check(`${path} redirects a signed-out visitor to /login`, r.status === 307 && loc.includes('/login'), `status ${r.status} → ${loc || 'no location'}`)
@@ -400,6 +400,26 @@ async function run() {
       const questions = qa.body?.interview_questions?.questions ?? []
       check('POST interview-qa generates 25 saved Q&A items', qa.status === 200 && questions.length === 25, `status ${qa.status} ${short(qa.body)}`)
       check('interview Q&A contains usable answers', questions.every((q) => q.question && q.answer && q.resume_basis), short(questions[0]))
+
+      const mockStart = await req(`/api/packages/${packageId}/mock-interview/start`, {
+        method: 'POST',
+        json: { mode: 'mixed', difficulty: 'standard', questionCount: 5 },
+      })
+      const run = mockStart.body?.run
+      check('POST mock-interview/start creates a 5-question run', mockStart.status === 200 && run?.questions?.length === 5, `status ${mockStart.status} ${short(mockStart.body)}`)
+      const firstQuestion = run?.questions?.[0]
+      if (run?.id && firstQuestion?.id) {
+        const mockAnswer = await req(`/api/packages/${packageId}/mock-interview/${run.id}/answer`, {
+          method: 'POST',
+          json: {
+            questionId: firstQuestion.id,
+            answer: 'I would start by explaining my refinery and petrochemical piping experience, then connect the answer to ASME B31.3, CAESAR II stress analysis, site supervision and coordinating designers on Gulf projects.',
+          },
+        })
+        check('POST mock-interview answer returns feedback', mockAnswer.status === 200 && Boolean(mockAnswer.body?.run?.questions?.[0]?.feedback), `status ${mockAnswer.status} ${short(mockAnswer.body)}`)
+        const mockFinish = await req(`/api/packages/${packageId}/mock-interview/${run.id}/finish`, { method: 'POST' })
+        check('POST mock-interview finish saves a final report', mockFinish.status === 200 && Boolean(mockFinish.body?.run?.final_report?.overall_score), `status ${mockFinish.status} ${short(mockFinish.body)}`)
+      }
     }
   }
 
@@ -432,6 +452,7 @@ async function run() {
     check('extraction and optimization both attributed their spend', routes.includes('/api/optimize'), routes.join(','))
     check('extraction attributed its spend to the user', routes.includes('/api/parse/text'), routes.join(','))
     check('interview Q&A attributed its spend to the user', routes.includes('/api/packages/[id]/interview-qa'), routes.join(','))
+    check('mock interview attributed its spend to the user', routes.some((r) => r.includes('/mock-interview/')), routes.join(','))
     const total = logged.reduce((n, r) => n + Number(r.estimated_cost_inr), 0)
     console.log(`        this run cost about ₹${total.toFixed(2)}`)
   }

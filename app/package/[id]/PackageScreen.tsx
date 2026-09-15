@@ -304,6 +304,7 @@ function PackageScreenInner({ id }: { id: string }) {
   const cvReady = pkg.optimized_content != null
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
+  const mockReady = Boolean(pkg.mock_interview_runs?.some((run) => run.status === 'completed'))
   const packageSteps = [
     {
       title: 'Optimized CV',
@@ -328,10 +329,10 @@ function PackageScreenInner({ id }: { id: string }) {
     },
     {
       title: 'Mock interview',
-      state: 'Planned',
-      body: 'Practice speaking, confidence and technical depth.',
-      href: null,
-      live: false,
+      state: mockReady ? 'Ready' : 'Next',
+      body: mockReady ? 'A mock interview report is saved.' : 'Practice this role and save a readiness report.',
+      href: `/mock-interview?package=${encodeURIComponent(id)}`,
+      live: true,
     },
   ]
 
@@ -652,6 +653,20 @@ function PackageScreenInner({ id }: { id: string }) {
               className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} shrink-0`}
             >
               Prepare Q&amp;A
+            </Link>
+          </div>
+        ) : null}
+
+        {!isFree && cvReady && qaReady && !mockReady ? (
+          <div className="flex flex-col gap-2 rounded-card border border-gold/40 bg-gold-soft/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[13px] text-ink-soft">
+              <strong className="text-ink">Practice next:</strong> run a text mock interview for this CV and save the final report.
+            </p>
+            <Link
+              href={`/mock-interview?package=${encodeURIComponent(id)}`}
+              className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} shrink-0`}
+            >
+              Start mock interview
             </Link>
           </div>
         ) : null}
