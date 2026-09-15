@@ -4,6 +4,7 @@ import { PACKAGE_STATUSES } from '@/lib/utils'
 import { TEMPLATES, isTemplateId } from '@/lib/templates'
 import { applyContentEditsToDocument } from '@/lib/resumeDocument'
 import { parseStyleOverrides, type ResumeStyleOverrides } from '@/lib/resumeStyle'
+import { appendPackageEvent } from '@/lib/packageEvents'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
 
@@ -32,6 +33,22 @@ import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
  * package's optimized_content is preserved.
  */
 const VALID_STATUSES = PACKAGE_STATUSES.map((s) => s.value) as PackageStatus[]
+
+function nullableText(value: unknown, max: number, field: string): string | null | NextResponse {
+  if (value === null || value === undefined) return null
+  if (typeof value !== 'string') return NextResponse.json({ error: `Invalid field: ${field}` }, { status: 400 })
+  const trimmed = value.trim()
+  if (trimmed.length > max) return NextResponse.json({ error: `${field} is too long.` }, { status: 400 })
+  return trimmed || null
+}
+
+function nullableDate(value: unknown, field: string): string | null | NextResponse {
+  if (value === null || value === undefined || value === '') return null
+  if (typeof value !== 'string') return NextResponse.json({ error: `Invalid field: ${field}` }, { status: 400 })
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return NextResponse.json({ error: `Invalid field: ${field}` }, { status: 400 })
+  return field === 'application_deadline' ? value.slice(0, 10) : date.toISOString()
+}
 
 export async function PUT(
   request: NextRequest,
@@ -63,12 +80,36 @@ export async function PUT(
     return NextResponse.json({ error: 'Invalid field: status' }, { status: 400 })
   }
 
-  const { data: updated, error } = await supabase
+  const { data: current, error: loadError } = await supabase
     .from('packages')
-    .update({ status: status as PackageStatus })
+    .select('id, status, service_events')
     .eq('id', packageId)
     .eq('user_id', user.id)
-    .select('id')
+    .maybeSingle()
+
+  if (loadError) {
+    console.error('packages status load error user=' + user.id + ' pkg=' + packageId, loadError.message)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+  if (!current) {
+    return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+  }
+
+  const { data: updated, error } = await supabase
+    .from('packages')
+    .update({
+      status: status as PackageStatus,
+      service_events:
+        current.status === status
+          ? current.service_events
+          : appendPackageEvent(current.service_events, 'status_changed', `Status changed to ${status}`, {
+              from: current.status,
+              to: status,
+            }),
+    })
+    .eq('id', packageId)
+    .eq('user_id', user.id)
+    .select('id, status, service_events')
     .maybeSingle()
 
   if (error) {
@@ -79,7 +120,7 @@ export async function PUT(
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, package: updated })
 }
 
 export async function DELETE(
@@ -179,7 +220,7 @@ export async function PATCH(
   // ---- Load the current package (owner-scoped) to read its optimized_content -
   const { data: pkg, error: loadErr } = await supabase
     .from('packages')
-    .select('id, profile_id, optimized_content, document_snapshot')
+    .select('id, profile_id, status, optimized_content, document_snapshot, service_events')
     .eq('id', packageId)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -286,6 +327,11 @@ export async function PATCH(
     name?: string | null
     status?: PackageStatus
     style_overrides?: ResumeStyleOverrides | null
+    job_url?: string | null
+    application_deadline?: string | null
+    interview_date?: string | null
+    application_notes?: string | null
+    service_events?: unknown
   } = {}
   if (b.styleOverrides !== undefined) {
     const parsedStyle = parseStyleOverrides(b.styleOverrides)
@@ -310,6 +356,41 @@ export async function PATCH(
     }
     metaUpdate.status = b.status as PackageStatus
   }
+  if (b.job_url !== undefined) {
+    const parsed = nullableText(b.job_url, 500, 'job_url')
+    if (parsed instanceof NextResponse) return parsed
+    metaUpdate.job_url = parsed
+  }
+  if (b.application_notes !== undefined) {
+    const parsed = nullableText(b.application_notes, 3000, 'application_notes')
+    if (parsed instanceof NextResponse) return parsed
+    metaUpdate.application_notes = parsed
+  }
+  if (b.application_deadline !== undefined) {
+    const parsed = nullableDate(b.application_deadline, 'application_deadline')
+    if (parsed instanceof NextResponse) return parsed
+    metaUpdate.application_deadline = parsed
+  }
+  if (b.interview_date !== undefined) {
+    const parsed = nullableDate(b.interview_date, 'interview_date')
+    if (parsed instanceof NextResponse) return parsed
+    metaUpdate.interview_date = parsed
+  }
+
+  const trackerChanged = ['job_url', 'application_deadline', 'interview_date', 'application_notes'].some((key) =>
+    Object.prototype.hasOwnProperty.call(metaUpdate, key),
+  )
+  let nextServiceEvents = pkg.service_events
+  if (trackerChanged) {
+    nextServiceEvents = appendPackageEvent(nextServiceEvents, 'tracker_updated', 'Application tracker updated')
+  }
+  if (metaUpdate.status && metaUpdate.status !== pkg.status) {
+    nextServiceEvents = appendPackageEvent(nextServiceEvents, 'status_changed', `Status changed to ${metaUpdate.status}`, {
+      from: pkg.status,
+      to: metaUpdate.status,
+    })
+  }
+  if (nextServiceEvents !== pkg.service_events) metaUpdate.service_events = nextServiceEvents
 
   const hasMeta = Object.keys(metaUpdate).length > 0
 
@@ -331,7 +412,7 @@ export async function PATCH(
       .update({ ...(templateUpdate ?? {}), ...metaUpdate })
       .eq('id', packageId)
       .eq('user_id', user.id)
-      .select('id, name, status, template_id, template_version, style_overrides')
+      .select('id, name, status, template_id, template_version, style_overrides, job_url, application_deadline, interview_date, application_notes, service_events')
       .maybeSingle()
     if (metaErr) {
       console.error('packages patch meta failed user=' + user.id + ' pkg=' + packageId, metaErr.message)
@@ -421,7 +502,7 @@ export async function PATCH(
 
   const { data: updated, error: updateErr } = await supabase
     .from('packages')
-    .update({ optimized_content: oc, ...snapshotUpdate, ...(templateUpdate ?? {}) })
+    .update({ optimized_content: oc, ...snapshotUpdate, ...(templateUpdate ?? {}), ...metaUpdate })
     .eq('id', packageId)
     .eq('user_id', user.id)
     .select('id')

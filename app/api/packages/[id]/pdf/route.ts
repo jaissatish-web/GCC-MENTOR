@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { type GulfPremiumProps } from '@/components/templates/GulfPremium'
 import { getTemplate } from '@/lib/templates'
 import { readStyleOverrides } from '@/lib/resumeStyle'
+import { appendPackageEvent } from '@/lib/packageEvents'
 // No access helper is imported while the locks are off — the route does not gate.
 // See lib/resumeKind.ts for the rule to restore.
 import type { ResumeDocument } from '@/lib/resumeDocument'
@@ -299,6 +300,18 @@ export async function GET(
         .replace(/[^a-zA-Z0-9\-_ ]/g, '')
         .replace(/\s+/g, '_')
         .trim() || 'resume'
+
+    await supabase
+      .from('packages')
+      .update({
+        service_events: appendPackageEvent(
+          (pkgRow as { service_events?: unknown }).service_events,
+          'pdf_downloaded',
+          'PDF downloaded',
+        ),
+      })
+      .eq('id', packageId)
+      .eq('user_id', user.id)
 
     return new NextResponse(Buffer.from(pdf), {
       headers: {

@@ -161,6 +161,26 @@ export interface MockInterviewRun {
   final_report: MockInterviewFinalReport | null
 }
 
+export type PackageServiceEventType =
+  | 'package_created'
+  | 'cv_generated'
+  | 'cover_letter_generated'
+  | 'qa_generated'
+  | 'mock_interview_started'
+  | 'mock_interview_answered'
+  | 'mock_interview_completed'
+  | 'pdf_downloaded'
+  | 'status_changed'
+  | 'tracker_updated'
+
+export interface PackageServiceEvent {
+  id: string
+  type: PackageServiceEventType
+  at: string
+  label: string
+  meta?: Record<string, unknown>
+}
+
 // ---- packages (migration 012) ----------------------------------------------
 
 export interface Package {
@@ -178,6 +198,10 @@ export interface Package {
   // same reasoning as target_country and target_company above.
   target_industry: string | null // persona selection
   job_description: string | null // the JD it was optimized against, if provided
+  job_url?: string | null
+  application_deadline?: string | null
+  interview_date?: string | null
+  application_notes?: string | null
 
   // Optimization
   optimization_level: OptimizationLevel
@@ -239,4 +263,5 @@ export interface Package {
   cover_letters: CoverLetter[] // Phase 3; jsonb[] — typed as of TASK-065
   interview_questions: InterviewQuestionSet | null // Phase 4; jsonb
   mock_interview_runs: MockInterviewRun[] // Phase 4; jsonb[]
+  service_events?: PackageServiceEvent[]
 }

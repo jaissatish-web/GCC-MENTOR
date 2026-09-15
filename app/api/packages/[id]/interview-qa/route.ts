@@ -4,6 +4,7 @@ import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { buildInterviewQaPrompt } from '@/lib/ai/buildInterviewQaPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
 import { normalizeInterviewQa, validateInterviewQa } from '@/lib/ai/validateInterviewQa'
+import { appendPackageEvent } from '@/lib/packageEvents'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -59,7 +60,7 @@ export async function POST(
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot',
+      'id, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot, service_events',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
@@ -186,7 +187,12 @@ export async function POST(
 
   const { data: updated, error: updateError } = await supabase
     .from('packages')
-    .update({ interview_questions: interviewQuestions })
+    .update({
+      interview_questions: interviewQuestions,
+      service_events: appendPackageEvent(pkgRow.service_events, 'qa_generated', 'Interview Q&A generated', {
+        question_count: parsed.questions.length,
+      }),
+    })
     .eq('id', packageId)
     .eq('user_id', user.id)
     .select('id')

@@ -4,6 +4,7 @@ import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { buildMockInterviewStartPrompt } from '@/lib/ai/buildMockInterviewPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
 import { normalizeMockInterviewQuestions, validateMockInterviewStart } from '@/lib/ai/validateMockInterview'
+import { appendPackageEvent } from '@/lib/packageEvents'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -62,7 +63,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot, mock_interview_runs',
+      'id, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot, mock_interview_runs, service_events',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
@@ -197,7 +198,14 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const existing = Array.isArray(pkgRow.mock_interview_runs) ? (pkgRow.mock_interview_runs as MockInterviewRun[]) : []
   const { error: updateError } = await supabase
     .from('packages')
-    .update({ mock_interview_runs: [...existing, run] })
+    .update({
+      mock_interview_runs: [...existing, run],
+      service_events: appendPackageEvent(pkgRow.service_events, 'mock_interview_started', 'Mock interview started', {
+        mode,
+        difficulty,
+        question_count: questionCount,
+      }),
+    })
     .eq('id', packageId)
     .eq('user_id', user.id)
 

@@ -21,9 +21,8 @@ import type { Package } from '@/types/package'
  * application is worth more to this user than a prompt to begin another.
  *
  * NEVER POINTS AT SOMETHING THAT IS NOT BUILT. There is no branch for the
- * interview stage, even though the status enum has one, because Interview Prep
- * does not exist — and a primary call to action that lands on "coming soon" is
- * the product breaking its own promise on the most prominent surface it has.
+ * interview stage unless the product surface is live. Q&A and mock interview
+ * now exist, so the dashboard carries the same journey as the package page.
  */
 
 export interface NextAction {
@@ -45,6 +44,8 @@ export interface NextAction {
     | 'job_unpaid'
     | 'job_not_generated'
     | 'job_needs_letter'
+    | 'job_needs_qa'
+    | 'job_needs_mock'
     | 'add_next_job'
 }
 
@@ -69,6 +70,14 @@ export function jobLabel(pkg: Package): string {
 
 function hasCoverLetter(pkg: Package): boolean {
   return Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
+}
+
+function hasInterviewQa(pkg: Package): boolean {
+  return Boolean(pkg.interview_questions?.questions?.length)
+}
+
+function hasCompletedMock(pkg: Package): boolean {
+  return Boolean(pkg.mock_interview_runs?.some((run) => run.status === 'completed'))
 }
 
 /**
@@ -194,6 +203,30 @@ export function computeNextAction(
       // Opens with THIS job already chosen. Plain /cover-letter selected the
       // newest job, which is not always the one this sentence names.
       href: `/cover-letter?package=${encodeURIComponent(needsLetter.id)}`,
+    }
+  }
+
+  const needsQa = packages.find((p) => p.optimized_content !== null && hasCoverLetter(p) && !hasInterviewQa(p))
+  if (needsQa) {
+    return {
+      state: 'job_needs_qa',
+      title: `Prepare interview Q&A for ${jobLabel(needsQa)}`,
+      body: 'Generate answers from the final CV and role before the recruiter call arrives.',
+      cta: 'Generate Q&A',
+      href: `/interview-qa?package=${encodeURIComponent(needsQa.id)}`,
+    }
+  }
+
+  const needsMock = packages.find(
+    (p) => p.optimized_content !== null && hasCoverLetter(p) && hasInterviewQa(p) && !hasCompletedMock(p)
+  )
+  if (needsMock) {
+    return {
+      state: 'job_needs_mock',
+      title: `Practice the interview for ${jobLabel(needsMock)}`,
+      body: 'Run a mock interview for this CV and save the report so the next practice is sharper.',
+      cta: 'Start mock interview',
+      href: `/mock-interview?package=${encodeURIComponent(needsMock.id)}`,
     }
   }
 

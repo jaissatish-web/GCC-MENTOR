@@ -192,6 +192,11 @@ function ApplicationCard({
   const readyCount = Number(cvReady) + Number(letterPresent) + Number(qaReady) + Number(mockReady)
   const totalCount = 4
   const progress = Math.round((readyCount / totalCount) * 100)
+  const trackerItems = [
+    pkg.application_deadline ? `Deadline ${formatDay(pkg.application_deadline)}` : null,
+    pkg.interview_date ? `Interview ${formatDay(pkg.interview_date)}` : null,
+    pkg.job_url ? 'Job link saved' : null,
+  ].filter(Boolean) as string[]
 
   return (
     <article className="flex min-w-0 flex-col gap-4 rounded-card border border-line bg-white p-4 shadow-m-1 transition-shadow hover:shadow-m-2 sm:p-5">
@@ -225,6 +230,19 @@ function ApplicationCard({
           <span className="block h-full rounded-full bg-teal" style={{ width: `${progress}%` }} />
         </div>
       </div>
+
+      {trackerItems.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {trackerItems.map((item) => (
+            <span
+              key={item}
+              className="rounded-full border border-line bg-canvas px-2.5 py-1 text-[12px] font-semibold text-ink-soft"
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-2">
         <Link

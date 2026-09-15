@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { buildMockInterviewFeedbackPrompt } from '@/lib/ai/buildMockInterviewPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
 import { normalizeMockInterviewFeedback, validateMockInterviewFeedback } from '@/lib/ai/validateMockInterview'
+import { appendPackageEvent } from '@/lib/packageEvents'
 import type { MockInterviewRun } from '@/types/package'
 
 export const maxDuration = 90
@@ -34,7 +35,7 @@ export async function POST(
 
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
-    .select('id, mock_interview_runs')
+    .select('id, mock_interview_runs, service_events')
     .eq('id', params.id)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -99,7 +100,12 @@ export async function POST(
   const updatedRuns = runs.map((r, i) => (i === runIndex ? updatedRun : r))
   const { error: updateError } = await supabase
     .from('packages')
-    .update({ mock_interview_runs: updatedRuns })
+    .update({
+      mock_interview_runs: updatedRuns,
+      service_events: appendPackageEvent(pkgRow.service_events, 'mock_interview_answered', `Mock interview question ${qIndex + 1} answered`, {
+        score: feedback.score,
+      }),
+    })
     .eq('id', params.id)
     .eq('user_id', user.id)
   if (updateError) {

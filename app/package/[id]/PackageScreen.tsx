@@ -22,8 +22,56 @@ import { resumeKind } from '@/lib/resumeKind'
 import { displayFirstName } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import type { CareerProfileFull } from '@/types/careerProfile'
-import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
+import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
 import { StageSelect } from '@/components/package/StageSelect'
+
+const TIMELINE_FORMAT = new Intl.DateTimeFormat('en-IN', {
+  day: 'numeric',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
+function toDateTimeInput(value: string | null | undefined): string {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const offset = date.getTimezoneOffset()
+  const local = new Date(date.getTime() - offset * 60_000)
+  return local.toISOString().slice(0, 16)
+}
+
+function formatTimelineDate(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return TIMELINE_FORMAT.format(date)
+}
+
+function hasEvent(events: PackageServiceEvent[], type: PackageServiceEvent['type']): boolean {
+  return events.some((event) => event.type === type)
+}
+
+function buildServiceTimeline(pkg: Package): PackageServiceEvent[] {
+  const events = Array.isArray(pkg.service_events) ? [...pkg.service_events] : []
+  const addDerived = (type: PackageServiceEvent['type'], at: string | null | undefined, label: string) => {
+    if (!at || hasEvent(events, type)) return
+    events.push({ id: `${type}-${at}`, type, at, label })
+  }
+
+  if (pkg.optimized_content) addDerived('cv_generated', pkg.updated_at ?? pkg.created_at, 'Optimized CV generated')
+  const lastLetter = Array.isArray(pkg.cover_letters) ? pkg.cover_letters.at(-1) : null
+  addDerived('cover_letter_generated', lastLetter?.generated_at, 'Cover letter generated')
+  addDerived('qa_generated', pkg.interview_questions?.generated_at, 'Interview Q&A generated')
+  const completedMock = pkg.mock_interview_runs
+    ?.filter((run) => run.status === 'completed' && run.completed_at)
+    .at(-1)
+  addDerived('mock_interview_completed', completedMock?.completed_at, 'Mock interview report completed')
+
+  return events
+    .filter((event) => event.at && !Number.isNaN(new Date(event.at).getTime()))
+    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+    .slice(0, 8)
+}
 
 /**
  * Results & download — screen 10 (TASK-033), route /package/[id].
@@ -71,6 +119,13 @@ function PackageScreenInner({ id }: { id: string }) {
   const [nameDraft, setNameDraft] = useState('')
   const [nameState, setNameState] = useState<string | null>(null)
   const [stageState, setStageState] = useState<string | null>(null)
+  const [trackerDraft, setTrackerDraft] = useState({
+    job_url: '',
+    application_deadline: '',
+    interview_date: '',
+    application_notes: '',
+  })
+  const [trackerState, setTrackerState] = useState<string | null>(null)
 
   /** Persist a template choice. Shared by the picker and the "trying" banner. */
   const applyTemplate = useCallback(
@@ -183,6 +238,10 @@ function PackageScreenInner({ id }: { id: string }) {
         if (!res.ok) {
           setPkg((p) => (p ? { ...p, status: prev } : p))
           setStageState('Could not update the stage.')
+        } else {
+          const body = await res.json().catch(() => ({}))
+          const updated = body?.package as Partial<Package> | undefined
+          if (updated) setPkg((p) => (p ? { ...p, ...updated } : p))
         }
       } catch {
         setPkg((p) => (p ? { ...p, status: prev } : p))
@@ -191,6 +250,36 @@ function PackageScreenInner({ id }: { id: string }) {
     },
     [id, pkg]
   )
+
+  const saveTracker = useCallback(async () => {
+    if (!pkg) return
+    setTrackerState('Saving...')
+    try {
+      const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          job_url: trackerDraft.job_url,
+          application_deadline: trackerDraft.application_deadline || null,
+          interview_date: trackerDraft.interview_date
+            ? new Date(trackerDraft.interview_date).toISOString()
+            : null,
+          application_notes: trackerDraft.application_notes,
+        }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setTrackerState((body?.error as string) ?? 'Could not save tracker.')
+        return
+      }
+      const updated = body?.package as Partial<Package> | undefined
+      setPkg((prev) => (prev ? { ...prev, ...(updated ?? {}) } : prev))
+      setTrackerState('Saved')
+      window.setTimeout(() => setTrackerState(null), 1800)
+    } catch {
+      setTrackerState('Network error.')
+    }
+  }, [id, pkg, trackerDraft])
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -214,6 +303,12 @@ function PackageScreenInner({ id }: { id: string }) {
         // never its own — see lib/resumeKind.ts.
         setPkg(p)
         setNameDraft(((p as { name?: string | null }).name ?? '') as string)
+        setTrackerDraft({
+          job_url: p.job_url ?? '',
+          application_deadline: p.application_deadline ?? '',
+          interview_date: toDateTimeInput(p.interview_date),
+          application_notes: p.application_notes ?? '',
+        })
         // readStyleOverrides, not a cast: the column is jsonb and a row could
         // hold anything a future bug writes. Unknown keys are dropped so the
         // controls open on a real state rather than a broken one.
@@ -335,6 +430,42 @@ function PackageScreenInner({ id }: { id: string }) {
       live: true,
     },
   ]
+  const serviceTimeline = buildServiceTimeline(pkg)
+  const readyCount = Number(cvReady) + Number(letterReady) + Number(qaReady) + Number(mockReady)
+  const nextJourneyStep = !cvReady
+    ? {
+        title: 'Build the role-specific Gulf CV',
+        body: 'Start with the resume. Every later service uses this same package, target job and profile.',
+        cta: 'Build CV',
+        href: pkg.is_paid ? `/optimize/generate/${encodeURIComponent(id)}` : `/optimize/pay/${encodeURIComponent(id)}`,
+      }
+    : !letterReady
+      ? {
+          title: 'Add the cover letter',
+          body: 'Turn the same role match into a recruiter-ready letter before applying.',
+          cta: 'Write cover letter',
+          href: `/cover-letter?package=${encodeURIComponent(id)}`,
+        }
+      : !qaReady
+        ? {
+            title: 'Prepare interview answers',
+            body: 'Generate role-specific Q&A from this final CV and the job description.',
+            cta: 'Generate Q&A',
+            href: `/interview-qa?package=${encodeURIComponent(id)}`,
+          }
+        : !mockReady
+          ? {
+              title: 'Practice the interview',
+              body: 'Run the mock interview and save a report on confidence, structure and role readiness.',
+              cta: 'Start mock',
+              href: `/mock-interview?package=${encodeURIComponent(id)}`,
+            }
+          : {
+              title: 'Application package complete',
+              body: 'CV, cover letter, Q&A and mock report are ready. Track the recruiter response here.',
+              cta: 'Add next job',
+              href: '/optimize/target',
+            }
 
   return (
     // 1400px, widened from 1240 in TASK-146 to pay for the 260px template rail
@@ -542,6 +673,21 @@ function PackageScreenInner({ id }: { id: string }) {
               {pkg.target_company ? `${pkg.target_company} · ` : ''}{pkg.target_country ?? 'GCC target'}
             </p>
           </div>
+          <div className="mt-3 flex flex-col gap-3 rounded-ctl border border-teal/30 bg-teal-soft/50 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
+                Next step · {readyCount}/4 ready
+              </p>
+              <p className="mt-1 text-[14px] font-bold text-ink">{nextJourneyStep.title}</p>
+              <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-soft">{nextJourneyStep.body}</p>
+            </div>
+            <Link
+              href={nextJourneyStep.href}
+              className={`${buttonVariants({ variant: readyCount === 4 ? 'secondary' : 'primary', size: 'sm' })} shrink-0`}
+            >
+              {nextJourneyStep.cta}
+            </Link>
+          </div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
             {packageSteps.map((step) => {
               const content = (
@@ -579,6 +725,106 @@ function PackageScreenInner({ id }: { id: string }) {
                 </div>
               )
             })}
+          </div>
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
+          <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+                  Application tracker
+                </p>
+                <h2 className="font-display text-[18px] leading-tight text-ink">Recruiter follow-up details</h2>
+              </div>
+              {trackerState ? <p className="text-[12px] font-semibold text-teal">{trackerState}</p> : null}
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-ink-soft">
+                Job link
+                <input
+                  type="url"
+                  value={trackerDraft.job_url}
+                  onChange={(e) => setTrackerDraft((draft) => ({ ...draft, job_url: e.target.value }))}
+                  placeholder="https://company.com/careers/role"
+                  className="field font-normal"
+                />
+              </label>
+              <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-ink-soft">
+                Application deadline
+                <input
+                  type="date"
+                  value={trackerDraft.application_deadline}
+                  onChange={(e) =>
+                    setTrackerDraft((draft) => ({ ...draft, application_deadline: e.target.value }))
+                  }
+                  className="field font-normal"
+                />
+              </label>
+              <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-ink-soft">
+                Interview date
+                <input
+                  type="datetime-local"
+                  value={trackerDraft.interview_date}
+                  onChange={(e) => setTrackerDraft((draft) => ({ ...draft, interview_date: e.target.value }))}
+                  className="field font-normal"
+                />
+              </label>
+              <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-ink-soft sm:row-span-2">
+                Notes
+                <textarea
+                  value={trackerDraft.application_notes}
+                  onChange={(e) =>
+                    setTrackerDraft((draft) => ({ ...draft, application_notes: e.target.value }))
+                  }
+                  rows={4}
+                  maxLength={3000}
+                  placeholder="Recruiter name, salary range, visa notes, portal password reminder..."
+                  className="field min-h-[112px] resize-y font-normal"
+                />
+              </label>
+              <div className="flex flex-wrap items-center gap-2 self-end">
+                <button
+                  type="button"
+                  onClick={() => void saveTracker()}
+                  className={buttonVariants({ variant: 'primary', size: 'sm' })}
+                >
+                  Save tracker
+                </button>
+                {pkg.job_url ? (
+                  <a
+                    href={pkg.job_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+                  >
+                    Open job link
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
+            <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">Service history</p>
+            <h2 className="mt-1 font-display text-[18px] leading-tight text-ink">Package timeline</h2>
+            <div className="mt-4 flex flex-col gap-3">
+              {serviceTimeline.length > 0 ? (
+                serviceTimeline.map((event) => (
+                  <div key={event.id} className="grid grid-cols-[10px_minmax(0,1fr)] gap-3">
+                    <span className="mt-1.5 size-2.5 rounded-full bg-teal ring-4 ring-teal-soft" />
+                    <div>
+                      <p className="text-[13px] font-semibold leading-snug text-ink">{event.label}</p>
+                      <p className="mt-0.5 text-[12px] text-ink-muted">{formatTimelineDate(event.at)}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[13px] leading-relaxed text-ink-muted">
+                  Activity for this application will appear here as you build and download each service.
+                </p>
+              )}
+            </div>
           </div>
         </section>
 

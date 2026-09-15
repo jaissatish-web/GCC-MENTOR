@@ -6,6 +6,7 @@ import type { CoverLetterTarget } from '@/lib/ai/buildCoverLetterPrompt'
 import { validateCoverLetterGrounding, type ParsedCoverLetter } from '@/lib/ai/validateCoverLetterGrounding'
 import type { CoverLetterValidationFailure } from '@/lib/ai/validateCoverLetterGrounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
+import { appendPackageEvent } from '@/lib/packageEvents'
 // Credit helpers are deliberately not imported while the locks are off — the
 // route neither checks nor consumes a credit. They come back with the lock.
 import type {
@@ -128,7 +129,7 @@ export async function POST(
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, profile_id, is_paid, target_job_title, target_industry, target_country, target_company, job_description, cover_letters',
+      'id, profile_id, is_paid, target_job_title, target_industry, target_country, target_company, job_description, cover_letters, service_events',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
@@ -271,7 +272,7 @@ export async function POST(
   // the credit is already spent and logged in user_service_credits either way.
   const { data: freshPkg } = await supabase
     .from('packages')
-    .select('cover_letters')
+    .select('cover_letters, service_events')
     .eq('id', packageId)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -279,7 +280,15 @@ export async function POST(
 
   const { error: updateError } = await supabase
     .from('packages')
-    .update({ cover_letters: [...existingLetters, letter] })
+    .update({
+      cover_letters: [...existingLetters, letter],
+      service_events: appendPackageEvent(
+        freshPkg?.service_events ?? (pkgRow as { service_events?: unknown }).service_events,
+        'cover_letter_generated',
+        'Cover letter generated',
+        { tone },
+      ),
+    })
     .eq('id', packageId)
     .eq('user_id', user.id)
 

@@ -4,6 +4,7 @@ import { generate } from '@/lib/ai/provider'
 import { buildOptimizationPrompt } from '@/lib/ai/buildOptimizationPrompt'
 import type { SelectedBlocks, OptimizationTarget } from '@/lib/ai/buildOptimizationPrompt'
 import { buildResumeDocument } from '@/lib/resumeDocument'
+import { appendPackageEvent } from '@/lib/packageEvents'
 import { getTemplate } from '@/lib/templates'
 import { validateGrounding } from '@/lib/ai/validateGrounding'
 import type { ValidationFailure } from '@/lib/ai/validateGrounding'
@@ -320,6 +321,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let storedStructuredJob: unknown = null
   let selectedBlocks: SelectedBlocks
   let level: OptimizationLevel
+  let packageServiceEvents: unknown = null
 
   if (generatePackageId) {
     const { data: pkgRow, error: pkgErr } = await supabase
@@ -353,6 +355,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     jobDescription = (pkgRow.job_description as string | null) ?? null
     storedStructuredJob = pkgRow.structured_job ?? null
     level = pkgRow.optimization_level as OptimizationLevel
+    packageServiceEvents = (pkgRow as { service_events?: unknown }).service_events
     selectedBlocks = (pkgRow.selected_blocks as SelectedBlocks | null) ?? {
       summary: true,
       experienceIds: [],
@@ -723,6 +726,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       skills_order,
       field_visibility_snapshot: profile.field_visibility,
       document_snapshot,
+      service_events: appendPackageEvent(
+        packageServiceEvents,
+        'cv_generated',
+        'Optimized CV generated',
+      ),
     })
     .eq('id', generatePackageId)
     .eq('user_id', user.id)
