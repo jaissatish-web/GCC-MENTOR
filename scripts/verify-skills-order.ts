@@ -137,6 +137,17 @@ recoverable('Duplicates + recognized + unknown combined',
   ['sk-d', 'Invented Skill', nameOf('sk-d'), 'sk-a', 'sk-nope', 'sk-a', { x: 1 }, nameOf('sk-e')],
   ['sk-d', 'sk-a', 'sk-e'], true)
 
+console.log('\nRepair codes describe what actually happened')
+{
+  const codes = (raw: unknown) => normalizeSkillsOrder(profile.skills, raw).codes.slice().sort().join(',')
+  check('missing is only "missing"', codes(undefined) === 'skills_order_missing')
+  check('null is only "missing"', codes(null) === 'skills_order_missing')
+  check('non-array is only "malformed"', codes('sk-a') === 'skills_order_malformed')
+  check('empty array is only "no_recognized"', codes([]) === 'skills_order_no_recognized')
+  check('a partial list is "incomplete"', codes(['sk-b']) === 'skills_order_incomplete')
+  check('a clean id permutation has no codes', codes(REORDERED) === '')
+}
+
 console.log('\nName matching is trimmed and case-insensitive, never fuzzy')
 {
   const r = normalizeSkillsOrder(profile.skills, ['  hazop ', 'PLC PROGRAMMING', ' sk-b '])

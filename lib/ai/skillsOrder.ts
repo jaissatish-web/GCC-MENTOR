@@ -109,11 +109,12 @@ export function normalizeSkillsOrder(
     if (order.length === 0 && profileOrder.length > 0) codes.add('skills_order_no_recognized')
   }
 
+  // Counted before appending: only a list that recognized something can be
+  // "incomplete"; a missing or unusable list is described by its own code.
+  const recognizedCount = order.length
   for (const s of profileOrder) {
     if (!seen.has(s.id)) {
-      // Only an incomplete list we actually read counts as "incomplete"; a
-      // missing or unusable list is already described by its own code.
-      if (order.length > 0) codes.add('skills_order_incomplete')
+      if (recognizedCount > 0) codes.add('skills_order_incomplete')
       order.push(s.id)
       seen.add(s.id)
     }
