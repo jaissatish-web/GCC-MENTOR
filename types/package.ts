@@ -47,12 +47,27 @@ export interface ExperienceBlock {
   generated_bullets?: string[] | null
   user_edited_bullets?: string[] | null
   source_bullets: string[] // the before, for the diff
-  claims: string[] // extracted facts, e.g. "400+ field instruments"
+  /**
+   * No longer requested from the model (2026-09-16). It was free text, one
+   * entry per factual assertion, never read or validated by anything, and it
+   * cost output tokens on the slowest call in the product. Optional so rows
+   * written before that date still type-check; new rows carry an empty array.
+   * A real provenance mechanism is deferred Phase 2 work.
+   */
+  claims?: string[]
 }
 
 export interface OptimizedContent {
   summary: OptimizedSummary
   experience_blocks: ExperienceBlock[]
+  /**
+   * Which blocks fell back to the profile's own text because their optimized
+   * content failed grounding after the corrective retry. INTERNAL: never
+   * rendered and never returned to the client — it exists so a rising fallback
+   * rate shows up in the data instead of in complaints. Absent when nothing
+   * fell back, so clean rows keep their existing shape exactly.
+   */
+  fallback_used?: { summary: boolean; experience_ids: string[] }
 }
 
 // ---- cover_letters (JSONB[], TASK-065) --------------------------------------
