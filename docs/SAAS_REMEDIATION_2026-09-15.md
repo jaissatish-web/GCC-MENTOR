@@ -300,3 +300,16 @@ It is not known to have anything to do with the failed deployment.
   about whether PDF export works on Vercel's runtime.
 - Everything in "Not verified" above: signed-in journeys, live AI generation, emails and
   storage limits still need a working preview on a staging database.
+
+### The second push — same result
+
+Pushing the two commits above (`aaf9294`) produced the same split. GitHub CI run
+[35059313711](https://github.com/jaissatish-web/GCC-MENTOR/actions/runs/35059313711)
+**passed**, all steps green including the production build. The Vercel preview
+`dpl_BTPrwDRhLsqwfEVFrVuZnTSCxrkf` **failed**, with the same detail-free
+"Deployment has failed" status as the first one.
+
+**No later preview has passed.** Two different commits now fail identically while CI
+passes on both, which is what an environment-level cause looks like and is not what a
+code-level cause looks like — but it still is not the build log, and the cause above is
+still formally unconfirmed. Reading that log remains the first required action.
