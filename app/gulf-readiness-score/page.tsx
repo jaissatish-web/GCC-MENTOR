@@ -167,7 +167,7 @@ export default function GulfReadinessScorePage() {
             <input ref={fileInput} type="file" accept=".pdf,.doc,.docx" className="sr-only" onChange={(e: ChangeEvent<HTMLInputElement>) => chooseFile(e.target.files?.[0] ?? null)} />
             <p className="text-2xl text-teal">↑</p>
             <h2 className="mt-2 font-display text-xl">{file ? file.name : 'Drop your resume here'}</h2>
-            <p className="mt-1.5 text-[13px] text-ink-soft">PDF up to 10MB · Word up to 5MB</p>
+            <p className="mt-1.5 text-[13px] text-ink-soft">PDF or Word (.docx) up to 4MB</p>
             <button type="button" onClick={() => fileInput.current?.click()} className={buttonVariants({ variant: 'secondary', size: 'sm' }) + ' mt-4'}>
               Choose a file
             </button>

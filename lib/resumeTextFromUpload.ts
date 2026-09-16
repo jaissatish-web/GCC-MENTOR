@@ -15,8 +15,10 @@ import { extractPdfText } from '@/lib/pdfTextExtract'
  * check, so a garbled read is refused explicitly rather than scored.
  */
 
-const MAX_PDF = 10 * 1024 * 1024
-const MAX_DOCX = 5 * 1024 * 1024
+// Vercel refuses a request body over 4.5 MB before any handler runs, so a larger
+// limit here only promised files that could never arrive (audit M12, 2026-09-15).
+const MAX_PDF = 4 * 1024 * 1024
+const MAX_DOCX = 4 * 1024 * 1024
 const MIN_TEXT = 50
 
 export type ResumeTextResult =
@@ -29,13 +31,14 @@ export async function resumeTextFromFile(file: File): Promise<ResumeTextResult> 
     return { ok: false, error: 'Only PDF and Word files are supported.', code: 'BAD_TYPE' }
   }
 
+  // Size is checked on the File before its bytes are buffered.
+  if (ext === 'pdf' && file.size > MAX_PDF) {
+    return { ok: false, error: 'PDF file must be under 4MB.', code: 'TOO_BIG' }
+  }
+  if (ext !== 'pdf' && file.size > MAX_DOCX) {
+    return { ok: false, error: 'Word file must be under 4MB.', code: 'TOO_BIG' }
+  }
   const buffer = Buffer.from(await file.arrayBuffer())
-  if (ext === 'pdf' && buffer.length > MAX_PDF) {
-    return { ok: false, error: 'PDF file must be under 10MB.', code: 'TOO_BIG' }
-  }
-  if (ext !== 'pdf' && buffer.length > MAX_DOCX) {
-    return { ok: false, error: 'Word file must be under 5MB.', code: 'TOO_BIG' }
-  }
 
   try {
     if (ext === 'pdf') {

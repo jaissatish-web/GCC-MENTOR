@@ -44,9 +44,40 @@ export const LIMIT_ACTION_OPTIMIZATION = 'optimization'
  */
 export const LIMIT_ACTION_PROMO_REDEMPTION = 'promo_redemption'
 
+/**
+ * The service journey's quota actions (audit H03, 2026-09-15). Before this, the
+ * cover letter, interview Q&A and every mock-interview call had NO limit at all:
+ * a signed-in user could spend model calls without end. Each is now reserved
+ * before its model call through lib/ai/serviceGuard.ts.
+ *
+ * THE DEFAULTS BELOW ARE ABUSE CEILINGS, NOT COMMERCIAL ALLOWANCES. They are
+ * set generously above what one person preparing for real jobs uses in a day,
+ * so a genuine user never meets them, while a script cannot spend without end.
+ * The free-plan allowance is a founder decision (docs/SAAS_RELEASE_CHECKLIST.md);
+ * /admin/services overrides any of them without a deploy, and env vars override
+ * the code default.
+ */
+export const LIMIT_ACTION_JOB_DESCRIPTION = 'job_description'
+export const LIMIT_ACTION_COVER_LETTER = 'cover_letter'
+export const LIMIT_ACTION_INTERVIEW_QA = 'interview_qa'
+export const LIMIT_ACTION_MOCK_START = 'mock_interview_start'
+export const LIMIT_ACTION_MOCK_ANSWER = 'mock_interview_answer'
+export const LIMIT_ACTION_MOCK_REPORT = 'mock_interview_report'
+
 const DEFAULT_EXTRACTIONS_PER_DAY = 5
 const DEFAULT_OPTIMIZATIONS_PER_DAY = 20
 const DEFAULT_PROMO_REDEMPTIONS_PER_DAY = 10
+
+/** action -> [env var, code default]. Actions not listed use the extraction default. */
+const DAILY_DEFAULTS: Record<string, [string, number]> = {
+  [LIMIT_ACTION_JOB_DESCRIPTION]: ['RATE_LIMIT_JOB_DESCRIPTIONS_PER_DAY', 30],
+  [LIMIT_ACTION_COVER_LETTER]: ['RATE_LIMIT_COVER_LETTERS_PER_DAY', 20],
+  [LIMIT_ACTION_INTERVIEW_QA]: ['RATE_LIMIT_INTERVIEW_QA_PER_DAY', 10],
+  [LIMIT_ACTION_MOCK_START]: ['RATE_LIMIT_MOCK_INTERVIEWS_PER_DAY', 10],
+  // 10 interviews x up to 15 questions.
+  [LIMIT_ACTION_MOCK_ANSWER]: ['RATE_LIMIT_MOCK_ANSWERS_PER_DAY', 150],
+  [LIMIT_ACTION_MOCK_REPORT]: ['RATE_LIMIT_MOCK_REPORTS_PER_DAY', 10],
+}
 
 /**
  * Keys are local-calendar dates; the window resets at the next midnight.
@@ -63,7 +94,7 @@ export function windowStart(): string {
 }
 
 /** Next local midnight, as an ISO string — what the reset message shows. */
-function resetAtIso(): string {
+export function resetAtIso(): string {
   const d = new Date()
   d.setHours(23, 59, 59, 999)
   return d.toISOString()
@@ -86,6 +117,8 @@ export function getDefaultDailyLimit(action: string): number {
   if (action === LIMIT_ACTION_PROMO_REDEMPTION) {
     return parsePositiveEnvInt(process.env.RATE_LIMIT_PROMO_REDEMPTIONS_PER_DAY) ?? DEFAULT_PROMO_REDEMPTIONS_PER_DAY
   }
+  const configured = DAILY_DEFAULTS[action]
+  if (configured) return parsePositiveEnvInt(process.env[configured[0]]) ?? configured[1]
   return DEFAULT_EXTRACTIONS_PER_DAY
 }
 
@@ -103,7 +136,7 @@ export interface RateLimitStatus {
  * (secondary keying — survives account cycling). The caller's own id is always
  * included even if no profile row exists yet.
  */
-async function identityUserIds(userId: string, phone?: string | null, email?: string | null): Promise<string[]> {
+export async function identityUserIds(userId: string, phone?: string | null, email?: string | null): Promise<string[]> {
   const supabase = createServiceRoleClient()
   const ids = new Set<string>([userId])
 
