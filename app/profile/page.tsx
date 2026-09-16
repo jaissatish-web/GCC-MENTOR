@@ -41,6 +41,11 @@ import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
  * through the add-or-replace choice. Module scope so both call sites share the
  * one heuristic and it cannot drift between them.
  */
+/** The stored `updated_at` a save is checked against (audit H08, migration 051). */
+function versionOf(saved: CareerProfileFull | null): string | null {
+  return (saved as { updated_at?: string | null } | null)?.updated_at ?? null
+}
+
 function hasSavedProfileContent(saved: CareerProfileFull | null): boolean {
   return (
     !!saved &&
@@ -882,6 +887,8 @@ function ProfileScreen() {
     existing: CareerProfileFull
   } | null>(null)
   const didInit = useRef(false)
+  // The profile version this editor holds; null until one has been loaded or saved.
+  const savedVersionRef = useRef<string | null>(null)
 
   // ---- Initial load: draft handoff, else GET existing, else empty ----------
   useEffect(() => {
@@ -943,6 +950,7 @@ function ProfileScreen() {
             }
             setPendingDraft({ draft: capturedDraft, existing: saved as CareerProfileFull })
             setHasSavedProfile(true)
+            savedVersionRef.current = versionOf(saved)
             setLoaded(true)
           })
           .catch(() => {
@@ -984,6 +992,7 @@ function ProfileScreen() {
           if (hasSavedProfileContent(saved)) {
             setPendingDraft({ draft: pending.draft, existing: saved as CareerProfileFull })
             setHasSavedProfile(true)
+            savedVersionRef.current = versionOf(saved)
             setLoaded(true)
             return
           }
@@ -994,6 +1003,9 @@ function ProfileScreen() {
         }
         setEditor(saved ? fromFull(saved) : emptyEditor())
         setHasSavedProfile(hasSavedProfileContent(saved))
+        // The version this editor was loaded from (audit H08): sent back on
+        // save, so a stale tab cannot silently overwrite newer work.
+        savedVersionRef.current = versionOf(saved)
         // Read-only employment gaps (TASK-067); absent on the draft/empty paths.
         const gaps = (data as { employment_gaps?: unknown } | null)?.employment_gaps
         setEmploymentGaps(Array.isArray(gaps) ? (gaps as EmploymentGap[]) : [])
@@ -1417,7 +1429,7 @@ function ProfileScreen() {
         const res = await fetch('/api/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(buildPutBody(editor)),
+          body: JSON.stringify({ ...buildPutBody(editor), expected_updated_at: savedVersionRef.current }),
         })
         if (!res.ok) {
           let msg = 'Saving failed. Please try again.'
@@ -1434,6 +1446,9 @@ function ProfileScreen() {
         // 'stay' is the auto-save after extraction: persist and remain on the
         // page so the user reviews and edits, without a navigation they did not
         // ask for.
+        // The next save is checked against the version just written.
+        const savedBody = (await res.json().catch(() => null)) as { updated_at?: string | null } | null
+        if (savedBody?.updated_at) savedVersionRef.current = savedBody.updated_at
         // A save succeeded, so the profile now exists — the import panel folds
         // into "Recreate my profile" (2026-09-11).
         setHasSavedProfile(true)

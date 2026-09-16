@@ -27,13 +27,16 @@ import { normalizeProfileDate } from '@/lib/partialDates'
  * validated against types/careerProfile.ts before hitting the database, and a
  * 400 names the offending FIELD only — never its value (docs/RULES.md §3).
  *
- * ATOMICITY NOTE: the Supabase JS client (v2.112) exposes NO cross-table
- * transaction primitive. The PUT below performs up/downdates in sequence and
- * is therefore NOT atomic — a failure mid-way can leave the profile partially
- * written. This is stated plainly rather than faking atomicity with sequential
- * awaits. True atomicity requires a server-side Postgres function (RPC) that
- * wraps the whole operation in one transaction; that is a separate migration
- * and not built here (see Question for CTO).
+ * ATOMIC SINCE 2026-09-15 (audit H08, migration 051). The PUT used to write the
+ * parent row and then five child tables in six separate calls, so a failure
+ * mid-way left a half-saved profile. It now validates and normalises here, then
+ * hands the whole save to save_career_profile(), which runs as the signed-in
+ * user (RLS still applies) inside ONE transaction: all of it lands, or none.
+ *
+ * STALE-TAB PROTECTION: a caller may send `expected_updated_at` (the
+ * `updated_at` it loaded). If the stored profile is newer, nothing is written
+ * and the answer is 409 PROFILE_CONFLICT. Callers that do not send it keep the
+ * previous last-write-wins behaviour.
  *
  * PII: no field VALUES are ever logged or echoed — only profile ID and field
  * names appear in logs/errors.
@@ -426,106 +429,78 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   profileRow.readiness_category = readiness.category
   profileRow.readiness_score = readiness.score
 
-  // Upsert the profile row (one table = one atomic operation via Supabase).
-  const { data: upserted, error: upsertError } = await supabase
-    .from('career_profiles')
-    .upsert(profileRow, { onConflict: 'user_id' })
-    .select('id')
-    .single()
-
-  if (upsertError) {
-    console.error('profile PUT upsert error: id=' + user.id + ' fields=career_profiles', upsertError?.message ?? '')
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
-  const profileId: string | null = upserted?.id ?? null
-  if (!profileId) {
-    console.error('profile PUT: no id returned for user=' + user.id)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
-
-  // Reconcile the child rows for this profile — UPSERT-BY-ID per table.
-  // Referential integrity (packages.optimized_content.experience_blocks frozen
-  // by profile_experience_id, and packages.skills_order) must never depend on
-  // the client sending ids back: ids preserve row identity and survive re-save.
-  //   - Rows arriving WITH an id: upsert on id; the id is never changed.
-  //   - Rows arriving WITHOUT an id: insert; the DB generates the id.
-  //   - Rows in the DB whose id is ABSENT from the incoming set: delete those
-  //     and only those. Never a blanket delete.
-  // profile_id is FORCED to the caller's profile id on every write path, never
-  // taken from the request body (ownership verification).
-  // Each table is its own Supabase op; the five are NOT atomic as a group (no
-  // JS-client cross-table transaction) — but with upsert-by-id a partial
-  // failure is recoverable rather than data-losing. Keep the try/catch + 500.
-  const reconcileChildren = async (
-    table: (typeof CHILD_TABLES)[number],
-    rows: unknown[] | undefined,
-  ): Promise<void> => {
-    if (!Array.isArray(rows)) return
-
+  // Child collections, normalised exactly as before, keyed by their JSON name.
+  // Row identity rules are unchanged: a row WITH an id is updated in place (the
+  // id never changes); a row WITHOUT one is inserted; a stored row absent from a
+  // collection that WAS sent is deleted; a collection that was not sent is left
+  // alone. profile_id always comes from the caller's own profile, never the body.
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const childKeys: Array<[string, (typeof CHILD_TABLES)[number]]> = [
+    ['work_experience', 'profile_work_experience'],
+    ['skills', 'profile_skills'],
+    ['certifications', 'profile_certifications'],
+    ['education', 'profile_education'],
+    ['additional_information', 'profile_additional_information'],
+  ]
+  const children: Record<string, Array<Record<string, unknown>>> = {}
+  for (const [key, table] of childKeys) {
+    const rows = body[key]
+    if (!Array.isArray(rows)) continue
     const dateFields = CHILD_DATE_FIELDS[table] ?? []
-    const incoming = rows.filter(isObject).map((r): Record<string, unknown> => {
-      const { profile_id: _ignored, ...rest } = r
-      const row: Record<string, unknown> = { ...rest, profile_id: profileId } // force ownership; never body value
+    children[key] = rows.filter(isObject).map((r) => {
+      const { profile_id: _ignoredProfile, created_at: _ignoredCreated, ...rest } = r
+      void _ignoredProfile
+      void _ignoredCreated
+      const row: Record<string, unknown> = { ...rest }
       // Month-precision dates ("2021-03") and bare years ("2019") are what
-      // resumes actually contain and what extraction returns. Postgres `date`
-      // rejects both, which used to fail the whole save with a 500.
+      // resumes actually contain; Postgres `date` rejects both.
       for (const f of dateFields) {
         if (f in row) row[f] = normalizeProfileDate(row[f])
       }
+      if (typeof row.id !== 'string' || !UUID_RE.test(row.id.trim())) delete row.id
       return row
     })
-
-    const withId = incoming.filter((r) => typeof r.id === 'string' && String(r.id).trim() !== '')
-    const withoutId = incoming.filter((r) => r.id === undefined || r.id === null || String(r.id).trim() === '')
-
-    // Existing ids for THIS profile (ownership-scoped, never a blanket read).
-    const { data: existing } = await supabase
-      .from(table)
-      .select('id')
-      .eq('profile_id', profileId)
-    if (existing === null) {
-      throw new Error('SELECT id returned null for ' + table)
-    }
-    const existingIds = (existing as { id: string | null }[])
-      .map((x) => (x.id != null ? String(x.id) : ''))
-      .filter(Boolean)
-
-    // Upsert rows that carry an id. The id is the key and is never changed.
-    if (withId.length > 0) {
-      const { error } = await supabase.from(table).upsert(withId, { onConflict: 'id' })
-      if (error) throw error
-    }
-
-    // Insert rows with no id; let the DB generate one.
-    if (withoutId.length > 0) {
-      const { error } = await supabase.from(table).insert(withoutId)
-      if (error) throw error
-    }
-
-    // Delete rows whose id is absent from the incoming set — ONLY those.
-    const keepIds = new Set(withId.map((r) => String(r.id)))
-    const stale = existingIds.filter((id) => !keepIds.has(id))
-    if (stale.length > 0) {
-      const { error } = await supabase
-        .from(table)
-        .delete()
-        .eq('profile_id', profileId)
-        .in('id', stale)
-      if (error) throw error
-    }
   }
 
-  try {
-    await Promise.all([
-      reconcileChildren('profile_work_experience', body.work_experience as unknown[] | undefined),
-      reconcileChildren('profile_skills', body.skills as unknown[] | undefined),
-      reconcileChildren('profile_certifications', body.certifications as unknown[] | undefined),
-      reconcileChildren('profile_education', body.education as unknown[] | undefined),
-      reconcileChildren('profile_additional_information', body.additional_information as unknown[] | undefined),
-    ])
-  } catch (e) {
-    const msg: string = typeof e === 'object' && e !== null && 'message' in e ? String((e as { message: unknown }).message) : ''
-    console.error('profile PUT children error: id=' + profileId + ' fields=' + CHILD_TABLES.join(','), msg)
+  const { user_id: _callerId, ...profilePayload } = profileRow
+  void _callerId
+  const expectedUpdatedAt =
+    typeof body.expected_updated_at === 'string' && body.expected_updated_at.trim() !== ''
+      ? body.expected_updated_at
+      : null
+
+  const { data: saveResult, error: saveError } = await supabase.rpc('save_career_profile', {
+    p_profile: profilePayload,
+    p_children: children,
+    p_expected_updated_at: expectedUpdatedAt,
+  })
+
+  if (saveError) {
+    console.error(
+      'profile PUT save error: user=' + user.id + ' fields=career_profiles,' + CHILD_TABLES.join(','),
+      saveError.code ?? '',
+      saveError.message ?? '',
+    )
+    return NextResponse.json(
+      { error: 'Your profile could not be saved. Nothing was changed — please try again.' },
+      { status: 500 },
+    )
+  }
+
+  const result = saveResult as { status?: string; profile_id?: string; updated_at?: string } | null
+  if (result?.status === 'conflict') {
+    return NextResponse.json(
+      {
+        error:
+          'This profile was changed in another tab or on another device. Reload to see the latest version — your edits on this screen have not been saved.',
+        code: 'PROFILE_CONFLICT',
+      },
+      { status: 409 },
+    )
+  }
+  const profileId = result?.status === 'saved' ? result.profile_id ?? null : null
+  if (!profileId) {
+    console.error('profile PUT: save returned no profile for user=' + user.id)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 
@@ -533,5 +508,6 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     `profile PUT success: user=${user.id} profile=${profileId} ` +
       `fields=career_profiles,${CHILD_TABLES.join(',')}`
   )
-  return NextResponse.json({ ok: true, profileId })
+  // updated_at is the version the editor sends back next time (stale-tab check).
+  return NextResponse.json({ ok: true, profileId, updated_at: result?.updated_at ?? null })
 }
