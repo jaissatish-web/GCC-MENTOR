@@ -32,9 +32,10 @@ an action can never be attributed to someone else.
 | Screen | What it does | State |
 |---|---|---|
 | **Overview** (`/admin`) | One live summary line per section, so a blocker is visible without opening every page | Live |
+| **Service Controls** (`/admin/services`) | Pause or resume each AI service (with an optional message users see); per action: daily allowance per user, all-users daily cap, requests at once; today's and 7-day allowed / saved / failed / refused counts; the retention clean-up's history and a "Run now" button; recent changes with before/after | Live (2026-09-15, audit M14). **Enforced server-side** on every model call by `lib/ai/serviceGuard.ts` — nothing here works by hiding a button. Needs migrations 049 and 054 |
 | **AI Provider** (`/admin/ai-provider`) | Provider, model, fallback and API key **per service**, plus a default and internal overrides | Live and genuinely wired — see §3b |
 | **Free Plan** (`/admin/plan`) | What the free tier includes, per feature, including which templates free users may pick | **Editor works; no user-facing gate reads it yet** |
-| **Prompts** (`/admin/prompts`) | Edit prompt text | **Fully inert today** — see §4. Being rebuilt with versioning |
+| **Prompts** (`/admin/prompts`) | Versioned prompt text, draft then publish | Live since 2026-08-17 — see [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b. A service uses a stored prompt only once one is published |
 | **Promo Codes** (`/admin/promo-codes`) | Create and deactivate codes, optionally tied to a bundle | Live — **this is the real checkout today** |
 | **Packages** (`/admin/packages`) | Bundle definitions and their included items | Live |
 | **Users** (`/admin/users`) | User list, search, package history, payments, manual credit grants | Live |
@@ -90,11 +91,13 @@ category of dishonesty as fake data**, and this project has made that mistake.
   user-facing gate calls them yet. The screen carries a plain "not live yet" notice
   saying exactly what does and does not happen. **The notice is removed in the same
   change that wires the first gate.**
-- **Prompts** — **no AI call reads a stored prompt template at all today.** The list of
-  live keys is empty, so every field on this screen edits something nothing consumes.
-  It is labelled rather than left looking functional. Being rebuilt with versioning and
-  draft-then-publish; the grounding block and output schema stay permanently
-  non-editable. See [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b.
+- **Prompts** — rebuilt with versioning and draft-then-publish (2026-08-17). Nothing
+  is published yet, so every service still runs its in-code prompt; publishing one
+  changes that service at the next request. The grounding block and output schema stay
+  permanently non-editable. See [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b.
+- **Service Controls allowances left blank** use the code defaults — abuse ceilings,
+  not a free-plan decision. The screen says so, and the free allowance is listed as a
+  founder decision in [`SAAS_RELEASE_CHECKLIST.md`](SAAS_RELEASE_CHECKLIST.md).
 - **Interview Q&A** appears in the AI Provider list as a live config row used by
   `/api/packages/[id]/interview-qa`.
 - **Mock Interview** appears in the AI Provider list as a live config row used by

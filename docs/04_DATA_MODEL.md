@@ -130,9 +130,27 @@ rewrite what a resume says: `template_id`, `template_version`, `style_overrides`
 **Commercial:** `is_paid`, `payment_id`, `tier` (`free` | `paid`; null = created
 before the free tier existed and belongs to the paid flow)
 
-**Other:** `status` (applied / shortlisted / interview / visa processing / offer),
-`generation_count`, `ats_score_card`, `job_match_result`, `cover_letters[]`, and
-two reserved-and-unused slots for planned services
+**Other:** `status` — the APPLICATION stage: saved / applied / shortlisted / interview /
+visa processing / offer / rejected / withdrawn. `saved`, `rejected` and `withdrawn` were
+added by migration 053 (audit M07); new rows start as `saved` (migration 055) because a
+prepared CV is not a submitted application, and existing rows keep their stage.
+Preparation progress (CV, letter, Q&A, mock) is shown separately from it. Also
+`generation_count`, `ats_score_card`, `job_match_result`, `cover_letters[]`,
+`interview_questions`, `mock_interview_runs[]`, the tracker fields (`job_url`,
+`application_deadline`, `interview_date`, `application_notes`) and `service_events[]`
+(migration 048).
+
+**Who may write what (migration 050, audit H02).** The owner's own session may read and
+delete their jobs and UPDATE only `name`, `status`, `template_id`, `template_version`,
+`style_overrides` and the four tracker fields. Every other column — payment state,
+generated content, the frozen document, letters, Q&A, interview runs, service history —
+is written only through `lib/packages/serverWrites.ts`. The array columns are changed
+by single-row functions (§5), never read-modified-and-written from JavaScript.
+
+**Lists never load the documents (migration 055, audit M08).** Screens that list jobs
+use `list_package_summaries()` through `GET /api/packages?view=summary`: identity,
+stage, tracker fields and flags/counts — never the CV, letters or transcripts. A
+screen loads one full row, for the job it opens, from `GET /api/packages/[id]`.
 
 ### Why `document_snapshot` exists — the most important thing in this table
 
@@ -182,7 +200,12 @@ gate.**
 | `service_packages`, `service_package_items` | Bundle definitions | Service role only |
 | `user_service_credits` | Credits a user holds | Service role only |
 | `optimization_credits` | Admin-granted free optimizations, as a permanent ledger | Service role only |
-| `rate_limits`, `anonymous_rate_limits` | Daily counters — plus, in `rate_limits`, one **monthly** counter: `profile_recreation`, keyed on the first of the month (2026-09-11, `lib/recreateLimit.ts`) | Owner / service role |
+| `rate_limits`, `anonymous_rate_limits` | Daily counters — plus, in `rate_limits`, one **monthly** counter: `profile_recreation`, keyed on the first of the month (2026-09-11, `lib/recreateLimit.ts`) | `rate_limits`: owner may **read** only, the service role writes (migration 049). `anonymous_rate_limits`: service role |
+| `rate_limit_reservations` | One row per model call in flight; counts toward the limit until consumed, released or expired (migration 049) | Service role only |
+| `ai_service_controls` | Per quota action: available/paused, per-user and all-users daily allowances, requests at once, the paused message (migration 049) | Service role only — edited from `/admin/services` |
+| `ai_service_control_changes` | Every change to the above, before and after | Insert + read, service role; append-only |
+| `ai_service_daily_stats` | Per action per day: allowed, saved, failed, refused (limit / busy / cap). **Counts only, no user id** | Service role read; written only inside the enforcing functions |
+| `maintenance_runs` | Each retention clean-up: when, trigger, counts or error (migration 054) | Service role only |
 | `pending_profile_drafts` | One CV reading per user, kept until they decide what to do with it (migration 047, 2026-09-11). Written by the parse routes before they answer; deleted once resolved. **Holds CV data** — cascades with the account, and "Delete my data" removes it explicitly because the profile's cascade does not reach it | Owner only |
 | `ai_usage_log` | Every model call, for cost tracking | Service role |
 | `pii_access_log` | Every admin view of a user's profile | Insert + read, service role |
@@ -206,6 +229,11 @@ run as single Postgres statements:
 | `consume_optimization_credit` | Uses `FOR UPDATE SKIP LOCKED`. The realistic trigger is mundane — an impatient user double-clicking Optimize would otherwise spend one credit twice |
 | `consume_service_credit`, `grant_package_credits` | Same class |
 | `redeem_promo_code`, `redeem_package_promo_code` | A code must not be redeemable twice concurrently |
+| `reserve_rate_limit`, `consume_rate_limit_reservation`, `release_rate_limit_reservation` (049) | Checking a count and then incrementing it after the model call let concurrent requests all pass. Reservations are taken under a per-user lock and counted while pending |
+| `package_append_event`, `package_append_cover_letter`, `package_set_interview_questions`, `package_append_mock_run`, `package_record_mock_answer`, `package_complete_mock_run` (050) | Whole-array rewrites lost a letter, answer or event when two tabs saved together. Each changes one row under a lock; an answered question and a completed report are never overwritten. `SECURITY INVOKER`, service role only |
+| `save_career_profile` (051) | The profile save was six separate calls and could half-commit. One transaction, run as the signed-in user (RLS applies), with a stale-version check |
+| `list_package_summaries` (055) | Paged, server-searched job list. `SECURITY INVOKER` as the signed-in user |
+| `purge_expired_operational_data` (054) | Deletes expired anonymous sessions and stale operational rows; returns counts only |
 
 **Every one of these is `SECURITY DEFINER`, and that is exactly why each needs an
 explicit `REVOKE EXECUTE` from the client roles.** This project has already been
@@ -221,3 +249,7 @@ permanent audit record: who granted it, why, when, and which resume it paid for.
 One bucket, `profile-photos`, **private**. Photos are served through signed URLs
 minted server-side. Verified with an unauthenticated probe: writes denied, signed
 URL minting denied, public URL not served.
+
+**Bucket-level limits since migration 052** (audit M02): 5 MiB, JPEG/PNG/WebP only —
+the same rule `lib/storage/profilePhoto.ts` applies, now also enforced by Storage for a
+direct upload that never passes through the route. Owner-folder policies unchanged.

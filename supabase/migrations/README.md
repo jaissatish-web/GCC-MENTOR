@@ -106,6 +106,47 @@ When every box is checked, the migration is applied. If any box cannot be
 checked, **stop** — do not proceed, and get the reviewer (or founder) involved
 before applying anything.
 
+## Fresh-database bootstrap order (2026-09-15, audit M01)
+
+The live project already had `profiles` when numbering began, so one file depends on
+a HIGHER number: **`013_operations.sql` alters `profiles`, which `020_profiles_base.sql`
+creates.** Applied in plain numeric order, a fresh database fails at 013. Bootstrap a
+fresh (staging, restore-test, local) database in numeric order **with 020 applied
+before 013**:
+
+```
+010, 011, 012, 020, 013, 014, 015, …, 019, 021, 022, …, 055
+```
+
+Nothing is renumbered: the live project applied these files long ago and its history
+must still match the folder. `scripts/db/supabaseStub.mjs` encodes this rule
+(`BOOTSTRAP_PREREQUISITES`), and `scripts/verify-db-security.mjs` proves it on every run
+— plain numeric order fails, bootstrap order applies all files, on an in-process
+Postgres with no credentials.
+
+**The live migration history table is not a record of what is applied.** Most files
+here were pasted into the SQL editor, so `supabase_migrations` holds only a couple of
+rows while the schema contains everything. Read the catalogue, not the history, to
+know what a database has.
+
+## Applying 049–055 (the 2026-09-15 hardening)
+
+Apply **in this order, each as its own run**, before the code that needs them is
+deployed — see `docs/SAAS_RELEASE_CHECKLIST.md` for the full rollout:
+
+| File | What | Must precede |
+|---|---|---|
+| 049 | Quota lockdown, reservations, service controls, daily counters | Code using `lib/ai/serviceGuard.ts` |
+| 050 | Package column grants + atomic package writers | Code using `lib/packages/serverWrites.ts` |
+| 051 | One-transaction profile save | Code calling `save_career_profile` |
+| 052 | Photo bucket limits + function hardening | — (independent) |
+| 053 | `saved` / `rejected` / `withdrawn` stages | 055, and code offering those stages |
+| 054 | Retention purge + run log | The cron route and `/admin/services` clean-up |
+| 055 | `saved` as the default stage + `list_package_summaries` | Code using `?view=summary` |
+
+053 must be committed before 055 runs: Postgres does not let a new enum value be used
+in the transaction that adds it.
+
 ## Review before apply
 
 Every migration in `docs/TASKS.md` that touches the data layer is flagged

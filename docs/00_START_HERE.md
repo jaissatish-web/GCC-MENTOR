@@ -45,6 +45,15 @@ Each part of the product is one file. Go straight to the one you need.
 | [`15_DECISION_LOG.md`](15_DECISION_LOG.md) | Every product and technical decision, dated, newest first |
 | [`16_WORKING_AGREEMENT.md`](16_WORKING_AGREEMENT.md) | Roles, review discipline, verification standards, and the rule that keeps these docs true |
 
+## Releases and data
+
+| File | Owns |
+|---|---|
+| [`SAAS_RELEASE_CHECKLIST.md`](SAAS_RELEASE_CHECKLIST.md) | Migration order, settings (names only), deploy order, preview checks, rollback, go/no-go |
+| [`DATA_INVENTORY_AND_RETENTION.md`](DATA_INVENTORY_AND_RETENTION.md) | Where every kind of personal data lives, who can read it, how long it stays, how it is deleted |
+| [`SAAS_REMEDIATION_2026-09-15.md`](SAAS_REMEDIATION_2026-09-15.md) | What the 2026-09-15 audit found and what was done about each item, with evidence |
+| [`FULL_SAAS_AUDIT_2026-09-15.md`](FULL_SAAS_AUDIT_2026-09-15.md) | The audit itself — kept unchanged as the baseline |
+
 ---
 
 ## The rule that keeps this folder honest

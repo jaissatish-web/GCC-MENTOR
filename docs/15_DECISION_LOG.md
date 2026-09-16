@@ -12,6 +12,61 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-15 — Production hardening from the full SaaS audit
+
+**Founder request:** implement the required fixes from the full SaaS audit
+(`FULL_SAAS_AUDIT_2026-09-15.md`, by a separate reviewer) on a separate branch,
+`claude/saas-production-hardening`, verify, and push — **no merge, no deploy, no
+production migrations, no payments.** Item-by-item record with evidence:
+[`SAAS_REMEDIATION_2026-09-15.md`](SAAS_REMEDIATION_2026-09-15.md).
+
+Decisions made in that work, each changeable only by a conversation:
+
+- **Next.js 15.5 (the patched security line), not 16.** Every critical and high advisory
+  is fixed from 15.5.24; 16 would add a second major migration (middleware rename, lint
+  removal) for no security gain. Next's own nested `postcss` is overridden to the patched
+  8.5 line. `npm audit`: 0 vulnerabilities.
+- **Quota state is server-owned.** A user may read their counters and never write them;
+  every model call reserves a slot first (pending counts toward the limit), consumes it
+  only when the result is saved and releases it on failure — the existing "a failure is
+  not your fault" rule, now race-free. **Free services get limits too; payment is not the
+  abuse control.** Defaults are abuse ceilings; the free plan is the founder's call.
+- **Package rows: owner edits metadata only.** Generated content, the frozen document,
+  letters, Q&A, interview runs, history and payment state are written by the server.
+  Array columns change through single-row database functions, so concurrent tabs never
+  erase each other's work. Service history stays user-facing; operational and security
+  records live in their own tables.
+- **A finished mock-interview report is final.** Practising again starts a new run. An
+  answer, once saved, is not overwritten; early finish is allowed and says what was
+  skipped.
+- **Interview answers get a real number check** (review finding X01, not in the audit):
+  a number must come from the profile, the saved CV, the advert or the user's own dates.
+  Unsourced answers are dropped, never patched. The mock "better answer" may use only
+  what the user typed and marks gaps as `[placeholders]`.
+- **The saved CV is the primary source for the cover letter, Q&A and mock interview**;
+  the Career Profile supplements it.
+- **"Saved · not applied" is where a job starts** (product direction in the request). The
+  application stage is separate from preparation progress; "rejected" (shown as "Not
+  selected") and "withdrawn" added. Existing "applied" rows are not rewritten.
+- **Lists load summaries; one job loads in full.** Search and stage filters run in the
+  database so they reach jobs not yet on screen.
+- **Profile save is one transaction with a stale-version check.** Callers that do not
+  send a version keep last-write-wins, so the change can land without touching every
+  caller.
+- **Expired anonymous CVs are deleted nightly** by Vercel Cron, failing closed without
+  `CRON_SECRET`; counts only in the run log. No production record was deleted.
+- **Password recovery** on the existing email/password model; no OAuth added.
+- **The landing page says only what is true:** the template count comes from the
+  registry, the interview illustration shows the four text-report dimensions (no voice
+  metrics), reports are called preparation feedback, not predictions. Prices were left
+  as the founder set them — what to say about them while services are open is a founder
+  decision.
+
+**Not decided here, and listed for the founder:** legal text, retention periods and
+account closure, password policy, allowances and budget, the legacy anonymous scan.
+
+---
+
 ## 2026-09-12 — A guided-flow pass: every screen says what is true and points at the next step
 
 **Founder request:** check every function step by step, as a SaaS designer would, so the

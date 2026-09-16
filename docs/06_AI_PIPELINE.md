@@ -25,7 +25,21 @@ attempt · refusing to return output that failed validation · diagnostics.
 **What it deliberately does not own:** authentication, ownership and rate
 limiting — those belong to the route, in front of the call. A module that quietly
 enforced them would hide where the real gate is. And it never authors prompt
-*text*; that stays in the per-service prompt modules.
+*text*; that stays in the per-service prompt modules. **Since 2026-09-15 every
+model-calling route runs the same gate in front of it — `lib/ai/serviceGuard.ts`
+(pause, allowance, one-at-a-time, reservation; see §7) — still called by the route,
+still visible there.**
+
+### One deadline for the whole task (2026-09-15, audit H09)
+
+A task may carry `deadlineAt`: the provider receives it as its give-up point for
+every attempt and every provider tier, and a repair is started only when at least
+`minRepairMs` remain. Each AI route sets its deadline 20–30s inside its own
+`maxDuration`, leaving time to save and answer. Before this, the cover-letter route
+capped itself at 60s while the provider could wait 280s, so a slow upstream outlived
+the route and the platform's timeout page reached the user mid-spend.
+`scripts/verify-deadlines.ts` asserts it with a faked provider — including a stalled
+one — and checks every route's deadline against its ceiling.
 
 ### Grounding is declared, never defaulted
 
@@ -87,6 +101,27 @@ migrated onto the layer.
 **Adoption is one service at a time.** The layer is additive — the existing
 `generate()` transport is unchanged and every service still works — so nothing has
 to move at once.
+
+### Interview Q&A and the mock interview — grounding made real (2026-09-15)
+
+Both services shipped declaring `grounding: 'enforced'`, but the check they passed
+validated only the JSON shape — the 25 first-person answers were never compared with
+the profile (review finding X01). They are now:
+
+- **Numbers in answers are checked** (`lib/ai/answerGrounding.ts`): every number in a
+  Q&A answer or a mock "ideal answer point" must appear in the Career Profile, the saved
+  CV, the job advert or the target, or be a duration derivable from the user's own job
+  dates. More than five unsourced Q&A answers sends the set back for repair; any that
+  survive are **dropped**, never shown, never patched by guessing. Same trust boundary as
+  the cover letter — entities in free prose are left to the injected instruction.
+- **The saved CV is the primary source** for Q&A, the mock interview and — since the same
+  day — the cover letter (audit M04). A failed profile read is an error, not an empty
+  profile (`lib/packages/profileLoader.ts`).
+- **The mock "better answer" rewrites only what the user typed.** It sees no profile, so
+  it may use only the user's answer and the question's expected points; a missing detail
+  becomes a `[placeholder]`, and an invented number fails the shape check.
+
+`scripts/verify-answer-grounding.ts` asserts the number rules on a synthetic profile.
 
 ---
 
@@ -398,16 +433,25 @@ enforced by the type system rather than by asking the prompt nicely.**
 
 ## 7. Cost control
 
-- **Payment precedes generation.** The single biggest saving: optimization used to
-  run before payment, so every non-buying visitor spent real tokens.
+- **Every model-calling route passes `lib/ai/serviceGuard.ts` first** (2026-09-15,
+  audit H01/H03/M14): the founder's pause switch, a daily allowance per user (admin
+  override → `/admin/services` setting → code default), a one-at-a-time cap, an
+  optional all-users daily cap, then an atomic reservation (migration 049). A saved
+  result consumes the slot; a failure releases it; a killed function's reservation
+  expires. Fails closed. **Payment is not the abuse control** — the paid locks are off,
+  and before this the cover letter, Q&A and mock interview had no limit at all.
+- **Input bounds**: pasted CV 20,000 characters, extracted CV 30,000, uploads checked
+  before buffering, mock answers 3,000 characters.
+- **One deadline per task** (§0), so a slow provider cannot outlive the route.
 - **Authentication precedes every model call**, so anonymous traffic cannot spend
-  tokens on an authenticated route.
-- **Rate limits**: a daily per-user limit on free actions, and a separate IP-keyed
-  limit for anonymous scans.
+  tokens on an authenticated route; the legacy anonymous scan has its own IP-keyed
+  limit and honours the pause.
 - **The readiness score costs nothing**, which is what makes it safe as the top of
   the funnel.
-- Every call is logged with its model for cost attribution.
+- Every call is logged with its model for cost attribution, and every allowed, saved,
+  failed and refused call is counted per action per day (`ai_service_daily_stats`),
+  shown on `/admin/services`.
 
-Known and accepted: a malformed model response does not consume a rate-limit slot,
-even though the call cost money. Charging a user's daily attempt for a random model
-hiccup is worse than the narrow gap.
+Known and accepted: a failed model call does not consume the user's slot, even though
+the call cost money. Charging a user's daily attempt for a random model hiccup is
+worse than the narrow gap — and the counters now show how often it happens.

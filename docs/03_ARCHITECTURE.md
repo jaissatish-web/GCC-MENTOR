@@ -6,7 +6,7 @@
 
 | Layer | Choice |
 |---|---|
-| Framework | Next.js 14, App Router, React 18 |
+| Framework | Next.js 15.5 (patched security line), App Router, React 19 — upgraded from 14.2 on 2026-09-15 (audit C01) |
 | Language | TypeScript, strict mode |
 | Styling | Tailwind CSS 3 |
 | Database, auth, storage | Supabase (Postgres + Auth + Storage), row-level security on every table |
@@ -57,7 +57,12 @@ most, and each has a document that owns it.
 | `lib/templates.ts` | The template registry and versioning | [`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) |
 | `lib/readiness.ts` | The GCC Readiness score | [`09_SCORING.md`](09_SCORING.md) |
 | `lib/jobMatch/`, `lib/gccReadiness/` | Job Match scoring and resume analysis | [`09_SCORING.md`](09_SCORING.md) |
-| `lib/rateLimit.ts`, `lib/anonymousRateLimit.ts` | Cost and abuse control | [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) |
+| `lib/rateLimit.ts`, `lib/anonymousRateLimit.ts` | Cost and abuse control: allowances and counters | [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) |
+| `lib/ai/serviceGuard.ts` | The one gate before every model call: pause, allowance, reservation | [`05_SECURITY.md`](05_SECURITY.md) §7 |
+| `lib/packages/serverWrites.ts` | The only path for server-owned package writes | [`05_SECURITY.md`](05_SECURITY.md) §4 |
+| `lib/packages/profileLoader.ts` | Loading a profile for an AI service — fails on a partial read | [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) |
+| `lib/safeRedirect.ts` | Where a user may be sent after signing in | [`05_SECURITY.md`](05_SECURITY.md) §1 |
+| `lib/packageSummary.ts`, `lib/usePackagePicker.ts` | Lightweight job lists; load one job in full | [`04_DATA_MODEL.md`](04_DATA_MODEL.md) §3 |
 | `lib/supabase/` | The three database clients — see §5 | [`05_SECURITY.md`](05_SECURITY.md) |
 
 **One derivation, many renderers.** A resume is derived from a profile in exactly
@@ -81,11 +86,12 @@ Browser → middleware.ts (session + route protection)
 Browser → route handler
         → authentication check           (401 if absent — always first)
         → ownership check                (the row must belong to the caller)
-        → rate limit                     (the only spend limit while locks are off)
+        → service guard                  (pause · allowance · one at a time · reservation)
         → prompt built from profile data only
-        → AI provider over HTTP
+        → AI provider over HTTP          (one deadline for every attempt)
         → grounding validator            (blocks unvalidated output)
-        → write result → response
+        → atomic write result → response
+        → reservation consumed (saved) or released (any failure)
 ```
 
 **Every step in that order matters.** Authentication precedes any model call, so an
@@ -131,15 +137,21 @@ Configuration is split deliberately between environment variables and the
 database:
 
 **Environment variables** — infrastructure that cannot bootstrap itself:
-Supabase URL, the anonymous key, the service-role key, and a pooler connection
-string used for applying migrations. Never committed.
+Supabase URL, the anonymous key, the service-role key, a pooler connection string
+used for applying migrations, and `CRON_SECRET` for the nightly retention job.
+Optional `RATE_LIMIT_*_PER_DAY` values override the code's allowance defaults.
+**Names only** are listed in `.env.example`; values live in Vercel's project settings.
+Never committed.
 
 **Database rows** — everything the founder should be able to change without a
 developer:
 - AI provider, model, key and fallback, per feature (`ai_provider_config`)
+- Which AI services are available, and their daily allowances (`ai_service_controls`,
+  `/admin/services`)
 - Prices (`pricing`) — edited directly in the Supabase table editor
 - What the free plan includes (`plan_entitlements`) — edited from the admin panel
-- Prompt templates (`prompt_templates`)
+- Prompts, versioned (`prompt_versions`)
+- Legal pages and the footer (`site_content`, `/admin/content`)
 
 **This split is the point, not an accident.** A price change or a model swap is a
 business decision, and the founder makes it without asking anyone or waiting for a
@@ -167,12 +179,29 @@ Vercel builds from `main`. Push is deploy.
 The include is scoped to the routes that actually launch a browser, so no other
 function carries 66MB it never uses.
 
+3. **Next 15 moved both settings out of `experimental`** (2026-09-15). Left under
+   `experimental`, Next 15 ignores them with only a build warning — which would ship a
+   PDF route with no Chromium. They are now top-level `serverExternalPackages` and
+   `outputFileTracingIncludes`; the upgraded build's trace for the PDF route was read
+   back and lists all four Chromium archives.
+
+**Scheduled work:** `vercel.json` declares one cron — `/api/cron/retention`, nightly —
+which refuses to run without `CRON_SECRET`.
+
+**CI** (`.github/workflows/ci.yml`, 2026-09-15): on every pull request and push to
+`main` — production dependency audit, typecheck, lint, `npm test` (every verification
+script plus the disposable-database security suite) and a production build with
+placeholder public settings. It needs no production secrets and does not replace the
+signed-in preview check in [`SAAS_RELEASE_CHECKLIST.md`](SAAS_RELEASE_CHECKLIST.md).
+
 ---
 
 ## 8. Local development notes
 
 - `npm run dev` for the dev server; `npm run build` then `npm start` for a
-  production check.
+  production check. `npm run check` runs typecheck, lint and every repeatable test;
+  `npm run test:db` runs the database security suite alone. Never run the build and
+  the typecheck at the same time — both write `.next/types`.
 - **This machine has limited memory (~4GB).** Running a dev server and a
   production build at the same time reliably corrupts the build cache and produces
   module-not-found errors that look like real defects. If that happens: stop all

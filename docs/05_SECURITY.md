@@ -20,6 +20,22 @@ redirect to login.**
 
 `middleware.ts` and `app/auth/callback/route.ts` are protected files.
 
+**Where a user lands after signing in is validated, in one place (2026-09-15, audit
+H05/M09).** The callback used to redirect to `` `${origin}${next}` ``, with `next` from
+the query string — `@evil.example` turns that into another host. Every auth path
+(callback, login, signup, the magic-link hash handler) now goes through
+`lib/safeRedirect.ts`: only a same-origin path under one of the app's own sections is
+accepted, query strings (`?package=<id>`) are kept, and everything else falls back.
+Middleware records path **and** query, so a signed-out user returns to the job they
+opened. `scripts/verify-safe-redirect.ts` asserts 35 cases, hostile ones included.
+
+**Password recovery exists (2026-09-15, audit M03):** `/forgot-password` →
+emailed link → `/auth/callback` → `/auth/update-password`. The request page gives
+the same answer whether or not the address has an account (no enumeration). Supabase
+must list the callback URL under Authentication → URL Configuration; leaked-password
+protection and the minimum length are founder decisions
+([`SAAS_RELEASE_CHECKLIST.md`](SAAS_RELEASE_CHECKLIST.md)).
+
 **Magic-link sign-in** required a client-side handler: Supabase returns
 implicit-flow tokens in the URL *fragment*, which a server route cannot read at
 all, so the callback never saw a code and always failed. The fragment is now
@@ -56,12 +72,19 @@ admin screen; the access gate must never be.
 
 ## 3. Row-level security
 
-**Enabled on all 12 public tables, no exceptions.** A new table without it is a
-data breach waiting to happen.
+**Enabled on every public table, no exceptions** (25 at the 2026-09-15 audit, plus
+the tables migrations 049–054 add). A new table without it is a data breach waiting
+to happen.
 
 Patterns in use:
-- **Owner-all** — the user may do anything to their own rows. Profile and package
-  data.
+- **Owner-all** — the user may do anything to their own rows. Career Profile and its
+  child tables.
+- **Owner rows, limited columns** — `packages` (migration 050): the owner may read and
+  delete their jobs and UPDATE only the metadata they edit (name, stage, template,
+  style, tracker fields). Payment state, generated content, the frozen document,
+  letters, Q&A, interview runs and service history are written by the server only.
+- **Owner-read only** — `rate_limits` (migration 049): a user may see their own
+  counters but never change them.
 - **Owner-select only** — `profiles`, so a user can read but never write their own
   `is_admin`. An owner-all policy here would be a privilege-escalation hole.
 - **Public read** — `pricing` and `plan_entitlements`. Both are genuinely public
@@ -87,6 +110,11 @@ Rules:
   check.
 - The granting admin's identity always comes from the session, never from a form
   field, so an action cannot be attributed to someone else.
+- **Server-owned package writes** (`lib/packages/serverWrites.ts`, 2026-09-15) use it
+  because a user's own session may no longer write those columns. Every function takes
+  the caller's user id — from the session, after authentication — and matches it in the
+  write. The service role bypasses RLS, so that match **is** the ownership check: never
+  pass an id taken from a request body.
 
 ---
 
@@ -121,6 +149,20 @@ found — the REST layer exposes no truncate verb — so it was latent, not open
 was revoked across every table, along with `TRIGGER` and `REFERENCES`, and default
 privileges were changed so new tables do not arrive with them.
 
+**Finding three — owner-writable server state (2026-09-15 audit, H01/H02).** Two
+tables carried an owner `ALL` policy on top of Supabase's broad default grants:
+`rate_limits`, so a signed-in user could raise their own `limit_override` or reset
+their own count through the data API and walk past every daily limit; and `packages`,
+so an owner could write `is_paid`, `payment_id`, `optimized_content` or `profile_id` on
+their own rows. Neither reached another user's data — RLS held — but both let a user
+forge the state the server trusts. Fixed by migrations 049 (read-only counters,
+reservations through service-only functions) and 050 (column grants, server writers),
+and asserted as each role against a local Postgres-compatible test harness with Supabase
+behaviour partially stubbed (`scripts/verify-db-security.mjs`) — evidence about the SQL,
+not about Supabase Auth, PostgREST, the Storage API or production RLS, and not applied to
+any real database yet. **Owner-only RLS decides *whose* rows; grants decide
+*which columns*. A policy is not a substitute for a column grant.**
+
 **Therefore, standing rules for every migration:**
 
 1. After applying it, **read the grants back from the catalogue.** A revoke aimed
@@ -131,6 +173,9 @@ privileges were changed so new tables do not arrive with them.
    "It ran without error" is not confirmation.
 4. Where possible, attempt the forbidden operation with a real anonymous key and
    confirm it is refused.
+5. **A column the server derives is not granted to `authenticated`.** Add the new
+   table's or column's forbidden-write case to `scripts/verify-db-security.mjs`, which
+   runs every migration on a fresh database and tries it as each role.
 
 **One honest limitation:** default privileges are per-role, so the new default only
 covers tables created by the role migrations run as. A table created through the
@@ -151,35 +196,57 @@ The binding rules are in [`02_PHILOSOPHY.md`](02_PHILOSOPHY.md) §3. The mechani
 - **Admin reads are logged** to `pii_access_log` — who, what, when — **before** the
   data is returned. Not after.
 - **Deletion is real.** Settings offers a two-step confirmation requiring a typed
-  phrase, and performs a hard delete of the profile and all packages. Not a flag.
+  phrase, and performs a hard delete of the profile, all packages, any CV reading
+  still waiting, and the photo. Not a flag. **It does not close the login** — the
+  screen says so; account closure is a founder decision
+  ([`DATA_INVENTORY_AND_RETENTION.md`](DATA_INVENTORY_AND_RETENTION.md)).
 - **Photos are private**, in a non-public bucket, served through server-minted
-  signed URLs.
+  signed URLs. Since migration 052 the bucket itself refuses files over 5 MiB or not
+  JPEG/PNG/WebP, so a direct Storage upload cannot bypass the route's checks.
+- **Expired anonymous CV scans are deleted, not just hidden** — nightly
+  (`/api/cron/retention`, migration 054) and on demand from `/admin/services`, with
+  counts-only run history. Where every kind of personal data lives and for how long:
+  [`DATA_INVENTORY_AND_RETENTION.md`](DATA_INVENTORY_AND_RETENTION.md).
 
 ---
 
 ## 7. Cost and abuse control
 
 Every AI call spends real money, so unlimited free usage is a cost risk rather
-than only an abuse edge case.
+than only an abuse edge case. **A free service still needs a limit; payment is not
+the abuse control** (2026-09-15 audit H03 — the cover letter, Q&A and every mock
+interview call had none).
 
-- **Signed-in users:** a daily limit on free actions, keyed on user id with a
-  secondary key on phone/email to survive account cycling. Admin can raise or reset
-  it for someone legitimately blocked.
-- **Anonymous scans:** a separate IP-keyed daily limit, because there is no user id
-  to key on.
+- **One gate in front of every model call: `lib/ai/serviceGuard.ts`.** CV reading,
+  advert structuring, CV build, cover letter, Q&A, mock start / answer / report. In
+  order: the founder's **pause** switch, the **daily allowance** (per-user admin
+  override → founder setting → code default), a **one-at-a-time** cap, an optional
+  **all-users daily cap**, then an atomic **reservation** (migration 049). Pending
+  reservations count toward the limit, so two tabs cannot both pass it. A saved result
+  consumes the slot; any failure releases it; a killed function's reservation expires.
+  **Fails closed** — unreadable controls or counters refuse the request.
+- **Keying:** user id, with the secondary phone/email key that survives account
+  cycling. Admin can still raise or reset one user's allowance.
+- **Anonymous scans:** a separate IP-keyed daily limit, plus the founder's pause.
 - **Profile recreation:** 2 a month on the free plan, 5 for paid users, checked before
   the model call and counted on success only (`lib/recreateLimit.ts`, 2026-09-11).
-- **Paid actions are not rate-limited** — they are self-limiting.
+- **Input bounds:** CV text 20,000 characters pasted / 30,000 extracted; uploads 4 MB
+  PDF, 2 MB DOCX, checked before buffering; mock answers 3,000 characters.
+- **Deadlines:** every AI route passes one give-up point, 20–30s inside its
+  `maxDuration`, through every attempt, provider tier and repair
+  (`scripts/verify-deadlines.ts`), so it answers with its own message instead of the
+  platform's timeout page.
 - **Authentication precedes every model call.** An anonymous caller cannot spend
-  tokens on an authenticated route, which is why a missing middleware entry was
-  never a cost vector.
-- **Payment precedes generation.** Optimization used to run *before* payment, so
-  every visitor who never bought still spent real tokens, and the product then sold
-  a blurred preview of work it had already paid for. That funnel is inverted now.
+  tokens on an authenticated route.
 
-Known and accepted: a malformed model response does not consume a rate-limit slot
-even though the call cost money. Charging a user's daily attempt for a random model
-hiccup is worse than the narrow gap.
+**Founder visibility:** `/admin/services` shows, per action, today's and the last
+seven days' allowed / saved / failed / refused counts — counted inside the same
+database functions that enforce the limits — and records every change with its before
+and after values.
+
+Known and accepted: a failed model call does not consume the user's slot even though
+the call cost money. Charging a user's daily attempt for a random model hiccup is
+worse than the narrow gap — and the counters now show how often it happens.
 
 ---
 
