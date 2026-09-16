@@ -18,8 +18,11 @@ const nextConfig = {
 
   // Don't webpack-bundle these server-side packages — load them from
   // node_modules at runtime. Required for the native/binary-dependent ones.
-  experimental: {
-    serverComponentsExternalPackages: [
+  //
+  // Next 15 (2026-09-15 security upgrade) moved both settings below out of
+  // `experimental`. Left there, Next 15 IGNORES them with only a build warning —
+  // which would have shipped a PDF route without Chromium. Same values, new keys.
+  serverExternalPackages: [
       '@anthropic-ai/sdk',
       // @sparticuz/chromium ships a Chromium BINARY in its own bin/ directory
       // and locates it by walking up from its own module path. Webpack
@@ -68,10 +71,9 @@ const nextConfig = {
     // Scoped to the two routes that launch a browser: a broader
     // '/api/packages/**' also works, but attaches 66MB of Chromium to /docx and
     // every other package route, none of which open a browser.
-    outputFileTracingIncludes: {
-      '/api/packages/*/pdf/**': ['./node_modules/@sparticuz/chromium/bin/**'],
-      '/api/packages/*/preview-image/**': ['./node_modules/@sparticuz/chromium/bin/**'],
-    },
+  outputFileTracingIncludes: {
+    '/api/packages/*/pdf/**': ['./node_modules/@sparticuz/chromium/bin/**'],
+    '/api/packages/*/preview-image/**': ['./node_modules/@sparticuz/chromium/bin/**'],
   },
 }
 

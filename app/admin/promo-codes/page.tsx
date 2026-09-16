@@ -23,11 +23,12 @@ import { PageShell } from '@/components/layout/PageShell'
  * the package name on each existing code, sourced from `listPromoCodes`'s
  * already-joined `packageName` (no new query).
  */
-export default async function PromoCodesPage({
-  searchParams,
-}: {
-  searchParams: { promoSaved?: string; promoError?: string }
-}) {
+export default async function PromoCodesPage(
+  props: {
+    searchParams: Promise<{ promoSaved?: string; promoError?: string }>
+  }
+) {
+  const searchParams = await props.searchParams
   const admin = await requireAdmin()
   const { promoSaved, promoError } = searchParams
 

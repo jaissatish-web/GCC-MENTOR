@@ -16,7 +16,7 @@ function fmtDate(iso: string | null): string {
 
 function readableCategory(cat: string | null): string {
   if (!cat) return '—'
-  return cat.replace(/_/g, ' ')
+  return cat.replace(/_/g, ' ');
 }
 
 /**
@@ -27,11 +27,12 @@ function readableCategory(cat: string | null): string {
  * params and stay together on this one page, exactly as they worked on the
  * old root page.
  */
-export default async function UsersPage({
-  searchParams,
-}: {
-  searchParams: { q?: string; user?: string }
-}) {
+export default async function UsersPage(
+  props: {
+    searchParams: Promise<{ q?: string; user?: string }>
+  }
+) {
+  const searchParams = await props.searchParams
   const admin = await requireAdmin()
   const { q, user: selectedUserId } = searchParams
 
@@ -224,5 +225,5 @@ export default async function UsersPage({
         </>
       ) : null}
     </PageShell>
-  )
+  );
 }

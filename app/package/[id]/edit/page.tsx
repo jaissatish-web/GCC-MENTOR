@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, use } from 'react';
 import { AppShell } from '@/components/layout/AppShell'
 import { buttonVariants } from '@/components/ui/Button'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
@@ -417,7 +417,8 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   )
 }
 
-export default function EditResumePage({ params }: { params: { id: string } }) {
+export default function EditResumePage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   // No sidebar / mobile nav here on purpose (2026-08-19, founder-directed):
   // this screen holds an in-progress, easy-to-lose edit, and a nav rail is an
   // invitation to tap away from it. "Back to resume" above is the one way out,

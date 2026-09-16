@@ -27,11 +27,12 @@ import { PageShell } from '@/components/layout/PageShell'
  * making the control safe to hand over.
  */
 
-export default async function PromptsPage({
-  searchParams,
-}: {
-  searchParams: { prompt?: string; promptSaved?: string; promptError?: string }
-}) {
+export default async function PromptsPage(
+  props: {
+    searchParams: Promise<{ prompt?: string; promptSaved?: string; promptError?: string }>
+  }
+) {
+  const searchParams = await props.searchParams
   const admin = await requireAdmin()
   const { promptSaved, promptError } = searchParams
 
@@ -192,5 +193,5 @@ export default async function PromptsPage({
         </>
       ) : null}
     </PageShell>
-  )
+  );
 }

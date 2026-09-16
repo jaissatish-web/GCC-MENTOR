@@ -13,6 +13,7 @@ import { redirect } from 'next/navigation'
  * dashboard card's link while this was a page) opens the Gulf tab there.
  * Still listed in middleware.ts, so a signed-out visitor is sent to login first.
  */
-export default function GccReadinessPage({ searchParams }: { searchParams: { tab?: string } }) {
-  redirect(searchParams.tab === 'gulf' ? '/profile?improve=gulf' : '/profile')
+export default async function GccReadinessPage(props: { searchParams: Promise<{ tab?: string }> }) {
+ const searchParams = await props.searchParams
+ redirect(searchParams.tab === 'gulf' ? '/profile?improve=gulf' : '/profile')
 }

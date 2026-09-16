@@ -12,11 +12,12 @@ import { PageShell } from '@/components/layout/PageShell'
  * monolithic /admin page). Create and manage bundles of services. Same form,
  * same action, same behavior as before — this is a navigation restructure only.
  */
-export default async function PackagesPage({
-  searchParams,
-}: {
-  searchParams: { spSaved?: string; spError?: string }
-}) {
+export default async function PackagesPage(
+  props: {
+    searchParams: Promise<{ spSaved?: string; spError?: string }>
+  }
+) {
+  const searchParams = await props.searchParams
   const admin = await requireAdmin()
   const { spSaved, spError } = searchParams
 

@@ -145,11 +145,12 @@ function ServiceForm({ config, keyName, submitLabel }: { config: AiProviderConfi
   )
 }
 
-export default async function AiProviderPage({
-  searchParams,
-}: {
-  searchParams: { providerSaved?: string; providerError?: string }
-}) {
+export default async function AiProviderPage(
+  props: {
+    searchParams: Promise<{ providerSaved?: string; providerError?: string }>
+  }
+) {
+  const searchParams = await props.searchParams
   const admin = await requireAdmin()
   const { providerSaved, providerError } = searchParams
 

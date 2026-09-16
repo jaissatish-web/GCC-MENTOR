@@ -50,10 +50,8 @@ const CHILD_TABLES = [
   'profile_additional_information',
 ] as const
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { user },
