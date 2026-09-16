@@ -28,10 +28,13 @@ export function AuthForm({
   action,
   submitLabel,
   tone = 'light',
+  redirectTo,
 }: {
   action: AuthFormAction
   submitLabel: string
   tone?: 'light' | 'dark'
+  /** Where to go after success. Re-validated by the server action (lib/safeRedirect.ts). */
+  redirectTo?: string | null
 }) {
   const [state, setState] = useState<AuthState>({})
   const [isPending, startTransition] = useTransition()
@@ -50,6 +53,7 @@ export function AuthForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {redirectTo ? <input type="hidden" name="redirectTo" value={redirectTo} /> : null}
       <Input
         label="Email"
         name="email"

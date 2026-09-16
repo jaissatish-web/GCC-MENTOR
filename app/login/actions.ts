@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { safeRedirectPath } from '@/lib/safeRedirect'
 import type { AuthState } from '@/components/auth/types'
 
 /**
@@ -26,5 +27,7 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
     return { error: error.message }
   }
 
-  redirect('/dashboard')
+  // Back to what the user was trying to open before sign-in (audit M09) —
+  // validated, so a crafted link cannot send them off-site (H05).
+  redirect(safeRedirectPath(formData.get('redirectTo')))
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { safeRedirectPath } from '@/lib/safeRedirect'
 
 /**
  * Completes an implicit-flow auth link (Unplanned #20).
@@ -35,6 +36,13 @@ export function AuthHashHandler() {
     const access_token = params.get('access_token')
     const refresh_token = params.get('refresh_token')
     if (!access_token || !refresh_token) return
+    // A password-recovery link signs the user in so they can set a new
+    // password — send it to that screen, not the dashboard (audit M03). Any
+    // other link returns to the page the user asked for (audit M09).
+    const destination =
+      params.get('type') === 'recovery'
+        ? '/auth/update-password'
+        : safeRedirectPath(new URLSearchParams(window.location.search).get('redirectTo'))
 
     setWorking(true)
     // Strip the credentials from the address bar before anything async runs.
@@ -50,7 +58,7 @@ export function AuthHashHandler() {
         }
         // Full reload rather than a client push: middleware and every Server
         // Component need to see the freshly written session cookie.
-        window.location.assign('/dashboard')
+        window.location.assign(destination)
       })
       .catch(() => setWorking(false))
   }, [router])

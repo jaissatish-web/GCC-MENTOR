@@ -3,6 +3,7 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { safeRedirectPath } from '@/lib/safeRedirect'
 import type { AuthState } from '@/components/auth/types'
 
 /**
@@ -26,11 +27,17 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   const headersList = await headers()
   const origin = headersList.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
+  // Where the user was headed before signing up (audit M09). A fresh account
+  // with no destination still starts at onboarding, as before.
+  const destination = safeRedirectPath(formData.get('redirectTo'), '/onboarding')
+  const callback = new URL('/auth/callback', origin)
+  if (destination !== '/onboarding') callback.searchParams.set('next', destination)
+
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${origin}/auth/callback` },
+    options: { emailRedirectTo: callback.toString() },
   })
 
   if (error) {
@@ -43,7 +50,8 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   }
 
   // A fresh signup has no Career Profile yet - send them straight into
-  // onboarding rather than an empty dashboard. Login (returning users)
-  // still goes to /dashboard - see app/login/actions.ts.
-  redirect('/onboarding')
+  // onboarding rather than an empty dashboard, unless they came from a
+  // specific page. Login (returning users) goes to /dashboard by default -
+  // see app/login/actions.ts.
+  redirect(destination)
 }
