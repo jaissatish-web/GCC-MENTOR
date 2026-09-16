@@ -109,6 +109,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                 optimizedContent: (p.optimized_content as OptimizedContent | null) ?? EMPTY_CONTENT,
                 skillsOrder: p.skills_order ?? [],
                 fieldVisibility: p.field_visibility_snapshot ?? null,
+                targetJobTitle: p.target_job_title ?? null,
               })
             : null)
 

@@ -147,6 +147,9 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       experience_blocks: [],
     }) as OptimizedContent,
     skillsOrder: pkg.skills_order ?? [],
+    // The application's title, not the Career Profile's — see
+    // ResumeDocumentInput.targetJobTitle.
+    targetJobTitle: (pkg.target_job_title as string | null) ?? null,
     fieldVisibility: pkg.field_visibility_snapshot ?? null,
   })
 

@@ -153,6 +153,20 @@ export interface ResumeDocumentInput {
   skillsOrder?: string[]
   /** The package's visibility snapshot. Omitted => every field shown. */
   fieldVisibility?: Partial<FieldVisibility> | null
+  /**
+   * The APPLICATION's target job title, i.e. packages.target_job_title.
+   *
+   * Added 2026-09-16. The header used profile.target_job_title, which is a
+   * Career Profile field the optimize flow never writes — the per-application
+   * title lives on the package row. Every delivered resume therefore rendered
+   * an empty headline: verified on production, where two packages held a real
+   * target title, the profile held null, and both snapshots carried
+   * targetJobTitle: ''.
+   *
+   * Optional on purpose. Non-package resumes (/api/resume/pdf, the sample
+   * document) have no package and correctly keep the profile value.
+   */
+  targetJobTitle?: string | null
 }
 
 export function buildResumeDocument({
@@ -160,6 +174,7 @@ export function buildResumeDocument({
   optimizedContent,
   skillsOrder,
   fieldVisibility,
+  targetJobTitle,
 }: ResumeDocumentInput): ResumeDocument {
   const fv = fieldVisibility
 
@@ -333,7 +348,7 @@ export function buildResumeDocument({
       showPhoto,
       photoUrl: profile.photo_url,
       displayName,
-      targetJobTitle: profile.target_job_title ?? '',
+      targetJobTitle: targetJobTitle ?? profile.target_job_title ?? '',
       hasAnyIdentity,
       identityPrimary,
       identityContact,
@@ -448,4 +463,34 @@ export function applyLivePhotoToDocument(
   if (!livePhoto) return doc
   if (!visible(fieldVisibility, 'photo')) return doc
   return { ...doc, header: { ...doc.header, photoUrl: livePhoto, showPhoto: true } }
+}
+
+/**
+ * Put the application's target job title onto a frozen document that has none.
+ *
+ * WHY THIS EXISTS. `buildResumeDocument` read the headline from
+ * `profile.target_job_title` until 2026-09-16. The optimize flow never writes
+ * that field — the per-application title lives on the package row — so every
+ * `document_snapshot` written before the fix carries `targetJobTitle: ''`, and
+ * both renderers prefer the snapshot. The headline is simply missing from every
+ * resume already delivered. Confirmed against production, not inferred.
+ *
+ * Filling it at render time fixes those documents without rewriting a single
+ * database row, which is the same trade `applyLivePhotoToDocument` makes for a
+ * photo uploaded after delivery. Both are presentation, both are owned by the
+ * application, and neither touches the words of a paid resume.
+ *
+ * ADDITIVE ONLY. A snapshot that already carries a headline keeps it, so a
+ * later change to the package's target title cannot rewrite a document that was
+ * delivered with a different one. Historical job titles are untouched: they
+ * live in `experience[].entry.role`, which this never reads.
+ */
+export function applyTargetTitleToDocument(
+  doc: ResumeDocument,
+  packageTargetTitle: string | null | undefined
+): ResumeDocument {
+  if (doc.header.targetJobTitle && doc.header.targetJobTitle.trim() !== '') return doc
+  const title = packageTargetTitle?.trim()
+  if (!title) return doc
+  return { ...doc, header: { ...doc.header, targetJobTitle: title } }
 }

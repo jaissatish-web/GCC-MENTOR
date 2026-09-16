@@ -9,7 +9,7 @@ import { readStyleOverrides } from '@/lib/resumeStyle'
 import { appendPackageEventAtomic } from '@/lib/packages/serverWrites'
 // No access helper is imported while the locks are off — the route does not gate.
 // See lib/resumeKind.ts for the rule to restore.
-import { applyLivePhotoToDocument, type ResumeDocument } from '@/lib/resumeDocument'
+import { applyLivePhotoToDocument, applyTargetTitleToDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -192,8 +192,15 @@ export async function GET(request: NextRequest, props0: { params: Promise<{ id: 
   const withPhoto = snapshot
     ? applyLivePhotoToDocument(snapshot, profile.photo_url, pkg.field_visibility_snapshot ?? null)
     : null
-  const documentForRender: ResumeDocument | null = withPhoto
-    ? { ...withPhoto, header: { ...withPhoto.header, photoUrl: await signedPhotoUrl(withPhoto.header.photoUrl) } }
+  // Snapshots written before 2026-09-16 froze an empty headline, because the
+  // builder read the Career Profile field this flow never writes. Filled at
+  // render time so already-delivered resumes gain their title without a
+  // database rewrite; a snapshot that already has one is left alone.
+  const withTitle = withPhoto
+    ? applyTargetTitleToDocument(withPhoto, pkgRow.target_job_title as string | null)
+    : null
+  const documentForRender: ResumeDocument | null = withTitle
+    ? { ...withTitle, header: { ...withTitle.header, photoUrl: await signedPhotoUrl(withTitle.header.photoUrl) } }
     : null
 
   const props: GulfPremiumProps = {

@@ -143,6 +143,8 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
           optimizedContent,
           skillsOrder: (pkgRow.skills_order as string[] | null) ?? [],
           fieldVisibility: (pkgRow.field_visibility_snapshot as Record<string, boolean> | null) ?? null,
+          // The application's title, so this document's headline matches the CV.
+          targetJobTitle: (pkgRow.target_job_title as string | null) ?? null,
         })
     : null
 

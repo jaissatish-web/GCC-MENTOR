@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { getTemplate, type TemplateId } from '@/lib/templates'
-import { applyLivePhotoToDocument, buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
+import { applyLivePhotoToDocument, applyTargetTitleToDocument, buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import {
@@ -363,10 +363,15 @@ function PackageScreenInner({ id }: { id: string }) {
    */
   const snapshotDocument = (pkg.document_snapshot as ResumeDocument | null) ?? null
   const documentWithLivePhoto = snapshotDocument
-    ? applyLivePhotoToDocument(
-        snapshotDocument,
-        profile?.photo_url ?? null,
-        profile?.field_visibility ?? null,
+    ? applyTargetTitleToDocument(
+        applyLivePhotoToDocument(
+          snapshotDocument,
+          profile?.photo_url ?? null,
+          profile?.field_visibility ?? null,
+        ),
+        // Snapshots written before 2026-09-16 froze an empty headline. Filled
+        // here so the screen shows what the PDF will print.
+        pkg.target_job_title ?? null,
       )
     : null
   const tryingTemplateId = requestedTemplate ? getTemplate(requestedTemplate).id : null
@@ -403,6 +408,7 @@ function PackageScreenInner({ id }: { id: string }) {
           }) as OptimizedContent,
           skillsOrder: pkg.skills_order ?? [],
           fieldVisibility: pkg.field_visibility_snapshot ?? null,
+          targetJobTitle: pkg.target_job_title ?? null,
         })
       : null)
   const firstName = (profile && displayFirstName(profile.full_name)) || 'there'
