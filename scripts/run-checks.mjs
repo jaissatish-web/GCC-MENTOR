@@ -30,6 +30,7 @@ const TS_CHECKS = [
   'verify-landing-anchors.ts',
   'verify-runtask.ts',
   'verify-safe-redirect.ts',
+  'verify-photo-rehydration.ts',
   'verify-answer-grounding.ts',
   'verify-deadlines.ts',
   'verify-resume.ts',

@@ -26,7 +26,15 @@ import type { RateLimitStatus } from '@/lib/rateLimit'
  */
 export const LIMIT_ACTION_ANON_ATS_SCAN = 'ats_scan'
 
-const DEFAULT_ANONYMOUS_LIMIT = 20
+/**
+ * 3/day, matching what this file's own comment above and `.env.example` have
+ * always promised. It read 20 until 2026-09-16, when a production test made six
+ * anonymous scans without ever meeting the cap — a 6.7x gap between the
+ * documented abuse ceiling and the enforced one, on the single AI service that
+ * needs no signup (`/api/ats-scan`). Override per action with
+ * `RATE_LIMIT_ANON_<ACTION>_PER_DAY`.
+ */
+const DEFAULT_ANONYMOUS_LIMIT = 3
 
 function parsePositiveEnvInt(v: string | undefined): number | null {
   if (!v) return null

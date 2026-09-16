@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache'
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 
 /**
@@ -60,17 +61,38 @@ function map(r: Record<string, unknown>): SiteContent {
  * Reads only. `saveSiteContent` still constructs the client directly: an admin
  * write that silently did nothing would be worse than one that fails loudly.
  */
-function serviceClientIfConfigured() {
+function serviceClientIfConfigured(opts?: { fresh?: boolean }) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     console.warn('site_content read skipped: no Supabase configuration in this environment')
     return null
   }
-  return createServiceRoleClient({ fresh: true })
+  return createServiceRoleClient({ fresh: opts?.fresh ?? false })
 }
+
+/**
+ * PUBLIC READS ARE CACHED, AND WHY THAT MATTERS MORE THAN IT LOOKS.
+ *
+ * `AppFooter` renders on the landing page and seven other route trees, and it
+ * asks this module for the published legal links and the footer line on every
+ * render. Those two reads used `{ fresh: true }`, i.e. `cache: 'no-store'`,
+ * which opts the ENTIRE route out of Next's full-route cache. The result,
+ * measured in production on 2026-09-16: every page served
+ * `Cache-Control: private, no-cache, no-store` with `X-Vercel-Cache: MISS`,
+ * so a landing page that renders identical HTML for every visitor was rebuilt
+ * per request, twice querying a database in another continent. Worse, Next
+ * prefetches every nav link, so ONE page view fanned out into about ten
+ * dynamic renders.
+ *
+ * `fresh: true` was introduced for a real bug (publishing a page and watching
+ * the public URL keep 404ing), so it is not simply dropped: the cache is keyed
+ * by tag and `saveSiteContent` invalidates that tag on every write. Publishing
+ * is still immediate; the other 99.9% of reads are served from cache.
+ */
+export const SITE_CONTENT_TAG = 'site-content'
 
 /** Every row, published or not — the admin editor's view. */
 export async function listSiteContent(): Promise<SiteContent[]> {
-  const supabase = serviceClientIfConfigured()
+  const supabase = serviceClientIfConfigured({ fresh: true })
   if (!supabase) return []
   const { data, error } = await supabase
     .from('site_content')
@@ -90,7 +112,13 @@ export async function listSiteContent(): Promise<SiteContent[]> {
  * page is a mistake rather than an intention, and rendering a blank legal page
  * is worse than a 404 — it looks like the policy says nothing.
  */
-export async function getPublishedPage(slug: string): Promise<SiteContent | null> {
+export const getPublishedPage = unstable_cache(
+  getPublishedPageUncached,
+  ['site-content-published-page'],
+  { tags: [SITE_CONTENT_TAG], revalidate: 3600 }
+)
+
+async function getPublishedPageUncached(slug: string): Promise<SiteContent | null> {
   const supabase = serviceClientIfConfigured()
   if (!supabase) return null
   const { data, error } = await supabase
@@ -105,7 +133,13 @@ export async function getPublishedPage(slug: string): Promise<SiteContent | null
 }
 
 /** What the footer is allowed to link to. Never guesses; asks. */
-export async function listPublishedLegal(): Promise<Array<{ slug: string; title: string }>> {
+export const listPublishedLegal = unstable_cache(
+  listPublishedLegalUncached,
+  ['site-content-published-legal'],
+  { tags: [SITE_CONTENT_TAG], revalidate: 3600 }
+)
+
+async function listPublishedLegalUncached(): Promise<Array<{ slug: string; title: string }>> {
   const supabase = serviceClientIfConfigured()
   if (!supabase) return []
   const { data, error } = await supabase
@@ -159,5 +193,8 @@ export async function saveSiteContent(opts: {
     console.error('site_content save failed: slug=' + opts.slug, error.message)
     return { ok: false, error: 'Could not save this page.' }
   }
+  // The caller invalidates SITE_CONTENT_TAG. That happens in the admin server
+  // action rather than here: `revalidateTag` may only be imported by server
+  // code, and this module is reachable from client components.
   return { ok: true }
 }

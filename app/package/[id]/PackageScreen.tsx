@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { getTemplate, type TemplateId } from '@/lib/templates'
-import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
+import { applyLivePhotoToDocument, buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import {
@@ -352,6 +352,23 @@ function PackageScreenInner({ id }: { id: string }) {
   const hasPhoto = Boolean(
     (pkg.document_snapshot as ResumeDocument | null)?.header?.photoUrl ?? profile?.photo_url,
   )
+  /**
+   * The delivered document, with a photo uploaded after delivery filled in.
+   * Kept beside `hasPhoto` above so the size control and the rendered photo
+   * agree — before this they did not, which is how a document could offer a
+   * photo-size slider while showing no photo at all.
+   *
+   * Not memoised on purpose: this runs after early returns, where a hook would
+   * break the rules-of-hooks order, and it is one object spread.
+   */
+  const snapshotDocument = (pkg.document_snapshot as ResumeDocument | null) ?? null
+  const documentWithLivePhoto = snapshotDocument
+    ? applyLivePhotoToDocument(
+        snapshotDocument,
+        profile?.photo_url ?? null,
+        profile?.field_visibility ?? null,
+      )
+    : null
   const tryingTemplateId = requestedTemplate ? getTemplate(requestedTemplate).id : null
   const isTrying = !!tryingTemplateId && tryingTemplateId !== savedTemplateId
   const activeTemplateId = isTrying ? (tryingTemplateId as TemplateId) : savedTemplateId
@@ -892,7 +909,13 @@ function PackageScreenInner({ id }: { id: string }) {
                     // migration 034. Without this the on-screen resume silently
                     // changes whenever the Career Profile is edited, including
                     // for resumes already paid for.
-                    document={(pkg.document_snapshot as ResumeDocument | null) ?? null}
+                    // A photo uploaded after delivery is filled in here for the
+                    // same reason the PDF route does it: a snapshot frozen
+                    // before the upload carries `photoUrl: null` and would
+                    // never show one again. `profile.photo_url` is already a
+                    // signed URL on this screen (GET /api/profile signs it),
+                    // so it is passed straight through.
+                    document={documentWithLivePhoto}
                     profile={profile}
                     optimizedContent={(pkg.optimized_content ?? {
                       summary: { generated: '', source_profile_summary: '' },

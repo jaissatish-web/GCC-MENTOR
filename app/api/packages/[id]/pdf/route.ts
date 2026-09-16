@@ -9,7 +9,7 @@ import { readStyleOverrides } from '@/lib/resumeStyle'
 import { appendPackageEventAtomic } from '@/lib/packages/serverWrites'
 // No access helper is imported while the locks are off — the route does not gate.
 // See lib/resumeKind.ts for the rule to restore.
-import type { ResumeDocument } from '@/lib/resumeDocument'
+import { applyLivePhotoToDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -183,9 +183,17 @@ export async function GET(request: NextRequest, props0: { params: Promise<{ id: 
   // months later is byte-for-byte the document that was bought. The photo is
   // stored as an object PATH, so it still has to be signed at render time —
   // the snapshot freezes WHICH photo, not a URL that would have expired.
+  //
+  // A photo uploaded AFTER this document was delivered is filled in first, or a
+  // snapshot frozen with `photoUrl: null` would stay photo-less for good — see
+  // applyLivePhotoToDocument. It runs BEFORE signing so the object path it may
+  // insert is signed by the same call as one that came from the snapshot.
   const snapshot = (pkgRow as { document_snapshot?: ResumeDocument | null }).document_snapshot ?? null
-  const documentForRender: ResumeDocument | null = snapshot
-    ? { ...snapshot, header: { ...snapshot.header, photoUrl: await signedPhotoUrl(snapshot.header.photoUrl) } }
+  const withPhoto = snapshot
+    ? applyLivePhotoToDocument(snapshot, profile.photo_url, pkg.field_visibility_snapshot ?? null)
+    : null
+  const documentForRender: ResumeDocument | null = withPhoto
+    ? { ...withPhoto, header: { ...withPhoto.header, photoUrl: await signedPhotoUrl(withPhoto.header.photoUrl) } }
     : null
 
   const props: GulfPremiumProps = {
