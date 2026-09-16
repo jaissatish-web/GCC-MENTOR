@@ -316,6 +316,52 @@ Every generation prompt is assembled from four parts, in this order:
 3. **The Career Profile facts** — the only permitted source of truth
 4. **The task** — what to produce, and at what framing intensity
 
+### The optimizer builds five trust blocks, not four parts (2026-09-16)
+
+The resume optimizer assembles its user message as five labelled blocks, each
+stating its own trust level in its own header:
+
+| Block | Trust |
+|---|---|
+| 1 — CANDIDATE FACTS | the only source of truth |
+| 2 — TARGET CONTEXT | application metadata, **not** evidence |
+| 3 — EMPLOYER REQUIREMENTS | relevance guidance only; carries the MODE |
+| 4 — ANALYSIS FINDINGS | derived guidance only; omitted when absent |
+| 5 — OUTPUT INSTRUCTIONS | the schema |
+
+**Why labelling, rather than more rules.** The four sections used to be peer
+`##` headings in one message, so "the advert asks for PMP" and "the candidate
+holds PMP" arrived with identical authority. No amount of additional prose in
+the system prompt fixes an input layout that presents a wish list as evidence.
+
+### Two modes, derived and never stored
+
+`resolveOptimizationMode(job_description)` returns `job_description` when an
+advert was supplied and `target_title_only` otherwise. It is derived on every
+request and deliberately **not** a column: `packages.job_description` already
+answers the question exactly, and a second copy could only drift from it.
+
+**Target-title mode is not a degraded JD mode.** It tells the model, in the
+block where an advert would otherwise sit, to use the title only to rank and
+emphasise facts that are already present — and forbids inventing requirements
+typical of the role, implying a vacancy match, or stating any match percentage.
+
+### Grounding is constant across levels
+
+Easy, Moderate and High change how much rewriting happens. Each now carries a
+sentence saying so explicitly, because "apply maximum reframing" read alone was
+the strongest licence in the prompt.
+
+### Personas — one, and profession-neutral (2026-09-16)
+
+The four personas that named Aramco, ADNOC, "Indian technology professionals"
+and Instrumentation & Control were replaced by a single neutral perspective.
+GCC Mentor serves every profession the product supports; a system prompt that
+opens by declaring itself an oil-and-gas commissioning manager steers a nurse's
+CV toward a domain their profile has nothing to do with — and naming real
+operators hands the model employer names no profile supplied. The old
+`target_industry` keys still resolve, so existing packages are unaffected.
+
 ### Personas — four, and no more speculatively
 
 `engineering_technical`, `construction_site`, `it_tech`, and
@@ -365,6 +411,61 @@ What it catches: malformed JSON, schema violations, unknown or duplicated
 experience blocks, mutation of source bullets, rewriting of blocks the user did not
 select, **any fixed field appearing in the output at all**, unsourced numerics,
 and a skills list that is not a true permutation of the user's own skills.
+
+**Three holes closed on 2026-09-16, all proven reachable by executable code:**
+
+1. **The summary was never validated.** The only check on it was
+   `typeof summary.generated === 'string'`. It is where "15+ years" becomes
+   "nearly 20 years", and it had no number check at all. Summary numbers are now
+   validated against profile-wide factual prose, and a stated years-of-experience
+   figure must survive exactly.
+2. **Unsourced numbers only flagged.** Severity was `flag`, and `valid` counts
+   hard failures only, so a bullet containing an invented figure shipped. They
+   are hard now, with `GROUNDING_STRICT_NUMERICS=false` as an escape hatch.
+3. **Employment dates counted as source numbers.** `start_date` and `end_date`
+   fed the allowed set, so a role dated 2016 legitimised "2016" as a quantity.
+   Dates are employment facts, not achievement figures, and are excluded.
+
+**Entity checks are conservative by construction.** Nothing is hard-coded and
+nothing is a dictionary: every allowed set is derived from the candidate's own
+profile at request time (`lib/ai/profileEntities.ts`). A term found in the
+advert but nowhere in the profile is a **hard** failure — that combination is
+precisely an imported requirement. A term found in neither is a **flag**,
+because paraphrase produces those legitimately. General vocabulary is not
+modelled at all; a token-level diff would reject "commissioned" for
+"commissioning" and every plural, which would make the validator useless.
+
+**Cross-entry leakage has five conditions**, and two of them are what stop it
+firing on real writing: the term must appear in exactly ONE entry's source, and
+must not be a profile-wide skill, certification or qualification. A tool used at
+three employers, or anything on the candidate's skills list, is theirs to
+mention anywhere and is never reported.
+
+**Every failure names its owner** — `structural`, `summary`, or a specific
+experience id. That is what makes block-level fallback possible.
+
+### Block-level fallback — a failed block, not a failed resume (2026-09-16)
+
+A surviving hard failure used to throw the whole resume away: the user paid,
+waited through the slowest call in the product, and got an error because one
+bullet carried one unsupported number.
+
+The split that makes recovery safe is **structural vs content**:
+
+- **Structural** — unparseable JSON, a missing array, an invented employment id,
+  a skills list that is not a permutation, a fixed field the model tried to own.
+  Nothing trustworthy remains, so the route still returns an error.
+- **Content** — belongs to exactly one block. That block falls back to its own
+  original text: the summary to `professional_summary`, an experience block to
+  that entry's own `highlights`.
+
+**Content cannot cross entries.** The fallback is read from `sourceEntry`, looked
+up by the block's own `profile_experience_id`, and a block with an unknown id was
+already rejected as structural before that code runs.
+
+Every delivered block is therefore either validated optimized content or verbatim
+profile content. `optimized_content.fallback_used` records which — internal only,
+never rendered, so a rising rate shows up in the data rather than in complaints.
 
 **Why fixed fields are rejected outright rather than compared:** name, contact
 details, employer, role and dates are read live from the profile at render time. If
