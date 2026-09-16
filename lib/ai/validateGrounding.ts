@@ -43,6 +43,7 @@ import {
   isCrossEntryLeak,
   type ProfileEntities,
 } from './profileEntities'
+import { normalizeSkillsOrder } from './skillsOrder'
 
 export type FailureSeverity = 'hard' | 'flag'
 
@@ -68,7 +69,15 @@ export type FailureCode =
  * Who owns this failure, and therefore what the caller can do about it.
  * 'structural' cannot be repaired by falling back — there is nothing to keep.
  */
-export type FailureOwner = 'structural' | 'summary' | { experienceId: string }
+export type FailureOwner =
+  | 'structural'
+  | 'summary'
+  /**
+   * Presentation metadata the caller always repairs (lib/ai/skillsOrder.ts).
+   * Never structural, never a fallback, never a reason to reject the resume.
+   */
+  | 'skills_order'
+  | { experienceId: string }
 
 export interface ValidationFailure {
   code: FailureCode
@@ -270,8 +279,8 @@ function checkEntities(
  *
  * @param profile The profile injected into the prompt — the only source of truth.
  * @param output  Raw model text, or an already-parsed object.
- * @param skillsOrder Optional returned skill ordering. Pass the model's skills
- *   array; omit when the run did not reorder skills.
+ * @param skillsOrder The model's returned skill ordering, as-is. Missing or
+ *   malformed values are recorded as a 'skills_order' flag, never a hard failure.
  * @param options JD text (for import detection) and the numerics escape hatch.
  */
 export function validateGrounding(
@@ -534,51 +543,23 @@ export function validateGrounding(
   })
 
   // --- Check 3: skills are reordered, never edited.
-  if (skillsOrder !== undefined) {
-    const path = 'output.skills_order'
-    if (!isStringArray(skillsOrder)) {
-      failures.push({
-        code: 'schema_violation',
-        severity: 'hard',
-        owner: 'structural',
-        path,
-        detail: '`skills_order` is not an array of strings.',
-      })
-    } else {
-      const ids = (profile.skills ?? []).map((s) => s.id)
-      const names = (profile.skills ?? []).map((s) => s.name)
-      // NUL separator: it cannot occur inside a skill name, so no pair of
-      // distinct lists can collide. Written as an escape rather than a raw
-      // byte — a literal NUL here made git classify this whole file as binary,
-      // which hid a safety-critical validator from every diff and review.
-      const sameMembers = (a: string[], b: string[]) =>
-        a.length === b.length &&
-        [...a].sort().join(' ') === [...b].sort().join(' ')
-
-      if (sameMembers(skillsOrder, ids)) {
-        // Correct: a permutation of the profile's skill ids.
-      } else if (sameMembers(skillsOrder, names)) {
-        // Grounding intact — no additions, removals or edits — but the model
-        // returned names where the schema expects ids.
-        failures.push({
-          code: 'skills_returned_as_names',
-          severity: 'flag',
-          owner: 'structural',
-          path,
-          detail:
-            'Skills came back as names rather than ids. Membership is correct, so grounding holds, but the caller must map them to ids before persisting.',
-        })
-      } else {
-        failures.push({
-          code: 'skills_not_permutation',
-          severity: 'hard',
-          owner: 'structural',
-          path,
-          detail:
-            'Returned skills are not a permutation of the profile set — something was added, removed or edited.',
-        })
-      }
-    }
+  //
+  // RECOVERABLE, never structural (2026-09-16). The ordering is interpreted by
+  // normalizeSkillsOrder() — the same function the route persists with — which
+  // keeps only real profile skills and appends every omitted one. Nothing the
+  // model writes here can add, rename or remove a skill, so a messy list is a
+  // warning to record, not a reason to discard the resume. It is checked even
+  // when the model omitted skills_order entirely, so a missing list is recorded.
+  const skillRepair = normalizeSkillsOrder(profile.skills ?? [], skillsOrder)
+  if (skillRepair.codes.length > 0) {
+    failures.push({
+      code: skillRepair.repaired ? 'skills_not_permutation' : 'skills_returned_as_names',
+      severity: 'flag',
+      owner: 'skills_order',
+      path: 'output.skills_order',
+      // Fixed repair codes only — never a model value or skill name.
+      detail: 'Skill ordering normalized: ' + skillRepair.codes.join(','),
+    })
   }
 
   return {
@@ -602,6 +583,8 @@ export function partitionFailures(failures: ValidationFailure[]): {
 
   for (const f of failures) {
     if (f.severity !== 'hard') continue
+    // Repaired by normalizeSkillsOrder before persisting, whatever its severity.
+    if (f.owner === 'skills_order') continue
     if (f.owner === 'structural') structural.push(f)
     else if (f.owner === 'summary') summary.push(f)
     else {

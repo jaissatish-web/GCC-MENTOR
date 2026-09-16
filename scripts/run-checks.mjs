@@ -32,6 +32,7 @@ const TS_CHECKS = [
   'verify-safe-redirect.ts',
   'verify-photo-rehydration.ts',
   'verify-optimization-grounding.ts',
+  'verify-skills-order.ts',
   'verify-sidebar-wrapping.ts',
   'verify-answer-grounding.ts',
   'verify-deadlines.ts',

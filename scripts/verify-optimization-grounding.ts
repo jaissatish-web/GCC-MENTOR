@@ -320,8 +320,12 @@ check('emitting a fixed field is rejected', hasHard(validateGrounding(eng, fixed
 const unknownBlock = cleanOutput(eng)
 unknownBlock.experience_blocks[0].profile_experience_id = 'not-a-real-id'
 check('an invented employment id is rejected', hasHard(validateGrounding(eng, unknownBlock, eng.skills.map((s) => s.id)), 'unknown_experience_block'))
-check('a skills list with an extra entry is rejected',
-  hasHard(validateGrounding(eng, cleanOutput(eng), [...eng.skills.map((s) => s.id), 'extra']), 'skills_not_permutation'))
+const extraSkill = validateGrounding(eng, cleanOutput(eng), [...eng.skills.map((s) => s.id), 'extra'])
+check('a skills list with an extra entry is flagged', extraSkill.failures.some((f) => f.code === 'skills_not_permutation'))
+check('a bad skills list alone never fails the resume (normalizeSkillsOrder repairs it; see verify-skills-order.ts)',
+  extraSkill.valid && partitionFailures(extraSkill.failures).structural.length === 0)
+const partialSkills = validateGrounding(eng, cleanOutput(eng), eng.skills.slice(0, 1).map((s) => s.id))
+check('a partial skills list is not structural', partitionFailures(partialSkills.failures).structural.length === 0)
 
 console.log('\nFailures are owned, so the caller can fall back per block')
 const twoBad = cleanOutput(eng)

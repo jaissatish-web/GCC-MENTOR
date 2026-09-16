@@ -9,6 +9,7 @@ import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileL
 import { appendPackageEventAtomic, insertPackageForUser, updatePackageServerFields } from '@/lib/packages/serverWrites'
 import { getTemplate } from '@/lib/templates'
 import { validateGrounding, partitionFailures } from '@/lib/ai/validateGrounding'
+import { normalizeSkillsOrder } from '@/lib/ai/skillsOrder'
 import type { ValidationFailure } from '@/lib/ai/validateGrounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
 import {
@@ -174,34 +175,6 @@ function buildCorrectiveAddendum(failures: ValidationFailure[]): string {
   )
 }
 
-/** Skills the model omitted from its ordering are appended in the profile's
- *  own order â€” a skill can never silently vanish. Same principle already
- *  used in components/templates/GulfPremium.tsx. Accepts ids or names,
- *  matching validateGrounding's lenient permutation check. */
-function resolveSkillsOrder(profile: CareerProfileFull, parsedSkillsOrder: unknown): string[] {
-  const raw = Array.isArray(parsedSkillsOrder) ? parsedSkillsOrder : []
-  const byId = new Map(profile.skills.map((s) => [s.id, s.id]))
-  const byName = new Map(profile.skills.map((s) => [s.name, s.id]))
-
-  const resolved: string[] = []
-  const seen = new Set<string>()
-  for (const item of raw) {
-    if (typeof item !== 'string') continue
-    const id = byId.get(item) ?? byName.get(item)
-    if (id && !seen.has(id)) {
-      resolved.push(id)
-      seen.add(id)
-    }
-  }
-  for (const s of profile.skills.slice().sort((a, b) => a.sort_order - b.sort_order)) {
-    if (!seen.has(s.id)) {
-      resolved.push(s.id)
-      seen.add(s.id)
-    }
-  }
-  return resolved
-}
-
 /**
  * Builds the package's optimized_content. source_bullets/source_profile_summary
  * come from the REAL profile, never from the model's own echo (TASK-018's
@@ -249,13 +222,20 @@ function buildOptimizedContent(
       if (!sourceEntry) return null // selected id not on this profile â€” skip, don't fabricate
       const modelBlock = modelBlocksById.get(expId)
       const sourceBullets = sourceEntry.highlights ?? []
-      const usedFallback = fallbackIds.has(expId)
+      const modelBullets =
+        modelBlock && Array.isArray(modelBlock.generated_bullets)
+          ? (modelBlock.generated_bullets.filter((x) => typeof x === 'string') as string[])
+          : []
+      // A selected entry the model left out, or returned empty, falls back too.
+      // An empty array is not nullish, so buildResumeDocument would render the
+      // role with no bullets at all rather than its original highlights.
+      const usedFallback =
+        fallbackIds.has(expId) || (modelBullets.length === 0 && sourceBullets.length > 0)
+      if (usedFallback) fallbackIds.add(expId) // recorded in fallback_used below
       const generatedBullets = usedFallback
         ? // This entry's own highlights, never another entry's.
           sourceBullets
-        : modelBlock && Array.isArray(modelBlock.generated_bullets)
-          ? (modelBlock.generated_bullets.filter((x) => typeof x === 'string') as string[])
-          : []
+        : modelBullets
       // `claims` is no longer requested from the model (see
       // lib/ai/buildOptimizationPrompt.ts). Written as an empty array so the
       // shape of new rows matches the stored rows that still carry one.
@@ -688,10 +668,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // flag-only result is already `valid: true` and does not trigger a retry.
       if (attempt.truncated || !attempt.validation.valid) {
         if (giveUpAt - Date.now() >= MIN_RETRY_MS) {
-          const message = attempt.truncated
+          const first = attempt
+          const message = first.truncated
             ? userPrompt
-            : userPrompt + buildCorrectiveAddendum(attempt.validation.failures)
-          attempt = await runOnce(message)
+            : userPrompt + buildCorrectiveAddendum(first.validation.failures)
+          const retry = await runOnce(message)
+          // Never trade a usable first answer for a worse retry. A first answer
+          // with only content failures can still ship with per-block fallback;
+          // a retry that is cut off or structurally broken cannot.
+          const isStructurallySound = (a: typeof first) =>
+            !a.truncated && partitionFailures(a.validation.failures).structural.length === 0
+          attempt = isStructurallySound(first) && !isStructurallySound(retry) ? first : retry
         } else {
           console.warn(
             'optimize: retry skipped, only ' + Math.round((giveUpAt - Date.now()) / 1000) + 's left user=' + user.id,
@@ -771,7 +758,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       summary: fallbackSummary,
       experienceIds: fallbackExperienceIds,
     })
-    const skills_order = resolveSkillsOrder(profile, parsedObj.skills_order)
+    // The same normalizer the validator used, so what was checked is what is
+    // saved: recognized ids/names first, every omitted skill appended, nothing
+    // unknown kept (lib/ai/skillsOrder.ts).
+    const skillRepair = normalizeSkillsOrder(profile.skills, parsedObj.skills_order)
+    const skills_order = skillRepair.order
+    if (skillRepair.repaired) {
+      // Fixed codes only — never a skill name or model value (docs/RULES.md §3).
+      console.warn(
+        'optimize: skills_order repaired user=' + user.id + ' package=' + generatePackageId +
+          ' codes=' + skillRepair.codes.join(','),
+      )
+    }
 
     // UPDATE, not insert: the row already exists and is already paid for. It is
     // re-scoped to the caller here as well — the earlier ownership check and this
