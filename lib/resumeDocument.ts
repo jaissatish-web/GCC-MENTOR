@@ -403,3 +403,49 @@ export function applyContentEditsToDocument(
 
   return { ...doc, summary, experience }
 }
+
+
+/**
+ * Put a photo the user uploaded AFTER delivery onto a frozen document.
+ *
+ * WHY THIS IS NEEDED. `buildResumeDocument` freezes the header at generation
+ * time: `showPhoto = visible(fv,'photo') && Boolean(profile.photo_url)`, and
+ * `photoUrl` is whatever the profile held then. A user who builds a CV before
+ * uploading a photo therefore gets `photoUrl: null, showPhoto: false` baked
+ * into `document_snapshot` (migration 034) forever. Both renderers prefer the
+ * snapshot, so the photo never appears afterwards - not on screen, not in the
+ * PDF - however many photo-capable templates they switch between. Reported by
+ * the founder on 2026-09-16 and reproduced on package
+ * 834ac4d4 (`photoUrl: null`, `showPhoto: false`, with a photo uploaded and
+ * `field_visibility.photo = true`).
+ *
+ * WHY IT IS SAFE TO CHANGE A DELIVERED DOCUMENT HERE. Migration 034 exists so
+ * the WORDS of a paid resume cannot shift under the buyer. A photo is not
+ * wording - it is presentation, in the same class as the template and style
+ * overrides, both of which are already changeable after delivery ("Switch
+ * ATS-safe and photo-led formats without retyping"). `PackageScreen` already
+ * treats it that way: its `hasPhoto` check falls back to the live profile, so
+ * the photo SIZE control appears for exactly the documents whose photo this
+ * function restores.
+ *
+ * ADDITIVE ONLY, deliberately. A snapshot that already names a photo keeps it,
+ * so the frozen document still decides WHICH photo was delivered. This only
+ * fills the gap where the snapshot names none. Removing a photo is left alone:
+ * that is a visibility question, and turning it into a deletion here would let
+ * a later profile edit strip a photo out of a resume already paid for.
+ *
+ * The caller passes the photo value in whatever form its renderer needs - a
+ * storage object path server-side (signed afterwards, as the PDF route does)
+ * or an already-signed URL client-side - because this function does not know
+ * which renderer it is feeding and must not mint URLs of its own.
+ */
+export function applyLivePhotoToDocument(
+  doc: ResumeDocument,
+  livePhoto: string | null | undefined,
+  fieldVisibility: Partial<FieldVisibility> | null | undefined
+): ResumeDocument {
+  if (doc.header.photoUrl) return doc
+  if (!livePhoto) return doc
+  if (!visible(fieldVisibility, 'photo')) return doc
+  return { ...doc, header: { ...doc.header, photoUrl: livePhoto, showPhoto: true } }
+}
