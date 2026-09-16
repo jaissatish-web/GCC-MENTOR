@@ -10,7 +10,8 @@ import { setPromptTemplate } from '@/lib/ai/promptTemplates'
 import { createDraft, publishVersion, revertToBuiltIn, isPromptKey } from '@/lib/ai/prompts'
 import { createServicePackage, setServicePackageActive } from '@/lib/admin/servicePackages'
 import { setEntitlement } from '@/lib/entitlements'
-import { saveSiteContent } from '@/lib/admin/siteContent'
+import { revalidateTag } from 'next/cache'
+import { SITE_CONTENT_TAG, saveSiteContent } from '@/lib/admin/siteContent'
 import { setServicePaused, updateActionLimits } from '@/lib/admin/serviceControls'
 import { runRetention } from '@/lib/admin/retention'
 
@@ -173,6 +174,10 @@ export async function saveSiteContentAction(formData: FormData): Promise<void> {
     adminId: admin.id,
   })
   if (!result.ok) redirect(`/admin/content?error=${encodeURIComponent(result.error)}`)
+  // The footer's legal links and about line are cached by tag so every page can
+  // stay statically cacheable. Drop that cache here, or a page published now
+  // would not appear publicly for up to an hour.
+  revalidateTag(SITE_CONTENT_TAG)
   redirect('/admin/content?saved=1')
 }
 
