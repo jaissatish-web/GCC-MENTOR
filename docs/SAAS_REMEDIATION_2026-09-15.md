@@ -350,3 +350,52 @@ is the whole point of the change. All **35** assertions in
 `scripts/verify-safe-redirect.ts` pass, including the control-character cases — tab,
 newline, NUL — that the escaped class exists to reject. Validation behaviour is identical;
 only the way the two bytes are spelled in source has changed.
+
+### Confirmed root cause, from the build log
+
+The founder supplied the Vercel build log for `b681148`. The hypothesis recorded above was
+correct in kind and slightly wrong in detail — the route named is `/`, not `/cover-letter`:
+
+```
+11:11:42.157 Error occurred prerendering page "/".
+11:11:42.157 Error: supabaseUrl is required.
+11:11:42.158     at e (.next/server/app/api/anonymous-session/claim/route.js:1:11199)
+11:11:42.158 Export encountered an error on /page: /, exiting the build.
+11:11:42.168  x Next.js build worker exited with code: 1
+```
+
+- **Stage:** static generation, after "Compiled successfully in 23.3s" — so nothing about
+  the compile, the dependency install or the framework was at fault.
+- **Route:** `/`, the landing page.
+- **Chain:** `/` renders `AppFooter`, which is on every page. `AppFooter` calls
+  `listPublishedLegal()` and `getPublishedValue()` in `lib/admin/siteContent.ts`; both call
+  `createServiceRoleClient()`, which hands `process.env.NEXT_PUBLIC_SUPABASE_URL!` to
+  supabase-js. Where that variable is absent the **constructor throws before any query
+  runs**, and because the footer is on a statically generated page the throw lands in
+  `next build` instead of at request time.
+- **Not** Next.js 15, React 19, `vercel.json`, `maxDuration`, Chromium or Puppeteer
+  tracing, function size, or cron configuration. Each of those was ruled out above and the
+  log agrees: the install and compile steps both succeeded.
+
+Why only the preview: the CI workflow sets placeholder Supabase values and the developer
+machine has `.env.local`, so in both the constructor succeeds. Production has real values.
+The Preview environment, which has none, was the only one of the four that could fail —
+as recorded above before the log was available.
+
+**The fix (`6b60e4b`).** These reads already treat unavailable content as empty:
+`listSiteContent` returns `[]`, `getPublishedPage` returns `null`, `getPublishedValue`
+returns its caller's fallback. The single uncovered case was being unable to construct the
+client at all. The three read paths now obtain the client through a helper that returns
+`null` when the configuration is absent, and each then takes the same no-content path it
+already takes when a query fails. With settings present, behaviour is byte-for-byte what
+it was. `saveSiteContent` is deliberately excluded: an admin write that silently did
+nothing would be worse than one that fails loudly.
+
+Verified against the preview's own condition: with the environment file removed,
+`next build` previously died on `/` and now completes **54/54** static pages with exit 0.
+
+**What this fix does not do.** It makes the preview *build*; it does not make the preview
+*work*. A Preview environment with no Supabase configuration still cannot sign anyone in,
+and the footer's legal links will be absent there because there is nothing to read them
+from. The staging Supabase project and the Preview environment variables remain the
+founder actions described above, and nothing here changed any environment variable.
