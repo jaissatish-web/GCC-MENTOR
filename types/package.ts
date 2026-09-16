@@ -17,13 +17,21 @@ import type { TargetCountry, FieldVisibility } from './careerProfile'
 /** public.optimization_level_enum */
 export type OptimizationLevel = 'easy' | 'moderate' | 'high'
 
-/** public.package_status_enum */
+/**
+ * public.package_status_enum — the APPLICATION stage, separate from how far the
+ * preparation (CV, letter, Q&A, mock) has got. 'saved', 'rejected' and
+ * 'withdrawn' added by migration 053 (audit M07): preparing a CV for a job is
+ * not applying for it, and an application can end without an offer.
+ */
 export type PackageStatus =
+  | 'saved'
   | 'applied'
   | 'shortlisted'
   | 'interview'
   | 'visa_processing'
   | 'offer'
+  | 'rejected'
+  | 'withdrawn'
 
 // ---- optimized_content (JSONB, docs/DASHBOARD_LIBRARY.md §4) ---------------
 

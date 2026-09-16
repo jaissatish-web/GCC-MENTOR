@@ -18,6 +18,7 @@
 import { GROUNDING_INSTRUCTION } from './grounding'
 import type { CareerProfileFull, ProfileWorkExperience, TargetCountry } from '@/types/careerProfile'
 import type { CoverLetterTone } from '@/types/package'
+import type { ResumeDocument } from '@/lib/resumeDocument'
 
 // Byte-for-byte from docs/PROMPTS.md §8 — the one persona line the spec
 // gives for this feature. Not a per-industry persona (lib/ai/personas.ts is
@@ -182,6 +183,30 @@ function renderJobDescription(jobDescription: string | undefined | null): string
 }
 
 /**
+ * The saved CV for this job (audit M04, 2026-09-15). The letter goes out WITH
+ * this document, so it is the primary source: same wording of roles, the same
+ * achievements, nothing the CV does not say. The Career Profile below it stays
+ * as supporting reference.
+ */
+function renderSavedResume(doc: ResumeDocument): string {
+  const lines: string[] = []
+  if (doc.header?.targetJobTitle) lines.push(`Title on the CV: ${doc.header.targetJobTitle}`)
+  if (doc.summary) lines.push('Summary:\n' + doc.summary)
+  const experience = (doc.experience ?? [])
+    .map((e) => [`- ${e.entry.role} at ${e.companyLine} (${e.range})`, ...(e.bullets ?? []).map((b) => `  - ${b}`)].join('\n'))
+    .join('\n\n')
+  if (experience) lines.push('Experience:\n' + experience)
+  if ((doc.skills ?? []).length > 0) lines.push('Skills: ' + doc.skills.map((s) => s.name).join(', '))
+  if ((doc.certifications ?? []).length > 0) lines.push('Certifications: ' + doc.certifications.map((c) => c.display).join('; '))
+  return lines.join('\n\n')
+}
+
+const SAVED_RESUME_RULE =
+  'The SAVED CV above is the document the employer will read with this letter. Write from it first, ' +
+  'using its wording for roles and achievements. You may add a fact from the Career Profile only where the ' +
+  'CV does not contradict it, and you must never add anything that appears in neither.'
+
+/**
  * Deliberately narrow, matching buildOptimizationPrompt.ts's own reasoning:
  * the model returns only the parts it generates. `full_text` is NOT
  * requested here — the caller composes it server-side from these validated
@@ -206,6 +231,7 @@ export function buildCoverLetterPrompt(
   target: CoverLetterTarget,
   jobDescription?: string | null,
   tone: CoverLetterTone = 'professional',
+  savedResume?: ResumeDocument | null,
 ): BuiltPrompt {
   const system = [
     COVER_LETTER_PERSONA,
@@ -215,6 +241,7 @@ export function buildCoverLetterPrompt(
   ].join('\n\n')
 
   const user = [
+    ...(savedResume ? ['## SAVED CV FOR THIS JOB — PRIMARY SOURCE\n' + renderSavedResume(savedResume), '## RULE\n' + SAVED_RESUME_RULE] : []),
     renderCareerProfile(profile),
     '## TARGET\n' + renderTarget(target),
     '## JOB DESCRIPTION\n' + renderJobDescription(jobDescription),

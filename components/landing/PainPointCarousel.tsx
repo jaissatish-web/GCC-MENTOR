@@ -49,7 +49,7 @@ const PAIN_POINTS: readonly PainPoint[] = [
     title: 'Shortlisted, but not confident',
     body: 'A better CV can win the call. The next challenge is answering from your real experience with confidence, structure, and technical clarity.',
     signal: 'Interview pressure',
-    lift: 'Interview practice · planned',
+    lift: 'Interview Q&A and text mock interviews',
   },
 ]
 

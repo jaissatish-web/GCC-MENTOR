@@ -9,7 +9,7 @@ import {
   PlayIcon,
 } from '@heroicons/react/24/outline'
 import { cn } from '@/lib/utils'
-import { getTemplate, type TemplateId } from '@/lib/templates'
+import { getTemplate, TEMPLATES, type TemplateId } from '@/lib/templates'
 import { SAMPLE_RESUME_DOCUMENT } from '@/lib/sampleResume'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
 
@@ -34,6 +34,8 @@ const ORBIT_TEMPLATE_IDS: readonly TemplateId[] = [
   'technical_sidebar',
   'project_twocol',
 ]
+
+const AVAILABLE_TEMPLATE_COUNT = Object.values(TEMPLATES).filter((t) => t.available).length
 
 type StyleVars = CSSProperties & Record<string, string | number>
 
@@ -253,7 +255,10 @@ export function TemplateOrbit() {
     <div className="rounded-card border border-line bg-white p-5 shadow-m-2">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal">10 actual GCC templates</span>
+          {/* One source for the count (audit M10): the template registry. */}
+          <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal">
+            {ORBIT_TEMPLATE_IDS.length} of {AVAILABLE_TEMPLATE_COUNT} GCC templates
+          </span>
           <h3 className="mt-2 font-display text-[24px] font-semibold leading-tight text-ink">
             Find a style that fits your next role.
           </h3>

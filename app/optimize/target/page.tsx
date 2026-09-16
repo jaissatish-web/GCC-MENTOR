@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/Card'
 import { PERSONA_INDUSTRIES } from '@/lib/utils'
 import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
 import { findSimilarPackage } from '@/lib/reuseDetection'
-import type { Package } from '@/types/package'
+import type { PackageSummary } from '@/lib/packageSummary'
 
 /**
  * Target selection — screen 05 (TASK-027), route /optimize/target.
@@ -79,7 +79,7 @@ function TargetScreen() {
   const [draft, setDraft] = useState<TargetDraft>(EMPTY)
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [existingPackages, setExistingPackages] = useState<Package[] | null>(null)
+  const [existingPackages, setExistingPackages] = useState<PackageSummary[] | null>(null)
   const [replacingId, setReplacingId] = useState<string | null>(null)
   const [dismissed, setDismissed] = useState(false)
   // No Career Profile yet (GET /api/profile answered 404). Every CV is built
@@ -123,12 +123,13 @@ function TargetScreen() {
         setLoaded(true)
       })
 
-    // Load existing packages (TASK-035) for reuse detection (TASK-036).
-    fetch('/api/packages', { cache: 'no-store' })
+    // Load existing packages (TASK-035) for reuse detection (TASK-036). Only the
+    // titles matter here, so lightweight summaries of the newest 100 (audit M08).
+    fetch('/api/packages?view=summary&limit=100', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json().catch(() => null) : null))
       .then((data) => {
         if (Array.isArray(data?.packages)) {
-          setExistingPackages(data.packages as Package[])
+          setExistingPackages(data.packages as PackageSummary[])
         } else {
           setExistingPackages([])
         }

@@ -10,6 +10,7 @@ import { SiteNav } from '@/components/marketing/SiteNav'
 import { PainPointCarousel } from '@/components/landing/PainPointCarousel'
 import { TemplateOrbit } from '@/components/landing/TemplateOrbit'
 import { TemplateShowcase } from '@/components/landing/TemplateShowcase'
+import { TEMPLATES } from '@/lib/templates'
 import {
   ArrowRightIcon,
   BriefcaseIcon,
@@ -26,6 +27,8 @@ import {
 type Icon = ComponentType<{ className?: string }>
 
 const countries = GULF_COUNTRIES.filter((country) => country.value !== 'generic_gulf')
+// One source for the template count (audit M10): the registry, not copy.
+const AVAILABLE_TEMPLATE_COUNT = Object.values(TEMPLATES).filter((t) => t.available).length
 const heroImage = '/landing/hero-gcc-engineer.png'
 
 const services: Array<{
@@ -63,7 +66,7 @@ const services: Array<{
     title: 'Multiple GCC ATS templates',
     status: 'Live',
     body: 'Choose from Gulf-focused resume formats, including simple ATS-friendly and optional photo layouts.',
-    proof: 'Fifteen templates, one profile, instant PDF rebuilds.',
+    proof: `${AVAILABLE_TEMPLATE_COUNT} templates, one profile, instant PDF rebuilds.`,
     photo: '/landing/service-templates.png',
     photoAlt: 'Multiple GCC resume template layouts arranged on a premium desk',
     href: '/templates',
@@ -82,7 +85,7 @@ const services: Array<{
     icon: QuestionMarkCircleIcon,
     title: 'Interview Q&A generation',
     status: 'Live',
-    body: 'Generate 25 practice questions and answers from your optimized resume and target job.',
+    body: 'Generate up to 25 practice questions and answers from your optimized resume and target job.',
     proof: 'HR, technical, project and Gulf-readiness answers saved inside the resume package.',
     photo: '/landing/service-interview-qa.png',
     photoAlt: 'Interview questions and answers prepared from a Gulf resume and job description',
@@ -93,7 +96,7 @@ const services: Array<{
     title: 'Text mock interview feedback',
     status: 'Live',
     body: 'Practise a realistic role-specific text interview from your optimized resume.',
-    proof: 'Answer one question at a time and save a readiness report inside the resume package.',
+    proof: 'Answer one written question at a time and save preparation feedback inside the resume package.',
     photo: '/landing/service-mock-interview.png',
     photoAlt: 'AI mock interview practice with feedback dashboard for Gulf job preparation',
     href: '/mock-interview',
@@ -247,11 +250,13 @@ function WeaknessPanel() {
 }
 
 function InterviewPreview() {
+  // The four dimensions the TEXT report actually scores (audit M10). "Speaking
+  // clarity" and "Confidence" implied voice analysis that does not exist.
   const rows: Array<readonly [label: string, value: number, tone: 'teal' | 'gold' | 'alert']> = [
-    ['Technical knowledge', 72, 'teal'],
-    ['Confidence', 54, 'gold'],
-    ['Speaking clarity', 61, 'gold'],
-    ['Role evidence', 68, 'teal'],
+    ['Technical', 72, 'teal'],
+    ['Role fit', 68, 'teal'],
+    ['Gulf readiness', 61, 'gold'],
+    ['Answer structure', 54, 'gold'],
   ]
 
   return (
@@ -280,7 +285,7 @@ function InterviewPreview() {
             <MetricBar key={label} label={label} value={value} tone={tone} />
           ))}
           <p className="mt-2 rounded-ctl bg-teal-soft px-3 py-2 text-[12.5px] leading-relaxed text-teal">
-            Q&A and text mock interviews are live for optimized resumes. Voice and speaking feedback come later.
+            Example scores. Feedback reviews your written answers — it is preparation guidance, not a hiring prediction, and voice is not assessed.
           </p>
         </div>
       </div>
@@ -614,10 +619,10 @@ export default function Home() {
           <div className="mt-10 flex flex-col gap-3">
             {[
               ['Who is GCC Mentor for?', 'Job seekers applying in Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain, including people applying from India and professionals already working in the Gulf.'],
-              ['What can I use today?', 'Gulf readiness, Career Profile, job-specific resume optimization, resume templates, Resume Library and cover letters are available. Access requirements are shown inside the app.'],
+              ['What can I use today?', 'Gulf readiness, Career Profile, job-specific resume optimization, resume templates, Resume Library, cover letters, interview Q&A and text mock interviews are available. Access requirements are shown inside the app.'],
               ['Will it add experience I do not have?', 'Your drafts should use only the facts in your profile. Check every generated statement, date, skill and qualification before sending your application.'],
               ['Does a higher score guarantee a shortlist?', 'No. Scores are guidance, not hiring predictions or an employer ATS result. Employers make their own decisions based on the role, competition and recruitment process.'],
-              ['Are Q&A and mock interviews live?', 'Interview Q&A and text mock interviews are live for optimized resume packages. Voice recording and speaking feedback are planned for a later version.'],
+              ['Are Q&A and mock interviews live?', 'Interview Q&A and text mock interviews are live for optimized resume packages. Mock interview feedback reviews your written answers only; there is no voice recording or speaking assessment.'],
               ['Do I need a different resume for every job?', 'Keep your Career Profile as your source of facts. Tailor the emphasis and relevant experience for each job description, then keep that version and its cover letter together in your Resume Library.'],
               ['How do paid services work?', 'Card checkout is not live yet. Create an account to review current options, and confirm pricing and included services directly with GCC Mentor before paying.'],
             ].map(([question, answer]) => (

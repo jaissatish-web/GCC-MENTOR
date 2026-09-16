@@ -1,4 +1,4 @@
-import type { Package } from '@/types/package'
+import { cvReady, letterCount, mockDone, qaReady, type PackageListItem } from '@/lib/packageSummary'
 
 /**
  * The one thing this user should do next.
@@ -62,22 +62,24 @@ export interface NextActionProfile {
  * 030) and "at null" or "at (no company)" is exactly the kind of database
  * leakage that makes a product feel unfinished.
  */
-export function jobLabel(pkg: Package): string {
+export function jobLabel(pkg: PackageListItem): string {
   const name = (pkg.name ?? '').trim() || pkg.target_job_title
   const company = (pkg.target_company ?? '').trim()
   return company ? `${name} at ${company}` : name
 }
 
-function hasCoverLetter(pkg: Package): boolean {
-  return Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
+// Work on a full package OR a list summary (lib/packageSummary.ts, audit M08),
+// so the dashboard no longer has to download every job's documents to decide.
+function hasCoverLetter(pkg: PackageListItem): boolean {
+  return letterCount(pkg) > 0
 }
 
-function hasInterviewQa(pkg: Package): boolean {
-  return Boolean(pkg.interview_questions?.questions?.length)
+function hasInterviewQa(pkg: PackageListItem): boolean {
+  return qaReady(pkg)
 }
 
-function hasCompletedMock(pkg: Package): boolean {
-  return Boolean(pkg.mock_interview_runs?.some((run) => run.status === 'completed'))
+function hasCompletedMock(pkg: PackageListItem): boolean {
+  return mockDone(pkg)
 }
 
 /**
@@ -91,7 +93,7 @@ export const PROFILE_THIN_BELOW = 40
 
 export function computeNextAction(
   profile: NextActionProfile | null,
-  packages: readonly Package[],
+  packages: readonly PackageListItem[],
   score: number,
   /**
    * How many profile fields are still empty, from the same `calculateReadiness`
@@ -164,7 +166,7 @@ export function computeNextAction(
   // Started and stopped before unlocking. Pay-before-generate (migration 033)
   // means an unpaid package has no `optimized_content` at all, so this is a
   // genuinely unfinished job rather than a paid one awaiting a re-run.
-  const unpaid = packages.find((p) => !p.is_paid && p.optimized_content === null)
+  const unpaid = packages.find((p) => !p.is_paid && !cvReady(p))
   if (unpaid) {
     return {
       state: 'job_unpaid',
@@ -180,7 +182,7 @@ export function computeNextAction(
   // Paid, but generation never completed — a timeout, a closed tab, a reload
   // at the wrong moment. The user has already paid for this and would
   // otherwise have to work out for themselves that it can be resumed.
-  const ungenerated = packages.find((p) => p.is_paid && p.optimized_content === null)
+  const ungenerated = packages.find((p) => p.is_paid && !cvReady(p))
   if (ungenerated) {
     return {
       state: 'job_not_generated',
@@ -193,7 +195,7 @@ export function computeNextAction(
     }
   }
 
-  const needsLetter = packages.find((p) => p.optimized_content !== null && !hasCoverLetter(p))
+  const needsLetter = packages.find((p) => cvReady(p) && !hasCoverLetter(p))
   if (needsLetter) {
     return {
       state: 'job_needs_letter',
@@ -206,7 +208,7 @@ export function computeNextAction(
     }
   }
 
-  const needsQa = packages.find((p) => p.optimized_content !== null && hasCoverLetter(p) && !hasInterviewQa(p))
+  const needsQa = packages.find((p) => cvReady(p) && hasCoverLetter(p) && !hasInterviewQa(p))
   if (needsQa) {
     return {
       state: 'job_needs_qa',
@@ -218,7 +220,7 @@ export function computeNextAction(
   }
 
   const needsMock = packages.find(
-    (p) => p.optimized_content !== null && hasCoverLetter(p) && hasInterviewQa(p) && !hasCompletedMock(p)
+    (p) => cvReady(p) && hasCoverLetter(p) && hasInterviewQa(p) && !hasCompletedMock(p)
   )
   if (needsMock) {
     return {

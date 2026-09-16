@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation'
 import { buttonVariants } from '@/components/ui/Button'
 import { PageShell } from '@/components/layout/PageShell'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
-import { getTemplate, DEFAULT_TEMPLATE_ID, type TemplateId } from '@/lib/templates'
+import { getTemplate, DEFAULT_TEMPLATE_ID, TEMPLATES, type TemplateId } from '@/lib/templates'
 import { resumeLabel } from '@/lib/utils'
 import { SAMPLE_RESUME_DOCUMENT } from '@/lib/sampleResume'
-import type { Package } from '@/types/package'
+import type { PackageSummary } from '@/lib/packageSummary'
+
+// One source for the count (audit M10): the registry, not copy.
+const AVAILABLE_TEMPLATE_COUNT = Object.values(TEMPLATES).filter((t) => t.available).length
 
 /**
  * Resume Templates — browse the designs, then open one of your resumes in it.
@@ -32,7 +35,7 @@ import type { Package } from '@/types/package'
 
 function TemplatesInner() {
   const router = useRouter()
-  const [packages, setPackages] = useState<Package[] | null>(null)
+  const [packages, setPackages] = useState<PackageSummary[] | null>(null)
   const [selectedId, setSelectedId] = useState<string>('')
   const [templateId, setTemplateId] = useState<TemplateId>(DEFAULT_TEMPLATE_ID)
   const [error, setError] = useState<string | null>(null)
@@ -41,13 +44,14 @@ function TemplatesInner() {
   useEffect(() => {
     if (didInit.current) return
     didInit.current = true
-    fetch('/api/packages', { cache: 'no-store' })
+    // Lightweight summaries of the newest 100 jobs (audit M08) — the picker needs names only.
+    fetch('/api/packages?view=summary&limit=100', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         // Every resume is listed while the locks are off (founder decision
         // 2026-08-17). This used to filter to paid packages; keeping that filter
         // would now show an empty gallery, because nothing is marked paid.
-        const list = (data?.packages as Package[] | undefined) ?? []
+        const list = (data?.packages as PackageSummary[] | undefined) ?? []
         setPackages(list)
         if (list.length > 0) setSelectedId(list[0].id)
       })
@@ -61,7 +65,7 @@ function TemplatesInner() {
     <PageShell
       width="wide"
       title="Resume templates"
-      subtitle="Fifteen designs for GCC applications. Every preview uses the same example CV, so you can compare them."
+      subtitle={`${AVAILABLE_TEMPLATE_COUNT} designs for GCC applications. Every preview uses the same example CV, so you can compare them.`}
     >
       {/* The action bar sticks to the top so the choice made at the bottom of a
           long gallery is still actionable without scrolling back. */}
