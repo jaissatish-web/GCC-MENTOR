@@ -1,53 +1,42 @@
 /**
- * Optimization prompt builder (TASK-018).
+ * Optimization prompt builder — universal, profession-neutral (TASK-018,
+ * rebuilt 2026-09-16).
  *
- * Assembles the system+user prompt in the exact order specified in
- * docs/PROMPTS.md §6:
- *   1. Persona                     -> system
- *   2. Grounding block (verbatim)  -> system
- *   3. Gulf CV format conventions  -> system
- *   4. Level instruction           -> system
- *   5. CAREER PROFILE              -> user
- *   6. TARGET                      -> user
- *   7. JOB DESCRIPTION             -> user
- *   8. OUTPUT FORMAT               -> user
+ * WHY THIS WAS REBUILT. The previous build assembled one prompt for one kind of
+ * user. Three things in it did not survive contact with a general product:
  *
- * System = how to behave. User = what to work on. This matches how
- * lib/ai/provider.ts already calls the model (a single system string, a
- * single user string) and is the standard split for this kind of task.
+ *   1. The profile, the target, the job description and the job-match findings
+ *      were four peer `##` headings in one user message. Nothing told the model
+ *      which of them was evidence about the candidate and which was an
+ *      employer's wish list, so "the JD asks for PMP" and "the candidate holds
+ *      PMP" arrived at the same level of authority.
+ *   2. There was no mode. With no job description the model was handed a single
+ *      fallback sentence, which left it free to imagine the vacancy it was
+ *      optimising against.
+ *   3. `claims` was requested from the model on every run, cost output tokens
+ *      on every bullet, and was never read by anything.
+ *
+ * THE FIX IS LABELLING, NOT MORE RULES. Five blocks, each stating its own trust
+ * level in its own header:
+ *
+ *   BLOCK 1  CANDIDATE FACTS       the only source of truth
+ *   BLOCK 2  TARGET CONTEXT        application metadata, not evidence
+ *   BLOCK 3  EMPLOYER REQUIREMENTS relevance guidance only (carries the MODE)
+ *   BLOCK 4  ANALYSIS FINDINGS     derived guidance only (omitted when absent)
+ *   BLOCK 5  OUTPUT INSTRUCTIONS   the schema
+ *
+ * System = how to behave. User = what to work on. Unchanged, and still how
+ * lib/ai/provider.ts calls the model.
  *
  * ============================================================================
- * OPEN GAP, DECIDED HERE — read before changing step 3 or the "Gulf format"
- * text below:
+ * GULF FORMAT CONVENTIONS — the original decision still stands.
  *
- * docs/PROMPTS.md §6 step 3 calls for "Gulf CV format conventions — from
- * target_country". No document anywhere in this repo defines what those
- * per-country conventions actually ARE. Searched: CAREER_PROFILE.md,
- * PRODUCT.md, USER_FLOW.md, DASHBOARD_LIBRARY.md, FOUNDING_BRIEF.md,
- * DESIGN.md. PRODUCT.md §2 and USER_FLOW.md both reference "Gulf-CV format
- * conventions" as a concept target_country drives, but never define content
- * for Saudi vs UAE vs Qatar vs Oman vs Kuwait vs Bahrain individually.
- *
- * The one thing that IS documented (design-reference/Landing Page.dc.html,
- * the "Why a Gulf CV is a different document" section) is a single
- * Gulf-vs-Western distinction: Gulf CVs are expected to include the
- * identity/visa fields a Western CV omits (photo, nationality, DOB, visa
- * status, notice period, passport validity), be concise, achievement-led,
- * and ATS-parseable. But this is a FIELD-INCLUSION concern, not a text-
- * generation concern — those fields are all FIXED and rendered by the
- * template (TASK-031), never written by the AI at all. The AI only ever
- * touches the summary and work-description bullets.
- *
- * DECISION: rather than fabricate seven distinct national conventions with no
- * source (which would be inventing authoritative-sounding claims the product
- * explicitly exists to avoid, just at the instruction level instead of the
- * fact level), this step carries ONE well-grounded, country-agnostic Gulf
- * writing convention, and states the specific target_country as context so
- * the model can flex tone/spelling (e.g. British vs regional English)
- * without inventing rules nobody wrote down. If real per-country content
- * gets written later, it plugs into GULF_FORMAT_NOTE below without touching
- * the rest of this file.
- *
+ * docs/PROMPTS.md called for "Gulf CV format conventions from target_country",
+ * but no document in this repo defines what those per-country conventions are.
+ * Rather than fabricate seven national conventions with no source — inventing
+ * authoritative-sounding claims at the instruction level, which is the same
+ * failure this product exists to prevent, one layer up — this carries ONE
+ * grounded, country-agnostic convention and states the country as context.
  * Logged as docs/TASKS.md Unplanned #8.
  * ============================================================================
  */
@@ -63,10 +52,22 @@ import type { OptimizationLevel } from '@/types/package'
 import { DETERMINISTIC_CATEGORIES } from '@/types/jobMatch'
 import type { JobMatchCategoryKey, JobMatchCategoryResult } from '@/types/jobMatch'
 
-// ---- Step 3: Gulf format conventions ---------------------------------------
-// See the DECISION note above. Grounded in design-reference/Landing Page.dc.html
-// ("Why a Gulf CV is a different document") and the persona texts in
-// docs/PROMPTS.md §3, which already encode this expectation.
+/**
+ * Derived from the presence of a job description, never stored. A column would
+ * be a second source of truth for something `packages.job_description` already
+ * answers exactly, and could drift from it.
+ */
+export type OptimizationMode = 'job_description' | 'target_title_only'
+
+export function resolveOptimizationMode(
+  jobDescription: string | null | undefined,
+): OptimizationMode {
+  return jobDescription && jobDescription.trim() !== ''
+    ? 'job_description'
+    : 'target_title_only'
+}
+
+// ---- Gulf format conventions (system) --------------------------------------
 const GULF_FORMAT_NOTE = `GULF CV FORMAT CONVENTIONS:
 Gulf employers and their ATS systems screen a high volume of CVs before a
 human reads one. Write for that: concise, achievement-led, quantified where
@@ -76,11 +77,19 @@ rewritten bullet with the outcome or responsibility, not the task description.
 This applies uniformly across the Gulf region; it does not vary by the
 specific target country.`
 
-// ---- Fixed fields ------------------------------------------------------
-// docs/CAREER_PROFILE.md §6: changed only by the user, only in the Career
-// Profile. Never rewritten by the AI. Injected as read-only context so the
-// model can reference them accurately (e.g. tailor tone to a named target
-// company) without ever being asked, or allowed, to alter them.
+// ---- What the model produces, and what it must never touch (system) --------
+const SCOPE_NOTE = `WHAT YOU PRODUCE:
+Only three things — the professional summary, rewritten bullets for the work
+experience entries marked REWRITABLE, and a relevance ordering of the skills
+the candidate already has.
+
+Everything else is fixed, owned by the application, and rendered outside your
+output: name, contact details, employers, historical job titles, employment
+dates, locations, education, certifications. Never emit those fields. The
+target job title is the resume headline and is applied by the application — it
+never replaces a historical job title in the work history.`
+
+// ---- Fixed fields (user) ---------------------------------------------------
 const FIXED_FIELD_INSTRUCTION =
   'The fields above are FIXED. They are read-only context. You may reference ' +
   'them (for example, the target company name) but you must NEVER invent, ' +
@@ -99,7 +108,7 @@ export interface SelectedBlocks {
 
 export interface OptimizationTarget {
   target_job_title: string
-  // Optional (migration 043) — see lib/ai/personas.ts's fallback note.
+  // Optional (migration 043) — every value resolves to one neutral perspective.
   target_industry: string | null
   // Optional (migration 030) — see types/careerProfile.ts's note.
   target_country: TargetCountry | null
@@ -109,6 +118,8 @@ export interface OptimizationTarget {
 export interface BuiltPrompt {
   system: string
   user: string
+  /** Derived, returned so the caller can record and assert it without re-deriving. */
+  mode: OptimizationMode
 }
 
 function formatDate(d: string | null | undefined): string {
@@ -179,7 +190,10 @@ function renderCareerProfile(
     .join('\n\n')
   sections.push(
     '## WORK EXPERIENCE (fixed facts; only entries tagged REWRITABLE may be reframed)\n' +
-      (experienceEntries || 'None.'),
+      (experienceEntries || 'None.') +
+      '\n\nEach REWRITABLE entry may be rewritten only from ITS OWN description and ' +
+      'bullets. Never move an employer, client, project, location, number, tool, ' +
+      'system, standard or achievement from one entry into another.',
   )
 
   const skills = (profile.skills ?? [])
@@ -216,43 +230,87 @@ function renderCareerProfile(
     .join('\n')
   sections.push('## EDUCATION (fixed, read-only)\n' + (education || 'None.'))
 
+  // Loaded by loadCareerProfileFull and rendered on the CV, but never sent to
+  // the model before 2026-09-16 — so languages, memberships and awards the user
+  // had entered could not inform the summary, and the model had no way to know
+  // they existed. Read-only like every other profile section.
+  const additional = (profile.additional_information ?? [])
+    .slice()
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((a) => `- ${a.label}: ${a.value}`)
+    .join('\n')
+  sections.push(
+    '## ADDITIONAL INFORMATION (fixed, read-only)\n' + (additional || 'None.'),
+  )
+
   sections.push('## FIXED-FIELD RULE\n' + FIXED_FIELD_INSTRUCTION)
 
   return sections.join('\n\n')
 }
 
 function renderTarget(target: OptimizationTarget): string {
-  const lines = [`Job title: ${target.target_job_title}`]
+  const lines = [`Target job title: ${target.target_job_title}`]
   // Optional (migration 043 for industry, 030 for country/company) — only add
   // a line when actually set; omitting it entirely (not "Industry: none")
   // avoids implying it was ever a required input the model should expect.
   if (target.target_industry) lines.push(`Industry: ${target.target_industry}`)
   if (target.target_country) lines.push(`Country: ${target.target_country}`)
   if (target.target_company) lines.push(`Company: ${target.target_company}`)
-  return lines.join('\n')
-}
-
-/** docs/PROMPTS.md §6 step 7 — exact fallback text when no JD is given. */
-function renderJobDescription(jobDescription: string | undefined | null): string {
-  if (jobDescription && jobDescription.trim() !== '') return jobDescription
-  return 'No job description was provided. Optimize against the target job title, industry and country conventions.'
+  return (
+    lines.join('\n') +
+    '\n\nThis is where the candidate is applying. It says nothing about what ' +
+    'they have done. It becomes the resume headline; it never replaces a ' +
+    'historical job title.'
+  )
 }
 
 /**
- * TASK-073 — docs/GCC_READINESS_JOB_MATCH.md §19: "the optimization uses
- * Candidate Profile + Original Resume + Job Description + Job Match
- * findings." Purely ADDITIVE — omitted entirely (returns '') when no
- * findings are passed in, so every existing, byte-verified call site and
- * every already-shipped behavior is completely unaffected.
- *
- * Only the DETERMINISTIC categories are used here (lib/jobMatch/
- * requirementMapping.ts) — real, reproducible facts about skill/experience/
- * education overlap, not the LLM semantic layer's own scores. This is
- * evidence to help the model decide what to EMPHASIZE from content that
- * ALREADY EXISTS in the CAREER PROFILE section above; it is never a licence
- * to add anything. The instruction below says so explicitly, and the
- * grounding rule injected earlier in the system prompt (GROUNDING_INSTRUCTION,
- * unchanged) still governs the actual output — this section cannot weaken it.
+ * Mode A carries the advert. Mode B carries the absence of one, explicitly —
+ * the old build passed a single sentence here, which left the model free to
+ * imagine the vacancy it was optimising against and, in the worst case, to
+ * report a match against it.
+ */
+function renderEmployerRequirements(
+  mode: OptimizationMode,
+  jobDescription: string | null | undefined,
+): string {
+  if (mode === 'job_description') {
+    return (
+      'MODE: job_description\n\n' +
+      (jobDescription ?? '').trim() +
+      '\n\nUse this to decide what to emphasise, how to order, and which ' +
+      'vocabulary to prefer — but only where CANDIDATE FACTS already supports ' +
+      'it. It is not evidence about the candidate. If it asks for something ' +
+      'the profile does not contain, omit that thing entirely rather than ' +
+      'implying it.'
+    )
+  }
+  return `MODE: target_title_only
+
+No job description was provided.
+
+Use the target job title ONLY to rank and emphasise facts that are already in
+CANDIDATE FACTS:
+- Prioritise profile facts clearly relevant to the target role.
+- Write a role-aligned professional summary from supported facts only.
+- Improve and reorder supported experience bullets.
+- Order existing skills by likely relevance to the target role.
+
+You must NOT:
+- Introduce requirements, tools, systems, standards, qualifications or
+  certifications that are typical of this role but absent from the profile.
+- Imply this resume was matched against a specific vacancy.
+- State or estimate any match, fit or ATS percentage.
+
+Your general knowledge of this role may rank and emphasise existing facts. It
+must never become resume content.`
+}
+
+/**
+ * Deterministic categories only (lib/jobMatch/requirementMapping.ts) — real,
+ * reproducible overlap, not the LLM semantic layer's own scores. Evidence for
+ * what to EMPHASIZE from content that already exists, never a licence to add.
+ * Omitted entirely when absent, so Mode B never shows an empty analysis block.
  */
 function renderJobMatchFindings(
   categories: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null | undefined,
@@ -263,36 +321,33 @@ function renderJobMatchFindings(
     .filter((x): x is { key: JobMatchCategoryKey; result: JobMatchCategoryResult } => !!x.result?.applicable)
   if (applicable.length === 0) return ''
 
-  const lines = applicable.map(({ key, result }) => `- ${key}: ${result.evidence.join('; ') || 'no detail recorded'}`)
+  const lines = applicable.map(
+    ({ key, result }) => `- ${key}: ${result.evidence.join('; ') || 'no detail recorded'}`,
+  )
 
   return (
-    '## JOB MATCH FINDINGS (structured analysis of this profile against the job description above — interim scoring, see docs/GCC_READINESS_JOB_MATCH.md)\n' +
     lines.join('\n') +
-    '\n\nUse this analysis only to decide what to EMPHASIZE from the candidate\'s ' +
-    'real, existing profile above — for example, if a required skill is present ' +
-    'but underrepresented, foreground it; if a REWRITABLE entry already ' +
-    'demonstrates something the job asks for, make that connection clearer. ' +
-    'This is guidance for emphasis only. The grounding rule above still ' +
-    'applies without exception: never add a skill, claim, or experience not ' +
-    'already present in the CAREER PROFILE section.'
+    '\n\nUse this analysis only to decide what to EMPHASIZE from the ' +
+    "candidate's real, existing profile — for example, if a required skill is " +
+    'present but underrepresented, foreground it. This is guidance for ' +
+    'emphasis only, and cannot authorise any addition.'
   )
 }
 
 /**
- * The output schema, per docs/DASHBOARD_LIBRARY.md §4 and
- * lib/ai/validateGrounding.ts. Deliberately narrow: the model returns only
- * what it actually generates. `source_bullets` / `source_profile_summary`
- * are NOT requested here — the caller (TASK-021) attaches those from the
- * real profile data it already has, rather than trusting the model to
- * transcribe long text back byte-for-byte. Only entries selected as
- * REWRITABLE should appear in experience_blocks; untouched entries are
- * filled in by the caller directly from the profile, not round-tripped
- * through the model.
+ * Compact on purpose. `claims` was requested here until 2026-09-16: free text,
+ * one entry per factual assertion per bullet, never read by any consumer and
+ * never validated. It cost output tokens on the slowest call in the product.
+ * Removed. Existing stored rows keep theirs (types/package.ts `claims?`), and a
+ * real provenance mechanism is Phase 2 work, deliberately deferred — a
+ * quotation proves a substring exists, not that the sentence built on it means
+ * the same thing.
  */
-function renderOutputFormat(): string {
+function renderOutputFormat(mode: OptimizationMode): string {
   return `Return ONLY valid JSON, matching this schema exactly. No prose, no markdown fences.
 
 {
+  "mode": "${mode}",
   "summary": {
     "generated": "string — the rewritten professional summary"
   },
@@ -300,8 +355,7 @@ function renderOutputFormat(): string {
     {
       "profile_experience_id": "string — the [id: ...] value from a REWRITABLE entry above, verbatim",
       "was_optimized": true,
-      "generated_bullets": ["string", "..."],
-      "claims": ["string — every discrete factual claim in generated_bullets, e.g. a number, standard, system or scope of responsibility, extracted verbatim from the bullet it appears in"]
+      "generated_bullets": ["string", "..."]
     }
   ],
   "skills_order": ["string — every skill id from the SKILLS section above, in relevance order for this target. Must contain every id exactly once. Never add, remove, or rename a skill."]
@@ -320,29 +374,58 @@ export function buildOptimizationPrompt(
 ): BuiltPrompt {
   const persona = getPersona(target.target_industry ?? '')
   const levelInstruction = LEVEL_INSTRUCTIONS[level]
+  const mode = resolveOptimizationMode(jobDescription)
 
-  const system = [persona, GROUNDING_INSTRUCTION, GULF_FORMAT_NOTE, levelInstruction].join(
-    '\n\n',
-  )
+  const system = [
+    persona,
+    GROUNDING_INSTRUCTION,
+    SCOPE_NOTE,
+    GULF_FORMAT_NOTE,
+    levelInstruction,
+  ].join('\n\n')
 
   const jobMatchSection = renderJobMatchFindings(jobMatchCategories)
 
   const user = [
-    renderCareerProfile(profile, selectedBlocks),
-    '## TARGET\n' + renderTarget(target),
-    '## JOB DESCRIPTION\n' + renderJobDescription(jobDescription),
-    ...(jobMatchSection ? [jobMatchSection] : []),
-    '## OUTPUT FORMAT\n' + renderOutputFormat(),
+    '=========================================================\n' +
+      'BLOCK 1 — CANDIDATE FACTS   [the only source of truth]\n' +
+      '=========================================================\n' +
+      renderCareerProfile(profile, selectedBlocks),
+
+    '=========================================================\n' +
+      'BLOCK 2 — TARGET CONTEXT   [application metadata, NOT candidate evidence]\n' +
+      '=========================================================\n' +
+      renderTarget(target),
+
+    '=========================================================\n' +
+      'BLOCK 3 — EMPLOYER REQUIREMENTS   [relevance guidance ONLY]\n' +
+      '=========================================================\n' +
+      renderEmployerRequirements(mode, jobDescription),
+
+    ...(jobMatchSection
+      ? [
+          '=========================================================\n' +
+            'BLOCK 4 — ANALYSIS FINDINGS   [derived guidance ONLY, not evidence]\n' +
+            '=========================================================\n' +
+            jobMatchSection,
+        ]
+      : []),
+
+    '=========================================================\n' +
+      'BLOCK 5 — OUTPUT INSTRUCTIONS\n' +
+      '=========================================================\n' +
+      renderOutputFormat(mode),
   ].join('\n\n')
 
-  return { system, user }
+  return { system, user, mode }
 }
 
 /**
- * docs/PROMPTS.md §4. The instruction fragment for each level is inserted
- * VERBATIM (LEVEL_INSTRUCTION_TEXT, byte-checked against the doc in
- * scripts — see the commit message). The "LEVEL: X." line is a label added
- * around it for clarity; it is not part of the verbatim fragment itself.
+ * docs/PROMPTS.md §4. Each fragment is inserted VERBATIM and is byte-checked by
+ * scripts/verify-optimization-grounding.ts. Levels change how much rewriting
+ * happens. They never change the grounding standard — the sentence added to
+ * each in 2026-09-16 says so in the same breath as the instruction, because
+ * "maximum reframing" read alone had been the strongest licence in the prompt.
  */
 const LEVEL_INSTRUCTION_TEXT: Record<OptimizationLevel, string> = {
   easy:
@@ -361,8 +444,15 @@ const LEVEL_INSTRUCTION_TEXT: Record<OptimizationLevel, string> = {
     'vocabulary.',
 }
 
+const GROUNDING_IS_CONSTANT =
+  'This level controls how much you rewrite. It does not change what you are ' +
+  'allowed to say: the grounding rules above apply identically at every level.'
+
 const LEVEL_INSTRUCTIONS: Record<OptimizationLevel, string> = {
-  easy: `LEVEL: EASY.\n${LEVEL_INSTRUCTION_TEXT.easy}`,
-  moderate: `LEVEL: MODERATE.\n${LEVEL_INSTRUCTION_TEXT.moderate}`,
-  high: `LEVEL: HIGH.\n${LEVEL_INSTRUCTION_TEXT.high}`,
+  easy: `LEVEL: EASY.\n${LEVEL_INSTRUCTION_TEXT.easy}\n${GROUNDING_IS_CONSTANT}`,
+  moderate: `LEVEL: MODERATE.\n${LEVEL_INSTRUCTION_TEXT.moderate}\n${GROUNDING_IS_CONSTANT}`,
+  high: `LEVEL: HIGH.\n${LEVEL_INSTRUCTION_TEXT.high}\n${GROUNDING_IS_CONSTANT}`,
 }
+
+/** Exported for the offline suite's byte check against docs/PROMPTS.md §4. */
+export { LEVEL_INSTRUCTION_TEXT }

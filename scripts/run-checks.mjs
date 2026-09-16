@@ -31,6 +31,8 @@ const TS_CHECKS = [
   'verify-runtask.ts',
   'verify-safe-redirect.ts',
   'verify-photo-rehydration.ts',
+  'verify-optimization-grounding.ts',
+  'verify-sidebar-wrapping.ts',
   'verify-answer-grounding.ts',
   'verify-deadlines.ts',
   'verify-resume.ts',

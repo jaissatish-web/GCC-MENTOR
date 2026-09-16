@@ -8,7 +8,7 @@ import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
 import { appendPackageEventAtomic, insertPackageForUser, updatePackageServerFields } from '@/lib/packages/serverWrites'
 import { getTemplate } from '@/lib/templates'
-import { validateGrounding } from '@/lib/ai/validateGrounding'
+import { validateGrounding, partitionFailures } from '@/lib/ai/validateGrounding'
 import type { ValidationFailure } from '@/lib/ai/validateGrounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
 import {
@@ -214,9 +214,25 @@ function buildOptimizedContent(
   profile: CareerProfileFull,
   parsed: Record<string, unknown>,
   selectedBlocks: SelectedBlocks,
+  /**
+   * Blocks whose optimized text failed grounding after the corrective retry.
+   * Each one falls back to ITS OWN original profile text.
+   *
+   * Content can never cross entries here: the fallback is read from
+   * `sourceEntry`, which is looked up by the block's own id in the loop below,
+   * and a block whose id is unknown was already rejected as a structural
+   * failure before this function is reached.
+   */
+  fallback?: { summary: boolean; experienceIds: string[] },
 ): OptimizedContent {
   const summaryParsed = isObject(parsed.summary) ? parsed.summary : {}
-  const generatedSummary = typeof summaryParsed.generated === 'string' ? summaryParsed.generated : ''
+  const fallbackIds = new Set(fallback?.experienceIds ?? [])
+  // An empty generated summary makes buildResumeDocument fall through to
+  // profile.professional_summary, which is exactly the original text.
+  const generatedSummary =
+    fallback?.summary || typeof summaryParsed.generated !== 'string'
+      ? ''
+      : summaryParsed.generated
 
   const modelBlocksById = new Map<string, Record<string, unknown>>()
   if (Array.isArray(parsed.experience_blocks)) {
@@ -232,24 +248,35 @@ function buildOptimizedContent(
       const sourceEntry = profile.work_experience.find((e) => e.id === expId)
       if (!sourceEntry) return null // selected id not on this profile â€” skip, don't fabricate
       const modelBlock = modelBlocksById.get(expId)
-      const generatedBullets =
-        modelBlock && Array.isArray(modelBlock.generated_bullets)
+      const sourceBullets = sourceEntry.highlights ?? []
+      const usedFallback = fallbackIds.has(expId)
+      const generatedBullets = usedFallback
+        ? // This entry's own highlights, never another entry's.
+          sourceBullets
+        : modelBlock && Array.isArray(modelBlock.generated_bullets)
           ? (modelBlock.generated_bullets.filter((x) => typeof x === 'string') as string[])
           : []
+      // `claims` is no longer requested from the model (see
+      // lib/ai/buildOptimizationPrompt.ts). Written as an empty array so the
+      // shape of new rows matches the stored rows that still carry one.
       const claims =
         modelBlock && Array.isArray(modelBlock.claims)
           ? (modelBlock.claims.filter((x) => typeof x === 'string') as string[])
           : []
       return {
         profile_experience_id: expId,
-        was_optimized: true,
+        // A fallback block is the profile's own text, so it is not optimized
+        // content and the diff must not present it as a rewrite.
+        was_optimized: !usedFallback,
         generated_bullets: generatedBullets,
         user_edited_bullets: null,
-        source_bullets: sourceEntry.highlights ?? [],
+        source_bullets: sourceBullets,
         claims,
       }
     })
     .filter((b): b is ExperienceBlock => b !== null)
+
+  const usedFallback = Boolean(fallback?.summary) || fallbackIds.size > 0
 
   return {
     summary: {
@@ -258,6 +285,18 @@ function buildOptimizedContent(
       source_profile_summary: profile.professional_summary ?? '',
     },
     experience_blocks,
+    // Internal only. Never rendered, never returned to the client — it exists
+    // so a rising fallback rate is visible in the data rather than inferred
+    // from complaints. Omitted entirely when nothing fell back, so existing
+    // rows and new clean rows stay byte-identical in shape.
+    ...(usedFallback
+      ? {
+          fallback_used: {
+            summary: Boolean(fallback?.summary),
+            experience_ids: [...fallbackIds],
+          },
+        }
+      : {}),
   }
 }
 
@@ -622,7 +661,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (result.truncated) return { truncated: true, parsed: null, validation: null }
       const parsed = extractJsonObject(result.text)
       const parsedSkillsOrder = isObject(parsed) ? parsed.skills_order : undefined
-      const validation = validateGrounding(profile, parsed, parsedSkillsOrder)
+      // The advert is handed to the validator ONLY so an imported requirement
+      // (in the JD, absent from the profile) can be told apart from ordinary
+      // paraphrase. It is never a source of permitted facts.
+      const validation = validateGrounding(profile, parsed, parsedSkillsOrder, {
+        jobDescription,
+        strictNumerics: process.env.GROUNDING_STRICT_NUMERICS !== 'false',
+      })
       return { truncated: false, parsed, validation }
     }
 
@@ -677,15 +722,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    if (!attempt.validation.valid) {
+    // BLOCK-LEVEL FALLBACK (2026-09-16).
+    //
+    // Until now any surviving hard failure threw the whole resume away: the user
+    // paid, waited through the slowest call in the product, and got an error
+    // because one bullet in one role carried one number the profile did not
+    // support. Unchanged source text is better than that, and better than
+    // invented text.
+    //
+    // The split that makes this safe is STRUCTURAL vs CONTENT. A structural
+    // failure — unparseable JSON, a missing array, an invented employment id, a
+    // skills list that is not a permutation, a fixed field the model tried to
+    // own — leaves nothing trustworthy to keep, so it still returns an error.
+    // A content failure belongs to exactly one block, and that block falls back
+    // to its own original text.
+    const { structural, summary: summaryFailures, byExperienceId } = partitionFailures(
+      attempt.validation.failures,
+    )
+
+    if (structural.length > 0) {
       // NEVER return unvalidated output. Log IDs and reason only â€” never a
       // field value or the model's offendingValue (docs/RULES.md Â§3).
-      const reasons = attempt.validation.failures
-        .filter((f) => f.severity === 'hard')
-        .map((f) => `${f.code}@${f.path}`)
-        .join(',')
+      const reasons = structural.map((f) => `${f.code}@${f.path}`).join(',')
       console.error(
-        'optimize: validation failed twice user=' + user.id + ' profile=' + profileId + ' reasons=' + reasons,
+        'optimize: structural validation failed twice user=' + user.id + ' profile=' + profileId + ' reasons=' + reasons,
       )
       return NextResponse.json(
         { error: 'Could not produce a grounded result. Please try again or contact support.' },
@@ -693,8 +753,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
+    const fallbackExperienceIds = [...byExperienceId.keys()]
+    const fallbackSummary = summaryFailures.length > 0
+    if (fallbackSummary || fallbackExperienceIds.length > 0) {
+      // Codes only. No field values, no offendingValue (docs/RULES.md Â§3).
+      const codes = [...summaryFailures, ...[...byExperienceId.values()].flat()]
+        .map((f) => f.code)
+        .join(',')
+      console.warn(
+        'optimize: block fallback user=' + user.id + ' package=' + generatePackageId +
+          ' summary=' + fallbackSummary + ' blocks=' + fallbackExperienceIds.length + ' codes=' + codes,
+      )
+    }
+
     const parsedObj = isObject(attempt.parsed) ? attempt.parsed : {}
-    const optimized_content = buildOptimizedContent(profile, parsedObj, selectedBlocks)
+    const optimized_content = buildOptimizedContent(profile, parsedObj, selectedBlocks, {
+      summary: fallbackSummary,
+      experienceIds: fallbackExperienceIds,
+    })
     const skills_order = resolveSkillsOrder(profile, parsedObj.skills_order)
 
     // UPDATE, not insert: the row already exists and is already paid for. It is
@@ -719,6 +795,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       optimizedContent: optimized_content,
       skillsOrder: skills_order,
       fieldVisibility: profile.field_visibility,
+      // The APPLICATION's title, not the Career Profile's. The profile field is
+      // never written by this flow, so before 2026-09-16 every snapshot froze an
+      // empty headline.
+      targetJobTitle: targetFields.target_job_title,
     })
 
     // Server-derived fields go through the server writer (migration 050).

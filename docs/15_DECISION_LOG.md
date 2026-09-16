@@ -12,6 +12,53 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-16
+
+**The optimizer is universal, and the prompt says so in its structure.** Five
+labelled trust blocks replace four peer headings, so an employer's wish list can
+no longer arrive with the same authority as the candidate's own history. The
+four industry personas — which named Aramco, ADNOC and "Indian technology
+professionals" — became one profession-neutral perspective whose authority is
+stated as terminology and emphasis only. Old `target_industry` keys still
+resolve, so existing packages are untouched.
+
+**Two modes, derived from the job description, never stored.** A column would be
+a second source of truth for something `packages.job_description` already answers
+exactly. `target_title_only` is a real mode with its own instructions, not a
+degraded JD mode: it may rank and emphasise existing facts, and may not invent
+typical requirements or claim a vacancy match.
+
+**Unsourced numbers are hard failures.** They were flagged, and flags ship.
+Employment dates no longer count as source numbers — a role dated 2016 had been
+legitimising "2016" as a quantity. The summary is validated for the first time;
+it was previously checked only for being a string, and it is exactly where a
+stated duration gets inflated.
+
+**A failed block is no longer a failed resume.** Structural failures still
+return an error because nothing trustworthy survives them. Content failures fall
+back to that block's own original profile text, keeping every block that
+validated. Unchanged source text beats both invention and a total failure.
+
+**`claims` is no longer requested.** Free text, one entry per assertion, never
+read or validated by anything, paid for in output tokens on the slowest call in
+the product. Existing rows keep theirs (`claims?`). Real provenance is deferred:
+a quotation proves a substring exists, not that the sentence built on it means
+the same thing.
+
+**The resume headline was blank on every delivered CV.** `buildResumeDocument`
+read `profile.target_job_title`, a field the optimize flow never writes — the
+per-application title lives on the package row. Confirmed on production, where
+two packages held a real title, the profile held null, and both snapshots froze
+`targetJobTitle: ''`. New builds take the package title as an explicit input;
+existing snapshots get it at render time, the same trade the photo fix makes. No
+database rewrite.
+
+**Long skills were clipped in filled-sidebar templates.** A rail is 238px with
+22px padding, so a chip has 194px, and `white-space: nowrap` meant a long skill
+could not break and ran through the coloured edge. Measured after the fix in a
+real layout engine: widest chip exactly 194px, zero elements breaching the edge,
+across all three templates. The `nowrap` on date ranges is deliberate and kept.
+
 ## 2026-09-15 — Production hardening from the full SaaS audit
 
 **Founder request:** implement the required fixes from the full SaaS audit
