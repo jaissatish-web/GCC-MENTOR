@@ -19,6 +19,7 @@
  */
 
 import './resolve-paths'
+import { readFileSync } from 'node:fs'
 import { createElement } from 'react'
 // Templates are JSX; the repo's sucrase transform needs React in scope here,
 // exactly as scripts/verify-resume.ts does.
@@ -174,6 +175,24 @@ const railHtml = renderToStaticMarkup(
 )
 check('rail padding is unchanged', /padding:\s*30px 22px/.test(railHtml))
 check('rail width is unchanged', /width:\s*238px/.test(railHtml))
+
+console.log('\nThe band header cannot be pulled above the printed page')
+// Regression guard for the sliced header (founder report, 2026-09-16). A band
+// template cancels the page's 38px top padding with an equal negative top
+// margin so its colour bleeds to the edge on screen. The PDF route removes that
+// padding in print; if the negative margin survives, the band and the top half
+// of the name are pulled above the page box and clipped by the paper edge.
+// Measured before the fix: header at -38px, name at -19px, both off-paper.
+const pdfRoute = readFileSync('app/api/packages/[id]/pdf/route.ts', 'utf8')
+const printBlock = pdfRoute.slice(pdfRoute.indexOf('@media print'))
+check(
+  'print CSS zeroes the page top padding',
+  /#resume-render\s*\{[^}]*padding-top:\s*0/.test(printBlock),
+)
+check(
+  'print CSS also zeroes the band header negative top margin',
+  /#resume-render\s*>\s*header\s*\{[^}]*margin-top:\s*0/.test(printBlock),
+)
 
 if (failures > 0) {
   console.error(`\n${failures} check(s) failed`)

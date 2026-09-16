@@ -274,6 +274,24 @@ export async function GET(request: NextRequest, props0: { params: Promise<{ id: 
         padding-bottom: 0 !important;
         min-height: 0 !important;
       }
+      /*
+       * THE BAND HEADER'S NEGATIVE TOP MARGIN MUST GO WITH THE PADDING.
+       *
+       * A band template bleeds its colour block to the page edge on screen by
+       * cancelling the element's 38px top padding with an equal negative top
+       * margin. The rule above removes that padding in print - but the negative
+       * margin stayed, so the band was pulled 38px ABOVE the page box and the
+       * paper edge clipped it. The band paints from where it lands; the name
+       * does not move with it, so the top half of the name rendered white on
+       * white above the colour and the header looked sliced. Reported by the
+       * founder on 2026-09-16 with a downloaded PDF showing exactly that.
+       *
+       * Zeroing it here keeps the band flush with the top of the printed
+       * content area and its horizontal bleed intact.
+       */
+      #resume-render > header {
+        margin-top: 0 !important;
+      }
     }
   </style>
 </head>

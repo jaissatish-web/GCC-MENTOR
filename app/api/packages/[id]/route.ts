@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PACKAGE_STATUSES } from '@/lib/utils'
 import { TEMPLATES, isTemplateId } from '@/lib/templates'
 import { applyContentEditsToDocument } from '@/lib/resumeDocument'
+import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
 import { parseStyleOverrides, type ResumeStyleOverrides } from '@/lib/resumeStyle'
 import { appendPackageEventAtomic, updatePackageServerFields } from '@/lib/packages/serverWrites'
 import type { PackageServiceEventType } from '@/types/package'
@@ -213,7 +214,29 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
 
-  return NextResponse.json({ package: pkg as Package })
+  // THE SNAPSHOT STORES A STORAGE PATH, NOT A URL.
+  //
+  // document_snapshot.header.photoUrl is an object path (migration 032), the
+  // same as career_profiles.photo_url. The PDF route signs it before handing it
+  // to Chromium; the on-screen preview did not, so every template rendered
+  // <img src="<uuid>/photo.jpg"> and showed no photo at all - while the same
+  // resume downloaded with the photo present. That is exactly the founder report
+  // of 2026-09-16: no photo in the template preview, photo after download.
+  //
+  // Signing it here fixes every on-screen consumer at once - the package screen,
+  // the template picker thumbnails and the edit view - and keeps the preview
+  // showing the SAME photo the PDF will print, because it signs the snapshot's
+  // own path rather than substituting whatever the profile holds today.
+  const snapshot = (pkg as { document_snapshot?: ResumeDocument | null }).document_snapshot ?? null
+  const snapshotPhoto = snapshot?.header?.photoUrl ?? null
+  const withSignedPhoto =
+    snapshot && snapshotPhoto && !/^https?:\/\//i.test(snapshotPhoto)
+      ? { ...snapshot, header: { ...snapshot.header, photoUrl: await signedPhotoUrl(snapshotPhoto) } }
+      : snapshot
+
+  return NextResponse.json({
+    package: { ...(pkg as Package), document_snapshot: withSignedPhoto } as Package,
+  })
 }
 
 export async function PATCH(request: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
