@@ -313,3 +313,40 @@ Pushing the two commits above (`aaf9294`) produced the same split. GitHub CI run
 passes on both, which is what an environment-level cause looks like and is not what a
 code-level cause looks like — but it still is not the build log, and the cause above is
 still formally unconfirmed. Reading that log remains the first required action.
+
+### What the inspect attempt actually returned
+
+The `npx vercel inspect --logs` run completed, but it returned **no build log**. Its entire
+output was the CLI installing itself and then:
+
+```
+> No existing credentials found. Starting login flow...
+  Visit https://vercel.com/oauth/device?user_code=...
+Waiting for authentication...
+Error: expired_token: Device code has expired.
+```
+
+No Vercel credentials exist on this machine: the `com.vercel.cli` folders hold only empty
+`Cache/` and `Data/` directories, there is no `auth.json`, and no token is set in the
+environment. GitHub holds no copy of the error either — the commit status, the deployment
+status and the check-runs API all return the same detail-free "Deployment has failed"
+line, and the Vercel bot left no commit comment.
+
+**The failure stage, route and message on Vercel therefore remain unknown, and no
+deployment fix has been made.** The `/cover-letter` prerender reproduction recorded above
+is still the leading hypothesis and nothing more. Writing a fix against it would be
+guessing at a cause nobody has read, and if the guess were wrong it would add a change to
+this branch that no failure justified. The unblock is one step and needs the founder:
+`npx vercel login`, complete the device prompt while it is still valid, then
+`npx vercel inspect dpl_8rCUatpyFggGkcmUqtgqiJuhcezv --logs`.
+
+### The redirect validator is now reviewable text — verified
+
+After `5659e95`, `lib/safeRedirect.ts` is 3488 bytes containing **zero** NUL and zero DEL
+bytes. Git now diffs it as text: a probe edit produces a line-level `2 2` numstat and a
+normal `-`/`+` hunk, where the pre-fix blob produced "Binary files differ" and a `- -`
+numstat. GitHub will therefore render both the file and its future diffs normally, which
+is the whole point of the change. All **35** assertions in
+`scripts/verify-safe-redirect.ts` pass, including the control-character cases — tab,
+newline, NUL — that the escaped class exists to reject. Validation behaviour is identical;
+only the way the two bytes are spelled in source has changed.
