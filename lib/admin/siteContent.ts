@@ -44,9 +44,34 @@ function map(r: Record<string, unknown>): SiteContent {
   }
 }
 
+/**
+ * The service-role client throws when `NEXT_PUBLIC_SUPABASE_URL` or
+ * `SUPABASE_SERVICE_ROLE_KEY` is absent, and these reads run during the
+ * production build: `AppFooter` asks for the published legal links on every
+ * page, so `next build` prerenders `/` straight into "Error: supabaseUrl is
+ * required." in any environment that has no Supabase settings. That is exactly
+ * how the Vercel preview for `b681148` failed, while CI (placeholder values)
+ * and production (real values) both built.
+ *
+ * Returning null lets each caller take the SAME "no content" path it already
+ * takes when the query itself fails, instead of taking the build down. With
+ * the settings present nothing changes at all.
+ *
+ * Reads only. `saveSiteContent` still constructs the client directly: an admin
+ * write that silently did nothing would be worse than one that fails loudly.
+ */
+function serviceClientIfConfigured() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('site_content read skipped: no Supabase configuration in this environment')
+    return null
+  }
+  return createServiceRoleClient({ fresh: true })
+}
+
 /** Every row, published or not — the admin editor's view. */
 export async function listSiteContent(): Promise<SiteContent[]> {
-  const supabase = createServiceRoleClient({ fresh: true })
+  const supabase = serviceClientIfConfigured()
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('site_content')
     .select('slug, title, body, published, updated_at')
@@ -66,7 +91,8 @@ export async function listSiteContent(): Promise<SiteContent[]> {
  * is worse than a 404 — it looks like the policy says nothing.
  */
 export async function getPublishedPage(slug: string): Promise<SiteContent | null> {
-  const supabase = createServiceRoleClient({ fresh: true })
+  const supabase = serviceClientIfConfigured()
+  if (!supabase) return null
   const { data, error } = await supabase
     .from('site_content')
     .select('slug, title, body, published, updated_at')
@@ -80,7 +106,8 @@ export async function getPublishedPage(slug: string): Promise<SiteContent | null
 
 /** What the footer is allowed to link to. Never guesses; asks. */
 export async function listPublishedLegal(): Promise<Array<{ slug: string; title: string }>> {
-  const supabase = createServiceRoleClient({ fresh: true })
+  const supabase = serviceClientIfConfigured()
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('site_content')
     .select('slug, title, body')
