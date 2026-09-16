@@ -289,7 +289,10 @@ function renderSkills(
     <Section theme={theme} title={title}>
       {theme.skillStyle === 'chips' ? (
         // Pills, never bars — see the SkillStyle note. No proficiency is claimed.
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+        // minWidth: 0 lets a chip shrink below its content width inside a
+        // narrow rail; without it the flex item refuses to compress and the
+        // overflow reappears however the chip itself is styled.
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', minWidth: 0 }}>
           {skills.map((s) => (
             <span
               key={s.id}
@@ -301,7 +304,19 @@ function renderSkills(
                 border: `1px solid ${theme.rule}`,
                 borderRadius: '9px',
                 padding: '1px 7px',
-                whiteSpace: 'nowrap',
+                // A filled-sidebar rail is 238px wide with 22px padding each
+                // side, so a chip has 194px. `whiteSpace: nowrap` meant a long
+                // skill - "Honeywell Experion PKS Distributed Control System" -
+                // could not break and ran straight through the coloured edge,
+                // clipped. Wrapping inside the chip keeps the pill intact and
+                // the rail's padding untouched; `anywhere` is what breaks a
+                // single unbroken technical string, which `break-word` alone
+                // will not do.
+                maxWidth: '100%',
+                minWidth: 0,
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word',
+                lineHeight: 1.35,
               }}
             >
               {s.name}
@@ -309,7 +324,9 @@ function renderSkills(
           ))}
         </div>
       ) : (
-        <p style={{ ...body, margin: 0 }}>{skills.map((s) => s.name).join(' · ')}</p>
+        <p style={{ ...body, margin: 0, overflowWrap: 'anywhere' }}>
+          {skills.map((s) => s.name).join(' · ')}
+        </p>
       )}
     </Section>
   )
