@@ -4,46 +4,39 @@ import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { buildMockInterviewStartPrompt } from '@/lib/ai/buildMockInterviewPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
 import { normalizeMockInterviewQuestions, validateMockInterviewStart } from '@/lib/ai/validateMockInterview'
-import { appendPackageEvent } from '@/lib/packageEvents'
-import type {
-  CareerProfile,
-  CareerProfileFull,
-  ProfileAdditionalInformation,
-  ProfileCertification,
-  ProfileEducation,
-  ProfileSkill,
-  ProfileWorkExperience,
-} from '@/types/careerProfile'
-import type {
-  MockInterviewDifficulty,
-  MockInterviewMode,
-  MockInterviewRun,
-  OptimizedContent,
-} from '@/types/package'
+import { allowedNumbersFor, resumeDocumentTexts, unsourcedNumbers } from '@/lib/ai/answerGrounding'
+import { reserveAiAction } from '@/lib/ai/serviceGuard'
+import { LIMIT_ACTION_MOCK_START } from '@/lib/rateLimit'
+import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
+import { appendMockRunAtomic } from '@/lib/packages/serverWrites'
+import type { MockInterviewDifficulty, MockInterviewMode, MockInterviewRun, OptimizedContent } from '@/types/package'
 
-export const maxDuration = 120
+/**
+ * POST /api/packages/[id]/mock-interview/start — plan a text mock interview.
+ *
+ * 2026-09-15 remediation (audit H03, H04, H09, M04, M05; review finding X01):
+ * quota + pause guard, one deadline inside the function's ceiling, the saved CV
+ * as primary source, a fail-loud profile read, a real number check on the
+ * "ideal answer points" (they are what the user is coached to say), and an
+ * atomic append of the new run. Starting again never touches a completed run:
+ * each attempt is its own run, and completed reports stay as they were.
+ */
+
+export const maxDuration = 180
+const DEADLINE_MS = 150_000
+const MIN_REPAIR_MS = 60_000
 
 const MODES: MockInterviewMode[] = ['hr', 'technical', 'gulf_readiness', 'manager', 'mixed']
 const DIFFICULTIES: MockInterviewDifficulty[] = ['standard', 'strong', 'challenging']
 const COUNTS = [5, 10, 15]
-const CHILD_TABLES = [
-  'profile_work_experience',
-  'profile_skills',
-  'profile_certifications',
-  'profile_education',
-  'profile_additional_information',
-] as const
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
 }
 
-function safeDetail(error: unknown): string {
-  if (error instanceof AiTaskError) return `${error.kind}: ${error.detail ?? error.message}`
-  return error instanceof Error ? error.message : String(error)
-}
-
-export async function POST(request: Request, { params }: { params: { id: string } }): Promise<NextResponse> {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const startedAt = Date.now()
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { user },
@@ -63,12 +56,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot, mock_interview_runs, service_events',
+      'id, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
     .maybeSingle()
-
   if (pkgError) {
     console.error('mock-interview start: package lookup error user=' + user.id + ' pkg=' + packageId, pkgError.message)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -79,38 +71,20 @@ export async function POST(request: Request, { params }: { params: { id: string 
     return NextResponse.json({ error: 'Build the optimized resume before starting a mock interview.' }, { status: 400 })
   }
 
-  const { data: profileRow, error: profileError } = await supabase
-    .from('career_profiles')
-    .select('*')
-    .eq('id', pkgRow.profile_id)
-    .eq('user_id', user.id)
-    .maybeSingle()
-  if (profileError) {
-    console.error('mock-interview start: profile lookup error user=' + user.id + ' pkg=' + packageId, profileError.message)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  let profile
+  try {
+    profile = await loadCareerProfileFull(supabase, pkgRow.profile_id as string, user.id)
+  } catch (e) {
+    if (e instanceof ProfileLoadError) {
+      console.error('mock-interview start: incomplete profile read user=' + user.id + ' table=' + e.table)
+      return NextResponse.json(
+        { error: 'We could not read your full Career Profile just now. Nothing was used — please try again.' },
+        { status: 503 },
+      )
+    }
+    throw e
   }
-  if (!profileRow) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
-
-  const fetchChildren = async (table: (typeof CHILD_TABLES)[number]): Promise<unknown[]> => {
-    const { data } = await supabase.from(table).select('*').eq('profile_id', pkgRow.profile_id)
-    return (data as unknown[] | null) ?? []
-  }
-  const [work_experience, skills, certifications, education, additional_information] = await Promise.all([
-    fetchChildren('profile_work_experience'),
-    fetchChildren('profile_skills'),
-    fetchChildren('profile_certifications'),
-    fetchChildren('profile_education'),
-    fetchChildren('profile_additional_information'),
-  ])
-
-  const profile: CareerProfileFull = {
-    ...(profileRow as CareerProfile),
-    work_experience: work_experience as ProfileWorkExperience[],
-    skills: skills as ProfileSkill[],
-    certifications: certifications as ProfileCertification[],
-    education: education as ProfileEducation[],
-    additional_information: additional_information as ProfileAdditionalInformation[],
-  }
+  if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
   const snapshot = pkgRow.document_snapshot
   const resume: ResumeDocument =
@@ -120,99 +94,131 @@ export async function POST(request: Request, { params }: { params: { id: string 
           profile,
           optimizedContent,
           skillsOrder: (pkgRow.skills_order as string[] | null) ?? [],
-          fieldVisibility: pkgRow.field_visibility_snapshot ?? null,
+          fieldVisibility: (pkgRow.field_visibility_snapshot as Record<string, boolean> | null) ?? null,
         })
 
-  const prompt = buildMockInterviewStartPrompt(
-    profile,
-    resume,
-    {
-      target_job_title: pkgRow.target_job_title,
-      target_country: pkgRow.target_country,
-      target_company: pkgRow.target_company,
-      target_industry: pkgRow.target_industry,
-    },
-    pkgRow.job_description,
-    { mode, difficulty, questionCount },
-  )
+  const allowed = allowedNumbersFor(profile, [
+    ...resumeDocumentTexts(resume),
+    pkgRow.job_description as string | null,
+    pkgRow.target_job_title as string | null,
+    pkgRow.target_company as string | null,
+  ])
 
-  let normalized
-  let openingNote = ''
+  const reservation = await reserveAiAction({
+    userId: user.id,
+    action: LIMIT_ACTION_MOCK_START,
+    phone: profile.phone,
+    email: profile.email,
+    ttlSeconds: 210,
+  })
+  if (!reservation.ok) {
+    return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
+  }
+
+  let succeeded = false
   try {
-    const result = await runAiTask({
-      service: 'mock_interview',
-      route: '/api/packages/[id]/mock-interview/start',
-      userId: user.id,
-      persona: prompt.persona,
-      instructions: prompt.instructions,
-      input: prompt.input,
-      grounding: {
-        mode: 'enforced',
-        profile,
-        check: (_profile, output) => {
-          const failures = validateMockInterviewStart(output, questionCount)
-          return { valid: failures.length === 0, failures: failures.map((detail) => ({ detail })) }
+    const prompt = buildMockInterviewStartPrompt(
+      profile,
+      resume,
+      {
+        target_job_title: pkgRow.target_job_title as string,
+        target_country: pkgRow.target_country as MockInterviewRun['target_country'],
+        target_company: pkgRow.target_company as string | null,
+        target_industry: pkgRow.target_industry as string | null,
+      },
+      pkgRow.job_description as string | null,
+      { mode, difficulty, questionCount },
+    )
+
+    let normalized
+    let openingNote = ''
+    try {
+      const result = await runAiTask({
+        service: 'mock_interview',
+        route: '/api/packages/[id]/mock-interview/start',
+        userId: user.id,
+        persona: prompt.persona,
+        instructions: prompt.instructions,
+        input: prompt.input,
+        grounding: {
+          mode: 'enforced',
+          profile,
+          check: (_profile, output) => {
+            const qs = isRecord(output) && Array.isArray(output.questions) ? output.questions : []
+            const failures: Array<{ detail: string; offendingValue?: string }> = []
+            qs.forEach((q, i) => {
+              const points = isRecord(q) && Array.isArray(q.ideal_answer_points) ? q.ideal_answer_points : []
+              for (const p of points) {
+                const values = typeof p === 'string' ? unsourcedNumbers(p, allowed) : []
+                if (values.length > 0) {
+                  failures.push({
+                    detail: `questions[${i}].ideal_answer_points states a number that is not in the profile, CV or job advert`,
+                    offendingValue: values.join(', '),
+                  })
+                }
+              }
+            })
+            return { valid: failures.length === 0, failures }
+          },
         },
-      },
-      validateShape: (output) => {
-        const failures = validateMockInterviewStart(output, questionCount)
-        return failures.length ? failures.slice(0, 5).join('; ') : null
-      },
-      maxTokens: 3500,
-      temperature: 0.2,
-      repairAttempts: 1,
-    })
-    openingNote = String((result.value as { opening_note?: unknown }).opening_note ?? '').trim()
-    normalized = normalizeMockInterviewQuestions(result.value)
-  } catch (error) {
-    console.error('mock-interview start: AI call failed user=' + user.id + ' pkg=' + packageId, safeDetail(error))
-    return NextResponse.json({ error: 'Could not start the mock interview. Please try again.' }, { status: 502 })
-  }
+        validateShape: (output) => {
+          const failures = validateMockInterviewStart(output, questionCount)
+          return failures.length ? failures.slice(0, 5).join('; ') : null
+        },
+        maxTokens: 3500,
+        temperature: 0.2,
+        repairAttempts: 1,
+        deadlineAt: startedAt + DEADLINE_MS,
+        minRepairMs: MIN_REPAIR_MS,
+      })
+      openingNote = String((result.value as { opening_note?: unknown }).opening_note ?? '').trim()
+      normalized = normalizeMockInterviewQuestions(result.value)
+    } catch (error) {
+      console.error(
+        'mock-interview start: AI call failed user=' + user.id + ' pkg=' + packageId,
+        error instanceof AiTaskError ? `${error.kind}: ${error.detail ?? error.message}` : String(error),
+      )
+      return NextResponse.json({ error: 'Could not start the mock interview. Nothing was used — please try again.' }, { status: 502 })
+    }
 
-  const run: MockInterviewRun = {
-    id: crypto.randomUUID(),
-    generated_at: new Date().toISOString(),
-    completed_at: null,
-    target_job_title: pkgRow.target_job_title,
-    target_company: pkgRow.target_company,
-    target_country: pkgRow.target_country,
-    mode,
-    difficulty,
-    question_count: questionCount,
-    current_index: 0,
-    status: 'in_progress',
-    opening_note: openingNote || 'Your mock interview is ready.',
-    questions: normalized.map((q) => ({
+    const run: MockInterviewRun = {
       id: crypto.randomUUID(),
-      ...q,
-      answer: null,
-      feedback: null,
-      better_answer: null,
-      follow_up: null,
-      score: null,
-      answered_at: null,
-    })),
-    final_report: null,
+      generated_at: new Date().toISOString(),
+      completed_at: null,
+      target_job_title: pkgRow.target_job_title as string,
+      target_company: pkgRow.target_company as string | null,
+      target_country: pkgRow.target_country as MockInterviewRun['target_country'],
+      mode,
+      difficulty,
+      question_count: questionCount,
+      current_index: 0,
+      status: 'in_progress',
+      opening_note: openingNote || 'Your mock interview is ready.',
+      questions: normalized.map((q) => ({
+        id: crypto.randomUUID(),
+        ...q,
+        answer: null,
+        feedback: null,
+        better_answer: null,
+        follow_up: null,
+        score: null,
+        answered_at: null,
+      })),
+      final_report: null,
+    }
+
+    let saved: boolean
+    try {
+      saved = await appendMockRunAtomic({ packageId, userId: user.id, run })
+    } catch (e) {
+      console.error('mock-interview start: save failed user=' + user.id + ' pkg=' + packageId, e instanceof Error ? e.message : String(e))
+      return NextResponse.json({ error: 'The interview was created but could not be saved. Please try again.' }, { status: 500 })
+    }
+    if (!saved) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+
+    succeeded = true
+    return NextResponse.json({ success: true, run })
+  } finally {
+    await reservation.finish(succeeded)
   }
-
-  const existing = Array.isArray(pkgRow.mock_interview_runs) ? (pkgRow.mock_interview_runs as MockInterviewRun[]) : []
-  const { error: updateError } = await supabase
-    .from('packages')
-    .update({
-      mock_interview_runs: [...existing, run],
-      service_events: appendPackageEvent(pkgRow.service_events, 'mock_interview_started', 'Mock interview started', {
-        mode,
-        difficulty,
-        question_count: questionCount,
-      }),
-    })
-    .eq('id', packageId)
-    .eq('user_id', user.id)
-
-  if (updateError) {
-    console.error('mock-interview start: save failed user=' + user.id + ' pkg=' + packageId, updateError.message)
-    return NextResponse.json({ error: 'The interview was created but could not be saved. Please try again.' }, { status: 500 })
-  }
-
-  return NextResponse.json({ success: true, run })
 }

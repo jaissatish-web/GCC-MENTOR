@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { type GulfPremiumProps } from '@/components/templates/GulfPremium'
 import { getTemplate } from '@/lib/templates'
 import { readStyleOverrides } from '@/lib/resumeStyle'
-import { appendPackageEvent } from '@/lib/packageEvents'
+import { appendPackageEventAtomic } from '@/lib/packages/serverWrites'
 // No access helper is imported while the locks are off — the route does not gate.
 // See lib/resumeKind.ts for the rule to restore.
 import type { ResumeDocument } from '@/lib/resumeDocument'
@@ -69,10 +69,8 @@ const CHILD_TABLES = [
   'profile_additional_information',
 ] as const
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function GET(request: NextRequest, props0: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props0.params;
   const supabase = await createClient()
   const {
     data: { user },
@@ -301,17 +299,16 @@ export async function GET(
         .replace(/\s+/g, '_')
         .trim() || 'resume'
 
-    await supabase
-      .from('packages')
-      .update({
-        service_events: appendPackageEvent(
-          (pkgRow as { service_events?: unknown }).service_events,
-          'pdf_downloaded',
-          'PDF downloaded',
-        ),
-      })
-      .eq('id', packageId)
-      .eq('user_id', user.id)
+    // Service history, written atomically (migration 050) and de-duplicated: a
+    // re-download within ten minutes adds no second event. A failure to record
+    // history never blocks the download the user asked for.
+    await appendPackageEventAtomic({
+      packageId,
+      userId: user.id,
+      type: 'pdf_downloaded',
+      label: 'PDF downloaded',
+      dedupeSeconds: 600,
+    }).catch((e) => console.error('pdf: history event not recorded pkg=' + packageId, e instanceof Error ? e.message : String(e)))
 
     return new NextResponse(Buffer.from(pdf), {
       headers: {

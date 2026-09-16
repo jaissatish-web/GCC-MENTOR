@@ -4,7 +4,8 @@ import { PACKAGE_STATUSES } from '@/lib/utils'
 import { TEMPLATES, isTemplateId } from '@/lib/templates'
 import { applyContentEditsToDocument } from '@/lib/resumeDocument'
 import { parseStyleOverrides, type ResumeStyleOverrides } from '@/lib/resumeStyle'
-import { appendPackageEvent } from '@/lib/packageEvents'
+import { appendPackageEventAtomic, updatePackageServerFields } from '@/lib/packages/serverWrites'
+import type { PackageServiceEventType } from '@/types/package'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
 
@@ -34,6 +35,24 @@ import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
  */
 const VALID_STATUSES = PACKAGE_STATUSES.map((s) => s.value) as PackageStatus[]
 
+/**
+ * Service-history events are appended atomically AFTER the edit they describe
+ * (migration 050) — never read, extended in memory and written back, which lost
+ * events when two tabs saved together (audit H04). A failure to record history
+ * is logged and never undoes the user's edit.
+ */
+async function recordEvents(
+  packageId: string,
+  userId: string,
+  events: Array<{ type: PackageServiceEventType; label: string; meta?: Record<string, unknown> }>,
+): Promise<void> {
+  for (const e of events) {
+    await appendPackageEventAtomic({ packageId, userId, type: e.type, label: e.label, meta: e.meta }).catch((err) =>
+      console.error('packages: history event not recorded pkg=' + packageId, err instanceof Error ? err.message : String(err)),
+    )
+  }
+}
+
 function nullableText(value: unknown, max: number, field: string): string | null | NextResponse {
   if (value === null || value === undefined) return null
   if (typeof value !== 'string') return NextResponse.json({ error: `Invalid field: ${field}` }, { status: 400 })
@@ -50,10 +69,8 @@ function nullableDate(value: unknown, field: string): string | null | NextRespon
   return field === 'application_deadline' ? value.slice(0, 10) : date.toISOString()
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { user },
@@ -95,21 +112,14 @@ export async function PUT(
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
 
+  // The stage is user-editable metadata: written with the user's own session
+  // (column grant, migration 050), so RLS still applies.
   const { data: updated, error } = await supabase
     .from('packages')
-    .update({
-      status: status as PackageStatus,
-      service_events:
-        current.status === status
-          ? current.service_events
-          : appendPackageEvent(current.service_events, 'status_changed', `Status changed to ${status}`, {
-              from: current.status,
-              to: status,
-            }),
-    })
+    .update({ status: status as PackageStatus })
     .eq('id', packageId)
     .eq('user_id', user.id)
-    .select('id, status, service_events')
+    .select('id, status')
     .maybeSingle()
 
   if (error) {
@@ -120,13 +130,23 @@ export async function PUT(
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
 
-  return NextResponse.json({ ok: true, package: updated })
+  if (current.status !== status) {
+    await recordEvents(packageId, user.id, [
+      { type: 'status_changed', label: `Status changed to ${status}`, meta: { from: current.status, to: status } },
+    ])
+  }
+  const { data: fresh } = await supabase
+    .from('packages')
+    .select('id, status, service_events')
+    .eq('id', packageId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  return NextResponse.json({ ok: true, package: fresh ?? updated })
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { user },
@@ -161,10 +181,8 @@ export async function DELETE(
   return NextResponse.json({ ok: true })
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { user },
@@ -198,10 +216,8 @@ export async function GET(
   return NextResponse.json({ package: pkg as Package })
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { user },
@@ -331,7 +347,6 @@ export async function PATCH(
     application_deadline?: string | null
     interview_date?: string | null
     application_notes?: string | null
-    service_events?: unknown
   } = {}
   if (b.styleOverrides !== undefined) {
     const parsedStyle = parseStyleOverrides(b.styleOverrides)
@@ -380,17 +395,15 @@ export async function PATCH(
   const trackerChanged = ['job_url', 'application_deadline', 'interview_date', 'application_notes'].some((key) =>
     Object.prototype.hasOwnProperty.call(metaUpdate, key),
   )
-  let nextServiceEvents = pkg.service_events
-  if (trackerChanged) {
-    nextServiceEvents = appendPackageEvent(nextServiceEvents, 'tracker_updated', 'Application tracker updated')
-  }
+  const pendingEvents: Array<{ type: PackageServiceEventType; label: string; meta?: Record<string, unknown> }> = []
+  if (trackerChanged) pendingEvents.push({ type: 'tracker_updated', label: 'Application tracker updated' })
   if (metaUpdate.status && metaUpdate.status !== pkg.status) {
-    nextServiceEvents = appendPackageEvent(nextServiceEvents, 'status_changed', `Status changed to ${metaUpdate.status}`, {
-      from: pkg.status,
-      to: metaUpdate.status,
+    pendingEvents.push({
+      type: 'status_changed',
+      label: `Status changed to ${metaUpdate.status}`,
+      meta: { from: pkg.status, to: metaUpdate.status },
     })
   }
-  if (nextServiceEvents !== pkg.service_events) metaUpdate.service_events = nextServiceEvents
 
   const hasMeta = Object.keys(metaUpdate).length > 0
 
@@ -406,20 +419,30 @@ export async function PATCH(
   // Metadata-only changes (rename, status, template) never touch the document.
   // Rewriting optimized_content for a rename would put a paid resume's words
   // through a read-modify-write for no reason at all.
+  //
+  // Every column here is user-editable metadata, so the user's own session
+  // writes it (column grants, migration 050) and RLS still applies.
   if (Object.keys(summaryEdit).length === 0 && blockEdits.length === 0) {
     const { data: metaRow, error: metaErr } = await supabase
       .from('packages')
       .update({ ...(templateUpdate ?? {}), ...metaUpdate })
       .eq('id', packageId)
       .eq('user_id', user.id)
-      .select('id, name, status, template_id, template_version, style_overrides, job_url, application_deadline, interview_date, application_notes, service_events')
+      .select('id')
       .maybeSingle()
     if (metaErr) {
       console.error('packages patch meta failed user=' + user.id + ' pkg=' + packageId, metaErr.message)
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
     if (!metaRow) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
-    return NextResponse.json({ ok: true, package: metaRow })
+    await recordEvents(packageId, user.id, pendingEvents)
+    const { data: fresh } = await supabase
+      .from('packages')
+      .select('id, name, status, template_id, template_version, style_overrides, job_url, application_deadline, interview_date, application_notes, service_events')
+      .eq('id', packageId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    return NextResponse.json({ ok: true, package: fresh ?? metaRow })
   }
 
 
@@ -500,21 +523,23 @@ export async function PATCH(
     ? { document_snapshot: applyContentEditsToDocument(existingSnapshot, oc) }
     : {}
 
-  const { data: updated, error: updateErr } = await supabase
-    .from('packages')
-    .update({ optimized_content: oc, ...snapshotUpdate, ...(templateUpdate ?? {}), ...metaUpdate })
-    .eq('id', packageId)
-    .eq('user_id', user.id)
-    .select('id')
-    .maybeSingle()
+  // The document's content is server-owned (migration 050): the user's edit has
+  // been validated and merged above, and is written through the server writer,
+  // scoped to this user's package.
+  const { row: updated, error: updateErr } = await updatePackageServerFields({
+    packageId,
+    userId: user.id,
+    fields: { optimized_content: oc, ...snapshotUpdate, ...(templateUpdate ?? {}), ...metaUpdate },
+  })
 
   if (updateErr) {
-    console.error('packages patch update error user=' + user.id + ' pkg=' + packageId, updateErr.message)
+    console.error('packages patch update error user=' + user.id + ' pkg=' + packageId, updateErr)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
   if (!updated) {
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
 
+  await recordEvents(packageId, user.id, pendingEvents)
   return NextResponse.json({ ok: true })
 }
