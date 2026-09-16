@@ -32,6 +32,7 @@ import {
   getClientIdentityHash,
   LIMIT_ACTION_ANON_ATS_SCAN,
 } from '@/lib/anonymousRateLimit'
+import { isServicePaused } from '@/lib/ai/serviceGuard'
 import { SESSION_COOKIE_NAME, upsertAnonymousSession } from '@/lib/anonymousSession'
 import { extractPdfText } from '@/lib/pdfTextExtract'
 import { analyzeResume } from '@/lib/gccReadiness/analyzeResume'
@@ -82,6 +83,14 @@ const MAX_JD_LENGTH = 8000
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const identityHash = getClientIdentityHash(request)
+
+  // The founder's pause (audit M14, 2026-09-15). This legacy anonymous scan
+  // keeps its own per-visitor limit below; the pause is checked first so a
+  // paused service spends nothing, server-side.
+  const pause = await isServicePaused('anonymous_scan')
+  if (pause.paused) {
+    return NextResponse.json({ error: pause.message, code: 'paused' }, { status: 503 })
+  }
 
   // Rate limit BEFORE any parsing or the model call — server-side, never
   // client-side, same discipline as every other AI route in this product.

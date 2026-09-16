@@ -236,6 +236,23 @@ function md5(s: string): string {
   return createHash('md5').update(s).digest('hex')
 }
 
+/**
+ * React 19 (upgraded 2026-09-15 for the Next.js security release) makes the
+ * server renderer emit a resource hint for every <img> it renders —
+ * `<link rel="preload" as="image" href="…"/>` — hoisted to the START of the
+ * markup. React 18, which captured the golden baseline, never did.
+ *
+ * A <link> renders nothing, so the delivered document is unchanged — and that was
+ * PROVEN, not assumed: the same template rendered under React 18.3.1 and React
+ * 19.1.1 is byte-identical once the leading hint is removed (see
+ * docs/SAAS_REMEDIATION_2026-09-15.md, C01). Only that leading, hoisted hint is
+ * stripped; anything else that differs still fails this check, and the golden
+ * file is untouched.
+ */
+function normalizeReact19ResourceHints(html: string): string {
+  return html.replace(/^(<link rel="preload" as="image"[^>]*\/>)+/, '')
+}
+
 function main() {
   const goldenPath = resolve(process.cwd(), 'scripts/resume.golden.txt')
   const capture = process.argv.includes('--golden')
@@ -253,7 +270,7 @@ function main() {
         fieldVisibility: fv,
       })
     )
-    hashes.push(md5(out))
+    hashes.push(md5(normalizeReact19ResourceHints(out)))
   }
 
   if (capture) {

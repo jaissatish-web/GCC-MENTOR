@@ -160,7 +160,11 @@ export function buildMockInterviewFeedbackPrompt(
       'Evaluate one mock interview answer.',
       'Be direct, useful and fair. Do not score speaking/audio because this is text-only.',
       'Feedback must be short enough to read during the interview.',
-      'The better_answer must stay within the candidate facts already present in the question context.',
+      // Review finding X01 (2026-09-15): this answer is written in the
+      // candidate's voice to be repeated to an employer, and the model sees no
+      // profile here — only what the candidate typed.
+      "The better_answer rewrites the candidate's own answer. Use only facts the candidate stated in their answer or that appear in the expected points.",
+      'Where a stronger answer needs a detail the candidate did not give (a number, a project, a tool), write a bracketed placeholder such as [project name] or [number] instead of inventing it.',
     ].join('\n'),
     input: [
       '## INTERVIEW CONTEXT',
@@ -200,10 +204,14 @@ export function buildMockInterviewReportPrompt(run: MockInterviewRun): BuiltProm
     )
     .join('\n\n')
 
+  const answeredCount = run.questions.filter((q) => q.answer).length
   return {
     persona: PERSONA,
     instructions: [
       'Create the final mock interview report from the saved text answers.',
+      // Early finish is allowed (audit M05): say which questions were evaluated.
+      `The candidate answered ${answeredCount} of ${run.questions.length} questions. Evaluate only the answered ones; do not guess how unanswered questions would have gone.`,
+      'This is preparation feedback on written answers, not a prediction of whether the candidate will be hired.',
       'Do not claim to evaluate voice, accent, pace, pronunciation or audio confidence.',
       'Scores must be integers from 0 to 100.',
       'Give practical improvements the candidate can use before a real Gulf interview.',

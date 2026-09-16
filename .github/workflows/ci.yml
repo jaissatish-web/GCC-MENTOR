@@ -1,0 +1,49 @@
+# Release gate (audit M13, 2026-09-15).
+#
+# Runs on every pull request and on pushes to main. Needs NO production
+# secrets: the public Supabase settings below are placeholders so the app can
+# compile and prerender; nothing here talks to the real project, an AI
+# provider, or a payment service. The database checks run on an in-process
+# Postgres (scripts/db/supabaseStub.mjs).
+#
+# This does not replace the preview check in docs/SAAS_RELEASE_CHECKLIST.md —
+# a signed-in journey against a configured preview deployment.
+name: CI
+
+on:
+  pull_request:
+  # Every branch, so a pushed branch is checked before anyone opens a PR for it.
+  push:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Dependency audit (production dependencies, high and above)
+        run: npm audit --omit=dev --audit-level=high
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Verification scripts and disposable-database security suite
+        run: npm test
+      - run: npm run build

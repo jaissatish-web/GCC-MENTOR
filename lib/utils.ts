@@ -52,14 +52,26 @@ export const PERSONA_INDUSTRIES = [
   { value: 'other',                 label: 'Other' },
 ] as const
 
-/** Package status values. See docs/DASHBOARD_LIBRARY.md §3. */
+/**
+ * Application stages, in order (migration 053, audit M07). 'Saved' is where a
+ * job starts: a prepared CV is not a submitted application. The user moves it
+ * to Applied themselves. Existing rows keep their stored stage.
+ */
 export const PACKAGE_STATUSES = [
+  { value: 'saved',           label: 'Saved · not applied' },
   { value: 'applied',         label: 'Applied' },
   { value: 'shortlisted',     label: 'Shortlisted' },
   { value: 'interview',       label: 'Interview' },
   { value: 'visa_processing', label: 'Visa processing' },
   { value: 'offer',           label: 'Offer' },
+  { value: 'rejected',        label: 'Not selected' },
+  { value: 'withdrawn',       label: 'Withdrawn' },
 ] as const
+
+/** Label for one stage — the single source for every screen. */
+export function packageStatusLabel(status: string): string {
+  return PACKAGE_STATUSES.find((s) => s.value === status)?.label ?? status
+}
 
 /** Format a rupee amount for display. */
 export function formatINR(amount: number): string {

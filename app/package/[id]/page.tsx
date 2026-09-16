@@ -22,7 +22,8 @@ import { PackageScreen } from './PackageScreen'
  * untouched and stays safe on its own terms: `hideNav` renders no footer at
  * all, so it never had the bug.
  */
-export default function PackagePage({ params }: { params: { id: string } }) {
+export default async function PackagePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   return (
     <AppShell>
       <PackageScreen id={params.id} />

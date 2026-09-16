@@ -6,7 +6,32 @@ Nothing is removed from this file until it is genuinely resolved, and when it is
 resolved it is deleted rather than marked — the part-document it affects carries the
 outcome instead.
 
-**Last reviewed:** 2026-09-12
+**Last reviewed:** 2026-09-15 (full SaaS audit remediation — see
+[`SAAS_REMEDIATION_2026-09-15.md`](SAAS_REMEDIATION_2026-09-15.md))
+
+---
+
+## 2026-09-15 audit — what is still open after the remediation branch
+
+The code for every audit item is on branch `claude/saas-production-hardening`; what
+remains is deployment work and decisions. Full list, with evidence:
+[`SAAS_REMEDIATION_2026-09-15.md`](SAAS_REMEDIATION_2026-09-15.md) and the go/no-go list
+in [`SAAS_RELEASE_CHECKLIST.md`](SAAS_RELEASE_CHECKLIST.md).
+
+- **R-1 · Apply migrations 049–055 to production, in order, before the code deploys.**
+  Asserted only against a local Postgres-compatible test harness (Supabase partially
+  stubbed); never applied to a real database. Code that needs them fails without them.
+- **R-2 · Set `CRON_SECRET` in Vercel and add the auth callback URL to Supabase's
+  redirect list.** Without the first, expired anonymous CVs are still not purged.
+- **R-3 · Signed-in preview walk-through** (signup → profile → CV → letter → Q&A → mock →
+  report → tracker → refresh) on a preview deployment with a staging database. Not
+  possible from this environment without creating accounts in production.
+- **R-4 · Founder decisions:** legal text (H06), retention and account closure (M11),
+  password policy and leaked-password protection (M03), free-plan allowances and a
+  spend budget (M14), what to tell users about prices while services are open (M10),
+  whether to retire the legacy anonymous `/ats-scan` POST.
+- **R-5 · Existing jobs marked "applied" stay "applied".** There is no evidence which
+  were really submitted; users can move them to "Saved · not applied".
 
 ---
 
@@ -39,10 +64,10 @@ a restore guide. Three parts, none optional:
    [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4 and
    [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §6.
 
-**A0b · Review the generation rate limit.** Payment was one of two limits on model
-spend; the daily per-user limit is now the only one. Its value was set when a paywall
-sat in front of it. Not urgent — it is a real limit and returns 429 — but it should be
-a deliberate number rather than an inherited one.
+**A0b · Choose the daily allowances deliberately.** Since 2026-09-15 every model call
+passes a pause switch and a daily allowance (`lib/ai/serviceGuard.ts`), editable in
+`/admin/services`. The defaults are engineering abuse ceilings, not a commercial free
+plan — the founder sets the real numbers (see R-4 above).
 
 ---
 
@@ -155,9 +180,11 @@ The account is on the **Hobby plan, where 60s is a hard cap** no setting can rai
 > cap is removed from the optimizer too**, so the margin problem below was a setting, not
 > a wall. The provider's retry deadline keeps its old ~54s, so only the first attempt got
 > more room. **Confirmed 2026-09-12: the ceiling is 300s** (Vercel runtime log, "Task
-> timed out after 300 seconds"). Still to do: `app/api/packages/[id]/cover-letter/route.ts`
-> sets its own `maxDuration = 60` — the same self-imposed cap, on a route that can make up
-> to four sequential model calls. Not yet changed.
+> timed out after 300 seconds"). **Closed 2026-09-15 (audit H09):** the cover-letter
+> route's self-imposed 60s cap is now 120s with one deadline (100s) passed to every
+> model attempt, provider retry and the corrective retry; the mock-interview routes got
+> the same treatment. `scripts/verify-deadlines.ts` checks each route's deadline against
+> its ceiling.
 
 Fixed by moving the structuring call into Phase A (migration 045,
 `packages.structured_job`), and by making the provider's doubled-budget reasoning retry
@@ -526,10 +553,10 @@ layer, and until then runs on its in-code prompt.
 
 Recorded so the next person does not rediscover them as surprises.
 
-1. Two concurrent generate requests for the same paid, ungenerated package both pass the
-   "nothing generated yet" check, because that check is a read and not a lock. The client
-   guards a double-click; the real exposure is a deliberate retry or two tabs, costing one
-   extra model call — **never a double charge.** A conditional update would close it.
+1. ~~Two concurrent generate requests for the same package both pass the "nothing
+   generated yet" check.~~ **Closed 2026-09-15:** the build now reserves a slot with a
+   one-at-a-time cap per user (migration 049), so a second tab is refused as busy before
+   it reaches the model.
 2. Creating a package spends no rate-limit slot, so package rows can be created without
    limit. Storage only — no cost, no user-visible effect.
 

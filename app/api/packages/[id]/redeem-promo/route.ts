@@ -26,10 +26,8 @@ import {
  * packages.is_paid) is ONE atomic Postgres function call — never a
  * read-then-write here, see migration 021 for why.
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { user },

@@ -4,8 +4,9 @@ import { cn, PACKAGE_STATUSES } from '@/lib/utils'
 import type { PackageStatus } from '@/types/package'
 
 /**
- * Where an application stands — applied → shortlisted → interview →
- * visa_processing → offer.
+ * Where an application stands — saved (not applied yet) → applied →
+ * shortlisted → interview → visa_processing → offer, or it ended as rejected
+ * ("Not selected") or withdrawn (migration 053, 2026-09-15).
  *
  * SHARED, because it appears both on the Target Jobs list and on a job's own
  * page. Copying it would have guaranteed the two drifted, and a stage that
@@ -39,15 +40,23 @@ import type { PackageStatus } from '@/types/package'
  * reads because it uses `gold-ink`, never `gold`.
  */
 
+//
+// 2026-09-15 (audit M07): 'saved' comes before 'applied' — dashed and quiet,
+// because nothing has been sent yet — and the two ways an application ends
+// without an offer: 'rejected' (shown as "Not selected", in the alert tint) and
+// 'withdrawn' (neutral). Same token pairs as elsewhere, so contrast holds.
 export function stageClass(status: PackageStatus): string {
   const map: Record<PackageStatus, string> = {
+    saved: 'border-dashed border-line-strong bg-white text-ink-soft',
     applied: 'border-line-strong bg-canvas text-ink-soft',
     shortlisted: 'border-teal/35 bg-teal-soft text-teal',
     interview: 'border-gold/50 bg-gold-soft text-gold-ink',
     visa_processing: 'border-teal bg-teal text-white',
     offer: 'border-ok bg-ok text-white',
+    rejected: 'border-alert/40 bg-alert-soft text-alert',
+    withdrawn: 'border-line bg-canvas text-ink-soft',
   }
-  return map[status]
+  return map[status] ?? map.applied
 }
 
 export function StageSelect({

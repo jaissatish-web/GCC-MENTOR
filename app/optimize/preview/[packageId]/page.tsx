@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, use } from 'react';
 import { diffWords } from 'diff'
 import { cn } from '@/lib/utils'
 import type { CareerProfileFull, ProfileSkill } from '@/types/careerProfile'
@@ -284,7 +284,7 @@ function renderDiffParts(parts: DiffToken[]) {
 }
 
 function wordsIn(str: string | undefined | null): number {
-  return (str ?? '').split(/\s+/).filter(Boolean).length
+  return (str ?? '').split(/\s+/).filter(Boolean).length;
 }
 
 function ChangesTab({
@@ -512,11 +512,12 @@ function ChangesTab({
 }
 
 // Suspense wrapper (params access is fine, kept for future useSearchParams safety).
-export default function OptimizePreviewPage({
-  params,
-}: {
-  params: { packageId: string }
-}) {
+export default function OptimizePreviewPage(
+  props: {
+    params: Promise<{ packageId: string }>
+  }
+) {
+  const params = use(props.params);
   const packageId = params.packageId
   return (
     <Suspense>

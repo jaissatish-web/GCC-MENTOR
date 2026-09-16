@@ -37,7 +37,7 @@ export function SideSheet({
   onClose: () => void
   title: string
   /** The trigger button, so a keyboard user lands back where they started. */
-  returnFocusTo?: React.RefObject<HTMLElement>
+  returnFocusTo?: React.RefObject<HTMLElement | null>
   children: React.ReactNode
 }) {
   const [mounted, setMounted] = useState(false)

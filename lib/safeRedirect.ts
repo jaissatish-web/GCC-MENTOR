@@ -1,0 +1,87 @@
+/**
+ * Where a user may be sent after signing in — one rule for every auth path.
+ *
+ * WHY THIS EXISTS (audit H05 + M09, 2026-09-15). The auth callback redirected
+ * with `${origin}${next}`, where `next` came straight from the query string. A
+ * value like `@evil.example` or `.evil.example` turns that concatenation into a
+ * different host, so a user who had just signed in successfully could be sent
+ * off-site. Separately, middleware recorded the page a signed-out user asked
+ * for, but sign-in always landed on /dashboard, so someone arriving from a
+ * package or a service had to find their task again.
+ *
+ * THE RULE. A destination is accepted only if it is a same-origin path under
+ * one of the app's own sections (APP_PATH_PREFIXES). Anything else — absolute
+ * URLs, protocol-relative `//host`, backslash tricks, control characters, dot
+ * segments that normalise to `//host`, auth pages that would loop — falls back
+ * to the default. Query strings are preserved, because `?package=<id>` is what
+ * carries a user's job context between screens.
+ *
+ * Pure and dependency-free, so `scripts/verify-safe-redirect.ts` can assert
+ * every hostile variant without a browser.
+ */
+
+export const DEFAULT_AFTER_LOGIN = '/dashboard'
+
+/** Sections a post-auth redirect may land in. Keep in step with middleware's protected list. */
+export const APP_PATH_PREFIXES = [
+  '/dashboard',
+  '/profile',
+  '/optimize',
+  '/package',
+  '/settings',
+  '/admin',
+  '/gcc-readiness',
+  '/cover-letter',
+  '/interview-qa',
+  '/mock-interview',
+  '/create-resume',
+  '/templates',
+  '/payments',
+  '/onboarding',
+  '/auth/update-password',
+] as const
+
+const PLACEHOLDER_ORIGIN = 'https://gcc-mentor.invalid'
+const MAX_LENGTH = 2048
+
+function underAllowedPrefix(pathname: string): boolean {
+  return APP_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix + '/'))
+}
+
+/**
+ * Returns a safe same-origin path (with its query string) or `fallback`.
+ * Never returns an absolute URL.
+ */
+export function safeRedirectPath(raw: unknown, fallback: string = DEFAULT_AFTER_LOGIN): string {
+  if (typeof raw !== 'string') return fallback
+  const value = raw
+  if (value.length === 0 || value.length > MAX_LENGTH) return fallback
+  // Must be a rooted path — not `//host`, not `/\host` (browsers treat `\` as `/`).
+  if (!value.startsWith('/') || value.startsWith('//')) return fallback
+  if (value.includes('\\')) return fallback
+  // Control characters and whitespace: tabs/newlines are stripped by URL parsers,
+  // which is exactly how `/\t/evil` becomes `//evil`.
+  if (/[\x00-\x20\x7f]/.test(value)) return fallback
+
+  let parsed: URL
+  try {
+    parsed = new URL(value, PLACEHOLDER_ORIGIN)
+  } catch {
+    return fallback
+  }
+  if (parsed.origin !== PLACEHOLDER_ORIGIN) return fallback
+  // Dot segments can normalise to a protocol-relative path: `/.//evil` -> `//evil`.
+  if (parsed.pathname.startsWith('//')) return fallback
+  if (!underAllowedPrefix(parsed.pathname)) return fallback
+
+  return parsed.pathname + parsed.search
+}
+
+/**
+ * Build the absolute redirect URL for a route handler, re-checking the origin
+ * after construction so no future edit to `safeRedirectPath` can leak a host.
+ */
+export function sameOriginRedirectUrl(raw: unknown, origin: string, fallback: string = DEFAULT_AFTER_LOGIN): URL {
+  const target = new URL(safeRedirectPath(raw, fallback), origin)
+  return target.origin === new URL(origin).origin ? target : new URL(fallback, origin)
+}

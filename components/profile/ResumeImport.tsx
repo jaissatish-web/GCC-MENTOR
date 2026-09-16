@@ -161,8 +161,20 @@ export function ResumeImport({
 
   const chooseFile = (file: File | null) => {
     if (!file) return
-    if (!/\.(pdf|docx?|doc)$/i.test(file.name)) {
-      setError('Only PDF and Word files are supported.')
+    // Same limits the server enforces (app/api/parse/upload/route.ts, audit
+    // M12): checked here first so an oversized file is refused instantly
+    // instead of failing at the platform's 4.5 MB request limit.
+    if (/\.doc$/i.test(file.name)) {
+      setError("Older .doc files can't be read. Save it as .docx or PDF, or paste your CV text.")
+      return
+    }
+    if (!/\.(pdf|docx)$/i.test(file.name)) {
+      setError('Only PDF and Word (.docx) files are supported.')
+      return
+    }
+    const limitBytes = /\.pdf$/i.test(file.name) ? 4 * 1024 * 1024 : 2 * 1024 * 1024
+    if (file.size > limitBytes) {
+      setError('This file is too large. PDFs can be up to 4MB and Word (.docx) files up to 2MB.')
       return
     }
     const form = new FormData()
@@ -379,7 +391,7 @@ export function ResumeImport({
               >
                 Choose a file
               </button>
-              <p className="mt-2 text-[12px] text-ink-muted">PDF up to 5MB · Word up to 2MB</p>
+              <p className="mt-2 text-[12px] text-ink-muted">PDF up to 4MB · Word (.docx) up to 2MB</p>
             </div>
           ) : null}
 

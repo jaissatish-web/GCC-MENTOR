@@ -132,6 +132,17 @@ export interface AiTask<T> {
   temperature?: number
   /** One by default. Zero disables repair; more than two is not worth the spend. */
   repairAttempts?: number
+  /**
+   * Epoch-ms give-up point for the WHOLE task, repairs included (audit H09,
+   * 2026-09-15). Passed to the provider so no attempt starts or runs past it,
+   * and a repair is only started when at least `minRepairMs` remains. Set it
+   * shorter than the route's `maxDuration`, leaving time to save and answer —
+   * without it a slow provider outlived the route and the platform's timeout
+   * page reached the user while the model call was still being paid for.
+   */
+  deadlineAt?: number
+  /** Time a repair attempt needs to be worth starting. Default 30s. */
+  minRepairMs?: number
 }
 
 export interface AiTaskResult<T> {
@@ -214,6 +225,10 @@ export async function runAiTask<T>(task: AiTask<T>): Promise<AiTaskResult<T>> {
 
   let input = task.input
   let lastDetail = ''
+  const minRepairMs = task.minRepairMs ?? 30_000
+  // A repair is only worth starting when it can finish before the deadline.
+  const canRepair = (attempt: number) =>
+    attempt <= repairAttempts && (task.deadlineAt === undefined || task.deadlineAt - Date.now() >= minRepairMs)
 
   for (let attempt = 1; attempt <= repairAttempts + 1; attempt++) {
     // --- transport ---------------------------------------------------------
@@ -232,6 +247,9 @@ export async function runAiTask<T>(task: AiTask<T>): Promise<AiTaskResult<T>> {
         // Stamped on the usage row, so a change in output quality can be traced
         // to the prompt rather than guessed at.
         promptVersionId: published?.id ?? null,
+        // One deadline for every attempt and every provider tier.
+        deadlineAt: task.deadlineAt,
+        giveUpAt: task.deadlineAt,
       })
     } catch (e) {
       // A provider failure is not retried here. `provider.ts` already tried the
@@ -247,7 +265,7 @@ export async function runAiTask<T>(task: AiTask<T>): Promise<AiTaskResult<T>> {
       parsed = parse(raw.text)
     } catch {
       lastDetail = 'response was not valid JSON'
-      if (attempt <= repairAttempts) {
+      if (canRepair(attempt)) {
         notes.push('repaired: unparseable response')
         input = buildRepairInput(task.input, [{ detail: 'Your response was not valid JSON. Return only the JSON object.' }])
         continue
@@ -259,7 +277,7 @@ export async function runAiTask<T>(task: AiTask<T>): Promise<AiTaskResult<T>> {
     const shapeError = task.validateShape?.(parsed) ?? null
     if (shapeError) {
       lastDetail = shapeError
-      if (attempt <= repairAttempts) {
+      if (canRepair(attempt)) {
         notes.push(`repaired: ${shapeError}`)
         input = buildRepairInput(task.input, [{ detail: shapeError }])
         continue
@@ -276,7 +294,7 @@ export async function runAiTask<T>(task: AiTask<T>): Promise<AiTaskResult<T>> {
         // Only `detail` is joined for logging. `offendingValue` goes to the
         // repair prompt and nowhere else.
         lastDetail = result.failures.map((f) => f.detail).join('; ')
-        if (attempt <= repairAttempts) {
+        if (canRepair(attempt)) {
           notes.push('repaired: grounding failures')
           input = buildRepairInput(task.input, result.failures)
           continue

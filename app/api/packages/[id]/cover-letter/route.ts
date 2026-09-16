@@ -6,19 +6,14 @@ import type { CoverLetterTarget } from '@/lib/ai/buildCoverLetterPrompt'
 import { validateCoverLetterGrounding, type ParsedCoverLetter } from '@/lib/ai/validateCoverLetterGrounding'
 import type { CoverLetterValidationFailure } from '@/lib/ai/validateCoverLetterGrounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
-import { appendPackageEvent } from '@/lib/packageEvents'
+import { reserveAiAction } from '@/lib/ai/serviceGuard'
+import { LIMIT_ACTION_COVER_LETTER } from '@/lib/rateLimit'
+import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
+import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
+import { appendCoverLetterAtomic } from '@/lib/packages/serverWrites'
 // Credit helpers are deliberately not imported while the locks are off — the
 // route neither checks nor consumes a credit. They come back with the lock.
-import type {
-  CareerProfile,
-  CareerProfileFull,
-  ProfileAdditionalInformation,
-  ProfileCertification,
-  ProfileEducation,
-  ProfileSkill,
-  ProfileWorkExperience,
-} from '@/types/careerProfile'
-import type { CoverLetter, CoverLetterTone } from '@/types/package'
+import type { CoverLetter, CoverLetterTone, OptimizedContent } from '@/types/package'
 
 const COVER_LETTER_TONES: CoverLetterTone[] = ['professional', 'short', 'technical', 'explanatory']
 
@@ -26,46 +21,33 @@ const COVER_LETTER_TONES: CoverLetterTone[] = ['professional', 'short', 'technic
  * Cover letter generation route (TASK-065).
  *
  * POST /api/packages/[id]/cover-letter   body: { tone? }. Target and job
- * description are read from the package itself, matching docs/PROMPTS.md
- * §8: "no new data or mechanism required" — tone (2026-08-18) is the one
- * exception, and it is a STYLE choice, not new data: professional / short /
- * technical / explanatory, all drawing on the exact same profile and target.
- * An absent or unrecognized value falls back to 'professional', so the
- * pre-2026-08-18 client (which always sent an empty body) keeps working
- * unchanged.
+ * description are read from the package itself. Tone (2026-08-18) is a STYLE
+ * choice, not new data; an absent or unknown value falls back to 'professional'
+ * so an old client's empty body keeps working.
  *
- * Gated on TWO things, both server-side, neither trusted from the client:
- *   1. package.is_paid — same gate as PDF/DOCX download. A letter costs a
- *      real AI call; it does not make sense to give one away attached to an
- *      unpaid resume.
- *   2. an available 'cover_letter' service credit (TASK-060/062's
- *      generalized ledger) — checked with a fast pre-check
- *      (countAvailableServiceCredits) to avoid spending an AI call on a user
- *      with nothing to spend, then actually spent with the atomic
- *      consumeServiceCredit RPC AFTER a validated success, never before.
- *      Consuming only on success mirrors this project's own accepted
- *      tradeoff (Unplanned #12: a failure that was not the user's fault
- *      must not cost them anything) — generalized from rate-limit slots to
- *      credits here.
+ * 2026-09-15 remediation:
+ *   - SOURCE (audit M04): the package's SAVED CV — the document the employer
+ *     reads with this letter — is the primary source; the Career Profile
+ *     supplements it. A job with no built CV yet still gets a letter from the
+ *     profile, as before. A failed profile read is an error, never an empty
+ *     profile.
+ *   - QUOTA + PAUSE (H03): reserved before the model call, consumed once the
+ *     letter is saved, released on any failure.
+ *   - DEADLINE (H09): every model call, the provider's retries and the
+ *     corrective retry share one give-up point 20s inside `maxDuration`. The
+ *     route used to cap itself at 60s while the provider could wait 280s.
+ *   - SAVE (H04): appended in one statement; two letters finishing together
+ *     both survive.
  *
- * Repeatable per package (docs/DASHBOARD_LIBRARY.md §7) — each successful
- * generation appends to packages.cover_letters rather than replacing it.
+ * Repeatable per package — each successful generation appends a letter.
+ * PAYMENT: none while the locks are off (founder decision 2026-08-17). When the
+ * lock returns, the credit consume goes AFTER a validated, saved letter.
  */
 
-// lib/ai/provider.ts may retry a single call once on a reasoning-budget
-// exhaustion (2026-08-18), and this route can already retry once on a
-// grounding failure — up to four sequential model calls in the worst case.
-// No route-level timeout was ever set before; an explicit ceiling matters
-// more now. See app/api/optimize/route.ts's identical note.
-export const maxDuration = 60
-
-const CHILD_TABLES = [
-  'profile_work_experience',
-  'profile_skills',
-  'profile_certifications',
-  'profile_education',
-  'profile_additional_information',
-] as const
+export const maxDuration = 120
+const DEADLINE_MS = 100_000
+/** A corrective second letter is only started with at least this much time left. */
+const MIN_RETRY_MS = 35_000
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -91,10 +73,9 @@ function composeFullText(letter: ParsedCoverLetter): string {
   )
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-): Promise<NextResponse> {
+export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const startedAt = Date.now()
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { user },
@@ -109,27 +90,18 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid package id' }, { status: 400 })
   }
 
-  // TONE (2026-08-18, founder decision): the one real input this route now
-  // takes. Absent/malformed body, or an unrecognized value, falls back to
-  // 'professional' rather than 400ing — a stale client sending the old empty
-  // '{}' body must keep working exactly as it did before this existed.
   const rawBody = await request.json().catch(() => null)
-  const requestedTone =
-    rawBody && typeof rawBody === 'object' && !Array.isArray(rawBody)
-      ? (rawBody as Record<string, unknown>).tone
-      : undefined
+  const requestedTone = isObject(rawBody) ? rawBody.tone : undefined
   const tone: CoverLetterTone =
     typeof requestedTone === 'string' && COVER_LETTER_TONES.includes(requestedTone as CoverLetterTone)
       ? (requestedTone as CoverLetterTone)
       : 'professional'
 
-  // Owner-scoped in one query — a foreign package id simply matches no row
-  // and 404s, never leaking existence. Same pattern as every other
-  // package-scoped route (pdf, docx, redeem-promo).
+  // Owner-scoped in one query — a foreign package id matches no row and 404s.
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, profile_id, is_paid, target_job_title, target_industry, target_country, target_company, job_description, cover_letters, service_events',
+      'id, profile_id, target_job_title, target_industry, target_country, target_company, job_description, optimized_content, document_snapshot, skills_order, field_visibility_snapshot',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
@@ -142,167 +114,151 @@ export async function POST(
   if (!pkgRow) {
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
-  // NO PAYMENT GATE AND NO CREDIT REQUIREMENT while the locks are off (founder
-  // decision 2026-08-17). Auth and ownership above are unchanged.
-  //
-  // WHEN THE LOCKS RETURN, both halves come back: the is_paid check here, and
-  // the atomic credit consume AFTER a validated success further down — never
-  // before it, so a model failure cannot cost the user a credit they keep
-  // nothing for. That ordering is the part worth preserving.
 
-  // Profile loaded scoped to BOTH profile_id and the caller's own user_id —
-  // same double-scoping fix TASK-030's review added to the PDF route.
-  const { data: profileRow, error: profileError } = await supabase
-    .from('career_profiles')
-    .select('*')
-    .eq('id', pkgRow.profile_id)
-    .eq('user_id', user.id)
-    .maybeSingle()
-
-  if (profileError) {
-    console.error('cover-letter: profile lookup error user=' + user.id + ' pkg=' + packageId, profileError.message)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  let profile
+  try {
+    profile = await loadCareerProfileFull(supabase, pkgRow.profile_id as string, user.id)
+  } catch (e) {
+    if (e instanceof ProfileLoadError) {
+      console.error('cover-letter: incomplete profile read user=' + user.id + ' table=' + e.table)
+      return NextResponse.json(
+        { error: 'We could not read your full Career Profile just now. Nothing was used — please try again.' },
+        { status: 503 },
+      )
+    }
+    throw e
   }
-  if (!profileRow) {
+  if (!profile) {
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
   }
 
-  const fetchChildren = async (table: (typeof CHILD_TABLES)[number]): Promise<unknown[]> => {
-    const { data } = await supabase.from(table).select('*').eq('profile_id', pkgRow.profile_id)
-    return (data as unknown[] | null) ?? []
-  }
-  const [work_experience, skills, certifications, education, additional_information] = await Promise.all([
-    fetchChildren('profile_work_experience'),
-    fetchChildren('profile_skills'),
-    fetchChildren('profile_certifications'),
-    fetchChildren('profile_education'),
-    fetchChildren('profile_additional_information'),
-  ])
-
-  const profile: CareerProfileFull = {
-    ...(profileRow as CareerProfile),
-    work_experience: work_experience as ProfileWorkExperience[],
-    skills: skills as ProfileSkill[],
-    certifications: certifications as ProfileCertification[],
-    education: education as ProfileEducation[],
-    additional_information: additional_information as ProfileAdditionalInformation[],
-  }
+  // The saved CV for THIS job, exactly as the user sees and downloads it.
+  const optimizedContent = pkgRow.optimized_content as OptimizedContent | null
+  const snapshot = pkgRow.document_snapshot
+  const savedResume: ResumeDocument | null = optimizedContent
+    ? isObject(snapshot) && isObject(snapshot.header)
+      ? (snapshot as unknown as ResumeDocument)
+      : buildResumeDocument({
+          profile,
+          optimizedContent,
+          skillsOrder: (pkgRow.skills_order as string[] | null) ?? [],
+          fieldVisibility: (pkgRow.field_visibility_snapshot as Record<string, boolean> | null) ?? null,
+        })
+    : null
 
   const target: CoverLetterTarget = {
-    target_job_title: pkgRow.target_job_title,
-    target_industry: pkgRow.target_industry,
-    target_country: pkgRow.target_country,
-    target_company: pkgRow.target_company,
+    target_job_title: pkgRow.target_job_title as string,
+    target_industry: pkgRow.target_industry as string | null,
+    target_country: pkgRow.target_country as CoverLetterTarget['target_country'],
+    target_company: pkgRow.target_company as string | null,
   }
 
-  const { system, user: userPrompt } = buildCoverLetterPrompt(profile, target, pkgRow.job_description, tone)
-
-  const runOnce = async (userMessage: string) => {
-    const result = await generate({
-      system,
-      user: userMessage,
-      maxTokens: 2048,
-      temperature: 0.4,
-      userId: user.id,
-      route: '/api/packages/[id]/cover-letter',
-      configKey: 'cover_letter',
-    })
-    const parsed = extractJsonObject(result.text)
-    const validation = validateCoverLetterGrounding(profile, parsed)
-    return { parsed, validation }
+  const reservation = await reserveAiAction({
+    userId: user.id,
+    action: LIMIT_ACTION_COVER_LETTER,
+    phone: profile.phone,
+    email: profile.email,
+    ttlSeconds: 150,
+  })
+  if (!reservation.ok) {
+    return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
   }
 
-  let attempt: Awaited<ReturnType<typeof runOnce>>
+  let succeeded = false
   try {
-    attempt = await runOnce(userPrompt)
-    if (!attempt.validation.valid) {
-      const corrective = userPrompt + buildCorrectiveAddendum(attempt.validation.failures)
-      attempt = await runOnce(corrective)
+    const { system, user: userPrompt } = buildCoverLetterPrompt(
+      profile,
+      target,
+      pkgRow.job_description as string | null,
+      tone,
+      savedResume,
+    )
+    const giveUpAt = startedAt + DEADLINE_MS
+    const groundedProfile = profile
+
+    const runOnce = async (userMessage: string) => {
+      const result = await generate({
+        system,
+        user: userMessage,
+        maxTokens: 2048,
+        temperature: 0.4,
+        userId: user.id,
+        route: '/api/packages/[id]/cover-letter',
+        configKey: 'cover_letter',
+        deadlineAt: giveUpAt,
+        giveUpAt,
+      })
+      const parsed = extractJsonObject(result.text)
+      const validation = validateCoverLetterGrounding(groundedProfile, parsed)
+      return { parsed, validation }
     }
-  } catch (e) {
-    console.error(
-      'cover-letter: AI call failed user=' + user.id + ' pkg=' + packageId,
-      e instanceof Error ? e.message : String(e),
-    )
-    return NextResponse.json({ error: 'Could not generate your cover letter. Please try again.' }, { status: 502 })
+
+    let attempt: Awaited<ReturnType<typeof runOnce>>
+    try {
+      attempt = await runOnce(userPrompt)
+      if (!attempt.validation.valid && giveUpAt - Date.now() >= MIN_RETRY_MS) {
+        attempt = await runOnce(userPrompt + buildCorrectiveAddendum(attempt.validation.failures))
+      }
+    } catch (e) {
+      const reason = e instanceof Error ? e.message : String(e)
+      console.error('cover-letter: AI call failed user=' + user.id + ' pkg=' + packageId, reason)
+      return NextResponse.json(
+        {
+          error: /stall|out of time|deadline/i.test(reason)
+            ? "The AI service didn't answer in time. Nothing was used — please try again."
+            : 'Could not generate your cover letter. Nothing was used — please try again.',
+        },
+        { status: 502 },
+      )
+    }
+
+    if (!attempt.validation.valid) {
+      const reasons = attempt.validation.failures
+        .filter((f) => f.severity === 'hard')
+        .map((f) => `${f.code}@${f.path}`)
+        .join(',')
+      console.error('cover-letter: validation failed user=' + user.id + ' pkg=' + packageId + ' reasons=' + reasons)
+      return NextResponse.json(
+        { error: 'Could not produce a grounded letter. Nothing was used — please try again.' },
+        { status: 502 },
+      )
+    }
+
+    const parsedLetter = attempt.parsed as unknown as ParsedCoverLetter
+    const letter: CoverLetter = {
+      id: crypto.randomUUID(),
+      generated_at: new Date().toISOString(),
+      target_job_title: pkgRow.target_job_title as string,
+      target_company: pkgRow.target_company as string | null,
+      tone,
+      greeting: parsedLetter.greeting,
+      opening_paragraph: parsedLetter.opening_paragraph,
+      body_paragraphs: parsedLetter.body_paragraphs,
+      closing_paragraph: parsedLetter.closing_paragraph,
+      sign_off: parsedLetter.sign_off,
+      full_text: composeFullText(parsedLetter),
+    }
+
+    let saved: boolean
+    try {
+      saved = await appendCoverLetterAtomic({
+        packageId,
+        userId: user.id,
+        letter,
+        meta: { tone, source: savedResume ? 'saved_cv' : 'career_profile' },
+      })
+    } catch (e) {
+      console.error('cover-letter: save FAILED user=' + user.id + ' pkg=' + packageId, e instanceof Error ? e.message : String(e))
+      return NextResponse.json({ error: 'Your letter was generated but could not be saved. Please try again.' }, { status: 500 })
+    }
+    if (!saved) {
+      return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+    }
+
+    succeeded = true
+    console.info(`cover letter generated: pkg=${packageId} user=${user.id} letter=${letter.id}`)
+    return NextResponse.json({ success: true, letter })
+  } finally {
+    await reservation.finish(succeeded)
   }
-
-  if (!attempt.validation.valid) {
-    const reasons = attempt.validation.failures
-      .filter((f) => f.severity === 'hard')
-      .map((f) => `${f.code}@${f.path}`)
-      .join(',')
-    console.error('cover-letter: validation failed twice user=' + user.id + ' pkg=' + packageId + ' reasons=' + reasons)
-    return NextResponse.json(
-      { error: 'Could not produce a grounded letter. Please try again or contact support.' },
-      { status: 502 },
-    )
-  }
-
-  const parsedLetter = attempt.parsed as unknown as ParsedCoverLetter
-
-  // NO CREDIT IS CONSUMED while the locks are off. Spending one when the letter
-  // is free anyway would silently burn something the founder issued
-  // deliberately, and the ledger would record it as having paid for this run.
-  //
-  // When the lock returns, the consume goes back HERE — after a validated
-  // success, never before it — and a failed consume must discard the generation
-  // rather than persist it, since nothing was charged for it.
-
-  const letter: CoverLetter = {
-    id: crypto.randomUUID(),
-    generated_at: new Date().toISOString(),
-    target_job_title: pkgRow.target_job_title,
-    target_company: pkgRow.target_company,
-    tone,
-    greeting: parsedLetter.greeting,
-    opening_paragraph: parsedLetter.opening_paragraph,
-    body_paragraphs: parsedLetter.body_paragraphs,
-    closing_paragraph: parsedLetter.closing_paragraph,
-    sign_off: parsedLetter.sign_off,
-    full_text: composeFullText(parsedLetter),
-  }
-
-  // Re-read cover_letters immediately before appending — narrows (does not
-  // eliminate) the read-modify-write race against a second concurrent
-  // generation on the same package. Same accepted single-writer tradeoff as
-  // TASK-013's field_visibility merge: one real user is not expected to
-  // fire two concurrent generations on the same package, and the worst case
-  // of losing this race is a lost letter, not a security or payment issue —
-  // the credit is already spent and logged in user_service_credits either way.
-  const { data: freshPkg } = await supabase
-    .from('packages')
-    .select('cover_letters, service_events')
-    .eq('id', packageId)
-    .eq('user_id', user.id)
-    .maybeSingle()
-  const existingLetters = (freshPkg?.cover_letters as CoverLetter[] | null) ?? pkgRow.cover_letters ?? []
-
-  const { error: updateError } = await supabase
-    .from('packages')
-    .update({
-      cover_letters: [...existingLetters, letter],
-      service_events: appendPackageEvent(
-        freshPkg?.service_events ?? (pkgRow as { service_events?: unknown }).service_events,
-        'cover_letter_generated',
-        'Cover letter generated',
-        { tone },
-      ),
-    })
-    .eq('id', packageId)
-    .eq('user_id', user.id)
-
-  if (updateError) {
-    // Credit is spent and the letter was validated, but it didn't save.
-    // Log loudly with ids — same "this is the one state a human needs to
-    // resolve" reasoning as the optimize route's credit-flip failure.
-    console.error(
-      'cover-letter: credit consumed but save FAILED — needs manual fix. user=' + user.id + ' pkg=' + packageId,
-      updateError.message,
-    )
-    return NextResponse.json({ error: 'Your letter was generated but could not be saved. Please contact support.' }, { status: 500 })
-  }
-
-  console.info(`cover letter generated: pkg=${packageId} user=${user.id} letter=${letter.id}`)
-  return NextResponse.json({ success: true, letter })
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, use } from 'react';
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
@@ -39,7 +39,8 @@ const FINAL_STEP = 'Checking every line against your profile'
 /** The whole list is paced across this, then holds on its last step. */
 const PACE_MS = 60000
 
-export default function GeneratePage({ params }: { params: { packageId: string } }) {
+export default function GeneratePage(props: { params: Promise<{ packageId: string }> }) {
+  const params = use(props.params);
   const router = useRouter()
   const packageId = params.packageId
   // The steps the user actually chose on setup — their summary, each employer's

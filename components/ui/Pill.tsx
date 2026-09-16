@@ -13,7 +13,10 @@ const pillVariants = cva(
   {
     variants: {
       variant: {
+        saved: 'border border-dashed border-line-strong bg-white text-ink-soft',
         applied: 'border border-line-strong bg-canvas text-ink-soft',
+        rejected: 'border border-alert/40 bg-alert-soft text-alert',
+        withdrawn: 'border border-line bg-canvas text-ink-soft',
         shortlisted: 'border border-teal bg-teal-soft text-teal',
         interview: 'border border-teal-soft bg-teal-soft text-teal',
         visa_processing: 'border border-line bg-line text-ink-soft',

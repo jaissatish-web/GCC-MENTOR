@@ -96,7 +96,10 @@ export async function middleware(request: NextRequest) {
   )
   if (isProtectedRoute && !user) {
     const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('redirectTo', pathname)
+    // Path AND query: `?package=<id>` is what carries a user's job context
+    // between services, and losing it made them find their task again after
+    // signing in (audit M09). Validated again on the way out (lib/safeRedirect.ts).
+    loginUrl.searchParams.set('redirectTo', pathname + request.nextUrl.search)
     return NextResponse.redirect(loginUrl)
   }
 

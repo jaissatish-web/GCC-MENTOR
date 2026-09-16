@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState, use } from 'react';
 import { Card } from '@/components/ui/Card'
 import { Alert } from '@/components/ui/Alert'
 import type { Package } from '@/types/package'
@@ -191,7 +191,8 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
   )
 }
 
-export default function PaymentPage({ params }: { params: { packageId: string } }) {
+export default function PaymentPage(props: { params: Promise<{ packageId: string }> }) {
+  const params = use(props.params);
   const packageId = params.packageId
   return (
     <Suspense>

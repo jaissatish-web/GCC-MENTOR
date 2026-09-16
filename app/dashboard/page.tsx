@@ -21,7 +21,8 @@ import {
   RectangleStackIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline'
-import { cn, displayFirstName, GULF_COUNTRIES, resumeLabel } from '@/lib/utils'
+import { cn, displayFirstName, GULF_COUNTRIES, packageStatusLabel, resumeLabel } from '@/lib/utils'
+import type { PackageListPage, PackageSummary } from '@/lib/packageSummary'
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
 import { answersFromReadinessCategory, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
@@ -163,14 +164,6 @@ function relativeTime(iso: string): string {
   return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
 }
 
-const STATUS_LABEL: Record<Package['status'], string> = {
-  applied: 'Applied',
-  shortlisted: 'Shortlisted',
-  interview: 'Interview',
-  visa_processing: 'Visa processing',
-  offer: 'Offer',
-}
-
 // Pull a JobMatchResult out of the most recent package's already-fetched
 // `ats_score_card` jsonb (Phase-2 reservation slot; the ATS scan stores
 // `job_match` there when a JD was provided). Display-only — no computation.
@@ -178,7 +171,9 @@ const STATUS_LABEL: Record<Package['status'], string> = {
 export default function DashboardPage() {
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
-  const [packages, setPackages] = useState<Package[]>([])
+  const [packages, setPackages] = useState<PackageSummary[]>([])
+  // Every job the user has, not just the page of summaries below (audit M08).
+  const [packageTotal, setPackageTotal] = useState<number | null>(null)
   const [packagesLoaded, setPackagesLoaded] = useState(false)
   // A CV reading kept on the server until the user decides (migration 047).
   // When there is one, it is the next step above everything else.
@@ -199,12 +194,14 @@ export default function DashboardPage() {
       // Loaded flag so the "create your profile" nudge shows only after we KNOW
       // there is no profile — never a flash before the fetch resolves.
       .finally(() => setProfileLoaded(true))
-    // Same /api/packages call as before — keeping the rows, not just the
-    // count, so Recent Activity and the metric row use real data.
-    fetch('/api/packages', { cache: 'no-store' })
-      .then((res) => { if (!res.ok) throw new Error('Unable to load packages'); return res.json() })
+    // Lightweight summaries of the newest 50 jobs plus the total (audit M08) —
+    // enough for Recent Activity, the metric row and the next step, without
+    // downloading every job's CV, letters and interview transcripts.
+    fetch('/api/packages?view=summary&limit=50&counts=1', { cache: 'no-store' })
+      .then((res) => { if (!res.ok) throw new Error('Unable to load packages'); return res.json() as Promise<PackageListPage> })
       .then((data) => {
-        if (Array.isArray(data?.packages)) setPackages(data.packages as Package[])
+        if (Array.isArray(data?.packages)) setPackages(data.packages)
+        if (typeof data?.total === 'number') setPackageTotal(data.total)
       })
       .catch(() => {
         setLoadError(true)
@@ -263,7 +260,7 @@ export default function DashboardPage() {
   // it is reconstructed from the same category the completeness engine already
   // derived. Same engine, same number the user saw; shown only once a profile exists.
   const gulfAnswers = readiness ? answersFromReadinessCategory(readiness.category) : null
-  const packageCount = packages.length
+  const packageCount = packageTotal ?? packages.length
   const recentPackages = packages.slice(0, 3)
 
   // Next best action — one action, chosen from real state.
@@ -458,7 +455,7 @@ export default function DashboardPage() {
                             .join(' · ') || relativeTime(pkg.created_at)}
                         </span>
                       </span>
-                      <Pill variant={pkg.status}>{STATUS_LABEL[pkg.status]}</Pill>
+                      <Pill variant={pkg.status}>{packageStatusLabel(pkg.status)}</Pill>
                     </Link>
                   ))}
                 </div>

@@ -4,7 +4,9 @@ import { generate } from '@/lib/ai/provider'
 import { buildOptimizationPrompt } from '@/lib/ai/buildOptimizationPrompt'
 import type { SelectedBlocks, OptimizationTarget } from '@/lib/ai/buildOptimizationPrompt'
 import { buildResumeDocument } from '@/lib/resumeDocument'
-import { appendPackageEvent } from '@/lib/packageEvents'
+import { reserveAiAction } from '@/lib/ai/serviceGuard'
+import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
+import { appendPackageEventAtomic, insertPackageForUser, updatePackageServerFields } from '@/lib/packages/serverWrites'
 import { getTemplate } from '@/lib/templates'
 import { validateGrounding } from '@/lib/ai/validateGrounding'
 import type { ValidationFailure } from '@/lib/ai/validateGrounding'
@@ -17,11 +19,7 @@ import {
 import { computeDeterministicCategories } from '@/lib/jobMatch/requirementMapping'
 import { buildJobMatchProfileInputFromFullProfile } from '@/lib/jobMatch/profileAdapters'
 import type { JobMatchCategoryKey, JobMatchCategoryResult } from '@/types/jobMatch'
-import {
-  getRateLimitStatus,
-  incrementRateLimit,
-  LIMIT_ACTION_OPTIMIZATION,
-} from '@/lib/rateLimit'
+import { LIMIT_ACTION_JOB_DESCRIPTION, LIMIT_ACTION_OPTIMIZATION } from '@/lib/rateLimit'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -321,7 +319,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let storedStructuredJob: unknown = null
   let selectedBlocks: SelectedBlocks
   let level: OptimizationLevel
-  let packageServiceEvents: unknown = null
 
   if (generatePackageId) {
     const { data: pkgRow, error: pkgErr } = await supabase
@@ -355,7 +352,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     jobDescription = (pkgRow.job_description as string | null) ?? null
     storedStructuredJob = pkgRow.structured_job ?? null
     level = pkgRow.optimization_level as OptimizationLevel
-    packageServiceEvents = (pkgRow as { service_events?: unknown }).service_events
     selectedBlocks = (pkgRow.selected_blocks as SelectedBlocks | null) ?? {
       summary: true,
       experienceIds: [],
@@ -372,41 +368,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // query. profileId is never trusted alone â€” see the file header note on
   // Unplanned #5. A profile owned by someone else simply does not match and
   // returns no row, never leaking whether it exists.
-  const { data: profileRow, error: profileError } = await supabase
-    .from('career_profiles')
-    .select('*')
-    .eq('id', profileId)
-    .eq('user_id', user.id)
-    .maybeSingle()
-
-  if (profileError) {
-    console.error('optimize: profile lookup error user=' + user.id, profileError.message)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  // One loader for every AI route (lib/packages/profileLoader.ts): a failed
+  // child read is an error, not an empty work history (audit M04).
+  let loadedProfile: CareerProfileFull | null
+  try {
+    loadedProfile = await loadCareerProfileFull(supabase, profileId, user.id)
+  } catch (e) {
+    if (e instanceof ProfileLoadError) {
+      console.error('optimize: incomplete profile read user=' + user.id + ' table=' + e.table)
+      return NextResponse.json(
+        { error: 'We could not read your full Career Profile just now. Nothing was used — please try again.' },
+        { status: 503 },
+      )
+    }
+    throw e
   }
-  if (!profileRow) {
+  if (!loadedProfile) {
     return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
   }
-
-  const fetchChildren = async (table: (typeof CHILD_TABLES)[number]): Promise<unknown[]> => {
-    const { data } = await supabase.from(table).select('*').eq('profile_id', profileId)
-    return (data as unknown[] | null) ?? []
-  }
-  const [work_experience, skills, certifications, education, additional_information] = await Promise.all([
-    fetchChildren('profile_work_experience'),
-    fetchChildren('profile_skills'),
-    fetchChildren('profile_certifications'),
-    fetchChildren('profile_education'),
-    fetchChildren('profile_additional_information'),
-  ])
-
-  const profile: CareerProfileFull = {
-    ...(profileRow as CareerProfile),
-    work_experience: work_experience as ProfileWorkExperience[],
-    skills: skills as ProfileSkill[],
-    certifications: certifications as ProfileCertification[],
-    education: education as ProfileEducation[],
-    additional_information: additional_information as ProfileAdditionalInformation[],
-  }
+  const profile: CareerProfileFull = loadedProfile
 
   // A caller may name a template at creation; anything unknown, unavailable or
   // absent resolves to the default rather than erroring, so a stale client can
@@ -443,7 +423,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // the charge point is still Phase B — but a package created and abandoned
     // now costs one structuring call. Recorded in docs/15_DECISION_LOG.md.
     let structuredJobForRow: unknown = null
-    if (jobDescription) {
+    // Structuring costs a model call, so it passes the same guard as every other
+    // one (audit H03, 2026-09-15). A refusal is non-fatal here, exactly like a
+    // failure: Phase B structures inline under the optimization reservation.
+    const jdReservation = jobDescription
+      ? await reserveAiAction({
+          userId: user.id,
+          action: LIMIT_ACTION_JOB_DESCRIPTION,
+          phone: profile.phone,
+          email: profile.email,
+          ttlSeconds: 120,
+        })
+      : null
+    if (jobDescription && jdReservation && jdReservation.ok) {
       try {
         const jdResult = await generate({
           system: JOB_DESCRIPTION_SYSTEM_PROMPT,
@@ -461,12 +453,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           e instanceof Error ? e.message : String(e),
         )
       }
+      await jdReservation.finish(structuredJobForRow !== null)
     }
 
-    const { data: createdRow, error: createError } = await supabase
-      .from('packages')
-      .insert({
-        user_id: user.id,
+    // Created through the server writer (migration 050): a package row carries
+    // server-derived fields from its first write, so a client cannot INSERT
+    // one. profileId was matched to this user above; user_id is forced there.
+    const { row: createdRow, error: createError } = await insertPackageForUser<{ id: string }>({
+      userId: user.id,
+      row: {
         profile_id: profileId,
         target_job_title: targetFields.target_job_title,
         target_industry: targetFields.target_industry,
@@ -497,14 +492,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // created during this phase would later read as a completed purchase.
         // Nothing gates on it today; it is a record, not a permission.
         is_paid: false,
-      })
-      .select('id')
-      .single()
+      },
+    })
 
     if (createError || !createdRow) {
       console.error(
         'optimize: package create failed user=' + user.id + ' profile=' + profileId,
-        createError?.message ?? 'no row',
+        createError ?? 'no row',
       )
       return NextResponse.json(
         { error: 'Could not start your optimization. Please try again.' },
@@ -530,229 +524,235 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   // ---- PHASE B: the row is paid, so generate into it ------------------------
-  // Rate limit BEFORE the model call — see the file header note. Secondary
-  // keying via the profile's own phone/email, same as extraction.
-  const limit = await getRateLimitStatus({
+  // Reserved BEFORE the model call and settled after (lib/ai/serviceGuard.ts,
+  // audit H01/H03, 2026-09-15): in-flight builds count toward the daily limit,
+  // so two tabs cannot both pass it, and the founder's pause applies here.
+  // Secondary keying via the profile's own phone/email, as before.
+  const reservation = await reserveAiAction({
     userId: user.id,
     action: LIMIT_ACTION_OPTIMIZATION,
     phone: profile.phone,
     email: profile.email,
+    ttlSeconds: 330,
   })
-  if (!limit.allowed) {
-    return NextResponse.json({ error: limit.message ?? 'Daily limit reached' }, { status: 429 })
+  if (!reservation.ok) {
+    return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
   }
 
-  // Job Match findings (TASK-073, docs/GCC_READINESS_JOB_MATCH.md Â§19) â€”
-  // best-effort ONLY. A failure here must never block a paid optimization
-  // that would otherwise have succeeded; the prompt builder already treats
-  // a missing/null value as "behave exactly as before this ticket" (see
-  // buildOptimizationPrompt's renderJobMatchFindings). Deterministic
-  // categories only â€” the LLM semantic explanation layer used on /ats-scan
-  // is skipped here on purpose: nothing in this flow displays it, so paying
-  // for a second AI call to produce prose nobody sees would be pure waste.
-  //
-  // THE STRUCTURING CALL NORMALLY HAPPENED IN PHASE A (migration 045), so the
-  // common path here spends no model call at all — it reads the stored result
-  // and recomputes the categories against the profile as it stands NOW. That
-  // recomputation is the point of storing the structured job rather than the
-  // categories: the user may have edited their profile between creating the
-  // package and generating it, and the findings must reflect the current one.
-  //
-  // The inline fallback stays for two real cases: a package created before
-  // migration 045, and one whose Phase A structuring failed. Those pay the
-  // extra ~10s and risk the timeout exactly as every package used to.
-  let jobMatchCategories: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null = null
-  if (jobDescription) {
-    try {
-      let structuredJob = validateStructuredJobProfile(storedStructuredJob)
-      if (!structuredJob) {
-        const jdResult = await generate({
-          system: JOB_DESCRIPTION_SYSTEM_PROMPT,
-          user: buildJobDescriptionUserPrompt(jobDescription),
-          maxTokens: 1536,
-          temperature: 0.1,
-          userId: user.id,
-          route: '/api/optimize',
-          configKey: 'job_description',
-        })
-        structuredJob = validateStructuredJobProfile(extractJsonObject(jdResult.text))
+  // Only a build that is SAVED counts as a use; every other exit below releases
+  // the slot — a failure that was not the user's fault costs them nothing.
+  let generatedAndSaved = false
+  try {
+
+    // Job Match findings (TASK-073, docs/GCC_READINESS_JOB_MATCH.md Â§19) â€”
+    // best-effort ONLY. A failure here must never block a paid optimization
+    // that would otherwise have succeeded; the prompt builder already treats
+    // a missing/null value as "behave exactly as before this ticket" (see
+    // buildOptimizationPrompt's renderJobMatchFindings). Deterministic
+    // categories only â€” the LLM semantic explanation layer used on /ats-scan
+    // is skipped here on purpose: nothing in this flow displays it, so paying
+    // for a second AI call to produce prose nobody sees would be pure waste.
+    //
+    // THE STRUCTURING CALL NORMALLY HAPPENED IN PHASE A (migration 045), so the
+    // common path here spends no model call at all — it reads the stored result
+    // and recomputes the categories against the profile as it stands NOW. That
+    // recomputation is the point of storing the structured job rather than the
+    // categories: the user may have edited their profile between creating the
+    // package and generating it, and the findings must reflect the current one.
+    //
+    // The inline fallback stays for two real cases: a package created before
+    // migration 045, and one whose Phase A structuring failed. Those pay the
+    // extra ~10s and risk the timeout exactly as every package used to.
+    let jobMatchCategories: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null = null
+    if (jobDescription) {
+      try {
+        let structuredJob = validateStructuredJobProfile(storedStructuredJob)
+        if (!structuredJob) {
+          const jdResult = await generate({
+            system: JOB_DESCRIPTION_SYSTEM_PROMPT,
+            user: buildJobDescriptionUserPrompt(jobDescription),
+            maxTokens: 1536,
+            temperature: 0.1,
+            userId: user.id,
+            route: '/api/optimize',
+            configKey: 'job_description',
+          })
+          structuredJob = validateStructuredJobProfile(extractJsonObject(jdResult.text))
+        }
+        if (structuredJob) {
+          const profileInput = buildJobMatchProfileInputFromFullProfile(profile)
+          jobMatchCategories = computeDeterministicCategories(profileInput, structuredJob)
+        }
+      } catch (e) {
+        console.error('optimize: job match findings failed (non-fatal) user=' + user.id + ' profile=' + profileId, e instanceof Error ? e.message : String(e))
       }
-      if (structuredJob) {
-        const profileInput = buildJobMatchProfileInputFromFullProfile(profile)
-        jobMatchCategories = computeDeterministicCategories(profileInput, structuredJob)
+    }
+
+    const { system, user: userPrompt } = buildOptimizationPrompt(
+      profile,
+      targetFields,
+      level,
+      selectedBlocks,
+      jobDescription,
+      jobMatchCategories,
+    )
+
+    const runOnce = async (
+      userMessage: string,
+    ): Promise<
+      | { truncated: true; parsed: null; validation: null }
+      | { truncated: false; parsed: unknown; validation: ReturnType<typeof validateGrounding> }
+    > => {
+      const result = await generate({
+        system,
+        user: userMessage,
+        maxTokens: 8192,
+        temperature: 0.2,
+        userId: user.id,
+        route: '/api/optimize',
+        configKey: 'optimization',
+        // The one call big enough that a doubled-budget retry cannot finish
+        // inside the function's ceiling. See lib/ai/provider.ts's retry block.
+        deadlineAt,
+        // Shared by BOTH calls below, so the pair can never outrun the ceiling.
+        giveUpAt,
+      })
+      // A cut-off answer is incomplete JSON: never parse or check it (2026-09-12).
+      // It used to fail the grounding check and trigger the corrective retry.
+      if (result.truncated) return { truncated: true, parsed: null, validation: null }
+      const parsed = extractJsonObject(result.text)
+      const parsedSkillsOrder = isObject(parsed) ? parsed.skills_order : undefined
+      const validation = validateGrounding(profile, parsed, parsedSkillsOrder)
+      return { truncated: false, parsed, validation }
+    }
+
+    // A second full generation needs room for a whole healthy answer — ~100s
+    // for the largest resume measured (14 jobs, 5,676 output tokens). With less
+    // left, retrying only runs into the ceiling: exactly how a founder build was
+    // lost on 2026-09-11, when the first answer arrived and the untimed
+    // corrective retry did not.
+    const MIN_RETRY_MS = 100_000
+
+    let attempt: Awaited<ReturnType<typeof runOnce>>
+    try {
+      attempt = await runOnce(userPrompt)
+
+      // Retry ONCE on a hard grounding failure (with a corrective instruction,
+      // docs/PROMPTS.md §7) or on a cut-off answer (as-is — thinking length
+      // varies run to run) — but only when there is time to finish it. A
+      // flag-only result is already `valid: true` and does not trigger a retry.
+      if (attempt.truncated || !attempt.validation.valid) {
+        if (giveUpAt - Date.now() >= MIN_RETRY_MS) {
+          const message = attempt.truncated
+            ? userPrompt
+            : userPrompt + buildCorrectiveAddendum(attempt.validation.failures)
+          attempt = await runOnce(message)
+        } else {
+          console.warn(
+            'optimize: retry skipped, only ' + Math.round((giveUpAt - Date.now()) / 1000) + 's left user=' + user.id,
+          )
+        }
       }
     } catch (e) {
-      console.error('optimize: job match findings failed (non-fatal) user=' + user.id + ' profile=' + profileId, e instanceof Error ? e.message : String(e))
+      const reason = e instanceof Error ? e.message : String(e)
+      console.error('optimize: AI call failed user=' + user.id + ' profile=' + profileId, reason)
+      // A stall (lib/ai/provider.ts) is the AI service not answering — say so,
+      // and that nothing is lost: the job and its settings are saved.
+      const stalled = /stalled|out of time/.test(reason)
+      return NextResponse.json(
+        {
+          error: stalled
+            ? "The AI service didn't answer in time. Your job is saved — please try again."
+            : 'Could not generate your optimized resume. Please try again.',
+        },
+        { status: 502 },
+      )
     }
-  }
 
-  const { system, user: userPrompt } = buildOptimizationPrompt(
-    profile,
-    targetFields,
-    level,
-    selectedBlocks,
-    jobDescription,
-    jobMatchCategories,
-  )
+    if (attempt.truncated) {
+      console.error('optimize: answer cut off at the token budget user=' + user.id + ' profile=' + profileId)
+      return NextResponse.json(
+        { error: "We couldn't finish writing your CV this time. Your job is saved — please try again." },
+        { status: 502 },
+      )
+    }
 
-  const runOnce = async (
-    userMessage: string,
-  ): Promise<
-    | { truncated: true; parsed: null; validation: null }
-    | { truncated: false; parsed: unknown; validation: ReturnType<typeof validateGrounding> }
-  > => {
-    const result = await generate({
-      system,
-      user: userMessage,
-      maxTokens: 8192,
-      temperature: 0.2,
+    if (!attempt.validation.valid) {
+      // NEVER return unvalidated output. Log IDs and reason only â€” never a
+      // field value or the model's offendingValue (docs/RULES.md Â§3).
+      const reasons = attempt.validation.failures
+        .filter((f) => f.severity === 'hard')
+        .map((f) => `${f.code}@${f.path}`)
+        .join(',')
+      console.error(
+        'optimize: validation failed twice user=' + user.id + ' profile=' + profileId + ' reasons=' + reasons,
+      )
+      return NextResponse.json(
+        { error: 'Could not produce a grounded result. Please try again or contact support.' },
+        { status: 502 },
+      )
+    }
+
+    const parsedObj = isObject(attempt.parsed) ? attempt.parsed : {}
+    const optimized_content = buildOptimizedContent(profile, parsedObj, selectedBlocks)
+    const skills_order = resolveSkillsOrder(profile, parsedObj.skills_order)
+
+    // UPDATE, not insert: the row already exists and is already paid for. It is
+    // re-scoped to the caller here as well — the earlier ownership check and this
+    // write are separate statements, and the write must not rely on the read.
+    //
+    // field_visibility_snapshot: visibility state AT GENERATION TIME
+    // (docs/CAREER_PROFILE.md §2 "Visibility storage"), not a live reference.
+    // Re-snapshotted now rather than kept from creation, because generation is
+    // the moment the document is actually produced.
+    // FREEZE WHAT WAS DELIVERED (TASK-132, migration 034). Until now a package
+    // stored only the AI text; every fixed field — name, contact, education,
+    // certifications, photo — was read live from career_profiles at render time,
+    // so editing the profile silently rewrote resumes the user had already paid
+    // for. The rendered document is captured here, once, and renderers prefer it.
+    //
+    // Deliberately the RENDERED document (buildResumeDocument output), not a copy
+    // of the profile: field visibility is already applied, so a hidden field is
+    // absent rather than duplicated into a second, unencrypted table.
+    const document_snapshot = buildResumeDocument({
+      profile,
+      optimizedContent: optimized_content,
+      skillsOrder: skills_order,
+      fieldVisibility: profile.field_visibility,
+    })
+
+    // Server-derived fields go through the server writer (migration 050).
+    const { row: created, error: insertError } = await updatePackageServerFields<{ id: string }>({
+      packageId: generatePackageId as string,
       userId: user.id,
-      route: '/api/optimize',
-      configKey: 'optimization',
-      // The one call big enough that a doubled-budget retry cannot finish
-      // inside the function's ceiling. See lib/ai/provider.ts's retry block.
-      deadlineAt,
-      // Shared by BOTH calls below, so the pair can never outrun the ceiling.
-      giveUpAt,
-    })
-    // A cut-off answer is incomplete JSON: never parse or check it (2026-09-12).
-    // It used to fail the grounding check and trigger the corrective retry.
-    if (result.truncated) return { truncated: true, parsed: null, validation: null }
-    const parsed = extractJsonObject(result.text)
-    const parsedSkillsOrder = isObject(parsed) ? parsed.skills_order : undefined
-    const validation = validateGrounding(profile, parsed, parsedSkillsOrder)
-    return { truncated: false, parsed, validation }
-  }
-
-  // A second full generation needs room for a whole healthy answer — ~100s
-  // for the largest resume measured (14 jobs, 5,676 output tokens). With less
-  // left, retrying only runs into the ceiling: exactly how a founder build was
-  // lost on 2026-09-11, when the first answer arrived and the untimed
-  // corrective retry did not.
-  const MIN_RETRY_MS = 100_000
-
-  let attempt: Awaited<ReturnType<typeof runOnce>>
-  try {
-    attempt = await runOnce(userPrompt)
-
-    // Retry ONCE on a hard grounding failure (with a corrective instruction,
-    // docs/PROMPTS.md §7) or on a cut-off answer (as-is — thinking length
-    // varies run to run) — but only when there is time to finish it. A
-    // flag-only result is already `valid: true` and does not trigger a retry.
-    if (attempt.truncated || !attempt.validation.valid) {
-      if (giveUpAt - Date.now() >= MIN_RETRY_MS) {
-        const message = attempt.truncated
-          ? userPrompt
-          : userPrompt + buildCorrectiveAddendum(attempt.validation.failures)
-        attempt = await runOnce(message)
-      } else {
-        console.warn(
-          'optimize: retry skipped, only ' + Math.round((giveUpAt - Date.now()) / 1000) + 's left user=' + user.id,
-        )
-      }
-    }
-  } catch (e) {
-    const reason = e instanceof Error ? e.message : String(e)
-    console.error('optimize: AI call failed user=' + user.id + ' profile=' + profileId, reason)
-    // A stall (lib/ai/provider.ts) is the AI service not answering — say so,
-    // and that nothing is lost: the job and its settings are saved.
-    const stalled = /stalled|out of time/.test(reason)
-    return NextResponse.json(
-      {
-        error: stalled
-          ? "The AI service didn't answer in time. Your job is saved — please try again."
-          : 'Could not generate your optimized resume. Please try again.',
+      fields: {
+        optimized_content,
+        skills_order,
+        field_visibility_snapshot: profile.field_visibility,
+        document_snapshot,
       },
-      { status: 502 },
-    )
-  }
-
-  if (attempt.truncated) {
-    console.error('optimize: answer cut off at the token budget user=' + user.id + ' profile=' + profileId)
-    return NextResponse.json(
-      { error: "We couldn't finish writing your CV this time. Your job is saved — please try again." },
-      { status: 502 },
-    )
-  }
-
-  if (!attempt.validation.valid) {
-    // NEVER return unvalidated output. Log IDs and reason only â€” never a
-    // field value or the model's offendingValue (docs/RULES.md Â§3).
-    const reasons = attempt.validation.failures
-      .filter((f) => f.severity === 'hard')
-      .map((f) => `${f.code}@${f.path}`)
-      .join(',')
-    console.error(
-      'optimize: validation failed twice user=' + user.id + ' profile=' + profileId + ' reasons=' + reasons,
-    )
-    return NextResponse.json(
-      { error: 'Could not produce a grounded result. Please try again or contact support.' },
-      { status: 502 },
-    )
-  }
-
-  const parsedObj = isObject(attempt.parsed) ? attempt.parsed : {}
-  const optimized_content = buildOptimizedContent(profile, parsedObj, selectedBlocks)
-  const skills_order = resolveSkillsOrder(profile, parsedObj.skills_order)
-
-  // UPDATE, not insert: the row already exists and is already paid for. It is
-  // re-scoped to the caller here as well — the earlier ownership check and this
-  // write are separate statements, and the write must not rely on the read.
-  //
-  // field_visibility_snapshot: visibility state AT GENERATION TIME
-  // (docs/CAREER_PROFILE.md §2 "Visibility storage"), not a live reference.
-  // Re-snapshotted now rather than kept from creation, because generation is
-  // the moment the document is actually produced.
-  // FREEZE WHAT WAS DELIVERED (TASK-132, migration 034). Until now a package
-  // stored only the AI text; every fixed field — name, contact, education,
-  // certifications, photo — was read live from career_profiles at render time,
-  // so editing the profile silently rewrote resumes the user had already paid
-  // for. The rendered document is captured here, once, and renderers prefer it.
-  //
-  // Deliberately the RENDERED document (buildResumeDocument output), not a copy
-  // of the profile: field visibility is already applied, so a hidden field is
-  // absent rather than duplicated into a second, unencrypted table.
-  const document_snapshot = buildResumeDocument({
-    profile,
-    optimizedContent: optimized_content,
-    skillsOrder: skills_order,
-    fieldVisibility: profile.field_visibility,
-  })
-
-  const { data: created, error: insertError } = await supabase
-    .from('packages')
-    .update({
-      optimized_content,
-      skills_order,
-      field_visibility_snapshot: profile.field_visibility,
-      document_snapshot,
-      service_events: appendPackageEvent(
-        packageServiceEvents,
-        'cv_generated',
-        'Optimized CV generated',
-      ),
     })
-    .eq('id', generatePackageId)
-    .eq('user_id', user.id)
-    .select('id')
-    .single()
 
-  if (insertError || !created) {
-    console.error('optimize: package update failed user=' + user.id + ' package=' + generatePackageId, insertError?.message ?? 'no row')
-    return NextResponse.json({ error: 'Could not save your optimized resume. Please try again.' }, { status: 500 })
+    if (insertError || !created) {
+      console.error('optimize: package update failed user=' + user.id + ' package=' + generatePackageId, insertError ?? 'no row')
+      return NextResponse.json({ error: 'Could not save your optimized resume. Please try again.' }, { status: 500 })
+    }
+
+    const packageId = created.id
+    // History is appended atomically; failing to record it never loses the CV.
+    await appendPackageEventAtomic({ packageId, userId: user.id, type: 'cv_generated', label: 'Optimized CV generated' }).catch((e) =>
+      console.error('optimize: history event not recorded pkg=' + packageId, e instanceof Error ? e.message : String(e)),
+    )
+
+    // The credit grant (TASK-045) moved to Phase A, where it belongs now: a
+    // granted credit is what makes a package PAID, and payment has to be settled
+    // before generation rather than after it. Nothing consumes a credit here.
+
+    // Usage logging happens inside generate() (TASK-039) — do not add a second call.
+    generatedAndSaved = true
+
+    return NextResponse.json({ success: true, packageId })
+  } finally {
+    await reservation.finish(generatedAndSaved)
   }
-
-  const packageId = created.id as string
-
-  // The credit grant (TASK-045) moved to Phase A, where it belongs now: a
-  // granted credit is what makes a package PAID, and payment has to be settled
-  // before generation rather than after it. Nothing consumes a credit here.
-
-  // Usage logging happens inside generate() (TASK-039) â€” do not add a second
-  // call. Only a fully successful run consumes a rate-limit slot â€” same
-  // accepted tradeoff as extraction's Unplanned #12: a failed/retried
-  // attempt that produced nothing for the user should not cost them a try.
-  await incrementRateLimit({ userId: user.id, action: LIMIT_ACTION_OPTIMIZATION })
-
-  return NextResponse.json({ success: true, packageId })
 }

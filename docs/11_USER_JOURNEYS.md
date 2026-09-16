@@ -53,8 +53,9 @@ readiness score.
 ## 2. Getting started, signed in
 
 ```
-/login  /signup                  magic link
-   ↓
+/login  /signup                  email + password (magic links still complete)
+   ↓                             /forgot-password → email → /auth/update-password
+   ↓                             a deep link (?redirectTo=…) returns to that page
 /onboarding                      three ways in: upload · paste · type
    ↓                             (from a free scan: skips straight through)
 /onboarding/report               the full Gulf Readiness report, unlocked
@@ -88,6 +89,16 @@ user correctly. It is completed on the login page and the fragment is cleared.
 
 **Signing out** is in the three-bar menu on every signed-in page, under Account, below
 Settings. It lands on the home page.
+
+**Signing in returns you to what you opened (2026-09-15, audit M09).** Middleware
+records the page *and* its query string — `/interview-qa?package=<id>` — and login,
+signup and the emailed links all go back there through one validated rule
+(`lib/safeRedirect.ts`); a crafted destination falls back to the dashboard.
+
+**Password recovery (2026-09-15, audit M03):** "Forgot password?" on the login page →
+an email that says the same thing whether or not the address has an account → the link
+signs the user in on `/auth/update-password` → new password → dashboard. An expired or
+reused link says so and offers a new one.
 
 ---
 
@@ -208,8 +219,12 @@ On `/package/[id]`:
 - **Adjust font, size, accent colour** and photo size, on 13 of them
 - **Edit the text** — the AI summary and bullets
 - **Download the PDF**
-- **Set a status**: applied · shortlisted · interview · visa processing · offer
-- **Generate a cover letter**, if a credit is held
+- **Set the application stage**: saved · not applied (where every new job starts) ·
+  applied · shortlisted · interview · visa processing · offer · not selected · withdrawn.
+  Preparing a CV is not applying; the stage is the user's to move (audit M07)
+- **Generate a cover letter** — written from this saved CV first (no credit needed while
+  the paid locks are off)
+- **Prepare interview Q&A and practise a text mock interview** from the same saved CV
 
 **Editing text re-applies onto the frozen delivered document** rather than rebuilding
 it. Rebuilding would read the live profile and reintroduce the bug the freeze exists to

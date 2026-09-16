@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { AuthShell } from '@/components/auth/AuthShell'
 import { AuthForm } from '@/components/auth/AuthForm'
 import { Card } from '@/components/ui/Card'
+import { safeRedirectPath } from '@/lib/safeRedirect'
 import { signup } from './actions'
 
 /**
@@ -11,7 +12,14 @@ import { signup } from './actions'
  * — is byte-for-byte unchanged, see ./actions.ts. No fields were added
  * beyond the existing email/password.
  */
-export default function SignupPage() {
+export default async function SignupPage(props: { searchParams: Promise<{ redirectTo?: string | string[] }> }) {
+  // Carried from /login or middleware so a new user still lands on the page they
+  // asked for (audit M09). Validated here and again in the action.
+  const searchParams = await props.searchParams
+  const raw = Array.isArray(searchParams.redirectTo) ? searchParams.redirectTo[0] : searchParams.redirectTo
+  const safe = safeRedirectPath(raw, '/onboarding')
+  const carry = safe !== '/onboarding' ? safe : null
+
   return (
     <AuthShell
       headline="Start building your Gulf Career Profile."
@@ -24,11 +32,11 @@ export default function SignupPage() {
         <p className="mb-5 text-[14px] leading-relaxed text-ink-muted">
           Build your Career Profile once. Every application reuses it.
         </p>
-        <AuthForm action={signup} submitLabel="Create your account" tone="light" />
+        <AuthForm action={signup} submitLabel="Create your account" tone="light" redirectTo={carry} />
         <p className="mt-6 text-center text-[13px] text-ink-muted">
           Already have an account?{' '}
           <Link
-            href="/login"
+            href={carry ? `/login?redirectTo=${encodeURIComponent(carry)}` : '/login'}
             className="inline-flex min-h-11 items-center px-1 font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             Sign in

@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
@@ -12,7 +12,9 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/utils'
-import type { InterviewQuestionAnswer, InterviewQuestionCategory, InterviewQuestionSet, Package } from '@/types/package'
+import { usePackagePicker } from '@/lib/usePackagePicker'
+import type { PackageSummary } from '@/lib/packageSummary'
+import type { InterviewQuestionAnswer, InterviewQuestionCategory, InterviewQuestionSet } from '@/types/package'
 
 const QA_NOTES = [
   'Good answers sound specific because they are tied to your own project history.',
@@ -38,7 +40,7 @@ const CATEGORY_ORDER: InterviewQuestionCategory[] = [
   'company_role',
 ]
 
-function packageTarget(pkg: Package): string {
+function packageTarget(pkg: Pick<PackageSummary, 'target_job_title' | 'target_company'>): string {
   return [pkg.target_job_title, pkg.target_company].filter(Boolean).join(' · ')
 }
 
@@ -58,39 +60,21 @@ function qaToText(set: InterviewQuestionSet): string {
     .join('\n\n')
 }
 
+/**
+ * Interview Q&A. LIST LIGHT, OPEN ONE (audit M08): the picker lists jobs whose
+ * CV is built; only the chosen job's Q&A set is loaded. The picker is locked
+ * while a set is being generated, so a reply cannot land on another job.
+ */
 function InterviewQaScreen() {
   const searchParams = useSearchParams()
   const requestedIdRef = useRef(searchParams.get('package'))
-  const [packages, setPackages] = useState<Package[] | null>(null)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [loadError, setLoadError] = useState<string | null>(null)
+  const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: true })
+  const { list, total, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
   const [generating, setGenerating] = useState(false)
   const [genError, setGenError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
-  const didInit = useRef(false)
 
-  useEffect(() => {
-    if (didInit.current) return
-    didInit.current = true
-    fetch('/api/packages', { cache: 'no-store' })
-      .then((r) => { if (!r.ok) throw new Error('Unable to load packages'); return r.json() })
-      .then((data) => {
-        const list = (data?.packages as Package[] | undefined) ?? []
-        setPackages(list)
-        const optimized = list.filter((p) => p.optimized_content != null)
-        setSelectedId(
-          optimized.find((p) => p.id === requestedIdRef.current)?.id ??
-            optimized[0]?.id ??
-            list.find((p) => p.id === requestedIdRef.current)?.id ??
-            null,
-        )
-      })
-      .catch(() => setLoadError('Could not load your resume packages. Please try again.'))
-  }, [])
-
-  const optimizedPackages = useMemo(() => (packages ?? []).filter((p) => p.optimized_content != null), [packages])
-  const selected = useMemo(() => optimizedPackages.find((p) => p.id === selectedId) ?? null, [optimizedPackages, selectedId])
-  const questionSet = selected?.interview_questions ?? null
+  const questionSet = detail?.interview_questions ?? null
   const grouped = useMemo(() => {
     const map = new Map<InterviewQuestionCategory, InterviewQuestionAnswer[]>()
     for (const category of CATEGORY_ORDER) map.set(category, [])
@@ -101,12 +85,13 @@ function InterviewQaScreen() {
   }, [questionSet])
 
   async function generate() {
-    if (!selected) return
+    if (!selectedId) return
+    const packageId = selectedId
     setGenError(null)
     setGenerating(true)
     setCopied(false)
     try {
-      const res = await fetch(`/api/packages/${encodeURIComponent(selected.id)}/interview-qa`, { method: 'POST' })
+      const res = await fetch(`/api/packages/${encodeURIComponent(packageId)}/interview-qa`, { method: 'POST' })
       const payload = await res.json().catch(() => ({}))
       if (!res.ok) {
         setGenError((payload?.error as string | undefined) ?? 'Could not generate interview Q&A. Please try again.')
@@ -114,10 +99,11 @@ function InterviewQaScreen() {
       }
       const next = payload?.interview_questions as InterviewQuestionSet | undefined
       if (next) {
-        setPackages((prev) => (prev ? prev.map((p) => (p.id === selected.id ? { ...p, interview_questions: next } : p)) : prev))
+        picker.updateDetail(packageId, (p) => ({ ...p, interview_questions: next }))
+        picker.patchSummary(packageId, { qa_question_count: next.question_count })
       }
     } catch {
-      setGenError('Could not generate interview Q&A. Please try again.')
+      setGenError('Could not reach the server. Check your connection and try again — nothing was used.')
     } finally {
       setGenerating(false)
     }
@@ -134,17 +120,20 @@ function InterviewQaScreen() {
     }
   }
 
-  if (loadError) {
+  if (listError) {
     return (
-      <main className="mx-auto w-full max-w-[960px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
-        <div className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
-          {loadError}
+      <main className="mx-auto flex w-full max-w-[960px] flex-col items-start gap-3 px-5 py-8 font-redesign-sans sm:px-8 lg:px-10">
+        <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+          {listError}
         </div>
+        <Button type="button" variant="secondary" onClick={picker.reloadList}>
+          Try again
+        </Button>
       </main>
     )
   }
 
-  if (packages === null) {
+  if (list === null) {
     return (
       <main className="mx-auto w-full max-w-[960px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
         <SkeletonGroup label="Loading interview preparation">
@@ -159,11 +148,11 @@ function InterviewQaScreen() {
   return (
     <PageShell
       title="Interview Q&A"
-      subtitle="Generate 25 role-specific answers from one optimized resume, its job description and your real profile."
+      subtitle="Generate up to 25 role-specific answers from one optimized resume, its job description and your real profile."
     >
-      {selected ? <PreparationJourney pkg={selected} current="qa" /> : null}
+      {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current="qa" /> : null}
       <Card tone="light" className="mt-5 p-5 sm:p-6">
-        {packages.length === 0 ? (
+        {total === 0 ? (
           <EmptyState
             tone="inline"
             icon={QuestionMarkCircleIcon}
@@ -176,7 +165,7 @@ function InterviewQaScreen() {
               </Link>
             }
           />
-        ) : optimizedPackages.length === 0 ? (
+        ) : list.length === 0 ? (
           <EmptyState
             tone="inline"
             icon={QuestionMarkCircleIcon}
@@ -193,8 +182,16 @@ function InterviewQaScreen() {
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
               <span className="field-label">Which optimized resume should we prepare?</span>
-              <select value={selectedId ?? ''} onChange={(e) => setSelectedId(e.target.value)} className="field">
-                {optimizedPackages.map((p) => (
+              <select
+                value={selectedId ?? ''}
+                onChange={(e) => {
+                  setGenError(null)
+                  setSelectedId(e.target.value)
+                }}
+                disabled={generating}
+                className="field"
+              >
+                {list.map((p) => (
                   <option key={p.id} value={p.id} className="bg-white text-ink">
                     {packageTarget(p)}
                   </option>
@@ -213,8 +210,8 @@ function InterviewQaScreen() {
                 steps={[
                   'Reading the optimized resume',
                   'Studying the target role and job description',
-                  'Writing 25 Gulf-focused practice answers',
-                  'Checking answers against your real profile',
+                  'Writing Gulf-focused practice answers',
+                  'Checking every number against your CV and profile',
                 ]}
                 stepMs={5500}
                 notes={QA_NOTES}
@@ -223,10 +220,10 @@ function InterviewQaScreen() {
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-col gap-1 text-[12.5px] text-ink-soft">
-                {selected ? (
+                {selectedSummary ? (
                   <>
-                    <span>
-                      For <strong className="text-ink">{packageTarget(selected)}</strong>
+                    <span className="break-words">
+                      For <strong className="text-ink">{packageTarget(selectedSummary)}</strong>
                     </span>
                     {questionSet ? <span>Saved {new Date(questionSet.generated_at).toLocaleString()}</span> : null}
                   </>
@@ -242,7 +239,7 @@ function InterviewQaScreen() {
                   type="button"
                   variant="primary"
                   onClick={() => void generate()}
-                  disabled={!selected || generating}
+                  disabled={!selectedId || generating || detailLoading}
                   busy={generating}
                   busyLabel="Generating…"
                 >
@@ -250,16 +247,37 @@ function InterviewQaScreen() {
                 </Button>
               </div>
             </div>
+            {questionSet ? (
+              <p className="text-[12px] leading-relaxed text-ink-muted">
+                Regenerating replaces this saved set with a new one.
+              </p>
+            ) : null}
           </div>
         )}
       </Card>
+
+      {detailError ? (
+        <div className="mt-6 flex flex-col items-start gap-3">
+          <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+            {detailError}
+          </p>
+          <Button type="button" variant="secondary" onClick={picker.reloadDetail}>
+            Try again
+          </Button>
+        </div>
+      ) : detailLoading && !detail ? (
+        <SkeletonGroup label="Loading this job's Q&A" className="mt-6">
+          <Skeleton shape="title" />
+          <Skeleton />
+        </SkeletonGroup>
+      ) : null}
 
       {questionSet ? (
         <section className="mt-6 flex flex-col gap-5">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="font-display text-[21px] font-semibold text-ink">Practice set</h2>
-              <p className="text-[12.5px] text-ink-muted">
+              <p className="break-words text-[12.5px] text-ink-muted">
                 {questionSet.question_count} questions for {questionSet.target_job_title}
                 {questionSet.target_company ? ` · ${questionSet.target_company}` : ''}
               </p>
@@ -317,7 +335,7 @@ function InterviewQaScreen() {
       ) : null}
 
       <p className="mt-6 text-center text-[12px] text-ink-muted">
-        Answers are generated from the optimized resume package and checked against your saved Career Profile.
+        Answers are written from this job&apos;s saved CV and your Career Profile. Any answer stating a number that is in neither is removed before you see it.
       </p>
     </PageShell>
   )

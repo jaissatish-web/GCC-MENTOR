@@ -3,20 +3,31 @@ import { createClient } from '@/lib/supabase/server'
 import { buildMockInterviewReportPrompt } from '@/lib/ai/buildMockInterviewPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
 import { normalizeMockInterviewReport, validateMockInterviewReport } from '@/lib/ai/validateMockInterview'
-import { appendPackageEvent } from '@/lib/packageEvents'
+import { reserveAiAction } from '@/lib/ai/serviceGuard'
+import { LIMIT_ACTION_MOCK_REPORT } from '@/lib/rateLimit'
+import { completeMockRunAtomic } from '@/lib/packages/serverWrites'
 import type { MockInterviewRun } from '@/types/package'
 
+/**
+ * POST /api/packages/[id]/mock-interview/[runId]/finish — the preparation report.
+ *
+ * 2026-09-15 remediation (audit M05, H03, H04, H09):
+ *   - A COMPLETED REPORT IS FINAL. Finishing an already-finished run returns the
+ *     saved report and spends nothing — it used to regenerate and overwrite it.
+ *     To practise again the user starts a new run; old reports stay as they were.
+ *   - EARLY FINISH is allowed with at least one answer, and says so: the response
+ *     carries answered/total, and the report is told which questions were skipped
+ *     so it does not guess how they would have gone.
+ *   - Quota + pause guard, one deadline, atomic save (migration 050).
+ */
+
 export const maxDuration = 120
+const DEADLINE_MS = 100_000
+const MIN_REPAIR_MS = 35_000
 
-function safeDetail(error: unknown): string {
-  if (error instanceof AiTaskError) return `${error.kind}: ${error.detail ?? error.message}`
-  return error instanceof Error ? error.message : String(error)
-}
-
-export async function POST(
-  _request: Request,
-  { params }: { params: { id: string; runId: string } },
-): Promise<NextResponse> {
+export async function POST(_request: Request, props: { params: Promise<{ id: string; runId: string }> }): Promise<NextResponse> {
+  const startedAt = Date.now()
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { user },
@@ -26,7 +37,7 @@ export async function POST(
 
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
-    .select('id, mock_interview_runs, service_events')
+    .select('id, mock_interview_runs')
     .eq('id', params.id)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -37,59 +48,78 @@ export async function POST(
   if (!pkgRow) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
 
   const runs = Array.isArray(pkgRow.mock_interview_runs) ? (pkgRow.mock_interview_runs as MockInterviewRun[]) : []
-  const runIndex = runs.findIndex((r) => r.id === params.runId)
-  if (runIndex < 0) return NextResponse.json({ error: 'Mock interview not found' }, { status: 404 })
-  const run = runs[runIndex]
-  const answeredCount = run.questions.filter((q) => q.answer).length
-  if (answeredCount === 0) return NextResponse.json({ error: 'Answer at least one question before finishing.' }, { status: 400 })
+  const run = runs.find((r) => r.id === params.runId)
+  if (!run) return NextResponse.json({ error: 'Mock interview not found' }, { status: 404 })
 
-  const prompt = buildMockInterviewReportPrompt(run)
-  let report
+  const total = run.questions.length
+  const answered = run.questions.filter((q) => q.answer).length
+  if (run.status === 'completed' && run.final_report) {
+    return NextResponse.json({ success: true, run, answered, total, alreadyCompleted: true })
+  }
+  if (answered === 0) return NextResponse.json({ error: 'Answer at least one question before finishing.' }, { status: 400 })
+
+  const reservation = await reserveAiAction({ userId: user.id, action: LIMIT_ACTION_MOCK_REPORT, ttlSeconds: 150 })
+  if (!reservation.ok) {
+    return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
+  }
+
+  let succeeded = false
   try {
-    const result = await runAiTask({
-      service: 'mock_interview',
-      route: '/api/packages/[id]/mock-interview/[runId]/finish',
-      userId: user.id,
-      persona: prompt.persona,
-      instructions: prompt.instructions,
-      input: prompt.input,
-      grounding: { mode: 'not_applicable', reason: 'summarizes the user supplied mock interview answers and per-answer feedback' },
-      validateShape: (output) => {
-        const failures = validateMockInterviewReport(output)
-        return failures.length ? failures.join('; ') : null
-      },
-      maxTokens: 2200,
-      temperature: 0.2,
-      repairAttempts: 1,
-    })
-    report = normalizeMockInterviewReport(result.value)
-  } catch (error) {
-    console.error('mock-interview finish: AI call failed user=' + user.id + ' pkg=' + params.id, safeDetail(error))
-    return NextResponse.json({ error: 'Could not create the final report. Please try again.' }, { status: 502 })
-  }
+    const prompt = buildMockInterviewReportPrompt(run)
+    let report
+    try {
+      const result = await runAiTask({
+        service: 'mock_interview',
+        route: '/api/packages/[id]/mock-interview/[runId]/finish',
+        userId: user.id,
+        persona: prompt.persona,
+        instructions: prompt.instructions,
+        input: prompt.input,
+        grounding: { mode: 'not_applicable', reason: 'summarizes the user supplied mock interview answers and per-answer feedback' },
+        validateShape: (output) => {
+          const failures = validateMockInterviewReport(output)
+          return failures.length ? failures.join('; ') : null
+        },
+        maxTokens: 2200,
+        temperature: 0.2,
+        repairAttempts: 1,
+        deadlineAt: startedAt + DEADLINE_MS,
+        minRepairMs: MIN_REPAIR_MS,
+      })
+      report = normalizeMockInterviewReport(result.value)
+    } catch (error) {
+      console.error(
+        'mock-interview finish: AI call failed user=' + user.id + ' pkg=' + params.id,
+        error instanceof AiTaskError ? `${error.kind}: ${error.detail ?? error.message}` : String(error),
+      )
+      return NextResponse.json(
+        { error: 'Could not create the report. Your answers are saved and nothing was used — please try again.' },
+        { status: 502 },
+      )
+    }
 
-  const updatedRun: MockInterviewRun = {
-    ...run,
-    status: 'completed',
-    completed_at: new Date().toISOString(),
-    current_index: Math.min(answeredCount, run.questions.length - 1),
-    final_report: report,
-  }
-  const updatedRuns = runs.map((r, i) => (i === runIndex ? updatedRun : r))
-  const { error: updateError } = await supabase
-    .from('packages')
-    .update({
-      mock_interview_runs: updatedRuns,
-      service_events: appendPackageEvent(pkgRow.service_events, 'mock_interview_completed', 'Mock interview report completed', {
-        overall_score: report.overall_score,
-      }),
-    })
-    .eq('id', params.id)
-    .eq('user_id', user.id)
-  if (updateError) {
-    console.error('mock-interview finish: save failed user=' + user.id + ' pkg=' + params.id, updateError.message)
-    return NextResponse.json({ error: 'Could not save the final report. Please try again.' }, { status: 500 })
-  }
+    let write
+    try {
+      write = await completeMockRunAtomic({ packageId: params.id, userId: user.id, runId: params.runId, report })
+    } catch (e) {
+      console.error('mock-interview finish: save failed user=' + user.id + ' pkg=' + params.id, e instanceof Error ? e.message : String(e))
+      return NextResponse.json({ error: 'Could not save the report. Your answers are saved — please try again.' }, { status: 500 })
+    }
 
-  return NextResponse.json({ success: true, run: updatedRun })
+    if (write.status === 'already_completed' && write.run) {
+      // Another tab finished first. Its report stands; this one is not saved.
+      return NextResponse.json({ success: true, run: write.run, answered, total, alreadyCompleted: true })
+    }
+    if (write.status === 'no_answers') {
+      return NextResponse.json({ error: 'Answer at least one question before finishing.' }, { status: 400 })
+    }
+    if (write.status !== 'completed' || !write.run) {
+      return NextResponse.json({ error: 'Mock interview not found' }, { status: 404 })
+    }
+
+    succeeded = true
+    return NextResponse.json({ success: true, run: write.run, answered, total })
+  } finally {
+    await reservation.finish(succeeded)
+  }
 }

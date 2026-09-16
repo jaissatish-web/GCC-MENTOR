@@ -11,6 +11,8 @@ import { createDraft, publishVersion, revertToBuiltIn, isPromptKey } from '@/lib
 import { createServicePackage, setServicePackageActive } from '@/lib/admin/servicePackages'
 import { setEntitlement } from '@/lib/entitlements'
 import { saveSiteContent } from '@/lib/admin/siteContent'
+import { setServicePaused, updateActionLimits } from '@/lib/admin/serviceControls'
+import { runRetention } from '@/lib/admin/retention'
 
 export async function overrideRateLimitAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin(); const userId = String(formData.get('userId') ?? '').trim(); const action = String(formData.get('action') ?? '').trim(); const rawOverride = String(formData.get('override') ?? '').trim(); const reason = String(formData.get('reason') ?? '').trim(); const q = String(formData.get('q') ?? ''); const override = rawOverride === '' ? null : Number.parseInt(rawOverride, 10)
@@ -172,4 +174,43 @@ export async function saveSiteContentAction(formData: FormData): Promise<void> {
   })
   if (!result.ok) redirect(`/admin/content?error=${encodeURIComponent(result.error)}`)
   redirect('/admin/content?saved=1')
+}
+
+/**
+ * Service controls (audit M14, 2026-09-15). requireAdmin() first, as for every
+ * action in this file. The settings take effect server-side on the next request
+ * (lib/ai/serviceGuard.ts); every change is recorded with before/after values.
+ */
+export async function updateServiceLimitsAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  const result = await updateActionLimits({
+    action: String(formData.get('action') ?? '').trim(),
+    dailyLimit: formData.get('dailyLimit'),
+    globalLimit: formData.get('globalLimit'),
+    maxConcurrent: formData.get('maxConcurrent'),
+    adminId: admin.id,
+  })
+  if (!result.ok) redirect(`/admin/services?error=${encodeURIComponent(result.error)}`)
+  redirect(`/admin/services?saved=${encodeURIComponent('Allowances saved.')}`)
+}
+
+export async function setServicePausedAction(formData: FormData): Promise<void> {
+  const admin = await requireAdmin()
+  const paused = String(formData.get('paused') ?? '') === 'on'
+  const result = await setServicePaused({
+    serviceKey: String(formData.get('serviceKey') ?? '').trim(),
+    paused,
+    message: String(formData.get('message') ?? ''),
+    adminId: admin.id,
+  })
+  if (!result.ok) redirect(`/admin/services?error=${encodeURIComponent(result.error)}`)
+  redirect(`/admin/services?saved=${encodeURIComponent(paused ? 'Service paused.' : 'Service resumed.')}`)
+}
+
+/** Run the retention clean-up now (audit H07) — same job the nightly cron runs. */
+export async function runRetentionNowAction(): Promise<void> {
+  await requireAdmin()
+  const result = await runRetention('admin')
+  if (!result.ok) redirect(`/admin/services?error=${encodeURIComponent('Clean-up failed: ' + (result.error ?? 'unknown error'))}`)
+  redirect(`/admin/services?saved=${encodeURIComponent('Clean-up finished.')}`)
 }

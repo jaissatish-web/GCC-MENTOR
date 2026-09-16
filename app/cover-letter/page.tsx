@@ -1,6 +1,7 @@
 'use client'
 
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
@@ -11,46 +12,33 @@ import { ProcessingInline } from '@/components/ui/Processing'
 import { COVER_LETTER_NOTES } from '@/lib/processingNotes'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { cn } from '@/lib/utils'
-import type { CoverLetter, CoverLetterTone, Package } from '@/types/package'
+import { usePackagePicker } from '@/lib/usePackagePicker'
+import type { PackageSummary } from '@/lib/packageSummary'
+import type { CoverLetter, CoverLetterTone } from '@/types/package'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 
 /**
  * Cover Letter — new route (TASK-093, PAGE_SPECS §C / TASK-066 frontend).
  *
  * Generation UI. The backend writes a letter FROM a resume package (POST
- * /api/packages/[id]/cover-letter, empty body — it reads the target role and job
- * description off the package itself), so this page picks a package, shows every
- * letter already on it, and offers a Generate button.
+ * /api/packages/[id]/cover-letter) — since 2026-09-15 from that job's SAVED CV
+ * first, with the Career Profile as support (audit M04). This page picks a job,
+ * shows every letter already on it, and offers a Generate button.
  *
- * NO GATING while the locks are off (founder decision 2026-08-17). This screen
- * used to require the package to be paid and a `cover_letter` credit to be
- * available, and to show the credit balance. Both requirements are gone, and the
- * balance is no longer displayed — a counter implies something is spending it.
+ * LIST LIGHT, OPEN ONE (audit M08): the picker lists job summaries; only the
+ * chosen job's letters are loaded (lib/usePackagePicker.ts). The picker is
+ * locked while a letter is being written, so it cannot land on another job.
  *
- * REDEEM-A-CODE REMOVED (2026-08-18, founder decision: not needed here). This
- * page used to also carry a "redeem a promo code" form and the credit-balance
- * plumbing behind it (GET /api/service-credits, POST /api/redeem-package-promo).
- * Both routes still exist — they are shared credit infrastructure, not owned by
- * this page, and become meaningful again once the paid locks return — but this
- * screen no longer calls either. Server-side is still the only authority: this
- * page surfaces the server's verbatim error strings and never decides anything
- * itself.
+ * NO GATING while the locks are off (founder decision 2026-08-17). The server
+ * is the only authority; this page shows its errors verbatim.
  *
- * TONE SELECTION (2026-08-18, founder decision — resolves the gap once
- * flagged here): §C's "form field set (persona/tone selection)" is now real.
- * Four styles — Professional / Short / Technical / Explanatory
- * (lib/ai/buildCoverLetterPrompt.ts's TONE_INSTRUCTIONS) — are sent as
- * `{ tone }` in the POST body and genuinely change what the model writes;
- * this is not a control that sends nothing. Each generated letter records
- * which tone produced it and shows it as a small label, so a letter list
- * with several styles stays legible. Pre-2026-08-18 letters have no `tone`
- * on their stored record and simply show no label — never a guessed one.
+ * TONE SELECTION (2026-08-18, founder decision): four styles are sent as
+ * `{ tone }` and genuinely change what the model writes. Each letter records
+ * its tone; pre-2026-08-18 letters simply show no label — never a guessed one.
  */
 
-function letterTarget(pkg: Package): string {
-  // The employer only when there is one. "· No company" was our null printed
-  // as if it were the user's words, and it cut the job title short in the
-  // dropdown on a phone.
+function letterTarget(pkg: Pick<PackageSummary, 'target_job_title' | 'target_company'>): string {
+  // The employer only when there is one.
   const bits = [pkg.target_job_title, pkg.target_company].filter(Boolean)
   return bits.join(' · ')
 }
@@ -67,10 +55,9 @@ function CoverLetterScreen() {
   // step, with that job already chosen. Read once; unknown ids fall back.
   const searchParams = useSearchParams()
   const requestedIdRef = useRef(searchParams.get('package'))
-  const [packages, setPackages] = useState<Package[] | null>(null)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: false })
+  const { list, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
   const [tone, setTone] = useState<CoverLetterTone>('professional')
-  const [loadError, setLoadError] = useState<string | null>(null)
 
   const [generating, setGenerating] = useState(false)
   const [genError, setGenError] = useState<string | null>(null)
@@ -78,41 +65,22 @@ function CoverLetterScreen() {
   // Local edits (edit-in-place textarea per letter) — never persisted.
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const didInit = useRef(false)
 
-  useEffect(() => {
-    if (didInit.current) return
-    didInit.current = true
-    fetch('/api/packages', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : { packages: [] }))
-      .then((data) => {
-        const list = (data?.packages as Package[] | undefined) ?? []
-        setPackages(list)
-        setSelectedId(list.find((p) => p.id === requestedIdRef.current)?.id ?? list[0]?.id ?? null)
-      })
-      .catch(() => setLoadError('Could not load your packages. Please try again.'))
-  }, [])
-
-  // EVERY resume is eligible while the locks are off (founder decision
-  // 2026-08-17). This used to filter to paid packages only; leaving that filter
-  // in place would now hide every resume the user has, because nothing is marked
-  // paid any more — the screen would look broken rather than open.
-  const eligiblePackages = useMemo(() => packages ?? [], [packages])
-  const selected = useMemo(() => (packages ?? []).find((p) => p.id === selectedId) ?? null, [packages, selectedId])
   const letters = useMemo(
-    () => (selected?.cover_letters ?? []).slice().sort((a, b) => b.generated_at.localeCompare(a.generated_at)),
-    [selected],
+    () => (detail?.cover_letters ?? []).slice().sort((a, b) => b.generated_at.localeCompare(a.generated_at)),
+    [detail],
   )
   // No credit requirement and no paid requirement while the locks are off. The
   // server is still the authority; this only stops a double-submit.
-  const canGenerate = selected !== null && !generating
+  const canGenerate = selectedId !== null && !generating
 
   async function generate() {
-    if (!selected) return
+    if (!selectedId) return
+    const packageId = selectedId
     setGenError(null)
     setGenerating(true)
     try {
-      const res = await fetch(`/api/packages/${encodeURIComponent(selected.id)}/cover-letter`, {
+      const res = await fetch(`/api/packages/${encodeURIComponent(packageId)}/cover-letter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tone }),
@@ -124,31 +92,26 @@ function CoverLetterScreen() {
       }
       const letter = payload?.letter as CoverLetter | undefined
       if (letter) {
-        setPackages((prev) =>
-          prev
-            ? prev.map((p) => (p.id === selected.id ? { ...p, cover_letters: [...(p.cover_letters ?? []), letter] } : p))
-            : prev,
-        )
+        picker.updateDetail(packageId, (p) => ({ ...p, cover_letters: [...(p.cover_letters ?? []), letter] }))
+        const current = list?.find((p) => p.id === packageId)
+        picker.patchSummary(packageId, { cover_letter_count: (current?.cover_letter_count ?? 0) + 1 })
         setEdits((e) => ({ ...e, [letter.id]: letter.full_text }))
       }
     } catch {
-      setGenError('Could not generate your cover letter. Please try again.')
+      setGenError('Could not reach the server. Check your connection and try again — nothing was used.')
     } finally {
       setGenerating(false)
     }
   }
 
   async function copyLetter(letter: CoverLetter) {
-    // Falls back to the stored text, as Download already did. It read only
-    // `edits`, which holds just the letters generated in this visit — so Copy
-    // on any letter loaded from the server put an EMPTY string on the clipboard.
+    // Falls back to the stored text, as Download already did.
     const text = edits[letter.id] ?? letter.full_text
     try {
       await navigator.clipboard.writeText(text)
       setCopiedId(letter.id)
       window.setTimeout(() => setCopiedId((c) => (c === letter.id ? null : c)), 2000)
     } catch {
-      // clipboard unavailable — fall back to a selection hint
       setGenError('Could not copy automatically. Select the text and copy manually.')
     }
   }
@@ -166,19 +129,20 @@ function CoverLetterScreen() {
     URL.revokeObjectURL(url)
   }
 
-  if (loadError) {
+  if (listError) {
     return (
-      <main className="mx-auto w-full max-w-[900px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
-        <div className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
-          {loadError}
+      <main className="mx-auto flex w-full max-w-[900px] flex-col items-start gap-3 px-5 py-8 font-redesign-sans sm:px-8 lg:px-10">
+        <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+          {listError}
         </div>
+        <Button type="button" variant="secondary" onClick={picker.reloadList}>
+          Try again
+        </Button>
       </main>
     )
   }
 
-  // Credits no longer gate anything, so the page must not wait on their count
-  // before it can render.
-  if (packages === null) {
+  if (list === null) {
     return (
       <main className="mx-auto w-full max-w-[900px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
         <SkeletonGroup label="Loading your resumes">
@@ -195,13 +159,11 @@ function CoverLetterScreen() {
       title="Cover Letter"
       subtitle="Write a cover letter for any of your target jobs, in the tone you choose."
     >
-      {selected ? <PreparationJourney pkg={selected} current="letter" /> : null}
-      {/* The credit counter is deliberately not shown while the locks are off: a
-          credit balance implies it is being spent, and nothing is spending it. */}
+      {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current="letter" /> : null}
 
       {/* Centered generation form (720px, §C) */}
       <Card tone="light" className="mt-5 p-6">
-        {eligiblePackages.length === 0 ? (
+        {list.length === 0 ? (
           <EmptyState
             tone="inline"
             icon={EnvelopeIcon}
@@ -209,9 +171,9 @@ function CoverLetterScreen() {
             title="Add a target job first"
             body="A cover letter is written for one specific job. Add the job and its role and advert carry over here."
             action={
-              <a href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
+              <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
                 Add a target job
-              </a>
+              </Link>
             }
           />
         ) : (
@@ -220,10 +182,14 @@ function CoverLetterScreen() {
               <span className="field-label">Which job is this letter for?</span>
               <select
                 value={selectedId ?? ''}
-                onChange={(e) => setSelectedId(e.target.value)}
+                onChange={(e) => {
+                  setGenError(null)
+                  setSelectedId(e.target.value)
+                }}
+                disabled={generating}
                 className="field"
               >
-                {eligiblePackages.map((p) => (
+                {list.map((p) => (
                   <option key={p.id} value={p.id} className="bg-white text-ink">
                     {letterTarget(p)}
                   </option>
@@ -245,8 +211,7 @@ function CoverLetterScreen() {
                       title={opt.description}
                       className={cn(
                         'flex min-h-11 flex-col items-start gap-0.5 rounded-ctl border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
-                        // The chosen tone must look chosen from across the room:
-                        // a 2px teal edge and a tint, against a visible 3:1 edge.
+                        // The chosen tone must look chosen from across the room.
                         active
                           ? 'border-2 border-teal bg-teal-soft'
                           : 'border-field-line bg-field hover:border-teal-bright',
@@ -268,15 +233,10 @@ function CoverLetterScreen() {
               </p>
             ) : null}
 
-            {/* A real model call — up to four in sequence if the grounding
-                check sends a draft back — that used to show nothing but the
-                word "Generating…" on its button. The steps name what the route
-                actually does: load the target job, load the profile, write in
-                the chosen tone, then validate every line against the profile. */}
             {generating ? (
               <ProcessingInline
                 steps={[
-                  'Reading the target job',
+                  'Reading the saved CV for this job',
                   'Drawing on your Career Profile',
                   `Writing in the ${tone} tone`,
                   'Checking every line against your profile',
@@ -286,12 +246,11 @@ function CoverLetterScreen() {
               />
             ) : null}
 
-            {selected ? (
-              // Stacked on a phone: side by side, the target line was squeezed
-              // into a four-line column beside the button.
+            {selectedSummary ? (
+              // Stacked on a phone: side by side, the target line was squeezed.
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[12.5px] text-ink-soft">
-                  For <span className="font-semibold text-ink">{letterTarget(selected)}</span>
+                <p className="break-words text-[12.5px] text-ink-soft">
+                  For <span className="font-semibold text-ink">{letterTarget(selectedSummary)}</span>
                 </p>
                 <Button
                   type="button"
@@ -308,6 +267,22 @@ function CoverLetterScreen() {
           </div>
         )}
       </Card>
+
+      {detailError ? (
+        <div className="mt-6 flex flex-col items-start gap-3">
+          <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+            {detailError}
+          </p>
+          <Button type="button" variant="secondary" onClick={picker.reloadDetail}>
+            Try again
+          </Button>
+        </div>
+      ) : detailLoading && !detail ? (
+        <SkeletonGroup label="Loading this job's letters" className="mt-6">
+          <Skeleton shape="title" />
+          <Skeleton />
+        </SkeletonGroup>
+      ) : null}
 
       {/* Generated letters — full width once present (§C) */}
       {letters.length > 0 ? (
@@ -326,12 +301,10 @@ function CoverLetterScreen() {
             <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-6">
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[13px] font-bold text-ink">
+                  <p className="break-words text-[13px] font-bold text-ink">
                     {letter.target_job_title}
                     {letter.target_company ? ` · ${letter.target_company}` : ''}
                   </p>
-                  {/* No badge for a pre-tone letter (letter.tone absent) —
-                      showing one would be a guess, not a fact. */}
                   {letter.tone ? (
                     <span className="rounded-full bg-teal-soft px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-teal">
                       {TONE_OPTIONS.find((o) => o.value === letter.tone)?.label ?? letter.tone}
@@ -364,7 +337,7 @@ function CoverLetterScreen() {
 
       {/* Grounding notice */}
       <p className="mt-6 text-center text-[12px] text-ink-muted">
-        Written only from your saved Career Profile and this job&apos;s details.
+        Written from this job&apos;s saved CV (once built) and your Career Profile — nothing that is in neither.
       </p>
     </PageShell>
   )
