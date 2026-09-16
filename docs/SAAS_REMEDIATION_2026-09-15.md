@@ -210,3 +210,93 @@ proves nothing. Treat a preview as possibly reaching production data, and do not
 sign-up, profile, job, AI or admin features on one until a separate staging Supabase
 project is configured. Details and the safe-failure analysis are in
 [`SAAS_RELEASE_CHECKLIST.md`](SAAS_RELEASE_CHECKLIST.md) §6b.
+
+## After the first push — 2026-09-16
+
+The branch was pushed on 2026-09-16 at `2622a5c`. Four things are now known that the
+record above could not state. Everything else in this document stands unchanged.
+
+**GitHub CI passed — the first time the workflow has ever run.** Run
+[35049706030](https://github.com/jaissatish-web/GCC-MENTOR/actions/runs/35049706030)
+completed successfully on `ubuntu-latest` / Node 22, with every step green: `npm ci`,
+`npm audit --omit=dev --audit-level=high`, `npm run typecheck`, `npm run lint`, `npm test`
+and `npm run build`. The build step ran 45 seconds and compiled. The branch therefore
+builds on Linux, not only on the one Windows machine used above.
+
+**The first Vercel preview deployment failed.** Deployment
+`dpl_6CFD8KdKLgiRTSnZiUpoMALYDRSb` for `2622a5c` reported only "Deployment has failed";
+the GitHub deployment status carries no further detail.
+
+**The cause is reproduced locally but is NOT confirmed against the Vercel build log.**
+The log could not be read from this machine: the Vercel CLI is not installed, no Vercel
+token is present, and `npx vercel inspect --logs` starts an OAuth device-code flow that
+only the founder can complete — the attempt made here expired unauthenticated.
+
+Ruled out, each with evidence:
+
+| Candidate | Ruled out because |
+|---|---|
+| Next.js 15 / React 19 | The same commit builds on Linux in CI (45 s) and on the developer machine |
+| `vercel.json`, `maxDuration` | It declares one daily cron and nothing else — no `functions` block, no `maxDuration` |
+| Chromium/Puppeteer tracing, function size | The PDF route traces 444 files totalling 70.5 MB, well inside Vercel's 250 MB uncompressed limit, and `bin/` is traced as intended |
+| Cron configuration | A single once-daily schedule, which every plan tier allows |
+| Dependency resolution | `npm install` resolves clean on React 19 — no peer conflict for Vercel's install step to hit |
+
+What does reproduce it: hiding the environment file and running `next build` fails at the
+same stage a preview would, with
+
+```
+Error occurred prerendering page "/cover-letter"
+Error: supabaseUrl is required.
+Export encountered an error on /cover-letter/page: /cover-letter, exiting the build.
+```
+
+- **Build stage:** static generation (prerendering), after a successful compile.
+- **Route:** `/cover-letter`.
+- **Class of cause:** missing configuration — `NEXT_PUBLIC_SUPABASE_URL` absent at build
+  time. Not code, not Next 15, not React 19, not Chromium, not size, not cron.
+
+None of the other three environments exercises this: CI sets placeholder Supabase values,
+the developer machine has `.env.local`, and production has the real values. A Preview
+environment with no Supabase variables is the only one of the four that would fail — which
+matches the pattern already recorded in the Environment note, where preview builds failed
+for other branches while the same commit's production build succeeded. It remains a
+hypothesis until someone reads the build log.
+
+**Preview/production Supabase isolation: unable to verify.** Unchanged from the Environment
+note, and no new access was obtained. One inference, clearly labelled as such: if the
+reproduction above is the real cause, then `NEXT_PUBLIC_SUPABASE_URL` is not set for
+Preview at all, which would mean previews reach *no* Supabase project rather than the
+production one. That is an inference from an unconfirmed cause and is not a verification.
+Keep treating a preview as possibly reaching production data.
+
+**Required founder action — nothing here was changed automatically.**
+
+1. Read the log: `npx vercel login`, then
+   `npx vercel inspect dpl_6CFD8KdKLgiRTSnZiUpoMALYDRSb --logs`.
+2. If it is the missing configuration, the fix is an environment one, not a code one:
+   create the separate staging Supabase project this document has asked for throughout,
+   apply 049-055 to it, and set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+   `SUPABASE_SERVICE_ROLE_KEY` and `NEXT_PUBLIC_APP_URL` for the **Preview** environment
+   only. Production variables are not to be touched.
+
+Making the build tolerate absent Supabase configuration was deliberately not done: it
+would turn a missing-configuration failure into a preview that silently renders a
+half-working app, which is the opposite of what a release gate is for.
+
+**One source fix was made on this branch, and it is not the deployment fix.**
+`lib/safeRedirect.ts` held a raw NUL and a raw DEL byte inside the regex class that
+rejects control characters, which made Git classify the file as binary — the post-login
+redirect validator showed as "Binary files differ" in every diff and pull-request view.
+Rewritten with escape sequences; identical behaviour, `verify-safe-redirect` still passes.
+It is not known to have anything to do with the failed deployment.
+
+**Still unverified after this push.**
+
+- The actual Vercel build-stage error, and therefore the cause above.
+- Whether Preview points at the production Supabase project.
+- The Chromium PDF path. No check in `npm test` launches a browser — only
+  `scripts/pdf-loadtest.ts` does, and it is not in the suite. CI passing says nothing
+  about whether PDF export works on Vercel's runtime.
+- Everything in "Not verified" above: signed-in journeys, live AI generation, emails and
+  storage limits still need a working preview on a staging database.
