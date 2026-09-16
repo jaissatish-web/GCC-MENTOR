@@ -44,6 +44,10 @@ __pycache__/
 # Misc
 .eslintcache
 
+# Written by scripts/docx-smoke.ts on every run (npm test). A check's output,
+# not source.
+scripts/smoke-output.docx
+
 # Hermes agent working directory (local tooling state, not project source)
 .hermes/
 

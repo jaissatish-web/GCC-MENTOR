@@ -398,7 +398,9 @@ async function run() {
 
       const qa = await req(`/api/packages/${packageId}/interview-qa`, { method: 'POST' })
       const questions = qa.body?.interview_questions?.questions ?? []
-      check('POST interview-qa generates 25 saved Q&A items', qa.status === 200 && questions.length === 25, `status ${qa.status} ${short(qa.body)}`)
+      // Up to 25: since 2026-09-15 an answer stating a number that is in neither
+      // the profile, the CV nor the advert is dropped rather than shown (X01).
+      check('POST interview-qa generates saved Q&A items (1-25)', qa.status === 200 && questions.length >= 1 && questions.length <= 25, `status ${qa.status} ${short(qa.body)}`)
       check('interview Q&A contains usable answers', questions.every((q) => q.question && q.answer && q.resume_basis), short(questions[0]))
 
       const mockStart = await req(`/api/packages/${packageId}/mock-interview/start`, {
