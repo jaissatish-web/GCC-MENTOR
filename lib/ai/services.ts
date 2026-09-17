@@ -30,7 +30,12 @@ export const AI_SERVICES = {
   // 'ats_scan' string elsewhere in the codebase is a rate-limit action name, not
   // this key.
   ats_scan: { label: 'ATS / GCC Scanner', built: false, description: 'The readiness score is deterministic and makes no model call. This key has no caller.' },
-  job_description: { label: 'Job Description Structuring', built: true, description: 'Turns a pasted job advert into structured requirements.' },
+  job_description: { label: 'Job Description Structuring', built: true, description: 'Turns a pasted job advert into structured requirements and matchable keywords.' },
+  // Optimizer engine (2026-09-17, docs/17_OPTIMIZER_ENGINE.md). Separate keys so
+  // each step can run on its own model: analysis and review are short, exacting
+  // calls where a stronger model pays for itself.
+  optimization_analysis: { label: 'Optimizer · Evidence Analysis', built: true, description: 'Estimates role requirements from a job title, and finds where the profile already proves each requirement (quote-verified).' },
+  optimization_review: { label: 'Optimizer · Fact-check Review', built: true, description: 'Independently checks every rewritten block against its source for unsupported or promoted claims.' },
   job_match_explanation: { label: 'Job Match Explanation', built: true, description: 'The semantic half of Job Match — why each category scored as it did.' },
   cover_letter: { label: 'Cover Letter', built: true, description: 'Writes a cover letter for a resume package.' },
   qa_generation: { label: 'Interview Q&A', built: true, description: 'Generates role-specific interview questions and answers from an optimized resume package.' },
@@ -59,6 +64,8 @@ export const TOKEN_BUDGET: Record<ServiceKey, number> = {
   optimization: 8000,
   ats_scan: 4000,
   job_description: 3000,
+  optimization_analysis: 6000,
+  optimization_review: 6000,
   job_match_explanation: 3000,
   cover_letter: 4000,
   qa_generation: 6000,

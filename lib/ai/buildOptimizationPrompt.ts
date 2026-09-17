@@ -371,6 +371,13 @@ export function buildOptimizationPrompt(
   selectedBlocks: SelectedBlocks,
   jobDescription?: string | null,
   jobMatchCategories?: Partial<Record<JobMatchCategoryKey, JobMatchCategoryResult>> | null,
+  /**
+   * The rendered tailoring plan for the blocks this call rewrites
+   * (lib/optimizer/plan.ts, 2026-09-17). Computed in code from verified
+   * evidence, so it narrows what the model may say rather than widening it.
+   * Absent = the pre-engine prompt, byte for byte.
+   */
+  tailoringPlan?: string | null,
 ): BuiltPrompt {
   const persona = getPersona(target.target_industry ?? '')
   const levelInstruction = LEVEL_INSTRUCTIONS[level]
@@ -408,6 +415,15 @@ export function buildOptimizationPrompt(
             'BLOCK 4 — ANALYSIS FINDINGS   [derived guidance ONLY, not evidence]\n' +
             '=========================================================\n' +
             jobMatchSection,
+        ]
+      : []),
+
+    ...(tailoringPlan
+      ? [
+          '=========================================================\n' +
+            'BLOCK 4B — TAILORING PLAN   [computed from CANDIDATE FACTS; adds no facts]\n' +
+            '=========================================================\n' +
+            tailoringPlan,
         ]
       : []),
 

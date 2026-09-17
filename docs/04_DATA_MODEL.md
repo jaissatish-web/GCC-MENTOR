@@ -94,6 +94,11 @@ dropdown in the profile editor — and extraction never derives it. Consequences
 
 The most-evolved table in the schema. Grouped by what each part is for.
 
+**Match** — `match_report` (migration 056, jsonb, server-written only): the
+deterministic before/after match score, the requirements and quote-verified evidence
+it used, blocks that kept original wording, and gaps. NULL on packages built before
+the optimizer engine. See [`17_OPTIMIZER_ENGINE.md`](17_OPTIMIZER_ENGINE.md) §7.
+
 **Target** — what this resume aims at: `target_job_title` (required),
 `target_country`, `target_company`, `target_industry` (nullable since
 migration 043 — see below), `job_description`, `optimization_level`,
@@ -197,6 +202,7 @@ gate.**
 | `prompt_versions` | Versioned, admin-editable prompt bodies. **One active per key, enforced by a partial unique index.** The grounding block and output schema are *not* here — they are injected in code | Service role only |
 | `prompt_templates` | Superseded by `prompt_versions`. Left in place, should gain no new keys | Service role only |
 | `promo_codes` | Codes, and the package they unlock | Service role only |
+| `job_analyses` | Cached optimizer analysis per (user, input hash): requirements, quote-verified evidence, profile fingerprint. Holds short profile quotes, so it is personal data. Purged 30 days after creation (migration 056) | Service role only |
 | `service_packages`, `service_package_items` | Bundle definitions | Service role only |
 | `user_service_credits` | Credits a user holds | Service role only |
 | `optimization_credits` | Admin-granted free optimizations, as a permanent ledger | Service role only |

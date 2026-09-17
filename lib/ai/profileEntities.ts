@@ -57,6 +57,12 @@ export function collectNumbers(texts: Array<string | null | undefined>): Set<str
   return out
 }
 
+/** Irregular past-tense verbs that open CV bullets and carry no identity. */
+const OPENING_VERBS = new Set([
+  'built', 'wrote', 'ran', 'made', 'drove', 'took', 'gave', 'kept', 'held', 'sold', 'taught', 'won', 'oversaw',
+  'brought', 'bought', 'began', 'grew', 'met', 'found', 'sent', 'spent', 'understood', 'set', 'led', 'did', 'got',
+])
+
 /**
  * Multi-word proper-noun-ish phrases and standalone identifiers. Catches
  * "NEOM Green Hydrogen Company", "Triconex TS3000", "NEBOSH" and "ISO 9001"
@@ -71,7 +77,22 @@ export function extractNamedEntities(text: string | null | undefined): Set<strin
     /\b[A-Za-z]+\d[A-Za-z0-9-]*\b/g,
   ]
   for (const re of patterns) {
-    for (const m of text.match(re) ?? []) {
+    for (const match of text.matchAll(re)) {
+      const m = match[0]
+      // "Provided care…", "Supervised installation…": a single Capitalised word
+      // at the start of a sentence or bullet is ordinary English, not a name.
+      // Treating it as one made a verb used in two roles a "cross-entry leak"
+      // (measured 2026-09-17). ALL-CAPS and alphanumeric identifiers still count.
+      // Only verb-shaped words are skipped — a tool or product name opening a
+      // bullet ("Python scripts…", "Revit models…") is still an entity.
+      if (
+        !/\s/.test(m) &&
+        /^[A-Z][a-z]+$/.test(m) &&
+        (/(ed|ing)$/.test(m) || OPENING_VERBS.has(m.toLowerCase())) &&
+        /(^|[.!?:;•\n-]\s*)$/.test(text.slice(0, match.index ?? 0))
+      ) {
+        continue
+      }
       const n = normalizeToken(m)
       if (!n || n.length < 3) continue
       if (STOPWORDS.has(n)) continue
@@ -160,7 +181,9 @@ export function buildProfileEntities(profile: CareerProfileFull): ProfileEntitie
   const entries = new Map<string, EntrySources>()
   const entityEntryCount = new Map<string, number>()
   for (const w of profile.work_experience ?? []) {
-    const text = [w.company, w.location ?? '', w.description ?? '', ...(w.highlights ?? [])].join('\n')
+    // The role title is a fact of this entry (2026-09-17): "MEP" in "MEP Site
+    // Engineer" is something the candidate may say about that job.
+    const text = [w.company, w.role ?? '', w.location ?? '', w.description ?? '', ...(w.highlights ?? [])].join('\n')
     const entities = extractNamedEntities(text)
     entries.set(w.id, {
       id: w.id,

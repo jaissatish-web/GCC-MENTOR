@@ -42,7 +42,7 @@ const SERVICES_FROM_REGISTRY: ServiceDef[] = SERVICE_KEYS.map((k) => ({
 // selecting it used to save successfully while silently throwing
 // "Unsupported AI provider: other" on the very next real AI call — a
 // confirmed dead-end fixed here, not a hypothetical.
-const PROVIDERS = ['openrouter', 'openai', 'anthropic', 'google', 'mistral'] as const
+const PROVIDERS = ['openrouter', 'deepseek', 'openai', 'anthropic', 'google', 'mistral'] as const
 const PROVIDER_LABELS: Record<string, string> = {
   openrouter: 'OpenRouter',
   openai: 'OpenAI',

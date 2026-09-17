@@ -570,8 +570,8 @@ Recorded so the next person does not rediscover them as surprises.
 - **Rate-limit windows use server-local time**, so the reset time shown to a user may not
   be a locally meaningful hour. Phone and email secondary keys are matched by exact string,
   so two formats of the same number are not recognised as one identity.
-- **Nothing rejects "optimize nothing"** — no blocks selected and no experience entries.
-  Self-inflicted only; costs the user their own rate-limit slot for a no-op.
+- ~~**Nothing rejects "optimize nothing"**~~ **Closed 2026-09-17:** `/api/optimize` returns
+  400 and the setup screen disables the build until something is selected.
 - **Revisiting onboarding with an existing profile** would give a draft-only editor whose
   save could overwrite existing customisations. No UI path reaches it today.
 - **The print tokens file and the Tailwind config must be kept in step by hand.** Print

@@ -12,6 +12,41 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-17
+
+**Resume optimization is rebuilt as an engine where code decides and the model
+writes** (founder instruction: "perfect, high-quality, user-controlled output";
+20–30% more model spend accepted). Full design: [`17_OPTIMIZER_ENGINE.md`](17_OPTIMIZER_ENGINE.md).
+
+- **A match score is shown before anything is built, and again after.** It is
+  computed in code on the rendered CV, never by a model, so it can move only when
+  the document really changes. The profile-based Job Match could not do this:
+  optimization changes none of its inputs.
+- **The score shows an honest maximum** — what the user's real profile can reach.
+  Gaps are listed and never written. Users are sent to their Career Profile to add
+  anything genuinely missing, rather than having it implied.
+- **Title-only builds get a score too, labelled "Role alignment · estimate".** The
+  estimated requirements rank and score. They are never content, and they feed the
+  validator's import check, so a "typical" term is a hard failure.
+- **Equivalent wording is allowed only with proof.** A same-meaning bridge
+  ("computerised maintenance management system" → "CMMS") must quote the candidate's
+  own text verbatim, and it is allowed only in the role that contains the quote. This
+  extends the validator with a per-location allow-list. It does not relax the
+  grounding instruction, which is unchanged.
+- **Generation runs in sections** (summary, and roles in threes, in parallel), with a
+  quality gate, an independent fact-check review, and ONE targeted repair. A block
+  that still cannot be proven keeps the candidate's own words, and the screens say so.
+- **Levels are contracts** with measured coverage targets (easy ≥50%, moderate ≥80%,
+  high 100% of supported employer terms). **High** may trim unrelated older roles to
+  their 3 strongest bullets. The role itself is never removed.
+- **The score never goes down.** If a build would lower it, the most harmful block
+  reverts.
+- **"Optimize nothing" is rejected** (open item B9), and edits are re-scored.
+- **Analyses are cached per user and input for 30 days, service-role only**
+  (`job_analyses`, migration 056), because they hold short quotes from the profile.
+- **DeepSeek is a first-class provider** (`deepseek`), and the analysis and review steps
+  have their own config keys, so each can run on a stronger model.
+
 ## 2026-09-16
 
 **The optimizer is universal, and the prompt says so in its structure.** Five

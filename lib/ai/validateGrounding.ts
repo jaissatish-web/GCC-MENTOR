@@ -44,6 +44,8 @@ import {
   type ProfileEntities,
 } from './profileEntities'
 import { normalizeSkillsOrder } from './skillsOrder'
+import { stems } from '@/lib/optimizer/text'
+import { entrySourceText, profileWideText } from '@/lib/optimizer/evidence'
 
 export type FailureSeverity = 'hard' | 'flag'
 
@@ -110,6 +112,14 @@ export interface ValidateOptions {
    * fallback rate turns out to be worse than expected.
    */
   strictNumerics?: boolean
+  /**
+   * Employer terms the evidence bridge PROVED for a location (2026-09-17,
+   * lib/optimizer/evidence.ts): 'summary' or a profile_work_experience id ->
+   * terms. Each was verified against a verbatim quote from that location's own
+   * text, so it is supported by the profile in different words. Only entities
+   * and numbers inside those exact terms are accepted, only for that location.
+   */
+  approvedTerms?: Map<string, string[]>
 }
 
 /**
@@ -220,6 +230,17 @@ function checkEntities(
   jdEntities: Set<string> | null,
   entryId: string | null,
   failures: ValidationFailure[],
+  approved?: Set<string>,
+  /**
+   * Word stems of everything this text may draw on (2026-09-17). A capitalised
+   * phrase whose every word is already in scope — "ICU Registered Nurse" from a
+   * role "Staff Nurse - ICU" and a summary "Registered nurse", or "Bachelor of
+   * Science in Nursing" from "B.Sc Nursing" — recombines the candidate's own
+   * words; it imports nothing. Scope is this entry plus the profile-wide lists
+   * for a bullet, and the whole profile for the summary, so a word that exists
+   * only in ANOTHER role still reaches the cross-entry check below.
+   */
+  wordScope?: Set<string>,
 ): void {
   const entryEntities = entryId ? entities.entries.get(entryId)?.entities : undefined
 
@@ -234,6 +255,11 @@ function checkEntities(
     const supportedProfileWide = entryId === null && entities.all.has(candidate)
 
     if (supportedHere || supportedProfileWide) continue
+    if (approved?.has(candidate)) continue
+    if (wordScope) {
+      const words = stems(candidate)
+      if (words.length > 0 && words.every((w) => wordScope.has(w))) continue
+    }
 
     // A fact that belongs to exactly one OTHER employment entry.
     if (entryId !== null && isCrossEntryLeak(entities, entryId, candidate)) {
@@ -330,6 +356,23 @@ export function validateGrounding(
   }
 
   const entities = buildProfileEntities(profile)
+  const approvedFor = (location: string) => {
+    const terms = options?.approvedTerms?.get(location) ?? []
+    const ents = new Set<string>()
+    const nums = new Set<string>()
+    for (const t of terms) {
+      for (const e of extractNamedEntities(t)) ents.add(e)
+      for (const n of extractNumbers(t)) nums.add(n)
+    }
+    return { ents, nums }
+  }
+  const summaryApproved = approvedFor('summary')
+  const listsText = profileWideText(profile)
+  const summaryWords = new Set(stems([listsText, ...(profile.work_experience ?? []).map(entrySourceText)].join('\n')))
+  const entryWords = (id: string) => {
+    const e = (profile.work_experience ?? []).find((x) => x.id === id)
+    return new Set(stems([listsText.replace(profile.professional_summary ?? '', ''), e ? entrySourceText(e) : ''].join('\n')))
+  }
   const jdEntities =
     options?.jobDescription && options.jobDescription.trim() !== ''
       ? extractNamedEntities(options.jobDescription)
@@ -354,7 +397,7 @@ export function validateGrounding(
 
     // Numbers: profile-wide factual prose, dates excluded.
     for (const n of extractNumbers(text)) {
-      if (!entities.summaryNumbers.has(n)) {
+      if (!entities.summaryNumbers.has(n) && !summaryApproved.nums.has(n)) {
         failures.push({
           code: 'unsourced_summary_numeric',
           severity: numericSeverity,
@@ -385,7 +428,7 @@ export function validateGrounding(
       }
     }
 
-    checkEntities(text, path, 'summary', entities, jdEntities, null, failures)
+    checkEntities(text, path, 'summary', entities, jdEntities, null, failures, summaryApproved.ents, summaryWords)
   }
 
   // --- Experience blocks.
@@ -521,11 +564,13 @@ export function validateGrounding(
     if (isStringArray(generated)) {
       const entrySources = entities.entries.get(id)
       const sourceNumbers = entrySources?.numbers ?? new Set<string>()
+      const entryApproved = approvedFor(id)
+      const scopeWords = entryWords(id)
 
       generated.forEach((bullet, j) => {
         const bulletPath = `${path}.generated_bullets[${j}]`
         for (const n of extractNumbers(bullet)) {
-          if (!sourceNumbers.has(n)) {
+          if (!sourceNumbers.has(n) && !entryApproved.nums.has(n)) {
             failures.push({
               code: 'unsourced_numeric',
               severity: numericSeverity,
@@ -537,7 +582,7 @@ export function validateGrounding(
             })
           }
         }
-        checkEntities(bullet, bulletPath, owner, entities, jdEntities, id, failures)
+        checkEntities(bullet, bulletPath, owner, entities, jdEntities, id, failures, entryApproved.ents, scopeWords)
       })
     }
   })

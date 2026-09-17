@@ -88,6 +88,16 @@ free traffic costs nothing to serve.
 
 ---
 
+## 2a. Match Score — the before/after score of an optimized CV (2026-09-17)
+
+A third score, and the one users see during optimization. It is **deterministic and
+computed on the rendered CV document**, not on the profile. That is why it can show a
+real before and after. Job Match (§2) cannot: optimization changes none of its inputs.
+Parts: keywords 45 · summary 10 · job title 10 · ATS readability 10 · qualifications 25
+(the §2 deterministic categories minus skills; not applicable in title-only mode).
+It includes an **honest maximum** (only requirements the profile proves) and per-level
+projections. Full definition: [`17_OPTIMIZER_ENGINE.md`](17_OPTIMIZER_ENGINE.md) §5.
+
 ## 2. Job Match — fit against one specific advert
 
 > **2026-09-04: this is no longer a screen a user opens.** The standalone service was

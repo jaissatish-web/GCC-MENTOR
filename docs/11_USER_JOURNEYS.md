@@ -136,7 +136,8 @@ broke exactly that. Treat it as load-bearing.
                              description are both optional, one-question-first
                              (2026-08-18: country and company removed — see below)
    ↓
-/optimize/setup              which blocks to optimize · framing intensity
+/optimize/setup              match report first (score now, honest max, gaps) ·
+                             which blocks to optimize · level with projected score
                              (Easy / Moderate / High)
    ↓                         creates the package: empty
 /optimize/generate/[id]      the model runs here, naming the steps chosen on setup

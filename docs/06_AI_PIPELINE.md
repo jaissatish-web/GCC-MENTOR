@@ -309,6 +309,13 @@ Draft against active — same input, same model, side by side.
 
 ## 3. How a prompt is built
 
+> **Resume optimization (2026-09-17)** now runs through the optimizer engine:
+> analysis → evidence map → tailoring plan (prompt BLOCK 4B) → section generation →
+> validator + quality gate → fact-check review → targeted repair → score guard. This
+> section still describes the prompt structure it uses. The engine, its extra config
+> keys (`optimization_analysis`, `optimization_review`) and its checks are in
+> [`17_OPTIMIZER_ENGINE.md`](17_OPTIMIZER_ENGINE.md).
+
 Every generation prompt is assembled from four parts, in this order:
 
 1. **The persona** — who the model is being asked to be

@@ -260,6 +260,13 @@ export interface Package {
    */
   style_overrides?: unknown | null
   /**
+   * Deterministic before/after match score and the evidence it used (migration
+   * 056, docs/17_OPTIMIZER_ENGINE.md). Server-written only. NULL for packages
+   * built before the optimizer engine. Shape: lib/optimizer/types.ts MatchReport
+   * — `unknown` here for the same bundle reason as document_snapshot.
+   */
+  match_report?: unknown | null
+  /**
    * What the user chose to optimize, captured at creation (migration 033) so
    * generation can run later, in a request that carries only a package id.
    */

@@ -415,6 +415,30 @@ check('unexpired sessions are kept', (await db.query('select count(*)::int n fro
 check('the purge reports counts only', Object.values(purge).every((v) => typeof v === 'number'))
 check('users cannot read the maintenance log', await denied(() => asUser(db, ADMIN, () => db.query('select * from public.maintenance_runs'))))
 
+// ---------------------------------------------------------------------------
+console.log('\n056 · optimizer engine')
+const hashA = 'a'.repeat(64)
+await svc(
+  `insert into public.job_analyses (user_id, profile_id, input_hash, mode, target_job_title, target_profile, bridges, profile_fingerprint, expires_at)
+   values ($1, $2, $3, 'job_description', 'Engineer', '{"keywords":[]}'::jsonb, '[]'::jsonb, 'fp', now() - interval '1 day'),
+          ($1, $2, $4, 'target_title_only', 'Engineer', '{"keywords":[]}'::jsonb, '[]'::jsonb, 'fp', now() + interval '1 day')`,
+  [A, profileId, hashA, 'b'.repeat(64)],
+)
+check('a user cannot read job analyses, even their own', await denied(() => asUser(db, A, () => db.query('select id from public.job_analyses'))))
+check('a user cannot write job analyses', await denied(() =>
+  asUser(db, A, () => db.query("insert into public.job_analyses (user_id, input_hash, mode, target_job_title, target_profile) values ($1, $2, 'job_description', 'x', '{}'::jsonb)", [A, 'c'.repeat(64)])),
+))
+check('anon cannot read job analyses', await denied(() => asAnon(db, () => db.query('select id from public.job_analyses'))))
+check('one analysis per user and input', await throws(() =>
+  svc("insert into public.job_analyses (user_id, input_hash, mode, target_job_title, target_profile) values ($1, $2, 'job_description', 'x', '{}'::jsonb)", [A, hashA]),
+))
+check('owner cannot write match_report', await denied(() =>
+  asUser(db, A, () => db.query('update public.packages set match_report = \'{}\'::jsonb where id = $1', [pkgA])),
+))
+const purge056 = (await svc('select public.purge_expired_operational_data() r')).rows[0].r
+check('expired job analyses are purged', purge056.job_analyses_deleted === 1)
+check('unexpired job analyses are kept', (await svc('select count(*)::int n from public.job_analyses')).rows[0].n === 1)
+
 await db.close()
 console.log(`\n${passes} passed, ${failures} failed`)
 if (failures > 0) process.exit(1)

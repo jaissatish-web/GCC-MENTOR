@@ -177,7 +177,8 @@ async function attemptOpenAICompatible(baseUrl: string, apiKey: string, model: s
   if (!res.ok) throw new AIProviderError(`${res.status}: ${json?.error?.message ?? res.statusText}`)
   const choice = json?.choices?.[0]
   const text = choice?.message?.content
-  const reasoningChars = String(choice?.message?.reasoning ?? '').length
+  // OpenRouter reports thinking as `reasoning`; DeepSeek's own API as `reasoning_content`.
+  const reasoningChars = String(choice?.message?.reasoning ?? choice?.message?.reasoning_content ?? '').length
   return { text, choice, reasoningChars, usage: json?.usage, served: (json?.provider as string | undefined) ?? null }
 }
 
@@ -293,6 +294,8 @@ async function callProvider(provider: string, apiKey: string, model: string, sys
   if (p === 'openrouter') return callOpenAICompatible('https://openrouter.ai/api/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt)
   if (p === 'openai') return callOpenAICompatible('https://api.openai.com/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt)
   if (p === 'google') return callOpenAICompatible('https://generativelanguage.googleapis.com/v1beta/openai', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt)
+  // DeepSeek's own API (2026-09-17): OpenAI-compatible, used directly with a DeepSeek key.
+  if (p === 'deepseek') return callOpenAICompatible('https://api.deepseek.com', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt)
   if (p === 'mistral') return callOpenAICompatible('https://api.mistral.ai/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt)
   throw new AIProviderError(`Unsupported AI provider: ${provider}`)
 }

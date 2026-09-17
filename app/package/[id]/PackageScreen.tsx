@@ -25,6 +25,7 @@ import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { StageSelect } from '@/components/package/StageSelect'
+import { MatchResult, readMatchReport } from '@/components/optimizer/MatchResult'
 
 const TIMELINE_FORMAT = new Intl.DateTimeFormat('en-IN', {
   day: 'numeric',
@@ -684,6 +685,16 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
           <PreparationJourney pkg={pkg} current="resume" />
         </section>
+
+        {/* Before -> after match score (docs/17_OPTIMIZER_ENGINE.md §5). Only
+            on packages built by the optimizer engine; older ones have none. */}
+        {(() => {
+          const report = readMatchReport(pkg.match_report)
+          if (!report?.after) return null
+          const roleNames: Record<string, string> = {}
+          for (const w of profile?.work_experience ?? []) roleNames[w.id] = `your role at ${w.company}`
+          return <MatchResult report={report} packageId={id} roleNames={roleNames} />
+        })()}
 
         <section className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
           <div className="rounded-card border border-line bg-white p-4 shadow-m-1">

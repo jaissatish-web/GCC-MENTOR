@@ -9,6 +9,9 @@ import { appendPackageEventAtomic, updatePackageServerFields } from '@/lib/packa
 import type { PackageServiceEventType } from '@/types/package'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
+import { scoreDocumentFromResume, scoreResume } from '@/lib/optimizer/score'
+import { validateKeywords } from '@/lib/optimizer/jobAnalysis'
+import type { MatchReport } from '@/lib/optimizer/types'
 
 /**
  * Package API — TASK-035 (+ TASK-033 additions).
@@ -259,7 +262,7 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   // ---- Load the current package (owner-scoped) to read its optimized_content -
   const { data: pkg, error: loadErr } = await supabase
     .from('packages')
-    .select('id, profile_id, status, optimized_content, document_snapshot, service_events')
+    .select('id, profile_id, status, optimized_content, document_snapshot, service_events, match_report')
     .eq('id', packageId)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -542,9 +545,26 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   // have no snapshot and are left alone: they render from the live profile, as
   // they always have.
   const existingSnapshot = pkg.document_snapshot as ResumeDocument | null
-  const snapshotUpdate = existingSnapshot
-    ? { document_snapshot: applyContentEditsToDocument(existingSnapshot, oc) }
-    : {}
+  const nextSnapshot = existingSnapshot ? applyContentEditsToDocument(existingSnapshot, oc) : null
+  const snapshotUpdate = nextSnapshot ? { document_snapshot: nextSnapshot } : {}
+
+  // RE-SCORE THE EDIT (optimizer engine, 2026-09-17). The match score on the
+  // package describes the document; once the user rewrites a line, the stored
+  // "after" would describe text that no longer exists. Deterministic and
+  // model-free, against the same requirements the build used.
+  const storedReport = (pkg as { match_report?: MatchReport | null }).match_report ?? null
+  let matchReport: MatchReport | null = null
+  if (storedReport?.after && nextSnapshot && storedReport.target) {
+    const keywords = validateKeywords(storedReport.target.keywords)
+    if (keywords.length > 0) {
+      const target = { ...storedReport.target, keywords }
+      matchReport = {
+        ...storedReport,
+        after: scoreResume(scoreDocumentFromResume(nextSnapshot), target, storedReport.qualifications ?? null),
+        after_edited: true,
+      }
+    }
+  }
 
   // The document's content is server-owned (migration 050): the user's edit has
   // been validated and merged above, and is written through the server writer,
@@ -552,7 +572,13 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   const { row: updated, error: updateErr } = await updatePackageServerFields({
     packageId,
     userId: user.id,
-    fields: { optimized_content: oc, ...snapshotUpdate, ...(templateUpdate ?? {}), ...metaUpdate },
+    fields: {
+      optimized_content: oc,
+      ...snapshotUpdate,
+      ...(matchReport ? { match_report: matchReport } : {}),
+      ...(templateUpdate ?? {}),
+      ...metaUpdate,
+    },
   })
 
   if (updateErr) {
@@ -564,5 +590,5 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   }
 
   await recordEvents(packageId, user.id, pendingEvents)
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, ...(matchReport ? { match_report: matchReport } : {}) })
 }

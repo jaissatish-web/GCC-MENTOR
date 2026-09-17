@@ -15,6 +15,9 @@ import {
 } from '@/lib/onboardingDraft'
 import type { OptimizationLevel } from '@/types/package'
 import { Alert } from '@/components/ui/Alert'
+import { MatchPanel, MatchPanelLoading } from '@/components/optimizer/MatchPanel'
+import type { AnalysisView } from '@/lib/optimizer/view'
+import { maxAchievableScore, projectedScore } from '@/lib/optimizer/score'
 
 /**
  * Optimization setup — screen 06 (TASK-028), route /optimize/setup.
@@ -72,22 +75,11 @@ interface ExperienceRow {
   bullets: number
 }
 
-// Short display labels derived from each persona's actual ROLE framing in
-// lib/ai/personas.ts (TASK-018/019) — the full persona strings are AI
-// system-prompt paragraphs, never rendered verbatim. Anything without a
-// dedicated persona (incl. "other" and free-text industries) uses the generic
-// Gulf specialist framing, matching getPersona's fallback.
-function personaLabel(industry: string): string {
-  switch (industry) {
-    case 'engineering_technical':
-      return 'a senior I&C hiring manager'
-    case 'construction_site':
-      return 'a senior Construction Manager'
-    case 'it_tech':
-      return 'a senior Engineering Manager'
-    default:
-      return 'a senior Gulf-market recruitment specialist'
-  }
+// Every industry resolves to one profession-neutral perspective since
+// 2026-09-16 (lib/ai/personas.ts), so the label no longer names a discipline
+// the prompt does not use.
+function personaLabel(): string {
+  return 'a senior Gulf-market recruitment specialist'
 }
 
 // The second line used to read "75-80%", "80-90%", "90-100%" — percentages of
@@ -113,7 +105,42 @@ function SetupScreen() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
+  // The match report (docs/17_OPTIMIZER_ENGINE.md §2). Optional by design: a
+  // failed analysis never blocks building the CV.
+  const [analysis, setAnalysis] = useState<AnalysisView | null>(null)
+  const [analysisState, setAnalysisState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
+  const [analysisError, setAnalysisError] = useState<string | null>(null)
   const didInit = useRef(false)
+
+  const runAnalysis = useCallback(async (d: TargetDraft, pid: string) => {
+    setAnalysisState('loading')
+    setAnalysisError(null)
+    try {
+      const res = await fetch('/api/optimize/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profileId: pid,
+          targetFields: {
+            target_job_title: d.target_job_title,
+            target_industry: d.target_industry.trim() !== '' ? d.target_industry : null,
+          },
+          jobDescription: d.job_description.trim() !== '' ? d.job_description : null,
+        }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok || !body?.before) {
+        setAnalysisError((body?.error as string) ?? "We couldn't score this match right now. You can still build your CV.")
+        setAnalysisState('error')
+        return
+      }
+      setAnalysis(body as AnalysisView)
+      setAnalysisState('ready')
+    } catch {
+      setAnalysisError("We couldn't score this match right now. You can still build your CV.")
+      setAnalysisState('error')
+    }
+  }, [])
 
   useEffect(() => {
     if (didInit.current) return
@@ -153,8 +180,10 @@ function SetupScreen() {
             label: [e.company, e.role].filter(Boolean).join(' — '),
             bullets: Array.isArray(e.highlights) ? e.highlights.length : 0,
           }))
-        setProfileId(typeof data?.id === 'string' ? (data.id as string) : null)
+        const pid = typeof data?.id === 'string' ? (data.id as string) : null
+        setProfileId(pid)
         setExperiences(rows)
+        if (pid) void runAnalysis(parsed, pid)
         const allOn: Record<string, boolean> = {}
         for (const r of rows) allOn[r.id] = true
         setExpOn(allOn)
@@ -168,7 +197,7 @@ function SetupScreen() {
         setProfileId(null)
         setLoadError('Could not load your profile. Please go back and try again.')
       })
-  }, [router])
+  }, [router, runAnalysis])
 
   const allOn = experiences.length === 0 || experiences.every((e) => expOn[e.id])
 
@@ -199,6 +228,8 @@ function SetupScreen() {
     if (summaryOn) list.push('Rewriting your summary')
     for (const e of experiences) if (expOn[e.id]) list.push(`Rewriting ${e.company || 'your'} bullets`)
     list.push('Reordering skills by relevance')
+    list.push('Fact-checking every rewrite against your profile')
+    list.push('Scoring the new CV against the job')
     // Always "Gulf CV format" (migration 030) — the format has never varied by
     // target_country (lib/ai/buildOptimizationPrompt.ts's GULF_FORMAT_NOTE).
     list.push('Applying Gulf CV format')
@@ -206,6 +237,25 @@ function SetupScreen() {
   }, [draft, summaryOn, experiences, expOn])
 
   const ctaName = draft?.target_job_title ?? ''
+
+  // Honest maximum for what is selected right now, and a projection per level.
+  // Pure and deterministic (lib/optimizer/score.ts) — the same function the
+  // server uses after the build — so toggling a block updates it instantly.
+  const selectedIds = useMemo(() => experiences.filter((e) => expOn[e.id]).map((e) => e.id), [experiences, expOn])
+  const projection = useMemo(() => {
+    if (!analysis) return null
+    const max = maxAchievableScore(analysis.scoreDocument, analysis.target, analysis.keywords, analysis.qualifications, {
+      summary: summaryOn,
+      experienceIds: selectedIds,
+    })
+    return {
+      max,
+      easy: projectedScore(analysis.before.total, max, 'easy'),
+      moderate: projectedScore(analysis.before.total, max, 'moderate'),
+      high: projectedScore(analysis.before.total, max, 'high'),
+    }
+  }, [analysis, summaryOn, selectedIds])
+  const nothingSelected = !summaryOn && selectedIds.length === 0
 
   const onSubmit = useCallback(async () => {
     if (!draft || !profileId || submitting) return
@@ -226,6 +276,7 @@ function SetupScreen() {
           experienceIds: experiences.filter((e) => expOn[e.id]).map((e) => e.id),
         },
         level,
+        analysisId: analysis?.analysisId ?? null,
       }
       const res = await fetch('/api/optimize', {
         method: 'POST',
@@ -283,7 +334,7 @@ function SetupScreen() {
       setError('Network error. Please check your connection and try again.')
       setSubmitting(false)
     }
-  }, [draft, profileId, submitting, summaryOn, experiences, expOn, level, router, buildSteps])
+  }, [draft, profileId, submitting, summaryOn, experiences, expOn, level, router, buildSteps, analysis])
 
   // ---- The wait on THIS screen's call (Phase A) ----------------------------
   // CORRECTED 2026-09-12. This wait used to list "Reframed your summary" and
@@ -356,7 +407,7 @@ function SetupScreen() {
               <span className="block text-gold">{ctaName}</span>
             </h1>
             <p className="text-[13px] leading-relaxed text-white/70">
-              Reviewed as {personaLabel(draft.target_industry)} would.
+              Reviewed as {personaLabel()} would.
             </p>
           </div>
 
@@ -412,6 +463,24 @@ function SetupScreen() {
             Back to choose target
           </Button>
         </div>
+      ) : null}
+
+      {/* Match report — before anything is generated. */}
+      {analysisState === 'loading' && !analysis ? (
+        <MatchPanelLoading title={ctaName} hasJobDescription={hasJobDescription} />
+      ) : null}
+      {analysis ? (
+        <MatchPanel
+          analysis={analysis}
+          projectedMax={projection?.max ?? analysis.maxTotal}
+          rechecking={analysisState === 'loading'}
+          onRecheck={() => {
+            if (draft && profileId) void runAnalysis(draft, profileId)
+          }}
+        />
+      ) : null}
+      {analysisState === 'error' && analysisError ? (
+        <Alert variant="info" className="mt-5">{analysisError}</Alert>
       ) : null}
 
       {/* Body */}
@@ -528,6 +597,14 @@ function SetupScreen() {
                 <span className={cn('text-[12px]', selected ? 'text-teal-soft' : 'text-ink-muted')}>
                   {l.range}
                 </span>
+                {projection && !nothingSelected ? (
+                  <span
+                    className={cn('font-mono text-[12px] font-semibold', selected ? 'text-white' : 'text-teal')}
+                    title="Projected match score for this level, using only your real experience"
+                  >
+                    ≈ {projection[l.value]}
+                  </span>
+                ) : null}
               </button>
             )
           })}
@@ -541,6 +618,10 @@ function SetupScreen() {
         ) : null}
       </Card>
 
+      {nothingSelected ? (
+        <p className="mx-5 mt-3 text-center text-[12px] text-ink-muted">Select the summary or at least one role to build.</p>
+      ) : null}
+
       {/* Footer CTA */}
       {error ? (
         <div className="mx-5 mb-3 rounded-card border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">
@@ -551,7 +632,7 @@ function SetupScreen() {
         <Button
           variant="purchase"
           className="w-full"
-          disabled={submitting || !profileId}
+          disabled={submitting || !profileId || nothingSelected}
           onClick={onSubmit}
         >
           {submitting ? 'Optimizing…' : `Optimize for ${ctaName}`}

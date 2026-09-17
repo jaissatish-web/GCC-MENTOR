@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils'
 import type { CareerProfileFull, ProfileSkill } from '@/types/careerProfile'
 import type { OptimizedContent, Package } from '@/types/package'
 import { Alert } from '@/components/ui/Alert'
+import { readMatchReport } from '@/components/optimizer/MatchResult'
+import { ScoreRing } from '@/components/optimizer/MatchScore'
 
 /**
  * Before / after preview — screen 08 (TASK-033), route
@@ -124,10 +126,12 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
         const body = await res.json().catch(() => ({}))
         setError((body?.error as string) ?? 'Could not save this edit.')
       } else {
+        const saved = await res.json().catch(() => ({}))
         setPkg((prev) =>
           prev
             ? {
                 ...prev,
+                ...(saved?.match_report ? { match_report: saved.match_report } : {}),
                 optimized_content: {
                   ...(prev.optimized_content as OptimizedContent),
                   summary: { ...(prev.optimized_content as OptimizedContent).summary, user_edited: draftSummary },
@@ -162,6 +166,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
         const body = await res.json().catch(() => ({}))
         setError((body?.error as string) ?? 'Could not save this edit.')
       } else {
+        const saved = await res.json().catch(() => ({}))
         setPkg((prev) => {
           if (!prev) return prev
           const nextOc = {
@@ -171,7 +176,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
                 b.profile_experience_id === editing.blockId ? { ...b, user_edited_bullets: updated } : b
             ),
           }
-          return { ...prev, optimized_content: nextOc }
+          return { ...prev, optimized_content: nextOc, ...(saved?.match_report ? { match_report: saved.match_report } : {}) }
         })
         setEditing({})
       }
@@ -220,6 +225,20 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
             switching live; rendering it a second time here would be the
             duplicate that TASK-141 deliberately avoided. */}
         <p className="text-[12px] text-ink-muted">{changeCount} change{changeCount === 1 ? '' : 's'} to review</p>
+        {(() => {
+          const report = readMatchReport(pkg.match_report)
+          if (!report?.after) return null
+          return (
+            <div className="flex items-center gap-3 rounded-card border border-line bg-white p-3">
+              <ScoreRing value={report.before.total} size={56} muted />
+              <span aria-hidden="true" className="text-ink-muted">→</span>
+              <ScoreRing value={report.after.total} size={56} />
+              <p className="text-[12.5px] leading-snug text-ink-soft">
+                Job match score{report.after_edited ? ', updated after your edits' : ''}. Edits are re-scored when you save.
+              </p>
+            </div>
+          )
+        })()}
       </div>
 
       {/* lg: two columns — left = the changes/edit panel, right rail = the same
@@ -385,6 +404,19 @@ function ChangesTab({
         {(oc?.experience_blocks ?? []).map((block) => {
           const source = block.source_bullets ?? []
           const effective = block.user_edited_bullets ?? block.generated_bullets ?? []
+          // A block that kept the candidate's own words (the rewrite could not be
+          // fully proven) says so, instead of showing an empty diff as a "change".
+          if (block.was_optimized === false && !block.user_edited_bullets) {
+            const company = profile?.work_experience?.find((w) => w.id === block.profile_experience_id)?.company ?? ''
+            return (
+              <div key={block.profile_experience_id} className="flex flex-col gap-1 rounded-card border border-line bg-canvas p-4">
+                <span className="text-[12px] font-bold text-ink">{company} — kept your original wording</span>
+                <span className="text-[12px] leading-relaxed text-ink-muted">
+                  The rewrite for this role could not be fully proven from your profile, so your own bullets are used.
+                </span>
+              </div>
+            )
+          }
           return effective.map((bullet, bi) => {
             const src = source[bi]
             const parts = diffWords(src ? src : '', bullet)

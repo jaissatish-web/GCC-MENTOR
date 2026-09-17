@@ -63,6 +63,13 @@ the key is the founder's own step.
 
 ## 3b. How the per-service AI configuration actually behaves
 
+> **2026-09-17:** the provider list includes **DeepSeek** (`deepseek`, DeepSeek's own
+> API). The optimizer has two extra service cards: **Optimizer · Evidence Analysis**
+> (`optimization_analysis`) and **Optimizer · Fact-check Review**
+> (`optimization_review`). Both fall back to `default` when unset. Recommended: set
+> these two, and `optimization`, to the strongest model you are willing to pay for.
+> They are short, exacting calls. See [`17_OPTIMIZER_ENGINE.md`](17_OPTIMIZER_ENGINE.md) §3.
+
 **It works as intended, and that was verified by reading every call site** — all ten
 pass their own service key, so changing a model here changes exactly that service.
 Saving replaces the previous values; submitting the key field blank keeps the existing
