@@ -216,7 +216,7 @@ function MockInterviewScreen() {
 
   if (listError) {
     return (
-      <main className="mx-auto flex w-full max-w-[980px] flex-col items-start gap-3 px-5 py-8 font-redesign-sans">
+      <main className="mx-auto flex w-full max-w-[980px] flex-col items-start gap-3 px-3 sm:px-5 py-8 font-redesign-sans">
         <p role="alert" className="text-[14px] text-alert">{listError}</p>
         <Button type="button" variant="secondary" onClick={picker.reloadList}>
           Try again
@@ -226,7 +226,7 @@ function MockInterviewScreen() {
   }
   if (list === null) {
     return (
-      <main className="mx-auto w-full max-w-[980px] px-5 py-8 font-redesign-sans">
+      <main className="mx-auto w-full max-w-[980px] px-3 sm:px-5 py-8 font-redesign-sans">
         <SkeletonGroup label="Loading mock interview">
           <Skeleton shape="title" />
           <Skeleton />

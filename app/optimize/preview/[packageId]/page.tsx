@@ -151,7 +151,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
 
   if (error) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-canvas px-5">
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5">
         <Alert variant="danger">{error}</Alert>
       </main>
     )

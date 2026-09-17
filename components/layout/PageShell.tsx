@@ -57,7 +57,7 @@ export function PageShell({
     // That is precisely the drift this component exists to prevent, and a page
     // cannot own its own font if the frame is meant to make pages feel like one
     // product.
-    <main className={cn('mx-auto flex w-full flex-col gap-6 px-5 pb-12 pt-4 font-redesign-sans sm:px-6', WIDTH[width], className)}>
+    <main className={cn('mx-auto flex w-full flex-col gap-6 px-3 pb-12 pt-4 font-redesign-sans sm:px-6', WIDTH[width], className)}>
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1.5">
           <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[30px]">

@@ -93,7 +93,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
 
   if (error) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-canvas px-5">
+      <div className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5">
         <Alert variant="danger">{error}</Alert>
       </div>
     )
@@ -108,7 +108,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-canvas px-5 py-10 font-redesign-sans">
+    <main className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5 py-10 font-redesign-sans">
       <Card tone="light" className="flex w-full max-w-[520px] flex-col gap-3 p-5 sm:p-6">
         <button
           type="button"

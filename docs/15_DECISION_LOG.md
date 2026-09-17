@@ -12,6 +12,19 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-17 (housekeeping) — no WhatsApp share, wider phone layout, per-CV service usage
+
+- **"Share to WhatsApp" removed** from the resume screen (founder). It was a `wa.me` link with
+  no backend; nothing else used it.
+- **Phone side gutter 20px → 12px** on page-level containers, landing page included. Cards,
+  buttons and chips keep their own padding. See `12_DESIGN_SYSTEM.md`.
+- **Each service card on a CV now shows how often that service ran for THAT CV** — "Used 2
+  times · last 16 Sep", and for the mock interview also how many reports were saved. Counted
+  from the package's own service history (migration 048/050), which records one event per
+  generation, so a regenerated Q&A set counts twice even though only the newest set is stored.
+
+---
+
 ## 2026-09-17 (last) — levels reach their bands through a colourful review page
 
 **Founder:** not happy with results for the Middle East market; each level (Easy, Moderate,

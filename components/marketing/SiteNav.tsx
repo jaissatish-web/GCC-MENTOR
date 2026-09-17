@@ -54,7 +54,7 @@ const ITEMS = [
 export function SiteNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-[68px] max-w-[1240px] items-center justify-between gap-3 px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto flex h-[68px] max-w-[1240px] items-center justify-between gap-3 px-3 sm:px-8 lg:px-12">
         <Link
           href="/"
           className="flex shrink-0 items-center gap-1.5 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"

@@ -65,7 +65,7 @@ export function PageContainer({
   return (
     <main
       className={cn(
-        'mx-auto w-full px-5 py-8 font-redesign-sans sm:px-8 lg:px-10',
+        'mx-auto w-full px-3 py-8 font-redesign-sans sm:px-8 lg:px-10',
         width === 'wide' ? 'max-w-[1180px]' : 'max-w-[900px]',
         className
       )}

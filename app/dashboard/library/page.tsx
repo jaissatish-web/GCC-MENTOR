@@ -463,7 +463,7 @@ export default function TargetJobsPage() {
   const filtering = Boolean(debouncedQuery) || stageFilter !== null
 
   return (
-    <div className="flex min-h-screen flex-col gap-5 bg-canvas p-5 font-redesign-sans sm:p-8 lg:p-10">
+    <div className="flex min-h-screen flex-col gap-5 bg-canvas p-3 font-redesign-sans sm:p-8 lg:p-10">
       {/* ── Header ── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1">

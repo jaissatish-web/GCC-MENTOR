@@ -221,7 +221,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
 
   if (error && !pkg) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-canvas px-5">
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5">
         <p className="text-sm text-alert">{error}</p>
       </main>
     )
@@ -243,7 +243,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   const freeKinds = (Object.keys(CONTACT_KIND_LABELS) as ResumeContactItem['kind'][]).filter((k) => !usedKinds.has(k))
 
   return (
-    <main className="mx-auto w-full max-w-[1400px] px-5 py-6 font-redesign-sans sm:px-8">
+    <main className="mx-auto w-full max-w-[1400px] px-3 py-6 font-redesign-sans sm:px-8">
       <div className="flex flex-col gap-3 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="font-display text-[24px] leading-tight text-ink">Edit your resume</h1>

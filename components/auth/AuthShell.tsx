@@ -34,7 +34,7 @@ export function AuthShell({
     <div className="relative min-h-screen overflow-hidden bg-canvas">
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-glow-radial" />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-[420px] flex-col items-center justify-center px-5 py-12 sm:px-8">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[420px] flex-col items-center justify-center px-3 py-12 sm:px-8">
         <Link href="/" className="flex items-center gap-2.5">
           <span className="font-display flex h-9 w-9 items-center justify-center rounded-card bg-teal text-[15px] text-white shadow-redesign-cta-glow">
             G

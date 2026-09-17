@@ -191,7 +191,7 @@ export default function OnboardingPage() {
 
   return (
     <main className="flex min-h-dvh flex-col bg-canvas font-redesign-sans">
-      <div className="mx-auto flex w-full max-w-[640px] flex-1 flex-col px-5 pb-6 pt-9 sm:px-8 sm:pt-12">
+      <div className="mx-auto flex w-full max-w-[640px] flex-1 flex-col px-3 pb-6 pt-9 sm:px-8 sm:pt-12">
         {/* Back arrow + progress bar 1/5 */}
         <div className="flex items-center gap-3.5">
           <button

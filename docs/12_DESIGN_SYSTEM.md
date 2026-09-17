@@ -333,6 +333,11 @@ grid containers — never accumulating per-element margins.
 |---|---|---|
 | App shell | 1600px | Sidebar 248px · flexible main · 340px right rail at ≥1280px |
 | Marketing | 1280px | Single column, generous side padding |
+
+**Page side gutter (2026-09-17, founder):** 12px on a phone (`px-3`), 24–32px from `sm`
+upwards (`sm:px-6` / `sm:px-8`). It was 20px everywhere, which on a 375px screen spent 40px
+of the 375 on empty margins before a card's own padding. Buttons, chips and cards keep their
+own padding — only page-level containers (`mx-auto`, `min-h-dvh`) changed.
 | Forms (profile, settings) | 900px | One readable column; two-up for short paired fields |
 | Admin | 960px | Single column, denser rhythm |
 

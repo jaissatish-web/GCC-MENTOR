@@ -110,7 +110,7 @@ export async function AppFooter() {
 
   return (
     <footer className="mt-10 border-t border-line bg-white">
-      <div className="mx-auto grid w-full max-w-[1120px] gap-7 px-5 py-8 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="mx-auto grid w-full max-w-[1120px] gap-7 px-3 py-8 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
         {/* ── who is behind this ── */}
         <div className="flex flex-col gap-3">
           <Link
@@ -191,7 +191,7 @@ export async function AppFooter() {
 
       {/* ── the honest bottom line ── */}
       <div className="border-t border-line">
-        <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-2 px-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <p className="text-[12px] text-ink-muted">© {year} GCC MENTOR</p>
             {/* Only what is actually written. An empty list renders nothing —

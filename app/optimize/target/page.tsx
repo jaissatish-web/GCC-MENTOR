@@ -205,7 +205,7 @@ function TargetScreen() {
 
   if (noProfile) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-canvas px-5 py-10 font-redesign-sans">
+      <main className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5 py-10 font-redesign-sans">
         <Card tone="light" className="flex w-full max-w-[520px] flex-col gap-3 p-6 sm:p-8">
           <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
             Before your first CV
@@ -230,7 +230,7 @@ function TargetScreen() {
 
   return (
     <main className="flex min-h-dvh flex-col font-redesign-sans">
-      <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-5 py-8 sm:px-8 lg:py-12">
+      <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-3 py-8 sm:px-8 lg:py-12">
       {/* Back + step. Was "3/5" of a five-step flow that no longer exists; the
           optimizer is three screens: target, what to sharpen, build. */}
       <div className="flex items-center gap-3.5">

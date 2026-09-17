@@ -299,7 +299,7 @@ export default function Home() {
       <SiteNav />
       <main>
         <section className="relative border-b border-line bg-canvas">
-          <div className="mx-auto grid max-w-[1240px] items-center gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:px-12 lg:py-20">
+          <div className="mx-auto grid max-w-[1240px] items-center gap-10 px-3 py-12 sm:px-8 sm:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:px-12 lg:py-20">
             <div className="min-w-0">
               <Eyebrow>Built for your next Gulf opportunity</Eyebrow>
               <h1 className="mt-5 max-w-[16ch] font-display text-[38px] font-semibold leading-[1.08] tracking-[-0.03em] text-ink sm:text-[54px] lg:text-[60px]">
@@ -357,7 +357,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="pain" className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
+        <section id="pain" className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
           <SectionHeader
             eyebrow="Sound familiar?"
             title="Good experience deserves a clearer application."
@@ -367,7 +367,7 @@ export default function Home() {
         </section>
 
         <section id="services" className="border-y border-line bg-white">
-          <div className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
+          <div className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
             <SectionHeader
               center
               eyebrow="Services"
@@ -424,7 +424,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="optimizer" className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
+        <section id="optimizer" className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start">
             <div>
               <SectionHeader
@@ -455,7 +455,7 @@ export default function Home() {
         </section>
 
         <section id="templates" className="border-y border-line bg-white">
-          <div className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
+          <div className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:items-start">
               <div>
                 <SectionHeader
@@ -474,7 +474,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="readiness" className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
+        <section id="readiness" className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <WeaknessPanel />
             <div>
@@ -495,7 +495,7 @@ export default function Home() {
         </section>
 
         <section id="interview" className="border-y border-line bg-white">
-          <div className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
+          <div className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
               <div>
                 <SectionHeader
@@ -514,7 +514,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="journey" className="mx-auto max-w-[1040px] px-5 py-12 sm:px-8 sm:py-16 lg:py-24">
+        <section id="journey" className="mx-auto max-w-[1040px] px-3 py-12 sm:px-8 sm:py-16 lg:py-24">
           <SectionHeader
             center
             eyebrow="How it works"
@@ -532,7 +532,7 @@ export default function Home() {
         </section>
 
         <section id="trust" className="bg-teal">
-          <div className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
+          <div className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
             <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
               <SectionHeader
                 onDark
@@ -559,7 +559,7 @@ export default function Home() {
         </section>
 
         <section id="pricing" className="border-b border-line bg-white">
-          <div className="mx-auto max-w-[1240px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
+          <div className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
             <SectionHeader
               center
               eyebrow="Pricing"
@@ -614,7 +614,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="faq" className="mx-auto max-w-[900px] px-5 py-12 sm:px-8 sm:py-16 lg:py-24">
+        <section id="faq" className="mx-auto max-w-[900px] px-3 py-12 sm:px-8 sm:py-16 lg:py-24">
           <SectionHeader center eyebrow="FAQ" title="Questions before you get started" />
           <div className="mt-10 flex flex-col gap-3">
             {[
@@ -640,7 +640,7 @@ export default function Home() {
         </section>
 
         <section className="border-t border-line bg-teal">
-          <div className="mx-auto flex max-w-[900px] flex-col items-center gap-6 px-5 py-20 text-center sm:px-8 lg:py-24">
+          <div className="mx-auto flex max-w-[900px] flex-col items-center gap-6 px-3 py-20 text-center sm:px-8 lg:py-24">
             <BriefcaseIcon className="size-10 text-gold" />
             <h2 className="max-w-[21ch] font-display text-[34px] font-semibold leading-[1.08] tracking-[-0.02em] text-white sm:text-[44px]">
               Start with the score. Build the application from there.

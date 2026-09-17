@@ -8,7 +8,7 @@ import { cn, PERSONA_INDUSTRIES } from '@/lib/utils'
 import { CTA, NAMES, USES } from '@/lib/serviceLabels'
 import type { MatchReport } from '@/lib/optimizer/types'
 import type { ResumeDocument } from '@/lib/resumeDocument'
-import type { Package } from '@/types/package'
+import type { Package, PackageServiceEventType } from '@/types/package'
 
 /**
  * THE RESULTS WORKSPACE (founder request 2026-09-17): after optimizing, every
@@ -72,6 +72,19 @@ export function ResultsOverview({
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
   const mockReady = Boolean(pkg.mock_interview_runs?.some((r) => r.status === 'completed'))
+
+  // HOW OFTEN EACH SERVICE WAS USED FOR THIS CV (founder request 2026-09-17).
+  // Counted from the package's own service history (migration 048/050), which
+  // records one event per generation — so a regenerated Q&A set counts twice
+  // even though only the newest set is stored.
+  const used = (type: PackageServiceEventType) => {
+    const rows = (pkg.service_events ?? []).filter((e) => e.type === type)
+    return { count: rows.length, last: rows.map((e) => e.at).sort().at(-1) ?? null }
+  }
+  const letterUse = used('cover_letter_generated')
+  const qaUse = used('qa_generated')
+  const mockUse = used('mock_interview_started')
+  const mockDone = used('mock_interview_completed')
 
   return (
     <section aria-label="Your results" className="flex flex-col gap-3">
@@ -194,6 +207,8 @@ export function ResultsOverview({
           title={NAMES.coverLetter}
           body={USES.coverLetter}
           done={letterReady}
+          used={Math.max(letterUse.count, Array.isArray(pkg.cover_letters) ? pkg.cover_letters.length : 0)}
+          lastAt={letterUse.last}
           href={`/cover-letter?package=${id}`}
           cta={CTA.writeCoverLetter}
           tone="border-sec-summary/30 bg-white"
@@ -204,6 +219,8 @@ export function ResultsOverview({
           title={NAMES.interviewQa}
           body={USES.interviewQa}
           done={qaReady}
+          used={qaUse.count}
+          lastAt={qaUse.last}
           href={`/interview-qa?package=${id}`}
           cta={CTA.prepareInterviewQa}
           tone="border-sec-status/30 bg-white"
@@ -214,6 +231,9 @@ export function ResultsOverview({
           title={NAMES.mockInterview}
           body={USES.mockInterview}
           done={mockReady}
+          used={Math.max(mockUse.count, pkg.mock_interview_runs?.length ?? 0)}
+          lastAt={mockUse.last ?? mockDone.last}
+          extra={mockDone.count > 0 ? `${mockDone.count} report${mockDone.count === 1 ? '' : 's'} saved` : null}
           href={`/mock-interview?package=${id}`}
           cta={CTA.startMockInterview}
           tone="border-sec-experience/30 bg-white"
@@ -222,6 +242,14 @@ export function ResultsOverview({
       </div>
     </section>
   )
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+function formatDay(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return `${d.getDate()} ${MONTHS[d.getMonth()] ?? ''}`
 }
 
 function CardLabel({ children, tone, icon }: { children: React.ReactNode; tone: string; icon: string }) {
@@ -269,6 +297,9 @@ function ServiceTile({
   title,
   body,
   done,
+  used,
+  lastAt,
+  extra,
   href,
   cta,
   tone,
@@ -278,6 +309,10 @@ function ServiceTile({
   title: string
   body: string
   done: boolean
+  /** How many times this service ran for THIS CV. */
+  used: number
+  lastAt: string | null
+  extra?: string | null
   href: string
   cta: string
   tone: string
@@ -300,8 +335,21 @@ function ServiceTile({
         </span>
       </div>
       <p className="flex-1 text-[12.5px] leading-relaxed text-ink-soft">{body}</p>
+      <p className="rounded-ctl bg-canvas px-2.5 py-1.5 text-[12px] text-ink-soft">
+        {used > 0 ? (
+          <>
+            <strong className="text-ink">
+              Used {used} time{used === 1 ? '' : 's'}
+            </strong>
+            {extra ? <> · {extra}</> : null}
+            {lastAt ? <> · last {formatDay(lastAt)}</> : null}
+          </>
+        ) : (
+          'Not used yet for this CV'
+        )}
+      </p>
       <Link href={href} className={cn(buttonVariants({ variant: done ? 'secondary' : 'primary', size: 'sm' }), 'self-start')}>
-        {done ? `Open ${title.toLowerCase()}` : cta}
+        {done ? `Open ${title}` : cta}
       </Link>
     </article>
   )

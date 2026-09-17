@@ -90,7 +90,6 @@ function buildServiceTimeline(pkg: Package): PackageServiceEvent[] {
  * template (GulfPremium) and offers the actions from Step 10: Download PDF
  * (the is_paid-gated GET /api/packages/[id]/pdf; the parallel /docx route
  * exists but is deliberately unlinked — see the note at docxUrl's old site),
- * Share to WhatsApp (a wa.me link, no backend), and
  * "Edit text" → this package's own editor (/package/[id]/edit, 2026-08-19 —
  * previously the diff viewer at /optimize/preview/[id], which still exists for
  * its own purpose). A repeat-purchase prompt appears after a download,
@@ -327,7 +326,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
   if (error) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-canvas px-5">
+      <div className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5">
         <p className="text-sm text-alert">{error}</p>
       </div>
     )
@@ -422,8 +421,6 @@ function PackageScreenInner({ id }: { id: string }) {
   // not linked, because its layout does not match the on-screen resume and
   // shipping a download that disagrees with the preview is worse than not
   // shipping one. Re-link it once the generator mirrors the template.
-  const whatsappText = encodeURIComponent(`Here is my optimized Gulf CV: ${pkg.target_job_title}`)
-  const waUrl = `https://wa.me/?text=${whatsappText}`
   const cvReady = pkg.optimized_content != null
   const showOverview = !isFree && cvReady
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
@@ -588,14 +585,6 @@ function PackageScreenInner({ id }: { id: string }) {
               {CTA.seeChanges}
             </Link>
           ) : null}
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noreferrer"
-            className={buttonVariants({ variant: 'ghost', size: 'sm' })}
-          >
-            Share to WhatsApp
-          </a>
           {styleable && styleDirty ? (
             <>
               <span className="text-[12px] text-ink-muted">Unsaved</span>

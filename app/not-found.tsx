@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'
  */
 export default function NotFound() {
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center bg-canvas px-5 py-16 text-center font-redesign-sans">
+    <main className="flex min-h-dvh flex-col items-center justify-center bg-canvas px-3 sm:px-5 py-16 text-center font-redesign-sans">
       <Link
         href="/"
         aria-label="GCC MENTOR — home"

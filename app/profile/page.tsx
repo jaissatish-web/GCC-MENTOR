@@ -1528,7 +1528,7 @@ function ProfileScreen() {
     const replaceMissing = requiredMissing(fromDraft(pendingDraft.draft)).map((m) => m.label.toLowerCase())
 
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-canvas px-5 py-10">
+      <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-canvas px-3 sm:px-5 py-10">
         <h1 className="font-display text-[28px] leading-tight text-ink">
           You already have a profile
         </h1>

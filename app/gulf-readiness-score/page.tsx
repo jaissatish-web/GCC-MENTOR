@@ -91,7 +91,7 @@ export default function GulfReadinessScorePage() {
   const Shell = ({ children, wide }: { children: React.ReactNode; wide?: boolean }) => (
     <main className="min-h-dvh bg-canvas text-ink">
       <header className="border-b border-line bg-canvas/95">
-        <div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-5 sm:px-8">
+        <div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-3 sm:px-8">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="font-display flex h-9 w-9 items-center justify-center rounded-ctl bg-teal text-lg text-white">G</span>
             <span className="font-bold tracking-wide">GCC MENTOR</span>

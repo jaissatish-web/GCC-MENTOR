@@ -132,7 +132,7 @@ function CoverLetterScreen() {
 
   if (listError) {
     return (
-      <main className="mx-auto flex w-full max-w-[900px] flex-col items-start gap-3 px-5 py-8 font-redesign-sans sm:px-8 lg:px-10">
+      <main className="mx-auto flex w-full max-w-[900px] flex-col items-start gap-3 px-3 py-8 font-redesign-sans sm:px-8 lg:px-10">
         <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
           {listError}
         </div>
@@ -145,7 +145,7 @@ function CoverLetterScreen() {
 
   if (list === null) {
     return (
-      <main className="mx-auto w-full max-w-[900px] px-5 py-8 sm:px-8 lg:px-10 font-redesign-sans">
+      <main className="mx-auto w-full max-w-[900px] px-3 py-8 sm:px-8 lg:px-10 font-redesign-sans">
         <SkeletonGroup label="Loading your resumes">
           <Skeleton shape="title" />
           <Skeleton />

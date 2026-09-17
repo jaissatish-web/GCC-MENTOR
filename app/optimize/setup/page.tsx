@@ -257,7 +257,7 @@ function SetupScreen() {
 
   return (
     <main className="flex min-h-dvh flex-col font-redesign-sans">
-      <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-5 px-5 py-8 sm:px-8 lg:py-12">
+      <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-5 px-3 py-8 sm:px-8 lg:py-12">
         <div className="flex items-center gap-3.5">
           <button
             type="button"

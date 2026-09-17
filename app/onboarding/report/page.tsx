@@ -67,7 +67,7 @@ export default function OnboardingReportPage() {
   return (
     <main className="min-h-dvh bg-canvas text-ink">
       <header className="border-b border-line bg-canvas/95">
-        <div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-5 sm:px-8">
+        <div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-3 sm:px-8">
           <Link href="/dashboard" className="flex items-center gap-2.5">
             <span className="font-display flex h-9 w-9 items-center justify-center rounded-ctl bg-teal text-lg text-white">G</span>
             <span className="font-bold tracking-wide">GCC MENTOR</span>
@@ -75,7 +75,7 @@ export default function OnboardingReportPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[820px] px-5 py-12 sm:px-8 lg:py-16">
+      <div className="mx-auto max-w-[820px] px-3 py-12 sm:px-8 lg:py-16">
         <div className="mb-6 text-center">
           <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your full Gulf readiness report</p>
           <h1 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">Unlocked — here&rsquo;s everything we found</h1>

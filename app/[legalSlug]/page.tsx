@@ -88,7 +88,7 @@ export default async function LegalPage({
   return (
     <div className="min-h-dvh bg-canvas font-redesign-sans">
       <header className="border-b border-line bg-white">
-        <div className="mx-auto flex h-14 max-w-[760px] items-center px-5 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-[760px] items-center px-3 sm:px-6">
           <Link
             href="/"
             aria-label="GCC MENTOR — home"
@@ -107,7 +107,7 @@ export default async function LegalPage({
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-[760px] flex-col gap-5 px-5 py-9 sm:px-6">
+      <main className="mx-auto flex max-w-[760px] flex-col gap-5 px-3 py-9 sm:px-6">
         <div className="flex flex-col gap-1.5">
           <h1 className="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[30px]">
             {page.title}
