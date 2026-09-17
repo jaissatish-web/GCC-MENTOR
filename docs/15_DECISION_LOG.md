@@ -14,6 +14,11 @@ what was decided, and the reasoning that made it the right call.
 
 ## 2026-09-17 (housekeeping) — no WhatsApp share, wider phone layout, per-CV service usage
 
+- **The desktop sidebar scrolls again** (founder), reversing TASK-155's "no scroller of its
+  own". That call assumed nine items always fit; with the planned group they do not on a short
+  laptop screen or at a larger browser zoom, and the last entries could not be reached. The
+  scrollbar appears only when the nav really is taller than the screen, is the thin variant,
+  and `overscroll-contain` stops the page behind it from moving.
 - **"Share to WhatsApp" removed** from the resume screen (founder). It was a `wa.me` link with
   no backend; nothing else used it.
 - **Phone side gutter 20px → 12px** on page-level containers, landing page included. Cards,

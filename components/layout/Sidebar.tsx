@@ -192,18 +192,20 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar — ≥1024px */}
-      {/* Pinned to the viewport on desktop (TASK-153), with NO scroller of its
-          own (TASK-155, founder's call). It was a plain flex item, so on any long
-          page the nav scrolled off the top. `sticky` + `h-dvh` holds it still;
-          the `overflow-y-auto` that came with it added a second scrollbar beside
-          the page's own, which read as clutter. The nav is nine items and fits a
-          laptop screen, so it does not need one. */}
-      <aside className="hidden w-[248px] flex-none flex-col gap-7 border-r border-line bg-white px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-dvh">
+      {/* Pinned to the viewport on desktop (TASK-153) AND scrollable inside
+          itself (founder, 2026-09-17), which reverses TASK-155's "no scroller of
+          its own". That call assumed the nav always fits; with the planned-items
+          group it does not on a short laptop screen or at a larger browser zoom,
+          and the bottom entries could not be reached at all. `overflow-y-auto`
+          shows a scrollbar only when the content really is taller than the
+          screen, `overscroll-contain` keeps the page behind it still, and the
+          scrollbar is the thin variant so it stays quiet. */}
+      <aside className="hidden w-[248px] flex-none flex-col gap-7 overflow-y-auto overscroll-contain border-r border-line bg-white px-4 py-6 [scrollbar-width:thin] lg:sticky lg:top-0 lg:flex lg:h-dvh">
         {navContent}
       </aside>
 
       {/* Tablet collapsed sidebar — 768–1023px */}
-      <aside className="relative hidden w-[48px] flex-none flex-col items-center gap-5 border-r border-line bg-white px-2 py-4 md:flex lg:hidden">
+      <aside className="relative hidden w-[48px] flex-none flex-col items-center gap-5 overflow-y-auto overscroll-contain border-r border-line bg-white px-2 py-4 [scrollbar-width:none] md:flex lg:hidden">
         <Link
           href="/dashboard"
           className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal text-[15px] font-bold text-white shadow-redesign-sm"
@@ -245,7 +247,7 @@ export function Sidebar() {
             onClick={() => setTabletExpanded(false)}
           />
           {/* Slide-in drawer */}
-          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-7 border-r border-line bg-white px-4 py-6 shadow-redesign-lg">
+          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-7 overflow-y-auto overscroll-contain border-r border-line bg-white px-4 py-6 shadow-redesign-lg [scrollbar-width:thin]">
             <button
               type="button"
               onClick={() => setTabletExpanded(false)}
