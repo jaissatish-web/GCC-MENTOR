@@ -42,6 +42,7 @@ import {
   renderSuggestionRequest,
   suggestionRequirements,
   validateSuggestions,
+  skillSuggestions,
   type Suggestion,
 } from './suggestions'
 import type { JobTargetProfile, KeptOriginalReason, MatchReport, VerifiedBridge } from './types'
@@ -380,8 +381,14 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
   // ---- Round 1 ---------------------------------------------------------------
   const wantedOwners: Owner[] = [...(selectedBlocks.summary ? ['summary'] : []), ...selectedIds]
   const firstSpecs = sectionsFor(wantedOwners)
-  // Every call returns a skill ordering; the first one also drafts suggestions.
-  if (firstSpecs.length > 0) firstSpecs[0].suggest = true
+  // Every call returns a skill ordering; the SMALLEST one also drafts
+  // suggestions. On the largest (summary + 7 roles) the extra drafts pushed a
+  // reasoning model past its token budget: the section was cut off, its roles
+  // kept their original text and every drafted line was lost (live, 2026-09-17).
+  if (firstSpecs.length > 0) {
+    const smallest = firstSpecs.reduce((a, b) => (b.ids.length + (b.summary ? 1 : 0) < a.ids.length + (a.summary ? 1 : 0) ? b : a))
+    smallest.suggest = true
+  }
   stats.sections = firstSpecs.length
 
   const firstOutcomes = await Promise.all(firstSpecs.map((s) => runSection(s, '')))
@@ -398,7 +405,8 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
   }
 
   let skillsOrderRaw: unknown = firstOutcomes.find((o) => o.ok && o.skillsOrder !== undefined)?.skillsOrder
-  const rawSuggestions = firstOutcomes[0]?.suggestions
+  // Drafts come from whichever section was asked for them (the smallest).
+  const rawSuggestions = firstOutcomes[firstSpecs.findIndex((sp) => sp.suggest)]?.suggestions
   const current = new Map<Owner, Candidate>()
   for (const o of firstOutcomes) for (const c of o.candidates) current.set(c.owner, c)
 
@@ -692,11 +700,15 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
       return (hit?.where ?? []).filter((w) => w !== 'skills')
     }
     // Drafts for the candidate to confirm (never merged here).
-    const suggestions: Suggestion[] = validateSuggestions(rawSuggestions, {
-      profile,
-      requirements: requirementsToDraft,
-      roleIds: selectedIds,
-    })
+    const suggestions: Suggestion[] = [
+      ...validateSuggestions(rawSuggestions, {
+        profile,
+        requirements: requirementsToDraft,
+        roleIds: selectedIds,
+        onDrop: (code) => stats.codes.push('suggestion_' + code),
+      }),
+      ...skillSuggestions(requirementsToDraft),
+    ]
     const projected = suggestions.length
       ? scoreResume(scoreDocumentFromResume(applySuggestionsToDocument(document, suggestions)), targetProfile, qualifications).total
       : after.total

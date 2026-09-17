@@ -30,7 +30,7 @@ export const CTA = {
   viewOptimizedCv: 'View optimized CV',
   editCv: 'Edit CV',
   downloadPdf: 'Download PDF',
-  seeChanges: 'See what changed',
+  seeChanges: 'Review and edit changes',
   writeCoverLetter: 'Write cover letter',
   prepareInterviewQa: 'Prepare interview Q&A',
   startMockInterview: 'Start mock interview',

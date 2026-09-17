@@ -61,7 +61,7 @@ export function SuggestionsPanel({
 
       <ul className="flex flex-col gap-2">
         {pending.map((s) => {
-          const where = s.block === 'summary' ? 'Summary' : roleNames[s.block] ?? 'Experience'
+          const where = s.block === 'summary' ? 'Summary' : s.block === 'skills' ? 'Skills' : roleNames[s.block] ?? 'Experience'
           const isEditing = editing === s.id
           return (
             <li key={s.id} className="flex flex-col gap-2 rounded-ctl border border-line bg-white p-3">

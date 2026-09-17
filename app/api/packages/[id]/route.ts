@@ -358,7 +358,7 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   }
   const suggestionActions: SuggestionAction[] = []
   if (b.suggestion_actions !== undefined && b.suggestion_actions !== null) {
-    if (!Array.isArray(b.suggestion_actions) || b.suggestion_actions.length > 20) {
+    if (!Array.isArray(b.suggestion_actions) || b.suggestion_actions.length > 60) {
       return NextResponse.json({ error: 'Invalid field: suggestion_actions' }, { status: 400 })
     }
     for (const a of b.suggestion_actions) {

@@ -175,9 +175,10 @@ function ApplicationCard({
     if (next && !detail && detailState !== 'loading') {
       setDetailState('loading')
       fetch(`/api/packages/${encodeURIComponent(pkg.id)}`, { cache: 'no-store' })
-        .then((res) => (res.ok ? (res.json() as Promise<Package>) : Promise.reject(new Error(String(res.status)))))
+        .then((res) => (res.ok ? (res.json() as Promise<{ package?: Package }>) : Promise.reject(new Error(String(res.status)))))
         .then((data) => {
-          setDetail(data)
+          if (!data?.package) throw new Error('shape')
+          setDetail(data.package)
           setDetailState('idle')
         })
         .catch(() => setDetailState('error'))

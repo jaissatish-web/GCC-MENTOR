@@ -86,6 +86,29 @@ export async function resolveAnalysis(input: ResolveInput): Promise<ResolvedAnal
     changed = true
   }
 
+  // No evidence yet (the analysis fell back to requirements only, or a cached
+  // analysis was saved that way): with time to spare, match the profile now,
+  // in one small call. Without it the plan has only literal matches and the
+  // rewrite can use far fewer of the job's terms (live I&C profile, 2026-09-17).
+  if (
+    bridges.length === 0 &&
+    !input.requirementsOnly &&
+    (!input.giveUpAt || input.giveUpAt - Date.now() > 100_000)
+  ) {
+    const late = await bridgeEvidence({
+      generateFn: input.generateFn,
+      profile: input.profile,
+      target: targetProfile,
+      userId: input.userId,
+      route: input.route,
+      giveUpAt: input.giveUpAt,
+    })
+    if (late.length > 0) {
+      bridges = late
+      changed = true
+    }
+  }
+
   let analysisId = stored?.id ?? null
   if (changed) {
     analysisId =

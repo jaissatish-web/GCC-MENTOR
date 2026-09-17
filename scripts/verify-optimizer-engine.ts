@@ -25,7 +25,7 @@ import { factSummary } from '../lib/optimizer/factSummary'
 import { reportForSavedDocument } from '../lib/optimizer/savedReport'
 import { normalizeSectionOutput, runOptimizationPipeline } from '../lib/optimizer/pipeline'
 import { cutOutcomeTail, pruneSummary } from '../lib/optimizer/autofix'
-import { applySuggestionsToDocument, suggestionRequirements, validateSuggestions } from '../lib/optimizer/suggestions'
+import { applySuggestionsToDocument, skillSuggestions, suggestionRequirements, validateSuggestions } from '../lib/optimizer/suggestions'
 import { validateGrounding } from '../lib/ai/validateGrounding'
 import type { JobTargetProfile } from '../lib/optimizer/types'
 
@@ -497,7 +497,7 @@ async function pipelineSuite() {
   {
     const { result, calls } = await run({ summary: () => GOOD_SUMMARY, role: (id) => GOOD[id] }, 'moderate')
     const s = result.ok ? result.report?.suggestions ?? [] : []
-    check('moderate drafts suggestions only for must-have gaps', calls[0].user.includes('BLOCK 4C') && s.length === 1 && s[0].requirement === 'SAP PM')
+    check('moderate drafts must-have gaps first, then nice-to-haves (lines + a Skills entry)', calls[0].user.includes('BLOCK 4C') && calls[0].user.indexOf('- SAP PM') < calls[0].user.indexOf('- NEBOSH') && [...new Set(s.map((x) => x.requirement))].sort().join() === 'NEBOSH,SAP PM' && s.some((x) => x.block === 'skills' && x.text === 'SAP PM') && s.some((x) => x.block === 'e1'))
     check('suggestions are never merged into the CV', result.ok && !JSON.stringify(result.optimizedContent).includes('SAP PM'))
     check('score with suggestions confirmed is projected above the current score', result.ok && (result.report?.projected_with_suggestions ?? 0) > (result.report?.after?.total ?? 0))
     check('the level target band is recorded', result.ok && JSON.stringify(result.report?.target_band) === '[75,85]')
@@ -505,7 +505,7 @@ async function pipelineSuite() {
   {
     const { result } = await run({ summary: () => GOOD_SUMMARY, role: (id) => GOOD[id] }, 'high')
     const s = result.ok ? result.report?.suggestions ?? [] : []
-    check('high drafts for every gap (must and nice)', s.map((x) => x.requirement).sort().join() === 'NEBOSH,SAP PM')
+    check('high drafts for every gap (must and nice)', [...new Set(s.map((x) => x.requirement))].sort().join() === 'NEBOSH,SAP PM')
   }
   {
     const { calls } = await run({ summary: () => GOOD_SUMMARY, role: (id) => GOOD[id] }, 'easy')
@@ -611,6 +611,18 @@ async function resultsSuite() {
       giveUpAt: Date.now() + 90_000, requirementsOnly: true,
     })
     check('analysis: requirementsOnly skips the heavy call', r !== null && !calls[calls.length - 1].system.includes('SECOND TASK'))
+  }
+  {
+    // Review page (2026-09-17): missing job skills/tools offered for the Skills section.
+    const ev = buildEvidenceMap(profile, target, bridges)
+    const skillSugs = skillSuggestions(suggestionRequirements(ev.keywords, 'high'))
+    check('skill suggestions: only missing skills/tools, placed in skills', skillSugs.length > 0 && skillSugs.every((x) => x.block === 'skills') && skillSugs.some((x) => x.text === 'SAP PM') && !skillSugs.some((x) => x.text === 'NEBOSH'))
+    const doc0 = baselineDocument(profile, target.job_title)
+    const withSkills = applySuggestionsToDocument(doc0, skillSugs.map((x) => ({ ...x, status: 'confirmed' as const })))
+    check('confirmed skill suggestion is added to the CV skills once', withSkills.skills.filter((k) => k.name === 'SAP PM').length === 1)
+    const twice = applySuggestionsToDocument(withSkills, skillSugs)
+    check('a skill already on the CV is not added again', twice.skills.length === withSkills.skills.length)
+    check('easy offers no suggestions', suggestionRequirements(ev.keywords, 'easy').length === 0)
   }
   {
     const doc = baselineDocument(profile, target.job_title)

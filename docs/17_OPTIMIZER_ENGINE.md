@@ -45,11 +45,14 @@ missed, and nothing measured whether the CV had actually been targeted. Now:
 /optimize/generate    STEP 3 · POST /api/optimize {packageId, analyzeOnly:true}  (analysis, own 280s budget, cached)
                              then POST /api/optimize {packageId}  (Phase B: build, reads the cached analysis, §3)
         │
+/optimize/preview     REVIEW PAGE (build lands here): summary · skills · work experience,
+                      green = reworded, blue = JD keyword, yellow = suggested (not in profile, pre-selected);
+                      edit in place, live ATS score vs level target; Save needs "I confirm the yellow
+                      items I kept are true" → PATCH {document, suggestion_actions}
 /package/[id]         coloured result cards (components/package/ResultsOverview.tsx): Target job ·
                       ATS score before → after · Professional summary · What changed · service tiles;
                       then score details and "Boost your ATS score" suggestions.
                       No score saved? "Calculate ATS score" → POST /api/packages/[id]/ats-score
-/optimize/preview     every change, editable; each saved edit is RE-SCORED (PATCH)
 ```
 
 **No score before optimizing (founder decision 2026-09-17, night).** The before score is

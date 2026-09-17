@@ -92,7 +92,8 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
       } catch {
         /* display-only handoff */
       }
-      router.replace(`/package/${encodeURIComponent(packageId)}`)
+      // Review first (2026-09-17): the colourful review page, then the results.
+      router.replace(`/optimize/preview/${encodeURIComponent(packageId)}`)
     } catch {
       window.clearInterval(timer)
       setError('Network error. Please check your connection and try again.')

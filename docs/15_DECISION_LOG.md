@@ -12,6 +12,54 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-17 (last) — levels reach their bands through a colourful review page
+
+**Founder:** not happy with results for the Middle East market; each level (Easy, Moderate,
+High) must reach its target by touching only the summary, skills and work history; after
+optimizing, open one page where the user sees the optimized words in colour, edits them and
+saves straight into the optimized result.
+
+**Decided and built:**
+- **Scope unchanged:** only summary, skills and work-history activities are touched.
+- **More at each level.** Easy: rewording with proven job keywords only. Moderate: also up to
+  10 suggested lines for must-have requirements. High: up to 16, for every requirement. Both
+  also offer the job's missing **skills and tools** for the Skills section (no model call).
+- **Review page** (`/optimize/preview/[id]`, where the build now lands): Professional
+  summary, Skills and Work experience, each word coloured — green = reworded from the profile,
+  blue = job description keyword, yellow = suggested, not in the profile. Everything is
+  editable; the ATS score updates live against the level's target.
+- **Yellow items start selected** so the target is visible at once. **Saving requires the
+  user to tick "I confirm the yellow items I kept are true for me."** One save writes the
+  edited CV and the kept/removed decisions into the optimized result. The Career Profile is
+  not changed.
+
+**Why this is not the fabrication that was declined earlier:** nothing reaches the saved CV
+without the user seeing it highlighted as "not in your profile" and confirming it. The
+responsibility is explicit. What stays refused: writing unconfirmed claims silently, and a
+score that does not measure the document.
+
+Visual check on the synthetic QA accountant (Moderate): 56 → 87 with all yellow items kept,
+84 after unticking one; save blocked until confirmed.
+
+**Live on the founder's latest I&C CV (9 roles, read-only), after three fixes found on the way:**
+| Level | Before | After rewrite | All yellow kept | Target |
+|---|---|---|---|---|
+| Moderate | 49 | 52 | 76 | 75–85 |
+| High | 49 | 52 | 87 | 85–95 |
+
+Fixes: (1) suggestions ride on the smallest writing call (on the largest they pushed it past
+its token budget: 4 roles lost their rewrite and every draft was lost); (2) drafted lines
+whose role id the model shortened were all dropped — ids now resolve by unambiguous prefix,
+and every drop is logged as a reason code; (3) a cached analysis with no evidence matches
+re-runs the matching call when time allows. Moderate now fills with nice-to-haves after
+must-haves (10), High up to 20.
+
+**Still weak, stated plainly:** the rewrite alone moves this profile only +3; the gain comes
+from lines the user confirms. The rewrite keeps failing the fact checks on several roles
+(unsourced numbers, cross-role leaks), which is the next quality task.
+
+---
+
 ## 2026-09-17 (late night) — every optimized CV shows its summary and ATS score; results as coloured cards
 
 **Founder report:** after optimizing, the CV had no summary and no ATS score.

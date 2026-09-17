@@ -66,14 +66,14 @@ const LEVELS: ReadonlyArray<{ value: OptimizationLevel; label: string; aim: stri
     label: 'Moderate',
     aim: 'Aims for 75–85',
     explain:
-      'Everything in Easy, plus suggested lines for must-have requirements your profile doesn’t mention. A suggestion goes into your CV only after you confirm it is true.',
+      'Everything in Easy, plus suggested lines and skills for the must-have requirements your profile doesn’t mention. They appear in yellow on the review page — keep only what is true.',
   },
   {
     value: 'high',
     label: 'High',
     aim: 'Aims for 85–95',
     explain:
-      'The strongest rewrite, plus suggested lines for every requirement your profile doesn’t mention. You confirm each one. Be ready to talk about every line in an interview.',
+      'The strongest rewrite, plus suggested lines and skills for every requirement your profile doesn’t mention, shown in yellow on the review page. Keep only what is true — be ready to talk about every line in an interview.',
   },
 ]
 
