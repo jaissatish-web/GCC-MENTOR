@@ -234,9 +234,17 @@ export const GRADE_STEMS = new Set(['advanc', 'expert', 'proficien', 'proficient
 
 /** Is every distinctive word of `term` present, as the same word family, in `text`? */
 export function coversContentStems(term: string, text: string): boolean {
-  const want = contentStems(term)
+  let want = contentStems(term)
+  let have = contentStems(text)
+  // A requirement made only of broad words ("Business Development", "Project
+  // Management") has nothing distinctive; then EVERY one of its words must be
+  // present. Without this, business and management requirements could never
+  // be evidenced by a paraphrase — an MBA-profile blind spot (audit 2026-09-17).
+  if (want.length === 0) {
+    want = [...new Set(tokenize(term).filter((t) => !TERM_STOPWORDS.has(t)).map(stem))].filter((s) => s.length > 1)
+    have = [...new Set(tokenize(text).map(stem))]
+  }
   if (want.length === 0) return false
-  const have = contentStems(text)
   return want.every((w) => have.some((h) => stemsMatch(w, h)))
 }
 

@@ -353,7 +353,13 @@ function renderJobMatchFindings(
  * quotation proves a substring exists, not that the sentence built on it means
  * the same thing.
  */
-function renderOutputFormat(mode: OptimizationMode): string {
+function renderOutputFormat(mode: OptimizationMode, withSuggestions = false): string {
+  const suggestionsSchema = withSuggestions
+    ? `,
+  "suggestions": [
+    { "for": "summary, or a REWRITABLE role id", "requirement": "exactly as listed in BLOCK 4C", "text": "the draft line" }
+  ]`
+    : ''
   return `Return ONLY valid JSON, matching this schema exactly. No prose, no markdown fences.
 
 {
@@ -368,7 +374,7 @@ function renderOutputFormat(mode: OptimizationMode): string {
       "generated_bullets": ["string", "..."]
     }
   ],
-  "skills_order": ["string — every skill id from the SKILLS section above, in relevance order for this target. Must contain every id exactly once. Never add, remove, or rename a skill."]
+  "skills_order": ["string — every skill id from the SKILLS section above, in relevance order for this target. Must contain every id exactly once. Never add, remove, or rename a skill."]${suggestionsSchema}
 }
 
 Include one entry in experience_blocks for every REWRITABLE work experience entry, and no others. If no entry was marked REWRITABLE, return an empty array. If the summary was not requested, return summary.generated as an empty string.`
@@ -393,6 +399,11 @@ export function buildOptimizationPrompt(
    * (optimizer role sections). The summary call keeps the full profile.
    */
   compactFixedRoles = false,
+  /**
+   * BLOCK 4C: drafts for requirements the profile does not state, shown to the
+   * candidate to confirm (lib/optimizer/suggestions.ts). Never CV content.
+   */
+  suggestionRequest?: string | null,
 ): BuiltPrompt {
   const persona = getPersona(target.target_industry ?? '')
   const levelInstruction = LEVEL_INSTRUCTIONS[level]
@@ -442,10 +453,19 @@ export function buildOptimizationPrompt(
         ]
       : []),
 
+    ...(suggestionRequest
+      ? [
+          '=========================================================\n' +
+            'BLOCK 4C — DRAFT SUGGESTIONS FOR THE CANDIDATE TO CONFIRM   [not facts, never CV content]\n' +
+            '=========================================================\n' +
+            suggestionRequest,
+        ]
+      : []),
+
     '=========================================================\n' +
       'BLOCK 5 — OUTPUT INSTRUCTIONS\n' +
       '=========================================================\n' +
-      renderOutputFormat(mode),
+      renderOutputFormat(mode, Boolean(suggestionRequest)),
   ].join('\n\n')
 
   return { system, user, mode }

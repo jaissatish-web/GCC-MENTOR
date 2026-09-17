@@ -83,16 +83,22 @@ function personaLabel(): string {
 }
 
 // The second line used to read "75-80%", "80-90%", "90-100%" — percentages of
-// nothing the user can see or check, set in a mono face that made them look
-// measured. They were never computed. Plain words say what the level does.
+// nothing the user can see or check. Since 2026-09-17 each level states the
+// match band it AIMS for (lib/optimizer/suggestions.ts LEVEL_TARGET_BAND), and
+// the projected score under it is computed, not decorative.
 const LEVELS: ReadonlyArray<{ value: OptimizationLevel; label: string; range: string }> = [
-  { value: 'easy', label: 'Easy', range: 'Light touch' },
-  { value: 'moderate', label: 'Moderate', range: 'Balanced' },
-  { value: 'high', label: 'High', range: 'Closest match' },
+  { value: 'easy', label: 'Easy', range: 'Aim 60–75%' },
+  { value: 'moderate', label: 'Moderate', range: 'Aim 75–85%' },
+  { value: 'high', label: 'High', range: 'Aim 85–95%' },
 ]
 
-const RISK_COPY =
-  'A closer match raises the bar in the interview. Everything stays factual — but be ready to talk confidently about every line at this level.'
+const LEVEL_EXPLAIN: Record<OptimizationLevel, string> = {
+  easy: 'Rewrites your summary and activities in the job’s keywords, using only what your profile already says.',
+  moderate:
+    'Everything in Easy, plus suggested lines for the must-have requirements your profile doesn’t mention. You confirm each one — nothing is added unless you say it’s true.',
+  high:
+    'The strongest rewrite, plus suggested lines for every requirement your profile doesn’t mention. You confirm each one — nothing is added unless you say it’s true. Be ready to talk about every line in an interview.',
+}
 
 function SetupScreen() {
   const router = useRouter()
@@ -627,12 +633,10 @@ function SetupScreen() {
           })}
         </div>
 
-        {/* Risk indicator — ONLY at Moderate/High */}
-        {level !== 'easy' ? (
-          // Gold, not red. This is advice about the interview, not an error —
-          // in alarm red it read as "something is wrong with your choice".
-          <Alert variant="warning" className="mt-1">{RISK_COPY}</Alert>
-        ) : null}
+        {/* What the chosen level does. Gold at Moderate/High: advice, not an error. */}
+        <Alert variant={level === 'easy' ? 'info' : 'warning'} className="mt-1">
+          {LEVEL_EXPLAIN[level]}
+        </Alert>
       </Card>
 
       {nothingSelected ? (

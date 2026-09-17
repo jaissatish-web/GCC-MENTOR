@@ -26,6 +26,7 @@ import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } fr
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { StageSelect } from '@/components/package/StageSelect'
 import { MatchResult, readMatchReport } from '@/components/optimizer/MatchResult'
+import { SuggestionsPanel } from '@/components/optimizer/SuggestionsPanel'
 
 const TIMELINE_FORMAT = new Intl.DateTimeFormat('en-IN', {
   day: 'numeric',
@@ -693,7 +694,45 @@ function PackageScreenInner({ id }: { id: string }) {
           if (!report?.after) return null
           const roleNames: Record<string, string> = {}
           for (const w of profile?.work_experience ?? []) roleNames[w.id] = `your role at ${w.company}`
-          return <MatchResult report={report} packageId={id} roleNames={roleNames} />
+          return (
+            <>
+              <MatchResult report={report} packageId={id} roleNames={roleNames} />
+              <SuggestionsPanel
+                report={report}
+                roleNames={roleNames}
+                onAction={async (actions) => {
+                  const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ suggestion_actions: actions }),
+                  })
+                  const body = await res.json().catch(() => ({}))
+                  if (!res.ok) {
+                    window.alert((body?.error as string) ?? 'Could not update this suggestion. Please try again.')
+                    return
+                  }
+                  // The saved document and score come back; keep the photo as it was signed.
+                  setPkg((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          match_report: body.match_report ?? prev.match_report,
+                          document_snapshot: body.document_snapshot
+                            ? {
+                                ...body.document_snapshot,
+                                header: {
+                                  ...body.document_snapshot.header,
+                                  photoUrl: (prev.document_snapshot as ResumeDocument | null)?.header?.photoUrl ?? body.document_snapshot.header.photoUrl,
+                                },
+                              }
+                            : prev.document_snapshot,
+                        }
+                      : prev,
+                  )
+                }}
+              />
+            </>
+          )
         })()}
 
         <section className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">

@@ -37,7 +37,7 @@ ABSOLUTE CONSTRAINT — GROUNDING:
 - required_experience_years is the number the advert states, or null. Never estimate it.
 
 KEYWORDS are what an applicant-tracking system and a recruiter would search a CV for:
-- Use the advert's OWN wording for "term", short (1–4 words): "preventive maintenance", "IFRS", "patient assessment", "AutoCAD".
+- Use the advert's OWN wording for "term", short (1–4 words), whatever the profession: "stakeholder management", "IFRS", "patient assessment", "switchgear testing", "AutoCAD", "talent acquisition".
 - "aliases": only spellings that mean EXACTLY the same thing — acronym <-> expansion ("PMP" <-> "Project Management Professional"), common abbreviations. Never related or broader skills. Empty array if none.
 - "importance": "must" when stated as required/essential/mandatory or central to the duties; "nice" when preferred/desirable/a plus.
 - "kind": one of skill, tool, certification, education, domain, responsibility, soft_skill.
@@ -244,26 +244,58 @@ export function validateTargetProfile(
 
 // ---- 3. Evidence bridge -----------------------------------------------------
 
-export const BRIDGE_SYSTEM_PROMPT = `You are a strict evidence checker for a CV tool. You decide, for each requirement, whether the candidate's OWN profile text already demonstrates exactly that requirement in different words.
-
-A BRIDGE IS ONLY ALLOWED WHEN THE MEANING IS THE SAME:
-- abbreviation or expansion ("CMMS" <-> "computerised maintenance management system")
-- the same activity named differently ("planned preventive maintenance" <-> "preventive maintenance schedule")
-- a specific instance that IS the requirement ("prepared IFRS financial statements" demonstrates "IFRS")
+/**
+ * Evidence rules, shared by the one-call analysis and the bridge-only call.
+ * Examples deliberately span professions (2026-09-17 audit): nothing here may
+ * read as a rule for one industry.
+ */
+const BRIDGE_RULES = `A BRIDGE IS ONLY ALLOWED WHEN THE MEANING IS THE SAME:
+- abbreviation or expansion ("KPI" <-> "key performance indicators", "EMR" <-> "electronic medical record")
+- the same activity named differently ("payroll processing" <-> "processed monthly payroll", "stakeholder reporting" <-> "reported progress to stakeholders")
+- a specific instance that IS the requirement ("prepared IFRS financial statements" demonstrates "IFRS"; "commissioned 11kV switchgear" demonstrates "switchgear commissioning")
 
 NEVER BRIDGE:
-- related, adjacent or "transferable" skills ("Excel" does not demonstrate "financial modelling")
-- a broader or narrower field ("engineering" does not demonstrate "piping design")
+- related, adjacent or "transferable" skills ("Excel" does not demonstrate "financial modelling"; "sales" does not demonstrate "marketing strategy")
+- a broader or narrower field ("engineering" does not demonstrate "piping design"; "operations" does not demonstrate "supply chain planning")
 - anything inferred from a job title, employer, industry or seniority alone
 - soft skills inferred from duties ("coordinated with vendors" does not demonstrate "negotiation")
 
 When in doubt, do not bridge. A missing bridge costs nothing; a wrong one puts a false claim on a real person's CV.
 
-For every bridge, "quote" must be copied EXACTLY, character for character, from the text of the location you name (5–20 words). It is checked automatically; a quote that is not verbatim is discarded.
+For every bridge, "quote" must be copied EXACTLY, character for character, from the text of the location you name (5–20 words). It is checked automatically; a quote that is not verbatim is discarded.`
+
+export const BRIDGE_SYSTEM_PROMPT = `You are a strict evidence checker for a CV tool. You decide, for each requirement, whether the candidate's OWN profile text already demonstrates exactly that requirement in different words.
+
+${BRIDGE_RULES}
 
 Respond with ONLY one JSON object, no prose, no markdown fences:
 { "bridges": [ { "term": <requirement exactly as listed>, "location": <"summary" or an entry id exactly as listed>, "quote": <verbatim text> } ] }
 Return { "bridges": [] } if nothing qualifies.`
+
+/**
+ * ONE-CALL ANALYSIS (2026-09-17, founder: "fewer API calls"). The requirement
+ * extraction and the evidence check used to be two calls. This addendum makes
+ * one answer carry both: the keywords, then the bridges for them.
+ */
+export const EVIDENCE_ADDENDUM = `
+
+SECOND TASK, IN THE SAME ANSWER — EVIDENCE FROM THE CANDIDATE PROFILE:
+The user message also contains CANDIDATE PROFILE TEXT. For each keyword you listed that the profile does NOT already state in the same words, decide whether the profile demonstrates exactly that requirement in different words.
+
+${BRIDGE_RULES}
+
+Add ONE more key to the same JSON object:
+  "bridges": [ { "term": <keyword term exactly as you listed it>, "location": <"summary" or a location id exactly as listed>, "quote": <verbatim text> } ]
+Use "bridges": [] if nothing qualifies. The keywords themselves must still come ONLY from the job advert or title — never from the profile.`
+
+export function buildProfileEvidenceText(profile: CareerProfileFull): string {
+  const entries = (profile.work_experience ?? [])
+    .slice()
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((e) => `### location: ${e.id}\n${entrySourceText(e)}`)
+    .join('\n\n')
+  return '\n\nCANDIDATE PROFILE TEXT:\n### location: summary\n' + profileWideText(profile) + '\n\n' + entries
+}
 
 /** Keywords with no literal evidence anywhere — the only ones worth a bridge call. */
 export function keywordsNeedingBridge(profile: CareerProfileFull, target: JobTargetProfile): TargetKeyword[] {

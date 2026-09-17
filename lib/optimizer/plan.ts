@@ -190,7 +190,7 @@ export function renderPlanForPrompt(
     lines.push('')
     lines.push('PROFESSIONAL SUMMARY:')
     lines.push(
-      '- 3 to 4 sentences, 45 to 90 words, third person without pronouns ("Mechanical engineer with…"). ' +
+      '- 3 to 4 sentences, 45 to 90 words, third person without pronouns ("<Profession> with…", e.g. "Registered nurse with…", "Marketing manager with…"). ' +
         'Open with the professional identity that the work history supports, aligned to the target role.',
     )
     const kept = (plan.summary.keep ?? []).filter(Boolean)

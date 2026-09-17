@@ -34,6 +34,7 @@ const TS_CHECKS = [
   'verify-optimization-grounding.ts',
   'verify-skills-order.ts',
   'verify-optimizer-engine.ts',
+  'verify-resume-edits.ts',
   'verify-sidebar-wrapping.ts',
   'verify-answer-grounding.ts',
   'verify-deadlines.ts',

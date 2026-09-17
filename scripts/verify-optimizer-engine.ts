@@ -23,6 +23,7 @@ import { parseReview } from '../lib/optimizer/review'
 import { baselineDocument, buildAnalysisReport, type GenerateCall } from '../lib/optimizer/analyze'
 import { normalizeSectionOutput, runOptimizationPipeline } from '../lib/optimizer/pipeline'
 import { cutOutcomeTail, pruneSummary } from '../lib/optimizer/autofix'
+import { applySuggestionsToDocument, suggestionRequirements, validateSuggestions } from '../lib/optimizer/suggestions'
 import { validateGrounding } from '../lib/ai/validateGrounding'
 import type { JobTargetProfile } from '../lib/optimizer/types'
 
@@ -195,6 +196,8 @@ check('rejects CRM <- "Key account management"', !plausible('CRM', 'Key account 
 check('rejects Strategic Planning <- a sales result', !plausible('Strategic Planning', 'Achieved 112% of the annual sales target in 2023'))
 check('rejects Relationship Management <- "Key account management" (shared generic word only)', !plausible('Relationship Management', 'Key account management'))
 check('rejects Revenue Growth <- "Achieved 112% of target"', !plausible('Revenue Growth', 'Achieved 112% of the annual sales target'))
+check('business wording: "Business Development" <- "Developed new business with 12 retail accounts"', plausible('Business Development', 'Developed new business with 12 retail accounts'))
+check('business wording still needs every word: "Business Development" <- "Developed the onboarding app"', !plausible('Business Development', 'Developed the onboarding app'))
 check('never bridges a soft skill', !plausible('Communication skills', 'Communicated with store buyers weekly', 'soft_skill'))
 check('rejects a bridge missing a distinctive word: mechanical ventilation <- "Cared for ventilated patients"', !plausible('mechanical ventilation', 'Cared for ventilated patients'))
 check('rejects SAP FICO <- "...12 accounts in SAP"', !plausible('SAP FICO', 'Performed bank reconciliations for 12 accounts in SAP', 'tool'))
@@ -292,6 +295,7 @@ check('a summary that drops a term the original summary stated is soft lost_keyw
   check('"B.Com Accounting" satisfies "Bachelor\'s in Accounting" (evidence)', buildEvidenceMap(eduProfile, eduTarget, []).keywords[0].status !== 'gap')
   check('"B.Com Accounting" earns full education credit (score)', scoreResume(scoreDocumentFromResume(baselineDocument(eduProfile, 'Accountant')), eduTarget, null).keywords[0].credit === 1)
 }
+check('an objective statement in the summary is hard (and removable)', codes(gate('Accounting graduate with audit internship experience in vouching and ledger scrutiny using Excel and Tally. Seeking to apply accounting knowledge in a junior accountant role.', []), 'hard').includes('objective_statement'))
 check('easy keeps bullet count', codes(gate(null, ['Scheduled preventive maintenance for 120 chillers and AHUs'], 'e1', 'easy'), 'soft').includes('bullet_count_changed'))
 check('clean block has no hard issue', codes(gate(null, ['Scheduled planned preventive maintenance for 120 HVAC chillers and AHUs', 'Tracked 300 monthly work orders in the CMMS', 'Supported shutdown works with the operations team']), 'hard').length === 0)
 
@@ -337,6 +341,22 @@ section('6c. Section output shapes models actually return')
   const ids = ['17dfd11d-f4d5-4289-b4a2-b6ef115f7fbf', 'd6ab8ddb-7853-46ce-b0ac-0767cd123afc']
   const near = normalizeSectionOutput({ experience_blocks: [{ profile_experience_id: '17DFD11D-F4D5-4289-B4A2', generated_bullets: ['x y z a b'] }, { profile_experience_id: '17dfd11d-f4d5-4289-b4a2-b6ef115f7fbf', generated_bullets: ['dup'] }] }, ids) as any
   check('a truncated or re-cased id resolves to the section role, duplicates dropped', near.experience_blocks.length === 1 && near.experience_blocks[0].profile_experience_id === ids[0])
+}
+
+section('6d. Suggestion drafts are validated before they are shown')
+{
+  const reqs = suggestionRequirements(ev.keywords, 'high')
+  const ok = (text: string, requirement = 'SAP PM', forId = 'e1') => validateSuggestions([{ for: forId, requirement, text }], { profile, requirements: reqs, roleIds: ['e1', 'e2', 'e3'] }).length === 1
+  check('a plain draft for a real gap is kept', ok('Raised and closed maintenance work orders in SAP PM for the chiller plant'))
+  check('a draft with a number is dropped (the candidate supplies their own)', !ok('Raised 300 maintenance work orders in SAP PM for the chiller plant'))
+  check('a draft naming an employer the profile never mentions is dropped', !ok('Raised maintenance work orders in SAP PM for Emirates Global Aluminium plants'))
+  check('a draft with a grading word is dropped', !ok('Successfully raised maintenance work orders in SAP PM for the plant'))
+  check('a draft with "strong" is dropped', !ok('Raised work orders in SAP PM with a strong foundation in maintenance planning'))
+  check('a draft for an unknown role is dropped', !ok('Raised maintenance work orders in SAP PM for the chiller plant', 'SAP PM', 'zz'))
+  check('easy has no suggestion requirements', suggestionRequirements(ev.keywords, 'easy').length === 0)
+  const doc = baselineDocument(profile, target.job_title)
+  const applied = applySuggestionsToDocument(doc, [{ id: 'x', block: 'e1', requirement: 'SAP PM', text: 'Raised work orders in SAP PM', status: 'confirmed' }])
+  check('a confirmed suggestion is appended to its role', applied.experience.find((e) => e.entry.id === 'e1')!.bullets.at(-1) === 'Raised work orders in SAP PM')
 }
 
 section('7. Review findings must quote the rewrite')
@@ -386,7 +406,22 @@ function fakeModel(script: Script) {
       summary = script.summary ? script.summary(n) : ''
     }
     return {
-      text: JSON.stringify({ mode: 'job_description', summary: { generated: summary }, experience_blocks: blocksOut, skills_order: ['s2', 's1'] }),
+      text: JSON.stringify({
+        mode: 'job_description',
+        summary: { generated: summary },
+        experience_blocks: blocksOut,
+        skills_order: ['s2', 's1'],
+        ...(call.user.includes('BLOCK 4C')
+          ? {
+              suggestions: [
+                { for: 'e1', requirement: 'SAP PM', text: 'Raised and closed maintenance work orders in SAP PM for the chiller plant' },
+                { for: 'summary', requirement: 'NEBOSH', text: 'Holds the NEBOSH International General Certificate' },
+                { for: 'e1', requirement: 'CMMS', text: 'This is not a gap and must be dropped from suggestions' },
+                { for: 'e2', requirement: 'SAP PM', text: 'Duplicate requirement is dropped' },
+              ],
+            }
+          : {}),
+      }),
       truncated: false,
     }
   }
@@ -424,13 +459,14 @@ async function pipelineSuite() {
     const { result, calls } = await run({ summary: () => GOOD_SUMMARY, role: (id) => GOOD[id] })
     check('happy path succeeds', result.ok)
     if (result.ok) {
-      check('roles are generated in sections of up to 3, plus a summary call', result.stats.sections === 2)
+      check('fewer calls: summary and all roles are written in ONE build call', result.stats.sections === 1)
+      check('fewer calls: a clean build makes exactly one model call (no review by default)', result.stats.modelCalls === 1)
       check('every block optimized', result.optimizedContent.experience_blocks.every((b) => b.was_optimized))
       check('summary is the generated one', result.optimizedContent.summary.generated === GOOD_SUMMARY)
       check('report after >= before', !!result.report?.after && result.report.after.total >= result.report.before.total)
       check('report lists gaps, never as matched', !!result.report?.gaps?.some((g) => g.term === 'SAP PM'))
       check('why_fits cites real placements', !!result.report?.why_fits?.some((w) => w.term === 'CMMS' && w.where.includes('e1')))
-      check('review ran', result.stats.reviewRan)
+      check('the separate review call is off by default', !result.stats.reviewRan)
       check('skills order saved as ids', result.skillsOrder.join(',') === 's2,s1')
       check('snapshot carries the target title', result.documentSnapshot.header.targetJobTitle === target.job_title)
       check('no repair needed on clean output', !calls.some((c) => c.user.includes('CORRECTION REQUIRED')))
@@ -445,6 +481,7 @@ async function pipelineSuite() {
     check('repaired block ships', result.ok && result.optimizedContent.experience_blocks.find((b) => b.profile_experience_id === 'e2')!.was_optimized)
   }
   {
+    process.env.OPTIMIZER_REVIEW = 'on'
     const { result } = await run({
       summary: () => GOOD_SUMMARY,
       role: (id) => GOOD[id],
@@ -453,6 +490,24 @@ async function pipelineSuite() {
     const e1 = result.ok ? result.optimizedContent.experience_blocks.find((b) => b.profile_experience_id === 'e1') : null
     check('a block the review keeps flagging keeps the original text', !!e1 && !e1.was_optimized && (e1.generated_bullets ?? []).join('|') === (profile.work_experience[0].highlights ?? []).join('|'))
     check('kept_original records the review reason', result.ok && !!result.report?.kept_original?.some((k) => k.block === 'e1' && k.reason === 'review'))
+    delete process.env.OPTIMIZER_REVIEW
+  }
+  {
+    const { result, calls } = await run({ summary: () => GOOD_SUMMARY, role: (id) => GOOD[id] }, 'moderate')
+    const s = result.ok ? result.report?.suggestions ?? [] : []
+    check('moderate drafts suggestions only for must-have gaps', calls[0].user.includes('BLOCK 4C') && s.length === 1 && s[0].requirement === 'SAP PM')
+    check('suggestions are never merged into the CV', result.ok && !JSON.stringify(result.optimizedContent).includes('SAP PM'))
+    check('score with suggestions confirmed is projected above the current score', result.ok && (result.report?.projected_with_suggestions ?? 0) > (result.report?.after?.total ?? 0))
+    check('the level target band is recorded', result.ok && JSON.stringify(result.report?.target_band) === '[75,85]')
+  }
+  {
+    const { result } = await run({ summary: () => GOOD_SUMMARY, role: (id) => GOOD[id] }, 'high')
+    const s = result.ok ? result.report?.suggestions ?? [] : []
+    check('high drafts for every gap (must and nice)', s.map((x) => x.requirement).sort().join() === 'NEBOSH,SAP PM')
+  }
+  {
+    const { calls } = await run({ summary: () => GOOD_SUMMARY, role: (id) => GOOD[id] }, 'easy')
+    check('easy never asks for suggestions', !calls.some((c) => c.user.includes('BLOCK 4C')))
   }
   {
     // A section whose provider call fails once is retried, not dropped.

@@ -35,10 +35,23 @@ import { cutOutcomeTail, pruneSummary } from './autofix'
 import { buildReviewUserPrompt, parseReview, REVIEW_SYSTEM_PROMPT, type ReviewBlock } from './review'
 import { maxAchievableScore, scoreDocumentFromResume, scoreResume } from './score'
 import { containsTermRaw } from './text'
+import {
+  applySuggestionsToDocument,
+  LEVEL_TARGET_BAND,
+  renderSuggestionRequest,
+  suggestionRequirements,
+  validateSuggestions,
+  type Suggestion,
+} from './suggestions'
 import type { JobTargetProfile, KeptOriginalReason, MatchReport, VerifiedBridge } from './types'
 
 const ROUTE = '/api/optimize'
-const SECTION_SIZE = 3
+/**
+ * Roles per build call (2026-09-17, founder: "fewer API calls"). Most profiles
+ * are written in ONE call — summary, every role, skill order and suggestions
+ * together. Only longer histories are split.
+ */
+const SECTION_SIZE = 7
 /** A repair round starts only with room for a whole section answer. */
 const MIN_REPAIR_MS = 100_000
 /** A review starts only with room to finish it. */
@@ -95,6 +108,8 @@ interface Candidate {
 interface SectionSpec {
   summary: boolean
   ids: string[]
+  /** This call also drafts suggestions (the first build call only). */
+  suggest?: boolean
 }
 
 interface SectionOutcome {
@@ -102,6 +117,7 @@ interface SectionOutcome {
   providerError: boolean
   skillsOrder: unknown
   candidates: Candidate[]
+  suggestions?: unknown
 }
 
 function isObject(v: unknown): v is Record<string, unknown> {
@@ -228,8 +244,11 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
         : null
 
   // ---- One section call ------------------------------------------------------
+  const requirementsToDraft = suggestionRequirements(evidence.keywords, level)
   const runSection = async (spec: SectionSpec, addendum: string): Promise<SectionOutcome> => {
     const renderedPlan = plan ? renderPlanForPrompt(plan, spec.summary, spec.ids, profile) : null
+    const suggestionRequest =
+      spec.suggest && requirementsToDraft.length > 0 ? renderSuggestionRequest(requirementsToDraft, selectedIds, profile) : null
     const { system, user } = buildOptimizationPrompt(
       profile,
       target,
@@ -239,6 +258,7 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
       null,
       renderedPlan,
       !spec.summary && spec.ids.length > 0,
+      suggestionRequest,
     )
     const owners: Owner[] = [...(spec.summary ? ['summary'] : []), ...spec.ids]
     let parsed: unknown = null
@@ -256,14 +276,14 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
         const res = await generateFn({
           system,
           user: user + addendum + (structuralDetail ? `\n\n## CORRECTION REQUIRED\n${structuralDetail}\nReturn ONLY valid JSON matching the exact schema.` : ''),
-          maxTokens: 8192,
+          // A whole resume in one answer needs room; small calls fail fast on a stall.
+          maxTokens: spec.ids.length > 3 || spec.suggest ? 12_000 : 8192,
           temperature: 0.2,
           userId,
           route: ROUTE,
           configKey: 'optimization',
           giveUpAt,
-          // Sections are small: 90s without an answer is a stalled upstream.
-          stallTimeoutMs: 90_000,
+          stallTimeoutMs: spec.ids.length > 3 || spec.suggest ? 150_000 : 90_000,
         })
         if (res.truncated) {
           stats.codes.push('section_truncated')
@@ -341,23 +361,26 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
         candidates.push({ owner, bullets, hard: hardByOwner.get(owner) ?? [], soft: [], reviewed: false })
       }
     }
-    return { ok: true, providerError: false, skillsOrder: parsed.skills_order, candidates }
+    return { ok: true, providerError: false, skillsOrder: parsed.skills_order, candidates, suggestions: parsed.suggestions }
   }
 
+  /** The summary rides with the first roles, so a typical resume is ONE call. */
   const sectionsFor = (owners: Owner[]): SectionSpec[] => {
     const specs: SectionSpec[] = []
     const ids = owners.filter((o) => o !== 'summary')
-    if (owners.includes('summary')) specs.push({ summary: true, ids: [] })
-    for (let i = 0; i < ids.length; i += SECTION_SIZE) specs.push({ summary: false, ids: ids.slice(i, i + SECTION_SIZE) })
+    const withSummary = owners.includes('summary')
+    if (ids.length === 0) return withSummary ? [{ summary: true, ids: [] }] : []
+    for (let i = 0; i < ids.length; i += SECTION_SIZE) {
+      specs.push({ summary: i === 0 && withSummary, ids: ids.slice(i, i + SECTION_SIZE) })
+    }
     return specs
   }
 
   // ---- Round 1 ---------------------------------------------------------------
   const wantedOwners: Owner[] = [...(selectedBlocks.summary ? ['summary'] : []), ...selectedIds]
   const firstSpecs = sectionsFor(wantedOwners)
-  // The summary call also returns the skill ordering, so it runs even when the
-  // summary itself was not selected — with summary:false it rewrites nothing.
-  if (!selectedBlocks.summary && (profile.skills ?? []).length > 0) firstSpecs.unshift({ summary: false, ids: [] })
+  // Every call returns a skill ordering; the first one also drafts suggestions.
+  if (firstSpecs.length > 0) firstSpecs[0].suggest = true
   stats.sections = firstSpecs.length
 
   const firstOutcomes = await Promise.all(firstSpecs.map((s) => runSection(s, '')))
@@ -373,7 +396,8 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
     }
   }
 
-  let skillsOrderRaw: unknown = firstOutcomes.find((o, i) => o.ok && firstSpecs[i].ids.length === 0)?.skillsOrder
+  let skillsOrderRaw: unknown = firstOutcomes.find((o) => o.ok && o.skillsOrder !== undefined)?.skillsOrder
+  const rawSuggestions = firstOutcomes[0]?.suggestions
   const current = new Map<Owner, Candidate>()
   for (const o of firstOutcomes) for (const c of o.candidates) current.set(c.owner, c)
 
@@ -405,6 +429,10 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
 
   const reviewFlagged = new Set<Owner>()
   const review = async (cands: Candidate[]) => {
+    // A separate fact-check call is OFF by default (founder: fewer API calls).
+    // The validator, quality gate and autofix run on every block regardless.
+    // Set OPTIMIZER_REVIEW=on to add the independent review call back.
+    if (process.env.OPTIMIZER_REVIEW !== 'on') return
     const targets = cands.filter((c) => c.hard.length === 0)
     if (targets.length === 0) return
     if (giveUpAt - Date.now() < MIN_REVIEW_MS) return
@@ -458,7 +486,7 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
   // Re-validated from scratch; replaces the candidate only when the shorter text
   // is clean. Review findings are located by their verbatim quotes, so a pruned
   // text that no longer contains them keeps its reviewed status.
-  const REMOVABLE = new Set(['unsupported_intensifier', 'unstated_outcome', 'jd_only_entity', 'review_unsupported', 'banned_word', 'forbidden_gap_term', 'unknown_entity', 'promoted_involvement'])
+  const REMOVABLE = new Set(['objective_statement', 'unsupported_intensifier', 'unstated_outcome', 'jd_only_entity', 'review_unsupported', 'banned_word', 'forbidden_gap_term', 'unknown_entity', 'promoted_involvement'])
   const autofix = (cands: Candidate[]): Candidate[] => {
     const changed: Candidate[] = []
     for (const c of cands) {
@@ -519,9 +547,11 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
   }
 
   // ---- Repair round -------------------------------------------------------------
+  // ONE repair call, only for blocks that cannot ship (missing or a hard
+  // problem). Soft issues ship as they are rather than spend another call.
   const needsRepair = wantedOwners.filter((o) => {
     const c = current.get(o)
-    return !c || c.hard.length > 0 || c.soft.length > 0
+    return !c || c.hard.length > 0
   })
   const firstVersion = new Map(current)
 
@@ -561,45 +591,6 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
     }
   }
 
-  // ---- Roles that never produced an answer: one at a time -------------------------
-  // A long profile makes a three-role section the likeliest place for a model to
-  // skip a role. Asking for each missing role alone costs a call per role and
-  // almost always returns it.
-  const missingRoles = selectedIds.filter((id) => !current.has(id))
-  if (missingRoles.length > 0 && giveUpAt - Date.now() >= 60_000) {
-    const outcomes = await Promise.all(missingRoles.map((id) => runSection({ summary: false, ids: [id] }, '')))
-    const recovered: Candidate[] = []
-    for (const o of outcomes) for (const c of o.candidates) if (missingRoles.includes(c.owner)) recovered.push(c)
-    for (const c of recovered) current.set(c.owner, c)
-    if (recovered.length > 0) {
-      applyGate(recovered)
-      await review(recovered)
-      await settle(recovered.map((c) => current.get(c.owner) ?? c))
-      trace('repair', recovered.map((c) => current.get(c.owner) ?? c))
-    }
-  }
-
-  // ---- A second chance for the summary ------------------------------------------
-  // The summary is one short call and carries most of the visible gain, so it
-  // alone gets up to two more attempts while it is still unusable and time
-  // remains. A profile with no summary of its own depends on this entirely.
-  for (let extra = 0; extra < 2; extra++) {
-  const summaryNow = current.get('summary')
-  if (!(selectedBlocks.summary && (!summaryNow || summaryNow.hard.length > 0 || (reviewFlagged.has('summary') && !summaryNow.reviewed)) && giveUpAt - Date.now() >= 60_000)) break
-  {
-    const outcome = await runSection({ summary: true, ids: [] }, correctiveAddendum([summaryNow ?? { owner: 'summary', hard: [], soft: [], reviewed: false }]))
-    const next = outcome.candidates.find((c) => c.owner === 'summary')
-    if (next) {
-      current.set('summary', next)
-      applyGate([next])
-      await review([next])
-      await settle([current.get('summary') ?? next])
-      const settled = current.get('summary')!
-      trace('repair', [settled])
-      if (summaryNow && settled.hard.length > 0 && summaryNow.hard.length <= settled.hard.length) current.set('summary', summaryNow)
-    }
-  }
-  }
 
   // ---- Choose ------------------------------------------------------------------
   const kept: MatchReport['kept_original'] = []
@@ -695,7 +686,21 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
       const hit = after.keywords.find((k) => k.term === term)
       return (hit?.where ?? []).filter((w) => w !== 'skills')
     }
+    // Drafts for the candidate to confirm (never merged here).
+    const suggestions: Suggestion[] = validateSuggestions(rawSuggestions, {
+      profile,
+      requirements: requirementsToDraft,
+      roleIds: selectedIds,
+    })
+    const projected = suggestions.length
+      ? scoreResume(scoreDocumentFromResume(applySuggestionsToDocument(document, suggestions)), targetProfile, qualifications).total
+      : after.total
+    if (suggestions.length) stats.codes.push('suggestions_' + suggestions.length)
+
     report = {
+      suggestions,
+      projected_with_suggestions: Math.max(projected, after.total),
+      target_band: LEVEL_TARGET_BAND[level],
       report_version: 1,
       mode: targetProfile.mode,
       analysis_id: input.analysisId,

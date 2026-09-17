@@ -17,7 +17,7 @@ import './resolve-paths'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { generate } from '../lib/ai/provider'
-import { analyzeTarget, bridgeEvidence } from '../lib/optimizer/analyze'
+import { analyzeTargetWithEvidence } from '../lib/optimizer/analyze'
 import { runOptimizationPipeline } from '../lib/optimizer/pipeline'
 import { buildEvidenceMap } from '../lib/optimizer/evidence'
 import { buildTailoringPlan } from '../lib/optimizer/plan'
@@ -43,6 +43,7 @@ interface Outcome {
   max?: number
   calls?: number
   fellBack?: number
+  projected?: number
   problems: string[]
 }
 
@@ -50,16 +51,17 @@ async function runCase(c: EvalCase, level: OptimizationLevel): Promise<Outcome> 
   const started = Date.now()
   const problems: string[] = []
   const giveUpAt = Date.now() + 280_000
-  const target = await analyzeTarget({
+  const analysed = await analyzeTargetWithEvidence({
     generateFn: generate,
     userId: 'eval',
     route: 'eval',
     targetJobTitle: c.targetJobTitle,
     targetIndustry: null,
     jobDescription: c.jobDescription,
+    profile: c.profile,
   })
-  if (!target) return { name: c.name, ok: false, seconds: 0, problems: ['analysis failed'] }
-  const bridges = await bridgeEvidence({ generateFn: generate, profile: c.profile, target, userId: 'eval', route: 'eval' })
+  if (!analysed) return { name: c.name, ok: false, seconds: 0, problems: ['analysis failed'] }
+  const { target, bridges } = analysed
 
   const allIds = c.profile.work_experience.map((e) => e.id)
   const traceLines: string[] = []
@@ -124,6 +126,9 @@ async function runCase(c: EvalCase, level: OptimizationLevel): Promise<Outcome> 
   lines.push(`Mode: ${target.mode} · Target: ${c.targetJobTitle} · ${seconds}s · calls ${result.stats.modelCalls} · repaired ${result.stats.repaired} · kept original ${result.stats.fellBack} · review ${result.stats.reviewRan}`)
   lines.push(`Score: before **${report.before.total}** → after **${report.after?.total}** (honest max ${report.max_total})`)
   lines.push(`Codes seen: ${[...new Set(result.stats.codes)].join(', ') || 'none'}`, '')
+  lines.push('## Suggestions (shown to the user to confirm)', '')
+  for (const s of report.suggestions ?? []) lines.push(`- [${s.requirement}] -> ${s.block === 'summary' ? 'summary' : s.block}: ${s.text}`)
+  lines.push(`\nScore if all confirmed: ${report.projected_with_suggestions} · level aim ${JSON.stringify(report.target_band)}`, '')
   lines.push('## Requirements', '')
   for (const k of evidence.keywords) lines.push(`- [${k.status}] ${k.term} (${k.importance}, ${k.kind})${k.bridges.length ? ` ← "${k.bridges[0].quote}"` : ''}`)
   lines.push('', '## Summary', '', `**Before:** ${c.profile.professional_summary ?? '(none)'}`, '', `**After:** ${oc.summary.generated || '(kept original)'}`, '')
@@ -150,6 +155,7 @@ async function runCase(c: EvalCase, level: OptimizationLevel): Promise<Outcome> 
     max: report.max_total,
     calls: result.stats.modelCalls,
     fellBack: result.stats.fellBack,
+    projected: report.projected_with_suggestions,
     problems,
   }
 }
@@ -168,7 +174,7 @@ async function main() {
     for (const o of batch) {
       console.log(
         `${o.ok ? 'PASS' : 'FAIL'}  ${o.name.padEnd(16)} ${String(o.seconds).padStart(4)}s  ` +
-          `score ${o.before ?? '-'} → ${o.after ?? '-'} (max ${o.max ?? '-'})  calls ${o.calls ?? '-'}  kept ${o.fellBack ?? '-'}` +
+          `score ${o.before ?? '-'} → ${o.after ?? '-'} (max ${o.max ?? '-'}, if suggestions confirmed ${o.projected ?? '-'})  calls ${o.calls ?? '-'}+1 analysis  kept ${o.fellBack ?? '-'}` +
           (o.problems.length ? `\n      ${o.problems.join('\n      ')}` : ''),
       )
     }

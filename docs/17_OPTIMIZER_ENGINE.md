@@ -70,45 +70,36 @@ plan or a score.
 ## 3. The pipeline (`lib/optimizer/pipeline.ts`)
 
 ```
-analysis (cached)  ─► evidence map ─► tailoring plan
-                                          │
-             ┌────────────────────────────┴───────────────────────────┐
-     summary call (also skill order)      role calls, 3 roles each, in parallel
-             └────────────────────────────┬───────────────────────────┘
-                     grounding validator + quality gate   (code)
-                                          │
-                        fact-check review (model, quotes verified)
-                                          │
-                 ONE repair round, ONLY for blocks with problems
-                                          │
-            best valid version per block — else the candidate's own text
-                                          │
-                     score guard: the match score never goes down
-                                          │
-        optimized_content · skills_order · document_snapshot · match_report
+ANALYZE (1 call, cached per job)   advert/title → requirements  +  evidence bridges for this profile
+        │  (no call)  evidence map → tailoring plan → match score before
+BUILD (1 call; 2 only above 7 roles)
+        summary + every selected role + skill order + drafted suggestions (Moderate/High)
+        │  (no call)  grounding validator + quality gate + autofix by removal
+REPAIR (at most 1 call, only if a block is missing or has a hard problem)
+        │  (no call)  best valid version per block — else the candidate's own text
+        │  (no call)  score guard · score after · suggestions validated · projection
+        ▼
+optimized_content · skills_order · document_snapshot · match_report
 ```
 
-**Why sections.** One call for the whole resume was the slowest call in the product,
-the one most often cut off at the token budget, and all-or-nothing. Sections run in
-parallel, a failure stays local, and a repair rewrites only what failed. Cost is about
-25% more input tokens, which the founder accepted for quality (2026-09-17).
+**API calls (founder decision 2026-09-17: as few as possible).** A typical job is **2
+calls**: one analysis, which is cached so re-opening the job costs 0, and one build. The
+match score is never a call. A repair adds one call only when needed. A profile edit
+between analysis and build re-runs the evidence half only (1 small call). The independent
+fact-check review is **off by default**; set `OPTIMIZER_REVIEW=on` to add it (1 call).
+Every block still passes the validator, quality gate and autofix, which cost nothing.
 
-**Time.** The route gives itself 280s inside Vercel's 300s ceiling. The review starts
-only with at least 45s left, and a repair round only with at least 100s left. A block
-that could not be re-reviewed after a review flag keeps the original text.
-
-**Model calls per build**, typically: summary 1 + roles ⌈n/3⌉ + review 1. A repair round
-runs only for blocks that still fail after autofix, and the summary gets one extra attempt
-when time allows. Analysis adds 1–2 calls, once per job, cached. Measured on the live
-evaluation (DeepSeek V4 Flash via OpenRouter): 3–6 calls and 30–165s per build.
+**Time.** The route gives itself 280s inside Vercel's 300s ceiling. A call stalls out at
+150s for a whole-resume build (90s for small calls) and is retried once. A repair starts
+only with at least 100s left.
 
 **Config keys** (set per key in `/admin/ai-provider`; each falls back to `default`):
 
 | Key | Used for |
 |---|---|
 | `job_description` | Advert → requirements and keywords |
-| `optimization_analysis` | Title-mode estimate, and the evidence bridge |
-| `optimization` | Section writing, and repairs |
+| `job_description` / `optimization_analysis` | The one-call analysis (advert / title mode), and the evidence-only call after a profile edit |
+| `optimization` | The build call (summary, roles, suggestions) and the repair call |
 | `optimization_review` | Fact-check review |
 
 The `deepseek` provider calls DeepSeek's own API (`https://api.deepseek.com`, OpenAI-compatible).
@@ -165,6 +156,36 @@ none of its inputs.
 
 ## 6. Levels are contracts, not moods
 
+**Target match bands** (founder, 2026-09-17): Easy aims for **60–75%**, Moderate for
+**75–85%**, High for **85–95%**. The rewrite reaches whatever the real profile supports.
+Moderate and High then close the rest with **suggested lines the user confirms**:
+
+| | Easy | Moderate | High |
+|---|---|---|---|
+| Suggested lines for requirements the profile does not state | none | must-haves, up to 6 | every gap, up to 10 |
+
+### 6b. Suggested lines (`lib/optimizer/suggestions.ts`, `components/optimizer/SuggestionsPanel.tsx`)
+
+The build call also drafts ONE line per missing requirement, placed in the summary or in
+the most plausible role. Prompt BLOCK 4C says these are not facts and never CV content.
+Drafts are validated in code before they are shown:
+- a real gap, and a real block
+- 5–30 words
+- no numbers
+- no first person
+- no hype or grading words
+- no names the profile does not already contain
+
+On the package screen each draft offers **"I did this — add"**, **"Edit"** (the user's own
+words are added) or **"Not true for me"**. Only confirmed lines enter the resume: appended to
+that role's activities or to the summary, then re-scored. The panel shows "now X → up to Y
+· level aim A–B". **Nothing is ever added without the user's confirmation.** Confirming
+is the user's statement that the line is true.
+
+The AI changes **only the summary and the activities inside each role**. Employers, job
+titles, dates, education, certifications and personal details are never written by the
+AI (the validator rejects any attempt).
+
 | | Easy | Moderate | High |
 |---|---|---|---|
 | Sentence structure, bullet order and count | Kept | Rewritten outcome-first, ordered by relevance | Fully restructured |
@@ -176,6 +197,24 @@ none of its inputs.
 Soft misses trigger a repair. The better version wins.
 
 ---
+
+## 6c. Editing every field of a saved resume (`/package/[id]/edit`, `lib/resumeEdits.ts`)
+
+Founder decision 2026-09-17: after optimization the user can edit **every field**:
+- name and headline
+- contact details
+- each role's title, company and location, dates and activities (add, remove, reorder roles and activities)
+- skills (add, remove, reorder)
+- certifications
+- education
+- additional information
+
+Edits are stored on **that resume only** (`document_snapshot`); **the Career Profile never
+changes**. User edits are the user's own words, so no grounding rule applies. The server
+only sanitises shape and size, keeps the stored photo, mirrors summary and activities into
+`optimized_content`, and re-scores the match. PDF, DOCX, cover letter, interview Q&A and
+mock interview all read `document_snapshot`, so every service uses the edited resume the
+user picked from the Library.
 
 ## 7. Data
 

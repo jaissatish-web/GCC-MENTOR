@@ -146,4 +146,10 @@ export interface MatchReport {
   gaps?: Array<{ term: string; importance: KeywordImportance; kind: KeywordKind }>
   kept_original?: Array<{ block: EvidenceLocation; reason: KeptOriginalReason }>
   generated_at?: string
+  /** Moderate/High: drafted lines for missing requirements, awaiting the candidate. */
+  suggestions?: Array<{ id: string; block: string; requirement: string; text: string; status: 'pending' | 'confirmed' | 'dismissed' }>
+  /** Score if every pending suggestion were confirmed. */
+  projected_with_suggestions?: number
+  /** The level's target band, e.g. [75, 85]. */
+  target_band?: [number, number]
 }

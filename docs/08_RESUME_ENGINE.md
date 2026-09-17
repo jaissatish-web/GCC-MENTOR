@@ -138,10 +138,11 @@ The snapshot stores the rendered document as delivered. Three rules follow:
    document.** It deliberately does **not** rebuild, because rebuilding would read
    the live profile and reintroduce the exact bug the snapshot exists to prevent.
 3. **A free resume has no snapshot on purpose** and therefore renders from the live
-   profile. Fixed fields (name, contact, employers, education, certifications, skills)
-   are still only edited by editing the profile — that is unchanged, and it is
-   consistent: nothing has been sold, so nothing needs freezing. **Summary and bullets
-   are the one exception since 2026-08-19:** `/package/[id]/edit`
+   profile. **Since 2026-09-17 every field of a saved resume is editable per resume**
+   (name, contact, roles, dates, skills, certifications, education, additional
+   information), stored in `document_snapshot` without touching the Career Profile. See
+   [`17_OPTIMIZER_ENGINE.md`](17_OPTIMIZER_ENGINE.md) §6c. Before that, **summary and
+   bullets were the one exception (2026-08-19):** `/package/[id]/edit`
    ([`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §4) lets those be hand-written per
    resume even before generation, saved as `user_edited` values that
    `buildResumeDocument`'s `user_edited ?? generated ?? the profile's own` precedence

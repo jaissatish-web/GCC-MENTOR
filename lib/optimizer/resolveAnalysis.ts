@@ -10,7 +10,7 @@
  */
 
 import type { CareerProfileFull } from '@/types/careerProfile'
-import { analysisInputHash, analyzeTarget, bridgeEvidence, profileFingerprint, type GenerateFn } from './analyze'
+import { analysisInputHash, analyzeTargetWithEvidence, bridgeEvidence, profileFingerprint, type GenerateFn } from './analyze'
 import { getAnalysisByHash, saveAnalysis } from './analysisStore'
 import type { JobTargetProfile, VerifiedBridge } from './types'
 import { verifyBridges } from './evidence'
@@ -46,22 +46,29 @@ export async function resolveAnalysis(input: ResolveInput): Promise<ResolvedAnal
 
   let targetProfile = stored?.targetProfile ?? null
   let changed = false
+  let freshBridges: VerifiedBridge[] | null = null
   if (!targetProfile) {
-    targetProfile = await analyzeTarget({
+    // First look at this job: requirements and evidence in ONE call.
+    const analysed = await analyzeTargetWithEvidence({
       generateFn: input.generateFn,
       userId: input.userId,
       route: input.route,
       targetJobTitle: input.targetJobTitle,
       targetIndustry: input.targetIndustry,
       jobDescription: input.jobDescription,
+      profile: input.profile,
       giveUpAt: input.giveUpAt,
     })
-    if (!targetProfile) return null
+    if (!analysed) return null
+    targetProfile = analysed.target
+    freshBridges = analysed.bridges
     changed = true
   }
 
   let bridges: VerifiedBridge[]
-  if (stored && !changed && stored.profileFingerprint === fingerprint) {
+  if (freshBridges) {
+    bridges = freshBridges
+  } else if (stored && stored.profileFingerprint === fingerprint) {
     // Cached quotes are re-verified against the profile as it is now.
     bridges = verifyBridges(input.profile, targetProfile, stored.bridges)
   } else {

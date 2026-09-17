@@ -12,6 +12,37 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-17 (evening) — one optimizer for every individual, fewer calls, full editing
+
+**Scope of AI rewriting:** only the career summary and the activities inside each role.
+Employers, titles, dates, education, certifications and personal details are never
+written by the AI.
+
+**Levels aim for match bands:** Easy 60–75%, Moderate 75–85%, High 85–95%. The founder
+first asked for the AI to invent content to reach the higher bands. That was declined
+(it misleads the employer who reads the CV). Agreed instead: Moderate and High draft
+**suggested lines** for missing requirements, and each one enters the resume only when
+the user confirms it is true (or rewrites it in their own words).
+
+**Fewer API calls.**
+- Analysis (requirements + evidence) is one cached call.
+- The build (summary + all roles + skill order + suggestions) is one call, two only above 7 roles.
+- A repair is at most one call, only for blocks that cannot ship.
+- The separate fact-check review is off by default (`OPTIMIZER_REVIEW=on` restores it).
+- The match score was never a call.
+
+A typical job is 2 calls, down from 6–12.
+
+**Every field of a saved resume is editable, on that resume only.** This reverses the
+2026-08-19 "summary and bullets only" rule. The Career Profile is never changed by a
+resume edit, and all downstream services read the edited resume.
+
+**Profession-neutral by construction.**
+- Prompt examples now span professions.
+- A requirement made only of broad business words ("Business Development") can be
+  evidenced when every word is present, which was previously an MBA blind spot.
+- The live evaluation adds MBA/marketing, electrical, HR, hospitality and fresher profiles.
+
 ## 2026-09-17 (later) — the I&C package that gained 1 point
 
 **Founder asked for two things that are not built, and why.** (1) "Add the missing

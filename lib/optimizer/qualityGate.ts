@@ -36,6 +36,7 @@ export type QualityCode =
   | 'label_prefix'
   | 'unsupported_intensifier'
   | 'present_tense'
+  | 'objective_statement'
   | 'dropped_fact'
 
 export interface QualityIssue {
@@ -234,6 +235,18 @@ export function checkQuality(input: GateInput): QualityIssue[] {
         owner: 'summary',
         detail: `Dropped ${lostFromSummary.length} employer term(s) the original summary stated.`,
         offendingValue: lostFromSummary.join('; '),
+      })
+    }
+    // An objective ("Seeking to…") says what the candidate wants, not what they
+    // have done, and was measured slipping through on a fresher build.
+    const objective = /(^|[.!?]\s+)(seeking|looking for|looking to|aspiring|eager to|keen to|hoping to|aiming to)\b[^.!?]*/i.exec(input.summary)
+    if (objective) {
+      issues.push({
+        code: 'objective_statement',
+        severity: 'hard',
+        owner: 'summary',
+        detail: 'Contains an objective statement. Describe what the candidate has done instead.',
+        offendingValue: objective[0].replace(/^[.!?]\s+/, '').trim().split(/\s+/).slice(0, 4).join(' '),
       })
     }
     if (plan && plan.summary.anchors.length > 0) {

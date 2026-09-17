@@ -12,6 +12,8 @@ import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
 import { scoreDocumentFromResume, scoreResume } from '@/lib/optimizer/score'
 import { validateKeywords } from '@/lib/optimizer/jobAnalysis'
 import type { MatchReport } from '@/lib/optimizer/types'
+import { ResumeEditError, sanitizeEditedDocument } from '@/lib/resumeEdits'
+import { applySuggestionsToDocument, type Suggestion } from '@/lib/optimizer/suggestions'
 
 /**
  * Package API — TASK-035 (+ TASK-033 additions).
@@ -333,6 +335,44 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
     }
   }
 
+  // ---- Whole-document edit (2026-09-17) --------------------------------------
+  // Every field of THIS resume, from /package/[id]/edit. Stored on the package
+  // only; the Career Profile is never touched. See lib/resumeEdits.ts.
+  let editedDocument: ResumeDocument | null = null
+  if (b.document !== undefined && b.document !== null) {
+    try {
+      editedDocument = sanitizeEditedDocument(b.document, (pkg.document_snapshot as ResumeDocument | null) ?? null)
+    } catch (e) {
+      const field = e instanceof ResumeEditError ? e.field : 'document'
+      return NextResponse.json({ error: 'Invalid field: ' + field }, { status: 400 })
+    }
+  }
+
+  // ---- Suggestion decisions (2026-09-17) ----------------------------------------
+  // Drafted lines for missing requirements are used ONLY when the user confirms
+  // them here, optionally in their own words. Dismissed ones never appear.
+  interface SuggestionAction {
+    id: string
+    action: 'confirm' | 'dismiss'
+    text: string | null
+  }
+  const suggestionActions: SuggestionAction[] = []
+  if (b.suggestion_actions !== undefined && b.suggestion_actions !== null) {
+    if (!Array.isArray(b.suggestion_actions) || b.suggestion_actions.length > 20) {
+      return NextResponse.json({ error: 'Invalid field: suggestion_actions' }, { status: 400 })
+    }
+    for (const a of b.suggestion_actions) {
+      const r = (typeof a === 'object' && a !== null ? a : {}) as Record<string, unknown>
+      if (typeof r.id !== 'string' || (r.action !== 'confirm' && r.action !== 'dismiss')) {
+        return NextResponse.json({ error: 'Invalid field: suggestion_actions' }, { status: 400 })
+      }
+      if (r.text !== undefined && r.text !== null && (typeof r.text !== 'string' || r.text.length > 600)) {
+        return NextResponse.json({ error: 'Invalid field: suggestion_actions.text' }, { status: 400 })
+      }
+      suggestionActions.push({ id: r.id, action: r.action, text: typeof r.text === 'string' && r.text.trim() ? r.text.trim() : null })
+    }
+  }
+
   // ---- Template switch (TASK-138) ------------------------------------------
   // Presentation only. The template is resolved at RENDER time from this
   // column, and the document's content lives in optimized_content and
@@ -433,9 +473,10 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
 
   const hasMeta = Object.keys(metaUpdate).length > 0
 
+  const contentChange = Object.keys(summaryEdit).length > 0 || blockEdits.length > 0 || editedDocument !== null || suggestionActions.length > 0
+
   if (
-    Object.keys(summaryEdit).length === 0 &&
-    blockEdits.length === 0 &&
+    !contentChange &&
     !templateUpdate &&
     !hasMeta
   ) {
@@ -448,7 +489,7 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   //
   // Every column here is user-editable metadata, so the user's own session
   // writes it (column grants, migration 050) and RLS still applies.
-  if (Object.keys(summaryEdit).length === 0 && blockEdits.length === 0) {
+  if (!contentChange) {
     const { data: metaRow, error: metaErr } = await supabase
       .from('packages')
       .update({ ...(templateUpdate ?? {}), ...metaUpdate })
@@ -545,7 +586,50 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   // have no snapshot and are left alone: they render from the live profile, as
   // they always have.
   const existingSnapshot = pkg.document_snapshot as ResumeDocument | null
-  const nextSnapshot = existingSnapshot ? applyContentEditsToDocument(existingSnapshot, oc) : null
+  let nextSnapshot = editedDocument ?? (existingSnapshot ? applyContentEditsToDocument(existingSnapshot, oc) : null)
+
+  // A whole-document edit also carries the summary and activities; mirror them
+  // into optimized_content so the "what changed" screen shows the user's words.
+  if (editedDocument) {
+    oc.summary.user_edited = editedDocument.summary || null
+    for (const item of editedDocument.experience) {
+      const block = oc.experience_blocks.find((x) => x.profile_experience_id === item.entry.id)
+      if (block) block.user_edited_bullets = item.bullets
+    }
+  }
+
+  // Apply confirmed suggestions onto the document and mirror them likewise.
+  const storedForSuggestions = (pkg as { match_report?: MatchReport | null }).match_report ?? null
+  let nextSuggestions: Suggestion[] | null = null
+  if (suggestionActions.length > 0) {
+    if (!storedForSuggestions?.suggestions?.length || !nextSnapshot) {
+      return NextResponse.json({ error: 'There are no suggestions on this resume.' }, { status: 400 })
+    }
+    const confirmed: Suggestion[] = []
+    nextSuggestions = storedForSuggestions.suggestions.map((s) => {
+      const act = suggestionActions.find((a) => a.id === s.id)
+      if (!act || s.status !== 'pending') return s
+      if (act.action === 'dismiss') return { ...s, status: 'dismissed' as const }
+      const done = { ...s, text: act.text ?? s.text, status: 'confirmed' as const }
+      confirmed.push(done)
+      return done
+    })
+    if (confirmed.length > 0) {
+      nextSnapshot = applySuggestionsToDocument(nextSnapshot, confirmed)
+      oc.summary.user_edited = nextSnapshot.summary || null
+      for (const s of confirmed) {
+        if (s.block === 'summary') continue
+        const item = nextSnapshot.experience.find((x) => x.entry.id === s.block)
+        if (!item) continue
+        let block = oc.experience_blocks.find((x) => x.profile_experience_id === s.block)
+        if (!block) {
+          block = { profile_experience_id: s.block, was_optimized: false, generated_bullets: null, user_edited_bullets: null, source_bullets: [], claims: [] }
+          oc.experience_blocks.push(block)
+        }
+        block.user_edited_bullets = item.bullets
+      }
+    }
+  }
   const snapshotUpdate = nextSnapshot ? { document_snapshot: nextSnapshot } : {}
 
   // RE-SCORE THE EDIT (optimizer engine, 2026-09-17). The match score on the
@@ -558,10 +642,17 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
     const keywords = validateKeywords(storedReport.target.keywords)
     if (keywords.length > 0) {
       const target = { ...storedReport.target, keywords }
+      const suggestions = nextSuggestions ?? storedReport.suggestions ?? []
+      const after = scoreResume(scoreDocumentFromResume(nextSnapshot), target, storedReport.qualifications ?? null)
+      const pending = suggestions.filter((s) => s.status === 'pending')
+      const projected = pending.length
+        ? scoreResume(scoreDocumentFromResume(applySuggestionsToDocument(nextSnapshot, pending)), target, storedReport.qualifications ?? null).total
+        : after.total
       matchReport = {
         ...storedReport,
-        after: scoreResume(scoreDocumentFromResume(nextSnapshot), target, storedReport.qualifications ?? null),
+        after,
         after_edited: true,
+        ...(suggestions.length ? { suggestions, projected_with_suggestions: Math.max(projected, after.total) } : {}),
       }
     }
   }
@@ -590,5 +681,9 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   }
 
   await recordEvents(packageId, user.id, pendingEvents)
-  return NextResponse.json({ ok: true, ...(matchReport ? { match_report: matchReport } : {}) })
+  return NextResponse.json({
+    ok: true,
+    ...(matchReport ? { match_report: matchReport } : {}),
+    ...(nextSnapshot ? { document_snapshot: nextSnapshot } : {}),
+  })
 }

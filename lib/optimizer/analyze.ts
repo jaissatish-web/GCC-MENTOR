@@ -18,6 +18,8 @@ import { computeDeterministicCategories } from '@/lib/jobMatch/requirementMappin
 import { buildJobMatchProfileInputFromFullProfile } from '@/lib/jobMatch/profileAdapters'
 import { buildEvidenceMap, profileEvidenceKey, verifyBridges } from './evidence'
 import {
+  buildProfileEvidenceText,
+  EVIDENCE_ADDENDUM,
   BRIDGE_SYSTEM_PROMPT,
   buildBridgeUserPrompt,
   buildJdAnalysisUserPrompt,
@@ -57,7 +59,7 @@ export function analysisInputHash(targetJobTitle: string, targetIndustry: string
   const mode = resolveMode(jobDescription)
   return sha256(
     [
-      'analysis-v2',
+      'analysis-v3',
       mode,
       targetJobTitle.trim().toLowerCase(),
       mode === 'target_title_only' ? (targetIndustry ?? '').trim().toLowerCase() : '',
@@ -70,6 +72,32 @@ export function profileFingerprint(profile: CareerProfileFull): string {
   return sha256(profileEvidenceKey(profile))
 }
 
+/**
+ * Requirements AND evidence in ONE model call. Returns null when the answer
+ * carries no usable requirements (the caller then builds without a plan).
+ */
+export async function analyzeTargetWithEvidence(opts: {
+  generateFn: GenerateFn
+  userId: string
+  route: string
+  targetJobTitle: string
+  targetIndustry: string | null
+  jobDescription: string | null
+  profile: CareerProfileFull
+  giveUpAt?: number
+}): Promise<{ target: JobTargetProfile; bridges: VerifiedBridge[] } | null> {
+  let bridgesRaw: unknown = null
+  const target = await analyzeTarget({
+    ...opts,
+    evidenceFor: opts.profile,
+    onParsed: (parsed) => {
+      bridgesRaw = typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>).bridges : null
+    },
+  })
+  if (!target) return null
+  return { target, bridges: verifyBridges(opts.profile, target, bridgesRaw) }
+}
+
 export async function analyzeTarget(opts: {
   generateFn: GenerateFn
   userId: string
@@ -78,14 +106,19 @@ export async function analyzeTarget(opts: {
   targetIndustry: string | null
   jobDescription: string | null
   giveUpAt?: number
+  /** When given, the same call also returns evidence bridges for this profile. */
+  evidenceFor?: CareerProfileFull
+  onParsed?: (parsed: unknown) => void
 }): Promise<JobTargetProfile | null> {
   const mode = resolveMode(opts.jobDescription)
+  const addendum = opts.evidenceFor ? EVIDENCE_ADDENDUM : ''
+  const evidenceText = opts.evidenceFor ? buildProfileEvidenceText(opts.evidenceFor) : ''
   const call: GenerateCall =
     mode === 'job_description'
       ? {
-          system: JD_ANALYSIS_SYSTEM_PROMPT,
-          user: buildJdAnalysisUserPrompt(opts.jobDescription ?? '', opts.targetJobTitle),
-          maxTokens: 6144,
+          system: JD_ANALYSIS_SYSTEM_PROMPT + addendum,
+          user: buildJdAnalysisUserPrompt(opts.jobDescription ?? '', opts.targetJobTitle) + evidenceText,
+          maxTokens: opts.evidenceFor ? 10_000 : 6144,
           temperature: 0.1,
           configKey: 'job_description',
           route: opts.route,
@@ -93,9 +126,9 @@ export async function analyzeTarget(opts: {
           giveUpAt: opts.giveUpAt,
         }
       : {
-          system: TITLE_ANALYSIS_SYSTEM_PROMPT,
-          user: buildTitleAnalysisUserPrompt(opts.targetJobTitle, opts.targetIndustry),
-          maxTokens: 4096,
+          system: TITLE_ANALYSIS_SYSTEM_PROMPT + addendum,
+          user: buildTitleAnalysisUserPrompt(opts.targetJobTitle, opts.targetIndustry) + evidenceText,
+          maxTokens: opts.evidenceFor ? 8192 : 4096,
           temperature: 0.1,
           configKey: 'optimization_analysis',
           route: opts.route,
@@ -110,8 +143,12 @@ export async function analyzeTarget(opts: {
     try {
       const res = await opts.generateFn(call)
       if (res.truncated) continue
-      const parsed = validateTargetProfile(extractJsonObject(res.text), mode, opts.targetJobTitle)
-      if (parsed) return parsed
+      const raw = extractJsonObject(res.text)
+      const parsed = validateTargetProfile(raw, mode, opts.targetJobTitle)
+      if (parsed) {
+        opts.onParsed?.(raw)
+        return parsed
+      }
     } catch (e) {
       console.error('optimizer: target analysis failed attempt=' + attempt, e instanceof Error ? e.message : String(e))
       if (attempt === 1) return null
