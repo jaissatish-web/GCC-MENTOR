@@ -39,6 +39,7 @@ export interface GenerateCall {
   route: string
   configKey?: string
   giveUpAt?: number
+  stallTimeoutMs?: number
 }
 
 export type GenerateFn = (call: GenerateCall) => Promise<{ text: string; truncated: boolean }>

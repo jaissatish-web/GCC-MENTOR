@@ -57,14 +57,20 @@ export function MatchPanel({
   projectedMax,
   onRecheck,
   rechecking,
+  onConfirm,
 }: {
   analysis: AnalysisView
   /** Honest maximum for the CURRENT selection of blocks. */
   projectedMax: number
   onRecheck: () => void
   rechecking: boolean
+  /** Adds the ticked requirements to the Career Profile, then re-checks. */
+  onConfirm?: (terms: string[]) => Promise<void>
 }) {
   const { matched, improvable, gaps } = groupKeywords(analysis.keywords)
+  const [ticked, setTicked] = useState<string[]>([])
+  const [confirming, setConfirming] = useState(false)
+  const toggle = (t: string) => setTicked((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
   const estimate = analysis.mode === 'target_title_only'
   const gain = Math.max(0, projectedMax - analysis.before.total)
 
@@ -127,14 +133,57 @@ export function MatchPanel({
       ) : null}
 
       {gaps.length > 0 ? (
-        <div className="flex flex-col gap-1.5 rounded-ctl border border-line bg-canvas p-3">
-          <p className="text-[12.5px] font-semibold text-ink">
-            {estimate ? 'Often asked for, not in your profile' : 'The job asks for, not in your profile'} ({gaps.length})
+        <div className="flex flex-col gap-2 rounded-ctl border border-gold/40 bg-gold-soft/40 p-3">
+          <p className="text-[13px] font-semibold text-ink">
+            Raise your score: do you have any of these? ({gaps.length})
           </p>
-          <p className="text-[12px] leading-relaxed text-ink-muted">
-            We never add these to your CV. If you genuinely have any of them, add them to your Career Profile and re-check.
+          <p className="text-[12px] leading-relaxed text-ink-soft">
+            {estimate ? 'Often asked for in this role' : 'This job asks for them'}, but your profile doesn&apos;t mention them yet.
+            Tick only what you have genuinely done or hold. They&apos;re added to your Career Profile and written into your CV,
+            and the recruiter may ask you about each one.
           </p>
-          <More items={gaps} tone="gap" />
+          {onConfirm ? (
+            <div className="flex flex-wrap gap-1.5">
+              {gaps.map((g) => {
+                const on = ticked.includes(g.term)
+                return (
+                  <button
+                    key={g.term}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => toggle(g.term)}
+                    className={cn(
+                      'min-h-9 rounded-full border px-3 py-1 text-[12px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+                      on ? 'border-teal bg-teal text-white' : 'border-line-strong bg-white text-ink',
+                    )}
+                  >
+                    {on ? '✓ ' : '+ '}
+                    {g.term}
+                  </button>
+                )
+              })}
+            </div>
+          ) : (
+            <More items={gaps} tone="gap" />
+          )}
+          {onConfirm && ticked.length > 0 ? (
+            <button
+              type="button"
+              disabled={confirming}
+              onClick={async () => {
+                setConfirming(true)
+                try {
+                  await onConfirm(ticked)
+                  setTicked([])
+                } finally {
+                  setConfirming(false)
+                }
+              }}
+              className="min-h-11 self-start rounded-ctl bg-teal px-4 py-2 text-[13px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 disabled:opacity-60"
+            >
+              {confirming ? 'Adding…' : `Yes, I have ${ticked.length === 1 ? 'this' : `these ${ticked.length}`} — add to my profile`}
+            </button>
+          ) : null}
           <div className="mt-1 flex flex-wrap gap-2">
             <Link
               href="/profile"

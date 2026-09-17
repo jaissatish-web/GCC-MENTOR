@@ -14,7 +14,7 @@
  */
 
 import type { CareerProfileFull, ProfileWorkExperience } from '@/types/careerProfile'
-import { containsQuote, containsTerm, containsTermInSentence, coversContentStems, GRADE_STEMS, isAcronymIn, prepare, stems, stemsMatch, type PreparedText } from './text'
+import { compoundsIntact, containsQuote, containsTerm, containsTermInSentence, coversContentStems, GRADE_STEMS, isAcronymIn, prepare, stems, stemsMatch, type PreparedText } from './text'
 import type {
   EvidenceLocation,
   JobTargetProfile,
@@ -127,7 +127,7 @@ export function bridgeIsPlausible(k: Pick<TargetKeyword, 'term' | 'aliases' | 'k
   if (/\b(expert|strategic|award-winning|multidisciplinary|transformational|industry-leading|world-class|visionary|seasoned|unparalleled)\b/i.test(k.term)) return false
   if (stems(k.term).some((s) => GRADE_STEMS.has(s))) return false
   for (const v of [k.term, ...k.aliases]) {
-    if (coversContentStems(v, quote)) return true
+    if (coversContentStems(v, quote) && compoundsIntact(v, quote)) return true
     if (isAcronymIn(v, quote)) return true
   }
   return false

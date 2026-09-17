@@ -62,10 +62,11 @@ export function tokenize(text: string | null | undefined): string[] {
     for (const [re, full] of DEGREES) lower = lower.replace(re, ` ${full} `)
   }
   const out: string[] = []
-  for (const m of lower.matchAll(/\.?[a-z0-9][a-z0-9+#.]*/g)) {
+  // "&" joins an abbreviation into one token: I&C, F&G, C&E, R&D.
+  for (const m of lower.matchAll(/\.?[a-z0-9][a-z0-9+#.&]*/g)) {
     let t = m[0]
     // Sentence punctuation is not part of a token; ".net" keeps its dot.
-    while (t.length > 1 && t.endsWith('.')) t = t.slice(0, -1)
+    while (t.length > 1 && (t.endsWith('.') || t.endsWith('&'))) t = t.slice(0, -1)
     if (t) out.push(/^[a-z]+$/.test(t) ? americanize(t) : t)
   }
   return out
@@ -112,7 +113,13 @@ export function termVariants(term: string, aliases: readonly string[] = []): str
   const out = new Set<string>()
   for (const v of [term, ...aliases]) {
     const clean = v.trim()
-    if (clean) out.add(clean)
+    if (!clean) continue
+    out.add(clean)
+    // Engineering and trade CVs abbreviate paired words with "&":
+    // "Cause & Effect Matrices" = "C&E matrices", "Fire and Gas" = "F&G",
+    // "Instrumentation & Control design" = "I&C design".
+    const amp = clean.replace(/\b([A-Za-z])[A-Za-z]*\s*(?:&|\band\b)\s*([A-Za-z])[A-Za-z]*\b/g, '$1&$2')
+    if (amp !== clean) out.add(amp)
   }
   const acronym = deriveAcronym(term)
   if (acronym) out.add(acronym)
@@ -231,6 +238,26 @@ export function coversContentStems(term: string, text: string): boolean {
   if (want.length === 0) return false
   const have = contentStems(text)
   return want.every((w) => have.some((h) => stemsMatch(w, h)))
+}
+
+/**
+ * Every hyphenated compound in `term` ("year-end", "pre-commissioning")
+ * appears in `text` as consecutive words. "6+ years … month-end close" does not
+ * contain "year-end" (measured on a live bridge, 2026-09-17).
+ */
+export function compoundsIntact(term: string, text: string): boolean {
+  const have = stems(text)
+  for (const group of term.split(/s+/)) {
+    if (!group.includes('-')) continue
+    const parts = tokenize(group).filter((t) => !TERM_STOPWORDS.has(t)).map(stem)
+    if (parts.length < 2) continue
+    let found = false
+    for (let i = 0; i + parts.length <= have.length && !found; i++) {
+      found = parts.every((w, j) => stemsMatch(w, have[i + j]))
+    }
+    if (!found) return false
+  }
+  return true
 }
 
 /** Do two texts share a non-generic word family? */

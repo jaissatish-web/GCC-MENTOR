@@ -43,7 +43,8 @@ missed, and nothing measured whether the CV had actually been targeted. Now:
                        • score now, with the part breakdown
                        • "can reach N using only your real experience" (honest maximum)
                        • already on your CV ✓ / in your profile, not said yet ↑ / not in your profile
-                       • "Open Career Profile" + "Re-check match" for genuine gaps
+                       • "Raise your score: do you have any of these?" — tick genuine skills →
+                         POST /api/optimize/confirm-skills adds them to the Career Profile → re-check
                        • choose summary + roles; each level shows its projected score (≈)
         │  POST /api/optimize  (Phase A: creates the package, attaches the analysis; no model call)
 /optimize/generate    POST /api/optimize {packageId}  (Phase B: the pipeline, §3)
@@ -222,7 +223,27 @@ check. Quality problems found and fixed between rounds, in order:
 7. A High build merged away "Cared for ventilated patients", and a sales CV buried its only
    quantified result. Added a soft dropped-fact check and a "quantified result first" ordering rule.
 
+## 8c. Robustness against real model output (2026-09-17, live I&C package)
+
+- **Key names are normalised before validation.** `bullets`, `rewritten_bullets` and
+  `optimized_bullets` all become `generated_bullets`, and `was_optimized` defaults to true
+  for the section's own roles. Blocks for other roles are dropped, and a truncated or
+  re-cased id resolves to the section's role when unambiguous.
+- Role sections show roles outside the section as title, company and dates only, which
+  cuts cross-role leaks and prompt size.
+- A section call stalls out after 90s and is retried once. Roles still missing after the
+  repair round are asked for one at a time. The summary gets up to two extra attempts.
+- Bracketed acronyms in requirements become alternatives. "&" abbreviations match.
+  Hyphenated compounds must be intact in evidence and in-sentence matching.
+- Model choice, measured on the same 9-role profile: `deepseek-v4-flash` rewrote 8 of 9 roles
+  in 195s. `deepseek-v4-pro` rewrote 1 of 9 in 284s at about 15× the price. Keep Flash for
+  `optimization`.
+
 ## 9. Known limits, stated plainly
+
+- **The score cannot be raised past the honest maximum.** A strong profile against a
+  demanding advert may gain only a few points. The way up is the user confirming
+  requirements they genuinely have, never the product claiming them.
 
 - Matching is lexical plus verified bridges. A real equivalence the bridge model misses
   shows as a gap. That costs points, never truth.

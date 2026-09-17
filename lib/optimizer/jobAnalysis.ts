@@ -138,13 +138,36 @@ function sameWordsAbbreviated(a: string, b: string): boolean {
   return ta.every((x, i) => stemsMatch(stem(x), stem(tb[i])) || abbreviates(x, tb[i]) || abbreviates(tb[i], x))
 }
 
+/**
+ * "Distributed Control Systems (DCS)" -> term "Distributed Control Systems",
+ * alternatives ["DCS"]. "Instrumentation & Control (I&C) design" -> term
+ * "Instrumentation & Control design", alternatives ["I&C design"]. The advert
+ * itself declares the bracketed form equivalent, so it needs no alias proof.
+ * Measured 2026-09-17: bracketed acronyms made DCS, SIS, PLC and SPI read as
+ * missing on a profile whose skills listed all four.
+ */
+export function splitParenthetical(term: string): { term: string; alternatives: string[] } {
+  const m = /^(.*?)\s*\(([^()]+)\)\s*(.*)$/.exec(term)
+  if (!m) return { term, alternatives: [] }
+  const before = m[1].trim()
+  const after = m[3].trim()
+  const outside = [before, after].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()
+  if (!outside) return { term, alternatives: [] }
+  const parts = m[2].split(/\s*[\/,;]\s*|\s+or\s+/i).map((p) => p.trim()).filter((p) => p.length >= 2)
+  const alternatives = parts.map((p) => (after ? `${p} ${after}` : p))
+  return { term: outside, alternatives }
+}
+
 export function validateKeywords(v: unknown): TargetKeyword[] {
   if (!Array.isArray(v)) return []
   const out: TargetKeyword[] = []
   const seen = new Set<string>()
   for (const raw of v) {
     if (!isObject(raw)) continue
-    const term = cleanString(raw.term, 60)
+    const rawTerm = cleanString(raw.term, 80)
+    if (!rawTerm) continue
+    const split = splitParenthetical(rawTerm)
+    const term = cleanString(split.term, 60)
     if (!term) continue
     const key = term.toLowerCase()
     if (seen.has(key)) continue
@@ -170,7 +193,7 @@ export function validateKeywords(v: unknown): TargetKeyword[] {
     // "Accounting or Finance", "CPA or ACCA": any one satisfies the requirement,
     // so every option matches it. Options are named by the advert itself, and a
     // candidate can only be credited with one their own profile states.
-    const alternatives = cleanList(raw.alternatives, 4, 60).filter(
+    const alternatives = cleanList([...split.alternatives, ...(Array.isArray(raw.alternatives) ? raw.alternatives : [])], 6, 60).filter(
       (a) => a.toLowerCase() !== key && !aliases.some((x) => x.toLowerCase() === a.toLowerCase()),
     )
     // Stored separately as well, so re-validating a stored keyword (the alias

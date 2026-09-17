@@ -477,6 +477,23 @@ function SetupScreen() {
           onRecheck={() => {
             if (draft && profileId) void runAnalysis(draft, profileId)
           }}
+          onConfirm={
+            analysis.analysisId && profileId
+              ? async (terms) => {
+                  const res = await fetch('/api/optimize/confirm-skills', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ analysisId: analysis.analysisId, profileId, terms }),
+                  })
+                  const body = await res.json().catch(() => ({}))
+                  if (!res.ok) {
+                    setAnalysisError((body?.error as string) ?? 'Could not add these to your profile. Please try again.')
+                    return
+                  }
+                  if (draft) await runAnalysis(draft, profileId)
+                }
+              : undefined
+          }
         />
       ) : null}
       {analysisState === 'error' && analysisError ? (

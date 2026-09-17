@@ -123,6 +123,9 @@ export function buildTailoringPlan(
 
   const anchors: PlannedTerm[] = kws
     .filter((k) => k.kind !== 'soft_skill' && k.placeable.includes('summary'))
+    // Easy is a light touch: a requirement stated only in the skills list stays
+    // there. Moderate and High also bring it into the summary.
+    .filter((k) => level !== 'easy' || k.status !== 'listed')
     .slice(0, 6)
     .map((k) => ({
       term: k.term,
@@ -213,6 +216,12 @@ export function renderPlanForPrompt(
     )
   }
 
+  if (entryIds.length > 0) {
+    lines.push('')
+    lines.push(
+      `RETURN ALL OF THESE ROLES in experience_blocks, each with "profile_experience_id" and "generated_bullets" — even a role with no target terms still gets its clearer, outcome-first rewrite: ${entryIds.join(', ')}`,
+    )
+  }
   const byId = new Map((profile.work_experience ?? []).map((e) => [e.id, e]))
   for (const id of entryIds) {
     const p = plan.entries[id]

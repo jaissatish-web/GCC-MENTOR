@@ -21,7 +21,7 @@ import { buildTailoringPlan, renderPlanForPrompt } from '../lib/optimizer/plan'
 import { checkQuality } from '../lib/optimizer/qualityGate'
 import { parseReview } from '../lib/optimizer/review'
 import { baselineDocument, buildAnalysisReport, type GenerateCall } from '../lib/optimizer/analyze'
-import { runOptimizationPipeline } from '../lib/optimizer/pipeline'
+import { normalizeSectionOutput, runOptimizationPipeline } from '../lib/optimizer/pipeline'
 import { cutOutcomeTail, pruneSummary } from '../lib/optimizer/autofix'
 import { validateGrounding } from '../lib/ai/validateGrounding'
 import type { JobTargetProfile } from '../lib/optimizer/types'
@@ -148,6 +148,24 @@ check('c++ survives tokenising', containsTermRaw('Wrote C++ services', 'C++'))
 check('in-sentence: word order and forms are free', containsTermInSentence('Monitored hemodynamic status every hour', 'hemodynamic monitoring'))
 check('in-sentence: a hyphenated compound stays one unit ("6+ years … month-end close" is not "year-end closing")', !containsTermInSentence('Accountant with 6+ years in general ledger, month-end close and VAT compliance.', 'year-end closing'))
 check('in-sentence: the compound itself still matches', containsTermInSentence('Handled month-end close for 3 entities', 'month-end closing'))
+{
+  // The live I&C package (2026-09-17): every one of these read as "missing".
+  const kw = validateTargetProfile({ keywords: [
+    { term: 'Distributed Control Systems (DCS)', importance: 'must', kind: 'tool' },
+    { term: 'SPI (SmartPlant Instrumentation / Intoals)', importance: 'nice', kind: 'tool' },
+    { term: 'Instrumentation & Control (I&C) design', importance: 'must', kind: 'responsibility' },
+  ] }, 'job_description', 'I&C Engineer')!.keywords
+  const find = (t: string) => kw.find((k) => k.term === t)!
+  check('bracketed acronym becomes an alternative', find('Distributed Control Systems').aliases.includes('DCS'))
+  check('re-validating a stored split keyword keeps it', validateTargetProfile({ keywords: kw }, 'job_description', 'X')!.keywords[0].aliases.includes('DCS'))
+  check('"DCS Validation" satisfies Distributed Control Systems (DCS)', containsTermRaw('DCS Validation', 'Distributed Control Systems', find('Distributed Control Systems').aliases))
+  check('"SmartPlant Instrumentation (SPI/INtools)" satisfies SPI', containsTermRaw('SmartPlant Instrumentation (SPI/INtools)', 'SPI', find('SPI').aliases))
+  check('mid-term brackets: "I&C design" variant', find('Instrumentation & Control design').aliases.includes('I&C design'))
+  check('"&" abbreviations: "C&E matrices" satisfies Cause & Effect Matrices', containsTermRaw('P&ID review, C&E matrices, control narratives', 'Cause & Effect Matrices'))
+  check('"Fire & Gas (FGS)" satisfies Fire and Gas Systems', containsTermRaw('Fire & Gas (FGS)', 'Fire and Gas Systems', ['FGS']))
+  check('"SIS/ESD/F&G/BMS" keeps each abbreviation', containsTermRaw('SIS/ESD/F&G/BMS Commissioning', 'Safety Instrumented Systems', ['SIS']) && containsTermRaw('SIS/ESD/F&G/BMS Commissioning', 'F&G'))
+  check('"I&C" alone does not satisfy "I&C design"', !containsTermRaw('I&C Pre-Commissioning Engineer', 'Instrumentation & Control design', find('Instrumentation & Control design').aliases))
+}
 check('quote check is whitespace/case tolerant', containsQuote('Used  a Computerised system', 'used a computerised system'))
 
 // ---- 2. Evidence -------------------------------------------------------------
@@ -181,6 +199,7 @@ check('never bridges a soft skill', !plausible('Communication skills', 'Communic
 check('rejects a bridge missing a distinctive word: mechanical ventilation <- "Cared for ventilated patients"', !plausible('mechanical ventilation', 'Cared for ventilated patients'))
 check('rejects SAP FICO <- "...12 accounts in SAP"', !plausible('SAP FICO', 'Performed bank reconciliations for 12 accounts in SAP', 'tool'))
 check('rejects a graded requirement: advanced Excel <- "Excel"', !plausible('advanced Excel', 'Excel', 'tool'))
+check('rejects year-end closing <- "6+ years … month-end close" (live bridge)', !plausible('year-end closing', 'Accountant with 6+ years in general ledger, month-end close and VAT compliance.'))
 check('rejects month-end AND year-end closing <- "month-end close"', !plausible('month-end and year-end closing', 'month-end close and VAT compliance'))
 check('degree abbreviations: Bachelor of Science in Nursing <- "B.Sc Nursing"', plausible('Bachelor of Science in Nursing', 'B.Sc Nursing Kerala University'))
 check('accepts Project coordination <- "Coordinated shop drawings" (generic word ignored)', plausible('Project coordination', 'Coordinated shop drawings with the consultant'))
@@ -309,6 +328,17 @@ const leak = { ...out, experience_blocks: [{ profile_experience_id: 'e2', was_op
 check('approval is per role: another role still fails', !validateGrounding(profile, leak, leak.skills_order, { jobDescription: JD, approvedTerms: ev.approvedTerms }).valid)
 
 // ---- 7. Review parsing --------------------------------------------------------
+section('6c. Section output shapes models actually return')
+{
+  const n = normalizeSectionOutput({ summary: { generated: '' }, experience_blocks: [{ profile_experience_id: 'e1', bullets: ['A b c d e f'] }], skills_order: [] }, ['e1']) as any
+  check('"bullets" is read as generated_bullets, and was_optimized defaults true for the section roles', n.experience_blocks[0].generated_bullets[0] === 'A b c d e f' && n.experience_blocks[0].was_optimized === true && n.experience_blocks[0].bullets === undefined)
+  const other = normalizeSectionOutput({ experience_blocks: [{ profile_experience_id: 'e2', bullets: ['x'] }] }, ['e1']) as any
+  check('a block for a role outside the section is dropped, not a structural failure', other.experience_blocks.length === 0)
+  const ids = ['17dfd11d-f4d5-4289-b4a2-b6ef115f7fbf', 'd6ab8ddb-7853-46ce-b0ac-0767cd123afc']
+  const near = normalizeSectionOutput({ experience_blocks: [{ profile_experience_id: '17DFD11D-F4D5-4289-B4A2', generated_bullets: ['x y z a b'] }, { profile_experience_id: '17dfd11d-f4d5-4289-b4a2-b6ef115f7fbf', generated_bullets: ['dup'] }] }, ids) as any
+  check('a truncated or re-cased id resolves to the section role, duplicates dropped', near.experience_blocks.length === 1 && near.experience_blocks[0].profile_experience_id === ids[0])
+}
+
 section('7. Review findings must quote the rewrite')
 const blocks = [{ block: 'e1', rewrite: ['Delivered shutdown works for the hospital'], approvedTerms: [] }]
 check('verbatim quote kept', parseReview({ issues: [{ block: 'e1', quote: 'Delivered shutdown works', reason: 'x' }] }, blocks).length === 1)
@@ -323,6 +353,8 @@ type Script = {
   role?: (id: string, attempt: number) => string[] | null
   review?: (call: number, user: string) => Array<{ block: string; quote: string; reason: string }>
   structuralFailure?: boolean
+  /** Return roles under "bullets" with no was_optimized, as the live model did. */
+  bulletsKey?: boolean
 }
 
 function fakeModel(script: Script) {
@@ -335,6 +367,10 @@ function fakeModel(script: Script) {
       return { text: JSON.stringify({ issues: script.review ? script.review(reviews++, call.user) : [] }), truncated: false }
     }
     if (script.structuralFailure) return { text: 'not json at all', truncated: false }
+    if (script.bulletsKey) {
+      const ids = [...call.user.matchAll(/ROLE \[id: (\w+)\]/g)].map((m) => m[1])
+      return { text: JSON.stringify({ summary: { generated: call.user.includes('PROFESSIONAL SUMMARY:') ? GOOD_SUMMARY : '' }, experience_blocks: ids.map((id) => ({ profile_experience_id: id, bullets: GOOD[id] })), skills_order: ['s2', 's1'] }), truncated: false }
+    }
     const ids = [...call.user.matchAll(/ROLE \[id: (\w+)\]/g)].map((m) => m[1])
     const wantsSummary = call.user.includes('PROFESSIONAL SUMMARY:')
     const blocksOut = ids.map((id) => {
@@ -417,6 +453,28 @@ async function pipelineSuite() {
     const e1 = result.ok ? result.optimizedContent.experience_blocks.find((b) => b.profile_experience_id === 'e1') : null
     check('a block the review keeps flagging keeps the original text', !!e1 && !e1.was_optimized && (e1.generated_bullets ?? []).join('|') === (profile.work_experience[0].highlights ?? []).join('|'))
     check('kept_original records the review reason', result.ok && !!result.report?.kept_original?.some((k) => k.block === 'e1' && k.reason === 'review'))
+  }
+  {
+    // A section whose provider call fails once is retried, not dropped.
+    let failedOnce = false
+    const model = fakeModel({ summary: () => GOOD_SUMMARY, role: (id) => GOOD[id] })
+    const flaky = async (call: GenerateCall) => {
+      if (!failedOnce && call.user.includes('ROLE [id: e1]') && !call.user.includes('CORRECTION')) {
+        failedOnce = true
+        throw new Error('no answer within 90s — the upstream stalled')
+      }
+      return model.fn(call)
+    }
+    const result = await runOptimizationPipeline({
+      profile, target: { target_job_title: target.job_title, target_industry: null, target_country: null, target_company: null },
+      level: 'moderate', selectedBlocks: { summary: true, experienceIds: ['e1', 'e2', 'e3'] }, jobDescription: JD,
+      targetProfile: target, bridges, analysisId: 'a1', userId: 'u1', giveUpAt: Date.now() + 280_000, generateFn: flaky,
+    })
+    check('a stalled section is retried and its roles still get rewritten', failedOnce && result.ok && result.optimizedContent.experience_blocks.every((b) => b.was_optimized))
+  }
+  {
+    const { result } = await run({ bulletsKey: true })
+    check('live shape ("bullets", no was_optimized): every role is still rewritten', result.ok && result.optimizedContent.experience_blocks.every((b) => b.was_optimized))
   }
   {
     const { result } = await run({ structuralFailure: true })

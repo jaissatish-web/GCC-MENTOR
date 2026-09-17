@@ -155,7 +155,16 @@ function renderFixedIdentity(profile: CareerProfileFull): string {
 function renderWorkExperienceEntry(
   e: ProfileWorkExperience,
   rewritable: boolean,
+  compactFixed = false,
 ): string {
+  // A role this call does not rewrite needs only its identity as context.
+  // Its bullets were where cross-role leaks came from (2026-09-17).
+  if (!rewritable && compactFixed) {
+    return (
+      `- ${e.role} at ${e.company} (${formatDate(e.start_date)} – ${formatDate(e.end_date)})` +
+      '\n  [FIXED — context only, not in this call, do not include in output]'
+    )
+  }
   const header =
     `- [id: ${e.id}] ${e.role} at ${e.company} ` +
     `(${formatDate(e.start_date)} – ${formatDate(e.end_date)})` +
@@ -171,6 +180,7 @@ function renderWorkExperienceEntry(
 function renderCareerProfile(
   profile: CareerProfileFull,
   selectedBlocks: SelectedBlocks,
+  compactFixed = false,
 ): string {
   const sections: string[] = []
 
@@ -185,7 +195,7 @@ function renderCareerProfile(
     .slice()
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((e) =>
-      renderWorkExperienceEntry(e, selectedBlocks.experienceIds.includes(e.id)),
+      renderWorkExperienceEntry(e, selectedBlocks.experienceIds.includes(e.id), compactFixed),
     )
     .join('\n\n')
   sections.push(
@@ -378,6 +388,11 @@ export function buildOptimizationPrompt(
    * Absent = the pre-engine prompt, byte for byte.
    */
   tailoringPlan?: string | null,
+  /**
+   * Render roles this call does not rewrite as title/company/dates only
+   * (optimizer role sections). The summary call keeps the full profile.
+   */
+  compactFixedRoles = false,
 ): BuiltPrompt {
   const persona = getPersona(target.target_industry ?? '')
   const levelInstruction = LEVEL_INSTRUCTIONS[level]
@@ -397,7 +412,7 @@ export function buildOptimizationPrompt(
     '=========================================================\n' +
       'BLOCK 1 — CANDIDATE FACTS   [the only source of truth]\n' +
       '=========================================================\n' +
-      renderCareerProfile(profile, selectedBlocks),
+      renderCareerProfile(profile, selectedBlocks, compactFixedRoles),
 
     '=========================================================\n' +
       'BLOCK 2 — TARGET CONTEXT   [application metadata, NOT candidate evidence]\n' +

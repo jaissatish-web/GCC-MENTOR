@@ -95,19 +95,23 @@ export function MatchResult({
       ) : null}
 
       {report.gaps && report.gaps.length > 0 ? (
-        <div className="flex flex-col gap-1.5">
-          <p className="text-[12.5px] font-semibold text-ink">
-            {estimate ? 'Often asked for, not in your profile' : 'Still missing for this job'} ({report.gaps.length})
-          </p>
-          <KeywordChips items={report.gaps.slice(0, 10)} tone="gap" />
-          <p className="text-[12px] leading-relaxed text-ink-muted">
-            Never added to your CV. If you have any of these, add them to your{' '}
-            <Link href="/profile" className="font-semibold text-teal underline-offset-2 hover:underline">
-              Career Profile
-            </Link>{' '}
-            and build again.
-          </p>
-        </div>
+        <details className="group rounded-ctl border border-gold/40 bg-gold-soft/40 p-3">
+          <summary className="cursor-pointer list-none text-[12.5px] font-semibold text-ink">
+            Want a higher score? {report.gaps.length} {estimate ? 'common requirement' : 'job requirement'}
+            {report.gaps.length === 1 ? '' : 's'} aren&apos;t in your profile yet{' '}
+            <span className="text-teal group-open:hidden">Show</span>
+          </summary>
+          <div className="mt-2 flex flex-col gap-1.5">
+            <KeywordChips items={report.gaps.slice(0, 12)} tone="gap" />
+            <p className="text-[12px] leading-relaxed text-ink-soft">
+              If you have genuinely done any of these, add them to your{' '}
+              <Link href="/profile" className="font-semibold text-teal underline-offset-2 hover:underline">
+                Career Profile
+              </Link>{' '}
+              (or tick them on the build screen) and build again. Your score rises with each one.
+            </p>
+          </div>
+        </details>
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-2">

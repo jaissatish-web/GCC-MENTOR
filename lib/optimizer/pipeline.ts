@@ -108,6 +108,74 @@ function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
 }
 
+/**
+ * Accept the shapes models actually return for a section (measured 2026-09-17
+ * on a live I&C build: every role came back under "bullets" with no
+ * "was_optimized", and all nine roles were silently treated as empty).
+ * Only KEY NAMES are normalised — no text is touched — and only for the roles
+ * this section was asked to rewrite. Everything still passes the validator.
+ */
+export function normalizeSectionOutput(raw: unknown, sectionIds: readonly string[]): unknown {
+  if (!isObject(raw)) return raw
+  const out: Record<string, unknown> = { ...raw }
+  const list = Array.isArray(raw.experience_blocks)
+    ? raw.experience_blocks
+    : Array.isArray(raw.experience)
+      ? raw.experience
+      : Array.isArray(raw.blocks)
+        ? raw.blocks
+        : null
+  if (list) {
+    // Resolve each block to one of THIS section's ids: exact, case/whitespace
+    // variant, or an unambiguous 8+ character prefix. Blocks for any other
+    // role were not asked for and are dropped rather than failing the section.
+    const resolveId = (raw: unknown): string | null => {
+      if (typeof raw !== 'string') return null
+      const v = raw.trim().toLowerCase()
+      if (!v) return null
+      const exact = sectionIds.find((s) => s.toLowerCase() === v)
+      if (exact) return exact
+      if (v.length >= 8) {
+        const hits = sectionIds.filter((s) => s.toLowerCase().startsWith(v) || v.startsWith(s.toLowerCase()))
+        if (hits.length === 1) return hits[0]
+      }
+      return null
+    }
+    const seenIds = new Set<string>()
+    const mapped = list.map((b) => {
+      if (!isObject(b)) return null
+      const id = resolveId(b.profile_experience_id ?? b.id ?? b.experience_id)
+      if (!id || seenIds.has(id)) return null
+      seenIds.add(id)
+      return { ...b, profile_experience_id: id } as Record<string, unknown>
+    })
+    out.experience_blocks = mapped.filter((b): b is Record<string, unknown> => b !== null).map((b) => {
+      if (!isObject(b)) return b
+      const block: Record<string, unknown> = { ...b }
+      const id = block.profile_experience_id ?? block.id ?? block.experience_id
+      if (typeof id === 'string') block.profile_experience_id = id.trim()
+      delete block.id
+      delete block.experience_id
+      if (!Array.isArray(block.generated_bullets)) {
+        const alt = [block.bullets, block.rewritten_bullets, block.optimized_bullets, block.highlights].find(Array.isArray)
+        if (alt) block.generated_bullets = alt
+      }
+      delete block.bullets
+      delete block.rewritten_bullets
+      delete block.optimized_bullets
+      delete block.highlights
+      if (typeof block.profile_experience_id === 'string' && sectionIds.includes(block.profile_experience_id) && block.was_optimized === undefined) {
+        block.was_optimized = true
+      }
+      return block
+    })
+    delete out.experience
+    delete out.blocks
+  }
+  if (typeof out.summary === 'string') out.summary = { generated: out.summary }
+  return out
+}
+
 function ownerOf(f: ValidationFailure): Owner | null {
   if (f.owner === 'structural' || f.owner === 'skills_order') return null
   if (f.owner === 'summary') return 'summary'
@@ -170,13 +238,18 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
       jobDescription,
       null,
       renderedPlan,
+      !spec.summary && spec.ids.length > 0,
     )
     const owners: Owner[] = [...(spec.summary ? ['summary'] : []), ...spec.ids]
     let parsed: unknown = null
     let structuralDetail: string | null = null
 
-    for (let attempt = 0; attempt < 2; attempt++) {
+    let providerFailures = 0
+    for (let attempt = 0; attempt < 3; attempt++) {
       if (Date.now() > giveUpAt - 15_000) break
+      // At most two answers are judged; a third attempt exists only to recover
+      // from a provider failure, never to re-roll a structurally bad answer.
+      if (attempt === 2 && providerFailures === 0) break
       let text: string
       try {
         stats.modelCalls++
@@ -189,19 +262,25 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
           route: ROUTE,
           configKey: 'optimization',
           giveUpAt,
+          // Sections are small: 90s without an answer is a stalled upstream.
+          stallTimeoutMs: 90_000,
         })
         if (res.truncated) {
+          stats.codes.push('section_truncated')
           structuralDetail = 'Your previous answer was cut off before it finished. Be concise.'
           continue
         }
         text = res.text
       } catch (e) {
         console.error('optimizer: section call failed', e instanceof Error ? e.message : String(e))
+        providerFailures++
+        // One retry after a provider failure or stall, when a whole answer still fits.
+        if (providerFailures === 1 && giveUpAt - Date.now() >= 60_000) continue
         return { ok: false, providerError: true, skillsOrder: undefined, candidates: [] }
       }
       let candidate: unknown
       try {
-        candidate = extractJsonObject(text)
+        candidate = normalizeSectionOutput(extractJsonObject(text), spec.ids)
       } catch {
         candidate = text
       }
@@ -219,7 +298,10 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
       structuralDetail = 'Your previous answer was not usable: ' + structural.map((f) => `${f.path}: ${f.detail}`).join('; ')
     }
 
-    if (!isObject(parsed)) return { ok: false, providerError: false, skillsOrder: undefined, candidates: [] }
+    if (!isObject(parsed)) {
+      stats.codes.push('section_unusable')
+      return { ok: false, providerError: false, skillsOrder: undefined, candidates: [] }
+    }
 
     const validation = validateGrounding(profile, parsed, parsed.skills_order, {
       jobDescription: importCheckText,
@@ -479,11 +561,32 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
     }
   }
 
+  // ---- Roles that never produced an answer: one at a time -------------------------
+  // A long profile makes a three-role section the likeliest place for a model to
+  // skip a role. Asking for each missing role alone costs a call per role and
+  // almost always returns it.
+  const missingRoles = selectedIds.filter((id) => !current.has(id))
+  if (missingRoles.length > 0 && giveUpAt - Date.now() >= 60_000) {
+    const outcomes = await Promise.all(missingRoles.map((id) => runSection({ summary: false, ids: [id] }, '')))
+    const recovered: Candidate[] = []
+    for (const o of outcomes) for (const c of o.candidates) if (missingRoles.includes(c.owner)) recovered.push(c)
+    for (const c of recovered) current.set(c.owner, c)
+    if (recovered.length > 0) {
+      applyGate(recovered)
+      await review(recovered)
+      await settle(recovered.map((c) => current.get(c.owner) ?? c))
+      trace('repair', recovered.map((c) => current.get(c.owner) ?? c))
+    }
+  }
+
   // ---- A second chance for the summary ------------------------------------------
   // The summary is one short call and carries most of the visible gain, so it
-  // alone gets one more attempt when it is still unusable and time remains.
+  // alone gets up to two more attempts while it is still unusable and time
+  // remains. A profile with no summary of its own depends on this entirely.
+  for (let extra = 0; extra < 2; extra++) {
   const summaryNow = current.get('summary')
-  if (selectedBlocks.summary && (!summaryNow || summaryNow.hard.length > 0) && giveUpAt - Date.now() >= 60_000) {
+  if (!(selectedBlocks.summary && (!summaryNow || summaryNow.hard.length > 0 || (reviewFlagged.has('summary') && !summaryNow.reviewed)) && giveUpAt - Date.now() >= 60_000)) break
+  {
     const outcome = await runSection({ summary: true, ids: [] }, correctiveAddendum([summaryNow ?? { owner: 'summary', hard: [], soft: [], reviewed: false }]))
     const next = outcome.candidates.find((c) => c.owner === 'summary')
     if (next) {
@@ -495,6 +598,7 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
       trace('repair', [settled])
       if (summaryNow && settled.hard.length > 0 && summaryNow.hard.length <= settled.hard.length) current.set('summary', summaryNow)
     }
+  }
   }
 
   // ---- Choose ------------------------------------------------------------------

@@ -12,7 +12,37 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
-## 2026-09-17
+## 2026-09-17 (later) — the I&C package that gained 1 point
+
+**Founder asked for two things that are not built, and why.** (1) "Add the missing
+keywords into the CV based on the level". Writing a requirement the candidate's profile
+does not state is fabrication, which the grounding rule forbids (refuse-and-explain item
+in [`16_WORKING_AGREEMENT.md`](16_WORKING_AGREEMENT.md) §3). (2) "Show at least +20 points
+even if not". A score that does not measure the document is a false number shown to a
+paying user. Both were declined, and the legitimate route to each was built instead.
+
+**What was actually wrong with that package** (diagnosed from the live row):
+- Most "missing" keywords were in the profile. Bracketed acronyms ("Distributed Control
+  Systems (DCS)"), "&" abbreviations ("C&E", "F&G", "I&C") and "and"/"&" spelling never
+  matched. Fixed in matching; stored analyses are corrected on read.
+- Every role came back empty: the model answered under `"bullets"` without
+  `"was_optimized"`, and the pipeline only accepted the exact key. Fixed by normalising key
+  names (no text touched), ignoring blocks for roles a section did not ask for, resolving
+  truncated ids, one retry after a provider stall (90s per section), and single-role
+  recovery for roles still missing.
+- A model bridge proved "year-end closing" from "6+ years … month-end close". Hyphenated
+  compounds must now appear intact.
+
+**The honest way to "add missing keywords": the user confirms them.** On the setup screen
+every requirement not in the profile is a tick box ("do you have any of these?"). Ticked
+ones are added to the Career Profile's skills (POST /api/optimize/confirm-skills, which
+accepts only this job's own requirement terms), and the score is re-checked. From then on
+they are the user's own stated facts and the CV may use them. **Easy** keeps them in the
+skills section; **Moderate** and **High** also build the summary on them.
+
+**The result card no longer leads with "Still missing".** Gaps sit in a collapsed "Want a
+higher score?" panel that explains how to raise it.
+
 
 **Resume optimization is rebuilt as an engine where code decides and the model
 writes** (founder instruction: "perfect, high-quality, user-controlled output";
