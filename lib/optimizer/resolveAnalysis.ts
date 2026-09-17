@@ -31,6 +31,8 @@ export interface ResolveInput {
   generateFn: GenerateFn
   route: string
   giveUpAt?: number
+  /** Short budget: ask for requirements only (evidence then comes from code). */
+  requirementsOnly?: boolean
 }
 
 /** True when resolving needs at least one model call. */
@@ -58,6 +60,7 @@ export async function resolveAnalysis(input: ResolveInput): Promise<ResolvedAnal
       jobDescription: input.jobDescription,
       profile: input.profile,
       giveUpAt: input.giveUpAt,
+      requirementsOnly: input.requirementsOnly,
     })
     if (!analysed) return null
     targetProfile = analysed.target

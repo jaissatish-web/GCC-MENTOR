@@ -42,10 +42,13 @@ missed, and nothing measured whether the CV had actually been targeted. Now:
 /optimize/setup       STEP 2 · Choose level (Easy / Moderate / High, each with its aim band)
                       parts to rewrite folded away, all selected. NO AI CALL, NO SCORE YET
         │  POST /api/optimize  (Phase A: creates the package; no model call)
-/optimize/generate    STEP 3 · POST /api/optimize {packageId}  (Phase B: analysis + build, §3)
+/optimize/generate    STEP 3 · POST /api/optimize {packageId, analyzeOnly:true}  (analysis, own 280s budget, cached)
+                             then POST /api/optimize {packageId}  (Phase B: build, reads the cached analysis, §3)
         │
-/package/[id]         Target job card → ATS score BEFORE → AFTER → "Boost your ATS score"
-                      suggestions → next steps (cover letter, interview Q&A, mock interview)
+/package/[id]         coloured result cards (components/package/ResultsOverview.tsx): Target job ·
+                      ATS score before → after · Professional summary · What changed · service tiles;
+                      then score details and "Boost your ATS score" suggestions.
+                      No score saved? "Calculate ATS score" → POST /api/packages/[id]/ats-score
 /optimize/preview     every change, editable; each saved edit is RE-SCORED (PATCH)
 ```
 
@@ -112,6 +115,13 @@ The `deepseek` provider calls DeepSeek's own API (`https://api.deepseek.com`, Op
 `openrouter` remains available for any model.
 
 ---
+
+**Never an empty summary.** If the AI summary cannot be proven and the profile has no
+summary, `lib/optimizer/factSummary.ts` writes one in code from profile facts and the
+requirements the profile proves (job-description mode only).
+
+**Analysis fallback.** A cut-off or stalled combined analysis is followed by a
+requirements-only call; evidence is then code-matched only.
 
 ## 4. Truthfulness — every layer, and what it catches
 

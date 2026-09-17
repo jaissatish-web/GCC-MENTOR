@@ -37,7 +37,7 @@ const STEPS = [
 const FINAL_STEP = 'Checking every line against your profile'
 
 /** The whole list is paced across this, then holds on its last step. */
-const PACE_MS = 60000
+const PACE_MS = 180000
 
 export default function GeneratePage(props: { params: Promise<{ packageId: string }> }) {
   const params = use(props.params);
@@ -56,6 +56,15 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
     setElapsedMs(0)
     const timer = window.setInterval(() => setElapsedMs(Date.now() - start), 500)
     try {
+      // 1. Read the job and match it to the profile, in its own request so the
+      //    slow analysis has its own time budget (2026-09-17). Never fatal: the
+      //    build still runs if this fails.
+      await fetch('/api/optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ packageId, analyzeOnly: true }),
+      }).catch(() => null)
+      // 2. Write the CV and score it.
       const res = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -12,6 +12,39 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-17 (late night) — every optimized CV shows its summary and ATS score; results as coloured cards
+
+**Founder report:** after optimizing, the CV had no summary and no ATS score.
+
+**Cause (diagnosed on the live package):** the job analysis (requirements + profile
+evidence in one call) takes 90–125s on a nine-role profile with DeepSeek, because its
+reasoning spends most of the token budget. Inside the build request it had 90s, so it failed
+every time. No requirements meant no score, and the summary block could not be proven. The
+profile had no summary of its own to fall back on, so the CV shipped with none.
+
+**Decided and built:**
+- **The analysis runs in its own request** (`POST /api/optimize {packageId, analyzeOnly}`),
+  called by the build screen before the build, with a 280s budget. The build then finds it in
+  the cache. Token budgets were raised (16k combined / 12k requirements-only).
+- **A fallback analysis:** if the combined call is cut off or stalls, a requirements-only call
+  (~50s) follows. Evidence then comes from code matching alone (stricter, never looser).
+- **A summary can never be empty.** When the AI summary cannot be proven and the profile has
+  none, code writes one from profile facts only: latest title and employer, years of
+  experience, earlier employers, the job requirements the profile proves, and top skills.
+- **Recovery for CVs saved without a score:** `POST /api/packages/[id]/ats-score` scores the
+  saved CV before/after and fills an empty summary the same way. Nothing else changes.
+- **Results as coloured cards** (`components/package/ResultsOverview.tsx`): Target job
+  (teal), ATS score before → after (green, with "Calculate ATS score" when missing),
+  Professional summary (purple), What changed (gold), and one tile each for cover letter,
+  interview Q&A and mock interview. Score details and suggestions follow below.
+
+**Live check on the founder's profile (read-only):** analysis 105s → 30 requirements; build
+51 → 52 on High with 10 suggestions to confirm, and a 377-character fact summary.
+**Still weak:** a +1 gain on High. The AI summary for this profile keeps failing the fact
+check and its repair call stalled. That is a separate quality task.
+
+---
+
 ## 2026-09-17 (night) — no score before optimizing; the target job travels with every document; one word per action
 
 **Flow is now three plain steps.** (1) Target job: job title + job description only.

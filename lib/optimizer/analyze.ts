@@ -85,6 +85,8 @@ export async function analyzeTargetWithEvidence(opts: {
   jobDescription: string | null
   profile: CareerProfileFull
   giveUpAt?: number
+  /** Skip the combined call and ask for requirements only (a short time budget). */
+  requirementsOnly?: boolean
 }): Promise<{ target: JobTargetProfile; bridges: VerifiedBridge[] } | null> {
   let bridgesRaw: unknown = null
   const target = await analyzeTarget({
@@ -108,50 +110,69 @@ export async function analyzeTarget(opts: {
   giveUpAt?: number
   /** When given, the same call also returns evidence bridges for this profile. */
   evidenceFor?: CareerProfileFull
+  requirementsOnly?: boolean
   onParsed?: (parsed: unknown) => void
 }): Promise<JobTargetProfile | null> {
   const mode = resolveMode(opts.jobDescription)
-  const addendum = opts.evidenceFor ? EVIDENCE_ADDENDUM : ''
-  const evidenceText = opts.evidenceFor ? buildProfileEvidenceText(opts.evidenceFor) : ''
-  const call: GenerateCall =
-    mode === 'job_description'
+  const callFor = (withEvidence: boolean): GenerateCall => {
+    const addendum = withEvidence ? EVIDENCE_ADDENDUM : ''
+    const evidenceText = withEvidence && opts.evidenceFor ? buildProfileEvidenceText(opts.evidenceFor) : ''
+    // Budgets sized for reasoning models (2026-09-17, live I&C profile): the
+    // thinking counts against max_tokens, and 10k cut the combined answer off
+    // after 125s. Stall limits sit inside the caller's give-up point.
+    return mode === 'job_description'
       ? {
           system: JD_ANALYSIS_SYSTEM_PROMPT + addendum,
           user: buildJdAnalysisUserPrompt(opts.jobDescription ?? '', opts.targetJobTitle) + evidenceText,
-          maxTokens: opts.evidenceFor ? 10_000 : 6144,
+          maxTokens: withEvidence ? 16_000 : 12_000,
           temperature: 0.1,
           configKey: 'job_description',
           route: opts.route,
           userId: opts.userId,
           giveUpAt: opts.giveUpAt,
+          stallTimeoutMs: withEvidence ? 150_000 : 120_000,
         }
       : {
           system: TITLE_ANALYSIS_SYSTEM_PROMPT + addendum,
           user: buildTitleAnalysisUserPrompt(opts.targetJobTitle, opts.targetIndustry) + evidenceText,
-          maxTokens: opts.evidenceFor ? 8192 : 4096,
+          maxTokens: withEvidence ? 14_000 : 10_000,
           temperature: 0.1,
           configKey: 'optimization_analysis',
           route: opts.route,
           userId: opts.userId,
           giveUpAt: opts.giveUpAt,
+          stallTimeoutMs: withEvidence ? 150_000 : 120_000,
         }
+  }
 
-  // Two attempts: a reasoning model's answer length varies run to run, and a
-  // cut-off or unparseable answer is usually fine the second time.
-  for (let attempt = 0; attempt < 2; attempt++) {
-    if (opts.giveUpAt && Date.now() > opts.giveUpAt - 20_000) break
+  // Attempt 1: requirements + evidence together (when a profile is given).
+  // Attempt 2: requirements only — a much smaller answer (about 50s instead of
+  // 90–125s on a nine-role profile). Evidence then comes from code matching
+  // alone, which is stricter, never looser. Before 2026-09-17 the second attempt
+  // repeated the heavy call and a 90s budget meant neither could finish, so the
+  // CV shipped with no requirements and no ATS score.
+  const attempts = opts.evidenceFor && !opts.requirementsOnly ? [true, false] : [false, false]
+  for (let attempt = 0; attempt < attempts.length; attempt++) {
+    const withEvidence = attempts[attempt]
+    if (opts.giveUpAt && Date.now() > opts.giveUpAt - (withEvidence ? 60_000 : 40_000)) {
+      if (withEvidence) continue
+      break
+    }
     try {
-      const res = await opts.generateFn(call)
-      if (res.truncated) continue
+      const res = await opts.generateFn(callFor(withEvidence))
+      if (res.truncated) {
+        console.error('optimizer: target analysis truncated attempt=' + attempt + ' evidence=' + withEvidence)
+        continue
+      }
       const raw = extractJsonObject(res.text)
       const parsed = validateTargetProfile(raw, mode, opts.targetJobTitle)
       if (parsed) {
-        opts.onParsed?.(raw)
+        if (withEvidence) opts.onParsed?.(raw)
         return parsed
       }
+      console.error('optimizer: target analysis unparseable attempt=' + attempt + ' evidence=' + withEvidence)
     } catch (e) {
       console.error('optimizer: target analysis failed attempt=' + attempt, e instanceof Error ? e.message : String(e))
-      if (attempt === 1) return null
     }
   }
   return null

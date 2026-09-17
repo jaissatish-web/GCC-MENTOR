@@ -20,6 +20,7 @@
  * block that cannot be proven falls back to the candidate's own words.
  */
 
+import { factSummary } from './factSummary'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { ExperienceBlock, OptimizationLevel, OptimizedContent } from '@/types/package'
 import { buildOptimizationPrompt, type OptimizationTarget, type SelectedBlocks } from '@/lib/ai/buildOptimizationPrompt'
@@ -632,9 +633,13 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
     })
     const fbExperience = selectedIds.filter((id) => !experience_blocks.find((b) => b.profile_experience_id === id)?.was_optimized)
     const fbSummary = selectedBlocks.summary && !summaryC
+    // Never an empty summary (2026-09-17): with no provable AI summary and no
+    // summary of the candidate's own, a fact-only one is written in code.
+    const ownSummary = (profile.professional_summary ?? '').trim()
+    const factual = fbSummary && !ownSummary ? factSummary(profile, skills.order, provenSummaryTerms(evidence, targetProfile)) : ''
     return {
       summary: {
-        generated: summaryC?.summary ?? '',
+        generated: summaryC?.summary ?? factual,
         user_edited: null,
         source_profile_summary: profile.professional_summary ?? '',
       },
@@ -729,4 +734,13 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
   }
 
   return { ok: true, optimizedContent: content, skillsOrder: skills.order, documentSnapshot: document, report, stats }
+}
+
+/** Requirements the profile proves and the summary may name, must-haves first (job-description mode only). */
+export function provenSummaryTerms(evidence: EvidenceMap, targetProfile: JobTargetProfile | null): string[] {
+  if (!targetProfile || targetProfile.mode !== 'job_description') return []
+  return evidence.keywords
+    .filter((k) => k.kind !== 'soft_skill' && k.status !== 'gap' && k.placeable.includes('summary'))
+    .sort((a, b) => (a.importance === b.importance ? b.weight - a.weight : a.importance === 'must' ? -1 : 1))
+    .map((k) => k.term)
 }

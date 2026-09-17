@@ -6,10 +6,10 @@ import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
 import { appendPackageEventAtomic, insertPackageForUser, updatePackageServerFields } from '@/lib/packages/serverWrites'
 import { getTemplate } from '@/lib/templates'
-import { LIMIT_ACTION_OPTIMIZATION } from '@/lib/rateLimit'
+import { LIMIT_ACTION_JOB_DESCRIPTION, LIMIT_ACTION_OPTIMIZATION } from '@/lib/rateLimit'
 import { analysisInputHash, bridgeEvidence, buildAnalysisReport, profileFingerprint } from '@/lib/optimizer/analyze'
 import { getAnalysisById } from '@/lib/optimizer/analysisStore'
-import { resolveAnalysis } from '@/lib/optimizer/resolveAnalysis'
+import { analysisNeedsModel, resolveAnalysis } from '@/lib/optimizer/resolveAnalysis'
 import { runOptimizationPipeline } from '@/lib/optimizer/pipeline'
 import { validateKeywords } from '@/lib/optimizer/jobAnalysis'
 import { verifyBridges } from '@/lib/optimizer/evidence'
@@ -243,6 +243,48 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   const profile: CareerProfileFull = loadedProfile
 
+  // ---- PHASE B0: analyse the job for this package, build nothing -------------
+  // POST { packageId, analyzeOnly: true }. The analysis (requirements + evidence)
+  // can take 90–125s on a long profile with a reasoning model, and inside the
+  // build's own request it had only 90s, so it failed and the CV shipped with
+  // no ATS score (founder report 2026-09-17). The build screen now calls this
+  // first, in its own request with its own time budget; the build then finds the
+  // analysis in the cache and makes no analysis call.
+  if (generatePackageId && bodyObj.analyzeOnly === true) {
+    const input = {
+      userId: user.id,
+      profile,
+      targetJobTitle: targetFields.target_job_title,
+      targetIndustry: targetFields.target_industry,
+      jobDescription,
+    }
+    if (readStoredAnalysis(storedReport, profile) || !(await analysisNeedsModel(input))) {
+      return NextResponse.json({ success: true, analyzed: true, cached: true })
+    }
+    const reservation = await reserveAiAction({
+      userId: user.id,
+      action: LIMIT_ACTION_JOB_DESCRIPTION,
+      phone: profile.phone,
+      email: profile.email,
+      ttlSeconds: 300,
+    })
+    if (!reservation.ok) {
+      // Not fatal to the build: it tries a short analysis itself.
+      return NextResponse.json({ success: true, analyzed: false })
+    }
+    let analyzed = false
+    try {
+      const resolved = await resolveAnalysis({ ...input, generateFn: generate, route: '/api/optimize', giveUpAt })
+      analyzed = resolved !== null
+    } catch (e) {
+      console.error('optimize: analyze phase failed user=' + user.id, e instanceof Error ? e.message : String(e))
+    } finally {
+      await reservation.finish(analyzed)
+    }
+    console.log('optimize: analyze phase user=' + user.id + ' package=' + generatePackageId + ' ok=' + analyzed)
+    return NextResponse.json({ success: true, analyzed })
+  }
+
   // ---- PHASE A: create the package, generate nothing -------------------------
   if (!generatePackageId) {
     const chosenTemplate = getTemplate(typeof bodyObj.templateId === 'string' ? bodyObj.templateId : null)
@@ -341,7 +383,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           jobDescription,
           generateFn: generate,
           route: '/api/optimize',
-          giveUpAt: Date.now() + 90_000,
+          // The analyze phase normally filled the cache. If it did not, only a
+          // requirements-only call fits beside the build.
+          giveUpAt: Date.now() + 100_000,
+          requirementsOnly: true,
         })
         if (resolved) {
           target = resolved.targetProfile

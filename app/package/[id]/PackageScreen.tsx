@@ -24,7 +24,7 @@ import { buttonVariants } from '@/components/ui/Button'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
-import { TargetJobCard } from '@/components/package/TargetJobCard'
+import { ResultsOverview } from '@/components/package/ResultsOverview'
 import { CTA, NAMES, USES } from '@/lib/serviceLabels'
 import { StageSelect } from '@/components/package/StageSelect'
 import { MatchResult, readMatchReport } from '@/components/optimizer/MatchResult'
@@ -425,6 +425,7 @@ function PackageScreenInner({ id }: { id: string }) {
   const whatsappText = encodeURIComponent(`Here is my optimized Gulf CV: ${pkg.target_job_title}`)
   const waUrl = `https://wa.me/?text=${whatsappText}`
   const cvReady = pkg.optimized_content != null
+  const showOverview = !isFree && cvReady
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
   const mockReady = Boolean(pkg.mock_interview_runs?.some((run) => run.status === 'completed'))
@@ -657,9 +658,45 @@ function PackageScreenInner({ id }: { id: string }) {
           package journey plus transient notices, so the page explains what this
           job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
-        {/* RESULTS FIRST (founder decision 2026-09-17): what this CV was made
-            for, then its ATS score before and after, then what to do next. */}
-        {!isFree ? <TargetJobCard pkg={pkg} note={USES.optimizedCv} /> : null}
+        {/* RESULTS FIRST, AS COLOURED CARDS (founder request 2026-09-17): target
+            job, ATS score before → after, summary, what changed, next steps.
+            components/package/ResultsOverview.tsx. */}
+        {showOverview ? (
+          <ResultsOverview
+            pkg={pkg}
+            document={previewDocument}
+            onScored={(body) =>
+              setPkg((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      match_report: body.match_report,
+                      optimized_content: prev.optimized_content
+                        ? {
+                            ...prev.optimized_content,
+                            summary: {
+                              ...prev.optimized_content.summary,
+                              generated: prev.optimized_content.summary?.generated?.trim()
+                                ? prev.optimized_content.summary.generated
+                                : body.document_snapshot.summary,
+                            },
+                          }
+                        : prev.optimized_content,
+                      document_snapshot: {
+                        ...body.document_snapshot,
+                        header: {
+                          ...body.document_snapshot.header,
+                          photoUrl:
+                            (prev.document_snapshot as ResumeDocument | null)?.header?.photoUrl ??
+                            body.document_snapshot.header.photoUrl,
+                        },
+                      },
+                    }
+                  : prev,
+              )
+            }
+          />
+        ) : null}
 
         {/* Before -> after match score (docs/17_OPTIMIZER_ENGINE.md §5). Only
             on packages built by the optimizer engine; older ones have none. */}
@@ -670,7 +707,16 @@ function PackageScreenInner({ id }: { id: string }) {
           for (const w of profile?.work_experience ?? []) roleNames[w.id] = `your role at ${w.company}`
           return (
             <>
-              <MatchResult report={report} packageId={id} roleNames={roleNames} />
+              <details className="group rounded-card border border-line bg-white shadow-m-1">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-[14px] font-semibold text-ink">
+                  <span>{NAMES.atsScore} details: score parts, why it fits, what is missing</span>
+                  <span className="text-[13px] text-teal group-open:hidden">Show</span>
+                  <span className="hidden text-[13px] text-teal group-open:inline">Hide</span>
+                </summary>
+                <div className="px-1 pb-1">
+                  <MatchResult report={report} packageId={id} roleNames={roleNames} />
+                </div>
+              </details>
               <SuggestionsPanel
                 report={report}
                 roleNames={roleNames}
@@ -709,6 +755,7 @@ function PackageScreenInner({ id }: { id: string }) {
           )
         })()}
 
+        {!showOverview ? (
         <section className="rounded-card border border-line bg-white p-3 shadow-m-1 sm:p-4">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -740,6 +787,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
           <PreparationJourney pkg={pkg} current="resume" />
         </section>
+        ) : null}
 
         <section className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
           <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
@@ -886,7 +934,7 @@ function PackageScreenInner({ id }: { id: string }) {
         ) : null}
 
         {/* The next things this job needs, from the job's own page. */}
-        {!isFree && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
+        {!isFree && !showOverview && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
           <div className="flex flex-col gap-2 rounded-card border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[13px] text-ink-soft">
               <strong className="text-ink">Next for this job:</strong> a cover letter, written from your optimized CV
@@ -901,7 +949,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         ) : null}
 
-        {!isFree && cvReady && !qaReady ? (
+        {!isFree && !showOverview && cvReady && !qaReady ? (
           <div className="flex flex-col gap-2 rounded-card border border-teal/30 bg-teal-soft/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[13px] text-ink-soft">
               <strong className="text-ink">Interview prep:</strong> up to 25 practice answers from this
@@ -916,7 +964,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         ) : null}
 
-        {!isFree && cvReady && qaReady && !mockReady ? (
+        {!isFree && !showOverview && cvReady && qaReady && !mockReady ? (
           <div className="flex flex-col gap-2 rounded-card border border-gold/40 bg-gold-soft/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[13px] text-ink-soft">
               <strong className="text-ink">Practice next:</strong> run a text mock interview for this CV and save the final report.

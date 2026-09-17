@@ -20,7 +20,9 @@ import { maxAchievableBreakdown, maxAchievableScore, projectedScore, scoreDocume
 import { buildTailoringPlan, renderPlanForPrompt } from '../lib/optimizer/plan'
 import { checkQuality } from '../lib/optimizer/qualityGate'
 import { parseReview } from '../lib/optimizer/review'
-import { baselineDocument, buildAnalysisReport, type GenerateCall } from '../lib/optimizer/analyze'
+import { analyzeTargetWithEvidence, baselineDocument, buildAnalysisReport, type GenerateCall } from '../lib/optimizer/analyze'
+import { factSummary } from '../lib/optimizer/factSummary'
+import { reportForSavedDocument } from '../lib/optimizer/savedReport'
 import { normalizeSectionOutput, runOptimizationPipeline } from '../lib/optimizer/pipeline'
 import { cutOutcomeTail, pruneSummary } from '../lib/optimizer/autofix'
 import { applySuggestionsToDocument, suggestionRequirements, validateSuggestions } from '../lib/optimizer/suggestions'
@@ -557,7 +559,68 @@ async function pipelineSuite() {
   }
 }
 
+async function resultsSuite() {
+  // 2026-09-17 founder report: empty summary and no ATS score after optimizing.
+  {
+    const noOwn = { ...profile, professional_summary: null } as CareerProfileFull
+    const model = fakeModel({ summary: () => '', role: (id) => GOOD[id] })
+    const result = await runOptimizationPipeline({
+      profile: noOwn,
+      target: { target_job_title: target.job_title, target_industry: null, target_country: null, target_company: null },
+      level: 'moderate',
+      selectedBlocks: { summary: true, experienceIds: ['e1', 'e2', 'e3'] },
+      jobDescription: JD,
+      targetProfile: target,
+      bridges,
+      analysisId: 'a1',
+      userId: 'u1',
+      giveUpAt: Date.now() + 280_000,
+      generateFn: model.fn,
+    })
+    const summary = result.ok ? result.documentSnapshot.summary : ''
+    check('no AI summary + no own summary: the CV still has a summary', result.ok && summary.trim().length > 40)
+    check('fact summary names the latest role', summary.includes('Maintenance Engineer'))
+    check('fact summary names a requirement the profile proves', /CMMS|HVAC|preventive maintenance/i.test(summary))
+    check('fact summary never names a gap requirement', !/SAP PM|NEBOSH/.test(summary))
+    check('the ATS score is still produced', result.ok && !!result.report?.after)
+  }
+  check('factSummary is empty only for an empty profile', factSummary({ ...profile, work_experience: [], skills: [] } as CareerProfileFull) === '')
+  {
+    // Analysis fallback: the combined call runs out of tokens -> a requirements-only call.
+    const calls: GenerateCall[] = []
+    const answer = JSON.stringify({ job_title: target.job_title, keywords: target.keywords, structured: target.structured })
+    const res = await analyzeTargetWithEvidence({
+      generateFn: async (call) => {
+        calls.push(call)
+        return calls.length === 1 ? { text: '{"job_title":', truncated: true } : { text: answer, truncated: false }
+      },
+      userId: 'u1',
+      route: '/test',
+      targetJobTitle: target.job_title,
+      targetIndustry: null,
+      jobDescription: JD,
+      profile,
+      giveUpAt: Date.now() + 280_000,
+    })
+    check('analysis: a truncated combined answer falls back to requirements only', calls.length === 2 && res !== null)
+    check('analysis: the fallback call carries no profile evidence task', calls.length === 2 && !calls[1].system.includes('SECOND TASK') && calls[0].system.includes('SECOND TASK'))
+    check('analysis: the fallback gives no model bridges', res !== null && res.bridges.length === 0)
+    const r = await analyzeTargetWithEvidence({
+      generateFn: async (call) => { calls.push(call); return { text: answer, truncated: false } },
+      userId: 'u1', route: '/test', targetJobTitle: target.job_title, targetIndustry: null, jobDescription: JD, profile,
+      giveUpAt: Date.now() + 90_000, requirementsOnly: true,
+    })
+    check('analysis: requirementsOnly skips the heavy call', r !== null && !calls[calls.length - 1].system.includes('SECOND TASK'))
+  }
+  {
+    const doc = baselineDocument(profile, target.job_title)
+    const rep = reportForSavedDocument({ profile, target, bridges, analysisId: 'a1', targetJobTitle: target.job_title, level: 'high', document: doc })
+    check('saved-CV score: before and after present, same doc scores equal', !!rep.after && rep.after.total === rep.before.total && rep.target_band?.[0] === 85)
+  }
+}
+
 pipelineSuite()
+  .then(resultsSuite)
   .then(() => {
     console.log(failures === 0 ? '\nALL OPTIMIZER ENGINE CHECKS PASSED' : `\n${failures} CHECK(S) FAILED`)
     process.exit(failures === 0 ? 0 : 1)
