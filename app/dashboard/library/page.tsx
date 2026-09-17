@@ -20,6 +20,8 @@ import {
 } from '@/lib/packageSummary'
 import type { Package, PackageStatus } from '@/types/package'
 import { TargetJobCard } from '@/components/package/TargetJobCard'
+import { ServiceUsageLine, ServiceUsageTotals, useServiceUsage } from '@/components/package/ServiceUsage'
+import type { ServiceUsageCounts } from '@/app/api/service-usage/route'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 
 /**
@@ -146,12 +148,14 @@ function JobSubtitle({ pkg }: { pkg: PackageSummary }) {
 
 function ApplicationCard({
   pkg,
+  usage,
   confirmingDelete,
   onRename,
   onStage,
   onDelete,
 }: {
   pkg: PackageSummary
+  usage: ServiceUsageCounts | undefined
   confirmingDelete: boolean
   onRename: (next: string) => void
   onStage: (next: PackageStatus) => void
@@ -208,6 +212,21 @@ function ApplicationCard({
         <ArtifactChip label={qaIsReady ? 'Q&A ready' : 'Q&A needed'} present={qaIsReady} />
         <ArtifactChip label={mockIsDone ? 'Mock done' : 'Mock needed'} present={mockIsDone} />
       </div>
+
+      {/* Events are the source; a CV saved before they existed still shows what
+          it actually has (audit-safe: never more than the saved artefacts). */}
+      <ServiceUsageLine
+        counts={
+          usage
+            ? {
+                ...usage,
+                cover_letter: Math.max(usage.cover_letter, letterCount(pkg)),
+                qa: Math.max(usage.qa, qaIsReady ? 1 : 0),
+                mock_started: Math.max(usage.mock_started, mockIsDone ? 1 : 0),
+              }
+            : undefined
+        }
+      />
 
       <div className="rounded-ctl bg-canvas px-3 py-2">
         <div className="flex items-center justify-between gap-3 text-[12px] font-semibold text-ink-muted">
@@ -281,6 +300,7 @@ function ApplicationCard({
 }
 
 export default function TargetJobsPage() {
+  const { usage } = useServiceUsage()
   const [items, setItems] = useState<PackageSummary[] | null>(null)
   const [cursor, setCursor] = useState<PackageListPage['next_cursor']>(null)
   const [counts, setCounts] = useState<Record<PackageStatus, number>>(emptyStageCounts())
@@ -503,6 +523,8 @@ export default function TargetJobsPage() {
         </div>
       ) : null}
 
+      {total > 0 ? <ServiceUsageTotals usage={usage} /> : null}
+
       {opError ? <Alert variant="danger">{opError}</Alert> : null}
       {loadError && items !== null ? <Alert variant="danger">{loadError}</Alert> : null}
 
@@ -579,6 +601,7 @@ export default function TargetJobsPage() {
           <ApplicationCard
             key={pkg.id}
             pkg={pkg}
+            usage={usage?.by_package[pkg.id]}
             confirmingDelete={confirmingDelete === pkg.id}
             onRename={(next) => renamePackage(pkg.id, next)}
             onStage={(s) => changeStatus(pkg.id, s)}

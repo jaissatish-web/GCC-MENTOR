@@ -18,7 +18,11 @@ what was decided, and the reasoning that made it the right call.
   no backend; nothing else used it.
 - **Phone side gutter 20px → 12px** on page-level containers, landing page included. Cards,
   buttons and chips keep their own padding. See `12_DESIGN_SYSTEM.md`.
-- **Each service card on a CV now shows how often that service ran for THAT CV** — "Used 2
+- **Totals across every CV** on the dashboard and at the top of the Resume Library
+  ("Services you have used": CVs optimized · cover letters · Q&A sets · mock interviews),
+  and one usage line per Library card. `GET /api/service-usage` counts the caller's own rows
+  only and reads nothing but ids and event lists.
+- **Each service card on a CV shows how often that service ran for THAT CV** — "Used 2
   times · last 16 Sep", and for the mock interview also how many reports were saved. Counted
   from the package's own service history (migration 048/050), which records one event per
   generation, so a regenerated Q&A set counts twice even though only the newest set is stored.

@@ -208,7 +208,7 @@ export function ResultsOverview({
           body={USES.coverLetter}
           done={letterReady}
           used={Math.max(letterUse.count, Array.isArray(pkg.cover_letters) ? pkg.cover_letters.length : 0)}
-          lastAt={letterUse.last}
+          lastAt={letterUse.last ?? (pkg.cover_letters ?? []).map((l) => l.generated_at).sort().at(-1) ?? null}
           href={`/cover-letter?package=${id}`}
           cta={CTA.writeCoverLetter}
           tone="border-sec-summary/30 bg-white"
@@ -219,8 +219,8 @@ export function ResultsOverview({
           title={NAMES.interviewQa}
           body={USES.interviewQa}
           done={qaReady}
-          used={qaUse.count}
-          lastAt={qaUse.last}
+          used={Math.max(qaUse.count, qaReady ? 1 : 0)}
+          lastAt={qaUse.last ?? pkg.interview_questions?.generated_at ?? null}
           href={`/interview-qa?package=${id}`}
           cta={CTA.prepareInterviewQa}
           tone="border-sec-status/30 bg-white"

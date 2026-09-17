@@ -29,6 +29,7 @@ import { answersFromReadinessCategory, scoringInputFromProfile } from '@/lib/gul
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { Package } from '@/types/package'
 import { CTA } from '@/lib/serviceLabels'
+import { ServiceUsageTotals, useServiceUsage } from '@/components/package/ServiceUsage'
 
 /**
  * Dashboard — screens D1/D2 (TASK-034), route /dashboard.
@@ -172,6 +173,7 @@ function relativeTime(iso: string): string {
 export default function DashboardPage() {
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
+  const { usage } = useServiceUsage()
   const [packages, setPackages] = useState<PackageSummary[]>([])
   // Every job the user has, not just the page of summaries below (audit M08).
   const [packageTotal, setPackageTotal] = useState<number | null>(null)
@@ -462,6 +464,11 @@ export default function DashboardPage() {
                 </div>
               )}
             </section>
+          </Reveal>
+
+          {/* How much of each service this user has used so far (2026-09-17). */}
+          <Reveal delay={120}>
+            <ServiceUsageTotals usage={usage} />
           </Reveal>
 
           <Reveal delay={125}>
