@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/Button'
+import { CTA } from '@/lib/serviceLabels'
 import { Alert } from '@/components/ui/Alert'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -17,7 +18,8 @@ import {
   type PackageListPage,
   type PackageSummary,
 } from '@/lib/packageSummary'
-import type { PackageStatus } from '@/types/package'
+import type { Package, PackageStatus } from '@/types/package'
+import { TargetJobCard } from '@/components/package/TargetJobCard'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 
 /**
@@ -162,6 +164,25 @@ function ApplicationCard({
   const readyCount = Number(cvReady) + Number(letterPresent) + Number(qaIsReady) + Number(mockIsDone)
   const totalCount = 4
   const progress = Math.round((readyCount / totalCount) * 100)
+  // The saved target job (title, job description, ATS score) is loaded only
+  // when the user opens it: list summaries stay light (audit M08).
+  const [targetOpen, setTargetOpen] = useState(false)
+  const [detail, setDetail] = useState<Package | null>(null)
+  const [detailState, setDetailState] = useState<'idle' | 'loading' | 'error'>('idle')
+  const toggleTarget = () => {
+    const next = !targetOpen
+    setTargetOpen(next)
+    if (next && !detail && detailState !== 'loading') {
+      setDetailState('loading')
+      fetch(`/api/packages/${encodeURIComponent(pkg.id)}`, { cache: 'no-store' })
+        .then((res) => (res.ok ? (res.json() as Promise<Package>) : Promise.reject(new Error(String(res.status)))))
+        .then((data) => {
+          setDetail(data)
+          setDetailState('idle')
+        })
+        .catch(() => setDetailState('error'))
+    }
+  }
   const trackerItems = [
     pkg.application_deadline ? `Deadline ${formatDay(pkg.application_deadline)}` : null,
     pkg.interview_date ? `Interview ${formatDay(pkg.interview_date)}` : null,
@@ -207,15 +228,35 @@ function ApplicationCard({
         </div>
       ) : null}
 
+      <div>
+        <button
+          type="button"
+          aria-expanded={targetOpen}
+          onClick={toggleTarget}
+          className="min-h-11 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        >
+          {targetOpen ? 'Hide target job' : `${CTA.viewTargetJob} and ATS score`}
+        </button>
+        {targetOpen ? (
+          detail ? (
+            <TargetJobCard pkg={detail} className="mt-1 shadow-none" />
+          ) : detailState === 'error' ? (
+            <p className="text-[12.5px] text-alert">Could not load this target job. Try again.</p>
+          ) : (
+            <p className="text-[12.5px] text-ink-muted" role="status">Loading target job…</p>
+          )
+        ) : null}
+      </div>
+
       <div className="flex flex-wrap items-center gap-2">
         <Link
           href={`/package/${pkg.id}`}
           className={cn(buttonVariants({ variant: cvReady ? 'progress' : 'primary', size: 'sm' }), 'flex-1 sm:flex-none')}
         >
-          {cvReady ? 'Open workspace' : 'Continue build'}
+          {cvReady ? CTA.viewOptimizedCv : CTA.optimizeCv}
         </Link>
         {cvReady ? <Link href={`/package/${pkg.id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
-          Edit text
+          {CTA.editCv}
         </Link> : null}
         <button
           type="button"
@@ -434,7 +475,7 @@ export default function TargetJobsPage() {
         </div>
         {total > 0 ? (
           <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'shrink-0')}>
-            Add a target job
+            {CTA.addTargetJob}
           </Link>
         ) : null}
       </div>
@@ -511,7 +552,7 @@ export default function TargetJobsPage() {
           body="Add the role you are applying for and we build a CV against it. Everything you do for that job stays with it."
           action={
             <Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>
-              Add your first target job
+              {CTA.addTargetJob}
             </Link>
           }
         />

@@ -12,6 +12,40 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-17 (night) — no score before optimizing; the target job travels with every document; one word per action
+
+**Flow is now three plain steps.** (1) Target job: job title + job description only.
+The target industry field left the screen (every industry already resolves to one
+perspective). (2) Choose level: Easy / Moderate / High, with the parts to rewrite folded
+under "Choose which parts to rewrite", all selected by default. (3) Optimize. The result
+page leads with the target job, then the **ATS score before → after**, then suggestions,
+then next steps.
+
+**No ATS score before the build (founder decision).** The setup screen no longer calls
+`/api/optimize/analyze`, shows no match report, no per-level projections and no
+"do you have these?" tick boxes. The one analysis call moves into the build, so a finished
+CV still costs 2 calls and a user who stops at step 2 costs 0. What was given up: confirming
+missing skills *before* the build. Moderate/High suggestions on the result page ("Boost your
+ATS score") and adding skills to the Career Profile then optimizing again cover it.
+`components/optimizer/MatchPanel.tsx` was removed; `/api/optimize/analyze` and
+`/api/optimize/confirm-skills` remain but no screen calls them.
+
+**The target job is visible everywhere it is used.** The job title and job description were
+already saved on each package and already fed to the cover letter, interview Q&A and mock
+interview together with the saved (edited) CV. They are now also *shown*: a Target job card
+(title, company, level, job description, ATS score before → after) on the result page, on
+each Resume Library card ("View target job and ATS score", loaded on demand so the list stays
+light), and on the cover letter, Q&A and mock interview screens with one line saying what
+that service reads.
+
+**One name per thing, one verb per action** (`lib/serviceLabels.ts`): Target job, Job
+description, Optimized CV, ATS score, and the buttons Add target job · Optimize CV · View
+optimized CV · Edit CV · Write cover letter · Prepare interview Q&A · Start mock interview.
+These replace "Build the CV", "Build my Gulf CV", "Open workspace", "Edit text",
+"Write the letter", "Generate Q&A", "Start mock" and "Job match score".
+
+---
+
 ## 2026-09-17 (evening) — one optimizer for every individual, fewer calls, full editing
 
 **Scope of AI rewriting:** only the career summary and the activities inside each role.

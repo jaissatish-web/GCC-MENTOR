@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { MatchReport } from '@/lib/optimizer/types'
 import { BandPill, KeywordChips, PartBars, ScoreRing } from './MatchScore'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 
 /**
  * Before -> after match result on the package screen (2026-09-17).
@@ -41,10 +42,10 @@ export function MatchResult({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">
-            {estimate ? 'Role alignment · estimate' : 'Job match score'}
+            {estimate ? `${NAMES.atsScore} · estimate (no job description)` : `${NAMES.atsScore} for this target job`}
           </p>
           <h2 className="font-display text-[18px] leading-tight text-ink">
-            {gain > 0 ? `Your CV now matches ${gain} points better` : 'Your CV, sharpened for this job'}
+            {gain > 0 ? `Your ATS score went from ${report.before.total} to ${after.total}` : 'Your CV, sharpened for this job'}
           </h2>
         </div>
         {report.after_edited ? (
@@ -108,7 +109,7 @@ export function MatchResult({
               <Link href="/profile" className="font-semibold text-teal underline-offset-2 hover:underline">
                 Career Profile
               </Link>{' '}
-              (or tick them on the build screen) and build again. Your score rises with each one.
+              and optimize again. Your score rises with each one.
             </p>
           </div>
         </details>
@@ -120,7 +121,7 @@ export function MatchResult({
           href={`/optimize/preview/${encodeURIComponent(packageId)}`}
           className="text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline"
         >
-          Review every change →
+          {CTA.seeChanges} →
         </Link>
       </div>
     </section>

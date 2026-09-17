@@ -15,51 +15,29 @@ import {
 } from '@/lib/onboardingDraft'
 import type { OptimizationLevel } from '@/types/package'
 import { Alert } from '@/components/ui/Alert'
-import { MatchPanel, MatchPanelLoading } from '@/components/optimizer/MatchPanel'
-import type { AnalysisView } from '@/lib/optimizer/view'
-import { maxAchievableScore, projectedScore } from '@/lib/optimizer/score'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 
 /**
- * Optimization setup — screen 06 (TASK-028), route /optimize/setup.
+ * Step 2 of 3 — choose the optimization level. Route /optimize/setup.
  *
- * Conversion of the "06 · Optimization setup" screen in
- * design-reference/MVP Screens.dc.html (lines 770–813): block checkboxes with
- * an "Optimize all" toggle, an informational "Skills & certifications ·
- * Automatic" row (no checkbox), three level cards defaulting to Moderate, the
- * risk indicator rendered only at Moderate/High, and a gold CTA naming the
- * target company.
+ * REBUILT 2026-09-17 (founder decision): NO SCORE BEFORE OPTIMIZING.
+ * This screen used to call POST /api/optimize/analyze on arrival and show a
+ * match report, per-level projections and "do you have these?" tick boxes
+ * before anything was built. The founder's flow is simpler: the user gives the
+ * target job (step 1), chooses a level (here), and sees the ATS score BEFORE
+ * and AFTER together with the optimized CV on the result page. So this screen
+ * makes no AI call. The analysis runs once, inside the build
+ * (app/api/optimize/route.ts Phase B → resolveAnalysis), which is the same
+ * number of calls for a finished CV and none for a user who stops here.
  *
- * INPUT (contract #1): reads the TASK-027 handoff from sessionStorage
- * [OPTIMIZATION_TARGET_DRAFT_KEY], then CLEARS it (same read-and-clear pattern
- * TASK-024 uses). If absent, there is nothing to optimize — redirect to
- * /optimize/target (mirrors TASK-023's "no path → back" pattern).
+ * INPUT: the step-1 draft in sessionStorage [OPTIMIZATION_TARGET_DRAFT_KEY].
+ * It is kept (not cleared) until the optimization starts, so "Change" returns to
+ * step 1 with the title and description still filled in. Absent → step 1.
  *
- * TargetDraft narrowed 2026-08-18: target_country and target_company were
- * removed from /optimize/target entirely (founder decision — neither ever
- * changed generation, only display), so this screen no longer carries or
- * sends them. The CTA names the target role rather than a company.
- *
- * BLOCKS from the real profile (contract #2): GET /api/profile gives caller's
- * profileId and work_experience (id, company, role, highlights length for the
- * "N bullets" sub-label). ALL checkboxes default ON — the mockup's one
- * unchecked entry is an illustration of the feature, not a "already strong"
- * signal this app can compute. "Optimize all" sets/clears them together.
- * Skills & certifications is informational ONLY (contract #3): never touched
- * in the request body — the server always reorders skills (TASK-021).
- *
- * SUBMIT (contract #6): POST /api/optimize with the exact body being the
- * draft's target fields + selectedBlocks + level. On {success, packageId}
- * → /optimize/preview/[packageId]. On error show the server's message verbatim
- * with a way back (429 rate limit, 502 grounding/AI failure, etc. all return a
- * real {error}).
- *
- * TRANSIENT STATE — screen 07 (TASK-029): while POSTing, the whole screen
- * swaps to the dark-navy named-steps "Optimizing…" layout (no dedicated route;
- * it is a transient state on this same page, per docs/USER_FLOW.md Step 7
- * having no Route: line). Steps are dynamic from what was selected; progress is
- * a client-side timer paced at 60s, since POST /api/optimize is single-shot
- * (no server-sent per-step progress). On success we still navigate to the
- * preview; on error we return to the form with the server's message.
+ * SUBMIT: POST /api/optimize (Phase A — creates the package, no model call),
+ * then /optimize/generate/[packageId] runs the build. Every part of the CV that
+ * the AI may rewrite (summary + each role's activities) is selected by default;
+ * the choice is behind "Choose which parts to rewrite" for the few who want it.
  */
 
 interface TargetDraft {
@@ -72,33 +50,32 @@ interface ExperienceRow {
   id: string
   company: string
   label: string
-  bullets: number
 }
 
-// Every industry resolves to one profession-neutral perspective since
-// 2026-09-16 (lib/ai/personas.ts), so the label no longer names a discipline
-// the prompt does not use.
-function personaLabel(): string {
-  return 'a senior Gulf-market recruitment specialist'
-}
-
-// The second line used to read "75-80%", "80-90%", "90-100%" — percentages of
-// nothing the user can see or check. Since 2026-09-17 each level states the
-// match band it AIMS for (lib/optimizer/suggestions.ts LEVEL_TARGET_BAND), and
-// the projected score under it is computed, not decorative.
-const LEVELS: ReadonlyArray<{ value: OptimizationLevel; label: string; range: string }> = [
-  { value: 'easy', label: 'Easy', range: 'Aim 60–75%' },
-  { value: 'moderate', label: 'Moderate', range: 'Aim 75–85%' },
-  { value: 'high', label: 'High', range: 'Aim 85–95%' },
+// Each level states the ATS score band it aims for
+// (lib/optimizer/suggestions.ts LEVEL_TARGET_BAND).
+const LEVELS: ReadonlyArray<{ value: OptimizationLevel; label: string; aim: string; explain: string }> = [
+  {
+    value: 'easy',
+    label: 'Easy',
+    aim: 'Aims for 60–75',
+    explain: 'Rewrites your summary and work activities in the job’s keywords, using only what your profile already says.',
+  },
+  {
+    value: 'moderate',
+    label: 'Moderate',
+    aim: 'Aims for 75–85',
+    explain:
+      'Everything in Easy, plus suggested lines for must-have requirements your profile doesn’t mention. A suggestion goes into your CV only after you confirm it is true.',
+  },
+  {
+    value: 'high',
+    label: 'High',
+    aim: 'Aims for 85–95',
+    explain:
+      'The strongest rewrite, plus suggested lines for every requirement your profile doesn’t mention. You confirm each one. Be ready to talk about every line in an interview.',
+  },
 ]
-
-const LEVEL_EXPLAIN: Record<OptimizationLevel, string> = {
-  easy: 'Rewrites your summary and activities in the job’s keywords, using only what your profile already says.',
-  moderate:
-    'Everything in Easy, plus suggested lines for the must-have requirements your profile doesn’t mention. You confirm each one — nothing is added unless you say it’s true.',
-  high:
-    'The strongest rewrite, plus suggested lines for every requirement your profile doesn’t mention. You confirm each one — nothing is added unless you say it’s true. Be ready to talk about every line in an interview.',
-}
 
 function SetupScreen() {
   const router = useRouter()
@@ -111,48 +88,13 @@ function SetupScreen() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
-  // The match report (docs/17_OPTIMIZER_ENGINE.md §2). Optional by design: a
-  // failed analysis never blocks building the CV.
-  const [analysis, setAnalysis] = useState<AnalysisView | null>(null)
-  const [analysisState, setAnalysisState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
-  const [analysisError, setAnalysisError] = useState<string | null>(null)
+  const [showDescription, setShowDescription] = useState(false)
   const didInit = useRef(false)
-
-  const runAnalysis = useCallback(async (d: TargetDraft, pid: string) => {
-    setAnalysisState('loading')
-    setAnalysisError(null)
-    try {
-      const res = await fetch('/api/optimize/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          profileId: pid,
-          targetFields: {
-            target_job_title: d.target_job_title,
-            target_industry: d.target_industry.trim() !== '' ? d.target_industry : null,
-          },
-          jobDescription: d.job_description.trim() !== '' ? d.job_description : null,
-        }),
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok || !body?.before) {
-        setAnalysisError((body?.error as string) ?? "We couldn't score this match right now. You can still build your CV.")
-        setAnalysisState('error')
-        return
-      }
-      setAnalysis(body as AnalysisView)
-      setAnalysisState('ready')
-    } catch {
-      setAnalysisError("We couldn't score this match right now. You can still build your CV.")
-      setAnalysisState('error')
-    }
-  }, [])
 
   useEffect(() => {
     if (didInit.current) return
     didInit.current = true
 
-    // 1. Read + clear the TASK-027 handoff. Absent → nothing to optimize.
     const raw = window.sessionStorage.getItem(OPTIMIZATION_TARGET_DRAFT_KEY)
     if (!raw) {
       router.replace('/optimize/target')
@@ -165,139 +107,90 @@ function SetupScreen() {
       router.replace('/optimize/target')
       return
     }
-    window.sessionStorage.removeItem(OPTIMIZATION_TARGET_DRAFT_KEY)
-    setDraft(parsed)
+    if (typeof parsed?.target_job_title !== 'string' || parsed.target_job_title.trim() === '') {
+      router.replace('/optimize/target')
+      return
+    }
+    setDraft({
+      target_job_title: parsed.target_job_title,
+      target_industry: typeof parsed.target_industry === 'string' ? parsed.target_industry : '',
+      job_description: typeof parsed.job_description === 'string' ? parsed.job_description : '',
+    })
 
-    // 2. Load profileId + work_experience for the block list.
     fetch('/api/profile', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
       .then((data) => {
-        const list: Array<{
-          id?: string
-          company?: string
-          role?: string
-          highlights?: string[] | null
-        }> = Array.isArray(data?.work_experience) ? data.work_experience : []
+        const list: Array<{ id?: string; company?: string; role?: string }> = Array.isArray(data?.work_experience)
+          ? data.work_experience
+          : []
         const rows: ExperienceRow[] = list
           .filter((e) => typeof e.id === 'string' && e.id !== '')
           .map((e) => ({
             id: e.id as string,
             company: e.company ?? '',
-            label: [e.company, e.role].filter(Boolean).join(' — '),
-            bullets: Array.isArray(e.highlights) ? e.highlights.length : 0,
+            label: [e.role, e.company].filter(Boolean).join(' · '),
           }))
-        const pid = typeof data?.id === 'string' ? (data.id as string) : null
-        setProfileId(pid)
+        setProfileId(typeof data?.id === 'string' ? (data.id as string) : null)
         setExperiences(rows)
-        if (pid) void runAnalysis(parsed, pid)
         const allOn: Record<string, boolean> = {}
         for (const r of rows) allOn[r.id] = true
         setExpOn(allOn)
       })
       .catch(() => {
-        // FATAL for this screen, not non-fatal: the CTA is disabled whenever
-        // profileId is null (POST /api/optimize requires it and 404s
-        // otherwise), so a failed load must not leave the user staring at a
-        // fully-rendered form with a permanently disabled button and no
-        // explanation. Surface a visible error with a way back instead.
         setProfileId(null)
-        setLoadError('Could not load your profile. Please go back and try again.')
+        setLoadError('Could not load your Career Profile. Please go back and try again.')
       })
-  }, [router, runAnalysis])
+  }, [router])
 
-  const allOn = experiences.length === 0 || experiences.every((e) => expOn[e.id])
+  const selectedIds = useMemo(() => experiences.filter((e) => expOn[e.id]).map((e) => e.id), [experiences, expOn])
+  const nothingSelected = !summaryOn && selectedIds.length === 0
+  const allSelected = summaryOn && selectedIds.length === experiences.length
+  const hasJobDescription = !!draft && draft.job_description.trim() !== ''
 
-  const toggleAll = useCallback(() => {
-    setExpOn((prev) => {
-      const next: Record<string, boolean> = {}
-      for (const e of experiences) next[e.id] = !allOn
-      return next
-    })
-  }, [experiences, allOn])
-
-  const toggleExp = useCallback((id: string) => {
-    setExpOn((prev) => ({ ...prev, [id]: !prev[id] }))
-  }, [])
-
-  // THE BUILD'S NAMED STEPS — built only from what was actually selected, never
-  // claiming work that isn't happening. They are shown on the GENERATE screen,
-  // where this work runs, handed over through OPTIMIZATION_BUILD_STEPS_KEY
-  // (2026-09-12). This screen's own wait only creates the job — see setupSteps.
-  // Deduplicated because the list doubles as React keys, and two jobs at the
-  // same employer would otherwise collide.
+  // Named steps for the build screen, from what is selected.
   const buildSteps = useMemo(() => {
     if (!draft) return []
-    const list: string[] = []
-    if (draft.job_description.trim() !== '') {
-      list.push(`Matching the advert's wording for ${draft.target_job_title}`)
-    }
+    const list: string[] = [
+      hasJobDescription ? 'Reading the job description' : `Working out what ${draft.target_job_title} roles ask for`,
+      'Scoring your current CV (before)',
+    ]
     if (summaryOn) list.push('Rewriting your summary')
-    for (const e of experiences) if (expOn[e.id]) list.push(`Rewriting ${e.company || 'your'} bullets`)
-    list.push('Reordering skills by relevance')
-    list.push('Fact-checking every rewrite against your profile')
-    list.push('Scoring the new CV against the job')
-    // Always "Gulf CV format" (migration 030) — the format has never varied by
-    // target_country (lib/ai/buildOptimizationPrompt.ts's GULF_FORMAT_NOTE).
-    list.push('Applying Gulf CV format')
+    for (const e of experiences) if (expOn[e.id]) list.push(`Rewriting your activities at ${e.company || 'this role'}`)
+    list.push('Ordering skills by relevance')
+    list.push('Checking every line against your Career Profile')
+    list.push('Scoring your optimized CV (after)')
     return Array.from(new Set(list))
-  }, [draft, summaryOn, experiences, expOn])
-
-  const ctaName = draft?.target_job_title ?? ''
-
-  // Honest maximum for what is selected right now, and a projection per level.
-  // Pure and deterministic (lib/optimizer/score.ts) — the same function the
-  // server uses after the build — so toggling a block updates it instantly.
-  const selectedIds = useMemo(() => experiences.filter((e) => expOn[e.id]).map((e) => e.id), [experiences, expOn])
-  const projection = useMemo(() => {
-    if (!analysis) return null
-    const max = maxAchievableScore(analysis.scoreDocument, analysis.target, analysis.keywords, analysis.qualifications, {
-      summary: summaryOn,
-      experienceIds: selectedIds,
-    })
-    return {
-      max,
-      easy: projectedScore(analysis.before.total, max, 'easy'),
-      moderate: projectedScore(analysis.before.total, max, 'moderate'),
-      high: projectedScore(analysis.before.total, max, 'high'),
-    }
-  }, [analysis, summaryOn, selectedIds])
-  const nothingSelected = !summaryOn && selectedIds.length === 0
+  }, [draft, hasJobDescription, summaryOn, experiences, expOn])
 
   const onSubmit = useCallback(async () => {
-    if (!draft || !profileId || submitting) return
+    if (!draft || !profileId || submitting || nothingSelected) return
     setError(null)
     setSubmitting(true)
     try {
-      const body = {
-        profileId,
-        targetFields: {
-          target_job_title: draft.target_job_title,
-          // Optional (migration 043) — empty means null, same convention the
-          // API already applies to target_country/target_company.
-          target_industry: draft.target_industry.trim() !== '' ? draft.target_industry : null,
-        },
-        jobDescription: draft.job_description.trim() !== '' ? draft.job_description : null,
-        selectedBlocks: {
-          summary: summaryOn,
-          experienceIds: experiences.filter((e) => expOn[e.id]).map((e) => e.id),
-        },
-        level,
-        analysisId: analysis?.analysisId ?? null,
-      }
       const res = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          profileId,
+          targetFields: {
+            target_job_title: draft.target_job_title,
+            target_industry: draft.target_industry.trim() !== '' ? draft.target_industry : null,
+          },
+          jobDescription: hasJobDescription ? draft.job_description : null,
+          selectedBlocks: { summary: summaryOn, experienceIds: selectedIds },
+          level,
+          analysisId: null,
+        }),
       })
       const responseBody = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setError((responseBody?.error as string) ?? 'Could not start optimization. Please try again.')
+        setError((responseBody?.error as string) ?? 'Could not start the optimization. Please try again.')
         setSubmitting(false)
         return
       }
       if (responseBody?.success && responseBody?.packageId) {
         const newPackageId = (responseBody.packageId as string).replace(/[^a-zA-Z0-9-]/g, '')
-        // Display-only handoff: the generate screen names these steps.
+        window.sessionStorage.removeItem(OPTIMIZATION_TARGET_DRAFT_KEY)
         try {
           window.sessionStorage.setItem(
             OPTIMIZATION_BUILD_STEPS_KEY,
@@ -306,32 +199,17 @@ function SetupScreen() {
         } catch {
           /* generate falls back to its generic steps */
         }
-        // Reuse-detection re-optimize (TASK-036): delete the OLD package ONLY
-        // now that the new package is confirmed created — never before, so a
-        // failed generation can't destroy the user's existing content for
-        // nothing. Best-effort: never block navigation on this cleanup.
+        // Replace an older CV for the same job only now that the new one exists.
         const replaceId = window.sessionStorage.getItem(OPTIMIZATION_REPLACE_PACKAGE_KEY)
         window.sessionStorage.removeItem(OPTIMIZATION_REPLACE_PACKAGE_KEY)
         if (replaceId) {
-          await fetch(`/api/packages/${encodeURIComponent(replaceId)}`, { method: 'DELETE' }).catch(
-            () => {
-              /* swallow — the new resume exists; old-package cleanup is best-effort */
-            }
-          )
+          await fetch(`/api/packages/${encodeURIComponent(replaceId)}`, { method: 'DELETE' }).catch(() => {
+            /* best-effort: the new CV exists */
+          })
         }
-
-        // This call does not produce a resume — it creates an empty package.
-        // Generation is the next screen.
-        //
-        // The payment step between the two is gone while the locks are off
-        // (founder decision 2026-08-17). The server still answers
-        // `requiresPayment`, always false for now, so the step can be put back
-        // without changing this contract.
-        if (responseBody?.requiresPayment) {
-          router.push(`/optimize/pay/${newPackageId}`)
-          return
-        }
-        router.push(`/optimize/generate/${newPackageId}`)
+        router.push(
+          responseBody?.requiresPayment ? `/optimize/pay/${newPackageId}` : `/optimize/generate/${newPackageId}`,
+        )
         return
       }
       setError('Unexpected response from the server.')
@@ -340,50 +218,8 @@ function SetupScreen() {
       setError('Network error. Please check your connection and try again.')
       setSubmitting(false)
     }
-  }, [draft, profileId, submitting, summaryOn, experiences, expOn, level, router, buildSteps, analysis])
+  }, [draft, profileId, submitting, nothingSelected, hasJobDescription, summaryOn, selectedIds, level, router, buildSteps])
 
-  // ---- The wait on THIS screen's call (Phase A) ----------------------------
-  // CORRECTED 2026-09-12. This wait used to list "Reframed your summary" and
-  // "Rewriting <employer> bullets" — but POST /api/optimize here only creates
-  // the job and, when an advert was pasted, reads it. The rewriting happens on
-  // the next screen, which then restarted at step one: two waits, the first
-  // describing work that was not happening. Now this one says what it does and
-  // the build steps move to where the build runs.
-  const [elapsedMs, setElapsedMs] = useState(0)
-
-  const hasJobDescription = !!draft && draft.job_description.trim() !== ''
-  const setupSteps = useMemo(
-    () =>
-      hasJobDescription
-        ? ['Saving your target job', 'Reading the job advert', 'Setting up your CV build']
-        : ['Saving your target job', 'Setting up your CV build'],
-    [hasJobDescription],
-  )
-
-  // Non-streaming reality (same as TASK-023): POST /api/optimize is single-shot,
-  // no per-step server progress. Advance the steps client-side at the pace
-  // below, holding on the last. The interval is cleared when submitting resets
-  // (error) or on unmount (success → navigation), so it never leaks.
-  useEffect(() => {
-    if (!submitting) return
-    const start = Date.now()
-    setElapsedMs(0)
-    const id = window.setInterval(() => setElapsedMs(Date.now() - start), 200)
-    return () => window.clearInterval(id)
-  }, [submitting])
-
-  // Reading an advert is a model call; without one this call is a row insert.
-  const stepMs = hasJobDescription ? 6000 : 2500
-  const activeIndex = Math.min(setupSteps.length - 1, Math.floor(elapsedMs / stepMs))
-  // THE PERCENTAGE AND "~Ns LEFT" ARE GONE (2026-09-10). Both were computed
-  // from a 60-second clock, not from anything the server reported, so they
-  // reached 100% at a minute whether or not the work was done and then read
-  // "~0s left" for as long as it took. A number that only looks like progress
-  // is an invented fact on the one screen where someone is waiting to trust
-  // this product. No clock or estimate replaces it either (2026-09-11) — a
-  // rotating note true of this service does (lib/processingNotes.ts).
-
-  // Waiting for the draft handoff / profile load.
   if (!draft) {
     return (
       <main className="flex min-h-dvh items-center justify-center">
@@ -392,10 +228,7 @@ function SetupScreen() {
     )
   }
 
-  // Screen 07 — full dark-navy stage swap while POSTing (replaces the old
-  // CTA-text change). Same in-one-file stage-swap pattern TASK-023 used for
-  // collect → extracting. On success the onSubmit navigation unmounts this;
-  // on error it resets submitting → back to the form below.
+  // Phase A is a row insert — a short wait.
   if (submitting) {
     return (
       <main className="relative flex min-h-dvh flex-col overflow-hidden bg-ink font-redesign-sans">
@@ -405,48 +238,31 @@ function SetupScreen() {
         />
         <div className="relative mx-auto flex w-full max-w-[460px] flex-1 flex-col items-center justify-center gap-6 px-6 py-12">
           <ProcessingOrbit tone="dark" size={168} />
-          <div className="flex flex-col gap-2.5 text-center">
-            {/* The role was `text-teal` on near-black — about 1.9:1, close to
-                invisible. Gold on ink is the pair Meridian uses for emphasis. */}
-            <h1 className="font-display text-[30px] leading-tight text-white">
-              Setting up your CV for
-              <span className="block text-gold">{ctaName}</span>
-            </h1>
-            <p className="text-[13px] leading-relaxed text-white/70">
-              Reviewed as {personaLabel()} would.
-            </p>
-          </div>
-
-          {/* Named steps — dynamic, only what was selected — and a rotating
-              note true of this service, drawn by the shared processing
-              component. */}
+          <h1 className="text-center font-display text-[30px] leading-tight text-white">
+            Saving your target job
+            <span className="block text-gold">{draft.target_job_title}</span>
+          </h1>
           <ProcessingSteps
             tone="dark"
-            steps={setupSteps}
-            activeIndex={Math.max(0, activeIndex)}
-            notes={setupNotes(draft.job_description.trim() !== '')}
+            steps={['Saving your target job', 'Starting the optimization']}
+            activeIndex={0}
+            notes={setupNotes(hasJobDescription)}
           />
-
-          <p className="text-center text-[12px] leading-relaxed text-white/60">
-            Only facts already in your Career Profile are used.
-          </p>
         </div>
       </main>
     )
   }
 
+  const levelInfo = LEVELS.find((l) => l.value === level) ?? LEVELS[1]
+
   return (
     <main className="flex min-h-dvh flex-col font-redesign-sans">
-      <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-5 py-8 sm:px-8 lg:py-12">
-      {/* Back + heading */}
-      <div className="flex flex-col gap-2">
-        {/* Same step row as /optimize/target (Step 1 of 3) and the build
-            screen (Step 3 of 3), so the three screens read as one flow. */}
+      <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-5 px-5 py-8 sm:px-8 lg:py-12">
         <div className="flex items-center gap-3.5">
           <button
             type="button"
-            aria-label="Go back"
-            onClick={() => router.back()}
+            aria-label="Back to target job"
+            onClick={() => router.push('/optimize/target')}
             className="flex size-11 items-center justify-center rounded-ctl text-[20px] leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
           >
             ←
@@ -456,226 +272,158 @@ function SetupScreen() {
           </div>
           <span className="font-mono text-[12px] text-ink-muted">Step 2 of 3</span>
         </div>
-        <h1 className="font-display text-[27px] leading-tight text-ink">What should we sharpen?</h1>
-        <p className="text-[12px] leading-normal text-ink-soft">
-          Your dates, employers, titles and certifications are never touched. Only framing changes.
-        </p>
-      </div>
 
-      {loadError ? (
-        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-card border border-alert/30 bg-alert-soft px-3.5 py-3">
-          <Alert variant="danger">{loadError}</Alert>
-          <Button variant="secondary" className="w-full" onClick={() => router.push('/optimize/target')}>
-            Back to choose target
-          </Button>
-        </div>
-      ) : null}
-
-      {/* Match report — before anything is generated. */}
-      {analysisState === 'loading' && !analysis ? (
-        <MatchPanelLoading title={ctaName} hasJobDescription={hasJobDescription} />
-      ) : null}
-      {analysis ? (
-        <MatchPanel
-          analysis={analysis}
-          projectedMax={projection?.max ?? analysis.maxTotal}
-          rechecking={analysisState === 'loading'}
-          onRecheck={() => {
-            if (draft && profileId) void runAnalysis(draft, profileId)
-          }}
-          onConfirm={
-            analysis.analysisId && profileId
-              ? async (terms) => {
-                  const res = await fetch('/api/optimize/confirm-skills', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ analysisId: analysis.analysisId, profileId, terms }),
-                  })
-                  const body = await res.json().catch(() => ({}))
-                  if (!res.ok) {
-                    setAnalysisError((body?.error as string) ?? 'Could not add these to your profile. Please try again.')
-                    return
-                  }
-                  if (draft) await runAnalysis(draft, profileId)
-                }
-              : undefined
-          }
-        />
-      ) : null}
-      {analysisState === 'error' && analysisError ? (
-        <Alert variant="info" className="mt-5">{analysisError}</Alert>
-      ) : null}
-
-      {/* Body */}
-      <Card tone="light" className="mt-5 flex flex-1 flex-col gap-2.5 overflow-y-auto p-5">
-        {/* Blocks */}
-        <div className="flex items-center justify-between">
-          <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Blocks</div>
-          <button
-            type="button"
-            aria-pressed={allOn}
-            onClick={toggleAll}
-            className={cn(
-              'rounded-ctl border px-3 py-2 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
-              allOn
-                ? 'border-teal/50 bg-teal-soft text-teal'
-                : 'border-line bg-white text-ink-soft'
-            )}
-          >
-            Optimize all
-          </button>
+        <div>
+          <h1 className="font-display text-[27px] leading-tight text-ink">Choose your {NAMES.level.toLowerCase()}</h1>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-ink-soft">
+            Your employers, job titles, dates and education never change. Only your summary and work activities are
+            rewritten.
+          </p>
         </div>
 
-        {/* Professional summary */}
-        <button
-          type="button"
-          onClick={() => setSummaryOn((v) => !v)}
-          aria-pressed={summaryOn}
-          className={cn(
-            'flex min-h-11 items-center gap-3 rounded-card border bg-white px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
-            summaryOn ? 'border-teal' : 'border-line'
-          )}
-        >
-          <span
-            className={cn(
-              'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
-              summaryOn ? 'bg-teal' : 'border-[1.5px] border-line-strong'
-            )}
-          >
-            {summaryOn ? '✓' : ''}
-          </span>
-          <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-semibold text-ink">Professional summary</span>
-            <span className="text-[12px] text-ink-muted">Rewritten for this target</span>
-          </span>
-        </button>
+        {loadError ? <Alert variant="danger">{loadError}</Alert> : null}
 
-        {/* Work experience entries */}
-        {experiences.map((e) => {
-          const on = !!expOn[e.id]
-          return (
+        {/* 1. What we are optimizing for */}
+        <Card tone="light" className="flex flex-col gap-2 p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">{NAMES.targetJob}</p>
+              <p className="mt-0.5 break-words font-display text-[19px] leading-tight text-ink">{draft.target_job_title}</p>
+              <p className="mt-1 text-[12.5px] text-ink-soft">
+                {hasJobDescription
+                  ? `${NAMES.jobDescription} added`
+                  : `No ${NAMES.jobDescription.toLowerCase()} — the ATS score will be an estimate`}
+              </p>
+            </div>
             <button
-              key={e.id}
               type="button"
-              onClick={() => toggleExp(e.id)}
-              aria-pressed={on}
-              className={cn(
-                'flex min-h-11 items-center gap-3 rounded-card border bg-white px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
-                on ? 'border-teal' : 'border-line'
-              )}
+              onClick={() => router.push('/optimize/target')}
+              className="min-h-11 shrink-0 px-2 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
-              <span
-                className={cn(
-                  'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
-                  on ? 'bg-teal' : 'border-[1.5px] border-line-strong'
-                )}
-              >
-                {on ? '✓' : ''}
-              </span>
-              <span className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-semibold text-ink">{e.label}</span>
-                <span className="text-[12px] text-ink-muted">
-                  {e.bullets} bullet{e.bullets === 1 ? '' : 's'}
-                </span>
-              </span>
+              Change
             </button>
-          )
-        })}
-
-        {/* Skills & certifications — informational only, no checkbox */}
-        <div className="flex min-h-11 items-center justify-between rounded-card border border-line bg-canvas px-4 py-3">
-          <span className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-semibold text-ink">Skills &amp; certifications</span>
-            <span className="text-[12px] text-ink-muted">Reordered by relevance — never reworded</span>
-          </span>
-          <span className="text-[12px] font-semibold uppercase tracking-wider text-teal">Automatic</span>
-        </div>
-
-        {/* Optimization level */}
-        <div className="mt-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-          Optimization level
-        </div>
-        <div className="flex gap-[7px]">
-          {LEVELS.map((l) => {
-            const selected = level === l.value
-            return (
+          </div>
+          {hasJobDescription ? (
+            <>
               <button
-                key={l.value}
                 type="button"
-                aria-pressed={selected}
-                onClick={() => setLevel(l.value)}
-                className={cn(
-                  'flex min-h-11 flex-1 flex-col items-center gap-1 rounded-card border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
-                  selected
-                    ? 'border-teal bg-teal'
-                    : 'border-line bg-white'
-                )}
+                aria-expanded={showDescription}
+                onClick={() => setShowDescription((v) => !v)}
+                className="min-h-11 self-start text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
               >
-                {/* Selected was ink on teal (2.0:1) over teal on teal — the one
-                    option the user had chosen was the one they could not read.
-                    white on teal 9.84 · teal-soft on teal 8.30 */}
-                <span className={cn('text-[13px] font-semibold', selected ? 'text-white' : 'text-ink')}>
-                  {l.label}
-                </span>
-                <span className={cn('text-[12px]', selected ? 'text-teal-soft' : 'text-ink-muted')}>
-                  {l.range}
-                </span>
-                {projection && !nothingSelected ? (
-                  <span
-                    className={cn('font-mono text-[12px] font-semibold', selected ? 'text-white' : 'text-teal')}
-                    title="Projected match score for this level, using only your real experience"
-                  >
-                    ≈ {projection[l.value]}
-                  </span>
-                ) : null}
+                {showDescription ? 'Hide job description' : 'Show job description'}
               </button>
-            )
-          })}
+              {showDescription ? (
+                <div className="max-h-60 overflow-y-auto whitespace-pre-wrap rounded-ctl border border-line bg-canvas p-3 text-[13px] leading-relaxed text-ink-soft">
+                  {draft.job_description}
+                </div>
+              ) : null}
+            </>
+          ) : null}
+        </Card>
+
+        {/* 2. The level */}
+        <Card tone="light" className="flex flex-col gap-3 p-5">
+          <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">{NAMES.level}</p>
+          <div role="radiogroup" aria-label={NAMES.level} className="grid grid-cols-3 gap-2">
+            {LEVELS.map((l) => {
+              const selected = level === l.value
+              return (
+                <button
+                  key={l.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setLevel(l.value)}
+                  className={cn(
+                    'flex min-h-16 flex-col items-center justify-center gap-1 rounded-card border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+                    selected ? 'border-teal bg-teal' : 'border-line bg-white hover:bg-canvas',
+                  )}
+                >
+                  <span className={cn('text-[14px] font-semibold', selected ? 'text-white' : 'text-ink')}>{l.label}</span>
+                  <span className={cn('text-[12px]', selected ? 'text-teal-soft' : 'text-ink-muted')}>{l.aim}</span>
+                </button>
+              )
+            })}
+          </div>
+          <Alert variant={level === 'easy' ? 'info' : 'warning'}>{levelInfo.explain}</Alert>
+
+          {/* Parts to rewrite — all by default, adjustable. */}
+          <details className="group rounded-ctl border border-line bg-canvas px-3 py-2">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-[13px] font-semibold text-ink">
+              <span>Choose which parts to rewrite</span>
+              <span className="text-[12px] font-normal text-ink-muted">
+                {allSelected ? 'All selected' : nothingSelected ? 'None selected' : 'Some selected'}
+              </span>
+            </summary>
+            <div className="flex flex-col gap-2 pb-2 pt-1">
+              <PartToggle label="Professional summary" on={summaryOn} onToggle={() => setSummaryOn((v) => !v)} />
+              {experiences.map((e) => (
+                <PartToggle
+                  key={e.id}
+                  label={e.label || 'Work experience'}
+                  on={!!expOn[e.id]}
+                  onToggle={() => setExpOn((prev) => ({ ...prev, [e.id]: !prev[e.id] }))}
+                />
+              ))}
+              <p className="text-[12px] text-ink-muted">Skills are put in order of relevance, never reworded.</p>
+            </div>
+          </details>
+        </Card>
+
+        {/* 3. What you get */}
+        <div className="rounded-card border border-teal/30 bg-teal-soft/50 px-4 py-3 text-[13px] leading-relaxed text-ink-soft">
+          <strong className="text-ink">You will see:</strong> your {NAMES.atsScore} before and after for this target job,
+          and your {NAMES.optimizedCv.toLowerCase()}, saved in your {NAMES.library}.
         </div>
 
-        {/* What the chosen level does. Gold at Moderate/High: advice, not an error. */}
-        <Alert variant={level === 'easy' ? 'info' : 'warning'} className="mt-1">
-          {LEVEL_EXPLAIN[level]}
-        </Alert>
-      </Card>
+        {error ? <Alert variant="danger">{error}</Alert> : null}
+        {nothingSelected ? (
+          <p className="text-center text-[12px] text-ink-muted">Select the summary or at least one role to rewrite.</p>
+        ) : null}
 
-      {nothingSelected ? (
-        <p className="mx-5 mt-3 text-center text-[12px] text-ink-muted">Select the summary or at least one role to build.</p>
-      ) : null}
-
-      {/* Footer CTA */}
-      {error ? (
-        <div className="mx-5 mb-3 rounded-card border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">
-          {error}
-        </div>
-      ) : null}
-      <div className="flex flex-col gap-2.5 px-5 pb-6 pt-4">
         <Button
           variant="purchase"
           className="w-full"
           disabled={submitting || !profileId || nothingSelected}
           onClick={onSubmit}
         >
-          {submitting ? 'Optimizing…' : `Optimize for ${ctaName}`}
+          {CTA.optimizeCv}
         </Button>
-        {error ? (
-          <Button variant="secondary" className="w-full" onClick={() => router.push('/optimize/target')}>
-            Back to choose target
-          </Button>
-        ) : null}
-      </div>
       </div>
     </main>
   )
 }
 
-// Keep a Suspense boundary for future useSearchParams safety during prerender.
+function PartToggle({ label, on, onToggle }: { label: string; on: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={on}
+      onClick={onToggle}
+      className={cn(
+        'flex min-h-11 items-center gap-3 rounded-card border bg-white px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+        on ? 'border-teal' : 'border-line',
+      )}
+    >
+      <span
+        className={cn(
+          'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
+          on ? 'bg-teal' : 'border-[1.5px] border-line-strong',
+        )}
+      >
+        {on ? '✓' : ''}
+      </span>
+      <span className="text-[13px] font-semibold text-ink">{label}</span>
+    </button>
+  )
+}
+
 export default function OptimizeSetupPage() {
   return (
-    <>
-      <Suspense>
-        <SetupScreen />
-      </Suspense>
-    </>
+    <Suspense>
+      <SetupScreen />
+    </Suspense>
   )
 }

@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/utils'
+import { CTA } from '@/lib/serviceLabels'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
@@ -240,7 +241,7 @@ function MockInterviewScreen() {
   return (
     <PageShell
       title="Mock Interview"
-      subtitle="Practise one role-specific interview in writing, from your optimized resume, and get saved preparation feedback."
+      subtitle="Practise one role-specific interview in writing, from your optimized CV and its target job, and get saved preparation feedback."
     >
       {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
       <Card tone="light" className="mt-5 p-5 sm:p-6">
@@ -251,7 +252,7 @@ function MockInterviewScreen() {
             className="border-0 bg-transparent"
             title="Add a target job first"
             body="Mock interviews are attached to one optimized resume package."
-            action={<Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>Add a target job</Link>}
+            action={<Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>{CTA.addTargetJob}</Link>}
           />
         ) : list.length === 0 ? (
           <EmptyState
@@ -260,7 +261,7 @@ function MockInterviewScreen() {
             className="border-0 bg-transparent"
             title="Build an optimized resume first"
             body="The mock interview uses the final CV and job description, so create that package first."
-            action={<Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>Build optimized resume</Link>}
+            action={<Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>{CTA.optimizeCv}</Link>}
           />
         ) : (
           <div className="flex flex-col gap-5">
@@ -341,7 +342,7 @@ function MockInterviewScreen() {
                     : 'No mock interview yet for this package.'}
               </p>
               <Button type="button" variant="primary" onClick={() => void start()} disabled={!selectedId || busy !== null || !detail} busy={busy === 'start'} busyLabel="Starting…">
-                Start new interview
+                {CTA.startMockInterview}
               </Button>
             </div>
           </div>

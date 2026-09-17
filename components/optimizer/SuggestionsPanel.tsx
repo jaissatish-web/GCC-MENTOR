@@ -44,13 +44,13 @@ export function SuggestionsPanel({
     <section className="flex flex-col gap-3 rounded-card border border-gold/50 bg-gold-soft/40 p-4 sm:p-5">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-gold-ink">Boost your match</p>
+          <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-gold-ink">Boost your ATS score</p>
           <h2 className="font-display text-[18px] leading-tight text-ink">
             {pending.length} suggested line{pending.length === 1 ? '' : 's'} for what this job asks
           </h2>
         </div>
         <p className="text-[13px] text-ink">
-          Now <strong>{after}</strong> → up to <strong className="text-teal">{projected}</strong>
+          ATS score now <strong>{after}</strong> → up to <strong className="text-teal">{projected}</strong>
           {band ? <span className="text-ink-muted"> · level aim {band[0]}–{band[1]}</span> : null}
         </p>
       </div>

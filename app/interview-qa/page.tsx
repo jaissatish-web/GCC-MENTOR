@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/utils'
+import { CTA } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
 import type { InterviewQuestionAnswer, InterviewQuestionCategory, InterviewQuestionSet } from '@/types/package'
@@ -148,7 +149,7 @@ function InterviewQaScreen() {
   return (
     <PageShell
       title="Interview Q&A"
-      subtitle="Generate up to 25 role-specific answers from one optimized resume, its job description and your real profile."
+      subtitle="Generate up to 25 role-specific answers from your optimized CV and its target job."
     >
       {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current="qa" /> : null}
       <Card tone="light" className="mt-5 p-5 sm:p-6">
@@ -161,7 +162,7 @@ function InterviewQaScreen() {
             body="Interview Q&A is prepared for one job package, after the resume has been optimized for that role."
             action={
               <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
-                Add a target job
+                {CTA.addTargetJob}
               </Link>
             }
           />
@@ -174,7 +175,7 @@ function InterviewQaScreen() {
             body="The questions and answers are based on the final CV for a target job, so build that CV before preparing interview answers."
             action={
               <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
-                Build optimized resume
+                {CTA.optimizeCv}
               </Link>
             }
           />
@@ -243,7 +244,7 @@ function InterviewQaScreen() {
                   busy={generating}
                   busyLabel="Generating…"
                 >
-                  {questionSet ? 'Regenerate Q&A' : 'Generate Q&A'}
+                  {questionSet ? 'Prepare new interview Q&A' : CTA.prepareInterviewQa}
                 </Button>
               </div>
             </div>

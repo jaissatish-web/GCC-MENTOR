@@ -28,6 +28,7 @@ import { computeNextAction } from '@/lib/nextAction'
 import { answersFromReadinessCategory, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { Package } from '@/types/package'
+import { CTA } from '@/lib/serviceLabels'
 
 /**
  * Dashboard — screens D1/D2 (TASK-034), route /dashboard.
@@ -76,7 +77,7 @@ const SERVICE_TILES: ReadonlyArray<{
   },
   {
     title: 'Resume Optimizer',
-    body: 'Build a GCC CV for one target role and job description.',
+    body: 'Add a target job (job title and job description), choose a level, and get an optimized CV with its ATS score before and after.',
     status: 'Ready',
     href: '/optimize/target',
     icon: DocumentTextIcon,
@@ -90,21 +91,21 @@ const SERVICE_TILES: ReadonlyArray<{
   },
   {
     title: 'Cover Letter',
-    body: 'Write a role-specific letter from the same application package.',
+    body: 'Written from your optimized CV and its target job.',
     status: 'Ready',
     href: '/cover-letter',
     icon: EnvelopeIcon,
   },
   {
     title: 'Interview Q&A',
-    body: 'Generate 25 role-specific answers from the final CV and target role.',
+    body: 'Up to 25 answers from your optimized CV and its target job.',
     status: 'Ready',
     href: '/interview-qa',
     icon: QuestionMarkCircleIcon,
   },
   {
     title: 'Mock Interview',
-    body: 'Practice text interviews and save a readiness report per resume.',
+    body: 'Practise in writing from your optimized CV and its target job, and save a report.',
     status: 'Ready',
     href: '/mock-interview',
     icon: ChatBubbleLeftRightIcon,
@@ -121,10 +122,10 @@ const QUICK_ACTIONS: ReadonlyArray<{
   tint: string
 }> = [
   { label: 'Check profile strength', href: '/profile', icon: ChartBarIcon, tint: 'bg-teal-soft text-teal' },
-  { label: 'Optimize my CV for a job', href: '/optimize/target', icon: DocumentTextIcon, tint: 'bg-gold-soft text-gold-ink' },
-  { label: 'Write a cover letter', href: '/cover-letter', icon: EnvelopeIcon, tint: 'bg-sec-summary/10 text-sec-summary' },
-  { label: 'Prepare interview Q&A', href: '/interview-qa', icon: QuestionMarkCircleIcon, tint: 'bg-teal-soft text-teal' },
-  { label: 'Start a mock interview', href: '/mock-interview', icon: ChatBubbleLeftRightIcon, tint: 'bg-gold-soft text-gold-ink' },
+  { label: CTA.optimizeCv, href: '/optimize/target', icon: DocumentTextIcon, tint: 'bg-gold-soft text-gold-ink' },
+  { label: CTA.writeCoverLetter, href: '/cover-letter', icon: EnvelopeIcon, tint: 'bg-sec-summary/10 text-sec-summary' },
+  { label: CTA.prepareInterviewQa, href: '/interview-qa', icon: QuestionMarkCircleIcon, tint: 'bg-teal-soft text-teal' },
+  { label: CTA.startMockInterview, href: '/mock-interview', icon: ChatBubbleLeftRightIcon, tint: 'bg-gold-soft text-gold-ink' },
   { label: 'Open my Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, tint: 'bg-ok-soft text-ok' },
 ]
 

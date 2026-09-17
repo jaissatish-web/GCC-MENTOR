@@ -24,6 +24,8 @@ import { buttonVariants } from '@/components/ui/Button'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
+import { TargetJobCard } from '@/components/package/TargetJobCard'
+import { CTA, NAMES, USES } from '@/lib/serviceLabels'
 import { StageSelect } from '@/components/package/StageSelect'
 import { MatchResult, readMatchReport } from '@/components/optimizer/MatchResult'
 import { SuggestionsPanel } from '@/components/optimizer/SuggestionsPanel'
@@ -430,36 +432,36 @@ function PackageScreenInner({ id }: { id: string }) {
   const readyCount = Number(cvReady) + Number(letterReady) + Number(qaReady) + Number(mockReady)
   const nextJourneyStep = !cvReady
     ? {
-        title: 'Build the role-specific Gulf CV',
-        body: 'Start with the resume. Every later service uses this same package, target job and profile.',
-        cta: 'Build CV',
+        title: 'Optimize the CV for this target job',
+        body: 'Start with the CV. The cover letter, interview Q&A and mock interview all use this optimized CV and target job.',
+        cta: CTA.optimizeCv,
         href: pkg.is_paid ? `/optimize/generate/${encodeURIComponent(id)}` : `/optimize/pay/${encodeURIComponent(id)}`,
       }
     : !letterReady
       ? {
-          title: 'Add the cover letter',
-          body: 'Turn the same role match into a recruiter-ready letter before applying.',
-          cta: 'Write cover letter',
+          title: NAMES.coverLetter,
+          body: USES.coverLetter,
+          cta: CTA.writeCoverLetter,
           href: `/cover-letter?package=${encodeURIComponent(id)}`,
         }
       : !qaReady
         ? {
-            title: 'Prepare interview answers',
-            body: 'Generate role-specific Q&A from this final CV and the job description.',
-            cta: 'Generate Q&A',
+            title: NAMES.interviewQa,
+            body: USES.interviewQa,
+            cta: CTA.prepareInterviewQa,
             href: `/interview-qa?package=${encodeURIComponent(id)}`,
           }
         : !mockReady
           ? {
-              title: 'Practice the interview',
-              body: 'Run the mock interview and save a report on confidence, structure and role readiness.',
-              cta: 'Start mock',
+              title: NAMES.mockInterview,
+              body: USES.mockInterview,
+              cta: CTA.startMockInterview,
               href: `/mock-interview?package=${encodeURIComponent(id)}`,
             }
           : {
               title: 'Application package complete',
               body: 'CV, cover letter, Q&A and mock report are ready. Track the recruiter response here.',
-              cta: 'Add next job',
+              cta: CTA.addTargetJob,
               href: '/optimize/target',
             }
 
@@ -509,7 +511,7 @@ function PackageScreenInner({ id }: { id: string }) {
           {/* Never call a free resume "optimized" — it has not been through the
               model, and claiming otherwise is the one thing this product does not
               do (docs/RULES.md). */}
-          {isFree ? `Your CV, ${firstName}` : `Your Gulf CV is ready, ${firstName}`}
+          {isFree ? `Your CV, ${firstName}` : `Your optimized CV is ready, ${firstName}`}
         </h1>
 
         {/* Rename, in place. A user with three attempts at the same role sees
@@ -550,7 +552,7 @@ function PackageScreenInner({ id }: { id: string }) {
             onClick={() => setDownloaded(true)}
             className={buttonVariants({ variant: 'primary', size: 'sm' })}
           >
-            Download PDF
+            {CTA.downloadPdf}
           </a>
           {/* EDIT ALWAYS OPENS THE SAME EDITOR NOW (2026-08-19, second pass).
               An earlier version sent a never-optimized resume to
@@ -570,7 +572,7 @@ function PackageScreenInner({ id }: { id: string }) {
             href={`/package/${encodeURIComponent(id)}/edit`}
             className={buttonVariants({ variant: 'secondary', size: 'sm' })}
           >
-            Edit text
+            {CTA.editCv}
           </Link>
           {/* THE DIFF, REACHABLE AGAIN (2026-09-12). Generation lands here, on
               the finished CV, so /optimize/preview — every changed line beside
@@ -582,7 +584,7 @@ function PackageScreenInner({ id }: { id: string }) {
               href={`/optimize/preview/${encodeURIComponent(id)}`}
               className={buttonVariants({ variant: 'secondary', size: 'sm' })}
             >
-              See what changed
+              {CTA.seeChanges}
             </Link>
           ) : null}
           <a
@@ -631,9 +633,9 @@ function PackageScreenInner({ id }: { id: string }) {
       {pkg.optimized_content === null && (pkg as { tier?: string | null }).tier !== 'free' ? (
         <div className="mx-5 mb-3 flex flex-col gap-3 rounded-card border border-gold/40 bg-gold-tint/40 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-0.5">
-            <p className="text-[14px] font-bold text-ink">The Gulf CV for this job isn&apos;t built yet</p>
+            <p className="text-[14px] font-bold text-ink">The CV for this job isn&apos;t optimized yet</p>
             <p className="text-[12.5px] leading-relaxed text-ink-soft">
-              What you see below is your Career Profile laid out as a CV. Build it to get the version
+              What you see below is your Career Profile laid out as a CV. Optimize it to get the version
               written for {pkg.target_job_title}.
             </p>
           </div>
@@ -645,7 +647,7 @@ function PackageScreenInner({ id }: { id: string }) {
             }
             className={`${buttonVariants({ variant: 'primary', size: 'sm' })} shrink-0`}
           >
-            Build my Gulf CV
+            {CTA.optimizeCv}
           </Link>
         </div>
       ) : null}
@@ -655,37 +657,9 @@ function PackageScreenInner({ id }: { id: string }) {
           package journey plus transient notices, so the page explains what this
           job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
-        <section className="rounded-card border border-line bg-white p-3 shadow-m-1 sm:p-4">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">
-                Application package
-              </p>
-              <h2 className="font-display text-[18px] leading-tight text-ink">
-                {pkg.target_job_title}
-              </h2>
-            </div>
-            <p className="text-[12.5px] text-ink-soft">
-              {pkg.target_company ? `${pkg.target_company} · ` : ''}{pkg.target_country ?? 'GCC target'}
-            </p>
-          </div>
-          <div className="mt-3 flex flex-col gap-3 rounded-ctl border border-teal/30 bg-teal-soft/50 p-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
-                Next step · {readyCount}/4 ready
-              </p>
-              <p className="mt-1 text-[14px] font-bold text-ink">{nextJourneyStep.title}</p>
-              <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-soft">{nextJourneyStep.body}</p>
-            </div>
-            <Link
-              href={nextJourneyStep.href}
-              className={`${buttonVariants({ variant: readyCount === 4 ? 'secondary' : 'primary', size: 'sm' })} shrink-0`}
-            >
-              {nextJourneyStep.cta}
-            </Link>
-          </div>
-          <PreparationJourney pkg={pkg} current="resume" />
-        </section>
+        {/* RESULTS FIRST (founder decision 2026-09-17): what this CV was made
+            for, then its ATS score before and after, then what to do next. */}
+        {!isFree ? <TargetJobCard pkg={pkg} note={USES.optimizedCv} /> : null}
 
         {/* Before -> after match score (docs/17_OPTIMIZER_ENGINE.md §5). Only
             on packages built by the optimizer engine; older ones have none. */}
@@ -734,6 +708,38 @@ function PackageScreenInner({ id }: { id: string }) {
             </>
           )
         })()}
+
+        <section className="rounded-card border border-line bg-white p-3 shadow-m-1 sm:p-4">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+                Next steps for this job
+              </p>
+              <h2 className="font-display text-[18px] leading-tight text-ink">
+                {pkg.name || pkg.target_job_title}
+              </h2>
+            </div>
+            <p className="text-[12.5px] text-ink-soft">
+              {pkg.target_company ? `${pkg.target_company} · ` : ''}{pkg.target_country ?? 'GCC target'}
+            </p>
+          </div>
+          <div className="mt-3 flex flex-col gap-3 rounded-ctl border border-teal/30 bg-teal-soft/50 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
+                Next step · {readyCount}/4 ready
+              </p>
+              <p className="mt-1 text-[14px] font-bold text-ink">{nextJourneyStep.title}</p>
+              <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-soft">{nextJourneyStep.body}</p>
+            </div>
+            <Link
+              href={nextJourneyStep.href}
+              className={`${buttonVariants({ variant: readyCount === 4 ? 'secondary' : 'primary', size: 'sm' })} shrink-0`}
+            >
+              {nextJourneyStep.cta}
+            </Link>
+          </div>
+          <PreparationJourney pkg={pkg} current="resume" />
+        </section>
 
         <section className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
           <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
@@ -883,14 +889,14 @@ function PackageScreenInner({ id }: { id: string }) {
         {!isFree && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
           <div className="flex flex-col gap-2 rounded-card border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[13px] text-ink-soft">
-              <strong className="text-ink">Next for this job:</strong> a cover letter, written from the same
-              profile.
+              <strong className="text-ink">Next for this job:</strong> a cover letter, written from your optimized CV
+              and this target job.
             </p>
             <Link
               href={`/cover-letter?package=${encodeURIComponent(id)}`}
               className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} shrink-0`}
             >
-              Write the cover letter
+              {CTA.writeCoverLetter}
             </Link>
           </div>
         ) : null}
@@ -898,14 +904,14 @@ function PackageScreenInner({ id }: { id: string }) {
         {!isFree && cvReady && !qaReady ? (
           <div className="flex flex-col gap-2 rounded-card border border-teal/30 bg-teal-soft/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[13px] text-ink-soft">
-              <strong className="text-ink">Interview prep:</strong> generate 25 practice answers from this
-              optimized CV and target role.
+              <strong className="text-ink">Interview prep:</strong> up to 25 practice answers from this
+              optimized CV and target job.
             </p>
             <Link
               href={`/interview-qa?package=${encodeURIComponent(id)}`}
               className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} shrink-0`}
             >
-              Prepare Q&amp;A
+              {CTA.prepareInterviewQa}
             </Link>
           </div>
         ) : null}
@@ -919,7 +925,7 @@ function PackageScreenInner({ id }: { id: string }) {
               href={`/mock-interview?package=${encodeURIComponent(id)}`}
               className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} shrink-0`}
             >
-              Start mock interview
+              {CTA.startMockInterview}
             </Link>
           </div>
         ) : null}

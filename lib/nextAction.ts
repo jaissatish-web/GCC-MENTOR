@@ -1,3 +1,4 @@
+import { CTA } from '@/lib/serviceLabels'
 import { cvReady, letterCount, mockDone, qaReady, type PackageListItem } from '@/lib/packageSummary'
 
 /**
@@ -154,7 +155,7 @@ export function computeNextAction(
       state: 'no_target_job',
       title: 'Add the job you are applying for',
       body: 'Give us the role and we build a CV against it. Everything you do for that job stays with it.',
-      cta: 'Add a target job',
+      cta: CTA.addTargetJob,
       href: '/optimize/target',
     }
   }
@@ -186,11 +187,11 @@ export function computeNextAction(
   if (ungenerated) {
     return {
       state: 'job_not_generated',
-      title: `Build the CV for ${jobLabel(ungenerated)}`,
+      title: `Optimize the CV for ${jobLabel(ungenerated)}`,
       // No duration (2026-09-11): "takes about a minute" was a local number
       // production runs past. See lib/processingNotes.ts.
       body: 'This job is unlocked and ready to build.',
-      cta: 'Build the CV',
+      cta: CTA.optimizeCv,
       href: `/optimize/generate/${ungenerated.id}`,
     }
   }
@@ -201,7 +202,7 @@ export function computeNextAction(
       state: 'job_needs_letter',
       title: `Write the cover letter for ${jobLabel(needsLetter)}`,
       body: 'Explain your fit for this role with a letter grounded in the same profile and resume.',
-      cta: 'Write the letter',
+      cta: CTA.writeCoverLetter,
       // Opens with THIS job already chosen. Plain /cover-letter selected the
       // newest job, which is not always the one this sentence names.
       href: `/cover-letter?package=${encodeURIComponent(needsLetter.id)}`,
@@ -214,7 +215,7 @@ export function computeNextAction(
       state: 'job_needs_qa',
       title: `Prepare interview Q&A for ${jobLabel(needsQa)}`,
       body: 'Generate answers from the final CV and role before the recruiter call arrives.',
-      cta: 'Generate Q&A',
+      cta: CTA.prepareInterviewQa,
       href: `/interview-qa?package=${encodeURIComponent(needsQa.id)}`,
     }
   }
@@ -227,7 +228,7 @@ export function computeNextAction(
       state: 'job_needs_mock',
       title: `Practice the interview for ${jobLabel(needsMock)}`,
       body: 'Run a mock interview for this CV and save the report so the next practice is sharper.',
-      cta: 'Start mock interview',
+      cta: CTA.startMockInterview,
       href: `/mock-interview?package=${encodeURIComponent(needsMock.id)}`,
     }
   }
@@ -236,7 +237,7 @@ export function computeNextAction(
     state: 'add_next_job',
     title: 'Add your next target job',
     body: `${packages.length} job${packages.length === 1 ? '' : 's'} set up so far. Each new one reuses the profile you have already built.`,
-    cta: 'Add a target job',
+    cta: CTA.addTargetJob,
     href: '/optimize/target',
   }
 }

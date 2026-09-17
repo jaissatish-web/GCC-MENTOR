@@ -23,10 +23,11 @@ import type { OptimizationLevel } from '@/types/package'
  *
  * TWO PHASES, ONE ROUTE
  *   PHASE A  POST { profileId, targetFields, jobDescription, selectedBlocks, level, analysisId? }
- *            -> creates the package EMPTY and returns its id. No model call:
- *               the advert was analysed on the setup screen
- *               (POST /api/optimize/analyze), and that cached analysis is
- *               attached here when it matches this exact target.
+ *            -> creates the package EMPTY and returns its id. No model call.
+ *               Since 2026-09-17 the setup screen sends no analysis (no score
+ *               before optimizing), so Phase B runs the one analysis call. An
+ *               analysisId from another caller is still attached when it
+ *               matches this exact target.
  *   PHASE B  POST { packageId }
  *            -> generates into that row through lib/optimizer/pipeline.ts.
  *

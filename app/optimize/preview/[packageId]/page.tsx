@@ -234,7 +234,7 @@ function OptimizePreviewPageInner({ packageId }: { packageId: string }) {
               <span aria-hidden="true" className="text-ink-muted">→</span>
               <ScoreRing value={report.after.total} size={56} />
               <p className="text-[12.5px] leading-snug text-ink-soft">
-                Job match score{report.after_edited ? ', updated after your edits' : ''}. Edits are re-scored when you save.
+                ATS score{report.after_edited ? ', updated after your edits' : ''}. Edits are re-scored when you save.
               </p>
             </div>
           )

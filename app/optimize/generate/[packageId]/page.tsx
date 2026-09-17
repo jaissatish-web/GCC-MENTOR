@@ -100,7 +100,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
       const saved = raw ? (JSON.parse(raw) as { packageId?: unknown; steps?: unknown }) : null
       const list = Array.isArray(saved?.steps) ? saved.steps.filter((s): s is string => typeof s === 'string') : []
       // Only this job's list — a stale one must never label a different build.
-      if (saved?.packageId === packageId && list.length > 0) setSteps([...list, FINAL_STEP])
+      if (saved?.packageId === packageId && list.length > 0) setSteps(list.includes(FINAL_STEP) || list.some((x) => x.startsWith('Checking every line')) ? list : [...list, FINAL_STEP])
     } catch {
       /* keep the generic steps */
     }
@@ -148,7 +148,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
         <ProcessingOrbit tone="dark" size={184} />
         <div className="text-center">
           <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">Step 3 of 3</p>
-          <h1 className="font-display text-[28px] leading-tight text-white">Building your Gulf CV</h1>
+          <h1 className="font-display text-[28px] leading-tight text-white">Optimizing your CV</h1>
           <p className="mt-2 text-[13.5px] leading-relaxed text-white/70">
             Every line is checked against your Career Profile before you see it.
           </p>

@@ -37,22 +37,28 @@ missed, and nothing measured whether the CV had actually been targeted. Now:
 ## 2. The user journey
 
 ```
-/optimize/target      job title (+ industry) and, optionally, the job advert
+/optimize/target      STEP 1 · Target job: job title (required) + job description (recommended)
+        │             saved in sessionStorage until the optimization starts ("Change" comes back here)
+/optimize/setup       STEP 2 · Choose level (Easy / Moderate / High, each with its aim band)
+                      parts to rewrite folded away, all selected. NO AI CALL, NO SCORE YET
+        │  POST /api/optimize  (Phase A: creates the package; no model call)
+/optimize/generate    STEP 3 · POST /api/optimize {packageId}  (Phase B: analysis + build, §3)
         │
-/optimize/setup       ── POST /api/optimize/analyze ──►  MATCH REPORT (before anything is built)
-                       • score now, with the part breakdown
-                       • "can reach N using only your real experience" (honest maximum)
-                       • already on your CV ✓ / in your profile, not said yet ↑ / not in your profile
-                       • "Raise your score: do you have any of these?" — tick genuine skills →
-                         POST /api/optimize/confirm-skills adds them to the Career Profile → re-check
-                       • choose summary + roles; each level shows its projected score (≈)
-        │  POST /api/optimize  (Phase A: creates the package, attaches the analysis; no model call)
-/optimize/generate    POST /api/optimize {packageId}  (Phase B: the pipeline, §3)
-        │
-/package/[id]         BEFORE → AFTER score card, part changes, "why this CV fits",
-                      roles that kept original wording (and why), gaps still open
+/package/[id]         Target job card → ATS score BEFORE → AFTER → "Boost your ATS score"
+                      suggestions → next steps (cover letter, interview Q&A, mock interview)
 /optimize/preview     every change, editable; each saved edit is RE-SCORED (PATCH)
 ```
+
+**No score before optimizing (founder decision 2026-09-17, night).** The before score is
+computed during the build and shown only next to the after score. The earlier setup-screen
+match report (projections, confirm-missing-skills) was removed; see the decision log.
+
+**The target job travels with the CV.** `packages.target_job_title` and
+`packages.job_description` are shown by `components/package/TargetJobCard.tsx` on the result
+page, in the Resume Library and on the cover letter, interview Q&A and mock interview
+screens. Those three services generate from the saved CV (`document_snapshot`, including
+the user's edits) plus this job description. Screen wording comes from
+`lib/serviceLabels.ts`.
 
 **Two modes**, derived from whether an advert was pasted, never stored:
 

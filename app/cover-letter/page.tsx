@@ -12,6 +12,7 @@ import { ProcessingInline } from '@/components/ui/Processing'
 import { COVER_LETTER_NOTES } from '@/lib/processingNotes'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { cn } from '@/lib/utils'
+import { CTA } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
 import type { CoverLetter, CoverLetterTone } from '@/types/package'
@@ -172,7 +173,7 @@ function CoverLetterScreen() {
             body="A cover letter is written for one specific job. Add the job and its role and advert carry over here."
             action={
               <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
-                Add a target job
+                {CTA.addTargetJob}
               </Link>
             }
           />
@@ -258,9 +259,9 @@ function CoverLetterScreen() {
                   onClick={generate}
                   disabled={!canGenerate}
                   busy={generating}
-                  busyLabel="Generating…"
+                  busyLabel="Writing…"
                 >
-                  Generate cover letter
+                  {CTA.writeCoverLetter}
                 </Button>
               </div>
             ) : null}

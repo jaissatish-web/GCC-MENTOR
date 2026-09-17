@@ -12,6 +12,7 @@ import { PERSONA_INDUSTRIES } from '@/lib/utils'
 import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
 import { findSimilarPackage } from '@/lib/reuseDetection'
 import type { PackageSummary } from '@/lib/packageSummary'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 
 /**
  * Target selection — screen 05 (TASK-027), route /optimize/target.
@@ -110,11 +111,28 @@ function TargetScreen() {
         const rawIndustry = typeof data?.target_industry === 'string' ? data.target_industry : ''
         const matchedIndustry = PERSONA_INDUSTRIES.some((i) => i.value === rawIndustry) ? rawIndustry : ''
         if (data === null) setNoProfile(true)
-        setDraft({
-          target_job_title: data?.target_job_title ?? '',
-          target_industry: matchedIndustry,
-          job_description: '',
-        })
+        // Back from step 2: keep what was typed (the draft stays until the
+        // optimization starts).
+        let kept: TargetDraft | null = null
+        try {
+          const raw = window.sessionStorage.getItem(OPTIMIZATION_TARGET_DRAFT_KEY)
+          kept = raw ? (JSON.parse(raw) as TargetDraft) : null
+        } catch {
+          kept = null
+        }
+        setDraft(
+          kept && typeof kept.target_job_title === 'string'
+            ? {
+                target_job_title: kept.target_job_title,
+                target_industry: typeof kept.target_industry === 'string' ? kept.target_industry : '',
+                job_description: typeof kept.job_description === 'string' ? kept.job_description : '',
+              }
+            : {
+                target_job_title: data?.target_job_title ?? '',
+                target_industry: matchedIndustry,
+                job_description: '',
+              },
+        )
         setLoaded(true)
       })
       .catch(() => {
@@ -232,9 +250,10 @@ function TargetScreen() {
 
       {/* Heading */}
       <div className="px-5 pb-4">
-        <h1 className="font-display text-[27px] leading-tight text-ink">Set your target role</h1>
+        <h1 className="font-display text-[27px] leading-tight text-ink">Add your target job</h1>
         <p className="mt-1.5 text-[13px] leading-relaxed text-ink-soft">
-          One required field. A job description or industry sharpens the result — neither is needed to start.
+          Tell us the job you are applying for. It is saved in your {NAMES.library}, and your cover letter,
+          interview Q&amp;A and mock interview use it too.
         </p>
       </div>
 
@@ -248,7 +267,7 @@ function TargetScreen() {
       <Card tone="light" className="mt-5 flex flex-1 flex-col gap-4 overflow-y-auto p-5">
         <Input
           id="f_target_job_title"
-          label="Target job title"
+          label={NAMES.jobTitle}
           requiredMark
           value={draft.target_job_title}
           onChange={(e) => set('target_job_title', e.target.value)}
@@ -312,32 +331,14 @@ function TargetScreen() {
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-1.5">
-          <FieldLabel htmlFor="f_target_industry" optional>
-            Target industry
-          </FieldLabel>
-          <select
-            id="f_target_industry"
-            className="field"
-            value={draft.target_industry}
-            onChange={(e) => set('target_industry', e.target.value)}
-          >
-            {/* Was "No preference — general Gulf recruiter", which a 375px
-                screen cut to "general Gulf recrui". The hint says the rest. */}
-            <option value="">No preference</option>
-            {PERSONA_INDUSTRIES.map((i) => (
-              <option key={i.value} value={i.value}>
-                {i.label}
-              </option>
-            ))}
-          </select>
-          <p className="field-hint">Picks which kind of Gulf recruiter your CV is written for.</p>
-        </div>
-
+        {/* Target industry left this screen 2026-09-17 (founder decision): the
+            user gives a job title and a job description, nothing else. Every
+            industry already resolves to one perspective (lib/ai/personas.ts);
+            a value kept from the profile is still sent. */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <FieldLabel htmlFor="f_job_description" optional>
-              Job description
+              {NAMES.jobDescription}
             </FieldLabel>
             <span className="rounded-[5px] bg-teal-soft px-2 py-1 text-[12px] font-semibold uppercase tracking-wider text-teal">
               Best results
@@ -345,14 +346,14 @@ function TargetScreen() {
           </div>
           <div className="flex flex-col gap-2.5 rounded-card border border-dashed border-teal p-4">
             <div className="text-[13px] font-medium leading-snug text-ink">
-              Paste the job posting for the closest match
+              Paste the job advert for the most accurate ATS score
             </div>
             <p className="text-[12px] leading-snug text-ink-muted">
-              Paste the advert and we match its exact wording and requirements. Without one we work from your target role.
+              We match your CV to its exact requirements. Without it, we work from the job title and the score is an estimate.
             </p>
             <textarea
               id="f_job_description"
-              rows={5}
+              rows={8}
               value={draft.job_description}
               onChange={(e) => set('job_description', e.target.value)}
               placeholder="Paste the job posting text here…"
@@ -368,14 +369,14 @@ function TargetScreen() {
             no checkout yet, so a sentence about paying is a promise about a
             step that does not exist. What IS true is the preview. */}
         <p className="text-center text-[12px] leading-snug text-ink-muted">
-          You see every change to your CV before you download it.
+          Next you choose how strongly to optimize. Your ATS score before and after is shown with the result.
         </p>
         <Button variant="progress" className="w-full" disabled={!canContinue} onClick={onContinue}>
-          Choose what to optimize
+          {CTA.chooseLevel}
         </Button>
         {!canContinue ? (
           <p className="text-center text-[12px] text-ink-muted">
-            Add a target job title to continue.
+            Add a job title to continue.
           </p>
         ) : null}
       </div>
