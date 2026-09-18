@@ -233,7 +233,7 @@ export function renderAnswerFacts(totalYears: number | null, gaps: GapTerm[]): s
     'Every answer is spoken by the candidate to an interviewer who is holding their CV. Only facts in the profile or CV may appear.',
     'When a point needs a specific story the profile does not contain, write a placeholder the candidate fills in, e.g. "[your example: a time you ...]". Never invent an event, a place, a project detail or a method.',
   ]
-  if (totalYears !== null) lines.push(`Total professional experience: ${totalYears} years (computed from the dated roles). Use exactly this figure, never your own.`)
+  if (totalYears !== null) lines.push(`Total professional experience: ${totalYears}+ years. If years are stated, write exactly "${totalYears}+ years", never your own figure.`)
   const hardGaps = gaps.filter((g) => g.kind !== 'soft_skill').map((g) => g.term)
   if (hardGaps.length > 0) {
     lines.push(
@@ -277,4 +277,18 @@ export function notInCvFeedback(claims: string[], feedback: string): string {
   if (claims.length === 0) return feedback
   const list = claims.slice(0, 4).map((c) => `"${c}"`).join(', ')
   return `${NOT_IN_CV_PREFIX} you claimed ${list}, which your CV does not show. An interviewer holding your CV will ask you to prove it — only claim what you can back up with a real example. ${feedback}`
+}
+
+/**
+ * The years figure to put in front of a model (2026-09-18). The candidate's
+ * OWN stated figure wins ("15+ years" on their CV) — a recruiter counts the
+ * calendar span, and the merged-months total (14 for a 2011–present career
+ * with short breaks) undersold them: a letter wrote "over 13 years". Falls
+ * back to the computed total when the profile states none.
+ */
+export function yearsToState(evidence: string, computed: number | null): number | null {
+  const stated = [...evidence.matchAll(/\b(\d{1,2})\s*\+\s*(?:years|yrs)\b/gi)].map((m) => Number(m[1]))
+  const best = stated.length ? Math.max(...stated) : null
+  if (best !== null && (computed === null || (best >= computed && best <= computed + 2))) return best
+  return computed
 }

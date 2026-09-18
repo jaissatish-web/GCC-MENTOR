@@ -242,7 +242,7 @@ function renderFacts(facts: CoverLetterFacts): string {
   const lines: string[] = []
   if (facts.totalYears !== null) {
     lines.push(
-      `Total professional experience: ${facts.totalYears} years, computed from the dated roles. If you state years of experience, use exactly this number ("${facts.totalYears} years", "${facts.totalYears}+ years" or "over ${Math.max(1, facts.totalYears - 1)} years"). Never compute your own figure.`,
+      `Total professional experience: ${facts.totalYears}+ years. If you state years of experience, write exactly "${facts.totalYears}+ years". Never compute your own figure.`,
     )
   }
   if (facts.gaps.length > 0) {

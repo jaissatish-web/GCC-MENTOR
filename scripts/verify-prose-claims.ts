@@ -81,5 +81,13 @@ const years = totalExperienceYears(profile)
 check(`a 2011–present career with short gaps is 14–15 years (${years})`, years !== null && years >= 14 && years <= 15)
 check('no dated roles -> null', totalExperienceYears({ work_experience: [] } as unknown as CareerProfileFull) === null)
 
+console.log("\nThe candidate's own stated years win")
+{
+  const { yearsToState } = require('../lib/ai/proseClaims') as typeof import('../lib/ai/proseClaims')
+  check('"15+ years" on the CV beats a computed 14', yearsToState('Zero LTI across 15+ years', 14) === 15)
+  check('no stated figure -> computed total', yearsToState('Loop checks', 14) === 14)
+  check('an implausible stated figure is ignored', yearsToState('30+ years of combined team experience', 14) === 14)
+}
+
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} assertion(s) FAILED.\n`)
 process.exit(failures === 0 ? 0 : 1)

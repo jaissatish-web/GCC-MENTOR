@@ -10,6 +10,7 @@ import {
   groundAnswer,
   profileEvidenceText,
   renderAnswerFacts,
+  yearsToState,
   totalExperienceYears,
 } from '@/lib/ai/proseClaims'
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
@@ -166,7 +167,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
         target_industry: (pkgRow.target_industry as string | null) ?? null,
       },
       (pkgRow.job_description as string | null) ?? null,
-      renderAnswerFacts(claimCtx.totalYears, claimCtx.gaps),
+      renderAnswerFacts(yearsToState(claimCtx.evidence, claimCtx.totalYears), claimCtx.gaps),
     )
 
     let parsed

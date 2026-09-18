@@ -8,6 +8,7 @@ import type { CoverLetterValidationFailure } from '@/lib/ai/validateCoverLetterG
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
 import {
   checkProseClaims,
+  yearsToState,
   gapTermsFromMatchReport,
   profileEvidenceText,
   removeClaimSentences,
@@ -208,7 +209,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
       pkgRow.job_description as string | null,
       tone,
       savedResume,
-      { totalYears: claimCtx.totalYears, gaps: claimCtx.gaps.filter((g) => g.kind !== 'soft_skill').map((g) => g.term) },
+      { totalYears: yearsToState(claimCtx.evidence, claimCtx.totalYears), gaps: claimCtx.gaps.filter((g) => g.kind !== 'soft_skill').map((g) => g.term) },
     )
     const giveUpAt = startedAt + DEADLINE_MS
     const groundedProfile = profile
