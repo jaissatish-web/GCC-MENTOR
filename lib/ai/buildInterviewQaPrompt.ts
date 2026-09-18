@@ -206,6 +206,8 @@ export function buildInterviewQaPrompt(
   resume: ResumeDocument,
   target: InterviewQaTarget,
   jobDescription?: string | null,
+  /** Computed facts + gap list (lib/ai/proseClaims.ts renderAnswerFacts). */
+  factsBlock?: string,
 ): BuiltPrompt {
   return {
     persona: INTERVIEW_QA_PERSONA,
@@ -219,6 +221,7 @@ export function buildInterviewQaPrompt(
       renderTarget(target),
       '## JOB DESCRIPTION',
       renderJobDescription(jobDescription),
+      ...(factsBlock ? [factsBlock] : []),
       '## OUTPUT FORMAT',
       outputSchema(),
     ].join('\n\n'),

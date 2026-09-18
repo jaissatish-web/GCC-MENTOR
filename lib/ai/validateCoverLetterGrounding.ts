@@ -32,6 +32,8 @@ export type CoverLetterFailureCode =
   | 'malformed_json'
   | 'schema_violation'
   | 'unsourced_numeric'
+  /** A claim lib/ai/proseClaims.ts rejects (gap claim, wrong years, grading word). */
+  | 'unsupported_claim'
 
 export interface CoverLetterValidationFailure {
   code: CoverLetterFailureCode

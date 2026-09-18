@@ -1919,7 +1919,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_identity')}
           title="Identity & contact"
-          helper="Passport, visa and contact details are encrypted. You choose what appears on your CV."
+          helper="Passport, visa and contact details are private to your account, and our team’s access is logged. You choose what appears on your CV."
           action={
             <Link
               href="/profile/visibility"

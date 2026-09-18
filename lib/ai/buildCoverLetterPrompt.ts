@@ -226,12 +226,42 @@ function renderOutputFormat(): string {
 body_paragraphs must contain 1 to 3 paragraphs.`
 }
 
+/**
+ * Facts computed in code and handed to the model (2026-09-18). A letter once
+ * said "nearly 13 years" for a 15-year career and claimed three requirements
+ * the job analysis had marked missing. The model is told the number and the
+ * gaps; lib/ai/proseClaims.ts then checks it kept to them.
+ */
+export interface CoverLetterFacts {
+  totalYears: number | null
+  /** Job requirements the analysis found NO evidence for. */
+  gaps: string[]
+}
+
+function renderFacts(facts: CoverLetterFacts): string {
+  const lines: string[] = []
+  if (facts.totalYears !== null) {
+    lines.push(
+      `Total professional experience: ${facts.totalYears} years, computed from the dated roles. If you state years of experience, use exactly this number ("${facts.totalYears} years", "${facts.totalYears}+ years" or "over ${Math.max(1, facts.totalYears - 1)} years"). Never compute your own figure.`,
+    )
+  }
+  if (facts.gaps.length > 0) {
+    lines.push(
+      'REQUIREMENTS THE CANDIDATE DOES NOT MEET: the job asks for these and the profile shows no evidence of them:',
+      ...facts.gaps.map((g) => `- ${g}`),
+      'Never claim, imply or paraphrase experience of these (no "familiar with", no "supported", no "a blend of" that includes them). You may connect honest adjacent experience the profile DOES show, for example reviewing, verifying or commissioning what others designed, and say the candidate is keen to grow into the requirement. One honest bridge sentence is worth more than any claim.',
+    )
+  }
+  return lines.join('\n')
+}
+
 export function buildCoverLetterPrompt(
   profile: CareerProfileFull,
   target: CoverLetterTarget,
   jobDescription?: string | null,
   tone: CoverLetterTone = 'professional',
   savedResume?: ResumeDocument | null,
+  facts?: CoverLetterFacts,
 ): BuiltPrompt {
   const system = [
     COVER_LETTER_PERSONA,
@@ -245,6 +275,7 @@ export function buildCoverLetterPrompt(
     renderCareerProfile(profile),
     '## TARGET\n' + renderTarget(target),
     '## JOB DESCRIPTION\n' + renderJobDescription(jobDescription),
+    ...(facts && (facts.totalYears !== null || facts.gaps.length > 0) ? ['## FACTS YOU MUST KEEP TO\n' + renderFacts(facts)] : []),
     '## OUTPUT FORMAT\n' + renderOutputFormat(),
   ].join('\n\n')
 

@@ -165,6 +165,10 @@ export function buildMockInterviewFeedbackPrompt(
       // profile here — only what the candidate typed.
       "The better_answer rewrites the candidate's own answer. Use only facts the candidate stated in their answer or that appear in the expected points.",
       'Where a stronger answer needs a detail the candidate did not give (a number, a project, a tool), write a bracketed placeholder such as [project name] or [number] instead of inventing it.',
+      // 2026-09-18 audit: a 4/10 arrived with feedback opening "Strong
+      // alignment with expected points". The number and the words must agree.
+      'Score on this scale and make the feedback say the same thing: 1-3 = weak (vague, off-question or missing most expected points); 4-6 = partial (on-question but thin: few specifics or no result); 7-8 = strong (specific actions and a result); 9-10 = excellent (clear structure, specifics, result, and what the candidate personally owned). Open the feedback with a phrase that matches the band ("Weak answer", "Partly there", "Strong answer", "Excellent answer").',
+      'If the question asks one thing (for example team safety culture) and the answer addresses another, say so first.',
     ].join('\n'),
     input: [
       '## INTERVIEW CONTEXT',

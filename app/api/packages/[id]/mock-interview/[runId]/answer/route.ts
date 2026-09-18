@@ -7,6 +7,15 @@ import { collectNumbers, unsourcedNumbers } from '@/lib/ai/answerGrounding'
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { LIMIT_ACTION_MOCK_ANSWER } from '@/lib/rateLimit'
 import { recordMockAnswerAtomic } from '@/lib/packages/serverWrites'
+import { loadCareerProfileFull } from '@/lib/packages/profileLoader'
+import {
+  gapTermsFromMatchReport,
+  groundAnswer,
+  notInCvFeedback,
+  profileEvidenceText,
+  totalExperienceYears,
+  unsupportedAnswerClaims,
+} from '@/lib/ai/proseClaims'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
 import type { MockInterviewRun } from '@/types/package'
 
@@ -59,7 +68,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
-    .select('id, mock_interview_runs')
+    .select('id, profile_id, mock_interview_runs, match_report')
     .eq('id', params.id)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -134,6 +143,33 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       )
     }
 
+    // Claims check against the Career Profile. A profile that cannot be read
+    // skips the check rather than failing a review the user already waited for.
+    let feedbackText = feedback.feedback
+    let betterAnswer = feedback.better_answer
+    let score = feedback.score
+    try {
+      const profile = await loadCareerProfileFull(supabase, pkgRow.profile_id as string, user.id)
+      if (profile) {
+        const ctx = {
+          evidence: profileEvidenceText(profile),
+          gaps: gapTermsFromMatchReport(pkgRow.match_report),
+          totalYears: totalExperienceYears(profile),
+        }
+        const claims = unsupportedAnswerClaims(answer, ctx)
+        if (claims.length > 0) {
+          feedbackText = notInCvFeedback(claims, feedbackText)
+          // An answer an interviewer can disprove from the CV is a weak answer,
+          // however fluent. Capped, never raised.
+          score = Math.min(score, 3)
+        }
+        // The model answer must not carry the candidate's claim forward.
+        betterAnswer = groundAnswer(betterAnswer, ctx).text
+      }
+    } catch (e) {
+      console.error('mock-interview answer: claim check skipped pkg=' + params.id, e instanceof Error ? e.message : String(e))
+    }
+
     let write
     try {
       write = await recordMockAnswerAtomic({
@@ -144,10 +180,10 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
         questionNumber: qIndex + 1,
         fields: {
           answer,
-          feedback: feedback.feedback,
-          better_answer: feedback.better_answer,
+          feedback: feedbackText,
+          better_answer: betterAnswer,
           follow_up: feedback.follow_up,
-          score: feedback.score,
+          score,
           answered_at: new Date().toISOString(),
         },
       })

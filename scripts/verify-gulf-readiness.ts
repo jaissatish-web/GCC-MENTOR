@@ -145,5 +145,48 @@ const weak = calculateGulfReadiness({ answers: { hasGulfExperience: false, hasPr
 const sorted = weak.recommendations.every((r, i, arr) => i === 0 || arr[i - 1].priority >= r.priority)
 check('recommendations are sorted by priority, highest first', sorted)
 
+
+// --- measured cases from the 2026-09-18 audit ---------------------------------
+// The first detectors were presence checks. These pin the fixes: the score must
+// separate real CVs, read Gulf signals from the text, cap thin text, and give a
+// strong CV next steps instead of nothing.
+console.log('\nDiscrimination (2026-09-18 audit cases)')
+const UK_RETAIL = `Dave Smith
+Retail Assistant
+Manchester, United Kingdom
+dave.smith@example.com | +44 7700 900123
+PROFILE
+Retail assistant with shop floor experience in clothing and grocery stores, serving customers and keeping stock rooms in order across busy seasonal periods.
+EXPERIENCE
+2019 - 2021 Shop Assistant, Highstreet Clothing, Manchester
+2021 - 2023 Checkout Operator, Cornerstore Groceries, Manchester
+2023 - Present Stockroom Assistant, Bigbox Retail, Manchester
+Stacked shelves, served 40 customers per shift, handled 200 items daily.
+SKILLS
+Customer service, tills, stock rotation, cleaning, teamwork, punctuality, shelf stacking, cash handling, returns, queue management, stocktaking, rotas
+EDUCATION
+GCSE Mathematics and English, Manchester Comprehensive
+CERTIFICATIONS
+Food hygiene certificate level 2`
+const KEYWORD_SALAD = `profile skills engineering certif
+a@b.co +971500000000
+2019 - 2020 2020 - 2021 2021 - Present
+100 units 200 units 300 units
+a, b, c, d, e, f, g, h, i, j, k, l`
+const inGulfAnswers = { hasGulfExperience: true, currentlyInGulf: true }
+const strong = calculateGulfReadiness({ answers: inGulfAnswers, resumeText: STRONG_GULF_CV })
+const retail = calculateGulfReadiness({ answers: inGulfAnswers, resumeText: UK_RETAIL })
+const salad = calculateGulfReadiness({ answers: inGulfAnswers, resumeText: KEYWORD_SALAD })
+check(`a UK retail CV claiming "in the Gulf" is not Gulf-Ready (${retail.finalScore})`, retail.band.key !== 'ready')
+check(`keyword salad is capped low (${salad.finalScore})`, salad.finalScore <= 35)
+check('an unshown Gulf claim does not earn the full situation points', (retail.dimensions.find((d) => d.key === 'gulf_market_position')?.score ?? 99) < 15)
+const stripped = STRONG_GULF_CV.replace(/adnoc|saudi aramco|abu dhabi|dubai|uae|ksa|jubail|\+971/gi, 'XX')
+const strongStripped = calculateGulfReadiness({ answers: inGulfAnswers, resumeText: stripped })
+check(`removing every Gulf signal lowers the score (${strong.finalScore} -> ${strongStripped.finalScore})`, strongStripped.finalScore < strong.finalScore)
+check('a strong CV still gets at least 3 next steps', strong.recommendations.length >= 3)
+check('bare "engineering" is not read as a degree', calculateGulfReadiness({ answers: inGulfAnswers, resumeText: 'Site engineering supervisor on large projects. '.repeat(30) }).dimensions.find((d) => d.key === 'education')!.score === 0)
+const declaredNo = calculateGulfReadiness({ answers: { hasGulfExperience: false, hasProfessionalExperience: true }, resumeText: STRONG_GULF_CV })
+check('a CV showing Gulf work but answered "no" is told to answer yes', declaredNo.recommendations.some((r) => /answer "Yes"/.test(r.title)))
+
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} assertion(s) FAILED.\n`)
 process.exit(failures === 0 ? 0 : 1)

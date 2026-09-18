@@ -27,6 +27,13 @@ export interface ProfileScoringInput {
   professional_summary?: string | null
   phone?: string | null
   email?: string | null
+  // The details a Gulf recruiter screens on first (2026-09-18) — the engine
+  // now scores them, so the signed-in score must be able to see them.
+  nationality?: string | null
+  visa_status?: string | null
+  notice_period?: string | null
+  current_location?: string | null
+  additional_information?: Array<{ label?: string | null; value?: string | null }> | null
   work_experience?: Array<{
     company?: string | null
     role?: string | null
@@ -53,6 +60,11 @@ export function scoringInputFromProfile(p: CareerProfileFull): ProfileScoringInp
     professional_summary: p.professional_summary,
     phone: p.phone,
     email: p.email,
+    nationality: p.nationality,
+    visa_status: p.visa_status,
+    notice_period: p.notice_period,
+    current_location: p.current_location,
+    additional_information: (p.additional_information ?? []).map((a) => ({ label: a.label, value: a.value })),
     work_experience: p.work_experience.map((w) => ({
       company: w.company,
       role: w.role,
@@ -93,6 +105,17 @@ export function profileToScoringText(p: ProfileScoringInput): string {
   out.push('CONTACT')
   out.push(line(p.email ?? undefined, p.phone ?? undefined))
 
+  const personal = [
+    p.nationality?.trim() ? `Nationality: ${p.nationality.trim()}` : null,
+    p.current_location?.trim() ? `Location: ${p.current_location.trim()}` : null,
+    p.visa_status?.trim() ? `Visa status: ${p.visa_status.trim()}` : null,
+    p.notice_period?.trim() ? `Notice period: ${p.notice_period.trim()}` : null,
+  ].filter((x): x is string => !!x)
+  if (personal.length) {
+    out.push('PERSONAL DETAILS')
+    out.push(...personal)
+  }
+
   const work = (p.work_experience ?? []).filter((w) => w && (w.company || w.role))
   if (work.length) {
     out.push('WORK EXPERIENCE')
@@ -119,6 +142,12 @@ export function profileToScoringText(p: ProfileScoringInput): string {
   if (edu.length) {
     out.push('EDUCATION')
     for (const e of edu) out.push(line(e.degree, e.field_of_study, e.institution))
+  }
+
+  const extra = (p.additional_information ?? []).filter((a) => a?.label?.trim() && a?.value?.trim())
+  if (extra.length) {
+    out.push('ADDITIONAL INFORMATION')
+    for (const a of extra) out.push(`${a.label!.trim()}: ${a.value!.trim()}`)
   }
 
   return out.join('\n')

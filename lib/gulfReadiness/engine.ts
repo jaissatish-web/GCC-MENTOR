@@ -21,9 +21,10 @@ import {
   detectProjects,
   detectResumeQuality,
   detectSkills,
+  detectGulfSignals,
   detectWorkExperience,
   isLowSignal,
-  normalise,
+  wordCount,
   type DetectorOutput,
 } from '@/lib/gulfReadiness/evidence'
 
@@ -52,8 +53,14 @@ function pointsFrom(ratio: number, max: number): number {
 export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadinessResult {
   const scenario = scenarioFromAnswers(input.answers)
   const weights = SCENARIO_WEIGHTS[scenario]
-  const text = normalise(input.resumeText)
-  const lowResumeSignal = isLowSignal(input.resumeText)
+  const text = input.resumeText ?? ''
+  const words = wordCount(text)
+  // Thin text cannot carry a high score, whatever keywords it contains
+  // (2026-09-18: twelve lines of keywords scored 99). Under 60 words is not a
+  // CV; under 120 is a fragment.
+  const lowResumeSignal = isLowSignal(text) || words < 60
+  const scoreCap = lowResumeSignal ? 35 : words < 120 ? 70 : 100
+  const gulf = detectGulfSignals(text)
 
   // --- the five resume dimensions, each a detector × its weight ---------------
   // The work_experience slot is scored on projects/internships for a fresher and
@@ -70,15 +77,25 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
 
   // The situation dimension: auto-filled to its max from the funnel, shown for
   // everyone except a fresher (whose max is 0).
+  // For a Gulf scenario the full points need the CV to SHOW the Gulf — a
+  // place, a Gulf client or a Gulf phone number. The checkbox alone earns 60%:
+  // a recruiter reading the CV cannot see an answer the candidate gave us.
   if (SITUATION_POINTS[scenario] > 0) {
+    const max = SITUATION_POINTS[scenario]
+    const gulfScenario = scenario === 'currently_in_gulf' || scenario === 'returner'
+    const shown = !gulfScenario || gulf.corroborated
+    const evidence = [situationEvidence(scenario)]
+    if (gulfScenario && gulf.corroborated) evidence.push(gulfEvidence(gulf))
     dimensions.push({
       key: 'gulf_market_position',
       label: DIMENSION_LABELS.gulf_market_position,
-      score: SITUATION_POINTS[scenario],
-      max: SITUATION_POINTS[scenario],
-      evidence: [situationEvidence(scenario)],
-      gaps: [],
-      confidence: 'high',
+      score: shown ? max : Math.round(max * 0.6),
+      max,
+      evidence,
+      gaps: shown
+        ? []
+        : ['Your CV does not show any Gulf location, employer or phone number — add them so a recruiter can see your Gulf experience'],
+      confidence: shown ? 'high' : 'medium',
     })
   }
 
@@ -97,7 +114,7 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
     })
   }
 
-  const finalScore = Math.min(100, dimensions.reduce((sum, d) => sum + d.score, 0))
+  const finalScore = Math.min(scoreCap, dimensions.reduce((sum, d) => sum + d.score, 0))
 
   // --- band + scenario-aware message -----------------------------------------
   const bandKey = bandKeyFor(finalScore)
@@ -117,6 +134,8 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
 
   // --- the ranker: what to fix first -----------------------------------------
   const recommendations = rankRecommendations(dimensions, scenario)
+  addNextSteps(recommendations, dimensions, scenario, gulf, lowResumeSignal)
+  recommendations.sort((a, b) => b.priority - a.priority)
 
   const confidence = dimensions.reduce<'high' | 'medium' | 'low'>((lowest, d) => {
     return CONFIDENCE_RANK[d.confidence] < CONFIDENCE_RANK[lowest] ? d.confidence : lowest
@@ -209,5 +228,62 @@ function recTitle(key: DimensionKey, scenario: Scenario): string {
         : 'Present your work history with clear dates and scope'
     case 'gulf_market_position':
       return ''
+  }
+}
+
+function gulfEvidence(g: ReturnType<typeof detectGulfSignals>): string {
+  const named = [...g.clients.slice(0, 2), ...g.places.slice(0, 2)].map((x) => x.replace(/\b\w/g, (c) => c.toUpperCase()))
+  return named.length ? `Your CV shows Gulf work: ${named.join(', ')}` : 'Your CV shows a Gulf contact number'
+}
+
+/**
+ * The ranker only lists real shortfalls, so a strong CV used to get none — no
+ * reason to go further, and the most qualified users are exactly the ones who
+ * should tailor next. These are honest next steps, ranked below every real
+ * shortfall and never counted in the score.
+ */
+function addNextSteps(
+  recs: Recommendation[],
+  dimensions: DimensionResult[],
+  scenario: Scenario,
+  gulf: ReturnType<typeof detectGulfSignals>,
+  lowSignal: boolean,
+): void {
+  const has = (k: DimensionKey) => recs.some((r) => r.dimension === k)
+  const push = (dimension: DimensionKey, title: string, why: string, priority: number) =>
+    recs.push({ dimension, title, why, impact: 'medium', difficulty: 'low', priority })
+
+  const market = dimensions.find((d) => d.key === 'gulf_market_position')
+  if (market && market.score < market.max && market.gaps[0]) {
+    push('gulf_market_position', 'Show your Gulf experience on the CV', market.gaps[0], 12)
+  }
+
+  // Declared "no Gulf experience", but the CV clearly shows Gulf work.
+  if ((scenario === 'experienced' || scenario === 'fresher') && gulf.corroborated && gulf.kinds >= 2) {
+    push('gulf_market_position', 'Your CV shows Gulf work — answer "Yes" to Gulf experience', 'You are being scored as a candidate without Gulf experience, which undersells you.', 9)
+  }
+  if (lowSignal) return
+
+  // A real gap too small for the ranker is still worth saying.
+  for (const d of dimensions) {
+    if (d.key === 'gulf_market_position' || has(d.key) || d.score >= d.max || !d.gaps[0]) continue
+    push(d.key, recTitle(d.key, scenario), d.gaps[0], 6)
+  }
+  if (recs.length >= 4) return
+
+  const quality = dimensions.find((d) => d.key === 'resume_quality')
+  const essentialsGap = quality?.gaps.find((g) => g.startsWith('State your'))
+  if (essentialsGap && !has('resume_quality')) push('resume_quality', 'Put your visa, notice period and nationality at the top', essentialsGap, 5)
+  const skills = dimensions.find((d) => d.key === 'skills')
+  const skillsGap = skills?.gaps.find((g) => /too many|Only \d+ skills/.test(g))
+  if (skillsGap && !has('skills')) push('skills', 'Tighten your skills section', skillsGap, 4)
+  push(
+    'resume_quality',
+    'Tailor your CV to each job description',
+    'A strong general CV still gets filtered when it does not use the words of the specific job. Match each application to its job description.',
+    3,
+  )
+  if (recs.length < 3) {
+    push('resume_quality', 'Lead your summary with your three strongest numbers', 'Recruiters spend seconds on the top third of the page — put your biggest scope, team size or result there.', 2)
   }
 }

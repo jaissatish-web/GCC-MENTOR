@@ -249,7 +249,7 @@ export default function OnboardingPage() {
           <div className="flex items-start gap-2.5 rounded-card border border-line bg-canvas px-3.5 py-3">
             <span className="text-[13px] text-teal">⌾</span>
             <p className="text-[12px] leading-snug text-ink-soft">
-              Used only to build your profile. Passport, visa and contact fields are encrypted.
+              Used only to build your profile. Passport, visa and contact fields are private to your account.
             </p>
           </div>
           <Button

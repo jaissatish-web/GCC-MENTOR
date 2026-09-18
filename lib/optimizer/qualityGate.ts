@@ -97,7 +97,7 @@ const OUTCOME_TAILS: Array<{ re: RegExp; source: RegExp }> = [
  * Words that grade the candidate rather than describe what they did. Each is a
  * claim ("proven record", "extensive experience") the profile must make first.
  */
-const INTENSIFIERS = [
+export const INTENSIFIERS = [
   'proven', 'track record', 'extensive', 'strong background', 'strong track', 'excellent', 'exceptional',
   'outstanding', 'highly skilled', 'highly experienced', 'deep expertise', 'in-depth', 'robust', 'dynamic',
   'fast-paced', 'competitive environment', 'results-driven', 'result-oriented', 'results-oriented', 'passionate',
@@ -289,7 +289,7 @@ export function checkQuality(input: GateInput): QualityIssue[] {
     // A rewrite must not lose what the candidate did. Measured 2026-09-17: a
     // High build merged "Cared for ventilated patients…" away, dropping the
     // strongest ICU evidence from the ICU role. Each original bullet must keep at
-    // least half of its distinctive words somewhere in the rewritten role, except
+    // least three quarters of its distinctive words somewhere in the rewritten role, except
     // where the plan deliberately condenses the role.
     if (!plan?.entries[block.entryId]?.maxBullets) {
       const outStems = contentStems(joined)

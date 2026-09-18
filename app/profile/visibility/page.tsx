@@ -185,7 +185,7 @@ function VisibilityScreen() {
         <div className="flex items-start gap-2.5 rounded-ctl border border-line/60 bg-white px-3.5 py-3">
           <span className="text-[13px] text-teal">⌾</span>
           <p className="text-[12px] leading-snug text-ink-soft">
-            Passport and visa fields are encrypted, and every internal access is logged.
+            Passport and visa fields are private to your account, and any access by our team is logged.
           </p>
         </div>
         <Button variant="primary" className="w-full" disabled={saving} onClick={onDone}>

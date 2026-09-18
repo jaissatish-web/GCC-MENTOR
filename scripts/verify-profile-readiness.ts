@@ -32,10 +32,18 @@ const partialProfile = {
   skills: [{ name: 'DCS' }, { name: 'PLC' }],
 }
 
+// "Complete" means what a Gulf recruiter reads for (engine rebuilt 2026-09-18):
+// a real summary, a full skills list, and nationality / visa / notice / languages.
 const fullProfile = {
-  professional_summary: 'Senior Instrumentation Engineer with 12 years of Gulf experience.',
+  professional_summary:
+    'Senior Instrumentation Engineer with 12 years of Gulf experience across ADNOC and Saudi Aramco refinery projects. Commissioned control loops and led SAT across two units, supervising site teams of eight engineers and technicians through handover.',
   email: 'john@example.com',
   phone: '+971 50 123 4567',
+  nationality: 'Indian',
+  visa_status: 'UAE residence visa (transferable)',
+  notice_period: '30 days',
+  current_location: 'Abu Dhabi, UAE',
+  additional_information: [{ label: 'Languages', value: 'English, Hindi, basic Arabic' }],
   work_experience: [
     {
       company: 'ADNOC',
@@ -56,7 +64,10 @@ const fullProfile = {
       highlights: ['Delivered 30+ SAT procedures with 99.2% accuracy.'],
     },
   ],
-  skills: [{ name: 'DCS' }, { name: 'PLC' }, { name: 'SCADA' }, { name: 'commissioning' }, { name: 'HAZOP' }],
+  skills: [
+    { name: 'DCS' }, { name: 'PLC' }, { name: 'SCADA' }, { name: 'commissioning' }, { name: 'HAZOP' },
+    { name: 'loop checking' }, { name: 'Foundation Fieldbus' }, { name: 'SIS' }, { name: 'calibration' }, { name: 'P&ID review' },
+  ],
   certifications: [{ name: 'NEBOSH IGC', issuer: null }, { name: 'PMP', issuer: null }],
   education: [{ degree: 'B.Tech', field_of_study: 'Instrumentation', institution: 'XYZ University' }],
 }

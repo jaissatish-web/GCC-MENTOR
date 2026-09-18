@@ -29,10 +29,11 @@ import {
   GlobeAmericasIcon,
   IdentificationIcon,
   MagnifyingGlassCircleIcon,
-  MapPinIcon,
   MicrophoneIcon,
   SparklesIcon,
+  WrenchScrewdriverIcon,
 } from '@heroicons/react/24/solid'
+import { DIMENSION_LABELS } from '@/lib/gulfReadiness/config'
 
 type Icon = ComponentType<{ className?: string }>
 
@@ -113,16 +114,17 @@ const services: Array<{
   },
 ]
 
-// The six dimensions the readiness score reports on. Icons and one-line notes
-// only — no example numbers, because a score printed beside a real dimension
-// label reads as a prediction about the visitor's own CV.
+// The six dimensions the readiness score reports on. Labels come from the
+// engine's own config so the page cannot drift from what is scored (the copy
+// here once listed "Career stage" and "Target market", which are not scored,
+// and missed Skills, which is). Notes describe what each detector reads.
 const readinessDimensions: Array<{ icon: Icon; label: string; note: string }> = [
-  { icon: BriefcaseIcon, label: 'Career stage', note: 'Seniority against the roles you target.' },
-  { icon: GlobeAmericasIcon, label: 'Gulf experience', note: 'GCC country and client exposure.' },
-  { icon: AcademicCapIcon, label: 'Qualifications', note: 'Degrees and equivalency signals.' },
-  { icon: ClipboardDocumentCheckIcon, label: 'Certifications', note: 'Safety, technical and PM tickets.' },
-  { icon: IdentificationIcon, label: 'Profile clarity', note: 'How readable your scope is.' },
-  { icon: MapPinIcon, label: 'Target market', note: 'Fit for the country you are applying to.' },
+  { icon: GlobeAmericasIcon, label: DIMENSION_LABELS.gulf_market_position, note: 'Where you are now, and whether your CV shows it.' },
+  { icon: BriefcaseIcon, label: DIMENSION_LABELS.work_experience, note: 'Dated roles, total years and how recent they are.' },
+  { icon: WrenchScrewdriverIcon, label: DIMENSION_LABELS.skills, note: 'A clear skills section naming specific tools.' },
+  { icon: AcademicCapIcon, label: DIMENSION_LABELS.education, note: 'A degree or diploma, with its institution.' },
+  { icon: ClipboardDocumentCheckIcon, label: DIMENSION_LABELS.certifications, note: 'Certifications Gulf employers ask for by name.' },
+  { icon: IdentificationIcon, label: DIMENSION_LABELS.resume_quality, note: 'Numbers, a summary, visa and notice details.' },
 ]
 
 // Two stages, so the free half and the build half are visibly different things.

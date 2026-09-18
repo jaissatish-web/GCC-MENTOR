@@ -3,7 +3,7 @@ import { Reveal } from '@/components/ui/Reveal'
 
 const STORY_TRUST = [
   'Nothing invented — ever',
-  'Passport & visa data encrypted',
+  'Passport & visa data kept private',
   'Your experience stays yours',
 ]
 

@@ -6,6 +6,7 @@ import { normalizeMockInterviewReport, validateMockInterviewReport } from '@/lib
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { LIMIT_ACTION_MOCK_REPORT } from '@/lib/rateLimit'
 import { completeMockRunAtomic } from '@/lib/packages/serverWrites'
+import { NOT_IN_CV_PREFIX } from '@/lib/ai/proseClaims'
 import type { MockInterviewRun } from '@/types/package'
 
 /**
@@ -87,6 +88,13 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
         minRepairMs: MIN_REPAIR_MS,
       })
       report = normalizeMockInterviewReport(result.value)
+      // Answers that claimed what the CV does not show are the riskiest thing
+      // in the run; they lead the list whatever the model chose.
+      const flagged = run.questions
+        .map((q, i) => ({ q, i }))
+        .filter(({ q }) => typeof q.feedback === 'string' && q.feedback.startsWith(NOT_IN_CV_PREFIX))
+        .map(({ q, i }) => `Q${i + 1}: ${q.feedback!.slice(NOT_IN_CV_PREFIX.length).split('.')[0].trim()}`)
+      if (flagged.length > 0) report = { ...report, risky_answers: [...flagged, ...report.risky_answers].slice(0, 5) }
     } catch (error) {
       console.error(
         'mock-interview finish: AI call failed user=' + user.id + ' pkg=' + params.id,

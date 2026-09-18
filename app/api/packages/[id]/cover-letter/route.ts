@@ -6,6 +6,14 @@ import type { CoverLetterTarget } from '@/lib/ai/buildCoverLetterPrompt'
 import { validateCoverLetterGrounding, type ParsedCoverLetter } from '@/lib/ai/validateCoverLetterGrounding'
 import type { CoverLetterValidationFailure } from '@/lib/ai/validateCoverLetterGrounding'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
+import {
+  checkProseClaims,
+  gapTermsFromMatchReport,
+  profileEvidenceText,
+  removeClaimSentences,
+  totalExperienceYears,
+  type ProseClaimIssue,
+} from '@/lib/ai/proseClaims'
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { LIMIT_ACTION_COVER_LETTER } from '@/lib/rateLimit'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
@@ -54,7 +62,8 @@ function isObject(v: unknown): v is Record<string, unknown> {
 }
 
 function buildCorrectiveAddendum(failures: CoverLetterValidationFailure[]): string {
-  const hard = failures.filter((f) => f.severity === 'hard')
+  // Grading words are 'flag' severity but still worth asking the model to fix.
+  const hard = failures.filter((f) => f.severity === 'hard' || f.code === 'unsupported_claim')
   const lines = hard.map(
     (f) => `- ${f.path}: ${f.detail}` + (f.offendingValue ? ` (found: "${f.offendingValue}")` : ''),
   )
@@ -66,6 +75,26 @@ function buildCorrectiveAddendum(failures: CoverLetterValidationFailure[]): stri
     'Return ONLY the corrected JSON, matching the exact schema.'
   )
 }
+
+function letterProse(parsed: Record<string, unknown>): string[] {
+  const body = Array.isArray(parsed.body_paragraphs)
+    ? (parsed.body_paragraphs as unknown[]).filter((p): p is string => typeof p === 'string')
+    : []
+  return [parsed.opening_paragraph, ...body, parsed.closing_paragraph].filter((p): p is string => typeof p === 'string')
+}
+
+function claimFailures(issues: ProseClaimIssue[]): CoverLetterValidationFailure[] {
+  return issues.map((i) => ({
+    code: 'unsupported_claim' as const,
+    severity: i.severity === 'hard' ? ('hard' as const) : ('flag' as const),
+    path: 'output',
+    detail: i.detail,
+    offendingValue: i.offendingValue,
+  }))
+}
+
+const SAFE_CLOSING =
+  'Thank you for considering my application. I would welcome the opportunity to discuss the role and how my experience can support your team.'
 
 function composeFullText(letter: ParsedCoverLetter): string {
   return [letter.greeting, letter.opening_paragraph, ...letter.body_paragraphs, letter.closing_paragraph, letter.sign_off].join(
@@ -101,7 +130,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, profile_id, target_job_title, target_industry, target_country, target_company, job_description, optimized_content, document_snapshot, skills_order, field_visibility_snapshot',
+      'id, profile_id, target_job_title, target_industry, target_country, target_company, job_description, optimized_content, document_snapshot, skills_order, field_visibility_snapshot, match_report',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
@@ -168,12 +197,18 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
 
   let succeeded = false
   try {
+    const claimCtx = {
+      evidence: profileEvidenceText(profile),
+      gaps: gapTermsFromMatchReport(pkgRow.match_report),
+      totalYears: totalExperienceYears(profile),
+    }
     const { system, user: userPrompt } = buildCoverLetterPrompt(
       profile,
       target,
       pkgRow.job_description as string | null,
       tone,
       savedResume,
+      { totalYears: claimCtx.totalYears, gaps: claimCtx.gaps.filter((g) => g.kind !== 'soft_skill').map((g) => g.term) },
     )
     const giveUpAt = startedAt + DEADLINE_MS
     const groundedProfile = profile
@@ -192,6 +227,13 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
       })
       const parsed = extractJsonObject(result.text)
       const validation = validateCoverLetterGrounding(groundedProfile, parsed)
+      if (!validation.failures.some((f) => f.severity === 'hard') && isObject(parsed)) {
+        const issues = checkProseClaims({ ...claimCtx, text: letterProse(parsed).join('\n\n') })
+        if (issues.length > 0) {
+          validation.failures.push(...claimFailures(issues))
+          validation.valid = !validation.failures.some((f) => f.severity === 'hard')
+        }
+      }
       return { parsed, validation }
     }
 
@@ -212,6 +254,31 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
         },
         { status: 502 },
       )
+    }
+
+    // After the corrective retry, a letter whose ONLY hard problems are claims
+    // is repaired by dropping those sentences rather than failed: the user has
+    // already waited for two generations, and every remaining sentence passed.
+    if (
+      !attempt.validation.valid &&
+      isObject(attempt.parsed) &&
+      attempt.validation.failures.filter((f) => f.severity === 'hard').every((f) => f.code === 'unsupported_claim')
+    ) {
+      const p = attempt.parsed as Record<string, unknown>
+      const clean = (t: unknown) => (typeof t === 'string' ? removeClaimSentences(t, claimCtx) : '')
+      const body = (Array.isArray(p.body_paragraphs) ? (p.body_paragraphs as unknown[]) : []).map(clean).filter((t) => t.trim())
+      let opening = clean(p.opening_paragraph)
+      if (!opening.trim() && body.length > 1) opening = body.shift() as string
+      const closing = clean(p.closing_paragraph).trim() || SAFE_CLOSING
+      if (opening.trim() && body.length > 0) {
+        const repaired = { ...p, opening_paragraph: opening, body_paragraphs: body, closing_paragraph: closing }
+        const recheck = validateCoverLetterGrounding(groundedProfile, repaired)
+        const left = checkProseClaims({ ...claimCtx, text: letterProse(repaired).join('\n\n') })
+        if (recheck.valid && !left.some((i) => i.severity === 'hard')) {
+          console.info(`cover-letter: removed unsupported claims pkg=${packageId}`)
+          attempt = { parsed: repaired, validation: recheck }
+        }
+      }
     }
 
     if (!attempt.validation.valid) {

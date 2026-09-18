@@ -5,6 +5,13 @@ import { buildInterviewQaPrompt } from '@/lib/ai/buildInterviewQaPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
 import { normalizeInterviewQa, validateInterviewQa } from '@/lib/ai/validateInterviewQa'
 import { allowedNumbersFor, resumeDocumentTexts, unsourcedNumbers } from '@/lib/ai/answerGrounding'
+import {
+  gapTermsFromMatchReport,
+  groundAnswer,
+  profileEvidenceText,
+  renderAnswerFacts,
+  totalExperienceYears,
+} from '@/lib/ai/proseClaims'
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { LIMIT_ACTION_INTERVIEW_QA } from '@/lib/rateLimit'
 import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
@@ -66,7 +73,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot',
+      'id, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot, match_report',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
@@ -144,6 +151,11 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
 
   let succeeded = false
   try {
+    const claimCtx = {
+      evidence: [profileEvidenceText(profile), ...resumeDocumentTexts(resume)].join('\n'),
+      gaps: gapTermsFromMatchReport(pkgRow.match_report),
+      totalYears: totalExperienceYears(profile),
+    }
     const prompt = buildInterviewQaPrompt(
       profile,
       resume,
@@ -154,6 +166,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
         target_industry: (pkgRow.target_industry as string | null) ?? null,
       },
       (pkgRow.job_description as string | null) ?? null,
+      renderAnswerFacts(claimCtx.totalYears, claimCtx.gaps),
     )
 
     let parsed
@@ -200,7 +213,16 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
     }
 
     // Anything still carrying an unsourced number is not shown.
-    const kept = parsed.questions.filter((q) => unsourcedNumbers(q.answer, allowed).length === 0)
+    // Then every answer's claims: a sentence claiming a missing requirement is
+    // removed, and an answer left with nothing true coaches honesty instead.
+    let reworded = 0
+    const kept = parsed.questions
+      .filter((q) => unsourcedNumbers(q.answer, allowed).length === 0)
+      .map((q) => {
+        const grounded = groundAnswer(q.answer, claimCtx)
+        if (grounded.changed) reworded++
+        return grounded.changed ? { ...q, answer: grounded.text } : q
+      })
     const dropped = parsed.questions.length - kept.length
     if (kept.length === 0) {
       return NextResponse.json({ error: 'Could not generate grounded answers. Nothing was used — please try again.' }, { status: 502 })
@@ -228,6 +250,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
 
     succeeded = true
     if (dropped > 0) console.info(`interview-qa: dropped ${dropped} ungrounded answer(s) pkg=${packageId}`)
+    if (reworded > 0) console.info(`interview-qa: removed unsupported claims from ${reworded} answer(s) pkg=${packageId}`)
     console.info(`interview Q&A generated: pkg=${packageId} user=${user.id} set=${interviewQuestions.id}`)
     return NextResponse.json({ success: true, interview_questions: interviewQuestions })
   } finally {
