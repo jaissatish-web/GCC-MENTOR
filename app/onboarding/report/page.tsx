@@ -1,5 +1,6 @@
 'use client'
 
+import { PageSkeleton } from '@/components/ui/Skeleton'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -59,7 +60,7 @@ export default function OnboardingReportPage() {
   if (!checked || !result) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-canvas font-redesign-sans">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+        <PageSkeleton label="Loading your report" />
       </main>
     )
   }

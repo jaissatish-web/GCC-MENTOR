@@ -72,3 +72,27 @@ export function SkeletonGroup({
 }
 
 export { Skeleton }
+
+/**
+ * A whole screen's worth of placeholder (2026-09-18). Nine screens showed a
+ * bare monospace "Loading…" on an empty page for 10–20 seconds on a slow
+ * network. This gives the page its shape: a heading, a line of context and
+ * content cards. Bars sit inside white cards because a bar on the canvas
+ * background is invisible (the bar colour is the canvas colour).
+ */
+export function PageSkeleton({ label = 'Loading', cards = 3 }: { label?: string; cards?: number }) {
+  return (
+    <SkeletonGroup label={label} className="w-full max-w-[900px] gap-4 self-start px-4 pb-10 pt-8 sm:px-6">
+      <Skeleton shape="title" className="h-7 w-2/3 bg-line/70 sm:w-1/2" />
+      <Skeleton className="w-5/6 bg-line/60 sm:w-2/3" />
+      {Array.from({ length: cards }, (_, i) => (
+        <div key={i} className="flex flex-col gap-3 rounded-card border border-line bg-white p-5 shadow-m-1">
+          <Skeleton shape="title" className="w-1/3" />
+          <Skeleton />
+          <Skeleton className="w-4/5" />
+          {i === 0 ? <Skeleton shape="block" className="h-20" /> : null}
+        </div>
+      ))}
+    </SkeletonGroup>
+  )
+}

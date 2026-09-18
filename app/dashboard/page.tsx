@@ -355,7 +355,9 @@ export default function DashboardPage() {
                 icon={BriefcaseIcon}
                 accent="gold"
                 value={packagesLoaded ? String(packageCount) : '—'}
-                sub={packageCount > 0 ? 'View jobs and application stages' : 'None yet'}
+                // Never an empty state before the count has loaded: "None yet"
+                // flashed for users who had saved CVs (2026-09-18).
+                sub={!packagesLoaded ? undefined : packageCount > 0 ? 'View jobs and application stages' : 'None yet'}
                 href="/dashboard/library"
               />
             </div>

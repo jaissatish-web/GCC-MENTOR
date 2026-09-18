@@ -1,5 +1,6 @@
 'use client'
 
+import { PageSkeleton } from '@/components/ui/Skeleton'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -184,7 +185,7 @@ export default function OnboardingPage() {
   if (checkingClaim) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-canvas font-redesign-sans">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+        <PageSkeleton label="Loading" />
       </main>
     )
   }

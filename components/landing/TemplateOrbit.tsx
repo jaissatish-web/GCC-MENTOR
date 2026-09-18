@@ -171,11 +171,13 @@ export function TemplateOrbit() {
   const phaseRef = useRef(FRONT_ANGLE)
   const pausedRef = useRef(false)
 
+  // The stage size, read by a ResizeObserver rather than on every frame:
+  // reading clientWidth before writing styles forced a layout each tick.
+  const sizeRef = useRef({ width: 620, height: 520 })
+
   const applyOrbitFrame = useCallback(() => {
     const step = (Math.PI * 2) / templates.length
-    const orbitBox = orbitRef.current
-    const width = orbitBox?.clientWidth ?? 620
-    const height = orbitBox?.clientHeight ?? 520
+    const { width, height } = sizeRef.current
     const isCompact = width < 520
     const radiusX = Math.min(isCompact ? 148 : 218, Math.max(isCompact ? 92 : 128, width * 0.34))
     const radiusY = Math.min(isCompact ? 108 : 136, Math.max(isCompact ? 74 : 96, height * 0.21))
@@ -218,29 +220,79 @@ export function TemplateOrbit() {
     })
   }, [templates.length])
 
+  const syncRef = useRef<(() => void) | null>(null)
+
   useEffect(() => {
     pausedRef.current = paused
+    syncRef.current?.()
   }, [paused])
 
+  // Animation loop (2026-09-18). It was setInterval(80ms) forever: running
+  // while paused, while scrolled out of view and with reduced motion on,
+  // each tick forcing a layout read before ~20 style writes — continuous work
+  // on the budget phones this audience uses. Now: requestAnimationFrame, only
+  // while the stage is on screen, not paused and motion is allowed. A still
+  // frame is drawn whenever the loop is not running.
   useEffect(() => {
-    let last = performance.now()
+    const stage = orbitRef.current
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let visible = true
+    let frame = 0
+    let last = 0
 
-    const tick = () => {
-      const now = performance.now()
-      const delta = now - last
-      last = now
-
-      if (!pausedRef.current && !reduceMotion.matches) {
-        phaseRef.current += (delta / (ORBIT_SECONDS * 1000)) * Math.PI * 2
-      }
-
-      applyOrbitFrame()
+    const measure = () => {
+      if (!stage) return
+      sizeRef.current = { width: stage.clientWidth || 620, height: stage.clientHeight || 520 }
     }
 
+    const loop = (now: number) => {
+      const delta = last ? Math.min(now - last, 100) : 0
+      last = now
+      phaseRef.current += (delta / (ORBIT_SECONDS * 1000)) * Math.PI * 2
+      applyOrbitFrame()
+      frame = window.requestAnimationFrame(loop)
+    }
+
+    const sync = () => {
+      const shouldRun = visible && !pausedRef.current && !reduceMotion.matches && document.visibilityState === 'visible'
+      if (shouldRun && !frame) {
+        last = 0
+        frame = window.requestAnimationFrame(loop)
+      } else if (!shouldRun && frame) {
+        window.cancelAnimationFrame(frame)
+        frame = 0
+      }
+    }
+
+    measure()
     applyOrbitFrame()
-    const interval = window.setInterval(tick, 80)
-    return () => window.clearInterval(interval)
+
+    const resize = new ResizeObserver(() => {
+      measure()
+      applyOrbitFrame()
+    })
+    if (stage) resize.observe(stage)
+
+    const onScreen = new IntersectionObserver((entries) => {
+      visible = entries.some((e) => e.isIntersecting)
+      sync()
+    })
+    if (stage) onScreen.observe(stage)
+
+    // Pause/resume and the reduced-motion setting are read through sync().
+    syncRef.current = sync
+    reduceMotion.addEventListener('change', sync)
+    document.addEventListener('visibilitychange', sync)
+    sync()
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame)
+      resize.disconnect()
+      onScreen.disconnect()
+      reduceMotion.removeEventListener('change', sync)
+      document.removeEventListener('visibilitychange', sync)
+      syncRef.current = null
+    }
   }, [applyOrbitFrame])
 
   const moveTemplateToFront = (id: TemplateId, index: number) => {

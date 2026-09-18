@@ -1,4 +1,5 @@
 'use client'
+import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -324,6 +325,45 @@ function PackageScreenInner({ id }: { id: string }) {
       .catch(() => setError('Could not load this package.'))
   }, [id, router])
 
+  // Coming back to this tab refreshes the service cards (2026-09-18): a cover
+  // letter generated in another tab still showed "To do" here. Only service
+  // fields are merged — never the name, tracker or style the user may be
+  // editing on this page.
+  useEffect(() => {
+    let last = Date.now()
+    const refresh = () => {
+      if (document.visibilityState !== 'visible' || Date.now() - last < 5000) return
+      last = Date.now()
+      fetch(`/api/packages/${encodeURIComponent(id)}`, { cache: 'no-store' })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          const fresh = data?.package as Package | undefined
+          if (!fresh) return
+          setPkg((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  cover_letters: fresh.cover_letters,
+                  interview_questions: fresh.interview_questions,
+                  mock_interview_runs: fresh.mock_interview_runs,
+                  ats_score_card: fresh.ats_score_card,
+                  match_report: fresh.match_report,
+                  service_events: fresh.service_events,
+                  status: fresh.status,
+                }
+              : prev,
+          )
+        })
+        .catch(() => {})
+    }
+    document.addEventListener('visibilitychange', refresh)
+    window.addEventListener('focus', refresh)
+    return () => {
+      document.removeEventListener('visibilitychange', refresh)
+      window.removeEventListener('focus', refresh)
+    }
+  }, [id])
+
   if (error) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5">
@@ -336,7 +376,7 @@ function PackageScreenInner({ id }: { id: string }) {
     // While checking is_paid we show nothing but a loader — never content.
     return (
       <div className="flex min-h-dvh items-center justify-center bg-canvas">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+        <PageSkeleton label="Loading your CV" />
       </div>
     )
   }
@@ -518,21 +558,27 @@ function PackageScreenInner({ id }: { id: string }) {
             clearing it falls back to the job title rather than storing blank. */}
         <label className="flex flex-1 flex-wrap items-center gap-2 text-[12px] text-ink-muted lg:max-w-[420px]">
           <span className="sr-only lg:not-sr-only">Name</span>
-          <input
-            type="text"
+          {/* A textarea that sizes to its text (field-sizing: content), so a
+              long job title wraps instead of being clipped mid-word on a phone
+              ("…Enginee", 2026-09-18). Enter still saves; it never adds a line.
+              Browsers without field-sizing keep a one-line box, as before. */}
+          <textarea
             aria-label="Resume name"
             value={nameDraft}
             maxLength={120}
+            rows={1}
             placeholder={pkg.target_job_title}
-            onChange={(e) => setNameDraft(e.target.value)}
+            onChange={(e) => setNameDraft(e.target.value.replace(/\n/g, ' '))}
             onBlur={() => void saveName()}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
+                e.preventDefault()
                 e.currentTarget.blur()
               }
             }}
+            style={{ fieldSizing: 'content' } as React.CSSProperties}
             // The shared field, at 44px. It was 34px with a 1.21:1 edge.
-            className="field min-w-[180px] flex-1"
+            className="field min-w-[180px] flex-1 resize-none py-2.5 leading-snug"
           />
           {nameState ? <span className="shrink-0 text-teal">{nameState}</span> : null}
         </label>

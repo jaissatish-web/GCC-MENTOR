@@ -80,15 +80,18 @@ export function SiteNav() {
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
           <Link
             href="/login"
-            className="flex min-h-11 items-center rounded-ctl px-2.5 text-[14px] font-semibold text-teal transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="flex min-h-11 items-center rounded-ctl px-2 text-[14px] font-semibold text-teal transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:px-2.5"
           >
             Log in
           </Link>
+          {/* Visible on phones too (2026-09-18): most of this audience browses on
+              a phone, and the primary action was hidden behind the menu there. */}
           <Link
             href="/signup"
-            className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'hidden sm:inline-flex')}
+            className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'inline-flex px-3 sm:px-4')}
           >
-            Sign up free
+            <span className="sm:hidden">Sign up</span>
+            <span className="hidden sm:inline">Sign up free</span>
           </Link>
           <PublicMenu anchors={ITEMS} />
         </div>

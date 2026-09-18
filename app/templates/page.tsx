@@ -58,6 +58,13 @@ function TemplatesInner() {
       .catch(() => setError('Could not load your resumes.'))
   }, [])
 
+  // Start from the chosen CV's current design (2026-09-18): the bar said
+  // "Selected: Gulf Premium" for a CV built on ATS Classic.
+  useEffect(() => {
+    const current = packages?.find((p) => p.id === selectedId)?.template_id
+    if (current && (TEMPLATES as Record<string, unknown>)[current]) setTemplateId(current as TemplateId)
+  }, [packages, selectedId])
+
   const hasResumes = (packages?.length ?? 0) > 0
   const templateName = getTemplate(templateId).name
 

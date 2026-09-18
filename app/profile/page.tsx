@@ -1,4 +1,5 @@
 'use client'
+import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -1631,7 +1632,7 @@ function ProfileScreen() {
   if (!loaded || !editor) {
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-canvas">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+        <PageSkeleton label="Loading your Career Profile" />
       </main>
     )
   }

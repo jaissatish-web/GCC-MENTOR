@@ -1,4 +1,5 @@
 'use client'
+import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState, use } from 'react';
@@ -102,7 +103,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
   if (!pkg) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-canvas">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+        <PageSkeleton label="Loading" />
       </div>
     )
   }

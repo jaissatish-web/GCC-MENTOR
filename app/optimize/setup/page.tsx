@@ -1,4 +1,5 @@
 'use client'
+import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -223,7 +224,7 @@ function SetupScreen() {
   if (!draft) {
     return (
       <main className="flex min-h-dvh items-center justify-center">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+        <PageSkeleton label="Loading your profile" />
       </main>
     )
   }

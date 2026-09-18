@@ -1,4 +1,5 @@
 'use client'
+import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, use } from 'react'
@@ -229,7 +230,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   if (!pkg || !draft) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-canvas">
-        <p className="font-mono text-sm text-ink-muted">Loading…</p>
+        <PageSkeleton label="Loading the editor" />
       </main>
     )
   }

@@ -169,6 +169,14 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
           activeIndex={Math.max(0, activeIndex)}
           notes={GENERATE_NOTES}
         />
+        {/* Measured 2026-09-18: a full build ran about three minutes. Saying so
+            up front stops people abandoning a build that is working. */}
+        <p className="text-center text-[12.5px] leading-relaxed text-white/60">
+          A full build usually takes 2–4 minutes. Keep this page open — it moves on by itself.
+          <span className="mt-1 block font-mono text-[12px] tabular-nums text-white/45">
+            {Math.floor(elapsedMs / 60000)}:{String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0')} elapsed
+          </span>
+        </p>
       </div>
     </main>
   )
