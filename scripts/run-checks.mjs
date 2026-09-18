@@ -33,6 +33,7 @@ const TS_CHECKS = [
   'verify-photo-rehydration.ts',
   'verify-optimization-grounding.ts',
   'verify-prose-claims.ts',
+  'verify-id-numbers.ts',
   'verify-skills-order.ts',
   'verify-optimizer-engine.ts',
   'verify-resume-edits.ts',

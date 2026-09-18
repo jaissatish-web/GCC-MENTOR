@@ -62,7 +62,8 @@ export function ResultsOverview({
   const blocks = pkg.optimized_content?.experience_blocks ?? []
   const rewritten = blocks.filter((b) => b.was_optimized).length
   const summaryWritten = Boolean(pkg.optimized_content?.summary?.generated?.trim() || pkg.optimized_content?.summary?.user_edited?.trim())
-  const skillsOrdered = (pkg.skills_order ?? []).length
+  // Claimed only when the build recorded a real re-rank (older rows make no claim).
+  const skillsOrdered = pkg.optimized_content?.skills_reordered === true ? 1 : 0
   const confirmed = (report?.suggestions ?? []).filter((s) => s.status === 'confirmed').length
   const pending = (report?.suggestions ?? []).filter((s) => s.status === 'pending').length
   const level = pkg.optimization_level.charAt(0).toUpperCase() + pkg.optimization_level.slice(1)

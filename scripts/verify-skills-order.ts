@@ -198,3 +198,30 @@ if (failures > 0) {
   process.exit(1)
 }
 console.log('\nAll skills-order checks passed')
+
+// ---- rankSkillsForJob (2026-09-18) ------------------------------------------
+{
+  const { rankSkillsForJob } = require('../lib/ai/skillsOrder') as typeof import('../lib/ai/skillsOrder')
+  const skills = [
+    { id: 'a', name: 'Loop Testing', sort_order: 1 },
+    { id: 'b', name: 'SCADA Validation', sort_order: 2 },
+    { id: 'c', name: 'Instrument Index', sort_order: 3 },
+    { id: 'd', name: 'P&ID review', sort_order: 4 },
+    { id: 'e', name: 'SmartPlant Instrumentation (SPI/INtools)', sort_order: 5 },
+  ]
+  const keywords = [
+    { term: 'Instrument Index', aliases: [], importance: 'must' },
+    { term: 'P&IDs', aliases: ['P&ID'], importance: 'must' },
+    { term: 'SPI', aliases: ['SmartPlant Instrumentation'], importance: 'nice' },
+  ]
+  const r = rankSkillsForJob(['a', 'b', 'c', 'd', 'e'], skills, keywords)
+  const ok1 = r.order[0] === 'c' && r.order[1] === 'd'
+  const ok2 = r.order[2] === 'e'
+  const ok3 = r.order.length === 5 && new Set(r.order).size === 5
+  const ok4 = rankSkillsForJob(['a', 'b'], skills, []).moved === 0
+  console.log(`${ok1 ? 'PASS' : 'FAIL'}  must-have skills lead the order`)
+  console.log(`${ok2 ? 'PASS' : 'FAIL'}  nice-to-have skills come next`)
+  console.log(`${ok3 ? 'PASS' : 'FAIL'}  ranking never adds or drops a skill`)
+  console.log(`${ok4 ? 'PASS' : 'FAIL'}  no job keywords -> order unchanged`)
+  if (!(ok1 && ok2 && ok3 && ok4)) process.exit(1)
+}

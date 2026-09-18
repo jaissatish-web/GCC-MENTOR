@@ -302,6 +302,9 @@ function ai(o: unknown): EditableAdditional {
   }
 }
 
+const GCC_LOCATION =
+  /\b(saudi|ksa|riyadh|jeddah|dammam|jubail|khobar|dhahran|yanbu|tabuk|neom|uae|united arab emirates|dubai|abu dhabi|sharjah|ajman|ras al khaimah|fujairah|al ain|qatar|doha|oman|muscat|sohar|salalah|kuwait|bahrain|manama)\b/i
+
 /** Normalise a CareerProfileDraft (extraction handoff) into editor state. */
 function fromDraft(d: CareerProfileDraft): EditorData {
   return {
@@ -316,6 +319,10 @@ function fromDraft(d: CareerProfileDraft): EditorData {
     visa_transferable: d.visa_transferable ?? false,
     notice_period: str(d.notice_period),
     current_location: str(d.current_location),
+    // Pre-set on the review form when the CV places the candidate in the GCC.
+    // Extraction itself stays silent on status (see types/careerProfile.ts);
+    // the user sees this toggle and can switch it off before saving.
+    currently_in_gulf: GCC_LOCATION.test(str(d.current_location)),
     phone: str(d.phone),
     whatsapp: str(d.whatsapp),
     email: str(d.email),

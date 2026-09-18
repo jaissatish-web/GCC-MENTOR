@@ -1,3 +1,4 @@
+import { stripIdNumbers } from '@/lib/idNumbers'
 import type {
   CareerProfileFull,
   FieldVisibility,
@@ -293,6 +294,7 @@ export function buildResumeDocument({
         companyLine: joinParts([entry.company, entry.location]),
       }
     })
+  harmoniseBulletPunctuation(experience, (id) => Boolean(blocksById.get(id)?.user_edited_bullets))
 
   // ---- Skills -------------------------------------------------------------
   // skills_order holds relevance-ordered ids. Anything the order omits is
@@ -340,7 +342,7 @@ export function buildResumeDocument({
     ? (profile.additional_information ?? [])
         .slice()
         .sort((a, b) => a.sort_order - b.sort_order)
-        .map((entry) => ({ entry, display: joinParts([entry.label, entry.value], ': ') }))
+        .map((entry) => ({ entry, display: joinParts([entry.label, readableList(stripIdNumbers(entry.label, entry.value ?? ''))], ': ') }))
     : []
 
   return {
@@ -493,4 +495,37 @@ export function applyTargetTitleToDocument(
   const title = packageTargetTitle?.trim()
   if (!title) return doc
   return { ...doc, header: { ...doc.header, targetJobTitle: title } }
+}
+
+/**
+ * One punctuation style per CV (2026-09-18). Rewritten bullets ended with a
+ * period and bullets kept in the candidate's own words did not, side by side
+ * in the same document. The majority style wins. Bullets the user edited by
+ * hand are theirs and are left exactly as typed.
+ */
+function harmoniseBulletPunctuation(items: ResumeExperienceItem[], userEdited: (entryId: string) => boolean): void {
+  const auto = items.filter((i) => !userEdited(i.entry.id))
+  const all = auto.flatMap((i) => i.bullets)
+  if (all.length === 0) return
+  const dotted = all.filter((b) => /\.\s*$/.test(b)).length
+  const useDot = dotted * 2 >= all.length
+  for (const item of auto) {
+    item.bullets = item.bullets.map((b) => {
+      const bare = b.replace(/[\s.;,]+$/, '')
+      return useDot && !/[!?)]$/.test(bare) ? `${bare}.` : bare
+    })
+  }
+}
+
+/**
+ * Items a CV joined with check marks or line breaks ("…facility✓ 5+ years…✓")
+ * read as one run-on line once printed. Separate them with semicolons.
+ */
+function readableList(value: string): string {
+  if (!/[✓✔]|\n/.test(value)) return value
+  return value
+    .split(/\s*[✓✔]\s*|\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .join('; ')
 }

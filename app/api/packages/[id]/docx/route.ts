@@ -1,3 +1,4 @@
+import { downloadFileName } from '@/lib/downloadName'
 import { NextRequest, NextResponse } from 'next/server'
 import { Packer } from 'docx'
 import { createClient } from '@/lib/supabase/server'
@@ -158,11 +159,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     const buffer = await Packer.toBuffer(wordDoc)
     const bytes = new Uint8Array(buffer)
 
-    const safeName =
-      (pkg.target_job_title || 'resume')
-        .replace(/[^a-zA-Z0-9\-_ ]/g, '')
-        .replace(/\s+/g, '_')
-        .trim() || 'resume'
+    const safeName = downloadFileName(profile.full_name, pkg.target_job_title)
 
     return new NextResponse(bytes, {
       headers: {

@@ -23,6 +23,8 @@
  * result echoes a model value or a skill name except `order`, which is ids.
  */
 
+import { containsTermRaw } from '@/lib/optimizer/text'
+
 export interface SkillRef {
   id: string
   name: string
@@ -129,4 +131,39 @@ export function normalizeSkillsOrder(
     codes: list,
     repaired: list.some((c) => c !== 'skills_order_names_used'),
   }
+}
+
+/**
+ * Rank skills for THIS job, in code (2026-09-18). The model is asked for an
+ * order but often returns none or the profile's own order, and the results
+ * page still said "Skills ordered by relevance" — measured: 70 skills in their
+ * original order with the job's must-haves (Instrument Index, I/O lists,
+ * P&ID review) at positions 55-61. Skills matching a MUST requirement lead,
+ * then NICE, then everything else; within each tier the incoming order (the
+ * model's where it gave one) is kept. Never adds, drops or renames a skill.
+ */
+export function rankSkillsForJob(
+  order: string[],
+  skills: SkillRef[],
+  keywords: ReadonlyArray<{ term: string; aliases?: readonly string[]; importance: string }>,
+): { order: string[]; moved: number } {
+  if (keywords.length === 0) return { order, moved: 0 }
+  const nameOf = new Map(skills.map((s) => [s.id, s.name]))
+  const tier = (id: string): number => {
+    const name = nameOf.get(id) ?? ''
+    let best = 0
+    for (const k of keywords) {
+      const hit = containsTermRaw(name, k.term, k.aliases ?? []) || containsTermRaw(k.term, name)
+      if (hit) best = Math.max(best, k.importance === 'must' ? 2 : 1)
+      if (best === 2) break
+    }
+    return best
+  }
+  const tiers = new Map(order.map((id) => [id, tier(id)]))
+  const ranked = order
+    .map((id, i) => ({ id, i }))
+    .sort((a, b) => (tiers.get(b.id)! - tiers.get(a.id)!) || a.i - b.i)
+    .map((x) => x.id)
+  const moved = ranked.filter((id, i) => id !== order[i]).length
+  return { order: ranked, moved }
 }

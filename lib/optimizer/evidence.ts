@@ -13,6 +13,7 @@
  * rejected by the validator if it appears anyway.
  */
 
+import { categoryBridges } from './categoryBridges'
 import type { CareerProfileFull, ProfileWorkExperience } from '@/types/careerProfile'
 import { compoundsIntact, containsQuote, containsTerm, containsTermInSentence, coversContentStems, GRADE_STEMS, isAcronymIn, prepare, stems, stemsMatch, type PreparedText } from './text'
 import type {
@@ -185,6 +186,10 @@ export function buildEvidenceMap(
   // Model bridges plus local same-sentence proof, de-duplicated per location.
   const seenBridge = new Set(bridges.map((b) => `${b.term}|${b.location}`))
   bridges = [...bridges, ...sameSentenceBridges(profile, target).filter((b) => !seenBridge.has(`${b.term}|${b.location}`))]
+  // Named standards prove a category requirement ("SAES" is an Oil & Gas code).
+  const category = categoryBridges(profile, target).filter((b) => !bridges.some((x) => x.term === b.term && x.location === b.location))
+  bridges = [...bridges, ...category]
+  const categoryKeys = new Set(category.map((b) => `${b.term}|${b.location}`))
   const entries = (profile.work_experience ?? []).map((e) => ({ id: e.id, text: prepare(entrySourceText(e)) }))
   const summaryText: PreparedText = prepare(profile.professional_summary ?? '')
   const listed: PreparedText = prepare(listedText(profile))
@@ -219,6 +224,15 @@ export function buildEvidenceMap(
     for (const b of own) {
       approve(b.location, k, b.quote)
       approve('summary', k, b.quote)
+      // A category bridge proves the requirement by membership, not by shared
+      // words, so its term is approved outright where the member appears.
+      if (categoryKeys.has(`${b.term}|${b.location}`)) {
+        for (const loc of [b.location, 'summary']) {
+          const list = approvedTerms.get(loc) ?? []
+          if (!list.includes(k.term)) list.push(k.term)
+          approvedTerms.set(loc, list)
+        }
+      }
     }
 
     const status: KeywordStatus =

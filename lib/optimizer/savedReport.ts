@@ -14,7 +14,7 @@ import type { ResumeDocument } from '@/lib/resumeDocument'
 import { baselineDocument, profileFingerprint, qualificationScore } from './analyze'
 import { buildEvidenceMap } from './evidence'
 import { maxAchievableScore, scoreDocumentFromResume, scoreResume } from './score'
-import { LEVEL_TARGET_BAND } from './suggestions'
+import { reachableTargetBand } from './suggestions'
 import { containsTermRaw } from './text'
 import type { JobTargetProfile, MatchReport, VerifiedBridge } from './types'
 
@@ -60,7 +60,7 @@ export function reportForSavedDocument(opts: {
     kept_original: [],
     suggestions: [],
     projected_with_suggestions: after.total,
-    target_band: LEVEL_TARGET_BAND[opts.level],
+    target_band: reachableTargetBand(opts.level, after.total),
     generated_at: new Date().toISOString(),
   }
 }

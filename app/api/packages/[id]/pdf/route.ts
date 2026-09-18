@@ -1,3 +1,4 @@
+import { downloadFileName } from '@/lib/downloadName'
 import { NextRequest, NextResponse } from 'next/server'
 import { launchBrowser, waitForImages } from '@/lib/pdf/browser'
 import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
@@ -326,11 +327,7 @@ export async function GET(request: NextRequest, props0: { params: Promise<{ id: 
       await browser.close().catch(() => {})
     }
 
-    const safeName =
-      (pkg.target_job_title || 'resume')
-        .replace(/[^a-zA-Z0-9\-_ ]/g, '')
-        .replace(/\s+/g, '_')
-        .trim() || 'resume'
+    const safeName = downloadFileName(profile.full_name, pkg.target_job_title)
 
     // Service history, written atomically (migration 050) and de-duplicated: a
     // re-download within ten minutes adds no second event. A failure to record

@@ -66,40 +66,7 @@ export function profileEvidenceText(profile: CareerProfileFull): string {
   return parts.filter(Boolean).join('\n')
 }
 
-function monthIndex(d: string | null | undefined, fallbackNow: boolean): number | null {
-  if (!d || /present|current|now/i.test(d)) return fallbackNow ? new Date().getFullYear() * 12 + new Date().getMonth() : null
-  const m = /^(\d{4})(?:-(\d{1,2}))?/.exec(d.trim())
-  if (!m) return null
-  return Number(m[1]) * 12 + (m[2] ? Number(m[2]) - 1 : 0)
-}
-
-/**
- * Whole years of experience across the dated roles, overlaps counted once.
- * Computed here so no model ever does date arithmetic (it said "nearly 13"
- * for a career that runs Aug 2011 – present).
- */
-export function totalExperienceYears(profile: CareerProfileFull): number | null {
-  const spans: Array<[number, number]> = []
-  for (const e of profile.work_experience ?? []) {
-    const s = monthIndex(e.start_date, false)
-    const end = monthIndex(e.end_date, true)
-    if (s === null || end === null || end < s) continue
-    spans.push([s, end])
-  }
-  if (spans.length === 0) return null
-  spans.sort((a, b) => a[0] - b[0])
-  let months = 0
-  let [cs, ce] = spans[0]
-  for (const [s, e] of spans.slice(1)) {
-    if (s <= ce + 1) ce = Math.max(ce, e)
-    else {
-      months += ce - cs + 1
-      ;[cs, ce] = [s, e]
-    }
-  }
-  months += ce - cs + 1
-  return Math.floor(months / 12)
-}
+export { totalExperienceYears } from '@/lib/experienceYears'
 
 /** Words too broad to be a claim on their own, even inside a missing requirement. */
 const GENERIC = new Set(

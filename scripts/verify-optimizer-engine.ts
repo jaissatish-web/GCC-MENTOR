@@ -627,7 +627,57 @@ async function resultsSuite() {
   {
     const doc = baselineDocument(profile, target.job_title)
     const rep = reportForSavedDocument({ profile, target, bridges, analysisId: 'a1', targetJobTitle: target.job_title, level: 'high', document: doc })
-    check('saved-CV score: before and after present, same doc scores equal', !!rep.after && rep.after.total === rep.before.total && rep.target_band?.[0] === 85)
+    check('saved-CV score: before and after present, same doc scores equal', !!rep.after && rep.after.total === rep.before.total)
+    // 2026-09-18: a level aim is shown only when this CV can reach it.
+    check(
+      'saved-CV report shows the level aim only when reachable',
+      (rep.after?.total ?? 0) >= 85 ? rep.target_band?.[0] === 85 : rep.target_band === undefined,
+    )
+  }
+  {
+    // 2026-09-18: named standards prove a category requirement.
+    const { buildEvidenceMap } = require('../lib/optimizer/evidence') as typeof import('../lib/optimizer/evidence')
+    const p = {
+      professional_summary: '',
+      work_experience: [{ id: 'w1', role: 'I&C Engineer', company: 'X', description: null, highlights: ['Managed vendor coordination against ADNOC engineering standards (SAES, SAEP)'] }],
+      skills: [{ name: 'Shell DEP' }],
+      certifications: [],
+      education: [],
+      additional_information: [],
+    } as unknown as Parameters<typeof buildEvidenceMap>[0]
+    const t = {
+      keywords: [
+        { term: 'Oil & Gas codes', aliases: [], importance: 'must', kind: 'domain' },
+        { term: 'hazardous area classification', aliases: [], importance: 'must', kind: 'domain' },
+      ],
+    } as unknown as Parameters<typeof buildEvidenceMap>[1]
+    const m = buildEvidenceMap(p, t, [])
+    check('named standards (SAES, Shell DEP) support "Oil & Gas codes"', m.keywords[0].status === 'supported')
+    check('an unrelated requirement stays a gap', m.keywords[1].status === 'gap')
+  }
+  {
+    // 2026-09-18: condensing may not drop a named standard, client or promotion.
+    const { checkQuality } = require('../lib/optimizer/qualityGate') as typeof import('../lib/optimizer/qualityGate')
+    const p = {
+      professional_summary: '',
+      work_experience: [
+        {
+          id: 'w1', role: 'I&C Pre-Commissioning Engineer', company: 'Bechtel National Inc.', location: 'Abu Dhabi, UAE', description: null,
+          highlights: ['Executed loop testing across DCS and SCADA to ADNOC and Bechtel standards', 'Promoted to lead utility commissioning for boilers and turbines'],
+        },
+      ],
+      skills: [], certifications: [], education: [], additional_information: [],
+    } as unknown as Parameters<typeof checkQuality>[0]['profile']
+    const plan = { gaps: [], summary: { anchors: [] }, entries: { w1: { maxBullets: 1, keepTerms: [], useTerms: [] } } } as unknown as Parameters<typeof checkQuality>[0]['plan']
+    const ev = { keywords: [], approvedTerms: new Map() } as unknown as Parameters<typeof checkQuality>[0]['evidence']
+    const lossy = checkQuality({ profile: p, plan, evidence: ev, level: 'high', summary: null, blocks: [{ entryId: 'w1', bullets: ['Executed loop testing across DCS and SCADA systems.'] }] })
+    const drop = lossy.find((i) => i.code === 'dropped_protected')
+    check('condensing that drops ADNOC and a promotion is a hard issue', !!drop && drop.severity === 'hard' && /adnoc/.test(drop.offendingValue ?? '') && /promoted/.test(drop.offendingValue ?? ''))
+    check("the role's own employer (Bechtel) is not protected", !/bechtel/.test(drop?.offendingValue ?? ''))
+    const kept = checkQuality({ profile: p, plan, evidence: ev, level: 'high', summary: null, blocks: [{ entryId: 'w1', bullets: ['Promoted to lead utility commissioning; executed loop testing to ADNOC standards.'] }] })
+    check('keeping them passes', !kept.some((i) => i.code === 'dropped_protected'))
+    const noYears = checkQuality({ profile: p, plan, evidence: ev, level: 'high', totalYears: 14, summary: 'Instrumentation engineer with commissioning experience across refinery and hydrogen projects in the Gulf and Asia, leading loop testing, SIS validation and handover for large teams of engineers and technicians.', blocks: [] })
+    check('a summary without total years gets a soft nudge', noYears.some((i) => i.code === 'summary_missing_years' && i.severity === 'soft'))
   }
 }
 

@@ -68,6 +68,12 @@ export interface OptimizedContent {
    * fell back, so clean rows keep their existing shape exactly.
    */
   fallback_used?: { summary: boolean; experience_ids: string[] }
+  /**
+   * True when the skills were actually re-ranked for this job (2026-09-18).
+   * The results page claims "Skills ordered by relevance" only when this is
+   * true; absent on older rows, which therefore make no claim.
+   */
+  skills_reordered?: boolean
 }
 
 // ---- cover_letters (JSONB[], TASK-065) --------------------------------------

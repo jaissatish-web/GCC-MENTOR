@@ -21,6 +21,7 @@
  * attribution is a Phase 2 detector, not a token check.
  */
 
+import { totalExperienceYears } from '@/lib/experienceYears'
 import type { CareerProfileFull, ProfileWorkExperience } from '@/types/careerProfile'
 
 /** Words too common to carry identity, so never treated as an entity. */
@@ -208,6 +209,9 @@ export function buildProfileEntities(profile: CareerProfileFull): ProfileEntitie
     ...(profile.certifications ?? []).map((c) => c.name),
     ...(profile.additional_information ?? []).map((a) => `${a.label} ${a.value}`),
     ...(profile.skills ?? []).map((s) => s.name),
+    // The computed total (and one below, for "over N years") is a fact of the
+    // profile's own dates, so the summary may state it (2026-09-18).
+    ...yearsFacts(profile),
   ])
 
   addAll(all, certifications)
@@ -261,4 +265,9 @@ export function isCrossEntryLeak(
   if (entities.certifications.has(candidate)) return false
   if (entities.education.has(candidate)) return false
   return (entities.entityEntryCount.get(candidate) ?? 0) === 1
+}
+
+function yearsFacts(profile: CareerProfileFull): string[] {
+  const y = totalExperienceYears(profile)
+  return y === null || y < 1 ? [] : [`${y} years`, `${Math.max(1, y - 1)} years`]
 }

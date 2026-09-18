@@ -42,6 +42,17 @@ export const LEVEL_TARGET_BAND: Record<OptimizationLevel, [number, number]> = {
   high: [85, 95],
 }
 
+/**
+ * The level's aim, only when this CV can reach it (2026-09-18). A report once
+ * showed "level aim 85-95" beside a best possible score of 57 and no
+ * suggestions to close the distance. `reachable` is the best score the user
+ * can get to on this page: the score after, or with every suggestion kept.
+ */
+export function reachableTargetBand(level: OptimizationLevel, reachable: number): [number, number] | undefined {
+  const band = LEVEL_TARGET_BAND[level]
+  return reachable >= band[0] ? band : undefined
+}
+
 // Raised 2026-09-17 (founder: levels must reach their bands). Every line still
 // needs the candidate's confirmation on the review page before it is saved.
 const MAX_SUGGESTIONS: Record<OptimizationLevel, number> = { easy: 0, moderate: 10, high: 20 }

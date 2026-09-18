@@ -20,12 +20,13 @@
  * block that cannot be proven falls back to the candidate's own words.
  */
 
+import { totalExperienceYears } from '@/lib/experienceYears'
 import { factSummary } from './factSummary'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { ExperienceBlock, OptimizationLevel, OptimizedContent } from '@/types/package'
 import { buildOptimizationPrompt, type OptimizationTarget, type SelectedBlocks } from '@/lib/ai/buildOptimizationPrompt'
 import { validateGrounding, type ValidationFailure } from '@/lib/ai/validateGrounding'
-import { normalizeSkillsOrder } from '@/lib/ai/skillsOrder'
+import { normalizeSkillsOrder, rankSkillsForJob } from '@/lib/ai/skillsOrder'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { baselineDocument, qualificationScore, profileFingerprint, type GenerateFn } from './analyze'
@@ -38,7 +39,7 @@ import { maxAchievableScore, scoreDocumentFromResume, scoreResume } from './scor
 import { containsTermRaw } from './text'
 import {
   applySuggestionsToDocument,
-  LEVEL_TARGET_BAND,
+  reachableTargetBand,
   renderSuggestionRequest,
   suggestionRequirements,
   validateSuggestions,
@@ -419,6 +420,7 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
       plan,
       evidence,
       level,
+      totalYears: totalExperienceYears(profile),
       summary: summaryCand?.summary ?? null,
       blocks: all.filter((c) => c.bullets).map((c) => ({ entryId: c.owner, bullets: c.bullets! })),
     })
@@ -623,7 +625,12 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
     }
   }
 
-  const skills = normalizeSkillsOrder(profile.skills ?? [], skillsOrderRaw)
+  const normalized = normalizeSkillsOrder(profile.skills ?? [], skillsOrderRaw)
+  const rankedSkills = rankSkillsForJob(normalized.order, profile.skills ?? [], evidence.keywords)
+  const skills = { ...normalized, order: rankedSkills.order }
+  // "Reordered" means the CV's skills differ from the profile's own order.
+  const profileSkillOrder = [...(profile.skills ?? [])].sort((a, b) => a.sort_order - b.sort_order).map((s) => s.id)
+  const skillsReordered = skills.order.some((id, i) => id !== profileSkillOrder[i])
 
   const buildContent = (reverted: Set<Owner>): OptimizedContent => {
     const summaryC = reverted.has('summary') ? undefined : final.get('summary')
@@ -653,6 +660,7 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
       },
       experience_blocks,
       ...(fbSummary || fbExperience.length > 0 ? { fallback_used: { summary: fbSummary, experience_ids: fbExperience } } : {}),
+      skills_reordered: skillsReordered,
     }
   }
 
@@ -717,7 +725,7 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
     report = {
       suggestions,
       projected_with_suggestions: Math.max(projected, after.total),
-      target_band: LEVEL_TARGET_BAND[level],
+      target_band: reachableTargetBand(level, Math.max(projected, after.total)),
       report_version: 1,
       mode: targetProfile.mode,
       analysis_id: input.analysisId,

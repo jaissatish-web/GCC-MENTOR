@@ -1,3 +1,4 @@
+import { stripIdNumbers } from '@/lib/idNumbers'
 import type {
   CareerProfileDraft,
   DraftWorkExperience,
@@ -131,7 +132,9 @@ export function normalizeDraft(raw: unknown): CareerProfileDraft | null {
     skills: withSortOrder(skillsArr, 1) as DraftSkill[],
     certifications: withSortOrder(certsArr, 1) as DraftCertification[],
     education: withSortOrder(eduArr, 1) as DraftEducation[],
-    additional_information: withSortOrder(addlArr, 1) as DraftAdditionalInformation[],
+    additional_information: (withSortOrder(addlArr, 1) as DraftAdditionalInformation[])
+      .map((a) => ({ ...a, value: typeof a.value === 'string' ? stripIdNumbers(a.label, a.value) : a.value }))
+      .filter((a) => typeof a.value !== 'string' || a.value.trim() !== ''),
   }
 }
 

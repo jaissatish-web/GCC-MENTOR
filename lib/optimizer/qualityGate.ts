@@ -38,6 +38,8 @@ export type QualityCode =
   | 'present_tense'
   | 'objective_statement'
   | 'dropped_fact'
+  | 'dropped_protected'
+  | 'summary_missing_years'
 
 export interface QualityIssue {
   code: QualityCode
@@ -134,11 +136,30 @@ function normBullet(b: string): string {
   return b.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 }
 
+/**
+ * Facts a rewrite must never drop, even when a role is condensed (2026-09-18).
+ * Measured on a High build: "to ADNOC and Bechtel standards", a whole
+ * "Promoted to lead…" bullet and "one of the largest … in the Middle East"
+ * all disappeared, because the dropped-fact check skipped condensed roles.
+ * Named standards, Gulf clients, promotions and scale claims are exactly what a
+ * Gulf recruiter reads for; a name that is the role's own employer is not
+ * protected (the header already shows it).
+ */
+const PROTECTED =
+  /\b(promoted|largest|first[- ]ever|award(?:ed)?|saudi aramco|aramco|adnoc|takreer|qatarenergy|qatar petroleum|sabic|neom|kpc|knpc|pdo|bapco|bechtel|shell dep|saes|saep|samss|api\s?\d{2,4}|asme(?:\s?b\d{2}(?:\.\d+)?)?|iec\s?\d{4,5}|nfpa\s?\d{1,4}|iso\s?\d{4,5}|middle east)\b/gi
+
+function protectedTerms(source: string, ownNames: string): string[] {
+  const own = ownNames.toLowerCase()
+  return [...new Set((source.match(PROTECTED) ?? []).map((m) => m.toLowerCase().replace(/\s+/g, ' ')))].filter((t) => !own.includes(t))
+}
+
 export interface GateInput {
   profile: CareerProfileFull
   plan: TailoringPlan | null
   evidence: EvidenceMap
   level: OptimizationLevel
+  /** Whole years across the dated roles (lib/experienceYears.ts); the summary should state it. */
+  totalYears?: number | null
   /** Generated summary, or null when the summary was not rewritten. */
   summary: string | null
   blocks: Array<{ entryId: string; bullets: string[] }>
@@ -220,6 +241,15 @@ export function checkQuality(input: GateInput): QualityIssue[] {
     const allRoleTitles = [...entries.values()].map((e) => e.role).join(' | ')
     checkText('summary', input.summary, wholeProfile, allRoleTitles)
     const words = wordCount(input.summary)
+    if (input.totalYears != null && input.totalYears >= 2 && !/\b\d{1,2}\s*\+?\s*(years|yrs)\b/i.test(input.summary)) {
+      issues.push({
+        code: 'summary_missing_years',
+        severity: 'soft',
+        owner: 'summary',
+        detail: `State the candidate's total experience (${input.totalYears} years) in the first sentence — recruiters screen on it.`,
+        offendingValue: `${input.totalYears} years`,
+      })
+    }
     if (words < 30 || words > 110) {
       issues.push({ code: 'summary_length', severity: 'soft', owner: 'summary', detail: `Summary is ${words} words; target 45–90.` })
     }
@@ -284,6 +314,20 @@ export function checkQuality(input: GateInput): QualityIssue[] {
       if (key && seen.has(key)) {
         issues.push({ code: 'duplicate_bullet', severity: 'soft', owner, detail: 'Repeats a bullet.' })
       } else if (key) seen.set(key, owner)
+    }
+
+    // Protected facts survive every level, condensed roles included.
+    const ownNames = [entry.company, entry.role, entry.location].filter(Boolean).join(' ')
+    const outLower = joined.toLowerCase().replace(/\s+/g, ' ')
+    const lostProtected = protectedTerms(sourceBullets.join('\n'), ownNames).filter((t) => !outLower.includes(t))
+    if (lostProtected.length > 0) {
+      issues.push({
+        code: 'dropped_protected',
+        severity: 'hard',
+        owner,
+        detail: 'Dropped a named standard, client, promotion or scale fact from the original. Keep it.',
+        offendingValue: lostProtected.join('; '),
+      })
     }
 
     // A rewrite must not lose what the candidate did. Measured 2026-09-17: a
