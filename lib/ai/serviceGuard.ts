@@ -1,5 +1,5 @@
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
-import { getDefaultDailyLimit, identityUserIds, resetAtIso, windowStart } from '@/lib/rateLimit'
+import { getDefaultDailyLimit, identityUserIds, resetsInText, windowStart } from '@/lib/rateLimit'
 
 /**
  * The one server-side gate in front of every paid model call (audit H01, H03,
@@ -53,7 +53,7 @@ const MESSAGES = {
 
 export function limitMessage(limit: number): string {
   return (
-    `You've reached today's limit of ${limit} for this service. It resets at ${resetAtIso()}. ` +
+    `You've reached today's limit of ${limit} for this service. It resets ${resetsInText()}. ` +
     'Need more? Email the founder — replies within a day.'
   )
 }

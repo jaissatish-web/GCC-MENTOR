@@ -94,6 +94,19 @@ export function windowStart(): string {
 }
 
 /** Next local midnight, as an ISO string — what the reset message shows. */
+/**
+ * When today's limit resets, in words that are right in every timezone
+ * (2026-09-18). The message used to print the raw ISO instant —
+ * "It resets at 2026-09-18T18:29:59.999Z" — to users in Riyadh and Kochi.
+ */
+export function resetsInText(now: Date = new Date()): string {
+  const end = new Date(now)
+  end.setHours(23, 59, 59, 999)
+  const hours = Math.round((end.getTime() - now.getTime()) / 3_600_000)
+  if (hours <= 0) return 'in under an hour'
+  return hours === 1 ? 'in about an hour' : `in about ${hours} hours`
+}
+
 export function resetAtIso(): string {
   const d = new Date()
   d.setHours(23, 59, 59, 999)
@@ -224,7 +237,7 @@ export async function getRateLimitStatus(opts: {
     message: allowed
       ? undefined
       : `You've reached your daily limit of ${limit} attempts for this action. ` +
-        `It resets at ${resetAtIso()}. Need more? Email the founder — replies within a day.`,
+        `It resets ${resetsInText()}. Need more? Email the founder — replies within a day.`,
   }
 }
 

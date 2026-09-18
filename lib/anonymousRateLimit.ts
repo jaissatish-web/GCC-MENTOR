@@ -1,3 +1,4 @@
+import { resetsInText } from '@/lib/rateLimit'
 import { createHmac } from 'crypto'
 import type { NextRequest } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
@@ -123,7 +124,7 @@ export async function getAnonymousRateLimitStatus(opts: {
     resetsAt: resetAtIso(),
     message: allowed
       ? undefined
-      : `You've reached the daily limit of ${effectiveLimit} for this action. It resets at ${resetAtIso()}.`,
+      : `You've reached the daily limit of ${effectiveLimit} for this action. It resets ${resetsInText()}.`,
   }
 }
 
