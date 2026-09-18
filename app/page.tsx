@@ -9,7 +9,6 @@ import { AppFooter } from '@/components/layout/AppFooter'
 import { SiteNav } from '@/components/marketing/SiteNav'
 import { PainPointCarousel } from '@/components/landing/PainPointCarousel'
 import { TemplateOrbit } from '@/components/landing/TemplateOrbit'
-import { TemplateShowcase } from '@/components/landing/TemplateShowcase'
 import { TEMPLATES } from '@/lib/templates'
 import {
   ArrowRightIcon,
@@ -23,6 +22,17 @@ import {
   RectangleStackIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline'
+import {
+  AcademicCapIcon,
+  ChatBubbleBottomCenterTextIcon,
+  ClipboardDocumentCheckIcon,
+  GlobeAmericasIcon,
+  IdentificationIcon,
+  MagnifyingGlassCircleIcon,
+  MapPinIcon,
+  MicrophoneIcon,
+  SparklesIcon,
+} from '@heroicons/react/24/solid'
 
 type Icon = ComponentType<{ className?: string }>
 
@@ -103,13 +113,30 @@ const services: Array<{
   },
 ]
 
-const process = [
-  'Upload your current CV',
-  'Get Gulf Readiness and weak points',
-  'Paste the target job description',
-  'Generate a specialized resume',
-  'Pick a GCC ATS template',
-  'Create the cover letter',
+// The six dimensions the readiness score reports on. Icons and one-line notes
+// only — no example numbers, because a score printed beside a real dimension
+// label reads as a prediction about the visitor's own CV.
+const readinessDimensions: Array<{ icon: Icon; label: string; note: string }> = [
+  { icon: BriefcaseIcon, label: 'Career stage', note: 'Seniority against the roles you target.' },
+  { icon: GlobeAmericasIcon, label: 'Gulf experience', note: 'GCC country and client exposure.' },
+  { icon: AcademicCapIcon, label: 'Qualifications', note: 'Degrees and equivalency signals.' },
+  { icon: ClipboardDocumentCheckIcon, label: 'Certifications', note: 'Safety, technical and PM tickets.' },
+  { icon: IdentificationIcon, label: 'Profile clarity', note: 'How readable your scope is.' },
+  { icon: MapPinIcon, label: 'Target market', note: 'Fit for the country you are applying to.' },
+]
+
+// Two stages, so the free half and the build half are visibly different things.
+const process: Array<{ stage: string; note: string; steps: string[] }> = [
+  {
+    stage: 'Start free',
+    note: 'No account or card needed for the score.',
+    steps: ['Upload your current CV', 'Get Gulf Readiness and weak points', 'Paste the target job description'],
+  },
+  {
+    stage: 'Build the application',
+    note: 'Everything stays together in your Resume Library.',
+    steps: ['Generate a specialized resume', 'Pick a GCC ATS template', 'Create the cover letter'],
+  },
 ]
 
 const pricing = [
@@ -194,54 +221,75 @@ function MetricBar({ label, value, tone }: { label: string; value: number; tone:
   )
 }
 
-function BeforeAfterVisual() {
-  return (
-    <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-      <div className="rounded-card border border-line bg-white p-5 shadow-m-1">
-        <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-ink-muted">Before</span>
-        <p className="mt-4 font-display text-[22px] font-semibold leading-tight text-ink">Generic resume line</p>
-        <p className="mt-3 text-[14px] leading-relaxed text-ink-soft">
-          Responsible for site work, inspection, documentation and coordination with team.
-        </p>
-
-      </div>
-      <div className="rounded-card border border-teal/30 bg-teal-soft p-5 shadow-m-2">
-        <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal">After</span>
-        <p className="mt-4 font-display text-[22px] font-semibold leading-tight text-ink">Clearer wording</p>
-        <p className="mt-3 text-[14px] font-medium leading-relaxed text-ink">
-          Coordinated site inspections and maintained documentation, keeping the team informed of progress and follow-up actions.
-        </p>
-
-      </div>
-    </div>
-  )
-}
-
+/**
+ * The weak-point solver, read as a diagnosis rather than a list.
+ *
+ * The old version was three numbered rows of grey text, so the gap and the fix
+ * looked like the same sentence and nobody could tell what the product
+ * actually does. Each row now shows the gap on an alert-toned left edge and the
+ * fix in teal beneath it, so "we find this, you do that" is legible before the
+ * copy is read.
+ */
 function WeaknessPanel() {
-  const items = [
-    ['Missing measurable project scope', 'Add capacity, package size, standards, or handover scope where true.'],
-    ['Weak Gulf market signals', 'Clarify GCC country exposure, client standards, visa/location status, and site type.'],
-    ['Unclear responsibilities', 'Explain what you personally delivered, using details you can support.'],
+  const items: Array<readonly [gap: string, fix: string, severity: 'alert' | 'gold']> = [
+    [
+      'Missing measurable project scope',
+      'Add capacity, package size, standards, or handover scope where true.',
+      'alert',
+    ],
+    [
+      'Weak Gulf market signals',
+      'Clarify GCC country exposure, client standards, visa/location status, and site type.',
+      'alert',
+    ],
+    [
+      'Unclear responsibilities',
+      'Explain what you personally delivered, using details you can support.',
+      'gold',
+    ],
   ]
 
   return (
-    <div className="rounded-card border border-line bg-white p-5 shadow-m-2">
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-ink-muted">Weak-point solver</span>
+    <div className="overflow-hidden rounded-card-lg border border-line bg-white shadow-m-3">
+      <div className="flex items-center justify-between gap-3 border-b border-line bg-canvas px-5 py-4">
+        <span className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-ink">
+          <MagnifyingGlassCircleIcon className="size-5 text-teal" />
+          Weak-point solver
+        </span>
         <span className="rounded-full bg-gold-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-gold-ink">
           Example
         </span>
       </div>
-      <div className="mt-5 flex flex-col gap-3">
-        {items.map(([title, body], index) => (
-          <div key={title} className="grid grid-cols-[32px_1fr] gap-3 rounded-ctl border border-line bg-canvas p-3.5">
-            <span className="flex size-8 items-center justify-center rounded-full bg-teal font-display text-[13px] font-semibold text-white">
-              {index + 1}
-            </span>
-            <span>
-              <span className="block text-[14px] font-semibold leading-snug text-ink">{title}</span>
-              <span className="mt-1 block text-[12.5px] leading-relaxed text-ink-soft">{body}</span>
-            </span>
+
+      <div className="flex flex-col divide-y divide-line">
+        {items.map(([gap, fix, severity], index) => (
+          <div key={gap} className="relative px-5 py-4 pl-6">
+            <span
+              aria-hidden="true"
+              className={cn('absolute inset-y-4 left-0 w-1 rounded-r-full', severity === 'alert' ? 'bg-alert' : 'bg-gold')}
+            />
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-canvas font-display text-[12px] font-semibold text-ink-muted">
+                {index + 1}
+              </span>
+              <div className="min-w-0">
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="text-[14.5px] font-semibold leading-snug text-ink">{gap}</span>
+                  <span
+                    className={cn(
+                      'rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]',
+                      severity === 'alert' ? 'bg-alert/10 text-alert' : 'bg-gold-soft text-gold-ink',
+                    )}
+                  >
+                    {severity === 'alert' ? 'Gap' : 'Unclear'}
+                  </span>
+                </p>
+                <p className="mt-2 flex gap-2 text-[12.5px] leading-relaxed text-teal">
+                  <ArrowRightIcon className="mt-0.5 size-3.5 shrink-0" />
+                  <span className="font-medium">{fix}</span>
+                </p>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -260,31 +308,55 @@ function InterviewPreview() {
   ]
 
   return (
-    <div className="rounded-card border border-teal/25 bg-white p-5 shadow-m-2">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal">Interview prep suite</span>
-          <p className="mt-2 font-display text-[24px] font-semibold leading-tight text-ink">Practice from the resume you will actually send.</p>
+    <div className="overflow-hidden rounded-card-lg border border-teal/25 bg-white shadow-m-3">
+      {/* Header carries the teal so the panel reads as the interview room, not
+          another white box in a page of white boxes. */}
+      <div className="flex items-start justify-between gap-3 bg-teal px-5 py-4">
+        <div className="min-w-0">
+          <span className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-teal-soft">
+            <MicrophoneIcon className="size-4 text-gold" />
+            Interview prep suite
+          </span>
+          <p className="mt-2 font-display text-[22px] font-semibold leading-tight text-white sm:text-[24px]">
+            Practice from the resume you will actually send.
+          </p>
         </div>
-        <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-teal">
-          Q&A live
+        <span className="shrink-0 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-white">
+          Q&amp;A live
         </span>
       </div>
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="rounded-ctl bg-canvas p-4">
-          <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-ink-muted">Sample Q&A</span>
-          <p className="mt-3 text-[14px] font-semibold leading-relaxed text-ink">
-            Tell me about your most relevant GCC-style handover experience.
-          </p>
-          <p className="mt-3 border-l-2 border-teal pl-3 text-[13px] leading-relaxed text-ink-soft">
-            Answer from your optimized resume: project scope, technical action, standard followed, measurable result, and what you personally owned.
-          </p>
+
+      <div className="grid gap-5 p-5 lg:grid-cols-[1.05fr_0.95fr]">
+        {/* A chat exchange, because that is literally what the text mock is. */}
+        <div className="flex flex-col gap-3">
+          <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-ink-muted">Sample Q&amp;A</span>
+          <div className="flex items-start gap-2.5">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-ink/90 text-[11px] font-bold text-white">
+              HR
+            </span>
+            <p className="rounded-card rounded-tl-none bg-canvas px-4 py-3 text-[14px] font-semibold leading-relaxed text-ink">
+              Tell me about your most relevant GCC-style handover experience.
+            </p>
+          </div>
+          <div className="flex items-start gap-2.5 pl-6">
+            <p className="rounded-card rounded-tr-none border border-teal/20 bg-teal-soft px-4 py-3 text-[13px] leading-relaxed text-ink">
+              Answer from your optimized resume: project scope, technical action, standard followed, measurable result, and what you personally owned.
+            </p>
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-teal text-[11px] font-bold text-white">
+              You
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col gap-2.5">
+
+        <div className="flex flex-col gap-2.5 rounded-card border border-line bg-canvas p-4">
+          <span className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+            <ChatBubbleBottomCenterTextIcon className="size-4 text-teal" />
+            Written-answer feedback
+          </span>
           {rows.map(([label, value, tone]) => (
             <MetricBar key={label} label={label} value={value} tone={tone} />
           ))}
-          <p className="mt-2 rounded-ctl bg-teal-soft px-3 py-2 text-[12.5px] leading-relaxed text-teal">
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-muted">
             Example scores. Feedback reviews your written answers — it is preparation guidance, not a hiring prediction, and voice is not assessed.
           </p>
         </div>
@@ -424,53 +496,40 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Single column since the template orbit moved out to its own band —
+            a 0.8fr text column with nothing beside it read as a layout bug. */}
         <section id="optimizer" className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start">
-            <div>
-              <SectionHeader
-                eyebrow="Specialized resume"
-                title="Quick optimized resumes for each job description."
-                body="A job in Dubai construction, a Saudi Aramco-style EPC role, and a Qatar operations role should not receive the same resume. GCC Mentor keeps your real Career Profile once, then rewrites the presentation for each target JD."
-              />
-              <div className="mt-7 flex flex-col gap-3">
-                {[
-                  'Matches the target JD and recruiter keywords.',
-                  'Highlights Gulf-relevant standards, projects, and scope.',
-                  'Review what changed before you send your resume.',
-                  'Never adds a fake job, fake certification, or fake date.',
-                ].map((item) => (
-                  <p key={item} className="flex gap-3 text-[14px] leading-relaxed text-ink-soft">
-                    <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-teal" />
-                    {item}
-                  </p>
-                ))}
-              </div>
-            </div>
-            <div className="flex flex-col gap-5">
-              <TemplateOrbit />
-              <BeforeAfterVisual />
-              <p className="text-[12.5px] leading-relaxed text-ink-muted">Illustrative rewrite using the same facts. No added employer, certification or measured result.</p>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center">
+            <SectionHeader
+              eyebrow="Specialized resume"
+              title="Quick optimized resumes for each job description."
+              body="A job in Dubai construction, a Saudi Aramco-style EPC role, and a Qatar operations role should not receive the same resume. GCC Mentor keeps your real Career Profile once, then rewrites the presentation for each target JD."
+            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                'Matches the target JD and recruiter keywords.',
+                'Highlights Gulf-relevant standards, projects, and scope.',
+                'Review what changed before you send your resume.',
+                'Never adds a fake job, fake certification, or fake date.',
+              ].map((item) => (
+                <p
+                  key={item}
+                  className="flex gap-3 rounded-card border border-line bg-white p-4 text-[13.5px] leading-relaxed text-ink-soft shadow-m-1"
+                >
+                  <CheckCircleIcon className="mt-0.5 size-5 shrink-0 text-teal" />
+                  {item}
+                </p>
+              ))}
             </div>
           </div>
         </section>
 
+        {/* The orbit gets its own band, unframed. It is the only live template
+            preview left on the page, so it should read as the product rather
+            than as a widget parked in a column. */}
         <section id="templates" className="border-y border-line bg-white">
-          <div className="mx-auto max-w-[1240px] px-3 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:items-start">
-              <div>
-                <SectionHeader
-                  eyebrow="GCC ATS templates"
-                  title="Multiple resume formats made for Gulf applications."
-                  body="Choose a simple layout for online applications or an optional photo style when the employer requests it. Preview the designs and pick the one that suits your role."
-                />
-                <div className="mt-7 rounded-card border border-line bg-canvas p-5">
-                  <p className="text-[13.5px] leading-relaxed text-ink-soft">
-                    These are actual GCC Mentor templates with a fictional example CV. Switching designs keeps your experience intact.
-                  </p>
-                </div>
-              </div>
-              <TemplateShowcase />
-            </div>
+          <div className="py-12 sm:py-16 lg:py-24">
+            <TemplateOrbit />
           </div>
         </section>
 
@@ -483,13 +542,29 @@ export default function Home() {
                 title="Know what to improve before you apply."
                 body="Get a starting point for your Gulf job search. Read your strengths and gaps, then check your resume against a specific job description with Job Match."
               />
+              {/* Six named dimensions, each with its own icon. No numbers here:
+                  the score is computed from the visitor's own CV, and printing
+                  example values beside real labels would read as a promise. */}
               <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                {['Career stage', 'Gulf experience', 'Qualifications', 'Certifications', 'Profile clarity', 'Target market'].map((item) => (
-                  <div key={item} className="rounded-ctl border border-line bg-white px-4 py-3 text-[13.5px] font-semibold text-ink shadow-m-1">
-                    {item}
+                {readinessDimensions.map(({ icon: DimensionIcon, label, note }) => (
+                  <div
+                    key={label}
+                    className="group flex items-start gap-3 rounded-card border border-line bg-white p-4 shadow-m-1 transition hover:border-teal/50 hover:shadow-m-2"
+                  >
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-teal-soft text-teal">
+                      <DimensionIcon className="size-[18px]" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[13.5px] font-semibold leading-snug text-ink">{label}</span>
+                      <span className="mt-0.5 block text-[12px] leading-relaxed text-ink-muted">{note}</span>
+                    </span>
                   </div>
                 ))}
               </div>
+              <p className="mt-5 flex items-start gap-2 text-[12.5px] leading-relaxed text-ink-muted">
+                <SparklesIcon className="mt-0.5 size-4 shrink-0 text-gold" />
+                Each dimension is scored from the CV you upload — free, and before you spend anything.
+              </p>
             </div>
           </div>
         </section>
@@ -521,14 +596,48 @@ export default function Home() {
             title="From your current CV to your next application."
             body="Start with a free check. Create your profile, choose a target job, and review your documents before you apply."
           />
-          <ol className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {process.map((step, index) => (
-              <li key={step} className="rounded-card border border-line bg-white p-4 shadow-m-1">
-                <span className="font-display text-[22px] font-semibold text-teal">{String(index + 1).padStart(2, '0')}</span>
-                <p className="mt-3 text-[13px] font-semibold leading-snug text-ink">{step}</p>
-              </li>
+          {/* Numbered rows on a connecting rail, split into the free stage and
+              the paid stage. Six equal boxes gave no sense of sequence, and no
+              sense of where the free part stops. */}
+          <div className="mt-10 grid gap-8 md:grid-cols-2">
+            {process.map((group, groupIndex) => (
+              <div key={group.stage} className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={cn(
+                      'rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em]',
+                      groupIndex === 0 ? 'bg-gold-soft text-gold-ink' : 'bg-teal-soft text-teal',
+                    )}
+                  >
+                    {group.stage}
+                  </span>
+                  <span className="text-[12px] leading-relaxed text-ink-muted">{group.note}</span>
+                </div>
+                <ol className="relative mt-5 flex flex-col gap-3 pl-[46px]">
+                  <span aria-hidden="true" className="absolute bottom-6 left-[19px] top-6 w-px bg-line" />
+                  {group.steps.map((step, stepIndex) => {
+                    const number = groupIndex * 3 + stepIndex + 1
+
+                    return (
+                      <li key={step} className="relative">
+                        <span
+                          className={cn(
+                            'absolute -left-[46px] top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border-2 bg-white font-display text-[14px] font-semibold',
+                            groupIndex === 0 ? 'border-gold text-gold-ink' : 'border-teal text-teal',
+                          )}
+                        >
+                          {String(number).padStart(2, '0')}
+                        </span>
+                        <p className="rounded-card border border-line bg-white px-4 py-3.5 text-[13.5px] font-semibold leading-snug text-ink shadow-m-1">
+                          {step}
+                        </p>
+                      </li>
+                    )
+                  })}
+                </ol>
+              </div>
             ))}
-          </ol>
+          </div>
         </section>
 
         <section id="trust" className="bg-teal">

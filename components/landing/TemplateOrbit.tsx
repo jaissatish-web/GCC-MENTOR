@@ -252,28 +252,29 @@ export function TemplateOrbit() {
   }
 
   return (
-    <div className="rounded-card border border-line bg-white p-5 shadow-m-2">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          {/* One source for the count (audit M10): the template registry. */}
-          <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal">
-            {ORBIT_TEMPLATE_IDS.length} of {AVAILABLE_TEMPLATE_COUNT} GCC templates
-          </span>
-          <h3 className="mt-2 font-display text-[24px] font-semibold leading-tight text-ink">
-            Find a style that fits your next role.
-          </h3>
-        </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-gold-ink">
+    // Deliberately frameless. The orbit used to sit in a white card inside a
+    // narrow column, which read as a widget embedded in the page. Open on the
+    // page — and edge-to-edge on a phone — it reads as the product itself.
+    <div className="w-full">
+      <div className="mx-auto flex max-w-[640px] flex-col items-center gap-3 px-3 text-center sm:px-0">
+        {/* One source for the count (audit M10): the template registry. */}
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-soft px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-gold-ink">
           <ArrowPathIcon className="size-3.5" />
-          Explore
+          {ORBIT_TEMPLATE_IDS.length} of {AVAILABLE_TEMPLATE_COUNT} GCC templates
         </span>
+        <h3 className="font-display text-[26px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">
+          Find a style that fits your next role.
+        </h3>
+        <p className="max-w-[54ch] text-[14px] leading-relaxed text-ink-soft">
+          Real templates rendering a fictional example CV. Tap one to pause the rotation and read it full size.
+        </p>
       </div>
 
       <div
         ref={orbitRef}
         className={cn(
-          'actual-template-orbit relative mx-auto mt-7 max-w-[620px] overflow-hidden rounded-card border border-line bg-canvas',
-          'h-[500px] sm:h-[560px] lg:h-[600px]',
+          'actual-template-orbit relative mx-auto mt-6 w-full max-w-none overflow-hidden lg:max-w-[980px]',
+          'h-[460px] sm:h-[560px] lg:h-[620px]',
           paused && 'is-paused',
         )}
         style={
@@ -304,7 +305,7 @@ export function TemplateOrbit() {
         </div>
       </div>
 
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto mt-4 flex max-w-[980px] flex-col gap-3 px-3 sm:flex-row sm:items-center sm:justify-between sm:px-0">
         <p className="text-[12.5px] leading-relaxed text-ink-muted">
           Select a resume to pause and see its preview below.
         </p>
@@ -318,7 +319,7 @@ export function TemplateOrbit() {
         </button>
       </div>
 
-      <div className="mt-5">
+      <div className="mx-auto mt-6 max-w-[980px] px-3 sm:px-0">
         <SelectedTemplatePreview templateId={activeId} />
       </div>
     </div>
