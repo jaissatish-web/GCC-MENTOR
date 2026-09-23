@@ -5,6 +5,8 @@ import { buttonVariants } from '@/components/ui/Button'
 import { CTA } from '@/lib/serviceLabels'
 import { Alert } from '@/components/ui/Alert'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { PageShell } from '@/components/layout/PageShell'
+import { BriefcaseIcon } from '@heroicons/react/24/outline'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn, GULF_COUNTRIES, PACKAGE_STATUSES } from '@/lib/utils'
 import { StageSelect } from '@/components/package/StageSelect'
@@ -483,23 +485,22 @@ export default function TargetJobsPage() {
   const filtering = Boolean(debouncedQuery) || stageFilter !== null
 
   return (
-    <div className="flex min-h-screen flex-col gap-5 bg-canvas p-3 font-redesign-sans sm:p-8 lg:p-10">
-      {/* ── Header ── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="font-display text-[27px] font-bold leading-tight tracking-[-0.02em] text-ink">
-            Resume Library
-          </h1>
-          <p className="text-[13px] text-ink-soft">
-            Your saved target jobs, their preparation and where each application stands. Saving a job does not mark it as applied.
-          </p>
-        </div>
-        {total > 0 ? (
+    // The shared page frame (2026-09-23): the Library was the one list screen
+    // drawing its own header, at its own size and padding.
+    <PageShell
+      width="document"
+      icon={BriefcaseIcon}
+      eyebrow="Your applications"
+      title="Resume Library"
+      subtitle="Every target job with its CV, cover letter, interview preparation and stage. Saving a job does not mark it as applied."
+      actions={
+        total > 0 ? (
           <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'shrink-0')}>
             {CTA.addTargetJob}
           </Link>
-        ) : null}
-      </div>
+        ) : null
+      }
+    >
 
       {total > 0 ? (
         <div className="rounded-card border border-line bg-white p-4">
@@ -530,7 +531,7 @@ export default function TargetJobsPage() {
 
       {/* ── Stage strip ── counts are the server's, across every job. */}
       {total > 0 ? (
-        <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+        <div className="-mx-3 overflow-x-auto px-3 sm:mx-0 sm:px-0">
           <div className="flex min-w-max items-stretch divide-x divide-line border-y border-line bg-white">
             <button
               type="button"
@@ -571,8 +572,9 @@ export default function TargetJobsPage() {
 
       {total === 0 && !filtering ? (
         <EmptyState
-          title="No target jobs yet"
-          body="Add the role you are applying for and we build a CV against it. Everything you do for that job stays with it."
+          icon={BriefcaseIcon}
+          title="Your targeted resumes will appear here"
+          body="Add the job you are applying for and we build a CV for it from your Career Profile. Its cover letter and interview preparation stay with it."
           action={
             <Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>
               {CTA.addTargetJob}
@@ -582,7 +584,7 @@ export default function TargetJobsPage() {
       ) : null}
 
       {total > 0 && list.length === 0 && !searching ? (
-        <div className="border border-line bg-white px-5 py-8 text-center">
+        <div className="rounded-card border border-line bg-white px-5 py-8 text-center">
           <p className="text-[14px] text-ink-soft">
             No jobs match these filters.{' '}
             <button
@@ -624,6 +626,6 @@ export default function TargetJobsPage() {
           </button>
         </div>
       ) : null}
-    </div>
+    </PageShell>
   )
 }

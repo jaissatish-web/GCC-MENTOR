@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { ChatBubbleLeftRightIcon, DocumentTextIcon, EnvelopeIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { cn } from '@/lib/utils'
 import type { ServiceUsageCounts, ServiceUsageResponse } from '@/app/api/service-usage/route'
 
@@ -29,11 +30,13 @@ export function useServiceUsage(): { usage: ServiceUsageResponse | null; failed:
   return { usage, failed }
 }
 
-const ITEMS: ReadonlyArray<{ key: keyof ServiceUsageCounts; label: string; icon: string; tone: string }> = [
-  { key: 'cv', label: 'CVs optimized', icon: '📄', tone: 'text-teal' },
-  { key: 'cover_letter', label: 'Cover letters', icon: '✉️', tone: 'text-sec-summary' },
-  { key: 'qa', label: 'Interview Q&A sets', icon: '💬', tone: 'text-sec-status' },
-  { key: 'mock_started', label: 'Mock interviews', icon: '🎤', tone: 'text-sec-experience' },
+// Heroicons, the product's one icon set (2026-09-23) — these were emoji,
+// which render differently on every phone and read as a different product.
+const ITEMS: ReadonlyArray<{ key: keyof ServiceUsageCounts; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+  { key: 'cv', label: 'CVs optimized', icon: DocumentTextIcon },
+  { key: 'cover_letter', label: 'Cover letters', icon: EnvelopeIcon },
+  { key: 'qa', label: 'Interview Q&A sets', icon: QuestionMarkCircleIcon },
+  { key: 'mock_started', label: 'Mock interviews', icon: ChatBubbleLeftRightIcon },
 ]
 
 /** The totals strip: how much of each service this user has used so far. */
@@ -52,8 +55,8 @@ export function ServiceUsageTotals({ usage, className }: { usage: ServiceUsageRe
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {ITEMS.map((i) => (
           <div key={i.key} className="flex flex-col gap-0.5 rounded-card border border-line bg-white px-3 py-2.5">
-            <span className={cn('text-[12px] font-semibold', i.tone)}>
-              <span aria-hidden="true">{i.icon}</span> {i.label}
+            <span className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-soft">
+              <i.icon className="size-4 shrink-0 text-teal" aria-hidden="true" /> {i.label}
             </span>
             <span className="font-mono text-[20px] font-bold leading-none text-ink">{totals[i.key]}</span>
           </div>

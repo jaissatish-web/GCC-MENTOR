@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
+import { NextStep } from '@/components/journey/NextStep'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -148,8 +149,11 @@ function InterviewQaScreen() {
 
   return (
     <PageShell
+      icon={QuestionMarkCircleIcon}
+      eyebrow="Step 6 · Prepare"
       title="Interview Q&A"
-      subtitle="Generate up to 25 role-specific answers from your optimized CV and its target job."
+      subtitle="Up to 25 likely questions for one target job, with answers drawn from your own experience."
+      uses={['Optimized CV', 'Target job', 'Career Profile']}
     >
       {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current="qa" /> : null}
       <Card tone="light" className="mt-5 p-5 sm:p-6">
@@ -333,6 +337,17 @@ function InterviewQaScreen() {
             </div>
           ))}
         </section>
+      ) : null}
+
+      {selectedId && questionSet ? (
+        <NextStep
+          className="mt-6"
+          title="Practise your answers"
+          body="Answer written interview questions for this job one at a time, and get a saved feedback report."
+          href={`/mock-interview?package=${encodeURIComponent(selectedId)}`}
+          cta={CTA.startMockInterview}
+          secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: CTA.viewOptimizedCv }}
+        />
       ) : null}
 
       <p className="mt-6 text-center text-[12px] text-ink-muted">

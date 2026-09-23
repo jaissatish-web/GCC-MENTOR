@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
+import { NextStep } from '@/components/journey/NextStep'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -240,8 +241,11 @@ function MockInterviewScreen() {
 
   return (
     <PageShell
+      icon={ChatBubbleLeftRightIcon}
+      eyebrow="Step 7 · Practise"
       title="Mock Interview"
-      subtitle="Practise one role-specific interview in writing, from your optimized CV and its target job, and get saved preparation feedback."
+      subtitle="A written practice interview for one target job, one question at a time, with a saved feedback report."
+      uses={['Optimized CV', 'Target job', 'Career Profile']}
     >
       {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
       <Card tone="light" className="mt-5 p-5 sm:p-6">
@@ -423,6 +427,17 @@ function MockInterviewScreen() {
             ))}
           </aside>
         </section>
+      ) : null}
+
+      {selectedId && run?.status === 'completed' ? (
+        <NextStep
+          className="mt-6"
+          title="Apply, then keep track"
+          body="Your CV, letter and preparation for this job are ready. When you apply, set its stage in your Resume Library so you always know where each application stands."
+          href="/dashboard/library"
+          cta="Open my Resume Library"
+          secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: CTA.viewOptimizedCv }}
+        />
       ) : null}
 
       <p className="mt-6 text-center text-[12px] text-ink-muted">

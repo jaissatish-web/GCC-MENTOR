@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
+import { NextStep } from '@/components/journey/NextStep'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { ProcessingInline } from '@/components/ui/Processing'
@@ -157,8 +158,11 @@ function CoverLetterScreen() {
 
   return (
     <PageShell
+      icon={EnvelopeIcon}
+      eyebrow="Step 5 · Apply"
       title="Cover Letter"
-      subtitle="Write a cover letter for any of your target jobs, in the tone you choose."
+      subtitle="A letter for one of your target jobs, in the tone you choose — consistent with the CV it goes with."
+      uses={['Optimized CV', 'Target job', 'Career Profile']}
     >
       {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current="letter" /> : null}
 
@@ -334,6 +338,17 @@ function CoverLetterScreen() {
             </Card>
           ))}
         </section>
+      ) : null}
+
+      {selectedId && letters.length > 0 ? (
+        <NextStep
+          className="mt-6"
+          title="Prepare for the interview"
+          body="Get likely questions for this job with answers drawn from the same CV, so what you say matches what you sent."
+          href={`/interview-qa?package=${encodeURIComponent(selectedId)}`}
+          cta={CTA.prepareInterviewQa}
+          secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: CTA.viewOptimizedCv }}
+        />
       ) : null}
 
       {/* Grounding notice */}

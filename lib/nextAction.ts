@@ -92,6 +92,26 @@ function hasCompletedMock(pkg: PackageListItem): boolean {
  */
 export const PROFILE_THIN_BELOW = 40
 
+/**
+ * The job the next job-level step is about — the same sweep, in the same
+ * order, as `computeNextAction` below — or the newest job when every job is
+ * complete. The dashboard's journey tracker follows this job, so "which steps
+ * are done" and "what to do next" always describe the same application
+ * (2026-09-23: the tracker counted steps done on ANY job and read "7 of 7
+ * done" beside a next step asking for one job's cover letter).
+ */
+export function focusJob(packages: readonly PackageListItem[]): PackageListItem | null {
+  return (
+    packages.find((p) => !p.is_paid && !cvReady(p)) ??
+    packages.find((p) => p.is_paid && !cvReady(p)) ??
+    packages.find((p) => cvReady(p) && !hasCoverLetter(p)) ??
+    packages.find((p) => cvReady(p) && hasCoverLetter(p) && !hasInterviewQa(p)) ??
+    packages.find((p) => cvReady(p) && hasCoverLetter(p) && hasInterviewQa(p) && !hasCompletedMock(p)) ??
+    packages[0] ??
+    null
+  )
+}
+
 export function computeNextAction(
   profile: NextActionProfile | null,
   packages: readonly PackageListItem[],

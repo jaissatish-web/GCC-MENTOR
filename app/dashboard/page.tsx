@@ -22,9 +22,10 @@ import {
   UserCircleIcon,
 } from '@heroicons/react/24/outline'
 import { cn, displayFirstName, GULF_COUNTRIES, packageStatusLabel, resumeLabel } from '@/lib/utils'
-import type { PackageListPage, PackageSummary } from '@/lib/packageSummary'
+import { cvReady, letterCount, mockDone, qaReady, type PackageListPage, type PackageSummary } from '@/lib/packageSummary'
 import { calculateReadiness } from '@/lib/readiness'
-import { computeNextAction } from '@/lib/nextAction'
+import { computeNextAction, focusJob, jobLabel, PROFILE_THIN_BELOW } from '@/lib/nextAction'
+import { JourneyTracker } from '@/components/journey/JourneyTracker'
 import { answersFromReadinessCategory, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { Package } from '@/types/package'
@@ -39,12 +40,14 @@ import { ServiceUsageTotals, useServiceUsage } from '@/components/package/Servic
  * identical to before: GET /api/profile, GET /api/packages,
  * calculateReadiness() — same calls, same fields, same logic. No new query.
  *
- * Composition per §C: left column = greeting + metric row (Profile Strength,
- * Resumes Created) + next-step hero strip + Recent
- * Activity + new "Planned" row (LockedTile); right rail (≥1280px) = Readiness
- * ring card, Quick Actions list, Library preview. On tablet the rail drops
- * below the main column; metric row 2-up; on mobile the Planned row is a
- * horizontally-scrollable strip.
+ * CAREER COMMAND CENTER (2026-09-23 redesign). Left column, in the order a
+ * returning user needs it: the ONE next step (lib/nextAction.ts) → the seven-
+ * step career journey with their own progress (components/journey) → Profile
+ * Strength and Library counts → their target jobs → service usage → planned.
+ * Right rail (≥1280px; below the column on smaller screens): Profile Strength
+ * detail, Gulf Readiness, Quick actions. The six-tile "Services" grid that
+ * repeated the quick actions was removed — the journey now carries it.
+ * Still no new request: every journey flag comes from the same two fetches.
  *
  * Two approved corrections, not scope creep:
  *  (1) the stale "ATS score check" locked tile is DROPPED (the scanner has
@@ -59,57 +62,6 @@ const PLANNED_SERVICES: ReadonlyArray<{ title: string; description: string }> = 
   {
     title: 'Saved Jobs',
     description: 'Keep track of roles you want to apply to.',
-  },
-]
-
-const SERVICE_TILES: ReadonlyArray<{
-  title: string
-  body: string
-  status: 'Ready' | 'Next' | 'Planned'
-  href?: string
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
-}> = [
-  {
-    title: 'Career Profile',
-    body: 'One trusted source for every resume, letter and interview answer.',
-    status: 'Ready',
-    href: '/profile',
-    icon: UserCircleIcon,
-  },
-  {
-    title: 'Resume Optimizer',
-    body: 'Add a target job (job title and job description), choose a level, and get an optimized CV with its ATS score before and after.',
-    status: 'Ready',
-    href: '/optimize/target',
-    icon: DocumentTextIcon,
-  },
-  {
-    title: 'GCC Templates',
-    body: 'Switch ATS-safe and photo-led resume formats without retyping.',
-    status: 'Ready',
-    href: '/templates',
-    icon: RectangleStackIcon,
-  },
-  {
-    title: 'Cover Letter',
-    body: 'Written from your optimized CV and its target job.',
-    status: 'Ready',
-    href: '/cover-letter',
-    icon: EnvelopeIcon,
-  },
-  {
-    title: 'Interview Q&A',
-    body: 'Up to 25 answers from your optimized CV and its target job.',
-    status: 'Ready',
-    href: '/interview-qa',
-    icon: QuestionMarkCircleIcon,
-  },
-  {
-    title: 'Mock Interview',
-    body: 'Practise in writing from your optimized CV and its target job, and save a report.',
-    status: 'Ready',
-    href: '/mock-interview',
-    icon: ChatBubbleLeftRightIcon,
   },
 ]
 
@@ -275,6 +227,23 @@ export default function DashboardPage() {
   // fetches already returned.
   const nextAction = computeNextAction(profile, packages, score, missing.length, hasPendingDraft)
 
+  // The journey tracker reads the same two responses — nothing new is fetched.
+  // Its job steps follow the job the next step is about (lib/nextAction.ts
+  // focusJob), so the two panels never disagree.
+  const focus = focusJob(packages)
+  const journeyFacts =
+    profileLoaded && packagesLoaded && !loadError
+      ? {
+          hasProfile: profile !== null,
+          profileSolid: profile !== null && score >= PROFILE_THIN_BELOW,
+          hasTargetJob: focus !== null,
+          hasOptimizedCv: focus !== null && cvReady(focus),
+          hasLetter: focus !== null && letterCount(focus) > 0,
+          hasQa: focus !== null && qaReady(focus),
+          hasMock: focus !== null && mockDone(focus),
+        }
+      : null
+
   return (
     // BLUEPRINT (2026-09-08). Ground is `paper`, not white: the surfaces that
     // matter then sit on top of it as white, which is what gives the screen a
@@ -288,8 +257,7 @@ export default function DashboardPage() {
       <Reveal>
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-1">
-            {/* Archivo, not the serif. Blueprint's voice is an instrument
-                label: tight tracking, real weight, no flourish. */}
+            <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal">Your career command center</span>
             <h1 className="font-display text-[24px] font-bold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[30px]">
               {/* While the profile is still loading, a plain greeting — not
                   "Welcome to GCC MENTOR", which flashed at returning users for
@@ -323,46 +291,6 @@ export default function DashboardPage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         {/* ── LEFT column ── */}
         <div className="flex min-w-0 flex-col gap-6">
-          {/* METRICS ARE NOT CARDS ANY MORE.
-              Two numbers in two bordered boxes ate most of a phone screen and
-              pushed the actual next action below the fold — confirmed by
-              looking at the live dashboard on 2026-09-08, not inferred. A
-              border, a fill and a shadow each say "separate object"; a figure
-              and its label are neither. They sit on the page, divided by one
-              rule, and the space that bought goes to the thing the user came
-              to do.
-
-              A third tile, "Latest Job Match", was removed 2026-09-04 with the
-              standalone service and is deliberately not replaced. */}
-          <Reveal delay={40}>
-            <div className="grid grid-cols-2 gap-3">
-              <MetricTile
-                label="Profile strength"
-                icon={ChartBarIcon}
-                accent="teal"
-                value={profile ? `${score}%` : '—'}
-                sub={
-                  !profileLoaded
-                    ? undefined
-                    : profile
-                      ? readiness?.category ? categoryLabel(readiness.category) : undefined
-                      : 'Not started'
-                }
-                href="/profile"
-              />
-              <MetricTile
-                label="Resume Library"
-                icon={BriefcaseIcon}
-                accent="gold"
-                value={packagesLoaded ? String(packageCount) : '—'}
-                // Never an empty state before the count has loaded: "None yet"
-                // flashed for users who had saved CVs (2026-09-18).
-                sub={!packagesLoaded ? undefined : packageCount > 0 ? 'View jobs and application stages' : 'None yet'}
-                href="/dashboard/library"
-              />
-            </div>
-          </Reveal>
-
           {/* Next-step hero strip */}
           <Reveal delay={80}>
             {/* THE SIGNATURE ELEMENT of the Meridian dashboard, and the one
@@ -396,6 +324,52 @@ export default function DashboardPage() {
                 {nextAction.cta}
               </Link>
               ) : null}
+            </div>
+          </Reveal>
+
+          {/* The whole path, with this user's progress on it (2026-09-23). The
+              next-step panel above says what to do; this says where it sits. */}
+          <Reveal delay={95}>
+            <JourneyTracker facts={journeyFacts} jobLabel={focus ? jobLabel(focus) : null} packageId={focus?.id ?? null} />
+          </Reveal>
+
+          {/* METRICS ARE NOT CARDS ANY MORE.
+              Two numbers in two bordered boxes ate most of a phone screen and
+              pushed the actual next action below the fold — confirmed by
+              looking at the live dashboard on 2026-09-08, not inferred. A
+              border, a fill and a shadow each say "separate object"; a figure
+              and its label are neither. They sit on the page, divided by one
+              rule, and the space that bought goes to the thing the user came
+              to do.
+
+              A third tile, "Latest Job Match", was removed 2026-09-04 with the
+              standalone service and is deliberately not replaced. */}
+          <Reveal delay={105}>
+            <div className="grid grid-cols-2 gap-3">
+              <MetricTile
+                label="Profile strength"
+                icon={ChartBarIcon}
+                accent="teal"
+                value={profile ? `${score}%` : '—'}
+                sub={
+                  !profileLoaded
+                    ? undefined
+                    : profile
+                      ? readiness?.category ? categoryLabel(readiness.category) : undefined
+                      : 'Not started'
+                }
+                href="/profile"
+              />
+              <MetricTile
+                label="Resume Library"
+                icon={BriefcaseIcon}
+                accent="gold"
+                value={packagesLoaded ? String(packageCount) : '—'}
+                // Never an empty state before the count has loaded: "None yet"
+                // flashed for users who had saved CVs (2026-09-18).
+                sub={!packagesLoaded ? undefined : packageCount > 0 ? 'View jobs and application stages' : 'None yet'}
+                href="/dashboard/library"
+              />
             </div>
           </Reveal>
 
@@ -471,24 +445,6 @@ export default function DashboardPage() {
           {/* How much of each service this user has used so far (2026-09-17). */}
           <Reveal delay={120}>
             <ServiceUsageTotals usage={usage} />
-          </Reveal>
-
-          <Reveal delay={125}>
-            <section className="flex flex-col gap-3">
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                  Services
-                </span>
-                <span className="text-[12px] font-medium text-ink-muted">
-                  {packageCount > 0 ? `${packageCount} application${packageCount === 1 ? '' : 's'} in progress` : 'Start with one target job'}
-                </span>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {SERVICE_TILES.map((service) => (
-                  <ServiceTile key={service.title} {...service} />
-                ))}
-              </div>
-            </section>
           </Reveal>
 
           {/* New "Planned" row — LockedTile, per PLANNED_SERVICES.md */}
@@ -627,67 +583,6 @@ function categoryLabel(category: string): string {
     currently_in_gulf: 'In the Gulf',
   }
   return map[category] ?? category
-}
-
-function ServiceTile({
-  title,
-  body,
-  status,
-  href,
-  icon: Icon,
-}: {
-  title: string
-  body: string
-  status: 'Ready' | 'Next' | 'Planned'
-  href?: string
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
-}) {
-  const content = (
-    <>
-      <div className="flex items-start justify-between gap-3">
-        <span
-          aria-hidden="true"
-          className={cn(
-            'flex size-10 shrink-0 items-center justify-center rounded-ctl',
-            status === 'Planned' ? 'bg-canvas text-ink-muted' : 'bg-teal-soft text-teal',
-          )}
-        >
-          <Icon className="size-5" />
-        </span>
-        <span
-          className={cn(
-            'rounded-full px-2 py-1 text-[12px] font-bold uppercase tracking-[0.08em]',
-            status === 'Planned'
-              ? 'border border-line text-ink-muted'
-              : 'bg-teal-soft text-teal',
-          )}
-        >
-          {status}
-        </span>
-      </div>
-      <div className="mt-4">
-        <h3 className="font-display text-[16px] font-semibold leading-snug text-ink">{title}</h3>
-        <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-soft">{body}</p>
-      </div>
-    </>
-  )
-
-  if (!href) {
-    return (
-      <div className="min-h-[154px] rounded-card border border-dashed border-line-strong bg-white p-4 opacity-80">
-        {content}
-      </div>
-    )
-  }
-
-  return (
-    <Link
-      href={href}
-      className="min-h-[154px] rounded-card border border-line bg-white p-4 shadow-m-1 transition-all hover:-translate-y-px hover:border-teal/50 hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 motion-reduce:transform-none"
-    >
-      {content}
-    </Link>
-  )
 }
 
 /**

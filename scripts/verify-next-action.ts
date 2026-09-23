@@ -20,7 +20,7 @@
  */
 
 import './resolve-paths'
-import { computeNextAction, jobLabel, PROFILE_THIN_BELOW } from '../lib/nextAction'
+import { computeNextAction, focusJob, jobLabel, PROFILE_THIN_BELOW } from '../lib/nextAction'
 import type { Package } from '../types/package'
 
 let failures = 0
@@ -197,6 +197,27 @@ check(
   'without a waiting reading, nothing else changes',
   computeNextAction(PROFILE, [pkg()], 80).state === 'add_next_job'
 )
+
+console.log('\nThe dashboard journey follows the same job as the next step (2026-09-23)')
+{
+  // Newest first, as GET /api/packages returns them.
+  const done = pkg({ id: 'done' })
+  const noLetter = pkg({ id: 'no-letter', cover_letters: [] as unknown as Package['cover_letters'] })
+  const noQa = pkg({ id: 'no-qa', interview_questions: null as unknown as Package['interview_questions'] })
+  const unbuilt = pkg({ id: 'unbuilt', optimized_content: null })
+  const cases: Array<[string, Package[]]> = [
+    ['a letter is needed on an older job', [done, noLetter]],
+    ['Q&A is needed on an older job', [done, noQa]],
+    ['an unbuilt CV outranks a missing letter', [noLetter, unbuilt]],
+  ]
+  for (const [name, list] of cases) {
+    const focus = focusJob(list)
+    const action = computeNextAction(PROFILE, list, 80)
+    check(`focus is the next step's job: ${name}`, focus !== null && action.href.includes(focus.id))
+  }
+  check('every job complete: the newest job is the focus', focusJob([done, pkg({ id: 'older' })])?.id === 'done')
+  check('no jobs: no focus', focusJob([]) === null)
+}
 
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} FAILED\n`)
 process.exit(failures === 0 ? 0 : 1)

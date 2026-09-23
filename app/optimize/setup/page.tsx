@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { setupNotes } from '@/lib/processingNotes'
 import { Card } from '@/components/ui/Card'
-import { ProgressBar } from '@/components/ui/ProgressBar'
+import { FlowHeader } from '@/components/optimizer/FlowHeader'
 import { cn } from '@/lib/utils'
 import {
   OPTIMIZATION_BUILD_STEPS_KEY,
@@ -55,17 +55,38 @@ interface ExperienceRow {
 
 // Each level states the ATS score band it aims for
 // (lib/optimizer/suggestions.ts LEVEL_TARGET_BAND).
-const LEVELS: ReadonlyArray<{ value: OptimizationLevel; label: string; aim: string; explain: string }> = [
+// `changes` says the same thing as `explain`, as short lines a user can scan
+// (2026-09-23). The behaviour behind each level is unchanged.
+const LEVELS: ReadonlyArray<{
+  value: OptimizationLevel
+  label: string
+  aim: string
+  tag: string
+  changes: readonly string[]
+  explain: string
+}> = [
   {
     value: 'easy',
     label: 'Easy',
     aim: 'Aims for 60–75',
+    tag: 'Light touch',
+    changes: [
+      'Summary and work activities reworded in the job’s keywords',
+      'Uses only what your profile already says',
+      'No suggested lines',
+    ],
     explain: 'Rewrites your summary and work activities in the job’s keywords, using only what your profile already says.',
   },
   {
     value: 'moderate',
     label: 'Moderate',
     aim: 'Aims for 75–85',
+    tag: 'Balanced',
+    changes: [
+      'Everything in Easy',
+      'Suggested lines and skills for the job’s must-have requirements',
+      'Suggestions shown in yellow — keep only what is true',
+    ],
     explain:
       'Everything in Easy, plus suggested lines and skills for the must-have requirements your profile doesn’t mention. They appear in yellow on the review page — keep only what is true.',
   },
@@ -73,6 +94,12 @@ const LEVELS: ReadonlyArray<{ value: OptimizationLevel; label: string; aim: stri
     value: 'high',
     label: 'High',
     aim: 'Aims for 85–95',
+    tag: 'Strongest',
+    changes: [
+      'The strongest rewrite',
+      'Suggested lines and skills for every requirement of the job',
+      'Be ready to talk about every line you keep',
+    ],
     explain:
       'The strongest rewrite, plus suggested lines and skills for every requirement your profile doesn’t mention, shown in yellow on the review page. Keep only what is true — be ready to talk about every line in an interview.',
   },
@@ -258,29 +285,14 @@ function SetupScreen() {
 
   return (
     <main className="flex min-h-dvh flex-col font-redesign-sans">
-      <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-5 px-3 py-8 sm:px-8 lg:py-12">
-        <div className="flex items-center gap-3.5">
-          <button
-            type="button"
-            aria-label="Back to target job"
-            onClick={() => router.push('/optimize/target')}
-            className="flex size-11 items-center justify-center rounded-ctl text-[20px] leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
-          >
-            ←
-          </button>
-          <div className="flex-1">
-            <ProgressBar value={67} tone="light" />
-          </div>
-          <span className="font-mono text-[12px] text-ink-muted">Step 2 of 3</span>
-        </div>
-
-        <div>
-          <h1 className="font-display text-[27px] leading-tight text-ink">Choose your {NAMES.level.toLowerCase()}</h1>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-ink-soft">
-            Your employers, job titles, dates and education never change. Only your summary and work activities are
-            rewritten.
-          </p>
-        </div>
+      <div className="mx-auto flex w-full max-w-[760px] flex-1 flex-col gap-5 px-3 py-6 sm:px-8 lg:py-10">
+        <FlowHeader
+          step={2}
+          onBack={() => router.push('/optimize/target')}
+          backLabel="Back to target job"
+          title={`Choose your ${NAMES.level.toLowerCase()}`}
+          subtitle="Your employers, job titles, dates and education never change. Only your summary and work activities are rewritten, from your Career Profile."
+        />
 
         {loadError ? <Alert variant="danger">{loadError}</Alert> : null}
 
@@ -326,7 +338,11 @@ function SetupScreen() {
         {/* 2. The level */}
         <Card tone="light" className="flex flex-col gap-3 p-5">
           <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">{NAMES.level}</p>
-          <div role="radiogroup" aria-label={NAMES.level} className="grid grid-cols-3 gap-2">
+          {/* Full cards, stacked on a phone: three 100px buttons could only say
+              "Easy · Aims for 60–75", and what each level DOES sat in a box
+              below that changed as you tapped. Now every level says what it
+              changes before it is chosen. */}
+          <div role="radiogroup" aria-label={NAMES.level} className="grid gap-2.5 sm:grid-cols-3">
             {LEVELS.map((l) => {
               const selected = level === l.value
               return (
@@ -337,12 +353,34 @@ function SetupScreen() {
                   aria-checked={selected}
                   onClick={() => setLevel(l.value)}
                   className={cn(
-                    'flex min-h-16 flex-col items-center justify-center gap-1 rounded-card border px-2 py-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
-                    selected ? 'border-teal bg-teal' : 'border-line bg-white hover:bg-canvas',
+                    'flex flex-col gap-2 rounded-card border-2 p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+                    selected ? 'border-teal bg-teal-soft/60' : 'border-line bg-white hover:border-teal/40',
                   )}
                 >
-                  <span className={cn('text-[14px] font-semibold', selected ? 'text-white' : 'text-ink')}>{l.label}</span>
-                  <span className={cn('text-[12px]', selected ? 'text-teal-soft' : 'text-ink-muted')}>{l.aim}</span>
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'flex size-5 items-center justify-center rounded-full border-2',
+                          selected ? 'border-teal' : 'border-line-strong',
+                        )}
+                      >
+                        {selected ? <span className="size-2.5 rounded-full bg-teal" /> : null}
+                      </span>
+                      <span className="text-[16px] font-bold text-ink">{l.label}</span>
+                    </span>
+                    <span className="rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold text-ink-soft">{l.tag}</span>
+                  </span>
+                  <span className="text-[12.5px] font-semibold text-teal">{l.aim} ATS score</span>
+                  <ul className="flex flex-col gap-1.5">
+                    {l.changes.map((c) => (
+                      <li key={c} className="flex gap-1.5 text-[13px] leading-snug text-ink-soft">
+                        <span aria-hidden="true" className="mt-[7px] size-1 shrink-0 rounded-full bg-ink-muted" />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
                 </button>
               )
             })}

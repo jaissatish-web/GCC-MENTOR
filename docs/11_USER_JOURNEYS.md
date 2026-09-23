@@ -106,7 +106,7 @@ reused link says so and offers a new one.
 
 | Route | What it is |
 |---|---|
-| `/dashboard` | Metrics, next step, recent activity, **two readiness cards — Profile Strength (completeness) and Gulf Readiness (market score)** — quick actions, Library preview |
+| `/dashboard` | The career command center (2026-09-23): the one next step, then the **seven-step career journey** with this user's progress (steps 3–7 follow the job the next step names), Profile Strength and Library counts, target jobs, service usage, **two readiness cards — Profile Strength (completeness) and Gulf Readiness (market score)** — and quick actions |
 | `/create-resume` | **Retired 2026-08-18 to a redirect → `/profile`.** Resume creation now happens inline on the profile; this route is kept only so old links, the dashboard CTA and the onboarding fallback still land right. |
 | `/profile` | The Career Profile editor — and since 2026-09-11 also where both scores live: under the header, the **"Improve your profile"** panel shows Profile Strength and Gulf Readiness as two live tabs (missing items that jump to their field; the top three ranked Gulf fixes, full report on tap; `?improve=gulf` opens the second). Then the **"start or update from a resume"** panel (upload · paste · fill manually) — open for a first-time user, collapsed to one **"Recreate my profile"** button once a saved profile exists (2026-09-11) — above the user's data — the import runs the parse endpoints *on this screen* and feeds the add-or-replace choice, so building/re-importing and hand-editing are one place with no navigation. `?import=upload`/`?import=paste` opens the matching panel on arrival. |
 | `/profile/visibility` | What appears on a CV |

@@ -200,7 +200,7 @@ export default async function SettingsPage({
                     user.email_confirmed_at ? (
                       <span className="text-teal">Confirmed</span>
                     ) : (
-                      <span className="text-amber">Not confirmed</span>
+                      <span className="font-semibold text-gold-ink">Not confirmed</span>
                     )
                   }
                 />

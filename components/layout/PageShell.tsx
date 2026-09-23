@@ -38,6 +38,9 @@ export function PageShell({
   subtitle,
   actions,
   width = 'default',
+  icon: Icon,
+  eyebrow,
+  uses,
   children,
   className,
 }: {
@@ -47,6 +50,15 @@ export function PageShell({
   /** Page-level controls, right-aligned on desktop and stacked on mobile. */
   actions?: React.ReactNode
   width?: ShellWidth
+  /**
+   * SERVICE HEADER (2026-09-23). A service page names its icon, where it sits
+   * in the journey ("Step 5 · Apply") and what it is built from. The three are
+   * optional so plain pages (admin, settings) keep the plain header.
+   */
+  icon?: React.ComponentType<{ className?: string }>
+  eyebrow?: string
+  /** What this service reads, e.g. ['Career Profile', 'Optimized CV', 'Target job']. */
+  uses?: readonly string[]
   children: React.ReactNode
   className?: string
 }) {
@@ -59,15 +71,38 @@ export function PageShell({
     // product.
     <main className={cn('mx-auto flex w-full flex-col gap-6 px-3 pb-12 pt-4 font-redesign-sans sm:px-6', WIDTH[width], className)}>
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex min-w-0 flex-col gap-1.5">
-          <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[30px]">
-            {title}
-          </h1>
-          {subtitle ? (
-            // ~70 characters: long enough for a real sentence, short enough to
-            // stay comfortably readable on a wide screen.
-            <p className="max-w-[70ch] text-[14px] leading-relaxed text-ink-soft">{subtitle}</p>
+        <div className="flex min-w-0 gap-3.5">
+          {Icon ? (
+            <span
+              aria-hidden="true"
+              className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-ctl bg-teal-soft text-teal sm:size-12"
+            >
+              <Icon className="size-6" />
+            </span>
           ) : null}
+          <div className="flex min-w-0 flex-col gap-1.5">
+            {eyebrow ? (
+              <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">{eyebrow}</span>
+            ) : null}
+            <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[30px]">
+              {title}
+            </h1>
+            {subtitle ? (
+              // ~70 characters: long enough for a real sentence, short enough to
+              // stay comfortably readable on a wide screen.
+              <p className="max-w-[70ch] text-[14px] leading-relaxed text-ink-soft">{subtitle}</p>
+            ) : null}
+            {uses && uses.length > 0 ? (
+              <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[12.5px] text-ink-muted">
+                <span className="font-semibold text-ink-soft">Built from:</span>
+                {uses.map((u) => (
+                  <span key={u} className="rounded-full border border-line bg-white px-2.5 py-1 font-semibold text-ink-soft">
+                    {u}
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
         </div>
         {actions ? (
           <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">{actions}</div>

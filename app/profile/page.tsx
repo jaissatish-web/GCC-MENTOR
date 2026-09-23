@@ -518,19 +518,19 @@ function requiredMissing(e: EditorData): Array<{ key: keyof EditorData; label: s
 const CATEGORY_COPY: Record<ReadinessCategory, { highlight: string; rest: string }> = {
   currently_in_gulf: {
     highlight: 'currently in the Gulf',
-    rest: 'get shortlisted more often when visa details are complete.',
+    rest: 'give employers a clearer picture when visa and notice details are complete.',
   },
   fresher: {
     highlight: 'just starting out',
-    rest: 'stand out more when your skills and education are complete.',
+    rest: 'read more clearly when skills and education are complete.',
   },
   returner: {
     highlight: 'returning to the Gulf',
-    rest: 'get shortlisted more often when your work history is complete.',
+    rest: 'read more clearly when earlier Gulf work history is complete.',
   },
   experienced_not_in_gulf: {
     highlight: 'experienced outside the Gulf',
-    rest: 'get noticed more when your work experience is complete.',
+    rest: 'read more clearly when work experience is complete.',
   },
 }
 
@@ -1676,6 +1676,11 @@ function ProfileScreen() {
           </div>
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            {/* Says what this page IS before anything else (2026-09-23): the
+                source every CV, letter and interview answer is written from. */}
+            <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
+              Step 1 · The source of every document
+            </span>
             {/* "Almost there, there" at 0% was two errors in four words — no
                 name to greet, and nowhere near "almost". The heading now says
                 what is true at each stage. */}

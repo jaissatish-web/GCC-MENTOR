@@ -12,6 +12,47 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-23 — one product, not a set of tools: frontend redesign (no backend change)
+
+**Founder brief:** make GCC Mentor read as one career platform — profile → readiness →
+job → CV → letter → interview — premium, light, mobile-first, credible. Frontend only:
+no API, schema, prompt, scoring, payment or auth change.
+
+**Decided and built:**
+- **Meridian stays the identity.** It already met the brief (light, warm canvas, teal
+  brand, one gold action). What was missing was a *product system* on top of it, now in
+  `12_DESIGN_SYSTEM.md` §00, which also stops describing Blueprint as current.
+- **One seven-step journey, one definition** (`components/journey/journeySteps.ts`),
+  shown interactively on the landing page and with the user's progress on the dashboard.
+- **The dashboard tracker follows one job** — the job the next-step panel names
+  (`focusJob`, same sweep as `computeNextAction`, asserted in
+  `scripts/verify-next-action.ts`). A first version counted steps done on *any* job and
+  read "7 of 7 done" beside "write the cover letter for …".
+- **Landing page rebuilt** around "one career profile, every Gulf application": product
+  preview instead of an illustration, trust band, who it is for, eight problems each
+  paired with its fix, the interactive journey, services grouped in three stages
+  (each says what / why / you get), before→after in the review page's real colours,
+  the grounding section, six GCC markets with a "not a recruitment agency" line, real
+  template renders, interview prep, pricing, ten-question FAQ. The unused photo cards,
+  the pain-point carousel and the orphaned `TemplateShowcase` were removed.
+- **Pricing still prints no price.** It says what is free, what the application
+  services are, and that checkout is not live — prices while services are open remain
+  a founder decision (2026-09-15 entry).
+- **Service pages share a header** (icon, journey step, outcome, "Built from") and end
+  with a "What happens next" hand-off: letter → Q&A → mock → Library.
+- **Optimizer:** one shared step header naming all three steps; each level is a card
+  that lists what it changes before it is chosen.
+- **Copy corrected to the confirm-to-add model:** "Nothing is invented — ever" and
+  "get shortlisted more often" were removed; the promise is now "written from your
+  Career Profile; anything new is highlighted and kept only if you confirm it".
+
+**Defects found and fixed on the way:** the templates action bar stuck under the app
+header (`top-0` → `top-16`); the Library stage strip overflowed phones by 8px each side
+(`-mx-5` inside a 12px gutter); the public header's menu button was half off-screen at
+320px; emoji icons in the usage strip; two leftover off-palette classes.
+
+---
+
 ## 2026-09-17 (housekeeping) — no WhatsApp share, wider phone layout, per-CV service usage
 
 - **The desktop sidebar scrolls again** (founder), reversing TASK-155's "no scroller of its

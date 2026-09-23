@@ -7,9 +7,9 @@ import Link from 'next/link'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { FieldLabel } from '@/components/ui/FieldLabel'
-import { ProgressBar } from '@/components/ui/ProgressBar'
+import { FlowHeader } from '@/components/optimizer/FlowHeader'
 import { Card } from '@/components/ui/Card'
-import { PERSONA_INDUSTRIES } from '@/lib/utils'
+import { cn, PERSONA_INDUSTRIES } from '@/lib/utils'
 import { OPTIMIZATION_REPLACE_PACKAGE_KEY, OPTIMIZATION_TARGET_DRAFT_KEY } from '@/lib/onboardingDraft'
 import { findSimilarPackage } from '@/lib/reuseDetection'
 import type { PackageSummary } from '@/lib/packageSummary'
@@ -231,41 +231,40 @@ function TargetScreen() {
 
   return (
     <main className="flex min-h-dvh flex-col font-redesign-sans">
-      <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-3 py-8 sm:px-8 lg:py-12">
-      {/* Back + step. Was "3/5" of a five-step flow that no longer exists; the
-          optimizer is three screens: target, what to sharpen, build. */}
-      <div className="flex items-center gap-3.5">
-        <button
-          type="button"
-          aria-label="Go back"
-          onClick={() => router.back()}
-          className="flex size-11 items-center justify-center rounded-ctl text-[20px] leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
-        >
-          ←
-        </button>
-        <div className="flex-1">
-          <ProgressBar value={33} tone="light" />
-        </div>
-        <span className="font-mono text-[12px] text-ink-muted">Step 1 of 3</span>
-      </div>
+      <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-5 px-3 py-6 sm:px-8 lg:py-10">
+      {/* Back + the three named steps. The optimizer is three screens: target,
+          level, build. */}
+      <FlowHeader
+        step={1}
+        onBack={() => router.back()}
+        title="Add your target job"
+        subtitle={
+          <>
+            Tell us the job you are applying for. It is saved in your {NAMES.library}, and your cover letter,
+            interview Q&amp;A and mock interview use it too.
+          </>
+        }
+      />
 
-      {/* Heading */}
-      <div className="px-5 pb-4">
-        <h1 className="font-display text-[27px] leading-tight text-ink">Add your target job</h1>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-soft">
-          Tell us the job you are applying for. It is saved in your {NAMES.library}, and your cover letter,
-          interview Q&amp;A and mock interview use it too.
-        </p>
+      {/* What the optimized CV is built from — the two inputs, side by side,
+          so the user sees the profile is already in hand and only the job is
+          asked for here. */}
+      <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 rounded-card border border-line bg-white p-3 text-center shadow-m-1 sm:gap-3 sm:p-4">
+        <InputChip label="Career Profile" state={loadError ? 'unknown' : 'ready'} />
+        <span aria-hidden="true" className="text-[16px] font-semibold text-ink-muted">+</span>
+        <InputChip label={NAMES.targetJob} state={canContinue ? 'ready' : 'needed'} />
+        <span aria-hidden="true" className="text-[16px] font-semibold text-ink-muted">→</span>
+        <InputChip label={NAMES.optimizedCv} state="output" />
       </div>
 
       {loadError ? (
-        <div className="mx-5 mb-3 rounded-card border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">
+        <div className="rounded-card border border-alert/30 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
           {loadError}
         </div>
       ) : null}
 
       {/* Fields */}
-      <Card tone="light" className="mt-5 flex flex-1 flex-col gap-4 overflow-y-auto p-5">
+      <Card tone="light" className="flex flex-col gap-4 p-5">
         <Input
           id="f_target_job_title"
           label={NAMES.jobTitle}
@@ -325,7 +324,7 @@ function TargetScreen() {
                 setReplacingId(null)
                 setDismissed(false)
               }}
-              className="font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+              className="font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               Change
             </button>
@@ -365,7 +364,7 @@ function TargetScreen() {
       </Card>
 
       {/* Footer */}
-      <div className="flex flex-col gap-2.5 px-5 pb-6 pt-4">
+      <div className="flex flex-col gap-2.5 pb-6">
         {/* Was "Still free — you'll see what changes before you pay." There is
             no checkout yet, so a sentence about paying is a promise about a
             step that does not exist. What IS true is the preview. */}
@@ -383,6 +382,30 @@ function TargetScreen() {
       </div>
       </div>
     </main>
+  )
+}
+
+/** One input (or the output) of the optimizer, and whether it is in hand yet. */
+function InputChip({ label, state }: { label: string; state: 'ready' | 'needed' | 'unknown' | 'output' }) {
+  return (
+    <span className="flex min-w-0 flex-col items-center gap-1">
+      <span
+        aria-hidden="true"
+        className={cn(
+          'flex size-7 items-center justify-center rounded-full text-[12px] font-bold',
+          state === 'ready' && 'bg-ok text-white',
+          state === 'needed' && 'border-2 border-dashed border-teal text-teal',
+          state === 'unknown' && 'border border-line-strong text-ink-muted',
+          state === 'output' && 'bg-gold-soft text-gold-ink',
+        )}
+      >
+        {state === 'ready' ? '✓' : state === 'output' ? '★' : state === 'needed' ? '•' : '?'}
+      </span>
+      <span className="text-[12px] font-semibold leading-tight text-ink">{label}</span>
+      <span className="text-[12px] leading-tight text-ink-muted">
+        {state === 'ready' ? 'Ready' : state === 'needed' ? 'Add below' : state === 'output' ? 'You get' : 'Not loaded'}
+      </span>
+    </span>
   )
 }
 

@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { RectangleStackIcon } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
 import { PageShell } from '@/components/layout/PageShell'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { getTemplate, DEFAULT_TEMPLATE_ID, TEMPLATES, type TemplateId } from '@/lib/templates'
 import { resumeLabel } from '@/lib/utils'
+import { CTA } from '@/lib/serviceLabels'
 import { SAMPLE_RESUME_DOCUMENT } from '@/lib/sampleResume'
 import type { PackageSummary } from '@/lib/packageSummary'
 
@@ -71,12 +74,16 @@ function TemplatesInner() {
   return (
     <PageShell
       width="wide"
+      icon={RectangleStackIcon}
+      eyebrow="Part of your optimized CV"
       title="Resume templates"
       subtitle={`${AVAILABLE_TEMPLATE_COUNT} designs for GCC applications. Every preview uses the same example CV, so you can compare them.`}
     >
-      {/* The action bar sticks to the top so the choice made at the bottom of a
-          long gallery is still actionable without scrolling back. */}
-      <div className="sticky top-0 z-20 -mt-2 flex flex-col gap-3 border-b border-line/60 bg-canvas/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+      {/* The action bar sticks so the choice made at the bottom of a long
+          gallery is still actionable without scrolling back. top-16, not
+          top-0 (2026-09-23): the app header is itself sticky at 64px, and at
+          top-0 this bar slid underneath it and vanished on scroll. */}
+      <div className="sticky top-16 z-20 -mt-2 flex flex-col gap-3 border-b border-line/60 bg-canvas/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-ink-soft">
           Selected: <strong className="text-ink">{templateName}</strong>
         </p>
@@ -114,8 +121,12 @@ function TemplatesInner() {
             </button>
           </div>
         ) : (
-          <span className="text-[12px] text-ink-muted">
-            Create a resume to try these with your own details.
+          <span className="text-[13px] text-ink-soft">
+            To see these with your own details,{' '}
+            <Link href="/optimize/target" className="font-semibold text-teal underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+              {CTA.addTargetJob.toLowerCase()}
+            </Link>{' '}
+            first.
           </span>
         )}
       </div>

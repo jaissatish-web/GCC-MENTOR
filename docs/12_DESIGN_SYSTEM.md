@@ -4,7 +4,76 @@
 
 ---
 
-## 0. BLUEPRINT — the current identity
+## 00. MERIDIAN — the current identity, and one product system (2026-09-23)
+
+**This section is the current truth.** §0 below (Blueprint) and §2–§5 (the navy/gold
+era) are kept for their reasoning and measurements; where they disagree with this
+section, this section wins. The Meridian tokens were chosen by the founder on
+2026-09-09 and are defined, with every contrast ratio, in `tailwind.config.ts`.
+
+### Tokens
+
+| Token | Value | Role |
+|---|---|---|
+| `canvas` | `#FAF7F2` | Page ground, warm light |
+| `white` | `#FFFFFF` | Cards and panels |
+| `ink` / `ink-soft` / `ink-muted` | `#14181C` / `#414B55` / `#616B76` | Headings / body / secondary (all ≥5:1) |
+| `teal` / `teal-bright` / `teal-soft` | `#0F4C43` / `#12695C` / `#E4EEEB` | The brand: headers, dark panels, links, "this is us" |
+| `gold` / `gold-ink` / `gold-soft` | `#C9962E` / `#8A6114` / `#F7EFDD` | The ACTION: the one primary button per screen. Gold is a fill; gold text uses `gold-ink` |
+| `ok` / `ok-soft` | `#2C6E49` / `#E3EFE8` | Done, success |
+| `alert` / `alert-soft` | `#A33528` / `#F8E6E2` | Error, risk, not built yet |
+| `line` / `line-strong` | `#EAE4DB` / `#D2C9BC` | Decorative hairlines |
+| `field` / `field.line` | `#FBF9F5` / `#948A7B` | Inputs (the `.field` class in `globals.css`) |
+
+Radius: `rounded-ctl` 11px for controls, `rounded-card` 16px and `rounded-card-lg` 20px
+for cards. Shadow: `shadow-m-1/2/3`. Type: Fraunces (`font-display`) for headings,
+Inter (`font-redesign-sans`) for everything else, Plex Mono only for figures that must
+align. Nothing readable under 12px. One icon set: Heroicons (emoji icons were removed
+from the usage strip on 2026-09-23).
+
+### Buttons — one meaning each
+
+`primary`/`purchase` (gold, ink text) = the page's one main action · `progress` (teal)
+= a step forward inside a flow, and the "what happens next" hand-off · `secondary`
+(white, `line-strong` border) · `ghost` (teal text) · `danger`. Every button is at
+least 44px tall.
+
+### The shared building blocks (2026-09-23)
+
+| Component | Where | What it does |
+|---|---|---|
+| `components/journey/journeySteps.ts` | landing + dashboard | THE seven-step career journey, one definition: Career Profile → Gulf Readiness → Target job → Optimized CV → Cover letter → Interview Q&A → Mock interview. Names come from `lib/serviceLabels.ts`. |
+| `components/journey/JourneyTracker.tsx` | dashboard | The journey with the user's own progress: done / next / to do. Steps 3–7 follow the job the next step is about (`focusJob` in `lib/nextAction.ts`), so the tracker and the next-step panel never disagree. Vertical list on phones, one row from `lg`. |
+| `components/landing/JourneyExplorer.tsx` | landing | The same seven steps as an interactive tab list: what you give, what you get, why, and a drawn preview (`Stations.tsx`). No autoplay. Arrow keys move between steps. |
+| `components/journey/NextStep.tsx` | cover letter, Q&A, mock | "What happens next" — the hand-off at the foot of a service page, so no service ends in a dead end. Teal `progress` button, never gold. Links only; it never starts a generation. |
+| `PageShell` `icon` / `eyebrow` / `uses` | every service page | The service header: icon tile, where it sits in the journey ("Step 5 · Apply"), title, one-line outcome, and "Built from: Optimized CV · Target job · Career Profile". Optional, so admin and plain pages keep the plain header. |
+| `components/optimizer/FlowHeader.tsx` | optimizer steps | Back, then all three steps named (Target job → Level → Optimized CV) with done/current/to-do, then the title. Replaced two hand-drawn "Step N of 3" bars. |
+
+### Service page anatomy
+
+Every service page follows the same order: **header** (icon, journey step, name,
+outcome, "Built from") → **the job it is for** (`PreparationJourney` / `TargetJobCard`)
+→ **inputs** in one card with one gold action → **output** → **what happens next** →
+the grounding line. Empty states always carry the action that fills them
+(`EmptyState.action`).
+
+### Previews on the landing page
+
+Drawn from the same tokens as the real screens, never stock photography, and every one
+is tagged **Example**. The before/after colours are the review page's own: green =
+reworded from the profile, blue (`#DCEAF7` / `sec-status`) = job-description keyword,
+yellow (`gold-soft`) = suggested, kept only if the user confirms.
+
+### Truth rules for copy
+
+No guarantee of a job, interview, shortlist or salary. The grounding promise is stated
+as it really works: documents are written from the Career Profile; anything new
+(Moderate/High suggestions) is highlighted and kept only after the user confirms it.
+"Nothing is ever invented" in absolute form is no longer accurate and is not used.
+
+---
+
+## 0. BLUEPRINT — superseded 2026-09-09 by Meridian (kept for its reasoning)
 
 **Chosen by the founder 2026-09-08** from three mocked directions, and rolled out across
 the whole application. The brief it answers: the product should look like an

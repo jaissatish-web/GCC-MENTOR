@@ -1,8 +1,9 @@
 import Link from 'next/link'
+import { CheckCircleIcon } from '@heroicons/react/24/outline'
 import { Reveal } from '@/components/ui/Reveal'
 
 const STORY_TRUST = [
-  'Nothing invented — ever',
+  'Written from your own Career Profile',
   'Passport & visa data kept private',
   'Your experience stays yours',
 ]
@@ -59,14 +60,14 @@ export function AuthShell({
         <div className="mt-9 flex flex-col items-center gap-2.5 border-t border-line pt-6">
           {STORY_TRUST.map((t) => (
             <div key={t} className="flex items-center gap-2 text-[13px] font-medium text-ink-muted">
-              <span className="text-teal">◈</span> {t}
+              <CheckCircleIcon className="size-4 shrink-0 text-teal" aria-hidden="true" /> {t}
             </div>
           ))}
         </div>
 
         <p className="mt-7 text-center text-[12px] leading-relaxed text-ink-muted">
-          Only facts already in your profile are used anywhere in this product.
-          Nothing is invented — ever.
+          Your documents are written from your Career Profile. Anything new is highlighted and
+          only kept if you confirm it is true.
         </p>
       </div>
     </div>

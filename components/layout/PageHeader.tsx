@@ -32,11 +32,13 @@ export function PageHeader({
       )}
     >
       <div className="flex min-w-0 flex-col gap-1">
-        <h1 className="font-display text-[28px] leading-tight text-ink sm:text-[32px]">
+        {/* Same scale as PageShell (2026-09-23), so Settings reads as the same
+            product as every other page. */}
+        <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[30px]">
           {title}
         </h1>
         {description ? (
-          <p className="max-w-[62ch] text-[13px] leading-relaxed text-ink-muted">
+          <p className="max-w-[70ch] text-[14px] leading-relaxed text-ink-soft">
             {description}
           </p>
         ) : null}
@@ -65,7 +67,7 @@ export function PageContainer({
   return (
     <main
       className={cn(
-        'mx-auto w-full px-3 py-8 font-redesign-sans sm:px-8 lg:px-10',
+        'mx-auto w-full px-3 pb-12 pt-4 font-redesign-sans sm:px-6',
         width === 'wide' ? 'max-w-[1180px]' : 'max-w-[900px]',
         className
       )}

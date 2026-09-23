@@ -43,10 +43,10 @@ import { PublicMenu } from './PublicMenu'
  * the three-bar panel, so it cannot drift from the header either.
  */
 const ITEMS = [
-  ['Why GCC Mentor', '#pain'],
+  ['How it works', '#journey'],
   ['Services', '#services'],
+  ['Why trust it', '#trust'],
   ['Templates', '#templates'],
-  ['Interview prep', '#interview'],
   ['Pricing', '#pricing'],
   ['FAQ', '#faq'],
 ] as const
@@ -62,7 +62,11 @@ export function SiteNav() {
           <span className="flex size-9 items-center justify-center rounded-ctl bg-teal font-display text-[16px] font-bold text-white">
             G
           </span>
-          <span className="font-display text-[14px] font-bold tracking-[-0.01em] text-ink sm:text-[16px]">GCC MENTOR</span>
+          {/* Visually hidden below 360px (2026-09-23): wordmark, Log in, Sign up
+              and the menu need ~337px, and on a 320px phone the menu button was
+              pushed half off-screen. The "G" mark stays; the name stays for
+              screen readers. */}
+          <span className="font-display text-[14px] font-bold tracking-[-0.01em] text-ink max-[359px]:sr-only sm:text-[16px]">GCC MENTOR</span>
         </Link>
 
         <nav aria-label="Sections" className="hidden items-center gap-1 xl:flex">
