@@ -8,6 +8,7 @@ import { allowedNumbersFor, resumeDocumentTexts, unsourcedNumbers } from '@/lib/
 import {
   gapTermsFromMatchReport,
   groundAnswer,
+  removePersonalClaims,
   profileEvidenceText,
   renderAnswerFacts,
   yearsToState,
@@ -198,7 +199,9 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
           const validation = validateInterviewQa(output)
           return validation.valid ? null : validation.failures.slice(0, 5).join('; ')
         },
-        maxTokens: 6000,
+        // 9,000 (was 6,000, 2026-09-23): a reasoning model spends part of the
+        // budget before writing, and 25 full answers ran to 5,400 tokens.
+        maxTokens: 9000,
         temperature: 0.1,
         repairAttempts: 1,
         deadlineAt: startedAt + DEADLINE_MS,
@@ -221,8 +224,10 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
       .filter((q) => unsourcedNumbers(q.answer, allowed).length === 0)
       .map((q) => {
         const grounded = groundAnswer(q.answer, claimCtx)
-        if (grounded.changed) reworded++
-        return grounded.changed ? { ...q, answer: grounded.text } : q
+        // Family, marital status, relocation: the candidate's to state (2026-09-23).
+        const personal = removePersonalClaims(grounded.text, claimCtx.evidence)
+        if (grounded.changed || personal.changed) reworded++
+        return grounded.changed || personal.changed ? { ...q, answer: personal.text } : q
       })
     const dropped = parsed.questions.length - kept.length
     if (kept.length === 0) {

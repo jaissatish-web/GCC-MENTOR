@@ -158,7 +158,7 @@ export default async function PromptsPage(
                             (v.status === 'active'
                               ? 'bg-teal-soft text-teal'
                               : v.status === 'draft'
-                                ? 'bg-gold-tint text-teal'
+                                ? 'bg-gold-soft text-teal'
                                 : 'border border-line text-ink-muted')
                           }
                         >

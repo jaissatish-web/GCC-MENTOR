@@ -31,7 +31,7 @@
 
 import type { CareerProfileFull } from '@/types/careerProfile'
 import { BANNED_WORDS, INTENSIFIERS } from '@/lib/optimizer/qualityGate'
-import { containsTermRaw, stem, tokenize } from '@/lib/optimizer/text'
+import { containsTermRaw, coversContentStems, stem, tokenize } from '@/lib/optimizer/text'
 
 export type ProseClaimCode = 'gap_claim' | 'gap_word' | 'wrong_years' | 'unsupported_grade'
 
@@ -187,7 +187,10 @@ export function checkProseClaims(input: {
 }
 
 export function splitSentences(text: string): string[] {
-  return text.match(/[^.!?]+(?:[.!?]+|$)/g)?.map((s) => s.trim()).filter(Boolean) ?? []
+  // A full stop followed by a digit is a decimal, not the end of a sentence:
+  // "99.2% first-pass accuracy" was cut into "…99." and "2% first-pass…"
+  // (2026-09-23), so removing one half left the other orphaned.
+  return text.match(/(?:[^.!?]|\.(?=\d))+(?:[.!?]+|$)/g)?.map((s) => s.trim()).filter(Boolean) ?? []
 }
 
 /**
@@ -259,6 +262,34 @@ export function groundAnswer(answer: string, ctx: { evidence: string; gaps?: Gap
 }
 
 /**
+ * PERSONAL CIRCUMSTANCES the profile never states (2026-09-23).
+ *
+ * A generated Q&A answer on a real run said "I have no family constraints and
+ * am ready to move as required" — nothing in the profile says either. Family,
+ * marital status, dependants and willingness to relocate are the candidate's to
+ * state, never the model's. A sentence naming one is removed unless the
+ * profile/CV itself mentions that word family; an answer left too short gets
+ * a placeholder the candidate fills in. Generated text only — a candidate's
+ * own typed mock answer is their word, not a claim to check.
+ */
+// "family"/"families" only — "familiar" is not a personal claim (it was, on the first run).
+const PERSONAL_CLAIM = /\b(family|families|married|marital|wife|husband|spouse|children|kids|dependents?|dependants?|relocat\w*)\b/gi
+
+export const PERSONAL_PLACEHOLDER =
+  'Answer from your own situation: [your availability, and relocation or family details only if you choose to share them].'
+
+export function removePersonalClaims(text: string, evidence: string): { text: string; changed: boolean } {
+  const known = (word: string) => new RegExp(`\\b${word.toLowerCase().slice(0, 5)}`, 'i').test(evidence)
+  const sentences = splitSentences(text)
+  const kept = sentences.filter((s) => [...s.matchAll(PERSONAL_CLAIM)].every((m) => known(m[1])))
+  if (kept.length === sentences.length) return { text, changed: false }
+  const cleaned = kept.join(' ').trim()
+  const words = (cleaned.match(/[A-Za-z]+/g) ?? []).length
+  // A placeholder only when too little is left to answer the question.
+  return { text: words >= 12 ? cleaned : PERSONAL_PLACEHOLDER, changed: true }
+}
+
+/**
  * Mock interview: the CANDIDATE'S typed answer claims something their CV does
  * not show. That is the single most useful thing interview practice can catch
  * — an interviewer holding the CV will probe it (2026-09-18 audit: an answer
@@ -271,6 +302,53 @@ export const NOT_IN_CV_PREFIX = 'Not in your CV:'
 
 export function unsupportedAnswerClaims(answer: string, ctx: { evidence: string; gaps?: GapTerm[]; totalYears?: number | null }): string[] {
   return [...new Set(checkProseClaims({ ...ctx, text: answer }).filter((i) => i.severity === 'hard').map((i) => i.offendingValue))]
+}
+
+/**
+ * Credentials and named products the CV never mentions (2026-09-23).
+ *
+ * A real mock answer claimed "Emerson DeltaV systems on five projects" and "a
+ * TUV Functional Safety Engineer certificate". Neither is in the CV, neither is
+ * a requirement of the advert, so the gap check never saw them — and the final
+ * report listed both as STRENGTHS. Two narrow cues, both read from the answer:
+ *   - a sentence about a certificate / licence / chartership whose name is not
+ *     covered by the profile;
+ *   - a product-style name (CamelCase like "DeltaV", an acronym like "TUV", or
+ *     a model number) that appears nowhere in the profile or CV.
+ * An honest sentence ("I have not used DeltaV") is not a claim.
+ */
+const CREDENTIAL_CUE = /\b(certif\w*|licen[cs]\w*|chartered|accredit\w*)\b/i
+const CAPITALISED_RUN = /\b([A-Z][A-Za-z0-9&/.-]*(?:\s+[A-Z][A-Za-z0-9&/.-]*)*)/g
+const PRODUCT_TOKEN = /\b([A-Z][a-z]+[A-Z][A-Za-z]*|[A-Z]{2,5}|[A-Za-z]+\d[A-Za-z0-9-]*)\b/g
+const COMMON_CAPS = new Set(['I', 'CV', 'STAR', 'OK', 'HR', 'KPI', 'KPIS', 'CEO', 'USA', 'UK', 'AM', 'PM'])
+
+export function unverifiedEntityClaims(answer: string, evidence: string): string[] {
+  const flat = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '')
+  const evidenceFlat = flat(evidence)
+  const out: string[] = []
+  for (const sentence of splitSentences(answer)) {
+    if (HONEST_GAP.test(sentence)) continue
+    if (CREDENTIAL_CUE.test(sentence)) {
+      for (const m of sentence.matchAll(CAPITALISED_RUN)) {
+        const run = m[1].trim()
+        if (run === 'I' || run.split(/\s+/).every((w) => w.length < 2)) continue
+        if (!coversContentStems(run, evidence) && !evidenceFlat.includes(flat(run))) out.push(run)
+      }
+    }
+    for (const m of sentence.matchAll(PRODUCT_TOKEN)) {
+      const token = m[1]
+      if (COMMON_CAPS.has(token.toUpperCase())) continue
+      if (!evidenceFlat.includes(flat(token))) out.push(token)
+    }
+  }
+  return [...new Set(out)].slice(0, 4)
+}
+
+/** The claim values a "Not in your CV" feedback line names, in order. */
+export function claimsInFeedback(feedback: string | null | undefined): string[] {
+  if (!feedback?.startsWith(NOT_IN_CV_PREFIX)) return []
+  const head = feedback.slice(NOT_IN_CV_PREFIX.length).split(', which your CV does not show')[0]
+  return [...head.matchAll(/"([^"]+)"/g)].map((m) => m[1])
 }
 
 export function notInCvFeedback(claims: string[], feedback: string): string {

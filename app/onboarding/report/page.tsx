@@ -87,7 +87,7 @@ export default function OnboardingReportPage() {
 
         <ScorecardResult result={result} locked={false} />
 
-        <div className="mt-8 rounded-card border border-teal/40 bg-gold-tint/40 p-6 text-center sm:p-8">
+        <div className="mt-8 rounded-card border border-teal/40 bg-gold-soft/40 p-6 text-center sm:p-8">
           <h2 className="font-display text-2xl text-ink">Now let&rsquo;s build your Career Profile</h2>
           <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-ink-soft">
             We already have your resume. We read it once, free — then you check and correct everything.

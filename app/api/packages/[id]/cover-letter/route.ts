@@ -218,7 +218,13 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
       const result = await generate({
         system,
         user: userMessage,
-        maxTokens: 2048,
+        // 8,192 (was 2,048, 2026-09-23). The configured model reasons before it
+        // writes and bills that against this ceiling. Measured on real letters:
+        // two hit 2,048 mid-JSON ("schema_violation"), and one spent all of
+        // 4,096 on reasoning (18k characters) and wrote nothing. The provider's
+        // doubled-budget retry cannot run inside this route's 100s, so the one
+        // attempt must have room. A ceiling, not a spend — a letter is ~700 tokens.
+        maxTokens: 8192,
         temperature: 0.4,
         userId: user.id,
         route: '/api/packages/[id]/cover-letter',

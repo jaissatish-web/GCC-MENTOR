@@ -20,7 +20,7 @@ import {
   type SizeKey,
 } from '@/lib/resumeStyle'
 import { resumeKind } from '@/lib/resumeKind'
-import { displayFirstName } from '@/lib/utils'
+import { GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
@@ -454,7 +454,8 @@ function PackageScreenInner({ id }: { id: string }) {
           targetJobTitle: pkg.target_job_title ?? null,
         })
       : null)
-  const firstName = (profile && displayFirstName(profile.full_name)) || 'there'
+  // Where the job is, in words — never the stored enum ("saudi_arabia").
+  const countryName = pkg ? GULF_COUNTRIES.find((c) => c.value === pkg.target_country && c.value !== 'generic_gulf')?.label ?? null : null
   const pdfUrl = `/api/packages/${encodeURIComponent(id)}/pdf`
   // Word download is deliberately not offered yet (founder decision,
   // 2026-08-16). The .docx route still exists and still works — it is simply
@@ -545,19 +546,32 @@ function PackageScreenInner({ id }: { id: string }) {
           package never reaches this screen, it is redirected — so it was telling
           them something that is always true. */}
       <div className="flex flex-col gap-3 px-5 pb-3 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
-        <h1 className="font-display text-[24px] leading-tight text-ink lg:shrink-0 lg:text-[20px]">
-          {/* Never call a free resume "optimized" — it has not been through the
-              model, and claiming otherwise is the one thing this product does not
-              do (docs/RULES.md). */}
-          {isFree ? `Your CV, ${firstName}` : `Your optimized CV is ready, ${firstName}`}
-        </h1>
+        {/* THE JOB, NOT THE DOCUMENT (2026-09-23): this page is the workspace for
+            one target job — its CV, letter, interview preparation and stage — so
+            it is titled with the job. Never call a free resume "optimized" — it
+            has not been through the model (docs/RULES.md). */}
+        <div className="flex min-w-0 flex-col gap-0.5 lg:shrink-0">
+          <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">Application workspace</span>
+          <h1 className="break-words font-display text-[24px] leading-tight text-ink lg:text-[20px]">
+            {pkg.name || pkg.target_job_title}
+          </h1>
+          <p className="text-[12.5px] text-ink-soft">
+            {[
+              pkg.target_company,
+              countryName,
+              isFree ? 'CV not optimized yet' : `${pkg.optimization_level.charAt(0).toUpperCase()}${pkg.optimization_level.slice(1)} optimized CV`,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+        </div>
 
         {/* Rename, in place. A user with three attempts at the same role sees
             three identical rows in the Library otherwise — the target job
             title is not something they can change. Saves on blur or Enter;
             clearing it falls back to the job title rather than storing blank. */}
         <label className="flex flex-1 flex-wrap items-center gap-2 text-[12px] text-ink-muted lg:max-w-[420px]">
-          <span className="sr-only lg:not-sr-only">Name</span>
+          <span className="sr-only lg:not-sr-only">Name in your library</span>
           {/* A textarea that sizes to its text (field-sizing: content), so a
               long job title wraps instead of being clipped mid-word on a phone
               ("…Enginee", 2026-09-18). Enter still saves; it never adds a line.
@@ -667,7 +681,7 @@ function PackageScreenInner({ id }: { id: string }) {
           Never on a free-tier resume: that one is meant to stay the profile's
           own, and offering a paid build there would be wrong. */}
       {pkg.optimized_content === null && (pkg as { tier?: string | null }).tier !== 'free' ? (
-        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-card border border-gold/40 bg-gold-tint/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-5 mb-3 flex flex-col gap-3 rounded-card border border-gold/40 bg-gold-soft/40 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-0.5">
             <p className="text-[14px] font-bold text-ink">The CV for this job isn&apos;t optimized yet</p>
             <p className="text-[12.5px] leading-relaxed text-ink-soft">
@@ -687,6 +701,10 @@ function PackageScreenInner({ id }: { id: string }) {
           </Link>
         </div>
       ) : null}
+
+      <div className="px-5">
+        <PreparationJourney pkg={pkg} current="resume" />
+      </div>
 
       {/* Actions live in the header row now (TASK-160); the templates stay in the
           left rail beside the document (TASK-146). What remains here is the
@@ -802,7 +820,7 @@ function PackageScreenInner({ id }: { id: string }) {
               </h2>
             </div>
             <p className="text-[12.5px] text-ink-soft">
-              {pkg.target_company ? `${pkg.target_company} · ` : ''}{pkg.target_country ?? 'GCC target'}
+              {[pkg.target_company, countryName].filter(Boolean).join(' · ') || 'Target job'}
             </p>
           </div>
           <div className="mt-3 flex flex-col gap-3 rounded-ctl border border-teal/30 bg-teal-soft/50 p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -820,7 +838,6 @@ function PackageScreenInner({ id }: { id: string }) {
               {nextJourneyStep.cta}
             </Link>
           </div>
-          <PreparationJourney pkg={pkg} current="resume" />
         </section>
         ) : null}
 

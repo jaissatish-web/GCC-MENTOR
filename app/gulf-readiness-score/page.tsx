@@ -128,7 +128,7 @@ export default function GulfReadinessScorePage() {
             key={o.label}
             type="button"
             onClick={o.onClick}
-            className="rounded-card border border-line-strong bg-white px-5 py-4 text-left text-[14px] font-semibold text-ink transition-colors hover:border-teal hover:bg-gold-tint/30"
+            className="rounded-card border border-line-strong bg-white px-5 py-4 text-left text-[14px] font-semibold text-ink transition-colors hover:border-teal hover:bg-gold-soft/30"
           >
             {o.label}
           </button>

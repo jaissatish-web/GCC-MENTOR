@@ -310,3 +310,19 @@ check. Quality problems found and fixed between rounds, in order:
 - Title-mode requirements are an estimate. The UI says so, and the score is labelled
   *Role alignment*.
 - The score is this product's measure, not any specific ATS vendor's.
+
+## 10. Changes from the real end-to-end test (2026-09-23)
+
+- **Matching** (`text.ts`): British "-yser/-ysing" spellings; edge filler words
+  ("industry", "experience", "sector", "background", "knowledge", "exposure") dropped from
+  a requirement when a content word remains; one trade equivalence (loop test = loop check).
+  Asserted in `scripts/verify-match-terms.ts`.
+- **Years in the summary** (`plan.ts`): with no stated duration in the profile summary, the
+  plan passes the computed total from job dates; the validator already accepted it.
+- **Mostly unanswered is a failure** (`buildOutcome.ts`): if more than half of the selected
+  blocks were `no_output`, the route returns 503 `AI_INCOMPLETE` before saving; the
+  reservation is released and the same job can be rebuilt.
+- **Job facts** (`jobFacts.ts`): `target_country` from the analysis (exactly one GCC country)
+  and `target_company` from a literal "Company:" line, only when empty.
+- Measured: a keyword-rich CV changes little at Easy and Moderate; most of the visible gain
+  comes from confirmed suggestions. Provider stalls, not the engine, caused the fallbacks seen.

@@ -139,3 +139,14 @@ anyone working on the profile will meet them.
    submitted object, so a partial save would score omitted-but-actually-filled fields
    as empty and silently undercount readiness. Nothing at the API boundary enforces
    full-object submission — the editor simply always sends one.
+
+## Overview, section status and save bar (2026-09-23)
+
+`components/profile/ProfileOverview.tsx`: what the profile is for, the facts it already
+holds (current role, years from dates, GCC years and countries via
+`lib/experienceYears.ts` `gccExperience`, location, target, visa · notice), every section
+as Complete / Needs attention / Missing / Optional with one "Fill next", and a save bar
+(Save stays on the page; errors appear at the bar). Extraction now copies the CV's summary
+as written, sets each role's `gcc_country` from its written location, and drops the CV
+headline from Additional information (`lib/ai/extractionPrompt.ts`,
+`scripts/verify-profile-data.ts`).

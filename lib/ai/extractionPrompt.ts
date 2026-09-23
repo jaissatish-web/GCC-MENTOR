@@ -1,4 +1,5 @@
 import { stripIdNumbers } from '@/lib/idNumbers'
+import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 import type {
   CareerProfileDraft,
   DraftWorkExperience,
@@ -31,10 +32,10 @@ RULES:
 3. booleans (visa_transferable) must be true or false; omit if not determinable.
 4. Dates: use YYYY-MM-DD where a full date is present, otherwise YYYY-MM or YYYY. NEVER invent a date.
 5. passport_type is one of "ECR" or "Non-ECR" only; omit if not stated.
-6. professional_summary: a concise first-person summary of the candidate's experience, written ONLY from facts in the resume. Null/omit if the resume has no summary-like paragraph.
+6. professional_summary: COPY the resume's own summary / profile / objective paragraph exactly as written — same wording, same grammatical person. Do NOT rewrite it, do NOT convert it to first person, do NOT write a new one. Omit if the resume has no summary-like paragraph.
 7. skills: a flat list of named skills. Do NOT categorize or create sub-objects.
 8. Every item in work_experience/skills/certifications/education/additional_information MUST carry "sort_order" — the order the item appears in the resume, starting at 1. Do NOT include "id", "profile_id" or "created_at" on any item.
-9. additional_information: capture anything else the resume contains that does not fit a named field — e.g. languages, marital status, driving licence, salary expectation, expected salary, availability, projects, LinkedIn, address, hobbies, gap notes. Each entry: {"label": <short AI-suggested label, e.g. "Languages">, "value": <the text>, "sort_order": <n>}. The user can rename the label later; keep it short.
+9. additional_information: capture anything else the resume contains that does not fit a named field — e.g. languages, marital status, driving licence, salary expectation, expected salary, availability, projects, LinkedIn, address, hobbies, gap notes. Each entry: {"label": <short AI-suggested label, e.g. "Languages">, "value": <the text>, "sort_order": <n>}. The user can rename the label later; keep it short. Do NOT add the resume's title line / headline (the job title printed under the name) as an entry — it is not additional information.
 10. work_experience highlights: preserve each bullet as a separate string, original wording.
 
 OUTPUT SCHEMA (all five arrays must be present; use [] if none):
@@ -128,15 +129,28 @@ export function normalizeDraft(raw: unknown): CareerProfileDraft | null {
 
   return {
     ...(parent as unknown as CareerProfileDraft),
-    work_experience: withSortOrder(workArr, 1) as DraftWorkExperience[],
+    // GCC country per role, read from that role's own written location
+    // (2026-09-23). The model never set it, so every Gulf role reached the
+    // editor with its "GCC country" empty. Same reader as Job Match
+    // (lib/jobMatch/gccLocation.ts): a literal location, never an employer name.
+    work_experience: (withSortOrder(workArr, 1) as DraftWorkExperience[]).map((w) =>
+      w.gcc_country || typeof w.location !== 'string'
+        ? w
+        : { ...w, gcc_country: gccCountryFromLocation(w.location)?.country ?? undefined },
+    ) as DraftWorkExperience[],
     skills: withSortOrder(skillsArr, 1) as DraftSkill[],
     certifications: withSortOrder(certsArr, 1) as DraftCertification[],
     education: withSortOrder(eduArr, 1) as DraftEducation[],
     additional_information: (withSortOrder(addlArr, 1) as DraftAdditionalInformation[])
       .map((a) => ({ ...a, value: typeof a.value === 'string' ? stripIdNumbers(a.label, a.value) : a.value }))
-      .filter((a) => typeof a.value !== 'string' || a.value.trim() !== ''),
+      .filter((a) => typeof a.value !== 'string' || a.value.trim() !== '')
+      // The CV's headline is not additional information: stored here it printed
+      // as an extra "Headline:" line under a CV that already carries a title.
+      .filter((a) => typeof a.label !== 'string' || !HEADLINE_LABEL.test(a.label.trim())),
   }
 }
+
+const HEADLINE_LABEL = /^(headline|title|job title|professional title|profile title|designation|current title)$/i
 
 /**
  * The token ceiling for one extraction (2026-09-11: was 8,192).

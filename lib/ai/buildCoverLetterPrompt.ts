@@ -108,6 +108,11 @@ function renderFixedIdentity(profile: CareerProfileFull): string {
   lines.push(`Full name: ${profile.full_name}`)
   if (profile.nationality) lines.push(`Nationality: ${profile.nationality}`)
   if (profile.current_location) lines.push(`Current location: ${profile.current_location}`)
+  // What Gulf adverts ask applicants to state (2026-09-23): a real KSA advert
+  // asked for current location AND notice period, and the letter could only
+  // say the location because these two never reached it.
+  if (profile.visa_status) lines.push(`Visa status: ${profile.visa_status}`)
+  if (profile.notice_period) lines.push(`Notice period: ${profile.notice_period}`)
   if (profile.currently_in_gulf) {
     lines.push('Currently based in the Gulf: yes')
     if (profile.current_employer) lines.push(`Current employer: ${profile.current_employer}`)

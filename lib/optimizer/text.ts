@@ -31,6 +31,9 @@ function americanize(token: string): string {
     .replace(/isation(s?)$/, 'ization$1')
     .replace(/is(e|ed|es|ing)$/, (m, end) => (token.length > 6 ? 'iz' + end : m))
     .replace(/yse(d|s)?$/, (m, end) => 'yze' + (end ?? ''))
+    // "analysers", "analyser", "analysing" (2026-09-23): a real I&C CV wrote
+    // "analysers" and a Saudi advert asked for "Analyzers" — a false gap.
+    .replace(/ys(er|ers|ing)$/, 'yz$1')
     .replace(/(avi|lab|col|fav|harb|hon|neighb|rum|vap|vig)our(s|ed|ing)?$/, (m, pre, end) => pre + 'or' + (end ?? ''))
     .replace(/tre$/, (m) => (token.length > 5 ? 'ter' : m))
 }
@@ -108,6 +111,27 @@ export function deriveAcronym(term: string): string | null {
   return words.map((w) => w[0]).join('')
 }
 
+/**
+ * Words at the edge of a requirement that name its frame, not its substance:
+ * "Oil & Gas industry", "EPC experience", "HVAC background". A CV that says
+ * "oil & gas" meets "Oil & Gas industry" (2026-09-23, a false gap on a real
+ * KSA advert). Only dropped when a content word remains.
+ */
+const EDGE_FILLERS = /^(?:industry|sector|experience|background|knowledge|exposure)\s+|\s+(?:industry|sector|experience|background|knowledge|exposure)$/i
+
+/**
+ * Trade terms that mean the same thing on every CV in that trade. Kept tiny and
+ * literal on purpose — semantic equivalence belongs to the verified evidence
+ * bridge, not to a word list. Each pair was a false gap on a real CV.
+ */
+const TRADE_EQUIVALENTS: Array<[RegExp, string]> = [
+  // I&C: a "loop test" and a "loop check" are the same activity.
+  [/\bloop[\s-]+testing\b/i, 'loop checking'],
+  [/\bloop[\s-]+tests?\b/i, 'loop check'],
+  [/\bloop[\s-]+checking\b/i, 'loop testing'],
+  [/\bloop[\s-]+checks?\b/i, 'loop test'],
+]
+
 /** Every spelling a term may appear under: itself, its aliases, and a derived acronym. */
 export function termVariants(term: string, aliases: readonly string[] = []): string[] {
   const out = new Set<string>()
@@ -120,6 +144,14 @@ export function termVariants(term: string, aliases: readonly string[] = []): str
     // "Instrumentation & Control design" = "I&C design".
     const amp = clean.replace(/\b([A-Za-z])[A-Za-z]*\s*(?:&|\band\b)\s*([A-Za-z])[A-Za-z]*\b/g, '$1&$2')
     if (amp !== clean) out.add(amp)
+    const core = clean.replace(EDGE_FILLERS, '').trim()
+    if (core !== clean && tokenize(core).some((t) => !TERM_STOPWORDS.has(t))) out.add(core)
+    for (const [re, to] of TRADE_EQUIVALENTS) {
+      if (re.test(clean)) {
+        out.add(clean.replace(re, to))
+        break
+      }
+    }
   }
   const acronym = deriveAcronym(term)
   if (acronym) out.add(acronym)

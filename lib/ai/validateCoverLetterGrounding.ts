@@ -84,7 +84,9 @@ function collectNumbers(texts: Array<string | null | undefined>): Set<string> {
  *  letter may reference any of it, not just one entry (unlike the resume
  *  optimizer's per-block check). */
 function collectProfileNumbers(profile: CareerProfileFull): Set<string> {
-  const texts: Array<string | null | undefined> = [profile.professional_summary]
+  // Notice period and visa status reach the letter too (2026-09-23), so a
+  // "60 days" notice is the profile's own number, not an invented one.
+  const texts: Array<string | null | undefined> = [profile.professional_summary, profile.notice_period, profile.visa_status]
   for (const e of profile.work_experience ?? []) {
     texts.push(e.description, e.start_date, e.end_date, ...(e.highlights ?? []))
   }

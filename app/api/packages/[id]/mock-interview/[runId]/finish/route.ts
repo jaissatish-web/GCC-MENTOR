@@ -6,7 +6,7 @@ import { normalizeMockInterviewReport, validateMockInterviewReport } from '@/lib
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { LIMIT_ACTION_MOCK_REPORT } from '@/lib/rateLimit'
 import { completeMockRunAtomic } from '@/lib/packages/serverWrites'
-import { NOT_IN_CV_PREFIX } from '@/lib/ai/proseClaims'
+import { claimsInFeedback, NOT_IN_CV_PREFIX } from '@/lib/ai/proseClaims'
 import type { MockInterviewRun } from '@/types/package'
 
 /**
@@ -95,6 +95,12 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
         .filter(({ q }) => typeof q.feedback === 'string' && q.feedback.startsWith(NOT_IN_CV_PREFIX))
         .map(({ q, i }) => `Q${i + 1}: ${q.feedback!.slice(NOT_IN_CV_PREFIX.length).split('.')[0].trim()}`)
       if (flagged.length > 0) report = { ...report, risky_answers: [...flagged, ...report.risky_answers].slice(0, 5) }
+      // A claim the CV does not show is never a strength (2026-09-23: a real report
+      // listed an unproven certificate and platform as the candidate's strengths).
+      const claimed = run.questions.flatMap((q) => claimsInFeedback(q.feedback)).map((c) => c.toLowerCase())
+      if (claimed.length > 0) {
+        report = { ...report, strengths: report.strengths.filter((st) => !claimed.some((c) => st.toLowerCase().includes(c))) }
+      }
     } catch (error) {
       console.error(
         'mock-interview finish: AI call failed user=' + user.id + ' pkg=' + params.id,

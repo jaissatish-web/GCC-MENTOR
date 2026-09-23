@@ -12,6 +12,58 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-09-23 (evening) — Career Profile, Resume Library, and fixes from a real end-to-end test
+
+**Founder brief:** redesign Career Profile and Resume Library, then test every service with a
+real CV, a real Gulf advert and the live AI configuration; backend fixes allowed where a real
+defect is found. Test: the founder's own career history (name, contact and passport number
+replaced) against the real KENT "Commissioning Leader – Instrument/Analyzer" advert (KSA), on
+the synthetic QA account, through the real routes, three runs. Nothing pushed.
+
+**Frontend:** Career Profile opens with an overview (what the page is, current role, years,
+GCC years and countries, location, target, visa · notice), a section map with Complete /
+Needs attention / Missing / Optional and one "Fill next", and a save bar that says whether
+everything is saved (Save no longer jumps to the dashboard; errors show at the bar, not the
+foot of the form). Library cards are job workspaces: title opens the job, a CV · Letter ·
+Q&A · Mock strip, one "Next:" action, secondary controls under Details. The job page is
+titled with the job ("Application workspace") and carries the same preparation strip.
+`gold-tint` (not a token — eight panels had no background) → `gold-soft`.
+
+**Backend and AI fixes, each found on the real run and each tested:**
+- Extraction asked for a FIRST-PERSON summary, which rewrote the CV's own paragraph and then
+  failed the optimizer's "no first person" check. It now copies the summary as written.
+- Every role's `gcc_country` was empty (three Gulf roles). Read from the role's own written
+  location at extraction and pre-filled in the editor; never from an employer name.
+- The CV headline was stored as "Additional information"; now dropped.
+- Job match false gaps: "analysers" vs "Analyzers", "loop checks" vs "Instrument Loop Tests",
+  "oil & gas" vs "Oil & Gas industry". Fixed in `lib/optimizer/text.ts` (British -yser,
+  edge fillers, one I&C trade equivalence). Same CV and advert: before-score 72 → 80.
+- The build prompt forbade stating years while the quality gate asked for them; the plan now
+  passes the computed total ("14+ years") when the profile's summary states none.
+- A build where most blocks got NO ANSWER from the AI (provider stall) was saved as the
+  "optimized" CV — 8 of 10 blocks unchanged on a real High build. More than half unanswered
+  now returns a clear retry message; nothing is saved or counted (`buildOutcome.ts`). The
+  result screen no longer explains a stalled block as "not provable".
+- Library country and company were always empty: filled from the analysis (exactly one GCC
+  country) and a literal "Company:" line, only where the job has none (`jobFacts.ts`).
+- Interview Q&A failed outright when the model returned 22–24 questions (validator wanted
+  exactly 25). Now per-item validation, 15–25 kept; budget 6,000 → 9,000.
+- Cover letter: 2,048 and 4,096 tokens were consumed by reasoning (truncated / empty
+  letters); now 8,192 (a ceiling, not a spend). Visa status and notice period now reach the
+  letter — the KENT advert asks for them.
+- Q&A answers invented "I have no family constraints"; sentences about family, marital
+  status, dependants or relocation are removed unless the profile says so.
+- Mock interview did not flag an answer claiming "Emerson DeltaV" and a TÜV certificate the
+  CV lacks, and the report listed both as STRENGTHS. Unknown certificates and product names
+  are now flagged and never become strengths.
+- The shared sentence splitter broke "99.2%" at the decimal point.
+
+**Not changed, founder decision needed:** the AI provider (OpenRouter → DeepSeek v4 Flash, no
+fallback configured) stalled on roughly a third of calls during the test; a fallback model in
+`/admin/ai-provider` is the single largest reliability lever.
+
+---
+
 ## 2026-09-23 — one product, not a set of tools: frontend redesign (no backend change)
 
 **Founder brief:** make GCC Mentor read as one career platform — profile → readiness →

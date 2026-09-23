@@ -142,9 +142,8 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
 /** Employer · country, with nothing invented and nothing empty printed. */
 function JobSubtitle({ pkg }: { pkg: PackageSummary }) {
   const parts = [pkg.target_company, countryLabel(pkg.target_country)].filter(Boolean) as string[]
-  if (parts.length === 0) {
-    return <span className="text-[13px] text-ink-muted">Added {formatDay(pkg.created_at)}</span>
-  }
+  // The date already has its own line under the title (2026-09-23).
+  if (parts.length === 0) return null
   return <span className="block truncate text-[13px] font-medium text-ink-soft">{parts.join(' · ')}</span>
 }
 
@@ -169,10 +168,10 @@ function ApplicationCard({
   const mockIsDone = mockDone(pkg)
   const readyCount = Number(cvReady) + Number(letterPresent) + Number(qaIsReady) + Number(mockIsDone)
   const totalCount = 4
-  const progress = Math.round((readyCount / totalCount) * 100)
   // The saved target job (title, job description, ATS score) is loaded only
   // when the user opens it: list summaries stay light (audit M08).
   const [targetOpen, setTargetOpen] = useState(false)
+  const [detailsOpen, setDetailsOpen] = useState(false)
   const [detail, setDetail] = useState<Package | null>(null)
   const [detailState, setDetailState] = useState<'idle' | 'loading' | 'error'>('idle')
   const toggleTarget = () => {
@@ -195,108 +194,155 @@ function ApplicationCard({
     pkg.interview_date ? `Interview ${formatDay(pkg.interview_date)}` : null,
     pkg.job_url ? 'Job link saved' : null,
   ].filter(Boolean) as string[]
+  const id = encodeURIComponent(pkg.id)
+  // THE ONE NEXT THING for this job (2026-09-23) — the same order the dashboard
+  // uses: CV, then letter, then Q&A, then practice.
+  const next = !cvReady
+    ? { label: CTA.optimizeCv, href: `/package/${id}` }
+    : !letterPresent
+      ? { label: CTA.writeCoverLetter, href: `/cover-letter?package=${id}` }
+      : !qaIsReady
+        ? { label: CTA.prepareInterviewQa, href: `/interview-qa?package=${id}` }
+        : !mockIsDone
+          ? { label: CTA.startMockInterview, href: `/mock-interview?package=${id}` }
+          : null
+  const steps = [
+    { label: 'CV', done: cvReady, href: `/package/${id}` },
+    { label: 'Letter', done: letterPresent, href: `/cover-letter?package=${id}` },
+    { label: 'Q&A', done: qaIsReady, href: `/interview-qa?package=${id}` },
+    { label: 'Mock', done: mockIsDone, href: `/mock-interview?package=${id}` },
+  ]
+  const displayName = (pkg.name ?? '').trim() || pkg.target_job_title
 
   return (
     <article className="flex min-w-0 flex-col gap-4 rounded-card border border-line bg-white p-4 shadow-m-1 transition-shadow hover:shadow-m-2 sm:p-5">
+      {/* Who and where — the title opens this job's workspace. */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <NameField value={pkg.name ?? ''} fallback={pkg.target_job_title} onSave={onRename} />
-          <div className="min-w-0 px-1.5">
+          <Link
+            href={`/package/${id}`}
+            className="block break-words rounded-ctl font-display text-[17px] font-semibold leading-snug text-ink underline-offset-4 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          >
+            {displayName}
+          </Link>
+          <div className="mt-0.5 min-w-0">
             <JobSubtitle pkg={pkg} />
           </div>
+          {/* What tells two jobs with the same title apart. */}
+          <p className="mt-1 text-[12px] text-ink-muted">
+            {levelLabel(pkg.optimization_level)} optimization · added {formatDay(pkg.created_at)}
+            {pkg.updated_at && pkg.updated_at.slice(0, 10) !== pkg.created_at.slice(0, 10) ? ` · updated ${formatDay(pkg.updated_at)}` : ''}
+          </p>
         </div>
         <StageSelect value={pkg.status} onChange={onStage} className="self-start" />
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <ArtifactChip label={cvReady ? 'CV ready' : 'CV not built'} present={cvReady} />
-        <ArtifactChip label={letterPresent ? 'Letter ready' : 'Letter needed'} present={letterPresent} />
-        <ArtifactChip label={qaIsReady ? 'Q&A ready' : 'Q&A needed'} present={qaIsReady} />
-        <ArtifactChip label={mockIsDone ? 'Mock done' : 'Mock needed'} present={mockIsDone} />
+      {/* Preparation for this job: four steps, each one tap away. */}
+      <ol aria-label={`Preparation: ${readyCount} of ${totalCount} ready`} className="grid grid-cols-4 gap-1.5">
+        {steps.map((st) => (
+          <li key={st.label} className="min-w-0">
+            <Link
+              href={st.href}
+              className={cn(
+                'flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-ctl border px-1 py-1.5 text-center text-[12px] font-semibold leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+                st.done ? 'border-ok/30 bg-ok-soft text-ok' : 'border-dashed border-line-strong bg-canvas text-ink-muted hover:border-teal/50',
+              )}
+            >
+              <span aria-hidden="true">{st.done ? '✓' : '○'}</span>
+              <span className="truncate">{st.label}</span>
+              <span className="sr-only">{st.done ? 'ready' : 'not yet'}</span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        {next ? (
+          <Link href={next.href} className={cn(buttonVariants({ variant: 'progress', size: 'sm' }), 'w-full sm:w-auto')}>
+            Next: {next.label}
+          </Link>
+        ) : (
+          <span className="rounded-ctl bg-ok-soft px-3 py-2.5 text-center text-[13px] font-semibold text-ok sm:text-left">
+            Ready to apply — every step done
+          </span>
+        )}
+        <Link href={`/package/${id}`} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full sm:w-auto')}>
+          Open workspace
+        </Link>
+        <button
+          type="button"
+          aria-expanded={detailsOpen}
+          onClick={() => setDetailsOpen((v) => !v)}
+          className="min-h-11 px-2 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:ml-auto"
+        >
+          {detailsOpen ? 'Hide details' : 'Details'}
+        </button>
       </div>
 
-      {/* Events are the source; a CV saved before they existed still shows what
-          it actually has (audit-safe: never more than the saved artefacts). */}
-      <ServiceUsageLine
-        counts={
-          usage
-            ? {
-                ...usage,
-                cover_letter: Math.max(usage.cover_letter, letterCount(pkg)),
-                qa: Math.max(usage.qa, qaIsReady ? 1 : 0),
-                mock_started: Math.max(usage.mock_started, mockIsDone ? 1 : 0),
-              }
-            : undefined
-        }
-      />
-
-      <div className="rounded-ctl bg-canvas px-3 py-2">
-        <div className="flex items-center justify-between gap-3 text-[12px] font-semibold text-ink-muted">
-          <span>Preparation</span>
-          <span>{readyCount}/{totalCount} ready</span>
-        </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-label="Preparation progress" aria-valuemin={0} aria-valuemax={totalCount} aria-valuenow={readyCount}>
-          <span className="block h-full rounded-full bg-teal" style={{ width: `${progress}%` }} />
-        </div>
-      </div>
-
-      {trackerItems.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          {trackerItems.map((item) => (
-            <span key={item} className="rounded-full border border-line bg-canvas px-2.5 py-1 text-[12px] font-semibold text-ink-soft">
-              {item}
-            </span>
-          ))}
+      {detailsOpen ? (
+        <div className="flex flex-col gap-3 border-t border-line pt-3">
+          <label className="flex flex-col gap-1">
+            <span className="text-[12px] font-semibold text-ink-muted">Name in your library (to tell versions apart)</span>
+            <NameField value={pkg.name ?? ''} fallback={pkg.target_job_title} onSave={onRename} />
+          </label>
+          <ServiceUsageLine
+            counts={
+              usage
+                ? {
+                    ...usage,
+                    cover_letter: Math.max(usage.cover_letter, letterCount(pkg)),
+                    qa: Math.max(usage.qa, qaIsReady ? 1 : 0),
+                    mock_started: Math.max(usage.mock_started, mockIsDone ? 1 : 0),
+                  }
+                : undefined
+            }
+          />
+          {trackerItems.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {trackerItems.map((item) => (
+                <span key={item} className="rounded-full border border-line bg-canvas px-2.5 py-1 text-[12px] font-semibold text-ink-soft">
+                  {item}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          <div>
+            <button
+              type="button"
+              aria-expanded={targetOpen}
+              onClick={toggleTarget}
+              className="min-h-11 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            >
+              {targetOpen ? 'Hide target job' : `${CTA.viewTargetJob} and ATS score`}
+            </button>
+            {targetOpen ? (
+              detail ? (
+                <TargetJobCard pkg={detail} className="mt-1 shadow-none" />
+              ) : detailState === 'error' ? (
+                <p className="text-[12.5px] text-alert">Could not load this target job. Try again.</p>
+              ) : (
+                <p className="text-[12.5px] text-ink-muted" role="status">Loading target job…</p>
+              )
+            ) : null}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {cvReady ? (
+              <Link href={`/package/${id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
+                {CTA.editCv}
+              </Link>
+            ) : null}
+            <button
+              type="button"
+              onClick={onDelete}
+              aria-pressed={confirmingDelete}
+              className={cn(buttonVariants({ variant: confirmingDelete ? 'danger-solid' : 'danger', size: 'sm' }))}
+            >
+              {confirmingDelete ? 'Confirm: delete this job and its documents' : 'Delete'}
+            </button>
+          </div>
+          <p className="text-[12px] text-ink-muted">{templateNameFor(pkg.template_id)} template</p>
         </div>
       ) : null}
-
-      <div>
-        <button
-          type="button"
-          aria-expanded={targetOpen}
-          onClick={toggleTarget}
-          className="min-h-11 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-        >
-          {targetOpen ? 'Hide target job' : `${CTA.viewTargetJob} and ATS score`}
-        </button>
-        {targetOpen ? (
-          detail ? (
-            <TargetJobCard pkg={detail} className="mt-1 shadow-none" />
-          ) : detailState === 'error' ? (
-            <p className="text-[12.5px] text-alert">Could not load this target job. Try again.</p>
-          ) : (
-            <p className="text-[12.5px] text-ink-muted" role="status">Loading target job…</p>
-          )
-        ) : null}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Link
-          href={`/package/${pkg.id}`}
-          className={cn(buttonVariants({ variant: cvReady ? 'progress' : 'primary', size: 'sm' }), 'flex-1 sm:flex-none')}
-        >
-          {cvReady ? CTA.viewOptimizedCv : CTA.optimizeCv}
-        </Link>
-        {cvReady ? <Link href={`/package/${pkg.id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
-          {CTA.editCv}
-        </Link> : null}
-        <button
-          type="button"
-          onClick={onDelete}
-          aria-pressed={confirmingDelete}
-          className={cn(buttonVariants({ variant: confirmingDelete ? 'danger-solid' : 'danger', size: 'sm' }))}
-        >
-          {confirmingDelete ? 'Confirm delete' : 'Delete'}
-        </button>
-      </div>
-
-      <p className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-line pt-3 text-[12px] text-ink-muted">
-        <span>{templateNameFor(pkg.template_id)} template</span>
-        <span aria-hidden>·</span>
-        <span>{levelLabel(pkg.optimization_level)} optimization</span>
-        <span aria-hidden>·</span>
-        <span>Updated {formatDay(pkg.updated_at ?? pkg.created_at)}</span>
-      </p>
     </article>
   )
 }

@@ -12,6 +12,7 @@
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizationLevel } from '@/types/package'
 import { containsTermRaw, prepare, containsTerm } from './text'
+import { totalExperienceYears } from '@/lib/experienceYears'
 import type { EvidenceMap } from './evidence'
 import type { KeywordEvidence, OptimizationMode } from './types'
 
@@ -43,6 +44,13 @@ export interface SummaryPlan {
   anchors: PlannedTerm[]
   /** e.g. "15+ years" — only when the profile's own summary states it. */
   yearsPhrase: string | null
+  /**
+   * Whole years from the profile's own job dates (lib/experienceYears.ts), used
+   * when the summary states no duration. The validator already accepts this
+   * figure (lib/ai/profileEntities.ts yearsFacts); the prompt used to forbid it
+   * while the quality gate asked for it (2026-09-23).
+   */
+  computedYears?: number | null
   /** Employer terms the original summary already states. */
   keep?: string[]
 }
@@ -140,6 +148,7 @@ export function buildTailoringPlan(
     summary: {
       anchors,
       yearsPhrase: statedYearsPhrase(profile.professional_summary),
+      computedYears: totalExperienceYears(profile),
       keep: kws.filter((k) => k.inSummary && k.kind !== 'soft_skill').map((k) => k.term),
     },
     gaps: kws.filter((k) => k.status === 'gap').map((k) => k.term),
@@ -201,6 +210,10 @@ export function renderPlanForPrompt(
     )
     if (plan.summary.yearsPhrase) {
       lines.push(`- The profile states "${plan.summary.yearsPhrase}". Use exactly that duration or none.`)
+    } else if (plan.summary.computedYears != null && plan.summary.computedYears >= 2) {
+      lines.push(
+        `- The candidate's dated work history totals ${plan.summary.computedYears}+ years. State "${plan.summary.computedYears}+ years" in the first sentence. Never compute or state any other duration.`,
+      )
     } else {
       lines.push('- The profile states no total years of experience. Do not state or calculate one.')
     }

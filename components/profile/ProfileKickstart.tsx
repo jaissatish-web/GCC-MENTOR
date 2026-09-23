@@ -43,7 +43,7 @@ export function ProfileKickstart({ show }: { show: boolean }) {
     <Link
       href={href}
       onClick={dismiss}
-      className="flex flex-1 flex-col gap-1.5 rounded-card border border-line bg-white px-4 py-4 text-left transition-colors hover:border-teal hover:bg-gold-tint/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+      className="flex flex-1 flex-col gap-1.5 rounded-card border border-line bg-white px-4 py-4 text-left transition-colors hover:border-teal hover:bg-gold-soft/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
     >
       <span className="flex items-center gap-2">
         <span className="text-[14px] font-bold text-ink">{title}</span>

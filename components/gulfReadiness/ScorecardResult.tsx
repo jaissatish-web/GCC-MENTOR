@@ -20,7 +20,7 @@ import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
 
 function bandColour(key: string): { ring: string; text: string; tint: string } {
   if (key === 'ready') return { ring: 'text-teal', text: 'text-teal', tint: 'bg-teal-soft' }
-  if (key === 'mid') return { ring: 'text-teal', text: 'text-teal', tint: 'bg-gold-tint' }
+  if (key === 'mid') return { ring: 'text-teal', text: 'text-teal', tint: 'bg-gold-soft' }
   return { ring: 'text-alert', text: 'text-alert', tint: 'bg-alert-soft' }
 }
 
@@ -184,7 +184,7 @@ export function ScorecardResult({
 
       {/* The honest signup gate — shown only in the anonymous (locked) view */}
       {locked ? (
-        <section className="rounded-card border border-teal/40 bg-gold-tint/40 p-6 text-center sm:p-8">
+        <section className="rounded-card border border-teal/40 bg-gold-soft/40 p-6 text-center sm:p-8">
           <h3 className="font-display text-2xl text-ink">See your complete Gulf Readiness report</h3>
           <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-ink-soft">
             Create a free account to unlock the full breakdown — every dimension explained, your complete ranked

@@ -87,11 +87,28 @@ export function MatchResult({
         </div>
       ) : null}
 
-      {kept.length > 0 ? (
+      {/* Two different reasons, said separately (2026-09-23): a rewrite that
+          failed the proof checks, and a part the writing service never
+          answered for. The second used to be explained as the first. */}
+      {kept.some((k) => k.reason !== 'no_output') ? (
         <p className="rounded-ctl border border-line bg-canvas px-3 py-2 text-[12px] leading-relaxed text-ink-soft">
           <strong className="text-ink">Kept your own wording:</strong>{' '}
-          {kept.map((k) => (k.block === 'summary' ? 'summary' : roleNames[k.block] ?? 'one role')).join(', ')}. A rewrite
-          is only used when every claim in it can be proven from your profile.
+          {kept
+            .filter((k) => k.reason !== 'no_output')
+            .map((k) => (k.block === 'summary' ? 'summary' : roleNames[k.block] ?? 'one role'))
+            .join(', ')}
+          . A rewrite is only used when every claim in it can be proven from your profile.
+        </p>
+      ) : null}
+      {kept.some((k) => k.reason === 'no_output') ? (
+        <p className="rounded-ctl border border-gold/50 bg-gold-soft px-3 py-2 text-[12px] leading-relaxed text-gold-ink">
+          <strong>Not rewritten this time:</strong>{' '}
+          {kept
+            .filter((k) => k.reason === 'no_output')
+            .map((k) => (k.block === 'summary' ? 'summary' : roleNames[k.block] ?? 'one role'))
+            .join(', ')}
+          . The writing service was too slow for these parts, so they show your original wording. You can edit them, or
+          optimize this job again.
         </p>
       ) : null}
 

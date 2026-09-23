@@ -15,6 +15,7 @@ import {
   profileEvidenceText,
   totalExperienceYears,
   unsupportedAnswerClaims,
+  unverifiedEntityClaims,
 } from '@/lib/ai/proseClaims'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
 import type { MockInterviewRun } from '@/types/package'
@@ -156,7 +157,9 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
           gaps: gapTermsFromMatchReport(pkgRow.match_report),
           totalYears: totalExperienceYears(profile),
         }
-        const claims = unsupportedAnswerClaims(answer, ctx)
+        // Requirement gaps, plus certificates and named products the CV never
+        // mentions (2026-09-23: "DeltaV" and a TUV certificate slipped through).
+        const claims = [...new Set([...unsupportedAnswerClaims(answer, ctx), ...unverifiedEntityClaims(answer, ctx.evidence)])]
         if (claims.length > 0) {
           feedbackText = notInCvFeedback(claims, feedbackText)
           // An answer an interviewer can disprove from the CV is a weak answer,

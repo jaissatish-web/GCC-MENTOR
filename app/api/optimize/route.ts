@@ -1,3 +1,5 @@
+import { mostlyUnanswered, UNANSWERED_MESSAGE } from '@/lib/optimizer/buildOutcome'
+import { companyFromAdvert, countryFromAnalysis } from '@/lib/optimizer/jobFacts'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generate } from '@/lib/ai/provider'
@@ -424,6 +426,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: result.error }, { status: result.status })
     }
 
+    // Mostly unanswered is a failed build, not a result (lib/optimizer/buildOutcome.ts):
+    // return before saving, so the reservation is released and the job can be retried.
+    const outcome = mostlyUnanswered(result.report, selectedBlocks)
+    if (outcome.failed) {
+      console.error(
+        'optimize: build mostly unanswered user=' + user.id + ' package=' + generatePackageId +
+          ' unanswered=' + outcome.unanswered + '/' + outcome.asked,
+      )
+      return NextResponse.json({ error: UNANSWERED_MESSAGE, code: 'AI_INCOMPLETE' }, { status: 503 })
+    }
+
     // Server-derived fields go through the server writer (migration 050).
     // document_snapshot freezes what was delivered (migration 034).
     const { row: saved, error: saveError } = await updatePackageServerFields<{ id: string }>({
@@ -436,6 +449,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         document_snapshot: result.documentSnapshot,
         match_report: result.report,
         ...(result.report?.target.structured ? { structured_job: result.report.target.structured } : {}),
+        // Country and company read from the advert, only where the job has
+        // none (lib/optimizer/jobFacts.ts) — so the Resume Library can say
+        // where each job is and who is hiring.
+        ...(targetFields.target_country == null && countryFromAnalysis(result.report?.target.structured?.target_countries)
+          ? { target_country: countryFromAnalysis(result.report?.target.structured?.target_countries) }
+          : {}),
+        ...(!targetFields.target_company && companyFromAdvert(jobDescription)
+          ? { target_company: companyFromAdvert(jobDescription) }
+          : {}),
       },
     })
 

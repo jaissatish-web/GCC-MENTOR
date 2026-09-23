@@ -20,6 +20,9 @@ import { Toggle } from '@/components/ui/Toggle'
 import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import { ResumeImport } from '@/components/profile/ResumeImport'
 import { ImprovePanel } from '@/components/profile/ImprovePanel'
+import { ProfileOverview, SaveBar, StatusChip, type SectionStatus, type SectionSummary } from '@/components/profile/ProfileOverview'
+import { gccExperience, totalExperienceYears } from '@/lib/experienceYears'
+import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 import { cn, displayFirstName } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
@@ -259,7 +262,10 @@ function ws(o: unknown): EditableWork {
     location: str(w.location),
     description: str(w.description),
     highlights: Array.isArray(w.highlights) ? (w.highlights as unknown[]).map(str).join('\n') : '',
-    gcc_country: str(w.gcc_country),
+    // Pre-filled from the role's own written location when not set (2026-09-23):
+    // extraction never set it, so "Abu Dhabi, UAE" roles showed no GCC country.
+    // The user sees it and can change it; nothing is inferred from an employer.
+    gcc_country: str(w.gcc_country) || (gccCountryFromLocation(str(w.location))?.country ?? ''),
   }
 }
 
@@ -644,6 +650,7 @@ function CardSection({
   open,
   onToggle,
   accent,
+  status,
   children,
 }: {
   id?: string
@@ -654,6 +661,8 @@ function CardSection({
   action?: React.ReactNode
   earned?: number
   total?: number
+  /** Complete / Needs attention / Missing / Optional — see sectionStatuses. */
+  status?: SectionStatus
   open: boolean
   onToggle: () => void
   /** This block's identity colour. See SECTION_ACCENT. */
@@ -661,7 +670,7 @@ function CardSection({
   children: React.ReactNode
 }) {
   const panelId = `${id ?? `step-${step}`}-panel`
-  const done = typeof total === 'number' && total > 0 && (earned ?? 0) >= total
+  const done = status ? status === 'complete' : typeof total === 'number' && total > 0 && (earned ?? 0) >= total
   return (
     <Card
       id={id}
@@ -733,7 +742,7 @@ function CardSection({
           </span>
 
           <span className="flex shrink-0 items-center gap-2">
-            {typeof total === 'number' ? <PointsChip earned={earned ?? 0} total={total} /> : null}
+            {status ? <StatusChip status={status} /> : typeof total === 'number' ? <PointsChip earned={earned ?? 0} total={total} /> : null}
             <span
               aria-hidden="true"
               className={cn(
@@ -1271,6 +1280,120 @@ function ProfileScreen() {
     if (input) input.focus({ preventScroll: true })
   }, [pendingFocus])
 
+  // ---- Section status (2026-09-23) -------------------------------------------
+  // Complete / Needs attention / Missing / Optional, from what is actually in
+  // each section — not only whether a scored field exists. "Needs attention"
+  // names the specific gap (a role without dates, a role with no activities,
+  // a summary too short to write from), because those are what weaken every
+  // CV built from this profile.
+  const sectionStatuses: SectionSummary[] = useMemo(() => {
+    if (!editor) return []
+    const e = editor
+    const filled = (v: string | null | undefined) => (v ?? '').trim() !== ''
+    const status = (id: string): { status: SectionStatus; hint: string } => {
+      switch (id) {
+        case 'sec_status':
+          return filled(e.target_job_title)
+            ? { status: 'complete', hint: 'Your target role is set.' }
+            : { status: 'attention', hint: 'Add the job title you are aiming for.' }
+        case 'sec_identity': {
+          if (!filled(e.full_name) || !filled(e.phone) || !filled(e.email))
+            return { status: 'missing', hint: 'Add your name, phone and email.' }
+          if (!filled(e.current_location) || !filled(e.visa_status) || !filled(e.notice_period))
+            return { status: 'attention', hint: 'Add your location, visa status and notice period — Gulf recruiters ask first.' }
+          return { status: 'complete', hint: 'Contact and availability are complete.' }
+        }
+        case 'sec_license':
+          return e.has_driving_license !== null
+            ? { status: 'complete', hint: 'Driving licence answered.' }
+            : { status: 'optional', hint: 'Add a driving licence if you hold one.' }
+        case 'sec_summary': {
+          const words = e.professional_summary.trim().split(/\s+/).filter(Boolean).length
+          if (words === 0) return { status: 'missing', hint: 'Add a short summary of who you are professionally.' }
+          if (words < 25) return { status: 'attention', hint: 'Your summary is very short — 3 or 4 sentences works best.' }
+          return { status: 'complete', hint: 'Summary added.' }
+        }
+        case 'sec_work_experience': {
+          const roles = e.work_experience.filter((w) => filled(w.role) || filled(w.company))
+          if (roles.length === 0) return { status: 'missing', hint: 'Add your jobs, newest first.' }
+          if (roles.some((w) => !filled(w.role) || !filled(w.company) || !filled(w.start_date)))
+            return { status: 'attention', hint: 'A job is missing its title, company or start date.' }
+          if (roles.some((w) => !filled(w.description) && !filled(w.highlights)))
+            return { status: 'attention', hint: 'Add what you did in each job — CVs are written from these lines.' }
+          return { status: 'complete', hint: `${roles.length} job${roles.length === 1 ? '' : 's'} with dates and activities.` }
+        }
+        case 'sec_education': {
+          const rows = e.education.filter((x) => filled(x.degree) || filled(x.institution))
+          if (rows.length === 0) return { status: 'missing', hint: 'Add your highest degree or diploma.' }
+          if (rows.some((x) => !filled(x.degree) || !filled(x.institution)))
+            return { status: 'attention', hint: 'An education entry is missing its degree or institution.' }
+          return { status: 'complete', hint: 'Education added.' }
+        }
+        case 'sec_skills': {
+          const n = e.skills.filter((x) => filled(x.name)).length
+          if (n === 0) return { status: 'missing', hint: 'Add the tools, systems and skills you use.' }
+          if (n < 5) return { status: 'attention', hint: 'Add a few more specific skills and tools.' }
+          return { status: 'complete', hint: `${n} skills listed.` }
+        }
+        case 'sec_certifications': {
+          const n = e.certifications.filter((x) => filled(x.name)).length
+          if (n > 0) return { status: 'complete', hint: `${n} certification${n === 1 ? '' : 's'} listed.` }
+          return (sectionPoints[id]?.total ?? 0) > 0
+            ? { status: 'missing', hint: 'Add certifications you hold — Gulf employers often ask for them by name.' }
+            : { status: 'optional', hint: 'Add certifications if you hold any.' }
+        }
+        case 'sec_additional':
+          return e.additional_information.some((x) => filled(x.value))
+            ? { status: 'complete', hint: 'Additional information added.' }
+            : { status: 'optional', hint: 'Languages, availability or anything else worth knowing.' }
+        default:
+          return { status: 'optional', hint: '' }
+      }
+    }
+    return FORM_SECTIONS.map((s) => ({ id: s.id, label: s.label, ...status(s.id) }))
+  }, [editor, sectionPoints])
+  const statusOf = useCallback(
+    (sectionId: string) => sectionStatuses.find((s) => s.id === sectionId)?.status,
+    [sectionStatuses],
+  )
+
+  // ---- What the profile already says (overview) -----------------------------
+  const profileFacts = useMemo(() => {
+    if (!editor) return null
+    const work = editor.work_experience.filter((w) => w.role.trim() || w.company.trim())
+    const latest = [...work].sort((a, b) => {
+      const aCur = a.end_date.trim() === '' ? 1 : 0
+      const bCur = b.end_date.trim() === '' ? 1 : 0
+      if (aCur !== bCur) return bCur - aCur
+      return (b.start_date || '').localeCompare(a.start_date || '')
+    })[0]
+    const countryLabel = (v: string) => GULF_COUNTRIES.find((c) => c.value === v)?.label ?? v
+    const gcc = gccExperience(
+      work.map((w) => ({ start_date: w.start_date, end_date: w.end_date || null, location: w.location, gcc_country: w.gcc_country })),
+      (loc) => gccCountryFromLocation(loc)?.country ?? null,
+    )
+    const availability = [editor.visa_status, editor.notice_period ? `Notice: ${editor.notice_period}` : ''].filter((x) => x.trim()).join(' · ')
+    return {
+      currentTitle: latest ? [latest.role, latest.company].filter((x) => x.trim()).join(' · ') : null,
+      years: totalExperienceYears({ work_experience: work.map((w) => ({ start_date: w.start_date, end_date: w.end_date || null })) } as never),
+      gcc: { ...gcc, countries: gcc.countries.map(countryLabel) },
+      location: editor.current_location.trim() || null,
+      target: editor.target_job_title.trim() || null,
+      availability: availability || null,
+    }
+  }, [editor])
+
+  // ---- Is everything saved? (2026-09-23) -------------------------------------
+  // The body a save would send, compared with the body last saved or loaded.
+  const [savedBaseline, setSavedBaseline] = useState<string | null>(null)
+  const currentBody = useMemo(() => (editor ? JSON.stringify(buildPutBody(editor)) : null), [editor])
+  useEffect(() => {
+    if (savedBaseline === null && loaded && hasSavedProfile && !pendingDraft && !autoSaveOnLoad && currentBody) {
+      setSavedBaseline(currentBody)
+    }
+  }, [savedBaseline, loaded, hasSavedProfile, pendingDraft, autoSaveOnLoad, currentBody])
+  const isDirty = currentBody !== null && currentBody !== savedBaseline
+
   /** Everything a CardSection needs, so each call site stays one line of props. */
   const sectionProps = useCallback(
     (sectionId: string) => {
@@ -1282,9 +1405,10 @@ function ProfileScreen() {
         open: Boolean(openSections[sectionId]),
         onToggle: () => toggleSection(sectionId),
         accent: SECTION_ACCENT[sectionId],
+        status: statusOf(sectionId),
       }
     },
-    [pointsFor, openSections, toggleSection]
+    [pointsFor, openSections, toggleSection, statusOf]
   )
 
   const doneCount = FORM_SECTIONS.filter((s) => {
@@ -1292,6 +1416,7 @@ function ProfileScreen() {
     return p && p.total > 0 && p.earned >= p.total
   }).length
   const scoredCount = FORM_SECTIONS.filter((s) => (sectionPoints[s.id]?.total ?? 0) > 0).length
+
 
   // ---- Phone / WhatsApp: split for editing, joined for storage --------------
   // The DB columns stay single strings (lib/phone.ts explains why), so the
@@ -1457,6 +1582,8 @@ function ProfileScreen() {
         // The next save is checked against the version just written.
         const savedBody = (await res.json().catch(() => null)) as { updated_at?: string | null } | null
         if (savedBody?.updated_at) savedVersionRef.current = savedBody.updated_at
+        // What is now saved — the save bar reads "All changes saved" until the next edit.
+        setSavedBaseline(JSON.stringify(buildPutBody(editor)))
         // A save succeeded, so the profile now exists — the import panel folds
         // into "Recreate my profile" (2026-09-11).
         setHasSavedProfile(true)
@@ -1670,7 +1797,7 @@ function ProfileScreen() {
           {/* On a phone the Save button joins this row. Alone on its own line it
               floated at the right edge under the text, detached from anything. */}
           <div className="ml-auto self-start sm:hidden">
-            <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => onSubmit('exit')}>
+            <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>
               Save
             </Button>
           </div>
@@ -1713,13 +1840,24 @@ function ProfileScreen() {
               size="sm"
               busy={submitting}
               busyLabel="Saving…"
-              onClick={() => onSubmit('exit')}
+              onClick={() => void onSubmit('stay')}
             >
               Save
             </Button>
           </div>
         </div>
       </header>
+
+      {/* OVERVIEW (2026-09-23): what this page is, what the profile already says,
+          every section's status and the one to fill next. Shown once there is a
+          profile to describe — before that, the import panel below is the job. */}
+      {profileFacts && (hasSavedProfile || editor.full_name.trim()) ? (
+        <ProfileOverview
+          facts={profileFacts}
+          sections={sectionStatuses}
+          onOpenSection={(sectionId) => goToProfilePart({ sectionId })}
+        />
+      ) : null}
 
       {/* IMPROVE YOUR PROFILE — both scores and what raises each (2026-09-11,
           Career Profile and Profile Strength merged, founder decision). Hidden
@@ -2449,10 +2587,16 @@ function ProfileScreen() {
           save that runs the moment an extraction fills the profile, so a second
           save control at the foot of a long form was redundant. The error display
           stays — it is where a failed save reports. */}
-      {saveError ? (
-        <div className="mx-5 mb-5 mt-3 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">
-          {saveError}
-        </div>
+      {/* THE SAVE BAR (2026-09-23): always says whether the profile is saved,
+          sits where the user is, and shows a failed save next to the button
+          that caused it — it used to print at the very bottom of the form. */}
+      {hasSavedProfile || isDirty || saveError ? (
+        <SaveBar
+          state={submitting ? 'saving' : saveError ? 'error' : isDirty ? 'dirty' : 'saved'}
+          message={saveError}
+          onSave={() => void onSubmit('stay')}
+          onFinish={() => router.push('/dashboard')}
+        />
       ) : null}
       <div className="pb-8" />
     </main>
