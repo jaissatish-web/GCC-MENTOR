@@ -12,13 +12,12 @@ export const AVAILABLE_TEMPLATE_COUNT = Object.values(TEMPLATES).filter((t) => t
 export const CONTACT_EMAIL = 'jaissatish@gmail.com'
 
 /**
- * FOUNDER BAND — waiting on the founder's name and photo (design §8).
- * While `name` is empty the band shows the statement without a person row,
- * so no "[Founder name]" placeholder ever reaches the live page.
- * `photo` is a path under /public, e.g. '/landing/founder.jpg'.
+ * FOUNDER BAND (design §8). Name only, no photo — founder decision 2026-09-24.
+ * An empty `name` hides the person row; an empty `photo` shows the name alone.
+ * `photo` would be a path under /public, e.g. '/landing/founder.jpg'.
  */
 export const FOUNDER = {
-  name: '',
+  name: 'Satish Kumar Jaiswal',
   photo: '',
   role: 'E&I Superintendent · Middle East EPC & PMC',
 }
