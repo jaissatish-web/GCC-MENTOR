@@ -189,6 +189,14 @@ const config: Config = {
          * the brightest thing on the card.
          *   ink on field 16.97 · muted placeholder on field 5.16
          */
+        /**
+         * Landing v2 (2026-09-24): the "job keyword" highlight and Target job 3.
+         * white on blue 7.05 · blue on blue-soft 5.93.
+         */
+        blue: {
+          DEFAULT: '#1F5A8A',
+          soft: '#DCEAF7',
+        },
         field: {
           DEFAULT: '#FBF9F5',
           line: '#948A7B',
@@ -433,6 +441,9 @@ const config: Config = {
         'm-1': '0 1px 2px rgba(20,24,28,0.05)',
         'm-2': '0 1px 2px rgba(20,24,28,0.05), 0 6px 18px -8px rgba(20,24,28,0.10)',
         'm-3': '0 2px 4px rgba(20,24,28,0.06), 0 18px 40px -14px rgba(20,24,28,0.18)',
+        // Landing v2 elevation (design/landing-v2/tokens.json).
+        'lp-card': '0 1px 2px rgba(20,24,28,0.04), 0 8px 24px rgba(20,24,28,0.05)',
+        'lp-float': '0 30px 60px rgba(20,24,28,0.18)',
         'm-drawer': '-14px 0 34px -12px rgba(20,24,28,0.40)',
         // Redesign §5 scale. Existing elev/glow names remain below for
         // current call sites and are intentionally not changed.

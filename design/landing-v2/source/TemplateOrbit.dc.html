@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Template orbit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; height: {{boxH}}px; overflow: hidden; background: #FFFFFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #14181C">
+
+<!-- orbit track -->
+<div style="position: absolute; left: 50%; top: {{trackTop}}px; width: {{trackW}}px; height: {{trackH}}px; transform: translate(-50%, -50%); border-radius: 999px; border: 1px solid rgba(15,76,67,.18); background: radial-gradient(ellipse at 50% 82%, rgba(201,150,46,.20), transparent 34%), radial-gradient(ellipse at center, rgba(237,226,205,.45), rgba(219,236,232,.25) 58%, transparent 64%); box-shadow: inset 0 -22px 46px rgba(15,76,67,.08), 0 26px 56px rgba(15,76,67,.10)"></div>
+<div style="position: absolute; left: 50%; top: {{trackTop}}px; width: {{innerW}}px; height: {{innerH}}px; transform: translate(-50%, -50%); border-radius: 999px; border: 1px dashed rgba(15,76,67,.16)"></div>
+
+<!-- orbiting cards -->
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="10">
+<button onClick="{{c.pick}}" aria-label="Pause and inspect {{c.name}}" style="position: absolute; left: 50%; top: {{trackTop}}px; width: 150px; padding: 5px; border-radius: 14px; background: #FFFFFF; cursor: pointer; text-align: left; font-family: inherit; transform: {{c.tf}}; z-index: {{c.z}}; opacity: {{c.o}}; filter: {{c.filter}}; border: 2px solid {{c.ring}}; box-shadow: {{c.shadow}}">
+<span style="display: flex; height: 190px; border-radius: 9px; overflow: hidden; background: #FFFFFF; position: relative; border: 1px solid #F0ECE5">
+<sc-if value="{{c.side}}" hint-placeholder-val="{{ false }}">
+<span style="width: 42px; background: {{c.sideBg}}; display: flex; flex-direction: column; align-items: center; gap: 5px; padding-top: 10px">
+<img src="../assets/sample-headshot.jpg" alt="" style="width: 26px; height: 26px; border-radius: 99px; object-fit: cover">
+<span style="width: 28px; height: 3px; background: rgba(255,255,255,.55); border-radius: 3px"></span>
+<span style="width: 22px; height: 3px; background: rgba(255,255,255,.4); border-radius: 3px"></span>
+<span style="width: 26px; height: 3px; background: rgba(255,255,255,.4); border-radius: 3px"></span>
+</span>
+</sc-if>
+<span style="flex: 1; display: flex; flex-direction: column; min-width: 0">
+<span style="display: flex; align-items: center; gap: 5px; padding: 9px 8px 7px; background: {{c.band}}; border-bottom: 2px solid {{c.accent}}">
+<sc-if value="{{c.photoTop}}" hint-placeholder-val="{{ false }}"><img src="../assets/sample-headshot.jpg" alt="" style="width: 20px; height: 20px; border-radius: 99px; object-fit: cover"></sc-if>
+<span style="display: flex; flex-direction: column"><span style="font-size: 8px; font-weight: 800; color: {{c.nameColor}}; font-family: {{c.font}}">Ahmed Al-Hassan</span><span style="font-size: 5.5px; color: {{c.subColor}}">Senior Mechanical Engineer</span></span>
+</span>
+<span style="display: flex; flex-direction: column; gap: 3px; padding: 7px 8px">
+<span style="font-size: 5px; font-weight: 800; letter-spacing: .08em; color: {{c.accent}}">PROFESSIONAL SUMMARY</span>
+<span style="height: 2.5px; background: #E3E1DC; border-radius: 3px"></span><span style="height: 2.5px; background: #E3E1DC; border-radius: 3px; width: 90%"></span><span style="height: 2.5px; background: #E3E1DC; border-radius: 3px; width: 70%"></span>
+<span style="font-size: 5px; font-weight: 800; letter-spacing: .08em; color: {{c.accent}}; margin-top: 4px">WORK EXPERIENCE</span>
+<span style="font-size: 5.5px; font-weight: 700">Senior Mechanical Engineer</span>
+<span style="height: 2.5px; background: #E3E1DC; border-radius: 3px"></span><span style="height: 2.5px; background: #E3E1DC; border-radius: 3px; width: 84%"></span>
+<span style="font-size: 5.5px; font-weight: 700">Mechanical Engineer</span>
+<span style="height: 2.5px; background: #E3E1DC; border-radius: 3px"></span><span style="height: 2.5px; background: #E3E1DC; border-radius: 3px; width: 76%"></span>
+<span style="font-size: 5px; font-weight: 800; letter-spacing: .08em; color: {{c.accent}}; margin-top: 4px">KEY SKILLS</span>
+<span style="height: 2.5px; background: #E3E1DC; border-radius: 3px; width: 92%"></span>
+</span>
+</span>
+<span style="position: absolute; inset: auto 0 0 0; height: 30px; background: linear-gradient(0deg, #FFFFFF, rgba(255,255,255,0))"></span>
+</span>
+<span style="display: flex; flex-direction: column; padding: 7px 4px 3px">
+<span style="font-size: 11.5px; font-weight: 800">{{c.name}}</span>
+<span style="font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: #616B76">{{c.cat}}</span>
+</span>
+</button>
+</sc-for>
+
+<!-- centre stage: large live preview of the selected template -->
+<div style="position: absolute; left: 50%; top: {{stageTop}}px; width: 330px; transform: translateX(-50%) scale({{stageScale}}); transform-origin: top center; z-index: 50">
+<div style="position: relative; height: 380px; border-radius: 18px; overflow: hidden; background: #FFFFFF; border: 1px solid #EAE4DB; box-shadow: 0 30px 70px rgba(15,76,67,.20), 0 8px 18px rgba(20,24,28,.08)">
+<div style="display: flex; height: 100%">
+<sc-if value="{{sel.side}}" hint-placeholder-val="{{ false }}">
+<div style="width: 96px; background: {{sel.sideBg}}; color: #FFFFFF; padding: 16px 10px; display: flex; flex-direction: column; gap: 8px; font-size: 8.5px; line-height: 1.5">
+<img src="../assets/sample-headshot.jpg" alt="" style="width: 56px; height: 56px; border-radius: 99px; object-fit: cover; align-self: center">
+<div style="font-weight: 800; letter-spacing: .08em">CONTACT</div><div>Riyadh, Saudi Arabia<br>+966 55 000 0000</div>
+<div style="font-weight: 800; letter-spacing: .08em">SKILLS</div><div>Static equipment · ASME B31.3 · Commissioning · Primavera P6</div>
+</div>
+</sc-if>
+<div style="flex: 1; min-width: 0">
+<div style="display: flex; align-items: center; gap: 10px; padding: 16px; background: {{sel.band}}; border-bottom: 3px solid {{sel.accent}}">
+<sc-if value="{{sel.photoTop}}" hint-placeholder-val="{{ false }}"><img src="../assets/sample-headshot.jpg" alt="Ahmed Al-Hassan, profile photo" style="width: 44px; height: 44px; border-radius: 99px; object-fit: cover"></sc-if>
+<div><div style="font-size: 17px; font-weight: 800; color: {{sel.nameColor}}; font-family: {{sel.font}}">Ahmed Al-Hassan</div><div style="font-size: 10px; color: {{sel.subColor}}">Senior Mechanical Engineer · Riyadh</div></div>
+</div>
+<div style="padding: 12px 16px; font-size: 9.5px; line-height: 1.55; color: #414B55">
+<div style="font-size: 8.5px; font-weight: 800; letter-spacing: .08em; color: {{sel.accent}}">PROFESSIONAL SUMMARY</div>
+<div style="margin-top: 3px">Senior Mechanical Engineer with 15 years across oil &amp; gas, EPC and construction projects in Saudi Arabia and the UAE. Led multidiscipline teams through commissioning and handover on refinery and petrochemical scopes.</div>
+<div style="font-size: 8.5px; font-weight: 800; letter-spacing: .08em; color: {{sel.accent}}; margin-top: 10px">WORK EXPERIENCE</div>
+<div style="margin-top: 3px; font-weight: 800; color: #14181C">Senior Mechanical Engineer · Jan 2019 — Present</div>
+<div>Gulf Energy Contracting · Dhahran, Saudi Arabia</div>
+<div>• Led a 40-strong multidiscipline team through pre-commissioning and handover of two refinery units.</div>
+<div>• Reduced rework on piping installation by introducing a weld-tracking log across three contractors.</div>
+<div style="margin-top: 6px; font-weight: 800; color: #14181C">Mechanical Engineer · Mar 2015 — Dec 2018</div>
+<div>Peninsula Industrial Services · Abu Dhabi, UAE</div>
+</div>
+</div>
+</div>
+<div style="position: absolute; inset: auto 0 0 0; height: 70px; background: linear-gradient(0deg, #FFFFFF, rgba(255,255,255,0))"></div>
+<div style="position: absolute; left: 12px; top: 12px; padding: 5px 10px; border-radius: 99px; background: rgba(255,255,255,.95); border: 1px solid #EAE4DB; font-size: 10px; font-weight: 800; letter-spacing: .08em; color: #0F4C43; display: flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; border-radius: 99px; background: {{liveDot}}"></span>{{liveLabel}}</div>
+</div>
+</div>
+
+<!-- info + controls -->
+<div style="position: absolute; left: 0; right: 0; bottom: {{barBottom}}px; display: flex; justify-content: center; z-index: 120; padding: 0 12px">
+<div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: {{barGap}}px; padding: {{barPad}}; border-radius: 18px; background: rgba(255,255,255,.96); border: 1px solid #EAE4DB; box-shadow: 0 16px 40px rgba(20,24,28,.10)">
+<div style="min-width: {{infoMin}}; text-align: {{infoAlign}}">
+<div style="display: flex; align-items: baseline; gap: 10px; justify-content: {{tagJustify}}"><span style="font-family: Fraunces, Georgia, serif; font-size: 22px; font-weight: 600">{{sel.name}}</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #616B76">{{counter}}</span></div>
+<div style="display: flex; gap: 6px; margin-top: 6px; align-items: center; justify-content: {{tagJustify}}">
+<sc-for list="{{sel.tags}}" as="tag" hint-placeholder-count="2"><span style="padding: 3px 9px; border-radius: 99px; background: #FAF7F2; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #616B76">{{tag}}</span></sc-for>
+</div>
+</div>
+<div style="width: 1px; height: 44px; background: #EAE4DB; display: {{divDisplay}}"></div>
+<button onClick="{{prev}}" aria-label="Previous template" style="width: 44px; height: 44px; border-radius: 99px; border: 1px solid #EAE4DB; background: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #14181C"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+<button onClick="{{toggle}}" style="min-height: 44px; padding: 0 16px; border-radius: 99px; border: 0; background: #0F4C43; color: #FFFFFF; cursor: pointer; font: 700 13px 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; gap: 8px">
+<sc-if value="{{playing}}" hint-placeholder-val="{{ true }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15.75 5.25v13.5M8.25 5.25v13.5"></path></svg></sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"></path></svg></sc-if>
+{{toggleLabel}}</button>
+<button onClick="{{next}}" aria-label="Next template" style="width: 44px; height: 44px; border-radius: 99px; border: 1px solid #EAE4DB; background: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #14181C"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></button>
+<a href="#signup" style="min-height: 44px; display: {{useDisplay}}; align-items: center; padding: 0 16px; border-radius: 99px; border: 1px solid #0F4C43; color: #0F4C43; font-size: 13px; font-weight: 800; text-decoration: none">Use this template</a>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"compact":{"editor":"boolean","default":false},"$preview":{"width":1200,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.T = [
+      { name: 'Gulf Premium', cat: 'professional', tags: ['High ATS', 'Photo option'], band: '#0F4C43', nameColor: '#FFFFFF', subColor: 'rgba(255,255,255,.8)', accent: '#C9962E', photoTop: true, side: false, sideBg: '#0F4C43', font: 'Fraunces, serif' },
+      { name: 'ATS Classic', cat: 'Maximum ATS', tags: ['Maximum ATS', 'No photo'], band: '#FFFFFF', nameColor: '#14181C', subColor: '#616B76', accent: '#14181C', photoTop: false, side: false, sideBg: '#14181C', font: 'Georgia, serif' },
+      { name: 'GCC Engineering', cat: 'engineering', tags: ['High ATS', 'Photo option'], band: '#EEF3F8', nameColor: '#1F3A5F', subColor: '#414B55', accent: '#1F5A8A', photoTop: true, side: false, sideBg: '#1F3A5F', font: 'inherit' },
+      { name: 'Executive GCC', cat: 'executive', tags: ['Executive', 'Photo option'], band: '#14181C', nameColor: '#F7EFDD', subColor: 'rgba(255,255,255,.7)', accent: '#C9962E', photoTop: true, side: false, sideBg: '#14181C', font: 'Fraunces, serif' },
+      { name: 'Modern Professional', cat: 'professional', tags: ['High ATS', 'Photo option'], band: '#FFFFFF', nameColor: '#0F4C43', subColor: '#616B76', accent: '#0F4C43', photoTop: true, side: false, sideBg: '#0F4C43', font: 'inherit' },
+      { name: 'Senior Compact', cat: 'senior', tags: ['High ATS', 'Compact'], band: '#FAF7F2', nameColor: '#14181C', subColor: '#616B76', accent: '#8A6114', photoTop: false, side: false, sideBg: '#8A6114', font: 'Georgia, serif' },
+      { name: 'Gulf Minimal', cat: 'Maximum ATS', tags: ['Maximum ATS', 'Photo option'], band: '#FFFFFF', nameColor: '#14181C', subColor: '#616B76', accent: '#616B76', photoTop: true, side: false, sideBg: '#616B76', font: 'inherit' },
+      { name: 'Corporate Band', cat: 'professional', tags: ['High ATS', 'Photo option'], band: '#1F5A8A', nameColor: '#FFFFFF', subColor: 'rgba(255,255,255,.8)', accent: '#1F5A8A', photoTop: false, side: true, sideBg: '#2B3A4A', font: 'inherit' },
+      { name: 'Technical Sidebar', cat: 'engineering', tags: ['High ATS', 'Photo option'], band: '#FFFFFF', nameColor: '#14181C', subColor: '#616B76', accent: '#0F4C43', photoTop: false, side: true, sideBg: '#0F4C43', font: 'inherit' },
+      { name: 'Project Two-Column', cat: 'engineering', tags: ['High ATS', 'Photo option'], band: '#F7EFDD', nameColor: '#14181C', subColor: '#616B76', accent: '#8A6114', photoTop: false, side: true, sideBg: '#8A6114', font: 'inherit' }
+    ];
+    this.state = { angle: Math.PI / 2, target: null, playing: true, sel: 0 };
+  }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      const s = this.state;
+      if (s.target !== null) {
+        const d = s.target - s.angle;
+        if (Math.abs(d) < 0.003) this.setState({ angle: s.target, target: null });
+        else this.setState({ angle: s.angle + d * 0.16 });
+      } else if (s.playing) {
+        this.setState({ angle: s.angle - 0.005 });
+      }
+    }, 33);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  step() { return (2 * Math.PI) / this.T.length; }
+  frontIndex(angle) {
+    let best = 0, bestV = -2;
+    for (let i = 0; i < this.T.length; i++) { const v = Math.sin(angle + i * this.step()); if (v > bestV) { bestV = v; best = i; } }
+    return best;
+  }
+  bringToFront(i) {
+    const n = this.T.length;
+    const idx = ((i % n) + n) % n;
+    const theta = this.state.angle + idx * this.step();
+    let delta = Math.PI / 2 - theta;
+    delta = Math.atan2(Math.sin(delta), Math.cos(delta));
+    this.setState({ target: this.state.angle + delta, playing: false, sel: idx });
+  }
+  renderVals() {
+    const S = this.state;
+    const n = this.T.length;
+    const k = this.props.compact ? 1 : 0;
+    const rx = k ? 140 : 440, ry = k ? 54 : 140, cs = k ? 0.62 : 1;
+    const selIdx = S.playing && S.target === null ? this.frontIndex(S.angle) : S.sel;
+    const cards = this.T.map((t, i) => {
+      const th = S.angle + i * this.step();
+      const sn = Math.sin(th);
+      const d = (sn + 1) / 2;
+      const x = rx * Math.cos(th);
+      const y = ry * sn;
+      const sc = (0.6 + 0.42 * d) * cs;
+      const front = sn > 0;
+      return {
+        ...t,
+        tf: 'translate(-50%, -50%) translate(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')',
+        z: front ? 60 + Math.round(d * 40) : 10 + Math.round(d * 30),
+        o: (0.5 + 0.5 * d).toFixed(2),
+        filter: 'saturate(' + (0.55 + 0.45 * d).toFixed(2) + ') brightness(' + (0.9 + 0.1 * d).toFixed(2) + ')',
+        ring: i === selIdx ? '#0F4C43' : '#EAE4DB',
+        shadow: front ? '0 18px 34px rgba(15,76,67,.16), 0 34px 78px rgba(15,76,67,.14)' : '0 8px 20px rgba(15,76,67,.06)',
+        pick: () => this.bringToFront(i)
+      };
+    });
+    const sel = this.T[selIdx];
+    return {
+      cards, sel,
+      boxH: k ? 650 : 800, trackTop: k ? 340 : 440, trackW: k ? 340 : 900, trackH: k ? 124 : 290, innerW: k ? 240 : 640, innerH: k ? 76 : 170,
+      stageTop: k ? 12 : 24, stageScale: k ? 0.72 : 1, barBottom: k ? 10 : 18, barGap: k ? 10 : 18, barPad: k ? '12px 12px' : '12px 14px 12px 22px',
+      infoMin: k ? '100%' : '250px', infoAlign: k ? 'center' : 'left', tagJustify: k ? 'center' : 'flex-start', divDisplay: k ? 'none' : 'block', useDisplay: k ? 'none' : 'flex',
+      counter: String(selIdx + 1).padStart(2, '0') + ' / ' + String(n).padStart(2, '0'),
+      playing: S.playing, paused: !S.playing,
+      toggleLabel: S.playing ? 'Pause rotation' : 'Resume rotation',
+      liveLabel: S.playing ? 'ROTATING · TAP ANY RESUME' : 'PAUSED · FULL PREVIEW',
+      liveDot: S.playing ? '#2C6E49' : '#C9962E',
+      toggle: () => this.setState({ playing: !S.playing, target: null }),
+      prev: () => this.bringToFront(selIdx - 1),
+      next: () => this.bringToFront(selIdx + 1)
+    };
+  }
+}
+</script>
+</body>
+</html>

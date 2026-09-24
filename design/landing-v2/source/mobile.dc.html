@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GCC Mentor — Mobile landing page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FAF7F2;color:#14181C;font-family:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0F4C43;text-decoration:none}a:hover{color:#0B3A33}
+.px{padding-left:20px;padding-right:20px}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0F4C43}
+.h2{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:31px;line-height:1.1;letter-spacing:-.02em;margin:10px 0 0;color:#14181C}
+.h2 em{font-style:italic;color:#0F4C43;font-weight:500}
+.lead{font-size:16px;line-height:1.6;color:#414B55;margin:12px 0 0}
+.card{background:#FFFFFF;border:1px solid #EAE4DB;border-radius:18px;box-shadow:0 1px 2px rgba(20,24,28,.04),0 8px 22px rgba(20,24,28,.05)}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 20px;border-radius:14px;font-weight:800;font-size:16px;box-sizing:border-box}
+.btn-teal{background:#0F4C43;color:#FFFFFF}.btn-teal:hover{color:#FFFFFF}
+.btn-line{background:#FFFFFF;border:1px solid #D2C9BC;color:#14181C}
+.photo{display:block;width:100%;height:100%;object-fit:cover}
+.strike{text-decoration:line-through;text-decoration-color:rgba(163,53,40,.55)}
+.chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;border:1px solid #EAE4DB;background:#FFFFFF;font-size:13px;font-weight:600;color:#414B55}
+.scroller{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:6px}
+.scroller::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+
+<div style="width: 100%; max-width: 430px; margin: 0 auto; background: #FAF7F2; position: relative">
+
+<!-- NAV -->
+<header style="position: sticky; top: 0; z-index: 30; background: rgba(250,247,242,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #EAE4DB">
+<div class="px" style="display: flex; align-items: center; justify-content: space-between; height: 60px">
+<a href="#top" style="display: flex; align-items: center; gap: 9px; color: #14181C"><span style="width: 32px; height: 32px; border-radius: 9px; background: #0F4C43; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: Fraunces, serif; font-weight: 600; font-size: 18px">G</span><span style="font-weight: 800; letter-spacing: .08em; font-size: 14px">GCC MENTOR</span></a>
+<div style="display: flex; align-items: center; gap: 8px">
+<a href="#signup" style="min-height: 40px; display: flex; align-items: center; padding: 0 14px; border-radius: 10px; background: #0F4C43; color: #FFFFFF; font-size: 13px; font-weight: 800">Sign up free</a>
+<button aria-label="Open menu" style="width: 44px; height: 44px; border-radius: 10px; border: 1px solid #EAE4DB; background: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14181C" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+</div>
+</div>
+</header>
+
+<!-- HERO -->
+<section id="top" style="padding: 28px 0 8px; background: radial-gradient(80% 50% at 90% 10%, rgba(15,76,67,0.10), transparent 70%)">
+<div class="px">
+<span class="chip"><span style="width: 7px; height: 7px; border-radius: 99px; background: #2C6E49"></span>The career platform for Gulf jobs</span>
+<h1 style="font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 40px; line-height: 1.04; letter-spacing: -.025em; margin: 18px 0 0">Your experience is Gulf-ready. <em style="font-weight: 500; color: #0F4C43">Now make your CV say so.</em></h1>
+<p class="lead">A CV, cover letter and interview prep for every Gulf job you target — <strong style="color: #14181C">written from your own facts, never invented.</strong></p>
+</div>
+
+<div class="px" style="margin-top: 22px; position: relative">
+<div style="height: 250px; border-radius: 22px; overflow: hidden; box-shadow: 0 20px 44px rgba(20,24,28,.18)"><img class="photo" src="../assets/hero-plant-night.jpg" alt="A Gulf process plant lit at night"></div>
+<div class="card" style="position: relative; margin: -70px 14px 0; padding: 16px; box-shadow: 0 22px 44px rgba(20,24,28,.16)">
+<div style="display: flex; gap: 12px; align-items: center">
+<svg width="60" height="60" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#E4EEEB" stroke-width="13"></circle><circle cx="60" cy="60" r="50" fill="none" stroke="#0F4C43" stroke-width="13" stroke-linecap="round" stroke-dasharray="226 314" transform="rotate(-90 60 60)"></circle><text x="60" y="70" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="34" font-weight="600" fill="#14181C">72</text></svg>
+<div style="flex-grow: 1"><div style="font-size: 12px; color: #616B76">Gulf Readiness · example</div><div style="font-size: 15px; font-weight: 800">Senior Instrumentation Engineer</div>
+<div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px"><span style="color: #616B76">ATS</span><span class="mono" style="color: #A33528; text-decoration: line-through">49</span><span>→</span><span class="mono" style="font-weight: 600; color: #0F4C43; font-size: 16px">78</span></div></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 12px; font-size: 12px; font-weight: 700">
+<span style="padding: 8px 10px; border-radius: 9px; background: #E3EFE8; color: #2C6E49">✓ Optimized CV</span>
+<span style="padding: 8px 10px; border-radius: 9px; background: #E3EFE8; color: #2C6E49">✓ Cover letter</span>
+<span style="padding: 8px 10px; border-radius: 9px; background: #E3EFE8; color: #2C6E49">✓ 25 interview Q&amp;A</span>
+<span style="padding: 8px 10px; border-radius: 9px; background: #F7EFDD; color: #8A6114">→ Mock interview</span>
+</div>
+</div>
+</div>
+
+<div class="px" style="margin-top: 22px; display: flex; flex-direction: column; gap: 10px">
+<a class="btn btn-teal" href="#score">Check my Gulf readiness — free</a>
+<a class="btn btn-line" href="#signup">Create my career profile</a>
+<p style="font-size: 13px; color: #616B76; margin: 2px 0 0; text-align: center">No account · no card · one CV upload</p>
+</div>
+<div class="scroller" style="padding: 18px 20px 6px">
+<span class="chip"><b class="mono" style="color: #8A6114">SA</b>Saudi Arabia</span><span class="chip"><b class="mono" style="color: #8A6114">AE</b>UAE</span><span class="chip"><b class="mono" style="color: #8A6114">QA</b>Qatar</span><span class="chip"><b class="mono" style="color: #8A6114">OM</b>Oman</span><span class="chip"><b class="mono" style="color: #8A6114">KW</b>Kuwait</span><span class="chip"><b class="mono" style="color: #8A6114">BH</b>Bahrain</span>
+</div>
+</section>
+
+<!-- TRUST STRIP -->
+<section class="px" style="padding-top: 18px; padding-bottom: 18px">
+<div class="card" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; padding: 16px; font-size: 13px">
+<div style="display: flex; gap: 8px"><span style="color: #0F4C43; font-weight: 800">✓</span><span><b>Your own facts</b><br><span style="color: #616B76">never invented</span></span></div>
+<div style="display: flex; gap: 8px"><span style="color: #0F4C43; font-weight: 800">✓</span><span><b>Gulf hiring</b><br><span style="color: #616B76">visa, notice, GCC</span></span></div>
+<div style="display: flex; gap: 8px"><span style="color: #0F4C43; font-weight: 800">✓</span><span><b>CV + letter + prep</b><br><span style="color: #616B76">one workflow</span></span></div>
+<div style="display: flex; gap: 8px"><span style="color: #0F4C43; font-weight: 800">✓</span><span><b>You approve</b><br><span style="color: #616B76">every new line</span></span></div>
+</div>
+</section>
+
+<!-- WHO -->
+<section style="padding: 44px 0 20px">
+<div class="px"><span class="eyebrow">Who it is for</span><h2 class="h2">Serious about a <em>Gulf career?</em></h2><p class="lead">Swipe to find yourself.</p></div>
+<div class="scroller" style="padding: 18px 20px 8px">
+<div class="card" style="flex: 0 0 250px; overflow: hidden; scroll-snap-align: start"><div style="height: 150px"><img class="photo" src="../assets/who-already-in-gulf.jpg" alt="An engineer in a hard hat on site"></div><div style="padding: 14px 16px"><div style="font-weight: 800">Already in the Gulf</div><div style="font-size: 13px; color: #616B76; margin-top: 4px; line-height: 1.5">Better role, bigger project, higher package.</div></div></div>
+<div class="card" style="flex: 0 0 250px; overflow: hidden; scroll-snap-align: start"><div style="height: 150px"><img class="photo" src="../assets/who-moving-to-gulf.jpg" alt="A modern airport terminal"></div><div style="padding: 14px 16px"><div style="font-weight: 800">Moving to the Gulf</div><div style="font-size: 13px; color: #616B76; margin-top: 4px; line-height: 1.5">From India or elsewhere, in the format Gulf employers read.</div></div></div>
+<div class="card" style="flex: 0 0 250px; overflow: hidden; scroll-snap-align: start"><div style="height: 150px"><img class="photo" src="../assets/who-returning.jpg" alt="An airport departures board"></div><div style="padding: 14px 16px"><div style="font-weight: 800">Returning to the Gulf</div><div style="font-size: 13px; color: #616B76; margin-top: 4px; line-height: 1.5">Put earlier GCC experience back up front.</div></div></div>
+<div class="card" style="flex: 0 0 250px; overflow: hidden; scroll-snap-align: start"><div style="height: 150px"><img class="photo" src="../assets/who-any-profession.jpg" alt="A nurse at work"></div><div style="padding: 14px 16px"><div style="font-weight: 800">Any profession</div><div style="font-size: 13px; color: #616B76; margin-top: 4px; line-height: 1.5">Engineering, IT, finance, healthcare and more.</div></div></div>
+</div>
+</section>
+
+<!-- PAIN -->
+<section style="padding: 36px 0 20px">
+<div class="px">
+<span class="eyebrow">Sound familiar?</span><h2 class="h2">Applied everywhere. <em>Heard nothing back.</em></h2>
+<div style="position: relative; margin-top: 18px">
+<div style="height: 220px; border-radius: 20px; overflow: hidden"><img class="photo" src="../assets/pain-applying-laptop.jpg" alt="A professional applying for jobs on a laptop"></div>
+<div class="card" style="position: relative; margin: -48px 12px 0; padding: 12px; font-size: 12.5px; color: #616B76; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between"><span class="mono" style="font-size: 11px">INBOX</span><span style="font-size: 11px">0 replies this week</span></div>
+<div style="padding: 8px 10px; border-radius: 9px; background: #FAF7F2">no-reply@careers · Application received</div>
+<div style="padding: 8px 10px; border-radius: 9px; background: #FAF7F2">no-reply@jobs · Position filled</div>
+</div>
+</div>
+<p class="lead">It usually isn&#39;t your experience. Many Gulf applications are screened by keyword search and a fast skim — and a generic CV doesn&#39;t use the words that employer searches for.</p>
+</div>
+</section>
+
+<!-- PAIN → FIX -->
+<section class="px" style="padding-top: 24px; padding-bottom: 40px">
+<div class="eyebrow">Here is what changes</div>
+<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px">
+<sc-for list="{{fixes}}" as="f" hint-placeholder-count="8">
+<div class="card" style="padding: 14px 16px; display: flex; gap: 14px; align-items: flex-start">
+<span class="mono" style="width: 34px; height: 34px; flex: 0 0 auto; border-radius: 10px; background: #E4EEEB; color: #0F4C43; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600">{{f.n}}</span>
+<div><div class="strike" style="font-size: 13px; color: #A33528">{{f.pain}}</div><div style="font-size: 15px; font-weight: 800; line-height: 1.4; margin-top: 3px">{{f.fix}}</div></div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<!-- HOW IT WORKS (CLEAR MOBILE FLOW) -->
+<section id="journey" style="padding: 48px 0; background: #FFFFFF; border-top: 1px solid #EAE4DB; border-bottom: 1px solid #EAE4DB">
+<div class="px">
+<span class="eyebrow">How it works</span>
+<h2 class="h2">One Career Profile. <em>Every job you target.</em></h2>
+<p class="lead">Build once. Then each job gets its own pack.</p>
+<div style="margin-top: 22px; border-radius: 26px; background: #FAF7F2; border: 1px solid #EAE4DB; padding: 12px; display: flex; flex-direction: column">
+
+<div style="position: relative; border-radius: 20px; overflow: hidden; background: #0F4C43">
+<img src="../assets/phase1-profile.jpg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .22">
+<div style="position: absolute; inset: 0; background: linear-gradient(160deg, rgba(15,76,67,.97), rgba(11,58,51,.9))"></div>
+<div style="position: relative; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; justify-content: space-between"><span style="font-family: Fraunces, serif; font-size: 24px; font-weight: 600; color: #FFFFFF">Built <em style="font-weight: 500">once.</em></span><span class="mono" style="font-size: 11px; font-weight: 600; letter-spacing: .1em; color: #F7EFDD">STEPS 1–2</span></div>
+<div style="background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.24); border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center">
+<span style="width: 42px; height: 42px; flex: 0 0 auto; border-radius: 12px; background: #F7EFDD; color: #0F4C43; display: flex; align-items: center; justify-content: center; font: 600 14px 'IBM Plex Mono', monospace">01</span>
+<div><div style="font-size: 15.5px; font-weight: 800; color: #FFFFFF">Career Profile</div><div style="font-size: 12.5px; color: rgba(255,255,255,.82); line-height: 1.45; margin-top: 2px">Upload your CV once — one checked record.</div></div>
+</div>
+<div style="display: flex; justify-content: center; margin: -2px 0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F7EFDD" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16"></path><path d="M6 14l6 6 6-6"></path></svg></div>
+<div style="background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.24); border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center">
+<span style="width: 42px; height: 42px; flex: 0 0 auto; border-radius: 12px; background: #F7EFDD; color: #0F4C43; display: flex; align-items: center; justify-content: center; font: 600 14px 'IBM Plex Mono', monospace">02</span>
+<div><div style="font-size: 15.5px; font-weight: 800; color: #FFFFFF">Gulf Readiness</div><div style="font-size: 12.5px; color: rgba(255,255,255,.82); line-height: 1.45; margin-top: 2px">A free score, plus what to fix first.</div></div>
+</div>
+</div>
+</div>
+
+<div style="position: relative; height: 64px">
+<svg width="100%" height="64" viewBox="0 0 350 64" preserveAspectRatio="none" fill="none" style="display: block">
+<path d="M175 0 V24 C175 44 58 36 58 64" stroke="{{f0}}" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+<path d="M175 0 V64" stroke="{{f1}}" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+<path d="M175 24 C175 44 292 36 292 64" stroke="{{f2}}" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+<div style="position: absolute; left: 50%; top: 14px; transform: translateX(-50%); padding: 7px 14px; border-radius: 99px; background: #FFFFFF; border: 1px solid #C9DCD6; box-shadow: 0 6px 16px rgba(15,76,67,.12); font-size: 12.5px; font-weight: 800; color: #0F4C43; white-space: nowrap">Step 3 · Pick a target job</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{jobTabs}}" as="j" hint-placeholder-count="3">
+<button onClick="{{j.pick}}" style="padding: 0; border-radius: 16px; overflow: hidden; cursor: pointer; text-align: left; font-family: inherit; background: #FFFFFF; border: 3px solid {{j.ring}}; box-shadow: {{j.shadow}}; display: flex; flex-direction: column">
+<span style="display: block; position: relative; height: 78px">
+<img src="{{j.img}}" alt="{{j.alt}}" style="display: block; width: 100%; height: 100%; object-fit: cover">
+<span style="position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20,24,28,.5), rgba(20,24,28,0) 60%)"></span>
+<span style="position: absolute; left: 7px; top: 7px; padding: 3px 7px; border-radius: 7px; background: #FFFFFF; font: 600 11px 'IBM Plex Mono', monospace; color: {{j.ink}}">{{j.code}}</span>
+</span>
+<span style="display: flex; flex-direction: column; padding: 8px 9px 10px">
+<span style="font-size: 12.5px; font-weight: 800; color: #14181C">Job {{j.n}}</span>
+<span style="font-size: 11px; color: #616B76">{{j.country}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+
+<div style="display: flex; justify-content: center"><svg width="16" height="30" viewBox="0 0 16 30" fill="none" stroke="{{sel.color}}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v24"></path><path d="M2 20l6 6 6-6"></path></svg></div>
+
+<div style="border-radius: 20px; background: {{sel.soft}}; border: 2px solid {{sel.color}}; padding: 14px">
+<div class="mono" style="font-size: 10.5px; font-weight: 600; letter-spacing: .1em; color: {{sel.ink}}">STEPS 4–7 · PACK FOR JOB {{sel.n}}</div>
+<div style="font-family: Fraunces, serif; font-size: 19px; font-weight: 600; margin-top: 3px; line-height: 1.25">{{sel.title}}</div>
+<div style="font-size: 12.5px; color: #616B76; margin-top: 2px">{{sel.country}} · written for this job only</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px">
+<div style="position: relative; background: #FFFFFF; border-radius: 16px; padding: 14px; overflow: hidden; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 8px 20px rgba(20,24,28,.07)">
+<div style="position: absolute; left: 0; right: 0; top: 0; height: 4px; background: {{sel.color}}"></div>
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 38px; height: 38px; border-radius: 11px; background: {{sel.soft}}; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{sel.ink}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h4"></path></svg></span><span class="mono" style="font-size: 12px; font-weight: 600; color: #B9AE9E">04</span></div>
+<div style="font-size: 14.5px; font-weight: 800; margin-top: 2px">Optimized CV</div>
+<span style="align-self: flex-start; padding: 4px 9px; border-radius: 99px; background: {{sel.soft}}; color: {{sel.ink}}; font-size: 12px; font-weight: 800">{{pk.cv}}</span>
+<div style="font-size: 12px; color: #616B76; line-height: 1.4">For this job description</div>
+</div><div style="position: relative; background: #FFFFFF; border-radius: 16px; padding: 14px; overflow: hidden; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 8px 20px rgba(20,24,28,.07)">
+<div style="position: absolute; left: 0; right: 0; top: 0; height: 4px; background: {{sel.color}}"></div>
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 38px; height: 38px; border-radius: 11px; background: {{sel.soft}}; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{sel.ink}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg></span><span class="mono" style="font-size: 12px; font-weight: 600; color: #B9AE9E">05</span></div>
+<div style="font-size: 14.5px; font-weight: 800; margin-top: 2px">Cover letter</div>
+<span style="align-self: flex-start; padding: 4px 9px; border-radius: 99px; background: {{sel.soft}}; color: {{sel.ink}}; font-size: 12px; font-weight: 800">{{pk.letter}}</span>
+<div style="font-size: 12px; color: #616B76; line-height: 1.4">Same story as the CV</div>
+</div><div style="position: relative; background: #FFFFFF; border-radius: 16px; padding: 14px; overflow: hidden; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 8px 20px rgba(20,24,28,.07)">
+<div style="position: absolute; left: 0; right: 0; top: 0; height: 4px; background: {{sel.color}}"></div>
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 38px; height: 38px; border-radius: 11px; background: {{sel.soft}}; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{sel.ink}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h12v9H9l-4 3v-3H4z"></path><path d="M16 9h4v8h-1v3l-3-3h-5v-3"></path></svg></span><span class="mono" style="font-size: 12px; font-weight: 600; color: #B9AE9E">06</span></div>
+<div style="font-size: 14.5px; font-weight: 800; margin-top: 2px">Interview Q&amp;A</div>
+<span style="align-self: flex-start; padding: 4px 9px; border-radius: 99px; background: {{sel.soft}}; color: {{sel.ink}}; font-size: 12px; font-weight: 800">25 answers</span>
+<div style="font-size: 12px; color: #616B76; line-height: 1.4">Questions for this role</div>
+</div><div style="position: relative; background: #FFFFFF; border-radius: 16px; padding: 14px; overflow: hidden; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 8px 20px rgba(20,24,28,.07)">
+<div style="position: absolute; left: 0; right: 0; top: 0; height: 4px; background: {{sel.color}}"></div>
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 38px; height: 38px; border-radius: 11px; background: {{sel.soft}}; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{sel.ink}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg></span><span class="mono" style="font-size: 12px; font-weight: 600; color: #B9AE9E">07</span></div>
+<div style="font-size: 14.5px; font-weight: 800; margin-top: 2px">Mock interview</div>
+<span style="align-self: flex-start; padding: 4px 9px; border-radius: 99px; background: {{sel.soft}}; color: {{sel.ink}}; font-size: 12px; font-weight: 800">{{pk.mock}}</span>
+<div style="font-size: 12px; color: #616B76; line-height: 1.4">Practice + feedback</div>
+</div>
+</div>
+</div>
+<div style="margin-top: 10px; padding: 11px 12px; border-radius: 12px; border: 1.5px dashed #D2C9BC; font-size: 12.5px; font-weight: 700; color: #616B76; background: #FFFFFF; text-align: center">+ Add job 4, 5, 6… — same profile, new pack each</div>
+</div>
+</div>
+</section>
+
+<!-- BEFORE / AFTER -->
+<section class="px" style="padding-top: 48px; padding-bottom: 40px">
+<span class="eyebrow">Generic to targeted</span>
+<h2 class="h2">Same experience. <em>Written for this job.</em></h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 4px; border-radius: 14px; background: #FFFFFF; border: 1px solid #EAE4DB; gap: 4px; margin-top: 18px">
+<button onClick="{{showBeforeView}}" style="min-height: 44px; border-radius: 10px; border: 0; font: 800 14px 'Plus Jakarta Sans', sans-serif; background: {{beforeBg}}; color: {{beforeFg}}">Before</button>
+<button onClick="{{showAfterView}}" style="min-height: 44px; border-radius: 10px; border: 0; font: 800 14px 'Plus Jakarta Sans', sans-serif; background: {{afterBg}}; color: {{afterFg}}">After</button>
+</div>
+<div class="card" style="margin-top: 12px; padding: 18px; border: 2px solid {{scoreColor}}">
+<div style="display: flex; justify-content: space-between; align-items: center"><span class="mono" style="font-size: 11px; color: #616B76">YOUR CV LINE</span><span class="mono" style="font-size: 28px; font-weight: 600; color: {{scoreColor}}">{{score}}</span></div>
+<sc-if value="{{isBefore}}" hint-placeholder-val="{{ false }}">
+<p style="font-size: 16px; line-height: 1.65; margin: 10px 0 0; color: #414B55">Responsible for electrical and instrumentation activities at site. Worked with the team on testing and completed tasks as assigned.</p>
+<p style="font-size: 13px; color: #A33528; margin: 12px 0 0; line-height: 1.7">✕ No job keywords<br>✕ Your role is unclear<br>✕ Nothing searchable</p>
+</sc-if>
+<sc-if value="{{isAfter}}" hint-placeholder-val="{{ true }}">
+<p style="font-size: 16px; line-height: 1.95; margin: 10px 0 0"><span style="background: #E3EFE8; color: #2C6E49; padding: 2px 5px; border-radius: 6px">Led</span> <span style="background: #DCEAF7; color: #1F5A8A; padding: 2px 5px; border-radius: 6px">E&amp;I testing</span> and <span style="background: #DCEAF7; color: #1F5A8A; padding: 2px 5px; border-radius: 6px">pre-commissioning</span> on site, coordinating <span style="background: #DCEAF7; color: #1F5A8A; padding: 2px 5px; border-radius: 6px">loop checks</span> with the client team <span style="background: #F7EFDD; color: #8A6114; padding: 2px 5px; border-radius: 6px">through to handover</span>.</p>
+<p style="font-size: 12.5px; color: #414B55; margin: 12px 0 0; line-height: 1.8"><span style="color: #2C6E49">■</span> From your profile <span style="color: #1F5A8A">■</span> Job keyword <span style="color: #C9962E">■</span> Confirm first</p>
+</sc-if>
+</div>
+</section>
+
+<!-- SERVICES -->
+<section style="padding: 40px 0; background: #FFFFFF; border-top: 1px solid #EAE4DB; border-bottom: 1px solid #EAE4DB">
+<div class="px"><span class="eyebrow">Services</span><h2 class="h2">Everything a Gulf application needs, <em>in one place.</em></h2></div>
+<div class="scroller" style="padding: 18px 20px 8px">
+<div class="card" style="flex: 0 0 290px; overflow: hidden; scroll-snap-align: start">
+<div style="height: 130px; position: relative"><img class="photo" src="../assets/phase1-profile.jpg" alt="Typing on a laptop"><span style="position: absolute; left: 12px; top: 12px; padding: 4px 10px; border-radius: 99px; background: #FFFFFF; font-size: 11px; font-weight: 800; color: #0F4C43">1 · FREE</span></div>
+<div style="padding: 16px"><div style="font-family: Fraunces, serif; font-size: 20px; font-weight: 600">Know where you stand</div><div style="font-size: 13.5px; color: #414B55; line-height: 1.7; margin-top: 8px">✓ Career Profile<br>✓ Gulf Readiness score</div></div>
+</div>
+<div class="card" style="flex: 0 0 290px; overflow: hidden; scroll-snap-align: start">
+<div style="height: 130px; position: relative"><img class="photo" src="../assets/phase2-cover-letter.jpg" alt="Writing notes beside a laptop"><span style="position: absolute; left: 12px; top: 12px; padding: 4px 10px; border-radius: 99px; background: #FFFFFF; font-size: 11px; font-weight: 800; color: #0F4C43">2 · PER JOB</span></div>
+<div style="padding: 16px"><div style="font-family: Fraunces, serif; font-size: 20px; font-weight: 600">Build the application</div><div style="font-size: 13.5px; color: #414B55; line-height: 1.7; margin-top: 8px">✓ Resume Optimizer (ATS before/after)<br>✓ 15 GCC templates · PDF<br>✓ Cover letter in 4 tones<br>✓ Resume Library</div></div>
+</div>
+<div class="card" style="flex: 0 0 290px; overflow: hidden; scroll-snap-align: start">
+<div style="height: 130px; position: relative"><img class="photo" src="../assets/phase3-interview-panel.jpg" alt="A candidate facing an interview panel"><span style="position: absolute; left: 12px; top: 12px; padding: 4px 10px; border-radius: 99px; background: #FFFFFF; font-size: 11px; font-weight: 800; color: #0F4C43">3 · PER JOB</span></div>
+<div style="padding: 16px"><div style="font-family: Fraunces, serif; font-size: 20px; font-weight: 600">Prepare for the interview</div><div style="font-size: 13.5px; color: #414B55; line-height: 1.7; margin-top: 8px">✓ Interview Q&amp;A (up to 25)<br>✓ Written mock interview + feedback</div></div>
+</div>
+</div>
+<p class="px" style="font-size: 12.5px; color: #616B76; margin: 8px 0 0">Swipe for all three phases →</p>
+</section>
+
+<!-- TEMPLATES ORBIT -->
+<section id="templates" style="padding: 44px 0 24px">
+<div class="px" style="text-align: center"><span class="eyebrow">10 of 15 GCC templates</span><h2 class="h2">Find a style that fits <em>your next role.</em></h2><p class="lead" style="font-size: 14.5px">Tap any resume to pause and preview it.</p></div>
+<div style="margin-top: 12px"><dc-import name="TemplateOrbit" compact="{{ true }}" hint-size="100%,650px"></dc-import></div>
+</section>
+
+<!-- TRUST -->
+<section class="px" style="padding-top: 40px; padding-bottom: 40px">
+<span class="eyebrow">Why you can trust it</span>
+<h2 class="h2">Your facts are <em>locked.</em></h2>
+<div class="card" style="margin-top: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px">
+<div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 10px; background: #FAF7F2"><span><b>Gulf Energy Contracting</b></span><span style="color: #0F4C43; font-weight: 800">Locked</span></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 10px; background: #FAF7F2"><span>Jan 2019 — Present</span><span style="color: #0F4C43; font-weight: 800">Locked</span></div>
+<div style="padding: 10px 12px; border-radius: 10px; background: #F7EFDD; border: 1px dashed #C9962E; line-height: 1.5">Suggested line — kept only if you tap <b>&#8220;Yes, this is true&#8221;</b></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; font-size: 13px; line-height: 1.6">
+<div style="padding: 14px; border-radius: 14px; background: #FBF1EF; border: 1px solid #EBCFC9; color: #6E2A21"><div class="mono" style="font-size: 10px; color: #A33528">GENERIC AI</div>Adds skills you don&#39;t have</div>
+<div style="padding: 14px; border-radius: 14px; background: #E4EEEB; border: 1px solid #C9DCD6; color: #0F4C43"><div class="mono" style="font-size: 10px">GCC MENTOR</div>Only your profile — you confirm additions</div>
+</div>
+</section>
+
+<!-- MARKETS -->
+<section class="px" style="padding-bottom: 40px">
+<span class="eyebrow">Six GCC markets</span>
+<h2 class="h2">Written for how <em>Gulf employers</em> read.</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 18px">
+<div style="grid-column: span 2; position: relative; height: 160px; border-radius: 18px; overflow: hidden"><img class="photo" src="../assets/market-saudi-riyadh.jpg" alt="Riyadh skyline"><div style="position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20,24,28,.8), rgba(20,24,28,0) 60%)"></div><div style="position: absolute; left: 16px; bottom: 14px; color: #FFFFFF"><div style="font-size: 20px; font-weight: 800">Saudi Arabia</div><div style="font-size: 12.5px; opacity: .9">Riyadh · Jeddah · Dammam</div></div></div>
+<div style="grid-column: span 2; position: relative; height: 160px; border-radius: 18px; overflow: hidden"><img class="photo" src="../assets/market-uae-dubai.jpg" alt="Dubai skyline at night"><div style="position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20,24,28,.8), rgba(20,24,28,0) 60%)"></div><div style="position: absolute; left: 16px; bottom: 14px; color: #FFFFFF"><div style="font-size: 20px; font-weight: 800">UAE</div><div style="font-size: 12.5px; opacity: .9">Dubai · Abu Dhabi · Sharjah</div></div></div>
+<div class="card" style="padding: 14px"><div style="font-weight: 800">Qatar</div><div style="font-size: 12.5px; color: #616B76">Doha · Ras Laffan</div></div>
+<div class="card" style="padding: 14px"><div style="font-weight: 800">Oman</div><div style="font-size: 12.5px; color: #616B76">Muscat · Sohar</div></div>
+<div class="card" style="padding: 14px"><div style="font-weight: 800">Kuwait</div><div style="font-size: 12.5px; color: #616B76">Kuwait City · Ahmadi</div></div>
+<div class="card" style="padding: 14px"><div style="font-weight: 800">Bahrain</div><div style="font-size: 12.5px; color: #616B76">Manama · Sitra</div></div>
+</div>
+<p style="font-size: 12px; color: #616B76; margin: 12px 0 0">Not a recruitment agency — no job listings, placements or employment promises.</p>
+</section>
+
+<!-- INTERVIEW -->
+<section class="px" style="padding-bottom: 40px">
+<span class="eyebrow">Interview preparation</span>
+<h2 class="h2">Prepared from <em>the CV you sent.</em></h2>
+<div style="position: relative; margin-top: 18px">
+<div style="height: 210px; border-radius: 20px; overflow: hidden"><img class="photo" src="../assets/phase3-interview-panel.jpg" alt="A candidate in front of an interview panel"></div>
+<div class="card" style="position: relative; margin: -46px 12px 0; padding: 14px; display: flex; flex-direction: column; gap: 7px; font-size: 12px">
+<div style="font-weight: 800; font-size: 13px">Feedback on your answers</div>
+<div style="display: flex; justify-content: space-between"><span>Technical</span><span class="mono">72</span></div><div style="height: 6px; background: #EAE4DB; border-radius: 9px"><div style="width: 72%; height: 100%; background: #0F4C43; border-radius: 9px"></div></div>
+<div style="display: flex; justify-content: space-between"><span>Role fit</span><span class="mono">68</span></div><div style="height: 6px; background: #EAE4DB; border-radius: 9px"><div style="width: 68%; height: 100%; background: #0F4C43; border-radius: 9px"></div></div>
+<div style="display: flex; justify-content: space-between"><span>Answer structure</span><span class="mono">54</span></div><div style="height: 6px; background: #EAE4DB; border-radius: 9px"><div style="width: 54%; height: 100%; background: #C9962E; border-radius: 9px"></div></div>
+</div>
+</div>
+<p style="font-size: 12px; color: #616B76; margin: 12px 0 0">Written answers only. Preparation guidance, not a hiring prediction.</p>
+</section>
+
+<!-- FOUNDER -->
+<section class="px" style="padding-bottom: 40px">
+<div style="position: relative; border-radius: 22px; overflow: hidden">
+<img class="photo" src="../assets/founder-refinery-night.jpg" alt="A Gulf refinery at night" style="position: absolute; inset: 0">
+<div style="position: absolute; inset: 0; background: rgba(15,76,67,0.88)"></div>
+<div style="position: relative; padding: 26px 22px; color: #FFFFFF">
+<div class="eyebrow" style="color: #F7EFDD">Built by engineers who know Gulf careers</div>
+<p style="font-family: Fraunces, serif; font-size: 21px; line-height: 1.35; margin: 12px 0 0">15+ years of Middle East EPC &amp; PMC experience behind every template and check.</p>
+<div style="display: flex; align-items: center; gap: 12px; margin-top: 18px"><div style="width: 46px; height: 46px; border-radius: 99px; border: 2px dashed #F7EFDD; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700">PHOTO</div><div><div style="font-weight: 800">[Founder name]</div><div style="font-size: 12.5px; opacity: .85">E&amp;I Superintendent</div></div></div>
+</div>
+</div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="px" style="padding-bottom: 40px">
+<span class="eyebrow">Pricing</span>
+<h2 class="h2">Start free. <em>Pay when you apply.</em></h2>
+<div class="card" style="margin-top: 18px; padding: 20px; background: #FFFFFF">
+<div class="mono" style="font-size: 11px; color: #616B76">FREE</div><div style="font-family: Fraunces, serif; font-size: 22px; font-weight: 600; margin-top: 4px">Know where you stand</div>
+<div style="font-size: 14px; color: #414B55; line-height: 1.8; margin-top: 8px">✓ Gulf Readiness score<br>✓ Career Profile from your CV<br>✓ Browse all 15 templates</div>
+<a class="btn btn-line" href="#score" style="margin-top: 14px">Check my readiness — free</a>
+</div>
+<div class="card" style="margin-top: 12px; padding: 20px; border: 2px solid #0F4C43">
+<div class="mono" style="font-size: 11px; color: #8A6114">APPLICATION SERVICES · [PRICE]</div><div style="font-family: Fraunces, serif; font-size: 22px; font-weight: 600; margin-top: 4px">Build and prepare for each job</div>
+<div style="font-size: 14px; color: #414B55; line-height: 1.8; margin-top: 8px">✓ Optimized CV + ATS before/after<br>✓ Review and approve every change<br>✓ PDF in any GCC template<br>✓ Cover letter · Interview Q&amp;A · Mock</div>
+<a class="btn btn-teal" href="#signup" style="margin-top: 14px">Create my account</a>
+</div>
+<p style="font-size: 12px; color: #616B76; margin: 12px 0 0"><b>Card checkout is not live yet.</b> Confirm any price directly with GCC Mentor before paying.</p>
+</section>
+
+<!-- FAQ -->
+<section class="px" style="padding-bottom: 40px">
+<span class="eyebrow">Questions</span>
+<h2 class="h2">Before <em>you start.</em></h2>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 18px">
+<sc-for list="{{faqs}}" as="f" hint-placeholder-count="10">
+<div class="card" style="overflow: hidden">
+<button onClick="{{f.toggle}}" style="width: 100%; min-height: 56px; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border: 0; background: transparent; text-align: left; font: 700 15px 'Plus Jakarta Sans', sans-serif; color: #14181C"><span>{{f.q}}</span><span style="font-size: 20px; color: {{f.signColor}}">{{f.sign}}</span></button>
+<sc-if value="{{f.open}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding: 0 16px 16px; color: #414B55; line-height: 1.6; font-size: 14px">{{f.a}}</p></sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+
+<!-- FINAL CTA -->
+<section id="score" class="px" style="padding-bottom: 32px">
+<div style="position: relative; border-radius: 24px; overflow: hidden">
+<img class="photo" src="../assets/cta-dubai-night.jpg" alt="Dubai skyline at night" style="position: absolute; inset: 0">
+<div style="position: absolute; inset: 0; background: rgba(15,76,67,0.88)"></div>
+<div style="position: relative; padding: 30px 22px; color: #FFFFFF; text-align: center">
+<h2 class="h2" style="color: #FFFFFF; font-size: 28px">See where you stand <em style="color: #F7EFDD">today.</em></h2>
+<p style="font-size: 14.5px; line-height: 1.6; opacity: .88; margin: 10px 0 0">Upload your CV for a free Gulf Readiness score. The same upload starts your Career Profile.</p>
+<div style="margin-top: 18px; padding: 22px 16px; border-radius: 18px; border: 2px dashed rgba(247,239,221,.7); background: rgba(255,255,255,.08)">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F7EFDD" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"></path><path d="M7 9l5-5 5 5"></path><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path></svg>
+<div style="font-weight: 800; margin-top: 6px">Tap to upload your CV</div><div style="font-size: 12.5px; opacity: .8">PDF or Word · no account · no card</div>
+</div>
+<a class="btn" href="#login" style="margin-top: 12px; border: 1px solid rgba(255,255,255,.5); color: #FFFFFF">I already have an account</a>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="px" style="padding-top: 28px; padding-bottom: 110px; border-top: 1px solid #EAE4DB; background: #FFFFFF; font-size: 13.5px">
+<div style="display: flex; align-items: center; gap: 9px"><span style="width: 30px; height: 30px; border-radius: 8px; background: #0F4C43; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: Fraunces, serif; font-weight: 600">G</span><b style="letter-spacing: .08em">GCC MENTOR</b></div>
+<p style="color: #414B55; line-height: 1.6; margin: 10px 0 0">Your experience. Better positioning. Better opportunities.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 16px"><a href="#services">Services</a><a href="#templates">Templates</a><a href="#pricing">Pricing</a><a href="mailto:jaissatish@gmail.com">Contact</a></div>
+<p style="color: #616B76; font-size: 12px; margin: 16px 0 0">© 2026 GCC MENTOR · Card checkout is not live yet.</p>
+</footer>
+
+<!-- STICKY BOTTOM CTA -->
+<div style="position: sticky; bottom: 0; z-index: 40; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: rgba(255,255,255,.96); backdrop-filter: blur(10px); border-top: 1px solid #EAE4DB; display: flex; gap: 10px; align-items: center">
+<div style="flex-grow: 1; font-size: 12px; line-height: 1.35; color: #616B76"><b style="color: #14181C; font-size: 13.5px">Free Gulf Readiness</b><br>1 upload · no card</div>
+<a class="btn btn-teal" href="#score" style="min-height: 48px; font-size: 14px">Score my CV</a>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":11800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { job: 0, view: 'after', faq: 0 };
+  }
+  renderVals() {
+    const S = this.state;
+    const accent = '#0F4C43';
+    const J = [
+      { code: 'SA', title: 'Senior Instrumentation Engineer', country: 'Saudi Arabia', color: '#0F4C43', ink: '#0F4C43', soft: '#E4EEEB', a: 49, b: 78, tone: 'Professional tone', img: '../assets/market-saudi-riyadh.jpg', alt: 'Riyadh skyline' },
+      { code: 'AE', title: 'Commissioning Lead', country: 'UAE', color: '#8A6114', ink: '#8A6114', soft: '#F7EFDD', a: 52, b: 81, tone: 'Technical tone', img: '../assets/market-uae-dubai.jpg', alt: 'Dubai skyline at night' },
+      { code: 'QA', title: 'E&I Superintendent', country: 'Qatar', color: '#1F5A8A', ink: '#1F5A8A', soft: '#DCEAF7', a: 45, b: 74, tone: 'Short tone', img: '../assets/hero-plant-night.jpg', alt: 'A process plant at night' }
+    ];
+    const jb = S.job;
+    const sj = J[jb];
+    const jobTabs = J.map((j, i) => {
+      const on = i === jb;
+      return { ...j, n: i + 1, ring: on ? j.color : '#EAE4DB', shadow: on ? '0 18px 40px rgba(20,24,28,.16)' : '0 4px 12px rgba(20,24,28,.04)', state: on ? '✓ Selected' : 'Tap to view', stateBg: on ? j.color : 'rgba(255,255,255,.92)', stateFg: on ? '#FFFFFF' : '#414B55', pick: () => this.setState({ job: i }) };
+    });
+    const pk = { cv: 'ATS ' + sj.a + ' → ' + sj.b, letter: sj.tone, mock: jb === 0 ? 'Practise next' : 'Ready' };
+    const fork = (i) => (i === jb ? J[i].color : '#E2DCD2');
+    const f0 = fork(0), f1 = fork(1), f2 = fork(2);
+    const pack = [];
+    const sel = { ...sj, n: jb + 1 };
+
+    const fixes = [
+      ['One generic CV sent to every job', 'A CV rewritten for each target job'],
+      ['No idea if your CV matches', 'ATS match score, before and after'],
+      ['Important keywords missing', 'Job keywords added where true for you'],
+      ['Layout Gulf employers don’t expect', '15 GCC templates, one tap to switch'],
+      ['Cover letters that say nothing', 'A letter for this job, in your tone'],
+      ['Walking into interviews unprepared', 'Likely questions with drafted answers'],
+      ['Retyping details into every form', 'One Career Profile feeds everything'],
+      ['Not sure if you’re Gulf-ready', 'Free readiness score + what to fix']
+    ].map((f, i) => ({ n: String(i + 1).padStart(2, '0'), pain: f[0], fix: f[1] }));
+    const FQ = [
+      ['Can it guarantee me a job?', 'No. It helps you present your real experience clearly for each job. Employers make their own decisions, and nothing can guarantee an interview, offer or salary.'],
+      ['Does it invent skills or experience?', 'No. Employers, titles, dates and education are never changed. A suggested line only goes into your CV if you confirm it is true.'],
+      ['Is it only for engineers?', 'No — engineering, construction, IT, finance, healthcare, operations, administration and more.'],
+      ['Can I use my existing CV?', 'Yes. Upload a PDF or Word file, or paste the text. You check and correct it before anything is written from it.'],
+      ['Different CVs for different jobs?', 'Yes. Each target job gets its own CV, letter and interview prep in your Resume Library.'],
+      ['What does Gulf Readiness measure?', 'Gulf market position, experience, skills, education, certifications and CV targeting. Guidance, not a hiring prediction.'],
+      ['Which countries are supported?', 'Saudi Arabia, UAE, Qatar, Oman, Kuwait and Bahrain. It is not a recruitment agency.'],
+      ['How is my information used?', 'Only to write your own documents. Delete all your data from Settings any time.'],
+      ['How do paid services work?', 'Card checkout is not live yet. Confirm any price directly with GCC Mentor before paying.']
+    ];
+    const faqs = FQ.map((f, i) => ({ q: f[0], a: f[1], open: S.faq === i, sign: S.faq === i ? '−' : '+', signColor: S.faq === i ? accent : '#616B76', toggle: () => this.setState({ faq: S.faq === i ? -1 : i }) }));
+    const isBefore = S.view === 'before';
+    return {
+      jobTabs, pack, sel, pk, f0, f1, f2, fixes, faqs,
+      isBefore, isAfter: !isBefore,
+      score: isBefore ? 'ATS 49' : 'ATS 78',
+      scoreColor: isBefore ? '#A33528' : accent,
+      beforeBg: isBefore ? '#FBF1EF' : 'transparent', beforeFg: isBefore ? '#A33528' : '#616B76',
+      afterBg: isBefore ? 'transparent' : accent, afterFg: isBefore ? '#616B76' : '#FFFFFF',
+      showBeforeView: () => this.setState({ view: 'before' }),
+      showAfterView: () => this.setState({ view: 'after' })
+    };
+  }
+}
+</script>
+</body>
+</html>

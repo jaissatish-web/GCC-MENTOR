@@ -24,9 +24,14 @@ import path from 'path'
 
 const NAV = path.join(process.cwd(), 'components/marketing/SiteNav.tsx')
 const PAGE = path.join(process.cwd(), 'app/page.tsx')
+// Landing v2 (2026-09-24) moved each section into its own component, so the
+// ids live there as well as in the page.
+const SECTIONS = path.join(process.cwd(), 'components/landing-v2')
 
 const nav = fs.readFileSync(NAV, 'utf8')
-const page = fs.readFileSync(PAGE, 'utf8')
+const page = [PAGE, ...fs.readdirSync(SECTIONS).filter((f) => f.endsWith('.tsx')).map((f) => path.join(SECTIONS, f))]
+  .map((f) => fs.readFileSync(f, 'utf8'))
+  .join('\n')
 
 /**
  * `exec` in a loop rather than spreading `matchAll`.
