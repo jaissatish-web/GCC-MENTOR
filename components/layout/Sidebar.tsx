@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { ArrowRightStartOnRectangleIcon } from '@heroicons/react/24/outline'
+import { signOut } from '@/app/auth/actions'
 import { cn } from '@/lib/utils'
 import {
   NAV_ITEMS,
@@ -23,7 +25,7 @@ import {
  * Desktop (≥1024px): full 248px sidebar with labels.
  * Tablet (768–1023px): 48px icon-only bar; tap expands into a labeled
  * overlay that sits above the page content.
- * Mobile (<768px): hidden — handled by MobileBottomNav + MoreSheet.
+ * Mobile (<768px): hidden — handled by MobileBottomNav + the header menu.
  */
 
 /**
@@ -36,7 +38,7 @@ import {
  */
 function PlannedGroup() {
   return (
-    <div className="mt-6 flex flex-col gap-1">
+    <div className="flex flex-col gap-1">
       {/* Red, at the founder's request (2026-09-09), so every unbuilt thing in
           the product can be found by scanning rather than remembering. */}
       <div className="px-3 pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-alert">
@@ -62,6 +64,28 @@ function PlannedGroup() {
         )
       })}
     </div>
+  )
+}
+
+const SIDEBAR_GROUPS: ReadonlyArray<{ label: string; hrefs: readonly string[] }> = [
+  { label: 'Your career', hrefs: ['/dashboard', '/profile', '/dashboard/library'] },
+  { label: 'Build & prepare', hrefs: ['/optimize', '/cover-letter', '/interview-qa', '/mock-interview', '/templates'] },
+  { label: 'Account', hrefs: ['/settings'] },
+]
+
+function SignOutButton() {
+  const [pending, setPending] = useState(false)
+  return (
+    <form action={signOut} onSubmit={() => setPending(true)}>
+      <button
+        type="submit"
+        disabled={pending}
+        className="flex min-h-10 w-full items-center gap-3 rounded-ctl px-3 text-[13px] font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-60"
+      >
+        <ArrowRightStartOnRectangleIcon className="size-5 text-ink-muted" />
+        {pending ? 'Signing out…' : 'Sign out'}
+      </button>
+    </form>
   )
 }
 
@@ -160,31 +184,42 @@ export function Sidebar() {
   const isActive = (item: NavItemType) => isNavItemActive(item, pathname ?? '')
 
   // Shared nav content rendered inside both desktop and tablet overlays.
+  // Grouped (2026-09-24 simplification): a flat list of nine read as nine
+  // equal choices. Three short groups say what each thing is for — where you
+  // stand, what you are building, your account.
+  const groups = SIDEBAR_GROUPS.map((g) => ({
+    ...g,
+    items: g.hrefs.map((h) => NAV_ITEMS.find((i) => i.href === h)).filter((i): i is NavItemType => Boolean(i)),
+  }))
+
   const navContent = (
     <>
       <BrandMark />
-      <nav className="flex flex-col gap-1">
-        {NAV_ITEMS.map((item) => (
-          <NavItem
-            key={item.label}
-            item={item}
-            active={isActive(item)}
-            collapsed={false}
-            pending={Boolean(item.needsProfile) && !hasProfile}
-          />
+      <nav className="flex flex-col gap-5">
+        {groups.map((g) => (
+          <div key={g.label} className="flex flex-col gap-0.5">
+            <div className="px-3 pb-1 text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">{g.label}</div>
+            {g.items.map((item) => (
+              <NavItem
+                key={item.label}
+                item={item}
+                active={isActive(item)}
+                collapsed={false}
+                pending={Boolean(item.needsProfile) && !hasProfile}
+              />
+            ))}
+          </div>
         ))}
         <PlannedGroup />
       </nav>
-      <div className="mt-auto flex flex-col gap-1.5 rounded-card border border-line bg-canvas p-4">
-        <div className="text-[12px] font-semibold leading-normal text-teal">Need help?</div>
-        {/* The reply-time promise is gone, at the founder's request (it was
-            removed from the footer on 2026-09-09 and missed here). */}
+      <div className="mt-auto flex flex-col gap-1 border-t border-line pt-4">
         <a
           href="mailto:jaissatish@gmail.com"
-          className="-mx-1 inline-flex min-h-9 items-center rounded-ctl px-1 text-[12px] font-semibold leading-snug text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          className="flex min-h-10 items-center rounded-ctl px-3 text-[13px] font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
-          jaissatish@gmail.com
+          Help · jaissatish@gmail.com
         </a>
+        <SignOutButton />
       </div>
     </>
   )
@@ -206,12 +241,8 @@ export function Sidebar() {
 
       {/* Tablet collapsed sidebar — 768–1023px */}
       <aside className="relative hidden w-[48px] flex-none flex-col items-center gap-5 overflow-y-auto overscroll-contain border-r border-line bg-white px-2 py-4 [scrollbar-width:none] md:flex lg:hidden">
-        <Link
-          href="/dashboard"
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal text-[15px] font-bold text-white shadow-redesign-sm"
-        >
-          G
-        </Link>
+        {/* No logo here (2026-09-24): on a tablet the top bar beside this rail
+            already carries it, and two "G" marks side by side read as a bug. */}
         <nav className="flex flex-col items-center gap-1">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon

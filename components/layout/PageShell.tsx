@@ -69,7 +69,7 @@ export function PageShell({
     // That is precisely the drift this component exists to prevent, and a page
     // cannot own its own font if the frame is meant to make pages feel like one
     // product.
-    <main className={cn('mx-auto flex w-full flex-col gap-6 px-3 pb-12 pt-4 font-redesign-sans sm:px-6', WIDTH[width], className)}>
+    <main className={cn('mx-auto flex w-full flex-col gap-5 px-4 pb-12 pt-5 font-redesign-sans sm:px-6 lg:pt-8', WIDTH[width], className)}>
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex min-w-0 gap-3.5">
           {Icon ? (
@@ -82,9 +82,9 @@ export function PageShell({
           ) : null}
           <div className="flex min-w-0 flex-col gap-1.5">
             {eyebrow ? (
-              <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">{eyebrow}</span>
+              <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-teal">{eyebrow}</span>
             ) : null}
-            <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[30px]">
+            <h1 className="font-display text-[24px] leading-tight text-ink sm:text-[30px]">
               {title}
             </h1>
             {subtitle ? (
@@ -93,14 +93,9 @@ export function PageShell({
               <p className="max-w-[70ch] text-[14px] leading-relaxed text-ink-soft">{subtitle}</p>
             ) : null}
             {uses && uses.length > 0 ? (
-              <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[12.5px] text-ink-muted">
-                <span className="font-semibold text-ink-soft">Built from:</span>
-                {uses.map((u) => (
-                  <span key={u} className="rounded-full border border-line bg-white px-2.5 py-1 font-semibold text-ink-soft">
-                    {u}
-                  </span>
-                ))}
-              </p>
+              // One quiet line, not a row of pill boxes (2026-09-24): the pills
+              // read as buttons, and on a phone they took three rows.
+              <p className="hidden text-[12.5px] text-ink-muted sm:block">Uses your {uses.join(' · ')}</p>
             ) : null}
           </div>
         </div>

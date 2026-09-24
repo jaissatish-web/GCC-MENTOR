@@ -52,10 +52,10 @@ export function AppShell({
           home from the top and no brand anywhere, and no signed-in page had a
           footer at all. Putting them here means a new screen cannot forget
           them — the same reason the nav lives here. */}
-      <div className={hideNav ? 'flex min-h-screen min-w-0 flex-1 flex-col' : 'flex min-h-screen min-w-0 flex-1 flex-col pb-24 lg:pb-0'}>
+      <div className={hideNav ? 'flex min-h-screen min-w-0 flex-1 flex-col' : 'flex min-h-screen min-w-0 flex-1 flex-col pb-20 md:pb-0'}>
         {hideNav ? null : <AppHeader />}
         <main className="min-w-0 flex-1">{children}</main>
-        {hideNav ? null : <AppFooter />}
+        {hideNav ? null : <AppFooter variant="compact" />}
       </div>
       {hideNav ? null : (
         <div className="dark-scope contents">

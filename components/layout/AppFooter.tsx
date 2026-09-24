@@ -91,7 +91,40 @@ function AboutBlock({ text }: { text: string }) {
   )
 }
 
-export async function AppFooter() {
+/**
+ * COMPACT (2026-09-24, in-app simplification). Inside the signed-in app the
+ * full footer — about text, services, six flags — repeated the sidebar and ran
+ * to ~700px on a phone below every screen. A person who is already using the
+ * product needs three things down here: who to contact, the legal pages, and
+ * the honest checkout line. The public site keeps the full footer.
+ */
+async function CompactFooter() {
+  const year = new Date().getFullYear()
+  const legalPages = await listPublishedLegal()
+  return (
+    <footer className="mt-10 border-t border-line">
+      <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-1.5 px-4 py-5 text-[12px] text-ink-muted sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span>© {year} GCC MENTOR</span>
+          <a href="mailto:jaissatish@gmail.com" className="font-semibold text-teal hover:underline">
+            Help: jaissatish@gmail.com
+          </a>
+          {legalPages.map((p) => (
+            <Link key={p.slug} href={`/${p.slug}`} className="hover:text-teal hover:underline">
+              {p.title}
+            </Link>
+          ))}
+        </div>
+        <p>
+          <NotLiveText>Card checkout is not live yet</NotLiveText> — a purchase is arranged directly with us.
+        </p>
+      </div>
+    </footer>
+  )
+}
+
+export async function AppFooter({ variant = 'full' }: { variant?: 'full' | 'compact' } = {}) {
+  if (variant === 'compact') return <CompactFooter />
   const year = new Date().getFullYear()
   // Both read from site_content (migration 046) — founder-editable, no deploy.
   const [legalPages, aboutLine] = await Promise.all([

@@ -22,7 +22,7 @@ import {
 } from '@/lib/packageSummary'
 import type { Package, PackageStatus } from '@/types/package'
 import { TargetJobCard } from '@/components/package/TargetJobCard'
-import { ServiceUsageLine, ServiceUsageTotals, useServiceUsage } from '@/components/package/ServiceUsage'
+import { ServiceUsageLine, useServiceUsage } from '@/components/package/ServiceUsage'
 import type { ServiceUsageCounts } from '@/app/api/service-usage/route'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 
@@ -256,17 +256,17 @@ function ApplicationCard({
         ))}
       </ol>
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <div className="flex flex-wrap items-center gap-2">
         {next ? (
           <Link href={next.href} className={cn(buttonVariants({ variant: 'progress', size: 'sm' }), 'w-full sm:w-auto')}>
             Next: {next.label}
           </Link>
         ) : (
-          <span className="rounded-ctl bg-ok-soft px-3 py-2.5 text-center text-[13px] font-semibold text-ok sm:text-left">
+          <span className="w-full rounded-ctl bg-ok-soft px-3 py-2.5 text-center text-[13px] font-semibold text-ok sm:w-auto sm:text-left">
             Ready to apply — every step done
           </span>
         )}
-        <Link href={`/package/${id}`} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'w-full sm:w-auto')}>
+        <Link href={`/package/${id}`} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'flex-1 sm:flex-none')}>
           Open workspace
         </Link>
         <button
@@ -536,9 +536,8 @@ export default function TargetJobsPage() {
     <PageShell
       width="document"
       icon={BriefcaseIcon}
-      eyebrow="Your applications"
       title="Resume Library"
-      subtitle="Every target job with its CV, cover letter, interview preparation and stage. Saving a job does not mark it as applied."
+      subtitle="Every job you are targeting, with its CV, cover letter, interview preparation and application stage."
       actions={
         total > 0 ? (
           <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'shrink-0')}>
@@ -548,73 +547,52 @@ export default function TargetJobsPage() {
       }
     >
 
+      {/* ONE TOOLBAR (2026-09-24 simplification): search and stage side by
+          side. It was a search card, a four-tile usage block and a ten-column
+          stage strip — three panels before the first job on a phone. */}
       {total > 0 ? (
-        <div className="rounded-card border border-line bg-white p-4">
-          <label htmlFor="library-search" className="mb-2 block text-sm font-semibold text-ink">Find a saved job</label>
-          <input
-            id="library-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search role, company, country or name"
-            className="field w-full"
-            maxLength={100}
-          />
-          <p className="mt-2 text-xs text-ink-muted" role="status" aria-live="polite">
-            {searching
-              ? 'Searching all your jobs…'
-              : filtering
-                ? `${list.length}${cursor ? '+' : ''} matching ${list.length === 1 && !cursor ? 'job' : 'jobs'} across all ${total}.`
-                : `${list.length} of ${total} jobs shown.`}
-          </p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <label className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <span className="sr-only">Search your jobs</span>
+            <input
+              id="library-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search role, company, country or name"
+              className="field w-full"
+              maxLength={100}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 sm:w-[240px]">
+            <span className="sr-only">Filter by stage</span>
+            <select
+              value={stageFilter ?? ''}
+              onChange={(e) => setStageFilter(e.target.value ? (e.target.value as PackageStatus) : null)}
+              className="field"
+            >
+              <option value="">All stages ({total})</option>
+              {PACKAGE_STATUSES.map((st) => (
+                <option key={st.value} value={st.value}>
+                  {st.label} ({counts[st.value as PackageStatus] ?? 0})
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       ) : null}
-
-      {total > 0 ? <ServiceUsageTotals usage={usage} /> : null}
+      {total > 0 ? (
+        <p className="-mt-2 text-[12.5px] text-ink-muted" role="status" aria-live="polite">
+          {searching
+            ? 'Searching all your jobs…'
+            : filtering
+              ? `${list.length}${cursor ? '+' : ''} matching ${list.length === 1 && !cursor ? 'job' : 'jobs'} of ${total}.`
+              : `${total} ${total === 1 ? 'job' : 'jobs'}.`}
+        </p>
+      ) : null}
 
       {opError ? <Alert variant="danger">{opError}</Alert> : null}
       {loadError && items !== null ? <Alert variant="danger">{loadError}</Alert> : null}
-
-      {/* ── Stage strip ── counts are the server's, across every job. */}
-      {total > 0 ? (
-        <div className="-mx-3 overflow-x-auto px-3 sm:mx-0 sm:px-0">
-          <div className="flex min-w-max items-stretch divide-x divide-line border-y border-line bg-white">
-            <button
-              type="button"
-              onClick={() => setStageFilter(null)}
-              aria-pressed={stageFilter === null}
-              className={cn(
-                'flex min-h-11 min-w-[86px] flex-col gap-0.5 px-4 py-2.5 text-left transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal',
-                stageFilter === null && 'bg-canvas'
-              )}
-            >
-              <span className="font-mono text-[17px] font-semibold leading-none text-ink">{total}</span>
-              <span className="text-[12px] font-medium text-ink-muted">All</span>
-            </button>
-            {PACKAGE_STATUSES.map((s) => {
-              const active = stageFilter === s.value
-              const count = counts[s.value as PackageStatus] ?? 0
-              return (
-                <button
-                  key={s.value}
-                  type="button"
-                  onClick={() => setStageFilter(active ? null : (s.value as PackageStatus))}
-                  aria-pressed={active}
-                  className={cn(
-                    'flex min-h-11 min-w-[86px] flex-col gap-0.5 px-4 py-2.5 text-left transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal',
-                    active && 'bg-canvas'
-                  )}
-                >
-                  <span className={cn('font-mono text-[17px] font-semibold leading-none', count > 0 ? 'text-ink' : 'text-ink-muted')}>
-                    {count}
-                  </span>
-                  <span className="whitespace-nowrap text-[12px] font-medium text-ink-muted">{s.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      ) : null}
 
       {total === 0 && !filtering ? (
         <EmptyState

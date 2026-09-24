@@ -247,8 +247,7 @@ function MockInterviewScreen() {
       subtitle="A written practice interview for one target job, one question at a time, with a saved feedback report."
       uses={['Optimized CV', 'Target job', 'Career Profile']}
     >
-      {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
-      <Card tone="light" className="mt-5 p-5 sm:p-6">
+      <Card tone="light" className="p-5 sm:p-6">
         {total === 0 ? (
           <EmptyState
             tone="inline"
@@ -270,7 +269,7 @@ function MockInterviewScreen() {
         ) : (
           <div className="flex flex-col gap-5">
             <label className="flex flex-col gap-1.5">
-              <span className="field-label">Interview package</span>
+              <span className="field-label">Which job are you practising for?</span>
               {/* Locked while a request is running, so a reply can never land on a different job. */}
               <select
                 value={selectedId ?? ''}
@@ -288,6 +287,7 @@ function MockInterviewScreen() {
                 ))}
               </select>
             </label>
+            {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
 
             <div className="grid gap-3 lg:grid-cols-5">
               {MODES.map((opt) => (

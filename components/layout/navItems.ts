@@ -80,7 +80,7 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, exact: true },
+  { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
   { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
   // "Profile Strength" (/gcc-readiness) sat here from 2026-09-09 to 2026-09-11.
   // It left when Career Profile and Profile Strength became one page (founder
@@ -145,9 +145,6 @@ export const MOBILE_PRIMARY_ITEMS: readonly NavItem[] = NAV_ITEMS.filter((i) =>
   MOBILE_PRIMARY_HREFS.includes(i.href)
 )
 
-export const MOBILE_MORE_ITEMS: readonly NavItem[] = NAV_ITEMS.filter(
-  (i) => !MOBILE_PRIMARY_HREFS.includes(i.href)
-)
 
 /**
  * `/optimize` is the Resume Optimizer's nav href because the flow spans four

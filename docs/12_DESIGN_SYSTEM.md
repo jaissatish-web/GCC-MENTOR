@@ -43,11 +43,32 @@ least 44px tall.
 | Component | Where | What it does |
 |---|---|---|
 | `components/journey/journeySteps.ts` | landing + dashboard | THE seven-step career journey, one definition: Career Profile → Gulf Readiness → Target job → Optimized CV → Cover letter → Interview Q&A → Mock interview. Names come from `lib/serviceLabels.ts`. |
-| `components/journey/JourneyTracker.tsx` | dashboard | The journey with the user's own progress: done / next / to do. Steps 3–7 follow the job the next step is about (`focusJob` in `lib/nextAction.ts`), so the tracker and the next-step panel never disagree. Vertical list on phones, one row from `lg`. |
+| ~~`JourneyTracker.tsx`~~ | removed 2026-09-24 | The dashboard's seven-row journey; replaced by the "N of 7 done" line on the next-step card. |
 | `components/landing/JourneyExplorer.tsx` | landing | The same seven steps as an interactive tab list: what you give, what you get, why, and a drawn preview (`Stations.tsx`). No autoplay. Arrow keys move between steps. |
 | `components/journey/NextStep.tsx` | cover letter, Q&A, mock | "What happens next" — the hand-off at the foot of a service page, so no service ends in a dead end. Teal `progress` button, never gold. Links only; it never starts a generation. |
 | `PageShell` `icon` / `eyebrow` / `uses` | every service page | The service header: icon tile, where it sits in the journey ("Step 5 · Apply"), title, one-line outcome, and "Built from: Optimized CV · Target job · Career Profile". Optional, so admin and plain pages keep the plain header. |
 | `components/optimizer/FlowHeader.tsx` | optimizer steps | Back, then all three steps named (Target job → Level → Optimized CV) with done/current/to-do, then the title. Replaced two hand-drawn "Step N of 3" bars. |
+
+### The signed-in app, simplified (2026-09-24)
+
+Founder brief: "dashboard and other pages look very complicated … make it real clean SaaS".
+Same backend and APIs; structure only.
+
+- **One navigation per screen size.** Desktop (≥1024): the grouped sidebar only (Your career ·
+  Build & prepare · Account, Sign out at the foot) — the top bar is hidden there. Tablet: icon
+  rail + top bar. Phone: top bar with the ☰ menu (founder request 2026-09-09) + a four-tab bottom
+  bar (Home, Profile, Library, Optimize). The "More" sheet was removed; ☰ lists everything.
+- **In-app footer is one line** (`AppFooter variant="compact"`): ©, help email, published legal
+  pages, the checkout notice. The full footer stays on the public site.
+- **Dashboard:** greeting → next step (with "N of 7 done") → target jobs (CV · Letter · Q&A · Mock
+  chips + stage) → Profile strength and Gulf Readiness, each labelled with what it measures.
+- **Service pages** (cover letter, Q&A, mock): one card — pick the job, see its pack
+  (`PreparationJourney bare`), choose options, one gold button. "Built from" is a quiet line,
+  hidden on phones.
+- **Job workspace** (`/package/[id]`): tabs — Overview · Improve score (pending count) · CV design ·
+  Tracker. `?tab=` deep-links; `?template=` opens CV design.
+- **Library:** one toolbar (search + stage dropdown); the usage block is gone.
+- **Templates:** two per row on phones.
 
 ### Service page anatomy
 

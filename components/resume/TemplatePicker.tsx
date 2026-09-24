@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { availableTemplates, getTemplate, type TemplateId } from '@/lib/templates'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
@@ -57,6 +57,12 @@ const CARD_BORDER = 1
 const LAYOUT = {
   /** Top three-quarters of the page. */
   grid: { cardW: 240, pageFraction: 0.75, wrap: 'flex flex-wrap justify-center gap-5' },
+  /**
+   * The gallery on a phone (2026-09-24): two across instead of one. At 240px
+   * a 390px screen fitted one card per row and fifteen templates ran to
+   * ~7,400px. 160px cards, two per row, halve that and still read.
+   */
+  gridPhone: { cardW: 160, pageFraction: 0.72, wrap: 'grid grid-cols-2 justify-items-center gap-3' },
   /** Shorter still: ten previews in a sticky column must stay scannable. */
   rail: { cardW: 212, pageFraction: 0.66, wrap: 'flex flex-col items-center gap-3' },
 } as const
@@ -72,11 +78,23 @@ export function TemplatePicker({
   current: TemplateId
   onSelect: (id: TemplateId) => void
   busyId?: TemplateId | null
-  layout?: keyof typeof LAYOUT
+  layout?: 'grid' | 'rail'
 }) {
   const [hovered, setHovered] = useState<TemplateId | null>(null)
   const templates = availableTemplates()
-  const { cardW, pageFraction, wrap } = LAYOUT[layout]
+  // Card width has to be known in JS (the preview is scaled to it), so the
+  // phone layout is chosen by a media query rather than by CSS alone.
+  const [phone, setPhone] = useState(false)
+  useEffect(() => {
+    // The rail stacks under the document below 1024px, where a single
+    // 212px column of fifteen cards ran to ~5,000px on a phone.
+    const mq = window.matchMedia(layout === 'grid' ? '(max-width: 559px)' : '(max-width: 1023px)')
+    const on = () => setPhone(mq.matches)
+    on()
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [layout])
+  const { cardW, pageFraction, wrap } = LAYOUT[phone ? 'gridPhone' : layout]
   // Scale against the card's CONTENT width, not its outer width. Tailwind sets
   // border-box, so a 240px card with a 1px border has a 238px content box — and
   // scaling to 240 pushed 2px of the page's right edge under `overflow-hidden`,
@@ -151,8 +169,12 @@ export function TemplatePicker({
                   </span>
                 ) : null}
               </span>
-              <span className="text-[12px] leading-snug text-ink-soft">{t.description}</span>
-              <span className="text-[12px] text-ink-muted">Best for {t.recommendedFor.join(' · ')}</span>
+              {phone ? null : (
+                <>
+                  <span className="text-[12px] leading-snug text-ink-soft">{t.description}</span>
+                  <span className="text-[12px] text-ink-muted">Best for {t.recommendedFor.join(' · ')}</span>
+                </>
+              )}
               <span className="mt-1 text-[12px] font-semibold text-teal">
                 {isBusy ? 'Applying…' : isCurrent ? 'Current template' : 'Use this template'}
               </span>

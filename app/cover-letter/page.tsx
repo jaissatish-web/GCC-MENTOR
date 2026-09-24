@@ -164,10 +164,9 @@ function CoverLetterScreen() {
       subtitle="A letter for one of your target jobs, in the tone you choose — consistent with the CV it goes with."
       uses={['Optimized CV', 'Target job', 'Career Profile']}
     >
-      {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current="letter" /> : null}
 
       {/* Centered generation form (720px, §C) */}
-      <Card tone="light" className="mt-5 p-6">
+      <Card tone="light" className="p-5 sm:p-6">
         {list.length === 0 ? (
           <EmptyState
             tone="inline"
@@ -201,6 +200,7 @@ function CoverLetterScreen() {
                 ))}
               </select>
             </label>
+            {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current="letter" /> : null}
 
             <fieldset className="flex flex-col gap-1.5">
               <legend className="field-label mb-1.5">Tone</legend>
@@ -253,10 +253,7 @@ function CoverLetterScreen() {
 
             {selectedSummary ? (
               // Stacked on a phone: side by side, the target line was squeezed.
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="break-words text-[12.5px] text-ink-soft">
-                  For <span className="font-semibold text-ink">{letterTarget(selectedSummary)}</span>
-                </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                 <Button
                   type="button"
                   variant="primary"

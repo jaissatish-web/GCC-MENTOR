@@ -83,7 +83,7 @@ function TemplatesInner() {
           gallery is still actionable without scrolling back. top-16, not
           top-0 (2026-09-23): the app header is itself sticky at 64px, and at
           top-0 this bar slid underneath it and vanished on scroll. */}
-      <div className="sticky top-16 z-20 -mt-2 flex flex-col gap-3 border-b border-line/60 bg-canvas/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky top-14 z-20 -mt-2 lg:top-0 flex flex-col gap-3 border-b border-line/60 bg-canvas/95 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-ink-soft">
           Selected: <strong className="text-ink">{templateName}</strong>
         </p>

@@ -20,11 +20,10 @@ import {
   type SizeKey,
 } from '@/lib/resumeStyle'
 import { resumeKind } from '@/lib/resumeKind'
-import { GULF_COUNTRIES } from '@/lib/utils'
+import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
-import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { ResultsOverview } from '@/components/package/ResultsOverview'
 import { CTA, NAMES, USES } from '@/lib/serviceLabels'
 import { StageSelect } from '@/components/package/StageSelect'
@@ -98,10 +97,69 @@ function buildServiceTimeline(pkg: Package): PackageServiceEvent[] {
  * saved — next one takes a minute."
  */
 
+type WorkspaceTab = 'overview' | 'improve' | 'design' | 'tracker'
+
+/**
+ * The workspace's four views. A plain tab row (not a menu) so every view is
+ * visible at a glance; on a phone it scrolls sideways rather than wrapping.
+ */
+function WorkspaceTabs({
+  tab,
+  onChange,
+  improveCount,
+}: {
+  tab: WorkspaceTab
+  onChange: (t: WorkspaceTab) => void
+  improveCount: number
+}) {
+  // Short words on a phone so all four fit on one 360px row without scrolling.
+  const items: Array<{ key: WorkspaceTab; label: string; short: string; badge?: number }> = [
+    { key: 'overview', label: 'Overview', short: 'Overview' },
+    { key: 'improve', label: 'Improve score', short: 'Improve', badge: improveCount || undefined },
+    { key: 'design', label: 'CV design', short: 'Design' },
+    { key: 'tracker', label: 'Tracker', short: 'Tracker' },
+  ]
+  return (
+    <div role="tablist" aria-label="Job workspace" className="-mx-5 overflow-x-auto border-b border-line px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex min-w-max gap-1">
+        {items.map((it) => {
+          const active = tab === it.key
+          return (
+            <button
+              key={it.key}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => onChange(it.key)}
+              className={cn(
+                '-mb-px flex min-h-11 items-center gap-1.5 border-b-2 px-2.5 text-[14px] font-semibold sm:gap-2 sm:px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal',
+                active ? 'border-teal text-teal' : 'border-transparent text-ink-muted hover:text-ink',
+              )}
+            >
+              <span className="sm:hidden">{it.short}</span>
+              <span className="hidden sm:inline">{it.label}</span>
+              {it.badge ? (
+                <span className="rounded-full bg-gold-soft px-2 py-0.5 text-[12px] font-bold text-gold-ink">{it.badge}</span>
+              ) : null}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 function PackageScreenInner({ id }: { id: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const requestedTemplate = searchParams.get('template')
+  // TABS (2026-09-24 simplification): the workspace was one ~13,000px page on
+  // a phone. A link from the template gallery (?template=) opens on Design.
+  const [tab, setTab] = useState<WorkspaceTab>(() => {
+    const asked = searchParams.get('tab')
+    if (asked === 'overview' || asked === 'improve' || asked === 'design' || asked === 'tracker') return asked
+    return requestedTemplate ? 'design' : 'overview'
+  })
   const [pkg, setPkg] = useState<Package | null>(null)
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -464,6 +522,7 @@ function PackageScreenInner({ id }: { id: string }) {
   // shipping one. Re-link it once the generator mirrors the template.
   const cvReady = pkg.optimized_content != null
   const showOverview = !isFree && cvReady
+  const improveCount = (readMatchReport(pkg.match_report)?.suggestions ?? []).filter((sg) => sg.status === 'pending').length
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
   const mockReady = Boolean(pkg.mock_interview_runs?.some((run) => run.status === 'completed'))
@@ -570,7 +629,7 @@ function PackageScreenInner({ id }: { id: string }) {
             three identical rows in the Library otherwise — the target job
             title is not something they can change. Saves on blur or Enter;
             clearing it falls back to the job title rather than storing blank. */}
-        <label className="flex flex-1 flex-wrap items-center gap-2 text-[12px] text-ink-muted lg:max-w-[420px]">
+        <label className="hidden flex-1 flex-wrap items-center gap-2 text-[12px] text-ink-muted lg:flex lg:max-w-[420px]">
           <span className="sr-only lg:not-sr-only">Name in your library</span>
           {/* A textarea that sizes to its text (field-sizing: content), so a
               long job title wraps instead of being clipped mid-word on a phone
@@ -702,18 +761,18 @@ function PackageScreenInner({ id }: { id: string }) {
         </div>
       ) : null}
 
-      <div className="px-5">
-        <PreparationJourney pkg={pkg} current="resume" />
-      </div>
 
       {/* Actions live in the header row now (TASK-160); the templates stay in the
           left rail beside the document (TASK-146). What remains here is the
           package journey plus transient notices, so the page explains what this
           job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
+        <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} />
         {/* RESULTS FIRST, AS COLOURED CARDS (founder request 2026-09-17): target
             job, ATS score before → after, summary, what changed, next steps.
             components/package/ResultsOverview.tsx. */}
+        {tab === 'overview' ? (
+        <>
         {showOverview ? (
           <ResultsOverview
             pkg={pkg}
@@ -751,11 +810,20 @@ function PackageScreenInner({ id }: { id: string }) {
           />
         ) : null}
 
+        </>
+        ) : null}
+        {tab === 'improve' ? (
+        <>
         {/* Before -> after match score (docs/17_OPTIMIZER_ENGINE.md §5). Only
             on packages built by the optimizer engine; older ones have none. */}
         {(() => {
           const report = readMatchReport(pkg.match_report)
-          if (!report?.after) return null
+          if (!report?.after)
+            return (
+              <p className="rounded-card border border-line bg-white px-4 py-5 text-[14px] text-ink-soft">
+                There is no ATS score for this job yet. It appears here once the CV has been optimized against the job.
+              </p>
+            )
           const roleNames: Record<string, string> = {}
           for (const w of profile?.work_experience ?? []) roleNames[w.id] = `your role at ${w.company}`
           return (
@@ -807,7 +875,11 @@ function PackageScreenInner({ id }: { id: string }) {
             </>
           )
         })()}
+        </>
+        ) : null}
 
+        {tab === 'overview' ? (
+        <>
         {!showOverview ? (
         <section className="rounded-card border border-line bg-white p-3 shadow-m-1 sm:p-4">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
@@ -840,7 +912,11 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         </section>
         ) : null}
+        </>
+        ) : null}
 
+        {tab === 'tracker' ? (
+        <>
         <section className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
           <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
@@ -940,7 +1016,11 @@ function PackageScreenInner({ id }: { id: string }) {
             </div>
           </div>
         </section>
+        </>
+        ) : null}
 
+        {tab === 'design' ? (
+        <>
         {/* Trying a template from the gallery. This must stay: a click in the
             gallery arrives as ?template= and renders immediately WITHOUT being
             saved, so the user needs an explicit way to keep or discard it —
@@ -971,6 +1051,8 @@ function PackageScreenInner({ id }: { id: string }) {
             </span>
           </div>
         ) : null}
+        </>
+        ) : null}
 
         {/* The "optimize for a job" nudge block that used to sit here (shown on
             an un-optimized resume) was removed 2026-08-19 at the founder's
@@ -985,6 +1067,8 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         ) : null}
 
+        {tab === 'overview' ? (
+        <>
         {/* The next things this job needs, from the job's own page. */}
         {!isFree && !showOverview && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
           <div className="flex flex-col gap-2 rounded-card border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1029,7 +1113,11 @@ function PackageScreenInner({ id }: { id: string }) {
             </Link>
           </div>
         ) : null}
+        </>
+        ) : null}
 
+        {tab === 'design' ? (
+        <>
         {/* TEMPLATES LEFT, DOCUMENT CENTRED (TASK-146, founder-directed).
             The templates used to hide behind a "Change template" toggle that
             pushed a four-across grid above the resume, so choosing a design
@@ -1301,6 +1389,8 @@ function PackageScreenInner({ id }: { id: string }) {
             </aside>
           ) : null}
         </div>
+        </>
+        ) : null}
       </div>
     </main>
   )

@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { MOBILE_PRIMARY_ITEMS, isNavItemActive, navHref } from './navItems'
-import { MoreSheet } from './MoreSheet'
 
 /**
  * Mobile bottom nav — DESIGN_SYSTEM.md §8.3.
@@ -53,8 +52,8 @@ export function MobileBottomNav() {
         )
       })}
 
-      {/* More — opens the bottom drawer with every remaining destination */}
-      <MoreSheet />
+      {/* No "More" slot (2026-09-24): the header's menu already lists every
+          destination, and two menus for the same list was one too many. */}
     </nav>
   )
 }

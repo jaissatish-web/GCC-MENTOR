@@ -26,8 +26,12 @@ import { ServicesMenu } from './ServicesMenu'
  */
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 sm:px-6">
+    // PHONES AND TABLETS ONLY (2026-09-24 simplification). On a laptop the
+    // sidebar already carries the wordmark and every destination, so this bar
+    // was a second logo and a second menu above each page. Below 1024px it is
+    // still the way home and the founder's "three-bar" to every service.
+    <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur-md lg:hidden">
+      <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-4 sm:px-6">
         {/* The whole lockup is one target, not just the mark — a one-character
             square is a precise tap, and this is the most-used escape hatch in
             the product. */}

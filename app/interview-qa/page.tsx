@@ -155,8 +155,7 @@ function InterviewQaScreen() {
       subtitle="Up to 25 likely questions for one target job, with answers drawn from your own experience."
       uses={['Optimized CV', 'Target job', 'Career Profile']}
     >
-      {selectedSummary ? <PreparationJourney pkg={detail ?? selectedSummary} current="qa" /> : null}
-      <Card tone="light" className="mt-5 p-5 sm:p-6">
+      <Card tone="light" className="p-5 sm:p-6">
         {total === 0 ? (
           <EmptyState
             tone="inline"
@@ -186,7 +185,7 @@ function InterviewQaScreen() {
         ) : (
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
-              <span className="field-label">Which optimized resume should we prepare?</span>
+              <span className="field-label">Which job are you preparing for?</span>
               <select
                 value={selectedId ?? ''}
                 onChange={(e) => {
@@ -203,6 +202,7 @@ function InterviewQaScreen() {
                 ))}
               </select>
             </label>
+            {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current="qa" /> : null}
 
             {genError ? (
               <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
@@ -226,12 +226,7 @@ function InterviewQaScreen() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-col gap-1 text-[12.5px] text-ink-soft">
                 {selectedSummary ? (
-                  <>
-                    <span className="break-words">
-                      For <strong className="text-ink">{packageTarget(selectedSummary)}</strong>
-                    </span>
-                    {questionSet ? <span>Saved {new Date(questionSet.generated_at).toLocaleString()}</span> : null}
-                  </>
+                  <>{questionSet ? <span>Saved {new Date(questionSet.generated_at).toLocaleString()}</span> : null}</>
                 ) : null}
               </div>
               <div className="flex flex-wrap gap-2">

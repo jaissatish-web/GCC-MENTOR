@@ -2,35 +2,19 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import ReadinessRing from '@/components/ui/ReadinessRing'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Pill } from '@/components/ui/Pill'
-import { LockedTile } from '@/components/ui/LockedTile'
-import { Reveal } from '@/components/ui/Reveal'
 import { ProfileKickstart } from '@/components/profile/ProfileKickstart'
 import { LiveReadiness } from '@/components/gulfReadiness/LiveReadiness'
 import { buttonVariants } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
-import {
-  BriefcaseIcon,
-  ChartBarIcon,
-  ChatBubbleLeftRightIcon,
-  DocumentTextIcon,
-  EnvelopeIcon,
-  QuestionMarkCircleIcon,
-  RectangleStackIcon,
-  UserCircleIcon,
-} from '@heroicons/react/24/outline'
+import { BriefcaseIcon } from '@heroicons/react/24/outline'
 import { cn, displayFirstName, GULF_COUNTRIES, packageStatusLabel, resumeLabel } from '@/lib/utils'
 import { cvReady, letterCount, mockDone, qaReady, type PackageListPage, type PackageSummary } from '@/lib/packageSummary'
 import { calculateReadiness } from '@/lib/readiness'
-import { computeNextAction, focusJob, jobLabel, PROFILE_THIN_BELOW } from '@/lib/nextAction'
-import { JourneyTracker } from '@/components/journey/JourneyTracker'
+import { computeNextAction, focusJob, PROFILE_THIN_BELOW } from '@/lib/nextAction'
 import { answersFromReadinessCategory, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
-import type { Package } from '@/types/package'
-import { CTA } from '@/lib/serviceLabels'
-import { ServiceUsageTotals, useServiceUsage } from '@/components/package/ServiceUsage'
 
 /**
  * Dashboard — screens D1/D2 (TASK-034), route /dashboard.
@@ -40,14 +24,12 @@ import { ServiceUsageTotals, useServiceUsage } from '@/components/package/Servic
  * identical to before: GET /api/profile, GET /api/packages,
  * calculateReadiness() — same calls, same fields, same logic. No new query.
  *
- * CAREER COMMAND CENTER (2026-09-23 redesign). Left column, in the order a
- * returning user needs it: the ONE next step (lib/nextAction.ts) → the seven-
- * step career journey with their own progress (components/journey) → Profile
- * Strength and Library counts → their target jobs → service usage → planned.
- * Right rail (≥1280px; below the column on smaller screens): Profile Strength
- * detail, Gulf Readiness, Quick actions. The six-tile "Services" grid that
- * repeated the quick actions was removed — the journey now carries it.
- * Still no new request: every journey flag comes from the same two fetches.
+ * SIMPLIFIED (2026-09-24, founder: "looks very complicated"). Three blocks:
+ * the ONE next step (lib/nextAction.ts) with "N of 7 done", the target jobs
+ * with CV · Letter · Q&A · Mock at a glance, and the two scores — Profile
+ * strength and Gulf Readiness — each saying what it measures. The journey list,
+ * metric tiles, quick actions, usage totals and planned card were removed:
+ * each repeated the menu or another block. Still no new request.
  *
  * Two approved corrections, not scope creep:
  *  (1) the stale "ATS score check" locked tile is DROPPED (the scanner has
@@ -57,43 +39,6 @@ import { ServiceUsageTotals, useServiceUsage } from '@/components/package/Servic
  *      decision). Not replaced: the Gulf Readiness figure already has its own
  *      widget on this page, so a third tile would have repeated it.
  */
-
-const PLANNED_SERVICES: ReadonlyArray<{ title: string; description: string }> = [
-  {
-    title: 'Saved Jobs',
-    description: 'Keep track of roles you want to apply to.',
-  },
-]
-
-// Each action carries its service's icon and tint, so the list can be scanned
-// by shape and colour instead of read line by line. Tints are literal strings
-// because Tailwind only emits classes it can see whole in the source.
-const QUICK_ACTIONS: ReadonlyArray<{
-  label: string
-  href: string
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
-  tint: string
-}> = [
-  { label: 'Check profile strength', href: '/profile', icon: ChartBarIcon, tint: 'bg-teal-soft text-teal' },
-  { label: CTA.optimizeCv, href: '/optimize/target', icon: DocumentTextIcon, tint: 'bg-gold-soft text-gold-ink' },
-  { label: CTA.writeCoverLetter, href: '/cover-letter', icon: EnvelopeIcon, tint: 'bg-sec-summary/10 text-sec-summary' },
-  { label: CTA.prepareInterviewQa, href: '/interview-qa', icon: QuestionMarkCircleIcon, tint: 'bg-teal-soft text-teal' },
-  { label: CTA.startMockInterview, href: '/mock-interview', icon: ChatBubbleLeftRightIcon, tint: 'bg-gold-soft text-gold-ink' },
-  { label: 'Open my Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, tint: 'bg-ok-soft text-ok' },
-]
-
-/**
- * Quick actions before a Career Profile exists (2026-09-12).
- *
- * "Optimize my CV for a job" and "Write a cover letter" were offered to a
- * brand-new user, and both need a profile — the optimizer ended on "Could not
- * load your profile". Before one exists, the list offers what works: building
- * it, and browsing the templates (which render an example CV).
- */
-const NO_PROFILE_ACTIONS: typeof QUICK_ACTIONS = [
-  { label: 'Build my Career Profile', href: '/profile?import=upload', icon: UserCircleIcon, tint: 'bg-teal-soft text-teal' },
-  { label: 'Browse resume templates', href: '/templates', icon: RectangleStackIcon, tint: 'bg-gold-soft text-gold-ink' },
-]
 
 /**
  * A country a user would recognise, or nothing.
@@ -125,7 +70,6 @@ function relativeTime(iso: string): string {
 export default function DashboardPage() {
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
-  const { usage } = useServiceUsage()
   const [packages, setPackages] = useState<PackageSummary[]>([])
   // Every job the user has, not just the page of summaries below (audit M08).
   const [packageTotal, setPackageTotal] = useState<number | null>(null)
@@ -216,7 +160,6 @@ export default function DashboardPage() {
   // derived. Same engine, same number the user saw; shown only once a profile exists.
   const gulfAnswers = readiness ? answersFromReadinessCategory(readiness.category) : null
   const packageCount = packageTotal ?? packages.length
-  const recentPackages = packages.slice(0, 3)
 
   // Next best action — one action, chosen from real state.
   //
@@ -244,327 +187,187 @@ export default function DashboardPage() {
         }
       : null
 
+  const stepsDone = journeyFacts ? Object.values(journeyFacts).filter(Boolean).length : 0
+  const listedJobs = packages.slice(0, 5)
+
   return (
-    // BLUEPRINT (2026-09-08). Ground is `paper`, not white: the surfaces that
-    // matter then sit on top of it as white, which is what gives the screen a
-    // figure/ground relationship instead of a single flat sheet.
-    <div className="flex min-h-full flex-col gap-6 bg-canvas p-4 pb-8 font-redesign-sans sm:p-7 lg:p-9">
-      {/* First-run nudge to build the Career Profile — shown only once we KNOW
-          there is no profile yet. Dismissible; the dashboard's own CTA persists. */}
+    // SIMPLIFIED 2026-09-24 (founder: "dashboard looks very complicated").
+    // Three questions, in the order a returning user asks them, and nothing
+    // else: what do I do next → where are my jobs → how strong am I. Quick
+    // actions, usage counts, the seven-row journey, metric tiles and the
+    // planned-service card all repeated the menu or each other and are gone.
+    // Same three fetches as before; no new request.
+    <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 pb-10 pt-5 font-redesign-sans sm:px-6 lg:pt-8">
       <ProfileKickstart show={profileLoaded && !loadError && profile === null} />
 
-      {/* ── Header: greeting + readiness ring ── */}
-      <Reveal>
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex min-w-0 flex-col gap-1">
-            <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-teal">Your career command center</span>
-            <h1 className="font-display text-[24px] font-bold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[30px]">
-              {/* While the profile is still loading, a plain greeting — not
-                  "Welcome to GCC MENTOR", which flashed at returning users for
-                  the second before their name arrived. */}
-              {firstName
-                ? `Good ${greeting()}, ${firstName}`
-                : profileLoaded
-                  ? 'Welcome to GCC MENTOR'
-                  : `Good ${greeting()}`}
-            </h1>
-            <p className="text-[13px] text-ink-muted">
-              {targetParts ? `Targeting ${targetParts}` : "Let's get you closer to your next opportunity."}
-            </p>
-          </div>
-          <Link
-            href="/profile"
-            aria-label="Profile readiness"
-            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-teal"
-          >
-            <ReadinessRing score={score} size={52} dark />
-          </Link>
-        </div>
-      </Reveal>
+      <header className="flex flex-col gap-1">
+        <h1 className="font-display text-[24px] font-semibold leading-tight text-ink sm:text-[30px]">
+          {firstName ? `Good ${greeting()}, ${firstName}` : profileLoaded ? 'Welcome to GCC MENTOR' : `Good ${greeting()}`}
+        </h1>
+        <p className="text-[14px] text-ink-soft">
+          {targetParts ? `Targeting ${targetParts}` : "Let's get you closer to your next opportunity."}
+        </p>
+      </header>
 
-      {/*
-        min-w-0 on the columns is required, not cosmetic. A grid item defaults
-        to min-width:auto and so refuses to shrink below its content — this
-        column measured 744px inside a 335px cell on a 375px phone, which is
-        what forced the whole dashboard to scroll sideways.
-      */}
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-        {/* ── LEFT column ── */}
-        <div className="flex min-w-0 flex-col gap-6">
-          {/* Next-step hero strip */}
-          <Reveal delay={80}>
-            {/* THE SIGNATURE ELEMENT of the Meridian dashboard, and the one
-                place gold is spent on this screen.
-
-                Teal is the brand and gold is the action, so the card that
-                carries the single next step is the one place they meet: a
-                solid teal panel with one gold button on it. Blueprint made
-                this a white panel with an orange left rule, which said "this
-                is a section" rather than "this is the thing to do".
-
-                Ink on gold measures 6.70 and white on teal 9.84 — the two
-                pairs this panel depends on. Gold is never text here; the
-                label above the heading is a light teal tint, not gold, for
-                exactly that reason. */}
-            <div className="flex h-full flex-col justify-between gap-5 rounded-card bg-teal p-5 shadow-m-2 sm:p-6">
-              <div className="flex flex-col gap-2">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-teal-soft">
-                  Your next step
-                </span>
-                <h2 className="font-display text-[20px] font-semibold leading-snug tracking-[-0.01em] text-white sm:text-[23px]">
-                  {loadError ? 'Your saved work could not be loaded' : profileLoaded && packagesLoaded ? nextAction.title : 'Loading your next step…'}
-                </h2>
-                <p className="text-[14px] leading-relaxed text-teal-soft/90">{loadError ? 'Please try again to see your latest profile and application progress.' : profileLoaded && packagesLoaded ? nextAction.body : 'Checking your profile and saved applications.'}</p>
-              </div>
-              {loadError ? <button type="button" onClick={() => window.location.reload()} className="min-h-11 rounded-ctl bg-white px-5 py-3 text-sm font-semibold text-teal">Try again</button> : profileLoaded && packagesLoaded ? (
-              <Link
-                href={nextAction.href}
-                className="inline-flex w-full items-center justify-center rounded-ctl bg-gold px-5 py-3.5 text-[14px] font-bold text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal sm:w-fit"
-              >
-                {nextAction.cta}
-              </Link>
-              ) : null}
+      {/* THE ONE NEXT STEP — teal panel, the screen's single gold button. */}
+      <section aria-label="Your next step" className="flex flex-col gap-4 rounded-card bg-teal p-5 shadow-m-2 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal-soft">
+            Your next step{journeyFacts ? ` · ${stepsDone} of 7 done` : ''}
+          </span>
+          <h2 className="font-display text-[20px] font-semibold leading-snug text-white sm:text-[22px]">
+            {loadError ? 'Your saved work could not be loaded' : profileLoaded && packagesLoaded ? nextAction.title : 'Loading your next step…'}
+          </h2>
+          <p className="max-w-[60ch] text-[14px] leading-relaxed text-teal-soft/90">
+            {loadError
+              ? 'Please try again to see your latest profile and application progress.'
+              : profileLoaded && packagesLoaded
+                ? nextAction.body
+                : 'Checking your profile and saved applications.'}
+          </p>
+          {journeyFacts ? (
+            <div className="mt-1 h-1.5 w-full max-w-[320px] overflow-hidden rounded-full bg-white/15" aria-hidden="true">
+              <div className="h-full rounded-full bg-gold" style={{ width: `${(stepsDone / 7) * 100}%` }} />
             </div>
-          </Reveal>
-
-          {/* The whole path, with this user's progress on it (2026-09-23). The
-              next-step panel above says what to do; this says where it sits. */}
-          <Reveal delay={95}>
-            <JourneyTracker facts={journeyFacts} jobLabel={focus ? jobLabel(focus) : null} packageId={focus?.id ?? null} />
-          </Reveal>
-
-          {/* METRICS ARE NOT CARDS ANY MORE.
-              Two numbers in two bordered boxes ate most of a phone screen and
-              pushed the actual next action below the fold — confirmed by
-              looking at the live dashboard on 2026-09-08, not inferred. A
-              border, a fill and a shadow each say "separate object"; a figure
-              and its label are neither. They sit on the page, divided by one
-              rule, and the space that bought goes to the thing the user came
-              to do.
-
-              A third tile, "Latest Job Match", was removed 2026-09-04 with the
-              standalone service and is deliberately not replaced. */}
-          <Reveal delay={105}>
-            <div className="grid grid-cols-2 gap-3">
-              <MetricTile
-                label="Profile strength"
-                icon={ChartBarIcon}
-                accent="teal"
-                value={profile ? `${score}%` : '—'}
-                sub={
-                  !profileLoaded
-                    ? undefined
-                    : profile
-                      ? readiness?.category ? categoryLabel(readiness.category) : undefined
-                      : 'Not started'
-                }
-                href="/profile"
-              />
-              <MetricTile
-                label="Resume Library"
-                icon={BriefcaseIcon}
-                accent="gold"
-                value={packagesLoaded ? String(packageCount) : '—'}
-                // Never an empty state before the count has loaded: "None yet"
-                // flashed for users who had saved CVs (2026-09-18).
-                sub={!packagesLoaded ? undefined : packageCount > 0 ? 'View jobs and application stages' : 'None yet'}
-                href="/dashboard/library"
-              />
-            </div>
-          </Reveal>
-
-          {/* ── Your target jobs ── */}
-          <Reveal delay={110}>
-            {/* WAS "RECENT ACTIVITY", whose rows read "Optimized for <role>" —
-                the event, not the thing. A row here is a job the user is going
-                for, so it says the role, the employer and where it stands. The
-                three rows the right rail used to repeat are gone; showing the
-                same three packages twice on one screen made the dashboard look
-                fuller than it was.
-
-                A LIST, NOT A CARD OF CARDS. This was a bordered panel whose
-                rows were themselves bordered panels — two containers to say
-                one thing. */}
-            <section className="flex flex-col gap-3">
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                  Your Resume Library
-                </span>
-                {packageCount > 0 ? (
-                  <Link
-                    href="/dashboard/library"
-                    // 44px tall: it measured 18px — a thumb-sized miss.
-                    className="-my-3 inline-flex min-h-11 items-center px-1 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-                  >
-                    See all {packageCount} →
-                  </Link>
-                ) : null}
-              </div>
-              {!packagesLoaded ? (
-                <div className="flex flex-col divide-y divide-line border-y border-line bg-white">
-                  <div className="h-14 animate-pulse bg-canvas/70" />
-                  <div className="h-14 animate-pulse bg-canvas/70" />
-                </div>
-              ) : recentPackages.length === 0 ? (
-                <EmptyState
-                  tone="inline"
-                  icon={BriefcaseIcon}
-                  title="No target jobs yet"
-                  body="Each job you apply for keeps its own CV, cover letter and stage together here."
-                />
-              ) : (
-                <div className="flex flex-col divide-y divide-line border-y border-line bg-white">
-                  {recentPackages.map((pkg) => (
-                    <Link
-                      key={pkg.id}
-                      href={`/package/${pkg.id}`}
-                      className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal"
-                    >
-                      <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate font-display text-[14px] font-semibold text-ink">
-                          {resumeLabel(pkg)}
-                        </span>
-                        {/* Employer and country only when the user gave them —
-                            `target_company` and `target_country` are both
-                            nullable, and "· generic_gulf" is our enum leaking
-                            onto their dashboard. */}
-                        <span className="truncate text-[12px] text-ink-muted">
-                          {[pkg.target_company, dashboardCountryLabel(pkg.target_country)]
-                            .filter(Boolean)
-                            .join(' · ') || relativeTime(pkg.created_at)}
-                        </span>
-                      </span>
-                      <Pill variant={pkg.status}>{packageStatusLabel(pkg.status)}</Pill>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </section>
-          </Reveal>
-
-          {/* How much of each service this user has used so far (2026-09-17). */}
-          <Reveal delay={120}>
-            <ServiceUsageTotals usage={usage} />
-          </Reveal>
-
-          {/* New "Planned" row — LockedTile, per PLANNED_SERVICES.md */}
-          <Reveal delay={140}>
-            <section className="flex flex-col gap-3">
-              <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                Planned for you
-              </div>
-              {/* Horizontally-scrollable strip on mobile; static grid on larger */}
-              <div className="flex snap-x gap-3 overflow-x-auto pb-1 lg:grid lg:grid-cols-3 lg:overflow-visible">
-                {PLANNED_SERVICES.map((s) => (
-                  <LockedTile
-                    key={s.title}
-                    title={s.title}
-                    description={s.description}
-                    note={`${s.title} — planned for a future release.`}
-                    tone="light"
-                    className="min-w-[240px] snap-start lg:min-w-0"
-                  />
-                ))}
-              </div>
-            </section>
-          </Reveal>
-        </div>
-
-        {/* ── RIGHT rail ── */}
-        <div className="flex min-w-0 flex-col gap-6">
-          {/* Readiness ring card */}
-          <Reveal delay={170}>
-            <div className="flex flex-col gap-5 rounded-card border border-line bg-white p-6 shadow-m-1">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                    Profile Strength
-                  </span>
-                  {/* With no profile, `missing` is empty because nothing was
-                      checked — it printed "0 items still needed" beside a 0%
-                      ring. Same false-complete as /gcc-readiness had. */}
-                  <span className="text-[13px] text-ink-soft">
-                    {!profile
-                      ? 'Not started — upload your CV to begin'
-                      : missing.length === 0
-                        ? 'Every section complete'
-                        : `${missing.length} item${missing.length === 1 ? '' : 's'} still needed`}
-                  </span>
-                </div>
-                <ReadinessRing score={score} size={64} dark />
-              </div>
-
-              <ProgressBar value={score} tone="light" getValueLabel={(v) => `${v} out of 100`} />
-
-              {missing.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {missing.slice(0, 6).map((m) => (
-                    <Link
-                      key={m.field}
-                      href="/profile"
-                      className="rounded-full border border-line bg-canvas px-3 py-1.5 text-[12px] font-medium text-ink-muted transition-colors hover:border-teal/50 hover:text-teal"
-                    >
-                      {m.label}
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-
-              {/* Secondary, not gold: the next-step panel above already holds
-                  this screen's one gold action, and two gold buttons stacked a
-                  scroll apart compete for the same thumb. */}
-              <Link
-                href={profile ? '/profile' : '/profile?import=upload'}
-                className={cn(buttonVariants({ variant: 'secondary' }), 'mt-1 w-full text-[14px]')}
-              >
-                {!profile ? 'Build my profile' : missing.length === 0 ? 'View Career Profile' : 'Improve my score'}
-              </Link>
-            </div>
-          </Reveal>
-
-          {/* Gulf Readiness — the arithmetic market score, moved here from the
-              Career Profile (founder decision 2026-08-18). Distinct from Profile
-              Strength above: this is "how ready for the Gulf market", that is "how
-              complete your profile is". Rendered only when a profile exists. */}
-          {gulfAnswers && profile ? (
-            <Reveal delay={185}>
-              {/* The mapping is shared, so this card and the Career Profile's
-                  Improve panel read the same facts through the same engine. */}
-              <LiveReadiness
-                answers={gulfAnswers}
-                profile={scoringInputFromProfile(profile)}
-                detailsHref="/profile?improve=gulf"
-              />
-            </Reveal>
           ) : null}
-
-          {/* Quick Actions */}
-          <Reveal delay={200}>
-            <div className="flex flex-col gap-2 rounded-card border border-line bg-white p-5 shadow-m-1">
-              <div className="px-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                Quick actions
-              </div>
-              <div className="mt-1 flex flex-col gap-1">
-                {(profileLoaded && profile === null ? NO_PROFILE_ACTIONS : QUICK_ACTIONS).map((a) => (
-                  <Link
-                    key={a.href}
-                    href={a.href}
-                    className="group flex min-h-12 items-center gap-3 rounded-ctl px-2 py-2 text-[14px] font-semibold text-ink transition-colors hover:bg-canvas hover:text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-                  >
-                    <span aria-hidden="true" className={cn('flex size-9 shrink-0 items-center justify-center rounded-ctl', a.tint)}>
-                      <a.icon className="size-[18px]" />
-                    </span>
-                    <span className="flex-1">{a.label}</span>
-                    <span aria-hidden className="text-ink-muted transition-transform group-hover:translate-x-0.5">→</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-
         </div>
+        {loadError ? (
+          <button type="button" onClick={() => window.location.reload()} className="min-h-11 shrink-0 rounded-ctl bg-white px-5 py-3 text-sm font-semibold text-teal">
+            Try again
+          </button>
+        ) : profileLoaded && packagesLoaded ? (
+          <Link
+            href={nextAction.href}
+            className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-ctl bg-gold px-6 text-[15px] font-bold text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal"
+          >
+            {nextAction.cta}
+          </Link>
+        ) : null}
+      </section>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        {/* ── Target jobs: each with its pack at a glance ── */}
+        <section aria-labelledby="jobs-h" className="flex min-w-0 flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 id="jobs-h" className="font-display text-[19px] font-semibold text-ink">
+              Your target jobs
+            </h2>
+            <div className="flex items-center gap-3">
+              {packageCount > listedJobs.length ? (
+                <Link href="/dashboard/library" className="text-[13px] font-semibold text-teal hover:underline">
+                  See all {packageCount}
+                </Link>
+              ) : null}
+              {profile ? (
+                <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'whitespace-nowrap')}>
+                  + Add job
+                </Link>
+              ) : null}
+            </div>
+          </div>
+          {!packagesLoaded ? (
+            <div className="flex flex-col gap-2">
+              <div className="h-20 animate-pulse rounded-card bg-white" />
+              <div className="h-20 animate-pulse rounded-card bg-white" />
+            </div>
+          ) : listedJobs.length === 0 ? (
+            <EmptyState
+              tone="inline"
+              icon={BriefcaseIcon}
+              title="No target jobs yet"
+              body="Add a job you want to apply for. It gets its own CV, cover letter and interview preparation."
+              action={
+                profile ? (
+                  <Link href="/optimize/target" className={buttonVariants({ variant: 'secondary' })}>
+                    Add a target job
+                  </Link>
+                ) : undefined
+              }
+            />
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {listedJobs.map((pkg) => (
+                <li key={pkg.id}>
+                  <Link
+                    href={`/package/${pkg.id}`}
+                    className="flex flex-col gap-3 rounded-card border border-line bg-white p-4 shadow-m-1 transition-colors hover:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <span className="flex min-w-0 flex-col gap-0.5">
+                      <span className="truncate text-[15px] font-semibold text-ink">{resumeLabel(pkg)}</span>
+                      <span className="truncate text-[13px] text-ink-muted">
+                        {[pkg.target_company, dashboardCountryLabel(pkg.target_country)].filter(Boolean).join(' · ') ||
+                          `Added ${relativeTime(pkg.created_at)}`}
+                      </span>
+                    </span>
+                    <span className="flex shrink-0 flex-wrap items-center gap-2">
+                      <PackDots pkg={pkg} />
+                      <Pill variant={pkg.status}>{packageStatusLabel(pkg.status)}</Pill>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {/* ── The two scores, each saying plainly what it measures ── */}
+        <aside className="flex min-w-0 flex-col gap-4">
+          <section aria-labelledby="strength-h" className="flex flex-col gap-3 rounded-card border border-line bg-white p-5 shadow-m-1">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 id="strength-h" className="text-[14px] font-semibold text-ink">
+                Profile strength
+              </h2>
+              <span className="font-display text-[26px] font-semibold leading-none text-teal">{profile ? `${score}%` : '—'}</span>
+            </div>
+            <p className="-mt-1 text-[13px] text-ink-muted">How complete your Career Profile is.</p>
+            <ProgressBar value={profile ? score : 0} tone="light" getValueLabel={(v) => `${v} out of 100`} />
+            <p className="text-[13px] text-ink-soft">
+              {!profile
+                ? 'Not started — upload your CV to begin.'
+                : missing.length === 0
+                  ? 'Every section is complete.'
+                  : `${missing.length} thing${missing.length === 1 ? '' : 's'} to add: ${missing
+                      .slice(0, 3)
+                      .map((m) => m.label.toLowerCase())
+                      .join(', ')}${missing.length > 3 ? '…' : '.'}`}
+            </p>
+            <Link href={profile ? '/profile' : '/profile?import=upload'} className="text-[13px] font-semibold text-teal hover:underline">
+              {!profile ? 'Build my profile →' : missing.length === 0 ? 'View Career Profile →' : 'Complete my profile →'}
+            </Link>
+          </section>
+
+          {gulfAnswers && profile ? (
+            <LiveReadiness answers={gulfAnswers} profile={scoringInputFromProfile(profile)} detailsHref="/profile?improve=gulf" />
+          ) : null}
+        </aside>
       </div>
     </div>
+  )
+}
+
+/** CV · Letter · Q&A · Mock for one job — filled when done. */
+function PackDots({ pkg }: { pkg: PackageSummary }) {
+  const steps = [
+    ['CV', cvReady(pkg)],
+    ['Letter', letterCount(pkg) > 0],
+    ['Q&A', qaReady(pkg)],
+    ['Mock', mockDone(pkg)],
+  ] as const
+  const done = steps.filter(([, d]) => d).map(([l]) => l)
+  return (
+    <span className="flex items-center gap-1">
+      <span className="sr-only">Done: {done.length ? done.join(', ') : 'nothing yet'}.</span>
+      {steps.map(([label, isDone]) => (
+        <span
+          key={label}
+          aria-hidden="true"
+          className={cn('rounded-full px-2 py-0.5 text-[12px] font-semibold', isDone ? 'bg-ok-soft text-ok' : 'bg-canvas text-ink-muted')}
+        >
+          {isDone ? '✓ ' : ''}
+          {label}
+        </span>
+      ))}
+    </span>
   )
 }
 
@@ -573,75 +376,4 @@ function greeting(): string {
   if (hour < 12) return 'morning'
   if (hour < 17) return 'afternoon'
   return 'evening'
-}
-
-function categoryLabel(category: string): string {
-  const map: Record<string, string> = {
-    fresher: 'Fresher',
-    experienced_not_in_gulf: 'Experienced',
-    returner: 'Returning',
-    currently_in_gulf: 'In the Gulf',
-  }
-  return map[category] ?? category
-}
-
-/**
- * A dashboard metric. When given an `href` the whole tile is the link.
- *
- * A number the user is meant to act on should be reachable from where it is
- * shown — reading "Profile Strength 62%" and then hunting the menu for where
- * to fix it is the sort of small friction that makes a product feel unfinished.
- * The whole card is the target rather than a small "view" link, which is both
- * easier to hit on a phone and simpler to announce to a screen reader.
- */
-function MetricTile({
-  label,
-  value,
-  sub,
-  href,
-  icon: Icon,
-  accent,
-}: {
-  label: string
-  value?: string
-  sub?: string
-  href: string
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
-  accent: 'teal' | 'gold'
-}) {
-  // WAS two mono numbers with grey caps above them and no container — the
-  // founder's "black and white" in its purest form. Each figure now sits in a
-  // small card with its service's icon and colour, so the row reads as two
-  // things you can tap, not two lines of a spreadsheet. Tabular figures stay:
-  // a number that changes must not shift its neighbours.
-  //   teal on teal-soft 8.30 · gold-ink on gold-soft 4.83
-  return (
-    <Link
-      href={href}
-      aria-label={`${label}: ${value ?? 'not available'}`}
-      className="group flex min-w-0 flex-col gap-2.5 rounded-card border border-line bg-white p-4 shadow-m-1 transition-all hover:-translate-y-px hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 motion-reduce:transform-none"
-    >
-      {/* Icon above the label, not beside it: side by side, a 375px phone
-          cut both labels to "PROFILE ST…" and "TARGET JO…". */}
-      <span
-        aria-hidden="true"
-        className={cn(
-          'flex size-8 shrink-0 items-center justify-center rounded-ctl',
-          accent === 'teal' ? 'bg-teal-soft text-teal' : 'bg-gold-soft text-gold-ink',
-        )}
-      >
-        <Icon className="size-[17px]" />
-      </span>
-      <span className="text-[12.5px] font-semibold leading-tight text-ink-soft">{label}</span>
-      <span
-        className={cn(
-          'font-display text-[30px] font-bold leading-none tracking-[-0.02em] tabular-nums',
-          accent === 'teal' ? 'text-teal' : 'text-gold-ink',
-        )}
-      >
-        {value}
-      </span>
-      {sub ? <span className="text-[12px] text-ink-soft">{sub}</span> : null}
-    </Link>
-  )
 }
