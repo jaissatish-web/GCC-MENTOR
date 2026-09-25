@@ -1,23 +1,23 @@
 'use client'
 
 import { Suspense, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
 import { NextStep } from '@/components/journey/NextStep'
 import { Card } from '@/components/ui/Card'
-import { Button, buttonVariants } from '@/components/ui/Button'
+import { Button } from '@/components/ui/Button'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { COVER_LETTER_NOTES } from '@/lib/processingNotes'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { cn } from '@/lib/utils'
 import { CTA } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
 import type { CoverLetter, CoverLetterTone } from '@/types/package'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
+import { stageEyebrow } from '@/components/journey/stages'
+import { StageGate } from '@/components/journey/StageGate'
 
 /**
  * Cover Letter — new route (TASK-093, PAGE_SPECS §C / TASK-066 frontend).
@@ -159,7 +159,7 @@ function CoverLetterScreen() {
   return (
     <PageShell
       icon={EnvelopeIcon}
-      eyebrow="Step 5 · Apply"
+      eyebrow={stageEyebrow('apply')}
       title="Cover Letter"
       subtitle="A letter for one of your target jobs, in the tone you choose — consistent with the CV it goes with."
       uses={['Optimized CV', 'Target job', 'Career Profile']}
@@ -168,18 +168,7 @@ function CoverLetterScreen() {
       {/* Centered generation form (720px, §C) */}
       <Card tone="light" className="p-5 sm:p-6">
         {list.length === 0 ? (
-          <EmptyState
-            tone="inline"
-            icon={EnvelopeIcon}
-            className="border-0 bg-transparent"
-            title="Add a target job first"
-            body="A cover letter is written for one specific job. Add the job and its role and advert carry over here."
-            action={
-              <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
-                {CTA.addTargetJob}
-              </Link>
-            }
-          />
+          <StageGate what="Your cover letter" />
         ) : (
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">

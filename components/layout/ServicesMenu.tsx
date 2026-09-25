@@ -7,7 +7,10 @@ import { ArrowRightStartOnRectangleIcon, Bars3Icon } from '@heroicons/react/24/o
 import { SideSheet, SheetGroupLabel } from '@/components/ui/SideSheet'
 import { signOut } from '@/app/auth/actions'
 import { cn } from '@/lib/utils'
-import { NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
+import { LockClosedIcon } from '@heroicons/react/24/solid'
+import { useCurrentStage } from '@/components/journey/useCurrentStage'
+import { stageById, type StageId } from '@/components/journey/stages'
+import { NAV_GROUPS, NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
 
 /**
  * Every service, one tap away, from anywhere.
@@ -47,12 +50,19 @@ import { NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } 
  * destination, so it lives in this file and not in `navItems.ts`.
  */
 
-/** Groups the flat nav list into something a person can scan. */
-const GROUPS: ReadonlyArray<{ label: string; hrefs: readonly string[]; withSignOut?: true }> = [
-  { label: 'Your career', hrefs: ['/dashboard', '/profile'] },
-  { label: 'Applications', hrefs: ['/dashboard/library', '/optimize', '/cover-letter', '/interview-qa', '/mock-interview', '/templates'] },
-  { label: 'Account', hrefs: ['/settings'], withSignOut: true },
-]
+/**
+ * Grouped by the three steps (2026-09-25), from the same NAV_GROUPS the
+ * sidebar reads, so the phone menu teaches the same order as the dashboard.
+ */
+const GROUPS: ReadonlyArray<{ label: string; hrefs: readonly string[]; stage?: StageId; withSignOut?: true }> = NAV_GROUPS.map((g) => {
+  const stage = g.stage ? stageById(g.stage) : null
+  return {
+    label: stage ? `Step ${stage.n} · ${stage.name}` : (g.label ?? 'Home'),
+    hrefs: g.hrefs,
+    stage: g.stage,
+    ...(g.key === 'account' ? { withSignOut: true as const } : {}),
+  }
+})
 
 /**
  * Every destination must appear in exactly one group.
@@ -83,7 +93,7 @@ const BLURB: Record<string, string> = {
   '/templates': 'Fifteen designs to choose from',
 }
 
-function MenuRow({ item, onNavigate, active }: { item: NavItem; onNavigate: () => void; active: boolean }) {
+function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onNavigate: () => void; active: boolean; mark?: 'next' | 'locked' | null }) {
   const Icon = item.icon
   return (
     <Link
@@ -94,6 +104,7 @@ function MenuRow({ item, onNavigate, active }: { item: NavItem; onNavigate: () =
         'flex min-h-[52px] items-center gap-3 rounded-ctl bg-white px-3.5 py-3 shadow-m-1 transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
         active ? 'ring-1 ring-teal/30' : 'hover:bg-teal-soft/50',
+        mark === 'locked' && !active && 'opacity-70',
       )}
     >
       <span
@@ -111,9 +122,18 @@ function MenuRow({ item, onNavigate, active }: { item: NavItem; onNavigate: () =
           <span className="truncate text-[12px] text-ink-muted">{BLURB[item.href]}</span>
         ) : null}
       </span>
-      <span aria-hidden="true" className="ml-auto text-[16px] leading-none text-line-strong">
-        &rsaquo;
-      </span>
+      {mark === 'next' ? (
+        <span className="ml-auto shrink-0 rounded-full bg-gold px-2 py-0.5 text-[12px] font-bold text-ink">Next</span>
+      ) : mark === 'locked' ? (
+        <span className="ml-auto flex shrink-0 items-center gap-1 text-[12px] text-ink-muted">
+          <LockClosedIcon aria-hidden="true" className="size-3.5" />
+          Later
+        </span>
+      ) : (
+        <span aria-hidden="true" className="ml-auto text-[16px] leading-none text-line-strong">
+          &rsaquo;
+        </span>
+      )}
     </Link>
   )
 }
@@ -168,6 +188,14 @@ export function ServicesMenu() {
   }, [pathname])
 
   const itemFor = (href: string) => NAV_ITEMS.find((i) => i.href === href)
+  const snap = useCurrentStage()
+  const states = snap ? snap.states : null
+  const markFor = (stage: StageId | undefined, index: number): 'next' | 'locked' | null => {
+    if (!stage || !states) return null
+    if (states[stage] === 'locked') return 'locked'
+    if (states[stage] === 'current' && index === 0) return 'next'
+    return null
+  }
 
   return (
     <>
@@ -190,8 +218,8 @@ export function ServicesMenu() {
           return (
             <div key={group.label} className="flex flex-col gap-2">
               <SheetGroupLabel>{group.label}</SheetGroupLabel>
-              {rows.map((item) => (
-                <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} />
+              {rows.map((item, i) => (
+                <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(group.stage, i)} />
               ))}
               {/* Under Account, not at the very bottom: reachable without
                   scrolling past the roadmap. */}

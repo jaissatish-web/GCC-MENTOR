@@ -1388,7 +1388,12 @@ function ProfileScreen() {
   const [savedBaseline, setSavedBaseline] = useState<string | null>(null)
   const currentBody = useMemo(() => (editor ? JSON.stringify(buildPutBody(editor)) : null), [editor])
   useEffect(() => {
-    if (savedBaseline === null && loaded && hasSavedProfile && !pendingDraft && !autoSaveOnLoad && currentBody) {
+    // A brand-new user's blank form is the baseline too (2026-09-25): it used
+    // to have none, so an untouched empty profile said "You have unsaved
+    // changes" before anything was typed.
+    // Only a genuinely EMPTY form — an unsaved CV reading must still read as unsaved.
+    const blankForm = !hasSavedProfile && currentBody === JSON.stringify(buildPutBody(emptyEditor()))
+    if (savedBaseline === null && loaded && (hasSavedProfile || blankForm) && !pendingDraft && !autoSaveOnLoad && currentBody) {
       setSavedBaseline(currentBody)
     }
   }, [savedBaseline, loaded, hasSavedProfile, pendingDraft, autoSaveOnLoad, currentBody])
@@ -1806,7 +1811,7 @@ function ProfileScreen() {
             {/* Says what this page IS before anything else (2026-09-23): the
                 source every CV, letter and interview answer is written from. */}
             <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
-              Step 1 · The source of every document
+              Step 1 of 3 · Your profile
             </span>
             {/* "Almost there, there" at 0% was two errors in four words — no
                 name to greet, and nowhere near "almost". The heading now says

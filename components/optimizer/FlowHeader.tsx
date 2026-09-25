@@ -42,7 +42,7 @@ export function FlowHeader({
             <ArrowLeftIcon className="size-5" aria-hidden="true" />
           </button>
         ) : null}
-        <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">Resume Optimizer</span>
+        <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">Step 2 of 3 · Resume Optimizer</span>
       </div>
 
       <ol aria-label={`Step ${step} of ${STEPS.length}`} className="grid grid-cols-3 gap-2">

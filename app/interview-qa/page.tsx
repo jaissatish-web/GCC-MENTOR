@@ -17,6 +17,8 @@ import { CTA } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
 import type { InterviewQuestionAnswer, InterviewQuestionCategory, InterviewQuestionSet } from '@/types/package'
+import { stageEyebrow } from '@/components/journey/stages'
+import { StageGate } from '@/components/journey/StageGate'
 
 const QA_NOTES = [
   'Good answers sound specific because they are tied to your own project history.',
@@ -150,25 +152,14 @@ function InterviewQaScreen() {
   return (
     <PageShell
       icon={QuestionMarkCircleIcon}
-      eyebrow="Step 6 · Prepare"
+      eyebrow={stageEyebrow('apply')}
       title="Interview Q&A"
       subtitle="Up to 25 likely questions for one target job, with answers drawn from your own experience."
       uses={['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-5 sm:p-6">
         {total === 0 ? (
-          <EmptyState
-            tone="inline"
-            icon={QuestionMarkCircleIcon}
-            className="border-0 bg-transparent"
-            title="Add a target job first"
-            body="Interview Q&A is prepared for one job package, after the resume has been optimized for that role."
-            action={
-              <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
-                {CTA.addTargetJob}
-              </Link>
-            }
-          />
+          <StageGate what="Interview Q&A" />
         ) : list.length === 0 ? (
           <EmptyState
             tone="inline"

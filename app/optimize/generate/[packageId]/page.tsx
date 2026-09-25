@@ -157,7 +157,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
       <div className="relative flex w-full max-w-[440px] flex-col items-center gap-7">
         <ProcessingOrbit tone="dark" size={184} />
         <div className="text-center">
-          <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">Step 3 of 3</p>
+          <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">Step 2 of 3 · Tailored CV</p>
           <h1 className="font-display text-[28px] leading-tight text-white">Optimizing your CV</h1>
           <p className="mt-2 text-[13.5px] leading-relaxed text-white/70">
             Every line is checked against your Career Profile before you see it.

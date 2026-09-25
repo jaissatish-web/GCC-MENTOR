@@ -70,6 +70,33 @@ Same backend and APIs; structure only.
 - **Library:** one toolbar (search + stage dropdown); the usage block is gone.
 - **Templates:** two per row on phones.
 
+### Three steps, everywhere (2026-09-25)
+
+Founder brief: "a new user landing on the dashboard does not know what to do, what is next, or
+where things come from". The app had three numbering systems at once (profile "Step 1", cover
+letter "Step 5", Q&A "Step 6", mock "Step 7", the optimizer's own "Step 1 of 3", the dashboard's
+"N of 7 done"). Now there is ONE map, defined once in `components/journey/stages.ts`:
+
+1. **Your profile** — Career Profile (from your current CV)
+2. **Tailored CV** — Resume Optimizer + Templates (built from step 1)
+3. **Apply & interview** — Cover letter, Interview Q&A, Mock interview (built from step 2)
+
+- **Dashboard:** greeting → one card = `StageRail` (three joined dots: done ✓ / You are here /
+  Ready / 🔒 After step N) + the teal next-step panel under it. First run: the panel carries
+  Upload my CV (gold) + Paste text + Type it in, and a "How it works" row of three cards (what each
+  step gives, what it is built from) shows until step 1 is done. The blocking
+  `ProfileKickstart` pop-up was deleted.
+- **Sidebar and ☰ menu** are grouped by the same steps (`NAV_GROUPS` in navItems.ts): numbered
+  headings that turn into ticks, a "Step N of 3" card at the top, a gold **Next** tag on the step
+  the user is on, a lock on steps whose previous step was never done (still real links).
+- **Page eyebrows** read `Step N of 3 · <step>` (`stageEyebrow`).
+- **Step-3 pages with no job** show `StageGate`: the same rail, "… comes in step 3", and a button
+  to the step the user is actually on (profile first if there is none).
+- **States are facts, not guesses** (`stageSnapshot`): the current step comes from
+  `computeNextAction` (a waiting CV reading is ignored for the map — it is a to-do, not a step);
+  a step is *done* once any job achieved it, *locked* only if its previous step was never done.
+  Asserted in `scripts/verify-stages.ts`.
+
 ### Service page anatomy
 
 Every service page follows the same order: **header** (icon, journey step, name,

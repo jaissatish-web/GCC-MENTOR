@@ -23,6 +23,7 @@ const sucrase = require.resolve('sucrase/bin/sucrase-node')
 
 const TS_CHECKS = [
   'verify-next-action.ts',
+  'verify-stages.ts',
   'verify-profile-readiness.ts',
   'verify-gcc-experience.ts',
   'verify-gulf-readiness.ts',

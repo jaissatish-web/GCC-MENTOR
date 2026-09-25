@@ -18,6 +18,8 @@ import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
 import type { MockInterviewDifficulty, MockInterviewMode, MockInterviewRun, Package } from '@/types/package'
+import { stageEyebrow } from '@/components/journey/stages'
+import { StageGate } from '@/components/journey/StageGate'
 
 const MODES: Array<{ value: MockInterviewMode; label: string; body: string }> = [
   { value: 'mixed', label: 'Mixed', body: 'HR, technical, Gulf readiness and manager questions.' },
@@ -242,21 +244,14 @@ function MockInterviewScreen() {
   return (
     <PageShell
       icon={ChatBubbleLeftRightIcon}
-      eyebrow="Step 7 · Practise"
+      eyebrow={stageEyebrow('apply')}
       title="Mock Interview"
       subtitle="A written practice interview for one target job, one question at a time, with a saved feedback report."
       uses={['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-5 sm:p-6">
         {total === 0 ? (
-          <EmptyState
-            tone="inline"
-            icon={ChatBubbleLeftRightIcon}
-            className="border-0 bg-transparent"
-            title="Add a target job first"
-            body="Mock interviews are attached to one optimized resume package."
-            action={<Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>{CTA.addTargetJob}</Link>}
-          />
+          <StageGate what="Your mock interview" />
         ) : list.length === 0 ? (
           <EmptyState
             tone="inline"

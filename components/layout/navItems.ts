@@ -159,3 +159,27 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
   if (item.exact) return pathname === item.href
   return pathname === item.href || pathname.startsWith(`${item.href}/`)
 }
+
+/**
+ * THE NAV IS GROUPED BY THE THREE STEPS (2026-09-25). The sidebar and the
+ * phone menu both read this, so the menu teaches the same order the dashboard
+ * shows: step 1 profile, step 2 a CV for a job, step 3 apply and interview.
+ * `stage` ties a group to components/journey/stages.ts for its done / current
+ * / locked mark. Every NAV_ITEMS href appears in exactly one group.
+ */
+export interface NavGroup {
+  key: string
+  /** null = no heading (Home sits alone at the top). */
+  label: string | null
+  hrefs: readonly string[]
+  stage?: 'profile' | 'cv' | 'apply'
+}
+
+export const NAV_GROUPS: readonly NavGroup[] = [
+  { key: 'home', label: null, hrefs: ['/dashboard'] },
+  { key: 'profile', label: 'Your profile', hrefs: ['/profile'], stage: 'profile' },
+  { key: 'cv', label: 'Tailored CV', hrefs: ['/optimize', '/templates'], stage: 'cv' },
+  { key: 'apply', label: 'Apply & interview', hrefs: ['/cover-letter', '/interview-qa', '/mock-interview'], stage: 'apply' },
+  { key: 'files', label: 'Your files', hrefs: ['/dashboard/library'] },
+  { key: 'account', label: 'Account', hrefs: ['/settings'] },
+]
