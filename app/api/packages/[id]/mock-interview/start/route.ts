@@ -1,3 +1,6 @@
+import { createHash } from 'node:crypto'
+import { voiceAdmin, voiceEnabled, transcriptionReady } from '@/lib/voice/server'
+import { VOICE_RUBRIC } from '@/lib/voice/types'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
@@ -52,6 +55,12 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     : 'standard'
   const questionCount = COUNTS.includes(Number(body.questionCount)) ? Number(body.questionCount) : 10
 
+  const voice = body.inputMode === 'voice'
+  if (voice && (!voiceEnabled() || !transcriptionReady())) return NextResponse.json({ error: 'Recorded interviews are not configured yet.' }, { status: 503 })
+  if (voice) {
+    const { error } = await voiceAdmin().from('voice_interview_sessions').select('id').limit(0)
+    if (error) return NextResponse.json({ error: 'Voice interview storage needs setup before starting.' }, { status: 503 })
+  }
   const packageId = params.id
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
@@ -183,7 +192,10 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'Could not start the mock interview. Nothing was used — please try again.' }, { status: 502 })
     }
 
+    const fingerprint = createHash('sha256').update(JSON.stringify({ resume, job: pkgRow.job_description, title: pkgRow.target_job_title, company: pkgRow.target_company })).digest('hex')
     const run: MockInterviewRun = {
+      input_mode: voice ? 'voice' : 'text',
+      ...(voice ? { resume_fingerprint: fingerprint, rubric_version: VOICE_RUBRIC } : {}),
       id: crypto.randomUUID(),
       generated_at: new Date().toISOString(),
       completed_at: null,
@@ -211,7 +223,11 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
     let saved: boolean
     try {
-      saved = await appendMockRunAtomic({ packageId, userId: user.id, run })
+      if (voice) {
+        const { data, error } = await voiceAdmin().rpc('voice_start_session', { p_package_id: packageId, p_user_id: user.id, p_run: run, p_profile: profile, p_fingerprint: fingerprint, p_rubric: VOICE_RUBRIC })
+        if (error) throw error
+        saved = data === true
+      } else saved = await appendMockRunAtomic({ packageId, userId: user.id, run })
     } catch (e) {
       console.error('mock-interview start: save failed user=' + user.id + ' pkg=' + packageId, e instanceof Error ? e.message : String(e))
       return NextResponse.json({ error: 'The interview was created but could not be saved. Please try again.' }, { status: 500 })

@@ -259,3 +259,8 @@ URL minting denied, public URL not served.
 **Bucket-level limits since migration 052** (audit M02): 5 MiB, JPEG/PNG/WebP only —
 the same rule `lib/storage/profilePhoto.ts` applies, now also enforced by Storage for a
 direct upload that never passes through the route. Owner-folder policies unchanged.
+
+
+## Recorded voice interview extension (unreleased)
+
+Migration 057 adds owner-readable, service-written voice sessions and per-question answers, frozen profile/run snapshots, resumable review leases, private audio storage and a delayed cleanup queue. Existing package mock run JSON remains the report/history projection. See [details](RECORDED_VOICE_INTERVIEW.md).
