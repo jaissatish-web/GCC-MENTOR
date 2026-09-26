@@ -616,3 +616,8 @@ statement of "verified" in this documentation should be read against them.
    `.next`, start once.
 3. **The direct database host is unreachable** from this environment; migrations are
    applied through the pooler connection string.
+
+
+## Recorded voice interview release gates
+
+Separate branch only. Pending: preview migration 057, transcription credentials, scheduled worker, hosting duration verification, live provider/storage tests, real mobile microphone interruption and recovery tests, second-attempt progress, two-account playback/deletion and cascade cleanup verification. See [test guide](RECORDED_VOICE_INTERVIEW.md).

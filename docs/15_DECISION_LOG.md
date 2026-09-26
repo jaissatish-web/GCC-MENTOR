@@ -2773,3 +2773,8 @@ product.
 
 **Passport type and validity may be stored. The number never may.** No document copies of
 any kind, and no religion field.
+
+
+## 2026-09-26 — Recorded voice interview test branch
+
+Founder authorized a separate GitHub implementation for later testing and integration. Voice answers replace typed input for new enabled sessions; illustrated TTS interviewer, deferred STT/coaching only on explicit review, private recordings and comparable resume history. No live avatar provider. Confidence/emotion are not inferred from voice. Existing text history remains. Production migration, credentials, scheduler and real-device/provider verification are pending. See [implementation and test guide](RECORDED_VOICE_INTERVIEW.md).

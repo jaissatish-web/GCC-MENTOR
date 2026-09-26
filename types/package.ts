@@ -174,6 +174,9 @@ export interface MockInterviewFinalReport {
 }
 
 export interface MockInterviewRun {
+  input_mode?: 'text' | 'voice'
+  resume_fingerprint?: string
+  rubric_version?: string
   id: string
   generated_at: string
   completed_at: string | null

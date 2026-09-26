@@ -20,6 +20,7 @@ import type { PackageSummary } from '@/lib/packageSummary'
 import type { MockInterviewDifficulty, MockInterviewMode, MockInterviewRun, Package } from '@/types/package'
 import { stageEyebrow } from '@/components/journey/stages'
 import { StageGate } from '@/components/journey/StageGate'
+import { VoiceInterview } from '@/components/mock-interview/VoiceInterview'
 
 const MODES: Array<{ value: MockInterviewMode; label: string; body: string }> = [
   { value: 'mixed', label: 'Mixed', body: 'HR, technical, Gulf readiness and manager questions.' },
@@ -43,7 +44,7 @@ const COUNT_OPTIONS = [
 
 // Honest about what is assessed (audit M10): written answers only.
 const NOTES = [
-  'This is text practice: your written answers are reviewed. Voice, pace and pronunciation are not assessed.',
+  'Recorded answers are saved first. Review begins only when you request it.',
   'Short, specific answers usually beat long generic answers.',
   'Use the same facts you would defend in a real Gulf interview.',
 ]
@@ -92,6 +93,12 @@ function MockInterviewScreen() {
   const requestedIdRef = useRef(searchParams.get('package'))
   const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: true })
   const { list, total, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
+  const [voiceReady, setVoiceReady] = useState<boolean | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    void fetch('/api/mock-interview/voice-capabilities').then(r => r.json()).then(p => { if (!cancelled) setVoiceReady(p.enabled === true) }).catch(() => { if (!cancelled) setVoiceReady(false) })
+    return () => { cancelled = true }
+  }, [])
   const [mode, setMode] = useState<MockInterviewMode>('mixed')
   const [difficulty, setDifficulty] = useState<MockInterviewDifficulty>('standard')
   const [questionCount, setQuestionCount] = useState(10)
@@ -100,7 +107,7 @@ function MockInterviewScreen() {
   const [drafts, setDrafts] = useState<Record<string, string>>({})
 
   const requestedRunId = searchParams.get('run')
-  const run = detail?.mock_interview_runs?.find((item) => item.id === requestedRunId && item.status === 'completed' && item.final_report) ?? latestRun(detail)
+  const run = detail?.mock_interview_runs?.find((item) => item.id === requestedRunId) ?? latestRun(detail)
   const currentQuestion = run?.status === 'in_progress' ? run.questions.find((q) => !q.answer) ?? null : null
   const answeredCount = run?.questions.filter((q) => q.answer).length ?? 0
   const currentDraftKey = selectedId && run && currentQuestion ? draftKey(selectedId, run.id, currentQuestion.id) : null
@@ -143,7 +150,7 @@ function MockInterviewScreen() {
       const res = await fetch(`/api/packages/${encodeURIComponent(packageId)}/mock-interview/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, difficulty, questionCount }),
+        body: JSON.stringify({ mode, difficulty, questionCount, inputMode: 'voice' }),
       })
       const payload = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -151,7 +158,7 @@ function MockInterviewScreen() {
         return
       }
       applyRun(packageId, payload.run as MockInterviewRun)
-      router.replace(`/mock-interview?package=${encodeURIComponent(packageId)}`, { scroll: false })
+      router.replace(`/mock-interview?package=${encodeURIComponent(packageId)}&run=${encodeURIComponent(payload.run.id)}&room=1`, { scroll: false })
     } catch {
       setOpError('Could not reach the server. Check your connection and try again — nothing was used.')
     } finally {
@@ -239,6 +246,14 @@ function MockInterviewScreen() {
     )
   }
 
+  if (searchParams.get('room') === '1' && selectedId && run?.input_mode === 'voice') {
+    return <PageShell icon={ChatBubbleLeftRightIcon} eyebrow="Recorded voice practice" title="Interview room" subtitle={run.target_job_title}>
+      <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}`} className="text-sm font-semibold text-teal">← Back to interview setup</Link>
+      <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} />
+      {run.status === 'completed' && <Card tone="light" className="mt-5 p-5"><Report run={run} /></Card>}
+    </PageShell>
+  }
+
   const unanswered = run ? run.questions.length - answeredCount : 0
 
   return (
@@ -246,7 +261,7 @@ function MockInterviewScreen() {
       icon={ChatBubbleLeftRightIcon}
       eyebrow={stageEyebrow('apply')}
       title="Mock Interview"
-      subtitle="A written practice interview for one target job, one question at a time, with a saved feedback report."
+      subtitle="Speak your answers to an animated interviewer, then request one complete review and track your practice progress."
       uses={['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-5 sm:p-6">
@@ -282,6 +297,10 @@ function MockInterviewScreen() {
                 ))}
               </select>
             </label>
+            {detail && detail.mock_interview_runs.length > 0 ? <label className="flex flex-col gap-2"><span className="field-label">Saved interviews for this resume</span><select className="field" value={run?.id ?? ''} onChange={e => {
+              const selected = detail.mock_interview_runs.find(r => r.id === e.target.value)
+              router.replace(`/mock-interview?package=${encodeURIComponent(selectedId!)}&run=${encodeURIComponent(e.target.value)}${selected?.input_mode === 'voice' ? '&room=1' : ''}`)
+            }}>{detail.mock_interview_runs.slice().reverse().map(r => <option value={r.id} key={r.id}>{new Date(r.generated_at).toLocaleDateString()} · {r.mode} · {r.difficulty} · {r.status === 'completed' ? 'Report' : 'Continue'}</option>)}</select></label> : null}
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
 
             <div className="grid gap-3 lg:grid-cols-5">
@@ -317,6 +336,7 @@ function MockInterviewScreen() {
               </label>
             </div>
 
+            {voiceReady === false ? <p className="rounded-ctl bg-canvas p-3 text-sm text-ink-muted">Recorded interviews are being prepared. Your previous interview reports remain available.</p> : null}
             {opError ? <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">{opError}</p> : null}
             {detailError ? (
               <div className="flex flex-col items-start gap-2">
@@ -340,7 +360,7 @@ function MockInterviewScreen() {
                     ? `Latest run: ${run.status === 'completed' ? 'completed' : 'in progress'} · ${answeredCount}/${run.question_count} answered`
                     : 'No mock interview yet for this package.'}
               </p>
-              <Button type="button" variant="primary" onClick={() => void start()} disabled={!selectedId || busy !== null || !detail} busy={busy === 'start'} busyLabel="Starting…">
+              <Button type="button" variant="primary" onClick={() => void start()} disabled={!selectedId || busy !== null || !detail || voiceReady !== true} busy={busy === 'start'} busyLabel="Starting…">
                 {CTA.startMockInterview}
               </Button>
             </div>
@@ -348,7 +368,9 @@ function MockInterviewScreen() {
         )}
       </Card>
 
-      {run ? (
+      {run?.input_mode === 'voice' && selectedId ? <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} /> : null}
+
+      {run && (run.input_mode !== 'voice' || run.status === 'completed') ? (
         <section id="interview-report" className="mt-6 scroll-mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">
           <Card tone="light" className="p-5 sm:p-6">
             <div className="flex flex-col gap-1">
@@ -436,7 +458,7 @@ function MockInterviewScreen() {
       ) : null}
 
       <p className="mt-6 text-center text-[12px] text-ink-muted">
-        Text mock interview only. Voice recording and speaking feedback are not included.
+        Recorded voice practice in English. Feedback supports preparation; it does not predict hiring decisions.
       </p>
     </PageShell>
   )
@@ -455,7 +477,7 @@ function Report({ run }: { run: MockInterviewRun }) {
   return (
     <div className="mt-5 flex flex-col gap-5">
       <p className="rounded-ctl border border-line bg-canvas px-3.5 py-2.5 text-[12.5px] leading-relaxed text-ink-muted">
-        AI preparation feedback on your written answers. It is guidance for practice — not a prediction of any employer&apos;s decision.
+        AI preparation feedback on your {run.input_mode === 'voice' ? 'recorded answers' : 'written answers'}. It is guidance for practice — not a prediction of any employer&apos;s decision.
       </p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {scores.map(([label, value]) => (

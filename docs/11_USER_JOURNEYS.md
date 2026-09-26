@@ -318,3 +318,8 @@ that specific case. Flagged in `WORK_QUEUE.md` W2, not decided here.
   control.**
 - **One card, one button set, one field anatomy.** See
   [`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) §8.
+
+
+## Recorded interview journey (test branch)
+
+Saved resume → existing setup → animated interviewer and visible question → record/pause/listen → submit → next question → explicit review → report and comparable practice history. See [complete journey](RECORDED_VOICE_INTERVIEW.md).
