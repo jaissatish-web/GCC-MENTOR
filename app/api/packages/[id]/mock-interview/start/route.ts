@@ -56,7 +56,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   const questionCount = COUNTS.includes(Number(body.questionCount)) ? Number(body.questionCount) : 10
 
   const voice = body.inputMode === 'voice'
-  if (voice && (!voiceEnabled() || !transcriptionReady())) return NextResponse.json({ error: 'Recorded interviews are not configured yet.' }, { status: 503 })
+  if (voice && (!voiceEnabled() || !await transcriptionReady())) return NextResponse.json({ error: 'Recorded interviews are not configured yet.' }, { status: 503 })
   if (voice) {
     const { error } = await voiceAdmin().from('voice_interview_sessions').select('id').limit(0)
     if (error) return NextResponse.json({ error: 'Voice interview storage needs setup before starting.' }, { status: 503 })

@@ -6,7 +6,7 @@ import { groundAnswer, notInCvFeedback, profileEvidenceText, totalExperienceYear
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { LIMIT_ACTION_MOCK_ANSWER, LIMIT_ACTION_MOCK_REPORT, LIMIT_ACTION_MOCK_TRANSCRIPTION } from '@/lib/rateLimit'
 import { completeMockRunAtomic, recordMockAnswerAtomic } from '@/lib/packages/serverWrites'
-import { voiceAdmin, voiceAnswers, voiceEnabled, transcriptionReady } from './server'
+import { voiceAdmin, voiceAnswers, voiceEnabled, voiceTranscriptionAuth } from './server'
 import { VOICE_BUCKET, type VoiceSession, type VoiceFeedback, type VoiceAnswer } from './types'
 import { transcribeRecording } from './transcribe'
 import type { MockInterviewRun } from '@/types/package'
@@ -64,7 +64,9 @@ function reviewedRun(session: VoiceSession, answers: VoiceAnswer[]): MockIntervi
 
 /** One leased unit per call. Safe for authenticated polling and a separately configured cron worker. */
 export async function processVoiceReview(userId?: string, sessionId?: string): Promise<{ worked: boolean; status?: string }> {
-  if (!voiceEnabled() || !transcriptionReady()) throw new Error('Recorded interview review is not configured.')
+  if (!voiceEnabled()) throw new Error('Recorded interview review is not configured.')
+  const transcriptionAuth = await voiceTranscriptionAuth()
+  if (!transcriptionAuth) throw new Error('Recorded interview transcription is not configured.')
   const db = voiceAdmin()
   const { data, error } = await db.rpc('voice_claim_review', { p_user_id: userId ?? null, p_session_id: sessionId ?? null })
   if (error) throw new Error('Could not claim the review job.')
@@ -79,7 +81,7 @@ export async function processVoiceReview(userId?: string, sessionId?: string): P
         await guarded(session.user_id, LIMIT_ACTION_MOCK_TRANSCRIPTION, async () => {
           const { data: blob, error: downloadError } = await db.storage.from(VOICE_BUCKET).download(next.audio_path)
           if (downloadError || !blob) throw new Error('Could not load the saved recording. Please retry.')
-          const transcription = await transcribeRecording(blob, next.mime_type, next.audio_path.split('/').pop()!, Number(next.duration_seconds))
+          const transcription = await transcribeRecording(blob, next.mime_type, next.audio_path.split('/').pop()!, Number(next.duration_seconds), transcriptionAuth)
           await updateAnswer(session, next.question_id, transcription)
           Object.assign(next, transcription)
         })

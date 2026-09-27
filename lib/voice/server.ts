@@ -1,9 +1,20 @@
 import { createClient } from '@/lib/supabase/server'
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
+import { getProviderConfig, getProviderConfigExact } from '@/lib/ai/providerConfig'
 import type { VoiceSession, VoiceAnswer } from './types'
 
 export function voiceEnabled(): boolean { return process.env.VOICE_INTERVIEWS_ENABLED === 'true' }
-export function transcriptionReady(): boolean { return Boolean(process.env.VOICE_STT_API_KEY?.trim()) }
+export type VoiceTranscriptionAuth = { provider: 'openrouter' | 'openai'; apiKey: string }
+export async function voiceTranscriptionAuth(): Promise<VoiceTranscriptionAuth | null> {
+  // Reuse the founder's server-side OpenRouter account; never return its key to a client.
+  const mock = await getProviderConfig('mock_interview')
+  if (mock?.provider === 'openrouter' && mock.apiKey?.trim()) return { provider: 'openrouter', apiKey: mock.apiKey }
+  const primary = await getProviderConfigExact('default')
+  if (primary?.provider === 'openrouter' && primary.apiKey?.trim()) return { provider: 'openrouter', apiKey: primary.apiKey }
+  const direct = process.env.VOICE_STT_API_KEY?.trim()
+  return direct ? { provider: 'openai', apiKey: direct } : null
+}
+export async function transcriptionReady(): Promise<boolean> { return Boolean(await voiceTranscriptionAuth()) }
 export function voiceAdmin() { return createServiceRoleClient({ fresh: true }) }
 export async function ownVoiceSession(packageId: string, sessionId: string) {
   const client = await createClient()

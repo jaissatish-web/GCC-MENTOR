@@ -64,7 +64,7 @@ export async function POST(request: Request, props: Props) {
       // Tombstone remains for three hours so expiring upload tokens cannot create permanent orphan audio.
       return NextResponse.json({ deleted: true })
     }
-    if (!voiceEnabled() || !transcriptionReady()) return NextResponse.json({ error: 'Recorded interviews are temporarily unavailable. Saved recordings remain available.' }, { status: 503 })
+    if (!voiceEnabled() || !await transcriptionReady()) return NextResponse.json({ error: 'Recorded interviews are temporarily unavailable. Saved recordings remain available.' }, { status: 503 })
     if (body.action === 'review') {
       const { data, error } = await db.rpc('voice_request_review', { p_session_id: runId, p_user_id: user.id })
       if (error) return NextResponse.json({ error: 'Save every answer before requesting review.' }, { status: 409 })
