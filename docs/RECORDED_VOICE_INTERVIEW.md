@@ -1,6 +1,6 @@
 # Recorded voice interviews — test branch
 
-Status: implemented behind a server flag. On 2026-09-26 the founder authorized using the existing Supabase project; migration 057 was applied there and its permissions/private bucket verified. Main website code is not merged. Vercel preview environment setup remains pending.
+Status: implemented behind a server flag. On 2026-09-26 the founder authorized using the existing Supabase project; migration 057 was applied there and its permissions/private bucket verified. Main website code is not merged. The branch preview has its public Supabase URL/key and flag, but a new deployment and the remaining server-only secrets are required for a live test.
 
 ## User journey
 Select a saved resume and the existing mode, difficulty and question count. Start opens a dedicated interview room. Choose a male or female illustrated interviewer. Questions are displayed as text. The silent avatar gently moves and blinks; reduced-motion preferences disable the animation. Candidates read each question before recording. This is not a live interviewer or video call.
@@ -12,7 +12,7 @@ Review saves each successful transcription and each successful feedback result i
 ## Preview setup
 1. The existing Supabase project now contains migration `057_recorded_voice_interviews.sql`, applied with founder authorization. Connect only the Vercel preview branch to the existing project settings. Do not reapply this migration or commit credentials. Test data shares the existing database.
 2. Configure the existing Supabase server/service-role and text AI environment variables.
-3. Set server-only `VOICE_INTERVIEWS_ENABLED=true` and `VOICE_STT_API_KEY` to an OpenAI key authorized for Whisper transcription. No public key variable is added. Transcription uses the fixed OpenAI audio endpoint, whisper-1, English and timestamp output. Text coaching continues through the existing AI gateway and controls.
+3. Set server-only `VOICE_INTERVIEWS_ENABLED=true` and `VOICE_STT_API_KEY` to an OpenAI API key authorized for audio transcription. The default model is `gpt-4o-mini-transcribe` for lower cost testing; it provides a transcript but no word timestamps, so the speaking report shows pace and fillers while pause count is unavailable. For timestamp-based pause observations, set `VOICE_STT_MODEL=whisper-1` on the branch and redeploy. No public key variable is added. Text coaching continues through the existing AI gateway and controls. ChatGPT subscriptions do not provide an API key.
 4. Configure `CRON_SECRET` and a scheduler sending `Authorization: Bearer <CRON_SECRET>` to `/api/cron/voice-interview-review`. Each request processes one answer or final report and drains delayed deletion work. Schedule frequent invocations for unattended reviews; concurrency is guarded by database leases. Check hosting plan frequency and 180-second function support before enabling a schedule. This branch does not alter the production cron schedule. Active interview pages also drive review processing; without a scheduler a closed page can leave review pending and delayed deletion unfinished.
 5. Open the HTTPS preview, sign in and select a completed resume. Capability checks require the flag, transcription key and database table. Disabling the flag blocks new voice starts and worker processing; existing text history remains readable.
 

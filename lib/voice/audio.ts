@@ -26,6 +26,8 @@ export function deliveryMetrics(text: string, duration: number, rawWords: unknow
     long_pause_count: timingAvailable ? pauses : null,
     filler_count: (text.match(/\b(um|uh|erm|hmm)\b/gi) ?? []).length,
     timing_available: timingAvailable,
-    note: 'Pace uses total recording time. Pauses use approximate speech timestamps. Transcription may omit fillers. These are practice observations, not confidence, emotion, accent or pronunciation scores.',
+    note: timingAvailable
+      ? 'Pace uses total recording time. Pauses use approximate speech timestamps. Transcription may omit fillers. These are practice observations, not confidence, emotion, accent or pronunciation scores.'
+      : 'Pace uses total recording time. Pause timing is unavailable with this transcription model. Transcription may omit fillers. These are practice observations, not confidence, emotion, accent or pronunciation scores.',
   }
 }

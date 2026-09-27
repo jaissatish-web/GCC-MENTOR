@@ -79,7 +79,7 @@ export async function processVoiceReview(userId?: string, sessionId?: string): P
         await guarded(session.user_id, LIMIT_ACTION_MOCK_TRANSCRIPTION, async () => {
           const { data: blob, error: downloadError } = await db.storage.from(VOICE_BUCKET).download(next.audio_path)
           if (downloadError || !blob) throw new Error('Could not load the saved recording. Please retry.')
-          const transcription = await transcribeRecording(blob, next.mime_type, next.audio_path.split('/').pop()!)
+          const transcription = await transcribeRecording(blob, next.mime_type, next.audio_path.split('/').pop()!, Number(next.duration_seconds))
           await updateAnswer(session, next.question_id, transcription)
           Object.assign(next, transcription)
         })

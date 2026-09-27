@@ -44,6 +44,7 @@ const TS_CHECKS = [
   'verify-sidebar-wrapping.ts',
   'verify-answer-grounding.ts',
   'verify-deadlines.ts',
+  'verify-voice-transcription.ts',
   'verify-resume.ts',
   'docx-smoke.ts',
 ]
