@@ -297,10 +297,10 @@ function MockInterviewScreen() {
                 ))}
               </select>
             </label>
-            {detail && detail.mock_interview_runs.length > 0 ? <label className="flex flex-col gap-2"><span className="field-label">Saved interviews for this resume</span><select className="field" value={run?.id ?? ''} onChange={e => {
-              const selected = detail.mock_interview_runs.find(r => r.id === e.target.value)
+            {detail && (detail.mock_interview_runs?.length ?? 0) > 0 ? <label className="flex flex-col gap-2"><span className="field-label">Saved interviews for this resume</span><select className="field" value={run?.id ?? ''} onChange={e => {
+              const selected = detail.mock_interview_runs?.find(r => r.id === e.target.value)
               router.replace(`/mock-interview?package=${encodeURIComponent(selectedId!)}&run=${encodeURIComponent(e.target.value)}${selected?.input_mode === 'voice' ? '&room=1' : ''}`)
-            }}>{detail.mock_interview_runs.slice().reverse().map(r => <option value={r.id} key={r.id}>{new Date(r.generated_at).toLocaleDateString()} · {r.mode} · {r.difficulty} · {r.status === 'completed' ? 'Report' : 'Continue'}</option>)}</select></label> : null}
+            }}>{(detail.mock_interview_runs ?? []).slice().reverse().map(r => <option value={r.id} key={r.id}>{new Date(r.generated_at).toLocaleDateString()} · {r.mode} · {r.difficulty} · {r.status === 'completed' ? 'Report' : 'Continue'}</option>)}</select></label> : null}
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
 
             <div className="grid gap-3 lg:grid-cols-5">
