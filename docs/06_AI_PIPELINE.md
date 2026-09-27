@@ -563,3 +563,8 @@ enforced by the type system rather than by asking the prompt nicely.**
 Known and accepted: a failed model call does not consume the user's slot, even though
 the call cost money. Charging a user's daily attempt for a random model hiccup is
 worse than the narrow gap — and the counters now show how often it happens.
+
+
+## Deferred recorded interview review (unreleased)
+
+Voice capture/upload calls do not call AI. Explicit review queues sequential, leased transcription and grounded feedback units. STT and feedback are separately persisted and quota guarded; final reports use existing atomic package writes. Whisper is used only for saved audio transcription. See [setup and limitations](RECORDED_VOICE_INTERVIEW.md).

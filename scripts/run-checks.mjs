@@ -44,6 +44,7 @@ const TS_CHECKS = [
   'verify-sidebar-wrapping.ts',
   'verify-answer-grounding.ts',
   'verify-deadlines.ts',
+  'verify-voice-transcription.ts',
   'verify-resume.ts',
   'docx-smoke.ts',
 ]
@@ -61,6 +62,7 @@ function run(label, args) {
 
 for (const script of TS_CHECKS) run(script, [sucrase, join('scripts', script)])
 run('verify-db-security.mjs', [join('scripts', 'verify-db-security.mjs')])
+run('verify-voice-db.mjs', [join('scripts', 'verify-voice-db.mjs')])
 
 const failed = results.filter((r) => !r.ok)
 console.log(`\n${results.length - failed.length}/${results.length} checks passed`)

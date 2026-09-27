@@ -63,6 +63,7 @@ export const LIMIT_ACTION_INTERVIEW_QA = 'interview_qa'
 export const LIMIT_ACTION_MOCK_START = 'mock_interview_start'
 export const LIMIT_ACTION_MOCK_ANSWER = 'mock_interview_answer'
 export const LIMIT_ACTION_MOCK_REPORT = 'mock_interview_report'
+export const LIMIT_ACTION_MOCK_TRANSCRIPTION = 'mock_interview_transcription'
 
 const DEFAULT_EXTRACTIONS_PER_DAY = 5
 const DEFAULT_OPTIMIZATIONS_PER_DAY = 20
@@ -77,6 +78,7 @@ const DAILY_DEFAULTS: Record<string, [string, number]> = {
   // 10 interviews x up to 15 questions.
   [LIMIT_ACTION_MOCK_ANSWER]: ['RATE_LIMIT_MOCK_ANSWERS_PER_DAY', 150],
   [LIMIT_ACTION_MOCK_REPORT]: ['RATE_LIMIT_MOCK_REPORTS_PER_DAY', 10],
+  [LIMIT_ACTION_MOCK_TRANSCRIPTION]: ['RATE_LIMIT_MOCK_TRANSCRIPTIONS_PER_DAY', 150],
 }
 
 /**

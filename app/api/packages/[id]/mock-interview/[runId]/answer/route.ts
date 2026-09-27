@@ -82,6 +82,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   const runs = Array.isArray(pkgRow.mock_interview_runs) ? (pkgRow.mock_interview_runs as MockInterviewRun[]) : []
   const run = runs.find((r) => r.id === params.runId)
   if (!run) return NextResponse.json({ error: 'Mock interview not found' }, { status: 404 })
+  if (run.input_mode === 'voice') return NextResponse.json({ error: 'Use the recorded interview review flow for this session.' }, { status: 409 })
   if (run.status !== 'in_progress') {
     return NextResponse.json({ error: 'This mock interview is already completed.', code: 'RUN_COMPLETED', run }, { status: 409 })
   }

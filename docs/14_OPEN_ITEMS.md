@@ -616,3 +616,11 @@ statement of "verified" in this documentation should be read against them.
    `.next`, start once.
 3. **The direct database host is unreachable** from this environment; migrations are
    applied through the pooler connection string.
+
+
+## Recorded voice interview release gates
+
+Separate branch only. Pending: preview migration 057, transcription credentials, scheduled worker, hosting duration verification, live provider/storage tests, real mobile microphone interruption and recovery tests, second-attempt progress, two-account playback/deletion and cascade cleanup verification. See [test guide](RECORDED_VOICE_INTERVIEW.md).
+
+
+Recorded voice update (2026-09-26): founder authorized the existing database; migration 057 is applied and storage/RLS verified. Question TTS is removed for this version. Remaining gates: Vercel branch preview environment values, STT key, scheduled worker and configured end-to-end testing.

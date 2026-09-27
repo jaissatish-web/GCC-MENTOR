@@ -78,3 +78,8 @@ reads the published text.
 - How to contact the founder, and how to close the account.
 - Cookies: Supabase session cookies (necessary); no analytics or advertising cookies are
   set by this code as of 2026-09-15.
+
+
+## Recorded voice data (unreleased)
+
+Private answer audio, frozen career/run snapshots, transcripts, speaking metrics and coaching reports persist for practice history until interview/parent deletion. Stopped unsent audio can remain in device IndexedDB. Service-owned cleanup queues retain object paths for delayed removal after signed upload expiry. A configured worker is required. See [storage, deletion and setup](RECORDED_VOICE_INTERVIEW.md).
