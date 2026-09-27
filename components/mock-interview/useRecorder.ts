@@ -67,7 +67,6 @@ export function useRecorder(key: string) {
     if (recorder.current?.state === 'paused') { activeStart.current = Date.now(); recorder.current.resume(); setState('recording'); return }
     pending.current = true; setError(null)
     try {
-      window.speechSynthesis?.cancel()
       const media = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false })
       if (!mounted.current) { media.getTracks().forEach(t => t.stop()); return }
       stream.current = media

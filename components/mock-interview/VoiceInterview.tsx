@@ -142,7 +142,7 @@ export function VoiceInterview({ packageId, run, onUpdated }: { packageId: strin
     <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-semibold">{view.status === 'completed' ? 'Your recorded interview review' : reviewing ? 'Preparing your review' : `Interview · ${saved}/${run.questions.length} answers saved`}</h2><Button variant="ghost" size="sm" onClick={() => void remove()} disabled={busy || recording || reviewing}>Delete interview</Button></div>
     {error && <p role="alert" className="rounded-lg bg-alert-soft p-3 text-sm text-alert">{error}</p>}
     {view.status === 'recording' && question && !allSaved && <div className="grid gap-5 lg:grid-cols-[1.15fr_1fr]">
-      <Interviewer question={question.question} recording={recording} />
+      <Interviewer recording={recording} />
       <div className="space-y-4"><div className="rounded-2xl border border-line bg-white p-5"><p className="text-sm font-semibold text-teal">Question {(index ?? 0) + 1} of {run.questions.length} · {question.focus}</p><h3 className="mt-3 text-xl font-semibold leading-relaxed">{question.question}</h3></div>
         {savedCurrent ? <div className="rounded-2xl bg-teal-soft p-5"><p className="font-semibold">Recording saved. No grading yet.</p><SavedAudio api={api} questionId={question.id} /><Button className="mt-4" onClick={() => setIndex(run.questions.findIndex(q => !view.answers.some(a => a.question_id === q.id && a.saved_at)))}>Next question</Button></div> : <Recording key={question.id} api={api} draftKey={`gcc.voice.${packageId}.${run.id}.${question.id}`} questionId={question.id} onSaved={async () => { await reload() }} onRecording={setRecording} />}
       </div>
