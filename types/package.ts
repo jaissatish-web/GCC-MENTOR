@@ -175,6 +175,7 @@ export interface MockInterviewFinalReport {
 
 export interface MockInterviewRun {
   input_mode?: 'text' | 'voice'
+  interviewer_id?: import('@/lib/voice/interviewers').InterviewerId
   resume_fingerprint?: string
   rubric_version?: string
   id: string

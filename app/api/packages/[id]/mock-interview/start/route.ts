@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { voiceAdmin, voiceEnabled, transcriptionReady } from '@/lib/voice/server'
 import { VOICE_RUBRIC } from '@/lib/voice/types'
+import { isInterviewerId } from '@/lib/voice/interviewers'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
@@ -195,6 +196,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     const fingerprint = createHash('sha256').update(JSON.stringify({ resume, job: pkgRow.job_description, title: pkgRow.target_job_title, company: pkgRow.target_company })).digest('hex')
     const run: MockInterviewRun = {
       input_mode: voice ? 'voice' : 'text',
+      ...(voice ? { interviewer_id: isInterviewerId(body.interviewerId) ? body.interviewerId : 'british-woman' } : {}),
       ...(voice ? { resume_fingerprint: fingerprint, rubric_version: VOICE_RUBRIC } : {}),
       id: crypto.randomUUID(),
       generated_at: new Date().toISOString(),

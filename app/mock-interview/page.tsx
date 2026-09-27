@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
@@ -21,6 +22,9 @@ import type { MockInterviewDifficulty, MockInterviewMode, MockInterviewRun, Pack
 import { stageEyebrow } from '@/components/journey/stages'
 import { StageGate } from '@/components/journey/StageGate'
 import { VoiceInterview } from '@/components/mock-interview/VoiceInterview'
+import { InterviewerPicker } from '@/components/mock-interview/InterviewerPicker'
+import type { InterviewerId } from '@/lib/voice/interviewers'
+import { getInterviewer } from '@/lib/voice/interviewers'
 
 const MODES: Array<{ value: MockInterviewMode; label: string; body: string }> = [
   { value: 'mixed', label: 'Mixed', body: 'HR, technical, Gulf readiness and manager questions.' },
@@ -102,6 +106,7 @@ function MockInterviewScreen() {
   const [mode, setMode] = useState<MockInterviewMode>('mixed')
   const [difficulty, setDifficulty] = useState<MockInterviewDifficulty>('standard')
   const [questionCount, setQuestionCount] = useState(10)
+  const [interviewerId, setInterviewerId] = useState<InterviewerId>('british-woman')
   const [opError, setOpError] = useState<string | null>(null)
   const [busy, setBusy] = useState<'start' | 'answer' | 'finish' | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
@@ -150,7 +155,7 @@ function MockInterviewScreen() {
       const res = await fetch(`/api/packages/${encodeURIComponent(packageId)}/mock-interview/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, difficulty, questionCount, inputMode: 'voice' }),
+        body: JSON.stringify({ mode, difficulty, questionCount, inputMode: 'voice', interviewerId }),
       })
       const payload = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -247,11 +252,16 @@ function MockInterviewScreen() {
   }
 
   if (searchParams.get('room') === '1' && selectedId && run?.input_mode === 'voice') {
-    return <PageShell icon={ChatBubbleLeftRightIcon} eyebrow="Recorded voice practice" title="Interview room" subtitle={run.target_job_title}>
-      <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}`} className="text-sm font-semibold text-teal">← Back to interview setup</Link>
-      <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} />
-      {run.status === 'completed' && <Card tone="light" className="mt-5 p-5"><Report run={run} /></Card>}
-    </PageShell>
+    return <div className="fixed inset-0 z-[60] flex flex-col overflow-hidden bg-[#f5f7f5] font-redesign-sans">
+      <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-line bg-white px-4 sm:h-16 sm:px-7">
+        <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}`} className="shrink-0 text-sm font-semibold text-teal hover:underline">← Exit room</Link>
+        <span className="min-w-0 truncate text-right text-xs font-semibold text-ink sm:text-sm">{run.target_job_title}</span>
+      </header>
+      {run.status === 'completed' ? <div className="mx-auto w-full max-w-[1100px] flex-1 overflow-y-auto p-4 sm:p-6">
+        <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} />
+        <Card tone="light" className="mt-5 p-5"><Report run={run} /></Card>
+      </div> : <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} room />}
+    </div>
   }
 
   const unanswered = run ? run.questions.length - answeredCount : 0
@@ -336,6 +346,8 @@ function MockInterviewScreen() {
               </label>
             </div>
 
+            <InterviewerPicker value={interviewerId} onChange={setInterviewerId} disabled={busy !== null} />
+
             {voiceReady === false ? <p className="rounded-ctl bg-canvas p-3 text-sm text-ink-muted">Recorded interviews are being prepared. Your previous interview reports remain available.</p> : null}
             {opError ? <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">{opError}</p> : null}
             {detailError ? (
@@ -368,7 +380,11 @@ function MockInterviewScreen() {
         )}
       </Card>
 
-      {run?.input_mode === 'voice' && selectedId ? <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} /> : null}
+      {run?.input_mode === 'voice' && selectedId ? <Card tone="light" className="flex items-center gap-4 p-4 sm:p-5">
+        <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-teal-soft sm:size-20"><Image src={getInterviewer(run.interviewer_id).image} alt="" fill sizes="80px" className="object-cover object-top" /></div>
+        <div className="min-w-0 flex-1"><p className="text-sm font-semibold text-ink">{run.status === 'completed' ? 'Review your interview' : 'Continue your interview'} with {getInterviewer(run.interviewer_id).name}</p><p className="mt-1 text-xs text-ink-muted">{run.question_count} questions · {run.status === 'completed' ? 'Report ready' : 'Your answers are saved as you go'}</p></div>
+        <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}&room=1`} className={buttonVariants({ variant: 'primary' })}>Open room</Link>
+      </Card> : null}
 
       {run && (run.input_mode !== 'voice' || run.status === 'completed') ? (
         <section id="interview-report" className="mt-6 scroll-mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">

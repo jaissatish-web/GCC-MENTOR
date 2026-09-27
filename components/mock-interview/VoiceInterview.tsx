@@ -14,7 +14,7 @@ async function jsonRequest(url: string, body?: Record<string, unknown>) {
   if (!response.ok) throw new Error(payload.error || 'Could not reach the interview service. Please retry.')
   return payload
 }
-function Recording({ api, draftKey, questionId, onSaved, onRecording }: { api: string; draftKey: string; questionId: string; onSaved: () => Promise<void>; onRecording: (active: boolean) => void }) {
+function Recording({ api, draftKey, questionId, onSaved, onRecording, room = false }: { api: string; draftKey: string; questionId: string; onSaved: () => Promise<void>; onRecording: (active: boolean) => void; room?: boolean }) {
   const recorder = useRecorder(draftKey)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -44,7 +44,7 @@ function Recording({ api, draftKey, questionId, onSaved, onRecording }: { api: s
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not save the recording.') }
     finally { uploading.current = false; setBusy(false) }
   }
-  return <div className="space-y-4 rounded-2xl border border-line bg-white p-4 sm:p-5">
+  return <div className={`space-y-2.5 rounded-2xl border border-line bg-white p-3 sm:space-y-4 sm:p-5 ${room ? 'shrink-0 shadow-[0_10px_35px_rgba(7,42,45,.08)]' : ''}`}>
     <div className="flex items-center justify-between text-sm"><strong>{recorder.state === 'recording' ? 'Recording your answer' : recorder.state === 'paused' ? 'Recording paused' : recorder.state === 'ready' ? 'Listen, then submit' : 'Ready when you are'}</strong><span className="font-mono">{Math.floor(recorder.seconds / 60)}:{String(Math.floor(recorder.seconds % 60)).padStart(2, '0')} / 3:00</span></div>
     <div className="h-2 overflow-hidden rounded bg-canvas" role="meter" aria-label="Microphone activity" aria-valuenow={Math.round(recorder.level * 100)} aria-valuemin={0} aria-valuemax={100}><div className="h-full bg-teal" style={{ width: `${recorder.level * 100}%` }} /></div>
     {recorder.state === 'paused' && <p className="text-sm text-ink-muted">A pause or interruption was detected. Resume when ready, or submit the answer you have recorded.</p>}
@@ -56,7 +56,7 @@ function Recording({ api, draftKey, questionId, onSaved, onRecording }: { api: s
       {recorder.state === 'ready' && <Button type="button" variant="secondary" onClick={() => void recorder.start()} disabled={busy}>Record again</Button>}
       {recorder.state !== 'idle' && <Button type="button" variant="primary" onClick={() => void submit()} busy={busy} busyLabel="Saving…">Submit answer</Button>}
     </div>
-    <p className="text-sm text-ink-muted">Seven seconds of silence pauses recording after you begin speaking. No answer is graded now. Recordings are stored privately for your requested review.</p>
+    <p className={`${room ? 'hidden sm:block' : ''} text-xs text-ink-muted sm:text-sm`}>Seven seconds of silence pauses recording after you begin speaking. No answer is graded now. Recordings are stored privately for your requested review.</p>
     {(error || recorder.error) && <p role="alert" className="text-sm text-alert">{error || recorder.error}</p>}
   </div>
 }
@@ -85,7 +85,7 @@ function AnswerReview({ answer, question, api }: { answer: VoiceAnswer; question
     {answer.delivery && <><h4 className="mt-4 font-semibold">Speaking observations</h4><p className="mt-2 text-sm">{answer.delivery.words_per_minute ?? '—'} words/min · {answer.delivery.long_pause_count ?? 'Unavailable'} pauses of 2+ seconds · {answer.delivery.filler_count} transcribed fillers</p><p className="mt-2 text-xs text-ink-muted">{answer.delivery.note}</p></>}
   </details>
 }
-export function VoiceInterview({ packageId, run, onUpdated }: { packageId: string; run: MockInterviewRun; onUpdated: () => void }) {
+export function VoiceInterview({ packageId, run, onUpdated, room = false }: { packageId: string; run: MockInterviewRun; onUpdated: () => void; room?: boolean }) {
   const api = `/api/packages/${encodeURIComponent(packageId)}/mock-interview/${encodeURIComponent(run.id)}/voice`
   const [view, setView] = useState<VoiceSessionView | null>(null)
   const [index, setIndex] = useState<number | null>(null)
@@ -133,18 +133,18 @@ export function VoiceInterview({ packageId, run, onUpdated }: { packageId: strin
     finally { setBusy(false) }
   }
   if (deleted || view?.status === 'deleting') return <p className="mt-6">Interview deleted.</p>
-  if (!view) return <div className="mt-6"><p role={error ? 'alert' : 'status'}>{error || 'Loading saved recordings…'}</p>{error && <Button onClick={() => { setError(null); void reload().catch(e => setError(e.message)) }}>Retry</Button>}</div>
+  if (!view) return <div className="flex flex-1 flex-col items-center justify-center gap-4 p-5"><p role={error ? 'alert' : 'status'}>{error || 'Loading saved recordings…'}</p>{error && <Button onClick={() => { setError(null); void reload().catch(e => setError(e.message)) }}>Retry</Button>}</div>
   const saved = view.answers.filter(a => a.saved_at).length
   const question = run.questions[index ?? 0]
   const savedCurrent = view.answers.some(a => a.question_id === question?.id && a.saved_at)
   const allSaved = saved === run.questions.length
-  return <section className="mt-6 space-y-5" aria-label="Recorded voice interview">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-semibold">{view.status === 'completed' ? 'Your recorded interview review' : reviewing ? 'Preparing your review' : `Interview · ${saved}/${run.questions.length} answers saved`}</h2><Button variant="ghost" size="sm" onClick={() => void remove()} disabled={busy || recording || reviewing}>Delete interview</Button></div>
+  return <section className={room ? `flex min-h-0 w-full flex-1 flex-col gap-2 p-2 sm:gap-3 sm:p-4 ${view.status === 'recording' && !allSaved ? 'overflow-hidden' : 'overflow-y-auto'}` : 'mt-6 space-y-5'} aria-label="Recorded voice interview">
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-1"><h2 className="text-sm font-semibold text-ink sm:text-xl">{view.status === 'completed' ? 'Your recorded interview review' : reviewing ? 'Preparing your review' : `Question ${Math.min((index ?? 0) + 1, run.questions.length)} of ${run.questions.length} · ${saved} saved`}</h2><Button variant="ghost" size="sm" onClick={() => void remove()} disabled={busy || recording || reviewing}>Delete interview</Button></div>
     {error && <p role="alert" className="rounded-lg bg-alert-soft p-3 text-sm text-alert">{error}</p>}
-    {view.status === 'recording' && question && !allSaved && <div className="grid gap-5 lg:grid-cols-[1.15fr_1fr]">
-      <Interviewer recording={recording} />
-      <div className="space-y-4"><div className="rounded-2xl border border-line bg-white p-5"><p className="text-sm font-semibold text-teal">Question {(index ?? 0) + 1} of {run.questions.length} · {question.focus}</p><h3 className="mt-3 text-xl font-semibold leading-relaxed">{question.question}</h3></div>
-        {savedCurrent ? <div className="rounded-2xl bg-teal-soft p-5"><p className="font-semibold">Recording saved. No grading yet.</p><SavedAudio api={api} questionId={question.id} /><Button className="mt-4" onClick={() => setIndex(run.questions.findIndex(q => !view.answers.some(a => a.question_id === q.id && a.saved_at)))}>Next question</Button></div> : <Recording key={question.id} api={api} draftKey={`gcc.voice.${packageId}.${run.id}.${question.id}`} questionId={question.id} onSaved={async () => { await reload() }} onRecording={setRecording} />}
+    {view.status === 'recording' && question && !allSaved && <div className={room ? 'flex min-h-0 flex-1 flex-col gap-2 md:grid md:grid-cols-[1.15fr_1fr] md:gap-4' : 'grid gap-5 lg:grid-cols-[1.15fr_1fr]'}>
+      <div className={room ? 'h-[34dvh] min-h-[124px] max-h-[320px] shrink-0 md:h-full md:max-h-none' : 'min-h-[280px]'}><Interviewer interviewerId={run.interviewer_id} recording={recording} /></div>
+      <div className={room ? 'flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto md:justify-center md:gap-5' : 'space-y-4'}><div className={`min-h-0 overflow-y-auto rounded-2xl border border-line bg-white p-3 sm:p-5 ${room ? 'flex-1 md:flex-none md:max-h-[40vh]' : ''}`}><p className="text-xs font-semibold text-teal sm:text-sm">Question {(index ?? 0) + 1} of {run.questions.length} · {question.focus}</p><h3 className="mt-2 text-base font-semibold leading-snug text-ink sm:mt-3 sm:text-xl sm:leading-relaxed">{question.question}</h3></div>
+        {savedCurrent ? <div className="shrink-0 rounded-2xl bg-teal-soft p-3 sm:p-5"><p className="font-semibold">Recording saved. No grading yet.</p><SavedAudio api={api} questionId={question.id} /><Button className="mt-3" onClick={() => setIndex(run.questions.findIndex(q => !view.answers.some(a => a.question_id === q.id && a.saved_at)))}>Next question</Button></div> : <Recording room={room} key={question.id} api={api} draftKey={`gcc.voice.${packageId}.${run.id}.${question.id}`} questionId={question.id} onSaved={async () => { await reload() }} onRecording={setRecording} />}
       </div>
     </div>}
     {view.status === 'recording' && allSaved && <div className="rounded-2xl border border-line bg-white p-5"><h3 className="text-xl font-semibold">Your interview is complete</h3><p className="mt-2 text-sm text-ink-muted">Listen to your saved answers below. Transcription and grading begin only when you request review.</p><Button className="mt-4" onClick={() => void review()} busy={busy} busyLabel="Starting review…">Review my interview</Button><div className="mt-5 space-y-3">{run.questions.map((q, i) => <details key={q.id} className="rounded-lg border border-line p-3"><summary className="cursor-pointer">Question {i + 1}: {q.question}</summary><SavedAudio api={api} questionId={q.id} /></details>)}</div></div>}
