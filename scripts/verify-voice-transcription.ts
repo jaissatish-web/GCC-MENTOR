@@ -7,6 +7,7 @@ async function main() {
   const header = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 0, 0, 0, 0, 0, 0, 0, 0])
   const blob = new Blob([header], { type: 'audio/webm' })
   const forms: FormData[] = []
+  const jsonBodies: Array<{ model: string; input_audio: { data: string; format: string } }> = []
   try {
     delete process.env.VOICE_STT_MODEL
     const openai = { provider: 'openai' as const, apiKey: 'offline-test-key' }
@@ -37,14 +38,15 @@ async function main() {
     let routedUrl = ''
     globalThis.fetch = async (url, options) => {
       routedUrl = String(url)
-      forms.push(options?.body as FormData)
+      jsonBodies.push(JSON.parse(String(options?.body)))
+      if (new Headers(options?.headers).get('Content-Type') !== 'application/json') throw new Error('OpenRouter transcription must use its JSON audio contract')
       return Response.json({ text: 'I completed the project.', usage: { cost: 0.0001 } })
     }
     const routed = await transcribeRecording(blob, 'audio/webm', 'answer.webm', 12, openrouter)
-    if (routedUrl !== 'https://openrouter.ai/api/v1/audio/transcriptions' || forms[3].get('model') !== 'openai/gpt-4o-mini-transcribe' || routed.delivery.duration_seconds !== 12) throw new Error('Existing OpenRouter account cannot use the saved audio contract')
+    if (routedUrl !== 'https://openrouter.ai/api/v1/audio/transcriptions' || jsonBodies[0].model !== 'openai/gpt-4o-mini-transcribe' || jsonBodies[0].input_audio.format !== 'webm' || !jsonBodies[0].input_audio.data || routed.delivery.duration_seconds !== 12) throw new Error('Existing OpenRouter account cannot use the saved audio contract')
     process.env.VOICE_STT_MODEL = 'openai/whisper-large-v3-turbo'
     await transcribeRecording(blob, 'audio/webm', 'answer.webm', 12, openrouter)
-    if (forms[4].get('model') !== 'openai/whisper-large-v3-turbo' || forms[4].get('response_format') !== 'json') throw new Error('Low-cost OpenRouter option is not selectable')
+    if (jsonBodies[1].model !== 'openai/whisper-large-v3-turbo' || jsonBodies[1].input_audio.format !== 'webm') throw new Error('Low-cost OpenRouter option is not selectable')
     console.log('Voice transcription model contracts passed')
   } finally {
     globalThis.fetch = originalFetch
