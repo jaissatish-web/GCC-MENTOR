@@ -26,6 +26,13 @@ async function main() {
     const detailed = await transcribeRecording(blob, 'audio/webm', 'answer.webm', 12)
     if (forms[1].get('model') !== 'whisper-1' || forms[1].get('response_format') !== 'verbose_json' || forms[1].getAll('timestamp_granularities[]').length !== 2) throw new Error('Whisper request lost its timestamp contract')
     if (detailed.delivery.long_pause_count !== 1 || !detailed.delivery.timing_available) throw new Error('Whisper word timestamps were not used for pause observations')
+    process.env.VOICE_STT_MODEL = 'gpt-transcribe'
+    globalThis.fetch = async (_url, options) => {
+      forms.push(options?.body as FormData)
+      return Response.json({ text: 'I completed the project.' })
+    }
+    const supported = await transcribeRecording(blob, 'audio/webm', 'answer.webm', 12)
+    if (forms[2].get('model') !== 'gpt-transcribe' || forms[2].get('response_format') !== 'json' || forms[2].has('language') || supported.delivery.timing_available) throw new Error('Replacement model request uses an unsupported response contract')
     console.log('Voice transcription model contracts passed')
   } finally {
     globalThis.fetch = originalFetch

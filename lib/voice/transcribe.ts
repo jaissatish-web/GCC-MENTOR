@@ -8,8 +8,9 @@ export async function transcribeRecording(blob: Blob, mime: string, filename: st
   if (!blob.size || blob.size > MAX_AUDIO_BYTES) throw new Error('Recording size is invalid.')
   if (!audioHeaderMatches(new Uint8Array(await blob.slice(0, 16).arrayBuffer()), mime)) throw new Error('Unsupported recording format.')
   if (!Number.isFinite(recordedSeconds) || recordedSeconds < 0.5 || recordedSeconds > MAX_ANSWER_SECONDS + 5) throw new Error('Recording duration is invalid.')
-  // Mini is the lower cost test default. Whisper can be selected when word timestamps are needed.
-  const model = process.env.VOICE_STT_MODEL === 'whisper-1' ? 'whisper-1' : 'gpt-4o-mini-transcribe'
+  // Mini is the lower cost test default; gpt-transcribe is the supported successor.
+  const chosen = process.env.VOICE_STT_MODEL
+  const model = chosen === 'whisper-1' || chosen === 'gpt-transcribe' ? chosen : 'gpt-4o-mini-transcribe'
   const form = new FormData()
   form.append('file', blob, filename)
   form.append('model', model)
@@ -18,7 +19,7 @@ export async function transcribeRecording(blob: Blob, mime: string, filename: st
     form.append('timestamp_granularities[]', 'word')
     form.append('timestamp_granularities[]', 'segment')
   }
-  form.append('language', 'en')
+  if (model !== 'gpt-transcribe') form.append('language', 'en')
   const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
     method: 'POST', headers: { Authorization: `Bearer ${key}` }, body: form,
     signal: AbortSignal.timeout(65_000), cache: 'no-store',
