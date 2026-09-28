@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { runRetention } from '@/lib/admin/retention'
+import { purgeDeletedVoiceSessions } from '@/lib/voice/retention'
 
 /**
  * GET /api/cron/retention — the daily retention clean-up (audit H07).
@@ -31,5 +32,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   const result = await runRetention('cron')
-  return NextResponse.json(result, { status: result.ok ? 200 : 500 })
+  if (!result.ok) return NextResponse.json(result, { status: 500 })
+
+  try {
+    await purgeDeletedVoiceSessions()
+    return NextResponse.json(result)
+  } catch (error) {
+    console.error('cron retention: voice audio purge failed', error)
+    return NextResponse.json({ ok: false, summary: result.summary, error: 'Voice audio purge failed' }, { status: 500 })
+  }
 }

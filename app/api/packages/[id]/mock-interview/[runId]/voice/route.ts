@@ -48,6 +48,7 @@ export async function POST(request: Request, props: Props) {
       if (session.status === 'deleting') return NextResponse.json({ error: 'Interview deleted' }, { status: 410 })
       const answer = (await voiceAnswers(runId)).find(a => a.question_id === questionId && a.saved_at)
       if (!answer) return NextResponse.json({ error: 'Recording not found' }, { status: 404 })
+      if (answer.audio_deleted_at || new Date(answer.audio_delete_after).getTime() <= Date.now()) return NextResponse.json({ error: 'This recording has expired. Your transcript and coaching report are still available.' }, { status: 410 })
       const { data, error } = await db.storage.from(VOICE_BUCKET).createSignedUrl(answer.audio_path, 300)
       if (error) throw error
       return NextResponse.json({ url: data.signedUrl }, { headers: { 'Cache-Control': 'private, no-store' } })

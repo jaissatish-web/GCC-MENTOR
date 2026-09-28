@@ -99,6 +99,12 @@ export function validateMockInterviewReport(output: unknown): string[] {
     const min = key === 'risky_answers' ? 0 : 1
     if (!strings(output[key], min, 5)) failures.push(`${key}: expected ${min}-5 strings`)
   }
+  if (!nonEmptyString(output.executive_summary)) failures.push('executive_summary: expected string')
+  if (!nonEmptyString(output.priority_focus)) failures.push('priority_focus: expected string')
+  if (!isRecord(output.score_explanations)) failures.push('score_explanations: expected object')
+  else for (const key of ['technical', 'role_fit', 'gulf_readiness', 'answer_structure']) {
+    if (!nonEmptyString(output.score_explanations[key])) failures.push(`score_explanations.${key}: expected string`)
+  }
   return failures
 }
 
@@ -116,5 +122,13 @@ export function normalizeMockInterviewReport(output: unknown): MockInterviewFina
     risky_answers: arr('risky_answers'),
     improvement_plan: arr('improvement_plan'),
     next_practice_questions: arr('next_practice_questions'),
+    executive_summary: nonEmptyString(o.executive_summary) ? o.executive_summary.trim() : undefined,
+    priority_focus: nonEmptyString(o.priority_focus) ? o.priority_focus.trim() : undefined,
+    score_explanations: isRecord(o.score_explanations) ? {
+      technical: String(o.score_explanations.technical ?? '').trim(),
+      role_fit: String(o.score_explanations.role_fit ?? '').trim(),
+      gulf_readiness: String(o.score_explanations.gulf_readiness ?? '').trim(),
+      answer_structure: String(o.score_explanations.answer_structure ?? '').trim(),
+    } : undefined,
   }
 }

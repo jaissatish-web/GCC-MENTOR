@@ -82,4 +82,4 @@ reads the published text.
 
 ## Recorded voice data (unreleased)
 
-Private answer audio, frozen career/run snapshots, transcripts, speaking metrics and coaching reports persist for practice history until interview/parent deletion. Stopped unsent audio can remain in device IndexedDB. Service-owned cleanup queues retain object paths for delayed removal after signed upload expiry. A configured worker is required. See [storage, deletion and setup](RECORDED_VOICE_INTERVIEW.md).
+Private answer audio is retained for three days, then removed by the configured worker through the Storage API. Frozen career/run snapshots, transcripts, speaking metrics and coaching reports persist for practice history until interview/parent deletion. Stopped unsent audio can remain in device IndexedDB. Service-owned cleanup queues retain object paths for delayed removal after signed upload expiry. A configured worker is required. See [storage, deletion and setup](RECORDED_VOICE_INTERVIEW.md).

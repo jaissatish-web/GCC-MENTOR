@@ -34,6 +34,8 @@ export interface VoiceAnswer {
   saved_at: string | null
   duration_seconds: number | null
   byte_size: number | null
+  audio_delete_after: string
+  audio_deleted_at: string | null
   transcript: string | null
   delivery: DeliveryMetrics | null
   feedback: VoiceFeedback | null

@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
+import { fileURLToPath } from 'node:url'
 import { createSupabaseLikeDb, applyMigrations, createAuthUser, asUser, asService, asAnon } from './db/supabaseStub.mjs'
 const db = await createSupabaseLikeDb()
 let checks = 0
 function check(value, message) { assert.ok(value, message); checks++; console.log('PASS', message) }
 async function denied(fn) { try { await fn(); return false } catch { return true } }
 try {
-  await applyMigrations(db, new URL('../supabase/migrations', import.meta.url).pathname)
+  await applyMigrations(db, fileURLToPath(new URL('../supabase/migrations', import.meta.url)))
   const a = await createAuthUser(db, 'voice-a@example.test'); const b = await createAuthUser(db, 'voice-b@example.test')
   const profile = (await db.query("insert into public.career_profiles(user_id,full_name,currently_in_gulf,phone,email) values($1,'Synthetic candidate',false,'+10000000000','synthetic@example.test') returning id", [a])).rows[0].id
   const pkg = (await db.query("insert into public.packages(user_id,profile_id,target_job_title,optimization_level,field_visibility_snapshot) values($1,$2,'Engineer','moderate','{}') returning id", [a,profile])).rows[0].id
@@ -30,6 +31,7 @@ try {
   }
   check((await asUser(db,b,()=>db.query('select * from public.voice_interview_answers'))).rows.length===0,'another user cannot read answers')
   check((await asUser(db,a,()=>db.query('select * from public.voice_interview_answers'))).rows.length===5,'owner reads all saved answers')
+  check((await db.query("select count(*)::int n from public.voice_interview_answers where audio_delete_after between now()+interval '71 hours' and now()+interval '73 hours' and audio_deleted_at is null")).rows[0].n===5,'every prepared recording receives a three-day deletion deadline')
   check((await db.query('select count(*)::int n from public.voice_interview_answers where transcript is not null or feedback is not null')).rows[0].n===0,'recording does not transcribe or grade')
   check((await asService(db,()=>db.query('select public.voice_request_review($1,$2) s',[runId,a]))).rows[0].s==='queued','explicit review queues complete interview')
   check((await asService(db,()=>db.query('select public.voice_request_review($1,$2) s',[runId,a]))).rows[0].s==='queued','duplicate review does not create another job')

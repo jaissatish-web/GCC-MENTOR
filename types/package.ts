@@ -171,6 +171,15 @@ export interface MockInterviewFinalReport {
   risky_answers: string[]
   improvement_plan: string[]
   next_practice_questions: string[]
+  /** Added for richer reports; optional so previously saved reports still render. */
+  executive_summary?: string
+  priority_focus?: string
+  score_explanations?: {
+    technical: string
+    role_fit: string
+    gulf_readiness: string
+    answer_structure: string
+  }
 }
 
 export interface MockInterviewRun {

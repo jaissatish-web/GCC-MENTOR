@@ -218,6 +218,10 @@ export function buildMockInterviewReportPrompt(run: MockInterviewRun): BuiltProm
       'This is preparation feedback on written answers, not a prediction of whether the candidate will be hired.',
       'Do not claim to evaluate voice, accent, pace, pronunciation or audio confidence.',
       'Scores must be integers from 0 to 100.',
+      'Write a diagnostic report, not generic encouragement. Every finding must say what was observed, why it matters in an interview, and what the candidate should do next.',
+      'The executive summary must state the current preparation level, the clearest strength, the main weakness and the single highest-priority improvement.',
+      'Each score explanation must connect that score to evidence in the submitted answers. Do not invent evidence.',
+      'Improvement plan items must be ordered by priority and written as: action, why it matters, and a concrete success check the candidate can use while practising.',
       'Give practical improvements the candidate can use before a real Gulf interview.',
     ].join('\n'),
     input: [
@@ -237,10 +241,18 @@ export function buildMockInterviewReportPrompt(run: MockInterviewRun): BuiltProm
   "role_fit_score": 0,
   "gulf_readiness_score": 0,
   "answer_structure_score": 0,
+  "executive_summary": "3-5 specific sentences covering current status, strongest signal, main weakness and priority",
+  "priority_focus": "the one improvement to work on first and why",
+  "score_explanations": {
+    "technical": "1-2 evidence-based sentences",
+    "role_fit": "1-2 evidence-based sentences",
+    "gulf_readiness": "1-2 evidence-based sentences",
+    "answer_structure": "1-2 evidence-based sentences"
+  },
   "strengths": ["3-5 short items"],
   "weak_points": ["3-5 short items"],
   "risky_answers": ["0-5 short items"],
-  "improvement_plan": ["3-5 practical actions"],
+  "improvement_plan": ["3-5 ordered actions, each including why it matters and a success check"],
   "next_practice_questions": ["3-5 questions"]
 }`,
     ].join('\n\n'),
