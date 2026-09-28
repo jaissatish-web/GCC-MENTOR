@@ -1,6 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { ProcessingInline } from '@/components/ui/Processing'
 import { createClient } from '@/lib/supabase/client'
 import { VOICE_BUCKET, type VoiceSessionView, type VoiceAnswer } from '@/lib/voice/types'
 import { draftOperation } from '@/lib/voice/localDraft'
@@ -81,7 +82,7 @@ function Progress({ history }: { history: VoiceSessionView['history'] }) {
 function AnswerReview({ answer, question, api }: { answer: VoiceAnswer; question: string; api: string }) {
   return <details className="rounded-xl border border-line bg-white p-4"><summary className="cursor-pointer font-semibold">{question}</summary><SavedAudio api={api} questionId={answer.question_id} />
     <h4 className="mt-4 font-semibold">Your transcript</h4><p className="mt-2 whitespace-pre-wrap text-sm">{answer.transcript}</p><p className="mt-1 text-xs text-ink-muted">Automatically transcribed. Check against the recording if feedback seems unexpected.</p>
-    {answer.feedback && <><h4 className="mt-4 font-semibold">Answer feedback · {answer.feedback.score}/10</h4><p className="mt-2 text-sm">{answer.feedback.feedback}</p><h4 className="mt-4 font-semibold">Suggested stronger answer</h4><p className="mt-2 text-sm">{answer.feedback.better_answer}</p><h4 className="mt-4 font-semibold">Grammar and wording</h4>{answer.feedback.grammar.length ? <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">{answer.feedback.grammar.map((g, i) => <li key={i}>{g}</li>)}</ul> : <p className="mt-2 text-sm">No specific wording correction identified.</p>}</>}
+    {answer.feedback && <><h4 className="mt-4 font-semibold">What went well and what to improve · {answer.feedback.score}/10</h4><p className="mt-2 text-sm whitespace-pre-wrap">{answer.feedback.feedback}</p><h4 className="mt-4 font-semibold">A stronger answer to practise</h4><p className="mt-2 text-sm whitespace-pre-wrap">{answer.feedback.better_answer}</p><h4 className="mt-4 font-semibold">Wording to improve</h4>{answer.feedback.grammar.length ? <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">{answer.feedback.grammar.map((g, i) => <li key={i}>{g}</li>)}</ul> : <p className="mt-2 text-sm">No specific wording correction identified.</p>}{answer.feedback.follow_up && <><h4 className="mt-4 font-semibold">Practise next</h4><p className="mt-2 text-sm">{answer.feedback.follow_up}</p></>}</>}
     {answer.delivery && <><h4 className="mt-4 font-semibold">Speaking observations</h4><p className="mt-2 text-sm">{answer.delivery.words_per_minute ?? '—'} words/min · {answer.delivery.long_pause_count ?? 'Unavailable'} pauses of 2+ seconds · {answer.delivery.filler_count} transcribed fillers</p><p className="mt-2 text-xs text-ink-muted">{answer.delivery.note}</p></>}
   </details>
 }
@@ -95,11 +96,14 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
   const [deleted, setDeleted] = useState(false)
   const updateRef = useRef(onUpdated); updateRef.current = onUpdated
   const completionNotified = useRef(false)
+  const retryCount = useRef(0)
+  const failedResumes = useRef(0)
   const reload = useCallback(async () => {
     const result = await jsonRequest(api) as VoiceSessionView
     setView(result)
     setIndex(current => current ?? Math.max(0, run.questions.findIndex(q => !result.answers.some(a => a.question_id === q.id && a.saved_at))))
     if (result.status === 'completed' && !completionNotified.current) { completionNotified.current = true; updateRef.current() }
+    if (result.status === 'failed') setError(result.last_error || 'Review paused. Your completed answers are saved.')
     return result
   }, [api, run.questions])
   useEffect(() => { void reload().catch(e => setError(e.message)) }, [reload])
@@ -109,13 +113,25 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
     let stopped = false
     let timer: ReturnType<typeof setTimeout>
     async function step() {
-      try { await jsonRequest(api, { action: 'process' }); if (!stopped) await reload() }
-      catch (e) { if (!stopped) setError(e instanceof Error ? e.message : 'Review interrupted. Reopen this interview to continue.') }
-      if (!stopped) timer = setTimeout(() => void step(), 3000)
+      try {
+        await jsonRequest(api, { action: 'process' })
+        if (!stopped) { await reload(); retryCount.current = 0; setError(null) }
+      } catch (e) {
+        if (!stopped) { retryCount.current++; setError(e instanceof Error ? e.message : 'Connection interrupted. Retrying saved review…') }
+      }
+      if (!stopped) timer = setTimeout(() => void step(), Math.min(15000, 3000 * Math.max(1, retryCount.current)))
     }
     void step()
     return () => { stopped = true; clearTimeout(timer) }
   }, [reviewing, api, reload])
+  useEffect(() => {
+    if (view?.status !== 'failed' || failedResumes.current >= 2) return
+    const timer = setTimeout(() => {
+      failedResumes.current++
+      void jsonRequest(api, { action: 'review' }).then(() => reload()).catch(e => setError(e instanceof Error ? e.message : 'Review paused. Retry when ready.'))
+    }, 8000 * (failedResumes.current + 1))
+    return () => clearTimeout(timer)
+  }, [view?.status, api, reload])
   async function review() {
     setBusy(true); setError(null)
     try { await jsonRequest(api, { action: 'review' }); await reload() }
@@ -148,7 +164,7 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
       </div>
     </div>}
     {view.status === 'recording' && allSaved && <div className="rounded-2xl border border-line bg-white p-5"><h3 className="text-xl font-semibold">Your interview is complete</h3><p className="mt-2 text-sm text-ink-muted">Listen to your saved answers below. Transcription and grading begin only when you request review.</p><Button className="mt-4" onClick={() => void review()} busy={busy} busyLabel="Starting review…">Review my interview</Button><div className="mt-5 space-y-3">{run.questions.map((q, i) => <details key={q.id} className="rounded-lg border border-line p-3"><summary className="cursor-pointer">Question {i + 1}: {q.question}</summary><SavedAudio api={api} questionId={q.id} /></details>)}</div></div>}
-    {reviewing && <div className="rounded-2xl border border-line bg-white p-5" role="status"><h3 className="text-xl font-semibold">Reviewing saved answers</h3><p className="mt-2">{view.answers.filter(a => a.feedback).length} of {run.questions.length} answers reviewed.</p><p className="mt-2 text-sm text-ink-muted">Your progress is saved. You can reopen this interview to continue and read the completed report.</p>{view.last_error && <Button className="mt-3" onClick={() => void review()}>Retry review</Button>}</div>}
+    {reviewing && <div className="rounded-2xl border border-line bg-white p-5" role="status"><h3 className="text-xl font-semibold">Preparing your interview report</h3><p className="mt-2 text-sm font-semibold text-teal">{view.answers.filter(a => a.feedback).length} of {run.questions.length} answers reviewed{view.answers.every(a => a.feedback) ? ' · preparing your final report' : ''}</p><ProcessingInline steps={['Transcribing saved answers', 'Reviewing each answer', 'Writing your preparation report']} stepMs={6000} notes={['Each completed answer is saved as the review continues.', 'You can reopen this interview; review continues from saved progress.']} /><p className="mt-2 text-sm text-ink-muted">Keep this page open for automatic progress. Your answers are safe if you leave.</p></div>}
     {view.status === 'failed' && <div role="alert" className="rounded-xl bg-alert-soft p-5"><p>{view.last_error || 'Review was interrupted. Your recordings are saved.'}</p><Button className="mt-3" onClick={() => void review()} busy={busy}>Retry review</Button></div>}
     {view.status === 'completed' && <><Progress history={view.history} />{run.final_report && <div className="rounded-2xl bg-teal-soft p-5"><h3 className="text-xl font-semibold">Your next three improvements</h3><ol className="mt-3 list-decimal space-y-2 pl-5">{run.final_report.improvement_plan.slice(0, 3).map((p, i) => <li key={i}>{p}</li>)}</ol><p className="mt-3 text-sm">Practise these points, then start another interview with the same settings to track your progress.</p></div>}<div className="space-y-3">{run.questions.map(q => { const a = view.answers.find(a => a.question_id === q.id); return a ? <AnswerReview key={q.id} answer={a} question={q.question} api={api} /> : null })}</div></>}
   </section>

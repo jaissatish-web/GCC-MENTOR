@@ -490,8 +490,18 @@ function Report({ run }: { run: MockInterviewRun }) {
     ['Gulf readiness', report.gulf_readiness_score],
     ['Answer structure', report.answer_structure_score],
   ] as const
+  function downloadCard() {
+    if (!report) return
+    // The public card deliberately contains no name, transcript or private career details.
+    const score = Math.max(0, Math.min(100, Math.round(report.overall_score)))
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#062d35"/><stop offset="1" stop-color="#0b716d"/></linearGradient></defs><rect width="1080" height="1080" rx="48" fill="url(#g)"/><circle cx="880" cy="170" r="310" fill="#ffffff" opacity=".05"/><circle cx="130" cy="1000" r="350" fill="#ffffff" opacity=".04"/><text x="88" y="140" fill="#baf1df" font-family="Arial,sans-serif" font-size="38" font-weight="700">GCC MENTOR</text><text x="88" y="250" fill="white" font-family="Arial,sans-serif" font-size="62" font-weight="700">Interview practice</text><text x="88" y="330" fill="#d8f5ed" font-family="Arial,sans-serif" font-size="34">Preparation score</text><circle cx="540" cy="585" r="204" fill="none" stroke="#ffffff" stroke-opacity=".2" stroke-width="24"/><circle cx="540" cy="585" r="204" fill="none" stroke="#9ce8cc" stroke-width="24" stroke-dasharray="${score * 12.82} 1282" transform="rotate(-90 540 585)"/><text x="540" y="625" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="170" font-weight="700">${score}</text><text x="540" y="690" text-anchor="middle" fill="#d8f5ed" font-family="Arial,sans-serif" font-size="35">out of 100</text><text x="88" y="920" fill="white" font-family="Arial,sans-serif" font-size="34">Practising today. Improving tomorrow.</text><text x="88" y="976" fill="#baf1df" font-family="Arial,sans-serif" font-size="24">AI practice feedback · Not an employer assessment</text></svg>`
+    const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }))
+    const link = document.createElement('a'); link.href = url; link.download = 'gcc-mentor-interview-card.svg'; link.click()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
   return (
     <div className="mt-5 flex flex-col gap-5">
+      <div className="rounded-2xl bg-gradient-to-br from-[#062d35] to-[#0b716d] p-6 text-white shadow-lg sm:p-8"><p className="text-xs font-bold tracking-[.2em] text-[#baf1df]">GCC MENTOR · INTERVIEW PRACTICE</p><div className="mt-5 flex items-center gap-5"><strong className="text-6xl sm:text-7xl">{report.overall_score}<span className="text-xl text-[#baf1df]">/100</span></strong><p className="text-sm leading-relaxed text-[#d8f5ed]">Your preparation score<br />Practising today. Improving tomorrow.</p></div><p className="mt-5 text-xs text-[#baf1df]">AI practice feedback · Not an employer assessment</p><Button type="button" variant="secondary" className="mt-5" onClick={downloadCard}>Download shareable card</Button></div>
       <p className="rounded-ctl border border-line bg-canvas px-3.5 py-2.5 text-[12.5px] leading-relaxed text-ink-muted">
         AI preparation feedback on your {run.input_mode === 'voice' ? 'recorded answers' : 'written answers'}. It is guidance for practice — not a prediction of any employer&apos;s decision.
       </p>
