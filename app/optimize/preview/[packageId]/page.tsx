@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { BriefcaseBusiness, FileText, Puzzle, type LucideIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Suspense, use, useEffect, useMemo, useRef, useState } from 'react'
 import { diffWords } from 'diff'
@@ -233,7 +234,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
         </div>
 
         {/* SUMMARY */}
-        <Section title="Professional summary" tone="border-sec-summary/40" accent="text-sec-summary" icon="📝">
+        <Section title="Professional summary" tone="border-sec-summary/40" accent="text-sec-summary" icon={FileText}>
           {editing === 'summary' ? (
             <EditBox value={summary} rows={6} onChange={setSummary} onDone={() => setEditing(null)} />
           ) : (
@@ -255,7 +256,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
         </Section>
 
         {/* SKILLS */}
-        <Section title="Skills" tone="border-sec-skills/40" accent="text-sec-skills" icon="🧩">
+        <Section title="Skills" tone="border-sec-skills/40" accent="text-sec-skills" icon={Puzzle}>
           <p className="text-[12.5px] text-ink-muted">Ordered by relevance to this job. Tap × to remove a skill.</p>
           <div className="flex flex-wrap gap-2">
             {skills.map((k) => {
@@ -312,7 +313,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
         </Section>
 
         {/* WORK EXPERIENCE */}
-        <Section title="Work experience" tone="border-sec-experience/40" accent="text-sec-experience" icon="💼">
+        <Section title="Work experience" tone="border-sec-experience/40" accent="text-sec-experience" icon={BriefcaseBusiness}>
           <p className="text-[12.5px] text-ink-muted">Employers, job titles and dates stay exactly as in your profile.</p>
           {doc.experience.map((item) => {
             const id = item.entry.id
@@ -400,11 +401,11 @@ function PreviewInner({ packageId }: { packageId: string }) {
   )
 }
 
-function Section({ title, tone, accent, icon, children }: { title: string; tone: string; accent: string; icon: string; children: React.ReactNode }) {
+function Section({ title, tone, accent, icon: Icon, children }: { title: string; tone: string; accent: string; icon: LucideIcon; children: React.ReactNode }) {
   return (
     <section className={cn('flex flex-col gap-3 rounded-card border-2 bg-white p-4 shadow-m-1 sm:p-5', tone)}>
       <h2 className={cn('flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.12em]', accent)}>
-        <span aria-hidden="true">{icon}</span>
+        <Icon className="size-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
         {title}
       </h2>
       {children}

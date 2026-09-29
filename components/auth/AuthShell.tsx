@@ -43,9 +43,11 @@ export function AuthShell({
           <span className="text-[15px] font-bold text-ink">GCC MENTOR</span>
         </Link>
 
-        <div className="mt-7 inline-flex w-fit items-center gap-2 rounded-full border border-teal/40 bg-teal-soft px-3.5 py-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-teal" />
-          <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal">
+        <div className="mt-7 inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-teal/40 bg-teal-soft px-3 py-1.5 sm:px-3.5">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" />
+          {/* One line at every width: tighter tracking and size on phones, where
+              the six names wrapped onto two lines inside a pill (2026-09-29). */}
+          <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.06em] text-teal min-[400px]:text-[11px] sm:text-[12px] sm:tracking-[0.12em]">
             Saudi · UAE · Qatar · Oman · Kuwait · Bahrain
           </span>
         </div>

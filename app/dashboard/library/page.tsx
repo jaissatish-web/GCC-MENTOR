@@ -215,9 +215,9 @@ function ApplicationCard({
   const displayName = (pkg.name ?? '').trim() || pkg.target_job_title
 
   return (
-    <article className="flex min-w-0 flex-col gap-4 rounded-card border border-line bg-white p-4 shadow-m-1 transition-shadow hover:shadow-m-2 sm:p-5">
+    <article className="flex min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-3.5 shadow-m-1 transition-shadow hover:shadow-m-2 sm:gap-4 sm:p-5">
       {/* Who and where — the title opens this job's workspace. */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0 flex-1">
           <Link
             href={`/package/${id}`}
@@ -244,7 +244,7 @@ function ApplicationCard({
             <Link
               href={st.href}
               className={cn(
-                'flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-ctl border px-1 py-1.5 text-center text-[12px] font-semibold leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+                'flex min-h-11 items-center justify-center gap-1 rounded-ctl border px-1 py-1.5 text-center text-[12px] font-semibold leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-col sm:gap-0.5',
                 st.done ? 'border-ok/30 bg-ok-soft text-ok' : 'border-dashed border-line-strong bg-canvas text-ink-muted hover:border-teal/50',
               )}
             >

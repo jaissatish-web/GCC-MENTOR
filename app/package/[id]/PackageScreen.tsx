@@ -661,7 +661,7 @@ function PackageScreenInner({ id }: { id: string }) {
             TASK-160 collapsed five stacked rows into this one specifically to
             give the A4 sheet its vertical room back, and a new full-width
             header would spend exactly what that bought. */}
-        <div className="flex flex-wrap items-center gap-2 lg:ml-auto lg:justify-end">
+        <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
           <StageSelect value={pkg.status} onChange={(next) => void saveStage(next)} />
           {stageState ? <span className="text-[12px] text-alert">{stageState}</span> : null}
           <a

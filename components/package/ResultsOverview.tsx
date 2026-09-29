@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { FileText, Mail, MessagesSquare, Mic, PenLine, Target, TrendingUp, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { buttonVariants } from '@/components/ui/Button'
 import { readMatchReport } from '@/components/optimizer/MatchResult'
@@ -92,7 +93,7 @@ export function ResultsOverview({
       <div className="grid gap-3 md:grid-cols-2">
         {/* TARGET JOB — teal */}
         <article className="flex flex-col gap-2 rounded-card border border-teal/40 bg-teal-soft p-4">
-          <CardLabel tone="text-teal" icon="🎯">{NAMES.targetJob}</CardLabel>
+          <CardLabel tone="text-teal" icon={Target}>{NAMES.targetJob}</CardLabel>
           <p className="break-words font-display text-[20px] leading-tight text-ink">{pkg.target_job_title}</p>
           <p className="text-[12.5px] text-ink-soft">
             {[pkg.target_company, industry, `${level} optimization`].filter(Boolean).join(' · ')}
@@ -120,7 +121,7 @@ export function ResultsOverview({
 
         {/* ATS SCORE — green */}
         <article className="flex flex-col gap-2 rounded-card border border-ok/40 bg-ok-soft p-4">
-          <CardLabel tone="text-ok" icon="📈">
+          <CardLabel tone="text-ok" icon={TrendingUp}>
             {NAMES.atsScore}
             {report?.mode === 'target_title_only' ? ' · estimate' : ''}
           </CardLabel>
@@ -168,7 +169,7 @@ export function ResultsOverview({
         {/* SUMMARY — purple */}
         <article className="flex flex-col gap-2 rounded-card border border-sec-summary/30 bg-[#F2EEF9] p-4">
           <div className="flex items-center justify-between gap-2">
-            <CardLabel tone="text-sec-summary" icon="📝">Professional summary</CardLabel>
+            <CardLabel tone="text-sec-summary" icon={FileText}>Professional summary</CardLabel>
             <Link href={`/package/${id}/edit`} className="inline-flex min-h-11 items-center text-[13px] font-semibold text-sec-summary underline-offset-2 hover:underline">
               {CTA.editCv}
             </Link>
@@ -185,7 +186,7 @@ export function ResultsOverview({
 
         {/* WHAT CHANGED — gold */}
         <article className="flex flex-col gap-2 rounded-card border border-gold/40 bg-gold-soft/60 p-4">
-          <CardLabel tone="text-gold-ink" icon="✏️">What changed</CardLabel>
+          <CardLabel tone="text-gold-ink" icon={PenLine}>What changed</CardLabel>
           <ul className="flex flex-col gap-1.5 text-[13px] text-ink">
             <Change ok={summaryWritten}>{summaryWritten ? 'Summary rewritten for this job' : 'Summary written from your profile facts'}</Change>
             <Change ok={rewritten > 0}>
@@ -204,7 +205,7 @@ export function ResultsOverview({
       {/* NEXT STEPS — one coloured tile per service */}
       <div className="grid gap-3 sm:grid-cols-3">
         <ServiceTile
-          icon="✉️"
+          icon={Mail}
           title={NAMES.coverLetter}
           body={USES.coverLetter}
           done={letterReady}
@@ -216,7 +217,7 @@ export function ResultsOverview({
           accent="text-sec-summary"
         />
         <ServiceTile
-          icon="💬"
+          icon={MessagesSquare}
           title={NAMES.interviewQa}
           body={USES.interviewQa}
           done={qaReady}
@@ -228,7 +229,7 @@ export function ResultsOverview({
           accent="text-sec-status"
         />
         <ServiceTile
-          icon="🎤"
+          icon={Mic}
           title={NAMES.mockInterview}
           body={USES.mockInterview}
           done={mockReady}
@@ -253,10 +254,10 @@ function formatDay(iso: string): string {
   return `${d.getDate()} ${MONTHS[d.getMonth()] ?? ''}`
 }
 
-function CardLabel({ children, tone, icon }: { children: React.ReactNode; tone: string; icon: string }) {
+function CardLabel({ children, tone, icon: Icon }: { children: React.ReactNode; tone: string; icon: LucideIcon }) {
   return (
     <p className={cn('flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.12em]', tone)}>
-      <span aria-hidden="true">{icon}</span>
+      <Icon className="size-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
       {children}
     </p>
   )
@@ -294,7 +295,7 @@ function Change({ ok, children }: { ok: boolean; children: React.ReactNode }) {
 }
 
 function ServiceTile({
-  icon,
+  icon: Icon,
   title,
   body,
   done,
@@ -306,7 +307,7 @@ function ServiceTile({
   tone,
   accent,
 }: {
-  icon: string
+  icon: LucideIcon
   title: string
   body: string
   done: boolean
@@ -322,8 +323,10 @@ function ServiceTile({
   return (
     <article className={cn('flex flex-col gap-2 rounded-card border p-4 shadow-m-1', tone)}>
       <div className="flex items-center justify-between gap-2">
-        <p className={cn('flex items-center gap-1.5 text-[14px] font-bold', accent)}>
-          <span aria-hidden="true">{icon}</span>
+        <p className={cn('flex items-center gap-2 text-[14px] font-bold', accent)}>
+          <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-canvas" aria-hidden="true">
+            <Icon className="size-4" strokeWidth={2.1} />
+          </span>
           {title}
         </p>
         <span
