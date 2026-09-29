@@ -1,0 +1,242 @@
+/*
+ * Landing concept motion. Transform + opacity only, so every animation here
+ * runs on the compositor and none can cause layout shift. Everything that
+ * moves on its own is switched off under prefers-reduced-motion at the bottom.
+ */
+
+/* ── Hero resume stack ─────────────────────────────────────────────── */
+.stage {
+  perspective: 1400px;
+  --dx: 14px;
+  --dy: -18px;
+  --rot: 1.6deg;
+}
+@media (min-width: 1024px) {
+  .stage {
+    --dx: 34px;
+    --dy: -26px;
+    --rot: 2.4deg;
+  }
+}
+
+.deck {
+  position: relative;
+  transform-style: preserve-3d;
+}
+@media (min-width: 1024px) {
+  .deck {
+    transform: rotateY(-6deg) rotateX(2deg);
+  }
+}
+
+.sheet {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.7s ease,
+    box-shadow 0.9s ease;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.sheet[data-pos='0'] {
+  transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  opacity: 1;
+  z-index: 4;
+}
+.sheet[data-pos='1'] {
+  transform: translate3d(var(--dx), var(--dy), 0) scale(0.95) rotate(var(--rot));
+  opacity: 0.92;
+  z-index: 3;
+}
+.sheet[data-pos='2'] {
+  transform: translate3d(calc(var(--dx) * 2), calc(var(--dy) * 2), 0) scale(0.9) rotate(calc(var(--rot) * 2));
+  opacity: 0.7;
+  z-index: 2;
+}
+/* Cards waiting behind are veiled, so only the front one is read. */
+.sheet[data-pos='1']::after,
+.sheet[data-pos='2']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: rgba(250, 247, 242, 0.62);
+}
+
+/* The card that just left the front: slides out and down, then waits at the back. */
+.sheet[data-pos='3'] {
+  transform: translate3d(calc(var(--dx) * -3), 40px, 0) scale(0.92) rotate(calc(var(--rot) * -3));
+  opacity: 0;
+  z-index: 1;
+}
+
+/* A thin gold sweep across the front sheet: "being prepared". */
+.scan {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 36%;
+  background: linear-gradient(180deg, rgba(201, 150, 46, 0) 0%, rgba(201, 150, 46, 0.14) 80%, rgba(201, 150, 46, 0.5) 100%);
+  animation: scan 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  pointer-events: none;
+}
+@keyframes scan {
+  0% { transform: translateY(-100%); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(290%); opacity: 0; }
+}
+
+.progressFill {
+  animation: progress var(--step-ms, 3600ms) linear forwards;
+  transform-origin: 0 50%;
+}
+@keyframes progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ── Generic reveal-on-view ──────────────────────────────────────── */
+.rise {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--d, 0ms);
+}
+.rise[data-on='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ATS scanner: a bright line reading down the CV, on loop while scanning. */
+.scanRow {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #c9962e 20%, #c9962e 80%, transparent);
+  box-shadow: 0 0 14px 3px rgba(201, 150, 46, 0.45);
+  animation: scanRow 1.1s ease-in-out infinite alternate;
+}
+@keyframes scanRow {
+  from { transform: translateY(0); }
+  to { transform: translateY(110px); }
+}
+
+/* Replayed on remount (key change): a panel swapping in. */
+.enter {
+  animation: enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes enter {
+  from { opacity: 0; transform: translate3d(0, 10px, 0) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Keyword chips that leave once the CV is optimized. */
+.chipOut {
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease,
+    filter 0.45s ease;
+  transition-delay: var(--d, 0ms);
+}
+.chipOut[data-gone='true'] {
+  opacity: 0.35;
+  transform: scale(0.94);
+  filter: grayscale(1);
+  text-decoration: line-through;
+}
+
+/* Connector between a job requirement and the profile fact that answers it. */
+.wire {
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--d, 0ms);
+}
+.wire[data-on='true'] {
+  transform: scaleX(1);
+}
+.wireV {
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--d, 0ms);
+}
+.wireV[data-on='true'] {
+  transform: scaleY(1);
+}
+
+/* ── Mock interview waveform ─────────────────────────────────────── */
+.wave span {
+  display: block;
+  width: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  height: 100%;
+  transform-origin: 50% 50%;
+  animation: wave 1.1s ease-in-out infinite;
+  animation-delay: var(--d, 0ms);
+}
+.wave[data-idle='true'] span {
+  animation-play-state: paused;
+  transform: scaleY(0.18);
+}
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.2); }
+  50% { transform: scaleY(1); }
+}
+
+.pulse {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* Final CTA chain: each node lights in turn. */
+.chain > * {
+  animation: chainGlow 6s ease-in-out infinite;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes chainGlow {
+  0%, 12%, 40%, 100% { background-color: rgba(255, 255, 255, 0.08); }
+  22%, 30% { background-color: rgba(247, 239, 221, 0.24); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .rise,
+  .chipOut,
+  .wire,
+  .wireV {
+    transition: none !important;
+  }
+  .scan,
+  .scanRow,
+  .enter,
+  .pulse,
+  .chain > *,
+  .progressFill,
+  .wave span {
+    animation: none !important;
+  }
+  .scan {
+    display: none;
+  }
+  .rise {
+    opacity: 1;
+    transform: none;
+  }
+  .wave span {
+    transform: scaleY(0.5);
+  }
+  .deck {
+    transform: none;
+  }
+}

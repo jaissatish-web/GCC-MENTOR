@@ -22,11 +22,11 @@ import './resolve-paths'
 import fs from 'fs'
 import path from 'path'
 
-const NAV = path.join(process.cwd(), 'components/marketing/SiteNav.tsx')
+const NAV = path.join(process.cwd(), 'components/landing-v3/Sections.tsx')
 const PAGE = path.join(process.cwd(), 'app/page.tsx')
-// Landing v2 (2026-09-24) moved each section into its own component, so the
-// ids live there as well as in the page.
-const SECTIONS = path.join(process.cwd(), 'components/landing-v2')
+// Landing v3 (2026-09-29): the nav is LandingNav in Sections.tsx and the
+// section ids live across the landing-v3 components.
+const SECTIONS = path.join(process.cwd(), 'components/landing-v3')
 
 const nav = fs.readFileSync(NAV, 'utf8')
 const page = [PAGE, ...fs.readdirSync(SECTIONS).filter((f) => f.endsWith('.tsx')).map((f) => path.join(SECTIONS, f))]
@@ -48,8 +48,8 @@ function findAll(source: string, re: RegExp): string[] {
   return out
 }
 
-/** Only the hrefs inside the ITEMS tuple list, not any in prose or comments. */
-const itemsBlock = nav.slice(nav.indexOf('const ITEMS'), nav.indexOf('] as const'))
+/** Only the hrefs inside the NAV tuple list, not any in prose or comments. */
+const itemsBlock = nav.slice(nav.indexOf('export const NAV'), nav.indexOf('] as const'))
 const anchors = findAll(itemsBlock, /'(#[a-zA-Z0-9-]+)'/g)
 const ids = findAll(page, /id="([a-zA-Z0-9-]+)"/g).map((i) => `#${i}`)
 
