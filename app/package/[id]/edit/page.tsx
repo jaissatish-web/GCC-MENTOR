@@ -92,7 +92,10 @@ function RowList({
   return (
     <div className="flex flex-col gap-2">
       {items.map((value, i) => (
-        <div key={i} className="flex items-start gap-1.5">
+        // Phones: a multi-line box takes the full width and its controls sit
+        // underneath (2026-09-29) — beside it they squeezed each activity to
+        // ~130px, one or two words a line. Single-line rows stay side by side.
+        <div key={i} className={cn('flex gap-1.5', multiline ? 'flex-col sm:flex-row sm:items-start' : 'items-start')}>
           {multiline ? (
             <textarea
               value={value}
@@ -109,15 +112,17 @@ function RowList({
               className="field min-w-0 flex-1"
             />
           )}
-          <button type="button" className={smallBtn} disabled={i === 0} onClick={() => onChange(move(items, i, i - 1))} aria-label={`Move ${itemLabel} ${i + 1} up`}>
-            ↑
-          </button>
-          <button type="button" className={smallBtn} disabled={i === items.length - 1} onClick={() => onChange(move(items, i, i + 1))} aria-label={`Move ${itemLabel} ${i + 1} down`}>
-            ↓
-          </button>
-          <button type="button" className={removeBtn} onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label={`Remove ${itemLabel} ${i + 1}`}>
-            ✕
-          </button>
+          <span className={cn('flex shrink-0 gap-1.5', multiline && 'justify-end')}>
+            <button type="button" className={smallBtn} disabled={i === 0} onClick={() => onChange(move(items, i, i - 1))} aria-label={`Move ${itemLabel} ${i + 1} up`}>
+              ↑
+            </button>
+            <button type="button" className={smallBtn} disabled={i === items.length - 1} onClick={() => onChange(move(items, i, i + 1))} aria-label={`Move ${itemLabel} ${i + 1} down`}>
+              ↓
+            </button>
+            <button type="button" className={removeBtn} onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label={`Remove ${itemLabel} ${i + 1}`}>
+              ✕
+            </button>
+          </span>
         </div>
       ))}
       <button type="button" onClick={() => onChange([...items, ''])} className={cn('self-start', buttonVariants({ variant: 'secondary', size: 'sm' }))}>
@@ -294,14 +299,17 @@ function EditResumeInner({ packageId }: { packageId: string }) {
             {hasItems ? (
               <div className="flex flex-col gap-2">
                 {contactItems.map((c, i) => (
-                  <div key={`${c.kind}-${i}`} className="flex items-center gap-1.5">
-                    <span className="w-[110px] shrink-0 text-[12px] font-semibold text-ink-soft">{CONTACT_KIND_LABELS[c.kind]}</span>
-                    <input
-                      value={c.text}
-                      onChange={(e) => setContact(contactItems.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
-                      aria-label={CONTACT_KIND_LABELS[c.kind]}
-                      className="field min-w-0 flex-1"
-                    />
+                  <div key={`${c.kind}-${i}`} className="flex items-end gap-1.5 sm:items-center">
+                    {/* Phones: label above the field, so the value gets the full
+                        width (it was clipped to "Transferable Iqam…"). */}
+                    <label className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-1.5">
+                      <span className="text-[12px] font-semibold text-ink-soft sm:w-[110px] sm:shrink-0">{CONTACT_KIND_LABELS[c.kind]}</span>
+                      <input
+                        value={c.text}
+                        onChange={(e) => setContact(contactItems.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
+                        className="field min-w-0 flex-1"
+                      />
+                    </label>
                     <button type="button" className={removeBtn} onClick={() => setContact(contactItems.filter((_, j) => j !== i))} aria-label={`Remove ${CONTACT_KIND_LABELS[c.kind]}`}>
                       ✕
                     </button>
