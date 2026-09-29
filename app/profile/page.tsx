@@ -725,6 +725,14 @@ function CardSection({
                   {badge}
                 </span>
               ) : null}
+              {/* Phones: the status sits beside the title, so the helper
+                  below gets the card's full width instead of a narrow column
+                  (2026-09-29 — helpers were wrapping to five short lines). */}
+              {status ? (
+                <span className="sm:hidden">
+                  <StatusChip status={status} />
+                </span>
+              ) : null}
             </span>
             {helper ? (
               <span
@@ -742,7 +750,13 @@ function CardSection({
           </span>
 
           <span className="flex shrink-0 items-center gap-2">
-            {status ? <StatusChip status={status} /> : typeof total === 'number' ? <PointsChip earned={earned ?? 0} total={total} /> : null}
+            {status ? (
+              <span className="hidden sm:inline-flex">
+                <StatusChip status={status} />
+              </span>
+            ) : typeof total === 'number' ? (
+              <PointsChip earned={earned ?? 0} total={total} />
+            ) : null}
             <span
               aria-hidden="true"
               className={cn(
@@ -1165,6 +1179,12 @@ function ProfileScreen() {
   useEffect(() => {
     if (didAutoOpen.current || !editor) return
     didAutoOpen.current = true
+    // A BRAND-NEW PROFILE OPENS NOTHING (2026-09-29, open item from the
+    // three-steps pass). With every section empty, auto-opening section 1 put a
+    // long form above "Fill this in from your CV" — the fastest start by far.
+    // Once anything is filled in, the first incomplete step opens as before.
+    const started = FORM_SECTIONS.some((s) => (sectionPoints[s.id]?.earned ?? 0) > 0)
+    if (!started) return
     const firstIncomplete = FORM_SECTIONS.find((s) => {
       const p = sectionPoints[s.id]
       return p && p.total > 0 && p.earned < p.total
