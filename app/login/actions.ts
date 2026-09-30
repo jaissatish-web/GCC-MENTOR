@@ -3,28 +3,31 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { safeRedirectPath } from '@/lib/safeRedirect'
+import { friendlyAuthError } from '@/lib/authMessages'
 import type { AuthState } from '@/components/auth/types'
 
 /**
  * Sign-in server action (TASK-005). Uses the Supabase SSR server client.
  *
- * The login method is an open decision (docs/RULES.md §5). This ships
- * email + password only. Additional methods (OAuth / OTP) would be added as
- * sibling actions returning the same AuthState — no restructuring needed.
+ * Email + password only (docs/RULES.md §5). Errors come back in plain English
+ * (lib/authMessages.ts) with a `kind`, so the form can offer the right next
+ * step — reset the password, or resend an unconfirmed account's email.
  */
 export async function login(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = String(formData.get('email') ?? '').trim()
   const password = String(formData.get('password') ?? '')
 
   if (!email || !password) {
-    return { error: 'Email and password are required.' }
+    return { error: 'Enter your email and password.' }
   }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    return { error: error.message }
+    const f = friendlyAuthError(error)
+    if (f.kind === 'unknown') console.error('login: failed', error.status ?? '', error.message)
+    return { error: f.message, kind: f.kind, email }
   }
 
   // Back to what the user was trying to open before sign-in (audit M09) —

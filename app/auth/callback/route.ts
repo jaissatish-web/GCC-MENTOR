@@ -34,9 +34,14 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(sameOriginRedirectUrl(next, origin))
+      // A recovery link that lost its `next` (Supabase drops the query when it
+      // falls back to the Site URL) still opens the new-password screen: a
+      // reset requested in the last hour means that is why the user is here.
+      const sentAt = data.user?.recovery_sent_at ? Date.parse(data.user.recovery_sent_at) : NaN
+      const recentRecovery = Number.isFinite(sentAt) && Date.now() - sentAt < 60 * 60 * 1000
+      return NextResponse.redirect(sameOriginRedirectUrl(!next && recentRecovery ? '/auth/update-password' : next, origin))
     }
   }
 

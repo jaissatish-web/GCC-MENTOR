@@ -2,6 +2,7 @@
 
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { authLinkOrigin } from '@/lib/authOrigin'
 import type { AuthState } from '@/components/auth/types'
 
 /**
@@ -22,8 +23,8 @@ export async function requestPasswordReset(_prev: AuthState, formData: FormData)
     return { error: 'Enter the email address you signed up with.' }
   }
 
-  const headersList = await headers()
-  const origin = headersList.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  // Never localhost (2026-09-30): see lib/authOrigin.ts.
+  const origin = authLinkOrigin((await headers()).get('origin'))
   const callback = new URL('/auth/callback', origin)
   callback.searchParams.set('next', '/auth/update-password')
 
@@ -38,9 +39,6 @@ export async function requestPasswordReset(_prev: AuthState, formData: FormData)
     console.error('forgot-password: reset request failed', error.status ?? '', error.message)
   }
 
-  return {
-    success:
-      'If an account exists for that email, we have sent a link to set a new password. ' +
-      'It expires after a short while — check your spam folder if it has not arrived in a few minutes.',
-  }
+  // The form turns this into a "check your email" screen naming the address.
+  return { kind: 'check_email', email }
 }

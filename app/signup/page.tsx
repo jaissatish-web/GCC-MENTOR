@@ -1,16 +1,18 @@
 import Link from 'next/link'
-import { AuthShell } from '@/components/auth/AuthShell'
+import { AuthCard, AuthShell } from '@/components/auth/AuthShell'
 import { AuthForm } from '@/components/auth/AuthForm'
-import { Card } from '@/components/ui/Card'
 import { safeRedirectPath } from '@/lib/safeRedirect'
-import { signup } from './actions'
+import { resendConfirmation, signup } from './actions'
+
+export const metadata = {
+  title: 'Create your account',
+  description: 'Create your free GCC MENTOR account and build one Career Profile for every Gulf job application.',
+}
 
 /**
- * /signup — TASK-081 light restyle (2026-08-12), per PAGE_SPECS.md §A.
- * Visual-only change: the `signup` server action — validation, the
- * email-confirmation branch, the `/onboarding` redirect on a fresh session
- * — is byte-for-byte unchanged, see ./actions.ts. No fields were added
- * beyond the existing email/password.
+ * /signup — redesigned 2026-09-30 on the shared AuthShell (matches landing v3).
+ * Asks for the password twice; after sign-up with email confirmation on, the
+ * form becomes a "check your inbox" screen with a resend button.
  */
 export default async function SignupPage(props: { searchParams: Promise<{ redirectTo?: string | string[] }> }) {
   // Carried from /login or middleware so a new user still lands on the page they
@@ -19,30 +21,23 @@ export default async function SignupPage(props: { searchParams: Promise<{ redire
   const raw = Array.isArray(searchParams.redirectTo) ? searchParams.redirectTo[0] : searchParams.redirectTo
   const safe = safeRedirectPath(raw, '/onboarding')
   const carry = safe !== '/onboarding' ? safe : null
+  const loginHref = carry ? `/login?redirectTo=${encodeURIComponent(carry)}` : '/login'
 
   return (
     <AuthShell
-      headline="Start building your Gulf Career Profile."
-      // "…and interview reuses it" promised a feature that is not built —
-      // Interview Prep is labelled "Not built yet" everywhere else.
-      body="One profile, built once — every CV, cover letter and application reuses it."
+      panelTitle="One career profile. Every Gulf application, prepared properly."
+      panelBody="Upload your CV once. Get an ATS-ready CV, cover letter and interview practice for each job you target."
+      aside={{ prompt: 'Already have an account?', label: 'Sign in', href: loginHref }}
     >
-      <Card tone="light" className="flex w-full flex-col gap-1 p-8">
-        <h1 className="font-display text-[26px] text-ink">Create your account</h1>
-        <p className="mb-5 text-[14px] leading-relaxed text-ink-muted">
-          Build your Career Profile once. Every application reuses it.
-        </p>
-        <AuthForm action={signup} submitLabel="Create your account" tone="light" redirectTo={carry} />
-        <p className="mt-6 text-center text-[13px] text-ink-muted">
+      <AuthCard title="Create your account" subtitle="Free to start. No card needed.">
+        <AuthForm mode="signup" action={signup} resend={resendConfirmation} redirectTo={carry} />
+        <p className="mt-5 text-center text-[14px] text-ink-muted">
           Already have an account?{' '}
-          <Link
-            href={carry ? `/login?redirectTo=${encodeURIComponent(carry)}` : '/login'}
-            className="inline-flex min-h-11 items-center px-1 font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-          >
+          <Link href={loginHref} className="inline-flex min-h-11 items-center px-1 font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
             Sign in
           </Link>
         </p>
-      </Card>
+      </AuthCard>
     </AuthShell>
   )
 }

@@ -1,22 +1,21 @@
-import Link from 'next/link'
-import { AuthShell } from '@/components/auth/AuthShell'
+import { AuthCard, AuthShell } from '@/components/auth/AuthShell'
 import { AuthForm } from '@/components/auth/AuthForm'
 import { AuthHashHandler } from '@/components/auth/AuthHashHandler'
-import { Card } from '@/components/ui/Card'
+import { Notice } from '@/components/auth/Notice'
 import { DEFAULT_AFTER_LOGIN, safeRedirectPath } from '@/lib/safeRedirect'
+import { resendConfirmation } from '@/app/signup/actions'
 import { login } from './actions'
 
+export const metadata = { title: 'Sign in', robots: { index: false, follow: true } }
+
 /**
- * /login — TASK-081 light restyle (2026-08-12), per PAGE_SPECS.md §A.
+ * /login — redesigned 2026-09-30 on the shared AuthShell (matches landing v3).
  *
- * 2026-09-15 (audit M03/M09/H05):
- *   - `?redirectTo=` from middleware is carried through sign-in, so a user who
- *     opened a package or a service lands back on it. It is validated here for
- *     display and again by the server action — never trusted.
- *   - "Forgot password?" now exists, because the recovery flow now exists
- *     (/forgot-password -> emailed link -> /auth/update-password).
- *   - An expired or reused emailed link lands here with ?error=auth_callback_failed
- *     and is told so, instead of showing nothing.
+ * 2026-09-15 (audit M03/M09/H05), unchanged in behaviour:
+ *   - `?redirectTo=` from middleware is carried through sign-in (validated here
+ *     for display and again by the server action — never trusted).
+ *   - "Forgot password?" leads to /forgot-password.
+ *   - An expired or reused emailed link lands here with ?error=auth_callback_failed.
  */
 export default async function LoginPage(props: {
   searchParams: Promise<{ redirectTo?: string | string[]; error?: string | string[] }>
@@ -29,40 +28,19 @@ export default async function LoginPage(props: {
 
   return (
     <AuthShell
-      // Sentence case, like every heading after it.
-      headline="Your Gulf career, built with strategy."
-      body="Build a stronger profile, tailor your CV to each Gulf job and apply with confidence."
+      panelTitle="Welcome back. Your next Gulf application is waiting."
+      panelBody="Your Career Profile, tailored CVs, cover letters and interview practice — all in one place."
+      aside={{ prompt: 'New to GCC MENTOR?', label: 'Create account', href: carry ? `/signup?redirectTo=${encodeURIComponent(carry)}` : '/signup' }}
     >
-      <Card tone="light" className="flex w-full flex-col gap-1 p-8">
+      <AuthCard title="Sign in" subtitle="Welcome back. Sign in to continue your applications.">
         <AuthHashHandler />
-        <h1 className="font-display text-[26px] text-ink">Sign in</h1>
-        <p className="mb-5 text-[14px] text-ink-muted">Welcome back to GCC MENTOR.</p>
         {linkError ? (
-          <p role="alert" className="mb-4 rounded-lg border border-alert/40 bg-alert-soft px-3.5 py-2.5 text-[13px] leading-snug text-alert">
+          <Notice tone="error" className="mb-4">
             That link has expired or was already used. Sign in below, or ask for a new link.
-          </p>
+          </Notice>
         ) : null}
-        <AuthForm action={login} submitLabel="Sign in" tone="light" redirectTo={carry} />
-        <p className="mt-3 text-right text-[13px]">
-          <Link
-            href="/forgot-password"
-            className="inline-flex min-h-11 items-center px-1 font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-          >
-            Forgot password?
-          </Link>
-        </p>
-        <p className="mt-3 text-center text-[13px] text-ink-muted">
-          Don&apos;t have an account?{' '}
-          {/* 44px tall: it measured 16px — the way in for someone who landed
-              on the wrong form was the hardest thing on the page to tap. */}
-          <Link
-            href={carry ? `/signup?redirectTo=${encodeURIComponent(carry)}` : '/signup'}
-            className="inline-flex min-h-11 items-center px-1 font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-          >
-            Create one
-          </Link>
-        </p>
-      </Card>
+        <AuthForm mode="signin" action={login} resend={resendConfirmation} redirectTo={carry} />
+      </AuthCard>
     </AuthShell>
   )
 }

@@ -1,4 +1,5 @@
 import { AppFooter } from '@/components/layout/AppFooter'
+import { AuthLinkCatcher } from '@/components/auth/AuthLinkCatcher'
 import { AtsFilter } from './AtsFilter'
 import { BeforeAfterCv } from './BeforeAfterCv'
 import { CoverLetters } from './CoverLetters'
@@ -30,6 +31,10 @@ export function LandingPage() {
   return (
     <div className="w-full overflow-x-clip bg-canvas pb-[76px] font-redesign-sans text-ink antialiased lg:pb-0">
       <LandingNav />
+      {/* Finishes emailed sign-in / reset links that Supabase sent to the home page. */}
+      <div className="mx-auto max-w-[460px] px-4 empty:hidden">
+        <AuthLinkCatcher />
+      </div>
       <main>
         {/* 1 · Hero */}
         <section

@@ -2,19 +2,20 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AuthShell } from '@/components/auth/AuthShell'
-import { Card } from '@/components/ui/Card'
+import { AuthCard, AuthShell } from '@/components/auth/AuthShell'
+import { Notice } from '@/components/auth/Notice'
+import { PasswordField } from '@/components/auth/PasswordField'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { createClient } from '@/lib/supabase/client'
 
 /**
- * /auth/update-password — step 3 of password recovery (audit M03, 2026-09-15).
+ * /auth/update-password — step 3 of password recovery (audit M03, 2026-09-15;
+ * redesigned 2026-09-30).
  *
- * Reached from the emailed reset link, which /auth/callback (PKCE) or the login
- * page's hash handler (implicit flow) has already turned into a session. With no
- * session the link expired or was used — say so and offer a new one, rather
- * than showing a form that cannot work.
+ * Reached from the emailed reset link, which /auth/confirm (token hash, any
+ * device), /auth/callback (PKCE) or the hash handler (implicit flow) has
+ * already turned into a session. With no session the link expired or was used
+ * — say so and offer a new one, rather than a form that cannot work.
  *
  * Minimum length matches sign-up (6). Raising it, and turning on Supabase's
  * leaked-password protection, is a founder decision recorded in
@@ -42,7 +43,7 @@ export default function UpdatePasswordPage() {
     const confirm = String(form.get('confirm') ?? '')
     setError(null)
     if (password.length < MIN_LENGTH) return setError(`Use at least ${MIN_LENGTH} characters.`)
-    if (password !== confirm) return setError('The two passwords do not match.')
+    if (password !== confirm) return setError('The two passwords don’t match. Please type them again.')
 
     setPhase('saving')
     const { error: updateError } = await createClient().auth.updateUser({ password })
@@ -51,52 +52,53 @@ export default function UpdatePasswordPage() {
       setError(
         /session|jwt|expired/i.test(updateError.message)
           ? 'This reset link has expired. Ask for a new one below.'
-          : updateError.message,
+          : /different from the old|same.*password/i.test(updateError.message)
+            ? 'Choose a password you haven’t used before.'
+            : 'We couldn’t save that password. Try a longer one, mixing letters and numbers.',
       )
       return
     }
     setPhase('done')
     // Full reload so middleware and server components see the session.
-    window.setTimeout(() => window.location.assign('/dashboard'), 1200)
+    window.setTimeout(() => window.location.assign('/dashboard'), 1500)
   }
 
   return (
-    <AuthShell headline="Set a new password." body="Choose a password you have not used elsewhere. You stay signed in on this device.">
-      <Card tone="light" className="flex w-full flex-col gap-1 p-8">
-        <h1 className="font-display text-[26px] text-ink">New password</h1>
+    <AuthShell
+      panelTitle="Set a new password and pick up where you left off."
+      panelBody="Your Career Profile, CVs and interview practice are exactly as you left them."
+      aside={{ prompt: 'Need help?', label: 'Sign in', href: '/login' }}
+    >
+      <AuthCard title="Set a new password" subtitle="Choose a password you haven’t used on other sites.">
         {phase === 'checking' ? (
-          <p role="status" className="mt-3 text-[14px] text-ink-muted">Checking your reset link…</p>
+          <Notice tone="info">Checking your reset link…</Notice>
         ) : phase === 'no_session' ? (
-          <div className="mt-3 flex flex-col gap-4">
-            <p role="alert" className="rounded-lg border border-alert/40 bg-alert-soft px-3.5 py-2.5 text-[13px] leading-snug text-alert">
-              This reset link has expired or was already used.
-            </p>
+          <div className="flex flex-col gap-4">
+            <Notice tone="error" title="This link has expired or was already used">
+              Reset links work once and expire after a short time. Ask for a new one — it only takes a minute.
+            </Notice>
             <Link
               href="/forgot-password"
-              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-teal px-4 text-[14px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+              className="inline-flex min-h-12 items-center justify-center rounded-ctl bg-gold px-4 text-[15px] font-bold text-ink hover:bg-gold-ink hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
             >
               Send me a new link
             </Link>
           </div>
         ) : phase === 'done' ? (
-          <p role="status" className="mt-3 rounded-lg border border-ok/30 bg-ok-soft px-3.5 py-2.5 text-[13px] leading-snug text-ok">
-            Password updated. Taking you to your dashboard…
-          </p>
+          <Notice tone="success" title="Password updated">
+            You’re signed in. Taking you to your dashboard…
+          </Notice>
         ) : (
-          <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-4">
-            <Input label="New password" name="password" type="password" autoComplete="new-password" required minLength={MIN_LENGTH} tone="light" />
-            <Input label="Repeat new password" name="confirm" type="password" autoComplete="new-password" required minLength={MIN_LENGTH} tone="light" />
-            {error ? (
-              <p role="alert" className="rounded-lg border border-alert/40 bg-alert-soft px-3.5 py-2.5 text-[13px] leading-snug text-alert">
-                {error}
-              </p>
-            ) : null}
-            <Button type="submit" variant="primary" disabled={phase === 'saving'} className="mt-1 w-full text-[14px]">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <PasswordField label="New password" name="password" autoComplete="new-password" minLength={MIN_LENGTH} hint={`At least ${MIN_LENGTH} characters. Longer, with letters and numbers, is safer.`} />
+            <PasswordField label="Confirm new password" name="confirm" autoComplete="new-password" minLength={MIN_LENGTH} invalid={Boolean(error?.includes('match'))} />
+            {error ? <Notice tone="error">{error}</Notice> : null}
+            <Button type="submit" variant="primary" disabled={phase === 'saving'} className="mt-1 w-full text-[15px]">
               {phase === 'saving' ? 'Saving…' : 'Save new password'}
             </Button>
           </form>
         )}
-      </Card>
+      </AuthCard>
     </AuthShell>
   )
 }
