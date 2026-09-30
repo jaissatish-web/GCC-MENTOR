@@ -16,20 +16,31 @@ export function Wrap({ className, children }: { className?: string; children: Re
 
 export function Eyebrow({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <span className={cn('font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-teal lg:text-[12px]', className)}>
+    <span className={cn('text-[12px] font-semibold uppercase tracking-[0.1em] text-teal lg:text-[13px]', className)}>
       {children}
     </span>
   )
 }
 
-/** Section title. Accent words go in <em> — italic teal. */
+/**
+ * THE TYPE SYSTEM (2026-09-30). One family, Inter, at four weights:
+ *   700 headings · 600 labels and buttons · 500 emphasis · 400 reading text.
+ * Mono (IBM Plex) is for FIGURES only — scores and counts — never for words.
+ * Phone → desktop scale:
+ *   H1 31/35 → 52/58 · H2 26 → 42 · H3 18 → 20 · lead 16 → 18 · body 15–16
+ *   small 13 · label 12 · floor 11 (nothing below 11px anywhere).
+ * Colour: headings `ink`, reading text `ink-soft` (8.3:1), hints `ink-muted`
+ * (5.1:1), accent words `teal`. Gold stays the action colour only.
+ *
+ * Section title. Accent words go in <em> — teal, same weight, upright.
+ */
 export function H2({ id, className, children }: { id?: string; className?: string; children: ReactNode }) {
   return (
     <h2
       id={id}
       className={cn(
-        'mt-2.5 font-display text-[29px] font-semibold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[34px] lg:mt-3 lg:text-[46px] lg:leading-[1.06]',
-        '[&_em]:font-medium [&_em]:italic [&_em]:text-teal',
+        'mt-2.5 text-[26px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[32px] lg:mt-3 lg:text-[42px] lg:leading-[1.1]',
+        '[&_em]:not-italic [&_em]:text-teal',
         className,
       )}
     >
@@ -39,7 +50,7 @@ export function H2({ id, className, children }: { id?: string; className?: strin
 }
 
 export function Lead({ className, children }: { className?: string; children: ReactNode }) {
-  return <p className={cn('mt-3 max-w-[560px] text-[15.5px] leading-[1.6] text-ink-soft lg:text-[18px]', className)}>{children}</p>
+  return <p className={cn('mt-3 max-w-[560px] text-[16px] leading-[1.6] text-ink-soft lg:text-[18px]', className)}>{children}</p>
 }
 
 export function SectionHead({

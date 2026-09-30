@@ -27,10 +27,10 @@ function SheetFrame({ stamp, tone, children }: { stamp: string; tone: 'muted' | 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-[18px] border border-line bg-white p-4 shadow-[0_2px_4px_rgba(20,24,28,0.05),0_24px_48px_-18px_rgba(20,24,28,0.30)] sm:p-5">
       <div className="flex items-center justify-between gap-2">
-        <Tag tone={tone === 'muted' ? 'muted' : tone} className="font-mono uppercase tracking-[0.08em]">
+        <Tag tone={tone === 'muted' ? 'muted' : tone} className="font-semibold uppercase tracking-[0.08em]">
           {stamp}
         </Tag>
-        <span className="font-mono text-[9.5px] uppercase tracking-[0.12em] text-ink-muted">Example</span>
+        <span className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted">Example</span>
       </div>
       {children}
     </div>
@@ -97,12 +97,12 @@ function OptimizedSheet({ p }: { p: Persona }) {
     <SheetFrame stamp="Optimized CV" tone="ok">
       <div className="mt-4 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="font-display text-[16px] font-semibold leading-tight text-ink">{p.name}</div>
+          <div className="text-[16px] font-bold leading-tight text-ink tracking-[-0.02em]">{p.name}</div>
           <div className="text-[11.5px] font-semibold leading-snug text-teal">{job.title}</div>
         </div>
         <div className="shrink-0 text-right">
           <div className="font-mono text-[28px] font-medium leading-none text-teal">{job.after}</div>
-          <div className="font-mono text-[9.5px] text-ink-muted">ATS · was {job.before}</div>
+          <div className="font-mono text-[11px] text-ink-muted">ATS · was {job.before}</div>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -231,7 +231,7 @@ export function HeroStack() {
               ) : null}
             </span>
             <span className={cn('text-[11.5px] font-semibold leading-tight transition-colors sm:text-[12.5px]', i === index ? 'text-ink' : 'text-ink-muted group-hover:text-ink-soft')}>
-              <span className="font-mono text-[10px] text-ink-muted">0{i + 1} </span>
+              <span className="hidden font-mono text-[11px] text-ink-muted sm:inline">0{i + 1} </span>
               {sheet.short}
             </span>
           </button>

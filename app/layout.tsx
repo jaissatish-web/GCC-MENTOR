@@ -12,6 +12,10 @@ const instrumentSerif = Instrument_Serif({
   weight: '400',
   variable: '--font-instrument-serif',
   display: 'swap',
+  // Not preloaded (2026-09-30): no class in the app uses this family any more,
+  // so preloading it made every phone download a font it never draws. It stays
+  // declared as a fallback; it would still load, with swap, if something used it.
+  preload: false,
 })
 
 const inter = Inter({
@@ -26,6 +30,10 @@ const jakarta = Plus_Jakarta_Sans({
   weight: ['400', '500', '600', '700'],
   variable: '--font-jakarta',
   display: 'swap',
+  // Not preloaded (2026-09-30): no class in the app uses this family any more,
+  // so preloading it made every phone download a font it never draws. It stays
+  // declared as a fallback; it would still load, with swap, if something used it.
+  preload: false,
 })
 
 // Blueprint display face (2026-09-08). Loaded alongside the others while the
@@ -58,6 +66,10 @@ const archivo = Archivo({
   weight: ['500', '600', '700'],
   variable: '--font-archivo',
   display: 'swap',
+  // Not preloaded (2026-09-30): no class in the app uses this family any more,
+  // so preloading it made every phone download a font it never draws. It stays
+  // declared as a fallback; it would still load, with swap, if something used it.
+  preload: false,
 })
 
 const plexMono = IBM_Plex_Mono({

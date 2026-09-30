@@ -65,7 +65,7 @@ export function CoverLetters() {
                 <span className="absolute inset-x-0 top-0 h-1 rounded-t-[6px] bg-teal" aria-hidden="true" />
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="font-display text-[15px] font-semibold leading-tight text-ink">{p.name}</div>
+                    <div className="text-[15px] font-bold leading-tight text-ink tracking-[-0.02em]">{p.name}</div>
                     <div className="text-[11px] text-ink-muted">{p.role}</div>
                   </div>
                   <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-teal-soft font-mono text-[11px] text-teal">{job.code}</span>

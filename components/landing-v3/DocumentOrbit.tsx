@@ -453,7 +453,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             </span>
             <span className="flex flex-col px-1 pb-[3px] pt-[7px]">
               <span className="text-[11.5px] font-extrabold leading-tight text-ink">{itemName(item)}</span>
-              <span className="truncate text-[9.5px] font-bold uppercase text-ink-muted">{p.sector}</span>
+              <span className="truncate text-[11px] font-bold uppercase text-ink-muted">{p.sector}</span>
             </span>
           </button>
         )
@@ -496,10 +496,10 @@ export function DocumentOrbit({ className }: { className?: string }) {
                   <span className="block truncate text-[11px] text-ink-muted">{who.role}</span>
                 </span>
               </div>
-              <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-gold-ink">Example · {who.sector}</div>
+              <div className="font-semibold mt-2 text-[11px] uppercase tracking-[0.08em] text-gold-ink">Example · {who.sector}</div>
             </div>
             <div className="absolute -right-[186px] top-[130px] w-[196px] rounded-[16px] border border-line bg-white/95 p-3 shadow-m-3 backdrop-blur">
-              <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">Recruiter-ready</div>
+              <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted">Recruiter-ready</div>
               <ul className="mt-2 space-y-1.5 text-[12px] font-semibold text-ink">
                 {(selected.kind === 'template'
                   ? [itemTags(selected)[0], 'Gulf details up front', itemTags(selected)[1]]
@@ -531,7 +531,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
         >
           <div className={cn(compact ? 'w-full text-center' : 'min-w-[270px] text-left')} aria-live="polite">
             <div className={cn('flex items-baseline gap-2.5', compact && 'justify-center')}>
-              <span className="font-display text-[21px] font-semibold">{itemName(selected)}</span>
+              <span className="text-[21px] font-bold tracking-[-0.02em]">{itemName(selected)}</span>
               <span className="font-mono text-[12px] text-ink-muted">
                 {String(sel + 1).padStart(2, '0')} / {String(N).padStart(2, '0')}
               </span>
@@ -541,7 +541,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             </div>
             <div className={cn('mt-1.5 flex items-center gap-1.5', compact && 'justify-center')}>
               {itemTags(selected).map((tag) => (
-                <span key={tag} className="rounded-full bg-canvas px-[9px] py-[3px] text-[10.5px] font-bold uppercase tracking-[0.06em] text-ink-muted">
+                <span key={tag} className="rounded-full bg-canvas px-[9px] py-[3px] text-[11px] font-bold uppercase tracking-[0.06em] text-ink-muted">
                   {tag}
                 </span>
               ))}

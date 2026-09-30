@@ -428,9 +428,9 @@ export function GccGlobe() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(31,90,138,0.10),transparent_70%)]" aria-hidden="true" />
       <div className="relative grid items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">
-          <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-teal lg:text-[12px]">Six Gulf markets</span>
-          <h2 id="markets-title" className="mt-2 font-display text-[27px] font-semibold leading-[1.1] tracking-[-0.02em] text-ink sm:text-[36px] lg:text-[44px]">
-            One profile. <em className="font-medium text-teal">Every GCC country.</em>
+          <span className="font-semibold text-[11px] uppercase tracking-[0.08em] text-teal lg:text-[12px]">Six Gulf markets</span>
+          <h2 id="markets-title" className="mt-2 text-[26px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[34px] lg:text-[42px]">
+            One profile. <em className="not-italic text-teal">Every GCC country.</em>
           </h2>
           <p className="mt-2.5 max-w-[440px] text-[14.5px] leading-relaxed text-ink-soft lg:text-[16.5px]">
             From India, Asia, Africa or Europe — or moving between Gulf jobs. Prepare for any of the six markets from one career profile.
@@ -452,7 +452,7 @@ export function GccGlobe() {
                     focus === g.code ? 'bg-teal text-white ring-teal' : 'bg-canvas text-ink ring-line hover:ring-teal/50',
                   )}
                 >
-                  <b className={cn('font-mono text-[10.5px] sm:text-[11px]', focus === g.code ? 'text-gold-soft' : 'text-gold-ink')}>{g.code}</b>
+                  <b className={cn('font-mono text-[11px] sm:text-[11px]', focus === g.code ? 'text-gold-soft' : 'text-gold-ink')}>{g.code}</b>
                   {g.country}
                 </button>
               </li>
@@ -463,13 +463,13 @@ export function GccGlobe() {
           <div className="mt-3 min-h-[76px] rounded-[16px] bg-canvas p-3.5 ring-1 ring-line lg:mt-4" aria-live="polite">
             {focused ? (
               <>
-                <div className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-gold-ink">{focused.country} · example roles</div>
+                <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-gold-ink">{focused.country} · example roles</div>
                 <div className="mt-1 text-[15px] font-semibold text-ink">{focused.role}</div>
                 <div className="text-[12.5px] text-ink-muted">CV, cover letter and interview prep made for {focused.country} jobs.</div>
               </>
             ) : arrival && arrivalTo ? (
               <>
-                <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-blue">
+                <div className="font-semibold flex items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-blue">
                   <span className="size-1.5 animate-glow-pulse rounded-full bg-blue" aria-hidden="true" />
                   {arrival.move ? 'Changing jobs in the Gulf' : 'Arriving'} · example
                 </div>

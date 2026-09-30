@@ -51,7 +51,7 @@ export function BranchJourney() {
           {/* ── Trunk: built once ── */}
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-1 lg:gap-3">
             <div key={`profile-${who}`} className={cn(s.enter, 'rounded-[16px] border border-line bg-white p-3 shadow-m-1 lg:p-4')}>
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-teal">1 · Career Profile</div>
+              <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-teal">1 · Career Profile</div>
               <div className="mt-2 flex items-center gap-2.5">
                 <span className="relative size-10 shrink-0 overflow-hidden rounded-full ring-2 ring-teal-soft">
                   <Image src={p.photo} alt="" fill sizes="40px" className="object-cover" />
@@ -64,7 +64,7 @@ export function BranchJourney() {
               <div className="mt-2 hidden text-[11.5px] text-ink-soft sm:block">Built once from your CV. Your source of truth.</div>
             </div>
             <div className="rounded-[16px] border border-line bg-white p-3 shadow-m-1 lg:p-4">
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-teal">2 · Gulf Readiness</div>
+              <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-teal">2 · Gulf Readiness</div>
               <div className="mt-2 flex items-center gap-2.5">
                 <span className="font-mono text-[28px] font-medium leading-none text-teal">{p.readiness[1]}</span>
                 <span className="text-[11.5px] leading-tight text-ink-muted">
@@ -127,7 +127,7 @@ export function BranchJourney() {
                     <span className="flex min-w-0 items-center gap-2.5">
                       <span className={cn('grid size-9 shrink-0 place-items-center rounded-[10px] font-mono text-[12px] font-medium', on ? 'bg-teal text-white' : 'bg-teal-soft text-teal')}>{j.code}</span>
                       <span className="min-w-0 leading-tight">
-                        <span className="block font-mono text-[9.5px] uppercase tracking-[0.12em] text-gold-ink">Target job {i + 1} · {j.country}</span>
+                        <span className="font-semibold block text-[11px] uppercase tracking-[0.08em] text-gold-ink">Target job {i + 1} · {j.country}</span>
                         <b className="block truncate text-[13.5px] text-ink">{j.title}</b>
                         <span className="block truncate text-[11px] text-ink-muted">{j.employer}</span>
                       </span>
@@ -151,11 +151,11 @@ export function BranchJourney() {
                           >
                             <I className={cn('size-3.5 shrink-0 lg:size-4', on ? 'text-ok' : 'text-ink-muted')} aria-hidden="true" />
                             <span className="min-w-0 max-w-full leading-tight">
-                              <span className="block text-[9.5px] font-semibold text-ink-muted lg:text-[10px]">
+                              <span className="block text-[11px] font-semibold text-ink-muted lg:text-[11px]">
                                 <span className="hidden lg:inline">{k + 4} · </span>
                                 {label as string}
                               </span>
-                              <span className="block truncate text-[10.5px] font-semibold text-ink lg:text-[12px]">{val as string}</span>
+                              <span className="block truncate text-[11px] font-semibold text-ink lg:text-[12px]">{val as string}</span>
                             </span>
                           </span>
                         )
@@ -176,7 +176,7 @@ export function BranchJourney() {
           </div>
           <div key={`${who}-${lane}`} className={cn(s.enter, '-mx-3 flex snap-x gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4 lg:gap-3 [&>*]:w-[78%] [&>*]:shrink-0 [&>*]:snap-start sm:[&>*]:w-auto [&::-webkit-scrollbar]:hidden')}>
             <div className="rounded-[14px] border border-line bg-white p-3.5">
-              <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-teal">4 · Optimized CV</div>
+              <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-teal">4 · Optimized CV</div>
               <div className="mt-1.5 flex items-baseline gap-1.5 font-mono">
                 <s className="text-[13px] text-alert">{job.before}</s>
                 <span className="text-ink-muted">→</span>
@@ -186,17 +186,17 @@ export function BranchJourney() {
               <p className="mt-1.5 text-[12px] leading-snug text-ink-soft"><Rich text={p.bullets[lane % 2]} /></p>
             </div>
             <div className="rounded-[14px] border border-line bg-white p-3.5">
-              <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-teal">5 · Cover letter</div>
+              <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-teal">5 · Cover letter</div>
               <Tag tone="teal" className="mt-1.5">{TONES[lane]} tone</Tag>
               <p className="mt-1.5 text-[12px] leading-snug text-ink-soft">Dear Hiring Manager, {p.cover}</p>
             </div>
             <div className="rounded-[14px] border border-line bg-white p-3.5">
-              <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-teal">6 · Interview Q&amp;A</div>
+              <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-teal">6 · Interview Q&amp;A</div>
               <div className="mt-1.5 text-[12px] text-ink-muted">25 questions for this job</div>
               <p className="mt-1 text-[12.5px] font-semibold leading-snug text-ink">“{questions[lane]}”</p>
             </div>
             <div className="rounded-[14px] border border-gold/40 bg-gold-soft/60 p-3.5">
-              <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-gold-ink">7 · Mock interview</div>
+              <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-gold-ink">7 · Mock interview</div>
               <div className="mt-1.5 flex items-center gap-2">
                 <span className="font-mono text-[22px] font-medium text-ink">{mockFor(p.mock.overall, lane)}</span>
                 <span className="text-[11.5px] text-ink-muted">/100 · practice score</span>

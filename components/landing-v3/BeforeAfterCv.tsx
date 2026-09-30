@@ -11,7 +11,7 @@ const PROBLEMS = ['Weak summary', 'Generic duties', 'Missing keywords', 'No Gulf
 
 function Pin({ n, label }: { n: number; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-alert px-2 py-[3px] text-[10.5px] font-bold text-white shadow-m-2">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-alert px-2 py-[3px] text-[11px] font-bold text-white shadow-m-2">
       <span className="font-mono">{n}</span> {label}
     </span>
   )
@@ -22,7 +22,7 @@ function BeforeCv({ p }: { p: Persona }) {
     <article aria-label="Example CV before optimizing" className="h-full rounded-[16px] border border-line bg-[#FDFCFA] p-5 text-ink-soft shadow-m-2">
       <div className="text-center">
         <div className="text-[15px] font-bold uppercase tracking-wide text-ink">{p.name}</div>
-        <div className="text-[10.5px]">email · phone · {p.base}</div>
+        <div className="text-[11px]">email · phone · {p.base}</div>
       </div>
       <div className="mt-3 text-[11px] font-bold uppercase">Career Objective</div>
       <p className="mt-1 text-[11.5px] italic leading-snug">{p.before.objective}</p>
@@ -54,15 +54,15 @@ function AfterCv({ p }: { p: Persona }) {
     <article aria-label="Example CV after optimizing" className="h-full rounded-[16px] border border-teal/25 bg-white p-5 shadow-m-3">
       <div className="flex items-start justify-between gap-3 border-b border-line pb-3">
         <div className="min-w-0">
-          <div className="font-display text-[19px] font-semibold leading-tight text-ink">{p.name}</div>
+          <div className="text-[19px] font-bold leading-tight text-ink tracking-[-0.02em]">{p.name}</div>
           <div className="text-[12px] font-semibold text-teal">{job.title}</div>
-          <div className="mt-1 text-[10.5px] text-ink-muted">{p.base} · {p.tags.join(' · ')}</div>
+          <div className="mt-1 text-[11px] text-ink-muted">{p.base} · {p.tags.join(' · ')}</div>
         </div>
         <Tag tone="ok"><Check className="size-3" /> Gulf format</Tag>
       </div>
-      <div className="mt-3 text-[10.5px] font-bold uppercase tracking-[0.1em] text-teal">Profile</div>
+      <div className="mt-3 text-[11px] font-bold uppercase tracking-[0.1em] text-teal">Profile</div>
       <p className="mt-1 text-[11.5px] leading-snug text-ink-soft"><Rich text={p.summary} mark="bold" /></p>
-      <div className="mt-3 text-[10.5px] font-bold uppercase tracking-[0.1em] text-teal">Experience</div>
+      <div className="mt-3 text-[11px] font-bold uppercase tracking-[0.1em] text-teal">Experience</div>
       <div className="mt-1 text-[11.5px] font-semibold text-ink">{p.role}</div>
       <ul className="mt-1 space-y-1 text-[11.5px] leading-snug text-ink-soft">
         {p.bullets.map((b) => (
@@ -76,13 +76,13 @@ function AfterCv({ p }: { p: Persona }) {
       </div>
       <div className="mt-3 grid grid-cols-2 gap-3 border-t border-line pt-3 text-[11px] leading-snug text-ink-soft">
         <div>
-          <div className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-teal">Certifications</div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-teal">Certifications</div>
           {p.certs.map((c) => (
             <div key={c} className="mt-1">{c}</div>
           ))}
         </div>
         <div>
-          <div className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-teal">Education</div>
+          <div className="text-[11px] font-bold uppercase tracking-[0.1em] text-teal">Education</div>
           <div className="mt-1">{p.education}</div>
         </div>
       </div>
@@ -137,7 +137,7 @@ export function BeforeAfterCv() {
 
       <div key={who} className={cn(s.enter, 'grid gap-4 lg:grid-cols-[1fr_200px_1fr] lg:items-stretch lg:gap-6')}>
         <div className={cn(view === 'before' ? 'block' : 'hidden', 'lg:block')}>
-          <div className="mb-2 hidden font-mono text-[11px] uppercase tracking-[0.14em] text-alert lg:block">Before · generic</div>
+          <div className="font-semibold mb-2 hidden text-[11px] uppercase tracking-[0.08em] text-alert lg:block">Before · generic</div>
           <BeforeCv p={p} />
         </div>
 
@@ -149,7 +149,7 @@ export function BeforeAfterCv() {
         </div>
 
         <div className={cn(view === 'after' ? 'block' : 'hidden', 'lg:block')}>
-          <div className="mb-2 hidden font-mono text-[11px] uppercase tracking-[0.14em] text-teal lg:block">After · for {job.title}</div>
+          <div className="font-semibold mb-2 hidden text-[11px] uppercase tracking-[0.08em] text-teal lg:block">After · for {job.title}</div>
           <div className="lg:h-[calc(100%-26px)]">
             <AfterCv p={p} />
           </div>

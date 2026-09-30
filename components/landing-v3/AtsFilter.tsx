@@ -42,7 +42,7 @@ function ScanCard({ good, on }: { good: boolean; on: boolean }) {
   return (
     <div className={cn('relative min-w-0 overflow-hidden rounded-[18px] border bg-white p-3 shadow-lp-card sm:rounded-[20px] sm:p-5', good ? 'border-teal/30' : 'border-line')}>
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[9.5px] uppercase tracking-[0.12em] text-ink-muted sm:text-[10.5px]">{good ? 'Prepared' : 'Generic CV'}</span>
+        <span className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted sm:text-[11px]">{good ? 'Prepared' : 'Generic CV'}</span>
         <Tag tone="muted" className="hidden sm:inline-flex">Example</Tag>
       </div>
       {/* The CV being read */}
@@ -50,7 +50,7 @@ function ScanCard({ good, on }: { good: boolean; on: boolean }) {
         <div className="text-[11.5px] font-bold leading-tight text-ink sm:text-[12px]">{good ? 'Senior Accountant — IFRS · UAE VAT' : 'Accountant'}</div>
         <div className="mt-2 flex flex-wrap gap-1">
           {(good ? ['IFRS 16', 'UAE VAT', 'SAP FICO', 'Month-end close'] : ['Accounts', 'Reports', 'Hard working']).map((k) => (
-            <span key={k} className={cn('rounded px-1.5 py-0.5 text-[10.5px] font-semibold', good ? 'bg-teal-soft text-teal' : 'bg-fill-subtle text-ink-muted')}>{k}</span>
+            <span key={k} className={cn('rounded px-1.5 py-0.5 text-[11px] font-semibold', good ? 'bg-teal-soft text-teal' : 'bg-fill-subtle text-ink-muted')}>{k}</span>
           ))}
         </div>
         <div className="mt-2 hidden space-y-1.5 sm:block">
@@ -90,7 +90,7 @@ export function AtsFilter() {
       <ScanCard good on={seen} />
 
       <div className="col-span-2 rounded-[20px] bg-teal p-4 text-white shadow-m-3 sm:p-5 lg:col-span-1 lg:row-span-2">
-        <div className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-gold-soft">What the ATS checks</div>
+        <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-gold-soft">What the ATS checks</div>
         <ul className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-1">
           {CHECKS.map(([k, q], i) => (
             <li key={k} className={cn(s.rise, 'flex gap-2 rounded-[12px] bg-white/[0.08] p-2.5 last:col-span-2 sm:gap-3 sm:p-3 lg:last:col-span-1')} data-on={seen} style={{ ['--d' as string]: `${300 + i * 120}ms` }}>
@@ -107,13 +107,13 @@ export function AtsFilter() {
 
       {/* The funnel: no numbers, only the shape of the problem. */}
       <div className="col-span-2 rounded-[20px] border border-line bg-white p-4 shadow-lp-card sm:p-5">
-        <div className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-muted">Where applications disappear</div>
+        <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted">Where applications disappear</div>
         <ol className="mt-3 space-y-2">
           {FUNNEL.map(([label, w], i) => (
             <li key={label} className="flex items-center gap-3">
               <span className="w-[42%] shrink-0 text-[12.5px] font-semibold leading-tight text-ink sm:w-[34%] sm:text-[13px]">
                 {label}
-                {i === 1 ? <span className="mt-0.5 block text-[10.5px] font-bold text-alert">↓ many CVs stop here</span> : null}
+                {i === 1 ? <span className="mt-0.5 block text-[11px] font-bold text-alert">↓ many CVs stop here</span> : null}
               </span>
               <span className="relative h-7 flex-1 overflow-hidden rounded-[8px] bg-fill-subtle">
                 <span

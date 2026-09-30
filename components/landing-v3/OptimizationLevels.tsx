@@ -78,11 +78,11 @@ export function OptimizationLevels() {
                 i === lvl ? 'border-teal bg-white shadow-m-3' : 'border-line bg-white/60 hover:border-teal/40',
               )}
             >
-              <span className="hidden font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted sm:block">{l.tag}</span>
-              <span className="font-display text-[17px] font-semibold text-ink min-[400px]:text-[20px] sm:text-[22px]">{l.label}</span>
+              <span className="font-semibold hidden text-[11px] uppercase tracking-[0.08em] text-ink-muted sm:block">{l.tag}</span>
+              <span className="text-[17px] font-bold text-ink min-[400px]:text-[20px] sm:text-[22px] tracking-[-0.02em]">{l.label}</span>
               <span className="font-mono text-[11.5px] text-gold-ink">aims {l.band[0]}–{l.band[1]}</span>
               {/* Intensity pips */}
-              <span className="absolute right-3 top-3 flex gap-0.5" aria-hidden="true">
+              <span className="absolute right-3 top-3 hidden gap-0.5 sm:flex" aria-hidden="true">
                 {[0, 1, 2].map((p) => (
                   <span key={p} className={cn('h-3 w-1.5 rounded-full', p <= i ? 'bg-gold' : 'bg-line')} />
                 ))}
@@ -102,7 +102,7 @@ export function OptimizationLevels() {
       {/* The same line at the chosen level */}
       <div className="rounded-[20px] border border-line bg-white p-4 shadow-lp-card sm:p-6">
         <div className="flex items-center justify-between gap-2">
-          <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-muted">Same experience · {L.label} level</span>
+          <span className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted">Same experience · {L.label} level</span>
           <Tag tone="muted">Example</Tag>
         </div>
         <div className="mt-4 flex items-end gap-3">
@@ -127,7 +127,7 @@ export function OptimizationLevels() {
           {L.suggestion ? (
             <p key={`${L.key}-s`} className={cn(s.enter, 'flex items-start justify-between gap-3 rounded-[12px] border border-gold/50 bg-gold-soft px-3 py-2.5 text-ink')}>
               <span>
-                <span className="mr-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-gold-ink">Suggested</span>
+                <span className="font-semibold mr-1.5 text-[11px] uppercase tracking-[0.08em] text-gold-ink">Suggested</span>
                 {L.suggestion}
               </span>
               <span className="flex shrink-0 gap-1">

@@ -29,7 +29,7 @@ export const NAV = [
 ] as const
 
 function Mark() {
-  return <span className="grid size-9 place-items-center rounded-ctl bg-teal font-display text-[16px] font-bold text-white">G</span>
+  return <span className="grid size-9 place-items-center rounded-ctl bg-teal text-[16px] font-bold text-white tracking-[-0.02em]">G</span>
 }
 
 export function LandingNav() {
@@ -38,7 +38,7 @@ export function LandingNav() {
       <div className="mx-auto flex h-[64px] max-w-[1240px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
         <Link href="/" className="flex shrink-0 items-center gap-2 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">
           <Mark />
-          <span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink max-[359px]:sr-only sm:text-[16px]">GCC MENTOR</span>
+          <span className="text-[15px] font-bold tracking-[-0.03em] text-ink max-[359px]:sr-only sm:text-[16px]">GCC MENTOR</span>
         </Link>
 
         <nav aria-label="Page sections" className="hidden items-center gap-0.5 xl:flex">
@@ -92,11 +92,11 @@ export function HeroCopy() {
         <span className="size-2 shrink-0 rounded-full bg-ok" aria-hidden="true" />
         <span className="truncate">Built by a 15-year Gulf EPC &amp; PMC professional</span>
       </p>
-      <h1 className="mt-4 font-display text-[36px] font-semibold leading-[1.04] tracking-[-0.028em] text-ink min-[390px]:text-[40px] sm:text-[48px] lg:mt-6 lg:text-[54px] lg:leading-[1.03] xl:text-[60px]">
+      <h1 className="mt-4 text-[31px] font-bold leading-[1.12] tracking-[-0.03em] text-ink min-[390px]:text-[35px] sm:text-[46px] lg:mt-6 lg:text-[52px] lg:leading-[1.08] xl:text-[58px]">
         Applying everywhere, but no calls?{' '}
-        <em className="font-medium text-teal">Beat the ATS. Get shortlisted.</em>
+        <em className="not-italic text-teal">Beat the ATS. Get shortlisted.</em>
       </h1>
-      <p className="mt-4 max-w-[520px] text-[16px] leading-[1.55] text-ink-soft lg:mt-5 lg:text-[19px]">
+      <p className="mt-4 max-w-[540px] text-[16px] leading-[1.6] text-ink-soft lg:mt-5 lg:text-[18px]">
         Most Gulf employers screen your CV with ATS software before a recruiter reads it. GCC Mentor rebuilds your CV and cover letter for each job — so you pass the screen, look like a premium candidate, and walk into the interview prepared.
       </p>
       <div className="mt-6 flex flex-col gap-2.5 sm:flex-row lg:mt-8">
@@ -211,12 +211,12 @@ export function Founder() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_15%_10%,rgba(201,150,46,0.25),transparent_70%)]" aria-hidden="true" />
       <Wrap className="relative grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
         <div>
-          <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-gold-soft lg:text-[12px]">Built by a Gulf insider</span>
-          <h2 id="founder-title" className="mt-3 font-display text-[29px] font-semibold leading-[1.1] tracking-[-0.02em] sm:text-[36px] lg:text-[46px]">
-            Not built by a software company. <em className="font-medium text-gold-soft">Built by someone who has been there.</em>
+          <span className="font-semibold text-[11px] uppercase tracking-[0.08em] text-gold-soft lg:text-[12px]">Built by a Gulf insider</span>
+          <h2 id="founder-title" className="mt-3 text-[26px] font-bold leading-[1.15] tracking-[-0.03em] sm:text-[34px] lg:text-[42px]">
+            Not built by a software company. <em className="not-italic text-gold-soft">Built by someone who has been there.</em>
           </h2>
           <div className="mt-6 flex items-center gap-4 rounded-[18px] bg-white/[0.08] p-4 ring-1 ring-white/15">
-            <span className="grid size-14 shrink-0 place-items-center rounded-full bg-gold font-display text-[20px] font-bold text-ink" aria-hidden="true">SKJ</span>
+            <span className="grid size-14 shrink-0 place-items-center rounded-full bg-gold text-[20px] font-bold text-ink tracking-[-0.02em]" aria-hidden="true">SKJ</span>
             <div className="leading-snug">
               <b className="block text-[16px]">Satish Kumar Jaiswal</b>
               <span className="block text-[13px] text-white/80">Founder · E&amp;I Superintendent</span>
@@ -228,12 +228,12 @@ export function Founder() {
           </p>
         </div>
         <div>
-          <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-gold-soft">What 15 years in the Gulf taught him — and what the product does</div>
+          <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-gold-soft">What 15 years in the Gulf taught him — and what the product does</div>
           <ol className="-mx-4 mt-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
             {INSIGHTS.map(([title, body], i) => (
               <li key={title} className="w-[78%] shrink-0 snap-start rounded-[18px] bg-white p-4 text-ink shadow-m-3 sm:w-auto lg:p-5">
                 <span className="font-mono text-[12px] text-gold-ink">0{i + 1}</span>
-                <h3 className="mt-1 font-display text-[18px] font-semibold leading-tight lg:text-[20px]">{title}</h3>
+                <h3 className="mt-1 text-[18px] font-bold leading-tight lg:text-[20px] tracking-[-0.02em]">{title}</h3>
                 <p className="mt-1.5 text-[13.5px] leading-snug text-ink-soft">{body}</p>
               </li>
             ))}
@@ -282,8 +282,8 @@ export function Trust() {
             <div className="flex items-center gap-3">
               <span className="grid size-12 place-items-center rounded-[14px] bg-teal text-white"><Lock className="size-5" aria-hidden="true" /></span>
               <div>
-                <div className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-teal">Source of truth</div>
-                <div className="font-display text-[20px] font-semibold text-ink">Your Career Profile</div>
+                <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-teal">Source of truth</div>
+                <div className="text-[20px] font-bold text-ink tracking-[-0.02em]">Your Career Profile</div>
               </div>
             </div>
             <dl className="mt-4 grid grid-cols-2 gap-2 text-[12.5px]">
@@ -295,7 +295,7 @@ export function Trust() {
               ].map(([k, v]) => (
                 <div key={k} className="flex items-center justify-between rounded-[10px] bg-white px-3 py-2">
                   <dt className="text-ink-soft">{k}</dt>
-                  <dd className="flex items-center gap-1 font-mono text-[10.5px] text-teal"><Lock className="size-3" aria-hidden="true" />{v}</dd>
+                  <dd className="flex items-center gap-1 font-mono text-[11px] text-teal"><Lock className="size-3" aria-hidden="true" />{v}</dd>
                 </div>
               ))}
             </dl>
@@ -328,8 +328,8 @@ export function PricingPreview() {
         <SectionHead center id="pricing-title" eyebrow="Pricing" title={<>Start free. <em>Add services per job.</em></>} />
         <div className="mx-auto mt-8 grid max-w-[880px] gap-3 md:grid-cols-2 lg:mt-12 lg:gap-5">
           <div className="flex flex-col rounded-[20px] border border-line bg-white p-5 shadow-lp-card lg:p-7">
-            <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted">Free</div>
-            <div className="mt-1 font-display text-[22px] font-semibold text-ink lg:text-[26px]">Know where you stand</div>
+            <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted">Free</div>
+            <div className="mt-1 text-[22px] font-bold text-ink lg:text-[26px] tracking-[-0.02em]">Know where you stand</div>
             <ul className="mt-4 space-y-2 text-[14px] text-ink-soft">
               {['Gulf Readiness score — no card', 'Career Profile from your CV', 'Browse all resume templates'].map((t) => (
                 <li key={t} className="flex gap-2"><Check className="mt-0.5 text-ok" /> {t}</li>
@@ -338,8 +338,8 @@ export function PricingPreview() {
             <Link href="/gulf-readiness-score" className={cn(BTN_LINE, 'mt-6')}>Check my readiness — free</Link>
           </div>
           <div className="relative flex flex-col rounded-[20px] border-2 border-teal bg-white p-5 shadow-m-3 lg:p-7">
-            <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-gold-ink">Per job · confirm price directly</div>
-            <div className="mt-1 font-display text-[22px] font-semibold text-ink lg:text-[26px]">Prepare each application</div>
+            <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-gold-ink">Per job · confirm price directly</div>
+            <div className="mt-1 text-[22px] font-bold text-ink lg:text-[26px] tracking-[-0.02em]">Prepare each application</div>
             <ul className="mt-4 space-y-2 text-[14px] text-ink-soft">
               {['Optimized CV, ATS before & after', 'Cover letter in 4 tones', 'Interview Q&A + mock interview'].map((t) => (
                 <li key={t} className="flex gap-2"><Check className="mt-0.5 text-ok" /> {t}</li>
@@ -369,9 +369,17 @@ const FAQ = [
   ['Can I use GCC Mentor on mobile?', 'Yes. Every step — upload, review, cover letter and mock interview — is designed to work on a phone.'],
 ] as const
 
+/** FAQPage structured data — the same questions and answers shown on the page. */
+const FAQ_JSON_LD = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
+})
+
 export function Faq() {
   return (
     <section id="faq" aria-labelledby="faq-title" className="border-t border-line bg-white py-11 sm:py-16 lg:py-[104px]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: FAQ_JSON_LD }} />
       <Wrap className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <SectionHead id="faq-title" eyebrow="Questions" title={<>Before <em>you start.</em></>} />
         <div className="space-y-2">
@@ -408,8 +416,8 @@ export function FinalCta() {
                 </li>
               ))}
             </ol>
-            <h2 id="final-title" className="mx-auto mt-6 max-w-[760px] font-display text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[40px] lg:text-[54px]">
-              Stop sending the same CV. <em className="font-medium text-gold-soft">Start getting shortlisted.</em>
+            <h2 id="final-title" className="mx-auto mt-6 max-w-[760px] text-[28px] font-bold leading-[1.14] tracking-[-0.03em] sm:text-[38px] lg:text-[50px]">
+              Stop sending the same CV. <em className="not-italic text-gold-soft">Start getting shortlisted.</em>
             </h2>
             <p className="mx-auto mt-4 max-w-[520px] text-[15.5px] leading-relaxed text-white/85 lg:text-[18px]">
               Be the candidate who knows how Gulf shortlisting works. Build your profile once — we prepare every application and guide you to the interview.

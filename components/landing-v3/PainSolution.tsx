@@ -22,7 +22,7 @@ function Panel({ problem, fix, on }: { problem: ReactNode; fix: ReactNode; on: b
   return (
     <div className="grid items-stretch gap-3 md:grid-cols-[1fr_auto_1fr] md:gap-4">
       <div className="flex flex-col rounded-[18px] border border-dashed border-line-strong bg-fill-warm p-4 sm:p-5">
-        <div className="mb-3 flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-alert">
+        <div className="font-semibold mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-alert">
           <span className="size-1.5 rounded-full bg-alert" aria-hidden="true" /> Today
         </div>
         <div className="flex flex-1 flex-col justify-center">{problem}</div>
@@ -35,7 +35,7 @@ function Panel({ problem, fix, on }: { problem: ReactNode; fix: ReactNode; on: b
         </span>
       </div>
       <div className={cn(s.rise, 'rounded-[18px] border border-teal/25 bg-white p-4 shadow-lp-card sm:p-5')} data-on={on} style={{ ['--d' as string]: '120ms' }}>
-        <div className="mb-3 flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-teal">
+        <div className="font-semibold mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-teal">
           <span className="size-1.5 rounded-full bg-teal" aria-hidden="true" /> With GCC Mentor
         </div>
         {fix}
@@ -70,8 +70,8 @@ function SameCv({ on }: { on: boolean }) {
             {jobs.map(([c, t]) => (
               <li key={c} className="flex items-center gap-2 text-[12.5px] text-ink-soft">
                 <span className="h-px w-5 bg-line-strong" aria-hidden="true" />
-                <span className="font-mono text-[10.5px] text-ink-muted">{c}</span> {t}
-                <span className="ml-auto font-mono text-[10.5px] text-alert">same file</span>
+                <span className="font-mono text-[11px] text-ink-muted">{c}</span> {t}
+                <span className="ml-auto font-mono text-[11px] text-alert">same file</span>
               </li>
             ))}
           </ul>
@@ -84,7 +84,7 @@ function SameCv({ on }: { on: boolean }) {
               <DocIcon className="h-9 w-7 p-1" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[13px] font-semibold text-ink">{t}</span>
-                <span className="font-mono text-[10.5px] text-gold-ink">{c} · its own keywords</span>
+                <span className="font-mono text-[11px] text-gold-ink">{c} · its own keywords</span>
               </span>
               <span className="font-mono text-[15px] font-medium text-teal">{score}</span>
             </li>
