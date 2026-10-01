@@ -27,6 +27,7 @@ const TS_CHECKS = [
   'verify-profile-readiness.ts',
   'verify-gcc-experience.ts',
   'verify-gulf-readiness.ts',
+  'verify-gulf-readiness-v2.ts',
   'verify-profile-merge.ts',
   'verify-profile-data.ts',
   'verify-resume-parse.ts',

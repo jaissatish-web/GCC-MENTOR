@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { ARABIC_LEVELS, PAPERWORK_STATUSES } from '@/types/careerProfile'
 import type {
+  ArabicLevel,
+  PaperworkStatus,
   CareerProfile,
   CareerProfileFull,
   PassportType,
@@ -154,6 +157,18 @@ function validateProfile(p: Record<string, unknown>): string | null {
   // a coerced false.
   if (p.has_driving_license !== null && p.has_driving_license !== undefined) {
     if (typeof p.has_driving_license !== 'boolean') return 'has_driving_license'
+  }
+
+  // Gulf paperwork answers (migration 060): null/absent = not answered.
+  for (const f of ['degree_attestation', 'professional_licence', 'saudi_verification'] as const) {
+    const v = p[f]
+    if (v !== null && v !== undefined && !(typeof v === 'string' && PAPERWORK_STATUSES.includes(v as PaperworkStatus))) return f
+  }
+  if (p.arabic_level !== null && p.arabic_level !== undefined) {
+    if (typeof p.arabic_level !== 'string' || !ARABIC_LEVELS.includes(p.arabic_level as ArabicLevel)) return 'arabic_level'
+  }
+  if (p.photo_checklist_confirmed !== null && p.photo_checklist_confirmed !== undefined) {
+    if (typeof p.photo_checklist_confirmed !== 'boolean') return 'photo_checklist_confirmed'
   }
 
   // Readiness is auto-derived (TASK-014); accept null or a known value if sent.
@@ -395,6 +410,9 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     'professional_summary', 'field_visibility', 'readiness_category', 'readiness_score',
     'has_driving_license', 'driving_license_country', 'driving_license_category',
     'driving_license_validity_date',
+    // Gulf paperwork & presentation (migration 060).
+    'photo_checklist_confirmed', 'degree_attestation', 'professional_licence',
+    'saudi_verification', 'arabic_level',
   ]
   const profileRow: Record<string, unknown> = {}
   for (const k of allowedProfileKeys) {

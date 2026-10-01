@@ -22,6 +22,7 @@ export const DIMENSION_LABELS: Record<DimensionKey, string> = {
   skills: 'Skills',
   education: 'Education',
   certifications: 'Certifications',
+  gulf_essentials: 'Gulf CV Essentials',
   resume_quality: 'Resume Quality & Targeting',
 }
 
@@ -36,7 +37,7 @@ export const DIMENSION_LABELS: Record<DimensionKey, string> = {
  * never punished for a situation they cannot change.
  */
 export const SITUATION_POINTS: Record<Scenario, number> = {
-  currently_in_gulf: 15,
+  currently_in_gulf: 12,
   returner: 8,
   experienced: 5,
   fresher: 0,
@@ -51,37 +52,47 @@ export const SITUATION_POINTS: Record<Scenario, number> = {
  * freed situation points are redistributed to education and skills.
  */
 export const SCENARIO_WEIGHTS: Record<Scenario, Record<DimensionKey, number>> = {
+  // v2 (2026-10-01): Gulf CV Essentials is 20 everywhere — the same 20 points
+  // (photo 6, notice 3, visa or passport 3, WhatsApp 2, Arabic 2, driving
+  // licence 2, nationality + location 2) for every scenario, so "a professional
+  // photo is worth 6" is true for everyone. Its 20 came out of resume quality
+  // (which no longer double-counts visa / notice / nationality / languages) and
+  // evenly from the rest.
   currently_in_gulf: {
-    gulf_market_position: 15,
-    work_experience: 28,
-    skills: 14,
+    gulf_market_position: 12,
+    work_experience: 24,
+    skills: 12,
     education: 4,
-    certifications: 9,
-    resume_quality: 30,
+    certifications: 8,
+    gulf_essentials: 20,
+    resume_quality: 20,
   },
   returner: {
     gulf_market_position: 8,
-    work_experience: 30,
-    skills: 15,
-    education: 8,
-    certifications: 10,
-    resume_quality: 29,
+    work_experience: 26,
+    skills: 13,
+    education: 7,
+    certifications: 8,
+    gulf_essentials: 20,
+    resume_quality: 18,
   },
   experienced: {
     gulf_market_position: 5,
-    work_experience: 30,
-    skills: 20,
-    education: 10,
-    certifications: 10,
-    resume_quality: 25,
+    work_experience: 26,
+    skills: 16,
+    education: 8,
+    certifications: 8,
+    gulf_essentials: 20,
+    resume_quality: 17,
   },
   fresher: {
     gulf_market_position: 0,
-    work_experience: 22, // scored on projects/internships, not employment
-    skills: 22,
-    education: 28,
-    certifications: 13,
-    resume_quality: 15,
+    work_experience: 18, // scored on projects/internships, not employment
+    skills: 18,
+    education: 22,
+    certifications: 10,
+    gulf_essentials: 20,
+    resume_quality: 12,
   },
 }
 
@@ -187,3 +198,131 @@ export const BAND_MESSAGES: Record<Scenario, Record<ScoreBand['key'], { label: s
     },
   },
 }
+
+// ---------------------------------------------------------------------------
+// Gulf Readiness v2 (2026-10-01) — essentials, must-haves, verdict
+// ---------------------------------------------------------------------------
+
+/**
+ * The 20 points of Gulf CV Essentials. Sums to SCENARIO_WEIGHTS[*].gulf_essentials
+ * (asserted below), so each item's number here IS its number in the score.
+ *
+ * Market basis (checked 2026-10-01): a professional headshot is customary on a
+ * Gulf CV and leaving it out reads as unfamiliarity with the market; recruiters
+ * screen on availability (notice), visa / passport status and contact by
+ * WhatsApp; Arabic and a Gulf driving licence are a plus for many roles.
+ */
+export const ESSENTIAL_POINTS = {
+  photo: 6,
+  notice: 3,
+  visa_or_passport: 3,
+  whatsapp: 2,
+  arabic: 2,
+  driving_licence: 2,
+  nationality_location: 2,
+} as const
+
+/** Photo points by state. `unknown` is left out of the score entirely. */
+export const PHOTO_POINTS: Record<'none' | 'hidden' | 'shown' | 'shown_confirmed', number> = {
+  none: 0,
+  hidden: 2,
+  shown: 4,
+  shown_confirmed: 6,
+}
+
+/** The professional-photo checklist the user confirms (we never judge a photo by code). */
+export const PHOTO_CHECKLIST: readonly string[] = [
+  'Plain, light background',
+  'Formal or business clothes',
+  'Head and shoulders, facing the camera',
+  'Taken in the last two years',
+]
+
+for (const scenario of Object.keys(SCENARIO_WEIGHTS) as Scenario[]) {
+  const total = Object.values(ESSENTIAL_POINTS).reduce((a, b) => a + b, 0)
+  if (SCENARIO_WEIGHTS[scenario].gulf_essentials !== total) {
+    throw new Error(`Gulf readiness: gulf_essentials weight for '${scenario}' must equal the essentials points (${total})`)
+  }
+}
+
+/** Passport must be valid at least this long for a work visa (most GCC visas: six months). */
+export const PASSPORT_MIN_DAYS = 183
+
+/** Verdict wording. The counts are filled in by the engine. */
+export const VERDICT_COPY = {
+  ready: {
+    label: 'Ready to apply',
+    message: 'Your profile and paperwork are in place for Gulf applications. Tailor your CV to each job to get shortlisted.',
+  },
+  almost: {
+    label: 'Almost ready',
+    message: 'You are close. Finish the steps below — the paperwork first — and you are ready to apply.',
+  },
+  not_ready: {
+    label: 'Not ready yet',
+    message: 'A few things stand between you and a Gulf job offer. Start with the first step below.',
+  },
+} as const
+
+/**
+ * Health regulators by target country — the licence a nurse, doctor, pharmacist
+ * or allied-health professional needs before they can be hired.
+ */
+export const HEALTH_REGULATORS: Record<string, string> = {
+  uae: 'DHA (Dubai), DOH (Abu Dhabi) or MOHAP (other emirates)',
+  saudi_arabia: 'SCFHS (Saudi Commission for Health Specialties)',
+  qatar: 'the Department of Healthcare Professions (QCHP)',
+  oman: 'OMSB / the Ministry of Health',
+  kuwait: 'the Ministry of Health',
+  bahrain: 'NHRA (National Health Regulatory Authority)',
+}
+
+export const PAPERWORK_COPY = {
+  passport: {
+    label: 'Passport valid for 6+ months',
+    whyMissing: 'Your passport expires within six months (or has expired). Gulf work visas need at least six months of validity, and many employers want two years.',
+    whyUnknown: 'Add your passport expiry date so we can check it — Gulf work visas need at least six months of validity.',
+    steps: [
+      'Renew your passport now — renewal can take several weeks.',
+      'Then update the expiry date in your Career Profile.',
+    ],
+    ecrStep: 'Your passport is ECR: for most Gulf jobs your employer applies for emigration clearance on the eMigrate portal before you travel. Make sure the job is from a registered recruiter or employer.',
+  },
+  degree_attestation: {
+    label: 'Degree attested',
+    why: 'Skilled work permits (UAE skill levels 1–3, and most professional roles in the region) need your degree attested before the visa is issued.',
+    steps: [
+      'Home-country authentication of the certificate (state education department / notary).',
+      'Your foreign ministry\'s attestation or apostille.',
+      'Attestation by the embassy of the Gulf country you are going to.',
+      'Final attestation by that country\'s foreign ministry after you arrive (your employer usually guides this).',
+      'Allow 2–6 weeks; start as soon as you begin applying.',
+    ],
+  },
+  saudi_verification: {
+    label: 'Saudi professional verification',
+    why: 'Saudi Arabia now requires professional verification for most work visas: QVP checks your qualification, and SVP is a skills test for technical trades. Residency renewals depend on it too.',
+    steps: [
+      'Have your attested degree and experience letters ready.',
+      'Professionals: your qualification is verified through QVP during the visa process — your employer starts it.',
+      'Technical trades: book and pass the SVP skills test (a short theory test plus a practical) at an approved centre.',
+      'The certificate is valid for five years — keep a copy for your employer.',
+    ],
+  },
+  professional_licence_health: {
+    label: 'Healthcare licence',
+    steps: (regulator: string) => [
+      'Get your documents primary-source verified (DataFlow).',
+      `Pass the licensing exam for ${regulator} (usually through Prometric).`,
+      'Register for your licence or eligibility letter — employers often hire only licensed or eligible candidates.',
+    ],
+  },
+  professional_licence_engineer: {
+    label: 'Saudi Council of Engineers registration',
+    why: 'Engineers must be registered with the Saudi Council of Engineers (SCE) to work as engineers in Saudi Arabia.',
+    steps: [
+      'Collect your attested degree and experience letters.',
+      'Apply for SCE membership and the professional assessment (your employer usually starts it).',
+    ],
+  },
+} as const

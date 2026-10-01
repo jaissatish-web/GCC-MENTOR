@@ -86,6 +86,50 @@ a finding has to be reproducible — a model that answers differently each time 
 be the basis of one. This is also what makes the score safe as the top of the funnel:
 free traffic costs nothing to serve.
 
+### Gulf Readiness v2 — verdict, photo, paperwork (2026-10-01)
+
+Founder decisions: photo scored up to 6 with a checklist; ONE verdict instead of two
+competing numbers; the paperwork questions added. Still arithmetic, no model.
+
+**The verdict leads**: Ready to apply / Almost ready / Not ready yet
+(`verdictFor`, `lib/gulfReadiness/engine.ts`). A must-have that is *missing* makes it
+"Not ready" whatever the score; one *not answered* keeps a strong profile at "Almost"
+("not checked", never a failure); a score under 50 is "Not ready — strengthen your CV
+first", under 75 "Almost". The label names the real reason. Profile completeness (the
+old "Profile Strength") is now the "Profile X% complete" line and progress card.
+
+**Must-haves** (`lib/gulfReadiness/mustHaves.ts`), each only where it applies:
+passport valid 6+ months (everyone; ECR adds the eMigrate step) · degree attestation
+(anyone with a degree; UAE skill levels 1–3 require it) · Saudi professional
+verification QVP/SVP (Saudi target only) · professional licence (health anywhere —
+regulator named per country; engineers for Saudi — SCE). Answers live on
+`career_profiles` (migration 060): `degree_attestation`, `professional_licence`,
+`saudi_verification` (done / in_progress / not_started / not_needed), `arabic_level`,
+`photo_checklist_confirmed`.
+
+**Gulf CV Essentials — a new 20-point dimension** (`lib/gulfReadiness/essentials.ts`),
+the same 20 in every scenario: photo 6 (none 0 · hidden 2 · shown 4 · shown + checklist
+confirmed 6; unknown on pasted text = left out) · notice 3 (≤30 days full, 60 → 2,
+90 → 1) · visa 3 in the Gulf / passport details 3 outside it · WhatsApp 2 · Arabic 2
+(native/fluent 2, conversational 1.5, basic or a bare mention 1) · driving licence 2 (GCC
+2, home 1) · nationality + location stated 2. Visa, notice, nationality and languages
+left Resume Quality so nothing is counted twice. **Which** nationality, age, gender,
+marital status or religion is never scored (pinned by a test).
+
+New weights (each column 100): in-Gulf 12/24/12/4/8/20/20, returner 8/26/13/7/8/20/18,
+experienced 5/26/16/8/8/20/17, fresher 0/18/18/22/10/20/12 — order: market position,
+work, skills, education, certifications, essentials, resume quality.
+
+**The guided path**: recommendations carry `stage` (paperwork → profile → apply),
+`gain` (points) and `field` (the profile field that fixes it). The profile page's panel
+(`components/profile/ImprovePanel.tsx`) shows the verdict, then the three stages;
+paperwork items open to the real process.
+
+The signed-in score now reads the profile's facts directly (`factsFromProfile`), and
+the profile page sends the same fields as the dashboard — before, it left out
+nationality, visa, notice period and location, so the two pages could disagree.
+Tests: `scripts/verify-gulf-readiness-v2.ts`.
+
 ---
 
 ## 2a. Match Score — the before/after score of an optimized CV (2026-09-17)

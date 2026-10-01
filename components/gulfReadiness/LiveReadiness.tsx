@@ -41,8 +41,10 @@ export function LiveReadiness({
     )
   }
 
-  const tone =
-    result.band.key === 'ready' ? 'text-teal' : result.band.key === 'mid' ? 'text-teal' : 'text-alert'
+  // v2: the verdict (ready / almost / not ready) sets the tone and the headline.
+  const verdict = result.verdict
+  const tone = verdict.key === 'ready' ? 'text-teal' : verdict.key === 'almost' ? 'text-gold-text' : 'text-alert'
+  const next = result.recommendations[0]
 
   return (
     <div className="rounded-card border border-line bg-white px-4 py-4">
@@ -55,18 +57,19 @@ export function LiveReadiness({
       <p className="mt-0.5 text-[12px] text-ink-muted">
         How ready you are for the Gulf job market — different from how complete your profile is.
       </p>
-      <div className="mt-2 flex items-end gap-2">
-        <span className={`font-mono text-3xl font-bold ${tone}`}>{result.finalScore}</span>
-        <span className="pb-1 text-[12px] text-ink-muted">/ 100 · {result.band.label}</span>
+      <p className={`mt-2 text-[15px] font-bold leading-snug ${tone}`}>{verdict.label}</p>
+      <div className="mt-1 flex items-end gap-2">
+        <span className="font-mono text-3xl font-bold text-ink">{result.finalScore}</span>
+        <span className="pb-1 text-[12px] text-ink-muted">/ 100</span>
       </div>
       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-canvas">
         <div
-          className={`h-1.5 rounded-full transition-all duration-500 ${result.band.key === 'ready' ? 'bg-teal' : result.band.key === 'mid' ? 'bg-teal' : 'bg-alert'}`}
+          className={`h-1.5 rounded-full transition-all duration-500 ${verdict.key === 'not_ready' ? 'bg-alert' : 'bg-teal'}`}
           style={{ width: `${result.finalScore}%` }}
         />
       </div>
       <p className="mt-2.5 text-[12px] leading-snug text-ink-soft">
-        Your score improves as you complete your profile. {result.recommendations[0]?.title ? `Next: ${result.recommendations[0].title.toLowerCase()}.` : 'Add more detail to strengthen it.'}
+        {next ? <>Next: {next.title.charAt(0).toLowerCase() + next.title.slice(1)}{next.gain ? ` (+${next.gain} pts)` : ''}.</> : 'Add more detail to strengthen it.'}
       </p>
       {detailsHref ? (
         <Link

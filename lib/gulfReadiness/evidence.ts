@@ -325,10 +325,10 @@ const QUANTIFIED =
   /(\d[\d,.]*\s?%|[$₹€£]\s?\d|\b(?:aed|sar|qar|usd|inr)\s?\d|\b\d[\d,.]*\s?(?:\+\s?)?(?:k|m|bn|million|billion|crore|lakh|units|projects|people|staff|team|members|engineers|technicians|workers|loops|points|instruments|kv|mw|tph|bpd|barrels|tons?|tonnes|km|m3|sqm|patients|beds|clients|customers|vehicles|sites|stores|students|days|weeks|hours)\b)/gi
 
 /**
- * Resume quality & targeting — quantified results, contact details, a real
- * summary, and the four facts a Gulf recruiter reads first (nationality, visa,
- * notice period, languages). This is the dimension optimization most directly
- * improves, so its gaps are worded to point there.
+ * Resume quality & targeting — quantified results, contact details and a real
+ * summary. This is the dimension optimization most directly improves, so its
+ * gaps are worded to point there. (The Gulf screening facts live in
+ * essentials.ts since v2.)
  */
 export function detectResumeQuality(raw: string): DetectorOutput {
   const text = normalise(raw)
@@ -338,13 +338,6 @@ export function detectResumeQuality(raw: string): DetectorOutput {
   const summaryLines = sectionLines(raw, /summary|profile|about|objective/i)
   const summaryWords = wordCount(summaryLines.join(' '))
   const isObjective = /\b(seeking|looking for|aspiring|eager to|to obtain|to secure)\b/i.test(summaryLines.join(' '))
-
-  const essentials: Array<[string, boolean]> = [
-    ['nationality', /\bnationality\b|\b(indian|pakistani|filipino|egyptian|jordanian|british|nepali|sri lankan|bangladeshi|lebanese|syrian|sudanese|kenyan|nigerian|ghanaian|emirati|saudi) national\b/.test(text)],
-    ['visa or residence status', /\b(visa|iqama|residence permit|work permit|residency)\b/.test(text)],
-    ['notice period or availability', /\b(notice period|available immediately|immediate(ly)? (available|joining|joiner)|immediate availability|can join)\b/.test(text)],
-    ['languages', /\blanguages?\b|\barabic\b|\b(fluent|native) in\b/.test(text)],
-  ]
 
   const evidence: string[] = []
   const gaps: string[] = []
@@ -360,14 +353,11 @@ export function detectResumeQuality(raw: string): DetectorOutput {
   else if (isObjective) gaps.push('Replace the objective ("seeking…") with a summary of what you have done')
   else gaps.push('No professional summary — a targeted summary frames the whole resume')
 
-  const missing = essentials.filter(([, ok]) => !ok).map(([label]) => label)
-  const present = essentials.length - missing.length
-  if (present >= 3) evidence.push('The details Gulf recruiters check first (visa, notice period, nationality, languages)')
-  if (missing.length > 0) gaps.push(`State your ${missing.join(', ')} — Gulf recruiters screen on these before anything else`)
-
-  const summaryScore = summaryWords >= 25 && !isObjective ? 0.2 : summaryLines.length ? 0.1 : 0
-  let ratio =
-    0.35 * (Math.min(quantified, 6) / 6) + (hasEmail && hasPhone ? 0.15 : 0) + summaryScore + 0.3 * (present / essentials.length)
+  // Visa, notice period, nationality and languages moved to Gulf CV Essentials
+  // (lib/gulfReadiness/essentials.ts, v2 2026-10-01) — scored there once, by
+  // quality, instead of here by presence. The remaining shares fill the dimension.
+  const summaryScore = summaryWords >= 25 && !isObjective ? 0.3 : summaryLines.length ? 0.15 : 0
+  let ratio = 0.5 * (Math.min(quantified, 6) / 6) + (hasEmail && hasPhone ? 0.2 : 0) + summaryScore
 
   const words = wordCount(raw ?? '')
   if (words < 120) {

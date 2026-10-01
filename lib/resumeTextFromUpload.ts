@@ -22,7 +22,8 @@ const MAX_DOCX = 4 * 1024 * 1024
 const MIN_TEXT = 50
 
 export type ResumeTextResult =
-  | { ok: true; text: string }
+  /** imageCount: PDFs only — embedded images, a weak "has a photo" hint (Gulf Readiness v2). */
+  | { ok: true; text: string; imageCount?: number }
   | { ok: false; error: string; code: string }
 
 export async function resumeTextFromFile(file: File): Promise<ResumeTextResult> {
@@ -62,7 +63,7 @@ export async function resumeTextFromFile(file: File): Promise<ResumeTextResult> 
             'We could not read this PDF. Upload a text-based PDF or Word file, or paste your resume text instead.',
         }
       }
-      return { ok: true, text: result.text }
+      return { ok: true, text: result.text, imageCount: result.imageCount ?? 0 }
     }
 
     const mammoth = await import('mammoth')

@@ -1,5 +1,5 @@
-import type { FunnelAnswers, GulfReadinessResult } from '@/lib/gulfReadiness/types'
-import type { CareerProfileFull, ReadinessCategory } from '@/types/careerProfile'
+import type { FunnelAnswers, GulfFacts, GulfReadinessResult, PhotoState } from '@/lib/gulfReadiness/types'
+import type { ArabicLevel, CareerProfileFull, PaperworkStatus, ReadinessCategory } from '@/types/careerProfile'
 import { calculateGulfReadiness } from '@/lib/gulfReadiness/engine'
 
 /**
@@ -34,6 +34,23 @@ export interface ProfileScoringInput {
   notice_period?: string | null
   current_location?: string | null
   additional_information?: Array<{ label?: string | null; value?: string | null }> | null
+  // Gulf Readiness v2 (2026-10-01): read as facts, not text.
+  photo_url?: string | null
+  /** field_visibility.photo — false hides the photo from the CV. */
+  photo_visible?: boolean | null
+  photo_checklist_confirmed?: boolean | null
+  passport_validity_date?: string | null
+  passport_type?: string | null
+  visa_transferable?: boolean | null
+  whatsapp?: string | null
+  has_driving_license?: boolean | null
+  driving_license_country?: string | null
+  arabic_level?: ArabicLevel | null
+  degree_attestation?: PaperworkStatus | null
+  professional_licence?: PaperworkStatus | null
+  saudi_verification?: PaperworkStatus | null
+  target_country?: string | null
+  target_job_title?: string | null
   work_experience?: Array<{
     company?: string | null
     role?: string | null
@@ -65,6 +82,21 @@ export function scoringInputFromProfile(p: CareerProfileFull): ProfileScoringInp
     notice_period: p.notice_period,
     current_location: p.current_location,
     additional_information: (p.additional_information ?? []).map((a) => ({ label: a.label, value: a.value })),
+    photo_url: p.photo_url,
+    photo_visible: p.field_visibility?.photo ?? true,
+    photo_checklist_confirmed: p.photo_checklist_confirmed ?? null,
+    passport_validity_date: p.passport_validity_date,
+    passport_type: p.passport_type,
+    visa_transferable: p.visa_transferable,
+    whatsapp: p.whatsapp,
+    has_driving_license: p.has_driving_license,
+    driving_license_country: p.driving_license_country,
+    arabic_level: p.arabic_level ?? null,
+    degree_attestation: p.degree_attestation ?? null,
+    professional_licence: p.professional_licence ?? null,
+    saudi_verification: p.saudi_verification ?? null,
+    target_country: p.target_country,
+    target_job_title: p.target_job_title,
     work_experience: p.work_experience.map((w) => ({
       company: w.company,
       role: w.role,
@@ -160,8 +192,36 @@ function dateRange(start?: string | null, end?: string | null): string {
 }
 
 /** Score a profile with the same engine and scenario logic as the anonymous scan. */
-export function scoreProfileReadiness(profile: ProfileScoringInput, answers: FunnelAnswers): GulfReadinessResult {
-  return calculateGulfReadiness({ answers, resumeText: profileToScoringText(profile) })
+export function scoreProfileReadiness(profile: ProfileScoringInput, answers: FunnelAnswers, today?: Date): GulfReadinessResult {
+  return calculateGulfReadiness({ answers, resumeText: profileToScoringText(profile), facts: factsFromProfile(profile), today })
+}
+
+/** What the photo is worth depends on whether it is there, shown, and confirmed professional. */
+export function photoStateOf(p: ProfileScoringInput): PhotoState {
+  if (!p.photo_url?.trim()) return 'none'
+  if (p.photo_visible === false) return 'hidden'
+  return p.photo_checklist_confirmed ? 'shown_confirmed' : 'shown'
+}
+
+/** The structured facts the engine reads directly (Gulf Readiness v2). */
+export function factsFromProfile(p: ProfileScoringInput): GulfFacts {
+  return {
+    photo: photoStateOf(p),
+    passportValidityDate: p.passport_validity_date ?? null,
+    passportType: p.passport_type ?? null,
+    visaStatus: p.visa_status ?? null,
+    visaTransferable: p.visa_transferable ?? null,
+    noticePeriod: p.notice_period ?? null,
+    hasDrivingLicence: p.has_driving_license ?? null,
+    drivingLicenceCountry: p.driving_license_country ?? null,
+    whatsapp: p.whatsapp ?? null,
+    arabicLevel: p.arabic_level ?? null,
+    degreeAttestation: p.degree_attestation ?? null,
+    professionalLicence: p.professional_licence ?? null,
+    saudiVerification: p.saudi_verification ?? null,
+    targetCountry: p.target_country ?? null,
+    targetJobTitle: p.target_job_title ?? null,
+  }
 }
 
 /**

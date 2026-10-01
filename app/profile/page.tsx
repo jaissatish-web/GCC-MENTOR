@@ -35,10 +35,11 @@ import { splitPhone, joinPhone } from '@/lib/phone'
 import { TextField, TextAreaField, SelectField, DateField, PhoneField } from '@/components/ui/FormField'
 import { FieldLabel } from '@/components/ui/FieldLabel'
 import type { ReadinessCategory, PassportType } from '@/types/careerProfile'
-import type { CareerProfileDraft, CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
+import type { ArabicLevel, CareerProfileDraft, CareerProfileFull, FieldVisibility, PaperworkStatus } from '@/types/careerProfile'
 import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
 import type { ParseWarning } from '@/lib/resumeParse/check'
 import { ParseNotes } from '@/components/profile/ParseNotes'
+import { PHOTO_CHECKLIST } from '@/lib/gulfReadiness/config'
 
 /**
  * Does the saved profile hold real content worth protecting? Used to decide
@@ -193,6 +194,13 @@ interface EditorData {
   driving_license_country: string
   driving_license_category: string
   driving_license_validity_date: string
+  // Gulf paperwork & presentation (migration 060, Gulf Readiness v2). Selects
+  // hold '' for "not answered", sent as null.
+  photo_checklist_confirmed: boolean
+  degree_attestation: string
+  professional_licence: string
+  saudi_verification: string
+  arabic_level: string
   field_visibility: FieldVisibility
   work_experience: EditableWork[]
   skills: EditableSkill[]
@@ -233,6 +241,11 @@ function emptyEditor(): EditorData {
     driving_license_country: '',
     driving_license_category: '',
     driving_license_validity_date: '',
+    photo_checklist_confirmed: false,
+    degree_attestation: '',
+    professional_licence: '',
+    saudi_verification: '',
+    arabic_level: '',
     field_visibility: { ...DEFAULT_FIELD_VISIBILITY },
     work_experience: [],
     skills: [],
@@ -374,6 +387,11 @@ function fromFull(p: CareerProfileFull): EditorData {
     driving_license_country: str(p.driving_license_country),
     driving_license_category: str(p.driving_license_category),
     driving_license_validity_date: str(p.driving_license_validity_date),
+    photo_checklist_confirmed: p.photo_checklist_confirmed === true,
+    degree_attestation: str(p.degree_attestation),
+    professional_licence: str(p.professional_licence),
+    saudi_verification: str(p.saudi_verification),
+    arabic_level: str(p.arabic_level),
     field_visibility: { ...DEFAULT_FIELD_VISIBILITY, ...(p.field_visibility ?? {}) },
     work_experience: (p.work_experience ?? []).map(ws),
     skills: (p.skills ?? []).map(sk),
@@ -425,6 +443,11 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
     driving_license_country: optNull(e.driving_license_country),
     driving_license_category: optNull(e.driving_license_category),
     driving_license_validity_date: optNull(e.driving_license_validity_date),
+    photo_checklist_confirmed: e.photo_url ? e.photo_checklist_confirmed : null,
+    degree_attestation: optNull(e.degree_attestation),
+    professional_licence: optNull(e.professional_licence),
+    saudi_verification: optNull(e.saudi_verification),
+    arabic_level: optNull(e.arabic_level),
     field_visibility: e.field_visibility,
   }
 
@@ -802,7 +825,15 @@ const SECTION_FIELDS: Record<string, readonly string[]> = {
     'visa_transferable',
     'notice_period',
     'passport_validity_date',
+    'nationality',
+    'whatsapp',
+    'photo_checklist_confirmed',
+    'degree_attestation',
+    'professional_licence',
+    'saudi_verification',
+    'arabic_level',
   ],
+  sec_license: ['has_driving_license'],
   sec_work_experience: ['work_experience'],
   sec_education: ['education'],
   sec_skills: ['skills'],
@@ -1224,11 +1255,34 @@ function ProfileScreen() {
   const deferredEditor = useDeferredValue(editor)
   const gulfReadiness = useMemo(() => {
     if (!deferredEditor) return null
+    const d = deferredEditor
     return scoreProfileReadiness(
       {
-        professional_summary: deferredEditor.professional_summary,
-        phone: deferredEditor.phone,
-        email: deferredEditor.email,
+        professional_summary: d.professional_summary,
+        phone: d.phone,
+        email: d.email,
+        // These were missing here (found 2026-10-01) while the dashboard sent
+        // them, so the two pages scored the same profile differently.
+        nationality: d.nationality,
+        visa_status: d.visa_status,
+        notice_period: d.notice_period,
+        current_location: d.current_location,
+        additional_information: d.additional_information.map((a) => ({ label: a.label, value: a.value })),
+        photo_url: d.photo_url,
+        photo_visible: d.field_visibility.photo,
+        photo_checklist_confirmed: d.photo_checklist_confirmed,
+        passport_validity_date: d.passport_validity_date,
+        passport_type: d.passport_type,
+        visa_transferable: d.visa_transferable,
+        whatsapp: d.whatsapp,
+        has_driving_license: d.has_driving_license,
+        driving_license_country: d.driving_license_country,
+        arabic_level: (d.arabic_level || null) as ArabicLevel | null,
+        degree_attestation: (d.degree_attestation || null) as PaperworkStatus | null,
+        professional_licence: (d.professional_licence || null) as PaperworkStatus | null,
+        saudi_verification: (d.saudi_verification || null) as PaperworkStatus | null,
+        target_country: d.target_country || null,
+        target_job_title: d.target_job_title,
         work_experience: deferredEditor.work_experience.map((w) => ({
           company: w.company,
           role: w.role,
@@ -1273,17 +1327,22 @@ function ProfileScreen() {
   // resume_quality ("quantify achievements and add a targeted summary") →
   // Professional summary.
   const gulfSectionFor = useCallback(
-    (dimension: string) => {
+    (dimension: string, field?: string) => {
+      // A step about one field belongs to that field's section (a driving
+      // licence step is in Driving license, not Identity).
+      const owner = field ? sectionOfField(field) : undefined
+      if (owner) return sectionTag(owner)
       const map: Record<string, string> = {
         work_experience: 'sec_work_experience',
         skills: 'sec_skills',
         education: 'sec_education',
         certifications: 'sec_certifications',
         resume_quality: 'sec_summary',
+        gulf_essentials: 'sec_identity',
       }
       return sectionTag(map[dimension])
     },
-    [sectionTag],
+    [sectionTag, sectionOfField],
   )
 
   /**
@@ -1820,11 +1879,14 @@ function ProfileScreen() {
           <div className="flex items-center gap-4">
           {/* Photo first: it is what a Gulf recruiter looks at first, and it
               used to sit buried between form sections. */}
-          <PhotoUpload
-            compact
-            photoUrl={editor.photo_url || null}
-            onChange={(next) => setField({ photo_url: next ?? '' })}
-          />
+          {/* id=f_photo: the Gulf Readiness photo step jumps here. */}
+          <div id="f_photo" tabIndex={-1} className="rounded-card focus:outline-none">
+            <PhotoUpload
+              compact
+              photoUrl={editor.photo_url || null}
+              onChange={(next) => setField({ photo_url: next ?? '' })}
+            />
+          </div>
           {/* CAREER PROFILE COMPLETENESS — one of two distinct numbers on this
               page, and it is now labelled as such. This ring is "how complete your
               profile is" (it drops as you fill sections). The other number, the
@@ -1909,7 +1971,7 @@ function ProfileScreen() {
           missing={improveMissing}
           gulf={gulfReadiness}
           gulfSectionFor={gulfSectionFor}
-          initialTab={searchParams.get('improve') === 'gulf' ? 'gulf' : 'strength'}
+          initialTab={searchParams.get('improve') === 'strength' ? 'strength' : 'gulf'}
           onFix={(field) => goToProfilePart({ field })}
           onOpenSection={(sectionId) => goToProfilePart({ sectionId })}
         />
@@ -2249,6 +2311,92 @@ function ProfileScreen() {
                 onChange={(v) => setField({ visa_transferable: v })}
               />
             </div>
+            {/* GULF PAPERWORK (Gulf Readiness v2, 2026-10-01, migration 060).
+                Optional and private: they drive the readiness verdict and the
+                paperwork steps, and never appear on a CV. "Not answered" is
+                "not checked" in the verdict, never a failure. */}
+            <div className="mt-2 flex flex-col gap-0.5 sm:col-span-2">
+              <p className="text-[13px] font-semibold text-ink">Gulf paperwork</p>
+              <p className="text-[12px] leading-snug text-ink-soft">
+                Optional and private — never shown on your CV. Your Gulf Readiness uses it to tell you what is left before an employer can hire you.
+              </p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <FieldLabel htmlFor="f_degree_attestation">Degree attestation</FieldLabel>
+              <select
+                id="f_degree_attestation"
+                className={selectClass}
+                value={editor.degree_attestation}
+                onChange={(e) => setField({ degree_attestation: e.target.value })}
+              >
+                <option value="">Not answered yet</option>
+                <option value="done">Attested</option>
+                <option value="in_progress">In progress</option>
+                <option value="not_started">Not started</option>
+                <option value="not_needed">Not needed for my job</option>
+              </select>
+              <p className="text-[12px] leading-snug text-ink-muted">Skilled Gulf work permits need your degree attested (home country, then the embassy).</p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <FieldLabel htmlFor="f_professional_licence">Professional licence</FieldLabel>
+              <select
+                id="f_professional_licence"
+                className={selectClass}
+                value={editor.professional_licence}
+                onChange={(e) => setField({ professional_licence: e.target.value })}
+              >
+                <option value="">Not answered yet</option>
+                <option value="done">Licensed or eligible</option>
+                <option value="in_progress">Exam or application in progress</option>
+                <option value="not_started">Not started</option>
+                <option value="not_needed">Not needed for my job</option>
+              </select>
+              <p className="text-[12px] leading-snug text-ink-muted">For regulated jobs — nurses, doctors, pharmacists (DHA, DOH, SCFHS…), engineers in Saudi (SCE).</p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <FieldLabel htmlFor="f_saudi_verification">Saudi professional verification</FieldLabel>
+              <select
+                id="f_saudi_verification"
+                className={selectClass}
+                value={editor.saudi_verification}
+                onChange={(e) => setField({ saudi_verification: e.target.value })}
+              >
+                <option value="">Not answered yet</option>
+                <option value="done">Verified / test passed</option>
+                <option value="in_progress">In progress</option>
+                <option value="not_started">Not started</option>
+                <option value="not_needed">Not applying to Saudi</option>
+              </select>
+              <p className="text-[12px] leading-snug text-ink-muted">Needed for most Saudi work visas: QVP for qualifications, SVP skills test for trades.</p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <FieldLabel htmlFor="f_arabic_level">Arabic</FieldLabel>
+              <select
+                id="f_arabic_level"
+                className={selectClass}
+                value={editor.arabic_level}
+                onChange={(e) => setField({ arabic_level: e.target.value })}
+              >
+                <option value="">Not answered yet</option>
+                <option value="none">None yet</option>
+                <option value="basic">Basic</option>
+                <option value="conversational">Conversational</option>
+                <option value="fluent">Fluent</option>
+                <option value="native">Native</option>
+              </select>
+              <p className="text-[12px] leading-snug text-ink-muted">A plus for many Gulf roles — basic counts too.</p>
+            </div>
+            {editor.photo_url ? (
+              <div className="sm:col-span-2">
+                <ConfirmToggle
+                  id="f_photo_checklist_confirmed"
+                  label="My photo is professional"
+                  hint={`${PHOTO_CHECKLIST.join(' · ')}. Most Gulf employers expect a professional photo on the CV.`}
+                  checked={editor.photo_checklist_confirmed}
+                  onChange={(v) => setField({ photo_checklist_confirmed: v })}
+                />
+              </div>
+            ) : null}
           </div>
         </CardSection>
 

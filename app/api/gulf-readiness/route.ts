@@ -74,6 +74,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Resume text: from a file (extracted here) or pasted directly.
   let resumeText = ''
+  // Photo, for Gulf CV Essentials: a PDF can tell us whether it carries an image;
+  // pasted text and Word files cannot, so the photo is left out of their score.
+  let photo: 'none' | 'shown' | 'unknown' = 'unknown'
   const file = formData.get('file')
   const pasted = formData.get('resume_text')
 
@@ -83,6 +86,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: extracted.error, code: extracted.code }, { status: 400 })
     }
     resumeText = extracted.text
+    if (typeof extracted.imageCount === 'number') photo = extracted.imageCount > 0 ? 'shown' : 'none'
   } else if (typeof pasted === 'string') {
     resumeText = pasted
   }
@@ -95,7 +99,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   resumeText = resumeText.slice(0, MAX_TEXT)
 
-  const result = calculateGulfReadiness({ answers, resumeText })
+  const result = calculateGulfReadiness({ answers, resumeText, facts: { photo } })
 
   // Count the scan against the daily limit only after it succeeded — a failed read
   // should not cost the visitor an attempt.

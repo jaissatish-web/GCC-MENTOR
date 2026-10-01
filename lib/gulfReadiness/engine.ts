@@ -2,19 +2,26 @@ import type {
   DimensionKey,
   DimensionResult,
   FunnelAnswers,
+  GulfFacts,
   GulfReadinessInput,
   GulfReadinessResult,
+  MustHave,
   Recommendation,
   Scenario,
+  Verdict,
 } from '@/lib/gulfReadiness/types'
 import {
   BAND_MESSAGES,
   DIMENSION_LABELS,
   SCENARIO_LABELS,
   SCENARIO_WEIGHTS,
+  PHOTO_POINTS,
   SITUATION_POINTS,
+  VERDICT_COPY,
   bandKeyFor,
 } from '@/lib/gulfReadiness/config'
+import { detectGulfEssentials, essentialsRatio, type EssentialItem } from '@/lib/gulfReadiness/essentials'
+import { evaluateMustHaves } from '@/lib/gulfReadiness/mustHaves'
 import {
   detectCertifications,
   detectEducation,
@@ -65,11 +72,14 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
   // --- the five resume dimensions, each a detector × its weight ---------------
   // The work_experience slot is scored on projects/internships for a fresher and
   // on employment for everyone else. Same slot, scenario-appropriate evidence.
+  const facts = input.facts ?? {}
+  const essentials = detectGulfEssentials(text, facts, scenario === 'currently_in_gulf')
   const detectors: Record<Exclude<DimensionKey, 'gulf_market_position'>, DetectorOutput> = {
     work_experience: scenario === 'fresher' ? detectProjects(text) : detectWorkExperience(text),
     skills: detectSkills(text),
     education: detectEducation(text),
-    certifications: detectCertifications(text),
+    certifications: withLicence(detectCertifications(text), facts),
+    gulf_essentials: essentialsDetector(essentials),
     resume_quality: detectResumeQuality(text),
   }
 
@@ -99,7 +109,7 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
     })
   }
 
-  for (const key of ['work_experience', 'skills', 'education', 'certifications', 'resume_quality'] as const) {
+  for (const key of ['work_experience', 'skills', 'education', 'certifications', 'gulf_essentials', 'resume_quality'] as const) {
     const d = detectors[key]
     const max = weights[key]
     dimensions.push({
@@ -132,9 +142,15 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
     else if (pct <= 0.4 && d.gaps[0]) weaknesses.push(d.gaps[0])
   }
 
-  // --- the ranker: what to fix first -----------------------------------------
+  // --- the must-haves and the verdict (v2) -----------------------------------
+  const mustHaves = evaluateMustHaves(text, facts, input.today ?? new Date())
+  const verdict = verdictFor(finalScore, mustHaves)
+
+  // --- the guided path: paperwork, then profile, then apply -------------------
   const recommendations = rankRecommendations(dimensions, scenario)
+  addEssentialSteps(recommendations, essentials)
   addNextSteps(recommendations, dimensions, scenario, gulf, lowResumeSignal)
+  addPaperworkSteps(recommendations, mustHaves)
   recommendations.sort((a, b) => b.priority - a.priority)
 
   const confidence = dimensions.reduce<'high' | 'medium' | 'low'>((lowest, d) => {
@@ -152,7 +168,117 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
     recommendations,
     confidence,
     lowResumeSignal,
+    verdict,
+    mustHaves,
   }
+}
+
+// ---------------------------------------------------------------------------
+// v2 helpers (2026-10-01)
+// ---------------------------------------------------------------------------
+
+/** Gulf CV Essentials as a dimension: ratio over what could be judged, evidence and gaps per item. */
+function essentialsDetector(items: EssentialItem[]): DetectorOutput {
+  const LABEL: Record<EssentialItem['key'], string> = {
+    photo: 'A professional photo',
+    notice: 'A short notice period',
+    visa_or_passport: 'Your visa or passport position',
+    whatsapp: 'A WhatsApp number',
+    arabic: 'Arabic',
+    driving_licence: 'A Gulf driving licence',
+    nationality_location: 'Nationality and location stated',
+  }
+  const full = items.filter((i) => i.applicable && i.earned >= i.max).map((i) => LABEL[i.key])
+  return {
+    ratio: essentialsRatio(items),
+    evidence: full.length ? [`Gulf essentials in place: ${full.join(', ')}`] : [],
+    gaps: items.filter((i) => i.applicable && i.gap).map((i) => i.gap!.why),
+    confidence: items.some((i) => !i.applicable) ? 'medium' : 'high',
+  }
+}
+
+/** A licence the user says they hold counts as a recognised certification. */
+function withLicence(d: DetectorOutput, facts: GulfFacts): DetectorOutput {
+  if (facts.professionalLicence !== 'done' || d.ratio >= 1) return d
+  return { ...d, ratio: Math.min(1, d.ratio + 0.3), evidence: [...d.evidence, 'A professional licence'] }
+}
+
+/** Each essential with something left becomes its own step, worth its real points. */
+function addEssentialSteps(recs: Recommendation[], items: EssentialItem[]): void {
+  for (const i of items) {
+    if (!i.applicable || !i.gap) continue
+    const gain = Math.round((i.max - i.earned) * 10) / 10
+    if (gain <= 0) continue
+    recs.push({
+      dimension: 'gulf_essentials',
+      title: i.gap.title,
+      why: i.gap.why,
+      impact: gain >= 4 ? 'high' : gain >= 2 ? 'medium' : 'low',
+      difficulty: i.key === 'arabic' ? 'high' : 'low',
+      // Quick, concrete, worth real points: above the generic steps, below paperwork.
+      priority: 20 + gain * 2 + (i.key === 'arabic' ? -8 : 0),
+      stage: 'profile',
+      gain,
+      // A shown-but-unconfirmed photo is fixed at the checklist, not the upload.
+      field: i.key === 'photo' && i.earned === PHOTO_POINTS.shown ? 'photo_checklist_confirmed' : ESSENTIAL_FIELD[i.key],
+    })
+  }
+}
+
+const ESSENTIAL_FIELD: Record<EssentialItem['key'], string> = {
+  photo: 'photo',
+  notice: 'notice_period',
+  visa_or_passport: 'visa_status',
+  whatsapp: 'whatsapp',
+  arabic: 'arabic_level',
+  driving_licence: 'has_driving_license',
+  nationality_location: 'nationality',
+}
+
+/** Plain action titles for each must-have, by status. */
+const PAPERWORK_TITLE: Record<MustHave['key'], Record<Exclude<MustHave['status'], 'ok'>, string>> = {
+  passport: { missing: 'Renew your passport', in_progress: 'Finish renewing your passport', unknown: 'Add your passport expiry date' },
+  degree_attestation: { missing: 'Get your degree attested', in_progress: 'Finish your degree attestation', unknown: 'Tell us if your degree is attested' },
+  saudi_verification: { missing: 'Get Saudi professional verification (QVP / SVP)', in_progress: 'Finish your Saudi professional verification', unknown: 'Tell us your Saudi verification status' },
+  professional_licence: { missing: 'Get your professional licence', in_progress: 'Finish your professional licence', unknown: 'Tell us your professional licence status' },
+}
+
+/** Must-haves not yet done lead the path. */
+function addPaperworkSteps(recs: Recommendation[], mustHaves: MustHave[]): void {
+  for (const m of mustHaves) {
+    if (m.status === 'ok') continue
+    recs.push({
+      dimension: 'gulf_essentials',
+      title: PAPERWORK_TITLE[m.key][m.status as Exclude<MustHave['status'], 'ok'>],
+      why: m.why,
+      impact: 'high',
+      difficulty: m.key === 'passport' && m.status === 'unknown' ? 'low' : 'high',
+      priority: m.status === 'missing' ? 70 : m.status === 'in_progress' ? 65 : 60,
+      stage: 'paperwork',
+      steps: m.steps,
+      field: m.field,
+    })
+  }
+}
+
+/**
+ * Ready / almost / not ready — from the score AND the must-haves. A blocker
+ * outranks any score; a must-have not yet answered keeps a high score at
+ * "almost" (we have not checked it), never at "not ready".
+ */
+export function verdictFor(score: number, mustHaves: MustHave[]): Verdict {
+  const blockers = mustHaves.filter((m) => m.status === 'missing').length
+  const pending = mustHaves.filter((m) => m.status === 'in_progress' || m.status === 'unknown').length
+  const key: Verdict['key'] = blockers > 0 || score < 50 ? 'not_ready' : pending > 0 || score < 75 ? 'almost' : 'ready'
+  const copy = VERDICT_COPY[key]
+  // The label names the REAL reason, so a low CV score is never presented as a
+  // paperwork problem, and an unchecked item never as a blocker.
+  const steps = (n: number) => `${n} paperwork step${n === 1 ? '' : 's'}`
+  const label =
+    key === 'ready' ? copy.label
+    : key === 'not_ready' ? (blockers > 0 ? `${copy.label} — ${steps(blockers)} to sort out` : `${copy.label} — strengthen your CV first`)
+    : pending > 0 ? `${copy.label} — ${steps(pending)} to check` : `${copy.label} — a few profile fixes left`
+  return { key, label, message: copy.message, blockers, pending }
 }
 
 function situationEvidence(scenario: Scenario): string {
@@ -182,6 +308,7 @@ const DIFFICULTY: Record<DimensionKey, Recommendation['difficulty']> = {
   skills: 'low',
   education: 'high',
   certifications: 'medium',
+  gulf_essentials: 'low',
   resume_quality: 'low',
 }
 
@@ -192,7 +319,8 @@ function rankRecommendations(dimensions: DimensionResult[], scenario: Scenario):
     if (d.max === 0) continue
     const shortfall = d.max - d.score
     // Ignore near-complete dimensions and the auto-filled situation dimension.
-    if (shortfall < d.max * 0.25 || d.key === 'gulf_market_position') continue
+    // Essentials are listed item by item (addEssentialSteps), each with its real points.
+    if (shortfall < d.max * 0.25 || d.key === 'gulf_market_position' || d.key === 'gulf_essentials') continue
 
     const impact: Recommendation['impact'] = shortfall >= 18 ? 'high' : shortfall >= 8 ? 'medium' : 'low'
     const difficulty = DIFFICULTY[d.key]
@@ -226,6 +354,8 @@ function recTitle(key: DimensionKey, scenario: Scenario): string {
       return scenario === 'fresher'
         ? 'Add projects, internships or training to show practical ability'
         : 'Present your work history with clear dates and scope'
+    case 'gulf_essentials':
+      return 'Complete your Gulf CV essentials'
     case 'gulf_market_position':
       return ''
   }
@@ -266,23 +396,24 @@ function addNextSteps(
 
   // A real gap too small for the ranker is still worth saying.
   for (const d of dimensions) {
-    if (d.key === 'gulf_market_position' || has(d.key) || d.score >= d.max || !d.gaps[0]) continue
+    if (d.key === 'gulf_market_position' || d.key === 'gulf_essentials' || has(d.key) || d.score >= d.max || !d.gaps[0]) continue
     push(d.key, recTitle(d.key, scenario), d.gaps[0], 6)
   }
-  if (recs.length >= 4) return
+  // The last stage of the path is always there: apply, tailored to each job.
+  recs.push({
+    dimension: 'resume_quality',
+    title: 'Tailor your CV to each job description',
+    why: 'A strong general CV still gets filtered when it does not use the words of the specific job. Match each application to its job description.',
+    impact: 'medium',
+    difficulty: 'low',
+    priority: 3,
+    stage: 'apply',
+  })
+  if (recs.length >= 5) return
 
-  const quality = dimensions.find((d) => d.key === 'resume_quality')
-  const essentialsGap = quality?.gaps.find((g) => g.startsWith('State your'))
-  if (essentialsGap && !has('resume_quality')) push('resume_quality', 'Put your visa, notice period and nationality at the top', essentialsGap, 5)
   const skills = dimensions.find((d) => d.key === 'skills')
   const skillsGap = skills?.gaps.find((g) => /too many|Only \d+ skills/.test(g))
   if (skillsGap && !has('skills')) push('skills', 'Tighten your skills section', skillsGap, 4)
-  push(
-    'resume_quality',
-    'Tailor your CV to each job description',
-    'A strong general CV still gets filtered when it does not use the words of the specific job. Match each application to its job description.',
-    3,
-  )
   if (recs.length < 3) {
     push('resume_quality', 'Lead your summary with your three strongest numbers', 'Recruiters spend seconds on the top third of the page — put your biggest scope, team size or result there.', 2)
   }

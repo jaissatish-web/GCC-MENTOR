@@ -324,12 +324,17 @@ export default function DashboardPage() {
             </section>
           ) : null}
 
-          {/* ── The two scores, each saying plainly what it measures ── */}
+          {/* ── One answer first (Gulf Readiness v2, 2026-10-01): the readiness
+              verdict leads; profile completeness is the progress bar beside it. ── */}
           <aside className={cn('grid min-w-0 gap-4', listedJobs.length > 0 ? 'content-start' : 'md:grid-cols-2')}>
+            {gulfAnswers ? (
+              <LiveReadiness answers={gulfAnswers} profile={scoringInputFromProfile(profile)} detailsHref="/profile?improve=gulf" />
+            ) : null}
+
             <section aria-labelledby="strength-h" className="flex flex-col gap-3 rounded-card border border-line bg-white p-5 shadow-m-1">
               <div className="flex items-baseline justify-between gap-3">
                 <h2 id="strength-h" className="text-[14px] font-semibold text-ink">
-                  Profile strength
+                  Profile complete
                 </h2>
                 <span className="font-display text-[26px] font-semibold leading-none text-teal">{score}%</span>
               </div>
@@ -347,10 +352,6 @@ export default function DashboardPage() {
                 {missing.length === 0 ? 'View Career Profile →' : 'Complete my profile →'}
               </Link>
             </section>
-
-            {gulfAnswers ? (
-              <LiveReadiness answers={gulfAnswers} profile={scoringInputFromProfile(profile)} detailsHref="/profile?improve=gulf" />
-            ) : null}
           </aside>
         </div>
       ) : null}

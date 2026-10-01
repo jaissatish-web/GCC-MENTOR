@@ -88,7 +88,7 @@ console.log('\nSituation dimension')
 const inGulf = calculateGulfReadiness({ answers: { hasGulfExperience: true, currentlyInGulf: true }, resumeText: STRONG_GULF_CV })
 const situation = inGulf.dimensions.find((d) => d.key === 'gulf_market_position')
 check('currently_in_gulf shows the situation dimension', !!situation)
-check('situation is filled to its max (15)', situation?.score === 15 && situation?.max === 15)
+check('situation is filled to its max (12 since v2)', situation?.score === 12 && situation?.max === 12)
 
 const fresher = calculateGulfReadiness({ answers: { hasGulfExperience: false, hasProfessionalExperience: false }, resumeText: FRESHER_CV })
 check('fresher hides the situation dimension', !fresher.dimensions.some((d) => d.key === 'gulf_market_position'))

@@ -38,6 +38,14 @@ export type ReadinessCategory =
  * Hiding a field never deletes data — it only controls what renders on the
  * generated resume. Keys mirror migration 010's documented default.
  */
+/** Progress on one piece of Gulf paperwork (migration 060). */
+export type PaperworkStatus = 'done' | 'in_progress' | 'not_started' | 'not_needed'
+export const PAPERWORK_STATUSES: readonly PaperworkStatus[] = ['done', 'in_progress', 'not_started', 'not_needed']
+
+/** Spoken Arabic (migration 060). */
+export type ArabicLevel = 'none' | 'basic' | 'conversational' | 'fluent' | 'native'
+export const ARABIC_LEVELS: readonly ArabicLevel[] = ['none', 'basic', 'conversational', 'fluent', 'native']
+
 export interface FieldVisibility {
   full_name: boolean
   photo: boolean
@@ -110,6 +118,15 @@ export interface CareerProfile {
   driving_license_country: string | null
   driving_license_category: string | null
   driving_license_validity_date: string | null // date
+
+  // Gulf paperwork & presentation (migration 060, Gulf Readiness v2). All
+  // optional; null = not answered, which readiness reports as "not checked",
+  // never as a failure.
+  photo_checklist_confirmed?: boolean | null
+  degree_attestation?: PaperworkStatus | null
+  professional_licence?: PaperworkStatus | null
+  saudi_verification?: PaperworkStatus | null
+  arabic_level?: ArabicLevel | null
 
   // Visibility storage
   field_visibility: FieldVisibility

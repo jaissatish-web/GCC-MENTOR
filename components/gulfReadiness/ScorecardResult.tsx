@@ -78,8 +78,14 @@ export function ScorecardResult({
             <span className={`rounded-full px-3 py-1 text-[12px] font-bold uppercase tracking-wider ${colour.tint} ${colour.text}`}>
               {result.scenarioLabel}
             </span>
-            <h2 className="font-display text-2xl text-ink">{result.band.label}</h2>
-            <p className="text-[14px] leading-relaxed text-ink-soft">{result.band.message}</p>
+            {/* v2: the verdict leads (ready / almost / not ready); results saved
+                before v2 have none, and fall back to the band. */}
+            <h2 className="font-display text-2xl text-ink">{result.verdict?.label ?? result.band.label}</h2>
+            {/* The band's scenario-aware message when the verdict agrees with it;
+                otherwise the verdict's own, so the words never contradict. */}
+            <p className="text-[14px] leading-relaxed text-ink-soft">
+              {!result.verdict || result.verdict.key === 'ready' ? result.band.message : result.verdict.message}
+            </p>
           </div>
         </div>
 
@@ -91,6 +97,27 @@ export function ScorecardResult({
           </p>
         ) : null}
       </section>
+
+      {/* Paperwork (v2) — what decides whether anyone can hire you. On a CV-only
+          scan most of it is "not checked yet": the Career Profile asks. */}
+      {result.mustHaves?.length ? (
+        <section className="rounded-card border border-line bg-white p-6 sm:p-8">
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Paperwork employers check</h3>
+          <ul className="mt-4 flex flex-col gap-2.5">
+            {result.mustHaves.map((m) => (
+              <li key={m.key} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+                <span className="text-[13px] font-semibold text-ink">{m.label}</span>
+                <span className={`text-[12px] font-semibold ${m.status === 'ok' ? 'text-teal' : m.status === 'missing' ? 'text-alert' : 'text-ink-muted'}`}>
+                  {m.status === 'ok' ? 'Done' : m.status === 'missing' ? 'To do' : m.status === 'in_progress' ? 'In progress' : 'Not checked yet'}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {source === 'resume' && result.mustHaves.some((m) => m.status === 'unknown') ? (
+            <p className="mt-3 text-[12px] text-ink-muted">A CV cannot show these. Your free Career Profile asks, then tells you exactly what is left.</p>
+          ) : null}
+        </section>
+      ) : null}
 
       {/* Dimension bars */}
       <section className="rounded-card border border-line bg-white p-6 sm:p-8">
@@ -168,7 +195,7 @@ export function ScorecardResult({
                 <span className="font-mono text-[12px] text-ink-muted">#{i + 1}</span>
                 <span className="text-[14px] font-semibold text-ink">{r.title}</span>
                 <span className="rounded-full bg-white px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide text-ink-muted">
-                  {r.impact} impact · {r.difficulty} effort
+                  {r.gain ? `+${r.gain} pts · ` : ''}{r.impact} impact · {r.difficulty} effort
                 </span>
               </div>
               <p className="mt-1.5 text-[13px] text-ink-soft">{r.why}</p>
