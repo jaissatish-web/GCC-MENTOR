@@ -29,6 +29,7 @@ const TS_CHECKS = [
   'verify-gulf-readiness.ts',
   'verify-profile-merge.ts',
   'verify-profile-data.ts',
+  'verify-resume-parse.ts',
   'verify-match-terms.ts',
   'verify-service-outputs.ts',
   'verify-landing-anchors.ts',

@@ -11,6 +11,13 @@
 export const CAREER_PROFILE_DRAFT_KEY = 'career_profile_draft'
 
 /**
+ * The CV reader's "please check" list (lib/resumeParse, 2026-10-01) travelling
+ * with CAREER_PROFILE_DRAFT_KEY. Field paths and fixed messages only — no CV
+ * content. /profile reads and clears it with the draft.
+ */
+export const CAREER_PROFILE_PARSE_NOTES_KEY = 'career_profile_parse_notes'
+
+/**
  * Session-storage handoff for the optimization TARGET selection (TASK-027 →
  * TASK-028). TASK-027 (/optimize/target) collects the per-optimization target
  * (title, industry, country, company, JD text) and writes it here on "Choose

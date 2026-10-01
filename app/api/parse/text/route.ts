@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { generate } from '@/lib/ai/provider'
-import { EXTRACTION_MAX_TOKENS, EXTRACTION_SYSTEM_PROMPT, normalizeDraft, extractJsonObject } from '@/lib/ai/extractionPrompt'
 import { LIMIT_ACTION_EXTRACTION } from '@/lib/rateLimit'
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { getRecreationStatus, recordRecreation } from '@/lib/recreateLimit'
 import { savePendingDraft } from '@/lib/pendingDraft'
-import type { CareerProfileDraft } from '@/types/careerProfile'
+import { extractProfile } from '@/lib/resumeParse/pipeline'
 
 // NO `maxDuration` here, deliberately — a 60s cap broke long reads in
 // production (2026-09-11). See the note in app/api/parse/upload/route.ts.
@@ -51,32 +49,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   let succeeded = false
   try {
-    let draft: CareerProfileDraft
-    try {
-      const result = await generate({
-        system: EXTRACTION_SYSTEM_PROMPT,
-        user: `Extract from this resume text:\n\n${text}`,
-        maxTokens: EXTRACTION_MAX_TOKENS,
-        temperature: 0.1,
-        userId: user.id,
-        route: '/api/parse/text',
-        configKey: 'extraction',
-      })
-      // Cut off at the budget: the JSON is incomplete, so do not try to parse it.
-      if (result.truncated) {
-        console.error('parse text: answer cut off at the token budget user=' + user.id + ' out=' + result.outputTokens)
-        return NextResponse.json({ error: READ_FAILED, code: 'EXTRACTION_TRUNCATED' }, { status: 502 })
-      }
-      const normalized = normalizeDraft(extractJsonObject(result.text))
-      if (!normalized) {
-        console.error('parse text: answer was not a readable profile user=' + user.id + ' out=' + result.outputTokens)
-        return NextResponse.json({ error: READ_FAILED }, { status: 422 })
-      }
-      draft = normalized
-    } catch (e) {
-      console.error('parse text: AI call failed user=' + user.id + ' route=/api/parse/text', e instanceof Error ? e.message : String(e))
-      return NextResponse.json({ error: READ_FAILED }, { status: 502 })
+    // lib/resumeParse (2026-10-01): fast read, checks, at most one re-read.
+    const parsed = await extractProfile(text.replace(/\r\n?/g, '\n').trim(), { route: '/api/parse/text', userId: user.id })
+    if (!parsed.ok) {
+      console.error('parse text: read failed user=' + user.id + ' code=' + parsed.code + (parsed.detail ? ' ' + parsed.detail : ''))
+      return NextResponse.json({ error: READ_FAILED, code: parsed.code }, { status: 502 })
     }
+    const { draft, report } = parsed
 
     // A successful read counts once — and, when a profile already existed, as
     // one of this month's recreations.
@@ -85,9 +64,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Kept server-side BEFORE answering, so a closed browser cannot lose a paid
     // reading (2026-09-11, migration 047). See lib/pendingDraft.ts.
-    await savePendingDraft(supabase, user.id, draft, 'paste')
+    await savePendingDraft(supabase, user.id, draft, 'paste', report)
 
-    return NextResponse.json({ success: true, draft })
+    return NextResponse.json({ success: true, draft, report })
   } finally {
     await reservation.finish(succeeded)
   }

@@ -523,6 +523,56 @@ wholesale, destroying hand-typed data and, worse, silently rewriting already-pai
 resumes through the live-field path. The user is now asked before anything is
 overwritten.
 
+### Resume parsing v2 — `lib/resumeParse` (2026-10-01)
+
+One module now reads every CV (`/api/parse/upload`, `/api/parse/text`, the
+`/api/ats-scan` pre-fill). Same model as before (deepseek-v4-flash via OpenRouter,
+the `extraction` config key), called differently, with code doing the parts code
+does better:
+
+1. **Layout-aware text** (`layoutText.ts`). Word tables keep their rows as
+   `cell | cell | cell`; layout tables and two-column PDFs are read one column at a
+   time (a gutter must hold real text on both sides, almost nothing may cross it,
+   rows must not hold several table cells, and a right-aligned label column is not
+   a sidebar — so tables, right-aligned dates and Europass are NOT split);
+   Word page headers and footers are kept — mammoth drops them, and CVs that put
+   the name, phone and email in the header reached the model with no contact
+   details and then failed to save.
+2. **Pattern pre-pass** (`prepass.ts`): email, phone, LinkedIn, date of birth,
+   passport type, and labelled personal details ("Nationality: …").
+3. **One model call, thinking off, fastest hosts first** (`pipeline.ts`,
+   `GenerateParams.openRouter`). Thinking was 60–80% of the output and most of the
+   wait; the same call took 6.7s on the fastest host and 47s on the slowest
+   (`scripts/resume-lab/hosts.mjs` re-measures). Prompt v2 (`prompt.ts`) explains
+   the layout and asks for dates **as written**.
+4. **Checks** (`check.ts`): dates converted by code (`dates.ts`); contact details
+   must appear in the CV text; a skill not in the CV is dropped; a company, title or
+   school not found as written is flagged; a date range in the CV that no job or
+   qualification accounts for is a missing job.
+5. **At most one re-read**, only for a missing job / unreadable start date / no
+   name, with the problem list in the request.
+
+The "please check" list (field paths and fixed messages, never values) is
+returned to the editor (`components/profile/ParseNotes.tsx`) and kept with the
+waiting draft (migration 059).
+
+**Measured** on `scripts/resume-lab` — 104 generated CVs (fake people) in 14 messy
+layouts, every field scored against the true answer:
+
+| | before | v2 |
+|---|---|---|
+| CVs with every field right | 55% | **99%** |
+| Contact details right | 93% (0% on header CVs) | 100% |
+| Date of birth kept | 64% | 100% |
+| Job dates right | 99% | 100% |
+| Model wait — median / slowest | 26s / 226s | **4.8s / 10.8s** |
+| Output tokens per CV | 2,842 | 815 |
+
+Three full v2 runs gave 99% each — the remaining CV is genuinely ambiguous
+(two certificates run on after the skills line with no heading).
+
+Scanned (image-only) PDFs are still refused with the existing message.
+
 ---
 
 ## 6. Where AI is deliberately not used

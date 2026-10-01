@@ -140,6 +140,17 @@ anyone working on the profile will meet them.
    as empty and silently undercount readiness. Nothing at the API boundary enforces
    full-object submission — the editor simply always sends one.
 
+## Resume parsing v2 (2026-10-01)
+
+Uploading or pasting a CV now goes through `lib/resumeParse` — layout-aware text,
+a pattern pre-pass, one fast model call, and checks against the CV text. Typical
+read ~5 seconds (was 45–90). Everything after it is unchanged: the draft has the
+same shape, the merge / replace choice and the save are the same code. New: when
+the reader could not confirm something (a start date it could not read, a company
+name not found as written) the editor shows "We read your CV. Please check these"
+with a link to each field (`components/profile/ParseNotes.tsx`). Full design and
+numbers: [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §5 "Resume parsing v2".
+
 ## Overview, section status and save bar (2026-09-23)
 
 `components/profile/ProfileOverview.tsx`: what the profile is for, the facts it already

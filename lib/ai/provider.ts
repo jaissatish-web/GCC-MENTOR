@@ -64,6 +64,24 @@ interface GenerateParams {
    * to be retried instead of consuming the whole build. Defaults to 150s.
    */
   stallTimeoutMs?: number
+  /**
+   * OpenRouter-only call shaping (2026-10-01, resume parsing). Ignored for every
+   * other provider, and absent for every other service — their requests are
+   * byte-for-byte what they were.
+   *
+   * `reasoningOff`: the configured model (deepseek-v4-flash) thinks before it
+   * answers, and on CV extraction that thinking was 60–80% of the output and
+   * most of a 45–90s wait. Copying facts out of a CV does not need it: measured
+   * on the same CV, 5,000–6,000 output tokens with thinking, ~1,400 without.
+   *
+   * `preferHosts`: OpenRouter serves one model from many hosts, and the same
+   * call took 6.7s on the fastest and 47s on the slowest (2026-10-01, 13 hosts
+   * measured). Listed hosts are tried first, in order; any other host is still
+   * allowed as a fallback, so a host outage never fails the call.
+   * `require_parameters` keeps the call off hosts that would ignore
+   * reasoningOff (one did, unasked, during the measurement).
+   */
+  openRouter?: { reasoningOff?: boolean; preferHosts?: string[] }
 }
 interface GenerateResult {
   text: string
@@ -174,10 +192,10 @@ async function fetchJsonWithTimeout(url: string, init: RequestInit, timeoutMs: n
  * callOpenAICompatible so that function can retry it with a larger budget
  * without duplicating the request/response handling.
  */
-async function attemptOpenAICompatible(baseUrl: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number, timeoutMs: number) {
+async function attemptOpenAICompatible(baseUrl: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number, timeoutMs: number, extraBody?: Record<string, unknown>) {
   const { res, json } = await fetchJsonWithTimeout(
     `${baseUrl.replace(/\/$/, '')}/chat/completions`,
-    { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, { role: 'user', content: user }], max_tokens: maxTokens, temperature }) },
+    { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, { role: 'user', content: user }], max_tokens: maxTokens, temperature, ...extraBody }) },
     timeoutMs,
   )
   if (!res.ok) throw new AIProviderError(`${res.status}: ${json?.error?.message ?? res.statusText}`)
@@ -188,11 +206,11 @@ async function attemptOpenAICompatible(baseUrl: string, apiKey: string, model: s
   return { text, choice, reasoningChars, usage: json?.usage, served: (json?.provider as string | undefined) ?? null }
 }
 
-async function callOpenAICompatible(baseUrl: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number, deadlineAt: number | undefined, giveUpAt: number, stallMs?: number) {
+async function callOpenAICompatible(baseUrl: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number, deadlineAt: number | undefined, giveUpAt: number, stallMs?: number, extraBody?: Record<string, unknown>) {
   const firstStartedAt = Date.now()
   let attempt: Awaited<ReturnType<typeof attemptOpenAICompatible>>
   try {
-    attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, maxTokens, temperature, attemptTimeout(giveUpAt, stallMs))
+    attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, maxTokens, temperature, attemptTimeout(giveUpAt, stallMs), extraBody)
   } catch (e) {
     // STALL RETRY (2026-09-12). One more attempt, only when there is room for
     // a whole healthy answer. OpenRouter routes every request afresh — six
@@ -200,7 +218,7 @@ async function callOpenAICompatible(baseUrl: string, apiKey: string, model: stri
     // likely reaches one that is not stuck. Any other failure is not retried.
     if (!(e instanceof StallError) || giveUpAt - Date.now() < MIN_STALL_RETRY_WINDOW_MS) throw e
     console.warn(`ai stall: ${e.message} (${model}); retrying once on a fresh route`)
-    attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, maxTokens, temperature, attemptTimeout(giveUpAt, stallMs))
+    attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, maxTokens, temperature, attemptTimeout(giveUpAt, stallMs), extraBody)
   }
 
   // REASONING-BUDGET RETRY (found while diagnosing "optimize with a job
@@ -241,7 +259,7 @@ async function callOpenAICompatible(baseUrl: string, apiKey: string, model: stri
       giveUpAt - Date.now() >= MIN_STALL_RETRY_WINDOW_MS
 
     if (retryBudget > maxTokens && roomForRetry) {
-      attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, retryBudget, temperature, attemptTimeout(giveUpAt, stallMs))
+      attempt = await attemptOpenAICompatible(baseUrl, apiKey, model, system, user, retryBudget, temperature, attemptTimeout(giveUpAt, stallMs), extraBody)
     } else if (retryBudget > maxTokens) {
       console.warn(
         `ai retry skipped: first attempt took ${(firstAttemptMs / 1000).toFixed(1)}s and a doubled-budget ` +
@@ -294,16 +312,25 @@ async function callAnthropic(apiKey: string, model: string, system: string, user
   }
 }
 
-async function callProvider(provider: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number, deadlineAt: number | undefined, giveUpAt: number, stallMs?: number) {
+async function callProvider(provider: string, apiKey: string, model: string, system: string, user: string, maxTokens: number, temperature: number, deadlineAt: number | undefined, giveUpAt: number, stallMs?: number, openRouter?: GenerateParams['openRouter']) {
   const p = provider.toLowerCase()
   if (p === 'anthropic') return callAnthropic(apiKey, model, system, user, maxTokens, temperature, giveUpAt, stallMs)
-  if (p === 'openrouter') return callOpenAICompatible('https://openrouter.ai/api/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt, stallMs)
+  if (p === 'openrouter') return callOpenAICompatible('https://openrouter.ai/api/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt, stallMs, openRouterBody(openRouter))
   if (p === 'openai') return callOpenAICompatible('https://api.openai.com/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt, stallMs)
   if (p === 'google') return callOpenAICompatible('https://generativelanguage.googleapis.com/v1beta/openai', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt, stallMs)
   // DeepSeek's own API (2026-09-17): OpenAI-compatible, used directly with a DeepSeek key.
   if (p === 'deepseek') return callOpenAICompatible('https://api.deepseek.com', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt, stallMs)
   if (p === 'mistral') return callOpenAICompatible('https://api.mistral.ai/v1', apiKey, model, system, user, maxTokens, temperature, deadlineAt, giveUpAt, stallMs)
   throw new AIProviderError(`Unsupported AI provider: ${provider}`)
+}
+
+/** The request-body additions for GenerateParams.openRouter; undefined when unused. */
+function openRouterBody(o: GenerateParams['openRouter']): Record<string, unknown> | undefined {
+  if (!o || (!o.reasoningOff && !o.preferHosts?.length)) return undefined
+  return {
+    ...(o.reasoningOff ? { reasoning: { enabled: false } } : {}),
+    provider: { require_parameters: true, allow_fallbacks: true, ...(o.preferHosts?.length ? { order: o.preferHosts } : {}) },
+  }
 }
 
 /**
@@ -321,7 +348,7 @@ async function callProvider(provider: string, apiKey: string, model: string, sys
  * identical failing call — paying twice for one failure and making the user wait
  * through two timeouts for the same error message.
  */
-export async function generate({ system, user, maxTokens, temperature, userId, route, configKey, promptVersionId, deadlineAt, giveUpAt, stallTimeoutMs }: GenerateParams): Promise<GenerateResult> {
+export async function generate({ system, user, maxTokens, temperature, userId, route, configKey, promptVersionId, deadlineAt, giveUpAt, stallTimeoutMs, openRouter }: GenerateParams): Promise<GenerateResult> {
   const config = await getProviderConfig(configKey)
   if (!config) throw new AIProviderError('AI provider is not configured. Set it in /admin first.')
   const giveUp = giveUpAt ?? Date.now() + DEFAULT_GIVE_UP_MS
@@ -360,7 +387,7 @@ export async function generate({ system, user, maxTokens, temperature, userId, r
 
     const startedAt = Date.now()
     try {
-      const result = await callProvider(tier.provider, tier.apiKey, tier.model, system, user, maxTokens, temperature, deadlineAt, giveUp, stallTimeoutMs)
+      const result = await callProvider(tier.provider, tier.apiKey, tier.model, system, user, maxTokens, temperature, deadlineAt, giveUp, stallTimeoutMs, openRouter)
       // DURATION MATTERS NOW. Without a per-call duration there is no way to
       // tell which call in a multi-call route is the expensive one, which is
       // exactly the question a timeout raises. And WHICH UPSTREAM served it

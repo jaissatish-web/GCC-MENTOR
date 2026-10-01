@@ -1,5 +1,6 @@
 import type { createClient } from '@/lib/supabase/server'
 import type { CareerProfileDraft } from '@/types/careerProfile'
+import type { ParseReport } from '@/lib/resumeParse/pipeline'
 
 /**
  * A CV reading waiting for the user's decision (founder request 2026-09-11,
@@ -22,6 +23,12 @@ export interface PendingDraft {
   draft: CareerProfileDraft
   source: PendingDraftSource
   created_at: string
+  /**
+   * How the reading went (migration 059, 2026-10-01): timings, layout notes and
+   * the "please check" field list the editor shows. Field paths only — never a
+   * value. Null for readings kept before the column existed.
+   */
+  report?: ParseReport | null
 }
 
 /**
@@ -37,9 +44,15 @@ export async function savePendingDraft(
   userId: string,
   draft: CareerProfileDraft,
   source: PendingDraftSource,
+  report?: ParseReport,
 ): Promise<void> {
-  const { error } = await supabase
-    .from('pending_profile_drafts')
-    .upsert({ user_id: userId, draft, source, created_at: new Date().toISOString() }, { onConflict: 'user_id' })
+  const row = { user_id: userId, draft, source, created_at: new Date().toISOString(), report: report ?? null }
+  let { error } = await supabase.from('pending_profile_drafts').upsert(row, { onConflict: 'user_id' })
+  // Before migration 059 is applied the column does not exist: keep the
+  // reading without its report rather than lose it.
+  if (error && /report/.test(error.message)) {
+    const { report: _omit, ...withoutReport } = row
+    ;({ error } = await supabase.from('pending_profile_drafts').upsert(withoutReport, { onConflict: 'user_id' }))
+  }
   if (error) console.error('pending draft save failed: user=' + userId, error.message)
 }

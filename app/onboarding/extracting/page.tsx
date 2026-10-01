@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { cn } from '@/lib/utils'
-import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_RESUME_TEXT_KEY } from '@/lib/onboardingDraft'
+import { CAREER_PROFILE_DRAFT_KEY, CAREER_PROFILE_PARSE_NOTES_KEY, CLAIMED_RESUME_TEXT_KEY } from '@/lib/onboardingDraft'
 import { EXTRACTION_NOTES } from '@/lib/processingNotes'
 
 /**
@@ -29,7 +29,7 @@ import { EXTRACTION_NOTES } from '@/lib/processingNotes'
  *
  * TRANSIENT SCREEN — not streaming: POST /api/parse/upload and /api/parse/text
  * each return the full CareerProfileDraft once. The four checklist rows advance
- * on a client-side timer to approx. the ~20s estimate; there is no server-sent
+ * on a client-side timer to approx. a typical read (ROW_MS); there is no server-sent
  * per-field progress. If the response arrives first, the checklist is skipped
  * straight to done.
  *
@@ -61,7 +61,9 @@ const CHECKLIST = [
 
 type Stage = 'collect' | 'extracting' | 'error'
 
-const ROW_MS = 5000 // 4 rows × 5s ≈ the ~20s estimate
+// 4 rows × 2s ≈ a typical read since lib/resumeParse (2026-10-01: median 5s,
+// slowest ~13s on the resume-lab set). Was 5s per row for a ~20s read.
+const ROW_MS = 2000
 
 function ExtractingScreen() {
   const router = useRouter()
@@ -136,6 +138,9 @@ function ExtractingScreen() {
       // Success — store draft (session only) and go straight to the review
       // screen; the checklist may jump straight to done.
       window.sessionStorage.setItem(CAREER_PROFILE_DRAFT_KEY, JSON.stringify(draft))
+      if (Array.isArray(body?.report?.warnings)) {
+        window.sessionStorage.setItem(CAREER_PROFILE_PARSE_NOTES_KEY, JSON.stringify(body.report.warnings))
+      }
       clearInterval(timer)
       router.push('/profile')
     } catch {

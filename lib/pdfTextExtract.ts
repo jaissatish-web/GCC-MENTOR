@@ -67,7 +67,7 @@ export interface ExtractResult {
  * walking every page's operator list, which costs far more than this for a
  * signal the readiness engine deliberately treats as a weak hint anyway.
  */
-function countEmbeddedImages(buffer: Buffer): number {
+export function countEmbeddedImages(buffer: Buffer): number {
   const raw = buffer.toString('latin1')
   return (raw.match(/\/Subtype\s*\/Image\b/g) ?? []).length
 }
@@ -127,7 +127,7 @@ export async function extractPdfText(buffer: Buffer, debug = false): Promise<Ext
  * Deliberately crude — it only has to separate "real prose" from "noise", and
  * every threshold sits far from what normal resume text produces.
  */
-function looksGarbled(text: string): boolean {
+export function looksGarbled(text: string): boolean {
   const t = text.trim()
   if (t.length < 50) return true
 

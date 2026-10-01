@@ -25,7 +25,7 @@ import { gccExperience, totalExperienceYears } from '@/lib/experienceYears'
 import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 import { cn, displayFirstName } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
-import { CAREER_PROFILE_DRAFT_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
+import { CAREER_PROFILE_DRAFT_KEY, CAREER_PROFILE_PARSE_NOTES_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
 import { mergeDraftIntoProfile, describeReplaceLosses } from '@/lib/profileMerge'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import { calculateReadiness, fieldPointsFor, type ReadinessResult } from '@/lib/readiness'
@@ -37,6 +37,8 @@ import { FieldLabel } from '@/components/ui/FieldLabel'
 import type { ReadinessCategory, PassportType } from '@/types/careerProfile'
 import type { CareerProfileDraft, CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { AtsScoreResult } from '@/lib/ai/atsScorePrompt'
+import type { ParseWarning } from '@/lib/resumeParse/check'
+import { ParseNotes } from '@/components/profile/ParseNotes'
 
 /**
  * Does the saved profile hold real content worth protecting? Used to decide
@@ -908,6 +910,9 @@ function ProfileScreen() {
   // Claimed anonymous scan result (TASK-070) — one-time "welcome back" banner.
   // null = never claimed / already dismissed.
   const [claimedScan, setClaimedScan] = useState<AtsScoreResult | null>(null)
+  // The CV reader's "please check" list for the draft just loaded
+  // (lib/resumeParse, 2026-10-01). Empty = nothing to show.
+  const [parseNotes, setParseNotes] = useState<ParseWarning[]>([])
   /**
    * An uploaded resume waiting for the user's decision (TASK-133). Non-null
    * only when a draft arrived AND a real saved profile already exists —
@@ -957,6 +962,13 @@ function ProfileScreen() {
       if (draft) {
         // TASK-024 contract: read AND clear the handoff key on success.
         window.sessionStorage.removeItem(CAREER_PROFILE_DRAFT_KEY)
+        try {
+          const notes = JSON.parse(window.sessionStorage.getItem(CAREER_PROFILE_PARSE_NOTES_KEY) ?? '[]')
+          if (Array.isArray(notes)) setParseNotes(notes as ParseWarning[])
+        } catch {
+          /* no notes — nothing to show */
+        }
+        window.sessionStorage.removeItem(CAREER_PROFILE_PARSE_NOTES_KEY)
 
         // ASK BEFORE WRITING (TASK-133). This used to load the draft alone and
         // return — so a returning user who uploaded a newer CV had their saved
@@ -999,11 +1011,12 @@ function ProfileScreen() {
     // No draft handoff → load the saved profile (returning user) AND any CV
     // reading still waiting for a decision (2026-09-11, migration 047). A 404
     // profile means start-from-scratch with nothing saved → empty editor.
-    const pendingRequest: Promise<{ draft: CareerProfileDraft } | null> = fetch('/api/profile/pending-draft', {
-      cache: 'no-store',
-    })
+    const pendingRequest: Promise<{ draft: CareerProfileDraft; report?: { warnings?: ParseWarning[] } | null } | null> = fetch(
+      '/api/profile/pending-draft',
+      { cache: 'no-store' },
+    )
       .then((res) => (res.ok ? res.json() : null))
-      .then((body) => (body?.pending ?? null) as { draft: CareerProfileDraft } | null)
+      .then((body) => (body?.pending ?? null) as { draft: CareerProfileDraft; report?: { warnings?: ParseWarning[] } | null } | null)
       .catch(() => null)
     fetch('/api/profile', { cache: 'no-store' })
       .then((res) => {
@@ -1020,6 +1033,7 @@ function ProfileScreen() {
         const pending = await pendingRequest
         if (pending) {
           resolvesPendingRef.current = true
+          setParseNotes(Array.isArray(pending.report?.warnings) ? pending.report.warnings : [])
           if (hasSavedProfileContent(saved)) {
             setPendingDraft({ draft: pending.draft, existing: saved as CareerProfileFull })
             setHasSavedProfile(true)
@@ -1077,7 +1091,8 @@ function ProfileScreen() {
   // already has content, go through the add-or-replace choice; otherwise load it
   // straight in and let the auto-save fire. Compared against the SAVED profile
   // (a fresh GET), never the possibly-unsaved editor, matching that contract.
-  const ingestDraft = useCallback((draft: CareerProfileDraft) => {
+  const ingestDraft = useCallback((draft: CareerProfileDraft, notes?: ParseWarning[]) => {
+    setParseNotes(notes ?? [])
     // The ?import= deep link has done its job once a reading arrives. Left in
     // the URL, the import panel reopened in paste mode after the user chose
     // Add or Replace — an empty box asking for another CV (seen live
@@ -1948,6 +1963,14 @@ function ProfileScreen() {
           {loadError}
         </div>
       ) : null}
+
+      <ParseNotes
+        notes={parseNotes}
+        jobNames={editor?.work_experience.map((w) => w.company) ?? []}
+        onGo={goToProfilePart}
+        onDismiss={() => setParseNotes([])}
+      />
+
 
       {/* WELCOME BACK — one-time claimed anonymous scan result (TASK-070).
           Dismissible and non-blocking; the editor is fully usable underneath.

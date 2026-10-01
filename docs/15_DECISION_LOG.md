@@ -2783,3 +2783,8 @@ Founder authorized a separate GitHub implementation for later testing and integr
 ## 2026-09-26 — Silent interviewer and shared database authorization
 
 Founder requested on-screen questions with gentle avatar movement, deferring question TTS. Candidates still record voice; deferred STT/coaching remains. Founder explicitly authorized the existing database. Applied the additive recorded-voice migration to the existing Supabase project and verified RLS/grants/private bucket. Main website code remains unchanged; Vercel preview environment settings and transcription key remain required.
+
+
+## 2026-10-01 — Resume parsing v2: same model, thinking off, layout-aware, checked
+
+Founder asked for CV reading that handles messy real-world CVs (tables, columns, scattered data) in seconds, staying on DeepSeek. Decisions: keep deepseek-v4-flash; switch its thinking off for extraction and prefer the fastest OpenRouter hosts (measured 6.7s vs 47s for the same call); read files layout-aware (Word table rows, PDF columns, Word headers/footers); let code handle dates, contact details and labelled personal fields; verify the model's answer against the CV text and re-read once only when a job is missing. No real CVs were scraped (privacy, site terms): a generated test set of 104 fake-person CVs in 14 layouts scores every field. Result 55% → 99% of CVs fully right, median model wait 26s → 4.8s. Correction-tracking ("learn from user edits") deliberately NOT shipped: a first profile auto-saves before the user edits, so the comparison would always read zero — needs its own design. Migration 059 (report column) applied. See [06_AI_PIPELINE.md](06_AI_PIPELINE.md) §5.

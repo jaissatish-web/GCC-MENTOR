@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { EXTRACTION_NOTES } from '@/lib/processingNotes'
 import type { CareerProfileDraft } from '@/types/careerProfile'
+import type { ParseWarning } from '@/lib/resumeParse/check'
 
 /**
  * Inline resume import, on the Career Profile page (founder decision 2026-08-18).
@@ -64,7 +65,8 @@ export function ResumeImport({
   initialMode?: Mode
   /** A saved profile already exists — show "Recreate my profile" instead. */
   collapsible?: boolean
-  onDraft: (draft: CareerProfileDraft) => void
+  /** `notes`: the reader's "please check" list (lib/resumeParse), when it sent one. */
+  onDraft: (draft: CareerProfileDraft, notes?: ParseWarning[]) => void
   onFillManually: () => void
 }) {
   const fileInput = useRef<HTMLInputElement>(null)
@@ -120,6 +122,7 @@ export function ResumeImport({
       const res = await call()
       const body = (await res.json().catch(() => null)) as {
         draft?: CareerProfileDraft
+        report?: { warnings?: ParseWarning[] }
         error?: string
         code?: string
         recreation?: RecreationQuota
@@ -149,7 +152,7 @@ export function ResumeImport({
       // Success — hand the draft up. The parent swaps the page (add/replace) or
       // fills the editor, so we leave `parsing` on until this component unmounts
       // or the parent re-renders it; reset defensively in case it stays mounted.
-      onDraft(body.draft)
+      onDraft(body.draft, body.report?.warnings)
       setParsing(false)
       setMode('idle')
       setText('')

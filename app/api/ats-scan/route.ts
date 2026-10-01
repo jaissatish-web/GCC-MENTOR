@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generate } from '@/lib/ai/provider'
-import { EXTRACTION_SYSTEM_PROMPT, normalizeDraft, extractJsonObject } from '@/lib/ai/extractionPrompt'
+import { extractJsonObject } from '@/lib/ai/extractionPrompt'
+import { extractProfile, readResumeText } from '@/lib/resumeParse/pipeline'
 // Only the result TYPE is still needed here: since TASK-109 the score is
 // computed by lib/gccReadiness/analyzeResume.ts, so the scoring prompt, its
 // validator and the admin-editable intro are no longer called from this route.
@@ -120,9 +121,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // check is skipped rather than failed. See analyzeResume's AnalyzeOptions.
   let pdfImageCount: number | undefined
 
+  // The file again for the profile pre-fill below, which reads it with the
+  // layout-aware reader (lib/resumeParse). The score keeps its own text above,
+  // unchanged, so no score moves because of the parser change.
+  let fileForProfile: { kind: 'pdf' | 'docx'; buffer: Buffer } | null = null
+
   if (file) {
     const buffer = Buffer.from(await file.arrayBuffer())
     const fileExt = file.name.toLowerCase().split('.').pop()
+    if (fileExt === 'pdf' || fileExt === 'docx') fileForProfile = { kind: fileExt, buffer }
 
     if (!['pdf', 'docx', 'doc'].includes(fileExt || '')) {
       return NextResponse.json({ error: 'Only PDF and Word files are supported' }, { status: 400 })
@@ -248,22 +255,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // rebuilt later without costing the visitor their first impression.
   let draft: CareerProfileDraft | null = null
   if (jobDescription) {
-    try {
-      const extractResult = await generate({
-        system: EXTRACTION_SYSTEM_PROMPT,
-        user: `Extract from this resume text:
-
-${resumeText}`,
-        maxTokens: 8192,
-        temperature: 0.1,
-        route: '/api/ats-scan',
-        configKey: 'extraction',
-        // No userId — anonymous route, ai_usage_log records user_id = NULL.
-      })
-      draft = normalizeDraft(extractJsonObject(extractResult.text))
-    } catch (e) {
-      console.error('ats-scan: extraction failed (non-fatal)', e instanceof Error ? e.message : String(e))
-    }
+    // lib/resumeParse (2026-10-01). Replaces a call that allowed 8,192 tokens to
+    // a thinking model and never checked for a cut-off answer — so a long think
+    // silently produced no pre-fill and no Job Match. No userId: anonymous
+    // route, ai_usage_log records user_id = NULL.
+    const read = fileForProfile ? await readResumeText(fileForProfile) : null
+    const parsed = await extractProfile(read?.ok ? read.text : resumeText, { route: '/api/ats-scan', layout: read?.ok ? read.layout : [] })
+    if (parsed.ok) draft = parsed.draft
+    else console.error('ats-scan: extraction failed (non-fatal) code=' + parsed.code)
   }
 
   // Job Match engine (TASK-071) — only runs when both a JD and a usable

@@ -18,11 +18,12 @@ export async function GET(): Promise<NextResponse> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data, error } = await supabase
-    .from('pending_profile_drafts')
-    .select('draft, source, created_at')
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const read = (columns: string) =>
+    supabase.from('pending_profile_drafts').select(columns).eq('user_id', user.id).maybeSingle()
+  let { data, error } = await read('draft, source, created_at, report')
+  // Before migration 059 the report column does not exist; the reading itself
+  // must still come back.
+  if (error && /report/.test(error.message)) ({ data, error } = await read('draft, source, created_at'))
   if (error) {
     console.error('pending draft read failed: user=' + user.id, error.message)
     return NextResponse.json({ error: 'Could not check for a waiting CV reading.' }, { status: 500 })
