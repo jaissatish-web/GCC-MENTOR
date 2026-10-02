@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import { useRouter } from 'next/navigation'
@@ -565,9 +566,9 @@ function JobCheckCard({ state, check }: { state: 'idle' | 'loading' | 'done' | '
               </li>
             ))}
           </ul>
-          <a href="/profile?open=sec_certifications" className="mt-1 inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-teal underline-offset-2 hover:underline">
+          <Link href="/profile?open=sec_certifications" className="mt-1 inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-teal underline-offset-2 hover:underline">
             I have one — add it to my profile →
-          </a>
+          </Link>
         </div>
       ) : null}
     </Card>
