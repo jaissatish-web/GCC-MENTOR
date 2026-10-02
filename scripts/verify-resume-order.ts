@@ -78,6 +78,13 @@ check('CV jobs newest first', doc.experience.map((x) => x.entry.id).join(',') ==
 check('CV certificates newest first', doc.certifications.map((x) => x.entry.id)[0] === 'pmp-2023')
 check('CV education newest first', doc.education.map((x) => x.entry.id)[0] === 'masters-2026')
 
+console.log('driving licence on the CV')
+const lic = buildResumeDocument({ profile: { ...profile, has_driving_license: true, driving_license_country: 'UAE', driving_license_category: 'Light vehicle' } as CareerProfileFull, optimizedContent: { summary: { generated: '', source_profile_summary: '' }, experience_blocks: [] } as never, skillsOrder: [], fieldVisibility: null, targetJobTitle: 'X' })
+check('licence listed with the certificates', lic.certifications.some((c) => c.display === 'UAE Driving Licence (Light vehicle)'), lic.certifications.map((c) => c.display))
+check('no licence line when the profile says no', !doc.certifications.some((c) => /Driving/.test(c.display)))
+const dup = buildResumeDocument({ profile: { ...profile, has_driving_license: true, driving_license_country: 'UAE', certifications: [{ id: 'x', profile_id: 'p', name: 'UAE Driving License', issuer: null, issue_date: null, expiry_date: null, sort_order: 0, created_at: '' }] } as unknown as CareerProfileFull, optimizedContent: { summary: { generated: '', source_profile_summary: '' }, experience_blocks: [] } as never, skillsOrder: [], fieldVisibility: null, targetJobTitle: 'X' })
+check('not listed twice when a certificate already names it', dup.certifications.filter((c) => /Driving/i.test(c.display)).length === 1)
+
 if (failures) {
   console.log(`\n${failures} failed`)
   process.exit(1)

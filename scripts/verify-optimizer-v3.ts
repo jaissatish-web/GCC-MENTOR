@@ -15,7 +15,9 @@
 
 import './resolve-paths'
 import { hasNumber, numbersIn, ownShare, trimFiller } from '../lib/optimizer/v3/engine'
-import { v3Hash } from '../lib/optimizer/v3/service'
+import { profileHolds, regroupCertifications, v3Hash } from '../lib/optimizer/v3/service'
+import type { AnalysisV3 } from '../lib/optimizer/v3/engine'
+import type { CareerProfileFull } from '../types/careerProfile'
 
 let failures = 0
 function check(name: string, cond: boolean) {
@@ -49,6 +51,23 @@ check('tail with a job keyword kept', trimFiller('Supervised installation and te
 check('tail with a number kept', trimFiller('Lead month-end close with the team of the finance department, ensuring reporting within 5 days.', '', []).includes('5 days'))
 check('profile\'s own words kept', trimFiller(acc + ', maintaining strong vendor relationships.', acc, []).includes('timely payments'))
 check('short line untouched', trimFiller('Managed GL, ensuring accuracy.', '', []) === 'Managed GL, ensuring accuracy.')
+
+console.log('certificate the user adds on the level screen')
+const withCerts = (...names: string[]) => ({ certifications: names.map((n, i) => ({ id: String(i), profile_id: 'p', name: n, issuer: null, issue_date: null, expiry_date: null, sort_order: i, created_at: '' })) }) as unknown as CareerProfileFull
+check('exact job wording is held', profileHolds(withCerts('LEED AP'), 'LEED AP'))
+check('"PMP certification" held by "PMP — Project Management Professional"', profileHolds(withCerts('PMP — Project Management Professional'), 'PMP certification'))
+check('licence spelling: "UAE driving license" held by "UAE Driving Licence"', profileHolds(withCerts('UAE Driving Licence'), 'UAE driving license'))
+check('licence from the paperwork questions counts', profileHolds({ ...withCerts(), has_driving_license: true, driving_license_country: 'UAE' } as CareerProfileFull, 'UAE driving license'))
+check('an India licence does not count for a UAE licence', !profileHolds({ ...withCerts(), has_driving_license: true, driving_license_country: 'India' } as CareerProfileFull, 'UAE driving license'))
+check('a different certificate is not held', !profileHolds(withCerts('OSHA 30'), 'LEED AP'))
+const ana = { jobField: 'MEP', candidateField: 'MEP', fieldMatch: 'same', ms: 0, inputTokens: 0, outputTokens: 0, requirements: [
+  { term: 'LEED AP', importance: 'nice', kind: 'certification', group: 'C', location: null, quote: null },
+  { term: 'Revit MEP', importance: 'must', kind: 'tool', group: 'C', location: null, quote: null },
+] } as AnalysisV3
+const re = regroupCertifications(ana, withCerts('LEED AP', 'Revit MEP'))
+check('held certificate moves to shown', re.requirements[0].group === 'A')
+check('only certificates and licences move — a tool stays not shown', re.requirements[1].group === 'C')
+check('a certificate removed later stops counting', regroupCertifications(re, withCerts('Revit MEP')).requirements[0].group === 'C')
 
 console.log('analysis cache key')
 check('64 characters', v3Hash('Senior MEP Engineer', null, 'Some advert').length === 64)

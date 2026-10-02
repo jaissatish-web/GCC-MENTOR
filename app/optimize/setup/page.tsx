@@ -1,10 +1,10 @@
 'use client'
-import Link from 'next/link'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Button } from '@/components/ui/Button'
+import { Button, buttonVariants } from '@/components/ui/Button'
+import { CheckIcon } from '@heroicons/react/24/outline'
 import { ProcessingInline, ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { CHECK_NOTES, setupNotes } from '@/lib/processingNotes'
 import { Card } from '@/components/ui/Card'
@@ -144,7 +144,8 @@ function SetupScreen() {
   const [consented, setConsented] = useState(true)
   const [agreed, setAgreed] = useState(false)
   const didInit = useRef(false)
-  const didCheck = useRef(false)
+  const lastCheck = useRef(-1)
+  const [checkRun, setCheckRun] = useState(0)
 
   useEffect(() => {
     if (didInit.current) return
@@ -200,10 +201,13 @@ function SetupScreen() {
   // CHECK THIS JOB (optimizer v3, 2026-10-02). One analysis, cached and reused
   // by the build — so it runs while the user reads the levels and the build
   // then only writes. Never blocks optimizing: a failed check just shows less.
+  // checkRun goes up when the user adds a certificate here: the check runs again
+  // (no model call — lib/optimizer/v3/service.ts regroups the cached analysis)
+  // and the scores update in place, without the loading card.
   useEffect(() => {
-    if (didCheck.current || !draft || !profileId) return
-    didCheck.current = true
-    setCheckState('loading')
+    if (!draft || !profileId || lastCheck.current === checkRun) return
+    lastCheck.current = checkRun
+    if (checkRun === 0) setCheckState('loading')
     fetch('/api/optimize/check', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -220,8 +224,10 @@ function SetupScreen() {
         setConsented(!!data.consented)
         setCheckState('done')
       })
-      .catch(() => setCheckState('error'))
-  }, [draft, profileId])
+      .catch(() => {
+        if (checkRun === 0) setCheckState('error')
+      })
+  }, [draft, profileId, checkRun])
 
   const selectedIds = useMemo(() => experiences.filter((e) => expOn[e.id]).map((e) => e.id), [experiences, expOn])
   const nothingSelected = !summaryOn && selectedIds.length === 0
@@ -392,7 +398,7 @@ function SetupScreen() {
         </Card>
 
         {/* 1b. Job check — field match, honest scores, certificates to ask about */}
-        <JobCheckCard state={checkState} check={check} />
+        <JobCheckCard state={checkState} check={check} onCertificateAdded={() => setCheckRun((n) => n + 1)} />
 
         {/* 2. The level */}
         <Card tone="light" className="flex flex-col gap-3 p-5">
@@ -518,7 +524,8 @@ function SetupScreen() {
  * the profile does not show: never added for the user, offered to add to the
  * Career Profile if they really hold them.
  */
-function JobCheckCard({ state, check }: { state: 'idle' | 'loading' | 'done' | 'error'; check: JobCheck | null }) {
+function JobCheckCard({ state, check, onCertificateAdded }: { state: 'idle' | 'loading' | 'done' | 'error'; check: JobCheck | null; onCertificateAdded: () => void }) {
+  const [added, setAdded] = useState<string[]>([])
   if (state === 'idle' || state === 'error') return null
   if (state === 'loading' || !check) {
     return (
@@ -550,26 +557,34 @@ function JobCheckCard({ state, check }: { state: 'idle' | 'loading' | 'done' | '
             ? `Your experience (${check.candidateField}) shares part of the work of this ${check.jobField} role. Requirements outside your field stay unmet, so the score has a ceiling.`
             : `This job is ${check.jobField}; your experience is ${check.candidateField}. Even after optimization your CV will score low for it (up to ${check.expected.high}) — jobs in your own field will score much higher. You can still go ahead.`}
       </p>
-      {check.askCertifications.length ? (
-        <div className="flex flex-col gap-1.5 rounded-ctl border border-line bg-white p-3">
-          <p className="text-[13px] font-semibold text-ink">This job asks for certificates your profile does not show</p>
-          <p className="text-[12px] leading-snug text-ink-muted">
-            We never add certificates for you. If you really hold one, add it to your Career Profile — it raises your score.
-          </p>
-          <ul className="flex flex-col gap-1">
-            {check.askCertifications.map((c) => (
-              <li key={c.term} className="flex flex-wrap items-baseline justify-between gap-2 text-[13px]">
-                <span className="text-ink">
-                  {c.term}
-                  {c.importance === 'must' ? <span className="ml-1.5 text-[12px] font-semibold text-alert">required</span> : null}
-                </span>
-                {c.gain > 0 ? <span className="font-mono text-[12px] font-semibold text-teal">+{c.gain} points</span> : null}
-              </li>
-            ))}
-          </ul>
-          <Link href="/profile?open=sec_certifications" className="mt-1 inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-teal underline-offset-2 hover:underline">
-            I have one — add it to my profile →
-          </Link>
+      {check.askCertifications.length || added.length ? (
+        <div className="flex flex-col gap-2 rounded-ctl border border-line bg-white p-3">
+          {check.askCertifications.length ? (
+            <>
+              <p className="text-[13px] font-semibold text-ink">This job asks for certificates your profile does not show</p>
+              <p className="text-[12px] leading-snug text-ink-muted">
+                We never add certificates for you. If you really hold one, tell us here — it goes on your Career Profile and raises your score.
+              </p>
+              <ul className="flex flex-col divide-y divide-line">
+                {check.askCertifications.map((c) => (
+                  <CertAsk
+                    key={c.term}
+                    cert={c}
+                    onAdded={(name) => {
+                      setAdded((a) => [...a, name])
+                      onCertificateAdded()
+                    }}
+                  />
+                ))}
+              </ul>
+            </>
+          ) : null}
+          {added.length ? (
+            <p className="flex items-start gap-1.5 text-[12.5px] font-semibold text-ok">
+              <CheckIcon aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={2.5} />
+              Added to your Career Profile: {added.join(', ')}. Your scores above include it, and your CV will list it.
+            </p>
+          ) : null}
         </div>
       ) : null}
     </Card>
@@ -606,5 +621,89 @@ export default function OptimizeSetupPage() {
     <Suspense>
       <SetupScreen />
     </Suspense>
+  )
+}
+
+/**
+ * One certificate the job asks for: "Yes, I have it" opens three fields and
+ * saves it to the Career Profile (POST /api/profile/certifications). The name
+ * starts as the job's own wording, because the ATS looks for those words.
+ * The user states it — nothing is added without this click.
+ */
+function CertAsk({ cert, onAdded }: { cert: { term: string; importance: 'must' | 'nice'; gain: number }; onAdded: (name: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState(cert.term)
+  const [issuer, setIssuer] = useState('')
+  const [year, setYear] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const field = 'min-h-11 w-full rounded-ctl border border-line-strong bg-white px-3 text-[14px] text-ink focus:border-teal focus:outline-none'
+
+  const save = async () => {
+    setSaving(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/profile/certifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, issuer, year: year.trim() || null }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok && body?.code !== 'DUPLICATE') {
+        setError((body?.error as string) ?? 'Could not save it. Please try again.')
+        return
+      }
+      onAdded(name.trim())
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <li className="flex flex-col gap-2 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-[13px]">
+        <span className="text-ink">
+          {cert.term}
+          {cert.importance === 'must' ? <span className="ml-1.5 text-[12px] font-semibold text-alert">required</span> : null}
+        </span>
+        <span className="flex items-center gap-3">
+          {cert.gain > 0 ? <span className="font-mono text-[12px] font-semibold text-teal">+{cert.gain} point{cert.gain === 1 ? '' : 's'}</span> : null}
+          {!open ? (
+            <button type="button" onClick={() => setOpen(true)} className="min-h-9 rounded-ctl border border-teal/40 px-3 text-[12.5px] font-semibold text-teal hover:bg-teal-soft">
+              Yes, I have it
+            </button>
+          ) : null}
+        </span>
+      </div>
+      {open ? (
+        <div className="flex flex-col gap-2 rounded-ctl bg-canvas p-3">
+          <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">
+            Certificate name — keep the job’s words so the ATS finds it
+            <input value={name} onChange={(e) => setName(e.target.value)} className={field} maxLength={200} />
+          </label>
+          <div className="grid gap-2 sm:grid-cols-[1fr_120px]">
+            <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">
+              Issued by (optional)
+              <input value={issuer} onChange={(e) => setIssuer(e.target.value)} className={field} maxLength={200} placeholder="e.g. PMI, USGBC, RTA" />
+            </label>
+            <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">
+              Year (optional)
+              <input value={year} onChange={(e) => setYear(e.target.value.replace(/D/g, '').slice(0, 4))} className={field} inputMode="numeric" placeholder="2021" />
+            </label>
+          </div>
+          {error ? <p className="text-[12.5px] text-alert">{error}</p> : null}
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => void save()} disabled={saving || name.trim().length < 2} className={buttonVariants({ variant: 'primary', size: 'sm' })}>
+              {saving ? 'Saving…' : 'I hold this — add it to my profile'}
+            </button>
+            <button type="button" onClick={() => setOpen(false)} className="min-h-9 px-2 text-[12.5px] font-semibold text-ink-muted hover:text-ink">
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </li>
   )
 }

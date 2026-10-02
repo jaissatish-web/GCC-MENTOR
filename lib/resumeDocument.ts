@@ -171,6 +171,14 @@ export interface ResumeDocumentInput {
   targetJobTitle?: string | null
 }
 
+/** "UAE Driving Licence (Light vehicle)" when the profile says the user holds one, else null. */
+export function drivingLicenceLine(profile: Pick<CareerProfileFull, 'has_driving_license' | 'driving_license_country' | 'driving_license_category'>): string | null {
+  if (profile.has_driving_license !== true) return null
+  const country = profile.driving_license_country?.trim()
+  const category = profile.driving_license_category?.trim()
+  return `${country ? `${country} ` : ''}Driving Licence${category ? ` (${category})` : ''}`
+}
+
 export function buildResumeDocument({
   profile,
   optimizedContent,
@@ -316,6 +324,18 @@ export function buildResumeDocument({
       const label = joinParts([entry.name, entry.issuer], ' — ')
       return { entry, display: year ? `${label} (${year})` : label }
     })
+
+  // The driving licence from the Gulf paperwork questions: a standard Gulf CV
+  // line many adverts require, listed with the licences (where an ATS looks),
+  // unless a certificate the user entered already names it. Added 2026-10-02 —
+  // before, a licence on the profile never reached the CV.
+  const licence = drivingLicenceLine(profile)
+  if (licence && !certifications.some((c) => /\bdriv/i.test(c.entry.name))) {
+    certifications.push({
+      entry: { id: 'driving-licence', profile_id: profile.id, name: licence, issuer: null, issue_date: null, expiry_date: profile.driving_license_validity_date ?? null, sort_order: Number.MAX_SAFE_INTEGER, created_at: '' },
+      display: licence,
+    })
+  }
 
   // ---- Education ----------------------------------------------------------
   const education: ResumeEducationItem[] = sortEducationNewestFirst(profile.education ?? [])

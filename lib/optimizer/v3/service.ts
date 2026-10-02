@@ -15,7 +15,7 @@
  * suggestions the review page shows in yellow. Certificates and licences are
  * never written — `ask_certifications` offers them to the user instead.
  */
-import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
+import { buildResumeDocument, drivingLicenceLine, type ResumeDocument } from '@/lib/resumeDocument'
 import type { CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { ExperienceBlock, OptimizationLevel, OptimizedContent } from '@/types/package'
 import type { OptimizationTarget, SelectedBlocks } from '@/lib/ai/buildOptimizationPrompt'
@@ -34,6 +34,66 @@ const ASKABLE = new Set(['certification', 'licence'])
 export const v3Hash = (title: string, industry: string | null, jd: string | null) => sha256('v3:' + analysisInputHash(title, industry, jd))
 const modeOf = (jd: string | null) => (jd && jd.trim() ? 'job_description' : 'target_title_only') as 'job_description' | 'target_title_only'
 
+/** The profile's version without its certificates: a certificate added on the level screen keeps the analysis. */
+const workKey = (p: CareerProfileFull) => profileFingerprint({ ...p, certifications: [] })
+
+const CERT_WORDS = /\b(certifications?|certificates?|certified|credentials?|licen[cs]es?|card)\b/gi
+
+/** True when a certificate line on the profile names this requirement ("PMP certification" ← "PMP — PMI"). */
+export function profileHolds(profile: CareerProfileFull, term: string): boolean {
+  const lines = (profile.certifications ?? []).map((c) => [c.name, c.issuer ?? ''].join(' '))
+  const licence = drivingLicenceLine(profile)
+  if (licence) lines.push(licence)
+  const bare = term.replace(CERT_WORDS, ' ').replace(/\s+/g, ' ').trim()
+  return lines.some((l) => containsTermRaw(l, term) || (bare.length >= 2 && containsTermRaw(l, bare)))
+}
+
+/**
+ * Certificates changed, nothing else: no model call. A certificate or licence
+ * the job asks for that the profile now holds moves from "not shown" (C) to
+ * "shown" (A) — the same literal check the analysis itself applies.
+ */
+export function regroupCertifications(a: AnalysisV3, profile: CareerProfileFull): AnalysisV3 {
+  const base = withoutCertificateStep(a)
+  return {
+    ...base,
+    requirements: base.requirements.map((r) =>
+      r.group === 'C' && ASKABLE.has(r.kind) && profileHolds(profile, r.term) ? { ...r, group: 'A' as const, location: null, regrouped: HELD } : r,
+    ),
+  }
+}
+
+const HELD = 'certificate on the profile'
+/** The analysis as the model and its checks left it — what is stored, so a certificate the user later removes stops counting. */
+function withoutCertificateStep(a: AnalysisV3): AnalysisV3 {
+  return {
+    ...a,
+    requirements: a.requirements.map((r) => (r.regrouped === HELD || r.regrouped === 'certificate added by the user' ? { ...r, group: 'C' as const, regrouped: undefined } : r)),
+  }
+}
+
+async function readCached(userId: string, profile: CareerProfileFull, hash: string): Promise<{ analysis: AnalysisV3; id: string; exact: boolean } | null> {
+  const stored = await getAnalysisByHash(userId, hash)
+  const tp = stored?.targetProfile as unknown as { v3?: AnalysisV3; v3WorkKey?: string } | undefined
+  if (!stored || !tp?.v3) return null
+  if (stored.profileFingerprint === profileFingerprint(profile)) return { analysis: tp.v3, id: stored.id, exact: true }
+  if (tp.v3WorkKey && tp.v3WorkKey === workKey(profile)) return { analysis: tp.v3, id: stored.id, exact: false }
+  return null
+}
+
+async function storeAnalysis(opts: { userId: string; profile: CareerProfileFull; hash: string; title: string; jd: string | null; analysis: AnalysisV3 }): Promise<string | null> {
+  const target = targetFromAnalysis(opts.analysis, opts.title, modeOf(opts.jd))
+  return saveAnalysis({
+    userId: opts.userId,
+    profileId: opts.profile.id,
+    inputHash: opts.hash,
+    targetJobTitle: opts.title,
+    targetProfile: { ...target, v3: withoutCertificateStep(opts.analysis), v3WorkKey: workKey(opts.profile) } as unknown as typeof target,
+    bridges: [],
+    profileFingerprint: profileFingerprint(opts.profile),
+  })
+}
+
 export async function getAnalysisV3(opts: {
   userId: string
   profile: CareerProfileFull
@@ -43,28 +103,22 @@ export async function getAnalysisV3(opts: {
   route: string
 }): Promise<{ analysis: AnalysisV3; analysisId: string | null; cached: boolean }> {
   const hash = v3Hash(opts.targetJobTitle, opts.targetIndustry, opts.jobDescription)
-  const fp = profileFingerprint(opts.profile)
-  const stored = await getAnalysisByHash(opts.userId, hash)
-  const cached = (stored?.targetProfile as unknown as { v3?: AnalysisV3 } | undefined)?.v3
-  if (stored && cached && stored.profileFingerprint === fp) return { analysis: cached, analysisId: stored.id, cached: true }
-  const analysis = await analyzeV3(opts.profile, opts.targetJobTitle, opts.jobDescription, opts.route)
-  const target = targetFromAnalysis(analysis, opts.targetJobTitle, modeOf(opts.jobDescription))
-  const analysisId = await saveAnalysis({
-    userId: opts.userId,
-    profileId: opts.profile.id,
-    inputHash: hash,
-    targetJobTitle: opts.targetJobTitle,
-    targetProfile: { ...target, v3: analysis } as unknown as typeof target,
-    bridges: [],
-    profileFingerprint: fp,
-  })
-  return { analysis, analysisId, cached: false }
+  const hit = await readCached(opts.userId, opts.profile, hash)
+  // The certificate step is code only, so it runs on every answer: a licence
+  // from the paperwork questions, or a certificate in other words, counts too.
+  if (hit?.exact) return { analysis: regroupCertifications(hit.analysis, opts.profile), analysisId: hit.id, cached: true }
+  if (hit) {
+    const analysisId = await storeAnalysis({ userId: opts.userId, profile: opts.profile, hash, title: opts.targetJobTitle, jd: opts.jobDescription, analysis: hit.analysis })
+    return { analysis: regroupCertifications(hit.analysis, opts.profile), analysisId: analysisId ?? hit.id, cached: true }
+  }
+  const raw = await analyzeV3(opts.profile, opts.targetJobTitle, opts.jobDescription, opts.route)
+  const analysisId = await storeAnalysis({ userId: opts.userId, profile: opts.profile, hash, title: opts.targetJobTitle, jd: opts.jobDescription, analysis: raw })
+  return { analysis: regroupCertifications(raw, opts.profile), analysisId, cached: false }
 }
 
-/** True when getAnalysisV3 would answer from the cache — no model call, no rate-limit slot. */
+/** True when getAnalysisV3 would answer without a model call — no rate-limit slot needed. */
 export async function isAnalysisCachedV3(userId: string, profile: CareerProfileFull, title: string, industry: string | null, jd: string | null): Promise<boolean> {
-  const stored = await getAnalysisByHash(userId, v3Hash(title, industry, jd))
-  return !!stored && stored.profileFingerprint === profileFingerprint(profile) && !!(stored.targetProfile as unknown as { v3?: unknown }).v3
+  return !!(await readCached(userId, profile, v3Hash(title, industry, jd)))
 }
 
 /** The share of the job's fixed requirements (degree, years, certificates, licences) the profile meets. */
