@@ -72,7 +72,9 @@ export function ResultsOverview({
   const pending = (report?.suggestions ?? []).filter((s) => s.status === 'pending').length
   const level = pkg.optimization_level.charAt(0).toUpperCase() + pkg.optimization_level.slice(1)
   const industry = PERSONA_INDUSTRIES.find((i) => i.value === pkg.target_industry)?.label ?? null
-  const description = (pkg.job_description ?? '').trim()
+  // No advert pasted: the typical Gulf advert for the title it was matched against (2026-10-02).
+  const typical = !(pkg.job_description ?? '').trim() && report?.advert_source === 'typical' ? (report.typical_advert ?? '').trim() : ''
+  const description = (pkg.job_description ?? '').trim() || typical
 
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
@@ -109,7 +111,7 @@ export function ResultsOverview({
                 onClick={() => setShowJd((v) => !v)}
                 className="min-h-11 self-start text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
               >
-                {showJd ? 'Hide job description' : 'Show job description'}
+                {typical ? (showJd ? 'Hide typical requirements' : 'Matched against typical Gulf requirements for this title — show') : showJd ? 'Hide job description' : 'Show job description'}
               </button>
               {showJd ? (
                 <div className="max-h-64 overflow-y-auto whitespace-pre-wrap rounded-ctl border border-teal/20 bg-white p-3 text-[13px] leading-relaxed text-ink-soft">

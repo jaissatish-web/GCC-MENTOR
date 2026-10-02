@@ -82,5 +82,18 @@ console.log('\nEvery form of a British -ise verb is one word (2026-10-02, script
   check('a verb mid-sentence in capitals is still checked ("using Coordinate")', ents('Modelled the plant using Coordinate Pro.').includes('coordinate pro'))
 }
 
+// Terms with a small word INSIDE them (2026-10-02): the matcher dropped "and",
+// "of", "with" from the term but not from the text, so the literal phrase
+// never matched — a CV saying "health and safety" got no credit for it.
+{
+  const { containsTermRaw: has } = require('../lib/optimizer/text') as typeof import('../lib/optimizer/text')
+  check('"health and safety" found in "Led health and safety audits"', has('Led health and safety audits', 'health and safety'))
+  check('"Saudi Council of Engineers" found in a membership line', has('Member of the Saudi Council of Engineers', 'Saudi Council of Engineers'))
+  check('"management of change" found', has('Ran the management of change process', 'management of change'))
+  check('"Health & Safety" still found for "health and safety"', has('Health & Safety officer', 'health and safety'))
+  check('still strict: "project management" not in "project cost management"', !has('project cost management', 'project management'))
+  check('still strict: "health and safety" not in "health, quality and safety"', !has('health, quality and safety', 'health and safety'))
+}
+
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} FAILED\n`)
 process.exit(failures === 0 ? 0 : 1)

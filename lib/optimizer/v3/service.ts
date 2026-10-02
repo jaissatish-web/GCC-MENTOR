@@ -194,6 +194,8 @@ export async function buildV3(opts: {
   analysis: AnalysisV3
   analysisId: string | null
   autoApply: boolean
+  /** No advert was pasted: jobDescription is the typical Gulf advert for the title. */
+  typicalAdvert?: boolean
   route: string
 }): Promise<BuildV3Result> {
   const { profile, target: tf, level, selectedBlocks, jobDescription: jd, analysis: a } = opts
@@ -289,6 +291,7 @@ export async function buildV3(opts: {
     target_band: reachableTargetBand(level, check.expected[level]),
     field_match: { match: a.fieldMatch, job_field: a.jobField, candidate_field: a.candidateField },
     ask_certifications: check.askCertifications,
+    ...(opts.typicalAdvert && jd ? { advert_source: 'typical' as const, typical_advert: jd } : {}),
     added_terms: [
       ...new Set([
         ...(summaryOn ? w.summaryAdded : []),

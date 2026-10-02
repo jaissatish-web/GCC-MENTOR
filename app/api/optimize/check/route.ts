@@ -4,6 +4,7 @@ import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
 import { LIMIT_ACTION_JOB_DESCRIPTION } from '@/lib/rateLimit'
 import { checkReport, getAnalysisV3, isAnalysisCachedV3 } from '@/lib/optimizer/v3/service'
+import { getTypicalAdvert, readTypicalAdvert } from '@/lib/optimizer/v3/typicalAdvert'
 
 /**
  * POST /api/optimize/check — "check this job" on the level screen (optimizer v3,
@@ -17,6 +18,7 @@ import { checkReport, getAnalysisV3, isAnalysisCachedV3 } from '@/lib/optimizer/
  *   - certificates and licences the job asks for that the profile does not show
  *     — offered, never written
  *   - whether this user still has to see the first-time explainer and agreement
+ *   - with no advert: the typical Gulf advert for the title it was matched against
  *
  * Body: { profileId, targetFields: { target_job_title, target_industry? }, jobDescription? }
  * Rate limited like a job analysis; a cached answer costs nothing.
@@ -50,17 +52,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .not('optimized_content', 'is', null)
   const firstTime = !profile.optimizer_consent_at || !count
 
-  // A cached analysis for this job and this version of the profile costs nothing.
-  const isCached = await isAnalysisCachedV3(user.id, profile, title, industry, jd)
+  // No advert pasted: the typical Gulf advert for this title stands in for it
+  // (lib/optimizer/v3/typicalAdvert.ts) — written once per title, shared.
+  // A cached advert AND a cached analysis cost nothing.
+  let advert = jd ?? (await readTypicalAdvert(title, industry))
+  const isCached = !!advert && (await isAnalysisCachedV3(user.id, profile, title, industry, advert))
   const reservation = isCached ? null : await reserveAiAction({ userId: user.id, action: LIMIT_ACTION_JOB_DESCRIPTION, phone: profile.phone, email: profile.email, ttlSeconds: 120 })
   if (reservation && !reservation.ok) return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
 
   let ok = false
   try {
-    const { analysis } = await getAnalysisV3({ userId: user.id, profile, targetJobTitle: title, targetIndustry: industry, jobDescription: jd, route: '/api/optimize/check' })
-    const report = checkReport(profile, analysis, title, jd, profile.field_visibility)
+    if (!advert) advert = (await getTypicalAdvert(title, industry, '/api/optimize/check')).advert
+    const { analysis } = await getAnalysisV3({ userId: user.id, profile, targetJobTitle: title, targetIndustry: industry, jobDescription: advert, route: '/api/optimize/check' })
+    const report = checkReport(profile, analysis, title, advert, profile.field_visibility)
     ok = true
-    return NextResponse.json({ success: true, check: report, consented: !!profile.optimizer_consent_at, firstTime })
+    return NextResponse.json({
+      success: true,
+      check: { ...report, ...(jd ? {} : { typical: true, typicalAdvert: advert }) },
+      consented: !!profile.optimizer_consent_at,
+      firstTime,
+    })
   } catch (e) {
     console.error('optimize check: failed user=' + user.id, e instanceof Error ? e.message : String(e))
     return NextResponse.json({ error: 'We could not check this job just now. You can still optimize.' }, { status: 503 })

@@ -17,6 +17,7 @@ import './resolve-paths'
 import { hasNumber, numbersIn, ownShare, trimFiller, trimStuffedTails, type WrittenJob } from '../lib/optimizer/v3/engine'
 import { profileHolds, regroupCertifications, v3Hash } from '../lib/optimizer/v3/service'
 import type { AnalysisV3 } from '../lib/optimizer/v3/engine'
+import { looksLikeAdvert, normTitle, typicalKey } from '../lib/optimizer/v3/typicalAdvert'
 import type { CareerProfileFull } from '../types/careerProfile'
 
 let failures = 0
@@ -80,6 +81,22 @@ const re = regroupCertifications(ana, withCerts('LEED AP', 'Revit MEP'))
 check('held certificate moves to shown', re.requirements[0].group === 'A')
 check('only certificates and licences move — a tool stays not shown', re.requirements[1].group === 'C')
 check('a certificate removed later stops counting', regroupCertifications(re, withCerts('Revit MEP')).requirements[0].group === 'C')
+
+console.log('typical advert for a title with no advert')
+check('same title in different spelling shares one advert', typicalKey('Senior  MEP Engineer!', null) === typicalKey('senior mep engineer', ''))
+check('seniority stays part of the title', normTitle('Senior Accountant') !== normTitle('Accountant'))
+check('industry keeps adverts apart', typicalKey('Engineer', 'Oil & Gas') !== typicalKey('Engineer', null))
+const good = [
+  'Job title',
+  'About the role: x.',
+  'Key responsibilities:',
+  ...Array.from({ length: 10 }, (_, i) => `- Duty number ${i} done in the usual recruiter words for this role.`),
+  'Requirements:',
+  '- Bachelor degree',
+  '- 5 years',
+].join('\n')
+check('a real advert passes the quality gate', looksLikeAdvert(good))
+check('a refusal or stub is rejected', !looksLikeAdvert('I cannot help with that request.') && !looksLikeAdvert('Responsibilities and requirements vary.'))
 
 console.log('analysis cache key')
 check('64 characters', v3Hash('Senior MEP Engineer', null, 'Some advert').length === 64)

@@ -184,6 +184,12 @@ export function containsTerm(text: PreparedText, term: string, aliases: readonly
     const parts = termStems(variant)
     if (parts.length === 0) continue
     if (text.joined.includes(` ${parts.join(' ')} `)) return true
+    // The prepared text keeps its small words, so a term with one INSIDE it
+    // ("health and safety", "Saudi Council of Engineers") also has to be tried
+    // with them kept — dropping them only (above) never matched the literal
+    // phrase (found 2026-10-02). This adds literal matches only.
+    const literal = stems(variant)
+    if (literal.length > parts.length && text.joined.includes(` ${literal.join(' ')} `)) return true
   }
   return false
 }

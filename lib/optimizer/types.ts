@@ -164,4 +164,7 @@ export interface MatchReport {
   ask_certifications?: Array<{ term: string; importance: KeywordImportance; gain: number }>
   /** v3: job terms (list B) added inside the candidate's own rewritten lines — yellow on the first review. */
   added_terms?: string[]
+  /** v3: no advert was pasted — matched against the typical Gulf advert for the title (typical_job_adverts). */
+  advert_source?: 'typical'
+  typical_advert?: string
 }

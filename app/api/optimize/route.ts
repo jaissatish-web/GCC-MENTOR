@@ -17,6 +17,7 @@ import { validateKeywords } from '@/lib/optimizer/jobAnalysis'
 import { verifyBridges } from '@/lib/optimizer/evidence'
 import type { JobTargetProfile, MatchReport, VerifiedBridge } from '@/lib/optimizer/types'
 import { buildV3, getAnalysisV3, isAnalysisCachedV3 } from '@/lib/optimizer/v3/service'
+import { getTypicalAdvert, readTypicalAdvert } from '@/lib/optimizer/v3/typicalAdvert'
 import type { CareerProfileFull, TargetCountry } from '@/types/careerProfile'
 import type { OptimizationLevel } from '@/types/package'
 
@@ -252,23 +253,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // The default engine. OPTIMIZER_ENGINE=v2 switches back to the 2026-09-17
   // engine below without a deploy of code — the rollback lever.
   if (generatePackageId && ENGINE === 'v3') {
-    const analysisInput = {
+    // No advert: the typical Gulf advert for the title stands in for it
+    // (lib/optimizer/v3/typicalAdvert.ts). Normally already written by the
+    // setup screen's check, so this is a read.
+    const typical = !jobDescription
+    let advert = jobDescription ?? (await readTypicalAdvert(targetFields.target_job_title, targetFields.target_industry))
+    const ensureAdvert = async () => (advert ??= (await getTypicalAdvert(targetFields.target_job_title, targetFields.target_industry, '/api/optimize')).advert)
+    const analysisInput = () => ({
       userId: user.id,
       profile,
       targetJobTitle: targetFields.target_job_title,
       targetIndustry: targetFields.target_industry,
-      jobDescription,
+      jobDescription: advert,
       route: '/api/optimize',
-    }
+    })
     // B0: analyse only (normally a cache hit — the setup screen's check ran it).
     if (bodyObj.analyzeOnly === true) {
-      const cached = await isAnalysisCachedV3(user.id, profile, targetFields.target_job_title, targetFields.target_industry, jobDescription)
+      const cached = !!advert && (await isAnalysisCachedV3(user.id, profile, targetFields.target_job_title, targetFields.target_industry, advert))
       if (cached) return NextResponse.json({ success: true, analyzed: true, cached: true })
       const slot = await reserveAiAction({ userId: user.id, action: LIMIT_ACTION_JOB_DESCRIPTION, phone: profile.phone, email: profile.email, ttlSeconds: 120 })
       if (!slot.ok) return NextResponse.json({ error: slot.error, code: slot.code }, { status: slot.status })
       let ok = false
       try {
-        await getAnalysisV3(analysisInput)
+        await ensureAdvert()
+        await getAnalysisV3(analysisInput())
         ok = true
         return NextResponse.json({ success: true, analyzed: true, cached: false })
       } catch (e) {
@@ -282,7 +290,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!reservation.ok) return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
     let savedOk = false
     try {
-      const { analysis, analysisId } = await getAnalysisV3(analysisInput)
+      await ensureAdvert()
+      const { analysis, analysisId } = await getAnalysisV3(analysisInput())
       // Straight into the CV only after the one-time agreement AND a first
       // optimization the user has seen on the review page.
       const { count: previous } = await supabase
@@ -292,7 +301,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .neq('id', generatePackageId)
         .not('optimized_content', 'is', null)
       const autoApply = !!profile.optimizer_consent_at && !!previous
-      const result = await buildV3({ profile, target: targetFields, level, selectedBlocks, jobDescription, analysis, analysisId, autoApply, route: '/api/optimize' })
+      const result = await buildV3({ profile, target: targetFields, level, selectedBlocks, jobDescription: advert, typicalAdvert: typical, analysis, analysisId, autoApply, route: '/api/optimize' })
       if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
       console.log(
         'optimize v3: user=' + user.id + ' package=' + generatePackageId + ' level=' + level + ' field=' + analysis.fieldMatch +

@@ -123,6 +123,9 @@ interface JobCheck {
   before: number
   expected: Record<OptimizationLevel, number>
   askCertifications: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+  /** No advert pasted: matched against the typical Gulf advert for the title. */
+  typical?: boolean
+  typicalAdvert?: string
 }
 
 function SetupScreen() {
@@ -398,7 +401,7 @@ function SetupScreen() {
         </Card>
 
         {/* 1b. Job check — field match, honest scores, certificates to ask about */}
-        <JobCheckCard state={checkState} check={check} onCertificateAdded={() => setCheckRun((n) => n + 1)} />
+        <JobCheckCard state={checkState} check={check} title={draft.target_job_title} onPasteAdvert={() => router.push('/optimize/target')} onCertificateAdded={() => setCheckRun((n) => n + 1)} />
 
         {/* 2. The level */}
         <Card tone="light" className="flex flex-col gap-3 p-5">
@@ -524,8 +527,9 @@ function SetupScreen() {
  * the profile does not show: never added for the user, offered to add to the
  * Career Profile if they really hold them.
  */
-function JobCheckCard({ state, check, onCertificateAdded }: { state: 'idle' | 'loading' | 'done' | 'error'; check: JobCheck | null; onCertificateAdded: () => void }) {
+function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }: { state: 'idle' | 'loading' | 'done' | 'error'; check: JobCheck | null; title: string; onPasteAdvert: () => void; onCertificateAdded: () => void }) {
   const [added, setAdded] = useState<string[]>([])
+  const [showAdvert, setShowAdvert] = useState(false)
   if (state === 'idle' || state === 'error') return null
   if (state === 'loading' || !check) {
     return (
@@ -557,6 +561,30 @@ function JobCheckCard({ state, check, onCertificateAdded }: { state: 'idle' | 'l
             ? `Your experience (${check.candidateField}) shares part of the work of this ${check.jobField} role. Requirements outside your field stay unmet, so the score has a ceiling.`
             : `This job is ${check.jobField}; your experience is ${check.candidateField}. Even after optimization your CV will score low for it (up to ${check.expected.high}) — jobs in your own field will score much higher. You can still go ahead.`}
       </p>
+      {/* No advert (2026-10-02): matched against the typical Gulf advert for the
+          title — shown, so the user sees exactly what the score is based on. */}
+      {check.typical ? (
+        <div className="flex flex-col gap-2 rounded-ctl border border-gold/40 bg-gold-soft/60 p-3">
+          <p className="text-[13px] font-semibold text-ink">No job advert pasted — matched against typical {title} requirements in the Gulf</p>
+          <p className="text-[12.5px] leading-snug text-ink-soft">
+            Your CV is written for what most Gulf adverts for this title ask. A real advert uses its own words, and the ATS
+            looks for those exact words — so if you have the advert (even a WhatsApp message), paste it for a much stronger match.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" onClick={onPasteAdvert} className={buttonVariants({ variant: 'primary', size: 'sm' })}>
+              Paste the real advert
+            </button>
+            {check.typicalAdvert ? (
+              <button type="button" onClick={() => setShowAdvert((v) => !v)} className="min-h-9 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline">
+                {showAdvert ? 'Hide typical requirements' : 'See the typical requirements'}
+              </button>
+            ) : null}
+          </div>
+          {showAdvert && check.typicalAdvert ? (
+            <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-ctl border border-line bg-white p-3 font-sans text-[12.5px] leading-relaxed text-ink-soft">{check.typicalAdvert}</pre>
+          ) : null}
+        </div>
+      ) : null}
       {check.askCertifications.length || added.length ? (
         <div className="flex flex-col gap-2 rounded-ctl border border-line bg-white p-3">
           {check.askCertifications.length ? (
