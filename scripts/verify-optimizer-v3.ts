@@ -14,7 +14,7 @@
  */
 
 import './resolve-paths'
-import { hasNumber, numbersIn, ownShare, trimFiller } from '../lib/optimizer/v3/engine'
+import { hasNumber, numbersIn, ownShare, trimFiller, trimStuffedTails, type WrittenJob } from '../lib/optimizer/v3/engine'
 import { profileHolds, regroupCertifications, v3Hash } from '../lib/optimizer/v3/service'
 import type { AnalysisV3 } from '../lib/optimizer/v3/engine'
 import type { CareerProfileFull } from '../types/careerProfile'
@@ -51,6 +51,18 @@ check('tail with a job keyword kept', trimFiller('Supervised installation and te
 check('tail with a number kept', trimFiller('Lead month-end close with the team of the finance department, ensuring reporting within 5 days.', '', []).includes('5 days'))
 check('profile\'s own words kept', trimFiller(acc + ', maintaining strong vendor relationships.', acc, []).includes('timely payments'))
 check('short line untouched', trimFiller('Managed GL, ensuring accuracy.', '', []) === 'Managed GL, ensuring accuracy.')
+
+console.log('keyword-stuffed tails')
+const job = (id: string, ...lines: string[]): WrittenJob => ({ id, keptOriginal: false, droppedNew: [], bullets: lines.map((text) => ({ text, isNew: false })) })
+const terms = ['stakeholder management', 'shop drawing', 'commissioning']
+const cv = trimStuffedTails([job('a', 'Coordinated with consultants for material and shop drawing approvals, facilitating stakeholder management.')], 'MEP supervisor strong in stakeholder management.', [], terms, () => 'Coordinated with consultants for material and shop drawing approvals.')
+check('tail cut when its keyword is elsewhere in the CV', cv.jobs[0].bullets[0].text === 'Coordinated with consultants for material and shop drawing approvals.')
+const only = trimStuffedTails([job('a', 'Coordinated with consultants for material and shop drawing approvals, facilitating stakeholder management.')], 'MEP supervisor.', [], terms, () => '')
+check('tail kept when it is the only place the keyword appears', only.cut === 0)
+const fact = trimStuffedTails([job('a', 'Processed high-volume AP transactions (500+ per month) and ensured timely payments to vendors, maintaining strong AP processing.')], 'AP processing timely payments vendors', [], ['AP processing'], () => 'Processed high-volume AP transactions (500+ per month) and ensured timely payments to vendors')
+check("the profile's own words are never cut", fact.cut === 0)
+const kept = trimStuffedTails([{ ...job('a', 'Led testing of pumps, ensuring commissioning of all systems.'), keptOriginal: true }], 'commissioning', [], terms, () => '')
+check("the candidate's unchanged lines are never touched", kept.cut === 0)
 
 console.log('certificate the user adds on the level screen')
 const withCerts = (...names: string[]) => ({ certifications: names.map((n, i) => ({ id: String(i), profile_id: 'p', name: n, issuer: null, issue_date: null, expiry_date: null, sort_order: i, created_at: '' })) }) as unknown as CareerProfileFull

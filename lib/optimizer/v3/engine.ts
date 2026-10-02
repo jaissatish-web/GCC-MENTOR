@@ -222,6 +222,49 @@ export function trimFiller(text: string, source: string, terms: readonly string[
   return head + '.'
 }
 
+const STUFF_TAIL = /(?:,\s*|\s+and\s+)(?:ensur\w*|facilitat\w*|contributing to|demonstrat\w*|providing|supporting|applying|leveraging|utiliz\w*|showcasing|enabling)\b[^.;]*[.;]?\s*$/i
+const STUFF_LEAD = /^(?:,\s*|\s+and\s+)(?:ensur\w*|facilitat\w*|contributing to|demonstrat\w*|providing|supporting|applying|leveraging|utiliz\w*|showcasing|enabling)\b/i
+
+/** A ", facilitating stakeholder management" tail that carries job keywords — or null. */
+export function stuffedTail(text: string, terms: readonly string[]): { head: string; inTail: string[] } | null {
+  const m = text.match(STUFF_TAIL)
+  if (!m || m.index === undefined) return null
+  const head = text.slice(0, m.index).replace(/[,;:\s]+$/, '')
+  if (head.split(/\s+/).length < 6 || /\d/.test(m[0])) return null
+  const inTail = terms.filter((t) => containsTermRaw(m[0], t))
+  return inTail.length ? { head, inTail } : null
+}
+
+/**
+ * Keyword stuffing, cut where it costs the ATS nothing (founder, 2026-10-02:
+ * lines like "…, facilitating stakeholder management" pass the software but
+ * read as robotic to the recruiter who reads next). A tail of job keywords is
+ * cut ONLY when every keyword in it already appears elsewhere in the CV —
+ * summary, skills or another line — so the ATS still finds each one. A tail
+ * the profile itself states is a fact and stays; numbers always stay; the
+ * candidate's own unchanged lines and added points are never touched.
+ */
+export function trimStuffedTails(jobs: WrittenJob[], summary: string, skills: readonly string[], terms: readonly string[], sourceOf: (id: string) => string): { jobs: WrittenJob[]; cut: number } {
+  const out = jobs.map((j) => ({ ...j, bullets: j.bullets.map((b) => ({ ...b })) }))
+  let cut = 0
+  for (const j of out) {
+    if (j.keptOriginal) continue
+    const src = contentStems(sourceOf(j.id))
+    for (const b of j.bullets) {
+      if (b.isNew) continue
+      const s = stuffedTail(b.text, terms)
+      if (!s) continue
+      const said = contentStems(b.text.slice(s.head.length).replace(STUFF_LEAD, '').split(',')[0])
+      if (said.length && said.filter((x) => src.some((y) => stemsMatch(x, y))).length / said.length >= 0.6) continue
+      const rest = [summary, ...skills, ...out.flatMap((o) => o.bullets.filter((x) => x !== b).map((x) => x.text))].join('\n')
+      if (!s.inTail.every((t) => containsTermRaw(rest, t))) continue
+      b.text = s.head + '.'
+      cut++
+    }
+  }
+  return { jobs: out, cut }
+}
+
 export const numbersIn = (t: string) => t.match(/\d+(?:[.,]\d+)*/g) ?? []
 /** The number as a whole number: "25" is not in "2025". */
 export const hasNumber = (text: string, n: string) => new RegExp(`(?<![\\d.,])${n.replace(/[.,]/g, '[.,]')}(?![\\d])`).test(text)
@@ -416,12 +459,16 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
   const order = Array.isArray(raw.skills_order) ? (raw.skills_order as unknown[]).map(String).filter((n) => names.includes(n)) : []
   const skillsOrder = order.length === names.length && new Set(order).size === names.length ? order : names
 
+  const finalText = summaryKeptOriginal ? profile.professional_summary ?? "" : finalSummary
+  const destuffed = trimStuffedTails(jobs, finalText, names, allTerms, (id) => entrySourceText(profile.work_experience.find((e) => e.id === id)!))
+  if (destuffed.cut) caught.push(`stuffed_tail_cut x${destuffed.cut}`)
+
   return {
     level,
-    summary: summaryKeptOriginal ? profile.professional_summary ?? "" : finalSummary,
+    summary: finalText,
     summaryKeptOriginal,
     summaryAdded: summaryKeptOriginal ? [] : addable.map((r) => r.term).filter((t) => containsTermRaw(finalSummary, t) && !containsTermRaw(wholeProfile, t)),
-    jobs,
+    jobs: destuffed.jobs,
     skillsOrder,
     ms: Date.now() - t0,
     inputTokens: res.inputTokens,

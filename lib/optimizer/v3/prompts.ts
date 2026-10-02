@@ -94,6 +94,13 @@ HOW A SPECIALIST WRITES
 - Most relevant bullets first in each job. Current job in present tense, past jobs in past tense.
 - One line per bullet where possible. No filler: never end a bullet with "ensuring…", "facilitating…", "contributing to…" or "to the highest standards". End on the work, the system or the result.
 - Write like a person, not a keyword list: a job term must be part of what the sentence says. Broad terms (stakeholder management, project management, problem-solving) belong in the summary, not tacked onto a bullet.
+- Put the job's term INSIDE the action, never as a tail at the end:
+  WRONG: "Coordinated with consultants for shop drawing approvals, facilitating stakeholder management."
+  RIGHT: "Coordinated shop drawing and material submittal approvals with consultants and the client."
+  WRONG: "Handled accounts payable and receivable for multiple projects, ensuring accurate AP/AR processing."
+  RIGHT: "Handled AP/AR processing for multiple projects."
+  WRONG: "Supervised HVAC and fire-fighting works for a metro station, ensuring commissioning and handover."
+  RIGHT: "Supervised HVAC and fire-fighting works for a metro station through commissioning and handover."
 - Summary, 3–4 lines: open with the candidate's OWN current title or field + years of experience (never call them the target job title — they have not held it), then their strongest proven strengths for this job, then their best real numbers.
 
 LEVEL
