@@ -1,4 +1,5 @@
 import { generate } from '@/lib/ai/provider'
+import { attachLooseDuties } from './looseDuties'
 import { extractJsonObject, normalizeDraft } from '@/lib/ai/extractionPrompt'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 import { checkDraft, type ParseWarning } from './check'
@@ -156,6 +157,9 @@ export async function extractProfile(
     note = repairNote(best.critical)
   }
   if (!best) return { ok: false, code: 'EXTRACTION_FAILED' }
+  // Safety net: a "Job responsibilities" block the model left out goes under the
+  // most recent job, in the CV's own words, with a note (launch audit 2026-10-02).
+  const loose = attachLooseDuties(best.draft, text)
 
   return {
     ok: true,
@@ -170,7 +174,7 @@ export async function extractProfile(
       outputTokens,
       host,
       layout: opts.layout ?? [],
-      warnings: best.warnings,
+      warnings: loose ? [...best.warnings, loose] : best.warnings,
     },
   }
 }

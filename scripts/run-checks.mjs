@@ -31,6 +31,7 @@ const TS_CHECKS = [
   'verify-profile-merge.ts',
   'verify-profile-data.ts',
   'verify-resume-parse.ts',
+  'verify-loose-duties.ts',
   'verify-match-terms.ts',
   'verify-optimizer-v3.ts',
   'verify-resume-order.ts',

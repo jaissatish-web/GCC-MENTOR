@@ -30,6 +30,7 @@ const LEAF: Record<string, string> = {
   company: 'company name',
   role: 'job title',
   institution: 'institution',
+  highlights: 'duties',
 }
 const LIST: Record<string, { noun: string; section: string }> = {
   work_experience: { noun: 'Job', section: 'sec_work_experience' },
