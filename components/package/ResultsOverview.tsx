@@ -1,4 +1,6 @@
 'use client'
+import { ProcessingInline } from '@/components/ui/Processing'
+import { RESCORE_NOTES } from '@/lib/processingNotes'
 
 import Link from 'next/link'
 import { FileText, Mail, MessagesSquare, Mic, PenLine, Target, TrendingUp, type LucideIcon } from 'lucide-react'
@@ -179,6 +181,7 @@ export function ResultsOverview({
               >
                 {scoring ? 'Reading the job and scoring…' : 'Calculate ATS score'}
               </button>
+              {scoring ? <ProcessingInline steps={['Reading the job description', 'Scoring your CV before', 'Scoring your optimized CV']} stepMs={3500} notes={RESCORE_NOTES} /> : null}
               {scoreError ? <p className="text-[12.5px] text-alert">{scoreError}</p> : null}
             </>
           )}

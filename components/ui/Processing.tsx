@@ -74,11 +74,79 @@ function useRotation(count: number, ms: number = NOTE_MS): number {
 }
 
 /**
- * The moving art.
+ * The moving art — v2 (founder, 2026-10-02: "premium, clean, digitally
+ * improved… something stunning is coming", identical everywhere).
  *
- * Each ring is its own square layer rotating about its own centre, so no SVG
- * transform-origin arithmetic is needed and the three speeds never interfere.
+ * Three COMETS instead of flat arcs: each is a ring whose colour fades along
+ * its length into a glowing head (a conic gradient masked to a ring), so the
+ * motion reads as light travelling, not a spinner. Around them a faint
+ * digital dial, a few particles on their own slow orbits, rings that leave
+ * the core, a soft halo, and a glossy core with a light sweep across it.
+ *
+ * Every moving layer is its own square rotating about its centre, and only
+ * transform and opacity animate, so the compositor does all the work. Small
+ * sizes (inline waits) keep the comets and the core and drop the detail that
+ * would only be noise at 60px. One component, so every AI wait in the
+ * product shows the same art.
  */
+const ART = {
+  light: {
+    track: 'rgba(15,76,67,0.10)',
+    comet1: '201,150,46', // gold
+    comet2: '18,105,92', // teal bright
+    comet3: '201,150,46',
+    particle: '#C9962E',
+    dial: 'rgba(15,76,67,0.22)',
+    halo: 'radial-gradient(circle, rgba(18,105,92,0.16) 0%, rgba(201,150,46,0.10) 38%, rgba(255,255,255,0) 70%)',
+    ripple: 'rgba(18,105,92,0.35)',
+  },
+  dark: {
+    track: 'rgba(255,255,255,0.08)',
+    comet1: '233,199,122', // light gold
+    comet2: '127,209,190', // mint
+    comet3: '233,199,122',
+    particle: '#E9C77A',
+    dial: 'rgba(255,255,255,0.18)',
+    halo: 'radial-gradient(circle, rgba(127,209,190,0.22) 0%, rgba(233,199,122,0.14) 38%, rgba(0,0,0,0) 70%)',
+    ripple: 'rgba(233,199,122,0.45)',
+  },
+} as const
+
+/** A ring of `width` px whose colour fades along `sweep` degrees into a glowing head at 12 o'clock. */
+function Comet({ inset, width, rgb, sweep, reverse, track, head, className }: {
+  inset: string
+  width: number
+  rgb: string
+  sweep: number
+  /** Turning anticlockwise: the tail then trails on the other side of the head. */
+  reverse?: boolean
+  track: string
+  head: number
+  className: string
+}) {
+  const ring = `radial-gradient(farthest-side, transparent calc(100% - ${width}px), #000 calc(100% - ${width - 0.5}px))`
+  const gradient = reverse
+    ? `conic-gradient(from 0deg, rgba(${rgb},1) 0deg, rgba(${rgb},0) ${sweep}deg, transparent ${sweep}deg)`
+    : `conic-gradient(from ${-sweep}deg, transparent 0deg, rgba(${rgb},0) 0deg, rgba(${rgb},1) ${sweep}deg, transparent ${sweep}deg)`
+  return (
+    <div className={cn('absolute motion-reduce:animate-none', className)} style={{ inset }}>
+      <div className="absolute inset-0 rounded-full" style={{ boxShadow: `inset 0 0 0 ${Math.max(1, width / 2)}px ${track}` }} />
+      <div className="absolute inset-0 rounded-full" style={{ background: gradient, WebkitMask: ring, mask: ring }} />
+      <span
+        className="absolute left-1/2 rounded-full"
+        style={{
+          width: head,
+          height: head,
+          top: width / 2 - head / 2,
+          marginLeft: -head / 2,
+          background: `rgb(${rgb})`,
+          boxShadow: `0 0 ${head * 1.6}px ${head * 0.5}px rgba(${rgb},0.65)`,
+        }}
+      />
+    </div>
+  )
+}
+
 export function ProcessingOrbit({
   tone = 'light',
   size = 176,
@@ -86,95 +154,84 @@ export function ProcessingOrbit({
   className,
 }: {
   tone?: Tone
-  /** Diameter in px. The page screens use 176; inline waits use ~44. */
+  /** Diameter in px. The page screens use ~176; inline waits use ~60. */
   size?: number
   /** What sits in the core. The brand mark by default. */
   glyph?: React.ReactNode
   className?: string
 }) {
-  const dark = tone === 'dark'
-  // Stroke weights scale with size, so a 44px orbit is not all line.
-  const outer = dark ? 'stroke-white/15' : 'stroke-line-strong'
-  const mid = dark ? 'stroke-teal-soft/30' : 'stroke-teal/20'
-  const small = size < 80
+  const c = ART[tone]
+  const small = size < 96
+  // Line weights scale with size, clamped so a 56px orbit still reads.
+  const w = (f: number, min: number) => Math.max(min, Math.round(size * f * 10) / 10)
 
   return (
-    <div
-      aria-hidden="true"
-      className={cn('relative shrink-0', className)}
-      style={{ width: size, height: size }}
-    >
-      {/* Ripples leaving the core — the "something is happening" signal that
-          reads even in peripheral vision. Two, half a cycle apart. */}
+    <div aria-hidden="true" className={cn('relative shrink-0', className)} style={{ width: size, height: size }}>
+      {/* Halo — the soft light the whole thing sits in. */}
+      <div className="absolute -inset-[18%] rounded-full animate-halo motion-reduce:animate-none" style={{ background: c.halo }} />
+
       {!small ? (
         <>
-          <span
-            className={cn(
-              'absolute inset-[30%] rounded-full animate-ripple motion-reduce:hidden',
-              dark ? 'bg-gold/25' : 'bg-teal/15',
-            )}
-          />
-          <span
-            className={cn(
-              'absolute inset-[30%] rounded-full animate-ripple motion-reduce:hidden',
-              dark ? 'bg-gold/25' : 'bg-teal/15',
-            )}
-            style={{ animationDelay: '1.4s' }}
-          />
+          {/* Rings leaving the core, half a cycle apart. */}
+          {[0, 1.5].map((delay) => (
+            <span
+              key={delay}
+              className="absolute inset-[4%] rounded-full animate-ring-out motion-reduce:hidden"
+              style={{ border: `1px solid ${c.ripple}`, animationDelay: `${delay}s` }}
+            />
+          ))}
+          {/* The digital dial: fine ticks, turning very slowly. */}
+          <div className="absolute inset-0 animate-dial motion-reduce:animate-none">
+            <svg viewBox="0 0 100 100" className="size-full">
+              <circle cx="50" cy="50" r="49" fill="none" stroke={c.dial} strokeWidth="1.6" strokeDasharray="0.35 2.2" />
+              <circle cx="50" cy="50" r="49" fill="none" stroke={c.dial} strokeWidth="3" strokeDasharray="0.6 25.06" />
+            </svg>
+          </div>
+          {/* Particles, each on its own slow orbit. */}
+          {[
+            { inset: '6%', anim: 'animate-particle-1', d: 3, at: 'top' },
+            { inset: '19%', anim: 'animate-particle-2', d: 2.2, at: 'bottom' },
+            { inset: '11%', anim: 'animate-particle-3', d: 1.8, at: 'left' },
+          ].map((p) => (
+            <div key={p.inset} className={cn('absolute motion-reduce:hidden', p.anim)} style={{ inset: p.inset }}>
+              <span
+                className="absolute rounded-full"
+                style={{
+                  width: p.d,
+                  height: p.d,
+                  background: c.particle,
+                  boxShadow: `0 0 6px 1px ${c.particle}`,
+                  ...(p.at === 'top' ? { top: 0, left: '50%' } : p.at === 'bottom' ? { bottom: 0, left: '50%' } : { left: 0, top: '50%' }),
+                }}
+              />
+            </div>
+          ))}
         </>
       ) : null}
 
-      {/* Outer ring — dashed, slow, with a gold dot riding it. */}
-      <div className="absolute inset-0 animate-orbit-slow motion-reduce:animate-none">
-        <svg viewBox="0 0 100 100" className="size-full">
-          <circle cx="50" cy="50" r="47" fill="none" className={outer} strokeWidth={small ? 3 : 1} strokeDasharray="2 4" />
-          <circle cx="50" cy="3" r={small ? 5 : 2.6} className="fill-gold" />
-        </svg>
-      </div>
+      {/* Three comets: slow and wide outside, quick and short inside, the middle one turning back. */}
+      <Comet inset={small ? '0%' : '9%'} width={w(0.014, 2)} rgb={c.comet1} sweep={150} track={c.track} head={w(0.034, 3.5)} className="animate-comet-1" />
+      <Comet inset={small ? '15%' : '20%'} width={w(0.018, 2.5)} rgb={c.comet2} sweep={200} reverse track={c.track} head={w(0.03, 3)} className="animate-comet-2" />
+      <Comet inset={small ? '28%' : '30%'} width={w(0.02, 2.5)} rgb={c.comet3} sweep={95} track="transparent" head={w(0.026, 2.5)} className="animate-comet-3" />
 
-      {/* Middle ring — the other way round, faster, with a long arc on it. */}
-      <div className="absolute inset-[13%] animate-orbit-mid motion-reduce:animate-none">
-        <svg viewBox="0 0 100 100" className="size-full">
-          <circle cx="50" cy="50" r="46" fill="none" className={mid} strokeWidth={small ? 5 : 2} />
-          <circle
-            cx="50"
-            cy="50"
-            r="46"
-            fill="none"
-            className={dark ? 'stroke-teal-soft' : 'stroke-teal'}
-            strokeWidth={small ? 6 : 2.6}
-            strokeLinecap="round"
-            strokeDasharray="72 217"
-          />
-          <circle cx="96" cy="50" r={small ? 5 : 2.4} className={dark ? 'fill-white' : 'fill-teal'} />
-        </svg>
-      </div>
-
-      {/* Inner ring — fastest, a short gold arc. The eye locks onto this one. */}
-      <div className="absolute inset-[27%] animate-orbit-fast motion-reduce:animate-none">
-        <svg viewBox="0 0 100 100" className="size-full">
-          <circle
-            cx="50"
-            cy="50"
-            r="44"
-            fill="none"
-            className="stroke-gold"
-            strokeWidth={small ? 9 : 4}
-            strokeLinecap="round"
-            strokeDasharray="46 230"
-          />
-        </svg>
-      </div>
-
-      {/* The core. */}
+      {/* The core: glossy, breathing, with light sweeping round inside it. */}
       <div
-        className={cn(
-          'absolute inset-[36%] flex items-center justify-center rounded-full bg-teal font-display font-bold text-white animate-breathe motion-reduce:animate-none',
-          dark ? 'shadow-glow-gold' : 'shadow-m-2',
-        )}
-        style={{ fontSize: Math.max(10, Math.round(size * 0.12)) }}
+        className="absolute inset-[37%] overflow-hidden rounded-full animate-breathe motion-reduce:animate-none"
+        style={{
+          background: 'radial-gradient(circle at 32% 26%, #1F8A77 0%, #0F4C43 58%, #0A332D 100%)',
+          boxShadow: tone === 'dark' ? '0 0 22px 2px rgba(233,199,122,0.35), inset 0 1px 1px rgba(255,255,255,0.35)' : '0 6px 18px -4px rgba(15,76,67,0.45), inset 0 1px 1px rgba(255,255,255,0.35)',
+        }}
       >
-        {glyph}
+        <div
+          className="absolute -inset-1/2 animate-sheen motion-reduce:hidden"
+          style={{ background: 'conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.28) 40deg, transparent 80deg)' }}
+        />
+        <span
+          className="relative flex size-full items-center justify-center font-display font-bold text-white"
+          style={{ fontSize: Math.max(10, Math.round(size * 0.11)) }}
+        >
+          {glyph}
+        </span>
       </div>
     </div>
   )
@@ -310,9 +367,19 @@ export function ProcessingInline({
   const note = useRotation(notes?.length ?? 0)
 
   return (
-    <div className={cn('flex items-center gap-4 rounded-card border border-teal/20 bg-teal-soft/40 px-4 py-3.5', className)}>
-      <ProcessingOrbit size={48} glyph="" />
+    <div
+      className={cn('flex items-center gap-4 rounded-card border border-teal/15 px-4 py-4 shadow-m-1', className)}
+      style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #F3F7F5 55%, #FBF6EA 100%)' }}
+    >
+      <ProcessingOrbit size={64} glyph="" />
       <div className="flex min-w-0 flex-col gap-1">
+        {steps.length > 1 ? (
+          <span aria-hidden="true" className="flex gap-1">
+            {steps.map((s, n) => (
+              <span key={s} className={cn('h-1 rounded-full transition-all duration-500', n < i ? 'w-3 bg-teal' : n === i ? 'w-6 bg-gold' : 'w-3 bg-line-strong')} />
+            ))}
+          </span>
+        ) : null}
         <span className="text-[14px] font-semibold text-ink" key={steps[i]}>
           <span className="animate-fade-in">{steps[i]}…</span>
         </span>

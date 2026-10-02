@@ -5,8 +5,8 @@ import { PageSkeleton } from '@/components/ui/Skeleton'
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
-import { setupNotes } from '@/lib/processingNotes'
+import { ProcessingInline, ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
+import { CHECK_NOTES, setupNotes } from '@/lib/processingNotes'
 import { Card } from '@/components/ui/Card'
 import { FlowHeader } from '@/components/optimizer/FlowHeader'
 import { cn } from '@/lib/utils'
@@ -522,10 +522,11 @@ function JobCheckCard({ state, check }: { state: 'idle' | 'loading' | 'done' | '
   if (state === 'idle' || state === 'error') return null
   if (state === 'loading' || !check) {
     return (
-      <Card tone="light" className="flex items-center gap-3 p-4">
-        <span aria-hidden className="size-2.5 animate-pulse rounded-full bg-teal" />
-        <p className="text-[13px] text-ink-soft">Checking this job against your Career Profile… about 10 seconds.</p>
-      </Card>
+      <ProcessingInline
+        steps={['Reading the job description', 'Matching it to your Career Profile', 'Working out your best score per level', 'Finding certificates the job asks for']}
+        stepMs={2800}
+        notes={CHECK_NOTES}
+      />
     )
   }
   const tone =

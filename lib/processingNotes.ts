@@ -61,6 +61,30 @@ export function setupNotes(hasJobDescription: boolean): readonly string[] {
  * on success the page opens /package/[id] — the finished resume, where it is
  * viewed, styled, edited and downloaded.
  */
+/**
+ * Checking a job against the profile — the level screen's job check,
+ * POST /api/optimize/check (optimizer v3).
+ * Source: lib/optimizer/v3/service.ts — one cached analysis the build reuses;
+ * checkReport's ceilings ("up to") per level; askCertifications offered,
+ * never written (buildV3 never adds a certificate).
+ */
+export const CHECK_NOTES: readonly string[] = [
+  'Nothing is written yet. This only reads what the job asks for and what your profile already shows.',
+  'The job is read once. Your CV is then written from the same reading, so the next step is quicker.',
+  'Each level gets an honest best score — what your real experience can reach.',
+  'Certificates the job asks for are offered to you, never written into your CV.',
+]
+
+/**
+ * Calculating the ATS score of a saved CV — POST /api/packages/[id]/ats-score.
+ * Source: that route reads the job again and scores the CV before and after;
+ * the CV text is not changed.
+ */
+export const RESCORE_NOTES: readonly string[] = [
+  'Your CV text stays as it is. Only the score is worked out.',
+  'Before and after are scored against the same reading of the job.',
+]
+
 export const GENERATE_NOTES: readonly string[] = [
   'Your employers, job titles and dates are kept exactly as your profile states them.',
   'Any line that cannot be traced to your profile is sent back and rewritten.',
