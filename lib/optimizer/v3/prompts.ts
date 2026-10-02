@@ -9,6 +9,7 @@
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizationLevel } from '@/types/package'
 import { totalExperienceYears } from '@/lib/experienceYears'
+import { sortExperienceNewestFirst } from '@/lib/resumeOrder'
 
 export const ANALYSIS_SYSTEM = `You compare ONE job with ONE candidate's work experience, for a Gulf CV tool.
 
@@ -106,8 +107,8 @@ ${LEVEL_TEXT[level]}${newPoints}`
 export interface JobKey { key: string; id: string }
 
 export function jobKeys(profile: CareerProfileFull): JobKey[] {
-  return [...(profile.work_experience ?? [])]
-    .sort((a, b) => a.sort_order - b.sort_order)
+  // Newest first, like the CV: job-1 is the current (or latest) job.
+  return sortExperienceNewestFirst(profile.work_experience ?? [])
     .map((e, i) => ({ key: `job-${i + 1}`, id: e.id }))
 }
 
@@ -143,7 +144,7 @@ function yearsLine(profile: CareerProfileFull): string {
 }
 
 export function currentTitle(profile: CareerProfileFull): string {
-  const e = [...(profile.work_experience ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0]
+  const e = sortExperienceNewestFirst(profile.work_experience ?? [])[0]
   return e?.role ?? '(none — first job)'
 }
 

@@ -33,6 +33,7 @@ const TS_CHECKS = [
   'verify-resume-parse.ts',
   'verify-match-terms.ts',
   'verify-optimizer-v3.ts',
+  'verify-resume-order.ts',
   'verify-service-outputs.ts',
   'verify-landing-anchors.ts',
   'verify-runtask.ts',

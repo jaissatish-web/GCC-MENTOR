@@ -1,4 +1,5 @@
 import { stripIdNumbers } from '@/lib/idNumbers'
+import { sortCertificationsNewestFirst, sortEducationNewestFirst, sortExperienceNewestFirst } from '@/lib/resumeOrder'
 import type {
   CareerProfileFull,
   FieldVisibility,
@@ -280,9 +281,8 @@ export function buildResumeDocument({
   const blocksById = new Map(
     (optimizedContent.experience_blocks ?? []).map((b) => [b.profile_experience_id, b])
   )
-  const experience: ResumeExperienceItem[] = (profile.work_experience ?? [])
-    .slice()
-    .sort((a, b) => a.sort_order - b.sort_order)
+  // Newest first (lib/resumeOrder.ts); the CV editor can still reorder.
+  const experience: ResumeExperienceItem[] = sortExperienceNewestFirst(profile.work_experience ?? [])
     .map((entry) => {
       const block = blocksById.get(entry.id)
       const bullets =
@@ -310,9 +310,7 @@ export function buildResumeDocument({
   const skills = [...orderedSkills, ...remainingSkills]
 
   // ---- Certifications -----------------------------------------------------
-  const certifications: ResumeCertificationItem[] = (profile.certifications ?? [])
-    .slice()
-    .sort((a, b) => a.sort_order - b.sort_order)
+  const certifications: ResumeCertificationItem[] = sortCertificationsNewestFirst(profile.certifications ?? [])
     .map((entry) => {
       const year = entry.issue_date ? /^(\d{4})/.exec(entry.issue_date)?.[1] : null
       const label = joinParts([entry.name, entry.issuer], ' — ')
@@ -320,9 +318,7 @@ export function buildResumeDocument({
     })
 
   // ---- Education ----------------------------------------------------------
-  const education: ResumeEducationItem[] = (profile.education ?? [])
-    .slice()
-    .sort((a, b) => a.sort_order - b.sort_order)
+  const education: ResumeEducationItem[] = sortEducationNewestFirst(profile.education ?? [])
     .map((entry) => {
       // "B.E. Instrumentation & Control — Anna University"
       const qualification = joinParts([entry.degree, entry.field_of_study], ' ')
