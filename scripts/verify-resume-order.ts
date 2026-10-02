@@ -85,6 +85,13 @@ check('no licence line when the profile says no', !doc.certifications.some((c) =
 const dup = buildResumeDocument({ profile: { ...profile, has_driving_license: true, driving_license_country: 'UAE', certifications: [{ id: 'x', profile_id: 'p', name: 'UAE Driving License', issuer: null, issue_date: null, expiry_date: null, sort_order: 0, created_at: '' }] } as unknown as CareerProfileFull, optimizedContent: { summary: { generated: '', source_profile_summary: '' }, experience_blocks: [] } as never, skillsOrder: [], fieldVisibility: null, targetJobTitle: 'X' })
 check('not listed twice when a certificate already names it', dup.certifications.filter((c) => /Driving/i.test(c.display)).length === 1)
 
+console.log('visa transfer on the CV (launch audit: not answered must print nothing)')
+const visaDoc = (v: boolean | null) => buildResumeDocument({ profile: { ...profile, visa_transferable: v } as CareerProfileFull, optimizedContent: { summary: { generated: '', source_profile_summary: '' }, experience_blocks: [] } as never, skillsOrder: [], fieldVisibility: null, targetJobTitle: 'X' })
+const line = (d: ReturnType<typeof visaDoc>) => [d.header.identityPrimary, d.header.identityGulf].join(' ')
+check('not answered: nothing about visa transfer', !/transfer/i.test(line(visaDoc(null))), line(visaDoc(null)))
+check('answered yes: shown', /Transferable visa/.test(line(visaDoc(true))))
+check('answered no: shown only because the user chose it', /not transferable/.test(line(visaDoc(false))))
+
 if (failures) {
   console.log(`\n${failures} failed`)
   process.exit(1)

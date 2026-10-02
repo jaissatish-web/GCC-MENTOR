@@ -180,7 +180,8 @@ interface EditorData {
   passport_type: string
   passport_validity_date: string
   visa_status: string
-  visa_transferable: boolean
+  /** null = not answered: nothing is printed on the CV (launch audit 2026-10-02 — a default "No" printed "Visa not transferable"). */
+  visa_transferable: boolean | null
   notice_period: string
   current_location: string
   phone: string
@@ -229,7 +230,7 @@ function emptyEditor(): EditorData {
     passport_type: '',
     passport_validity_date: '',
     visa_status: '',
-    visa_transferable: false,
+    visa_transferable: null,
     notice_period: '',
     current_location: '',
     phone: '',
@@ -338,7 +339,7 @@ function fromDraft(d: CareerProfileDraft): EditorData {
     passport_type: str(d.passport_type),
     passport_validity_date: toDateInputValue(d.passport_validity_date),
     visa_status: str(d.visa_status),
-    visa_transferable: d.visa_transferable ?? false,
+    visa_transferable: typeof d.visa_transferable === 'boolean' ? d.visa_transferable : null,
     notice_period: str(d.notice_period),
     current_location: str(d.current_location),
     // Pre-set on the review form when the CV places the candidate in the GCC.
@@ -375,7 +376,7 @@ function fromFull(p: CareerProfileFull): EditorData {
     passport_type: str(p.passport_type),
     passport_validity_date: toDateInputValue(p.passport_validity_date),
     visa_status: str(p.visa_status),
-    visa_transferable: p.visa_transferable === true,
+    visa_transferable: typeof p.visa_transferable === 'boolean' ? p.visa_transferable : null,
     notice_period: str(p.notice_period),
     current_location: str(p.current_location),
     phone: str(p.phone),
@@ -2313,13 +2314,20 @@ function ProfileScreen() {
               onChange={(e) => setField({ notice_period: e.target.value })}
             />
             <div className="sm:col-span-2">
-              <ConfirmToggle
+              {/* Three answers, not an on/off switch: "not answered" stays empty and
+                  prints nothing on the CV (launch audit 2026-10-02). */}
+              <FieldLabel htmlFor="f_visa_transferable">Can your visa be transferred to a new employer?</FieldLabel>
+              <select
                 id="f_visa_transferable"
-                label="My visa can be transferred"
-                hint="Can your Iqama or work visa move to a new employer without you leaving the country?"
-                checked={editor.visa_transferable}
-                onChange={(v) => setField({ visa_transferable: v })}
-              />
+                className={selectClass}
+                value={editor.visa_transferable === null ? '' : editor.visa_transferable ? 'yes' : 'no'}
+                onChange={(e) => setField({ visa_transferable: e.target.value === '' ? null : e.target.value === 'yes' })}
+              >
+                <option value="">Not answered — not shown on my CV</option>
+                <option value="yes">Yes, it can be transferred</option>
+                <option value="no">No</option>
+              </select>
+              <p className="mt-1 text-[12px] leading-snug text-ink-soft">Your Iqama or work visa moving to a new employer without you leaving the country. Shown on your CV only if you answer.</p>
             </div>
             {/* GULF PAPERWORK (Gulf Readiness v2, 2026-10-01, migration 060).
                 Optional and private: they drive the readiness verdict and the
