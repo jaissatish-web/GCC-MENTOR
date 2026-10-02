@@ -183,7 +183,8 @@ console.log('\nThe band header cannot be pulled above the printed page')
 // padding in print; if the negative margin survives, the band and the top half
 // of the name are pulled above the page box and clipped by the paper edge.
 // Measured before the fix: header at -38px, name at -19px, both off-paper.
-const pdfRoute = readFileSync('app/api/packages/[id]/pdf/route.ts', 'utf8')
+// The print CSS moved with the PDF builder into lib/pdf/renderPackage.ts (2026-10-02).
+const pdfRoute = readFileSync('lib/pdf/renderPackage.ts', 'utf8')
 const printBlock = pdfRoute.slice(pdfRoute.indexOf('@media print'))
 check(
   'print CSS zeroes the page top padding',
