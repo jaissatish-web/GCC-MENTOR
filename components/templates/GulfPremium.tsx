@@ -99,7 +99,10 @@ const sectionLabelStyle: React.CSSProperties = {
   fontFamily: T.sans,
   fontSize: SIZE.sectionLabel,
   fontWeight: 600,
-  letterSpacing: '0.14em',
+  // 0.06em, not 0.14em (2026-10-02, ATS file check): at 0.14em text readers
+  // split each letter, so an ATS read "P R O F E S S I O N A L  S U M M A R Y"
+  // and recognised no section at all. 0.06em still reads as spaced capitals.
+  letterSpacing: '0.06em',
   textTransform: 'uppercase',
   color: T.inkWarm,
   marginTop: '16px',

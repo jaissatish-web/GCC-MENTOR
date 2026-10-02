@@ -1,6 +1,7 @@
 'use client'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { RESCORE_NOTES } from '@/lib/processingNotes'
+import { AtsFileCheck } from '@/components/package/AtsFileCheck'
 
 import Link from 'next/link'
 import { FileText, Mail, MessagesSquare, Mic, PenLine, Target, TrendingUp, type LucideIcon } from 'lucide-react'
@@ -224,6 +225,9 @@ export function ResultsOverview({
           </Link>
         </article>
       </div>
+
+      {/* ATS FILE CHECK — the downloaded PDF read back like an ATS (2026-10-02) */}
+      <AtsFileCheck packageId={pkg.id} />
 
       {/* NEXT STEPS — one coloured tile per service */}
       <div className="grid gap-3 sm:grid-cols-3">

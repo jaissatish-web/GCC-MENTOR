@@ -34,6 +34,7 @@ const TS_CHECKS = [
   'verify-match-terms.ts',
   'verify-optimizer-v3.ts',
   'verify-resume-order.ts',
+  'verify-ats-file-check.ts',
   'verify-service-outputs.ts',
   'verify-landing-anchors.ts',
   'verify-runtask.ts',

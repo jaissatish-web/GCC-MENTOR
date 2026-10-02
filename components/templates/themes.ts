@@ -53,7 +53,7 @@ export const GCC_ENGINEERING: TemplateTheme = {
   // Engineering CVs in the Gulf lead with capability, not narrative.
   labels: {
     summary: 'Professional Profile',
-    skills: 'Technical Expertise',
+    skills: 'Technical Skills', // was 'Technical Expertise': not every ATS maps it to Skills (file check 2026-10-02)
     certifications: 'Certifications & Standards',
     additional: 'Projects & Additional Information',
   },

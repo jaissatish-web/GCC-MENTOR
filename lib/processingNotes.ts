@@ -103,3 +103,15 @@ export const COVER_LETTER_NOTES: readonly string[] = [
   'A draft that mentions anything not in your profile is sent back and rewritten.',
   'The tone changes how it sounds, never what it says about you.',
 ]
+
+/**
+ * Checking the downloaded PDF the way an ATS reads it —
+ * POST /api/packages/[id]/file-check.
+ * Source: lib/pdf/renderPackage.ts (the same renderer as the download) and
+ * lib/atsFileCheck.ts (plain text extraction, no model call, nothing written).
+ */
+export const FILE_CHECK_NOTES: readonly string[] = [
+  'This is the same PDF your Download button gives you, in your chosen design.',
+  'It is read with a plain text reader, the way applicant tracking systems read a file.',
+  'Nothing in your CV changes — this only checks it.',
+]
