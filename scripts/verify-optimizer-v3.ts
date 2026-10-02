@@ -14,7 +14,7 @@
  */
 
 import './resolve-paths'
-import { hasNumber, hasOwnDuties, numbersIn, ownShare, trimFiller, trimStuffedTails, type WrittenJob } from '../lib/optimizer/v3/engine'
+import { hasNumber, hasOwnDuties, numbersIn, ownShare, trimFiller, trimStuffedTails, withOpener, workedInGcc, type WrittenJob } from '../lib/optimizer/v3/engine'
 import { profileHolds, profileListsSkill, regroupCertifications, v3Hash } from '../lib/optimizer/v3/service'
 import type { AnalysisV3 } from '../lib/optimizer/v3/engine'
 import { looksLikeAdvert, normTitle, typicalKey } from '../lib/optimizer/v3/typicalAdvert'
@@ -42,6 +42,16 @@ console.log('jobs with no duties (launch audit: nothing to reword)')
 check('a job with duties has its own duties', hasOwnDuties({ highlights: ['Managed AP for 400+ vendors'] }))
 check('a job listed with no duties has none', !hasOwnDuties({ highlights: [] }) && !hasOwnDuties({ highlights: null, description: '  ' }))
 check('a description counts as duties', hasOwnDuties({ highlights: [], description: 'Handled payroll for 200 staff' }))
+
+console.log('summary: Gulf wording and the opening line (launch audit)')
+const acct = { professional_summary: 'Audit Associate with 7+ years of experience across India.', work_experience: [
+  { id: 'a', role: 'Accountant', company: 'Voltas', location: 'Mumbai, India', start_date: '2025-02-01', end_date: null, sort_order: 0 },
+  { id: 'b', role: 'Senior Accountant', company: 'Arabtec Construction LLC', location: 'Muscat, Oman', start_date: '2019-12-01', end_date: '2022-10-01', sort_order: 1 },
+] } as unknown as CareerProfileFull
+check('a role in Muscat, Oman counts as Gulf experience', workedInGcc(acct))
+check('India-only experience does not', !workedInGcc({ ...acct, work_experience: [acct.work_experience[0]] } as CareerProfileFull))
+check('a summary without an opening gets one from the profile', withOpener('Skilled in IFRS and VAT.', acct) === 'Accountant with 7+ years of experience. Skilled in IFRS and VAT.')
+check('a summary that opens with the title is left alone', withOpener('Accountant with 7+ years in IFRS.', acct) === 'Accountant with 7+ years in IFRS.')
 
 console.log('numbers kept')
 check('finds every number', JSON.stringify(numbersIn('a team of 25 on a 40-storey tower worth AED 1,200,000 (12.5%)')) === JSON.stringify(['25', '40', '1,200,000', '12.5']))

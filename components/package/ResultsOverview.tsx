@@ -65,7 +65,12 @@ export function ResultsOverview({
   const summary = (document?.summary ?? '').trim()
   const blocks = pkg.optimized_content?.experience_blocks ?? []
   const rewritten = blocks.filter((b) => b.was_optimized).length
-  const summaryWritten = Boolean(pkg.optimized_content?.summary?.generated?.trim() || pkg.optimized_content?.summary?.user_edited?.trim())
+  // "Rewritten" only when the text really differs from the profile (launch
+  // audit 2026-10-02: saving the review page stored the UNCHANGED summary as
+  // edited, and this said "Summary rewritten" beside the original text).
+  const summaryNow = (pkg.optimized_content?.summary?.user_edited ?? pkg.optimized_content?.summary?.generated ?? '').trim()
+  const summarySource = (pkg.optimized_content?.summary?.source_profile_summary ?? '').trim()
+  const summaryWritten = summaryNow !== '' && summaryNow.replace(/\s+/g, ' ') !== summarySource.replace(/\s+/g, ' ')
   // Claimed only when the build recorded a real re-rank (older rows make no claim).
   const skillsOrdered = pkg.optimized_content?.skills_reordered === true ? 1 : 0
   const confirmed = (report?.suggestions ?? []).filter((s) => s.status === 'confirmed').length
@@ -214,7 +219,7 @@ export function ResultsOverview({
         <article className="flex flex-col gap-2 rounded-card border border-gold/40 bg-gold-soft/60 p-4">
           <CardLabel tone="text-gold-ink" icon={PenLine}>What changed</CardLabel>
           <ul className="flex flex-col gap-1.5 text-[13px] text-ink">
-            <Change ok={summaryWritten}>{summaryWritten ? 'Summary rewritten for this job' : 'Summary written from your profile facts'}</Change>
+            <Change ok={summaryWritten}>{summaryWritten ? 'Summary rewritten for this job' : summarySource ? 'Summary kept as in your profile' : 'Summary written from your profile facts'}</Change>
             <Change ok={rewritten > 0}>
               {rewritten} of {blocks.length} role{blocks.length === 1 ? '' : 's'} rewritten
             </Change>

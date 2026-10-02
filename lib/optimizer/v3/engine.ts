@@ -18,10 +18,11 @@ import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizationLevel } from '@/types/package'
 import { containsTermRaw, contentStems, sharesContentStem, stemsMatch } from '../text'
-import { totalExperienceYears } from '@/lib/experienceYears'
+import { gccExperience, totalExperienceYears } from '@/lib/experienceYears'
+import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 import { entrySourceText } from '../evidence'
 import type { JobTargetProfile, KeywordKind } from '../types'
-import { ANALYSIS_SYSTEM, analysisUser, jobKeys, maxNewPoints, writerSystem, writerUser, type WriterLists } from './prompts'
+import { ANALYSIS_SYSTEM, analysisUser, currentTitle, jobKeys, maxNewPoints, writerSystem, writerUser, type WriterLists } from './prompts'
 
 export type Group = 'A' | 'B' | 'C'
 export type FieldMatch = 'same' | 'related' | 'different'
@@ -205,6 +206,32 @@ export function hasOwnDuties(e: { highlights?: string[] | null; description?: st
   return (e.highlights ?? []).some((h) => h.trim() !== '') || !!e.description?.trim()
 }
 
+/**
+ * Region words a candidate who WORKED in the Gulf may use (launch audit
+ * 2026-10-02): his roles named Oman, so "Gulf experience" was rejected as a
+ * word copied from the advert and the whole summary was thrown away.
+ */
+export const REGION_WORDS = ['Gulf', 'GCC', 'Arabian Gulf', 'Middle East', 'MENA', 'Gulf region', 'GCC region']
+
+export function workedInGcc(profile: CareerProfileFull): boolean {
+  return gccExperience(profile.work_experience ?? [], (l) => gccCountryFromLocation(l)?.country ?? null).roles > 0
+}
+
+/**
+ * The summary always opens with who the candidate is: their own current title
+ * and the years they state. When the opening sentence was dropped by a check
+ * (or never written), it is rebuilt from the profile, never from the advert.
+ */
+export function withOpener(summary: string, profile: CareerProfileFull): string {
+  const title = currentTitle(profile)
+  if (!summary.trim() || !title || title.startsWith('(none')) return summary
+  const first = summary.split(/(?<=[.!?])\s+/)[0] ?? ''
+  if (first.toLowerCase().includes(title.toLowerCase()) || /\d+\+?\s*(?:years?|yrs)/i.test(first)) return summary
+  const stated = profile.professional_summary?.match(/(\d{1,2})\+?\s*(?:years?|yrs)/i)?.[1]
+  const years = stated ?? (totalExperienceYears(profile) || null)
+  return `${years ? `${title} with ${years}+ years of experience.` : `Experienced ${title}.`} ${summary}`
+}
+
 /** Added lines allowed for a job with no duties: few, and never more than the level allows. */
 export const NO_DUTY_CAP = 3
 
@@ -374,6 +401,8 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
   }
   // The level's list-B terms may sit in any job of the same field (enhanced rewrites).
   for (const k of keys) approved.set(k.id, [...(approved.get(k.id) ?? []), ...addable.map((r) => r.term)])
+  // Someone who worked in the Gulf may say so.
+  if (workedInGcc(profile)) for (const loc of ['summary', ...keys.map((k) => k.id)]) approved.set(loc, [...(approved.get(loc) ?? []), ...REGION_WORDS])
   approved.set('summary', [...(approved.get('summary') ?? []), ...a.requirements.filter((x) => x.group === 'A').map((x) => x.term), ...addable.map((x) => x.term)])
   const importText = jd?.trim() ? jd : a.requirements.map((r) => r.term).join('\n')
   const asOutput = {
@@ -418,6 +447,11 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
       if (clean.length >= 2) finalSummary = clean.join(' ')
       else failedOwners.add('summary')
     }
+  }
+  if (finalSummary && !failedOwners.has('summary')) {
+    const opened = withOpener(finalSummary, profile)
+    if (opened !== finalSummary) caught.push('summary_opener_restored')
+    finalSummary = opened
   }
   const summaryKeptOriginal = !finalSummary || failedOwners.has('summary')
   const allTerms = a.requirements.map((r) => r.term)
