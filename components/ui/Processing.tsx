@@ -91,7 +91,7 @@ function useRotation(count: number, ms: number = NOTE_MS): number {
  */
 const ART = {
   light: {
-    track: 'rgba(15,76,67,0.10)',
+    track: 'rgba(15,76,67,0.13)',
     comet1: '201,150,46', // gold
     comet2: '18,105,92', // teal bright
     comet3: '201,150,46',
@@ -210,13 +210,13 @@ export function ProcessingOrbit({
       ) : null}
 
       {/* Three comets: slow and wide outside, quick and short inside, the middle one turning back. */}
-      <Comet inset={small ? '0%' : '9%'} width={w(0.014, 2)} rgb={c.comet1} sweep={150} track={c.track} head={w(0.034, 3.5)} className="animate-comet-1" />
-      <Comet inset={small ? '15%' : '20%'} width={w(0.018, 2.5)} rgb={c.comet2} sweep={200} reverse track={c.track} head={w(0.03, 3)} className="animate-comet-2" />
-      <Comet inset={small ? '28%' : '30%'} width={w(0.02, 2.5)} rgb={c.comet3} sweep={95} track="transparent" head={w(0.026, 2.5)} className="animate-comet-3" />
+      <Comet inset={small ? '0%' : '9%'} width={w(0.02, 2.5)} rgb={c.comet1} sweep={150} track={c.track} head={w(0.04, 4)} className="animate-comet-1" />
+      <Comet inset={small ? '15%' : '20%'} width={w(0.024, 3)} rgb={c.comet2} sweep={200} reverse track={c.track} head={w(0.036, 3.5)} className="animate-comet-2" />
+      <Comet inset={small ? '28%' : '30%'} width={w(0.026, 3)} rgb={c.comet3} sweep={95} track="transparent" head={w(0.03, 3)} className="animate-comet-3" />
 
       {/* The core: glossy, breathing, with light sweeping round inside it. */}
       <div
-        className="absolute inset-[37%] overflow-hidden rounded-full animate-breathe motion-reduce:animate-none"
+        className="absolute inset-[35%] overflow-hidden rounded-full animate-breathe motion-reduce:animate-none"
         style={{
           background: 'radial-gradient(circle at 32% 26%, #1F8A77 0%, #0F4C43 58%, #0A332D 100%)',
           boxShadow: tone === 'dark' ? '0 0 22px 2px rgba(233,199,122,0.35), inset 0 1px 1px rgba(255,255,255,0.35)' : '0 6px 18px -4px rgba(15,76,67,0.45), inset 0 1px 1px rgba(255,255,255,0.35)',
@@ -371,7 +371,7 @@ export function ProcessingInline({
       className={cn('flex items-center gap-4 rounded-card border border-teal/15 px-4 py-4 shadow-m-1', className)}
       style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #F3F7F5 55%, #FBF6EA 100%)' }}
     >
-      <ProcessingOrbit size={64} glyph="" />
+      <ProcessingOrbit size={72} glyph="" />
       <div className="flex min-w-0 flex-col gap-1">
         {steps.length > 1 ? (
           <span aria-hidden="true" className="flex gap-1">
