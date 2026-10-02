@@ -66,5 +66,21 @@ console.log('\nA build the AI mostly did not answer is a failure, not a result')
   check('duplicate entries for one block count once', mostlyUnanswered({ kept_original: [{ block: 'summary', reason: 'no_output' }, { block: 'summary', reason: 'no_output' }] } as never, { summary: true, experienceIds: ['a', 'b'] }).unanswered === 1)
 }
 
+console.log('\nEvery form of a British -ise verb is one word (2026-10-02, scripts/opt-lab)')
+{
+  const { stems } = require('../lib/optimizer/text') as typeof import('../lib/optimizer/text')
+  const same = (a: string, b: string) => stems(a)[0] === stems(b)[0]
+  check('"liaise" = "liaised" = "liaising"', same('liaise', 'liaised') && same('liaise', 'liaising'))
+  check('"supervise" = "supervised"', same('supervise', 'supervised'))
+  check('"rise" and "raise" stay unconverted', stems('rise')[0] === 'ris' && stems('raise')[0] === 'rais')
+
+  const { extractNamedEntities } = require('../lib/ai/profileEntities') as typeof import('../lib/ai/profileEntities')
+  const ents = (t: string) => [...extractNamedEntities(t)]
+  check('a present-tense verb opening a bullet is not a name ("Coordinate…")', !ents('Coordinate material approvals with consultants.').includes('coordinate'))
+  check('a summary opener is not a name ("Proven…")', !ents('Proven record of on-time delivery.').includes('proven'))
+  check('a product opening a bullet is still a name ("Revit…")', ents('Revit models for 12 towers.').includes('revit'))
+  check('a verb mid-sentence in capitals is still checked ("using Coordinate")', ents('Modelled the plant using Coordinate Pro.').includes('coordinate pro'))
+}
+
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} FAILED\n`)
 process.exit(failures === 0 ? 0 : 1)

@@ -65,6 +65,33 @@ const OPENING_VERBS = new Set([
 ])
 
 /**
+ * Present-tense action verbs and summary openers (2026-10-02). A current role
+ * is written in the present tense ("Coordinate approvals…", "Lead a team…") and
+ * a summary opens with "Proven…" or "Adept…". Capitalised only because they
+ * open a sentence, they were read as names copied from the advert, and one such
+ * word threw away a whole rewritten job (measured in scripts/opt-lab). Only a
+ * SINGLE word at the START of a sentence is skipped — "Revit", "Python",
+ * "NEBOSH" and every multi-word name are still entities.
+ */
+const OPENING_WORDS = new Set([
+  'lead', 'manage', 'oversee', 'coordinate', 'supervise', 'review', 'prepare', 'conduct', 'ensure', 'deliver',
+  'develop', 'design', 'implement', 'maintain', 'monitor', 'plan', 'direct', 'drive', 'handle', 'support', 'assist',
+  'perform', 'execute', 'inspect', 'test', 'commission', 'install', 'operate', 'train', 'mentor', 'liaise', 'negotiate',
+  'resolve', 'analyse', 'analyze', 'report', 'track', 'control', 'administer', 'organise', 'organize', 'schedule',
+  'process', 'provide', 'achieve', 'improve', 'reduce', 'increase', 'optimise', 'optimize', 'streamline', 'establish',
+  'build', 'create', 'launch', 'secure', 'close', 'grow', 'expand', 'generate', 'serve', 'care', 'assess', 'document',
+  'verify', 'audit', 'approve', 'procure', 'source', 'purchase', 'sell', 'promote', 'present', 'communicate',
+  'collaborate', 'partner', 'advise', 'consult', 'evaluate', 'identify', 'recruit', 'hire', 'onboard', 'reconcile',
+  'record', 'update', 'respond', 'greet', 'load', 'unload', 'transport', 'dispatch', 'ship', 'receive', 'store',
+  'calculate', 'estimate', 'measure', 'draft', 'deploy', 'integrate', 'migrate', 'configure', 'troubleshoot', 'repair',
+  'upgrade', 'write', 'teach', 'instruct', 'guide', 'spearhead', 'own', 'run', 'steer', 'head', 'facilitate', 'enable',
+  'apply', 'use', 'utilise', 'utilize', 'leverage', 'adopt', 'prioritise', 'prioritize', 'mobilise', 'mobilize',
+  'proven', 'adept', 'seasoned', 'accomplished', 'dedicated', 'dynamic', 'versatile', 'highly', 'strong', 'expert',
+  'passionate', 'reliable', 'motivated', 'committed', 'competent', 'knowledgeable', 'resourceful', 'bilingual',
+  'currently', 'responsible', 'solid', 'extensive', 'proficient', 'talented', 'thorough', 'diligent', 'results-driven', 'results-oriented', 'detail-oriented', 'hands-on',
+])
+
+/**
  * Multi-word proper-noun-ish phrases and standalone identifiers. Catches
  * "NEOM Green Hydrogen Company", "Triconex TS3000", "NEBOSH" and "ISO 9001"
  * without needing to know what any of them are.
@@ -88,8 +115,8 @@ export function extractNamedEntities(text: string | null | undefined): Set<strin
       // bullet ("Python scripts…", "Revit models…") is still an entity.
       if (
         !/\s/.test(m) &&
-        /^[A-Z][a-z]+$/.test(m) &&
-        (/(ed|ing)$/.test(m) || OPENING_VERBS.has(m.toLowerCase())) &&
+        /^[A-Z][a-z-]+$/.test(m) &&
+        (/(ed|ing)$/.test(m) || OPENING_VERBS.has(m.toLowerCase()) || OPENING_WORDS.has(m.toLowerCase())) &&
         /(^|[.!?:;•\n-]\s*)$/.test(text.slice(0, match.index ?? 0))
       ) {
         continue

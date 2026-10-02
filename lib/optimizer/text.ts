@@ -29,7 +29,12 @@ const TERM_STOPWORDS = new Set(['and', 'of', 'the', 'in', 'for', 'with', 'to', '
 function americanize(token: string): string {
   return token
     .replace(/isation(s?)$/, 'ization$1')
-    .replace(/is(e|ed|es|ing)$/, (m, end) => (token.length > 6 ? 'iz' + end : m))
+    // Decided on the ROOT, not the whole word (2026-10-02): "liaised" (7 letters)
+    // was converted and "liaise" (6) was not, so a rewrite that changed the tense
+    // read as a new word imported from the advert and the whole job was thrown
+    // away. Roots of 3+ letters convert in every form; "rise", "raise", "wise",
+    // "noise" (roots of 1–2 letters) never do.
+    .replace(/is(e|ed|es|ing)$/, (m, end) => (token.length - m.length >= 3 ? 'iz' + end : m))
     .replace(/yse(d|s)?$/, (m, end) => 'yze' + (end ?? ''))
     // "analysers", "analyser", "analysing" (2026-09-23): a real I&C CV wrote
     // "analysers" and a Saudi advert asked for "Analyzers" — a false gap.

@@ -1,0 +1,1358 @@
+{
+  "fresher": {
+    "full_name": "Arjun Mehta",
+    "professional_summary": "Recent mechanical engineering graduate with hands-on internship experience in construction project support and a strong final-year project in thermal system optimization. Seeking to leverage CAD, simulation, and problem-solving skills in a dynamic engineering role.",
+    "work_experience": [
+      {
+        "role": "Mechanical Engineering Intern",
+        "company": "Sharma Construction Pvt. Ltd.",
+        "location": "Pune, India",
+        "start_date": "2025-01",
+        "end_date": "2025-06",
+        "highlights": [
+          "Assisted site engineers in reviewing structural drawings and ensuring compliance with mechanical specifications, contributing to timely project milestones.",
+          "Conducted material quality checks and coordinated with vendors to resolve discrepancies, reducing material rejection rate by 12%.",
+          "Prepared daily progress reports and maintained inventory logs for mechanical tools and equipment.",
+          "Supported installation of HVAC ducting and piping systems, gaining practical exposure to on-site execution."
+        ]
+      }
+    ],
+    "skills": [
+      "SolidWorks",
+      "AutoCAD",
+      "ANSYS",
+      "MATLAB",
+      "Thermal Analysis",
+      "GD&T",
+      "Project Management",
+      "MS Excel",
+      "Team Collaboration",
+      "Problem Solving",
+      "Technical Documentation",
+      "Finite Element Analysis",
+      "3D Printing",
+      "Python Basics"
+    ],
+    "certifications": [
+      {
+        "name": "Certified SolidWorks Professional (CSWP)",
+        "issuer": "Dassault Systèmes"
+      },
+      {
+        "name": "Introduction to CAD and CAM",
+        "issuer": "Coursera"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Technology (B.Tech)",
+        "field_of_study": "Mechanical Engineering",
+        "institution": "College of Engineering Pune (COEP)",
+        "end_year": 2025
+      }
+    ],
+    "languages": "English (Professional), Hindi (Native), Marathi (Conversational)"
+  },
+  "developer": {
+    "full_name": "Arjun Mehta",
+    "professional_summary": "Software developer with 6 years of experience building scalable web applications using .NET Core, Angular, and SQL Server. Skilled in cloud deployment with Azure and collaborating in agile teams to deliver high-quality solutions. Seeking to leverage technical expertise in a challenging role.",
+    "work_experience": [
+      {
+        "role": "Senior Software Developer",
+        "company": "TechNova Solutions",
+        "location": "Dubai, UAE",
+        "start_date": "2023-01",
+        "end_date": null,
+        "highlights": [
+          "Led a team of 4 developers to revamp the core banking portal, reducing response time by 30%.",
+          "Implemented Azure CI/CD pipelines, cutting deployment time from 2 hours to 15 minutes.",
+          "Designed and developed RESTful APIs using .NET Core, handling 2M+ requests daily.",
+          "Mentored junior developers and conducted code reviews to ensure best practices."
+        ]
+      },
+      {
+        "role": "Software Developer",
+        "company": "Infosys",
+        "location": "Bengaluru, India",
+        "start_date": "2021-04",
+        "end_date": "2022-12",
+        "highlights": [
+          "Developed and maintained Angular-based front-end modules for a global retail client.",
+          "Optimized SQL Server queries, improving database performance by 25%.",
+          "Collaborated with cross-functional teams to deliver features on time.",
+          "Participated in agile ceremonies and contributed to sprint planning."
+        ]
+      },
+      {
+        "role": "Junior Software Developer",
+        "company": "Wipro",
+        "location": "Pune, India",
+        "start_date": "2019-06",
+        "end_date": "2021-03",
+        "highlights": [
+          "Built reusable components in Angular and integrated with .NET Core back-end services.",
+          "Assisted in migrating on-premise applications to Azure, ensuring zero downtime.",
+          "Wrote unit tests using xUnit, achieving 80% code coverage.",
+          "Fixed bugs and resolved production issues reported by clients."
+        ]
+      },
+      {
+        "role": "Software Engineer Trainee",
+        "company": "Cognizant",
+        "location": "Chennai, India",
+        "start_date": "2018-07",
+        "end_date": "2019-05",
+        "highlights": [
+          "Completed intensive training in .NET technologies and SQL Server.",
+          "Developed small internal tools to automate data entry tasks.",
+          "Assisted senior developers in daily coding and testing activities.",
+          "Documented technical specifications for reference."
+        ]
+      }
+    ],
+    "skills": [
+      ".NET Core",
+      "C#",
+      "ASP.NET MVC",
+      "Angular",
+      "TypeScript",
+      "SQL Server",
+      "Entity Framework",
+      "Azure DevOps",
+      "Azure App Services",
+      "RESTful APIs",
+      "Git",
+      "Agile Methodologies",
+      "Docker",
+      "Unit Testing"
+    ],
+    "certifications": [
+      {
+        "name": "Microsoft Certified: Azure Developer Associate",
+        "issuer": "Microsoft"
+      },
+      {
+        "name": "Exam 70-483: Programming in C#",
+        "issuer": "Microsoft"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Technology",
+        "field_of_study": "Computer Science and Engineering",
+        "institution": "Visvesvaraya Technological University",
+        "end_year": 2018
+      }
+    ],
+    "languages": "English, Hindi, Kannada"
+  },
+  "accountant": {
+    "full_name": "Rahul Menon",
+    "professional_summary": "Detail-oriented accountant with 7 years of experience in AP/AR, month-end close, and VAT compliance across UAE and India. Proficient in Tally and SAP, with a track record of streamlining processes and ensuring accurate financial reporting.",
+    "work_experience": [
+      {
+        "role": "Accountant",
+        "company": "Al Fahid Group",
+        "location": "Dubai, UAE",
+        "start_date": "2021-06",
+        "end_date": null,
+        "highlights": [
+          "Manage full cycle AP/AR for 5 entities, processing 200+ invoices monthly with 99% accuracy",
+          "Prepare monthly VAT returns and ensure compliance with FTA regulations, reducing penalties by 30%",
+          "Lead month-end close activities, including reconciliations and journal entries, reducing closing time by 2 days",
+          "Assist in annual audit by providing supporting documents and resolving queries",
+          "Handle intercompany transactions and reconciliations"
+        ]
+      },
+      {
+        "role": "Senior Accounts Executive",
+        "company": "Lulu International Exchange",
+        "location": "Abu Dhabi, UAE",
+        "start_date": "2019-01",
+        "end_date": "2021-05",
+        "highlights": [
+          "Processed high-volume AP transactions (500+ per month) and ensured timely payments to vendors",
+          "Performed daily bank reconciliations and cash flow monitoring",
+          "Prepared monthly management reports and variance analysis",
+          "Assisted in implementation of SAP FICO module, improving data accuracy by 20%"
+        ]
+      },
+      {
+        "role": "Accountant",
+        "company": "Tech Mahindra",
+        "location": "Pune, India",
+        "start_date": "2017-04",
+        "end_date": "2018-12",
+        "highlights": [
+          "Handled accounts payable and receivable for multiple projects",
+          "Prepared monthly MIS reports and shared with senior management",
+          "Reconciled vendor statements and resolved discrepancies",
+          "Processed employee reimbursements and expense claims"
+        ]
+      },
+      {
+        "role": "Junior Accountant",
+        "company": "Sharma & Associates",
+        "location": "Mumbai, India",
+        "start_date": "2016-06",
+        "end_date": "2017-03",
+        "highlights": [
+          "Maintained books of accounts in Tally and prepared financial statements",
+          "Assisted in filing GST returns and TDS returns",
+          "Handled petty cash and maintained cash register",
+          "Coordinated with auditors during statutory audit"
+        ]
+      }
+    ],
+    "skills": [
+      "Accounts Payable",
+      "Accounts Receivable",
+      "Month-End Close",
+      "VAT Compliance",
+      "Bank Reconciliation",
+      "Financial Reporting",
+      "Tally ERP 9",
+      "SAP FICO",
+      "MS Excel",
+      "MIS Reporting",
+      "Intercompany Accounting",
+      "Audit Support",
+      "GST Filing",
+      "Cash Flow Management"
+    ],
+    "certifications": [
+      {
+        "name": "Diploma in IFRS",
+        "issuer": "ACCA"
+      },
+      {
+        "name": "Certified VAT Specialist",
+        "issuer": "Dubai Government"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Commerce",
+        "field_of_study": "Accounting and Finance",
+        "institution": "University of Mumbai",
+        "end_year": 2016
+      }
+    ],
+    "languages": "English, Hindi, Malayalam"
+  },
+  "admin": {
+    "full_name": "Maria Concepcion Santos",
+    "professional_summary": "Detail-oriented administrative professional with over 4 years of experience in front desk management, scheduling, and office support in fast-paced corporate environments. Skilled in MS Office and known for excellent organizational and interpersonal skills. Seeking to leverage expertise in a challenging administrative role.",
+    "work_experience": [
+      {
+        "role": "Administrative Assistant",
+        "company": "Al Fahidi Group",
+        "location": "Abu Dhabi, UAE",
+        "start_date": "2022-06",
+        "end_date": null,
+        "highlights": [
+          "Manage front desk operations, welcoming an average of 30 visitors daily and directing them to appropriate departments.",
+          "Coordinate executive schedules, arranging meetings, travel, and accommodations for a team of 5 senior managers.",
+          "Maintain filing systems (both electronic and physical) for contracts and employee records, ensuring 100% accuracy and confidentiality.",
+          "Process incoming and outgoing correspondence and prepare meeting minutes for weekly management briefings."
+        ]
+      },
+      {
+        "role": "Receptionist",
+        "company": "Gulf Business Center",
+        "location": "Abu Dhabi, UAE",
+        "start_date": "2020-09",
+        "end_date": "2022-05",
+        "highlights": [
+          "Served as the first point of contact for clients and visitors, handling phone inquiries and redirecting calls with professionalism.",
+          "Assisted with administrative tasks including data entry, photocopying, and scanning documents.",
+          "Supported office event coordination, including booking venues and preparing materials for up to 50 attendees.",
+          "Maintained office supplies inventory and placed orders when stock ran low."
+        ]
+      },
+      {
+        "role": "Administrative Assistant",
+        "company": "Sunrise Medical Center",
+        "location": "Manila, Philippines",
+        "start_date": "2019-04",
+        "end_date": "2020-08",
+        "highlights": [
+          "Handled front desk duties, patient registration, and appointment scheduling for a busy clinic with 100+ daily patients.",
+          "Updated patient records and ensured accurate data entry into the hospital information system.",
+          "Prepared daily reports on patient flow and submitted them to the clinic manager.",
+          "Assisted the billing department with invoice processing and payment collection."
+        ]
+      }
+    ],
+    "skills": [
+      "Front Desk Management",
+      "Appointment Scheduling",
+      "MS Office (Word, Excel, Outlook, PowerPoint)",
+      "Data Entry",
+      "Filing and Record Keeping",
+      "Travel Arrangements",
+      "Meeting Coordination",
+      "Customer Service",
+      "Phone Etiquette",
+      "Office Equipment Operation",
+      "Time Management",
+      "Verbal and Written Communication",
+      "Multi-tasking",
+      "Problem Solving"
+    ],
+    "certifications": [
+      {
+        "name": "Certificate in Administrative Management",
+        "issuer": "Philippine Institute of Administrative Professionals"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science in Business Administration",
+        "field_of_study": "Business Administration",
+        "institution": "University of Santo Tomas",
+        "end_year": 2018
+      }
+    ],
+    "languages": "English, Filipino, Basic Arabic"
+  },
+  "logistics": {
+    "full_name": "Arjun Menon",
+    "professional_summary": "Logistics and warehouse coordinator with 6 years of experience managing inventory, WMS, and shipping operations across Dubai, Jebel Ali, and India. Proven track record of reducing discrepancies, optimizing space, and ensuring timely customs clearance. Adept at leading teams and implementing process improvements to cut costs and boost efficiency.",
+    "work_experience": [
+      {
+        "role": "Logistics Coordinator",
+        "company": "Gulf Shipping Lines LLC",
+        "location": "Dubai, UAE",
+        "start_date": "2023-01",
+        "end_date": null,
+        "highlights": [
+          "Coordinate daily shipments and customs documentation for 200+ export containers, ensuring 99% on-time departure.",
+          "Reduced demurrage charges by 15% by optimizing container turnaround schedules.",
+          "Liaise with freight forwarders and port authorities to resolve shipment holds within 24 hours.",
+          "Maintain accurate records in the WMS and generate daily performance reports for management."
+        ]
+      },
+      {
+        "role": "Warehouse Supervisor",
+        "company": "Jebel Ali Free Zone Logistics",
+        "location": "Jebel Ali, UAE",
+        "start_date": "2021-06",
+        "end_date": "2022-12",
+        "highlights": [
+          "Supervised a team of 12 warehouse staff, overseeing receiving, put-away, and dispatch operations.",
+          "Implemented a cycle counting program that cut inventory discrepancies by 30% within six months.",
+          "Managed the WMS to track stock levels and coordinate with procurement for reorder points.",
+          "Trained new hires on safety protocols and equipment handling, reducing workplace incidents by 20%."
+        ]
+      },
+      {
+        "role": "Inventory Analyst",
+        "company": "APL Logistics India Pvt Ltd",
+        "location": "Mumbai, India",
+        "start_date": "2019-05",
+        "end_date": "2021-05",
+        "highlights": [
+          "Analyzed inventory data to identify slow-moving items, leading to a 10% reduction in holding costs.",
+          "Prepared weekly stock reports and reconciled variances between physical counts and system records.",
+          "Assisted in migrating legacy data to a new WMS, ensuring zero data loss during transition.",
+          "Collaborated with the finance team to conduct quarterly audits, achieving a 98% accuracy rate."
+        ]
+      },
+      {
+        "role": "Warehouse Associate",
+        "company": "DHL Supply Chain",
+        "location": "Chennai, India",
+        "start_date": "2018-01",
+        "end_date": "2019-04",
+        "highlights": [
+          "Handled order picking, packing, and shipping for retail clients, processing up to 300 orders per day.",
+          "Performed quality checks on incoming goods and reported damages to the supervisor.",
+          "Maintained cleanliness and organization of the warehouse to ensure safety compliance.",
+          "Operated forklifts and pallet jacks, achieving a perfect safety record."
+        ]
+      }
+    ],
+    "skills": [
+      "Inventory Management",
+      "Warehouse Management Systems (WMS)",
+      "Shipping Documentation",
+      "Customs Clearance",
+      "Logistics Coordination",
+      "Data Analysis",
+      "Cycle Counting",
+      "Team Leadership",
+      "Forklift Operation",
+      "Freight Forwarding",
+      "Supply Chain Optimization",
+      "MS Excel",
+      "SAP ERP",
+      "Problem Solving"
+    ],
+    "certifications": [
+      {
+        "name": "Certified Supply Chain Professional (CSCP)",
+        "issuer": "APICS"
+      },
+      {
+        "name": "Forklift Operator Certification",
+        "issuer": "OSHA"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Commerce",
+        "field_of_study": "Logistics and Supply Chain Management",
+        "institution": "University of Mumbai",
+        "end_year": 2017
+      }
+    ],
+    "languages": "English, Hindi, Malayalam, Arabic (basic)"
+  },
+  "driver": {
+    "full_name": "Rajendra Bahadur Thapa",
+    "professional_summary": "Experienced heavy truck and trailer driver with 9 years of safe driving across challenging terrains in Nepal, Saudi Arabia, and the UAE. Skilled in long-haul operations, cargo handling, and thorough vehicle inspections to ensure compliance and safety. Seeking to leverage my expertise in a reliable and safety-focused transport company.",
+    "work_experience": [
+      {
+        "role": "Heavy Truck Driver",
+        "company": "Al-Futtaim Logistics",
+        "location": "Dubai, UAE",
+        "start_date": "2021-03",
+        "end_date": null,
+        "highlights": [
+          "Operate 40-ton trailers for long-haul deliveries across the UAE and GCC, maintaining a 100% on-time delivery record.",
+          "Conduct pre-trip and post-trip vehicle inspections, ensuring compliance with RTA regulations and company safety standards.",
+          "Manage loading and unloading of cargo, securing loads with straps and chains to prevent damage during transit.",
+          "Maintain accurate logbooks and delivery documentation, reducing discrepancies by 15% through meticulous record-keeping.",
+          "Collaborate with dispatchers to optimize routes, saving an average of 2 hours per trip."
+        ]
+      },
+      {
+        "role": "Long-Haul Driver",
+        "company": "Binladin Contracting Group",
+        "location": "Riyadh, Saudi Arabia",
+        "start_date": "2017-06",
+        "end_date": "2021-02",
+        "highlights": [
+          "Drove heavy trailers for construction material transport across Saudi Arabia, covering up to 3,000 km weekly.",
+          "Performed routine maintenance checks and reported mechanical issues promptly, reducing breakdown incidents by 20%.",
+          "Adhered to strict delivery schedules in remote desert areas, ensuring timely supply to project sites.",
+          "Assisted in warehouse loading operations when needed, demonstrating flexibility and teamwork.",
+          "Followed all safety protocols and traffic laws, achieving zero accidents during tenure."
+        ]
+      },
+      {
+        "role": "Truck Driver",
+        "company": "Nepal Transport Corporation",
+        "location": "Kathmandu, Nepal",
+        "start_date": "2015-02",
+        "end_date": "2017-05",
+        "highlights": [
+          "Drove 10-ton trucks on mountainous routes, transporting goods between major cities and rural areas.",
+          "Inspected vehicles daily for tire pressure, fluid levels, and brakes, ensuring roadworthiness.",
+          "Handled cash transactions for freight payments and provided receipts to clients.",
+          "Completed deliveries in challenging weather conditions, maintaining a clean driving record.",
+          "Worked with the logistics team to plan efficient routes, reducing fuel consumption by 10%."
+        ]
+      }
+    ],
+    "skills": [
+      "Long-haul driving",
+      "Trailer operation",
+      "Defensive driving",
+      "Vehicle inspection",
+      "Load securing",
+      "Route planning",
+      "GPS navigation",
+      "Documentation",
+      "Basic vehicle maintenance",
+      "Time management",
+      "Communication",
+      "Problem-solving",
+      "Safety compliance",
+      "Customer service"
+    ],
+    "certifications": [
+      {
+        "name": "Heavy Vehicle Driving License",
+        "issuer": "UAE Road and Transport Authority"
+      },
+      {
+        "name": "Defensive Driving Certificate",
+        "issuer": "Saudi Arabian Transport Authority"
+      }
+    ],
+    "education": [
+      {
+        "degree": "High School Diploma",
+        "field_of_study": "General",
+        "institution": "Tribhuvan University",
+        "end_year": 2012
+      }
+    ],
+    "languages": "Nepali (native), Hindi (fluent), English (intermediate), Arabic (basic)"
+  },
+  "sales": {
+    "full_name": "Sana Khalid",
+    "professional_summary": "Results-driven FMCG sales professional with 6 years of experience across the UAE, Oman, and Pakistan. Proven track record of exceeding sales targets in modern trade and distributor management, driving revenue growth and market share for leading consumer goods brands.",
+    "work_experience": [
+      {
+        "role": "Sales Executive – Modern Trade",
+        "company": "Unilever Gulf",
+        "location": "Dubai, UAE",
+        "start_date": "2022-03",
+        "end_date": null,
+        "highlights": [
+          "Manage key modern trade accounts (Carrefour, Spinneys, Lulu) achieving 112% of annual sales target in 2023.",
+          "Negotiated promotional plans and secured prime shelf space, increasing product visibility by 25%.",
+          "Launched 3 new SKUs in modern trade with a 98% distribution rate within the first quarter.",
+          "Conducted monthly business reviews with retailers, improving forecast accuracy to ±5%."
+        ]
+      },
+      {
+        "role": "Key Account Executive",
+        "company": "Reckitt",
+        "location": "Muscat, Oman",
+        "start_date": "2020-01",
+        "end_date": "2022-02",
+        "highlights": [
+          "Built and maintained relationships with 15+ key retail chains, growing account revenue by 30% year-on-year.",
+          "Coordinated with supply chain to reduce out-of-stock levels from 8% to 3%.",
+          "Executed in-store activation campaigns that boosted category sales by 18% during peak seasons.",
+          "Trained and supervised a team of 5 merchandisers to ensure brand standards across all outlets."
+        ]
+      },
+      {
+        "role": "Sales Officer – Distributor Management",
+        "company": "Nestlé Pakistan",
+        "location": "Lahore, Pakistan",
+        "start_date": "2018-03",
+        "end_date": "2019-12",
+        "highlights": [
+          "Managed a network of 12 distributors covering 1,500+ retail outlets in the Punjab region.",
+          "Achieved 105% of quarterly sales targets consistently through effective route planning and distributor motivation.",
+          "Implemented a distributor performance scorecard, improving secondary sales by 15%.",
+          "Resolved trade disputes promptly, maintaining a 98% distributor satisfaction rate."
+        ]
+      },
+      {
+        "role": "Management Trainee – Sales",
+        "company": "PepsiCo Pakistan",
+        "location": "Karachi, Pakistan",
+        "start_date": "2017-07",
+        "end_date": "2018-02",
+        "highlights": [
+          "Assisted in territory sales planning and supported the field sales team in achieving monthly targets.",
+          "Monitored competitor activity and reported market insights to the regional sales manager.",
+          "Handled daily sales order processing and ensured timely delivery to retail customers.",
+          "Participated in a 3-month rotational program covering distribution, merchandising, and trade marketing."
+        ]
+      }
+    ],
+    "skills": [
+      "Modern Trade Management",
+      "Distributor Management",
+      "Sales Target Achievement",
+      "Key Account Management",
+      "Negotiation Skills",
+      "Trade Marketing",
+      "Category Management",
+      "Data Analysis & Reporting",
+      "Route Planning",
+      "Retail Execution",
+      "Team Leadership",
+      "Customer Relationship Management (CRM)",
+      "Market Research",
+      "Promotional Planning"
+    ],
+    "certifications": [
+      {
+        "name": "Certified Professional Sales Person (CPSP)",
+        "issuer": "Sales Management Association"
+      },
+      {
+        "name": "Digital Marketing Fundamentals",
+        "issuer": "Google Digital Garage"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Business Administration",
+        "field_of_study": "Marketing",
+        "institution": "Institute of Business Administration (IBA), Karachi",
+        "end_year": 2017
+      }
+    ],
+    "languages": "English (Fluent), Urdu (Native), Hindi (Working Professional), Arabic (Basic)"
+  },
+  "hr": {
+    "full_name": "Noura Al-Farsi",
+    "professional_summary": "HR professional with 5 years of experience in recruitment, onboarding, and HR administration across Saudi Arabia and Egypt. Skilled in managing payroll inputs and government compliance (GOSI, Qiwa) to ensure smooth HR operations. Adept at supporting employees throughout the employee lifecycle with a focus on efficiency and accuracy.",
+    "work_experience": [
+      {
+        "role": "HR Officer",
+        "company": "Al Rajhi Bank",
+        "location": "Riyadh, Saudi Arabia",
+        "start_date": "2022-03",
+        "end_date": null,
+        "highlights": [
+          "Manage full-cycle recruitment for branch and head office roles, reducing time-to-hire by 20% through streamlined sourcing and screening.",
+          "Handle GOSI and Qiwa registrations and updates for all new hires and leavers, ensuring 100% compliance with Saudi labor laws.",
+          "Prepare and process monthly payroll inputs for 300+ employees, collaborating with finance to ensure accurate and timely salary disbursement.",
+          "Coordinate onboarding sessions for new joiners, including orientation, documentation, and system setup, improving new hire satisfaction scores by 15%.",
+          "Maintain employee records in HRIS, updating personal data, contracts, and leave balances with high attention to detail."
+        ]
+      },
+      {
+        "role": "HR Coordinator",
+        "company": "Majid Al Futtaim",
+        "location": "Cairo, Egypt",
+        "start_date": "2020-01",
+        "end_date": "2022-02",
+        "highlights": [
+          "Assisted in recruitment processes, including posting job ads, scheduling interviews, and conducting reference checks.",
+          "Supported payroll team by collecting and verifying employee attendance and overtime data.",
+          "Prepared and submitted social insurance documents (GOSI equivalent in Egypt) for new hires and terminations.",
+          "Organized employee engagement activities and events, fostering a positive work environment.",
+          "Handled day-to-day HR inquiries from employees regarding policies, benefits, and leave requests."
+        ]
+      },
+      {
+        "role": "HR Assistant",
+        "company": "Emaar Properties",
+        "location": "Jeddah, Saudi Arabia",
+        "start_date": "2019-01",
+        "end_date": "2019-12",
+        "highlights": [
+          "Assisted HR team with recruitment coordination, including interview scheduling and candidate communication.",
+          "Compiled and updated employee files and databases, ensuring data accuracy and confidentiality.",
+          "Supported onboarding process by preparing welcome kits and conducting induction sessions.",
+          "Helped with payroll preparation by inputting attendance data and leave records.",
+          "Performed general administrative tasks such as drafting letters and managing HR correspondence."
+        ]
+      }
+    ],
+    "skills": [
+      "Recruitment",
+      "Onboarding",
+      "Payroll Processing",
+      "GOSI Compliance",
+      "Qiwa Administration",
+      "HRIS Management",
+      "Employee Relations",
+      "Saudi Labor Law",
+      "Egyptian Labor Law",
+      "Data Entry",
+      "MS Office",
+      "Communication",
+      "Time Management"
+    ],
+    "certifications": [
+      {
+        "name": "HR Fundamentals",
+        "issuer": "Coursera"
+      },
+      {
+        "name": "SHRM-CP (in progress)",
+        "issuer": "SHRM"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor's",
+        "field_of_study": "Business Administration",
+        "institution": "Cairo University",
+        "end_year": 2017
+      }
+    ],
+    "languages": "Arabic (Native), English (Fluent)"
+  },
+  "fnb": {
+    "full_name": "Amara Jayasinghe",
+    "professional_summary": "Dedicated Food & Beverage Supervisor with over 7 years of experience in luxury hotel environments across Dubai, Doha, and Sri Lanka. Proven track record in managing high-volume restaurant and banquet operations while maintaining exceptional service standards. Skilled in team leadership, event execution, and cost control.",
+    "work_experience": [
+      {
+        "role": "Food & Beverage Supervisor",
+        "company": "Burj Al Arab Jumeirah",
+        "location": "Dubai, UAE",
+        "start_date": "2022-03",
+        "end_date": null,
+        "highlights": [
+          "Supervise daily operations of a 200-seat fine dining restaurant, ensuring seamless service and guest satisfaction scores consistently above 95%.",
+          "Lead a team of 25 service staff, coordinating training sessions and performance reviews to maintain high service standards.",
+          "Manage banquet operations for up to 500 guests, overseeing event setup, catering, and on-the-day coordination.",
+          "Implemented a new table management system that reduced wait times by 20% and improved table turnover."
+        ]
+      },
+      {
+        "role": "Restaurant Supervisor",
+        "company": "The Ritz-Carlton Doha",
+        "location": "Doha, Qatar",
+        "start_date": "2019-06",
+        "end_date": "2022-02",
+        "highlights": [
+          "Oversaw daily operations of a specialty restaurant and in-room dining, handling guest complaints and ensuring prompt resolution.",
+          "Assisted in the recruitment and onboarding of new staff, fostering a collaborative team environment.",
+          "Monitored inventory and placed orders to minimize waste, achieving a 15% reduction in food costs.",
+          "Coordinated with the chef to develop seasonal menus and special event promotions."
+        ]
+      },
+      {
+        "role": "F&B Supervisor",
+        "company": "Shangri-La Hotel, Colombo",
+        "location": "Colombo, Sri Lanka",
+        "start_date": "2017-01",
+        "end_date": "2019-05",
+        "highlights": [
+          "Managed the daily operations of a casual dining outlet and banquet hall, ensuring smooth service during peak hours.",
+          "Trained and supervised a team of 15 staff, focusing on upselling techniques and service excellence.",
+          "Handled event planning and execution for corporate and social functions, achieving high client satisfaction.",
+          "Maintained cleanliness and safety standards in accordance with hotel policies."
+        ]
+      },
+      {
+        "role": "Food & Beverage Trainee",
+        "company": "Cinnamon Grand Colombo",
+        "location": "Colombo, Sri Lanka",
+        "start_date": "2016-01",
+        "end_date": "2016-12",
+        "highlights": [
+          "Supported the F&B team in restaurant and banquet operations, gaining hands-on experience in service standards.",
+          "Assisted in setting up event halls and ensuring all equipment was in place.",
+          "Learned cashiering and billing procedures, handling guest payments accurately."
+        ]
+      }
+    ],
+    "skills": [
+      "Restaurant Operations",
+      "Banquet Management",
+      "Team Leadership",
+      "Guest Relations",
+      "Event Coordination",
+      "Inventory Control",
+      "Cost Reduction",
+      "Menu Planning",
+      "Upselling Techniques",
+      "POS Systems",
+      "Training & Development",
+      "Quality Assurance",
+      "Food Safety Standards",
+      "Conflict Resolution"
+    ],
+    "certifications": [
+      {
+        "name": "Certified Food and Beverage Executive (CFBE)",
+        "issuer": "American Hotel & Lodging Educational Institute"
+      },
+      {
+        "name": "Food Safety and Hygiene Certification",
+        "issuer": "ServSafe"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Business Administration",
+        "field_of_study": "Hospitality Management",
+        "institution": "University of Colombo",
+        "end_year": 2015
+      }
+    ],
+    "languages": "English, Sinhala, Arabic (basic)"
+  },
+  "civil": {
+    "full_name": "Arjun Nair",
+    "professional_summary": "Civil site engineer with 10 years of experience in building and infrastructure projects across India, Qatar, and Saudi Arabia. Skilled in concrete works, BOQ preparation, and site supervision, with a strong track record of delivering projects on time and within budget.",
+    "work_experience": [
+      {
+        "role": "Site Engineer",
+        "company": "Saudi Binladin Group",
+        "location": "Riyadh, Saudi Arabia",
+        "start_date": "2021-03",
+        "end_date": null,
+        "highlights": [
+          "Supervised construction of a 12-story commercial tower, ensuring compliance with safety and quality standards.",
+          "Managed concrete works for foundations and structural elements, reducing material wastage by 8%.",
+          "Coordinated with subcontractors and vendors to maintain project schedule, achieving milestones ahead of plan.",
+          "Prepared and reviewed BOQs for variations, contributing to accurate cost control."
+        ]
+      },
+      {
+        "role": "Civil Engineer",
+        "company": "Qatar Construction Company",
+        "location": "Doha, Qatar",
+        "start_date": "2018-06",
+        "end_date": "2021-02",
+        "highlights": [
+          "Handled site supervision for a residential complex project with 200+ units, ensuring quality of concrete and steel works.",
+          "Conducted daily inspections and resolved technical issues on site, reducing rework by 15%.",
+          "Prepared method statements and work procedures for approval, streamlining execution.",
+          "Monitored material procurement and inventory, maintaining optimal stock levels."
+        ]
+      },
+      {
+        "role": "Site Engineer",
+        "company": "L&T Construction",
+        "location": "Mumbai, India",
+        "start_date": "2016-04",
+        "end_date": "2018-05",
+        "highlights": [
+          "Executed infrastructure works including roads and drainage systems for an industrial park.",
+          "Managed a team of 25 workers and ensured adherence to project drawings and specifications.",
+          "Performed leveling and setting out using total station, ensuring accurate alignment.",
+          "Assisted in preparing daily progress reports and attended client meetings."
+        ]
+      },
+      {
+        "role": "Junior Civil Engineer",
+        "company": "Shapoorji Pallonji",
+        "location": "Pune, India",
+        "start_date": "2014-01",
+        "end_date": "2016-03",
+        "highlights": [
+          "Supported senior engineers in the construction of a high-rise residential building.",
+          "Checked reinforcement and formwork before concreting, ensuring compliance with drawings.",
+          "Maintained site records and logs for quality checks and material testing.",
+          "Supervised concreting operations and ensured proper curing methods."
+        ]
+      },
+      {
+        "role": "Civil Engineering Trainee",
+        "company": "Prestige Group",
+        "location": "Bengaluru, India",
+        "start_date": "2013-06",
+        "end_date": "2013-12",
+        "highlights": [
+          "Assisted in site surveys and data collection for a commercial project.",
+          "Learned BOQ preparation and cost estimation under senior guidance.",
+          "Participated in daily site walks and documented progress photographs.",
+          "Helped in verifying material deliveries and storage."
+        ]
+      }
+    ],
+    "skills": [
+      "Concrete Works",
+      "BOQ Preparation",
+      "Site Supervision",
+      "Quality Control",
+      "Project Coordination",
+      "Total Station",
+      "AutoCAD",
+      "MS Project",
+      "Safety Compliance",
+      "Cost Estimation",
+      "Material Management",
+      "Team Leadership",
+      "Structural Drawings",
+      "Soil Testing"
+    ],
+    "certifications": [
+      {
+        "name": "OSHA 30-Hour Construction Safety",
+        "issuer": "OSHA Academy"
+      },
+      {
+        "name": "Certified Concrete Field Testing Technician - Grade I",
+        "issuer": "American Concrete Institute (ACI)"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Technology",
+        "field_of_study": "Civil Engineering",
+        "institution": "National Institute of Technology, Calicut",
+        "end_year": 2013
+      }
+    ],
+    "languages": "English, Hindi, Malayalam, Basic Arabic"
+  },
+  "ward_nurse": {
+    "full_name": "Maria Clara D. Santos",
+    "professional_summary": "Compassionate and detail-oriented Registered Nurse with 5 years of experience in medical-surgical nursing across hospital settings in the Philippines and the UAE. Skilled in patient assessment, medication administration, and postoperative care, with a proven ability to manage high patient loads while maintaining safety and quality standards. Dedicated to delivering holistic, patient-centered care and collaborating effectively with interdisciplinary teams.",
+    "work_experience": [
+      {
+        "role": "Staff Nurse – Medical-Surgical Unit",
+        "company": "Rashid Hospital",
+        "location": "Dubai, UAE",
+        "start_date": "2022-03",
+        "end_date": null,
+        "highlights": [
+          "Manage a caseload of 8-10 patients per shift, prioritizing care based on acuity and clinical needs.",
+          "Administer medications, IV therapies, and blood products while monitoring for adverse reactions and documenting accurately.",
+          "Collaborate with physicians and allied health professionals to develop and update individualized care plans.",
+          "Educate patients and families on post-discharge care, wound management, and medication regimens.",
+          "Participate in quality improvement initiatives, contributing to a 15% reduction in medication errors over one year."
+        ]
+      },
+      {
+        "role": "Registered Nurse – Medical-Surgical Ward",
+        "company": "St. Luke's Medical Center",
+        "location": "Quezon City, Philippines",
+        "start_date": "2020-06",
+        "end_date": "2022-02",
+        "highlights": [
+          "Provided comprehensive nursing care to post-operative and acutely ill patients, including wound care, vital sign monitoring, and pain management.",
+          "Assisted in emergency procedures and responded to rapid response calls, stabilizing patients until physician arrival.",
+          "Maintained accurate electronic health records and ensured compliance with hospital protocols and safety standards.",
+          "Mentored new graduate nurses and nursing students during clinical rotations.",
+          "Received consistent positive feedback from patients and families for compassionate communication and attentiveness."
+        ]
+      },
+      {
+        "role": "Staff Nurse – General Medical Ward",
+        "company": "Manila Doctors Hospital",
+        "location": "Manila, Philippines",
+        "start_date": "2019-01",
+        "end_date": "2020-05",
+        "highlights": [
+          "Cared for patients with diverse medical conditions, including diabetes, hypertension, and respiratory infections.",
+          "Performed patient assessments, administered medications, and monitored for changes in condition.",
+          "Documented nursing interventions and patient responses in a timely manner.",
+          "Assisted with patient admissions, transfers, and discharges, ensuring smooth transitions of care.",
+          "Supported senior nurses in daily ward operations and maintained a clean, organized environment."
+        ]
+      }
+    ],
+    "skills": [
+      "Patient Assessment",
+      "Medication Administration",
+      "IV Therapy",
+      "Wound Care",
+      "Postoperative Care",
+      "Care Planning",
+      "Patient Education",
+      "Electronic Health Records (EHR)",
+      "Vital Sign Monitoring",
+      "Emergency Response",
+      "Pain Management",
+      "Infection Control",
+      "Team Collaboration",
+      "Communication"
+    ],
+    "certifications": [
+      {
+        "name": "Basic Life Support (BLS)",
+        "issuer": "American Heart Association"
+      },
+      {
+        "name": "Advanced Cardiovascular Life Support (ACLS)",
+        "issuer": "American Heart Association"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science in Nursing",
+        "field_of_study": "Nursing",
+        "institution": "University of Santo Tomas",
+        "end_year": 2018
+      }
+    ],
+    "languages": "English, Filipino, Basic Arabic"
+  },
+  "mep_mech": {
+    "full_name": "Arjun Menon",
+    "professional_summary": "Mechanical engineer with 11 years of experience in MEP design, site supervision, and project coordination across the Middle East and India. Proven track record of delivering large-scale commercial and residential projects on time and within budget, with a strong focus on HVAC, chilled water, plumbing, and fire fighting systems. Adept at leading multidisciplinary teams and ensuring compliance with international codes and standards.",
+    "work_experience": [
+      {
+        "role": "Senior Mechanical Engineer",
+        "company": "AECOM",
+        "location": "Dubai, UAE",
+        "start_date": "2020-03",
+        "end_date": null,
+        "highlights": [
+          "Leading MEP design and supervision for a 45-story mixed-use tower, ensuring coordination with architectural and structural disciplines.",
+          "Reduced energy consumption by 15% through optimization of chilled water system design and variable speed drive applications.",
+          "Managed a team of 6 engineers and draftsmen, reviewing shop drawings and material submittals for compliance with project specifications.",
+          "Liaised with local authorities (DEWA, Civil Defence) to obtain NOCs and approvals, expediting permit processes by 20%.",
+          "Conducted regular site inspections and resolved technical issues, maintaining project schedule adherence."
+        ]
+      },
+      {
+        "role": "MEP Engineer",
+        "company": "Gulf Trading & Contracting Co.",
+        "location": "Doha, Qatar",
+        "start_date": "2016-11",
+        "end_date": "2020-02",
+        "highlights": [
+          "Supervised installation of HVAC, plumbing, and fire fighting systems for a 200,000 sqm shopping mall, coordinating with 12 subcontractors.",
+          "Implemented quality control procedures that reduced rework by 25% and ensured adherence to ASHRAE and NFPA standards.",
+          "Prepared and monitored project schedules, progress reports, and cost forecasts, supporting project manager in monthly reporting.",
+          "Conducted hydraulic calculations for chilled water and drainage systems using HAP and Elite software.",
+          "Trained junior engineers on site inspection procedures and system testing, improving team efficiency."
+        ]
+      },
+      {
+        "role": "Mechanical Site Engineer",
+        "company": "Larsen & Toubro",
+        "location": "Mumbai, India",
+        "start_date": "2013-08",
+        "end_date": "2016-10",
+        "highlights": [
+          "Supervised mechanical works for a metro station project, including HVAC, tunnel ventilation, and fire fighting systems.",
+          "Coordinated with client and consultant for approvals of method statements and inspection requests, ensuring zero rework.",
+          "Managed installation of 3,000+ meters of chilled water piping and 200+ AHUs, ensuring alignment with design drawings.",
+          "Performed hydrostatic testing and flushing of pipelines, documenting results for handover.",
+          "Maintained daily site records and progress photos, contributing to weekly client reports."
+        ]
+      },
+      {
+        "role": "Graduate Engineer Trainee",
+        "company": "Voltas Limited",
+        "location": "Pune, India",
+        "start_date": "2012-06",
+        "end_date": "2013-07",
+        "highlights": [
+          "Assisted senior engineers in design and estimation of HVAC systems for commercial buildings.",
+          "Prepared BOQ and cost estimates for projects up to INR 50 million, supporting bid submission.",
+          "Visited sites to monitor installation and provide technical support to technicians.",
+          "Updated project documentation and drawings using AutoCAD.",
+          "Participated in team meetings and contributed to value engineering suggestions."
+        ]
+      }
+    ],
+    "skills": [
+      "HVAC Design",
+      "Chilled Water Systems",
+      "Plumbing and Drainage",
+      "Fire Fighting Systems",
+      "Site Supervision",
+      "Project Coordination",
+      "MEP Coordination",
+      "AutoCAD",
+      "Revit MEP",
+      "HAP",
+      "Elite Software",
+      "ASHRAE Standards",
+      "NFPA Codes",
+      "QMS/QA/QC"
+    ],
+    "certifications": [
+      {
+        "name": "LEED Green Associate",
+        "issuer": "USGBC"
+      },
+      {
+        "name": "Certified Plumbing Designer",
+        "issuer": "ASPE"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Technology",
+        "field_of_study": "Mechanical Engineering",
+        "institution": "National Institute of Technology, Calicut",
+        "end_year": 2012
+      }
+    ],
+    "languages": "English, Hindi, Malayalam, Basic Arabic"
+  },
+  "qaqc": {
+    "full_name": "Ramesh Kumar",
+    "professional_summary": "QA/QC Inspector with over 10 years of experience in welding and piping inspection on oil & gas projects across Saudi Arabia, Kuwait, and India. Proven track record of ensuring compliance with international codes and standards, reducing rework, and delivering projects ahead of schedule. Seeking to leverage expertise in a challenging environment.",
+    "work_experience": [
+      {
+        "role": "QA/QC Inspector (Welding & Piping)",
+        "company": "Saudi Aramco",
+        "location": "Dhahran, Saudi Arabia",
+        "start_date": "2020-03",
+        "end_date": null,
+        "highlights": [
+          "Conducted inspection of 500+ welds on high-pressure pipelines, ensuring 100% compliance with ASME B31.3 and project specifications.",
+          "Reduced welding defects by 25% through rigorous pre-weld checks and real-time guidance to welders.",
+          "Prepared and reviewed inspection test plans (ITPs) and welding procedure specifications (WPS) for multiple packages.",
+          "Coordinated with third-party inspectors and client representatives to resolve quality issues on site."
+        ]
+      },
+      {
+        "role": "QA/QC Inspector",
+        "company": "Kuwait Oil Company (KOC)",
+        "location": "Ahmadi, Kuwait",
+        "start_date": "2017-06",
+        "end_date": "2020-02",
+        "highlights": [
+          "Performed visual and dimensional inspections on piping systems and structural steel for crude oil processing facilities.",
+          "Witnessed hydrostatic testing and pneumatic testing of pipelines, ensuring zero leaks on over 200 tests.",
+          "Maintained daily inspection reports and non-conformance reports (NCRs) with detailed documentation.",
+          "Assisted in the development of a welding inspection checklist that improved consistency across teams."
+        ]
+      },
+      {
+        "role": "Welding Inspector",
+        "company": "Larsen & Toubro (L&T)",
+        "location": "Mumbai, India",
+        "start_date": "2014-09",
+        "end_date": "2017-05",
+        "highlights": [
+          "Inspected welding works for cross-country pipelines and refinery modifications, covering GTAW and SMAW processes.",
+          "Ensured all welding consumables were stored and handled as per AWS D1.1 and client requirements.",
+          "Participated in weekly quality meetings and provided input on welding progress and quality metrics.",
+          "Verified welder qualifications and ensured they were current and matched the job requirements."
+        ]
+      },
+      {
+        "role": "QA/QC Technician",
+        "company": "Al Jaber Energy Services",
+        "location": "Abu Dhabi, UAE (project-based in Kuwait)",
+        "start_date": "2012-01",
+        "end_date": "2014-08",
+        "highlights": [
+          "Supported senior inspectors in the inspection of piping spools and supports for a gas compression project.",
+          "Carried out positive material identification (PMI) and hardness testing on critical components.",
+          "Managed inspection records and ensured all documentation was updated and archived properly.",
+          "Assisted in on-site weld repair inspections, reducing rework time by 15%."
+        ]
+      },
+      {
+        "role": "Junior QA/QC Inspector",
+        "company": "Gulf Spic (India)",
+        "location": "Chennai, India",
+        "start_date": "2010-06",
+        "end_date": "2011-12",
+        "highlights": [
+          "Performed visual inspections on storage tank fabrication and piping installations.",
+          "Checked dimensions and alignment of piping systems against isometric drawings.",
+          "Prepared material inspection reports and maintained daily logs.",
+          "Learned and applied ASME Section V and IX requirements under senior supervision."
+        ]
+      }
+    ],
+    "skills": [
+      "Welding Inspection (Visual, Dimensional)",
+      "Piping Inspection",
+      "ASME B31.3, B31.4, B31.8",
+      "AWS D1.1",
+      "Hydrostatic Testing",
+      "Positive Material Identification (PMI)",
+      "Hardness Testing",
+      "Non-Conformance Reporting",
+      "Inspection Test Plans (ITP)",
+      "Welding Procedure Specification (WPS) Review",
+      "Documentation & Record Keeping",
+      "MS Office (Word, Excel)"
+    ],
+    "certifications": [
+      {
+        "name": "CSWIP 3.1 Welding Inspector",
+        "issuer": "TWI"
+      },
+      {
+        "name": "ASNT Level II in Radiographic Testing (RT)",
+        "issuer": "ASNT"
+      },
+      {
+        "name": "ASNT Level II in Ultrasonic Testing (UT)",
+        "issuer": "ASNT"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Diploma in Mechanical Engineering",
+        "field_of_study": "Mechanical Engineering",
+        "institution": "Anna University",
+        "end_year": 2009
+      }
+    ],
+    "languages": "English, Hindi, Tamil, Malayalam"
+  },
+  "icu_nurse": {
+    "full_name": "Anjali Menon",
+    "professional_summary": "Dedicated and compassionate ICU staff nurse with 8 years of experience in critical care settings across India and Saudi Arabia. Skilled in managing ventilators, administering life-saving medications, and providing holistic support to patients and families. Committed to delivering high-quality care while adhering to international safety standards.",
+    "work_experience": [
+      {
+        "role": "ICU Staff Nurse",
+        "company": "King Fahad Medical City",
+        "location": "Riyadh, Saudi Arabia",
+        "start_date": "2021-03",
+        "end_date": null,
+        "highlights": [
+          "Provide comprehensive nursing care to critically ill patients, including post-operative and trauma cases.",
+          "Manage mechanical ventilation, monitor hemodynamic status, and titrate vasopressors as per protocol.",
+          "Collaborate with multidisciplinary teams to develop and implement individualized care plans.",
+          "Participate in code blue responses and contribute to a 95% survival rate for cardiac arrest cases.",
+          "Educate patients' families on ICU procedures and post-discharge care."
+        ]
+      },
+      {
+        "role": "ICU Nurse",
+        "company": "Apollo Hospitals",
+        "location": "Chennai, India",
+        "start_date": "2018-06",
+        "end_date": "2021-02",
+        "highlights": [
+          "Handled a 12-bed ICU unit, ensuring continuous monitoring and timely intervention for deteriorating patients.",
+          "Administered medications, managed central lines, and performed arterial blood gas sampling.",
+          "Reduced catheter-associated urinary tract infections by 30% through strict adherence to infection control protocols.",
+          "Assisted in the introduction of a new electronic health record system, improving documentation accuracy.",
+          "Mentored new graduate nurses and nursing students during clinical rotations."
+        ]
+      },
+      {
+        "role": "Critical Care Nurse",
+        "company": "Fortis Malar Hospital",
+        "location": "Chennai, India",
+        "start_date": "2016-01",
+        "end_date": "2018-05",
+        "highlights": [
+          "Provided care for patients with complex conditions including sepsis, ARDS, and multi-organ failure.",
+          "Operated advanced ventilators and monitored weaning parameters, achieving a 40% reduction in average ventilation days.",
+          "Coordinated with respiratory therapists and intensivists to optimize patient outcomes.",
+          "Maintained accurate patient records and ensured compliance with hospital policies.",
+          "Recognized for excellence in patient care through the 'Star Performer' award in 2017."
+        ]
+      },
+      {
+        "role": "Staff Nurse (ICU)",
+        "company": "KIMS Hospital",
+        "location": "Thiruvananthapuram, India",
+        "start_date": "2015-06",
+        "end_date": "2015-12",
+        "highlights": [
+          "Supported senior nurses in delivering care to post-surgical and critically ill patients.",
+          "Monitored vital signs, administered medications, and documented patient progress.",
+          "Assisted in emergency procedures and maintained sterile conditions during bedside interventions.",
+          "Participated in continuing education sessions on critical care topics."
+        ]
+      }
+    ],
+    "skills": [
+      "Critical Care Nursing",
+      "Mechanical Ventilation Management",
+      "Hemodynamic Monitoring",
+      "Central Line Care",
+      "Medication Administration",
+      "Patient Education",
+      "Electronic Health Records (EHR)",
+      "Infection Control",
+      "Cardiopulmonary Resuscitation (CPR)",
+      "Emergency Response",
+      "Team Collaboration",
+      "Wound Care",
+      "Pain Management",
+      "Clinical Documentation"
+    ],
+    "certifications": [
+      {
+        "name": "Advanced Cardiac Life Support (ACLS)",
+        "issuer": "American Heart Association"
+      },
+      {
+        "name": "Basic Life Support (BLS)",
+        "issuer": "American Heart Association"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science in Nursing",
+        "field_of_study": "Nursing",
+        "institution": "Government College of Nursing, Thiruvananthapuram",
+        "end_year": 2015
+      }
+    ],
+    "languages": "English, Hindi, Malayalam, Tamil"
+  },
+  "electrical": {
+    "full_name": "Arjun Menon",
+    "professional_summary": "Seasoned Electrical Engineer with 9 years of experience in MEP building services and oil & gas substations across Saudi Arabia, UAE, and India. Proven track record in managing LV/MV panel installations, cabling, and comprehensive testing to ensure project delivery within time and budget. Adept at leading cross-functional teams and coordinating with stakeholders to achieve operational excellence.",
+    "work_experience": [
+      {
+        "role": "Senior Electrical Engineer",
+        "company": "Saudi Aramco",
+        "location": "Dhahran, Saudi Arabia",
+        "start_date": "2022-01",
+        "end_date": null,
+        "highlights": [
+          "Oversee electrical design and installation for multiple oil & gas substation projects, ensuring compliance with project specifications and safety standards.",
+          "Led a team of 12 engineers and technicians to execute MV/LV panel installations and cable pulling, reducing project downtime by 15%.",
+          "Coordinate with project managers and clients to resolve technical issues and provide regular progress reports.",
+          "Implemented rigorous testing and commissioning procedures for substation equipment, achieving a 98% first-time pass rate."
+        ]
+      },
+      {
+        "role": "Electrical Engineer",
+        "company": "AECOM",
+        "location": "Dubai, UAE",
+        "start_date": "2019-03",
+        "end_date": "2021-12",
+        "highlights": [
+          "Designed and reviewed electrical systems for commercial and residential MEP projects, including power distribution, lighting, and fire alarm systems.",
+          "Managed the installation of LV panels and cabling for a 40-floor residential tower, coordinating with contractors to meet strict deadlines.",
+          "Conducted site inspections and ensured quality control, reducing rework by 20%.",
+          "Collaborated with architects and mechanical engineers to integrate electrical designs seamlessly."
+        ]
+      },
+      {
+        "role": "Electrical Site Engineer",
+        "company": "Larsen & Toubro",
+        "location": "Mumbai, India",
+        "start_date": "2017-06",
+        "end_date": "2019-02",
+        "highlights": [
+          "Supervised electrical works for a large commercial complex, including installation of MV panels, transformers, and busbars.",
+          "Prepared and reviewed electrical drawings and BOQs, ensuring accuracy and cost-effectiveness.",
+          "Coordinated with vendors for material procurement and managed site logistics.",
+          "Conducted routine testing of electrical systems and documented results for client approval."
+        ]
+      },
+      {
+        "role": "Electrical Engineer",
+        "company": "Al Futtaim Engineering",
+        "location": "Riyadh, Saudi Arabia",
+        "start_date": "2015-08",
+        "end_date": "2017-05",
+        "highlights": [
+          "Executed electrical installation and testing for HVAC and lighting systems in commercial buildings.",
+          "Performed load calculations and voltage drop analysis to optimize cable sizing.",
+          "Assisted senior engineers in preparing method statements and risk assessments.",
+          "Managed a team of electricians and ensured adherence to safety protocols."
+        ]
+      },
+      {
+        "role": "Graduate Electrical Engineer",
+        "company": "Tata Projects",
+        "location": "Pune, India",
+        "start_date": "2014-07",
+        "end_date": "2015-07",
+        "highlights": [
+          "Supported project teams in the installation and testing of LV panels and control wiring.",
+          "Prepared as-built drawings and maintained project documentation.",
+          "Participated in site surveys and feasibility studies for new projects.",
+          "Assisted in the commissioning of electrical systems for industrial facilities."
+        ]
+      }
+    ],
+    "skills": [
+      "LV/MV Panel Design",
+      "Electrical Cabling & Wiring",
+      "Testing & Commissioning",
+      "Substation Design",
+      "Power Distribution",
+      "MEP Coordination",
+      "AutoCAD",
+      "ETAP",
+      "Project Management",
+      "Site Supervision",
+      "Load Calculation",
+      "Technical Documentation",
+      "Team Leadership",
+      "Risk Assessment"
+    ],
+    "certifications": [
+      {
+        "name": "Certified Electrical Safety Compliance Professional",
+        "issuer": "NEBOSH"
+      },
+      {
+        "name": "Project Management Professional (PMP)",
+        "issuer": "PMI"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Technology",
+        "field_of_study": "Electrical Engineering",
+        "institution": "National Institute of Technology, Trichy",
+        "end_year": 2014
+      }
+    ],
+    "languages": "English, Hindi, Malayalam, basic Arabic"
+  }
+}
