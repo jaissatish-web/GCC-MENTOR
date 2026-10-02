@@ -29,13 +29,17 @@ import { addableAt, analyzeV3, targetFromAnalysis, writeV3, type AnalysisV3 } fr
 
 const FIXED = new Set(['education', 'experience_years', 'certification', 'licence'])
 const ASKABLE = new Set(['certification', 'licence'])
+/** Kinds High's tick-list asks about: things a candidate holds but often never wrote (2026-10-02). */
+const ASK_SKILL = new Set(['tool', 'standard', 'skill', 'equipment'])
 
 // job_analyses.input_hash must be exactly 64 characters, so the v3 key is hashed again.
 export const v3Hash = (title: string, industry: string | null, jd: string | null) => sha256('v3:' + analysisInputHash(title, industry, jd))
 const modeOf = (jd: string | null) => (jd && jd.trim() ? 'job_description' : 'target_title_only') as 'job_description' | 'target_title_only'
 
 /** The profile's version without its certificates: a certificate added on the level screen keeps the analysis. */
-const workKey = (p: CareerProfileFull) => profileFingerprint({ ...p, certifications: [] })
+// Certificates AND skills are left out: both can be confirmed on the level
+// screen ("Yes, I have it" / High's tick-list), and both are applied in code.
+const workKey = (p: CareerProfileFull) => profileFingerprint({ ...p, certifications: [], skills: [] })
 
 const CERT_WORDS = /\b(certifications?|certificates?|certified|credentials?|licen[cs]es?|card)\b/gi
 
@@ -58,9 +62,16 @@ export function regroupCertifications(a: AnalysisV3, profile: CareerProfileFull)
   return {
     ...base,
     requirements: base.requirements.map((r) =>
-      r.group === 'C' && ASKABLE.has(r.kind) && profileHolds(profile, r.term) ? { ...r, group: 'A' as const, location: null, regrouped: HELD } : r,
+      r.group === 'C' && ((ASKABLE.has(r.kind) && profileHolds(profile, r.term)) || (ASK_SKILL.has(r.kind) && profileListsSkill(profile, r.term)))
+        ? { ...r, group: 'A' as const, location: null, regrouped: HELD }
+        : r,
     ),
   }
+}
+
+/** True when the profile's Skills list names this requirement (a tool, standard or skill the user confirmed). */
+export function profileListsSkill(profile: CareerProfileFull, term: string): boolean {
+  return (profile.skills ?? []).some((s) => containsTermRaw(s.name, term))
 }
 
 const HELD = 'certificate on the profile'
@@ -130,12 +141,13 @@ export function qualificationsOf(a: AnalysisV3): number | null {
 }
 
 /** The best score a level can honestly reach: every allowed keyword placed. */
-function ceilingAt(base: ScoreDocument, a: AnalysisV3, level: OptimizationLevel, target: ReturnType<typeof targetFromAnalysis>, quals: number | null, extraCerts: string[] = []) {
+function ceilingAt(base: ScoreDocument, a: AnalysisV3, level: OptimizationLevel, target: ReturnType<typeof targetFromAnalysis>, quals: number | null, extraCerts: string[] = [], extraSkills: string[] = []) {
   const allowed = [...a.requirements.filter((q) => q.group === 'A' && !FIXED.has(q.kind)), ...addableAt(a, level)].map((q) => q.term)
   const doc: ScoreDocument = {
     ...base,
     experience: [...base.experience, { entryId: 'ceiling', role: '', bullets: allowed }],
     certifications: [...base.certifications, ...extraCerts],
+    skills: [...base.skills, ...extraSkills],
   }
   return scoreResume(doc, target, quals).total
 }
@@ -149,6 +161,10 @@ export interface CheckReport {
   /** "Up to" per level — the honest ceiling. */
   expected: Record<OptimizationLevel, number>
   askCertifications: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+  /** High's tick-list: tools, standards, skills, equipment the job lists that the profile does not show. */
+  askSkills: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+  /** High's best score if the user really has every skill and certificate the job asks for. */
+  highIfConfirmed: number
 }
 
 export function checkReport(profile: CareerProfileFull, a: AnalysisV3, title: string, jd: string | null, fv?: Partial<FieldVisibility> | null): CheckReport {
@@ -171,7 +187,21 @@ export function checkReport(profile: CareerProfileFull, a: AnalysisV3, title: st
     })
     .sort((x, y) => y.gain - x.gain)
     .slice(0, 6)
-  return { mode: modeOf(jd), fieldMatch: a.fieldMatch, jobField: a.jobField, candidateField: a.candidateField, before, expected, askCertifications }
+  // High's tick-list (founder, 2026-10-02): what each one would add at High
+  // if the user really has it, and the best High can reach with all of them.
+  const promote = (qs: typeof a.requirements) => ({ ...a, requirements: a.requirements.map((r) => (qs.includes(r) ? { ...r, group: 'A' as const } : r)) })
+  const skillQs = a.requirements.filter((q) => q.group === 'C' && ASK_SKILL.has(q.kind))
+  const askSkills = skillQs
+    .map((q) => {
+      const withIt = promote([q])
+      return { term: q.term, importance: q.importance, gain: Math.max(0, ceilingAt(base, withIt, 'high', target, qualificationsOf(withIt), [], [q.term]) - expected.high) }
+    })
+    .sort((x, y) => (x.importance === y.importance ? y.gain - x.gain : x.importance === 'must' ? -1 : 1))
+    .slice(0, 15)
+  const certQs = a.requirements.filter((q) => q.group === 'C' && ASKABLE.has(q.kind))
+  const all = promote([...skillQs, ...certQs])
+  const highIfConfirmed = Math.max(expected.high, ceilingAt(base, all, 'high', target, qualificationsOf(all), certQs.map((q) => q.term), skillQs.map((q) => q.term)))
+  return { mode: modeOf(jd), fieldMatch: a.fieldMatch, jobField: a.jobField, candidateField: a.candidateField, before, expected, askCertifications, askSkills, highIfConfirmed }
 }
 
 export type BuildV3Result =

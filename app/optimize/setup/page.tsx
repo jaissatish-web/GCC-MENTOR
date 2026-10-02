@@ -108,7 +108,7 @@ const LEVELS: ReadonlyArray<{
     changes: [
       'Every activity rewritten in the job’s own language',
       'Adds points for every duty of the job that is typical of your field',
-      'Be ready to talk about every line in an interview',
+      'Asks which of the job’s tools and skills you really have, and adds them',
     ],
     explain:
       'The strongest rewrite, in the job description’s own words, plus points for every duty of the job that is typical of your field. Be ready to talk about every line in an interview.',
@@ -123,6 +123,10 @@ interface JobCheck {
   before: number
   expected: Record<OptimizationLevel, number>
   askCertifications: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+  /** High's tick-list: tools, standards, skills the job lists that the profile does not show. */
+  askSkills?: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+  /** High's best score if the user has every skill and certificate the job asks for. */
+  highIfConfirmed?: number
   /** No advert pasted: matched against the typical Gulf advert for the title. */
   typical?: boolean
   typicalAdvert?: string
@@ -443,6 +447,11 @@ function SetupScreen() {
                   <span className="text-[12.5px] font-semibold text-teal">
                     {check ? `ATS score up to ${check.expected[l.value]}` : checkState === 'loading' ? 'Working out your score…' : l.aim}
                   </span>
+                  {l.value === 'high' && check?.highIfConfirmed && check.highIfConfirmed > check.expected.high ? (
+                    <span className="-mt-1 text-[12px] font-semibold text-gold-ink">
+                      up to {check.highIfConfirmed} if you have the skills this job lists
+                    </span>
+                  ) : null}
                   <ul className="flex flex-col gap-1.5">
                     {l.changes.map((c) => (
                       <li key={c} className="flex gap-1.5 text-[13px] leading-snug text-ink-soft">
@@ -456,6 +465,13 @@ function SetupScreen() {
             })}
           </div>
           <Alert variant={level === 'easy' ? 'info' : 'warning'}>{levelInfo.explain}</Alert>
+
+          {/* HIGH's tick-list (founder, 2026-10-02): the job's tools, standards and
+              skills the profile does not show — the user ticks what is true, it
+              goes on the Career Profile, and High can then use it. */}
+          {level === 'high' && check?.askSkills?.length ? (
+            <HighSkillsChecklist items={check.askSkills} upTo={check.highIfConfirmed ?? check.expected.high} onAdded={() => setCheckRun((n) => n + 1)} />
+          ) : null}
 
           {/* Parts to rewrite — all by default, adjustable. */}
           <details className="group rounded-ctl border border-line bg-canvas px-3 py-2">
@@ -733,5 +749,90 @@ function CertAsk({ cert, onAdded }: { cert: { term: string; importance: 'must' |
         </div>
       ) : null}
     </li>
+  )
+}
+
+/**
+ * High's tick-list: "This job also asks for these — tick the ones you really
+ * have." Ticked items are saved to the Career Profile's Skills
+ * (POST /api/profile/skills) and the job check runs again (no model call), so
+ * the scores update at once. Nothing is added without a tick.
+ */
+function HighSkillsChecklist({ items, upTo, onAdded }: { items: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>; upTo: number; onAdded: () => void }) {
+  const [ticked, setTicked] = useState<string[]>([])
+  const [saving, setSaving] = useState(false)
+  const [added, setAdded] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const open = items.filter((i) => !added.includes(i.term))
+
+  const save = async () => {
+    setSaving(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/profile/skills', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ names: ticked }) })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError((body?.error as string) ?? 'Could not save them. Please try again.')
+        return
+      }
+      setAdded((a) => [...a, ...ticked])
+      setTicked([])
+      onAdded()
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Card tone="light" className="flex flex-col gap-3 border-2 border-gold/40 bg-gold-soft/40 p-4">
+      <div className="flex flex-col gap-1">
+        <p className="text-[15px] font-bold text-ink">This job also asks for these — tick the ones you really have</p>
+        <p className="text-[12.5px] leading-snug text-ink-soft">
+          They are not on your Career Profile yet, so we cannot write them for you. Tick only what you really use or know — an
+          interviewer may ask about any of them. Each one goes on your profile’s Skills and into this CV. High can reach up to {upTo}.
+        </p>
+      </div>
+      {open.length ? (
+        <ul className="grid gap-1.5 sm:grid-cols-2">
+          {open.map((i) => {
+            const on = ticked.includes(i.term)
+            return (
+              <li key={i.term}>
+                <label className={cn('flex min-h-11 cursor-pointer items-center gap-2.5 rounded-ctl border bg-white px-3 py-2 text-[13.5px]', on ? 'border-teal' : 'border-line')}>
+                  <input
+                    type="checkbox"
+                    checked={on}
+                    onChange={() => setTicked((t) => (on ? t.filter((x) => x !== i.term) : [...t, i.term]))}
+                    className="size-4 shrink-0 accent-teal"
+                  />
+                  <span className="min-w-0 flex-1 text-ink">
+                    {i.term}
+                    {i.importance === 'must' ? <span className="ml-1.5 text-[11.5px] font-semibold text-alert">required</span> : null}
+                  </span>
+                  {i.gain > 0 ? <span className="font-mono text-[11.5px] font-semibold text-teal">+{i.gain}</span> : null}
+                </label>
+              </li>
+            )
+          })}
+        </ul>
+      ) : null}
+      {added.length ? (
+        <p className="flex items-start gap-1.5 text-[12.5px] font-semibold text-ok">
+          <CheckIcon aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={2.5} />
+          Added to your Career Profile: {added.join(', ')}. The scores above include them.
+        </p>
+      ) : null}
+      {error ? <p className="text-[12.5px] text-alert">{error}</p> : null}
+      {open.length ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => void save()} disabled={saving || !ticked.length} className={buttonVariants({ variant: 'primary', size: 'sm' })}>
+            {saving ? 'Saving…' : ticked.length ? `I have ${ticked.length === 1 ? 'this' : 'these ' + ticked.length} — add to my profile` : 'Tick what you have'}
+          </button>
+          <span className="text-[12px] text-ink-muted">Or skip — High still works with what your profile already shows.</span>
+        </div>
+      ) : null}
+    </Card>
   )
 }

@@ -21,7 +21,7 @@ import { containsTermRaw, contentStems, sharesContentStem, stemsMatch } from '..
 import { totalExperienceYears } from '@/lib/experienceYears'
 import { entrySourceText } from '../evidence'
 import type { JobTargetProfile, KeywordKind } from '../types'
-import { ANALYSIS_SYSTEM, analysisUser, jobKeys, writerSystem, writerUser, type WriterLists } from './prompts'
+import { ANALYSIS_SYSTEM, analysisUser, jobKeys, maxNewPoints, writerSystem, writerUser, type WriterLists } from './prompts'
 
 export type Group = 'A' | 'B' | 'C'
 export type FieldMatch = 'same' | 'related' | 'different'
@@ -431,7 +431,7 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
     }
     const newOk = written.filter((b) => b.isNew).filter((b, i) => {
       const why =
-        i >= 3 ? 'over 3 per job'
+        i >= maxNewPoints(level) ? `over ${maxNewPoints(level)} per job`
         : /\d/.test(b.text) ? 'number'
         : CERTISH.test(b.text) && !CERTISH.test(source) ? 'certificate/degree wording'
         : leaks(b.text, source).length ? `C term: ${leaks(b.text, source)[0]}`

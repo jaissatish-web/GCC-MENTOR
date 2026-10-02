@@ -15,7 +15,7 @@
 
 import './resolve-paths'
 import { hasNumber, numbersIn, ownShare, trimFiller, trimStuffedTails, type WrittenJob } from '../lib/optimizer/v3/engine'
-import { profileHolds, regroupCertifications, v3Hash } from '../lib/optimizer/v3/service'
+import { profileHolds, profileListsSkill, regroupCertifications, v3Hash } from '../lib/optimizer/v3/service'
 import type { AnalysisV3 } from '../lib/optimizer/v3/engine'
 import { looksLikeAdvert, normTitle, typicalKey } from '../lib/optimizer/v3/typicalAdvert'
 import type { CareerProfileFull } from '../types/careerProfile'
@@ -81,6 +81,20 @@ const re = regroupCertifications(ana, withCerts('LEED AP', 'Revit MEP'))
 check('held certificate moves to shown', re.requirements[0].group === 'A')
 check('only certificates and licences move — a tool stays not shown', re.requirements[1].group === 'C')
 check('a certificate removed later stops counting', regroupCertifications(re, withCerts('Revit MEP')).requirements[0].group === 'C')
+
+console.log("High's tick-list: skills the user confirms")
+const withSkills = (...names: string[]) => ({ certifications: [], skills: names.map((n, i) => ({ id: 's' + i, profile_id: 'p', name: n, sort_order: i, created_at: '' })) }) as unknown as CareerProfileFull
+check('a ticked tool is on the profile', profileListsSkill(withSkills('AutoCAD', 'Revit MEP'), 'Revit MEP'))
+const hi = { jobField: 'MEP', candidateField: 'MEP', fieldMatch: 'same', ms: 0, inputTokens: 0, outputTokens: 0, requirements: [
+  { term: 'Revit MEP', importance: 'must', kind: 'tool', group: 'C', location: null, quote: null },
+  { term: 'ASHRAE', importance: 'must', kind: 'standard', group: 'C', location: null, quote: null },
+  { term: 'high-rise projects', importance: 'must', kind: 'domain', group: 'C', location: null, quote: null },
+] } as AnalysisV3
+const hiRe = regroupCertifications(hi, withSkills('Revit MEP'))
+check('a ticked tool moves to shown', hiRe.requirements[0].group === 'A')
+check('an unticked standard stays not shown', hiRe.requirements[1].group === 'C')
+check('experience claims are never ticked in (domain stays not shown)', regroupCertifications(hi, withSkills('high-rise projects')).requirements[2].group === 'C')
+check('a skill removed later stops counting', regroupCertifications(hiRe, withSkills()).requirements[0].group === 'C')
 
 console.log('typical advert for a title with no advert')
 check('same title in different spelling shares one advert', typicalKey('Senior  MEP Engineer!', null) === typicalKey('senior mep engineer', ''))

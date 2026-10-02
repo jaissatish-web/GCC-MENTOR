@@ -57,6 +57,9 @@ const LEVEL_TEXT: Record<OptimizationLevel, string> = {
   high: 'HIGH: Rewrite every bullet in the job description\'s vocabulary. Do not keep the original wording. Add a new point for EVERY requirement in list B.',
 }
 
+/** New points allowed per job: High may add one more than Moderate (2026-10-02 — High must never come out below Moderate). */
+export const maxNewPoints = (level: OptimizationLevel) => (level === 'high' ? 4 : 3)
+
 export function writerSystem(targetTitle: string, level: OptimizationLevel): string {
   const t = targetTitle.trim()
   const newPoints =
@@ -66,7 +69,7 @@ export function writerSystem(targetTitle: string, level: OptimizationLevel): str
 NEW POINTS
 - "new": true ONLY for a point written for a list-B requirement. Everything built from the candidate's own facts is "new": false, however much you reword it.
 - A list-B requirement that naturally belongs to one of the candidate's own bullets may be added to that bullet instead ("Led testing and commissioning of AHUs and pumps, including troubleshooting") — that bullet stays "new": false.
-- Put each one in the job given in list B. At most 3 new points per job.
+- Put each one in the job given in list B. At most ${maxNewPoints(level)} new points per job.${level === 'high' ? "\n- HIGH: every requirement in list B must appear in the CV, as a new point or inside one of the candidate's own bullets." : ''}
 - Write it as a responsibility or skill in the job description's words.
 - Never put a number, percentage or amount in a new point.
 - Points marked "-> summary" (soft skills) go into the summary as a short phrase. The summary may also name up to 2 other list-B strengths.`
