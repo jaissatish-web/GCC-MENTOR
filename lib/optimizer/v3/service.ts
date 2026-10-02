@@ -321,6 +321,7 @@ export async function buildV3(opts: {
     target_band: reachableTargetBand(level, check.expected[level]),
     field_match: { match: a.fieldMatch, job_field: a.jobField, candidate_field: a.candidateField },
     ask_certifications: check.askCertifications,
+    ...(opts.autoApply && suggestions.length ? { auto_applied: true } : {}),
     ...(opts.typicalAdvert && jd ? { advert_source: 'typical' as const, typical_advert: jd } : {}),
     added_terms: [
       ...new Set([

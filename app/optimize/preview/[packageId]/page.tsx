@@ -92,6 +92,8 @@ function PreviewInner({ packageId }: { packageId: string }) {
   const [confirmed, setConfirmed] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  /** Added lines that went into the CV automatically (2nd CV onwards) that the user removed here. */
+  const [removedAuto, setRemovedAuto] = useState<string[]>([])
   const didInit = useRef(false)
 
   useEffect(() => {
@@ -132,6 +134,13 @@ function PreviewInner({ packageId }: { packageId: string }) {
   }, [report])
 
   const addedTerms = useMemo(() => new Set((report?.added_terms ?? []).map((t) => t.toLowerCase())), [report])
+  // Lines the optimizer ADDED and put straight into the CV (after the one-time
+  // agreement, launch audit 2026-10-02): shown in yellow here with Remove, so
+  // nothing added is ever unseen.
+  const autoAdded = useMemo(
+    () => new Map((report?.auto_applied ? report.suggestions ?? [] : []).filter((x) => x.status === 'confirmed' && x.block !== 'summary' && x.block !== 'skills').map((x) => [x.text.trim(), x.id])),
+    [report],
+  )
 
   const edited: ResumeDocument | null = useMemo(
     () =>
@@ -190,13 +199,16 @@ function PreviewInner({ packageId }: { packageId: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           document: edited,
-          ...(pending.length
+          ...(pending.length || removedAuto.length
             ? {
-                suggestion_actions: pending.map((s) =>
-                  drafts[s.id]?.keep && drafts[s.id]?.text.trim()
-                    ? { id: s.id, action: 'confirm', text: drafts[s.id].text.trim() }
-                    : { id: s.id, action: 'dismiss', text: null },
-                ),
+                suggestion_actions: [
+                  ...pending.map((s) =>
+                    drafts[s.id]?.keep && drafts[s.id]?.text.trim()
+                      ? { id: s.id, action: 'confirm', text: drafts[s.id].text.trim() }
+                      : { id: s.id, action: 'dismiss', text: null },
+                  ),
+                  ...removedAuto.map((sid) => ({ id: sid, action: 'dismiss', text: null })),
+                ],
               }
             : {}),
         }),
@@ -336,7 +348,9 @@ function PreviewInner({ packageId }: { packageId: string }) {
                   </p>
                   <span className="text-[12px] text-ink-muted">{item.range}</span>
                 </div>
-                {block && !block.was_optimized ? (
+                {block && !(block.source_bullets ?? []).some((x) => x.trim()) ? (
+                  <p className="text-[12px] text-ink-muted">No duties in your Career Profile for this job yet. Add what you did there for a stronger, true CV.</p>
+                ) : block && !block.was_optimized ? (
                   <p className="text-[12px] text-ink-muted">Kept in your own words (the rewrite could not be proven from your profile).</p>
                 ) : null}
                 {editing === id ? (
@@ -350,11 +364,32 @@ function PreviewInner({ packageId }: { packageId: string }) {
                 ) : (
                   <ClickToEdit onEdit={() => setEditing(id)}>
                     <ul className="flex list-disc flex-col gap-1.5 pl-5 text-[14px] leading-relaxed text-ink">
-                      {bullets.filter((b) => b.trim()).map((b, i) => (
-                        <li key={i}>
-                          <Colored text={b} source={block?.was_optimized ? source : null} re={keywordRe} added={addedTerms} />
-                        </li>
-                      ))}
+                      {bullets.filter((b) => b.trim()).map((b, i) => {
+                        const autoId = autoAdded.get(b.trim())
+                        return autoId ? (
+                          <li key={i} className="rounded-ctl bg-gold-soft px-2 py-1.5 marker:text-gold-ink">
+                            <span className="text-ink">{b}</span>
+                            <span className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-gold-ink">
+                              Added for this job, typical of your field
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setRoles((r) => ({ ...r, [id]: (r[id] ?? item.bullets).filter((x) => x.trim() !== b.trim()) }))
+                                  setRemovedAuto((list) => [...list, autoId])
+                                }}
+                                className="min-h-9 rounded-ctl border border-gold/50 bg-white px-3 font-semibold text-gold-ink"
+                              >
+                                Remove
+                              </button>
+                            </span>
+                          </li>
+                        ) : (
+                          <li key={i}>
+                            <Colored text={b} source={block?.was_optimized ? source : null} re={keywordRe} added={addedTerms} />
+                          </li>
+                        )
+                      })}
                     </ul>
                   </ClickToEdit>
                 )}

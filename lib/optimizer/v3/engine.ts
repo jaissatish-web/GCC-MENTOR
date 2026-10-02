@@ -194,6 +194,20 @@ export function writerLists(profile: CareerProfileFull, a: AnalysisV3, level: Op
   }
 }
 
+/**
+ * A job with no duties of its own — common in Gulf "biodata" CVs that list
+ * employer, title and dates only. There is nothing to reword, so every line
+ * written for it is an ADDED line (launch audit 2026-10-02: such lines were
+ * shown as "reworded from your profile", including "Supervised junior
+ * accountants" for a CV that never said so).
+ */
+export function hasOwnDuties(e: { highlights?: string[] | null; description?: string | null }): boolean {
+  return (e.highlights ?? []).some((h) => h.trim() !== '') || !!e.description?.trim()
+}
+
+/** Added lines allowed for a job with no duties: few, and never more than the level allows. */
+export const NO_DUTY_CAP = 3
+
 /** `added`: list-B terms an enhanced rewrite brings in (shown in yellow the first time). */
 export interface WrittenBullet { text: string; isNew: boolean; added?: string[] }
 export interface WrittenJob { id: string; bullets: WrittenBullet[]; keptOriginal: boolean; droppedNew: string[] }
@@ -333,7 +347,12 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
   //  - mostly new words -> a new point, judged by the new-point rules.
   const addable = addableAt(a, level)
   for (const [id, bullets] of byId) {
-    const src = entrySourceText(profile.work_experience.find((e) => e.id === id)!)
+    const entry = profile.work_experience.find((e) => e.id === id)!
+    if (!hasOwnDuties(entry)) {
+      for (const b of bullets) { b.isNew = true; delete b.added }
+      continue
+    }
+    const src = entrySourceText(entry)
     for (const b of bullets) {
       if (b.isNew) continue
       const added = addable.filter((r) => containsTermRaw(b.text, r.term) && !containsTermRaw(src, r.term)).map((r) => r.term)
@@ -409,6 +428,8 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
     const written = byId.get(id)
     if (!written || !written.length) { caught.push(`no_output@${key}`); return { id, bullets: original, keptOriginal: true, droppedNew: [] } }
     const source = entrySourceText(e)
+    const ownDuties = hasOwnDuties(e)
+    const cap = ownDuties ? maxNewPoints(level) : Math.min(NO_DUTY_CAP, maxNewPoints(level))
     const rewritten = written.filter((b) => !b.isNew)
     let keptOriginal = failedOwners.has(id)
     if (!keptOriginal && rewritten.some((b) => leaks(b.text, source).length)) { caught.push(`c_term_in_rewrite@${key}`); keptOriginal = true }
@@ -420,6 +441,8 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
     // A point marked new but built only from this job's own facts is a rewrite:
     // if it passes the same truth check as every rewritten bullet, it is kept as one.
     for (const b of written.filter((x) => x.isNew)) {
+      // A job with no duties has no facts of its own to rebuild a line from.
+      if (!ownDuties) break
       if (leaks(b.text, source).length || mine.some((r) => containsTermRaw(b.text, r.term))) continue
       const probe = validateGrounding(
         profile,
@@ -429,9 +452,11 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
       )
       if (!probe.failures.some((f) => f.severity === 'hard' && f.owner !== 'skills_order' && f.owner !== 'summary')) b.isNew = false
     }
-    const newOk = written.filter((b) => b.isNew).filter((b, i) => {
+    // The cap counts lines KEPT, so a rejected line does not use up a place.
+    let accepted = 0
+    const newOk = written.filter((b) => b.isNew).filter((b) => {
       const why =
-        i >= maxNewPoints(level) ? `over ${maxNewPoints(level)} per job`
+        accepted >= cap ? `over ${cap} per job`
         : /\d/.test(b.text) ? 'number'
         : CERTISH.test(b.text) && !CERTISH.test(source) ? 'certificate/degree wording'
         : leaks(b.text, source).length ? `C term: ${leaks(b.text, source)[0]}`
@@ -440,6 +465,7 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
         : written.some((o) => !o.isNew && ownShare(b.text, o.text, []) >= 0.75) ? 'repeats a line already in this job'
         : null
       if (why) { droppedNew.push(`${why}: ${b.text}`); caught.push(`new_point_dropped@${key}`) }
+      else accepted++
       return !why
     })
     if (keptOriginal) return { id, bullets: [...original, ...newOk], keptOriginal, droppedNew }

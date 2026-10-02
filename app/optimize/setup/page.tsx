@@ -58,6 +58,8 @@ interface ExperienceRow {
   id: string
   company: string
   label: string
+  /** False for a job listed with no duties (nothing to reword). */
+  hasDuties: boolean
 }
 
 // Each level states the ATS score band it aims for
@@ -183,7 +185,7 @@ function SetupScreen() {
     fetch('/api/profile', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
       .then((data) => {
-        const list: Array<{ id?: string; company?: string; role?: string }> = Array.isArray(data?.work_experience)
+        const list: Array<{ id?: string; company?: string; role?: string; highlights?: string[] | null; description?: string | null }> = Array.isArray(data?.work_experience)
           ? data.work_experience
           : []
         const rows: ExperienceRow[] = list
@@ -192,6 +194,7 @@ function SetupScreen() {
             id: e.id as string,
             company: e.company ?? '',
             label: [e.role, e.company].filter(Boolean).join(' · '),
+            hasDuties: (e.highlights ?? []).some((h) => h.trim() !== '') || !!e.description?.trim(),
           }))
         setProfileId(typeof data?.id === 'string' ? (data.id as string) : null)
         setExperiences(rows)
@@ -249,7 +252,7 @@ function SetupScreen() {
       'Scoring your current CV (before)',
     ]
     if (summaryOn) list.push('Rewriting your summary')
-    for (const e of experiences) if (expOn[e.id]) list.push(`Rewriting your activities at ${e.company || 'this role'}`)
+    for (const e of experiences) if (expOn[e.id]) list.push(e.hasDuties ? `Rewriting your activities at ${e.company || 'this role'}` : `Checking what fits this job at ${e.company || 'this role'}`)
     list.push('Ordering skills by relevance')
     list.push('Checking every line against your Career Profile')
     list.push('Scoring your optimized CV (after)')

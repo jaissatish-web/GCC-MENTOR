@@ -608,6 +608,9 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
     const confirmed: Suggestion[] = []
     nextSuggestions = storedForSuggestions.suggestions.map((s) => {
       const act = suggestionActions.find((a) => a.id === s.id)
+      // A line added straight into the CV (auto_applied) can be removed later too;
+      // the edited document the same request carries no longer has it.
+      if (act?.action === 'dismiss' && s.status === 'confirmed' && storedForSuggestions.auto_applied) return { ...s, status: 'dismissed' as const }
       if (!act || s.status !== 'pending') return s
       if (act.action === 'dismiss') return { ...s, status: 'dismissed' as const }
       const done = { ...s, text: act.text ?? s.text, status: 'confirmed' as const }

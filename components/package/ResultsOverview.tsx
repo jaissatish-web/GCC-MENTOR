@@ -219,9 +219,18 @@ export function ResultsOverview({
               {rewritten} of {blocks.length} role{blocks.length === 1 ? '' : 's'} rewritten
             </Change>
             <Change ok={skillsOrdered > 0}>Skills ordered by relevance</Change>
-            {confirmed > 0 ? <Change ok>{confirmed} suggested line{confirmed === 1 ? '' : 's'} you confirmed</Change> : null}
+            {confirmed > 0 && !report?.auto_applied ? <Change ok>{confirmed} suggested line{confirmed === 1 ? '' : 's'} you confirmed</Change> : null}
             <Change ok>Employers, titles, dates and education unchanged</Change>
           </ul>
+          {/* Lines added straight into the CV (after the one-time agreement) are
+              never silent: say how many and link to where they can be removed. */}
+          {confirmed > 0 && report?.auto_applied ? (
+            <div className="flex flex-col gap-1 rounded-ctl border border-gold/50 bg-white p-3">
+              <p className="text-[13px] font-semibold text-ink">{confirmed} line{confirmed === 1 ? '' : 's'} added for this job, typical of your field</p>
+              <p className="text-[12.5px] text-ink-soft">Keep only what is true for you, you may be asked about any line in an interview.</p>
+              <Link href={`/optimize/preview/${id}`} className="inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-gold-ink underline-offset-2 hover:underline">See and remove →</Link>
+            </div>
+          ) : null}
           <Link href={`/optimize/preview/${id}`} className="inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-gold-ink underline-offset-2 hover:underline">
             {CTA.seeChanges} →
           </Link>

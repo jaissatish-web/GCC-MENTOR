@@ -167,4 +167,6 @@ export interface MatchReport {
   /** v3: no advert was pasted — matched against the typical Gulf advert for the title (typical_job_adverts). */
   advert_source?: 'typical'
   typical_advert?: string
+  /** v3: added lines went straight into the CV (one-time agreement + an earlier CV); the CV page and review page show them so none is unseen. */
+  auto_applied?: boolean
 }

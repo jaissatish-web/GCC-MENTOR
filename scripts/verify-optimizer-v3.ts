@@ -14,7 +14,7 @@
  */
 
 import './resolve-paths'
-import { hasNumber, numbersIn, ownShare, trimFiller, trimStuffedTails, type WrittenJob } from '../lib/optimizer/v3/engine'
+import { hasNumber, hasOwnDuties, numbersIn, ownShare, trimFiller, trimStuffedTails, type WrittenJob } from '../lib/optimizer/v3/engine'
 import { profileHolds, profileListsSkill, regroupCertifications, v3Hash } from '../lib/optimizer/v3/service'
 import type { AnalysisV3 } from '../lib/optimizer/v3/engine'
 import { looksLikeAdvert, normTitle, typicalKey } from '../lib/optimizer/v3/typicalAdvert'
@@ -37,6 +37,11 @@ check('mostly new words is a new point', ownShare('Mentor junior engineers and t
 
 check('added point repeating a line is caught', ownShare('Managed project documentation, including as-built drawings and O&M manuals.', 'Prepared method statements, ITPs, and as-built drawings, maintaining accurate documentation and O&M manuals.', []) >= 0.75)
 check('a genuinely different point is not', ownShare('Generated technical reports on installation progress and quality.', 'Prepared method statements, ITPs, and as-built drawings, maintaining accurate documentation and O&M manuals.', []) < 0.75)
+
+console.log('jobs with no duties (launch audit: nothing to reword)')
+check('a job with duties has its own duties', hasOwnDuties({ highlights: ['Managed AP for 400+ vendors'] }))
+check('a job listed with no duties has none', !hasOwnDuties({ highlights: [] }) && !hasOwnDuties({ highlights: null, description: '  ' }))
+check('a description counts as duties', hasOwnDuties({ highlights: [], description: 'Handled payroll for 200 staff' }))
 
 console.log('numbers kept')
 check('finds every number', JSON.stringify(numbersIn('a team of 25 on a 40-storey tower worth AED 1,200,000 (12.5%)')) === JSON.stringify(['25', '40', '1,200,000', '12.5']))

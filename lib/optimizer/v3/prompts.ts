@@ -133,6 +133,10 @@ export function renderExperience(profile: CareerProfileFull): string {
     lines.push(`[${key}] ${e.role} — ${e.company}${e.location ? ` — ${e.location}` : ''} — ${month(e.start_date)} to ${month(e.end_date)}`)
     if (e.description) lines.push(`  ${e.description}`)
     for (const h of e.highlights ?? []) lines.push(`  - ${h}`)
+    // A job with no duties: nothing to reword (launch audit 2026-10-02).
+    if (!(e.highlights ?? []).some((h) => h.trim()) && !e.description?.trim()) {
+      lines.push('  (no duties listed — do NOT write duties for this job from its title; only list-B new points, "new": true, at most 3)')
+    }
   }
   const skills = [...(profile.skills ?? [])].sort((a, b) => a.sort_order - b.sort_order).map((s) => s.name)
   lines.push(`Skills: ${skills.join(', ') || '(none)'}`)
