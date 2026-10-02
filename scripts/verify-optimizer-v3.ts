@@ -32,6 +32,9 @@ console.log('enhanced rewrite or new point')
 check('real duty + one job term stays a rewrite', ownShare('Led testing and commissioning of AHUs, FCUs, and pumps, including troubleshooting and problem-solving of system failures.', mepJob, ['troubleshooting']) >= 0.5)
 check('mostly new words is a new point', ownShare('Mentor junior engineers and technicians to enhance team capability and ensure quality standards.', mepJob, ['mentor junior engineers']) < 0.5)
 
+check('added point repeating a line is caught', ownShare('Managed project documentation, including as-built drawings and O&M manuals.', 'Prepared method statements, ITPs, and as-built drawings, maintaining accurate documentation and O&M manuals.', []) >= 0.75)
+check('a genuinely different point is not', ownShare('Generated technical reports on installation progress and quality.', 'Prepared method statements, ITPs, and as-built drawings, maintaining accurate documentation and O&M manuals.', []) < 0.75)
+
 console.log('numbers kept')
 check('finds every number', JSON.stringify(numbersIn('a team of 25 on a 40-storey tower worth AED 1,200,000 (12.5%)')) === JSON.stringify(['25', '40', '1,200,000', '12.5']))
 check('25 is not in 2025', !hasNumber('Since 2025 the team grew', '25'))

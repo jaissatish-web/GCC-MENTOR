@@ -394,6 +394,7 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
         : leaks(b.text, source).length ? `C term: ${leaks(b.text, source)[0]}`
         : !mine.some((r) => containsTermRaw(b.text, r.term)) ? 'not one of this job\'s B requirements'
         : /\b(I|my|me)\b/.test(b.text) ? 'first person'
+        : written.some((o) => !o.isNew && ownShare(b.text, o.text, []) >= 0.75) ? 'repeats a line already in this job'
         : null
       if (why) { droppedNew.push(`${why}: ${b.text}`); caught.push(`new_point_dropped@${key}`) }
       return !why
