@@ -32,6 +32,7 @@ const TS_CHECKS = [
   'verify-profile-data.ts',
   'verify-resume-parse.ts',
   'verify-match-terms.ts',
+  'verify-optimizer-v3.ts',
   'verify-service-outputs.ts',
   'verify-landing-anchors.ts',
   'verify-runtask.ts',

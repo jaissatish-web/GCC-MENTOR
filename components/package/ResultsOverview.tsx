@@ -143,6 +143,26 @@ export function ResultsOverview({
                   ? `Up to ${report.projected_with_suggestions ?? report.after.total} if you confirm the ${pending} suggested line${pending === 1 ? '' : 's'} below.`
                   : `Highest possible with your current profile: ${Math.max(report.max_total, report.after.total)}.`}
               </p>
+              {/* Optimizer v3: say plainly when the job is outside the user's field. */}
+              {report.field_match && report.field_match.match !== 'same' ? (
+                <p className="text-[12.5px] leading-snug text-ink-soft">
+                  {report.field_match.match === 'different'
+                    ? `This job (${report.field_match.job_field}) is outside your field (${report.field_match.candidate_field}), so the score stays low. Jobs in your field score much higher.`
+                    : `This job is partly your field: requirements outside ${report.field_match.candidate_field} stay unmet.`}
+                </p>
+              ) : null}
+              {/* Certificates are never added for the user — offered instead. */}
+              {report.ask_certifications?.length ? (
+                <p className="text-[12.5px] leading-snug text-ink-soft">
+                  The job also asks for{' '}
+                  <strong className="text-ink">{report.ask_certifications.slice(0, 3).map((c) => c.term).join(', ')}</strong>.
+                  {' '}If you hold one,{' '}
+                  <Link href="/profile?open=sec_certifications" className="font-semibold text-teal underline-offset-2 hover:underline">
+                    add it to your profile
+                  </Link>{' '}
+                  and optimize again for a higher score.
+                </p>
+              ) : null}
             </>
           ) : (
             <>

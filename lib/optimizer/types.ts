@@ -152,4 +152,16 @@ export interface MatchReport {
   projected_with_suggestions?: number
   /** The level's target band, e.g. [75, 85]. */
   target_band?: [number, number]
+  /** Which engine built it. Absent = the 2026-09-17 engine. */
+  engine?: 'v3'
+  /** v3: how the candidate's field relates to the job's. */
+  field_match?: { match: 'same' | 'related' | 'different'; job_field: string; candidate_field: string }
+  /**
+   * v3: certificates and licences the job asks for that the profile does not
+   * show. NEVER written into the CV — offered to the user to add to their
+   * Career Profile if they really hold them, with the points each would add.
+   */
+  ask_certifications?: Array<{ term: string; importance: KeywordImportance; gain: number }>
+  /** v3: job terms (list B) added inside the candidate's own rewritten lines — yellow on the first review. */
+  added_terms?: string[]
 }

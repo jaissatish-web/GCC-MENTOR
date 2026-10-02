@@ -36,8 +36,8 @@ const STEPS = [
 
 const FINAL_STEP = 'Checking every line against your profile'
 
-/** The whole list is paced across this, then holds on its last step. */
-const PACE_MS = 180000
+/** The whole list is paced across this, then holds on its last step (optimizer v3: ~15–25s). */
+const PACE_MS = 24000
 
 export default function GeneratePage(props: { params: Promise<{ packageId: string }> }) {
   const params = use(props.params);
@@ -92,8 +92,11 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
       } catch {
         /* display-only handoff */
       }
-      // Review first (2026-09-17): the colourful review page, then the results.
-      router.replace(`/optimize/preview/${encodeURIComponent(packageId)}`)
+      // Optimizer v3 (2026-10-02): after the one-time agreement and a first
+      // optimization seen on the review page, the added points are already in
+      // the CV — straight to the result and its Download. Otherwise the review
+      // page first, with the added points in yellow.
+      router.replace(body?.autoApplied ? `/package/${encodeURIComponent(packageId)}` : `/optimize/preview/${encodeURIComponent(packageId)}`)
     } catch {
       window.clearInterval(timer)
       setError('Network error. Please check your connection and try again.')
@@ -169,10 +172,10 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
           activeIndex={Math.max(0, activeIndex)}
           notes={GENERATE_NOTES}
         />
-        {/* Measured 2026-09-18: a full build ran about three minutes. Saying so
-            up front stops people abandoning a build that is working. */}
+        {/* Optimizer v3 (2026-10-02): the job is read once on the level screen and
+            reused here, so the build is one writing call — about 15–25 seconds. */}
         <p className="text-center text-[12.5px] leading-relaxed text-white/60">
-          A full build usually takes 2–4 minutes. Keep this page open — it moves on by itself.
+          This usually takes under 30 seconds. Keep this page open — it moves on by itself.
           <span className="mt-1 block font-mono text-[12px] tabular-nums text-white/45">
             {Math.floor(elapsedMs / 60000)}:{String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0')} elapsed
           </span>

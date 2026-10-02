@@ -1364,6 +1364,16 @@ function ProfileScreen() {
     },
     [sectionOfField],
   )
+  // ?open=sec_certifications (optimizer v3, 2026-10-02): the level screen's
+  // "add a certificate you hold" link lands on the right section, open.
+  const openedFromLink = useRef(false)
+  useEffect(() => {
+    const open = searchParams.get('open')
+    if (openedFromLink.current || !loaded || !editor || !open || !FORM_SECTIONS.some((s) => s.id === open)) return
+    openedFromLink.current = true
+    goToProfilePart({ sectionId: open })
+  }, [loaded, editor, searchParams, goToProfilePart])
+
   useEffect(() => {
     if (!pendingFocus) return
     const input = pendingFocus.field ? document.getElementById(`f_${pendingFocus.field}`) : null

@@ -127,6 +127,8 @@ export interface CareerProfile {
   professional_licence?: PaperworkStatus | null
   saudi_verification?: PaperworkStatus | null
   arabic_level?: ArabicLevel | null
+  /** When the user accepted the optimizer's one-time agreement (migration 061). */
+  optimizer_consent_at?: string | null
 
   // Visibility storage
   field_visibility: FieldVisibility

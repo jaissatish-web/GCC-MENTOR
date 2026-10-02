@@ -64,6 +64,7 @@ export function writerSystem(targetTitle: string, level: OptimizationLevel): str
       : `
 NEW POINTS
 - "new": true ONLY for a point written for a list-B requirement. Everything built from the candidate's own facts is "new": false, however much you reword it.
+- A list-B requirement that naturally belongs to one of the candidate's own bullets may be added to that bullet instead ("Led testing and commissioning of AHUs and pumps, including troubleshooting") — that bullet stays "new": false.
 - Put each one in the job given in list B. At most 3 new points per job.
 - Write it as a responsibility or skill in the job description's words.
 - Never put a number, percentage or amount in a new point.
@@ -88,8 +89,10 @@ TRUTH RULES
 HOW A SPECIALIST WRITES
 - Lead each bullet with the result or responsibility that matters most for this job.
 - Every keyword in list A MUST appear at least once, written exactly as listed (the job's own spelling — "Civil Defense", not "Civil Defence"), in the summary or in a job where it is shown. The ATS only counts exact words. Soft skills go naturally into the summary or the bullet that shows them.
+- Keep every fact of every job. Each original bullet's facts — team sizes, numbers, systems, results — must still be in your bullets. Reword and reorder freely; never drop a fact.
 - Most relevant bullets first in each job. Current job in present tense, past jobs in past tense.
-- One line per bullet where possible. No filler ("ensuring compliance", "to the highest standards").
+- One line per bullet where possible. No filler: never end a bullet with "ensuring…", "facilitating…", "contributing to…" or "to the highest standards". End on the work, the system or the result.
+- Write like a person, not a keyword list: a job term must be part of what the sentence says. Broad terms (stakeholder management, project management, problem-solving) belong in the summary, not tacked onto a bullet.
 - Summary, 3–4 lines: open with the candidate's OWN current title or field + years of experience (never call them the target job title — they have not held it), then their strongest proven strengths for this job, then their best real numbers.
 
 LEVEL

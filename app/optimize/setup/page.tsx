@@ -21,6 +21,12 @@ import { CTA, NAMES } from '@/lib/serviceLabels'
 /**
  * Step 2 of 3 — choose the optimization level. Route /optimize/setup.
  *
+ * OPTIMIZER v3 (2026-10-02, founder decision) supersedes the note below: the
+ * screen now CHECKS THE JOB on arrival (POST /api/optimize/check — one cached
+ * analysis the build reuses) and shows the field match, the honest best score
+ * per level and certificates to ask about; Moderate is the default; the first
+ * time, the user agrees once before Moderate/High.
+ *
  * REBUILT 2026-09-17 (founder decision): NO SCORE BEFORE OPTIMIZING.
  * This screen used to call POST /api/optimize/analyze on arrival and show a
  * match report, per-level projections and "do you have these?" tick boxes
@@ -65,45 +71,58 @@ const LEVELS: ReadonlyArray<{
   changes: readonly string[]
   explain: string
 }> = [
+  // Optimizer v3 (2026-10-02, founder decisions): Moderate is the default;
+  // added points are duties typical of the candidate's OWN field — never
+  // certificates, education, employers, titles, dates or personal details.
   {
     value: 'easy',
     label: 'Easy',
-    aim: 'Aims for 60–75',
+    aim: 'Uses only what your profile says',
     tag: 'Light touch',
     changes: [
       'Summary and work activities reworded in the job’s keywords',
       'Uses only what your profile already says',
-      'No suggested lines',
+      'Adds nothing new',
     ],
     explain: 'Rewrites your summary and work activities in the job’s keywords, using only what your profile already says.',
   },
   {
     value: 'moderate',
     label: 'Moderate',
-    aim: 'Aims for 75–85',
-    tag: 'Balanced',
+    aim: 'Adds duties typical of your field',
+    tag: 'Recommended',
     changes: [
-      'Everything in Easy',
-      'Suggested lines and skills for the job’s must-have requirements',
-      'Suggestions shown in yellow — keep only what is true',
+      'Everything in Easy, rewritten to lead with what this job needs',
+      'Adds points for the job’s must-have duties that are typical of your field',
+      'Never adds certificates, dates, companies or personal details',
     ],
     explain:
-      'Everything in Easy, plus suggested lines and skills for the must-have requirements your profile doesn’t mention. They appear in yellow on the review page — keep only what is true.',
+      'Everything in Easy, plus points for the job’s must-have duties that someone doing your job almost certainly does. Certificates, education, employers, dates and personal details are never added or changed.',
   },
   {
     value: 'high',
     label: 'High',
-    aim: 'Aims for 85–95',
+    aim: 'Every line in the job’s own words',
     tag: 'Strongest',
     changes: [
-      'The strongest rewrite',
-      'Suggested lines and skills for every requirement of the job',
-      'Be ready to talk about every line you keep',
+      'Every activity rewritten in the job’s own language',
+      'Adds points for every duty of the job that is typical of your field',
+      'Be ready to talk about every line in an interview',
     ],
     explain:
-      'The strongest rewrite, plus suggested lines and skills for every requirement your profile doesn’t mention, shown in yellow on the review page. Keep only what is true — be ready to talk about every line in an interview.',
+      'The strongest rewrite, in the job description’s own words, plus points for every duty of the job that is typical of your field. Be ready to talk about every line in an interview.',
   },
 ]
+
+interface JobCheck {
+  mode: 'job_description' | 'target_title_only'
+  fieldMatch: 'same' | 'related' | 'different'
+  jobField: string
+  candidateField: string
+  before: number
+  expected: Record<OptimizationLevel, number>
+  askCertifications: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+}
 
 function SetupScreen() {
   const router = useRouter()
@@ -117,7 +136,14 @@ function SetupScreen() {
   const [error, setError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [showDescription, setShowDescription] = useState(false)
+  // Optimizer v3: the job check, and the first-time agreement.
+  const [check, setCheck] = useState<JobCheck | null>(null)
+  const [checkState, setCheckState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [firstTime, setFirstTime] = useState(false)
+  const [consented, setConsented] = useState(true)
+  const [agreed, setAgreed] = useState(false)
   const didInit = useRef(false)
+  const didCheck = useRef(false)
 
   useEffect(() => {
     if (didInit.current) return
@@ -170,6 +196,32 @@ function SetupScreen() {
       })
   }, [router])
 
+  // CHECK THIS JOB (optimizer v3, 2026-10-02). One analysis, cached and reused
+  // by the build — so it runs while the user reads the levels and the build
+  // then only writes. Never blocks optimizing: a failed check just shows less.
+  useEffect(() => {
+    if (didCheck.current || !draft || !profileId) return
+    didCheck.current = true
+    setCheckState('loading')
+    fetch('/api/optimize/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        profileId,
+        targetFields: { target_job_title: draft.target_job_title, target_industry: draft.target_industry.trim() || null },
+        jobDescription: draft.job_description.trim() || null,
+      }),
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((data) => {
+        setCheck(data.check as JobCheck)
+        setFirstTime(!!data.firstTime)
+        setConsented(!!data.consented)
+        setCheckState('done')
+      })
+      .catch(() => setCheckState('error'))
+  }, [draft, profileId])
+
   const selectedIds = useMemo(() => experiences.filter((e) => expOn[e.id]).map((e) => e.id), [experiences, expOn])
   const nothingSelected = !summaryOn && selectedIds.length === 0
   const allSelected = summaryOn && selectedIds.length === experiences.length
@@ -190,8 +242,10 @@ function SetupScreen() {
     return Array.from(new Set(list))
   }, [draft, hasJobDescription, summaryOn, experiences, expOn])
 
+  // Moderate and High add points: the first time, the user agrees once.
+  const needsAgreement = level !== 'easy' && !consented
   const onSubmit = useCallback(async () => {
-    if (!draft || !profileId || submitting || nothingSelected) return
+    if (!draft || !profileId || submitting || nothingSelected || (needsAgreement && !agreed)) return
     setError(null)
     setSubmitting(true)
     try {
@@ -208,6 +262,7 @@ function SetupScreen() {
           selectedBlocks: { summary: summaryOn, experienceIds: selectedIds },
           level,
           analysisId: null,
+          ...(needsAgreement && agreed ? { acceptTerms: true } : {}),
         }),
       })
       const responseBody = await res.json().catch(() => ({}))
@@ -246,7 +301,7 @@ function SetupScreen() {
       setError('Network error. Please check your connection and try again.')
       setSubmitting(false)
     }
-  }, [draft, profileId, submitting, nothingSelected, hasJobDescription, summaryOn, selectedIds, level, router, buildSteps])
+  }, [draft, profileId, submitting, nothingSelected, hasJobDescription, summaryOn, selectedIds, level, router, buildSteps, needsAgreement, agreed])
 
   if (!draft) {
     return (
@@ -335,6 +390,9 @@ function SetupScreen() {
           ) : null}
         </Card>
 
+        {/* 1b. Job check — field match, honest scores, certificates to ask about */}
+        <JobCheckCard state={checkState} check={check} />
+
         {/* 2. The level */}
         <Card tone="light" className="flex flex-col gap-3 p-5">
           <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">{NAMES.level}</p>
@@ -372,7 +430,9 @@ function SetupScreen() {
                     </span>
                     <span className="rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold text-ink-soft">{l.tag}</span>
                   </span>
-                  <span className="text-[12.5px] font-semibold text-teal">{l.aim} ATS score</span>
+                  <span className="text-[12.5px] font-semibold text-teal">
+                    {check ? `ATS score up to ${check.expected[l.value]}` : checkState === 'loading' ? 'Working out your score…' : l.aim}
+                  </span>
                   <ul className="flex flex-col gap-1.5">
                     {l.changes.map((c) => (
                       <li key={c} className="flex gap-1.5 text-[13px] leading-snug text-ink-soft">
@@ -416,6 +476,23 @@ function SetupScreen() {
           and your {NAMES.optimizedCv.toLowerCase()}, saved in your {NAMES.library}.
         </div>
 
+        {/* First time only: how it works, and the one-time agreement (migration 061). */}
+        {needsAgreement ? (
+          <Card tone="light" className="flex flex-col gap-3 border-gold/50 p-5">
+            <p className="text-[14px] font-bold text-ink">{firstTime ? 'Your first optimization — how it works' : 'Before you optimize'}</p>
+            <ul className="flex flex-col gap-1.5 text-[13px] leading-snug text-ink-soft">
+              <li>• <strong className="text-ink">Easy</strong> rewords only what your profile says.</li>
+              <li>• <strong className="text-ink">Moderate</strong> and <strong className="text-ink">High</strong> also add points for the job’s duties that someone doing your job almost certainly does.</li>
+              <li>• Your certificates, education, employers, job titles, dates and personal details are never added or changed.</li>
+              <li>• This first time you will see every added point in yellow and can remove any. After that, you optimize and download in one step.</li>
+            </ul>
+            <label className="flex cursor-pointer items-start gap-2.5 rounded-ctl border border-line bg-canvas p-3 text-[13px] text-ink">
+              <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-teal" />
+              <span>I understand, and I will only send CVs that are true about me — I can talk about every line in an interview.</span>
+            </label>
+          </Card>
+        ) : null}
+
         {error ? <Alert variant="danger">{error}</Alert> : null}
         {nothingSelected ? (
           <p className="text-center text-[12px] text-ink-muted">Select the summary or at least one role to rewrite.</p>
@@ -424,13 +501,76 @@ function SetupScreen() {
         <Button
           variant="purchase"
           className="w-full"
-          disabled={submitting || !profileId || nothingSelected}
+          disabled={submitting || !profileId || nothingSelected || (needsAgreement && !agreed)}
           onClick={onSubmit}
         >
           {CTA.optimizeCv}
         </Button>
       </div>
     </main>
+  )
+}
+
+/**
+ * The job check (optimizer v3). Field match first — a different field is said
+ * plainly, with the honest low score — then certificates the job asks for that
+ * the profile does not show: never added for the user, offered to add to the
+ * Career Profile if they really hold them.
+ */
+function JobCheckCard({ state, check }: { state: 'idle' | 'loading' | 'done' | 'error'; check: JobCheck | null }) {
+  if (state === 'idle' || state === 'error') return null
+  if (state === 'loading' || !check) {
+    return (
+      <Card tone="light" className="flex items-center gap-3 p-4">
+        <span aria-hidden className="size-2.5 animate-pulse rounded-full bg-teal" />
+        <p className="text-[13px] text-ink-soft">Checking this job against your Career Profile… about 10 seconds.</p>
+      </Card>
+    )
+  }
+  const tone =
+    check.fieldMatch === 'same'
+      ? { box: 'border-teal/40 bg-teal-soft/50', title: 'text-teal', label: 'Strong match — this job is in your field' }
+      : check.fieldMatch === 'related'
+        ? { box: 'border-gold-line bg-gold-bg', title: 'text-gold-text', label: 'Partly your field' }
+        : { box: 'border-alert/30 bg-alert-soft', title: 'text-alert', label: 'Outside your field' }
+  return (
+    <Card tone="light" className={cn('flex flex-col gap-2.5 border-2 p-5', tone.box)}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className={cn('text-[15px] font-bold', tone.title)}>{tone.label}</p>
+        <p className="text-[12.5px] text-ink-muted">
+          Your CV today: <strong className="font-mono text-ink">{check.before}</strong>
+        </p>
+      </div>
+      <p className="text-[13px] leading-relaxed text-ink-soft">
+        {check.fieldMatch === 'same'
+          ? `Your experience (${check.candidateField}) matches this ${check.jobField} role.`
+          : check.fieldMatch === 'related'
+            ? `Your experience (${check.candidateField}) shares part of the work of this ${check.jobField} role. Requirements outside your field stay unmet, so the score has a ceiling.`
+            : `This job is ${check.jobField}; your experience is ${check.candidateField}. Even after optimization your CV will score low for it (up to ${check.expected.high}) — jobs in your own field will score much higher. You can still go ahead.`}
+      </p>
+      {check.askCertifications.length ? (
+        <div className="flex flex-col gap-1.5 rounded-ctl border border-line bg-white p-3">
+          <p className="text-[13px] font-semibold text-ink">This job asks for certificates your profile does not show</p>
+          <p className="text-[12px] leading-snug text-ink-muted">
+            We never add certificates for you. If you really hold one, add it to your Career Profile — it raises your score.
+          </p>
+          <ul className="flex flex-col gap-1">
+            {check.askCertifications.map((c) => (
+              <li key={c.term} className="flex flex-wrap items-baseline justify-between gap-2 text-[13px]">
+                <span className="text-ink">
+                  {c.term}
+                  {c.importance === 'must' ? <span className="ml-1.5 text-[12px] font-semibold text-alert">required</span> : null}
+                </span>
+                {c.gain > 0 ? <span className="font-mono text-[12px] font-semibold text-teal">+{c.gain} points</span> : null}
+              </li>
+            ))}
+          </ul>
+          <a href="/profile?open=sec_certifications" className="mt-1 inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-teal underline-offset-2 hover:underline">
+            I have one — add it to my profile →
+          </a>
+        </div>
+      ) : null}
+    </Card>
   )
 }
 

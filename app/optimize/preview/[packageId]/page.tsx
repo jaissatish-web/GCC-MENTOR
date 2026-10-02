@@ -57,7 +57,8 @@ function keywordPieces(text: string, re: RegExp | null): Array<{ t: string; kw: 
   return out
 }
 
-function Colored({ text, source, re }: { text: string; source: string | null; re: RegExp | null }) {
+/** `added`: job terms the optimizer added inside the candidate's own lines (v3) — yellow, not blue. */
+function Colored({ text, source, re, added }: { text: string; source: string | null; re: RegExp | null; added?: Set<string> }) {
   const parts = source === null ? [{ value: text, added: false }] : diffWords(source, text).filter((p) => !p.removed)
   return (
     <>
@@ -67,7 +68,8 @@ function Colored({ text, source, re }: { text: string; source: string | null; re
             key={`${i}-${j}`}
             className={cn(
               p.added && 'rounded-[3px] bg-ok-soft text-ink',
-              k.kw && 'rounded-[3px] bg-[#DCEAF7] font-semibold text-sec-status',
+              k.kw && !added?.has(k.t.toLowerCase()) && 'rounded-[3px] bg-[#DCEAF7] font-semibold text-sec-status',
+              k.kw && added?.has(k.t.toLowerCase()) && 'rounded-[3px] bg-gold-soft font-semibold text-gold-ink',
             )}
           >
             {k.t}
@@ -129,6 +131,8 @@ function PreviewInner({ packageId }: { packageId: string }) {
     return new RegExp(`(?<![A-Za-z0-9])(?:${terms.map(escapeRe).join('|')})(?![A-Za-z0-9])`, 'gi')
   }, [report])
 
+  const addedTerms = useMemo(() => new Set((report?.added_terms ?? []).map((t) => t.toLowerCase())), [report])
+
   const edited: ResumeDocument | null = useMemo(
     () =>
       doc
@@ -170,7 +174,8 @@ function PreviewInner({ packageId }: { packageId: string }) {
   const summarySource = (oc.summary?.source_profile_summary ?? '').trim()
   const bySkillName = new Set(doc.skills.map((s) => s.name.toLowerCase()))
   const skillSuggestions = pending.filter((s) => s.block === 'skills')
-  const needsConfirm = kept.length > 0
+  // Optimizer v3: the user agreed once on the level screen — no tick here.
+  const needsConfirm = kept.length > 0 && report?.engine !== 'v3'
 
   const save = async () => {
     if (needsConfirm && !confirmed) {
@@ -230,7 +235,9 @@ function PreviewInner({ packageId }: { packageId: string }) {
         <div className="flex flex-wrap gap-2 rounded-card border border-line bg-white p-3 text-[12.5px]">
           <span className="rounded-[4px] bg-ok-soft px-2 py-1 text-ink">Green · reworded from your profile</span>
           <span className="rounded-[4px] bg-[#DCEAF7] px-2 py-1 font-semibold text-sec-status">Blue · job description keyword</span>
-          <span className="rounded-[4px] border border-gold/60 bg-gold-soft px-2 py-1 text-ink">Yellow · suggested, not in your profile — keep only if true</span>
+          <span className="rounded-[4px] border border-gold/60 bg-gold-soft px-2 py-1 text-ink">
+            {report?.engine === 'v3' ? 'Yellow · added for this job, typical of your field — remove anything not true' : 'Yellow · suggested, not in your profile — keep only if true'}
+          </span>
         </div>
 
         {/* SUMMARY */}
@@ -241,7 +248,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
             <ClickToEdit onEdit={() => setEditing('summary')}>
               {summary.trim() ? (
                 <p className="text-[14.5px] leading-relaxed text-ink">
-                  <Colored text={summary} source={summarySource} re={keywordRe} />
+                  <Colored text={summary} source={summarySource} re={keywordRe} added={addedTerms} />
                 </p>
               ) : (
                 <p className="text-[13px] text-ink-muted">No summary yet — click to write one.</p>
@@ -345,7 +352,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                     <ul className="flex list-disc flex-col gap-1.5 pl-5 text-[14px] leading-relaxed text-ink">
                       {bullets.filter((b) => b.trim()).map((b, i) => (
                         <li key={i}>
-                          <Colored text={b} source={block?.was_optimized ? source : null} re={keywordRe} />
+                          <Colored text={b} source={block?.was_optimized ? source : null} re={keywordRe} added={addedTerms} />
                         </li>
                       ))}
                     </ul>
@@ -379,6 +386,10 @@ function PreviewInner({ packageId }: { packageId: string }) {
               {band && liveScore !== null ? (
                 <span className={cn('rounded-full px-2 py-0.5 text-[12px] font-semibold', liveScore >= band[0] ? 'bg-ok-soft text-ok' : 'bg-gold-soft text-gold-ink')}>
                   {liveScore >= band[0] ? `Target ${band[0]}–${band[1]} reached` : `Target ${band[0]}–${band[1]}`}
+                </span>
+              ) : report?.engine === 'v3' && liveScore !== null ? (
+                <span className="rounded-full bg-canvas px-2 py-0.5 text-[12px] font-semibold text-ink-muted">
+                  Best for your profile: {Math.max(report.max_total, liveScore)}
                 </span>
               ) : null}
             </div>

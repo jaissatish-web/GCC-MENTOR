@@ -16,6 +16,7 @@ import { runOptimizationPipeline } from '@/lib/optimizer/pipeline'
 import { validateKeywords } from '@/lib/optimizer/jobAnalysis'
 import { verifyBridges } from '@/lib/optimizer/evidence'
 import type { JobTargetProfile, MatchReport, VerifiedBridge } from '@/lib/optimizer/types'
+import { buildV3, getAnalysisV3, isAnalysisCachedV3 } from '@/lib/optimizer/v3/service'
 import type { CareerProfileFull, TargetCountry } from '@/types/careerProfile'
 import type { OptimizationLevel } from '@/types/package'
 
@@ -56,6 +57,8 @@ const TARGET_COUNTRIES: TargetCountry[] = [
   'saudi_arabia', 'uae', 'qatar', 'oman', 'kuwait', 'bahrain', 'generic_gulf',
 ]
 const OPTIMIZATION_LEVELS: OptimizationLevel[] = ['easy', 'moderate', 'high']
+/** v3 by default; OPTIMIZER_ENGINE=v2 rolls back to the 2026-09-17 engine. */
+const ENGINE: 'v2' | 'v3' = process.env.OPTIMIZER_ENGINE === 'v2' ? 'v2' : 'v3'
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -245,6 +248,96 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   const profile: CareerProfileFull = loadedProfile
 
+  // ---- OPTIMIZER v3 (2026-10-02, docs/18_OPTIMIZER_V3_LAB.md) -----------------
+  // The default engine. OPTIMIZER_ENGINE=v2 switches back to the 2026-09-17
+  // engine below without a deploy of code — the rollback lever.
+  if (generatePackageId && ENGINE === 'v3') {
+    const analysisInput = {
+      userId: user.id,
+      profile,
+      targetJobTitle: targetFields.target_job_title,
+      targetIndustry: targetFields.target_industry,
+      jobDescription,
+      route: '/api/optimize',
+    }
+    // B0: analyse only (normally a cache hit — the setup screen's check ran it).
+    if (bodyObj.analyzeOnly === true) {
+      const cached = await isAnalysisCachedV3(user.id, profile, targetFields.target_job_title, targetFields.target_industry, jobDescription)
+      if (cached) return NextResponse.json({ success: true, analyzed: true, cached: true })
+      const slot = await reserveAiAction({ userId: user.id, action: LIMIT_ACTION_JOB_DESCRIPTION, phone: profile.phone, email: profile.email, ttlSeconds: 120 })
+      if (!slot.ok) return NextResponse.json({ error: slot.error, code: slot.code }, { status: slot.status })
+      let ok = false
+      try {
+        await getAnalysisV3(analysisInput)
+        ok = true
+        return NextResponse.json({ success: true, analyzed: true, cached: false })
+      } catch (e) {
+        console.error('optimize v3: analyze failed user=' + user.id, e instanceof Error ? e.message : String(e))
+        return NextResponse.json({ success: true, analyzed: false })
+      } finally {
+        await slot.finish(ok)
+      }
+    }
+    const reservation = await reserveAiAction({ userId: user.id, action: LIMIT_ACTION_OPTIMIZATION, phone: profile.phone, email: profile.email, ttlSeconds: 330 })
+    if (!reservation.ok) return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
+    let savedOk = false
+    try {
+      const { analysis, analysisId } = await getAnalysisV3(analysisInput)
+      // Straight into the CV only after the one-time agreement AND a first
+      // optimization the user has seen on the review page.
+      const { count: previous } = await supabase
+        .from('packages')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .neq('id', generatePackageId)
+        .not('optimized_content', 'is', null)
+      const autoApply = !!profile.optimizer_consent_at && !!previous
+      const result = await buildV3({ profile, target: targetFields, level, selectedBlocks, jobDescription, analysis, analysisId, autoApply, route: '/api/optimize' })
+      if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
+      console.log(
+        'optimize v3: user=' + user.id + ' package=' + generatePackageId + ' level=' + level + ' field=' + analysis.fieldMatch +
+          ' ms=' + result.stats.ms + ' caught=' + result.stats.caught + ' kept=' + result.stats.keptOriginal +
+          ' new=' + result.stats.newPoints + ' auto=' + result.stats.autoApplied +
+          ' score=' + result.report.before.total + '->' + result.report.after?.total,
+      )
+      const { row: saved, error: saveError } = await updatePackageServerFields<{ id: string }>({
+        packageId: generatePackageId,
+        userId: user.id,
+        fields: {
+          optimized_content: result.optimizedContent,
+          skills_order: result.skillsOrder,
+          field_visibility_snapshot: profile.field_visibility,
+          document_snapshot: result.documentSnapshot,
+          match_report: result.report,
+          ...(!targetFields.target_company && companyFromAdvert(jobDescription) ? { target_company: companyFromAdvert(jobDescription) } : {}),
+        },
+      })
+      if (saveError || !saved) {
+        console.error('optimize v3: package update failed user=' + user.id + ' package=' + generatePackageId, saveError ?? 'no row')
+        return NextResponse.json({ error: 'Could not save your optimized resume. Please try again.' }, { status: 500 })
+      }
+      await appendPackageEventAtomic({
+        packageId: saved.id,
+        userId: user.id,
+        type: 'cv_generated',
+        label: 'Optimized CV generated',
+        meta: result.report.after ? { match_before: result.report.before.total, match_after: result.report.after.total } : undefined,
+      }).catch((e) => console.error('optimize v3: history event not recorded pkg=' + saved.id, e instanceof Error ? e.message : String(e)))
+      savedOk = true
+      return NextResponse.json({
+        success: true,
+        packageId: saved.id,
+        autoApplied: autoApply,
+        match: result.report.after ? { before: result.report.before.total, after: result.report.after.total } : null,
+      })
+    } catch (e) {
+      console.error('optimize v3: build failed user=' + user.id, e instanceof Error ? e.message : String(e))
+      return NextResponse.json({ error: 'Could not build your resume. Your job is saved — please try again.' }, { status: 503 })
+    } finally {
+      await reservation.finish(savedOk)
+    }
+  }
+
   // ---- PHASE B0: analyse the job for this package, build nothing -------------
   // POST { packageId, analyzeOnly: true }. The analysis (requirements + evidence)
   // can take 90–125s on a long profile with a reasoning model, and inside the
@@ -307,6 +400,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           targetJobTitle: targetFields.target_job_title,
         })
       }
+    }
+
+    // The one-time agreement (migration 061): stored when the setup screen sends it.
+    if (bodyObj.acceptTerms === true && !profile.optimizer_consent_at) {
+      const { error: consentError } = await supabase
+        .from('career_profiles')
+        .update({ optimizer_consent_at: new Date().toISOString() })
+        .eq('id', profileId)
+        .eq('user_id', user.id)
+      if (consentError) console.error('optimize: consent not stored user=' + user.id, consentError.message)
     }
 
     const { row: createdRow, error: createError } = await insertPackageForUser<{ id: string }>({

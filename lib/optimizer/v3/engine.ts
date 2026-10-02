@@ -17,7 +17,7 @@ import { validateGrounding } from '@/lib/ai/validateGrounding'
 import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizationLevel } from '@/types/package'
-import { containsTermRaw, sharesContentStem } from '../text'
+import { containsTermRaw, contentStems, sharesContentStem, stemsMatch } from '../text'
 import { totalExperienceYears } from '@/lib/experienceYears'
 import { entrySourceText } from '../evidence'
 import type { JobTargetProfile, KeywordKind } from '../types'
@@ -194,11 +194,53 @@ export function writerLists(profile: CareerProfileFull, a: AnalysisV3, level: Op
   }
 }
 
-export interface WrittenJob { id: string; bullets: Array<{ text: string; isNew: boolean }>; keptOriginal: boolean; droppedNew: string[] }
+/** `added`: list-B terms an enhanced rewrite brings in (shown in yellow the first time). */
+export interface WrittenBullet { text: string; isNew: boolean; added?: string[] }
+export interface WrittenJob { id: string; bullets: WrittenBullet[]; keptOriginal: boolean; droppedNew: string[] }
+
+const FILLER_TAIL = /(?:,\s*|\s+and\s+)(?:ensur\w*|facilitat\w*|contributing to)\b[^.;]*[.;]?\s*$/i
+const FILLER_LEAD = /^(?:,\s*|\s+and\s+)(?:ensur\w*|facilitat\w*|contributing to)\b/i
+
+/**
+ * Cut an ", ensuring accuracy and completeness" tail the model adds to sound
+ * busy. Only when the tail names no job keyword, holds no number, and is not
+ * something the profile itself says — so it only ever removes fluff, never a
+ * fact or an ATS keyword. The model ignores "no filler" in the prompt, so this
+ * is enforced here.
+ */
+export function trimFiller(text: string, source: string, terms: readonly string[]): string {
+  const m = text.match(FILLER_TAIL)
+  if (!m || m.index === undefined) return text
+  const head = text.slice(0, m.index).replace(/[,;:\s]+$/, '')
+  const tail = m[0]
+  if (head.split(/\s+/).length < 6 || /\d/.test(tail) || terms.some((t) => containsTermRaw(tail, t))) return text
+  // "and ensured timely payments to vendors" is the profile's own fact: a tail
+  // whose first clause mostly comes from the profile stays.
+  const said = contentStems(tail.replace(FILLER_LEAD, '').split(',')[0])
+  const src = contentStems(source)
+  if (said.length && said.filter((s) => src.some((x) => stemsMatch(s, x))).length / said.length >= 0.6) return text
+  return head + '.'
+}
+
+export const numbersIn = (t: string) => t.match(/\d+(?:[.,]\d+)*/g) ?? []
+/** The number as a whole number: "25" is not in "2025". */
+export const hasNumber = (text: string, n: string) => new RegExp(`(?<![\\d.,])${n.replace(/[.,]/g, '[.,]')}(?![\\d])`).test(text)
+
+/** Share of a bullet's own content words (the added terms left out) that the job's real text has. */
+export function ownShare(text: string, source: string, added: readonly string[]): number {
+  let rest = text
+  for (const t of added) rest = rest.replace(new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig'), ' ')
+  const mine = contentStems(rest)
+  if (!mine.length) return 0
+  const theirs = contentStems(source)
+  return mine.filter((s) => theirs.some((x) => stemsMatch(s, x))).length / mine.length
+}
 export interface WriteV3Result {
   level: OptimizationLevel
   summary: string
   summaryKeptOriginal: boolean
+  /** List-B terms the summary brings in that the profile does not state. */
+  summaryAdded: string[]
   jobs: WrittenJob[]
   skillsOrder: string[]
   ms: number
@@ -229,7 +271,7 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
   const caught: string[] = []
 
   // ---- what the model wrote, mapped back to real job ids
-  const byId = new Map<string, Array<{ text: string; isNew: boolean }>>()
+  const byId = new Map<string, WrittenBullet[]>()
   for (const j of Array.isArray(raw.jobs) ? (raw.jobs as Array<Record<string, unknown>>) : []) {
     const id = keys.find((k) => k.key === j.id)?.id
     if (!id) continue
@@ -240,14 +282,21 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
   }
   const summary = typeof raw.summary === 'string' ? raw.summary.trim() : ''
 
-  // A bullet that brings in a list-B requirement the job's own text does not
-  // have IS a new point, whatever the model marked it — so it is judged by the
-  // new-point rules, not failed (with its whole job) by the rewrite check.
+  // A bullet that brings in a list-B requirement the job's own text does not have:
+  //  - mostly the job's own facts ("Led testing and commissioning of AHUs,
+  //    including troubleshooting") -> an ENHANCED rewrite: it stays in the CV
+  //    (the real duty is never lost) and the added terms are recorded, so the
+  //    first-time review shows them in yellow;
+  //  - mostly new words -> a new point, judged by the new-point rules.
   const addable = addableAt(a, level)
   for (const [id, bullets] of byId) {
     const src = entrySourceText(profile.work_experience.find((e) => e.id === id)!)
     for (const b of bullets) {
-      if (!b.isNew && addable.some((r) => containsTermRaw(b.text, r.term) && !containsTermRaw(src, r.term))) b.isNew = true
+      if (b.isNew) continue
+      const added = addable.filter((r) => containsTermRaw(b.text, r.term) && !containsTermRaw(src, r.term)).map((r) => r.term)
+      if (!added.length) continue
+      if (ownShare(b.text, src, added) >= 0.5) b.added = added
+      else b.isNew = true
     }
   }
 
@@ -261,6 +310,8 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
     const where = PORTABLE.has(r.kind) ? keys.map((k) => k.id) : literalLocations(profile, r.term).concat(r.location ? [r.location] : [])
     for (const loc of where) approved.set(loc, [...(approved.get(loc) ?? []), r.term])
   }
+  // The level's list-B terms may sit in any job of the same field (enhanced rewrites).
+  for (const k of keys) approved.set(k.id, [...(approved.get(k.id) ?? []), ...addable.map((r) => r.term)])
   approved.set('summary', [...(approved.get('summary') ?? []), ...a.requirements.filter((x) => x.group === 'A').map((x) => x.term), ...addable.map((x) => x.term)])
   const importText = jd?.trim() ? jd : a.requirements.map((r) => r.term).join('\n')
   const asOutput = {
@@ -296,8 +347,8 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
 
   // The summary too: a sentence bringing in a C term loses that sentence
   // (2+ sentences must remain), else the original summary is kept.
+  const wholeProfile = [profileWide(profile), ...profile.work_experience.map(entrySourceText)].join('\n')
   if (finalSummary && !failedOwners.has('summary')) {
-    const wholeProfile = [profileWide(profile), ...profile.work_experience.map(entrySourceText)].join('\n')
     const sentences = finalSummary.split(/(?<=[.!?])\s+/)
     const clean = sentences.filter((s) => !leaks(s, wholeProfile).length)
     if (clean.length < sentences.length) {
@@ -307,6 +358,7 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
     }
   }
   const summaryKeptOriginal = !finalSummary || failedOwners.has('summary')
+  const allTerms = a.requirements.map((r) => r.term)
 
   const jobs: WrittenJob[] = keys.map(({ key, id }) => {
     const e = profile.work_experience.find((x) => x.id === id)!
@@ -349,7 +401,13 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
     if (keptOriginal) return { id, bullets: [...original, ...newOk], keptOriginal, droppedNew }
     // Keep the model's order; drop rejected new points.
     const okSet = new Set(newOk)
-    return { id, bullets: written.filter((b) => !b.isNew || okSet.has(b)), keptOriginal, droppedNew }
+    const final = written.filter((b) => !b.isNew || okSet.has(b)).map((b) => ({ ...b, text: trimFiller(b.text, source, allTerms) }))
+    // A line with a number is the strongest evidence in a CV ("a team of 25
+    // technicians"). One the rewrite lost comes back exactly as the profile has it.
+    const out = final.filter((b) => !b.isNew).map((b) => b.text).join('\n')
+    const lost = original.filter((o) => numbersIn(o.text).some((n) => !hasNumber(out, n)))
+    if (lost.length) caught.push(`fact_restored@${key}`)
+    return { id, bullets: [...final, ...lost], keptOriginal, droppedNew }
   })
 
   // ---- skills: reorder only
@@ -361,6 +419,7 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
     level,
     summary: summaryKeptOriginal ? profile.professional_summary ?? "" : finalSummary,
     summaryKeptOriginal,
+    summaryAdded: summaryKeptOriginal ? [] : addable.map((r) => r.term).filter((t) => containsTermRaw(finalSummary, t) && !containsTermRaw(wholeProfile, t)),
     jobs,
     skillsOrder,
     ms: Date.now() - t0,

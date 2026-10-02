@@ -77,5 +77,45 @@ above 75% is often not possible without keyword stuffing.
   remaining requirements are honest gaps (group C).
 - Writing polish: some strong bullets barely change at Moderate; one new point read
   keyword-stuffed.
-- First-time explainer, one-time agreement, field warning UI and wiring into
+- (Done 2026-10-02, see Go-live.) First-time explainer, one-time agreement, field warning UI and wiring into
   `/api/optimize` — next phase, after founder review.
+
+## Go-live (2026-10-02) — v3 is the production optimizer
+
+Founder: "implement in the main branch and push… then check on the website."
+Rollback without a code change: set `OPTIMIZER_ENGINE=v2` in Vercel.
+
+**Flow**
+1. Level screen (`/optimize/setup`) runs **one** analysis via `POST /api/optimize/check`
+   (cached in `job_analyses`, key `sha256('v3:'+…)` — the column is exactly 64 chars):
+   field match banner, "your CV today", the honest "ATS score up to" per level, and
+   certificates/licences the job asks for that the profile lacks — **offered with their
+   point gain, never written** ("I have one — add it to my profile" opens
+   `/profile?open=sec_certifications`).
+2. First time: explainer + one-time agreement (`career_profiles.optimizer_consent_at`,
+   migration 061). The review page shows added material in yellow; no tick box.
+3. After the agreement and one optimization: one click → finished CV page (`autoApplied`),
+   no review step.
+4. Build = the cached analysis + one writing call (~5–9 s of model time).
+
+**Fixes from the end-to-end test**
+- Cache never saved (`'v3:'+hash` was 67 chars) — every build re-ran the analysis.
+- A rewrite of a real duty that picked up one job term was turned into a removable
+  "added" line, taking the real duty with it and leaving it out of the score (Moderate
+  showed 36 → 37). Now an **enhanced rewrite**: stays in the CV, only the added term is
+  yellow (`match_report.added_terms`). A line that is mostly new words is still a new
+  point under the strict rules (`ownShare` < 0.5).
+- Lines with numbers the rewrite dropped ("a team of 25 technicians") are restored as
+  the profile has them (lab: 1 lost number per level → 0).
+- ", ensuring accuracy and completeness" fluff is cut in code (the model ignores the
+  prompt rule) — only when the tail has no job keyword, no number and is not the
+  profile's own words (16 of 214 lab bullets).
+- "Target 75–85" is shown only when the profile can reach it; otherwise "Best for your
+  profile: N".
+- Build screen said "2–4 minutes"; now "under 30 seconds".
+
+**Measured locally (MEP CV, Senior MEP Engineer advert)**: first optimization 16 s from
+click to review page (was 75 s with the cache bug); 41 → 53 (55 with the 2 suggested
+points), best possible 56; second optimization at High went straight to the CV page,
+41 → 55. Different field (MEP → Finance Manager): "Outside your field", 27 at every
+level. Tests: `scripts/verify-optimizer-v3.ts`.
