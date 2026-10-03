@@ -17,6 +17,8 @@ import { buildCoverLetterPrompt } from '../lib/ai/buildCoverLetterPrompt'
 import { validateCoverLetterGrounding } from '../lib/ai/validateCoverLetterGrounding'
 import { signOffBlock, writtenAboutApplicant } from '../lib/ai/naturalLetter'
 import { onHundredScale } from '../lib/ai/validateMockInterview'
+import { cleanDuties } from '../lib/typicalDuties'
+import { letterParagraphs } from '../lib/coverLetterFiles'
 import { claimsInFeedback, notInCvFeedback, removePersonalClaims, splitSentences, unverifiedEntityClaims } from '../lib/ai/proseClaims'
 
 let failures = 0
@@ -185,6 +187,15 @@ console.log('\nMock interview report scale (2026-10-03)')
   const r100 = { overall_score: 25, technical_score: 20, role_fit_score: 30, gulf_readiness_score: 40, answer_structure_score: 30 }
   check('a report already out of 100 is left alone', (onHundredScale(r100, [3, 4]) as typeof r100).overall_score === 25)
   check('very weak answers keep a very low report', (onHundredScale({ ...r10, overall_score: 1 }, [1, 1]) as typeof r10).overall_score === 1)
+}
+
+console.log('\nTypical duties and letter files (2026-10-03)')
+{
+  const d = cleanDuties({ duties: ['1. Prepared financial statements.', 'Reduced closing time by 40%', 'Prepared financial statements', 'Maintained the general ledger and reconciled bank accounts', 'Too short', 42] })
+  check('numbers, repeats, too-short lines and non-text are dropped', d.length === 2 && d[0] === 'Prepared financial statements.' && !d.some((x) => /\d/.test(x)))
+  check('no list -> nothing', cleanDuties({}).length === 0 && cleanDuties(null).length === 0)
+  const paras = letterParagraphs('Dear Hiring Manager,\n\nI would like to apply.\n\nSincerely,\nRania Haddad\n+971 50 000 0000')
+  check('letter paragraphs keep the sign-off block together', paras.length === 3 && paras[2].length === 3 && paras[2][1] === 'Rania Haddad')
 }
 
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} FAILED\n`)

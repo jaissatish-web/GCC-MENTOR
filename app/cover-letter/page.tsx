@@ -67,6 +67,8 @@ function CoverLetterScreen() {
   // Local edits (edit-in-place textarea per letter) — never persisted.
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [savingId, setSavingId] = useState<string | null>(null)
+  const [savedId, setSavedId] = useState<string | null>(null)
 
   const letters = useMemo(
     () => (detail?.cover_letters ?? []).slice().sort((a, b) => b.generated_at.localeCompare(a.generated_at)),
@@ -118,17 +120,54 @@ function CoverLetterScreen() {
     }
   }
 
-  function downloadLetter(letter: CoverLetter) {
-    const text = edits[letter.id] ?? letter.full_text
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
+  const isDirty = (letter: CoverLetter) => edits[letter.id] !== undefined && edits[letter.id].trim() !== letter.full_text.trim()
+
+  // Saved edits (2026-10-03, launch audit I3): the page used to say "changes
+  // are not saved", so a letter polished on a phone was lost on leaving.
+  async function saveLetter(letter: CoverLetter): Promise<boolean> {
+    const packageId = selectedId
+    const text = (edits[letter.id] ?? letter.full_text).trim()
+    if (!packageId || !text) return false
+    setSavingId(letter.id)
+    setGenError(null)
+    try {
+      const res = await fetch(`/api/packages/${encodeURIComponent(packageId)}/cover-letter/${encodeURIComponent(letter.id)}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ full_text: text }),
+      })
+      const payload = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setGenError((payload?.error as string | undefined) ?? 'Could not save your changes. Please try again.')
+        return false
+      }
+      picker.updateDetail(packageId, (p) => ({
+        ...p,
+        cover_letters: (p.cover_letters ?? []).map((l) => (l.id === letter.id ? { ...l, full_text: text, edited_at: new Date().toISOString() } : l)),
+      }))
+      setEdits((e) => ({ ...e, [letter.id]: text }))
+      setSavedId(letter.id)
+      window.setTimeout(() => setSavedId((c) => (c === letter.id ? null : c)), 2500)
+      return true
+    } catch {
+      setGenError('Could not reach the server. Your text is still in the box — try Save again.')
+      return false
+    } finally {
+      setSavingId(null)
+    }
+  }
+
+  // PDF or Word, the files Gulf employers and portals expect (was .txt only).
+  // Unsaved edits are saved first, so the file always matches the screen.
+  async function downloadLetter(letter: CoverLetter, format: 'pdf' | 'docx') {
+    if (!selectedId) return
+    if (isDirty(letter) && !(await saveLetter(letter))) return
     const a = document.createElement('a')
-    a.href = url
-    a.download = `${(letter.target_job_title ?? 'cover-letter').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-cover-letter.txt`
+    a.href = `/api/packages/${encodeURIComponent(selectedId)}/cover-letter/${encodeURIComponent(letter.id)}?format=${format}`
+    a.rel = 'noopener'
     document.body.appendChild(a)
     a.click()
     a.remove()
-    URL.revokeObjectURL(url)
   }
 
   if (listError) {
@@ -282,11 +321,8 @@ function CoverLetterScreen() {
             <h2 className="font-display text-[20px] text-ink">Generated letters</h2>
             <span className="text-[12px] text-ink-muted">{letters.length} total</span>
           </div>
-          {/* The boxes below are editable but nothing typed in them is stored —
-              say so, rather than let someone polish a letter and lose it. */}
           <p className="-mt-2 text-[12px] leading-relaxed text-ink-muted">
-            You can edit a letter below, but changes are not saved — copy or download it once it reads
-            right.
+            Edit any letter below and press Save changes. Downloads use your saved text.
           </p>
           {letters.map((letter) => (
             <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-6">
@@ -304,6 +340,7 @@ function CoverLetterScreen() {
                 </div>
                 <p className="text-[12px] text-ink-muted">
                   Generated {new Date(letter.generated_at).toLocaleString()}
+                  {letter.edited_at ? ` · your edits saved ${new Date(letter.edited_at).toLocaleString()}` : ''}
                 </p>
               </div>
               <textarea
@@ -313,13 +350,25 @@ function CoverLetterScreen() {
                 aria-label="Cover letter text (editable)"
                 className="field p-4"
               />
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="secondary" onClick={() => void copyLetter(letter)}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  onClick={() => void saveLetter(letter)}
+                  disabled={!isDirty(letter) || savingId === letter.id}
+                  busy={savingId === letter.id}
+                >
+                  {savedId === letter.id ? 'Saved' : 'Save changes'}
+                </Button>
+                <Button type="button" variant="secondary" onClick={() => void downloadLetter(letter, 'pdf')} disabled={savingId === letter.id}>
+                  Download PDF
+                </Button>
+                <Button type="button" variant="secondary" onClick={() => void downloadLetter(letter, 'docx')} disabled={savingId === letter.id}>
+                  Download Word
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => void copyLetter(letter)}>
                   {copiedId === letter.id ? 'Copied' : 'Copy'}
                 </Button>
-                <Button type="button" variant="secondary" onClick={() => downloadLetter(letter)}>
-                  Download (.txt)
-                </Button>
+                {isDirty(letter) ? <span className="text-[12px] font-semibold text-gold-ink">Unsaved changes</span> : null}
               </div>
             </Card>
           ))}

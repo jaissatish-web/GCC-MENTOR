@@ -239,7 +239,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
           <p className="text-[13px] text-ink-soft">
             For <strong className="text-ink">{pkg.target_job_title}</strong>
             {pkg.target_company ? ` · ${pkg.target_company}` : ''} · {pkg.optimization_level.charAt(0).toUpperCase() + pkg.optimization_level.slice(1)} optimization.
-            Click any text to edit it. Nothing is saved until you press Save.
+            Tap any text to edit it. Nothing is saved until you press Save.
           </p>
         </div>
 
@@ -284,7 +284,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                 <span
                   key={k.id}
                   className={cn(
-                    'inline-flex min-h-9 items-center gap-1 rounded-full border px-3 text-[13px]',
+                    'inline-flex min-h-11 items-center gap-0.5 rounded-full border pl-3 text-[13px]',
                     isKeyword ? 'border-sec-status/40 bg-[#DCEAF7] font-semibold text-sec-status' : 'border-line bg-white text-ink',
                   )}
                 >
@@ -293,7 +293,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                     type="button"
                     aria-label={`Remove ${k.name}`}
                     onClick={() => setSkills((list) => list.filter((x) => x.id !== k.id))}
-                    className="ml-1 min-h-8 min-w-6 text-ink-muted hover:text-alert"
+                    className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-[16px] text-ink-muted hover:text-alert"
                   >
                     ×
                   </button>
@@ -495,26 +495,37 @@ function SuggestedLine({ s, draft, onChange, re }: { s: Suggestion; draft: Draft
   const keep = !!draft?.keep
   const text = draft?.text ?? s.text
   return (
-    <div className={cn('flex flex-col gap-2 rounded-ctl border p-3', keep ? 'border-gold bg-gold-soft' : 'border-dashed border-line-strong bg-white opacity-70')}>
-      <div className="flex items-start gap-2">
-        <input
-          type="checkbox"
-          checked={keep}
-          onChange={(e) => onChange({ keep: e.target.checked })}
-          aria-label={`Keep suggested line for ${s.requirement}`}
-          className="mt-1 size-4 accent-teal"
-        />
-        {edit ? (
-          <textarea autoFocus value={text} rows={2} onChange={(e) => onChange({ text: e.target.value })} className="field flex-1 text-[14px]" />
-        ) : (
-          <p className={cn('flex-1 text-[14px] leading-relaxed text-ink', !keep && 'line-through')}>
-            <Colored text={text} source={null} re={re} />
-          </p>
-        )}
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 pl-6">
-        <span className="text-[12px] text-ink-muted">Suggested for the job requirement “{s.requirement}”</span>
-        <button type="button" onClick={() => setEdit((v) => !v)} className="min-h-9 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline">
+    <div className={cn('flex flex-col gap-2 rounded-ctl border p-3', keep ? 'border-gold bg-gold-soft' : 'border-dashed border-line-strong bg-white')}>
+      {edit ? (
+        <textarea autoFocus value={text} rows={3} onChange={(e) => onChange({ text: e.target.value })} className="field text-[14px]" />
+      ) : (
+        <p className={cn('text-[14px] leading-relaxed text-ink', !keep && 'text-ink-muted line-through')}>
+          <Colored text={text} source={null} re={re} />
+        </p>
+      )}
+      <span className="text-[12px] text-ink-muted">
+        {keep ? `Suggested for the job requirement “${s.requirement}”. Keep it only if you really did this.` : 'Removed — this line will not be on your CV.'}
+      </span>
+      {/* Keep / Remove as two plain 44px buttons (launch audit: an unlabelled
+          checkbox was the only way to remove a line, and easy to miss). */}
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label={`Suggested line for ${s.requirement}`}>
+        <button
+          type="button"
+          aria-pressed={keep}
+          onClick={() => onChange({ keep: true })}
+          className={cn('min-h-11 rounded-ctl border px-4 text-[13.5px] font-semibold', keep ? 'border-teal bg-teal text-white' : 'border-line-strong bg-white text-ink')}
+        >
+          {keep ? '✓ Keep' : 'Keep'}
+        </button>
+        <button
+          type="button"
+          aria-pressed={!keep}
+          onClick={() => onChange({ keep: false })}
+          className={cn('min-h-11 rounded-ctl border px-4 text-[13.5px] font-semibold', !keep ? 'border-alert bg-alert-soft text-alert' : 'border-line-strong bg-white text-ink')}
+        >
+          {!keep ? '✕ Removed' : 'Remove'}
+        </button>
+        <button type="button" onClick={() => setEdit((v) => !v)} className="ml-auto min-h-11 px-2 text-[13px] font-semibold text-teal underline-offset-2 hover:underline">
           {edit ? 'Done' : 'Edit wording'}
         </button>
       </div>

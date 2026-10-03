@@ -199,3 +199,20 @@ export async function insertPackageForUser<T = { id: string }>(opts: {
     .single()
   return { row: (data as T | null) ?? null, error: error ? error.message : null }
 }
+
+/** The user's own edit of one generated letter (migration 063). False = no such letter on a package they own. */
+export async function updateCoverLetterTextAtomic(opts: {
+  packageId: string
+  userId: string
+  letterId: string
+  fullText: string
+}): Promise<boolean> {
+  const { data, error } = await writer().rpc('package_update_cover_letter_text', {
+    p_package_id: opts.packageId,
+    p_user_id: opts.userId,
+    p_letter_id: opts.letterId,
+    p_full_text: opts.fullText,
+  })
+  if (error) throw new Error('package_update_cover_letter_text: ' + error.message)
+  return data === true
+}

@@ -198,7 +198,9 @@ export function checkReport(profile: CareerProfileFull, a: AnalysisV3, title: st
   // High's tick-list (founder, 2026-10-02): what each one would add at High
   // if the user really has it, and the best High can reach with all of them.
   const promote = (qs: typeof a.requirements) => ({ ...a, requirements: a.requirements.map((r) => (qs.includes(r) ? { ...r, group: 'A' as const } : r)) })
-  const skillQs = a.requirements.filter((q) => q.group === 'C' && ASK_SKILL.has(q.kind))
+  // Not for a job outside the user's field (launch audit I6): "up to 41 if you
+  // have the skills" for a hotel job invited an accountant to tick hotel skills.
+  const skillQs = a.fieldMatch === 'different' ? [] : a.requirements.filter((q) => q.group === 'C' && ASK_SKILL.has(q.kind))
   const askSkills = skillQs
     .map((q) => {
       const withIt = promote([q])

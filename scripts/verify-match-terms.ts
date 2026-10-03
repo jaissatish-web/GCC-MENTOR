@@ -52,6 +52,7 @@ check('"Employer - Saudi Aramco." -> Saudi Aramco', companyFromAdvert('Employer 
 check('no labelled line -> none', companyFromAdvert('KENT, a global leader in engineering, is seeking…') === null)
 check('a sentence is not a company name', companyFromAdvert('Company: we are a fast growing company in the region with many clients') === null)
 check('"Confidential" is not a company', companyFromAdvert('Company: Confidential') === null)
+check('markdown "**Company:** Al Noor" -> Al Noor (2026-10-03)', companyFromAdvert('**Location:** Dubai, UAE  \n**Company:** Al Noor Advanced Medical Center  \n') === 'Al Noor Advanced Medical Center')
 
 console.log('\nA build the AI mostly did not answer is a failure, not a result')
 {

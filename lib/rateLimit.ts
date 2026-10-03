@@ -64,6 +64,8 @@ export const LIMIT_ACTION_MOCK_START = 'mock_interview_start'
 export const LIMIT_ACTION_MOCK_ANSWER = 'mock_interview_answer'
 export const LIMIT_ACTION_MOCK_REPORT = 'mock_interview_report'
 export const LIMIT_ACTION_MOCK_TRANSCRIPTION = 'mock_interview_transcription'
+/** New job titles sent for typical duties (cached titles are free). */
+export const LIMIT_ACTION_TYPICAL_DUTIES = 'typical_duties'
 
 const DEFAULT_EXTRACTIONS_PER_DAY = 5
 const DEFAULT_OPTIMIZATIONS_PER_DAY = 20
@@ -79,6 +81,7 @@ const DAILY_DEFAULTS: Record<string, [string, number]> = {
   [LIMIT_ACTION_MOCK_ANSWER]: ['RATE_LIMIT_MOCK_ANSWERS_PER_DAY', 150],
   [LIMIT_ACTION_MOCK_REPORT]: ['RATE_LIMIT_MOCK_REPORTS_PER_DAY', 10],
   [LIMIT_ACTION_MOCK_TRANSCRIPTION]: ['RATE_LIMIT_MOCK_TRANSCRIPTIONS_PER_DAY', 150],
+  [LIMIT_ACTION_TYPICAL_DUTIES]: ['RATE_LIMIT_TYPICAL_DUTIES_PER_DAY', 30],
 }
 
 /**

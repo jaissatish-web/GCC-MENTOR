@@ -29,7 +29,9 @@ const COMPANY_LINE = /^[ \t*•-]*(?:company|employer|client|hiring company|orga
 export function companyFromAdvert(jobDescription: string | null | undefined): string | null {
   const m = COMPANY_LINE.exec(jobDescription ?? '')
   if (!m) return null
-  const name = m[1].replace(/\s+/g, ' ').replace(/[.,;:]+$/, '').trim()
+  // Markdown emphasis is stripped (2026-10-03): "**Company:** Al Noor" was saved
+  // as "** Al Noor" and shown on the CV page, the letter page and Q&A.
+  const name = m[1].replace(/[*_`#]+/g, ' ').replace(/\s+/g, ' ').replace(/[.,;:]+$/, '').trim()
   // A name, not a sentence: short, and not a description of the company.
   if (name.length < 2 || name.length > 60 || name.split(' ').length > 6) return null
   if (/\b(confidential|undisclosed|not disclosed|n\/a)\b/i.test(name)) return null

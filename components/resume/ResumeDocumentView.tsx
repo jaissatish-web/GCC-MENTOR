@@ -29,10 +29,14 @@ const PAGE_WIDTH = 794
 export function ResumeDocumentView({
   children,
   className = '',
+  reader = true,
 }: {
   children: React.ReactNode
   className?: string
+  /** Offer "Read full size" when the page is shown small (phones). */
+  reader?: boolean
 }) {
+  const [reading, setReading] = useState(false)
   const outerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
@@ -133,6 +137,96 @@ export function ResumeDocumentView({
           className="shadow-[0_1px_3px_rgba(10,26,47,0.10),0_12px_32px_rgba(10,26,47,0.10)]"
         >
           {children}
+        </div>
+      </div>
+      {/* On a phone the page is ~45% size: readable only as a thumbnail
+          (launch audit I5). The reader shows the same page larger. */}
+      {reader && scale < 0.8 ? (
+        <div className="mt-3 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setReading(true)}
+            className="min-h-11 rounded-ctl border border-teal/40 bg-white px-4 text-[13.5px] font-semibold text-teal"
+          >
+            Read full size
+          </button>
+        </div>
+      ) : null}
+      {reading ? <DocumentReader onClose={() => setReading(false)}>{children}</DocumentReader> : null}
+    </div>
+  )
+}
+
+const ZOOMS = [
+  { label: 'Fit', value: 0 },
+  { label: 'Large', value: 0.75 },
+  { label: 'Actual size', value: 1 },
+] as const
+
+/** Full-screen view of the page: scrolls both ways, three zoom levels, Escape or Close to leave. */
+function DocumentReader({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const pageRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const [zoom, setZoom] = useState<number>(0.75)
+  const [fit, setFit] = useState(0.5)
+  const [height, setHeight] = useState(1123)
+
+  useEffect(() => {
+    const measure = () => {
+      if (bodyRef.current) setFit(Math.min(1, (bodyRef.current.clientWidth - 16) / PAGE_WIDTH))
+      if (pageRef.current) setHeight(pageRef.current.offsetHeight)
+    }
+    measure()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('resize', measure)
+    closeRef.current?.focus()
+    return () => {
+      document.body.style.overflow = previous
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('resize', measure)
+    }
+  }, [onClose])
+
+  const z = zoom === 0 ? fit : Math.max(fit, zoom)
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Your CV at full size" className="fixed inset-0 z-[70] flex flex-col bg-[#1f2a28]">
+      <div className="flex flex-wrap items-center gap-2 bg-white px-3 py-2 shadow">
+        <div className="flex gap-1" role="group" aria-label="Zoom">
+          {ZOOMS.map((o) => (
+            <button
+              key={o.label}
+              type="button"
+              aria-pressed={zoom === o.value}
+              onClick={() => setZoom(o.value)}
+              className={
+                'min-h-11 rounded-ctl px-3 text-[13px] font-semibold ' +
+                (zoom === o.value ? 'bg-teal text-white' : 'border border-line text-ink')
+              }
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+        <button
+          ref={closeRef}
+          type="button"
+          onClick={onClose}
+          className="ml-auto min-h-11 rounded-ctl border border-line px-4 text-[13.5px] font-semibold text-ink"
+        >
+          Close
+        </button>
+      </div>
+      <div ref={bodyRef} className="flex-1 overflow-auto p-2">
+        <div style={{ width: PAGE_WIDTH * z, height: height * z }} className="mx-auto">
+          <div ref={pageRef} style={{ width: PAGE_WIDTH, transform: `scale(${z})`, transformOrigin: 'top left' }} className="bg-white">
+            {children}
+          </div>
         </div>
       </div>
     </div>

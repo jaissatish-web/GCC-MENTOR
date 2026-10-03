@@ -103,6 +103,8 @@ export interface CoverLetter {
   closing_paragraph: string
   sign_off: string
   full_text: string
+  /** Set when the user saved their own edit of full_text (migration 063). */
+  edited_at?: string
 }
 
 // ---- interview_questions (JSONB, Phase 4 now live for Q&A) -----------------

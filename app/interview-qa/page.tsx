@@ -77,6 +77,8 @@ function InterviewQaScreen() {
   const [generating, setGenerating] = useState(false)
   const [genError, setGenError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [showAll, setShowAll] = useState(false)
+  const [openIds, setOpenIds] = useState<Set<string>>(() => new Set())
 
   const questionSet = detail?.interview_questions ?? null
   const grouped = useMemo(() => {
@@ -278,47 +280,44 @@ function InterviewQaScreen() {
             </span>
           </div>
 
+          {/* Practice first, answer second (2026-10-03): all 24 answers open made
+              the page 22 phone screens long and gave the answer away before the
+              candidate had tried. */}
+          <div className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[13px] leading-relaxed text-ink-soft">
+              Read each question and answer it out loud first, then tap <strong>Show sample answer</strong> to compare.{' '}
+              <mark className="rounded bg-gold-soft px-1 text-ink">[Highlighted parts]</mark> are for your own real example.
+            </p>
+            <button
+              type="button"
+              aria-pressed={showAll}
+              onClick={() => setShowAll((v) => !v)}
+              className={buttonVariants({ variant: 'secondary', size: 'sm', className: 'min-h-11 shrink-0' })}
+            >
+              {showAll ? 'Hide all answers' : 'Show all answers'}
+            </button>
+          </div>
+
           {grouped.map((group) => (
             <div key={group.category} className="flex flex-col gap-3">
               <h3 className="text-[12px] font-bold uppercase tracking-[0.14em] text-ink-muted">
                 {CATEGORY_LABEL[group.category]}
               </h3>
               {group.items.map((item) => (
-                <Card key={item.id} tone="light" className="p-5">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-canvas px-2.5 py-1 font-mono text-[12px] font-semibold text-ink-soft">
-                        Q{(questionSet.questions.findIndex((q) => q.id === item.id) + 1).toString().padStart(2, '0')}
-                      </span>
-                      <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[12px] font-semibold text-teal">
-                        {item.difficulty}
-                      </span>
-                      {item.tags.slice(0, 4).map((tag) => (
-                        <span key={tag} className="rounded-full border border-line bg-white px-2.5 py-1 text-[12px] text-ink-muted">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <h4 className="font-display text-[18px] font-semibold leading-snug text-ink">{item.question}</h4>
-                    <p className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">{item.answer}</p>
-                    <div className="grid gap-3 border-t border-line pt-3 text-[12.5px] leading-relaxed text-ink-muted md:grid-cols-3">
-                      <p>
-                        <strong className="block text-ink-soft">Why asked</strong>
-                        {item.why_asked}
-                      </p>
-                      <p>
-                        <strong className="block text-ink-soft">Resume basis</strong>
-                        {item.resume_basis}
-                      </p>
-                      {item.follow_up ? (
-                        <p>
-                          <strong className="block text-ink-soft">Follow-up</strong>
-                          {item.follow_up}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                </Card>
+                <QaCard
+                  key={item.id}
+                  item={item}
+                  number={questionSet.questions.findIndex((q) => q.id === item.id) + 1}
+                  open={showAll || openIds.has(item.id)}
+                  onToggle={() =>
+                    setOpenIds((ids) => {
+                      const next = new Set(ids)
+                      if (next.has(item.id)) next.delete(item.id)
+                      else next.add(item.id)
+                      return next
+                    })
+                  }
+                />
               ))}
             </div>
           ))}
@@ -348,5 +347,74 @@ export default function InterviewQaPage() {
     <Suspense>
       <InterviewQaScreen />
     </Suspense>
+  )
+}
+
+/** "[your example: ...]" in a sample answer, highlighted as the part the candidate fills in. */
+function AnswerText({ text }: { text: string }) {
+  return (
+    <p className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">
+      {text.split(/(\[[^\]]+\])/).map((part, i) =>
+        /^\[[^\]]+\]$/.test(part) ? (
+          <mark key={i} className="rounded bg-gold-soft px-1 text-ink">
+            {part}
+          </mark>
+        ) : (
+          part
+        ),
+      )}
+    </p>
+  )
+}
+
+function QaCard({ item, number, open, onToggle }: { item: InterviewQuestionAnswer; number: number; open: boolean; onToggle: () => void }) {
+  const answerId = `qa-answer-${item.id}`
+  return (
+    <Card tone="light" className="p-5">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-canvas px-2.5 py-1 font-mono text-[12px] font-semibold text-ink-soft">
+            Q{number.toString().padStart(2, '0')}
+          </span>
+          <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[12px] font-semibold text-teal">{item.difficulty}</span>
+          {item.tags.slice(0, 2).map((tag) => (
+            <span key={tag} className="rounded-full border border-line bg-white px-2.5 py-1 text-[12px] text-ink-muted">
+              {tag}
+            </span>
+          ))}
+        </div>
+        <h4 className="font-display text-[18px] font-semibold leading-snug text-ink">{item.question}</h4>
+        <p className="text-[12.5px] leading-relaxed text-ink-muted">
+          <strong className="text-ink-soft">Why they ask: </strong>
+          {item.why_asked}
+        </p>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={answerId}
+          onClick={onToggle}
+          className="min-h-11 w-fit rounded-ctl border border-teal/40 bg-white px-4 text-[13.5px] font-semibold text-teal"
+        >
+          {open ? 'Hide sample answer' : 'Show sample answer'}
+        </button>
+        {open ? (
+          <div id={answerId} className="flex flex-col gap-3">
+            <AnswerText text={item.answer} />
+            <div className="grid gap-3 border-t border-line pt-3 text-[12.5px] leading-relaxed text-ink-muted md:grid-cols-2">
+              <p>
+                <strong className="block text-ink-soft">From your CV</strong>
+                {item.resume_basis}
+              </p>
+              {item.follow_up ? (
+                <p>
+                  <strong className="block text-ink-soft">Likely follow-up</strong>
+                  {item.follow_up}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </Card>
   )
 }

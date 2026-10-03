@@ -20,6 +20,7 @@ import { Toggle } from '@/components/ui/Toggle'
 import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import { ResumeImport } from '@/components/profile/ResumeImport'
 import { ImprovePanel } from '@/components/profile/ImprovePanel'
+import { TypicalDuties } from '@/components/profile/TypicalDuties'
 import { ProfileOverview, SaveBar, StatusChip, type SectionStatus, type SectionSummary } from '@/components/profile/ProfileOverview'
 import { gccExperience, totalExperienceYears } from '@/lib/experienceYears'
 import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
@@ -929,6 +930,8 @@ function ProfileScreen() {
   const importParam = searchParams.get('import')
   const initialImportMode = importParam === 'upload' ? 'upload' : importParam === 'paste' ? 'paste' : 'idle'
   const [editor, setEditor] = useState<EditorData | null>(null)
+  // Jobs that just received ticked typical duties keep the card for its "press Save" note.
+  const [dutiesAdded, setDutiesAdded] = useState<ReadonlySet<string>>(() => new Set())
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   // Set true when a freshly-extracted draft loads into the editor, so it is
@@ -2558,6 +2561,15 @@ function ProfileScreen() {
                     ))}
                   </select>
                 </div>
+                {w.role.trim() && !w.description.trim() && (!w.highlights.trim() || dutiesAdded.has(w.key)) ? (
+                  <TypicalDuties
+                    role={w.role.trim()}
+                    onAdd={(lines) => {
+                      setDutiesAdded((set) => new Set(set).add(w.key))
+                      setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { highlights: lines.join('\n') }) }))
+                    }}
+                  />
+                ) : null}
                 <label className="flex flex-col gap-1.5">
                   <span className="field-label">What you did</span>
                   <textarea
