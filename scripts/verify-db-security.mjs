@@ -257,6 +257,7 @@ for (const [col, val] of [
   ['profile_id', `'${sB.profile_id}'::uuid`],
   ['cover_letters', "'{}'::jsonb[]"],
   ['interview_questions', "'{}'::jsonb"],
+  ['interview_question_sets', "'{}'::jsonb[]"],
   ['mock_interview_runs', "'{}'::jsonb[]"],
   ['service_events', "'{}'::jsonb[]"],
   ['user_id', `'${B}'::uuid`],
@@ -438,6 +439,23 @@ check('owner cannot write match_report', await denied(() =>
 const purge056 = (await svc('select public.purge_expired_operational_data() r')).rows[0].r
 check('expired job analyses are purged', purge056.job_analyses_deleted === 1)
 check('unexpired job analyses are kept', (await svc('select count(*)::int n from public.job_analyses')).rows[0].n === 1)
+
+// ---------------------------------------------------------------------------
+console.log('\n065 · every Q&A set kept; 10 newest of each per package')
+{
+  for (let i = 1; i <= 12; i++) {
+    await svc("select public.package_append_cover_letter($1, $2, $3::jsonb, $4::jsonb)", [pkgB, B, JSON.stringify({ id: `cap-L${i}` }), ev('cover_letter_generated')])
+    await svc("select public.package_set_interview_questions($1, $2, $3::jsonb, $4::jsonb)", [pkgB, B, JSON.stringify({ id: `cap-Q${i}`, questions: [] }), ev('qa_generated')])
+    await svc('select public.package_append_mock_run($1, $2, $3::jsonb, $4::jsonb)', [pkgB, B, JSON.stringify({ id: `cap-M${i}`, status: 'in_progress', questions: [] }), ev('mock_interview_started')])
+  }
+  const row = (await svc('select cover_letters, interview_questions, interview_question_sets, mock_interview_runs from public.packages where id = $1', [pkgB])).rows[0]
+  const ids = (list) => list.map((x) => x.id).join(',')
+  const newest = (prefix) => Array.from({ length: 10 }, (_, i) => `${prefix}${i + 3}`).join(',')
+  check('12 letters -> the 10 newest kept, oldest first', ids(row.cover_letters) === newest('cap-L'))
+  check('12 Q&A sets -> the 10 newest kept', ids(row.interview_question_sets) === newest('cap-Q'))
+  check('interview_questions is the newest set', row.interview_questions.id === 'cap-Q12')
+  check('12 mock interviews -> the 10 newest kept', ids(row.mock_interview_runs) === newest('cap-M'))
+}
 
 await db.close()
 console.log(`\n${passes} passed, ${failures} failed`)

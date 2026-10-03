@@ -1,4 +1,4 @@
-import type { MockInterviewRun, Package, PackageStatus } from '@/types/package'
+import type { InterviewQuestionSet, MockInterviewRun, Package, PackageStatus } from '@/types/package'
 
 /**
  * One saved job as a LIST shows it (audit M08, migration 055).
@@ -94,4 +94,18 @@ export function mockDone(p: PackageListItem): boolean {
 /** Every stage at zero — the shape the Library's stage strip counts into. */
 export function emptyStageCounts(): Record<PackageStatus, number> {
   return { saved: 0, applied: 0, shortlisted: 0, interview: 0, visa_processing: 0, offer: 0, rejected: 0, withdrawn: 0 }
+}
+
+/**
+ * How many cover letters, Q&A sets and mock interviews one package keeps
+ * (founder, 2026-10-03; enforced in the database by migration 065 — when an
+ * 11th is saved the oldest is dropped). Shown on each service's page.
+ */
+export const SAVED_PER_PACKAGE = 10
+
+/** A package's saved Q&A sets, newest first. Packages saved before migration 065 have only interview_questions. */
+export function savedQaSets(p: Pick<Package, 'interview_questions' | 'interview_question_sets'> | null | undefined): InterviewQuestionSet[] {
+  if (!p) return []
+  const list = p.interview_question_sets?.length ? p.interview_question_sets : p.interview_questions ? [p.interview_questions] : []
+  return list.slice().reverse()
 }

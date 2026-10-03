@@ -313,6 +313,8 @@ export interface Package {
   ats_score_card: unknown // Phase 2; jsonb
   cover_letters: CoverLetter[] // Phase 3; jsonb[] — typed as of TASK-065
   interview_questions: InterviewQuestionSet | null // Phase 4; jsonb
+  /** Every saved Q&A set, oldest first, the 10 newest kept (migration 065). interview_questions is the last one. */
+  interview_question_sets?: InterviewQuestionSet[]
   mock_interview_runs: MockInterviewRun[] // Phase 4; jsonb[]
   service_events?: PackageServiceEvent[]
 }

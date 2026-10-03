@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { CTA } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
+import { SAVED_PER_PACKAGE } from '@/lib/packageSummary'
 import type { CoverLetter, CoverLetterTone } from '@/types/package'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 import { stageEyebrow } from '@/components/journey/stages'
@@ -96,7 +97,7 @@ function CoverLetterScreen() {
       }
       const letter = payload?.letter as CoverLetter | undefined
       if (letter) {
-        picker.updateDetail(packageId, (p) => ({ ...p, cover_letters: [...(p.cover_letters ?? []), letter] }))
+        picker.updateDetail(packageId, (p) => ({ ...p, cover_letters: [...(p.cover_letters ?? []), letter].slice(-SAVED_PER_PACKAGE) }))
         const current = list?.find((p) => p.id === packageId)
         picker.patchSummary(packageId, { cover_letter_count: (current?.cover_letter_count ?? 0) + 1 })
         setEdits((e) => ({ ...e, [letter.id]: letter.full_text }))
@@ -322,7 +323,7 @@ function CoverLetterScreen() {
             <span className="text-[12px] text-ink-muted">{letters.length} total</span>
           </div>
           <p className="-mt-2 text-[12px] leading-relaxed text-ink-muted">
-            Edit any letter below and press Save changes. Downloads use your saved text.
+            Edit any letter below and press Save changes. Downloads use your saved text. The {SAVED_PER_PACKAGE} newest letters are kept for each job.
           </p>
           {letters.map((letter) => (
             <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-6">

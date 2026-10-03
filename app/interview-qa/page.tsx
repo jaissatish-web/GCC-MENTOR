@@ -15,7 +15,7 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/utils'
 import { CTA } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
-import type { PackageSummary } from '@/lib/packageSummary'
+import { SAVED_PER_PACKAGE, savedQaSets, type PackageSummary } from '@/lib/packageSummary'
 import type { InterviewQuestionAnswer, InterviewQuestionCategory, InterviewQuestionSet } from '@/types/package'
 import { stageEyebrow } from '@/components/journey/stages'
 import { StageGate } from '@/components/journey/StageGate'
@@ -80,7 +80,10 @@ function InterviewQaScreen() {
   const [showAll, setShowAll] = useState(false)
   const [openIds, setOpenIds] = useState<Set<string>>(() => new Set())
 
-  const questionSet = detail?.interview_questions ?? null
+  // Every set is kept (migration 065, 10 newest per job); the newest opens first.
+  const [setId, setSetId] = useState<string | null>(null)
+  const sets = useMemo(() => savedQaSets(detail), [detail])
+  const questionSet = sets.find((x) => x.id === setId) ?? sets[0] ?? null
   const grouped = useMemo(() => {
     const map = new Map<InterviewQuestionCategory, InterviewQuestionAnswer[]>()
     for (const category of CATEGORY_ORDER) map.set(category, [])
@@ -105,7 +108,13 @@ function InterviewQaScreen() {
       }
       const next = payload?.interview_questions as InterviewQuestionSet | undefined
       if (next) {
-        picker.updateDetail(packageId, (p) => ({ ...p, interview_questions: next }))
+        picker.updateDetail(packageId, (p) => ({
+          ...p,
+          interview_questions: next,
+          interview_question_sets: [...savedQaSets(p).reverse(), next].slice(-SAVED_PER_PACKAGE),
+        }))
+        setSetId(next.id)
+        setOpenIds(new Set())
         picker.patchSummary(packageId, { qa_question_count: next.question_count })
       }
     } catch {
@@ -183,6 +192,7 @@ function InterviewQaScreen() {
                 value={selectedId ?? ''}
                 onChange={(e) => {
                   setGenError(null)
+                  setSetId(null)
                   setSelectedId(e.target.value)
                 }}
                 disabled={generating}
@@ -240,9 +250,31 @@ function InterviewQaScreen() {
                 </Button>
               </div>
             </div>
+            {sets.length > 1 ? (
+              <label className="flex flex-col gap-2">
+                <span className="field-label">
+                  Saved Q&amp;A sets for this job ({sets.length} of {SAVED_PER_PACKAGE})
+                </span>
+                <select
+                  className="field"
+                  value={questionSet?.id ?? ''}
+                  onChange={(e) => {
+                    setSetId(e.target.value)
+                    setOpenIds(new Set())
+                  }}
+                  disabled={generating}
+                >
+                  {sets.map((x, i) => (
+                    <option key={x.id} value={x.id}>
+                      {new Date(x.generated_at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} · {x.question_count} Qs{i === 0 ? ' · newest' : ''}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
             {questionSet ? (
               <p className="text-[12px] leading-relaxed text-ink-muted">
-                Regenerating replaces this saved set with a new one.
+                A new set is saved alongside your earlier ones. The {SAVED_PER_PACKAGE} newest are kept for each job.
               </p>
             ) : null}
           </div>

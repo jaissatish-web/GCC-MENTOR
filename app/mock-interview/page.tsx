@@ -18,6 +18,7 @@ import { CTA } from '@/lib/serviceLabels'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
+import { SAVED_PER_PACKAGE } from '@/lib/packageSummary'
 import type { MockInterviewDifficulty, MockInterviewMode, MockInterviewRun, Package } from '@/types/package'
 import { stageEyebrow } from '@/components/journey/stages'
 import { StageGate } from '@/components/journey/StageGate'
@@ -137,7 +138,7 @@ function MockInterviewScreen() {
     picker.updateDetail(packageId, (p) => {
       const runs = p.mock_interview_runs ?? []
       const exists = runs.some((r) => r.id === next.id)
-      return { ...p, mock_interview_runs: exists ? runs.map((r) => (r.id === next.id ? next : r)) : [...runs, next] }
+      return { ...p, mock_interview_runs: exists ? runs.map((r) => (r.id === next.id ? next : r)) : [...runs, next].slice(-SAVED_PER_PACKAGE) }
     })
     picker.patchSummary(
       packageId,
@@ -308,7 +309,7 @@ function MockInterviewScreen() {
                 ))}
               </select>
             </label>
-            {detail && (detail.mock_interview_runs?.length ?? 0) > 0 ? <label className="flex flex-col gap-2"><span className="field-label">Saved interviews for this resume</span><select className="field" value={run?.id ?? ''} onChange={e => {
+            {detail && (detail.mock_interview_runs?.length ?? 0) > 0 ? <label className="flex flex-col gap-2"><span className="field-label">Saved interviews for this resume ({detail.mock_interview_runs?.length ?? 0} of {SAVED_PER_PACKAGE} — the newest are kept)</span><select className="field" value={run?.id ?? ''} onChange={e => {
               const selected = detail.mock_interview_runs?.find(r => r.id === e.target.value)
               router.replace(`/mock-interview?package=${encodeURIComponent(selectedId!)}&run=${encodeURIComponent(e.target.value)}${selected?.input_mode === 'voice' ? '&room=1' : ''}`)
             }}>{(detail.mock_interview_runs ?? []).slice().reverse().map(r => <option value={r.id} key={r.id}>{new Date(r.generated_at).toLocaleDateString()} · {r.mode} · {r.difficulty} · {r.status === 'completed' ? 'Report' : 'Continue'}</option>)}</select></label> : null}
