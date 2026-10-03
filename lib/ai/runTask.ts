@@ -143,6 +143,10 @@ export interface AiTask<T> {
   deadlineAt?: number
   /** Time a repair attempt needs to be worth starting. Default 30s. */
   minRepairMs?: number
+  /** Passed to the provider unchanged (GenerateParams.stallTimeoutMs). */
+  stallTimeoutMs?: number
+  /** Passed to the provider unchanged (GenerateParams.openRouter): thinking off, fast hosts. */
+  openRouter?: { reasoningOff?: boolean; preferHosts?: string[] }
 }
 
 export interface AiTaskResult<T> {
@@ -250,6 +254,8 @@ export async function runAiTask<T>(task: AiTask<T>): Promise<AiTaskResult<T>> {
         // One deadline for every attempt and every provider tier.
         deadlineAt: task.deadlineAt,
         giveUpAt: task.deadlineAt,
+        stallTimeoutMs: task.stallTimeoutMs,
+        openRouter: task.openRouter,
       })
     } catch (e) {
       // A provider failure is not retried here. `provider.ts` already tried the

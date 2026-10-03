@@ -1,9 +1,18 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
-import { buildInterviewQaPrompt } from '@/lib/ai/buildInterviewQaPrompt'
+import { buildInterviewQaParts } from '@/lib/ai/buildInterviewQaPrompt'
+import { extractJsonObject } from '@/lib/ai/extractionPrompt'
+import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
+import { REGION_WORDS, workedInGcc } from '@/lib/optimizer/v3/engine'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
-import { normalizeInterviewQa, validateInterviewQa } from '@/lib/ai/validateInterviewQa'
+import {
+  MIN_QA_QUESTIONS,
+  dropNearDuplicates,
+  normalizeInterviewQa,
+  validateInterviewQa,
+  withPartCategories,
+} from '@/lib/ai/validateInterviewQa'
 import { allowedNumbersFor, resumeDocumentTexts, unsourcedNumbers } from '@/lib/ai/answerGrounding'
 import {
   gapTermsFromMatchReport,
@@ -38,13 +47,22 @@ import type { InterviewQuestionSet, OptimizedContent } from '@/types/package'
  *     primary source; the Career Profile supplements it. A failed profile read is
  *     an error, not an empty profile.
  *   - SAVE: one atomic statement (migration 050).
+ *
+ * 2026-10-03 — FIVE PARTS IN PARALLEL (lib/ai/buildInterviewQaPrompt.ts QA_PARTS),
+ * thinking off, fast hosts. One 25-question call took 35–164s in the lab and
+ * 3 of 7 failed; the parts take 10–16s. Each part has its own shape and number
+ * check and its own repair; a part that still fails is left out, and the set is
+ * saved when at least 15 good questions remain.
  */
 
 export const maxDuration = 300
-const DEADLINE_MS = 270_000
-/** A repair is a full second generation (~2 min on slower upstreams). */
-const MIN_REPAIR_MS = 120_000
-const MAX_UNGROUNDED_ANSWERS = 5
+/** Leaves room for one stall retry (45s stall + the provider's 90s retry window). */
+const DEADLINE_MS = 150_000
+const MIN_REPAIR_MS = 20_000
+/** A part normally answers in 6–16s; a host silent for 45s has stalled. */
+const PART_STALL_MS = 45_000
+/** Same rate as before (5 of 25): a part with more than one goes back for repair. */
+const MAX_UNGROUNDED_PER_PART = 1
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -154,11 +172,14 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
   let succeeded = false
   try {
     const claimCtx = {
-      evidence: [profileEvidenceText(profile), ...resumeDocumentTexts(resume)].join('\n'),
+      // A candidate who worked in the Gulf may say so (same rule as the CV writer,
+      // lib/optimizer/v3/engine.ts REGION_WORDS): a Riyadh nurse's every "Gulf"
+      // sentence was cut because the job listed "Gulf experience" as a gap.
+      evidence: [profileEvidenceText(profile), ...resumeDocumentTexts(resume), ...(workedInGcc(profile) ? REGION_WORDS : [])].join('\n'),
       gaps: gapTermsFromMatchReport(pkgRow.match_report),
       totalYears: totalExperienceYears(profile),
     }
-    const prompt = buildInterviewQaPrompt(
+    const parts = buildInterviewQaParts(
       profile,
       resume,
       {
@@ -171,49 +192,61 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
       renderAnswerFacts(yearsToState(claimCtx.evidence, claimCtx.totalYears), claimCtx.gaps),
     )
 
-    let parsed
-    try {
-      const result = await runAiTask({
-        service: 'qa_generation',
-        route: '/api/packages/[id]/interview-qa',
-        userId: user.id,
-        persona: prompt.persona,
-        instructions: prompt.instructions,
-        input: prompt.input,
-        grounding: {
-          mode: 'enforced',
-          profile,
-          check: (_profile, output) => {
-            const bad = ungroundedAnswers(output)
-            if (bad.length <= MAX_UNGROUNDED_ANSWERS) return { valid: true, failures: [] }
-            return {
-              valid: false,
-              failures: bad.map((b) => ({
-                detail: `questions[${b.index}].answer states a number that is not in the profile, CV or job advert`,
-                offendingValue: b.values.join(', '),
-              })),
-            }
+    const settled = await Promise.allSettled(
+      parts.map((p) =>
+        runAiTask({
+          service: 'qa_generation',
+          route: '/api/packages/[id]/interview-qa',
+          userId: user.id,
+          persona: p.persona,
+          instructions: p.instructions,
+          input: p.input,
+          parse: (text) => withPartCategories(extractJsonObject(text), p.part.categories),
+          grounding: {
+            mode: 'enforced',
+            profile,
+            check: (_profile, output) => {
+              const bad = ungroundedAnswers(output)
+              if (bad.length <= MAX_UNGROUNDED_PER_PART) return { valid: true, failures: [] }
+              return {
+                valid: false,
+                failures: bad.map((b) => ({
+                  detail: `questions[${b.index}].answer states a number that is not in the profile, CV or job advert`,
+                  offendingValue: b.values.join(', '),
+                })),
+              }
+            },
           },
-        },
-        validateShape: (output) => {
-          const validation = validateInterviewQa(output)
-          return validation.valid ? null : validation.failures.slice(0, 5).join('; ')
-        },
-        // 9,000 (was 6,000, 2026-09-23): a reasoning model spends part of the
-        // budget before writing, and 25 full answers ran to 5,400 tokens.
-        maxTokens: 9000,
-        temperature: 0.1,
-        repairAttempts: 1,
-        deadlineAt: startedAt + DEADLINE_MS,
-        minRepairMs: MIN_REPAIR_MS,
-      })
-      parsed = normalizeInterviewQa(result.value)
-    } catch (error) {
+          validateShape: (output) => {
+            const validation = validateInterviewQa(output, p.part.count - 2)
+            return validation.valid ? null : validation.failures.slice(0, 5).join('; ')
+          },
+          // ~1,000–1,300 tokens per part with thinking off; headroom for a long one.
+          maxTokens: 3000,
+          temperature: 0.1,
+          repairAttempts: 1,
+          deadlineAt: startedAt + DEADLINE_MS,
+          minRepairMs: MIN_REPAIR_MS,
+          stallTimeoutMs: PART_STALL_MS,
+          openRouter: { reasoningOff: true, preferHosts: FAST_HOSTS },
+        }),
+      ),
+    )
+
+    const failedParts: unknown[] = []
+    const generated = settled.flatMap((r, i) => {
+      if (r.status === 'fulfilled') return normalizeInterviewQa(r.value.value).questions
+      failedParts.push(r.reason)
       console.error(
-        'interview-qa: AI call failed user=' + user.id + ' pkg=' + packageId,
-        error instanceof AiTaskError ? `${error.kind}: ${error.detail ?? error.message}` : String(error),
+        `interview-qa: part ${parts[i].part.key} failed user=${user.id} pkg=${packageId}`,
+        r.reason instanceof AiTaskError ? `${r.reason.kind}: ${r.reason.detail ?? r.reason.message}` : String(r.reason),
       )
-      return NextResponse.json({ error: aiFailureMessage(error) }, { status: 502 })
+      return []
+    })
+    // Parts are written separately; one CV highlight can be asked about twice.
+    const parsed = { questions: dropNearDuplicates(generated) }
+    if (parsed.questions.length < MIN_QA_QUESTIONS) {
+      return NextResponse.json({ error: aiFailureMessage(failedParts[0] ?? 'too few questions') }, { status: 502 })
     }
 
     // Anything still carrying an unsourced number is not shown.
@@ -255,6 +288,10 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
     if (!saved) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
 
     succeeded = true
+    console.info(
+      `interview-qa: ${Date.now() - startedAt}ms parts=${parts.length - failedParts.length}/${parts.length} ` +
+        `generated=${generated.length} repeats=${generated.length - parsed.questions.length} kept=${kept.length}`,
+    )
     if (dropped > 0) console.info(`interview-qa: dropped ${dropped} ungrounded answer(s) pkg=${packageId}`)
     if (reworded > 0) console.info(`interview-qa: removed unsupported claims from ${reworded} answer(s) pkg=${packageId}`)
     console.info(`interview Q&A generated: pkg=${packageId} user=${user.id} set=${interviewQuestions.id}`)

@@ -10,7 +10,9 @@
  */
 
 import './resolve-paths'
-import { MIN_QA_QUESTIONS, normalizeInterviewQa, validateInterviewQa } from '../lib/ai/validateInterviewQa'
+import { MIN_QA_QUESTIONS, dropNearDuplicates, normalizeInterviewQa, validateInterviewQa, withPartCategories } from '../lib/ai/validateInterviewQa'
+import { QA_PARTS, gulfFactLine } from '../lib/ai/buildInterviewQaPrompt'
+import type { CareerProfileFull } from '../types/careerProfile'
 import { buildCoverLetterPrompt } from '../lib/ai/buildCoverLetterPrompt'
 import { validateCoverLetterGrounding } from '../lib/ai/validateCoverLetterGrounding'
 import { claimsInFeedback, notInCvFeedback, removePersonalClaims, splitSentences, unverifiedEntityClaims } from '../lib/ai/proseClaims'
@@ -44,6 +46,43 @@ check('one malformed item no longer fails a good set', validateInterviewQa(mixed
 check('...and the malformed items are dropped', normalizeInterviewQa(mixed).questions.length === 20)
 check('never more than 25 are kept', normalizeInterviewQa({ questions: Array.from({ length: 30 }, (_, i) => q(i)) }).questions.length === 25)
 check('a missing array still fails', !validateInterviewQa({}).valid)
+
+console.log('\nInterview Q&A in five parts (2026-10-03)')
+check('the five parts add up to 25 questions', QA_PARTS.reduce((n, p) => n + p.count, 0) === 25)
+check('a part of 5 passes with 3 good items', validateInterviewQa({ questions: [q(1), q(2), q(3)] }, 3).valid)
+check('...and fails with 2', !validateInterviewQa({ questions: [q(1), q(2)] }, 3).valid)
+{
+  const labelled = withPartCategories({ questions: [{ ...q(1), category: 'gulf_readiness | company_role' }, { ...q(2), category: 'gulf_readiness' }] }, ['gulf_readiness', 'company_role']) as { questions: Array<{ category: string }> }
+  check('a copied schema label becomes the part\'s category', labelled.questions[0].category === 'company_role')
+  check('a correct label is left alone', labelled.questions[1].category === 'gulf_readiness')
+}
+{
+  const ask = (question: string) => ({ question })
+  const set = [
+    ask('Walk me through your role on the metro station project at Larsen & Toubro.'),
+    ask('Tell me about a mistake you made on the metro station project at Larsen & Toubro.'),
+    ask('How did you reduce rework on the metro station project at Larsen & Toubro?'),
+    ask('Describe your experience with SAP FICO implementation at Lulu International Exchange.'),
+    ask('At Lulu International Exchange you helped implement SAP FICO. What was your part?'),
+  ]
+  const kept = dropNearDuplicates(set).map((x) => x.question)
+  check('different questions about the same project are all kept', kept.filter((x) => x.includes('metro')).length === 3)
+  check('the same question asked twice is kept once', kept.filter((x) => x.includes('SAP FICO')).length === 1)
+  const pair = dropNearDuplicates([
+    { question: 'On the metro station project at Larsen & Toubro, how did you achieve zero rework?', category: 'project' },
+    { question: 'Tell me about a mistake you made on the metro station project at Larsen & Toubro.', category: 'behavioral' },
+  ])
+  check('a behavioural question about the same project is not a repeat', pair.length === 2)
+}
+{
+  const base = { work_experience: [] } as unknown as CareerProfileFull
+  const work = (location: string, start: string, end: string | null) => ({ location, start_date: start, end_date: end })
+  const now = new Date('2026-10-01')
+  check('no Gulf roles -> "none on the CV"', /none on the CV/.test(gulfFactLine({ ...base, work_experience: [work('Pune, India', '2015-01-01', null)] } as never, now)))
+  check('Gulf years counted only from Gulf roles', /^Gulf \(GCC\) experience: 10\+ years, in Qatar, UAE\./.test(
+    gulfFactLine({ ...base, work_experience: [work('Mumbai, India', '2012-01-01', '2016-10-01'), work('Doha, Qatar', '2016-11-01', '2020-02-01'), work('Dubai, UAE', '2020-03-01', null)] } as never, now),
+  ))
+}
 
 console.log('\nCover letter facts')
 const profile = {

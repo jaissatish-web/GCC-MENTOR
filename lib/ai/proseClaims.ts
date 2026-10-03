@@ -76,6 +76,11 @@ const GENERIC = new Set(
     'experience', 'project', 'projects', 'various', 'international', 'deep', 'strong', 'technical', 'ability',
     'skills', 'skill', 'support', 'review', 'develop', 'development', 'quality', 'safety', 'service', 'services',
     'document', 'documents', 'selection', 'phase', 'phases', 'scope', 'design team', 'related', 'relevant', 'field',
+    // 2026-10-03, interview answers: everyday words inside a longer requirement
+    // ("pressure injury prevention", "equipment schedules", "VAT compliance logic")
+    // cut "I stay calm under pressure" and "kept the project on schedule".
+    'pressure', 'schedule', 'schedules', 'operation', 'operations', 'compliance', 'pattern', 'patterns', 'logic', 'real', 'estate',
+    'access', 'state', 'rotate', 'rotating', 'shift', 'shifts', 'high', 'degree', 'basic', 'basics', 'principles', 'level', 'group',
   ].map((w) => stem(w)),
 )
 
@@ -86,8 +91,17 @@ function familyIn(stemSet: Set<string>, s: string): boolean {
   return false
 }
 
+// 2026-10-03: contractions and learning plans added. Interview answers handle a
+// gap the way the prompt asks — "My CV doesn't list BMS", "I'd take training on
+// it" — and every such sentence was being cut as a CLAIM, leaving answers like
+// "However, I have..." with nothing before them. Still narrow: each phrase
+// either denies the requirement, describes acquiring it, or is about the
+// EMPLOYER ("drawn to GulfCore's reputation in sustainable design").
 const HONEST_GAP =
-  /\b(not|never|no direct|no hands-on|haven['’]t|hasn['’]t|didn['’]t|without|limited|keen to|eager to|looking to|want to|would welcome|would like to|to grow into|to develop|to learn|to build (my|on)|next step)\b/i
+  /\b(not|never|no direct|no hands-on|no formal|haven['’]t|hasn['’]t|didn['’]t|doesn['’]t|don['’]t|isn['’]t|wasn['’]t|without|limited|keen to|eager to|looking to|want to|would welcome|would like to|to grow into|to develop|to learn|to build (my|on)|next step|up to speed|close (the|this|that) gap|upskill\w*|(I['’]d|I would|I will|I['’]ll|I plan to|I['’]m planning to) (\w+ ){0,3}?(learn|stud|tak|attend|complet|pursu|train|research|ask|seek|shadow|master|review|practi[cs]|enrol|read|ramp|be confident|be comfortable)\w*|I['’]m (currently )?(learning|developing|studying|taking)|area (I['’]m|I am) (developing|working on|improving)|excited by|track record|I can (quickly )?(learn|master|pick up)|with (the|your) training|opportunity to|drawn to|attracted to|impressed by|reputation (for|in)|known for)\b/i
+
+/** "[your example: a time you mentored ...]" is the candidate's to fill in, never a claim. */
+const PLACEHOLDER = /\[[^\]]*\]/g
 
 const YEARS_CLAIM = /\b(?:(nearly|almost|close to|over|more than|around|about|approximately)\s+)?(\d{1,2})\s*(\+)?\s*(?:years|yrs)\b/gi
 
@@ -96,8 +110,11 @@ export function checkProseClaims(input: {
   evidence: string
   gaps?: GapTerm[]
   totalYears?: number | null
+  /** An answer the candidate will SAY (interview prep): see the paraphrase rule below. */
+  spoken?: boolean
 }): ProseClaimIssue[] {
-  const { text, evidence } = input
+  const { evidence } = input
+  const text = input.text.replace(PLACEHOLDER, ' ')
   const issues: ProseClaimIssue[] = []
   if (!text.trim()) return issues
 
@@ -119,22 +136,34 @@ export function checkProseClaims(input: {
       issues.push({ code: 'gap_claim', severity: 'hard', detail: 'Claims a job requirement the profile does not support.', offendingValue: g.term })
       continue
     }
-    for (const token of tokenize(g.term)) {
-      if (token.length < 4 || !/^[a-z]+$/.test(token)) continue
-      const s = stem(token)
-      if (GENERIC.has(s)) continue
-      if (familyIn(textStems, s) && !familyIn(evidenceStems, s)) {
-        const word = tokenize(claimText).find((t) => {
-          const ts = stem(t)
-          return ts === s || (ts.length >= 6 && s.length >= 6 && ts.slice(0, 6) === s.slice(0, 6))
-        })
-        issues.push({
-          code: 'gap_word',
-          severity: 'hard',
-          detail: `Uses "${word ?? token}", part of a requirement the profile does not show.`,
-          offendingValue: word ?? token,
-        })
-      }
+    // The requirement's words the profile does not show. In a SPOKEN answer a
+    // paraphrase of a multi-word requirement needs two of them together
+    // (2026-10-03): one word alone cut "it could have caused a delay" (root cause
+    // analysis), "my method was" (method statements) and "during university"
+    // (university engineering competitions) from interview answers. "Find the
+    // root cause" is still two. A letter keeps the one-word rule: its audit case
+    // was "system specification" for "Technical Specification packages".
+    const unshown = [
+      ...new Set(
+        tokenize(g.term)
+          .filter((t) => t.length >= 4 && /^[a-z]+$/.test(t))
+          .map(stem)
+          .filter((s) => !GENERIC.has(s) && !familyIn(evidenceStems, s)),
+      ),
+    ]
+    const used = unshown.filter((s) => familyIn(textStems, s))
+    if (used.length === 0 || used.length < (input.spoken ? Math.min(2, unshown.length) : 1)) continue
+    for (const s of used) {
+      const word = tokenize(claimText).find((t) => {
+        const ts = stem(t)
+        return ts === s || (ts.length >= 6 && s.length >= 6 && ts.slice(0, 6) === s.slice(0, 6))
+      })
+      issues.push({
+        code: 'gap_word',
+        severity: 'hard',
+        detail: `Uses "${word ?? s}", part of a requirement the profile does not show.`,
+        offendingValue: word ?? s,
+      })
     }
   }
 
@@ -201,7 +230,7 @@ export function splitSentences(text: string): string[] {
  */
 export function removeClaimSentences(
   text: string,
-  ctx: { evidence: string; gaps?: GapTerm[]; totalYears?: number | null },
+  ctx: { evidence: string; gaps?: GapTerm[]; totalYears?: number | null; spoken?: boolean },
 ): string {
   return splitSentences(text)
     .filter((sentence) => !checkProseClaims({ ...ctx, text: sentence }).some((i) => i.severity === 'hard'))
@@ -254,9 +283,10 @@ export const HONEST_GAP_ANSWER =
 
 /** Clean an answer; if too little true text survives, coach honesty instead. */
 export function groundAnswer(answer: string, ctx: { evidence: string; gaps?: GapTerm[]; totalYears?: number | null }): { text: string; changed: boolean } {
-  const hardBefore = checkProseClaims({ ...ctx, text: answer }).some((i) => i.severity === 'hard')
+  const spokenCtx = { ...ctx, spoken: true }
+  const hardBefore = checkProseClaims({ ...spokenCtx, text: answer }).some((i) => i.severity === 'hard')
   if (!hardBefore) return { text: answer, changed: false }
-  const cleaned = removeClaimSentences(answer, ctx).trim()
+  const cleaned = removeClaimSentences(answer, spokenCtx).trim()
   const words = (cleaned.match(/[A-Za-z]+/g) ?? []).length
   return { text: words >= 12 ? cleaned : HONEST_GAP_ANSWER, changed: true }
 }

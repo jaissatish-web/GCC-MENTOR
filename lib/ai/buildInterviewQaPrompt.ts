@@ -1,30 +1,83 @@
 import type { CareerProfileFull, TargetCountry } from '@/types/careerProfile'
 import type { ResumeDocument } from '@/lib/resumeDocument'
+import { gccExperience } from '@/lib/experienceYears'
+import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 
 const INTERVIEW_QA_PERSONA =
   'You are a senior Gulf hiring manager and interview coach preparing a candidate for a real role-specific GCC interview.'
 
-const INTERVIEW_QA_INSTRUCTIONS = `Create exactly 25 interview questions and strong sample answers.
+/**
+ * ONE SET, FIVE PARTS (2026-10-03). The set used to be one call for all 25
+ * questions with the model's thinking on: 35–164s on the lab CVs, and 3 of 7
+ * calls failed outright (a stalled host, thinking that used the whole token
+ * budget, an answer cut off at 9,000 tokens) — each failure a repair, so a real
+ * user could wait minutes. Five themed parts run in parallel with thinking off
+ * on the fast hosts. Each part is told exactly what it may ask, so the parts do
+ * not repeat each other.
+ */
+const INTERVIEW_QA_INSTRUCTIONS = `You write ONE PART of a 25-question interview preparation set for this candidate. The other parts are written separately, so ask ONLY the kind of question your part names (see THIS PART at the end).
 
-The questions must feel specific to this candidate, their optimized resume, their past projects, and the target role. Avoid generic textbook questions unless they are adapted to the candidate's own background.
+Questions must be specific to this candidate and this job: name their real employers, projects, tools and results, and the advert's real requirements. No generic textbook questions.
 
-Cover this mix:
-- HR and introduction questions
-- technical and industry-standard questions
-- project and site-experience questions
-- Gulf readiness questions about GCC exposure, visa/location/client expectations where supported
-- role/company fit questions from the target job and job description
+Answers are first person, as the candidate would say them aloud: confident, concise, realistic, 45-75 words. Use only facts in the profile or CV. Never add a fact, number, employer, project, certification, licence, tool, standard, site, country, date or achievement that is not there.
 
-Answers must be first-person, interview-ready, confident, concise, and realistic. Each answer must be 45-75 words. They should help the candidate speak from their real experience. Do not add any fact, number, employer, project, certification, tool, standard, site, country, date, or achievement that is not present in the supplied profile or optimized resume.
+THREE THINGS THAT MUST NEVER HAPPEN
+1. An invented incident. A story answer starts from a real duty or result on the CV. The specific moment (the conflict, the mistake, the breakdown, the difficult customer) is not on the CV, so write it as a placeholder the candidate fills in.
+   WRONG: "During testing I found a faulty valve, replaced it and re-tested."
+   RIGHT: "On [project or role from the CV] I was responsible for [real duty]. [your example: one test that failed and how you traced the cause]. I fixed it by ..."
+2. A "yes" the facts do not show. If the advert asks for a licence, certificate, visa, language, tool or system the candidate's facts do not show, the answer never claims it: it gives the closest real experience and adds "[if you hold it, say so and add it to your profile]".
+   WRONG: "Yes, I hold a valid UAE driving licence."
+   RIGHT: "My CV does not list a UAE driving licence. [if you hold one, say so and add it to your profile] In my current role I travel to sites across the city every week."
+3. A wrong figure. State years exactly as FACTS gives them. Only the Gulf years in FACTS are Gulf experience — never call the whole career "GCC experience".
 
-Keep the JSON compact:
+JSON fields:
 - question: one sentence.
-- why_asked: maximum 18 words.
-- resume_basis: maximum 18 words.
-- follow_up: one short question or null.
+- why_asked: maximum 18 words — what the interviewer is checking.
+- resume_basis: maximum 18 words naming the profile/CV facts used.
+- follow_up: one short likely follow-up question, or null.
 - tags: 1 to 3 short labels.
+- difficulty: a mix of standard, strong and challenging.`
 
-If a question is about a requirement that appears in the job description but the candidate's facts do not support it, the answer must handle that honestly without pretending experience.`
+/** The five parts of a set. The counts add up to 25; each part's scope excludes the others'. */
+export const QA_PARTS = [
+  {
+    key: 'intro',
+    count: 5,
+    categories: ['hr'],
+    scope:
+      'introduction and motivation only — tell me about yourself, why this role and company, why leave the current job, strengths and one development area, notice period / availability / salary expectations. No technical or project questions.',
+  },
+  {
+    key: 'technical',
+    count: 6,
+    categories: ['technical'],
+    scope:
+      'technical knowledge and method — how the candidate does the tools, standards, methods and duties THE ADVERT asks for ("how do you...", "what is your approach to..."), answered from their real skills. Do not ask about one named project (another part does), and do not ask about requirements the candidate lacks (another part does).',
+  },
+  {
+    key: 'projects',
+    count: 5,
+    categories: ['project'],
+    scope:
+      "the candidate's own projects and roles — each question about a DIFFERENT employer, project or role from the CV: scope, their own part, results. If the CV has fewer than five, ask about different duties within them.",
+  },
+  {
+    key: 'behavioural',
+    count: 4,
+    categories: ['behavioral'],
+    scope:
+      'behavioural (STAR), one each: pressure or a tight deadline; a disagreement or conflict; a mistake and what was learned; teamwork or leading others. The situation comes from a real role on the CV; the specific moment is a placeholder (rule 1), so EVERY answer in this part contains one "[your example: ...]".',
+  },
+  {
+    key: 'gulf_fit',
+    count: 5,
+    categories: ['gulf_readiness', 'company_role'],
+    scope:
+      'two gulf_readiness questions (Gulf work exposure or, with none, how they will adapt; working with Gulf clients, authorities or multicultural teams) and three company_role questions: up to two on requirements the candidate does NOT meet (rule 2: honest, closest real experience, how they would close the gap) and one "why should we hire you".',
+  },
+] as const
+
+export type QaPart = (typeof QA_PARTS)[number]
 
 export interface InterviewQaTarget {
   target_job_title: string
@@ -176,13 +229,13 @@ function renderJobDescription(jobDescription: string | null | undefined): string
   return jobDescription?.trim() || 'No job description was provided. Use the target role and optimized resume.'
 }
 
-function outputSchema(): string {
+function outputSchema(part: QaPart): string {
   return `Return ONLY valid JSON. No markdown fences. Match this schema exactly:
 
 {
   "questions": [
     {
-      "category": "hr | technical | project | behavioral | gulf_readiness | company_role",
+      "category": "${part.categories.join(' or ')}",
       "difficulty": "standard | strong | challenging",
       "question": "string",
       "answer": "string, first-person answer the candidate can practice, 45-75 words",
@@ -195,35 +248,63 @@ function outputSchema(): string {
 }
 
 Rules:
-- questions must contain exactly 25 items.
+- questions must contain exactly ${part.count} items.
 - Every question, answer, why_asked and resume_basis must be non-empty.
 - tags must contain 1 to 3 strings.
 - Do not include ids; the server will add them.`
 }
 
-export function buildInterviewQaPrompt(
+const COUNTRY_NAMES: Record<string, string> = { uae: 'UAE', generic_gulf: 'the Gulf' }
+function countryName(c: string): string {
+  return COUNTRY_NAMES[c] ?? c.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
+/** Gulf years from the candidate's own dated, Gulf-located roles — never the model's arithmetic. */
+export function gulfFactLine(profile: CareerProfileFull, now: Date = new Date()): string {
+  const gcc = gccExperience(profile.work_experience ?? [], (l) => gccCountryFromLocation(l)?.country ?? null, now)
+  if (gcc.roles === 0) return 'Gulf (GCC) experience: none on the CV. Do not claim any.'
+  const where = gcc.countries.map(countryName).join(', ')
+  return gcc.years > 0
+    ? `Gulf (GCC) experience: ${gcc.years}+ years, in ${where}. Every other year was outside the Gulf.`
+    : `Gulf (GCC) experience: under one year, in ${where}. Do not state a number of Gulf years.`
+}
+
+export interface BuiltPartPrompt extends BuiltPrompt {
+  part: QaPart
+}
+
+/**
+ * One prompt per part. The system prompt and the facts are identical across the
+ * five; only the closing THIS PART block and the schema differ.
+ */
+export function buildInterviewQaParts(
   profile: CareerProfileFull,
   resume: ResumeDocument,
   target: InterviewQaTarget,
   jobDescription?: string | null,
   /** Computed facts + gap list (lib/ai/proseClaims.ts renderAnswerFacts). */
   factsBlock?: string,
-): BuiltPrompt {
-  return {
+): BuiltPartPrompt[] {
+  const shared = [
+    '## CAREER PROFILE',
+    renderProfile(profile),
+    '## OPTIMIZED RESUME',
+    renderResumeDocument(resume),
+    '## TARGET JOB',
+    renderTarget(target),
+    '## JOB DESCRIPTION',
+    renderJobDescription(jobDescription),
+    [factsBlock ?? '## FACTS YOU MUST KEEP TO', gulfFactLine(profile)].join('\n'),
+  ].join('\n\n')
+  return QA_PARTS.map((part) => ({
+    part,
     persona: INTERVIEW_QA_PERSONA,
     instructions: INTERVIEW_QA_INSTRUCTIONS,
     input: [
-      '## CAREER PROFILE',
-      renderProfile(profile),
-      '## OPTIMIZED RESUME',
-      renderResumeDocument(resume),
-      '## TARGET JOB',
-      renderTarget(target),
-      '## JOB DESCRIPTION',
-      renderJobDescription(jobDescription),
-      ...(factsBlock ? [factsBlock] : []),
+      shared,
+      `## THIS PART\nWrite exactly ${part.count} questions: ${part.scope}`,
       '## OUTPUT FORMAT',
-      outputSchema(),
+      outputSchema(part),
     ].join('\n\n'),
-  }
+  }))
 }

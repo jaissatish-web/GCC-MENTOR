@@ -89,5 +89,38 @@ console.log("\nThe candidate's own stated years win")
   check('an implausible stated figure is ignored', yearsToState('30+ years of combined team experience', 14) === 14)
 }
 
+console.log('\nInterview answers that handle a gap honestly are kept (2026-10-03 Q&A lab)')
+{
+  const qa = {
+    evidence: 'MEP Engineer, Dubai. Chilled water systems, variable speed drives, HVAC site supervision. Gulf',
+    gaps: [
+      { term: 'BMS systems', kind: 'skill' },
+      { term: 'VRF', kind: 'equipment' },
+      { term: 'sustainable design', kind: 'domain' },
+      { term: 'pressure injury prevention', kind: 'skill' },
+      { term: 'mentor', kind: 'responsibility' },
+    ],
+    totalYears: 11,
+  }
+  const kept = (s: string) => removeClaimSentences(s, qa) === s
+  check('"My CV doesn\'t list VRF or BMS" is kept', kept("My CV doesn't list VRF or BMS specifically."))
+  check('"I\'d take targeted training on VRF" is kept', kept("To close the gap, I'd take targeted training on VRF and BMS protocols."))
+  check('"One area I\'m developing is BMS" is kept', kept("One area I'm developing is BMS systems."))
+  check('talk about the employer is kept', kept("I am drawn to GulfCore's reputation in sustainable design."))
+  check('"stay calm under pressure" is not a pressure-injury claim', kept('I stay calm under pressure.'))
+  check('a placeholder naming a gap is kept', kept('[your example: a time you informally mentored a junior colleague].'))
+  check('a real claim of a gap is still removed', removeClaimSentences('I commissioned VRF units on two towers.', qa) === '')
+  check('a placeholder does not hide a claim beside it', removeClaimSentences('I mentored six juniors [your example].', qa) === '')
+
+  const { groundAnswer } = require('../lib/ai/proseClaims') as typeof import('../lib/ai/proseClaims')
+  const spoken = { ...qa, gaps: [{ term: 'root cause analysis', kind: 'skill' }, { term: 'method statements', kind: 'responsibility' }] }
+  const story = 'I misrecorded a quantity in the site log, which could have caused a delay. My method was to recount every line that week. I then added a second check before each report went out to the engineer.'
+  check('spoken: one everyday word of a missing requirement is not a claim', !groundAnswer(story, spoken).changed)
+  check('spoken: two words of it together still are', groundAnswer('I always find the root cause of every pump failure on site. ' + story, spoken).changed)
+  check('a letter keeps the one-word rule', removeClaimSentences('It could have caused a delay.', spoken) === '')
+  check('"I\'d start by studying ..." is a learning plan', kept("I'd start by studying VRF manuals and shadowing the BMS team."))
+  check('"I would immediately enroll in ..." is a learning plan', kept('I would immediately enroll in VRF training.'))
+}
+
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} assertion(s) FAILED.\n`)
 process.exit(failures === 0 ? 0 : 1)
