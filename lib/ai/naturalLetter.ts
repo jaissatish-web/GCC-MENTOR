@@ -17,6 +17,8 @@ const SWAPS: Array<[RegExp, string]> = [
   [/\bproven track record (?:of|in)\b/gi, 'experience in'],
   [/\ba blend of\b/gi, 'a mix of'],
   [/\b(?:Furthermore|Moreover|Additionally),\s*/g, ''],
+  // A range keeps its dash as a hyphen: "6–8 patients" became "6, 8 patients" (2026-10-03).
+  [/(\d)\s*[—–]\s*(\d)/g, '$1-$2'],
   [/\s*[—–]\s*/g, ', '],
 ]
 

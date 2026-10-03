@@ -15,7 +15,7 @@ import { QA_PARTS, gulfFactLine } from '../lib/ai/buildInterviewQaPrompt'
 import type { CareerProfileFull } from '../types/careerProfile'
 import { buildCoverLetterPrompt } from '../lib/ai/buildCoverLetterPrompt'
 import { validateCoverLetterGrounding } from '../lib/ai/validateCoverLetterGrounding'
-import { signOffBlock, writtenAboutApplicant } from '../lib/ai/naturalLetter'
+import { naturalVoice, signOffBlock, writtenAboutApplicant } from '../lib/ai/naturalLetter'
 import { onHundredScale } from '../lib/ai/validateMockInterview'
 import { cleanDuties } from '../lib/typicalDuties'
 import { letterParagraphs } from '../lib/coverLetterFiles'
@@ -176,6 +176,7 @@ console.log('\nCover letter is the applicant\'s own (2026-10-03 live audit)')
   check('an employer that shares a first name is not the applicant', !writtenAboutApplicant('I worked at Ali Bin Ali Trading for six years.', 'Ali Khan'))
   check('name and contact under the sign-off', signOffBlock('Sincerely,', 'Rania Haddad', '+971 57 573 6749 · rania@example.com') === 'Sincerely,\nRania Haddad\n+971 57 573 6749 · rania@example.com')
   check('a capitals name is written normally', signOffBlock('Regards,', 'JOSEPH THOMAS VARGHESE', '') === 'Regards,\nJoseph Thomas Varghese')
+  check('a number range keeps its dash ("6–8 patients" became "6, 8")', naturalVoice('I care for 6–8 patients — mostly ventilated.') === 'I care for 6-8 patients, mostly ventilated.')
   check('an empty sign-off still closes the letter', signOffBlock('', 'Rania Haddad', null).startsWith('Sincerely,\nRania'))
 }
 
