@@ -1,12 +1,12 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { ProcessingInline } from '@/components/ui/Processing'
 import { createClient } from '@/lib/supabase/client'
 import { VOICE_BUCKET, type VoiceSessionView, type VoiceAnswer } from '@/lib/voice/types'
 import { draftOperation } from '@/lib/voice/localDraft'
 import type { MockInterviewRun } from '@/types/package'
 import { Interviewer } from './Interviewer'
+import { CallOrb, REVIEWING_LINES } from './CallOrb'
 import { useRecorder } from './useRecorder'
 
 async function jsonRequest(url: string, body?: Record<string, unknown>) {
@@ -96,6 +96,8 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
   const [recording, setRecording] = useState(false)
   const [busy, setBusy] = useState(false)
   const [deleted, setDeleted] = useState(false)
+  // The calm reviewing screen shows the moment Review is pressed, not after the request returns.
+  const [requested, setRequested] = useState(false)
   const updateRef = useRef(onUpdated); updateRef.current = onUpdated
   const completionNotified = useRef(false)
   const retryCount = useRef(0)
@@ -121,7 +123,8 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
       } catch (e) {
         if (!stopped) { retryCount.current++; setError(e instanceof Error ? e.message : 'Connection interrupted. Retrying saved review…') }
       }
-      if (!stopped) timer = setTimeout(() => void step(), Math.min(15000, 3000 * Math.max(1, retryCount.current)))
+      // Straight on after a saved step; back off only after errors (2026-10-03).
+      if (!stopped) timer = setTimeout(() => void step(), retryCount.current ? Math.min(15000, 3000 * retryCount.current) : 800)
     }
     void step()
     return () => { stopped = true; clearTimeout(timer) }
@@ -135,9 +138,9 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
     return () => clearTimeout(timer)
   }, [view?.status, api, reload])
   async function review() {
-    setBusy(true); setError(null)
+    setBusy(true); setError(null); setRequested(true)
     try { await jsonRequest(api, { action: 'review' }); await reload() }
-    catch (e) { setError(e instanceof Error ? e.message : 'Could not start review.') }
+    catch (e) { setRequested(false); setError(e instanceof Error ? e.message : 'Could not start review.') }
     finally { setBusy(false) }
   }
   async function remove() {
@@ -157,8 +160,9 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
   const currentAnswer = view.answers.find(a => a.question_id === question?.id)
   const savedCurrent = Boolean(currentAnswer?.saved_at)
   const allSaved = saved === run.questions.length
+  const showReviewing = reviewing || (requested && view.status === 'recording' && allSaved)
   return <section className={room ? `flex min-h-0 w-full flex-1 flex-col gap-2 p-2 sm:gap-3 sm:p-4 ${view.status === 'recording' && !allSaved ? 'overflow-hidden' : 'overflow-y-auto'}` : 'mt-6 space-y-5'} aria-label="Recorded voice interview">
-    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-1"><h2 className="text-sm font-semibold text-ink sm:text-xl">{view.status === 'completed' ? 'Your recorded interview review' : reviewing ? 'Preparing your review' : `Question ${Math.min((index ?? 0) + 1, run.questions.length)} of ${run.questions.length} · ${saved} saved`}</h2><Button variant="ghost" size="sm" onClick={() => void remove()} disabled={busy || recording || reviewing}>Delete interview</Button></div>
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-1"><h2 className="text-sm font-semibold text-ink sm:text-xl">{view.status === 'completed' ? 'Your recorded interview review' : showReviewing ? 'Reviewing your interview' : `Question ${Math.min((index ?? 0) + 1, run.questions.length)} of ${run.questions.length} · ${saved} saved`}</h2><Button variant="ghost" size="sm" onClick={() => void remove()} disabled={busy || recording || reviewing}>Delete interview</Button></div>
     {error && <p role="alert" className="rounded-lg bg-alert-soft p-3 text-sm text-alert">{error}</p>}
     {view.status === 'recording' && question && !allSaved && <div className={room ? 'flex min-h-0 flex-1 flex-col gap-2 md:grid md:grid-cols-[1.15fr_1fr] md:gap-4' : 'grid gap-5 lg:grid-cols-[1.15fr_1fr]'}>
       <div className={room ? 'h-[34dvh] min-h-[124px] max-h-[320px] shrink-0 md:h-full md:max-h-none' : 'min-h-[280px]'}><Interviewer interviewerId={run.interviewer_id} recording={recording} /></div>
@@ -166,8 +170,15 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
         {savedCurrent ? <div className="shrink-0 rounded-2xl bg-teal-soft p-3 sm:p-5"><p className="font-semibold">Recording saved. No grading yet.</p><SavedAudio api={api} questionId={question.id} expiresAt={currentAnswer?.audio_delete_after} deletedAt={currentAnswer?.audio_deleted_at} /><Button className="mt-3" onClick={() => setIndex(run.questions.findIndex(q => !view.answers.some(a => a.question_id === q.id && a.saved_at)))}>Next question</Button></div> : <Recording room={room} key={question.id} api={api} draftKey={`gcc.voice.${packageId}.${run.id}.${question.id}`} questionId={question.id} onSaved={async () => { await reload() }} onRecording={setRecording} />}
       </div>
     </div>}
-    {view.status === 'recording' && allSaved && <div className="rounded-2xl border border-line bg-white p-5"><h3 className="text-xl font-semibold">Your interview is complete</h3><p className="mt-2 text-sm text-ink-muted">Listen to your saved answers below. Audio is kept for three days; transcripts and reports remain. Transcription and grading begin only when you request review.</p><Button className="mt-4" onClick={() => void review()} busy={busy} busyLabel="Starting review…">Review my interview</Button><div className="mt-5 space-y-3">{run.questions.map((q, i) => { const answer = view.answers.find(a => a.question_id === q.id); return <details key={q.id} className="rounded-lg border border-line p-3"><summary className="cursor-pointer">Question {i + 1}: {q.question}</summary><SavedAudio api={api} questionId={q.id} expiresAt={answer?.audio_delete_after} deletedAt={answer?.audio_deleted_at} /></details> })}</div></div>}
-    {reviewing && <div className="rounded-2xl border border-line bg-white p-5" role="status"><h3 className="text-xl font-semibold">Preparing your interview report</h3><p className="mt-2 text-sm font-semibold text-teal">{view.answers.filter(a => a.feedback).length} of {run.questions.length} answers reviewed{view.answers.every(a => a.feedback) ? ' · preparing your final report' : ''}</p><ProcessingInline steps={['Transcribing saved answers', 'Reviewing each answer', 'Writing your preparation report']} stepMs={6000} notes={['Each completed answer is saved as the review continues.', 'You can reopen this interview; review continues from saved progress.']} /><p className="mt-2 text-sm text-ink-muted">Keep this page open for automatic progress. Your answers are safe if you leave.</p></div>}
+    {view.status === 'recording' && allSaved && !showReviewing && <div className="rounded-2xl border border-line bg-white p-5"><h3 className="text-xl font-semibold">Your interview is complete</h3><p className="mt-2 text-sm text-ink-muted">Listen to your saved answers below. Audio is kept for three days; transcripts and reports remain. Transcription and grading begin only when you request review.</p><Button className="mt-4" onClick={() => void review()} busy={busy} busyLabel="Starting review…">Review my interview</Button><div className="mt-5 space-y-3">{run.questions.map((q, i) => { const answer = view.answers.find(a => a.question_id === q.id); return <details key={q.id} className="rounded-lg border border-line p-3"><summary className="cursor-pointer">Question {i + 1}: {q.question}</summary><SavedAudio api={api} questionId={q.id} expiresAt={answer?.audio_delete_after} deletedAt={answer?.audio_deleted_at} /></details> })}</div></div>}
+    {showReviewing && <div className="rounded-2xl border border-line bg-white">
+      <CallOrb
+        label="Reviewing"
+        title="Thank you. We will get back to you very soon."
+        lines={REVIEWING_LINES}
+        detail={view.answers.every(a => a.feedback) ? `All ${run.questions.length} answers reviewed · writing your report` : `${view.answers.filter(a => a.feedback).length} of ${run.questions.length} answers reviewed`}
+      />
+    </div>}
     {view.status === 'failed' && <div role="alert" className="rounded-xl bg-alert-soft p-5"><p>{view.last_error || 'Review was interrupted. Your recordings are saved.'}</p><Button className="mt-3" onClick={() => void review()} busy={busy}>Retry review</Button></div>}
     {view.status === 'completed' && <><Progress history={view.history} />{run.final_report && <div className="rounded-2xl bg-teal-soft p-5"><h3 className="text-xl font-semibold">Your next three improvements</h3><ol className="mt-3 list-decimal space-y-2 pl-5">{run.final_report.improvement_plan.slice(0, 3).map((p, i) => <li key={i}>{p}</li>)}</ol><p className="mt-3 text-sm">Practise these points, then start another interview with the same settings to track your progress.</p></div>}<div className="space-y-3">{run.questions.map(q => { const a = view.answers.find(a => a.question_id === q.id); return a ? <AnswerReview key={q.id} answer={a} question={q.question} api={api} /> : null })}</div></>}
   </section>

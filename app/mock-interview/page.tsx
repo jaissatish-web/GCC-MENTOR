@@ -1,5 +1,6 @@
 'use client'
 
+import { CallOrb, JOINING_LINES } from '@/components/mock-interview/CallOrb'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -348,9 +349,14 @@ function MockInterviewScreen() {
                 <Button type="button" variant="secondary" onClick={picker.reloadDetail}>Try again</Button>
               </div>
             ) : null}
-            {busy ? (
+            {busy === 'start' ? (
+              // Joining a call, not loading a page (founder, 2026-10-03).
+              <div className="fixed inset-0 z-[60] flex items-center justify-center bg-canvas/95 backdrop-blur-sm">
+                <CallOrb label="Connecting" title="Getting your interview ready" lines={JOINING_LINES} />
+              </div>
+            ) : busy ? (
               <ProcessingInline
-                steps={busy === 'start' ? ['Reading the optimized resume', 'Building the interview plan', 'Preparing realistic questions'] : busy === 'answer' ? ['Reviewing your answer', 'Checking structure and evidence', 'Preparing feedback'] : ['Reading your answers', 'Reviewing each answer', 'Writing your preparation report']}
+                steps={busy === 'answer' ? ['Reviewing your answer', 'Checking structure and evidence', 'Preparing feedback'] : ['Reading your answers', 'Reviewing each answer', 'Writing your preparation report']}
                 stepMs={4500}
                 notes={NOTES}
               />
