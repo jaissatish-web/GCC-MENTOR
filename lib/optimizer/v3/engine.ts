@@ -21,6 +21,7 @@ import { containsTermRaw, contentStems, sharesContentStem, stemsMatch } from '..
 import { gccExperience, totalExperienceYears } from '@/lib/experienceYears'
 import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 import { entrySourceText } from '../evidence'
+import { experienceRequirementMet } from '../experienceMet'
 import type { JobTargetProfile, KeywordKind } from '../types'
 import { ANALYSIS_SYSTEM, analysisUser, currentTitle, jobKeys, maxNewPoints, writerSystem, writerUser, type WriterLists } from './prompts'
 
@@ -122,11 +123,9 @@ export async function analyzeV3(profile: CareerProfileFull, targetTitle: string,
     const literal = literalLocations(profile, term)
     if (kind === 'experience_years') {
       // Years are arithmetic on the job dates, never the model's reading.
-      const need = Number(term.match(/\d+/)?.[0] ?? NaN)
-      const have = totalExperienceYears(profile) ?? 0
-      const ok = Number.isFinite(need) && have >= need
-      if ((ok ? 'A' : 'C') !== group) regrouped = `${group}->${ok ? 'A' : 'C'} (${have} years in the profile)`
-      group = ok ? 'A' : 'C'
+      const met = experienceRequirementMet(profile, term)
+      if ((met.ok ? 'A' : 'C') !== group) regrouped = `${group}->${met.ok ? 'A' : 'C'} (${met.years} years of ${met.core || 'experience'} in the profile)`
+      group = met.ok ? 'A' : 'C'
       location = 'summary'
     } else if (literal.length) {
       if (group !== 'A') regrouped = `${group}->A (written in the profile)`

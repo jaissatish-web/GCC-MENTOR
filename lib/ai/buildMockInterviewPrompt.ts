@@ -201,7 +201,8 @@ export function buildMockInterviewReportPrompt(run: MockInterviewRun): BuiltProm
         `Q${i + 1}: ${q.question}`,
         `Answer: ${q.answer}`,
         q.feedback ? `Feedback: ${q.feedback}` : null,
-        q.score == null ? null : `Score: ${q.score}`,
+        // Out of 10, said so: a bare "Score: 3" led one report to score 2/100 (2026-10-03).
+        q.score == null ? null : `Answer score: ${q.score}/10`,
       ]
         .filter(Boolean)
         .join('\n'),
@@ -217,7 +218,7 @@ export function buildMockInterviewReportPrompt(run: MockInterviewRun): BuiltProm
       `The candidate answered ${answeredCount} of ${run.questions.length} questions. Evaluate only the answered ones; do not guess how unanswered questions would have gone.`,
       'This is preparation feedback on written answers, not a prediction of whether the candidate will be hired.',
       'Do not claim to evaluate voice, accent, pace, pronunciation or audio confidence.',
-      'Scores must be integers from 0 to 100.',
+      'Report scores are integers from 0 to 100. The per-answer scores above are out of 10, so an answer scored 6/10 is about 60 on this scale.',
       'Write a diagnostic report, not generic encouragement. Every finding must say what was observed, why it matters in an interview, and what the candidate should do next.',
       'The executive summary must state the current preparation level, the clearest strength, the main weakness and the single highest-priority improvement.',
       'Each score explanation must connect that score to evidence in the submitted answers. Do not invent evidence.',

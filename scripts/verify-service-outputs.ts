@@ -15,6 +15,8 @@ import { QA_PARTS, gulfFactLine } from '../lib/ai/buildInterviewQaPrompt'
 import type { CareerProfileFull } from '../types/careerProfile'
 import { buildCoverLetterPrompt } from '../lib/ai/buildCoverLetterPrompt'
 import { validateCoverLetterGrounding } from '../lib/ai/validateCoverLetterGrounding'
+import { signOffBlock, writtenAboutApplicant } from '../lib/ai/naturalLetter'
+import { onHundredScale } from '../lib/ai/validateMockInterview'
 import { claimsInFeedback, notInCvFeedback, removePersonalClaims, splitSentences, unverifiedEntityClaims } from '../lib/ai/proseClaims'
 
 let failures = 0
@@ -161,6 +163,28 @@ console.log('\nMock interview: credentials and products the CV never mentions')
   check('the TÜV awareness certificate the CV holds is not flagged', unverifiedEntityClaims('I hold the Functional Safety SIS Awareness certificate from TÜV.', evidence).length === 0)
   const feedback = notInCvFeedback(['DeltaV', 'TUV Functional Safety Engineer'], 'Weak answer.')
   check('the report can read the flagged claims back', claimsInFeedback(feedback).join('|') === 'DeltaV|TUV Functional Safety Engineer')
+}
+
+console.log('\nCover letter is the applicant\'s own (2026-10-03 live audit)')
+{
+  const live = 'I am writing to recommend Rania Haddad for the ICU Staff Nurse position. With 8+ years of experience, she brings clinical competence. Her skills in ventilator management are directly applicable.'
+  check('the live "recommend Rania ... she brings" letter is caught', writtenAboutApplicant(live, 'Rania Haddad'))
+  check('a first-person letter passes', !writtenAboutApplicant('I would like to apply for the ICU Staff Nurse role. In my current role I lead shifts and train new nurses.', 'Rania Haddad'))
+  check('one "he" about a patient does not fail a letter', !writtenAboutApplicant('I cared for a patient until he was stable, and I trained my team.', 'Rania Haddad'))
+  check('an employer that shares a first name is not the applicant', !writtenAboutApplicant('I worked at Ali Bin Ali Trading for six years.', 'Ali Khan'))
+  check('name and contact under the sign-off', signOffBlock('Sincerely,', 'Rania Haddad', '+971 57 573 6749 · rania@example.com') === 'Sincerely,\nRania Haddad\n+971 57 573 6749 · rania@example.com')
+  check('a capitals name is written normally', signOffBlock('Regards,', 'JOSEPH THOMAS VARGHESE', '') === 'Regards,\nJoseph Thomas Varghese')
+  check('an empty sign-off still closes the letter', signOffBlock('', 'Rania Haddad', null).startsWith('Sincerely,\nRania'))
+}
+
+console.log('\nMock interview report scale (2026-10-03)')
+{
+  const r10 = { overall_score: 2, technical_score: 2, role_fit_score: 3, gulf_readiness_score: 3, answer_structure_score: 2 }
+  const scaled = onHundredScale(r10, [3, 4]) as typeof r10
+  check('a report on the 10-point scale is moved to 100', scaled.overall_score === 20 && scaled.role_fit_score === 30)
+  const r100 = { overall_score: 25, technical_score: 20, role_fit_score: 30, gulf_readiness_score: 40, answer_structure_score: 30 }
+  check('a report already out of 100 is left alone', (onHundredScale(r100, [3, 4]) as typeof r100).overall_score === 25)
+  check('very weak answers keep a very low report', (onHundredScale({ ...r10, overall_score: 1 }, [1, 1]) as typeof r10).overall_score === 1)
 }
 
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} FAILED\n`)

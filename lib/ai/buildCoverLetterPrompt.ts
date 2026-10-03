@@ -20,13 +20,15 @@ import type { CareerProfileFull, ProfileWorkExperience, TargetCountry } from '@/
 import type { CoverLetterTone } from '@/types/package'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 
-// Byte-for-byte from docs/PROMPTS.md §8 — the one persona line the spec
-// gives for this feature. Not a per-industry persona (lib/ai/personas.ts is
-// resume-reviewer personas, a different concept — a hiring manager
-// evaluating a CV, not a recruiter writing a letter). Do not swap this for
-// getPersona(); the spec deliberately gives ONE line for cover letters.
+// ONE persona line for cover letters (not a per-industry persona from
+// lib/ai/personas.ts). Changed 2026-10-03: the original spec line (docs/archive/
+// PROMPTS.md §8) was "a senior recruiter writing a persuasive letter on the
+// candidate's behalf", and the model took it literally — a live letter opened
+// "I am writing to recommend Rania Haddad ... she brings". The applicant sends
+// this letter, so it is written as the applicant. The route also rejects a
+// letter written about the candidate (lib/ai/naturalLetter.ts).
 const COVER_LETTER_PERSONA =
-  "You are a senior recruiter writing a persuasive letter on the candidate's behalf to a Gulf employer."
+  "You write a job applicant's OWN cover letter to a Gulf employer, in the applicant's voice: first person (I, my, me), as if they wrote and signed it themselves. You are an experienced Gulf career writer, but the letter never mentions you, a recruiter or an agency, and never refers to the applicant by name or as he or she."
 
 // Analogous to buildOptimizationPrompt.ts's GULF_FORMAT_NOTE — same
 // "one well-grounded, country-agnostic convention, never a fabricated
@@ -45,6 +47,20 @@ supports. Avoid restating the resume verbatim; this is a persuasive
 narrative, not a bullet list.`
 
 /**
+ * Natural voice (founder, 2026-10-02: "very natural, not like AI tone"). The
+ * phrases below are the ones recruiters now read as machine-written; the
+ * letter must sound like a capable person writing their own letter.
+ */
+const NATURAL_VOICE = `VOICE — sound like the candidate wrote it, not like AI:
+- Plain, direct sentences in the first person. Mix short and longer sentences.
+- Open with something specific: the role and the candidate's most relevant real result or experience in the first two sentences. No warm-up sentence.
+- Every body paragraph links one or two facts from the SAVED CV to something the JOB DESCRIPTION asks for, in the job description's own words.
+- Name at most one short group of tools; never a long run of skills or keywords.
+- Never use these phrases or anything like them: "I am writing to express my (strong) interest", "I am confident in my ability", "I am excited about the opportunity", "aligns (well/closely/perfectly) with", "well-versed", "eager to", "keen to leverage", "leverage", "passionate", "dynamic", "proven track record", "esteemed", "valuable asset", "add immediate value", "I believe I would be a great fit", "furthermore", "moreover", "in today's".
+- No em dashes or en dashes; use commas or full stops.
+- Never claim experience while saying it is not listed or not explicit ("though not explicitly listed", "a natural extension of"). Either the CV shows it, or say plainly that the candidate has not done it yet.`
+
+/**
  * The four styles offered on /cover-letter (2026-08-18, founder decision).
  * Each is an ADDITION on top of LETTER_FORMAT_NOTE above, not a replacement
  * of it — the base conventions (greeting, grounding, no invented recipient)
@@ -59,7 +75,7 @@ Polished, formal and courteous — the standard register expected in a Gulf
 corporate application. Confident without being casual.`,
   short: `TONE: SHORT.
 Keep the whole letter brief: exactly ONE body paragraph, and the entire
-letter (opening through sign-off) under roughly 130 words. Cut every
+letter (opening through sign-off) under 120 words. Cut every
 sentence that does not directly support why the candidate fits the role — no
 throat-clearing, no restating the job posting back at the reader.`,
   technical: `TONE: TECHNICAL.
@@ -225,10 +241,10 @@ function renderOutputFormat(): string {
   "opening_paragraph": "string",
   "body_paragraphs": ["string", "..."],
   "closing_paragraph": "string",
-  "sign_off": "string — e.g. 'Sincerely,'"
+  "sign_off": "string — only the closing word, e.g. 'Sincerely,' (the applicant's name and contact details are added after it automatically)"
 }
 
-body_paragraphs must contain 1 to 3 paragraphs.`
+body_paragraphs must contain 1 to 3 paragraphs. Every paragraph is written by the applicant in the first person.`
 }
 
 /**
@@ -272,6 +288,7 @@ export function buildCoverLetterPrompt(
     COVER_LETTER_PERSONA,
     GROUNDING_INSTRUCTION,
     LETTER_FORMAT_NOTE,
+    NATURAL_VOICE,
     TONE_INSTRUCTIONS[tone],
   ].join('\n\n')
 

@@ -1,3 +1,4 @@
+import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import { createHash } from 'node:crypto'
 import { voiceAdmin, voiceEnabled, transcriptionReady } from '@/lib/voice/server'
 import { VOICE_RUBRIC } from '@/lib/voice/types'
@@ -179,6 +180,10 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
         },
         maxTokens: 3500,
         temperature: 0.2,
+        // Thinking off on the fast hosts (2026-10-03), as for Q&A: a reasoning
+        // model can spend the whole budget thinking and return nothing.
+        openRouter: { reasoningOff: true, preferHosts: FAST_HOSTS },
+        stallTimeoutMs: 45_000,
         repairAttempts: 1,
         deadlineAt: startedAt + DEADLINE_MS,
         minRepairMs: MIN_REPAIR_MS,

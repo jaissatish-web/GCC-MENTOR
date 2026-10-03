@@ -26,6 +26,7 @@ import { applySuggestionsToDocument, reachableTargetBand, type Suggestion } from
 import { containsTermRaw } from '../text'
 import type { KeywordKind, MatchReport, MatchScore } from '../types'
 import { addableAt, analyzeV3, targetFromAnalysis, writeV3, type AnalysisV3 } from './engine'
+import { experienceRequirementMet } from '../experienceMet'
 
 const FIXED = new Set(['education', 'experience_years', 'certification', 'licence'])
 const ASKABLE = new Set(['certification', 'licence'])
@@ -61,11 +62,18 @@ export function regroupCertifications(a: AnalysisV3, profile: CareerProfileFull)
   const base = withoutCertificateStep(a)
   return {
     ...base,
-    requirements: base.requirements.map((r) =>
-      r.group === 'C' && ((ASKABLE.has(r.kind) && profileHolds(profile, r.term)) || (ASK_SKILL.has(r.kind) && profileListsSkill(profile, r.term)))
+    requirements: base.requirements.map((r) => {
+      // Experience is re-judged on every read from the profile's own roles, so
+      // analyses stored before 2026-10-03 ("ICU experience" missing for an ICU
+      // nurse) are corrected too (lib/optimizer/experienceMet.ts).
+      if (r.kind === 'experience_years') {
+        const group = experienceRequirementMet(profile, r.term).ok ? ('A' as const) : ('C' as const)
+        return group === r.group ? r : { ...r, group, location: 'summary' }
+      }
+      return r.group === 'C' && ((ASKABLE.has(r.kind) && profileHolds(profile, r.term)) || (ASK_SKILL.has(r.kind) && profileListsSkill(profile, r.term)))
         ? { ...r, group: 'A' as const, location: null, regrouped: HELD }
-        : r,
-    ),
+        : r
+    }),
   }
 }
 

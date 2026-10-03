@@ -108,6 +108,25 @@ export function validateMockInterviewReport(output: unknown): string[] {
   return failures
 }
 
+const REPORT_SCORE_KEYS = ['overall_score', 'technical_score', 'role_fit_score', 'gulf_readiness_score', 'answer_structure_score'] as const
+
+/**
+ * A report written on the answers' 10-point scale (2026-10-03: overall 2 for
+ * answers scored 3/10 — the user would read "2/100"). When every report score
+ * is 10 or less while the answers averaged 2/10 or more, the report used the
+ * wrong scale and is multiplied by ten. A real 0–100 report that low would
+ * contradict the answers it summarises.
+ */
+export function onHundredScale(output: unknown, answerScores: number[]): unknown {
+  if (!isRecord(output) || answerScores.length === 0) return output
+  const mean = answerScores.reduce((a, b) => a + b, 0) / answerScores.length
+  const tenScale = REPORT_SCORE_KEYS.every((k) => typeof output[k] === 'number' && (output[k] as number) <= 10)
+  if (!tenScale || mean < 2) return output
+  const scaled: Record<string, unknown> = { ...output }
+  for (const k of REPORT_SCORE_KEYS) scaled[k] = Math.min(100, (output[k] as number) * 10)
+  return scaled
+}
+
 export function normalizeMockInterviewReport(output: unknown): MockInterviewFinalReport {
   const o = output as Record<string, unknown>
   const arr = (key: string) => ((o[key] as string[] | undefined) ?? []).map((s) => s.trim()).filter(Boolean).slice(0, 5)

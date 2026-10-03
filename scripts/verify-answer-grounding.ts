@@ -70,6 +70,12 @@ check('an invented team size', unsourcedNumbers('I led 40 engineers.', allowed).
 check('an invented money figure', unsourcedNumbers('I saved $2,500,000.', allowed).join() === '2500000')
 check('several at once are all reported', unsourcedNumbers('I ran 6 sites and 22 crews.', allowed).length === 2)
 
+{
+  const { placeholderNumbers } = require('../lib/ai/answerGrounding') as typeof import('../lib/ai/answerGrounding')
+  check('an invented number becomes [number]', placeholderNumbers('I trained 2 nurses and cut errors by 1,200 units.', ['2', '1200']) === 'I trained [number] nurses and cut errors by [number] units.')
+  check('a given number is kept', placeholderNumbers('I trained 10 nurses.', ['2']) === 'I trained 10 nurses.')
+}
+
 if (failures > 0) {
   console.error(`\n${failures} check(s) failed`)
   process.exit(1)

@@ -1,5 +1,6 @@
 import { buildMockInterviewFeedbackPrompt, buildMockInterviewReportPrompt } from '@/lib/ai/buildMockInterviewPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
+import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import { normalizeMockInterviewFeedback, normalizeMockInterviewReport, validateMockInterviewFeedback, validateMockInterviewReport } from '@/lib/ai/validateMockInterview'
 import { collectNumbers, unsourcedNumbers } from '@/lib/ai/answerGrounding'
 import { groundAnswer, notInCvFeedback, profileEvidenceText, totalExperienceYears, unverifiedEntityClaims, unsupportedAnswerClaims, claimsInFeedback, NOT_IN_CV_PREFIX } from '@/lib/ai/proseClaims'
@@ -47,6 +48,7 @@ async function feedbackFor(session: VoiceSession, answer: VoiceAnswer): Promise<
       return failures.length ? failures.join('; ') : null
     },
     maxTokens: 2000, temperature: 0.2, repairAttempts: 1, deadlineAt: Date.now() + 70000, minRepairMs: 25000,
+    openRouter: { reasoningOff: true, preferHosts: FAST_HOSTS }, stallTimeoutMs: 30_000,
   })
   const feedback = normalizeMockInterviewFeedback(output.value)
   const ctx = { evidence: profileEvidenceText(session.profile_snapshot), gaps: [], totalYears: totalExperienceYears(session.profile_snapshot) }

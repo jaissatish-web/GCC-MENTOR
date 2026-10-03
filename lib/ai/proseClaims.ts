@@ -32,6 +32,7 @@
 import type { CareerProfileFull } from '@/types/careerProfile'
 import { BANNED_WORDS, INTENSIFIERS } from '@/lib/optimizer/qualityGate'
 import { containsTermRaw, coversContentStems, stem, tokenize } from '@/lib/optimizer/text'
+import { experienceRequirementMet } from '@/lib/optimizer/experienceMet'
 
 export type ProseClaimCode = 'gap_claim' | 'gap_word' | 'wrong_years' | 'unsupported_grade'
 
@@ -80,7 +81,7 @@ const GENERIC = new Set(
     // ("pressure injury prevention", "equipment schedules", "VAT compliance logic")
     // cut "I stay calm under pressure" and "kept the project on schedule".
     'pressure', 'schedule', 'schedules', 'operation', 'operations', 'compliance', 'pattern', 'patterns', 'logic', 'real', 'estate',
-    'access', 'state', 'rotate', 'rotating', 'shift', 'shifts', 'high', 'degree', 'basic', 'basics', 'principles', 'level', 'group',
+    'access', 'state', 'rotate', 'rotating', 'shift', 'shifts', 'high', 'degree', 'basic', 'basics', 'principles', 'level', 'group', 'documentation',
   ].map((w) => stem(w)),
 )
 
@@ -237,8 +238,19 @@ export function removeClaimSentences(
     .join(' ')
 }
 
-/** Missing requirements from a package's stored job analysis (match_report), with aliases. */
-export function gapTermsFromMatchReport(matchReport: unknown): GapTerm[] {
+/**
+ * Missing requirements from a package's stored job analysis (match_report), with
+ * aliases. With the profile, an experience requirement the profile's own roles
+ * meet is not a gap: reports saved before 2026-10-03 list "ICU experience" as
+ * missing for an ICU nurse (lib/optimizer/experienceMet.ts).
+ */
+export function gapTermsFromMatchReport(matchReport: unknown, profile?: Pick<CareerProfileFull, 'work_experience'>): GapTerm[] {
+  const gaps = gapsInReport(matchReport)
+  if (!profile) return gaps
+  return gaps.filter((g) => !(/\b(experience|years?)\b/i.test(g.term) && experienceRequirementMet(profile, g.term).ok))
+}
+
+function gapsInReport(matchReport: unknown): GapTerm[] {
   const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
   if (!isObj(matchReport) || !Array.isArray(matchReport.gaps)) return []
   const target = isObj(matchReport.target) ? matchReport.target : null
@@ -331,7 +343,9 @@ export function removePersonalClaims(text: string, evidence: string): { text: st
 export const NOT_IN_CV_PREFIX = 'Not in your CV:'
 
 export function unsupportedAnswerClaims(answer: string, ctx: { evidence: string; gaps?: GapTerm[]; totalYears?: number | null }): string[] {
-  return [...new Set(checkProseClaims({ ...ctx, text: answer }).filter((i) => i.severity === 'hard').map((i) => i.offendingValue))]
+  // Spoken (2026-10-03): "I check lines and catheters" was flagged as claiming
+  // "central line care", and the answer capped at 3/10.
+  return [...new Set(checkProseClaims({ ...ctx, text: answer, spoken: true }).filter((i) => i.severity === 'hard').map((i) => i.offendingValue))]
 }
 
 /**

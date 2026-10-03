@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import { createClient } from '@/lib/supabase/server'
 import { generate } from '@/lib/ai/provider'
 import { buildCoverLetterPrompt } from '@/lib/ai/buildCoverLetterPrompt'
@@ -18,6 +19,8 @@ import {
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { LIMIT_ACTION_COVER_LETTER } from '@/lib/rateLimit'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
+import { capWords, naturalVoice, signOffBlock, writtenAboutApplicant } from '@/lib/ai/naturalLetter'
+import { containsTermRaw } from '@/lib/optimizer/text'
 import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
 import { appendCoverLetterAtomic } from '@/lib/packages/serverWrites'
 // Credit helpers are deliberately not imported while the locks are off — the
@@ -54,9 +57,11 @@ const COVER_LETTER_TONES: CoverLetterTone[] = ['professional', 'short', 'technic
  */
 
 export const maxDuration = 120
-const DEADLINE_MS = 100_000
+// Founder, 2026-10-02: a letter in under 50 seconds, always. One fast call is
+// ~3–6 s; the whole request (including a corrective retry) gives up at 45 s.
+const DEADLINE_MS = 45_000
 /** A corrective second letter is only started with at least this much time left. */
-const MIN_RETRY_MS = 35_000
+const MIN_RETRY_MS = 15_000
 
 function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -200,7 +205,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
   try {
     const claimCtx = {
       evidence: profileEvidenceText(profile),
-      gaps: gapTermsFromMatchReport(pkgRow.match_report),
+      gaps: gapTermsFromMatchReport(pkgRow.match_report, profile),
       totalYears: totalExperienceYears(profile),
     }
     const { system, user: userPrompt } = buildCoverLetterPrompt(
@@ -209,7 +214,14 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
       pkgRow.job_description as string | null,
       tone,
       savedResume,
-      { totalYears: yearsToState(claimCtx.evidence, claimCtx.totalYears), gaps: claimCtx.gaps.filter((g) => g.kind !== 'soft_skill').map((g) => g.term) },
+      {
+        totalYears: yearsToState(claimCtx.evidence, claimCtx.totalYears),
+        // The prompt is told about EVERY requirement in neither the profile nor the
+        // saved CV (2026-10-02: "intercompany transactions" was claimed). The
+        // sentence check keeps the analysis gaps only: on a thin profile the wider
+        // list cut ordinary accounting sentences and gutted the letter.
+        gaps: withUnshownRequirements(claimCtx.gaps, pkgRow.match_report, [claimCtx.evidence, savedResumeText(savedResume)].join('\n')).filter((g) => g.kind !== 'soft_skill').map((g) => g.term),
+      },
     )
     const giveUpAt = startedAt + DEADLINE_MS
     const groundedProfile = profile
@@ -224,8 +236,14 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
         // 4,096 on reasoning (18k characters) and wrote nothing. The provider's
         // doubled-budget retry cannot run inside this route's 100s, so the one
         // attempt must have room. A ceiling, not a spend — a letter is ~700 tokens.
-        maxTokens: 8192,
+        // Speed (2026-10-02): live letters took 17–87 s because the model reasoned
+        // before writing and a claim failure re-ran the whole letter. Thinking is
+        // off on the fast hosts, as for CV reading and the optimizer; quality is
+        // held by the same grounding and claim checks below.
+        maxTokens: 4000,
         temperature: 0.4,
+        openRouter: { reasoningOff: true, preferHosts: FAST_HOSTS },
+        stallTimeoutMs: 20_000,
         userId: user.id,
         route: '/api/packages/[id]/cover-letter',
         configKey: 'cover_letter',
@@ -240,15 +258,47 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
           validation.failures.push(...claimFailures(issues))
           validation.valid = !validation.failures.some((f) => f.severity === 'hard')
         }
+        if (writtenAboutApplicant(letterProse(parsed).join('\n\n'), profile.full_name)) {
+          validation.failures.push({
+            code: 'third_person',
+            severity: 'hard',
+            path: 'output',
+            detail: 'The letter is written ABOUT the applicant (their name, or he/she). The applicant is the writer: use I, my and me throughout, never their name or he/she.',
+          })
+          validation.valid = false
+        }
       }
       return { parsed, validation }
+    }
+
+    // A letter whose ONLY hard problems are claims is repaired by dropping those
+    // sentences — every other sentence already passed. Tried FIRST now: a second
+    // full generation is spent only when the repair cannot produce a clean letter.
+    const repairClaims = (a: Awaited<ReturnType<typeof runOnce>>): Awaited<ReturnType<typeof runOnce>> | null => {
+      if (a.validation.valid || !isObject(a.parsed)) return null
+      if (!a.validation.failures.filter((f) => f.severity === 'hard').every((f) => f.code === 'unsupported_claim')) return null
+      const p = a.parsed as Record<string, unknown>
+      const clean = (t: unknown) => (typeof t === 'string' ? removeClaimSentences(t, claimCtx) : '')
+      const body = (Array.isArray(p.body_paragraphs) ? (p.body_paragraphs as unknown[]) : []).map(clean).filter((t) => t.trim())
+      let opening = clean(p.opening_paragraph)
+      if (!opening.trim() && body.length > 1) opening = body.shift() as string
+      const closing = clean(p.closing_paragraph).trim() || SAFE_CLOSING
+      if (!opening.trim() || body.length === 0) return null
+      const repaired = { ...p, opening_paragraph: opening, body_paragraphs: body, closing_paragraph: closing }
+      const recheck = validateCoverLetterGrounding(groundedProfile, repaired)
+      const left = checkProseClaims({ ...claimCtx, text: letterProse(repaired).join('\n\n') })
+      if (!recheck.valid || left.some((i) => i.severity === 'hard')) return null
+      console.info(`cover-letter: removed unsupported claims pkg=${packageId}`)
+      return { parsed: repaired, validation: recheck }
     }
 
     let attempt: Awaited<ReturnType<typeof runOnce>>
     try {
       attempt = await runOnce(userPrompt)
+      attempt = repairClaims(attempt) ?? attempt
       if (!attempt.validation.valid && giveUpAt - Date.now() >= MIN_RETRY_MS) {
         attempt = await runOnce(userPrompt + buildCorrectiveAddendum(attempt.validation.failures))
+        attempt = repairClaims(attempt) ?? attempt
       }
     } catch (e) {
       const reason = e instanceof Error ? e.message : String(e)
@@ -263,31 +313,6 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
       )
     }
 
-    // After the corrective retry, a letter whose ONLY hard problems are claims
-    // is repaired by dropping those sentences rather than failed: the user has
-    // already waited for two generations, and every remaining sentence passed.
-    if (
-      !attempt.validation.valid &&
-      isObject(attempt.parsed) &&
-      attempt.validation.failures.filter((f) => f.severity === 'hard').every((f) => f.code === 'unsupported_claim')
-    ) {
-      const p = attempt.parsed as Record<string, unknown>
-      const clean = (t: unknown) => (typeof t === 'string' ? removeClaimSentences(t, claimCtx) : '')
-      const body = (Array.isArray(p.body_paragraphs) ? (p.body_paragraphs as unknown[]) : []).map(clean).filter((t) => t.trim())
-      let opening = clean(p.opening_paragraph)
-      if (!opening.trim() && body.length > 1) opening = body.shift() as string
-      const closing = clean(p.closing_paragraph).trim() || SAFE_CLOSING
-      if (opening.trim() && body.length > 0) {
-        const repaired = { ...p, opening_paragraph: opening, body_paragraphs: body, closing_paragraph: closing }
-        const recheck = validateCoverLetterGrounding(groundedProfile, repaired)
-        const left = checkProseClaims({ ...claimCtx, text: letterProse(repaired).join('\n\n') })
-        if (recheck.valid && !left.some((i) => i.severity === 'hard')) {
-          console.info(`cover-letter: removed unsupported claims pkg=${packageId}`)
-          attempt = { parsed: repaired, validation: recheck }
-        }
-      }
-    }
-
     if (!attempt.validation.valid) {
       const reasons = attempt.validation.failures
         .filter((f) => f.severity === 'hard')
@@ -300,7 +325,23 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
       )
     }
 
-    const parsedLetter = attempt.parsed as unknown as ParsedCoverLetter
+    const raw = attempt.parsed as unknown as ParsedCoverLetter
+    // Natural voice in code (wording only, never a fact) and Short kept short.
+    const opening = naturalVoice(raw.opening_paragraph)
+    const closing = naturalVoice(raw.closing_paragraph)
+    const bodyClean = raw.body_paragraphs.map(naturalVoice).filter((p) => p.trim())
+    const parsedLetter: ParsedCoverLetter = {
+      ...raw,
+      opening_paragraph: opening,
+      body_paragraphs: tone === 'short' ? capWords(opening, bodyClean, closing, 125) : bodyClean,
+      closing_paragraph: closing,
+      // Name and contact line from the saved CV's header (what the CV shows).
+      sign_off: signOffBlock(
+        raw.sign_off,
+        savedResume?.header.displayName || profile.full_name,
+        savedResume ? savedResume.header.identityContact : [profile.phone, profile.email].filter(Boolean).join(' · '),
+      ),
+    }
     const letter: CoverLetter = {
       id: crypto.randomUUID(),
       generated_at: new Date().toISOString(),
@@ -337,4 +378,21 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
   } finally {
     await reservation.finish(succeeded)
   }
+}
+
+/** The saved CV's own words: its summary and every line under each job. */
+function savedResumeText(doc: ResumeDocument | null): string {
+  if (!doc) return ''
+  return [doc.summary ?? '', ...doc.experience.flatMap((x) => x.bullets), ...doc.skills.map((k) => k.name), ...doc.certifications.map((c) => c.display)].join('\n')
+}
+
+/** Adds every job requirement the evidence does not show (soft skills and years excluded) to the gaps. */
+function withUnshownRequirements(gaps: ReturnType<typeof gapTermsFromMatchReport>, matchReport: unknown, evidence: string): ReturnType<typeof gapTermsFromMatchReport> {
+  const target = (matchReport as { target?: { keywords?: Array<{ term: string; kind?: string; aliases?: string[] }> } } | null)?.target
+  const extra = (target?.keywords ?? [])
+    .filter((k) => k.kind !== 'soft_skill' && !/years?/i.test(k.term))
+    .filter((k) => !containsTermRaw(evidence, k.term, k.aliases ?? []))
+    .filter((k) => !gaps.some((g) => g.term === k.term))
+    .map((k) => ({ term: k.term, kind: k.kind, aliases: k.aliases ?? [] }))
+  return [...gaps, ...extra]
 }

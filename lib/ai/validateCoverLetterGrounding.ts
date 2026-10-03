@@ -34,6 +34,8 @@ export type CoverLetterFailureCode =
   | 'unsourced_numeric'
   /** A claim lib/ai/proseClaims.ts rejects (gap claim, wrong years, grading word). */
   | 'unsupported_claim'
+  /** Written about the applicant ("she brings ...") instead of by them (lib/ai/naturalLetter.ts). */
+  | 'third_person'
 
 export interface CoverLetterValidationFailure {
   code: CoverLetterFailureCode

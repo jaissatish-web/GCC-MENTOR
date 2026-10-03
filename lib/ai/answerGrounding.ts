@@ -122,3 +122,9 @@ export function allowedNumbersFor(
 export function unsourcedNumbers(text: string, allowed: Set<string>): string[] {
   return Array.from(new Set(extractNumbers(text).filter((n) => !allowed.has(n))))
 }
+
+/** Each listed number, as written in prose ("1,200" for "1200"), becomes "[number]". */
+export function placeholderNumbers(text: string, numbers: string[]): string {
+  const drop = new Set(numbers)
+  return text.replace(/\d[\d,]*(?:\.\d+)?/g, (m) => (drop.has(m.replace(/,/g, '').replace(/\.0+$/, '')) ? '[number]' : m))
+}

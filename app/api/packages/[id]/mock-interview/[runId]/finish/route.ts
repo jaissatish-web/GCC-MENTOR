@@ -1,8 +1,9 @@
+import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildMockInterviewReportPrompt } from '@/lib/ai/buildMockInterviewPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
-import { normalizeMockInterviewReport, validateMockInterviewReport } from '@/lib/ai/validateMockInterview'
+import { normalizeMockInterviewReport, onHundredScale, validateMockInterviewReport } from '@/lib/ai/validateMockInterview'
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { LIMIT_ACTION_MOCK_REPORT } from '@/lib/rateLimit'
 import { completeMockRunAtomic } from '@/lib/packages/serverWrites'
@@ -82,13 +83,19 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
           const failures = validateMockInterviewReport(output)
           return failures.length ? failures.join('; ') : null
         },
-        maxTokens: 2200,
+        // 3,000 with thinking off on the fast hosts (2026-10-03). Live, the report
+        // failed after 49s: 2,200 tokens with thinking on left no room for a repair.
+        maxTokens: 3000,
         temperature: 0.2,
+        openRouter: { reasoningOff: true, preferHosts: FAST_HOSTS },
+        stallTimeoutMs: 45_000,
         repairAttempts: 1,
         deadlineAt: startedAt + DEADLINE_MS,
         minRepairMs: MIN_REPAIR_MS,
       })
-      report = normalizeMockInterviewReport(result.value)
+      report = normalizeMockInterviewReport(
+        onHundredScale(result.value, run.questions.filter((q) => q.answer && typeof q.score === 'number').map((q) => q.score as number)),
+      )
       // Answers that claimed what the CV does not show are the riskiest thing
       // in the run; they lead the list whatever the model chose.
       const flagged = run.questions

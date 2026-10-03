@@ -1,9 +1,10 @@
+import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildMockInterviewFeedbackPrompt } from '@/lib/ai/buildMockInterviewPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
 import { normalizeMockInterviewFeedback, validateMockInterviewFeedback } from '@/lib/ai/validateMockInterview'
-import { collectNumbers, unsourcedNumbers } from '@/lib/ai/answerGrounding'
+import { collectNumbers, placeholderNumbers, unsourcedNumbers } from '@/lib/ai/answerGrounding'
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { LIMIT_ACTION_MOCK_ANSWER } from '@/lib/rateLimit'
 import { recordMockAnswerAtomic } from '@/lib/packages/serverWrites'
@@ -116,24 +117,26 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
         grounding: {
           mode: 'not_applicable',
           reason:
-            "rewrites the user's own typed answer, not the profile; its numbers are checked against that answer and the question in validateShape",
+            "rewrites the user's own typed answer, not the profile; a number it adds that the answer and question do not give becomes [number]",
         },
         validateShape: (output) => {
           const failures = validateMockInterviewFeedback(output)
-          if (failures.length) return failures.join('; ')
-          const better = isRecord(output) && typeof output.better_answer === 'string' ? output.better_answer : ''
-          const invented = unsourcedNumbers(better, allowed)
-          return invented.length
-            ? `better_answer states numbers the candidate did not give (${invented.join(', ')}); use a [placeholder] instead`
-            : null
+          return failures.length ? failures.join('; ') : null
         },
-        maxTokens: 1600,
+        maxTokens: 2000,
         temperature: 0.2,
+        // Thinking off on the fast hosts (2026-10-03): feedback while the user waits.
+        openRouter: { reasoningOff: true, preferHosts: FAST_HOSTS },
+        stallTimeoutMs: 30_000,
         repairAttempts: 1,
         deadlineAt: startedAt + DEADLINE_MS,
         minRepairMs: MIN_REPAIR_MS,
       })
       feedback = normalizeMockInterviewFeedback(result.value)
+      // A number the candidate never gave becomes a placeholder they fill in
+      // (2026-10-03: rejecting the whole review over a "2" failed the answer).
+      const invented = unsourcedNumbers(feedback.better_answer, allowed)
+      if (invented.length > 0) feedback = { ...feedback, better_answer: placeholderNumbers(feedback.better_answer, invented) }
     } catch (error) {
       console.error(
         'mock-interview answer: AI call failed user=' + user.id + ' pkg=' + params.id,
@@ -155,7 +158,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       if (profile) {
         const ctx = {
           evidence: profileEvidenceText(profile),
-          gaps: gapTermsFromMatchReport(pkgRow.match_report),
+          gaps: gapTermsFromMatchReport(pkgRow.match_report, profile),
           totalYears: totalExperienceYears(profile),
         }
         // Requirement gaps, plus certificates and named products the CV never

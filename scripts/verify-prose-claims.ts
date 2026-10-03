@@ -122,5 +122,18 @@ console.log('\nInterview answers that handle a gap honestly are kept (2026-10-03
   check('"I would immediately enroll in ..." is a learning plan', kept('I would immediately enroll in VRF training.'))
 }
 
+console.log('\nThe candidate\'s own mock answers (2026-10-03)')
+{
+  const { unsupportedAnswerClaims, gapTermsFromMatchReport } = require('../lib/ai/proseClaims') as typeof import('../lib/ai/proseClaims')
+  const ctx = { evidence: 'Charge Nurse. Patient care, ventilator management, IV therapy.', gaps: [{ term: 'central line care', kind: 'skill' }, { term: 'documentation', kind: 'skill' }, { term: 'Cerner', kind: 'tool' }], totalYears: 8 }
+  check('"I check lines and catheters" is not a central-line claim', unsupportedAnswerClaims('I check lines and catheters every shift.', ctx).length === 0)
+  check('"I document everything" is not a claim', unsupportedAnswerClaims('I escalate to the doctor and document everything.', ctx).length === 0)
+  check('"I chart in Cerner daily" still is', unsupportedAnswerClaims('I chart in Cerner daily.', ctx).includes('Cerner'))
+  const report = { gaps: [{ term: 'ICU experience', kind: 'domain' }, { term: 'Gulf experience', kind: 'domain' }, { term: 'CRRT', kind: 'skill' }] }
+  const profile = { work_experience: [{ role: 'ICU Nurse', company: 'X', location: 'Doha, Qatar', start_date: '2018-01-01', end_date: null, highlights: [], description: null, gcc_country: null }] } as never
+  check('a saved report\'s "ICU experience" / "Gulf experience" are not gaps for an ICU nurse in Doha', gapTermsFromMatchReport(report, profile).map((g) => g.term).join() === 'CRRT')
+  check('without the profile the report is read as saved', gapTermsFromMatchReport(report).length === 3)
+}
+
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} assertion(s) FAILED.\n`)
 process.exit(failures === 0 ? 0 : 1)

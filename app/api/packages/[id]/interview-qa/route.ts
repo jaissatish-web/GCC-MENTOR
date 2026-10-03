@@ -176,7 +176,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
       // lib/optimizer/v3/engine.ts REGION_WORDS): a Riyadh nurse's every "Gulf"
       // sentence was cut because the job listed "Gulf experience" as a gap.
       evidence: [profileEvidenceText(profile), ...resumeDocumentTexts(resume), ...(workedInGcc(profile) ? REGION_WORDS : [])].join('\n'),
-      gaps: gapTermsFromMatchReport(pkgRow.match_report),
+      gaps: gapTermsFromMatchReport(pkgRow.match_report, profile),
       totalYears: totalExperienceYears(profile),
     }
     const parts = buildInterviewQaParts(
