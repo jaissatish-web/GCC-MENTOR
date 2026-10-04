@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { availableTemplates, getTemplate, type TemplateId } from '@/lib/templates'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
@@ -53,6 +53,8 @@ const PAGE_H = 1123
  * template is judged on, and all three sit inside 75%.
  */
 const CARD_BORDER = 1
+/** The phone grid's gap (`gap-4`), used to size the two cards. */
+const PHONE_GAP = 16
 
 const LAYOUT = {
   /** Top three-quarters of the page. */
@@ -62,7 +64,7 @@ const LAYOUT = {
    * a 390px screen fitted one card per row and fifteen templates ran to
    * ~7,400px. 160px cards, two per row, halve that and still read.
    */
-  gridPhone: { cardW: 160, pageFraction: 0.72, wrap: 'grid grid-cols-2 justify-items-center gap-3' },
+  gridPhone: { cardW: 160, pageFraction: 0.72, wrap: 'grid grid-cols-2 justify-items-center gap-4' },
   /** Shorter still: ten previews in a sticky column must stay scannable. */
   rail: { cardW: 212, pageFraction: 0.66, wrap: 'flex flex-col items-center gap-3' },
 } as const
@@ -94,7 +96,28 @@ export function TemplatePicker({
     mq.addEventListener('change', on)
     return () => mq.removeEventListener('change', on)
   }, [layout])
-  const { cardW, pageFraction, wrap } = LAYOUT[phone ? 'gridPhone' : layout]
+  // ON A PHONE THE CARD FITS ITS COLUMN (founder 2026-10-04). The phone card
+  // was a fixed 160px; two of them plus the gap need 336px, and inside the
+  // workspace's padded panel a column was only ~152px — so the two cards
+  // overlapped and read as one. Now each card is half of the width actually
+  // available, less the 16px gap, between 120px and 200px.
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [phoneCardW, setPhoneCardW] = useState<number | null>(null)
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!phone || !el) return
+    const measure = () => {
+      const w = el.clientWidth
+      if (w > 0) setPhoneCardW(Math.max(120, Math.min(200, Math.floor((w - PHONE_GAP) / 2))))
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [phone])
+  const base = LAYOUT[phone ? 'gridPhone' : layout]
+  const { pageFraction, wrap } = base
+  const cardW = phone && phoneCardW ? phoneCardW : base.cardW
   // Scale against the card's CONTENT width, not its outer width. Tailwind sets
   // border-box, so a 240px card with a 1px border has a 238px content box — and
   // scaling to 240 pushed 2px of the page's right edge under `overflow-hidden`,
@@ -106,7 +129,7 @@ export function TemplatePicker({
   const previewH = Math.round(innerW * (PAGE_H / PAGE_W) * pageFraction)
 
   return (
-    <div role="group" aria-label="Resume templates" className={wrap}>
+    <div ref={wrapRef} role="group" aria-label="Resume templates" className={wrap}>
       {templates.map((t) => {
         const Template = getTemplate(t.id).component
         const isCurrent = t.id === current
@@ -157,14 +180,17 @@ export function TemplatePicker({
             </span>
 
             <span className="flex flex-col gap-1 border-t border-line bg-white p-3">
-              <span className="flex items-center justify-between gap-2">
+              {/* Wraps: at a phone's ~167px card the name and its badge squeezed
+                  each other onto two lines apiece ("Gulf / Premium", "IN / USE").
+                  The badge now drops under the name instead. */}
+              <span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                 <span className="text-[13px] font-bold text-ink">{t.name}</span>
                 {isCurrent ? (
-                  <span className="rounded-[4px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-teal">
+                  <span className="whitespace-nowrap rounded-[4px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-teal">
                     In use
                   </span>
                 ) : t.atsLevel === 'maximum' ? (
-                  <span className="rounded-[4px] bg-canvas px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-soft">
+                  <span className="whitespace-nowrap rounded-[4px] bg-canvas px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-soft">
                     Max ATS
                   </span>
                 ) : null}

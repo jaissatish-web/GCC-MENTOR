@@ -1,6 +1,12 @@
 'use client'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
+import {
+  ArrowTrendingUpIcon,
+  ClipboardDocumentListIcon,
+  Squares2X2Icon,
+  SwatchIcon,
+} from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
@@ -100,9 +106,20 @@ function buildServiceTimeline(pkg: Package): PackageServiceEvent[] {
 type WorkspaceTab = 'overview' | 'improve' | 'design' | 'tracker'
 
 /**
- * The workspace's four views. A plain tab row (not a menu) so every view is
- * visible at a glance; on a phone it scrolls sideways rather than wrapping.
+ * The workspace's four views, as a segmented control (founder 2026-10-04).
+ *
+ * They were underlined text links, which on a phone read as a line of words
+ * rather than four places to go. Now four equal buttons in one box, each with
+ * an icon; the open one is filled teal. Same four views, same `?tab=` links.
+ * On a phone the icon sits above a short word so all four fit one 350px row.
  */
+const TAB_ICONS: Record<WorkspaceTab, React.ComponentType<{ className?: string }>> = {
+  overview: Squares2X2Icon,
+  improve: ArrowTrendingUpIcon,
+  design: SwatchIcon,
+  tracker: ClipboardDocumentListIcon,
+}
+
 function WorkspaceTabs({
   tab,
   onChange,
@@ -112,7 +129,6 @@ function WorkspaceTabs({
   onChange: (t: WorkspaceTab) => void
   improveCount: number
 }) {
-  // Short words on a phone so all four fit on one 360px row without scrolling.
   const items: Array<{ key: WorkspaceTab; label: string; short: string; badge?: number }> = [
     { key: 'overview', label: 'Overview', short: 'Overview' },
     { key: 'improve', label: 'Improve score', short: 'Improve', badge: improveCount || undefined },
@@ -120,31 +136,39 @@ function WorkspaceTabs({
     { key: 'tracker', label: 'Tracker', short: 'Tracker' },
   ]
   return (
-    <div role="tablist" aria-label="Job workspace" className="-mx-5 overflow-x-auto border-b border-line px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div className="flex min-w-max gap-1">
-        {items.map((it) => {
-          const active = tab === it.key
-          return (
-            <button
-              key={it.key}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => onChange(it.key)}
-              className={cn(
-                '-mb-px flex min-h-11 items-center gap-1.5 border-b-2 px-2.5 text-[14px] font-semibold sm:gap-2 sm:px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal',
-                active ? 'border-teal text-teal' : 'border-transparent text-ink-muted hover:text-ink',
-              )}
-            >
-              <span className="sm:hidden">{it.short}</span>
-              <span className="hidden sm:inline">{it.label}</span>
-              {it.badge ? (
-                <span className="rounded-full bg-gold-soft px-2 py-0.5 text-[12px] font-bold text-gold-ink">{it.badge}</span>
-              ) : null}
-            </button>
-          )
-        })}
-      </div>
+    <div role="tablist" aria-label="Job workspace" className="grid grid-cols-4 gap-1 rounded-card border border-line bg-white p-1 shadow-m-1">
+      {items.map((it) => {
+        const active = tab === it.key
+        const Icon = TAB_ICONS[it.key]
+        return (
+          <button
+            key={it.key}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(it.key)}
+            className={cn(
+              'relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-ctl px-1 py-1.5 text-[13px] font-bold leading-tight transition-colors sm:min-h-11 sm:flex-row sm:gap-2 sm:px-3 sm:text-[14px]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1',
+              active ? 'bg-teal text-white shadow-m-1' : 'text-ink-soft hover:bg-teal-soft hover:text-teal',
+            )}
+          >
+            <Icon className="size-5 shrink-0" aria-hidden="true" />
+            <span className="sm:hidden">{it.short}</span>
+            <span className="hidden sm:inline">{it.label}</span>
+            {it.badge ? (
+              <span
+                className={cn(
+                  'absolute right-1 top-1 min-w-5 rounded-full px-1.5 text-center text-[12px] font-bold leading-5 sm:static sm:leading-normal sm:py-0.5',
+                  active ? 'bg-white text-teal' : 'bg-gold-soft text-gold-ink',
+                )}
+              >
+                {it.badge}
+              </span>
+            ) : null}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -661,13 +685,18 @@ function PackageScreenInner({ id }: { id: string }) {
             TASK-160 collapsed five stacked rows into this one specifically to
             give the A4 sheet its vertical room back, and a new full-width
             header would spend exactly what that bought. */}
-        <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
-          <StageSelect value={pkg.status} onChange={(next) => void saveStage(next)} />
-          {stageState ? <span className="text-[12px] text-alert">{stageState}</span> : null}
+        {/* ON A PHONE (founder 2026-10-04): stage and Download PDF take a full
+            row each, then Edit CV and Review changes share one — and a label
+            may wrap INSIDE its button. Buttons never wrap by default, so "Review
+            and edit changes" ran out past its half-width cell. From `sm` up the
+            row is unchanged. */}
+        <div className="grid grid-cols-2 items-stretch gap-2 sm:flex sm:flex-wrap sm:items-center lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
+          <StageSelect className="col-span-2 w-full sm:w-auto" value={pkg.status} onChange={(next) => void saveStage(next)} />
+          {stageState ? <span className="col-span-2 text-[12px] text-alert">{stageState}</span> : null}
           <a
             href={pdfUrl}
             onClick={() => setDownloaded(true)}
-            className={buttonVariants({ variant: 'primary', size: 'sm' })}
+            className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto')}
           >
             {CTA.downloadPdf}
           </a>
@@ -687,7 +716,7 @@ function PackageScreenInner({ id }: { id: string }) {
               its own route. */}
           <Link
             href={`/package/${encodeURIComponent(id)}/edit`}
-            className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'whitespace-normal leading-tight', isFree && 'col-span-2 sm:col-auto')}
           >
             {CTA.editCv}
           </Link>
@@ -699,7 +728,7 @@ function PackageScreenInner({ id }: { id: string }) {
           {!isFree ? (
             <Link
               href={`/optimize/preview/${encodeURIComponent(id)}`}
-              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+              className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'whitespace-normal leading-tight')}
             >
               {CTA.seeChanges}
             </Link>
@@ -1145,7 +1174,11 @@ function PackageScreenInner({ id }: { id: string }) {
                   pushed off-centre to the left with its caption stranded on the
                   right. That is the "not centred" the founder reported, and it
                   was a one-word layout bug, not a design decision. */}
-              <div className="flex flex-col items-center rounded-card bg-gradient-to-b from-canvas to-canvas/60 p-3 ring-1 ring-line/70 sm:p-5 lg:p-5">
+              {/* ON A PHONE THE PAGE COMES OUT OF ITS BOX (founder 2026-10-04):
+                  inside the page gutter plus this frame's padding the A4 sheet
+                  had ~326px of a 390px screen. It now reaches 8px from each
+                  edge (~374px); the framed "page on a desk" returns from `sm`. */}
+              <div className="-mx-3 flex flex-col items-center sm:mx-0 sm:rounded-card sm:bg-gradient-to-b sm:from-canvas sm:to-canvas/60 sm:p-5 sm:ring-1 sm:ring-line/70">
                 {/* fitToHeight: show a WHOLE page, then scroll for the next one
                     (TASK-154). Without it the pane from TASK-153 showed roughly
                     half a page at true size. */}
@@ -1188,7 +1221,10 @@ function PackageScreenInner({ id }: { id: string }) {
 
           {previewDocument ? (
             <aside className="order-2 shrink-0 lg:order-1 lg:sticky lg:top-3 lg:max-h-[calc(100dvh-1.5rem)] lg:w-[260px] lg:overflow-y-auto">
-              <div className="rounded-card border border-line bg-white p-4">
+              {/* No card around the controls on a phone (founder 2026-10-04):
+                  its border and padding took 34px of width from the templates,
+                  which then overlapped two-across. The card returns from `sm`. */}
+              <div className="sm:rounded-card sm:border sm:border-line sm:bg-white sm:p-4">
                 <h2 className="font-display text-[17px] leading-tight text-ink">Templates</h2>
                 <p className="mt-1 text-[12px] leading-snug text-ink-muted">
                   Your wording, dates and details stay exactly as they are — only the design

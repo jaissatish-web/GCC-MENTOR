@@ -12,6 +12,29 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-10-04 (night) — The job workspace on a phone
+
+**Founder brief:** on `/package/[id]` at phone width, "Review and edit changes" ran out of
+its box; the Overview · Improve · Design · Tracker tabs read as text; and in CV design the
+resume and the templates sat inside boxes that did not use the screen, with two templates
+per row running into each other.
+
+**Built (phones only unless stated; desktop layout unchanged):**
+- Header actions: stage and Download PDF a full row each, Edit CV and Review changes
+  side by side, labels allowed to wrap inside their buttons.
+- Tabs: a segmented control at every width — four equal buttons with icons in one box,
+  the open one filled teal; 52px tall on phones.
+- CV design: the A4 preview leaves its frame and reaches 8px from each edge (~326px →
+  374px wide); the controls leave their card; template cards are sized from the space
+  actually available (they were a fixed 160px in ~152px columns, so they overlapped),
+  with a 16px gap; a name and its badge wrap instead of squeezing. The sizing fix also
+  applies to the `/templates` gallery on phones.
+
+Verified in a browser at 390px and 1280px: no button text spills, tabs ≥44px, two
+templates per row 16px apart and on screen, no horizontal scroll, no page errors.
+
+---
+
 ## 2026-10-04 (late) — Design audit of the queued design items
 
 **Founder brief:** audit the design items as a senior web-design auditor; build what is
