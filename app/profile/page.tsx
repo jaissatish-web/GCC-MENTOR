@@ -1,7 +1,6 @@
 'use client'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Suspense,
@@ -19,9 +18,21 @@ import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Toggle } from '@/components/ui/Toggle'
 import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import { ResumeImport } from '@/components/profile/ResumeImport'
-import { ImprovePanel } from '@/components/profile/ImprovePanel'
 import { TypicalDuties } from '@/components/profile/TypicalDuties'
-import { ProfileOverview, SaveBar, StatusChip, type SectionStatus, type SectionSummary } from '@/components/profile/ProfileOverview'
+import {
+  CareerSnapshot,
+  ProfileExplainer,
+  SaveBar,
+  ScoreCards,
+  SettingsCard,
+  StatusChip,
+  ViewHeader,
+  type SectionStatus,
+  type SectionSummary,
+} from '@/components/profile/ProfileOverview'
+import { CompletenessView, type SectionBlock } from '@/components/profile/CompletenessView'
+import { GulfReadinessView } from '@/components/profile/GulfReadinessView'
+import { CvVisibilitySettings, visibilitySummary } from '@/components/profile/CvVisibilitySettings'
 import { gccExperience, totalExperienceYears } from '@/lib/experienceYears'
 import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 import { cn, displayFirstName } from '@/lib/utils'
@@ -61,6 +72,40 @@ function hasSavedProfileContent(saved: CareerProfileFull | null): boolean {
       (saved.work_experience?.length ?? 0) > 0 ||
       (saved.education?.length ?? 0) > 0)
   )
+}
+
+/**
+ * THE SCREENS OF THIS PAGE (founder brief 2026-10-04: "the profile page looks
+ * very messy — segregate it").
+ *
+ *   overview      photo + completeness header, what this page is, the two
+ *                 score cards, career at a glance, profile settings
+ *   details       the full profile — the nine-section editor
+ *   completeness  Profile complete, part by part, and what is missing
+ *   readiness     Gulf Readiness — paperwork, profile fixes, apply
+ *   settings      what appears on the CV (was /profile/visibility)
+ *
+ * ONE PAGE, ONE EDITOR STATE. Each screen is `?view=` on this same route,
+ * switched with the native history API (Next keeps useSearchParams in step and
+ * nothing remounts), so an edit typed in one screen is still there in the next
+ * and one Save writes it all. Separate routes would have unmounted the editor
+ * between screens — the data loss of docs/14_OPEN_ITEMS.md B5.
+ *
+ * Old links keep landing: `?improve=gulf` → readiness, `?improve=strength` →
+ * completeness, `?open=<section>` → details with that section open.
+ */
+type ProfileView = 'overview' | 'details' | 'completeness' | 'readiness' | 'settings'
+const PROFILE_VIEWS: readonly ProfileView[] = ['overview', 'details', 'completeness', 'readiness', 'settings']
+const MAIN_CLASS = 'mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-canvas'
+
+function viewFromParams(params: { get: (key: string) => string | null }): ProfileView {
+  const v = params.get('view')
+  if (v && (PROFILE_VIEWS as readonly string[]).includes(v)) return v as ProfileView
+  const improve = params.get('improve')
+  if (improve === 'gulf') return 'readiness'
+  if (improve === 'strength') return 'completeness'
+  if (params.get('open')) return 'details'
+  return 'overview'
 }
 
 /**
@@ -929,6 +974,36 @@ function ProfileScreen() {
   // matching panel opens on arrival. Absent → the import row shows just its buttons.
   const importParam = searchParams.get('import')
   const initialImportMode = importParam === 'upload' ? 'upload' : importParam === 'paste' ? 'paste' : 'idle'
+  const view = viewFromParams(searchParams)
+
+  // ---- Moving between the screens (see PROFILE_VIEWS) -----------------------
+  // pushState, not router.push: Next syncs useSearchParams with the native
+  // history API without a server round trip, and the editor stays mounted.
+  // `viewDepth` counts the screens opened since the overview, so "Profile
+  // overview" can step back through history (one screen deep) instead of
+  // stacking a new entry the browser's Back would then have to undo.
+  const viewDepth = useRef(0)
+  const showView = useCallback(
+    (next: ProfileView) => {
+      if (next === view) return
+      viewDepth.current = next === 'overview' ? 0 : viewDepth.current + 1
+      window.history.pushState(null, '', next === 'overview' ? '/profile' : `/profile?view=${next}`)
+    },
+    [view],
+  )
+  const backToOverview = useCallback(() => {
+    if (viewDepth.current === 1) {
+      viewDepth.current = 0
+      window.history.back()
+      return
+    }
+    viewDepth.current = 0
+    window.history.pushState(null, '', '/profile')
+  }, [])
+  useEffect(() => {
+    if (view === 'overview') viewDepth.current = 0
+  }, [view])
+
   const [editor, setEditor] = useState<EditorData | null>(null)
   // Jobs that just received ticked typical duties keep the card for its "press Save" note.
   const [dutiesAdded, setDutiesAdded] = useState<ReadonlySet<string>>(() => new Set())
@@ -1152,10 +1227,6 @@ function ProfileScreen() {
       })
   }, [importParam, router])
 
-  const scrollToEditor = useCallback(() => {
-    document.getElementById('profile-editor')?.scrollIntoView({ behavior: 'smooth' })
-  }, [])
-
   // ---- Live readiness from the current editor state ------------------------
   const readiness: ReadinessResult = useMemo(() => {
     if (!editor) return { score: 0, category: 'fresher', missing: [] }
@@ -1358,6 +1429,10 @@ function ProfileScreen() {
    * section — not in a requestAnimationFrame, which never fires in a tab that
    * is not being painted. Found 2026-09-11: the section opened, the cursor
    * never arrived.
+   *
+   * Since 2026-10-04 the fields live on the full-profile screen, so this also
+   * switches to it — and the photo, which sits in the overview's header, to
+   * the overview. The focus effect waits for that screen to be showing.
    */
   const [pendingFocus, setPendingFocus] = useState<{ field?: string; sectionId?: string } | null>(null)
   const goToProfilePart = useCallback(
@@ -1365,8 +1440,9 @@ function ProfileScreen() {
       const sectionId = target.sectionId ?? (target.field ? sectionOfField(target.field) : undefined)
       if (sectionId) setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
       setPendingFocus({ field: target.field, sectionId })
+      showView(target.field === 'photo' ? 'overview' : 'details')
     },
-    [sectionOfField],
+    [sectionOfField, showView],
   )
   // ?open=sec_certifications (optimizer v3, 2026-10-02): the level screen's
   // "add a certificate you hold" link lands on the right section, open.
@@ -1380,13 +1456,26 @@ function ProfileScreen() {
 
   useEffect(() => {
     if (!pendingFocus) return
-    const input = pendingFocus.field ? document.getElementById(`f_${pendingFocus.field}`) : null
-    const target = input ?? (pendingFocus.sectionId ? document.getElementById(pendingFocus.sectionId) : null)
+    // Wait until the screen holding the field is the one showing.
+    if (view !== (pendingFocus.field === 'photo' ? 'overview' : 'details')) return
+    const byId = (id: string) => document.getElementById(id)
+    // PhoneField ids its number input `f_<key>_number` (its dial code is `_dial`).
+    const input = pendingFocus.field ? (byId(`f_${pendingFocus.field}`) ?? byId(`f_${pendingFocus.field}_number`)) : null
+    const target = input ?? (pendingFocus.sectionId ? byId(pendingFocus.sectionId) : null)
     setPendingFocus(null)
     if (!target) return
     target.scrollIntoView({ behavior: 'smooth', block: input ? 'center' : 'start' })
     if (input) input.focus({ preventScroll: true })
-  }, [pendingFocus])
+  }, [pendingFocus, view])
+
+  // A new screen opens at its top — unless it opened to bring a field into
+  // view, which the effect above scrolls to instead.
+  const shownView = useRef(view)
+  useEffect(() => {
+    if (shownView.current === view) return
+    shownView.current = view
+    if (!pendingFocus) window.scrollTo({ top: 0 })
+  }, [view, pendingFocus])
 
   // ---- Section status (2026-09-23) -------------------------------------------
   // Complete / Needs attention / Missing / Optional, from what is actually in
@@ -1524,11 +1613,52 @@ function ProfileScreen() {
     [pointsFor, openSections, toggleSection, statusOf]
   )
 
-  const doneCount = FORM_SECTIONS.filter((s) => {
-    const p = sectionPoints[s.id]
-    return p && p.total > 0 && p.earned >= p.total
-  }).length
-  const scoredCount = FORM_SECTIONS.filter((s) => (sectionPoints[s.id]?.total ?? 0) > 0).length
+  // "N of M key sections done" — ONE count for every screen that shows it (the
+  // overview card, the completeness screen, the full profile): sections that
+  // are Complete, out of every section not merely Optional. It used to be a
+  // points count here and a status count in the overview, which could disagree.
+  const keySections = sectionStatuses.filter((s) => s.status !== 'optional')
+  const doneCount = keySections.filter((s) => s.status === 'complete').length
+  const keyCount = keySections.length
+
+  // The nine sections as blocks for the completeness screen.
+  const sectionBlocks: SectionBlock[] = useMemo(
+    () =>
+      sectionStatuses.map((s, i) => ({
+        ...s,
+        step: i + 1,
+        ...(sectionPoints[s.id] ?? { earned: 0, total: 0 }),
+        accent: SECTION_ACCENT[s.id],
+      })),
+    [sectionStatuses, sectionPoints],
+  )
+
+  // ---- Profile settings: which details the profile actually holds ----------
+  // A toggle for an empty detail changes nothing on the CV, and says so.
+  const visibilityFilled = useMemo((): Record<keyof FieldVisibility, boolean> | null => {
+    if (!editor) return null
+    const has = (v: string) => v.trim() !== ''
+    return {
+      photo: has(editor.photo_url),
+      full_name: has(editor.full_name),
+      nationality: has(editor.nationality),
+      date_of_birth: has(editor.date_of_birth),
+      passport_type: has(editor.passport_type),
+      passport_validity: has(editor.passport_validity_date),
+      visa_status: has(editor.visa_status),
+      visa_transferable: editor.visa_transferable !== null,
+      notice_period: has(editor.notice_period),
+      current_location: has(editor.current_location),
+      phone: has(editor.phone),
+      whatsapp: has(editor.whatsapp),
+      email: has(editor.email),
+      linkedin_url: has(editor.linkedin_url),
+      additional_information: editor.additional_information.some((a) => has(a.value)),
+    }
+  }, [editor])
+  const setVisibility = useCallback((key: keyof FieldVisibility, shown: boolean) => {
+    setEditor((e) => (e ? { ...e, field_visibility: { ...e.field_visibility, [key]: shown } } : e))
+  }, [])
 
 
   // ---- Phone / WhatsApp: split for editing, joined for storage --------------
@@ -1654,18 +1784,12 @@ function ProfileScreen() {
           owning.forEach((id) => { next[id] = true })
           return next
         })
-        window.requestAnimationFrame(() => {
-          // PhoneField ids its input `f_<key>_number` (its dial-code select is
-          // `_dial`), so a missing phone scrolled to nothing — seen live
-          // 2026-09-12 on "Replace" with a CV that has no phone.
-          const el =
-            document.getElementById(`f_${String(missing[0].key)}`) ??
-            document.getElementById(`f_${String(missing[0].key)}_number`)
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-            ;(el as HTMLElement).focus?.()
-          }
-        })
+        // The fields are on the full-profile screen; a save from the overview
+        // or the settings screen goes there first. The focus effect handles
+        // PhoneField's `_number` id — a missing phone once scrolled to nothing
+        // (seen live 2026-09-12 on "Replace" with a CV that has no phone).
+        setPendingFocus({ field: String(missing[0].key) })
+        showView('details')
         return
       }
       setInvalidFields(new Set())
@@ -1718,7 +1842,7 @@ function ProfileScreen() {
         setSubmitting(false)
       }
     },
-    [editor, router]
+    [editor, router, showView]
   )
 
   // AUTO-SAVE AFTER EXTRACTION (founder decision 2026-08-18). When a resume was
@@ -1877,234 +2001,322 @@ function ProfileScreen() {
     )
   }
 
-  return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-canvas">
-      {/* Readiness header — the ring IS the header, on dark navy */}
-      <header className="flex flex-col gap-4 bg-white px-5 pb-6 pt-4">
-        {/* STACKS ON MOBILE, and must.
-            Three items in one nowrap row — photo, ring, text — squeezed the
-            text column to 33px inside a 335px phone: one word per line. The
-            ring block is `shrink-0` and its label is ~110px wide, so the text
-            was the only thing that could give. Pre-existing, and the 12px type
-            floor made it worse by widening that label.
-            Photo and ring share a row; the text gets its own below until there
-            is room for all three. */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-4">
-          {/* Photo first: it is what a Gulf recruiter looks at first, and it
-              used to sit buried between form sections. */}
-          {/* id=f_photo: the Gulf Readiness photo step jumps here. */}
-          <div id="f_photo" tabIndex={-1} className="rounded-card focus:outline-none">
-            <PhotoUpload
-              compact
-              photoUrl={editor.photo_url || null}
-              onChange={(next) => setField({ photo_url: next ?? '' })}
-            />
-          </div>
-          {/* CAREER PROFILE COMPLETENESS — one of two distinct numbers on this
-              page, and it is now labelled as such. This ring is "how complete your
-              profile is" (it drops as you fill sections). The other number, the
-              Gulf Readiness widget below, is "how ready you are for the Gulf
-              market" — a different thing, so each carries its own label. */}
-          <div className="flex shrink-0 flex-col items-center gap-1">
-            <ReadinessRing score={readiness.score} size={68} />
-            <span className="text-[12px] font-bold uppercase tracking-wide text-ink-muted">Profile complete</span>
-          </div>
-          {/* On a phone the Save button joins this row. Alone on its own line it
-              floated at the right edge under the text, detached from anything. */}
-          <div className="ml-auto self-start sm:hidden">
-            <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>
-              Save
-            </Button>
-          </div>
-          </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            {/* Says what this page IS before anything else (2026-09-23): the
-                source every CV, letter and interview answer is written from. */}
-            <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
-              Step 1 of 3 · Your profile
-            </span>
-            {/* "Almost there, there" at 0% was two errors in four words — no
-                name to greet, and nowhere near "almost". The heading now says
-                what is true at each stage. */}
-            <h1 className="font-display text-[22px] font-bold leading-tight tracking-[-0.015em] text-ink">
-              {!editor.full_name.trim()
-                ? 'Build your Career Profile'
-                : readiness.score >= 100
-                  ? `Your profile is complete, ${firstName}`
-                  : readiness.score >= 80
-                    ? `Almost there, ${firstName}`
-                    : `Keep going, ${firstName}`}
-            </h1>
-            <p className="text-[12px] leading-relaxed text-ink-soft">
-              <span className="font-semibold text-ink">Career Profile — {readiness.score}% complete,{' '}
-              {itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
-              Profiles like yours — <span className="font-semibold text-teal">{categoryCopy.highlight}</span> —{' '}
-              {categoryCopy.rest}
-            </p>
-          </div>
+  const hasProfile = Boolean(hasSavedProfile || editor.full_name.trim())
+  const saveState: 'saved' | 'dirty' | 'saving' | 'error' = submitting ? 'saving' : saveError ? 'error' : isDirty ? 'dirty' : 'saved'
+  const saveButton = (
+    <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>
+      Save
+    </Button>
+  )
+  // THE SAVE BAR (2026-09-23): always says whether the profile is saved, sits
+  // where the user is, and shows a failed save next to the button that caused
+  // it. The same on every screen, so a Save pressed anywhere is confirmed.
+  const saveBar = hasSavedProfile || isDirty || saveError ? (
+    <SaveBar state={saveState} message={saveError} onSave={() => void onSubmit('stay')} onFinish={() => router.push('/dashboard')} />
+  ) : null
+  const parseNotesBlock = (
+    <ParseNotes
+      notes={parseNotes}
+      jobNames={editor.work_experience.map((w) => w.company)}
+      onGo={goToProfilePart}
+      onDismiss={() => setParseNotes([])}
+    />
+  )
+  const loadErrorBlock = loadError ? (
+    <div className="mx-5 mt-4 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">{loadError}</div>
+  ) : null
 
-          {/* SAVE AT THE TOP RIGHT (TASK-161, founder's call).
-              It was only at the very bottom of a nine-section form, which meant
-              saving required scrolling past everything still unfilled. It stays
-              at the bottom too — reaching the end of the form is also a natural
-              moment to save — and both call the identical onSubmit('exit'), so
-              there is one save path and not two behaviours to keep in step. */}
-          <div className="ml-auto hidden shrink-0 self-start sm:block">
-            <Button
-              variant="primary"
-              size="sm"
-              busy={submitting}
-              busyLabel="Saving…"
-              onClick={() => void onSubmit('stay')}
-            >
-              Save
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* OVERVIEW (2026-09-23): what this page is, what the profile already says,
-          every section's status and the one to fill next. Shown once there is a
-          profile to describe — before that, the import panel below is the job. */}
-      {profileFacts && (hasSavedProfile || editor.full_name.trim()) ? (
-        <ProfileOverview
-          facts={profileFacts}
-          sections={sectionStatuses}
-          onOpenSection={(sectionId) => goToProfilePart({ sectionId })}
+  // ---- Completeness ---------------------------------------------------------
+  if (view === 'completeness') {
+    return (
+      <main className={MAIN_CLASS}>
+        <ViewHeader
+          eyebrow="Completeness"
+          title="Profile completeness"
+          description="How complete your Career Profile is, and exactly what is left to add."
+          onBack={backToOverview}
         />
-      ) : null}
-
-      {/* IMPROVE YOUR PROFILE — both scores and what raises each (2026-09-11,
-          Career Profile and Profile Strength merged, founder decision). Hidden
-          until the profile has a name: before that this page's job is the
-          import panel below, and a list of every empty field is not a welcome. */}
-      {editor.full_name.trim() ? (
-        <ImprovePanel
-          strengthScore={readiness.score}
+        <CompletenessView
+          score={readiness.score}
+          categoryCopy={categoryCopy}
+          sections={sectionBlocks}
           missing={improveMissing}
+          onOpenSection={(sectionId) => goToProfilePart({ sectionId })}
+          onFix={(field) => goToProfilePart({ field })}
+        />
+        {saveBar}
+        <div className="pb-8" />
+      </main>
+    )
+  }
+
+  // ---- Gulf Readiness -------------------------------------------------------
+  if (view === 'readiness') {
+    return (
+      <main className={MAIN_CLASS}>
+        <ViewHeader
+          eyebrow="Gulf Readiness"
+          title="Gulf Readiness"
+          description="How ready you are for GCC jobs, and the steps that raise it — paperwork first, then your profile."
+          onBack={backToOverview}
+        />
+        <GulfReadinessView
           gulf={gulfReadiness}
           gulfSectionFor={gulfSectionFor}
-          initialTab={searchParams.get('improve') === 'strength' ? 'strength' : 'gulf'}
           onFix={(field) => goToProfilePart({ field })}
           onOpenSection={(sectionId) => goToProfilePart({ sectionId })}
+          // Saves first, so edits made here are never left behind, and the
+          // required-field check still runs (the old "Build a CV for a job").
+          onApply={() => void onSubmit('confirm')}
+          applyBusy={submitting}
         />
-      ) : null}
+        {saveBar}
+        <div className="pb-8" />
+      </main>
+    )
+  }
 
-      {/* THE WAY FORWARD (2026-09-12). Once a profile is saved — including the
-          auto-save straight after a CV is read — this page had no next step:
-          the only exit was Save, back to the dashboard. The "save, then go to
-          the optimizer" path already existed (onSubmit('confirm')) with nothing
-          calling it. It saves first, so edits made here are never left behind,
-          and the required-field check still runs. */}
-      {hasSavedProfile && editor.full_name.trim() ? (
-        <div className="mx-5 mt-4 flex flex-col gap-3 rounded-card border border-teal/30 bg-teal-soft/50 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-0.5">
-            <p className="text-[14px] font-bold text-ink">Your profile is saved. Next: a CV for a specific job.</p>
-            <p className="text-[13px] leading-relaxed text-ink-soft">
-              Tell us the role and we tailor your CV to it — using only what is in this profile.
-            </p>
-          </div>
-          <Button
-            variant="progress"
-            size="sm"
-            className="shrink-0"
-            busy={submitting}
-            busyLabel="Saving…"
-            onClick={() => void onSubmit('confirm')}
-          >
-            Build a CV for a job
-          </Button>
-        </div>
-      ) : null}
+  // ---- Profile settings (what appears on the CV) ----------------------------
+  if (view === 'settings') {
+    return (
+      <main className={MAIN_CLASS}>
+        <ViewHeader
+          eyebrow="Settings"
+          title="Profile settings"
+          description="Choose what appears on your CV. Changes are saved with the rest of your profile."
+          onBack={backToOverview}
+          action={saveButton}
+        />
+        {visibilityFilled ? (
+          <CvVisibilitySettings value={editor.field_visibility} filled={visibilityFilled} onChange={setVisibility} />
+        ) : null}
+        {saveBar}
+        <div className="pb-8" />
+      </main>
+    )
+  }
 
-      {/* START OR UPDATE FROM A RESUME — the three ways in that used to live on
-          the /create-resume screen and in the sidebar (founder decision
-          2026-08-18: fold them onto the Career Profile itself, and 2026-08-18:
-          do the import INLINE so it is one screen with a consistent back, not a
-          hop out to /onboarding/extracting). Upload/paste run the SAME parse
-          endpoints; the resulting draft goes through ingestDraft, which reuses
-          the page's own add-or-replace step — nothing is overwritten silently.
-          Once a saved profile exists it collapses to "Recreate my profile"
-          (2026-09-11), so nobody is asked to create what they already have. */}
-      <ResumeImport
-        initialMode={initialImportMode}
-        collapsible={hasSavedProfile}
-        onDraft={ingestDraft}
-        onFillManually={scrollToEditor}
-      />
-
-      {loadError ? (
-        <div className="mx-5 mt-4 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">
-          {loadError}
-        </div>
-      ) : null}
-
-      <ParseNotes
-        notes={parseNotes}
-        jobNames={editor?.work_experience.map((w) => w.company) ?? []}
-        onGo={goToProfilePart}
-        onDismiss={() => setParseNotes([])}
-      />
-
-
-      {/* WELCOME BACK — one-time claimed anonymous scan result (TASK-070).
-          Dismissible and non-blocking; the editor is fully usable underneath.
-          Renders only when CLAIMED_SCAN_RESULT_KEY was actually present — and
-          that key was already read+cleared in the mount pass, so this can never
-          reappear after a reload. */}
-      {claimedScan ? (
-        <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-ctl border border-teal/40 bg-white px-4 py-3">
-          <div className="flex flex-col gap-1">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-teal">
-              Welcome back
-            </p>
-            <p className="text-[13px] font-medium text-ink">
-              Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
-            </p>
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="font-mono text-2xl font-bold text-teal">
-                {claimedScan.overall_score}
-                <span className="text-sm">/100</span>
+  // ---- Overview -------------------------------------------------------------
+  if (view === 'overview') {
+    const vis = visibilitySummary(editor.field_visibility)
+    return (
+      <main className={MAIN_CLASS}>
+        {/* Readiness header — the ring IS the header, on dark navy */}
+        <header className="flex flex-col gap-4 bg-white px-5 pb-6 pt-4">
+          {/* STACKS ON MOBILE, and must.
+              Three items in one nowrap row — photo, ring, text — squeezed the
+              text column to 33px inside a 335px phone: one word per line. The
+              ring block is `shrink-0` and its label is ~110px wide, so the text
+              was the only thing that could give. Pre-existing, and the 12px type
+              floor made it worse by widening that label.
+              Photo and ring share a row; the text gets its own below until there
+              is room for all three. */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-4">
+            {/* Photo first: it is what a Gulf recruiter looks at first, and it
+                used to sit buried between form sections. */}
+            {/* id=f_photo: the Gulf Readiness photo step jumps here. */}
+            <div id="f_photo" tabIndex={-1} className="rounded-card focus:outline-none">
+              <PhotoUpload
+                compact
+                photoUrl={editor.photo_url || null}
+                onChange={(next) => setField({ photo_url: next ?? '' })}
+              />
+            </div>
+            {/* CAREER PROFILE COMPLETENESS — one of two distinct numbers on this
+                page, and it is now labelled as such. This ring is "how complete your
+                profile is" (it drops as you fill sections). The other number, the
+                Gulf Readiness widget below, is "how ready you are for the Gulf
+                market" — a different thing, so each carries its own label. */}
+            <div className="flex shrink-0 flex-col items-center gap-1">
+              <ReadinessRing score={readiness.score} size={68} />
+              <span className="text-[12px] font-bold uppercase tracking-wide text-ink-muted">Profile complete</span>
+            </div>
+            {/* On a phone the Save button joins this row. Alone on its own line it
+                floated at the right edge under the text, detached from anything. */}
+            <div className="ml-auto self-start sm:hidden">
+              <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>
+                Save
+              </Button>
+            </div>
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              {/* Says what this page IS before anything else (2026-09-23): the
+                  source every CV, letter and interview answer is written from. */}
+              <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
+                Step 1 of 3 · Your profile
               </span>
-              <span className="font-mono text-[12px] text-ink-soft">Structure {claimedScan.category_scores.structure}</span>
-              <span className="font-mono text-[12px] text-ink-soft">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
-              <span className="font-mono text-[12px] text-ink-soft">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
+              {/* "Almost there, there" at 0% was two errors in four words — no
+                  name to greet, and nowhere near "almost". The heading now says
+                  what is true at each stage. */}
+              <h1 className="font-display text-[22px] font-bold leading-tight tracking-[-0.015em] text-ink">
+                {!editor.full_name.trim()
+                  ? 'Build your Career Profile'
+                  : readiness.score >= 100
+                    ? `Your profile is complete, ${firstName}`
+                    : readiness.score >= 80
+                      ? `Almost there, ${firstName}`
+                      : `Keep going, ${firstName}`}
+              </h1>
+              <p className="text-[12px] leading-relaxed text-ink-soft">
+                <span className="font-semibold text-ink">Career Profile — {readiness.score}% complete,{' '}
+                {itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
+                Profiles like yours — <span className="font-semibold text-teal">{categoryCopy.highlight}</span> —{' '}
+                {categoryCopy.rest}
+              </p>
+            </div>
+
+            {/* SAVE AT THE TOP RIGHT (TASK-161, founder's call).
+                It was only at the very bottom of a nine-section form, which meant
+                saving required scrolling past everything still unfilled. It stays
+                at the bottom too — reaching the end of the form is also a natural
+                moment to save — and both call the identical onSubmit('exit'), so
+                there is one save path and not two behaviours to keep in step. */}
+            <div className="ml-auto hidden shrink-0 self-start sm:block">
+              <Button
+                variant="primary"
+                size="sm"
+                busy={submitting}
+                busyLabel="Saving…"
+                onClick={() => void onSubmit('stay')}
+              >
+                Save
+              </Button>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setClaimedScan(null)}
-            aria-label="Dismiss welcome back banner"
-            className="min-h-11 shrink-0 px-1 text-ink-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-          >
-            ✕
-          </button>
-        </div>
-      ) : null}
+        </header>
 
-      {/* The old "Finish these to reach 100" checklist stood here. Removed:
-          every one of its rows named a field that appears immediately below,
-          and each section now carries its own earned/total points chip, so the
-          list was a second copy of the same information sitting between the
-          user and the form they actually came to fill in. The ring above still
-          shows the score; the chips show where the remaining points are. */}
+        {/* The CV reader's "please check these" — first, while it is fresh. */}
+        {parseNotesBlock}
+        {loadErrorBlock}
+
+        {/* WELCOME BACK — one-time claimed anonymous scan result (TASK-070).
+            Dismissible and non-blocking; the editor is fully usable underneath.
+            Renders only when CLAIMED_SCAN_RESULT_KEY was actually present — and
+            that key was already read+cleared in the mount pass, so this can never
+            reappear after a reload. */}
+        {claimedScan ? (
+          <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-ctl border border-teal/40 bg-white px-4 py-3">
+            <div className="flex flex-col gap-1">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-teal">
+                Welcome back
+              </p>
+              <p className="text-[13px] font-medium text-ink">
+                Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
+              </p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span className="font-mono text-2xl font-bold text-teal">
+                  {claimedScan.overall_score}
+                  <span className="text-sm">/100</span>
+                </span>
+                <span className="font-mono text-[12px] text-ink-soft">Structure {claimedScan.category_scores.structure}</span>
+                <span className="font-mono text-[12px] text-ink-soft">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
+                <span className="font-mono text-[12px] text-ink-soft">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setClaimedScan(null)}
+              aria-label="Dismiss welcome back banner"
+              className="min-h-11 shrink-0 px-1 text-ink-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            >
+              ✕
+            </button>
+          </div>
+        ) : null}
+
+        {/* WHAT THIS PAGE IS — in plain words, on the page's one coloured panel. */}
+        <ProfileExplainer />
+
+        {/* THE TWO SCORES, CAREER AT A GLANCE, PROFILE SETTINGS (2026-10-04).
+            Each card opens its own screen. Hidden until the profile has a name:
+            before that this page's job is the import panel below. */}
+        {hasProfile && profileFacts ? (
+          <>
+            <ScoreCards
+              completeness={{ score: readiness.score, itemsLeft, sectionsDone: doneCount, sectionsCounted: keyCount }}
+              gulf={gulfReadiness}
+              onOpenCompleteness={() => showView('completeness')}
+              onOpenReadiness={() => showView('readiness')}
+            />
+            <CareerSnapshot facts={profileFacts} onOpen={goToProfilePart} onOpenAll={() => showView('details')} />
+            <SettingsCard shown={vis.shown} total={vis.total} hiddenLabels={vis.hidden} onOpen={() => showView('settings')} />
+          </>
+        ) : null}
+
+        {/* THE WAY FORWARD (2026-09-12). Once a profile is saved — including the
+            auto-save straight after a CV is read — this page had no next step:
+            the only exit was Save, back to the dashboard. The "save, then go to
+            the optimizer" path already existed (onSubmit('confirm')) with nothing
+            calling it. It saves first, so edits made here are never left behind,
+            and the required-field check still runs. */}
+        {hasSavedProfile && editor.full_name.trim() ? (
+          <div className="mx-5 mt-4 flex flex-col gap-3 rounded-card border border-teal/30 bg-teal-soft/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-0.5">
+              <p className="text-[14px] font-bold text-ink">Your profile is saved. Next: a CV for a specific job.</p>
+              <p className="text-[13px] leading-relaxed text-ink-soft">
+                Tell us the role and we tailor your CV to it — using only what is in this profile.
+              </p>
+            </div>
+            <Button
+              variant="progress"
+              size="sm"
+              className="shrink-0"
+              busy={submitting}
+              busyLabel="Saving…"
+              onClick={() => void onSubmit('confirm')}
+            >
+              Build a CV for a job
+            </Button>
+          </div>
+        ) : null}
+
+        {/* START OR UPDATE FROM A RESUME — the three ways in that used to live on
+            the /create-resume screen and in the sidebar (founder decision
+            2026-08-18: fold them onto the Career Profile itself, and 2026-08-18:
+            do the import INLINE so it is one screen with a consistent back, not a
+            hop out to /onboarding/extracting). Upload/paste run the SAME parse
+            endpoints; the resulting draft goes through ingestDraft, which reuses
+            the page's own add-or-replace step — nothing is overwritten silently.
+            Once a saved profile exists it collapses to "Recreate my profile"
+            (2026-09-11), so nobody is asked to create what they already have.
+            "Type it myself" / "Edit it myself" open the full-profile screen. */}
+        <ResumeImport
+          initialMode={initialImportMode}
+          collapsible={hasSavedProfile}
+          onDraft={ingestDraft}
+          onFillManually={() => showView('details')}
+        />
+        {saveBar}
+        <div className="pb-8" />
+      </main>
+    )
+  }
+
+  // ---- The full profile (view === 'details') --------------------------------
+  return (
+    <main className={MAIN_CLASS}>
+      <ViewHeader
+        eyebrow="Full profile"
+        title="Your full profile"
+        description="Everything we read from your CV, in nine parts. Open a part to check or change it."
+        onBack={backToOverview}
+        action={saveButton}
+      />
+      {parseNotesBlock}
+      {loadErrorBlock}
 
       {/* Editor body */}
-      <div id="profile-editor" className="flex flex-col gap-2.5 px-5 py-4 scroll-mt-4">
+      <div id="profile-editor" className="flex scroll-mt-4 flex-col gap-2.5 px-5 py-4">
         {/* One plain sentence naming the whole job before the first step, so
-            the user knows how long this is and where they are inside it. The
-            old page opened straight into nine expanded blocks with no such
-            framing, which is what made it feel endless. */}
+            the user knows how long this is and where they are inside it. */}
         <p className="px-1 pb-1 text-[13px] leading-relaxed text-ink-muted">
-          {doneCount === scoredCount ? (
-            <>All {scoredCount} scored sections are complete — review anything below, then confirm.</>
+          {doneCount === keyCount ? (
+            <>All {keyCount} key sections are complete — review anything below.</>
           ) : (
             <>
               <span className="font-semibold text-ink">
-                {/* "key": nine steps are listed and only the scored ones are
-                    counted, so "0 of 6 sections" under nine read as a miscount. */}
-                {doneCount} of {scoredCount} key sections done.
+                {doneCount} of {keyCount} key sections done.
               </span>{' '}
               Open a step to fill it in. Your work is kept as you move between them.
             </>
@@ -2189,19 +2401,20 @@ function ProfileScreen() {
           </div>
         </CardSection>
 
-        {/* IDENTITY & CONTACT — the card header links to /profile/visibility
-            (TASK-025 screen 04b), the per-field "what appears on your CV" view. */}
+        {/* IDENTITY & CONTACT — the card header opens Profile settings, the
+            per-field "what appears on your CV" screen (was /profile/visibility). */}
         <CardSection
           {...sectionProps('sec_identity')}
           title="Identity & contact"
           helper="Passport, visa and contact details are private to your account, and our team’s access is logged. You choose what appears on your CV."
           action={
-            <Link
-              href="/profile/visibility"
-              className="text-[12px] font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            <button
+              type="button"
+              onClick={() => showView('settings')}
+              className="-mx-1 inline-flex min-h-11 items-center px-1 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               What appears on your CV →
-            </Link>
+            </button>
           }
         >
           <div className="grid gap-4 sm:grid-cols-2">
@@ -2808,22 +3021,7 @@ function ProfileScreen() {
         </CardSection>
       </div>
 
-      {/* The bottom "Save & exit" button was removed at the founder's request
-          (2026-08-18). Saving is now the top-right Save button plus the automatic
-          save that runs the moment an extraction fills the profile, so a second
-          save control at the foot of a long form was redundant. The error display
-          stays — it is where a failed save reports. */}
-      {/* THE SAVE BAR (2026-09-23): always says whether the profile is saved,
-          sits where the user is, and shows a failed save next to the button
-          that caused it — it used to print at the very bottom of the form. */}
-      {hasSavedProfile || isDirty || saveError ? (
-        <SaveBar
-          state={submitting ? 'saving' : saveError ? 'error' : isDirty ? 'dirty' : 'saved'}
-          message={saveError}
-          onSave={() => void onSubmit('stay')}
-          onFinish={() => router.push('/dashboard')}
-        />
-      ) : null}
+      {saveBar}
       <div className="pb-8" />
     </main>
   )

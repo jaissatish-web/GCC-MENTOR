@@ -12,6 +12,41 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-10-04 — The Career Profile becomes an overview with its own screens
+
+**Founder brief:** "the profile page looks very messy — segregate it." Keep the top (photo
+and profile completeness); then one clear, colourful card saying in easy words what this
+page is; then two cards — Profile complete and GCC (Gulf) Readiness — each with a graph and
+a percentage; then the career facts (current role, experience, Gulf experience, location,
+target role, visa · notice). Each card opens its own screen in block format. "What appears
+on your CV" (passport etc.) moves onto the main profile page as Profile settings.
+
+**Decided:**
+- `/profile` is an overview of cards. Five screens on the same route via `?view=`:
+  `overview` · `details` (the nine-section editor) · `completeness` · `readiness` ·
+  `settings`. Switched with the native history API, so **the editor never unmounts** —
+  an edit typed on one screen is still there on the next, and one Save writes it all.
+  Separate routes were rejected for exactly that reason (it is the B5 data loss).
+- Profile settings is a screen of `/profile` editing the same state; the full-object
+  `PUT /api/profile` already carries `field_visibility`. `/profile/visibility` is now a
+  redirect to `/profile?view=settings` (kept so old links land). `PUT
+  /api/profile/visibility` is unchanged and no longer called by the UI.
+- The old Improve panel (`ImprovePanel.tsx`) is replaced by the Gulf Readiness screen;
+  same result object, laid out as verdict → score by area (bar chart) → paperwork →
+  profile fixes → apply → strengths / what holds it back.
+- "N of M key sections done" is ONE count everywhere (Complete out of not-Optional);
+  it was a points count on the form and a status count in the overview.
+- Old links keep working: `?improve=gulf` → readiness, `?improve=strength` →
+  completeness, `?open=<section>` → details with it open. Internal links now use
+  `?view=readiness`.
+- Name kept as **Gulf Readiness** (the product's name for it everywhere), subtitled
+  "How ready you are for GCC jobs".
+
+**Not changed:** scoring, the save contract, the add-or-replace choice, auto-save after
+extraction, any API or schema.
+
+---
+
 ## 2026-09-23 (evening) — Career Profile, Resume Library, and fixes from a real end-to-end test
 
 **Founder brief:** redesign Career Profile and Resume Library, then test every service with a

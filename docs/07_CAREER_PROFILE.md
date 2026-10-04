@@ -68,6 +68,9 @@ Two rules:
 - **A resume records the visibility state it was generated with**, in
   `field_visibility_snapshot`. Changing your preferences later does not retroactively
   alter a delivered document.
+- **It is set on the profile page itself** (2026-10-04): the Profile settings screen,
+  `/profile?view=settings`, edits the same editor state and is written by the same Save.
+  `/profile/visibility` redirects there.
 - **Every template must render correctly for every combination.** No empty gaps, no
   broken alignment. This is proven exhaustively rather than sampled — see
   [`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) §6.
@@ -76,11 +79,20 @@ Two rules:
 
 ## 4. The editor
 
-One screen at a readable column width, with per-section guided helper text, an
-optional-field marker, and a section jump-navigation. Save sits at the top right.
+**The page is an overview with screens (2026-10-04).** `/profile` opens on cards — header
+(photo, Profile complete ring, Save), what this page is, Profile complete and Gulf
+Readiness score cards, career at a glance, Profile settings — and each opens a screen of
+the same page via `?view=`: `details` (the editor below), `completeness`, `readiness`,
+`settings`. The editor state is shared by all of them and never unmounts, so moving
+between screens loses nothing. Components: `components/profile/ProfileOverview.tsx`
+(overview cards, `ViewHeader`, `SaveBar`), `CompletenessView.tsx`,
+`GulfReadinessView.tsx`, `CvVisibilitySettings.tsx`, `ScoreRing.tsx`.
 
-**Sections are deliberately not collapsible.** Collapsing hides fields the user
-still has to fill and, worse, buries validation errors behind a closed panel.
+The editor itself (`?view=details`) is one screen at a readable column width, nine
+collapsible sections with guided helper text, a status chip and points per section, and
+Save at the top right. Collapsed sections still show their status, so nothing left to do
+is hidden; a failed save opens the sections holding the missing fields and focuses the
+first one.
 
 **Dates are month-precision.** Resumes give "March 2021" at best. Extraction
 correctly returns a year-month rather than inventing a day, so the form uses month
@@ -132,9 +144,9 @@ archive. Child tables cascade.
 Both are recorded in [`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md); repeated here because
 anyone working on the profile will meet them.
 
-1. **Unsaved edits are lost on navigation.** Leaving the editor for the visibility
-   screen mid-typing unmounts the form's state without warning, and returning reloads
-   the last *saved* state. Several reasonable fixes exist; none has been chosen.
+1. **Unsaved edits are lost when leaving `/profile`.** Moving between the profile's own
+   screens (including Profile settings) keeps everything since 2026-10-04; leaving for
+   another route with unsaved edits still loses them without a warning.
 2. **The profile API assumes a full-object save.** Readiness is computed from the
    submitted object, so a partial save would score omitted-but-actually-filled fields
    as empty and silently undercount readiness. Nothing at the API boundary enforces
@@ -151,9 +163,10 @@ name not found as written) the editor shows "We read your CV. Please check these
 with a link to each field (`components/profile/ParseNotes.tsx`). Full design and
 numbers: [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §5 "Resume parsing v2".
 
-## Overview, section status and save bar (2026-09-23)
+## Overview, section status and save bar (2026-09-23, reorganised 2026-10-04)
 
-`components/profile/ProfileOverview.tsx`: what the profile is for, the facts it already
+`components/profile/ProfileOverview.tsx` (since 2026-10-04 split into cards and screens —
+see §4): what the profile is for, the facts it already
 holds (current role, years from dates, GCC years and countries via
 `lib/experienceYears.ts` `gccExperience`, location, target, visa · notice), every section
 as Complete / Needs attention / Missing / Optional with one "Fill next", and a save bar

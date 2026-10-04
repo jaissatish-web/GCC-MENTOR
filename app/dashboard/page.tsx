@@ -328,7 +328,7 @@ export default function DashboardPage() {
               verdict leads; profile completeness is the progress bar beside it. ── */}
           <aside className={cn('grid min-w-0 gap-4', listedJobs.length > 0 ? 'content-start' : 'md:grid-cols-2')}>
             {gulfAnswers ? (
-              <LiveReadiness answers={gulfAnswers} profile={scoringInputFromProfile(profile)} detailsHref="/profile?improve=gulf" />
+              <LiveReadiness answers={gulfAnswers} profile={scoringInputFromProfile(profile)} detailsHref="/profile?view=readiness" />
             ) : null}
 
             <section aria-labelledby="strength-h" className="flex flex-col gap-3 rounded-card border border-line bg-white p-5 shadow-m-1">

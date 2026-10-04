@@ -10,10 +10,11 @@ import { redirect } from 'next/navigation'
  *
  * KEPT AS A ROUTE, NOT DELETED, so every old link still lands: the footer and
  * dashboard of any cached page, a bookmark, a shared URL. `?tab=gulf` (the
- * dashboard card's link while this was a page) opens the Gulf tab there.
+ * dashboard card's link while this was a page) opens the Gulf Readiness screen
+ * there (`?view=readiness`, 2026-10-04).
  * Still listed in middleware.ts, so a signed-out visitor is sent to login first.
  */
 export default async function GccReadinessPage(props: { searchParams: Promise<{ tab?: string }> }) {
  const searchParams = await props.searchParams
- redirect(searchParams.tab === 'gulf' ? '/profile?improve=gulf' : '/profile')
+ redirect(searchParams.tab === 'gulf' ? '/profile?view=readiness' : '/profile')
 }

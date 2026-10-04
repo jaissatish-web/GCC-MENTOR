@@ -60,7 +60,7 @@ export const JOURNEY_STEPS: readonly JourneyStep[] = [
     give: 'Nothing extra — it reads your profile',
     get: 'A score across six areas, your strengths, and what to fix first',
     why: 'Shows how clearly your CV presents what Gulf employers look for, before you apply anywhere.',
-    href: '/profile?improve=gulf',
+    href: '/profile?view=readiness',
     icon: ChartBarIcon,
   },
   {

@@ -108,20 +108,20 @@ reused link says so and offers a new one.
 |---|---|
 | `/dashboard` | The career command center (2026-09-23): the one next step, then the **seven-step career journey** with this user's progress (steps 3–7 follow the job the next step names), Profile Strength and Library counts, target jobs, service usage, **two readiness cards — Profile Strength (completeness) and Gulf Readiness (market score)** — and quick actions |
 | `/create-resume` | **Retired 2026-08-18 to a redirect → `/profile`.** Resume creation now happens inline on the profile; this route is kept only so old links, the dashboard CTA and the onboarding fallback still land right. |
-| `/profile` | The Career Profile editor — and since 2026-09-11 also where both scores live: under the header, the **"Improve your profile"** panel shows Profile Strength and Gulf Readiness as two live tabs (missing items that jump to their field; the top three ranked Gulf fixes, full report on tap; `?improve=gulf` opens the second). Then the **"start or update from a resume"** panel (upload · paste · fill manually) — open for a first-time user, collapsed to one **"Recreate my profile"** button once a saved profile exists (2026-09-11) — above the user's data — the import runs the parse endpoints *on this screen* and feeds the add-or-replace choice, so building/re-importing and hand-editing are one place with no navigation. `?import=upload`/`?import=paste` opens the matching panel on arrival. |
-| `/profile/visibility` | What appears on a CV |
+| `/profile` | The Career Profile (redesigned 2026-10-04). An **overview** of cards: the header (photo, Profile complete ring, Save), a teal "your profile is the base for everything we make" card, two score cards — **Profile complete** and **Gulf Readiness**, each a ring with its number — then **Your career at a glance** (current role, years, Gulf years, location, target, visa · notice; each tile opens its field), **Profile settings** (what appears on the CV), the "Build a CV for a job" hand-off and the collapsed "Recreate my profile" import. Each card opens a screen of the same page via `?view=`: `details` (the nine-section editor), `completeness` (ring, a bar of the nine parts, "do this next", every part as a block, what is missing), `readiness` (verdict, score by area as bars, paperwork → profile fixes → apply), `settings` (CV visibility toggles in four groups). One mounted page, so nothing typed is lost between screens and one Save writes everything. `?import=upload`/`?import=paste` opens the import panel; `?improve=gulf`, `?improve=strength` and `?open=<section>` still land on the matching screen. |
+| `/profile/visibility` | **A redirect to `/profile?view=settings`** since 2026-10-04, when "what appears on your CV" became the Profile settings screen of the profile page. |
 | `/dashboard/library` | Every resume — desktop table, mobile cards |
 | `/templates` | The template gallery, previewed on an example CV |
-| `/gcc-readiness` | **A redirect to `/profile`** since 2026-09-11, when Career Profile and Profile Strength became one page. `?tab=gulf` lands on `/profile?improve=gulf`. |
+| `/gcc-readiness` | **A redirect to `/profile`** since 2026-09-11, when Career Profile and Profile Strength became one page. `?tab=gulf` lands on `/profile?view=readiness`. |
 | `/cover-letter` | Cover letter generation for a paid package — pick a tone (2026-08-18: Professional, Short, Technical, Explanatory). `?package=<id>` preselects the job — the finished CV and the dashboard's next step both use it (2026-09-12). Edits in the letter boxes are not stored, and the page says so |
 | `/settings` | Account · email · current package · payments · delete data |
 | `/payments` | An honest placeholder. No payment-history feature exists |
 | `/package/[id]` | A finished resume: view, style, edit, download |
 | `/package/[id]/edit` | **That resume's own editor** (2026-08-19): summary and bullets, section by section, with a live preview of the real template. Batched save, then back to the resume |
 
-**Both scores live on `/profile`** since 2026-09-11 — the "Improve your profile" panel
-under the header — and the dashboard's Profile Strength tile and Gulf Readiness card both
-link there. `/gcc-readiness` survives only as a redirect, so old links still land.
+**Both scores live on `/profile`** since 2026-09-11 — since 2026-10-04 as two cards on the
+overview, each opening its own screen (`?view=completeness`, `?view=readiness`) — and the
+dashboard's Profile Strength tile and Gulf Readiness card both link there. `/gcc-readiness` survives only as a redirect, so old links still land.
 
 **The dashboard's readiness card is the primary "your profile is incomplete" call to
 action.** It once silently changed to point at a route that did not exist yet, which

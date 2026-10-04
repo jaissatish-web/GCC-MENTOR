@@ -475,9 +475,17 @@ or retire the free download on purpose.
 
 ### B5 · Unsaved profile edits are lost on navigation
 
-Leaving the editor for the visibility screen mid-typing unmounts the form's state with
-no warning; returning reloads the last **saved** state. Silent data loss on the product's
-main "confirm your profile" screen.
+**Partly resolved 2026-10-04.** The trigger named here — leaving the editor for the
+visibility screen — is gone: "what appears on your CV" is now the `?view=settings` screen
+of `/profile`, sharing the editor's state, and every profile screen (overview, full
+profile, completeness, Gulf Readiness, settings) is the same mounted page. **Still open:**
+leaving `/profile` for another route (dashboard, sidebar link) with unsaved edits loses
+them without a warning; the save bar says "You have unsaved changes" but nothing stops
+the navigation.
+
+Original finding: leaving the editor for the visibility screen mid-typing unmounted the
+form's state with no warning; returning reloaded the last **saved** state. Silent data
+loss on the product's main "confirm your profile" screen.
 
 Several reasonable fixes exist — auto-save before navigating, an unsaved-changes
 warning, or carrying draft state through session storage the way the extraction handoff
