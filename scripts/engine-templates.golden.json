@@ -58,5 +58,145 @@
   "creative_gcc": {
     "sample": "c6226ab7a203dbf2015b81bd7c48749202c7a3aa73e428f36a9b5226dcc94cc4",
     "full": "57ee402b9e087f65424a86c0f5f94a5d21ad2f65620de5058eb60456a01d19fb"
+  },
+  "desert_steel": {
+    "sample": "68595e4415f8b31503c0bf943b60fea2bf01721a30f39e0a8c0cc19fbbb4f680",
+    "full": "42d4ab23a71b5cc1151ca2ee8687afdf32f08e305e932605c54f373bb18e3a67"
+  },
+  "pipeline_pro": {
+    "sample": "802d58d1da80885c14705fc7304373b1933208540dda3807abb2fcb0e639a83a",
+    "full": "55225190dfdc5b956281236770b34435e8a406ef133bbe9616fa85340d481c77"
+  },
+  "blueprint_engineer": {
+    "sample": "c9acb1a7b1f867b44bfa7a67e61112f0c7f000abaf626e9f8552775d3856140d",
+    "full": "3b33881d343b10db640ed00c38a4ccc756d0acaab8cc04dfd17bcdc8e8f50551"
+  },
+  "power_grid": {
+    "sample": "02f8631ac6fb254cb9e12df4e697b127573182881e0c028903ecc2ffc8e3bb51",
+    "full": "7dc6719ff2cf955b016e72e81fd8ab36038fe0829083bffa7a722a0d215d7018"
+  },
+  "offshore_navy": {
+    "sample": "19d6678eda67ffa58e9c8045483fc9dfa5240f6a7f4735d9b0ba534c31ac89fd",
+    "full": "ff7366cda9c9829c9cb73d9fae80b7bc748c401429e1edfbb0ffd3953c9cc4de"
+  },
+  "commissioning_lead": {
+    "sample": "d0291c0e222181ea1b3b165a19364cccf126cddbc3471867cc51d7a41a4eac4d",
+    "full": "989b0116b09b3b23d2262f49e3d9bd4ab153d77984f0889053bf0fe5aa507fb3"
+  },
+  "field_technician": {
+    "sample": "4130ea128123f77658882ac7deb63416165b8caf14f0bcfc2051f3109bdff65f",
+    "full": "ebb2842aec6b8fa59a01201ad6353d590d1d95e2da6c3d5916ab80ddcd137c65"
+  },
+  "workshop_pro": {
+    "sample": "c23d6af56811615d47ba259ce4d5787e73228c154f9c9fa12a09d86c80d15d14",
+    "full": "2ac6f6c81d048569b6ec0616ccbc9424355352444c6c05738aef008412eb9f50"
+  },
+  "maintenance_master": {
+    "sample": "374ce9ff790d6944b7ffab97a541ca9a55ebe43e6d9bfaf2f751c9c7a3fab14b",
+    "full": "7aedcc09ced10862116c1fa1fd484d481e265bf3b2028f1c5415d9b1abf8255d"
+  },
+  "skilled_trades": {
+    "sample": "0ee27816c08dd747a5e7c50d3e4977835b33617539a11591582c49d460ad676e",
+    "full": "60e41913ed726012e2fe889788dcaa650071b7b53a7f08e09f350c68cde6aead"
+  },
+  "site_supervisor": {
+    "sample": "cad426f291759daa2477a8f4994b025fab2543ef31f9c78501d566fea9bd46dc",
+    "full": "3b4fd13be2c486f98abaf09927b3bf22a298291317610c0881cf54e117dd3643"
+  },
+  "hard_hat_pro": {
+    "sample": "0a2964496377f6aa082b80086010b0ad6d21c0dc6ca3400d16918aff291e16c5",
+    "full": "61845cf285aa74ad8d169521e6781ab85096a28ed14a2b03de72b3b7c5cac2a5"
+  },
+  "qs_precision": {
+    "sample": "b08abbee3b4c085e958459c3745fc29e5d07b8bd182b391ccb5aea329975485c",
+    "full": "dfcf3cc098d324e2793b60e9babc946227110d2117b4f8bbfe762f6d6cdbd4f0"
+  },
+  "hse_shield": {
+    "sample": "0c2cbc84b7efafc62381631ab9acbdfe04a9e7b313ebaac8889523650815d8f0",
+    "full": "74008f0767e4566904124f7c0ab3b0db89920da33d710610561fe9f79c382eee"
+  },
+  "project_director": {
+    "sample": "875239e4c6f4ccdabf5242ee61ec5a661345b40047e38f16002fcc887f408727",
+    "full": "0fe30257152d517bb3afb4f76a0e70d45df32d6ea3d1273fd33cf45ee600249e"
+  },
+  "ledger_classic": {
+    "sample": "bd6a095871c0a4222bce65d5faf3266708cc7bc2cde577db00b2ebb43cb411a2",
+    "full": "88f4509011a836738936a0cc88b93a2127d774d84eea0889b7ec7ed35e91edfe"
+  },
+  "riyadh_banker": {
+    "sample": "69596baae3c88231ee1fd89f2bd8ab2259fbce85d93cdaea5fae3139a6828f7c",
+    "full": "0119b167cdd486b3df7f51fbe578ba86e891995fade6866fbf052b7e87807fb7"
+  },
+  "audit_clarity": {
+    "sample": "4ce698d9f82884b9048140c58ea19678080ae1639c2cedcd4f6527fc32602c6c",
+    "full": "663f3a755e5d5fe5ba7d67ad0acdd1312dabb7887e42d22586b28cce5dff82b4"
+  },
+  "cfo_signature": {
+    "sample": "3993ff7f8ab2c79658f6d3d1e2ca43108e3e08694e1a392e91867e56165d320b",
+    "full": "66f7feb0d525c83702b03051ff7f7a24685e1ffe8768598870793b28de67e03b"
+  },
+  "marina_creative": {
+    "sample": "d78e34a8e676876157fe58f99d7329aa564776f1047f8d225f094c8bcfb0646b",
+    "full": "04e7adc90b859bf5a2a6b8f01fa6c1f60dd2e674ed291f650fa7c4fef68ff941"
+  },
+  "spotlight_sales": {
+    "sample": "a6ab3d71d560f75f1df408333247fd4afcaf367fbd09d453f460900705178b76",
+    "full": "9417bbdcb2d2d0fadc6dde04ec91ce42600fa6869bceaabd16def81c29005691"
+  },
+  "brand_story": {
+    "sample": "6cdf2f84e3391834f0052001a9668570121554d469a0ed1bdb352afa99d3a61b",
+    "full": "4e12d548c1e145348d863f5f81b6531110f1a7b7ca4e9340bc0e4b51e74141fa"
+  },
+  "clinical_care": {
+    "sample": "915987e3237a6800d571d871fb124d01984ac0516c055415aa9d08e293cdd432",
+    "full": "a7af2cb1fdf4f5be711f7176ea54b41e94af14a853154dbb4ee4feadc8396209"
+  },
+  "medical_pearl": {
+    "sample": "d332ba7d7317020b1ca4c4372fbc1691510b7309b61517ec415c367045aeaa73",
+    "full": "46c7751a57b23964e82a26e3f15ad987770bcfbbc9e38c4519e639b3ad38af2e"
+  },
+  "care_compass": {
+    "sample": "4d5518bdf11eaf2e3e6fd607aba6bbac87a5a883063782852c42503e1bfa0320",
+    "full": "6a6353eb40c61fa86ae66e1045904779aa74eeab3021a7f62c1c55219d093437"
+  },
+  "lab_precision": {
+    "sample": "5a21b7890ef568b6d5e8d0f3d0281199d0a9d7a911a818b614995376f22968ae",
+    "full": "b1d03ffecfac6250dd59088e8e8f699aaedc7720000f9f46a54274359309966e"
+  },
+  "oasis_hospitality": {
+    "sample": "a6929cec93f9b389563aed5e5a361fa57732e318165214f105d3ee0f5341def0",
+    "full": "619eae77caba778d1a3bf36ad4a2ef7555cd075d07da876f78ace055575958bb"
+  },
+  "retail_star": {
+    "sample": "5113b7599167b7242cfaa3a02507c4a218f1cc4f5d9b640186852a520f6efe5c",
+    "full": "6557a6bedf7cbc2c8d1f6c8ac4483106835fa406a1d384c251180cbfb8b73e18"
+  },
+  "tech_horizon": {
+    "sample": "0bec4d80b1ae6827f6e93be84d3e53d4bae14dd6d24fd4d36b882a461ea7b88e",
+    "full": "f2d172c1789aa2629051957e63d4673597344dae30b6fbfd7d934d149a8641d9"
+  },
+  "data_clarity": {
+    "sample": "8d7acb42457cee459855201b55e68f3db57f36f585221f58e4c90a4ec7a7920f",
+    "full": "4b9bcaa8193712f45003461c7eb2be5ead05bb8c7efa608caa3f5211d05a9316"
+  },
+  "office_elegance": {
+    "sample": "b97aa583b8eb6ff10b8ea987e07410cd3810268b8b3997426c0c02a26a40176f",
+    "full": "bd0abb562c50534b1dc761d8238aef209a1081f91561e87af278801cee2bfae0"
+  },
+  "people_partner": {
+    "sample": "87ffb2981b684c7a959b468be1792ac1a3ff056cece1a2e7abce60db39fe66e1",
+    "full": "e14bd38743eac92175c5e1d100b414ce2dbdbd8641e1833f43d672c9086ae7f0"
+  },
+  "logistics_route": {
+    "sample": "fce91d210298a05f788e58ba7cac38b9f34f410df206fce8fb2fa7230674e2f5",
+    "full": "bb3b1e65979fdfd312d2fab5ac9451241239c2ac58fdb0642d683a15d24e8b63"
+  },
+  "scholar_classic": {
+    "sample": "52001f42b7fc886af74b1859870c08b32f42396239f2a7427d6877d99b3cac62",
+    "full": "e9042cb80d07432720016af4135c3133824c0718f7715a01e15132bc033f22a1"
+  },
+  "falcon_executive": {
+    "sample": "e25ef2bef3e3a2902a9868aab55ee8dcb6fbc10015e4523409fee17fb2d393a7",
+    "full": "2f4b58c7c58ee9ddb08c03fd0075fa8cdcb2b287365d922aa5b486fed37875c5"
   }
 }

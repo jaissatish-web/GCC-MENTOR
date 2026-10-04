@@ -67,7 +67,7 @@ most, and each has a document that owns it.
 
 **One derivation, many renderers.** A resume is derived from a profile in exactly
 one place, and every template renders that derived document. A template never
-re-derives its own data. This is what makes 15 templates cheap and what makes an
+re-derives its own data. This is what makes 50 templates cheap and what makes an
 exhaustive rendering baseline possible.
 
 ---

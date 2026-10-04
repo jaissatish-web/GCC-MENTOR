@@ -1,6 +1,6 @@
 import GulfPremium from '@/components/templates/GulfPremium'
 import AtsClassic from '@/components/templates/AtsClassic'
-import { makeTemplate } from '@/components/templates/engine'
+import { makeTemplate, type TemplateTheme } from '@/components/templates/engine'
 import * as themes from '@/components/templates/themes'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
 
@@ -42,6 +42,42 @@ export type TemplateId =
   | 'heritage_left'
   | 'project_twocol'
   | 'creative_gcc'
+  // 2026-10-04 — thirty-five more, across the Gulf job market (themes.ts).
+  | 'desert_steel'
+  | 'pipeline_pro'
+  | 'blueprint_engineer'
+  | 'power_grid'
+  | 'offshore_navy'
+  | 'commissioning_lead'
+  | 'field_technician'
+  | 'workshop_pro'
+  | 'maintenance_master'
+  | 'skilled_trades'
+  | 'site_supervisor'
+  | 'hard_hat_pro'
+  | 'qs_precision'
+  | 'hse_shield'
+  | 'project_director'
+  | 'ledger_classic'
+  | 'riyadh_banker'
+  | 'audit_clarity'
+  | 'cfo_signature'
+  | 'marina_creative'
+  | 'spotlight_sales'
+  | 'brand_story'
+  | 'clinical_care'
+  | 'medical_pearl'
+  | 'care_compass'
+  | 'lab_precision'
+  | 'oasis_hospitality'
+  | 'retail_star'
+  | 'tech_horizon'
+  | 'data_clarity'
+  | 'office_elegance'
+  | 'people_partner'
+  | 'logistics_route'
+  | 'scholar_classic'
+  | 'falcon_executive'
 
 export const DEFAULT_TEMPLATE_ID: TemplateId = 'gulf_premium'
 
@@ -56,6 +92,49 @@ export type TemplateCategory =
   | 'senior'
   | 'minimal'
   | 'entry'
+
+/**
+ * The job families a template is designed for (2026-10-04). Drives the "filter
+ * by field" chips on the template picker, so fifty templates stay browsable on
+ * a phone. A template lists every field it genuinely suits; the order of
+ * TEMPLATE_FIELDS is the order of the chips.
+ */
+export type TemplateField =
+  | 'engineering'
+  | 'oil-gas'
+  | 'technician'
+  | 'construction'
+  | 'hse'
+  | 'supervisor'
+  | 'healthcare'
+  | 'finance'
+  | 'sales-marketing'
+  | 'hospitality'
+  | 'it'
+  | 'admin-hr'
+  | 'logistics'
+  | 'education'
+  | 'executive'
+  | 'graduate'
+
+export const TEMPLATE_FIELDS: ReadonlyArray<{ key: TemplateField; label: string }> = [
+  { key: 'engineering', label: 'Engineering' },
+  { key: 'oil-gas', label: 'Oil & Gas' },
+  { key: 'technician', label: 'Technician' },
+  { key: 'construction', label: 'Construction' },
+  { key: 'supervisor', label: 'Supervisor' },
+  { key: 'hse', label: 'HSE & Safety' },
+  { key: 'healthcare', label: 'Nursing & Healthcare' },
+  { key: 'finance', label: 'Finance & Banking' },
+  { key: 'sales-marketing', label: 'Sales & Marketing' },
+  { key: 'hospitality', label: 'Hospitality & Retail' },
+  { key: 'it', label: 'IT & Data' },
+  { key: 'admin-hr', label: 'Admin & HR' },
+  { key: 'logistics', label: 'Logistics & Drivers' },
+  { key: 'education', label: 'Education' },
+  { key: 'executive', label: 'Executive' },
+  { key: 'graduate', label: 'Fresh graduate' },
+]
 
 /** How safely a template parses in an applicant tracking system. */
 export type AtsLevel = 'maximum' | 'high'
@@ -73,6 +152,8 @@ export interface TemplateEntry {
   description: string
   /** Who it is for, shown as "Best for …". */
   recommendedFor: string[]
+  /** Job families it is designed for — the picker's field filter. */
+  fields: TemplateField[]
   category: TemplateCategory
   region: 'gcc'
   direction: 'ltr' | 'rtl'
@@ -109,6 +190,36 @@ export interface TemplateEntry {
 }
 
 /**
+ * An engine-driven template's registry entry (2026-10-04): everything the
+ * first fifteen spell out by hand — region, language, ATS level, styleable,
+ * photo — set the same way, so a new template cannot differ from them by a
+ * forgotten field. `allowsPhoto` is read from the theme, as above.
+ */
+function engineTemplate(
+  id: TemplateId,
+  theme: TemplateTheme,
+  meta: Pick<TemplateEntry, 'name' | 'description' | 'recommendedFor' | 'fields' | 'category'> & { atsLevel?: AtsLevel },
+): TemplateEntry {
+  return {
+    id,
+    version: 1,
+    region: 'gcc',
+    direction: 'ltr',
+    languages: ['en'],
+    atsLevel: meta.atsLevel ?? 'high',
+    available: true,
+    allowsPhoto: theme.allowPhoto,
+    styleable: true,
+    component: makeTemplate(theme),
+    name: meta.name,
+    description: meta.description,
+    recommendedFor: meta.recommendedFor,
+    fields: meta.fields,
+    category: meta.category,
+  }
+}
+
+/**
  * All seven ids exist here from the start, so a template can be built and
  * switched on by setting `available` and attaching a component — no id
  * invention later, and no chance of two developers picking different strings
@@ -121,6 +232,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Gulf Premium',
     description: 'Premium GCC professional resume',
     recommendedFor: ['Engineering', 'Management', 'Oil & Gas'],
+    fields: ['engineering', 'oil-gas', 'executive'],
     category: 'professional',
     region: 'gcc',
     direction: 'ltr',
@@ -139,6 +251,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'ATS Classic',
     description: 'Maximum ATS compatibility',
     recommendedFor: ['Corporate applications', 'Workday', 'LinkedIn'],
+    fields: ['finance', 'it', 'admin-hr', 'engineering'],
     category: 'ats',
     region: 'gcc',
     direction: 'ltr',
@@ -155,6 +268,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'GCC Engineering',
     description: 'Built for GCC engineering careers',
     recommendedFor: ['Engineering', 'EPC', 'Oil & Gas'],
+    fields: ['engineering', 'oil-gas', 'technician'],
     category: 'engineering',
     region: 'gcc',
     direction: 'ltr',
@@ -171,6 +285,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Executive GCC',
     description: 'Executive-level professional presentation',
     recommendedFor: ['Directors', 'GMs', 'VPs'],
+    fields: ['executive', 'finance'],
     category: 'executive',
     region: 'gcc',
     direction: 'ltr',
@@ -187,6 +302,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Modern Professional',
     description: 'Modern corporate resume',
     recommendedFor: ['Technology', 'Sales', 'Marketing'],
+    fields: ['it', 'sales-marketing', 'admin-hr'],
     category: 'professional',
     region: 'gcc',
     direction: 'ltr',
@@ -203,6 +319,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Senior Compact',
     description: 'High-density resume for experienced professionals',
     recommendedFor: ['10+ years experience'],
+    fields: ['engineering', 'supervisor', 'executive'],
     category: 'senior',
     region: 'gcc',
     direction: 'ltr',
@@ -219,6 +336,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Gulf Minimal',
     description: 'Restrained, text-first resume',
     recommendedFor: ['Academia', 'Consulting', 'Research'],
+    fields: ['education', 'admin-hr', 'finance'],
     category: 'minimal',
     region: 'gcc',
     direction: 'ltr',
@@ -235,6 +353,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Corporate Band',
     description: 'Bold section bands, easy to scan',
     recommendedFor: ['Operations', 'Banking', 'Corporate'],
+    fields: ['admin-hr', 'finance', 'logistics'],
     category: 'professional',
     region: 'gcc',
     direction: 'ltr',
@@ -251,6 +370,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Technical Sidebar',
     description: 'Skills and tools in a dedicated rail',
     recommendedFor: ['Technicians', 'IT', 'Instrumentation'],
+    fields: ['technician', 'it', 'engineering'],
     category: 'engineering',
     region: 'gcc',
     direction: 'ltr',
@@ -267,6 +387,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Graduate Entry',
     description: 'For early-career and first Gulf roles',
     recommendedFor: ['Graduates', 'Under 3 years experience'],
+    fields: ['graduate'],
     category: 'entry',
     region: 'gcc',
     direction: 'ltr',
@@ -283,6 +404,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Portrait Right',
     description: 'Photo on the right, no colour block',
     recommendedFor: ['Engineering', 'Operations', 'Management'],
+    fields: ['engineering', 'supervisor', 'admin-hr'],
     category: 'professional',
     region: 'gcc',
     direction: 'ltr',
@@ -299,6 +421,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Consultant Right',
     description: 'Warm banded header with the photo on the right',
     recommendedFor: ['Consulting', 'Client-facing', 'Advisory'],
+    fields: ['sales-marketing', 'executive'],
     category: 'professional',
     region: 'gcc',
     direction: 'ltr',
@@ -315,6 +438,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Heritage Left',
     description: 'Formal serif name on a deep navy band, photo left',
     recommendedFor: ['Directors', 'Government', 'Banking'],
+    fields: ['executive', 'finance'],
     category: 'executive',
     region: 'gcc',
     direction: 'ltr',
@@ -331,6 +455,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Project Two-Column',
     description: 'Coloured rail on the right, reads as a project data sheet',
     recommendedFor: ['EPC', 'Projects', 'Site roles'],
+    fields: ['construction', 'engineering', 'oil-gas'],
     category: 'engineering',
     region: 'gcc',
     direction: 'ltr',
@@ -347,6 +472,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     name: 'Creative GCC',
     description: 'Coloured rail on the left, warmest of the set',
     recommendedFor: ['Marketing', 'Design', 'Communications'],
+    fields: ['sales-marketing', 'hospitality'],
     category: 'professional',
     region: 'gcc',
     direction: 'ltr',
@@ -357,6 +483,252 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     styleable: true,
     component: makeTemplate(themes.CREATIVE_GCC),
   },
+  // ---- 2026-10-04 — thirty-five more (components/templates/themes.ts) ----
+  desert_steel: engineTemplate('desert_steel', themes.DESERT_STEEL, {
+    name: 'Desert Steel',
+    description: 'Steel-blue masthead with an amber stripe; skills lead',
+    recommendedFor: ['Engineers', 'Oil & Gas', 'Heavy industry'],
+    fields: ['engineering', 'oil-gas'],
+    category: 'engineering',
+  }),
+  pipeline_pro: engineTemplate('pipeline_pro', themes.PIPELINE_PRO, {
+    name: 'Pipeline Pro',
+    description: 'Petrol-blue photo rail with a career timeline',
+    recommendedFor: ['Piping & mechanical', 'EPC', 'Oil & Gas'],
+    fields: ['engineering', 'oil-gas'],
+    category: 'engineering',
+  }),
+  blueprint_engineer: engineTemplate('blueprint_engineer', themes.BLUEPRINT_ENGINEER, {
+    name: 'Blueprint Engineer',
+    description: 'Light blueprint rail on the right, clean drawing-paper page',
+    recommendedFor: ['Civil & structural', 'Design engineers', 'Consultants'],
+    fields: ['engineering', 'construction'],
+    category: 'engineering',
+  }),
+  power_grid: engineTemplate('power_grid', themes.POWER_GRID, {
+    name: 'Power Grid',
+    description: 'Indigo header card, ringed photo, skills first',
+    recommendedFor: ['Electrical engineers', 'I&C', 'Utilities'],
+    fields: ['engineering', 'technician'],
+    category: 'engineering',
+  }),
+  offshore_navy: engineTemplate('offshore_navy', themes.OFFSHORE_NAVY, {
+    name: 'Offshore Navy',
+    description: 'Deep-navy masthead with a sea-teal stripe, photo right',
+    recommendedFor: ['Offshore & marine', 'Drilling', 'Oil & Gas'],
+    fields: ['oil-gas', 'engineering'],
+    category: 'engineering',
+  }),
+  commissioning_lead: engineTemplate('commissioning_lead', themes.COMMISSIONING_LEAD, {
+    name: 'Commissioning Lead',
+    description: 'Centred masthead over a gold rule, skills then a timeline',
+    recommendedFor: ['Commissioning', 'Start-up', 'Operations leads'],
+    fields: ['engineering', 'oil-gas', 'supervisor'],
+    category: 'engineering',
+  }),
+  field_technician: engineTemplate('field_technician', themes.FIELD_TECHNICIAN, {
+    name: 'Field Technician',
+    description: 'Safety-blue edge, contact strip, two-column tools list',
+    recommendedFor: ['Electricians', 'Instrument technicians', 'HVAC'],
+    fields: ['technician'],
+    category: 'engineering',
+  }),
+  workshop_pro: engineTemplate('workshop_pro', themes.WORKSHOP_PRO, {
+    name: 'Workshop Pro',
+    description: 'Charcoal masthead with a safety-orange stripe',
+    recommendedFor: ['Mechanics', 'Welders', 'Fabricators'],
+    fields: ['technician', 'construction'],
+    category: 'engineering',
+  }),
+  maintenance_master: engineTemplate('maintenance_master', themes.MAINTENANCE_MASTER, {
+    name: 'Maintenance Master',
+    description: 'Olive photo rail on the right with a timeline',
+    recommendedFor: ['Maintenance', 'Planners', 'Plant technicians'],
+    fields: ['technician', 'oil-gas'],
+    category: 'engineering',
+  }),
+  skilled_trades: engineTemplate('skilled_trades', themes.SKILLED_TRADES, {
+    name: 'Skilled Trades',
+    description: 'Friendly centred layout with trade skills as pills',
+    recommendedFor: ['Carpenters & masons', 'Plumbers', 'Operators & drivers'],
+    fields: ['technician', 'construction', 'logistics'],
+    category: 'professional',
+  }),
+  site_supervisor: engineTemplate('site_supervisor', themes.SITE_SUPERVISOR, {
+    name: 'Site Supervisor',
+    description: 'Slate masthead with a hi-vis stripe and a timeline',
+    recommendedFor: ['Site supervisors', 'Foremen', 'Safety supervisors'],
+    fields: ['supervisor', 'construction', 'hse'],
+    category: 'professional',
+  }),
+  hard_hat_pro: engineTemplate('hard_hat_pro', themes.HARD_HAT_PRO, {
+    name: 'Hard Hat Pro',
+    description: 'Amber top edge with a tinted fact box beside the work',
+    recommendedFor: ['Construction', 'Site crews', 'Safety officers'],
+    fields: ['construction', 'supervisor', 'technician', 'hse'],
+    category: 'professional',
+  }),
+  qs_precision: engineTemplate('qs_precision', themes.QS_PRECISION, {
+    name: 'QS Precision',
+    description: 'Light slate rail, date pills, figures-first',
+    recommendedFor: ['Quantity surveyors', 'Cost engineers', 'Planners'],
+    fields: ['construction', 'finance', 'engineering'],
+    category: 'professional',
+  }),
+  hse_shield: engineTemplate('hse_shield', themes.HSE_SHIELD, {
+    name: 'HSE Shield',
+    description: 'Safety-green card; certifications lead',
+    recommendedFor: ['HSE officers', 'Safety managers', 'Fire & safety'],
+    fields: ['hse', 'construction', 'oil-gas'],
+    category: 'professional',
+  }),
+  project_director: engineTemplate('project_director', themes.PROJECT_DIRECTOR, {
+    name: 'Project Director',
+    description: 'Navy masthead, gold stripe, serif capitals',
+    recommendedFor: ['Project managers', 'Construction managers', 'Directors'],
+    fields: ['construction', 'executive', 'engineering'],
+    category: 'executive',
+  }),
+  ledger_classic: engineTemplate('ledger_classic', themes.LEDGER_CLASSIC, {
+    name: 'Ledger Classic',
+    description: 'Serif on ivory with a ledger-green surname',
+    recommendedFor: ['Accountants', 'Auditors', 'Finance officers'],
+    fields: ['finance'],
+    category: 'professional',
+  }),
+  riyadh_banker: engineTemplate('riyadh_banker', themes.RIYADH_BANKER, {
+    name: 'Riyadh Banker',
+    description: 'Deep-green masthead with a gold stripe',
+    recommendedFor: ['Banking', 'Investment', 'Relationship managers'],
+    fields: ['finance', 'executive'],
+    category: 'executive',
+  }),
+  audit_clarity: engineTemplate('audit_clarity', themes.AUDIT_CLARITY, {
+    name: 'Audit Clarity',
+    description: 'Text-first, light rail, initials instead of a photo',
+    recommendedFor: ['Audit', 'Financial analysts', 'Multinationals'],
+    fields: ['finance'],
+    category: 'professional',
+  }),
+  cfo_signature: engineTemplate('cfo_signature', themes.CFO_SIGNATURE, {
+    name: 'CFO Signature',
+    description: 'Centred serif capitals over a gold rule',
+    recommendedFor: ['Finance managers', 'CFOs', 'Controllers'],
+    fields: ['finance', 'executive'],
+    category: 'executive',
+  }),
+  marina_creative: engineTemplate('marina_creative', themes.MARINA_CREATIVE, {
+    name: 'Marina Creative',
+    description: 'Sea-teal photo rail, pill headings, a timeline',
+    recommendedFor: ['Marketing', 'Communications', 'PR'],
+    fields: ['sales-marketing'],
+    category: 'professional',
+  }),
+  spotlight_sales: engineTemplate('spotlight_sales', themes.SPOTLIGHT_SALES, {
+    name: 'Spotlight Sales',
+    description: 'Berry masthead, round photo, contact strip',
+    recommendedFor: ['Sales executives', 'Business development', 'Account managers'],
+    fields: ['sales-marketing'],
+    category: 'professional',
+  }),
+  brand_story: engineTemplate('brand_story', themes.BRAND_STORY, {
+    name: 'Brand Story',
+    description: 'Indigo header card with a story-like timeline',
+    recommendedFor: ['Digital marketing', 'Social media', 'Content'],
+    fields: ['sales-marketing', 'graduate'],
+    category: 'professional',
+  }),
+  clinical_care: engineTemplate('clinical_care', themes.CLINICAL_CARE, {
+    name: 'Clinical Care',
+    description: 'Calm teal card; licences lead',
+    recommendedFor: ['Registered nurses', 'Nurse specialists', 'Midwives'],
+    fields: ['healthcare'],
+    category: 'professional',
+  }),
+  medical_pearl: engineTemplate('medical_pearl', themes.MEDICAL_PEARL, {
+    name: 'Medical Pearl',
+    description: 'Centred serif name over a soft-blue rule',
+    recommendedFor: ['Doctors', 'Pharmacists', 'Allied health'],
+    fields: ['healthcare'],
+    category: 'professional',
+  }),
+  care_compass: engineTemplate('care_compass', themes.CARE_COMPASS, {
+    name: 'Care Compass',
+    description: 'Soft rose photo rail with a timeline',
+    recommendedFor: ['Nursing assistants', 'Caregivers', 'Patient care'],
+    fields: ['healthcare', 'graduate'],
+    category: 'professional',
+  }),
+  lab_precision: engineTemplate('lab_precision', themes.LAB_PRECISION, {
+    name: 'Lab Precision',
+    description: 'Lab-teal top edge, date pills; licences lead',
+    recommendedFor: ['Lab technicians', 'Radiographers', 'Pharmacy technicians'],
+    fields: ['healthcare', 'technician'],
+    category: 'professional',
+  }),
+  oasis_hospitality: engineTemplate('oasis_hospitality', themes.OASIS_HOSPITALITY, {
+    name: 'Oasis Hospitality',
+    description: 'Warm terracotta, centred and welcoming',
+    recommendedFor: ['Hotels', 'F&B', 'Front office'],
+    fields: ['hospitality'],
+    category: 'professional',
+  }),
+  retail_star: engineTemplate('retail_star', themes.RETAIL_STAR, {
+    name: 'Retail Star',
+    description: 'Royal-blue masthead with a sunshine stripe',
+    recommendedFor: ['Retail', 'Customer service', 'Cashiers'],
+    fields: ['hospitality', 'sales-marketing', 'graduate'],
+    category: 'entry',
+  }),
+  tech_horizon: engineTemplate('tech_horizon', themes.TECH_HORIZON, {
+    name: 'Tech Horizon',
+    description: 'Deep-cyan rail, tech stack and timeline',
+    recommendedFor: ['Software', 'Networks', 'IT support'],
+    fields: ['it'],
+    category: 'professional',
+  }),
+  data_clarity: engineTemplate('data_clarity', themes.DATA_CLARITY, {
+    name: 'Data Clarity',
+    description: 'Text-first, initials badge, skills lead',
+    recommendedFor: ['Data & ERP analysts', 'Systems', 'Multinationals'],
+    fields: ['it', 'finance', 'graduate'],
+    category: 'professional',
+  }),
+  office_elegance: engineTemplate('office_elegance', themes.OFFICE_ELEGANCE, {
+    name: 'Office Elegance',
+    description: 'Burgundy and ivory, centred serif name',
+    recommendedFor: ['Admin & secretaries', 'Reception', 'PRO & government relations'],
+    fields: ['admin-hr'],
+    category: 'professional',
+  }),
+  people_partner: engineTemplate('people_partner', themes.PEOPLE_PARTNER, {
+    name: 'People Partner',
+    description: 'Soft green rail with a timeline',
+    recommendedFor: ['HR', 'Recruitment', 'Training'],
+    fields: ['admin-hr'],
+    category: 'professional',
+  }),
+  logistics_route: engineTemplate('logistics_route', themes.LOGISTICS_ROUTE, {
+    name: 'Logistics Route',
+    description: 'Route-blue masthead with an orange stripe',
+    recommendedFor: ['Supply chain', 'Warehouse', 'Drivers'],
+    fields: ['logistics'],
+    category: 'professional',
+  }),
+  scholar_classic: engineTemplate('scholar_classic', themes.SCHOLAR_CLASSIC, {
+    name: 'Scholar Classic',
+    description: 'Scholarly serif with a violet top edge',
+    recommendedFor: ['Teachers', 'Lecturers', 'Trainers'],
+    fields: ['education'],
+    category: 'minimal',
+  }),
+  falcon_executive: engineTemplate('falcon_executive', themes.FALCON_EXECUTIVE, {
+    name: 'Falcon Executive',
+    description: 'Night-navy masthead, gold stripe, serif capitals',
+    recommendedFor: ['C-suite', 'General managers', 'Country heads'],
+    fields: ['executive'],
+    category: 'executive',
+  }),
 }
 
 /** Only the templates a user can actually pick right now. */

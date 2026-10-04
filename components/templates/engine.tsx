@@ -33,6 +33,12 @@ export type HeadingStyle =
   | 'band'
   /** Small caps label set to the left of its content in a narrow gutter. */
   | 'side'
+  /** Label inside a soft rounded pill (2026-10-04). */
+  | 'pill'
+  /** Label with a short, thick accent bar under the words only (2026-10-04). */
+  | 'bar'
+  /** Small accent square before the label (2026-10-04). */
+  | 'marker'
 
 export type LayoutStyle =
   /** One column, everything in reading order. Safest for parsers. */
@@ -63,6 +69,10 @@ export type SkillStyle =
    * asserts only "this skill is listed", which is all we actually know.
    */
   | 'chips'
+  /** Pills with an accent outline and no fill (2026-10-04). Same claim as chips. */
+  | 'outline'
+  /** A bulleted list in two columns, one in a narrow rail (2026-10-04). */
+  | 'list'
 
 export interface TemplateTheme {
   /** Display + body faces. Web-safe stacks only: the PDF renderer has no CDN. */
@@ -95,7 +105,7 @@ export interface TemplateTheme {
    */
   headerBand?: boolean
   /** Circular crop on the photo. Reads modern; rectangular reads formal/Gulf. */
-  photoShape?: 'rect' | 'circle'
+  photoShape?: 'rect' | 'circle' | 'rounded'
   /**
    * Which side the photo sits on (TASK-151).
    *
@@ -130,6 +140,80 @@ export interface TemplateTheme {
    * photo-less template or a photo-less resume doesn't have.
    */
   photoVisible?: boolean
+
+  /* ----------------------------------------------------------------------- *
+   * 2026-10-04 — the vocabulary behind the 35 added templates.
+   *
+   * EVERY FIELD BELOW IS OPTIONAL, and absent means exactly the output the
+   * engine produced before they existed — proven by
+   * scripts/verify-engine-templates.ts, which fingerprints every template across
+   * all 32,768 show/hide combinations. Colours are derived from `accent` and
+   * `accentSoft` wherever they can be, so a user's accent choice still carries
+   * through; the one fixed colour is `bandStripe`, a second tone by design.
+   * ----------------------------------------------------------------------- */
+
+  /** Single layout only, without `headerBand`: a centred masthead, or the plain
+   * header set inside a soft tinted card. */
+  headerVariant?: 'centered' | 'card'
+  /** The band header runs a diagonal gradient from the accent to a deeper shade. */
+  bandGradient?: boolean
+  /** A 4px stripe in this colour under the band, the card or the centred header. */
+  bandStripe?: string
+  /** An 8px accent edge down the left side, or across the top, of the page. */
+  pageEdge?: 'left' | 'top'
+  /** A vertical line with a dot per role down the work history. */
+  experienceStyle?: 'timeline'
+  /** Role dates in a small tinted pill instead of plain right-aligned text. */
+  dateStyle?: 'chip'
+  /** The last word of the name in the accent colour (the stripe colour on a band). */
+  nameStyle?: 'two-tone'
+  /** A ring in the accent colour around the photo. */
+  photoRing?: boolean
+  /** The summary in a soft box with an accent edge. */
+  summaryStyle?: 'boxed'
+  /** Single layout: contact details in a tinted strip under the header instead of
+   * inside it. */
+  contactBar?: boolean
+  /** `sidebar-filled`: a light rail (soft tint, dark text) instead of a solid one. */
+  railStyle?: 'soft'
+  /** `sidebar-filled`: rail width in px. Absent = 238. */
+  railWidth?: number
+  /**
+   * `sidebar-filled`, rail on the LEFT: keep the reversed flex row. Chrome
+   * writes a reversed row into the PDF in VISUAL order, so an ATS reading the
+   * file met the rail's facts before the name. Since 2026-10-04 a left rail is
+   * placed with CSS grid instead, and the PDF then follows the markup — main
+   * column, and the name, first. Set only on the two designs that shipped with
+   * the old row, so their output stays byte-identical until the switch is
+   * approved (docs/14_OPEN_ITEMS.md).
+   */
+  railFirstInPdf?: boolean
+  /** When no photo is shown, the candidate's initials in the photo's place. The
+   * badge comes AFTER the name in the markup and is placed by grid, so the first
+   * text a parser reads — in the page and in the PDF — is still the name. */
+  monogram?: boolean
+  /** Page background. Absent = white. */
+  paper?: string
+  /**
+   * In the PDF, hold a one-page CV's page box to the printable height, so a
+   * filled rail, a left page edge or a paper tint reaches the foot of the page
+   * as it does on screen. The PDF route otherwise releases the on-screen height
+   * in print (a full A4 box inside the 10mm margins spilled a blank second
+   * page), and the colour stopped where the text did. Emitted as
+   * `data-fill-page`, read by lib/pdf/renderPackage.ts. Absent on the fifteen
+   * designs that shipped before it (docs/14_OPEN_ITEMS.md §T5).
+   */
+  fillPage?: boolean
+  /** Single layout: what follows the summary. Engineers and technicians lead with
+   * skills; licensed roles (nursing, HSE) lead with their credentials. */
+  sectionOrder?: 'skills-first' | 'credentials-first'
+  /** Header contact facts in two columns instead of one — a Gulf CV carries up
+   * to eleven of them, which stacked one per line make a very tall masthead. */
+  contactColumns?: 2
+  /** The name block takes the header's free width, so with the photo (or
+   * initials) on the right the name still starts at the left margin instead of
+   * hugging the photo. */
+  nameFill?: boolean
 }
 
 type SectionKey =
@@ -151,6 +235,34 @@ const DEFAULT_LABELS: Record<SectionKey, string> = {
 
 /** Usable width inside the filled rail: 238px wide, 22px padding each side. */
 const RAIL_CONTENT_W = 194
+const RAIL_W = 238
+const RAIL_PAD_X = 22
+
+/**
+ * A darker shade of a hex colour, for the band gradient. Any value that is not a
+ * plain #RGB or #RRGGBB comes back unchanged — the band then reads solid, never
+ * broken.
+ */
+function shade(hex: string, amount: number): string {
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim())
+  if (!m) return hex
+  const full = m[1].length === 3 ? m[1].split('').map((c) => c + c).join('') : m[1]
+  const n = parseInt(full, 16)
+  const f = (v: number) => Math.max(0, Math.min(255, Math.round(v * (1 + amount))))
+  const r = f((n >> 16) & 255)
+  const g = f((n >> 8) & 255)
+  const b = f(n & 255)
+  return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`
+}
+
+/** First and last initial, uppercase. Empty when there is no usable name. */
+function initialsOf(name: string | null | undefined): string {
+  const words = (name ?? '').trim().split(/\s+/).filter((w) => /[\p{L}]/u.test(w))
+  if (words.length === 0) return ''
+  const first = words[0].match(/[\p{L}]/u)?.[0] ?? ''
+  const last = words.length > 1 ? (words[words.length - 1].match(/[\p{L}]/u)?.[0] ?? '') : ''
+  return (first + last).toUpperCase()
+}
 
 function pt(n: number): string {
   return `${Math.round(n * 100) / 100}pt`
@@ -242,6 +354,30 @@ function Heading({ theme, children }: { theme: TemplateTheme; children: string }
       </h2>
     )
   }
+  if (theme.headingStyle === 'pill') {
+    return (
+      <h2 style={{ ...base, display: 'inline-block', background: theme.accentSoft, padding: '3px 11px', borderRadius: '999px' }}>
+        {children}
+      </h2>
+    )
+  }
+  if (theme.headingStyle === 'bar') {
+    // The bar sits under the words only — a span, so the heading's text is
+    // still exactly the label.
+    return (
+      <h2 style={base}>
+        <span style={{ display: 'inline-block', borderBottom: `3px solid ${theme.accent}`, paddingBottom: '3px' }}>{children}</span>
+      </h2>
+    )
+  }
+  if (theme.headingStyle === 'marker') {
+    return (
+      <h2 style={{ ...base, display: 'flex', alignItems: 'center', gap: '7px' }}>
+        <span aria-hidden="true" style={{ width: '8px', height: '8px', background: theme.accent, borderRadius: '2px', flexShrink: 0 }} />
+        {children}
+      </h2>
+    )
+  }
   return <h2 style={base}>{children}</h2>
 }
 
@@ -283,8 +419,52 @@ function renderSkills(
   theme: TemplateTheme,
   skills: ResumeDocument['skills'],
   title: string,
+  /** Inside a rail: a 'list' stays one column there. */
+  narrow = false,
 ): React.JSX.Element {
   const body = bodyStyle(theme)
+  if (theme.skillStyle === 'outline') {
+    return (
+      <Section theme={theme} title={title}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', minWidth: 0 }}>
+          {skills.map((s) => (
+            <span
+              key={s.id}
+              style={{
+                ...body,
+                fontSize: pt(theme.bodySize - 0.6),
+                background: 'transparent',
+                color: theme.ink,
+                border: `1px solid ${theme.accent}`,
+                borderRadius: '9px',
+                padding: '1px 7px',
+                maxWidth: '100%',
+                minWidth: 0,
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word',
+                lineHeight: 1.35,
+              }}
+            >
+              {s.name}
+            </span>
+          ))}
+        </div>
+      </Section>
+    )
+  }
+  if (theme.skillStyle === 'list') {
+    return (
+      <Section theme={theme} title={title}>
+        <ul style={{ margin: 0, paddingLeft: '16px', columns: narrow ? 1 : 2, columnGap: '22px' }}>
+          {skills.map((s) => (
+            <li key={s.id} style={{ ...body, marginBottom: `${2 * theme.density}px`, breakInside: 'avoid', overflowWrap: 'anywhere' }}>
+              {s.name}
+            </li>
+          ))}
+        </ul>
+      </Section>
+    )
+  }
   return (
     <Section theme={theme} title={title}>
       {theme.skillStyle === 'chips' ? (
@@ -376,13 +556,116 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
   /** Icons need the unjoined items; a pre-TASK-149 snapshot has none. */
   const useIcons = Boolean(theme.contactIcons) && contactItems.length > 0
 
-  const photoRadius = theme.photoShape === 'circle' ? '50%' : '2px'
+  const photoRadius = theme.photoShape === 'circle' ? '50%' : theme.photoShape === 'rounded' ? '12px' : '2px'
   const photoScale = theme.photoScale ?? 1
 
-  /** Contact facts stacked one per line, each with its glyph. */
-  const ContactList = ({ color, muted }: { color: string; muted: string }) =>
+  /** A ring in the accent colour around the photo (2026-10-04). */
+  const ringStyle: React.CSSProperties = theme.photoRing
+    ? { border: `3px solid ${theme.accent}`, padding: '2px', background: '#FFFFFF' }
+    : {}
+
+  /**
+   * The name, optionally with its last word in a second colour (2026-10-04).
+   * The words and the space between them are unchanged — only a span is added
+   * — so the heading's text reads exactly as before.
+   */
+  const nameContent = (secondColor: string | null): React.ReactNode => {
+    const name = header.displayName as string
+    if (theme.nameStyle !== 'two-tone' || !secondColor) return name
+    const trimmed = name.trim()
+    const cut = trimmed.lastIndexOf(' ')
+    if (cut <= 0) return name
+    return (
+      <>
+        {trimmed.slice(0, cut)} <span style={{ color: secondColor }}>{trimmed.slice(cut + 1)}</span>
+      </>
+    )
+  }
+
+  const initials = theme.monogram && !showPhoto ? initialsOf(header.displayName) : ''
+  /**
+   * The initials badge sits where a photo would (2026-10-04) but, unlike the
+   * photo, it is TEXT — so it must come after the name for a parser. A flex row
+   * cannot do that: Chrome writes it into the PDF in visual order, `order` and
+   * `row-reverse` included (measured: an ATS read "RS" before the name). So the
+   * badge is emitted after the name and, on the left or on top, placed by grid,
+   * which keeps the markup's order; on the right, document order already does.
+   */
+  const badgeLeft = Boolean(initials) && theme.photoSide !== 'right'
+  const headerRow = (): React.CSSProperties =>
+    badgeLeft
+      ? { display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)' }
+      : // row-reverse, not a reordered DOM: the name stays first in the markup
+        // so a parser reads it first whatever the photo does visually.
+        { display: 'flex', flexDirection: theme.photoSide === 'right' && !initials ? 'row-reverse' : 'row' }
+  const nameCell: React.CSSProperties = badgeLeft ? { gridColumn: '2', gridRow: '1' } : {}
+  const badgeCell: React.CSSProperties | undefined = badgeLeft ? { gridColumn: '1', gridRow: '1' } : undefined
+  /** aria-hidden: the name already says it. */
+  const Monogram = ({ size, background, color, border, place }: { size: number; background: string; color: string; border?: string; place?: React.CSSProperties }) =>
+    initials ? (
+      <span
+        aria-hidden="true"
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          flexShrink: 0,
+          borderRadius: '50%',
+          background,
+          color,
+          border: border ?? 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: theme.displayFont,
+          fontWeight: 700,
+          fontSize: `${Math.round(size * 0.36)}px`,
+          letterSpacing: '0.04em',
+          boxSizing: 'border-box',
+          ...place,
+        }}
+      >
+        {initials}
+      </span>
+    ) : null
+
+  /** Contact facts in one wrapping row — the strip and the centred header. */
+  const ContactRow = ({ color, muted, justify }: { color: string; muted: string; justify: 'flex-start' | 'center' }) =>
     useIcons ? (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: justify, gap: '3px 14px' }}>
+        {contactItems.map((item) => (
+          <span
+            key={item.kind + item.text}
+            style={{
+              ...body,
+              fontSize: pt(theme.bodySize - 0.8),
+              color: muted,
+              display: 'inline-flex',
+              gap: '5px',
+              alignItems: 'flex-start',
+              wordBreak: 'break-word',
+            }}
+          >
+            <ContactIcon kind={item.kind} color={color} />
+            <span style={{ minWidth: 0 }}>{item.text}</span>
+          </span>
+        ))}
+      </div>
+    ) : (
+      <p style={{ ...body, fontSize: pt(theme.bodySize - 0.8), color: muted, margin: 0, textAlign: justify === 'center' ? 'center' : 'left' }}>
+        {contactLine}
+      </p>
+    )
+
+  /** Contact facts stacked one per line, each with its glyph. */
+  const ContactList = ({ color, muted, columns }: { color: string; muted: string; columns?: 2 }) =>
+    useIcons ? (
+      <div
+        style={
+          columns === 2
+            ? { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '3px 18px' }
+            : { display: 'flex', flexDirection: 'column', gap: '3px' }
+        }
+      >
         {contactItems.map((item) => (
           <span
             key={item.kind + item.text}
@@ -422,13 +705,21 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
   const HeaderBlock = header.hasHeaderText ? (
     <header
       style={{
-        display: 'flex',
-        // row-reverse, not a reordered DOM: the name stays first in the markup
-        // so a parser reads it first whatever the photo does visually.
-        flexDirection: theme.photoSide === 'right' ? 'row-reverse' : 'row',
+        ...headerRow(),
         gap: '14px',
         alignItems: 'flex-start',
         marginBottom: `${6 * theme.density}px`,
+        ...(theme.headerVariant === 'card'
+          ? {
+              alignItems: 'center',
+              background: theme.accentSoft,
+              borderLeft: `4px solid ${theme.accent}`,
+              borderRadius: '6px',
+              padding: '14px 16px',
+              marginBottom: `${12 * theme.density}px`,
+              ...(theme.bandStripe ? { borderBottom: `3px solid ${theme.bandStripe}` } : {}),
+            }
+          : {}),
       }}
     >
       {showPhoto ? (
@@ -442,10 +733,11 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
             objectFit: 'cover',
             borderRadius: photoRadius,
             flexShrink: 0,
+            ...ringStyle,
           }}
         />
       ) : null}
-      <div style={{ minWidth: 0 }}>
+      <div style={{ ...(theme.nameFill ? { minWidth: 0, flex: 1 } : { minWidth: 0 }), ...nameCell }}>
         {header.displayName ? (
           <h1
             style={{
@@ -459,7 +751,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
               lineHeight: 1.15,
             }}
           >
-            {header.displayName}
+            {nameContent(theme.accent)}
           </h1>
         ) : null}
         {header.targetJobTitle ? (
@@ -467,13 +759,13 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
             {header.targetJobTitle}
           </p>
         ) : null}
-        {contactLine && theme.layout === 'single' ? (
+        {contactLine && theme.layout === 'single' && !theme.contactBar ? (
           useIcons ? (
             // A single-column theme with icons on but no colour band still has
             // to draw them here — this branch was missed on the first pass and
             // caught by counting <svg> in the exported render, not by reading.
             <div style={{ marginTop: '5px' }}>
-              <ContactList color={theme.accent} muted={theme.muted} />
+              <ContactList color={theme.accent} muted={theme.muted} columns={theme.contactColumns} />
             </div>
           ) : (
             <p style={{ ...body, fontSize: pt(theme.bodySize - 0.8), color: theme.muted, margin: '4px 0 0' }}>
@@ -482,25 +774,156 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
           )
         ) : null}
       </div>
+      <Monogram
+        size={78}
+        background={theme.headerVariant === 'card' ? '#FFFFFF' : theme.accentSoft}
+        color={theme.accent}
+        border={`2px solid ${theme.accent}`}
+        place={badgeCell}
+      />
     </header>
   ) : null
+
+  /** The centred masthead (2026-10-04): photo, name, title, then contacts in a row. */
+  const CenteredHeader = header.hasHeaderText ? (
+    <header
+      style={{
+        // With a badge: a one-column grid, badge in the top row (see Monogram).
+        ...(initials ? { display: 'grid', justifyItems: 'center' } : { display: 'flex', flexDirection: 'column', alignItems: 'center' }),
+        textAlign: 'center',
+        gap: '8px',
+        marginBottom: `${12 * theme.density}px`,
+        ...(theme.bandStripe ? { borderBottom: `3px solid ${theme.bandStripe}`, paddingBottom: `${10 * theme.density}px` } : {}),
+      }}
+    >
+      {showPhoto ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={header.photoUrl as string}
+          alt=""
+          style={{
+            width: `${Math.round((theme.photoShape === 'circle' ? 88 : 80) * photoScale)}px`,
+            height: `${Math.round((theme.photoShape === 'circle' ? 88 : 100) * photoScale)}px`,
+            objectFit: 'cover',
+            borderRadius: photoRadius,
+            flexShrink: 0,
+            ...ringStyle,
+          }}
+        />
+      ) : null}
+      <div style={{ minWidth: 0, width: '100%', ...(initials ? { gridRow: '2' } : {}) }}>
+        {header.displayName ? (
+          <h1
+            style={{
+              fontFamily: theme.displayFont,
+              fontSize: pt(theme.nameSize),
+              fontWeight: 700,
+              letterSpacing: theme.uppercaseName ? '0.08em' : '0.01em',
+              textTransform: theme.uppercaseName ? 'uppercase' : 'none',
+              color: theme.ink,
+              margin: 0,
+              lineHeight: 1.15,
+            }}
+          >
+            {nameContent(theme.accent)}
+          </h1>
+        ) : null}
+        {header.targetJobTitle ? (
+          <p style={{ ...body, fontSize: pt(theme.bodySize + 1.2), color: theme.accent, margin: '3px 0 0', fontWeight: 600, letterSpacing: '0.02em' }}>
+            {header.targetJobTitle}
+          </p>
+        ) : null}
+        {contactLine && !theme.contactBar ? (
+          <div style={{ marginTop: '7px' }}>
+            <ContactRow color={theme.accent} muted={theme.muted} justify="center" />
+          </div>
+        ) : null}
+      </div>
+      <Monogram
+        size={84}
+        background={theme.accentSoft}
+        color={theme.accent}
+        border={`2px solid ${theme.accent}`}
+        place={initials ? { gridRow: '1' } : undefined}
+      />
+    </header>
+  ) : null
+
+  /** Contacts in a tinted strip under the header (2026-10-04, `contactBar`). */
+  const ContactStrip =
+    theme.contactBar && contactLine ? (
+      <div
+        style={{
+          background: theme.accentSoft,
+          borderRadius: '4px',
+          padding: '7px 12px',
+          margin: `0 0 ${12 * theme.density}px`,
+        }}
+      >
+        <ContactRow color={theme.accent} muted={theme.ink} justify={theme.headerVariant === 'centered' ? 'center' : 'flex-start'} />
+      </div>
+    ) : null
 
   const ExperienceBlock =
     experience.length > 0 ? (
       <Section theme={theme} title={label('experience')}>
         {experience.map((item) => (
-          <div key={item.entry.id} style={{ marginBottom: `${9 * theme.density}px`, pageBreakInside: 'avoid' }}>
+          <div
+            key={item.entry.id}
+            style={
+              theme.experienceStyle === 'timeline'
+                ? {
+                    position: 'relative',
+                    marginLeft: '5px',
+                    paddingLeft: '16px',
+                    paddingBottom: `${9 * theme.density}px`,
+                    borderLeft: `2px solid ${theme.rule}`,
+                    pageBreakInside: 'avoid',
+                  }
+                : { marginBottom: `${9 * theme.density}px`, pageBreakInside: 'avoid' }
+            }
+          >
+            {theme.experienceStyle === 'timeline' ? (
+              <span
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  left: '-7px',
+                  top: '2px',
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  background: theme.accent,
+                  border: '2px solid #FFFFFF',
+                  boxSizing: 'border-box',
+                }}
+              />
+            ) : null}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
               <p style={{ ...body, margin: 0, fontWeight: 700 }}>{item.entry.role}</p>
               {item.range ? (
                 <span
-                  style={{
-                    ...body,
-                    fontSize: pt(theme.bodySize - 0.5),
-                    color: theme.muted,
-                    whiteSpace: 'nowrap',
-                    flex: 'none',
-                  }}
+                  style={
+                    theme.dateStyle === 'chip'
+                      ? {
+                          ...body,
+                          fontSize: pt(theme.bodySize - 1),
+                          color: theme.accent,
+                          background: theme.accentSoft,
+                          borderRadius: '999px',
+                          padding: '1px 8px',
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap',
+                          flex: 'none',
+                        }
+                      : {
+                          ...body,
+                          fontSize: pt(theme.bodySize - 0.5),
+                          color: theme.muted,
+                          whiteSpace: 'nowrap',
+                          flex: 'none',
+                        }
+                  }
                 >
                   {item.range}
                 </span>
@@ -527,7 +950,22 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
 
   const SummaryBlock = summary ? (
     <Section theme={theme} title={label('summary')}>
-      <p style={{ ...body, margin: 0 }}>{summary}</p>
+      <p
+        style={
+          theme.summaryStyle === 'boxed'
+            ? {
+                ...body,
+                margin: 0,
+                background: theme.accentSoft,
+                borderLeft: `3px solid ${theme.accent}`,
+                borderRadius: '0 4px 4px 0',
+                padding: '8px 11px',
+              }
+            : { ...body, margin: 0 }
+        }
+      >
+        {summary}
+      </p>
     </Section>
   ) : null
 
@@ -571,14 +1009,21 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
       </Section>
     ) : null
 
+  // Absent attribute unless the theme asks: the fifteen keep identical markup.
+  const fillPage = theme.fillPage ? '' : undefined
   const page: React.CSSProperties = {
     width: PAGE.width,
     minHeight: PAGE.minHeight,
     padding: PAGE.padding,
     boxSizing: 'border-box',
     margin: '0 auto',
-    background: '#FFFFFF',
+    background: theme.paper ?? '#FFFFFF',
     ...body,
+    ...(theme.pageEdge === 'left'
+      ? { borderLeft: `8px solid ${theme.accent}` }
+      : theme.pageEdge === 'top'
+        ? { borderTop: `8px solid ${theme.accent}` }
+        : {}),
   }
 
   /**
@@ -591,13 +1036,13 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
   const BandHeader = header.hasHeaderText ? (
     <header
       style={{
-        background: theme.accent,
+        background: theme.bandGradient ? `linear-gradient(120deg, ${theme.accent} 0%, ${shade(theme.accent, -0.38)} 100%)` : theme.accent,
         margin: `-${PAGE.padding.split(' ')[0]} -${PAGE.padding.split(' ')[1]} ${16 * theme.density}px`,
         padding: `${20 * theme.density}px ${PAGE.padding.split(' ')[1]}`,
-        display: 'flex',
-        flexDirection: theme.photoSide === 'right' ? 'row-reverse' : 'row',
+        ...headerRow(),
         gap: '16px',
         alignItems: 'center',
+        ...(theme.bandStripe ? { borderBottom: `4px solid ${theme.bandStripe}` } : {}),
       }}
     >
       {showPhoto ? (
@@ -611,11 +1056,11 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
             objectFit: 'cover',
             borderRadius: photoRadius,
             flexShrink: 0,
-            border: '2px solid rgba(255,255,255,0.85)',
+            border: theme.photoRing ? `3px solid ${theme.bandStripe ?? 'rgba(255,255,255,0.95)'}` : '2px solid rgba(255,255,255,0.85)',
           }}
         />
       ) : null}
-      <div style={{ minWidth: 0 }}>
+      <div style={{ ...(theme.nameFill ? { minWidth: 0, flex: 1 } : { minWidth: 0 }), ...nameCell }}>
         {header.displayName ? (
           <h1
             style={{
@@ -629,7 +1074,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
               lineHeight: 1.14,
             }}
           >
-            {header.displayName}
+            {nameContent(theme.bandStripe ?? null)}
           </h1>
         ) : null}
         {header.targetJobTitle ? (
@@ -645,12 +1090,19 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
             {header.targetJobTitle}
           </p>
         ) : null}
-        {contactLine ? (
+        {contactLine && !theme.contactBar ? (
           <div style={{ marginTop: '6px' }}>
-            <ContactList color="rgba(255,255,255,0.9)" muted="rgba(255,255,255,0.88)" />
+            <ContactList color="rgba(255,255,255,0.9)" muted="rgba(255,255,255,0.88)" columns={theme.contactColumns} />
           </div>
         ) : null}
       </div>
+      <Monogram
+        size={80}
+        background="rgba(255,255,255,0.14)"
+        color="#FFFFFF"
+        border="2px solid rgba(255,255,255,0.85)"
+        place={badgeCell}
+      />
     </header>
   ) : null
 
@@ -659,29 +1111,49 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
     // and each column pads its own content. Supporting facts left, narrative
     // right — identical document order to `sidebar`, so flattening for a parser
     // still yields a sane read.
-    const railInk = '#FFFFFF'
-    const railMuted = 'rgba(255,255,255,0.86)'
+    // A light rail (2026-10-04, `railStyle: 'soft'`) keeps the theme's own dark
+    // ink on a soft tint; the solid rail reverses everything to white.
+    const softRail = theme.railStyle === 'soft'
+    const railInk = softRail ? theme.ink : '#FFFFFF'
+    const railMuted = softRail ? theme.muted : 'rgba(255,255,255,0.86)'
+    const railW = theme.railWidth ?? RAIL_W
+    const railContentW = theme.railWidth ? railW - RAIL_PAD_X * 2 : RAIL_CONTENT_W
+    // A left rail by grid placement, not a reversed row: Chrome paints — and so
+    // writes into the PDF — a reversed flex row in visual order, which put the
+    // rail ahead of the name for an ATS. Grid keeps the markup's order.
+    const gridRail = theme.sidebarSide !== 'right' && !theme.railFirstInPdf
     return (
       <div
         id="resume-render"
+        data-fill-page={fillPage}
         style={{
           ...page,
           padding: 0,
-          display: 'flex',
+          display: gridRail ? 'grid' : 'flex',
           // DOM order below is MAIN COLUMN FIRST, so the candidate's name is the
           // first text on the page for a parser. The visual side is then set
           // here: 'row' puts the main column left and the rail right, so a rail
-          // on the LEFT needs the reverse.
+          // on the LEFT needs the reverse (or, since 2026-10-04, the grid).
           //
           // Absence means LEFT, deliberately: Technical Sidebar shipped in
           // TASK-149 with a left rail and does not set this field, and inverting
           // the default silently moved it — caught by measuring after the DOM
           // swap, not by reading.
-          flexDirection: theme.sidebarSide === 'right' ? 'row' : 'row-reverse',
+          ...(gridRail
+            ? { gridTemplateColumns: `${railW}px minmax(0, 1fr)` }
+            : { flexDirection: theme.sidebarSide === 'right' ? 'row' : 'row-reverse' }),
           alignItems: 'stretch',
         }}
       >
-        <div style={{ minWidth: 0, flex: 1, padding: '30px 30px 30px 26px', boxSizing: 'border-box' }}>
+        <div
+          style={{
+            minWidth: 0,
+            flex: 1,
+            padding: '30px 30px 30px 26px',
+            boxSizing: 'border-box',
+            ...(gridRail ? { gridColumn: '2', gridRow: '1' } : {}),
+          }}
+        >
           {header.displayName ? (
             <h1
               style={{
@@ -695,7 +1167,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
                 lineHeight: 1.14,
               }}
             >
-              {header.displayName}
+              {nameContent(theme.accent)}
             </h1>
           ) : null}
           {header.targetJobTitle ? (
@@ -717,12 +1189,13 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
         </div>
         <aside
           style={{
-            width: '238px',
+            width: `${railW}px`,
             flexShrink: 0,
-            background: theme.accent,
+            background: softRail ? theme.accentSoft : theme.accent,
             color: railInk,
             padding: '30px 22px',
             boxSizing: 'border-box',
+            ...(gridRail ? { gridColumn: '1', gridRow: '1' } : {}),
           }}
         >
           {showPhoto ? (
@@ -739,41 +1212,57 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
                 // and it bled over the rail edge.
                 width:
                   theme.photoShape === 'circle'
-                    ? `${Math.min(RAIL_CONTENT_W, Math.round(112 * photoScale))}px`
+                    ? `${Math.min(railContentW, Math.round(112 * photoScale))}px`
                     : '100%',
                 height:
                   theme.photoShape === 'circle'
-                    ? `${Math.min(RAIL_CONTENT_W, Math.round(112 * photoScale))}px`
+                    ? `${Math.min(railContentW, Math.round(112 * photoScale))}px`
                     : `${Math.round(132 * photoScale)}px`,
                 objectFit: 'cover',
                 borderRadius: photoRadius,
                 display: 'block',
                 margin: theme.photoShape === 'circle' ? '0 auto 16px' : '0 0 16px',
-                border: '2px solid rgba(255,255,255,0.85)',
+                border: theme.photoRing
+                  ? `4px solid ${softRail ? theme.accent : 'rgba(255,255,255,0.95)'}`
+                  : softRail
+                    ? '3px solid #FFFFFF'
+                    : '2px solid rgba(255,255,255,0.85)',
+                boxSizing: theme.photoRing || softRail ? 'border-box' : undefined,
               }}
             />
+          ) : initials ? (
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '0 0 16px' }}>
+              <Monogram
+                size={96}
+                background={softRail ? '#FFFFFF' : 'rgba(255,255,255,0.14)'}
+                color={softRail ? theme.accent : '#FFFFFF'}
+                border={softRail ? `2px solid ${theme.accent}` : '2px solid rgba(255,255,255,0.85)'}
+              />
+            </div>
           ) : null}
           {contactLine ? (
             <div style={{ marginBottom: `${14 * theme.density}px` }}>
-              <ContactList color={railInk} muted={railMuted} />
+              <ContactList color={softRail ? theme.accent : railInk} muted={railMuted} />
             </div>
           ) : null}
           {/* Reversed out of the rail, these sections need the rail's own ink,
               so they are rendered against a theme whose text colours are white
               rather than restyled ad hoc at each call site. */}
           {(() => {
-            const railTheme: TemplateTheme = {
-              ...theme,
-              ink: railInk,
-              muted: railMuted,
-              accent: railInk,
-              rule: 'rgba(255,255,255,0.35)',
-              accentSoft: 'rgba(255,255,255,0.14)',
-              headingStyle: theme.headingStyle === 'band' ? 'rule' : theme.headingStyle,
-            }
+            const railTheme: TemplateTheme = softRail
+              ? { ...theme, accentSoft: '#FFFFFF' }
+              : {
+                  ...theme,
+                  ink: railInk,
+                  muted: railMuted,
+                  accent: railInk,
+                  rule: 'rgba(255,255,255,0.35)',
+                  accentSoft: 'rgba(255,255,255,0.14)',
+                  headingStyle: theme.headingStyle === 'band' ? 'rule' : theme.headingStyle,
+                }
             return (
               <>
-                {skills.length > 0 ? renderSkills(railTheme, skills, label('skills')) : null}
+                {skills.length > 0 ? renderSkills(railTheme, skills, label('skills'), true) : null}
                 {certifications.length > 0
                   ? renderList(railTheme, certifications.map((c) => c.display), label('certifications'))
                   : null}
@@ -797,7 +1286,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
     // the main flow, in reading order, so flattening the columns for a parser
     // still yields a sane document.
     return (
-      <div id="resume-render" style={page}>
+      <div id="resume-render" data-fill-page={fillPage} style={page}>
         {HeaderBlock}
         <div style={{ display: 'flex', gap: '18px', alignItems: 'flex-start' }}>
           <aside
@@ -837,14 +1326,37 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
   }
 
   return (
-    <div id="resume-render" style={page}>
-      {theme.headerBand ? BandHeader : HeaderBlock}
-      {SummaryBlock}
-      {ExperienceBlock}
-      {EducationBlock}
-      {SkillsBlock}
-      {CertificationsBlock}
-      {AdditionalBlock}
+    <div id="resume-render" data-fill-page={fillPage} style={page}>
+      {theme.headerBand ? BandHeader : theme.headerVariant === 'centered' ? CenteredHeader : HeaderBlock}
+      {ContactStrip}
+      {theme.sectionOrder === 'skills-first' ? (
+        <>
+          {SummaryBlock}
+          {SkillsBlock}
+          {ExperienceBlock}
+          {EducationBlock}
+          {CertificationsBlock}
+          {AdditionalBlock}
+        </>
+      ) : theme.sectionOrder === 'credentials-first' ? (
+        <>
+          {SummaryBlock}
+          {CertificationsBlock}
+          {ExperienceBlock}
+          {EducationBlock}
+          {SkillsBlock}
+          {AdditionalBlock}
+        </>
+      ) : (
+        <>
+          {SummaryBlock}
+          {ExperienceBlock}
+          {EducationBlock}
+          {SkillsBlock}
+          {CertificationsBlock}
+          {AdditionalBlock}
+        </>
+      )}
     </div>
   )
 }

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { availableTemplates, getTemplate, type TemplateId } from '@/lib/templates'
+import { availableTemplates, getTemplate, TEMPLATE_FIELDS, type TemplateField, type TemplateId } from '@/lib/templates'
+import { cn } from '@/lib/utils'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
 
@@ -69,6 +70,52 @@ const LAYOUT = {
   rail: { cardW: 212, pageFraction: 0.66, wrap: 'flex flex-col items-center gap-3' },
 } as const
 
+/**
+ * The job fields that have at least one template, each with its count
+ * (2026-10-04). The registry is static, so this is worked out once.
+ */
+const FIELD_OPTIONS = TEMPLATE_FIELDS.map((f) => ({
+  ...f,
+  count: availableTemplates().filter((t) => t.fields.includes(f.key)).length,
+})).filter((f) => f.count > 0)
+
+/**
+ * A preview drawn only once its card is near the screen (2026-10-04).
+ *
+ * Every card renders the real template — a few hundred elements each — and
+ * there are fifty templates now. Drawing all fifty at once on a mid-range phone
+ * is the heaviest thing this screen could do, for cards nobody has scrolled to
+ * yet. The box keeps its size meanwhile, so nothing jumps.
+ */
+function LazyPreview({ height, children }: { height: number; children: React.ReactNode }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || shown) return
+    if (typeof IntersectionObserver === 'undefined') {
+      setShown(true)
+      return
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { rootMargin: '600px 0px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [shown])
+  return (
+    <span ref={ref} aria-hidden="true" className="relative block overflow-hidden bg-canvas" style={{ height }}>
+      {shown ? children : null}
+    </span>
+  )
+}
+
 export function TemplatePicker({
   document,
   current,
@@ -83,7 +130,11 @@ export function TemplatePicker({
   layout?: 'grid' | 'rail'
 }) {
   const [hovered, setHovered] = useState<TemplateId | null>(null)
-  const templates = availableTemplates()
+  const all = availableTemplates()
+  // FILTER BY FIELD (2026-10-04): fifty templates, each tagged with the job
+  // families it is designed for (FIELD_OPTIONS above).
+  const [field, setField] = useState<TemplateField | 'all'>('all')
+  const templates = field === 'all' ? all : all.filter((t) => t.fields.includes(field))
   // Card width has to be known in JS (the preview is scaled to it), so the
   // phone layout is chosen by a media query rather than by CSS alone.
   const [phone, setPhone] = useState(false)
@@ -128,86 +179,128 @@ export function TemplatePicker({
   // never touched, so the page is clipped rather than squashed.
   const previewH = Math.round(innerW * (PAGE_H / PAGE_W) * pageFraction)
 
-  return (
-    <div ref={wrapRef} role="group" aria-label="Resume templates" className={wrap}>
-      {templates.map((t) => {
-        const Template = getTemplate(t.id).component
-        const isCurrent = t.id === current
-        const isBusy = busyId === t.id
-        return (
-          <button
-            key={t.id}
-            type="button"
-            aria-pressed={isCurrent}
-            aria-label={`${t.name} — ${t.description}`}
-            disabled={isBusy}
-            // Width pinned to the preview, so the scaled page fills its card
-            // exactly and cannot sit off to one side (TASK-148).
-            style={{ width: cardW }}
-            onClick={() => onSelect(t.id)}
-            onMouseEnter={() => setHovered(t.id)}
-            onMouseLeave={() => setHovered(null)}
-            className={
-              'group flex flex-col overflow-hidden rounded-card border bg-white text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ' +
-              (isCurrent
-                ? 'border-teal ring-2 ring-teal/30'
-                : 'border-line hover:border-teal/60')
-            }
-          >
-            {/* The preview: a real render, clipped to a page-shaped window. */}
-            <span
-              aria-hidden="true"
-              className="relative block overflow-hidden bg-canvas"
-              style={{ height: previewH }}
-            >
-              <span
-                className="absolute left-0 top-0 block origin-top-left"
-                style={{ width: PAGE_W, transform: `scale(${SCALE})` }}
-              >
-                <Template
-                  {...({
-                    document,
-                    profile: undefined,
-                    optimizedContent: undefined,
-                    skillsOrder: [],
-                    fieldVisibility: null,
-                  } as unknown as GulfPremiumProps)}
-                />
-              </span>
-              {hovered === t.id && !isCurrent ? (
-                <span className="absolute inset-0 bg-teal/10" />
-              ) : null}
-            </span>
+  const chip = (active: boolean) =>
+    cn(
+      'inline-flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+      active ? 'border-teal bg-teal text-white' : 'border-line-strong bg-white text-ink-soft hover:border-teal hover:text-teal',
+    )
 
-            <span className="flex flex-col gap-1 border-t border-line bg-white p-3">
-              {/* Wraps: at a phone's ~167px card the name and its badge squeezed
-                  each other onto two lines apiece ("Gulf / Premium", "IN / USE").
-                  The badge now drops under the name instead. */}
-              <span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-                <span className="text-[13px] font-bold text-ink">{t.name}</span>
-                {isCurrent ? (
-                  <span className="whitespace-nowrap rounded-[4px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-teal">
-                    In use
-                  </span>
-                ) : t.atsLevel === 'maximum' ? (
-                  <span className="whitespace-nowrap rounded-[4px] bg-canvas px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-soft">
-                    Max ATS
-                  </span>
-                ) : null}
-              </span>
-              {phone ? null : (
-                <>
-                  <span className="text-[12px] leading-snug text-ink-soft">{t.description}</span>
-                  <span className="text-[12px] text-ink-muted">Best for {t.recommendedFor.join(' · ')}</span>
-                </>
-              )}
-              <span className="mt-1 text-[12px] font-semibold text-teal">
-                {isBusy ? 'Applying…' : isCurrent ? 'Current template' : 'Use this template'}
-              </span>
-            </span>
+  return (
+    <div className="flex min-w-0 flex-col gap-3">
+      {layout === 'rail' && !phone ? (
+        // The desktop rail is 212px: seventeen chips would wrap to eight rows,
+        // so it gets the same choices as a compact dropdown.
+        <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">
+          Show templates for
+          <select
+            className="field py-2"
+            value={field}
+            onChange={(e) => setField(e.target.value as TemplateField | 'all')}
+          >
+            <option value="all">All fields ({all.length})</option>
+            {FIELD_OPTIONS.map((f) => (
+              <option key={f.key} value={f.key}>
+                {f.label} ({f.count})
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <div
+          role="group"
+          aria-label="Filter templates by field"
+          className={cn(
+            'flex gap-2',
+            // A swipeable row on a phone; wrapping chips where there is room.
+            phone ? '-mx-1 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden' : 'flex-wrap justify-center',
+          )}
+        >
+          <button type="button" aria-pressed={field === 'all'} onClick={() => setField('all')} className={chip(field === 'all')}>
+            All <span className={field === 'all' ? 'text-white/80' : 'text-ink-muted'}>{all.length}</span>
           </button>
-        )
-      })}
+          {FIELD_OPTIONS.map((f) => (
+            <button key={f.key} type="button" aria-pressed={field === f.key} onClick={() => setField(f.key)} className={chip(field === f.key)}>
+              {f.label} <span className={field === f.key ? 'text-white/80' : 'text-ink-muted'}>{f.count}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      <div ref={wrapRef} role="group" aria-label="Resume templates" className={wrap}>
+        {templates.map((t) => {
+          const Template = getTemplate(t.id).component
+          const isCurrent = t.id === current
+          const isBusy = busyId === t.id
+          return (
+            <button
+              key={t.id}
+              type="button"
+              aria-pressed={isCurrent}
+              aria-label={`${t.name} — ${t.description}`}
+              disabled={isBusy}
+              // Width pinned to the preview, so the scaled page fills its card
+              // exactly and cannot sit off to one side (TASK-148).
+              style={{ width: cardW }}
+              onClick={() => onSelect(t.id)}
+              onMouseEnter={() => setHovered(t.id)}
+              onMouseLeave={() => setHovered(null)}
+              className={
+                'group flex flex-col overflow-hidden rounded-card border bg-white text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ' +
+                (isCurrent
+                  ? 'border-teal ring-2 ring-teal/30'
+                  : 'border-line hover:border-teal/60')
+              }
+            >
+              {/* The preview: a real render, clipped to a page-shaped window. */}
+              <LazyPreview height={previewH}>
+                <span
+                  className="absolute left-0 top-0 block origin-top-left"
+                  style={{ width: PAGE_W, transform: `scale(${SCALE})` }}
+                >
+                  <Template
+                    {...({
+                      document,
+                      profile: undefined,
+                      optimizedContent: undefined,
+                      skillsOrder: [],
+                      fieldVisibility: null,
+                    } as unknown as GulfPremiumProps)}
+                  />
+                </span>
+                {hovered === t.id && !isCurrent ? (
+                  <span className="absolute inset-0 bg-teal/10" />
+                ) : null}
+              </LazyPreview>
+
+              <span className="flex flex-col gap-1 border-t border-line bg-white p-3">
+                {/* Wraps: at a phone's ~167px card the name and its badge squeezed
+                    each other onto two lines apiece ("Gulf / Premium", "IN / USE").
+                    The badge now drops under the name instead. */}
+                <span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                  <span className="text-[13px] font-bold text-ink">{t.name}</span>
+                  {isCurrent ? (
+                    <span className="whitespace-nowrap rounded-[4px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wider text-teal">
+                      In use
+                    </span>
+                  ) : t.atsLevel === 'maximum' ? (
+                    <span className="whitespace-nowrap rounded-[4px] bg-canvas px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-soft">
+                      Max ATS
+                    </span>
+                  ) : null}
+                </span>
+                {phone ? null : (
+                  <>
+                    <span className="text-[12px] leading-snug text-ink-soft">{t.description}</span>
+                    <span className="text-[12px] text-ink-muted">Best for {t.recommendedFor.join(' · ')}</span>
+                  </>
+                )}
+                <span className="mt-1 text-[12px] font-semibold text-teal">
+                  {isBusy ? 'Applying…' : isCurrent ? 'Current template' : 'Use this template'}
+                </span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

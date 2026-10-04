@@ -9,7 +9,8 @@
  * AI checks use fakes. Exits non-zero if any script fails, so CI can gate on it.
  *
  * Not here, deliberately: scripts/e2e-smoke.mjs (creates an account and spends
- * real AI calls against a configured deployment) and scripts/pdf-loadtest.ts.
+ * real AI calls against a configured deployment), scripts/pdf-loadtest.ts and
+ * scripts/verify-template-pdfs.ts (both need a local Chrome).
  */
 
 import { spawnSync } from 'node:child_process'
@@ -54,6 +55,7 @@ const TS_CHECKS = [
   'verify-mock-report.ts',
   'verify-resume.ts',
   'verify-engine-templates.ts',
+  'verify-template-quality.ts',
   'docx-smoke.ts',
 ]
 

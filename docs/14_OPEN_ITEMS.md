@@ -63,6 +63,28 @@ Full context: [`PLATFORM_AUDIT_2026-10-04.md`](PLATFORM_AUDIT_2026-10-04.md) §2
   covered properly by `scripts/verify-engine-templates.ts` (every switch set explicitly,
   every template, in `npm test`). Fix: set every key in `verify-resume.ts` explicitly
   and recapture its golden from the current code, or retire it in favour of the new check.
+- **T2 · Two left-rail designs give an ATS the rail before the name — needs a yes.**
+  Technical Sidebar and Creative GCC lay their left rail out as a reversed flex row,
+  which Chrome writes into the PDF in visual order: a parser reading the downloaded file
+  meets nationality, location and visa before the candidate's name. (The user-facing
+  "Check my PDF" still passes them — it looks for the name, not its position.) New left
+  rails use CSS grid: pixel-identical, name first. The switch is one line per theme —
+  delete `railFirstInPdf: true` in `components/templates/themes.ts` — then recapture
+  those two in `scripts/engine-templates.golden.json` and drop them from
+  `RAIL_FIRST_UNTIL_APPROVED` in `scripts/verify-template-pdfs.ts`. Held only because it
+  changes the files of already-delivered resumes (not how they look).
+- **T3 · Portrait Right and Consultant Right: the name block sits close to a right-hand
+  photo.** The 2026-10-04 designs fill the space (`nameFill`); these two were left exactly
+  as delivered. One theme line each if wanted.
+- **T4 · The landing page says "10 resume templates"** (`components/landing-v3/
+  LandingPage.tsx`) — there are 50. Left for the home and landing page discussion.
+- **T5 · The three original rail designs stop their colour where the text stops, in
+  the PDF only.** Technical Sidebar, Project Two-Column and Creative GCC: on screen the
+  rail runs the page height; in the downloaded PDF it ends with the content (the print
+  CSS releases the page height to avoid a blank second page). The new designs carry
+  `fillPage: true` and reach the foot of the page. The same one line on each of the three
+  themes fixes them, plus a baseline recapture. Held for a yes because it changes how
+  already-delivered PDFs look.
 
 ---
 

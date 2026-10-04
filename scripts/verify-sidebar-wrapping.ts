@@ -51,6 +51,11 @@ function check(name: string, cond: boolean) {
  * on the skill, not one that happens to appear elsewhere on the page.
  */
 function styleOfElementContaining(html: string, text: string): string | null {
+  return elementContaining(html, text)?.style ?? null
+}
+
+/** The tag name and inline style of the element that directly contains `text`. */
+function elementContaining(html: string, text: string): { name: string; style: string } | null {
   const escaped = text.replace(/\//g, '&#x2F;')
   const at = html.includes(text) ? html.indexOf(text) : html.indexOf(escaped)
   if (at < 0) return null
@@ -60,7 +65,7 @@ function styleOfElementContaining(html: string, text: string): string | null {
   if (tagEnd < 0 || tagEnd > at) return null
   const tag = html.slice(open, tagEnd)
   const m = /style="([^"]*)"/.exec(tag)
-  return m ? m[1] : ''
+  return { name: /^<([a-z0-9]+)/i.exec(tag)?.[1].toLowerCase() ?? '', style: m ? m[1] : '' }
 }
 
 /** Long enough that it cannot fit 194px at any sane font size. */
@@ -115,7 +120,22 @@ const EMPTY: OptimizedContent = {
 const doc = buildResumeDocument({ profile, optimizedContent: EMPTY, targetJobTitle: 'Target Role' })
 
 /** Templates whose rail is a fixed-width filled column. */
-const FILLED_SIDEBAR = ['technical_sidebar', 'project_twocol', 'creative_gcc']
+const FILLED_SIDEBAR = [
+  'technical_sidebar',
+  'project_twocol',
+  'creative_gcc',
+  // The 2026-10-04 set: rails in every skill style — chips, outline pills, a
+  // one-column list and a plain line — so each of them is held to the rule.
+  'pipeline_pro',
+  'blueprint_engineer',
+  'maintenance_master',
+  'qs_precision',
+  'audit_clarity',
+  'marina_creative',
+  'care_compass',
+  'tech_horizon',
+  'people_partner',
+]
 
 console.log('\nThe filled-sidebar templates still exist under the expected ids')
 for (const id of FILLED_SIDEBAR) {
@@ -156,9 +176,12 @@ for (const t of availableTemplates()) {
       `${t.id}: skills may break a long word`,
       skillStyles.every((style) => style !== null && /overflow-wrap:\s*anywhere/i.test(style)),
     )
+    // A chip is an inline flex item and must be capped; a list item or a
+    // paragraph is a block, which is the column's width by construction.
+    const skillElements = LONG_SKILLS.map((skill) => elementContaining(html, skill))
     check(
       `${t.id}: skills are capped to the column`,
-      skillStyles.every((style) => style !== null && /max-width:\s*100%/i.test(style)),
+      skillElements.every((el) => el !== null && (el.name !== 'span' || /max-width:\s*100%/i.test(el.style))),
     )
   }
 }

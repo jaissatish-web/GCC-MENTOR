@@ -12,6 +12,61 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-10-04 (late night) — 35 Gulf resume templates on the one engine (15 → 50)
+
+**Founder brief:** as a senior resume designer, research the leading builders' and
+Canva-style templates and find the designs that suit the Gulf market — engineering,
+technicians, supervisors, finance, marketing, construction, nursing and the other big
+hiring fields; most with a photo, because the Middle East expects one; premium-looking,
+attractively named; and working exactly like the fifteen we have — same download, same
+format, same changes, same application.
+
+**Decided:**
+- **Every new design is a theme on the shared engine, never a new component.** That is
+  the only way "works the same" is true by construction: one rendered document, one set
+  of visibility switches, one style panel, one PDF route, one ATS check. The engine grew
+  an optional vocabulary (masthead gradient and stripe, centred and card headers, page
+  edge, timeline, date chips, two-tone name, photo ring and rounded crop, boxed summary,
+  contact strip and two-column contacts, soft and sized rails, initials badge, paper
+  tint, section order, three heading and two skill styles) where **absent means the old
+  output** — so the fifteen are byte-identical, proven across all 32,768 visibility
+  combinations and 12 style variants each against a baseline captured from the unchanged
+  code.
+- **33 of the 35 show a photo.** Audit Clarity and Data Clarity are text-first for
+  multinational and analyst roles and show the candidate's initials instead; ATS Classic
+  stays the photo-free option it was.
+- **Names say who they are for** (Pipeline Pro, Clinical Care, Riyadh Banker, Hard Hat
+  Pro …) and each entry carries the job **fields** it suits. The picker filters by field —
+  a recommendation, never a restriction; "All" is the default.
+- **A left rail is placed with CSS grid, not a reversed flex row.** Found by building the
+  real PDFs: Chrome writes a reversed row in visual order, so an ATS met the rail's
+  personal details before the name. Grid is pixel-identical and keeps the name first.
+  Technical Sidebar and Creative GCC keep the old row until the founder approves the
+  switch (open items §T2) — it would change already-delivered files, though not how they
+  look. The initials badge, placed first with flex `order`, had the same fault for a
+  candidate without a photo ("RS" before the name): it is now placed by grid as well.
+- **A one-page CV's rail, edge or tint reaches the foot of the PDF page** (`fillPage`,
+  13 new designs): the print CSS had released the page height, so colour stopped where
+  the text did. Held to 276mm, 1mm under the printable height, so no blank page can
+  appear. The three original rail designs wait for a yes (open items §T5).
+- **Previews draw as they approach the screen.** Fifty full-page previews at once is too
+  much for a phone.
+
+**Verified:** every template's PDF built by the download code and read back with the
+user-facing ATS check, with and without a photo — 100 of 100 pass 8/8, one page, photo
+exactly where designed, name first (bar the two §T2 designs); grid rail and grid badge
+pixel-identical to what they replaced;
+markup checks (name first, no "undefined", photo rules, every section) on all 50 in
+`npm test`; the gallery and workspace picker in a browser at 390px and 1280px (field
+chips and counts, desktop dropdown, choosing a new design saves and re-renders the CV).
+
+**Research basis:** Resume Genius (design, two-column and Canva template guides), Enhancv
+2026, VisualCV (UAE, Saudi and GCC CV guides), LoopCV (Gulf CV format), ATS Verification
+(UAE applicants), The Interview Guys, Weekday (2026 trends), Graphic Design Junction
+(2026 templates), Metaintro. Patterns only — every design is original.
+
+---
+
 ## 2026-10-04 (night) — The job workspace on a phone
 
 **Founder brief:** on `/package/[id]` at phone width, "Review and edit changes" ran out of

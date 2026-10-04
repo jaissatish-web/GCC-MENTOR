@@ -182,8 +182,9 @@ Traces to: open items §A1.
 **The user-facing complaint this traced to is resolved (2026-08-19)** — Gulf Premium is
 now styleable through its own dedicated logic, not this port. What remains here is purely
 architectural: one rendering implementation instead of two. Must be byte-identical if
-ever done, because already-delivered resumes were rendered with the current one — the
-32,768-combination baseline is what proves that.
+ever done, because already-delivered resumes were rendered with the current one —
+`scripts/verify-engine-templates.ts --full` (every switch set explicitly, Gulf Premium
+included) is what proves that; `verify-resume.ts` alone does not (open items §T1).
 Traces to: open items §B3 · CTO or a carefully-specified Hermes job · Large.
 
 ### W7 · Migrate the colour tokens to their correct names

@@ -11,8 +11,8 @@ applied and the AI-written text merged in.
 **Every template renders that document. No template derives its own data.**
 
 This is the single most valuable structural decision in this part of the codebase.
-It is why 15 templates cost roughly what one costs, why a rendering bug is fixed
-once rather than fifteen times, and why an exhaustive correctness baseline is even
+It is why 50 templates cost roughly what one costs, why a rendering bug is fixed
+once rather than fifty times, and why an exhaustive correctness baseline is even
 possible.
 
 **Never copy a template's original data-shaping logic along with its visuals.** That
@@ -26,7 +26,8 @@ is precisely the mistake this structure exists to prevent.
 description, a category and a `styleable` flag. Templates are resolved **through the
 registry everywhere** — never by a hard-coded component reference.
 
-**15 templates:**
+**50 templates** — the fifteen below, plus the 35 Gulf designs added on 2026-10-04
+(next subsection):
 
 | | Template | User-adjustable style | Photo |
 |---|---|---|---|
@@ -46,7 +47,8 @@ registry everywhere** — never by a hard-coded component reference.
 | 14 | Project Two-Column | Yes | Yes |
 | 15 | Creative GCC | Yes | Yes |
 
-13 of the 15 run on a **shared rendering engine** (`components/templates/engine.tsx`).
+13 of these 15, and all 35 added since, run on a **shared rendering engine**
+(`components/templates/engine.tsx`) — 48 of the 50.
 Gulf Premium and ATS Classic are hand-written with an explicit face, size and colour
 on every element, so a shared style override has nothing to cascade into.
 
@@ -83,6 +85,109 @@ toggle** (`ResumeStyleOverrides.showPhoto`) sits alongside the existing photo-si
 slider in the style panel on every photo-capable template, including Gulf Premium — it
 can only ever hide a photo a template and a resume would otherwise show, never
 conjure one from nothing.
+
+### The 2026-10-04 set — 35 Gulf designs, one engine
+
+Founder brief: research the leading resume builders and Canva-style galleries, find the
+designs that suit the Gulf market — engineering, technicians, supervisors, finance,
+marketing, construction, nursing and the other big hiring fields — mostly WITH a photo,
+premium-looking, and make them work exactly like the existing fifteen.
+
+**What the research said a Gulf CV needs** (UAE, Saudi and GCC CV guides, ATS guides,
+2026 design round-ups): a photo is still expected; nationality, visa status, notice
+period and location belong at the top; one or two pages; a clean reading order for the
+ATS most large employers use; and, from the design galleries, the patterns that read as
+premium without hurting parsing — a coloured masthead, a filled side column, a career
+timeline, skill pills, centred serif headers. **Every design here is original**: no
+third-party markup, artwork, icons or fonts, web-safe fonts only.
+
+**Each one is a theme — data, not code** (`components/templates/themes.ts`) — so it gets
+everything the fifteen have, by construction: the same rendered document and visibility
+switches, the same font / size / accent / photo-size / show-photo controls, the same
+saved choice (`template_id`, validated by `isTemplateId`, no migration), the same PDF
+route and "Check my PDF". 33 show a photo; Audit Clarity and Data Clarity are
+text-first and show the candidate's initials instead.
+
+| | Template | Best for | Photo |
+|---|---|---|---|
+| 16 | Desert Steel | Engineers, Oil & Gas, heavy industry | Yes |
+| 17 | Pipeline Pro | Piping & mechanical, EPC, Oil & Gas | Yes |
+| 18 | Blueprint Engineer | Civil & structural, design engineers, consultants | Yes |
+| 19 | Power Grid | Electrical engineers, I&C, utilities | Yes |
+| 20 | Offshore Navy | Offshore & marine, drilling, Oil & Gas | Yes |
+| 21 | Commissioning Lead | Commissioning, start-up, operations leads | Yes |
+| 22 | Field Technician | Electricians, instrument technicians, HVAC | Yes |
+| 23 | Workshop Pro | Mechanics, welders, fabricators | Yes |
+| 24 | Maintenance Master | Maintenance, planners, plant technicians | Yes |
+| 25 | Skilled Trades | Carpenters & masons, plumbers, operators & drivers | Yes |
+| 26 | Site Supervisor | Site supervisors, foremen, safety supervisors | Yes |
+| 27 | Hard Hat Pro | Construction, site crews, safety officers | Yes |
+| 28 | QS Precision | Quantity surveyors, cost engineers, planners | Yes |
+| 29 | HSE Shield | HSE officers, safety managers, fire & safety | Yes |
+| 30 | Project Director | Project, construction and engineering managers | Yes |
+| 31 | Ledger Classic | Accountants, auditors, finance officers | Yes |
+| 32 | Riyadh Banker | Banking, investment, relationship managers | Yes |
+| 33 | Audit Clarity | Audit, financial analysts, multinationals | Initials |
+| 34 | CFO Signature | Finance managers, CFOs, controllers | Yes |
+| 35 | Marina Creative | Marketing, communications, PR | Yes |
+| 36 | Spotlight Sales | Sales executives, business development | Yes |
+| 37 | Brand Story | Digital marketing, social media, content | Yes |
+| 38 | Clinical Care | Registered nurses, nurse specialists, midwives | Yes |
+| 39 | Medical Pearl | Doctors, pharmacists, allied health | Yes |
+| 40 | Care Compass | Nursing assistants, caregivers, patient care | Yes |
+| 41 | Lab Precision | Lab technicians, radiographers, pharmacy technicians | Yes |
+| 42 | Oasis Hospitality | Hotels, F&B, front office | Yes |
+| 43 | Retail Star | Retail, customer service, cashiers | Yes |
+| 44 | Tech Horizon | Software, networks, IT support | Yes |
+| 45 | Data Clarity | Data & ERP analysts, systems | Initials |
+| 46 | Office Elegance | Admin & secretaries, reception, PRO | Yes |
+| 47 | People Partner | HR, recruitment, training | Yes |
+| 48 | Logistics Route | Supply chain, warehouse, drivers | Yes |
+| 49 | Scholar Classic | Teachers, lecturers, trainers | Yes |
+| 50 | Falcon Executive | C-suite, general managers, country heads | Yes |
+
+**New theme vocabulary, all optional — absent means the old output**, which is why the
+original fifteen are byte-identical (§6): `headerVariant` (`centered` | `card`),
+`bandGradient` and `bandStripe` (masthead shading and accent stripe), `pageEdge` (an 8px
+accent edge, left or top), `experienceStyle: 'timeline'`, `dateStyle: 'chip'`,
+`nameStyle: 'two-tone'` (surname in a second colour), `photoRing`, `photoShape:
+'rounded'`, `summaryStyle: 'boxed'`, `contactBar`, `contactColumns: 2`, `nameFill`,
+`railStyle: 'soft'` and `railWidth`, `monogram` (initials when no photo — after the
+name in the markup), `paper` (a near-white page tint), `fillPage` (below),
+`sectionOrder` (`skills-first` | `credentials-first`), heading styles `pill` / `bar` /
+`marker` and skill styles `outline` / `list`.
+
+**A left rail is placed with CSS grid, not a reversed flex row.** Chrome writes a
+reversed row into the PDF in *visual* order, so an ATS reading the downloaded file met
+the rail's nationality, location and visa before the name, although the markup had the
+name first. Grid keeps the markup's order; measured pixel-identical to the old row (0
+differing pixels on one- and two-page PDFs and on screen). Technical Sidebar and
+Creative GCC keep the old row (`railFirstInPdf`) until the switch is approved —
+[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md) §T2.
+
+**The initials badge is placed the same way, for the same reason.** It stands where a
+photo would, but it is text: placed first with flex `order`, the PDF read "RS" before the
+name for a candidate without a photo. It now follows the name in the markup and is put
+on the left or on top by grid — pixel-identical, name first.
+
+**`fillPage`: a one-page CV's colour reaches the foot of the page.** In print the PDF
+route releases the page's on-screen height (a full A4 box inside the 10mm margins
+spilled a blank second page), so a filled rail, a left page edge or a paper tint stopped
+where the text did — about three-quarters down. A design with `fillPage` carries
+`data-fill-page`, and `lib/pdf/renderPackage.ts` holds it to 276mm in print: 1mm under
+the printable 277mm, so no rounding can spill a page. Longer CVs grow past it as before.
+Set on the 13 new designs where it shows; the three original rail designs stop early as
+they always have, until approved ([`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md) §T5).
+
+**Fields and the picker filter.** Each registry entry carries `fields` — the job
+families it suits (`TEMPLATE_FIELDS`: Engineering, Oil & Gas, Technician, Construction,
+Supervisor, HSE & Safety, Nursing & Healthcare, Finance & Banking, Sales & Marketing,
+Hospitality & Retail, IT & Data, Admin & HR, Logistics & Drivers, Education, Executive,
+Fresh graduate). The picker filters by them: a swipeable chip row on a phone, wrapping
+chips in the gallery, a dropdown in the workspace's narrow desktop rail, each with its
+count. A recommendation, never a restriction — "All" is the default. Previews draw only
+as they near the screen (an IntersectionObserver, 600px ahead), so fifty full-page
+previews do not render at once on a phone.
 
 ### Why version, and not only id
 
@@ -184,6 +289,16 @@ Tailwind config. **Those two files must be kept in step by hand.**
 Shipping Chromium to the serverless function is a real deployment constraint with two
 traps — see [`03_ARCHITECTURE.md`](03_ARCHITECTURE.md) §7.
 
+**The PDF's text order is Chrome's paint order, not the markup's.** A layout trick that
+is invisible on screen can still reorder what an ATS reads from the file — a reversed
+flex row did (§2, the 2026-10-04 set). `scripts/verify-template-pdfs.ts` builds every
+template's PDF with the download code itself (`lib/pdf/renderPackage.ts`, a database
+stand-in, the photo over HTTP) and reads it back with the user-facing ATS check — every
+template twice, with a photo and for a candidate without one: all 100 files pass 8/8,
+one page, the photo exactly where the design shows one, the name the first text (two
+known exceptions above). It needs a local Chrome, so it is run by hand when a
+template is added or the engine changes, not from `npm test`.
+
 ---
 
 ## 6. The exhaustive baseline
@@ -205,3 +320,29 @@ that already-delivered resumes still render the way they were delivered.
 with no overrides supplied (the baseline's own fixture never passes any) —
 `VERIFY PASS — all 32768 permutations produce byte-identical HTML`. That is the actual
 evidence behind "already-delivered resumes are unaffected", not just the intent.
+
+**Correction, 2026-10-04 — that baseline never hid a field.** `scripts/verify-resume.ts`
+sets only the switches that are ON; a missing key means SHOWN (`visible()` in
+`lib/resumeDocument.ts`), so every one of the 32,768 "permutations" renders the same full
+CV — `scripts/resume.golden.txt` holds one distinct hash 32,768 times. It still proves
+the full CV unchanged; it does not prove the hidden-field paths. Fixing it is
+[`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md) §T1.
+
+**Every template is now baselined, Gulf Premium included, with every switch set
+explicitly on or off** — `scripts/verify-engine-templates.ts` and
+`scripts/engine-templates.golden.json`. One realistic Gulf CV
+(`scripts/fixtures/templateFixture.ts`) under every visibility combination (`--full`,
+32,768 per template) or a fixed 512-combination sample (default, in `npm test`), plus 12
+style-override variants, folded into one digest per template. A template missing from
+the golden file fails, so a new design is captured on purpose (`--golden`), never by
+accident. Before the 2026-10-04 engine work the baseline was captured from the
+unchanged code; afterwards **all 15 original templates passed `--full` — identical
+across all 32,768 combinations and 12 style variants each** — and only then were the
+35 new designs added to it.
+
+**And every template is checked for being right, not only unchanged** —
+`scripts/verify-template-quality.ts` (in `npm test`): no "undefined"/"NaN" printed or
+hidden in a style attribute, the name the first text whenever it is shown, the photo
+exactly when the design, the resume, the switch and the user's toggle all allow it, and
+every section present — under 20 visibility combinations with the photo shown and
+hidden, and under each of the 16 font, size, accent and photo-size choices.

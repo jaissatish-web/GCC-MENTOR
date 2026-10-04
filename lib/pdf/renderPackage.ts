@@ -141,6 +141,11 @@ export async function renderPackagePdf(opts: {
     @media print {
       #resume-render { padding-top: 0 !important; padding-bottom: 0 !important; min-height: 0 !important; }
       #resume-render > header { margin-top: 0 !important; }
+      /* A design that fills the page (engine.tsx fillPage, 2026-10-04) keeps a
+         rail, edge or tint to the foot of a one-page CV: 297mm less the two
+         10mm margins is 277mm, and 1mm under it so rounding can never spill a
+         blank page. A longer CV grows past it as before. */
+      #resume-render[data-fill-page] { min-height: 276mm !important; }
     }
   </style>
 </head>

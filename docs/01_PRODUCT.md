@@ -65,7 +65,10 @@ Everything in this section is built, deployed and working.
   data.
 - Per-field visibility control over what appears on a CV.
 - Profile photo upload, stored privately.
-- **15 resume templates**, adjustable font, size and accent colour on 13 of them.
+- **50 resume templates** (35 Gulf designs added 2026-10-04 — engineering, oil & gas,
+  technicians, construction, HSE, nursing, finance, marketing and more), filterable by
+  job field; 47 take a photo; adjustable font, size, accent and photo size on 49 of them
+  (ATS Classic is fixed on purpose).
 - Hard-delete of all personal data from Settings.
 
 **Meant to be paid — currently open to everyone**
