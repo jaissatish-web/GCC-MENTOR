@@ -238,7 +238,11 @@ export function ScoreCards({
         <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-teal">Gulf Readiness</span>
         <ScoreRing value={gulf ? gulf.finalScore : null} size={92} tone={tone?.ring ?? 'teal'} suffix="/100" label="Gulf Readiness" />
         <span className={cn('rounded-full px-2.5 py-0.5 text-[13px] font-bold leading-snug', tone?.chip ?? 'bg-canvas text-ink-muted')}>
-          {gulf ? gulf.verdict.label : 'Working it out…'}
+          {/* The verdict alone ("Almost ready"). Its full label adds the reason
+              ("— 2 paperwork steps to check"), which the line below already
+              counts — shown twice, the chip wrapped to three lines on a phone
+              (audit 2026-10-04, D5). The Gulf Readiness screen keeps the full label. */}
+          {gulf ? gulf.verdict.label.split(' — ')[0] : 'Working it out…'}
         </span>
         <span className="text-[12px] leading-snug text-ink-soft">
           {!gulf

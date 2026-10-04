@@ -12,6 +12,23 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-10-04 (late) — Design audit of the queued design items
+
+**Founder brief:** audit the design items as a senior web-design auditor; build what is
+necessary and safe, hold what is doubtful, push the rest to `main`.
+
+**Built:** D1 phone reading sizes (signed-in app, phones only: 10/11→12, 12→13,
+12.5→13.5px; 16px stage picker; 44px standalone links), D5 the Gulf Readiness score card
+shows the verdict alone ("Almost ready") because the line under it already counts the
+steps — the full label stays on the readiness screen, D7 sidebar labels wrap rather than
+truncate. All measured in a browser at 390px and 1280px.
+
+**Held** (see `WORK_QUEUE.md` §D): D2 footer colour (conflicts with the `alert` = "not
+built yet" convention), D3 and D4 (reverse layouts approved the same day), D6 (the
+dashboard readiness cards are documented as load-bearing).
+
+---
+
 ## 2026-10-04 — The Career Profile becomes an overview with its own screens
 
 **Founder brief:** "the profile page looks very messy — segregate it." Keep the top (photo

@@ -133,7 +133,9 @@ function NavItem({
       )}
     >
       <Icon className={cn('size-5 shrink-0', active ? 'text-teal' : 'text-ink-muted', mark === 'locked' && !active && 'opacity-60')} />
-      <span className="flex-1 truncate">{item.label}</span>
+      {/* Wraps rather than truncating: "Resume Optimizer" beside the "Next"
+          tag was cut to "Resume Opti…" (audit 2026-10-04, D7). */}
+      <span className="min-w-0 flex-1 leading-tight">{item.label}</span>
       {mark === 'next' ? (
         <span className="shrink-0 rounded-full bg-gold px-2 py-0.5 text-[12px] font-bold leading-tight text-ink">Next</span>
       ) : null}

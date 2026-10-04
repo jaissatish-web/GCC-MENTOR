@@ -21,26 +21,25 @@ item is checked at 390px and 1280px in a browser before it is approved.
 
 ### D · Design only — no core logic
 
-- **D1 · Put the phone reading sizes live.** Merge `fc45aaf` (phone text 12→13px, the
-  16px stage picker, two 44px tap areas) to `main`. Files: `app/globals.css`,
-  `components/layout/AppShell.tsx`, `components/package/StageSelect.tsx`,
-  `components/package/PreparationJourney.tsx`, `app/dashboard/page.tsx`.
-- **D2 · Neutral "Card checkout is not live yet" line.** It is alert-red in the in-app
-  footer on every signed-in screen. Keep the words (they are true), drop the red, or show
-  it only where prices appear. File: `components/layout/AppFooter.tsx`.
-- **D3 · Profile explainer card once.** Full card on the first visit; afterwards one line
-  that opens it. Remembered per browser only (a convenience, never state that matters).
-  File: `components/profile/ProfileOverview.tsx` (`ProfileExplainer`).
-- **D4 · Shorter Gulf Readiness screen on phones** (~5 screens today). Verdict and the
-  next three actions first; "score by area" and strengths behind a tap. Same result
-  object, same links. File: `components/profile/GulfReadinessView.tsx`.
-- **D5 · One paperwork line on the Gulf Readiness score card.** The verdict and the line
-  under it both name paperwork. File: `components/profile/ProfileOverview.tsx`
-  (`ScoreCards`).
-- **D6 · Dashboard shows the score with a next step**, not both scores again under the
-  profile's own cards. Same numbers, same links. File: `app/dashboard/page.tsx`.
-- **D7 · Desktop sidebar label "Resume Opti…" is cut off** beside the "Next" tag. File:
-  `components/layout/Sidebar.tsx`.
+Reviewed 2026-10-04 as a design audit. **Done and live:** D1 (phone reading sizes, 16px
+stage picker, 44px links), D5 (score-card chip shows the verdict only; the readiness
+screen keeps the full label), D7 (sidebar labels wrap instead of "Resume Opti…"). The
+four below are **held for a founder decision** — each either conflicts with a written
+rule or reverses something asked for the same day.
+
+- **D2 · Neutral "Card checkout is not live yet" line — HELD.** The design system
+  assigns `alert` to "not built yet" (`12_DESIGN_SYSTEM.md` §00), and the line exists
+  for the honesty rule. Changing its colour changes a written convention; needs the
+  founder's call. File: `components/layout/AppFooter.tsx`.
+- **D3 · Profile explainer card once — HELD.** The founder asked for this card on
+  2026-10-04; folding it on later visits should be their decision after living with it.
+  File: `components/profile/ProfileOverview.tsx`.
+- **D4 · Shorter Gulf Readiness screen on phones — HELD.** Approved in its current
+  block format the same day; hiding parts behind taps is a layout change the founder
+  should see first. File: `components/profile/GulfReadinessView.tsx`.
+- **D6 · Dashboard shows one score — HELD.** The dashboard's readiness cards are the
+  primary "your profile is incomplete" call to action (`11_USER_JOURNEYS.md` §3: "treat
+  it as load-bearing"). File: `app/dashboard/page.tsx`.
 
 ### C · Security and AI-call control — touches server code, CTO review required
 
