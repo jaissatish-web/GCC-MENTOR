@@ -27,6 +27,20 @@ truncate. All measured in a browser at 390px and 1280px.
 built yet" convention), D3 and D4 (reverse layouts approved the same day), D6 (the
 dashboard readiness cards are documented as load-bearing).
 
+**Then confirmed by the founder ("finish these also") and built the same evening:**
+- **D2** — the in-app footer's "Card checkout is not live yet" is neutral `ink-soft`
+  (bold), not `alert` red. A deliberate exception to "red = not built yet", for the one
+  line on every signed-in screen; the public footer keeps `NotLiveText`.
+- **D3** — the profile explainer shows in full on the first visit, then folds to one
+  tappable line ("How it works"), with "Hide" when reopened. Remembered per browser only.
+- **D4** — Gulf Readiness: finished paperwork is one "Done:" line; the first 4 profile
+  fixes show (was 6); "score by area" and strengths move to the end and, on phones, open
+  on a tap (always shown at ≥640px). Phone height 4,197px → 3,037px.
+- **D6** — the dashboard's two score cards (a Gulf Readiness widget and a Profile
+  complete bar) are replaced by the profile overview's own `ScoreCards`: the same rings,
+  each opening its screen, so the "complete your profile" call to action stays.
+  `components/gulfReadiness/LiveReadiness.tsx` had no other user and was removed.
+
 ---
 
 ## 2026-10-04 — The Career Profile becomes an overview with its own screens

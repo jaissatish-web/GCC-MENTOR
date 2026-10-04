@@ -1,18 +1,18 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Pill } from '@/components/ui/Pill'
 import { StageExplainer, StageRail } from '@/components/journey/JourneyStepper'
 import { stageById, stageSnapshot, stageStates } from '@/components/journey/stages'
-import { LiveReadiness } from '@/components/gulfReadiness/LiveReadiness'
+import { ScoreCards } from '@/components/profile/ProfileOverview'
 import { buttonVariants } from '@/components/ui/Button'
 import { cn, displayFirstName, GULF_COUNTRIES, packageStatusLabel, resumeLabel } from '@/lib/utils'
 import { cvReady, letterCount, mockDone, qaReady, type PackageListPage, type PackageSummary } from '@/lib/packageSummary'
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
-import { answersFromReadinessCategory, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
+import { answersFromReadinessCategory, scoreProfileReadiness, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
 /**
@@ -70,6 +70,7 @@ function relativeTime(iso: string): string {
 // `job_match` there when a JD was provided). Display-only — no computation.
 
 export default function DashboardPage() {
+  const router = useRouter()
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [packages, setPackages] = useState<PackageSummary[]>([])
@@ -161,6 +162,8 @@ export default function DashboardPage() {
   // it is reconstructed from the same category the completeness engine already
   // derived. Same engine, same number the user saw; shown only once a profile exists.
   const gulfAnswers = readiness ? answersFromReadinessCategory(readiness.category) : null
+  // Same pure arithmetic the profile page runs — no network, no model call.
+  const gulf = gulfAnswers && profile ? scoreProfileReadiness(scoringInputFromProfile(profile), gulfAnswers) : null
   const packageCount = packageTotal ?? packages.length
 
   // Next best action — one action, chosen from real state.
@@ -324,34 +327,33 @@ export default function DashboardPage() {
             </section>
           ) : null}
 
-          {/* ── One answer first (Gulf Readiness v2, 2026-10-01): the readiness
-              verdict leads; profile completeness is the progress bar beside it. ── */}
-          <aside className={cn('grid min-w-0 gap-4', listedJobs.length > 0 ? 'content-start' : 'md:grid-cols-2')}>
-            {gulfAnswers ? (
-              <LiveReadiness answers={gulfAnswers} profile={scoringInputFromProfile(profile)} detailsHref="/profile?view=readiness" />
-            ) : null}
-
-            <section aria-labelledby="strength-h" className="flex flex-col gap-3 rounded-card border border-line bg-white p-5 shadow-m-1">
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 id="strength-h" className="text-[14px] font-semibold text-ink">
-                  Profile complete
-                </h2>
-                <span className="font-display text-[26px] font-semibold leading-none text-teal">{score}%</span>
-              </div>
-              <p className="-mt-1 text-[13px] text-ink-muted">How complete your Career Profile is.</p>
-              <ProgressBar value={score} tone="light" getValueLabel={(v) => `${v} out of 100`} />
-              <p className="text-[13px] text-ink-soft">
-                {missing.length === 0
-                  ? 'Every section is complete.'
-                  : `${missing.length} thing${missing.length === 1 ? '' : 's'} to add: ${missing
-                      .slice(0, 3)
-                      .map((m) => m.label.toLowerCase())
-                      .join(', ')}${missing.length > 3 ? '…' : '.'}`}
-              </p>
-              <Link href="/profile" className="-my-2 inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-teal hover:underline">
-                {missing.length === 0 ? 'View Career Profile →' : 'Complete my profile →'}
-              </Link>
-            </section>
+          {/* ── Both scores, ONE block (founder 2026-10-04, D6) ──
+              The same two cards as the Career Profile overview — a ring and a
+              number each — instead of two differently-built cards repeating
+              what the profile shows. Each still opens the screen where it is
+              raised, so this stays the "your profile is incomplete" call to
+              action (11_USER_JOURNEYS.md §3: load-bearing). */}
+          <aside aria-labelledby="scores-h" className="flex min-w-0 flex-col gap-2">
+            <h2 id="scores-h" className="text-[15px] font-bold text-ink">
+              Your profile scores
+            </h2>
+            <ScoreCards
+              className="m-0"
+              completeness={{
+                score,
+                itemsLeft: missing.length,
+                detail:
+                  missing.length === 0
+                    ? 'Every section is complete'
+                    : `Add: ${missing
+                        .slice(0, 2)
+                        .map((m) => m.label.toLowerCase())
+                        .join(', ')}${missing.length > 2 ? '…' : ''}`,
+              }}
+              gulf={gulf}
+              onOpenCompleteness={() => router.push('/profile?view=completeness')}
+              onOpenReadiness={() => router.push('/profile?view=readiness')}
+            />
           </aside>
         </div>
       ) : null}

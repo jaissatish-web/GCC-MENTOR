@@ -1,11 +1,13 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import {
   AdjustmentsHorizontalIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
   BriefcaseIcon,
   ChatBubbleLeftRightIcon,
+  ChevronDownIcon,
   CheckCircleIcon,
   ClockIcon,
   DocumentMagnifyingGlassIcon,
@@ -122,16 +124,73 @@ const USED_BY = ['Resume Optimizer', 'Job match', 'Cover letter', 'Interview Q&A
  * the product actually keeps (docs/12_DESIGN_SYSTEM.md "Truth rules"): written
  * from the profile; anything new is shown first and kept only if confirmed.
  */
+const EXPLAINER_SEEN_KEY = 'gcc.profile.explainerSeen'
+
+/** Per-browser memory only — a convenience. Blocked storage reads as "not seen". */
+function explainerSeen(): boolean {
+  try {
+    return typeof window !== 'undefined' && window.localStorage.getItem(EXPLAINER_SEEN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+/**
+ * SHOWN IN FULL ONCE (founder 2026-10-04, D3). The full card is about a phone
+ * screen tall; on every later visit it folds to one line that opens it again,
+ * so a returning user lands on their scores, not on the explanation they have
+ * already read.
+ */
 export function ProfileExplainer() {
+  const [seenBefore] = useState(explainerSeen)
+  const [open, setOpen] = useState(!seenBefore)
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(EXPLAINER_SEEN_KEY, '1')
+    } catch {
+      /* storage blocked: the card simply shows in full next time too */
+    }
+  }, [])
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-expanded={false}
+        aria-controls="profile-explainer"
+        className="mx-5 mt-4 flex min-h-12 items-center gap-3 rounded-card bg-gradient-to-r from-teal to-teal-bright px-4 py-2.5 text-left text-white shadow-m-1 transition-shadow hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+      >
+        <ShieldCheckIcon className="size-5 shrink-0" aria-hidden="true" />
+        <span className="min-w-0 flex-1 text-[13.5px] font-semibold leading-snug">Your profile is the base for everything we make</span>
+        <span className="flex shrink-0 items-center gap-1 text-[12.5px] font-bold text-white/90">
+          How it works
+          <ChevronDownIcon className="size-4" aria-hidden="true" />
+        </span>
+      </button>
+    )
+  }
+
   return (
     <section
+      id="profile-explainer"
       aria-labelledby="profile-explainer-h"
       className="relative mx-5 mt-4 overflow-hidden rounded-card-lg bg-gradient-to-br from-teal via-teal to-teal-bright p-4 text-white shadow-m-2 sm:p-6"
     >
+      {seenBefore ? (
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-expanded={true}
+          className="absolute right-2 top-2 z-10 inline-flex min-h-11 items-center rounded-ctl px-3 text-[12.5px] font-bold text-white/90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          Hide
+        </button>
+      ) : null}
       {/* One soft pool of light, top right — the panel's only decoration. */}
       <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-gold/25 blur-3xl" />
       <div className="relative flex flex-col gap-4">
-        <div className="flex items-start gap-3">
+        <div className={cn('flex items-start gap-3', seenBefore && 'pr-14')}>
           <span className="flex size-10 shrink-0 items-center justify-center rounded-ctl bg-white/15">
             <ShieldCheckIcon className="size-6 text-white" aria-hidden="true" />
           </span>
@@ -203,19 +262,23 @@ export function ScoreCards({
   gulf,
   onOpenCompleteness,
   onOpenReadiness,
+  className,
 }: {
-  completeness: { score: number; itemsLeft: number; sectionsDone: number; sectionsCounted: number }
+  /** `detail` is the line under the count, e.g. "5 of 8 key sections done". */
+  completeness: { score: number; itemsLeft: number; detail: string }
   /** Null for the moment before it is computed — shown as "—", never as 0. */
   gulf: GulfReadinessResult | null
   onOpenCompleteness: () => void
   onOpenReadiness: () => void
+  /** Replaces the outer spacing (the dashboard sets its own). */
+  className?: string
 }) {
   const tone = gulf ? VERDICT_TONE[gulf.verdict.key] : null
   const paperworkLeft = gulf ? gulf.mustHaves.filter((m) => m.status !== 'ok').length : 0
   const profileFixes = gulf ? gulf.recommendations.filter((r) => (r.stage ?? 'profile') === 'profile').length : 0
 
   return (
-    <section aria-label="Your two scores" className="mx-5 mt-4 grid grid-cols-2 gap-3 sm:gap-4">
+    <section aria-label="Your two scores" className={cn('grid grid-cols-2 gap-3 sm:gap-4', className ?? 'mx-5 mt-4')}>
       <button type="button" onClick={onOpenCompleteness} className={cn(CARD_BUTTON, 'border-teal/20 from-teal-soft')}>
         <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-teal">Profile complete</span>
         <ScoreRing value={completeness.score} size={92} label="Profile complete" />
@@ -224,9 +287,7 @@ export function ScoreCards({
             ? 'Nothing left to add'
             : `${completeness.itemsLeft} item${completeness.itemsLeft === 1 ? '' : 's'} left`}
         </span>
-        <span className="text-[12px] leading-snug text-ink-soft">
-          {completeness.sectionsDone} of {completeness.sectionsCounted} key sections done
-        </span>
+        <span className="text-[12px] leading-snug text-ink-soft">{completeness.detail}</span>
         <CardLink>{completeness.itemsLeft === 0 ? 'See my sections' : "See what's missing"}</CardLink>
       </button>
 

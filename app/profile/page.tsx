@@ -2243,7 +2243,7 @@ function ProfileScreen() {
         {hasProfile && profileFacts ? (
           <>
             <ScoreCards
-              completeness={{ score: readiness.score, itemsLeft, sectionsDone: doneCount, sectionsCounted: keyCount }}
+              completeness={{ score: readiness.score, itemsLeft, detail: `${doneCount} of ${keyCount} key sections done` }}
               gulf={gulfReadiness}
               onOpenCompleteness={() => showView('completeness')}
               onOpenReadiness={() => showView('readiness')}

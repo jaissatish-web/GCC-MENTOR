@@ -43,6 +43,10 @@ still match the PDF. **Form fields are 16px on phones** (`.field`, and `StageSel
 iOS Safari zooms the page on any field smaller than that. Standalone text links get a
 44px tap area (`inline-flex min-h-11 items-center`).
 
+**One exception to "red = not built yet" (2026-10-04):** the signed-in footer's "Card
+checkout is not live yet" is neutral bold text — at the foot of every screen, red payment
+text read as a warning. Everywhere else `NotLive` / `NotLiveText` stay red.
+
 ### Buttons — one meaning each
 
 `primary`/`purchase` (gold, ink text) = the page's one main action · `progress` (teal)

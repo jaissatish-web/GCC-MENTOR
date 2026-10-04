@@ -105,7 +105,8 @@ dates.
 ## Post-signup Career Profile build — partly built 2026-08-18
 
 **Built:** the profile→readiness adapter (`lib/gulfReadiness/fromProfile.ts`, same engine,
-9 assertions), the live-readiness widget (`components/gulfReadiness/LiveReadiness.tsx`),
+9 assertions), the live readiness score (since 2026-10-04 the shared `ScoreCards` in
+`components/profile/ProfileOverview.tsx`, on the dashboard and the profile),
 and the Scorecard-handoff restore in `/onboarding` so the resume text is carried forward —
 neither tier re-uploads. GCC Readiness uses the same arithmetic engine as the anonymous
 scan.

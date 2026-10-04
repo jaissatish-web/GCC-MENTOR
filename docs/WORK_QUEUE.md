@@ -19,27 +19,11 @@ each item may touch. **D items are presentation only** — they must not change 
 API calls, validation, saving, scoring or permissions (`02_PHILOSOPHY.md` §5). Every D
 item is checked at 390px and 1280px in a browser before it is approved.
 
-### D · Design only — no core logic
+### D · Design only — all done 2026-10-04
 
-Reviewed 2026-10-04 as a design audit. **Done and live:** D1 (phone reading sizes, 16px
-stage picker, 44px links), D5 (score-card chip shows the verdict only; the readiness
-screen keeps the full label), D7 (sidebar labels wrap instead of "Resume Opti…"). The
-four below are **held for a founder decision** — each either conflicts with a written
-rule or reverses something asked for the same day.
-
-- **D2 · Neutral "Card checkout is not live yet" line — HELD.** The design system
-  assigns `alert` to "not built yet" (`12_DESIGN_SYSTEM.md` §00), and the line exists
-  for the honesty rule. Changing its colour changes a written convention; needs the
-  founder's call. File: `components/layout/AppFooter.tsx`.
-- **D3 · Profile explainer card once — HELD.** The founder asked for this card on
-  2026-10-04; folding it on later visits should be their decision after living with it.
-  File: `components/profile/ProfileOverview.tsx`.
-- **D4 · Shorter Gulf Readiness screen on phones — HELD.** Approved in its current
-  block format the same day; hiding parts behind taps is a layout change the founder
-  should see first. File: `components/profile/GulfReadinessView.tsx`.
-- **D6 · Dashboard shows one score — HELD.** The dashboard's readiness cards are the
-  primary "your profile is incomplete" call to action (`11_USER_JOURNEYS.md` §3: "treat
-  it as load-bearing"). File: `app/dashboard/page.tsx`.
+D1–D7 shipped (phone reading sizes, neutral in-app checkout notice, explainer shown in
+full once, shorter Gulf Readiness screen, verdict-only score chip, one score block on the
+dashboard, wrapping sidebar labels). Record: `15_DECISION_LOG.md` 2026-10-04 (late).
 
 ### C · Security and AI-call control — touches server code, CTO review required
 

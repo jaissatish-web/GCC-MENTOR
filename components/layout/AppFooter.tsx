@@ -115,8 +115,13 @@ async function CompactFooter() {
             </Link>
           ))}
         </div>
+        {/* Neutral, not alert red, inside the app (founder 2026-10-04, D2): at
+            the foot of every signed-in screen, red text about payment read as
+            a warning to an audience wary of scams. Same words — still true —
+            in the footer's own colour, weighted so it is not missed. The
+            public footer keeps NotLiveText. */}
         <p>
-          <NotLiveText>Card checkout is not live yet</NotLiveText> — a purchase is arranged directly with us.
+          <span className="font-semibold text-ink-soft">Card checkout is not live yet</span> — a purchase is arranged directly with us.
         </p>
       </div>
     </footer>

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import {
   ArrowRightIcon,
   CheckCircleIcon,
+  ChevronDownIcon,
   ClipboardDocumentCheckIcon,
   DocumentTextIcon,
   ExclamationTriangleIcon,
@@ -36,7 +37,7 @@ import type { DimensionKey, GulfReadinessResult, MustHave, Recommendation } from
  * Every "fix" opens the exact field or section in the full profile.
  */
 
-const PROFILE_PREVIEW = 6
+const PROFILE_PREVIEW = 4
 
 const MUST_HAVE_META: Record<MustHave['status'], { text: string; chip: string; rule: string }> = {
   ok: { text: 'Done', chip: 'bg-ok-soft text-ok', rule: 'border-l-ok' },
@@ -108,6 +109,7 @@ export function GulfReadinessView({
 }) {
   const [openSteps, setOpenSteps] = useState<Record<string, boolean>>({})
   const [allProfile, setAllProfile] = useState(false)
+  const [showDetail, setShowDetail] = useState(false)
 
   if (!gulf) {
     return (
@@ -124,6 +126,8 @@ export function GulfReadinessView({
   const mustHaves = gulf.mustHaves
   const paperworkLeft = mustHaves.filter((m) => m.status !== 'ok').length
   const paperworkDone = mustHaves.length > 0 && paperworkLeft === 0
+  const doneMustHaves = mustHaves.filter((m) => m.status === 'ok')
+  const openMustHaves = mustHaves.filter((m) => m.status !== 'ok')
   const gainOnOffer = profileRecs.reduce((n, r) => n + (r.gain ?? 0), 0)
 
   const go = (r: Pick<Recommendation, 'field' | 'dimension'>) => {
@@ -181,48 +185,6 @@ export function GulfReadinessView({
         ) : null}
       </section>
 
-      {/* BY AREA — the six dimensions as a bar chart */}
-      <section aria-labelledby="areas-h" className="rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-5">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id="areas-h" className="text-[15px] font-bold text-ink">
-            Your score by area
-          </h2>
-          {gainOnOffer > 0 ? (
-            <span className="text-[12px] font-semibold text-gold-ink">About +{gainOnOffer} pts on offer below</span>
-          ) : null}
-        </div>
-        <ul className="mt-4 flex flex-col gap-3.5">
-          {gulf.dimensions.map((d) => {
-            const pct = d.max === 0 ? 0 : Math.round((d.score / d.max) * 100)
-            return (
-              <li key={d.key} className="flex flex-col gap-1">
-                <div className="flex items-baseline justify-between gap-3 text-[13px]">
-                  <span className="font-semibold text-ink">
-                    {d.label}
-                    {d.confidence === 'low' ? (
-                      <span className="ml-2 text-[12px] font-normal text-ink-muted">rough estimate</span>
-                    ) : null}
-                  </span>
-                  <span className="shrink-0 font-mono text-ink-soft">
-                    {d.score}/{d.max}
-                  </span>
-                </div>
-                <div
-                  className="h-2.5 overflow-hidden rounded-full bg-canvas"
-                  role="progressbar"
-                  aria-valuemin={0}
-                  aria-valuemax={d.max}
-                  aria-valuenow={d.score}
-                  aria-label={d.label}
-                >
-                  <div className={cn('h-full rounded-full transition-[width] duration-700 motion-reduce:transition-none', barTone(pct))} style={{ width: `${pct}%` }} />
-                </div>
-              </li>
-            )
-          })}
-        </ul>
-      </section>
-
       {/* 1 · PAPERWORK */}
       <section className="flex flex-col gap-3">
         <StageTitle
@@ -234,9 +196,20 @@ export function GulfReadinessView({
         />
         {mustHaves.length === 0 ? (
           <QuietNote>No paperwork applies to you here.</QuietNote>
-        ) : (
+        ) : null}
+        {/* Finished items fold into one line (D4): a full card each for
+            "Sorted — nothing to do here" pushed the open items down. */}
+        {doneMustHaves.length > 0 ? (
+          <p className="flex items-start gap-2 rounded-ctl border border-ok/25 bg-ok-soft/60 px-3.5 py-2.5 text-[13px] leading-snug text-ink-soft">
+            <CheckCircleIcon className="mt-0.5 size-4 shrink-0 text-ok" aria-hidden="true" />
+            <span>
+              <span className="font-bold text-ok">Done:</span> {doneMustHaves.map((m) => m.label).join(' · ')}
+            </span>
+          </p>
+        ) : null}
+        {openMustHaves.length > 0 ? (
           <ul className="grid gap-2.5 sm:grid-cols-2">
-            {mustHaves.map((m) => {
+            {openMustHaves.map((m) => {
               const meta = MUST_HAVE_META[m.status]
               const open = !!openSteps[m.key]
               return (
@@ -245,45 +218,36 @@ export function GulfReadinessView({
                     <span className="text-[14px] font-bold text-ink">{m.label}</span>
                     <span className={cn('rounded-full px-2.5 py-0.5 text-[12px] font-bold', meta.chip)}>{meta.text}</span>
                   </div>
-                  {m.status === 'ok' ? (
-                    <p className="flex items-center gap-1.5 text-[12.5px] text-ok">
-                      <CheckCircleIcon className="size-4" aria-hidden="true" />
-                      Sorted — nothing to do here.
-                    </p>
-                  ) : (
-                    <>
-                      <p className="text-[12.5px] leading-relaxed text-ink-soft">{m.why}</p>
-                      {open ? (
-                        <ol className="ml-5 list-decimal space-y-1 text-[12.5px] leading-relaxed text-ink-soft">
-                          {m.steps.map((s, i) => (
-                            <li key={i}>{s}</li>
-                          ))}
-                        </ol>
-                      ) : null}
-                      <div className="mt-auto flex flex-wrap items-center gap-x-4">
-                        <button
-                          type="button"
-                          aria-expanded={open}
-                          onClick={() => setOpenSteps((s) => ({ ...s, [m.key]: !open }))}
-                          className="-mx-1 inline-flex min-h-11 items-center px-1 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-                        >
-                          {open ? 'Hide the steps' : 'How to do it'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => onFix(m.field)}
-                          className="-mx-1 inline-flex min-h-11 items-center px-1 text-[12.5px] font-bold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-                        >
-                          {m.status === 'unknown' ? 'Answer in your profile →' : 'Update your status →'}
-                        </button>
-                      </div>
-                    </>
-                  )}
+                  <p className="text-[12.5px] leading-relaxed text-ink-soft">{m.why}</p>
+                  {open ? (
+                    <ol className="ml-5 list-decimal space-y-1 text-[12.5px] leading-relaxed text-ink-soft">
+                      {m.steps.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ol>
+                  ) : null}
+                  <div className="mt-auto flex flex-wrap items-center gap-x-4">
+                    <button
+                      type="button"
+                      aria-expanded={open}
+                      onClick={() => setOpenSteps((s) => ({ ...s, [m.key]: !open }))}
+                      className="-mx-1 inline-flex min-h-11 items-center px-1 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                    >
+                      {open ? 'Hide the steps' : 'How to do it'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onFix(m.field)}
+                      className="-mx-1 inline-flex min-h-11 items-center px-1 text-[12.5px] font-bold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                    >
+                      {m.status === 'unknown' ? 'Answer in your profile →' : 'Update your status →'}
+                    </button>
+                  </div>
                 </li>
               )
             })}
           </ul>
-        )}
+        ) : null}
       </section>
 
       {/* 2 · PROFILE */}
@@ -358,48 +322,106 @@ export function GulfReadinessView({
         </div>
       </section>
 
-      {/* STRENGTHS / WHAT HOLDS IT BACK */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <section aria-labelledby="strengths-h" className="rounded-card border border-ok/25 bg-white p-4 shadow-m-1">
-          <h2 id="strengths-h" className="flex items-center gap-1.5 text-[13px] font-bold uppercase tracking-wide text-ok">
-            <CheckCircleIcon className="size-4" aria-hidden="true" />
-            Working in your favour
-          </h2>
-          <ul className="mt-3 flex flex-col gap-2">
-            {gulf.strengths.length ? (
-              gulf.strengths.map((s, i) => (
-                <li key={i} className="flex gap-2 text-[13px] leading-snug text-ink-soft">
-                  <span aria-hidden="true" className="text-ok">
-                    ✓
-                  </span>
-                  {s}
+      {/* THE DETAIL — score by area and strengths (founder 2026-10-04, D4).
+          The screen was about five phone screens; the verdict and the steps
+          come first, and on a phone this part opens on a tap. On larger
+          screens it is always shown. */}
+      <button
+        type="button"
+        onClick={() => setShowDetail((v) => !v)}
+        aria-expanded={showDetail}
+        aria-controls="readiness-detail"
+        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-card border border-line bg-white px-4 py-3 text-left text-[14px] font-bold text-ink shadow-m-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:hidden"
+      >
+        {showDetail ? 'Hide the score breakdown' : 'See your score by area and strengths'}
+        <ChevronDownIcon className={cn('size-5 shrink-0 text-teal transition-transform motion-reduce:transition-none', showDetail && 'rotate-180')} aria-hidden="true" />
+      </button>
+      <div id="readiness-detail" className={cn('flex-col gap-6', showDetail ? 'flex' : 'hidden', 'sm:flex')}>
+        {/* BY AREA — the six dimensions as a bar chart */}
+        <section aria-labelledby="areas-h" className="rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="areas-h" className="text-[15px] font-bold text-ink">
+              Your score by area
+            </h2>
+            {gainOnOffer > 0 ? (
+              <span className="text-[12px] font-semibold text-gold-ink">About +{gainOnOffer} pts on offer below</span>
+            ) : null}
+          </div>
+          <ul className="mt-4 flex flex-col gap-3.5">
+            {gulf.dimensions.map((d) => {
+              const pct = d.max === 0 ? 0 : Math.round((d.score / d.max) * 100)
+              return (
+                <li key={d.key} className="flex flex-col gap-1">
+                  <div className="flex items-baseline justify-between gap-3 text-[13px]">
+                    <span className="font-semibold text-ink">
+                      {d.label}
+                      {d.confidence === 'low' ? (
+                        <span className="ml-2 text-[12px] font-normal text-ink-muted">rough estimate</span>
+                      ) : null}
+                    </span>
+                    <span className="shrink-0 font-mono text-ink-soft">
+                      {d.score}/{d.max}
+                    </span>
+                  </div>
+                  <div
+                    className="h-2.5 overflow-hidden rounded-full bg-canvas"
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={d.max}
+                    aria-valuenow={d.score}
+                    aria-label={d.label}
+                  >
+                    <div className={cn('h-full rounded-full transition-[width] duration-700 motion-reduce:transition-none', barTone(pct))} style={{ width: `${pct}%` }} />
+                  </div>
                 </li>
-              ))
-            ) : (
-              <li className="text-[13px] text-ink-muted">Nothing clear yet — the fixes above are where to start.</li>
-            )}
+              )
+            })}
           </ul>
         </section>
-        <section aria-labelledby="weak-h" className="rounded-card border border-alert/20 bg-white p-4 shadow-m-1">
-          <h2 id="weak-h" className="flex items-center gap-1.5 text-[13px] font-bold uppercase tracking-wide text-alert">
-            <ExclamationTriangleIcon className="size-4" aria-hidden="true" />
-            Holding your score back
-          </h2>
-          <ul className="mt-3 flex flex-col gap-2">
-            {gulf.weaknesses.length ? (
-              gulf.weaknesses.map((w, i) => (
-                <li key={i} className="flex gap-2 text-[13px] leading-snug text-ink-soft">
-                  <span aria-hidden="true" className="text-alert">
-                    !
-                  </span>
-                  {w}
-                </li>
-              ))
-            ) : (
-              <li className="text-[13px] text-ink-muted">No major gaps stood out.</li>
-            )}
-          </ul>
-        </section>
+
+        {/* STRENGTHS / WHAT HOLDS IT BACK */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <section aria-labelledby="strengths-h" className="rounded-card border border-ok/25 bg-white p-4 shadow-m-1">
+            <h2 id="strengths-h" className="flex items-center gap-1.5 text-[13px] font-bold uppercase tracking-wide text-ok">
+              <CheckCircleIcon className="size-4" aria-hidden="true" />
+              Working in your favour
+            </h2>
+            <ul className="mt-3 flex flex-col gap-2">
+              {gulf.strengths.length ? (
+                gulf.strengths.map((s, i) => (
+                  <li key={i} className="flex gap-2 text-[13px] leading-snug text-ink-soft">
+                    <span aria-hidden="true" className="text-ok">
+                      ✓
+                    </span>
+                    {s}
+                  </li>
+                ))
+              ) : (
+                <li className="text-[13px] text-ink-muted">Nothing clear yet — the fixes above are where to start.</li>
+              )}
+            </ul>
+          </section>
+          <section aria-labelledby="weak-h" className="rounded-card border border-alert/20 bg-white p-4 shadow-m-1">
+            <h2 id="weak-h" className="flex items-center gap-1.5 text-[13px] font-bold uppercase tracking-wide text-alert">
+              <ExclamationTriangleIcon className="size-4" aria-hidden="true" />
+              Holding your score back
+            </h2>
+            <ul className="mt-3 flex flex-col gap-2">
+              {gulf.weaknesses.length ? (
+                gulf.weaknesses.map((w, i) => (
+                  <li key={i} className="flex gap-2 text-[13px] leading-snug text-ink-soft">
+                    <span aria-hidden="true" className="text-alert">
+                      !
+                    </span>
+                    {w}
+                  </li>
+                ))
+              ) : (
+                <li className="text-[13px] text-ink-muted">No major gaps stood out.</li>
+              )}
+            </ul>
+          </section>
+        </div>
       </div>
 
       <p className="flex items-start gap-2 text-[12px] leading-relaxed text-ink-muted">
