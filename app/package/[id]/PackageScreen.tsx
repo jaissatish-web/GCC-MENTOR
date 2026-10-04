@@ -3,6 +3,7 @@ import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import {
   ArrowTrendingUpIcon,
+  ChevronDownIcon,
   ClipboardDocumentListIcon,
   MinusIcon,
   PlusIcon,
@@ -19,11 +20,17 @@ import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import {
   ACCENT_OPTIONS,
   FONT_OPTIONS,
+  HEADER_OPTIONS,
+  HIGHLIGHT_OPTIONS,
+  INK_OPTIONS,
   SIZE_OPTIONS,
   readStyleOverrides,
   PHOTO_DEFAULT,
   type AccentKey,
   type FontKey,
+  type HeaderKey,
+  type HighlightKey,
+  type InkKey,
   type ResumeStyleOverrides,
   type SizeKey,
 } from '@/lib/resumeStyle'
@@ -204,6 +211,8 @@ function PackageScreenInner({ id }: { id: string }) {
   const [draftStyle, setDraftStyle] = useState<ResumeStyleOverrides>({})
   const [savedStyle, setSavedStyle] = useState<ResumeStyleOverrides>({})
   const [styleBusy, setStyleBusy] = useState(false)
+  // Text style opens and closes (founder, 2026-10-04); closed by default.
+  const [styleOpen, setStyleOpen] = useState(false)
   const [styleMsg, setStyleMsg] = useState<string | null>(null)
   const [nameDraft, setNameDraft] = useState('')
   const [nameState, setNameState] = useState<string | null>(null)
@@ -513,6 +522,28 @@ function PackageScreenInner({ id }: { id: string }) {
   const isFree = resumeKind(pkg) === 'free'
   const styleable = getTemplate(activeTemplateId).styleable
   const allowsPhoto = getTemplate(activeTemplateId).allowsPhoto
+  // Highlight, borders and header act on the shared engine's designs; Gulf
+  // Premium's hand-built style has none of the three, and a side-column design
+  // carries the name in the column, with no header to change.
+  const activeTheme = getTemplate(activeTemplateId).theme
+  const boxStyling = Boolean(activeTheme)
+  const headerChoice = Boolean(activeTheme) && activeTheme?.layout !== 'sidebar-filled'
+  const highlightLabel = draftStyle.highlight ? HIGHLIGHT_OPTIONS[draftStyle.highlight].label : 'the template\'s own'
+  // One line for the closed Text style panel: what is set, in plain words.
+  const styleSummary = styleable
+    ? [
+        draftStyle.font && FONT_OPTIONS[draftStyle.font].label,
+        draftStyle.size && SIZE_OPTIONS[draftStyle.size].label,
+        draftStyle.accent && ACCENT_OPTIONS[draftStyle.accent].label,
+        draftStyle.ink && `${INK_OPTIONS[draftStyle.ink].label} text`,
+        draftStyle.highlight &&
+          (draftStyle.highlight === 'none' ? 'No highlight' : `${HIGHLIGHT_OPTIONS[draftStyle.highlight].label} highlight`),
+        draftStyle.lines === false && 'No borders',
+        draftStyle.header && `${HEADER_OPTIONS[draftStyle.header].label} header`,
+      ]
+        .filter(Boolean)
+        .join(' · ') || "The template's own style"
+    : 'Fixed for maximum ATS compatibility'
   /**
    * The document the picker previews.
    *
@@ -1240,202 +1271,336 @@ function PackageScreenInner({ id }: { id: string }) {
                 {/* ---- Text style (TASK-152) --------------------------------
                     Above the template list, because it applies to whichever
                     template is active and the user reaches for it after
-                    choosing one, not before. */}
+                    choosing one, not before.
+
+                    OPENS AND CLOSES (founder, 2026-10-04): with text colour,
+                    highlight, borders and header added it runs long on a phone,
+                    so it is closed by default and one line says what is set.
+                    The photo controls sit outside it, always in reach. */}
                 <div className="mt-4 border-t border-line pt-4">
-                  <h3 className="text-[12px] font-bold uppercase tracking-wider text-ink-soft">
-                    Text style
-                  </h3>
-                  {styleable ? (
-                    <>
-                      <StyleChoice
-                        label="Font"
-                        options={Object.entries(FONT_OPTIONS).map(([k, v]) => [k, v.label])}
-                        value={draftStyle.font ?? ''}
-                        onChange={(v) =>
-                          setDraftStyle((s) => ({ ...s, font: (v || undefined) as FontKey | undefined }))
-                        }
+                  <button
+                    type="button"
+                    aria-expanded={styleOpen}
+                    aria-controls="text-style-panel"
+                    onClick={() => setStyleOpen((o) => !o)}
+                    className="flex min-h-11 w-full items-center justify-between gap-3 rounded-ctl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                  >
+                    <span className="min-w-0">
+                      <span className="block text-[12px] font-bold uppercase tracking-wider text-ink-soft">
+                        Text style
+                      </span>
+                      <span className="mt-0.5 block text-[12px] text-ink-muted">{styleSummary}</span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-1 rounded-full border border-line-strong bg-white px-3 py-1.5 text-[12px] font-semibold text-teal shadow-m-1">
+                      {styleOpen ? 'Close' : 'Edit'}
+                      <ChevronDownIcon
+                        className={cn('size-4 transition-transform', styleOpen && 'rotate-180')}
+                        aria-hidden="true"
                       />
-                      <StyleChoice
-                        label="Size"
-                        options={Object.entries(SIZE_OPTIONS).map(([k, v]) => [k, v.label])}
-                        value={draftStyle.size ?? ''}
-                        onChange={(v) =>
-                          setDraftStyle((s) => ({ ...s, size: (v || undefined) as SizeKey | undefined }))
-                        }
-                      />
-                      <div className="mt-3">
-                        <span className="text-[12px] text-ink-muted">Colour</span>
-                        {/* 36px swatches with room between them: they were
-                            28px dots 6px apart, the smallest targets on the
-                            screen, and a miss picks the neighbouring colour. */}
-                        <div className="mt-1.5 flex flex-wrap gap-2.5">
-                          {Object.entries(ACCENT_OPTIONS).map(([k, v]) => {
-                            const active = draftStyle.accent === k
-                            return (
-                              <button
-                                key={k}
-                                type="button"
-                                title={v.label}
-                                aria-label={v.label}
-                                aria-pressed={active}
-                                onClick={() =>
-                                  setDraftStyle((s) => ({
-                                    ...s,
-                                    accent: active ? undefined : (k as AccentKey),
-                                  }))
-                                }
-                                style={{ background: v.hex }}
-                                className={
-                                  'size-9 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ' +
-                                  (active
-                                    ? 'ring-2 ring-teal ring-offset-2'
-                                    : 'ring-1 ring-line hover:ring-teal/60')
-                                }
-                              />
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Save/Undo moved up beside Download PDF (TASK-156). Only
-                          Reset stays here, because it belongs with the controls it
-                          clears rather than with the document's actions. */}
-                      {/* PHOTO — show/hide plus size, both TASK-158/2026-08-19.
-                          Hidden entirely when the template prints no photo, or
-                          the resume has none to show. A control that cannot
-                          move is worse than an absent one. */}
-                      {allowsPhoto && hasPhoto ? (
-                        <div className="mt-4">
-                          {/* SHOW PHOTO (2026-08-19, founder-directed). Only
-                              `false` is ever stored — see ResumeStyleOverrides's
-                              own doc — so unchecking writes `showPhoto: false`
-                              and re-checking removes the key entirely rather
-                              than writing `true`. */}
-                          <label className="flex min-h-11 cursor-pointer items-center justify-between text-[12px] text-ink-muted">
-                            <span className="text-ink-soft">Show photo</span>
-                            <input
-                              type="checkbox"
-                              checked={draftStyle.showPhoto !== false}
-                              onChange={(e) =>
-                                setDraftStyle((st) => {
-                                  const next = { ...st }
-                                  if (e.target.checked) delete next.showPhoto
-                                  else next.showPhoto = false
-                                  return next
-                                })
-                              }
-                              className="size-5 cursor-pointer accent-teal"
-                            />
-                          </label>
-
-                          {/* PHOTO SIZE (TASK-158). A slider rather than named
-                              steps because size is the one property where "a bit
-                              bigger" is the actual request, and a number is safe
-                              to accept: validated as an integer in range and only
-                              ever multiplied into a pixel dimension, so unlike a
-                              font name it has no route into arbitrary CSS.
-
-                              Hidden while the photo itself is toggled off — a
-                              size control for something invisible is confusing,
-                              not merely redundant. */}
-                          {draftStyle.showPhoto !== false ? (
-                            <div className="mt-3 rounded-ctl border border-line bg-white p-3 shadow-m-1">
-                              {/* A SIZE BAR, LIKE A VOLUME CONTROL (founder 2026-10-04).
-                                  The track was `bg-canvas` — the page's own colour —
-                                  so once this panel lost its white card on phones
-                                  only the thumb showed. Now: − and + buttons at the
-                                  ends (one step each), a thick bar that fills
-                                  teal→gold up to the size, and a big thumb. Same
-                                  0–100 value in steps of 5, saved exactly as before. */}
-                              <label
-                                htmlFor="photo-size"
-                                className="flex items-baseline justify-between text-[13px] font-semibold text-ink"
-                              >
-                                <span>Photo size</span>
-                                <span className="rounded-full bg-teal-soft px-2 py-0.5 font-mono text-[12px] font-bold text-teal">
-                                  {photoPos}%{photoPos === PHOTO_DEFAULT ? ' · default' : ''}
-                                </span>
-                              </label>
-                              <div className="mt-2 flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  aria-label="Smaller photo"
-                                  disabled={photoPos <= 0}
-                                  onClick={() => setDraftStyle((st) => ({ ...st, photo: Math.max(0, photoPos - 5) }))}
-                                  className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong bg-white text-teal shadow-m-1 transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-40"
-                                >
-                                  <MinusIcon className="size-5" aria-hidden="true" />
-                                </button>
-                                <input
-                                  id="photo-size"
-                                  type="range"
-                                  min={0}
-                                  max={100}
-                                  step={5}
-                                  value={photoPos}
-                                  onChange={(e) =>
-                                    setDraftStyle((st) => ({ ...st, photo: Number(e.target.value) }))
-                                  }
-                                  style={{ '--fill': `${photoPos}%` } as React.CSSProperties}
-                                  className="range-bar min-w-0 flex-1"
-                                />
-                                <button
-                                  type="button"
-                                  aria-label="Larger photo"
-                                  disabled={photoPos >= 100}
-                                  onClick={() => setDraftStyle((st) => ({ ...st, photo: Math.min(100, photoPos + 5) }))}
-                                  className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong bg-white text-teal shadow-m-1 transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-40"
-                                >
-                                  <PlusIcon className="size-5" aria-hidden="true" />
-                                </button>
-                              </div>
-                              <div className="mt-1.5 flex justify-between px-[52px] text-[12px] text-ink-muted">
-                                <span>Smaller</span>
-                                <span>Larger</span>
-                              </div>
+                    </span>
+                  </button>
+                  {styleOpen ? (
+                    <div id="text-style-panel" className="pb-1">
+                      {styleable ? (
+                        <>
+                          <StyleChoice
+                            label="Font"
+                            options={Object.entries(FONT_OPTIONS).map(([k, v]) => [k, v.label])}
+                            value={draftStyle.font ?? ''}
+                            onChange={(v) =>
+                              setDraftStyle((s) => ({ ...s, font: (v || undefined) as FontKey | undefined }))
+                            }
+                          />
+                          <StyleChoice
+                            label="Size"
+                            options={Object.entries(SIZE_OPTIONS).map(([k, v]) => [k, v.label])}
+                            value={draftStyle.size ?? ''}
+                            onChange={(v) =>
+                              setDraftStyle((s) => ({ ...s, size: (v || undefined) as SizeKey | undefined }))
+                            }
+                          />
+                          <div className="mt-3">
+                            <span className="text-[12px] text-ink-muted">Accent colour</span>
+                            {/* 36px swatches with room between them: they were
+                                28px dots 6px apart, the smallest targets on the
+                                screen, and a miss picks the neighbouring colour. */}
+                            <div className="mt-1.5 flex flex-wrap gap-2.5">
+                              {Object.entries(ACCENT_OPTIONS).map(([k, v]) => {
+                                const active = draftStyle.accent === k
+                                return (
+                                  <button
+                                    key={k}
+                                    type="button"
+                                    title={v.label}
+                                    aria-label={v.label}
+                                    aria-pressed={active}
+                                    onClick={() =>
+                                      setDraftStyle((s) => ({
+                                        ...s,
+                                        accent: active ? undefined : (k as AccentKey),
+                                      }))
+                                    }
+                                    style={{ background: v.hex }}
+                                    className={
+                                      'size-9 rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ' +
+                                      (active
+                                        ? 'ring-2 ring-teal ring-offset-2'
+                                        : 'ring-1 ring-line hover:ring-teal/60')
+                                    }
+                                  />
+                                )
+                              })}
                             </div>
-                          ) : null}
-                        </div>
-                      ) : null}
-
-                      {styleDirty ? (
-                        <p className="mt-3 text-[12px] text-ink-muted">
-                          Unsaved — use <strong className="text-ink-soft">Save style</strong> at the
-                          top.
-                        </p>
-                      ) : hasStyle ? (
-                        <button
-                          type="button"
-                          disabled={styleBusy}
-                          onClick={() => {
-                            setDraftStyle({})
-                            void saveStyle({})
-                          }}
-                          className={'mt-3 ' + buttonVariants({ variant: 'ghost', size: 'sm' })}
-                        >
-                          Reset to template default
-                        </button>
+                          </div>
+                          {/* TEXT COLOUR (founder, 2026-10-04): body text and
+                              secondary lines darker for print. Headings keep
+                              the accent colour — Black is one of those too. */}
+                          <StyleChoice
+                            label="Text colour"
+                            options={Object.entries(INK_OPTIONS).map(([k, v]) => [k, v.label])}
+                            value={draftStyle.ink ?? ''}
+                            onChange={(v) =>
+                              setDraftStyle((s) => ({ ...s, ink: (v || undefined) as InkKey | undefined }))
+                            }
+                          />
+                          {boxStyling ? (
+                            <>
+                              {/* HIGHLIGHT: the shading behind the summary box,
+                                  a header card, skill and date tags and heading
+                                  bars. None keeps the lines; Borders below
+                                  takes those away too. */}
+                              <div className="mt-3">
+                                <span className="text-[12px] text-ink-muted">
+                                  Highlight · <span className="text-ink-soft">{highlightLabel}</span>
+                                </span>
+                                <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
+                                  <button
+                                    type="button"
+                                    aria-pressed={!draftStyle.highlight}
+                                    onClick={() => setDraftStyle((s) => ({ ...s, highlight: undefined }))}
+                                    className={
+                                      'min-h-11 rounded-ctl px-3 py-2 text-[13px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1 ' +
+                                      (!draftStyle.highlight
+                                        ? 'bg-teal text-white'
+                                        : 'border border-line bg-white text-ink-soft hover:border-teal/60')
+                                    }
+                                  >
+                                    Default
+                                  </button>
+                                  {Object.entries(HIGHLIGHT_OPTIONS).map(([k, v]) => {
+                                    const active = draftStyle.highlight === k
+                                    return (
+                                      <button
+                                        key={k}
+                                        type="button"
+                                        title={v.label}
+                                        aria-label={k === 'none' ? 'No highlight' : `${v.label} highlight`}
+                                        aria-pressed={active}
+                                        onClick={() =>
+                                          setDraftStyle((s) => ({
+                                            ...s,
+                                            highlight: active ? undefined : (k as HighlightKey),
+                                          }))
+                                        }
+                                        style={k === 'none' ? undefined : { background: v.soft }}
+                                        className={
+                                          'relative size-9 overflow-hidden rounded-full bg-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 ' +
+                                          (active
+                                            ? 'ring-2 ring-teal ring-offset-2'
+                                            : 'ring-1 ring-line-strong hover:ring-teal/60')
+                                        }
+                                      >
+                                        {k === 'none' ? (
+                                          // White, struck through: "no shading".
+                                          <span
+                                            aria-hidden="true"
+                                            className="absolute left-1/2 top-1/2 h-0.5 w-8 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-alert"
+                                          />
+                                        ) : null}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                              {/* BORDERS: only `false` is ever stored, as with
+                                  Show photo — drawing them is the default. */}
+                              <label className="mt-2 flex min-h-11 cursor-pointer items-center justify-between gap-3 text-[12px] text-ink-muted">
+                                <span>
+                                  <span className="block text-ink-soft">Lines &amp; borders</span>
+                                  <span className="block">Box edges, tag outlines and heading lines</span>
+                                </span>
+                                <input
+                                  type="checkbox"
+                                  checked={draftStyle.lines !== false}
+                                  onChange={(e) =>
+                                    setDraftStyle((st) => {
+                                      const next = { ...st }
+                                      if (e.target.checked) delete next.lines
+                                      else next.lines = false
+                                      return next
+                                    })
+                                  }
+                                  className="size-5 shrink-0 cursor-pointer accent-teal"
+                                />
+                              </label>
+                              {headerChoice ? (
+                                <StyleChoice
+                                  label="Header"
+                                  options={Object.entries(HEADER_OPTIONS).map(([k, v]) => [k, v.label])}
+                                  value={draftStyle.header ?? ''}
+                                  onChange={(v) =>
+                                    setDraftStyle((s) => ({ ...s, header: (v || undefined) as HeaderKey | undefined }))
+                                  }
+                                />
+                              ) : null}
+                            </>
+                          ) : (
+                            <p className="mt-3 text-[12px] leading-relaxed text-ink-muted">
+                              {getTemplate(activeTemplateId).name} has no shaded boxes or coloured header, so
+                              highlight, border and header choices apply to the other designs.
+                            </p>
+                          )}
+                        </>
                       ) : (
-                        <p className="mt-2 text-[12px] text-ink-muted">
-                          Using the template&apos;s own style.
+                        // Honest rather than decorative (2026-08-19: now true of
+                        // only ATS Classic — Gulf Premium gained its own controls).
+                        // Its fixed, colourless, photo-less style IS the product:
+                        // maximum ATS compatibility. A styling control — the photo
+                        // especially — would work against the one thing this
+                        // template sells, so it stays fixed on purpose.
+                        <p className="mt-2 text-[12px] leading-relaxed text-ink-muted">
+                          <strong className="text-ink-soft">{getTemplate(activeTemplateId).name}</strong>{' '}
+                          keeps a fixed, colourless style on purpose — that is what maximum ATS
+                          compatibility means. Pick any other template below for a photo, font, size and
+                          colour choices.
                         </p>
                       )}
-                    </>
-                  ) : (
-                    // Honest rather than decorative (2026-08-19: now true of
-                    // only ATS Classic — Gulf Premium gained its own controls).
-                    // Its fixed, colourless, photo-less style IS the product:
-                    // maximum ATS compatibility. A styling control — the photo
-                    // especially — would work against the one thing this
-                    // template sells, so it stays fixed on purpose.
-                    <p className="mt-2 text-[12px] leading-relaxed text-ink-muted">
-                      <strong className="text-ink-soft">{getTemplate(activeTemplateId).name}</strong>{' '}
-                      keeps a fixed, colourless style on purpose — that is what maximum ATS
-                      compatibility means. Pick any other template below for a photo, font, size and
-                      colour choices.
-                    </p>
-                  )}
+                    </div>
+                  ) : null}
                 </div>
+
+                {styleable && allowsPhoto && hasPhoto ? (
+                  <div className="mt-4 border-t border-line pt-4">
+                    <h3 className="text-[12px] font-bold uppercase tracking-wider text-ink-soft">Photo</h3>
+                    {/* PHOTO — show/hide plus size, both TASK-158/2026-08-19.
+                        Hidden entirely when the template prints no photo, or
+                        the resume has none to show. A control that cannot
+                        move is worse than an absent one. */}
+                    {allowsPhoto && hasPhoto ? (
+                      <div className="mt-2">
+                        {/* SHOW PHOTO (2026-08-19, founder-directed). Only
+                            `false` is ever stored — see ResumeStyleOverrides's
+                            own doc — so unchecking writes `showPhoto: false`
+                            and re-checking removes the key entirely rather
+                            than writing `true`. */}
+                        <label className="flex min-h-11 cursor-pointer items-center justify-between text-[12px] text-ink-muted">
+                          <span className="text-ink-soft">Show photo</span>
+                          <input
+                            type="checkbox"
+                            checked={draftStyle.showPhoto !== false}
+                            onChange={(e) =>
+                              setDraftStyle((st) => {
+                                const next = { ...st }
+                                if (e.target.checked) delete next.showPhoto
+                                else next.showPhoto = false
+                                return next
+                              })
+                            }
+                            className="size-5 cursor-pointer accent-teal"
+                          />
+                        </label>
+
+                        {/* PHOTO SIZE (TASK-158). A slider rather than named
+                            steps because size is the one property where "a bit
+                            bigger" is the actual request, and a number is safe
+                            to accept: validated as an integer in range and only
+                            ever multiplied into a pixel dimension, so unlike a
+                            font name it has no route into arbitrary CSS.
+
+                            Hidden while the photo itself is toggled off — a
+                            size control for something invisible is confusing,
+                            not merely redundant. */}
+                        {draftStyle.showPhoto !== false ? (
+                          <div className="mt-3 rounded-ctl border border-line bg-white p-3 shadow-m-1">
+                            {/* A SIZE BAR, LIKE A VOLUME CONTROL (founder 2026-10-04).
+                                The track was `bg-canvas` — the page's own colour —
+                                so once this panel lost its white card on phones
+                                only the thumb showed. Now: − and + buttons at the
+                                ends (one step each), a thick bar that fills
+                                teal→gold up to the size, and a big thumb. Same
+                                0–100 value in steps of 5, saved exactly as before. */}
+                            <label
+                              htmlFor="photo-size"
+                              className="flex items-baseline justify-between text-[13px] font-semibold text-ink"
+                            >
+                              <span>Photo size</span>
+                              <span className="rounded-full bg-teal-soft px-2 py-0.5 font-mono text-[12px] font-bold text-teal">
+                                {photoPos}%{photoPos === PHOTO_DEFAULT ? ' · default' : ''}
+                              </span>
+                            </label>
+                            <div className="mt-2 flex items-center gap-2">
+                              <button
+                                type="button"
+                                aria-label="Smaller photo"
+                                disabled={photoPos <= 0}
+                                onClick={() => setDraftStyle((st) => ({ ...st, photo: Math.max(0, photoPos - 5) }))}
+                                className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong bg-white text-teal shadow-m-1 transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-40"
+                              >
+                                <MinusIcon className="size-5" aria-hidden="true" />
+                              </button>
+                              <input
+                                id="photo-size"
+                                type="range"
+                                min={0}
+                                max={100}
+                                step={5}
+                                value={photoPos}
+                                onChange={(e) =>
+                                  setDraftStyle((st) => ({ ...st, photo: Number(e.target.value) }))
+                                }
+                                style={{ '--fill': `${photoPos}%` } as React.CSSProperties}
+                                className="range-bar min-w-0 flex-1"
+                              />
+                              <button
+                                type="button"
+                                aria-label="Larger photo"
+                                disabled={photoPos >= 100}
+                                onClick={() => setDraftStyle((st) => ({ ...st, photo: Math.min(100, photoPos + 5) }))}
+                                className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong bg-white text-teal shadow-m-1 transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-40"
+                              >
+                                <PlusIcon className="size-5" aria-hidden="true" />
+                              </button>
+                            </div>
+                            <div className="mt-1.5 flex justify-between px-[52px] text-[12px] text-ink-muted">
+                              <span>Smaller</span>
+                              <span>Larger</span>
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {styleable ? (
+                  styleDirty ? (
+                    <p className="mt-3 text-[12px] text-ink-muted">
+                      Unsaved — use <strong className="text-ink-soft">Save style</strong> at the top.
+                    </p>
+                  ) : hasStyle ? (
+                    <button
+                      type="button"
+                      disabled={styleBusy}
+                      onClick={() => {
+                        setDraftStyle({})
+                        void saveStyle({})
+                      }}
+                      className={'mt-3 ' + buttonVariants({ variant: 'ghost', size: 'sm' })}
+                    >
+                      Reset to template default
+                    </button>
+                  ) : null
+                ) : null}
 
                 <div className="mt-4 border-t border-line pt-4">
                   <h3 className="mb-3 text-[12px] font-bold uppercase tracking-wider text-ink-soft">

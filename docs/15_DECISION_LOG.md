@@ -12,6 +12,42 @@ what was decided, and the reasoning that made it the right call.
 
 ---
 
+## 2026-10-04 (later still) — Pages that fill, long CVs, and a text style the user controls
+
+**Founder report and brief:** a downloaded CV (Clinical Care) left half of page 1
+blank and started Work Experience on page 2 — "unprofessional"; will these designs hold
+a five-, six- or seven-page CV; and the highlighted boxes and light text and header look
+faint in print, so let the user remove or change the highlight, take the border away,
+darken the text — in a Text style panel that opens and closes because it is long.
+
+**Decided:**
+- **A job may break across a page; only its title, employer and first point stay
+  together, and no point is split.** Keeping every job whole was the cause: a long
+  current role was pushed to the next page whole. Same rule in the engine, Gulf Premium
+  and ATS Classic. Screen rendering unchanged (100/100 pixel-identical).
+- **Every design is tested with a sixteen-role CV** (four to eight pages): at most 110pt
+  blank at any page foot but the last, no heading or job title stranded. That test
+  found pill headings could be stranded (an inline-block cannot "keep with next"); the
+  pill now sits on a span inside a block heading — the sections move up a few pixels to
+  the same spacing as every other heading style.
+- **"Check my PDF" looks for each job after the one before it.** Its first-mention
+  search told CVs that returned to an employer that their design mixes columns.
+- **Four more style choices, named keys only, absent = unchanged:** text colour (Dark,
+  Black), highlight (None or five light tints — solid heading bars follow it), lines &
+  borders off, and header (Light, Bold). Headings keep the accent colour — the accent
+  already offers Black. Gulf Premium takes text colour only (it has no boxes); ATS
+  Classic stays fixed.
+- **Text style is closed by default** with a one-line summary of what is set; the
+  photo controls moved out of it so the size bar is never hidden.
+
+**Verified:** 150 real PDFs (50 designs × photo / no photo / long CV) pass with the
+default style, and again with black text, no highlight, no borders and a bold header;
+50 designs × 29 style choices in the markup checks; the panel in a browser at 390px and
+1280px (53 checks: opens and closes, previews each choice, saves exactly the choices,
+only offers what a design can do).
+
+---
+
 ## 2026-10-04 (late night) — 35 Gulf resume templates on the one engine (15 → 50)
 
 **Founder brief:** as a senior resume designer, research the leading builders' and

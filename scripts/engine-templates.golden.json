@@ -1,202 +1,202 @@
 {
   "gulf_premium": {
-    "sample": "17aedeca149daacd95b720a1958ab9d91133c036a4b01f0301ad13a95cc882b8",
-    "full": "98cb8e4d10dad2145201075ee38c801fd1a8cc46ddf8b269c8188fd7a52f2f21"
+    "sample": "c10508abfa8823344c6bd9598d148359449aac0f182ba6a8ec40215374c5636e",
+    "full": "b77939e7f96c61027afee1624d2deb2ea2e35ec18cdbd34ad8946e3627562df0"
   },
   "ats_classic": {
-    "sample": "4684ae95587b44fa52ad43b3683ffcda890944b3bcdfab5368fcc12eeab2daff",
-    "full": "9a98f304fb62c682e672446b33f5fb7965e3987516733be24e6b1ec40970f91e"
+    "sample": "3f50d3db81e8c76baccf42d2a1662203d9962d0b4cce2f643f9df301623043e9",
+    "full": "6a18925679451a8adb892d808adf95959282295964c43c16149115ac15b35ccc"
   },
   "gcc_engineering": {
-    "sample": "783ac68b612c9f5a819ed8a3ae468f6b91fb445c639da64c95b917e19f586c32",
-    "full": "4a14a41ecbbcf4e373544b11976d24744e6351020b95e304aa82668147e5aa2f"
+    "sample": "3d9bbeb520dc90ac4ce0eefb29ddd1f89dcef1d6cc506310919b6037a3c30947",
+    "full": "93c21d2de5985387d4d9be5c1969424806a1f155a375ad7531bd90747bedb49d"
   },
   "executive_gcc": {
-    "sample": "a32b6aa57ae213625bd3bf318e1878e3df90ff48ebeef32e815784694ef843a2",
-    "full": "9ada795ebf0a681ec8aca8603a02741b947ef30cff519de193d78779704df725"
+    "sample": "5c296338d5a3a7b7b661761b368eed3072dda0bca15e3689d614842bb1adcbc7",
+    "full": "092989744463165b82f04734acbbe4d373c6e432641f09b9e4cc91db0377d5c1"
   },
   "modern_professional": {
-    "sample": "0d2f97a1623cf9ed04387d0740f21f70907f27a9feb7756c5023e86d315d39b2",
-    "full": "88fd499104738093753097d2f78f4be9594c99cbe6953342fd8a326943c3913d"
+    "sample": "c9a1350a74b8806a7ddd9a5a56b19d9de060c7718f86213eddc78953f1e1e2d8",
+    "full": "47cbe6a3fc0c455041c8b5878e4f75beaf7bafbfb95919a41dbbca5827211066"
   },
   "senior_compact": {
-    "sample": "b60119534a0eaea7d08028bfb98d683b4409cac11bd3ac37bf19b8e93c9edfcc",
-    "full": "2280ea87064679c79af9dffcdbedf4a3cb26cbbd3ca6754b870e7ffc3e5103ee"
+    "sample": "caaec760097db70e20e93318b5206cf43ddbc8fb3eb3841fdc39f3337dac4a73",
+    "full": "61dc33a77be38bfdda5c27210e881efac6bca18a99f0dda7b200d1a70fd53d1f"
   },
   "gulf_minimal": {
-    "sample": "58605e43570639c7bbc6fbef03d90288b6ef3e9e42542bee92569fd33edd559c",
-    "full": "59066ccf21b9b6dbb4a39dd3779884a4db1f950ce40facbead330cdd9c8ebd53"
+    "sample": "fdaa85c75717d7bf487e5609aaaafcc074dbcf32d5143224f71c271d995df521",
+    "full": "00e506c7f5df2501c3d0a9b626cc525fba7ccf1461acc543e0c1c7f646b8b656"
   },
   "corporate_band": {
-    "sample": "9270d88f47e717ae190f5ed3955d6c516292e89707f60cd9cff5a41a3fac99ad",
-    "full": "3aba6eb383ea2491e4ef6e9ef79abe1391d122620d5ce572c77fa0b3ef1298c5"
+    "sample": "93a2e464c4bc91f8da782d40b88414d6bd9767652c7cae34337024b6b724a1fc",
+    "full": "16593653f81f2f115a760bba8b6b9731557699dfdd4bef1a77642aaeba7aa59f"
   },
   "technical_sidebar": {
-    "sample": "32406827604db3d6de49c4c457ecbb765f1c188656534694847817137c45968c",
-    "full": "1874f13c3fbc45927e09af8983a5a69258587432761ed351032fb41216226608"
+    "sample": "26e3303d20468dd5bf895797f91405df26444dbe3f9215f86d6bac8e54140cf8",
+    "full": "88ee9b7f62ab4f33bfd3169d765e537c6ffe7bb42717b811a15f2864a115a995"
   },
   "graduate_entry": {
-    "sample": "324bbcfd6803ab6096283a1537bddbf095dfaf036c12f197f03b4fec10dae213",
-    "full": "ed4fbc051b393c5477238ae5f09443bfe7481670caf591b83fe20263cad09684"
+    "sample": "4c6b7099d798ea648e7a03c7139243ea09d64b301462f0d76a1618f1076601a9",
+    "full": "0002e5476b258545282095d9f1c748aae08a6050c20befd86872b785725251b6"
   },
   "portrait_right": {
-    "sample": "91e4fbf2e8aa3b3bfc7a582519ba9fcfd2eb7bb84cdc1960c61639cfee44eab5",
-    "full": "abe9602d2691a9df5d07ec6646009c587834f29d6f110b11d997b284dd843b9d"
+    "sample": "290cf372c73208e3c46a28d8c93fd458e77e6ed46ed62a08b4b65b50a5264b85",
+    "full": "4ee7ec54ddf7dc8af3295f2da1d3612b7c3706ece9deb4a011ecdd1b66088977"
   },
   "consultant_right": {
-    "sample": "db6b0fd500456a70e437fe85fb70bc8ff964a23e5da9cd8be13771d0c457e85e",
-    "full": "e6766b1c9d18a4ca15d9f54841fb4ff6eb23182771909b5fab632e6a9ffbd428"
+    "sample": "0df55bce46f0d604d8ff9f33cffc3e7bc7f57f86820d5eef2aa2d3195c9331c2",
+    "full": "841f85b22b27b56dbaaeaa39e379a6ce2b1a4d1d241772e7c0114fc8573cfde3"
   },
   "heritage_left": {
-    "sample": "fff5fa58b3f01e0ee5dec1b48d8b99fdb7a41e12e96e7698dce68cded13693ef",
-    "full": "35a70a1e77d9575df42ab8c7dd31f7856b843fcd6ce6b052cd438cd7d84b86c5"
+    "sample": "85ec52470786c8cfc5c1ba67825d6152d25b8b992ef7b49a70ccd1ae3a8ea55a",
+    "full": "c2f46cb09dadea4211cd7317fc730d436f176b05ac0841c8ea5096a31c4c1f07"
   },
   "project_twocol": {
-    "sample": "bc5ef12c2ded9121ad7d3509199fde19bd85dc981dac30df48ecb87fedab86f0",
-    "full": "1a057b314f283ab8497b7b01ace1a7a4084d099c41b62fb1c9ffd411b23752f6"
+    "sample": "b653d8a251dfa34f9e3a4d54d34f75d11503e519b7fb4af8b844dafed61549ee",
+    "full": "bebe1ca620d5867e177f2792bb6fbfba661718e9a113ddf18b65b6c4ef7ea5fd"
   },
   "creative_gcc": {
-    "sample": "c6226ab7a203dbf2015b81bd7c48749202c7a3aa73e428f36a9b5226dcc94cc4",
-    "full": "57ee402b9e087f65424a86c0f5f94a5d21ad2f65620de5058eb60456a01d19fb"
+    "sample": "67217f5e1ddf9ae43c3f6e22caa59cac38c7e22450c472c77e7db53f65e8e4f1",
+    "full": "7bd7e2dac731da529e6d1c763c13f1c5f7dca69a5942ec0390179fc4cd1c134f"
   },
   "desert_steel": {
-    "sample": "68595e4415f8b31503c0bf943b60fea2bf01721a30f39e0a8c0cc19fbbb4f680",
-    "full": "42d4ab23a71b5cc1151ca2ee8687afdf32f08e305e932605c54f373bb18e3a67"
+    "sample": "1354009f5b76a385b8bb782c0c2ddbf852558cbba4b8a3602adc82af63e3daa8",
+    "full": "c3aeff5823dc1f322ee933274154d3bcf3c187d23df1c55031a3c0b1d1a956d2"
   },
   "pipeline_pro": {
-    "sample": "802d58d1da80885c14705fc7304373b1933208540dda3807abb2fcb0e639a83a",
-    "full": "55225190dfdc5b956281236770b34435e8a406ef133bbe9616fa85340d481c77"
+    "sample": "d78dd5656cf3701b4d951443f0b60a017f26e7891528548ffdf6701f0f47fa38",
+    "full": "52c25c4d9ecfca5d5d63208267dbf8329cdda5263ec127eb3050a99605f05e7d"
   },
   "blueprint_engineer": {
-    "sample": "c9acb1a7b1f867b44bfa7a67e61112f0c7f000abaf626e9f8552775d3856140d",
-    "full": "3b33881d343b10db640ed00c38a4ccc756d0acaab8cc04dfd17bcdc8e8f50551"
+    "sample": "d3a17ceca42cf2d0f8c3577e2f0c86f9cfce3d4ca4e2f30ec77d8c5d93f69b35",
+    "full": "7a0f599e3db6a6b2c06d8eebc0a0cd18e539a28e57c88c20ddd8b45f95ea2646"
   },
   "power_grid": {
-    "sample": "02f8631ac6fb254cb9e12df4e697b127573182881e0c028903ecc2ffc8e3bb51",
-    "full": "7dc6719ff2cf955b016e72e81fd8ab36038fe0829083bffa7a722a0d215d7018"
+    "sample": "7c59889a2e1f05c9bf748a3c709a04796e17ebf907312f195cd5f729925d8f99",
+    "full": "c87dd8740926b82947b2d62fff0874efbcccd23bcebcaaa7449eea24f5aa6528"
   },
   "offshore_navy": {
-    "sample": "19d6678eda67ffa58e9c8045483fc9dfa5240f6a7f4735d9b0ba534c31ac89fd",
-    "full": "ff7366cda9c9829c9cb73d9fae80b7bc748c401429e1edfbb0ffd3953c9cc4de"
+    "sample": "554a1b097621394b162ef0c82f7e9f9b79abde82cdca1e32c80aae9ed1cabddc",
+    "full": "51e403c7705bb3dab6d96e18d5bd1bb2c97309ac764b2d04249c7b22106376c4"
   },
   "commissioning_lead": {
-    "sample": "d0291c0e222181ea1b3b165a19364cccf126cddbc3471867cc51d7a41a4eac4d",
-    "full": "989b0116b09b3b23d2262f49e3d9bd4ab153d77984f0889053bf0fe5aa507fb3"
+    "sample": "5401c28714e95250747728a4a39f9cab1408389ca3eab8d2e9d610924f033908",
+    "full": "63bff950296185be5882c0de44e914e237e1f30dd50fb6b0872c05de1b4b73c3"
   },
   "field_technician": {
-    "sample": "4130ea128123f77658882ac7deb63416165b8caf14f0bcfc2051f3109bdff65f",
-    "full": "ebb2842aec6b8fa59a01201ad6353d590d1d95e2da6c3d5916ab80ddcd137c65"
+    "sample": "a069f50c4b46739d7804eaebea5068b489ee907b83b6c845f326a80bce4885c1",
+    "full": "0f208f0c5162992cf9a3be9cb33cbbb5b9b0b4690162ea15bcf1e7afcafa2374"
   },
   "workshop_pro": {
-    "sample": "c23d6af56811615d47ba259ce4d5787e73228c154f9c9fa12a09d86c80d15d14",
-    "full": "2ac6f6c81d048569b6ec0616ccbc9424355352444c6c05738aef008412eb9f50"
+    "sample": "ce679cafaccd73c8ae41736b70d9b170e85f07871411dbdb4aecb17356620edc",
+    "full": "cb762748ce788ae9c45269f900ae7d11e569093fe7a4c88d1a6ff06197a0d53a"
   },
   "maintenance_master": {
-    "sample": "374ce9ff790d6944b7ffab97a541ca9a55ebe43e6d9bfaf2f751c9c7a3fab14b",
-    "full": "7aedcc09ced10862116c1fa1fd484d481e265bf3b2028f1c5415d9b1abf8255d"
+    "sample": "8361e51ae0ab05adbc89db83b1f1b98e0d3221e450ca6e605f2499fc23d14366",
+    "full": "1379ad6c95571e5c4654525b3df3c1fc4f7c3ce74417ad924209e2d8cd67bc14"
   },
   "skilled_trades": {
-    "sample": "0ee27816c08dd747a5e7c50d3e4977835b33617539a11591582c49d460ad676e",
-    "full": "60e41913ed726012e2fe889788dcaa650071b7b53a7f08e09f350c68cde6aead"
+    "sample": "806a3bfdb1403a67358754f6a88fda59c0d8d60c7d9f5390f7a6c01fed566b6d",
+    "full": "1a53a3ce4b680ab056b446d631720cfce3f4cd4122eac4d01d1dea1073167d7c"
   },
   "site_supervisor": {
-    "sample": "cad426f291759daa2477a8f4994b025fab2543ef31f9c78501d566fea9bd46dc",
-    "full": "3b4fd13be2c486f98abaf09927b3bf22a298291317610c0881cf54e117dd3643"
+    "sample": "64359f7bc3f930afaf025a3fea56f90be246d520745da51c63ecafb9a4288055",
+    "full": "2e302ae15d4a2a4df7e44beea5d897c1a50af53b691a515631bd14a4b77b55d2"
   },
   "hard_hat_pro": {
-    "sample": "0a2964496377f6aa082b80086010b0ad6d21c0dc6ca3400d16918aff291e16c5",
-    "full": "61845cf285aa74ad8d169521e6781ab85096a28ed14a2b03de72b3b7c5cac2a5"
+    "sample": "0bf1de9ed7156c2c3e83edfe3f63289db6cd5ae3bbf648639517853587698179",
+    "full": "ce670902283bd2446ea21f513752a8a95af1a5fe10089ccebbd391ae284c5b92"
   },
   "qs_precision": {
-    "sample": "b08abbee3b4c085e958459c3745fc29e5d07b8bd182b391ccb5aea329975485c",
-    "full": "dfcf3cc098d324e2793b60e9babc946227110d2117b4f8bbfe762f6d6cdbd4f0"
+    "sample": "f868021cc9301bd16a2a8126173cff0c5fcbc16fda6f7234238721e80a0b9ae9",
+    "full": "803977d8a91b3c8e0b290ddcdc4cdb56d2de9d4d7ab258d54ea7ef5c94c7eac6"
   },
   "hse_shield": {
-    "sample": "0c2cbc84b7efafc62381631ab9acbdfe04a9e7b313ebaac8889523650815d8f0",
-    "full": "74008f0767e4566904124f7c0ab3b0db89920da33d710610561fe9f79c382eee"
+    "sample": "ee01b04f2c02bb79410f01e233939abab7a1e556dfb1d245867130126568f24c",
+    "full": "089e5a348c9d0d75f7ae42baca5113cfdb904676ebd36494a78b6a70a978679b"
   },
   "project_director": {
-    "sample": "875239e4c6f4ccdabf5242ee61ec5a661345b40047e38f16002fcc887f408727",
-    "full": "0fe30257152d517bb3afb4f76a0e70d45df32d6ea3d1273fd33cf45ee600249e"
+    "sample": "de0dedef84d79ed79e511ccbd348c0578c311408480a19e8255b07cbb464a3a3",
+    "full": "5de2ba8b7a96b4a20d82bfe0522d151cc3f262fbecf16993d5cfb68f2f64a4de"
   },
   "ledger_classic": {
-    "sample": "bd6a095871c0a4222bce65d5faf3266708cc7bc2cde577db00b2ebb43cb411a2",
-    "full": "88f4509011a836738936a0cc88b93a2127d774d84eea0889b7ec7ed35e91edfe"
+    "sample": "2d4cfb79993a4d4433da5d150912333a372151bf64ac32b30dc26bc9b17ad852",
+    "full": "c826121fa363d1b330196d58c8ad0bf2552d15201d7b8abcd12f4b86f2584c4f"
   },
   "riyadh_banker": {
-    "sample": "69596baae3c88231ee1fd89f2bd8ab2259fbce85d93cdaea5fae3139a6828f7c",
-    "full": "0119b167cdd486b3df7f51fbe578ba86e891995fade6866fbf052b7e87807fb7"
+    "sample": "b0003ef42b39a038cb04df6990076582c7f56cebc26c8faa24a181defdab42f9",
+    "full": "105c08d67201e242fe4f74c5726e8032acd0274323b774fd36289fab34f83c37"
   },
   "audit_clarity": {
-    "sample": "4ce698d9f82884b9048140c58ea19678080ae1639c2cedcd4f6527fc32602c6c",
-    "full": "663f3a755e5d5fe5ba7d67ad0acdd1312dabb7887e42d22586b28cce5dff82b4"
+    "sample": "812e2441f92c72cd391447afcae369fd8fcdb0cf51ea7c2ff81abed3a97d8181",
+    "full": "83da0c13ee53ae515134330786276773c73c53780ec5846afb7701fbf5c58ab8"
   },
   "cfo_signature": {
-    "sample": "3993ff7f8ab2c79658f6d3d1e2ca43108e3e08694e1a392e91867e56165d320b",
-    "full": "66f7feb0d525c83702b03051ff7f7a24685e1ffe8768598870793b28de67e03b"
+    "sample": "2612641105c65a39d9fffde4768fd57af97febd32b549ae2ed2d572c143db37c",
+    "full": "253ed67d69f220775173da5a87aecc5b5e1cde35eb197288024a88c17194ea35"
   },
   "marina_creative": {
-    "sample": "d78e34a8e676876157fe58f99d7329aa564776f1047f8d225f094c8bcfb0646b",
-    "full": "04e7adc90b859bf5a2a6b8f01fa6c1f60dd2e674ed291f650fa7c4fef68ff941"
+    "sample": "48d1dd3ce86e17b3ab5a8df721f7bd54a5201cf149b5028e97b18fe0119f87cb",
+    "full": "f62411aa3a5db912bccb34d7004edc13ae9ed09d6d0acbc063491763708e6bd9"
   },
   "spotlight_sales": {
-    "sample": "a6ab3d71d560f75f1df408333247fd4afcaf367fbd09d453f460900705178b76",
-    "full": "9417bbdcb2d2d0fadc6dde04ec91ce42600fa6869bceaabd16def81c29005691"
+    "sample": "e9b3d71d13dc3f712d7d9d02a2a1ed4cfd813729b6537c5d2426375fcbd010b7",
+    "full": "c69e1162b532c4eea1c64c26755b6293f9e18b2f22d556bbc9fc008ef26204bd"
   },
   "brand_story": {
-    "sample": "6cdf2f84e3391834f0052001a9668570121554d469a0ed1bdb352afa99d3a61b",
-    "full": "4e12d548c1e145348d863f5f81b6531110f1a7b7ca4e9340bc0e4b51e74141fa"
+    "sample": "fd4e7a23e51384c684bf7d5473fd0d99d4ee2f79ef285a2e763fc0384a823258",
+    "full": "66240bca5bdc06ff92cc03984e92ff4296fc9bf7c6a229e1a2f1ec0dc9c8a558"
   },
   "clinical_care": {
-    "sample": "915987e3237a6800d571d871fb124d01984ac0516c055415aa9d08e293cdd432",
-    "full": "a7af2cb1fdf4f5be711f7176ea54b41e94af14a853154dbb4ee4feadc8396209"
+    "sample": "4de17dd416b92e90e2b01515ab23354d8c8175d87a21de74414e95d3d77719d2",
+    "full": "c0bd6ad7524fe96f06a8e4f1ff6fae2ba8fbee072fb447fdc39125479055e1fc"
   },
   "medical_pearl": {
-    "sample": "d332ba7d7317020b1ca4c4372fbc1691510b7309b61517ec415c367045aeaa73",
-    "full": "46c7751a57b23964e82a26e3f15ad987770bcfbbc9e38c4519e639b3ad38af2e"
+    "sample": "2f5d27527934e6bcbd3227318867ce0371009a2ad7216230ba87573c6a42afdd",
+    "full": "765599e171f5d22010fde0d7ed10fc5c5b1490c366c8d780a9d6d196ad0d6a89"
   },
   "care_compass": {
-    "sample": "4d5518bdf11eaf2e3e6fd607aba6bbac87a5a883063782852c42503e1bfa0320",
-    "full": "6a6353eb40c61fa86ae66e1045904779aa74eeab3021a7f62c1c55219d093437"
+    "sample": "4e13e00813f000e76cfc11b794d8fff36f4419508bc7c9a9e0a7597631df6222",
+    "full": "c7e7a01980bcb5fd2a21563862b5c9b629e60200d8bc12b1340094dd5c1b1ced"
   },
   "lab_precision": {
-    "sample": "5a21b7890ef568b6d5e8d0f3d0281199d0a9d7a911a818b614995376f22968ae",
-    "full": "b1d03ffecfac6250dd59088e8e8f699aaedc7720000f9f46a54274359309966e"
+    "sample": "605006ebf00b118831a912165396242c8e21de2a59b0dbe885fa2b846a32f885",
+    "full": "e6beafe3d2181c23d5c9cbe8274cff3eb3fdf4e7b7845a6034e5be4e13aa2f24"
   },
   "oasis_hospitality": {
-    "sample": "a6929cec93f9b389563aed5e5a361fa57732e318165214f105d3ee0f5341def0",
-    "full": "619eae77caba778d1a3bf36ad4a2ef7555cd075d07da876f78ace055575958bb"
+    "sample": "3bacd2f5387f00d8e43ccd8a6030b673338fd97cbc0dcaf32e45c47f2ab150df",
+    "full": "daeb7b5b9073eb5560f782ee7a85045f217730dcfa935fec3086b1375ccae99a"
   },
   "retail_star": {
-    "sample": "5113b7599167b7242cfaa3a02507c4a218f1cc4f5d9b640186852a520f6efe5c",
-    "full": "6557a6bedf7cbc2c8d1f6c8ac4483106835fa406a1d384c251180cbfb8b73e18"
+    "sample": "194c2b7d68650a8d478e1afe3ab9a9cc3e2569f6a5345ebc7bdfae6ed0a2e826",
+    "full": "3532ae1828cf7001794ed314b4381ab4faa1bbadae6847c6ca2ed7fbaa0a500e"
   },
   "tech_horizon": {
-    "sample": "0bec4d80b1ae6827f6e93be84d3e53d4bae14dd6d24fd4d36b882a461ea7b88e",
-    "full": "f2d172c1789aa2629051957e63d4673597344dae30b6fbfd7d934d149a8641d9"
+    "sample": "119ddd5efebd4a8155fccb93ec2462a7686f3e64f305876604ccdafd57024b45",
+    "full": "cfc28daeab68ecf0752136e1cc8a5ab3acc1233b6664edc62179bcfb1f8b93a4"
   },
   "data_clarity": {
-    "sample": "8d7acb42457cee459855201b55e68f3db57f36f585221f58e4c90a4ec7a7920f",
-    "full": "4b9bcaa8193712f45003461c7eb2be5ead05bb8c7efa608caa3f5211d05a9316"
+    "sample": "4063de6a0a54adc21805367606fae798630279e02e324df2e4fe82ff7999985a",
+    "full": "497d017f2f8a5d1cbfeaec406febe26868dfa37d39cf095e325fb6206aa112df"
   },
   "office_elegance": {
-    "sample": "b97aa583b8eb6ff10b8ea987e07410cd3810268b8b3997426c0c02a26a40176f",
-    "full": "bd0abb562c50534b1dc761d8238aef209a1081f91561e87af278801cee2bfae0"
+    "sample": "1cc500b715c65be23c59183b7e7d9b46489d46dbfc3dfb9ccd009213054a47cf",
+    "full": "d1f69276e718aca3d08b19608cd117768b6e81566b8510c949d15dae9204cb39"
   },
   "people_partner": {
-    "sample": "87ffb2981b684c7a959b468be1792ac1a3ff056cece1a2e7abce60db39fe66e1",
-    "full": "e14bd38743eac92175c5e1d100b414ce2dbdbd8641e1833f43d672c9086ae7f0"
+    "sample": "6604d63e340948ea056c79171a3159b72b84b50f8cd55985b3d2fb2f19be4158",
+    "full": "77bfe29579521902aae2653a2eb85d043626b2b5607dbdb288fbe0a30c8f0091"
   },
   "logistics_route": {
-    "sample": "fce91d210298a05f788e58ba7cac38b9f34f410df206fce8fb2fa7230674e2f5",
-    "full": "bb3b1e65979fdfd312d2fab5ac9451241239c2ac58fdb0642d683a15d24e8b63"
+    "sample": "d416836fb131f395121004386bac35ee6417f561fd44ce7532a5e244acf5d423",
+    "full": "07bb4bcecf564b003ca503a43d902120be4ecfe8b0cf5a0e340d0daf9f9dd7bc"
   },
   "scholar_classic": {
-    "sample": "52001f42b7fc886af74b1859870c08b32f42396239f2a7427d6877d99b3cac62",
-    "full": "e9042cb80d07432720016af4135c3133824c0718f7715a01e15132bc033f22a1"
+    "sample": "d198ec0596fe520a3eae7ec631091ec8d001b8abd7aeb86b6e138dcea5813ebb",
+    "full": "51660a7f1a5a7ebaee7fef7bc3d5fcddcfb5f889c1de694ea6730a2a5f08e662"
   },
   "falcon_executive": {
-    "sample": "e25ef2bef3e3a2902a9868aab55ee8dcb6fbc10015e4523409fee17fb2d393a7",
-    "full": "2f4b58c7c58ee9ddb08c03fd0075fa8cdcb2b287365d922aa5b486fed37875c5"
+    "sample": "8ecc97dc41dbf1934b6fbc6bac132c617790cc7db236ed6ad8e645bbf7b4cd1e",
+    "full": "eff9b6d3f329d06e6102db73f99d4dbb31ab13001f1b4c2b87b3435890e14263"
   }
 }

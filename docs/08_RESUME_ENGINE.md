@@ -222,6 +222,30 @@ only ever stores values that have already been checked against a fixed set.
 railed templates reverse the candidate's name out of the accent. A pale accent would
 render an invisible name.
 
+**Text colour, highlight, borders and header (2026-10-04, founder: "the text is not
+dark… the header is very light… let the user control the highlighter").** Four more
+named choices, stored in the same column, validated the same way (keys looked up in
+fixed tables — `INK_OPTIONS`, `HIGHLIGHT_OPTIONS`, `HEADER_OPTIONS` — never a colour
+string), and absent means the template's own look:
+
+| Choice | Options | What it changes |
+|---|---|---|
+| Text colour | Dark · Black | Body text, employer lines, dates and contact details go darker for print; headings keep the accent (Black is also an accent choice) |
+| Highlight | None · Grey · Blue · Green · Yellow · Rose | The light shading behind the summary box, a header card, skill and date tags, a contact strip, a light side column — and solid heading bars, which become a light bar in that colour (or, with None, an underlined heading) |
+| Lines & borders | off | Box edges, tag outlines and heading lines; with no highlight too, tags print as a dotted list, since nothing marks where one ends |
+| Header | Light · Bold | Bold sets the name on a band of the accent colour, Light on the white page; a side-column design has no header to change |
+
+The 48 engine designs honour all four; Gulf Premium has no shaded boxes or coloured
+header, so it honours Text colour only; ATS Classic stays fixed. Verified: every
+template under every choice in `scripts/verify-template-quality.ts`, the rules in
+`scripts/verify-resume-style.ts`, and all 50 PDFs built with black text, no highlight,
+no borders and a bold header pass the ATS check.
+
+**The panel opens and closes.** On `/package/[id]` the Text style block is closed by
+default and says in one line what is set ("Black text · No highlight · Bold header");
+"Edit" opens it. The photo controls moved out of it into their own Photo block, always
+in reach.
+
 ---
 
 ## 4. The frozen delivered document
@@ -275,6 +299,28 @@ own scroll behaviour, not a clipped widget.
 
 **PDF:** the same template rendered to HTML and printed by headless Chromium, so the
 download matches the screen. Uniform top and bottom margins on every page.
+
+**How a CV meets a page break (2026-10-04, founder report: half of page 1 blank, Work
+Experience starting on page 2).** Every job used to be `page-break-inside: avoid`, so a
+long current role — thirteen points under a header, summary and licences — was pushed
+whole to the next page. Now a job flows on: its title, employer and first point stay
+together (`KEEP_WITH_NEXT`), no single point is split (`NO_SPLIT`), and a heading is
+never left at the foot of a page — which needs the heading to be a block, so the pill
+heading now draws its pill on a span inside one. Shared by the engine, Gulf Premium and
+ATS Classic (`components/templates/tokens.ts`). On screen nothing changes: 100 of 100
+renders pixel-identical before and after.
+
+**Long CVs are checked.** `scripts/verify-template-pdfs.ts` builds a sixteen-role CV
+(`makeLongTemplateFixture`) in every design — four to eight pages — and requires, on
+every page but the last, at most 110pt blank under the main column and no section
+heading or job title stranded at the foot. All 50 pass; the largest gap is about 2.6cm
+(a heading with a job's first lines that did not fit). Before the fix the same CV left
+377pt blank in Clinical Care and 616pt in Pipeline Pro.
+
+**"Check my PDF" on long CVs.** Its job-order test took each employer's first mention,
+so a CV that returned to an employer — or named one in its summary — was told its
+design "mixes columns". Each job is now looked for after the one before it
+(`lib/atsFileCheck.ts`, with both cases in `scripts/verify-ats-file-check.ts`).
 
 **PDF only.** The Word download was withdrawn because its output did not match what
 the screen showed. The route still exists but nothing links to it — recorded in

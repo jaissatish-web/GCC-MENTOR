@@ -1,11 +1,12 @@
 import type { CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { OptimizedContent } from '@/types/package'
-import { T, PAGE, SIZE } from './tokens'
+import { T, PAGE, SIZE, KEEP_WITH_NEXT, NO_SPLIT } from './tokens'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import {
   FONT_OPTIONS,
   SIZE_OPTIONS,
   ACCENT_OPTIONS,
+  INK_OPTIONS,
   photoMultiplier,
   type ResumeStyleOverrides,
 } from '@/lib/resumeStyle'
@@ -129,11 +130,12 @@ const bodyTextStyle: React.CSSProperties = {
  * of the previous one. Measured: 2.32 pages of content printed across FOUR
  * pages.
  *
- * The right granularity is the individual entry, which already carries its own
- * avoid — so a single job or degree is never split — while the section is free
- * to flow across a page boundary the way a document does. The heading is kept
- * with its first entry by breakAfter on the label, so it can never be stranded
- * alone at the foot of a page.
+ * The right granularity is smaller still (2026-10-04): a job's title, employer
+ * and first point stay together and no single point is split, but a long job
+ * runs on to the next page — keeping a whole job unsplit pushed a long current
+ * role to page 2 and left half of page 1 blank. A degree is short and stays
+ * whole. The heading is kept with its first entry by breakAfter on the label,
+ * so it can never be stranded alone at the foot of a page.
  */
 function Section({
   title,
@@ -201,6 +203,13 @@ export default function GulfPremium({
   const photoScale = photoMultiplier(styleOverrides?.photo)
   const photoVisible = header.showPhoto && styleOverrides?.showPhoto !== false
 
+  // Text colour (2026-10-04): body, secondary lines and section labels darker
+  // for print. Unset, each is its original constant — default output unchanged.
+  const inkChoice = styleOverrides?.ink ? INK_OPTIONS[styleOverrides.ink] : null
+  const bodyInk = inkChoice?.ink ?? T.inkBody
+  const mutedInk = inkChoice?.muted ?? T.inkMuted
+  const labelInk = inkChoice?.muted ?? T.inkWarm
+
   // Section labels and body text follow font + size only — never accent, same
   // separation the shared engine keeps between `accent` and `ink`/`muted`.
   // Equal to the original module-level constants whenever nothing is
@@ -209,8 +218,9 @@ export default function GulfPremium({
     ...sectionLabelStyle,
     fontFamily: sansFont,
     fontSize: sz(SIZE.sectionLabel),
+    color: labelInk,
   }
-  const body: React.CSSProperties = { ...bodyTextStyle, fontFamily: sansFont, fontSize: sz(SIZE.body) }
+  const body: React.CSSProperties = { ...bodyTextStyle, fontFamily: sansFont, fontSize: sz(SIZE.body), color: bodyInk }
 
   return (
     <div
@@ -223,7 +233,7 @@ export default function GulfPremium({
         margin: '0 auto',
         background: T.white,
         fontFamily: sansFont,
-        color: T.inkBody,
+        color: bodyInk,
       }}
     >
       {/* ── HEADER ── photo + name + target title + identity lines ── */}
@@ -296,7 +306,7 @@ export default function GulfPremium({
                   fontFamily: sansFont,
                   fontSize: sz(SIZE.identity),
                   lineHeight: 1.5,
-                  color: T.inkMuted,
+                  color: mutedInk,
                   marginTop: '2px',
                 }}
               >
@@ -321,13 +331,14 @@ export default function GulfPremium({
         <Section title="Experience" labelStyle={labelStyle}>
           {experience.map(({ entry, bullets, range, companyLine }) => {
             return (
-              <div key={entry.id} style={{ marginBottom: '11px', pageBreakInside: 'avoid' }}>
+              <div key={entry.id} style={{ marginBottom: '11px' }}>
                 <div
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'baseline',
                     gap: '12px',
+                    ...KEEP_WITH_NEXT,
                   }}
                 >
                   <span
@@ -345,7 +356,7 @@ export default function GulfPremium({
                       style={{
                         fontFamily: monoFont,
                         fontSize: sz(SIZE.date),
-                        color: T.inkMuted,
+                        color: mutedInk,
                         whiteSpace: 'nowrap',
                         flex: 'none',
                       }}
@@ -360,8 +371,9 @@ export default function GulfPremium({
                     style={{
                       fontFamily: sansFont,
                       fontSize: sz(SIZE.meta),
-                      color: T.inkMuted,
+                      color: mutedInk,
                       marginTop: '1px',
+                      ...KEEP_WITH_NEXT,
                     }}
                   >
                     {companyLine}
@@ -369,7 +381,7 @@ export default function GulfPremium({
                 ) : null}
 
                 {entry.description ? (
-                  <div style={{ ...body, marginTop: '3px' }}>{entry.description}</div>
+                  <div style={{ ...body, marginTop: '3px', ...KEEP_WITH_NEXT }}>{entry.description}</div>
                 ) : null}
 
                 {bullets.length > 0 ? (
@@ -377,7 +389,7 @@ export default function GulfPremium({
                     {bullets.map((b, i) => (
                       <div
                         key={i}
-                        style={{ ...body, display: 'flex', gap: '6px', marginBottom: '1px' }}
+                        style={{ ...body, display: 'flex', gap: '6px', marginBottom: '1px', ...NO_SPLIT }}
                       >
                         <span style={{ flex: 'none' }}>•</span>
                         <span>{b}</span>
@@ -428,7 +440,7 @@ export default function GulfPremium({
                   style={{
                     fontFamily: monoFont,
                     fontSize: sz(SIZE.date),
-                    color: T.inkMuted,
+                    color: mutedInk,
                     whiteSpace: 'nowrap',
                     flex: 'none',
                   }}

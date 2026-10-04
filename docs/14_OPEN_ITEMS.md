@@ -51,6 +51,13 @@ Full context: [`PLATFORM_AUDIT_2026-10-04.md`](PLATFORM_AUDIT_2026-10-04.md) §2
   model call with the older `getRateLimitStatus` + `incrementRateLimit`: no admin pause,
   no concurrency cap, and parallel requests can pass the daily limit together. Every
   other AI route uses `reserveAiAction`.
+- **S4 · The older style guards accept built-in object names.** `isFontKey`,
+  `isSizeKey` and `isAccentKey` (`lib/resumeStyle.ts`) test `key in OPTIONS`, which is
+  also true for `toString`, `constructor` and the like — so `PATCH
+  /api/packages/[id]` stores `{"font":"toString"}`, and a size of `"toString"` prints
+  the owner's own PDF with broken (NaN) font sizes. No injection — no client string
+  reaches the CSS — but the "only named keys" promise is broken. Fix: `Object.hasOwn`,
+  as the 2026-10-04 guards (`isInkKey` and the rest) already do. Found 2026-10-04.
 
 ---
 

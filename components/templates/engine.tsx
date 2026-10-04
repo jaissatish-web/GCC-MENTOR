@@ -1,6 +1,6 @@
 import type { GulfPremiumProps } from './GulfPremium'
 import { buildResumeDocument, type ResumeDocument, type ResumeContactItem } from '@/lib/resumeDocument'
-import { PAGE } from './tokens'
+import { KEEP_WITH_NEXT, NO_SPLIT, PAGE } from './tokens'
 import { applyStyleOverrides } from '@/lib/resumeStyle'
 
 /**
@@ -39,6 +39,11 @@ export type HeadingStyle =
   | 'bar'
   /** Small accent square before the label (2026-10-04). */
   | 'marker'
+  /**
+   * A light bar behind the label, in the highlight colour (2026-10-04). What a
+   * `band` heading becomes when the user picks a highlight (lib/resumeStyle.ts).
+   */
+  | 'tint'
 
 export type LayoutStyle =
   /** One column, everything in reading order. Safest for parsers. */
@@ -195,6 +200,12 @@ export interface TemplateTheme {
   /** Page background. Absent = white. */
   paper?: string
   /**
+   * Box edges, tag outlines and the header card's edge and stripe (2026-10-04).
+   * Absent = drawn. Set false by the user's Borders choice
+   * (lib/resumeStyle.ts), which also turns underlined headings plain.
+   */
+  boxLines?: boolean
+  /**
    * In the PDF, hold a one-page CV's page box to the printable height, so a
    * filled rail, a left page edge or a paper tint reaches the foot of the page
    * as it does on screen. The PDF route otherwise releases the on-screen height
@@ -235,6 +246,7 @@ const DEFAULT_LABELS: Record<SectionKey, string> = {
 
 /** Usable width inside the filled rail: 238px wide, 22px padding each side. */
 const RAIL_CONTENT_W = 194
+
 const RAIL_W = 238
 const RAIL_PAD_X = 22
 
@@ -354,10 +366,20 @@ function Heading({ theme, children }: { theme: TemplateTheme; children: string }
       </h2>
     )
   }
-  if (theme.headingStyle === 'pill') {
+  if (theme.headingStyle === 'tint') {
     return (
-      <h2 style={{ ...base, display: 'inline-block', background: theme.accentSoft, padding: '3px 11px', borderRadius: '999px' }}>
+      <h2 style={{ ...base, background: theme.accentSoft, padding: '3px 8px', borderRadius: '2px' }}>
         {children}
+      </h2>
+    )
+  }
+  if (theme.headingStyle === 'pill') {
+    // The pill is a span inside a block <h2>, like `bar`: "keep with next"
+    // (breakAfter in `base`) only works on a block, and an inline-block
+    // heading was left alone at the foot of a page (found 2026-10-04).
+    return (
+      <h2 style={base}>
+        <span style={{ display: 'inline-block', background: theme.accentSoft, padding: '3px 11px', borderRadius: '999px' }}>{children}</span>
       </h2>
     )
   }
@@ -423,7 +445,13 @@ function renderSkills(
   narrow = false,
 ): React.JSX.Element {
   const body = bodyStyle(theme)
-  if (theme.skillStyle === 'outline') {
+  // Tags left with neither shading nor an outline (the user's Highlight: None
+  // with Borders off, 2026-10-04) have nothing to show where one ends and the
+  // next begins, so they print as the dotted list instead.
+  const plainTags =
+    theme.boxLines === false &&
+    (theme.skillStyle === 'outline' || (theme.skillStyle === 'chips' && theme.accentSoft === '#FFFFFF'))
+  if (theme.skillStyle === 'outline' && !plainTags) {
     return (
       <Section theme={theme} title={title}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', minWidth: 0 }}>
@@ -435,7 +463,7 @@ function renderSkills(
                 fontSize: pt(theme.bodySize - 0.6),
                 background: 'transparent',
                 color: theme.ink,
-                border: `1px solid ${theme.accent}`,
+                border: theme.boxLines === false ? 'none' : `1px solid ${theme.accent}`,
                 borderRadius: '9px',
                 padding: '1px 7px',
                 maxWidth: '100%',
@@ -467,7 +495,7 @@ function renderSkills(
   }
   return (
     <Section theme={theme} title={title}>
-      {theme.skillStyle === 'chips' ? (
+      {theme.skillStyle === 'chips' && !plainTags ? (
         // Pills, never bars — see the SkillStyle note. No proficiency is claimed.
         // minWidth: 0 lets a chip shrink below its content width inside a
         // narrow rail; without it the flex item refuses to compress and the
@@ -481,7 +509,7 @@ function renderSkills(
                 fontSize: pt(theme.bodySize - 0.6),
                 background: theme.accentSoft,
                 color: theme.ink,
-                border: `1px solid ${theme.rule}`,
+                border: theme.boxLines === false ? 'none' : `1px solid ${theme.rule}`,
                 borderRadius: '9px',
                 padding: '1px 7px',
                 // A filled-sidebar rail is 238px wide with 22px padding each
@@ -713,11 +741,11 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
           ? {
               alignItems: 'center',
               background: theme.accentSoft,
-              borderLeft: `4px solid ${theme.accent}`,
+              borderLeft: theme.boxLines === false ? 'none' : `4px solid ${theme.accent}`,
               borderRadius: '6px',
               padding: '14px 16px',
               marginBottom: `${12 * theme.density}px`,
-              ...(theme.bandStripe ? { borderBottom: `3px solid ${theme.bandStripe}` } : {}),
+              ...(theme.bandStripe && theme.boxLines !== false ? { borderBottom: `3px solid ${theme.bandStripe}` } : {}),
             }
           : {}),
       }}
@@ -793,7 +821,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
         textAlign: 'center',
         gap: '8px',
         marginBottom: `${12 * theme.density}px`,
-        ...(theme.bandStripe ? { borderBottom: `3px solid ${theme.bandStripe}`, paddingBottom: `${10 * theme.density}px` } : {}),
+        ...(theme.bandStripe && theme.boxLines !== false ? { borderBottom: `3px solid ${theme.bandStripe}`, paddingBottom: `${10 * theme.density}px` } : {}),
       }}
     >
       {showPhoto ? (
@@ -878,9 +906,8 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
                     paddingLeft: '16px',
                     paddingBottom: `${9 * theme.density}px`,
                     borderLeft: `2px solid ${theme.rule}`,
-                    pageBreakInside: 'avoid',
                   }
-                : { marginBottom: `${9 * theme.density}px`, pageBreakInside: 'avoid' }
+                : { marginBottom: `${9 * theme.density}px` }
             }
           >
             {theme.experienceStyle === 'timeline' ? (
@@ -899,7 +926,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
                 }}
               />
             ) : null}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px', ...KEEP_WITH_NEXT }}>
               <p style={{ ...body, margin: 0, fontWeight: 700 }}>{item.entry.role}</p>
               {item.range ? (
                 <span
@@ -930,14 +957,14 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
               ) : null}
             </div>
             {item.companyLine ? (
-              <p style={{ ...body, margin: '1px 0 0', fontSize: pt(theme.bodySize - 0.5), color: theme.muted }}>
+              <p style={{ ...body, margin: '1px 0 0', fontSize: pt(theme.bodySize - 0.5), color: theme.muted, ...KEEP_WITH_NEXT }}>
                 {item.companyLine}
               </p>
             ) : null}
             {item.bullets.length > 0 ? (
               <ul style={{ margin: `${3 * theme.density}px 0 0`, paddingLeft: '16px' }}>
                 {item.bullets.map((b, i) => (
-                  <li key={i} style={{ ...body, marginBottom: `${2 * theme.density}px` }}>
+                  <li key={i} style={{ ...body, marginBottom: `${2 * theme.density}px`, ...NO_SPLIT }}>
                     {b}
                   </li>
                 ))}
@@ -957,7 +984,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
                 ...body,
                 margin: 0,
                 background: theme.accentSoft,
-                borderLeft: `3px solid ${theme.accent}`,
+                borderLeft: theme.boxLines === false ? 'none' : `3px solid ${theme.accent}`,
                 borderRadius: '0 4px 4px 0',
                 padding: '8px 11px',
               }
@@ -1287,7 +1314,7 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
     // still yields a sane document.
     return (
       <div id="resume-render" data-fill-page={fillPage} style={page}>
-        {HeaderBlock}
+        {theme.headerBand ? BandHeader : HeaderBlock}
         <div style={{ display: 'flex', gap: '18px', alignItems: 'flex-start' }}>
           <aside
             style={{

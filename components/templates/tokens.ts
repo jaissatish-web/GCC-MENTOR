@@ -51,6 +51,18 @@ export const PAGE = {
 } as const
 
 /**
+ * How a job meets a page break (2026-10-04). A job may run on to the next page:
+ * only its title, employer and first point are kept together, and no single
+ * point is split. The whole job used to be `page-break-inside: avoid`, so a
+ * long current role that did not fit under the header was pushed whole to
+ * page 2 and left up to half of page 1 blank (founder report: thirteen points
+ * under a summary and licences). Used by engine.tsx, GulfPremium.tsx and
+ * AtsClassic.tsx alike.
+ */
+export const KEEP_WITH_NEXT: React.CSSProperties = { pageBreakAfter: 'avoid', breakAfter: 'avoid' }
+export const NO_SPLIT: React.CSSProperties = { pageBreakInside: 'avoid', breakInside: 'avoid' }
+
+/**
  * Type scale.
  *
  * NOTE ON THE MOCKUP: screen 10 in design-reference/MVP Screens.dc.html shows

@@ -75,6 +75,14 @@ const mixed = clean
   .replace('• Supervised HVAC and plumbing works for a shopping mall with 12\nsubcontractors.', '• Supervised HVAC and LEED\nplumbing works for a shopping Green\nmall with 12 subcontractors.')
 check('columns mixed into the lines: fail', status(mixed, 'order') === 'fail')
 check('jobs out of order: fail', status(clean.replace(/AECOM\n/, '').replace('Gulf Trading\n', 'Gulf Trading\nAECOM\n'), 'order') === 'fail')
+// Long Gulf CVs (2026-10-04): the order check took each employer's FIRST mention.
+const twice = {
+  ...doc,
+  experience: [...doc.experience, { entry: { role: 'Junior MEP Engineer', company: 'AECOM' }, range: 'Jan 2013 — Oct 2016', bullets: ['Drafted HVAC layouts for residential towers in Dubai Marina.'] }],
+} as unknown as ResumeDocument
+const twiceText = clean.replace('SKILLS\n', 'Junior MEP Engineer Jan 2013 — Oct 2016\nAECOM\n• Drafted HVAC layouts for residential towers in Dubai Marina.\nSKILLS\n')
+check('the same employer twice, in order: pass', checkAtsText(twiceText, 2, twice, kw).items.find((i) => i.id === 'order')!.status === 'pass')
+check('an employer also named in the summary: pass', status(clean.replace('fire-fighting systems.', 'fire-fighting systems, lately with Gulf Trading.'), 'order') === 'pass')
 check('a keyword split by the layout: reported', status(clean.replace('Revit MEP\nEDUCATION', 'Revit\nM E P\nEDUCATION'), 'keywords') !== 'pass')
 check('ligature glyphs: a warning', status(clean + ' certiﬁed', 'characters') === 'warn')
 check('an empty (image) PDF: fail', checkAtsText('Arjun', 1, doc, kw).items[0].status === 'fail')

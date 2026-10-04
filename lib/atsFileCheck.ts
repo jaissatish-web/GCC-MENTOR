@@ -169,8 +169,18 @@ export function checkAtsText(text: string, pages: number, doc: ResumeDocument, k
   // 5. Order: lines whole, jobs in sequence
   const bullets = doc.experience.flatMap((x) => x.bullets)
   const whole = bullets.filter((b) => lineReadWhole(b, hay)).length
-  const pos = doc.experience.map((x) => hay.indexOf(norm(x.entry.company || x.entry.role || ''))).filter((p) => p >= 0)
-  const inSequence = pos.every((p, i) => i === 0 || p > pos[i - 1])
+  // Each job is looked for AFTER the one before it (2026-10-04). Taking every
+  // employer's first mention called a CV out of order when someone returned to
+  // the same employer, or named one in the summary — common on long Gulf CVs.
+  let from = 0
+  let inSequence = true
+  for (const x of doc.experience) {
+    const key = norm(x.entry.company || x.entry.role || '')
+    if (!key) continue
+    const at = hay.indexOf(key, from)
+    if (at >= 0) from = at + key.length
+    else if (hay.includes(key)) inSequence = false // only found earlier: out of order (missing is item 4's to report)
+  }
   const share = bullets.length ? whole / bullets.length : 1
   push(
     share < 0.85 || !inSequence

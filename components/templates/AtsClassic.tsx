@@ -1,6 +1,6 @@
 import type { GulfPremiumProps } from './GulfPremium'
 import { buildResumeDocument } from '@/lib/resumeDocument'
-import { PAGE } from './tokens'
+import { KEEP_WITH_NEXT, NO_SPLIT, PAGE } from './tokens'
 
 /**
  * ATS Classic — the most machine-readable template in the set (TASK-136).
@@ -65,9 +65,9 @@ const bodyStyle: React.CSSProperties = {
   color: INK,
 }
 
+/** A job may run on to the next page; its title and employer stay with its first point (tokens.ts). */
 const entryStyle: React.CSSProperties = {
   marginBottom: '11px',
-  pageBreakInside: 'avoid',
 }
 
 export default function AtsClassic({
@@ -144,7 +144,7 @@ export default function AtsClassic({
           <h2 style={h2Style}>Work Experience</h2>
           {experience.map((item) => (
             <div key={item.entry.id} style={entryStyle}>
-              <p style={{ ...bodyStyle, margin: 0, fontWeight: 700 }}>
+              <p style={{ ...bodyStyle, margin: 0, fontWeight: 700, ...KEEP_WITH_NEXT }}>
                 {item.entry.role}
                 {/* Plain pipe, same convention as the contact line above — one
                     text node, no flex positioning, so a parser reading this
@@ -153,14 +153,14 @@ export default function AtsClassic({
                 {item.range ? ` | ${item.range}` : ''}
               </p>
               {item.companyLine ? (
-                <p style={{ ...bodyStyle, margin: '1px 0 0', fontSize: '10pt', color: MUTED }}>
+                <p style={{ ...bodyStyle, margin: '1px 0 0', fontSize: '10pt', color: MUTED, ...KEEP_WITH_NEXT }}>
                   {item.companyLine}
                 </p>
               ) : null}
               {item.bullets.length > 0 ? (
                 <ul style={{ margin: '4px 0 0', paddingLeft: '17px' }}>
                   {item.bullets.map((b, i) => (
-                    <li key={i} style={{ ...bodyStyle, marginBottom: '2px' }}>
+                    <li key={i} style={{ ...bodyStyle, marginBottom: '2px', ...NO_SPLIT }}>
                       {b}
                     </li>
                   ))}

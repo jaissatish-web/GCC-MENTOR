@@ -56,6 +56,7 @@ const TS_CHECKS = [
   'verify-resume.ts',
   'verify-engine-templates.ts',
   'verify-template-quality.ts',
+  'verify-resume-style.ts',
   'docx-smoke.ts',
 ]
 

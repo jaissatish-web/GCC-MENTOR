@@ -75,6 +75,14 @@ const OVERRIDES: ResumeStyleOverrides[] = [
   { photo: 100 },
   { showPhoto: false },
   { font: 'serif', size: 'large', accent: 'plum', photo: 80 },
+  // Text colour, highlight, borders and header (2026-10-04).
+  { ink: 'black' },
+  { highlight: 'none' },
+  { highlight: 'yellow' },
+  { lines: false },
+  { header: 'bold' },
+  { header: 'light' },
+  { ink: 'dark', highlight: 'none', lines: false, header: 'bold' },
 ]
 
 function normalize(html: string): string {

@@ -72,6 +72,52 @@ export const ACCENT_OPTIONS = {
 export type AccentKey = keyof typeof ACCENT_OPTIONS
 
 /**
+ * Text darkness for print (2026-10-04, founder: "if he downloads it and the
+ * text is not dark, he can make it dark"). Many designs set body text in a mid
+ * grey and dates and contact details lighter still — calm on screen, faint on a
+ * printed page. Both move darker together; headings keep the accent colour,
+ * and Black is one of the accent choices for anyone who wants those too.
+ */
+export const INK_OPTIONS = {
+  dark: { label: 'Dark', ink: '#111827', muted: '#374151' },
+  black: { label: 'Black', ink: '#000000', muted: '#1F1F1F' },
+} as const
+
+export type InkKey = keyof typeof INK_OPTIONS
+
+/**
+ * The light shading behind boxes and tags (2026-10-04, founder): the summary
+ * box, a header card, skill and date tags, a contact strip, a light side column
+ * — and the solid bar some designs put behind section headings, which becomes a
+ * light bar in the chosen colour. `none` removes the shading and keeps the
+ * lines, so a box still reads as a box until Borders is turned off too. Every
+ * tint is light enough for dark text on it.
+ */
+export const HIGHLIGHT_OPTIONS = {
+  none: { label: 'None', soft: '#FFFFFF' },
+  grey: { label: 'Grey', soft: '#F1F3F5' },
+  blue: { label: 'Blue', soft: '#E8F0FB' },
+  green: { label: 'Green', soft: '#E7F4EC' },
+  yellow: { label: 'Yellow', soft: '#FFF4CC' },
+  rose: { label: 'Rose', soft: '#FBEAEE' },
+} as const
+
+export type HighlightKey = keyof typeof HIGHLIGHT_OPTIONS
+
+/**
+ * The name's header (2026-10-04, founder: "the header is also very light"):
+ * `bold` sets it on a solid band of the accent colour with white text, `light`
+ * on the white page. Designs with a side column carry the name in the column
+ * itself and have no header to change.
+ */
+export const HEADER_OPTIONS = {
+  light: { label: 'Light' },
+  bold: { label: 'Bold' },
+} as const
+
+export type HeaderKey = keyof typeof HEADER_OPTIONS
+
+/**
  * Photo size, as a 0–100 slider position (TASK-158).
  *
  * A NUMBER is safe here where a font-family string was not: it is validated as an
@@ -129,6 +175,17 @@ export interface ResumeStyleOverrides {
    * conjure one from nothing.
    */
   showPhoto?: boolean
+  /** Darker text (INK_OPTIONS). Absent = the template's own. */
+  ink?: InkKey
+  /** The shading behind boxes and tags (HIGHLIGHT_OPTIONS). Absent = the template's own. */
+  highlight?: HighlightKey
+  /**
+   * Box edges, tag outlines and heading lines. Only `false` is ever stored,
+   * as with `showPhoto`: drawing them is the template's own default.
+   */
+  lines?: boolean
+  /** Light or bold header (HEADER_OPTIONS). Absent = the template's own. */
+  header?: HeaderKey
 }
 
 export function isFontKey(v: unknown): v is FontKey {
@@ -139,6 +196,15 @@ export function isSizeKey(v: unknown): v is SizeKey {
 }
 export function isAccentKey(v: unknown): v is AccentKey {
   return typeof v === 'string' && v in ACCENT_OPTIONS
+}
+export function isInkKey(v: unknown): v is InkKey {
+  return typeof v === 'string' && Object.hasOwn(INK_OPTIONS, v)
+}
+export function isHighlightKey(v: unknown): v is HighlightKey {
+  return typeof v === 'string' && Object.hasOwn(HIGHLIGHT_OPTIONS, v)
+}
+export function isHeaderKey(v: unknown): v is HeaderKey {
+  return typeof v === 'string' && Object.hasOwn(HEADER_OPTIONS, v)
 }
 
 /**
@@ -185,6 +251,22 @@ export function parseStyleOverrides(
     if (typeof o.showPhoto !== 'boolean') return { error: 'styleOverrides.showPhoto' }
     // Only the non-default direction is ever stored — see the field's own doc.
     if (o.showPhoto === false) out.showPhoto = false
+  }
+  if (o.ink !== undefined && o.ink !== null) {
+    if (!isInkKey(o.ink)) return { error: 'styleOverrides.ink' }
+    out.ink = o.ink
+  }
+  if (o.highlight !== undefined && o.highlight !== null) {
+    if (!isHighlightKey(o.highlight)) return { error: 'styleOverrides.highlight' }
+    out.highlight = o.highlight
+  }
+  if (o.lines !== undefined && o.lines !== null) {
+    if (typeof o.lines !== 'boolean') return { error: 'styleOverrides.lines' }
+    if (o.lines === false) out.lines = false
+  }
+  if (o.header !== undefined && o.header !== null) {
+    if (!isHeaderKey(o.header)) return { error: 'styleOverrides.header' }
+    out.header = o.header
   }
 
   // Nothing set is stored as NULL rather than `{}` — one representation for
@@ -254,6 +336,29 @@ export function applyStyleOverrides(
   // ResumeStyleOverrides), so its mere presence here means "hide it".
   if (overrides.showPhoto === false) {
     next.photoVisible = false
+  }
+
+  if (overrides.ink) {
+    next.ink = INK_OPTIONS[overrides.ink].ink
+    next.muted = INK_OPTIONS[overrides.ink].muted
+  }
+
+  // After `accent`, which sets its own soft tone: an explicit highlight wins.
+  if (overrides.highlight) {
+    next.accentSoft = HIGHLIGHT_OPTIONS[overrides.highlight].soft
+    // A solid heading bar is shading too: a light bar in the chosen colour, or,
+    // with none, the plain underlined heading.
+    if (next.headingStyle === 'band') next.headingStyle = overrides.highlight === 'none' ? 'rule' : 'tint'
+  }
+
+  if (overrides.lines === false) {
+    next.boxLines = false
+    if (next.headingStyle === 'rule' || next.headingStyle === 'side' || next.headingStyle === 'bar') next.headingStyle = 'plain'
+  }
+
+  // A side-column design has no header to change (HEADER_OPTIONS).
+  if (overrides.header && theme.layout !== 'sidebar-filled') {
+    next.headerBand = overrides.header === 'bold'
   }
 
   return next

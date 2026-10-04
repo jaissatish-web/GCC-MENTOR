@@ -187,6 +187,13 @@ export interface TemplateEntry {
    * rather than throwing.
    */
   component?: (props: GulfPremiumProps) => React.JSX.Element
+  /**
+   * The design data an engine-driven template renders from (2026-10-04):
+   * its layout, rail side and the like, for code that has to know the shape
+   * of a design — which style controls apply, where its columns are. Absent
+   * on the two hand-written templates.
+   */
+  theme?: TemplateTheme
 }
 
 /**
@@ -211,6 +218,7 @@ function engineTemplate(
     allowsPhoto: theme.allowPhoto,
     styleable: true,
     component: makeTemplate(theme),
+    theme,
     name: meta.name,
     description: meta.description,
     recommendedFor: meta.recommendedFor,
@@ -278,6 +286,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.GCC_ENGINEERING.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.GCC_ENGINEERING),
+    theme: themes.GCC_ENGINEERING,
   },
   executive_gcc: {
     id: 'executive_gcc',
@@ -295,6 +304,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.EXECUTIVE_GCC.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.EXECUTIVE_GCC),
+    theme: themes.EXECUTIVE_GCC,
   },
   modern_professional: {
     id: 'modern_professional',
@@ -312,6 +322,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.MODERN_PROFESSIONAL.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.MODERN_PROFESSIONAL),
+    theme: themes.MODERN_PROFESSIONAL,
   },
   senior_compact: {
     id: 'senior_compact',
@@ -329,6 +340,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.SENIOR_COMPACT.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.SENIOR_COMPACT),
+    theme: themes.SENIOR_COMPACT,
   },
   gulf_minimal: {
     id: 'gulf_minimal',
@@ -346,6 +358,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.GULF_MINIMAL.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.GULF_MINIMAL),
+    theme: themes.GULF_MINIMAL,
   },
   corporate_band: {
     id: 'corporate_band',
@@ -363,6 +376,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.CORPORATE_BAND.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.CORPORATE_BAND),
+    theme: themes.CORPORATE_BAND,
   },
   technical_sidebar: {
     id: 'technical_sidebar',
@@ -380,6 +394,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.TECHNICAL_SIDEBAR.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.TECHNICAL_SIDEBAR),
+    theme: themes.TECHNICAL_SIDEBAR,
   },
   graduate_entry: {
     id: 'graduate_entry',
@@ -397,6 +412,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.GRADUATE_ENTRY.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.GRADUATE_ENTRY),
+    theme: themes.GRADUATE_ENTRY,
   },
   portrait_right: {
     id: 'portrait_right',
@@ -414,6 +430,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.PORTRAIT_RIGHT.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.PORTRAIT_RIGHT),
+    theme: themes.PORTRAIT_RIGHT,
   },
   consultant_right: {
     id: 'consultant_right',
@@ -431,6 +448,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.CONSULTANT_RIGHT.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.CONSULTANT_RIGHT),
+    theme: themes.CONSULTANT_RIGHT,
   },
   heritage_left: {
     id: 'heritage_left',
@@ -448,6 +466,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.HERITAGE_LEFT.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.HERITAGE_LEFT),
+    theme: themes.HERITAGE_LEFT,
   },
   project_twocol: {
     id: 'project_twocol',
@@ -465,6 +484,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.PROJECT_TWOCOL.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.PROJECT_TWOCOL),
+    theme: themes.PROJECT_TWOCOL,
   },
   creative_gcc: {
     id: 'creative_gcc',
@@ -482,6 +502,7 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     allowsPhoto: themes.CREATIVE_GCC.allowPhoto,
     styleable: true,
     component: makeTemplate(themes.CREATIVE_GCC),
+    theme: themes.CREATIVE_GCC,
   },
   // ---- 2026-10-04 — thirty-five more (components/templates/themes.ts) ----
   desert_steel: engineTemplate('desert_steel', themes.DESERT_STEEL, {

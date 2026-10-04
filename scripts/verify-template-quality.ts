@@ -25,7 +25,15 @@ import * as React from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { availableTemplates } from '../lib/templates'
-import { ACCENT_OPTIONS, FONT_OPTIONS, SIZE_OPTIONS, type ResumeStyleOverrides } from '../lib/resumeStyle'
+import {
+  ACCENT_OPTIONS,
+  FONT_OPTIONS,
+  HEADER_OPTIONS,
+  HIGHLIGHT_OPTIONS,
+  INK_OPTIONS,
+  SIZE_OPTIONS,
+  type ResumeStyleOverrides,
+} from '../lib/resumeStyle'
 import type { FieldVisibility } from '../types/careerProfile'
 import { VISIBILITY_KEYS, makeTemplateFixture } from './fixtures/templateFixture'
 
@@ -54,13 +62,27 @@ const bit = (k: (typeof VISIBILITY_KEYS)[number]) => 1 << VISIBILITY_KEYS.indexO
 // Everything on, everything off, each switch alone off, and a few mixes.
 const MASKS = [ALL, 0, ...VISIBILITY_KEYS.map((k) => ALL & ~bit(k)), bit('full_name'), bit('full_name') | bit('photo'), ALL & ~(bit('phone') | bit('email') | bit('whatsapp'))]
 
-/** Every style choice a user can make, one at a time, plus both photo extremes. */
+/**
+ * Every style choice a user can make, one at a time, plus both photo extremes
+ * and the print-plain combination (black text, no highlight, no borders) with
+ * each header.
+ */
 const STYLE_CHOICES: ResumeStyleOverrides[] = [
   ...(Object.keys(FONT_OPTIONS) as Array<keyof typeof FONT_OPTIONS>).map((font) => ({ font })),
   ...(Object.keys(SIZE_OPTIONS) as Array<keyof typeof SIZE_OPTIONS>).map((size) => ({ size })),
   ...(Object.keys(ACCENT_OPTIONS) as Array<keyof typeof ACCENT_OPTIONS>).map((accent) => ({ accent })),
+  ...(Object.keys(INK_OPTIONS) as Array<keyof typeof INK_OPTIONS>).map((ink) => ({ ink })),
+  ...(Object.keys(HIGHLIGHT_OPTIONS) as Array<keyof typeof HIGHLIGHT_OPTIONS>).map((highlight) => ({ highlight })),
+  ...(Object.keys(HEADER_OPTIONS) as Array<keyof typeof HEADER_OPTIONS>).map((header) => ({ header })),
+  { lines: false },
   { photo: 0 },
   { photo: 100 },
+  ...(Object.keys(HEADER_OPTIONS) as Array<keyof typeof HEADER_OPTIONS>).map((header) => ({
+    ink: 'black' as const,
+    highlight: 'none' as const,
+    lines: false,
+    header,
+  })),
 ]
 
 const BAD_STYLE = /style="[^"]*(NaN|undefined|\[object Object\])/
