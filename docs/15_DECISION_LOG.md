@@ -33,6 +33,15 @@ per row running into each other.
 Verified in a browser at 390px and 1280px: no button text spills, tabs ≥44px, two
 templates per row 16px apart and on screen, no horizontal scroll, no page errors.
 
+**Follow-up, same night — the photo size control.** Its track was `bg-canvas`, the page's
+own colour, so once the controls left their white card on phones only the thumb showed
+("only one dot"). It is now a size bar like a volume control (`.range-bar` in
+`app/globals.css`): − and + buttons at the ends (one 5% step each), a 12px bar filled
+teal→gold up to the value, a 28px thumb, the value shown with "· default" at 50%.
+Horizontal, not vertical — a vertical slider is awkward on a phone and in a 260px rail;
+the − / + ends carry the "down is smaller, up is bigger" meaning. Same 0–100 value, same
+Save style.
+
 ---
 
 ## 2026-10-04 (late) — Design audit of the queued design items

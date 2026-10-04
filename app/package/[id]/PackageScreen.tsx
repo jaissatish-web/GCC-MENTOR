@@ -4,6 +4,8 @@ import { PageSkeleton } from '@/components/ui/Skeleton'
 import {
   ArrowTrendingUpIcon,
   ClipboardDocumentListIcon,
+  MinusIcon,
+  PlusIcon,
   Squares2X2Icon,
   SwatchIcon,
 } from '@heroicons/react/24/outline'
@@ -1337,29 +1339,58 @@ function PackageScreenInner({ id }: { id: string }) {
                               size control for something invisible is confusing,
                               not merely redundant. */}
                           {draftStyle.showPhoto !== false ? (
-                            <div className="mt-3">
+                            <div className="mt-3 rounded-ctl border border-line bg-white p-3 shadow-m-1">
+                              {/* A SIZE BAR, LIKE A VOLUME CONTROL (founder 2026-10-04).
+                                  The track was `bg-canvas` — the page's own colour —
+                                  so once this panel lost its white card on phones
+                                  only the thumb showed. Now: − and + buttons at the
+                                  ends (one step each), a thick bar that fills
+                                  teal→gold up to the size, and a big thumb. Same
+                                  0–100 value in steps of 5, saved exactly as before. */}
                               <label
                                 htmlFor="photo-size"
-                                className="flex items-baseline justify-between text-[12px] text-ink-muted"
+                                className="flex items-baseline justify-between text-[13px] font-semibold text-ink"
                               >
                                 <span>Photo size</span>
-                                <span className="text-ink-soft">{photoPos}%</span>
+                                <span className="rounded-full bg-teal-soft px-2 py-0.5 font-mono text-[12px] font-bold text-teal">
+                                  {photoPos}%{photoPos === PHOTO_DEFAULT ? ' · default' : ''}
+                                </span>
                               </label>
-                              <input
-                                id="photo-size"
-                                type="range"
-                                min={0}
-                                max={100}
-                                step={5}
-                                value={photoPos}
-                                onChange={(e) =>
-                                  setDraftStyle((st) => ({ ...st, photo: Number(e.target.value) }))
-                                }
-                                className="mt-1.5 h-2 w-full cursor-pointer appearance-none rounded-full bg-canvas accent-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
-                              />
-                              <div className="mt-1 flex justify-between text-[12px] text-ink-muted">
+                              <div className="mt-2 flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  aria-label="Smaller photo"
+                                  disabled={photoPos <= 0}
+                                  onClick={() => setDraftStyle((st) => ({ ...st, photo: Math.max(0, photoPos - 5) }))}
+                                  className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong bg-white text-teal shadow-m-1 transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-40"
+                                >
+                                  <MinusIcon className="size-5" aria-hidden="true" />
+                                </button>
+                                <input
+                                  id="photo-size"
+                                  type="range"
+                                  min={0}
+                                  max={100}
+                                  step={5}
+                                  value={photoPos}
+                                  onChange={(e) =>
+                                    setDraftStyle((st) => ({ ...st, photo: Number(e.target.value) }))
+                                  }
+                                  style={{ '--fill': `${photoPos}%` } as React.CSSProperties}
+                                  className="range-bar min-w-0 flex-1"
+                                />
+                                <button
+                                  type="button"
+                                  aria-label="Larger photo"
+                                  disabled={photoPos >= 100}
+                                  onClick={() => setDraftStyle((st) => ({ ...st, photo: Math.min(100, photoPos + 5) }))}
+                                  className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong bg-white text-teal shadow-m-1 transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-40"
+                                >
+                                  <PlusIcon className="size-5" aria-hidden="true" />
+                                </button>
+                              </div>
+                              <div className="mt-1.5 flex justify-between px-[52px] text-[12px] text-ink-muted">
                                 <span>Smaller</span>
-                                <span>50% = template default</span>
                                 <span>Larger</span>
                               </div>
                             </div>
