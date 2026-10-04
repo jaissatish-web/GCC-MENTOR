@@ -10,6 +10,7 @@ import {
   ClockIcon,
   DocumentMagnifyingGlassIcon,
   ExclamationTriangleIcon,
+  EyeIcon,
   EyeSlashIcon,
   FlagIcon,
   GlobeAltIcon,
@@ -23,6 +24,7 @@ import {
 import { cn } from '@/lib/utils'
 import { ScoreRing, type RingTone } from '@/components/profile/ScoreRing'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
+import type { VisibilityGroupSummary } from '@/components/profile/CvVisibilitySettings'
 
 /**
  * THE CAREER PROFILE OVERVIEW (founder brief 2026-10-04).
@@ -35,8 +37,8 @@ import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
  *   header            photo + Profile complete ring (unchanged)
  *   ProfileExplainer  what this page is, in plain words
  *   ScoreCards        Profile complete · Gulf Readiness — ring, number, one line
+ *   SettingsCard      what appears on the CV, group by group
  *   CareerSnapshot    current role, years, GCC years, location, target, visa · notice
- *   SettingsCard      what appears on the CV
  *
  * Every figure is computed from what the user entered — nothing is inferred or
  * invented — and every card says where tapping it goes.
@@ -401,62 +403,76 @@ export function CareerSnapshot({
 // Profile settings (what appears on the CV)
 // ---------------------------------------------------------------------------
 
+/**
+ * PROFILE SETTINGS on the overview (founder request 2026-10-04: above "Your
+ * career at a glance", in a proper card). Four tiles — the same four groups as
+ * the settings screen — each saying how many of its details are on the CV and
+ * naming what is hidden, so the card answers "what does my CV show?" before
+ * it is opened. The whole card opens the settings screen.
+ */
 export function SettingsCard({
   shown,
   total,
-  hiddenLabels,
+  groups,
   onOpen,
 }: {
   shown: number
   total: number
-  /** Names of the details currently left off the CV. */
-  hiddenLabels: string[]
+  groups: readonly VisibilityGroupSummary[]
   onOpen: () => void
 }) {
   return (
-    <section aria-labelledby="settings-card-h" className="relative mx-5 mt-4 rounded-card border border-line bg-white p-4 shadow-m-1 transition-colors focus-within:ring-2 focus-within:ring-teal hover:border-teal/50 sm:p-5">
-      <div className="flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-ctl bg-sec-summary/10 text-sec-summary">
+    <section
+      aria-labelledby="settings-card-h"
+      className="group relative mx-5 mt-4 overflow-hidden rounded-card border border-sec-summary/20 bg-white shadow-m-1 transition-all focus-within:ring-2 focus-within:ring-teal hover:-translate-y-0.5 hover:shadow-m-2 motion-reduce:transform-none"
+    >
+      <div className="flex items-center gap-3 bg-gradient-to-r from-sec-summary/10 via-sec-summary/[0.04] to-white px-4 py-3.5 sm:px-5">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-ctl bg-white text-sec-summary shadow-m-1">
           <AdjustmentsHorizontalIcon className="size-5" aria-hidden="true" />
         </span>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <h2 id="settings-card-h" className="text-[15px] font-bold text-ink">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <h2 id="settings-card-h" className="text-[15.5px] font-bold text-ink">
             Profile settings
           </h2>
-          <p className="text-[13px] leading-snug text-ink-soft">
-            Choose what shows on your CV — photo, date of birth, passport, visa and contact details.
-          </p>
-          <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[12px]">
-            <span className="font-semibold text-ink">
-              {shown} of {total} shown
-            </span>
-            {hiddenLabels.length > 0 ? (
-              <>
-                <span aria-hidden="true" className="text-ink-muted">
-                  ·
-                </span>
-                <span className="text-ink-muted">Hidden:</span>
-                {hiddenLabels.map((l) => (
-                  <span key={l} className="inline-flex items-center gap-1 rounded-full bg-canvas px-2 py-0.5 font-semibold text-ink-soft">
-                    <EyeSlashIcon className="size-3.5" aria-hidden="true" />
-                    {l}
-                  </span>
-                ))}
-              </>
-            ) : null}
+          <p className="text-[12.5px] leading-snug text-ink-soft">
+            What your CV shows — <span className="font-semibold text-ink">{shown} of {total} details on</span>
           </p>
         </div>
-        {/* The whole card is the target; this is the one focusable control. */}
+        {/* The whole card is the target; this is its one focusable control. */}
         <button
           type="button"
           onClick={onOpen}
-          className="inline-flex min-h-11 shrink-0 items-center gap-1 self-center text-[13px] font-bold text-teal after:absolute after:inset-0 after:rounded-card focus-visible:outline-none"
+          className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-ctl bg-white px-3 text-[13px] font-bold text-teal shadow-m-1 after:absolute after:inset-0 after:rounded-card focus-visible:outline-none"
         >
-          <span className="hidden sm:inline">Open</span>
-          <ArrowRightIcon className="size-4" aria-hidden="true" />
+          <span aria-hidden="true">Manage</span>
+          <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
           <span className="sr-only">Open profile settings</span>
         </button>
       </div>
+
+      <ul className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-4 sm:p-4">
+        {groups.map((g) => {
+          const Icon = g.icon
+          const all = g.shown === g.total
+          return (
+            <li key={g.id} className="flex min-w-0 flex-col gap-1.5 rounded-ctl border border-line bg-canvas/60 p-2.5">
+              <span className="flex items-center gap-2">
+                <span className={cn('flex size-7 shrink-0 items-center justify-center rounded-full', g.badge)}>
+                  <Icon className="size-4" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 text-[12.5px] font-bold leading-tight text-ink">{g.title}</span>
+              </span>
+              <span className={cn('inline-flex items-center gap-1 text-[12px] font-semibold', all ? 'text-ok' : 'text-ink-soft')}>
+                {all ? <EyeIcon className="size-3.5" aria-hidden="true" /> : <EyeSlashIcon className="size-3.5" aria-hidden="true" />}
+                {all ? `All ${g.total} on CV` : `${g.shown} of ${g.total} on CV`}
+              </span>
+              {g.hidden.length > 0 ? (
+                <span className="text-[12px] leading-snug text-ink-muted">Hidden: {g.hidden.join(', ')}</span>
+              ) : null}
+            </li>
+          )
+        })}
+      </ul>
     </section>
   )
 }
@@ -527,11 +543,20 @@ export function SaveBar({
   message,
   onSave,
   onFinish,
+  finishLabel = 'Done — go to dashboard',
 }: {
   state: 'saved' | 'dirty' | 'saving' | 'error'
   message?: string | null
   onSave: () => void
   onFinish: () => void
+  /**
+   * What the button does once everything is saved. On the overview it leaves
+   * for the dashboard; on a screen the overview opened (Gulf Readiness,
+   * completeness, full profile, settings) it goes back to the profile —
+   * founder request 2026-10-04: after fixing a score, people want to see
+   * their profile, not leave it.
+   */
+  finishLabel?: string
 }) {
   return (
     <div
@@ -577,7 +602,7 @@ export function SaveBar({
             onClick={onFinish}
             className="min-h-11 flex-1 rounded-ctl border border-line-strong bg-white px-4 text-[13px] font-semibold text-ink hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-none"
           >
-            Done — go to dashboard
+            {finishLabel}
           </button>
         ) : (
           <button

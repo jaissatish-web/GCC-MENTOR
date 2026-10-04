@@ -81,10 +81,11 @@ Two rules:
 
 **The page is an overview with screens (2026-10-04).** `/profile` opens on cards — header
 (photo, Profile complete ring, Save), what this page is, Profile complete and Gulf
-Readiness score cards, career at a glance, Profile settings — and each opens a screen of
+Readiness score cards, Profile settings, career at a glance — and each opens a screen of
 the same page via `?view=`: `details` (the editor below), `completeness`, `readiness`,
 `settings`. The editor state is shared by all of them and never unmounts, so moving
-between screens loses nothing. Components: `components/profile/ProfileOverview.tsx`
+between screens loses nothing; once saved, each screen's save bar returns to the overview
+("Back to my profile"). Components: `components/profile/ProfileOverview.tsx`
 (overview cards, `ViewHeader`, `SaveBar`), `CompletenessView.tsx`,
 `GulfReadinessView.tsx`, `CvVisibilitySettings.tsx`, `ScoreRing.tsx`.
 

@@ -45,6 +45,13 @@ on your CV" (passport etc.) moves onto the main profile page as Profile settings
 **Not changed:** scoring, the save contract, the add-or-replace choice, auto-save after
 extraction, any API or schema.
 
+**Same day, follow-up (founder):** Profile settings moves above "Your career at a glance"
+as a fuller card — four tiles (Photo & personal · Passport, visa & notice · Contact ·
+Extra details), each with how many of its details are on the CV and what is hidden. Once
+everything is saved, the save bar on every screen the overview opens says **"Back to my
+profile"** (returns to the overview); only the overview's own says "Done — go to
+dashboard". After fixing a score, people want their profile, not to leave it.
+
 ---
 
 ## 2026-09-23 (evening) — Career Profile, Resume Library, and fixes from a real end-to-end test

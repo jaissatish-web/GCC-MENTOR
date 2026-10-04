@@ -58,10 +58,34 @@ const GROUPS: ReadonlyArray<{ id: Group; title: string; icon: React.ComponentTyp
   { id: 'extra', title: 'Extra details', icon: DocumentTextIcon, badge: 'bg-sec-additional/10 text-sec-additional' },
 ]
 
-/** Visible-on-CV count and the labels of what is hidden — for the overview card. */
-export function visibilitySummary(value: FieldVisibility): { shown: number; total: number; hidden: string[] } {
-  const hidden = VISIBILITY_FIELDS.filter((f) => !value[f.key]).map((f) => f.label.replace(/ \(.*\)$/, ''))
-  return { shown: VISIBILITY_FIELDS.length - hidden.length, total: VISIBILITY_FIELDS.length, hidden }
+/** One group of CV details, as the overview's Profile settings card shows it. */
+export interface VisibilityGroupSummary {
+  id: string
+  title: string
+  icon: React.ComponentType<{ className?: string }>
+  badge: string
+  shown: number
+  total: number
+  /** Short names of the details in this group left off the CV. */
+  hidden: string[]
+}
+
+const shortLabel = (label: string) => label.replace(/ \(.*\)$/, '')
+
+/** Visible-on-CV counts, overall and per group — for the overview card. */
+export function visibilitySummary(value: FieldVisibility): {
+  shown: number
+  total: number
+  hidden: string[]
+  groups: VisibilityGroupSummary[]
+} {
+  const hidden = VISIBILITY_FIELDS.filter((f) => !value[f.key]).map((f) => shortLabel(f.label))
+  const groups = GROUPS.map((g) => {
+    const rows = VISIBILITY_FIELDS.filter((f) => f.group === g.id)
+    const off = rows.filter((f) => !value[f.key]).map((f) => shortLabel(f.label))
+    return { ...g, shown: rows.length - off.length, total: rows.length, hidden: off }
+  })
+  return { shown: VISIBILITY_FIELDS.length - hidden.length, total: VISIBILITY_FIELDS.length, hidden, groups }
 }
 
 export function CvVisibilitySettings({

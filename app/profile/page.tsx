@@ -79,7 +79,7 @@ function hasSavedProfileContent(saved: CareerProfileFull | null): boolean {
  * very messy — segregate it").
  *
  *   overview      photo + completeness header, what this page is, the two
- *                 score cards, career at a glance, profile settings
+ *                 score cards, profile settings, career at a glance
  *   details       the full profile — the nine-section editor
  *   completeness  Profile complete, part by part, and what is missing
  *   readiness     Gulf Readiness — paperwork, profile fixes, apply
@@ -2011,8 +2011,17 @@ function ProfileScreen() {
   // THE SAVE BAR (2026-09-23): always says whether the profile is saved, sits
   // where the user is, and shows a failed save next to the button that caused
   // it. The same on every screen, so a Save pressed anywhere is confirmed.
+  // Once saved, the overview's button leaves for the dashboard; every screen
+  // the overview opened returns to the profile instead (founder request
+  // 2026-10-04).
   const saveBar = hasSavedProfile || isDirty || saveError ? (
-    <SaveBar state={saveState} message={saveError} onSave={() => void onSubmit('stay')} onFinish={() => router.push('/dashboard')} />
+    <SaveBar
+      state={saveState}
+      message={saveError}
+      onSave={() => void onSubmit('stay')}
+      onFinish={view === 'overview' ? () => router.push('/dashboard') : backToOverview}
+      finishLabel={view === 'overview' ? 'Done — go to dashboard' : 'Back to my profile'}
+    />
   ) : null
   const parseNotesBlock = (
     <ParseNotes
@@ -2228,7 +2237,7 @@ function ProfileScreen() {
         {/* WHAT THIS PAGE IS — in plain words, on the page's one coloured panel. */}
         <ProfileExplainer />
 
-        {/* THE TWO SCORES, CAREER AT A GLANCE, PROFILE SETTINGS (2026-10-04).
+        {/* THE TWO SCORES, PROFILE SETTINGS, CAREER AT A GLANCE (2026-10-04).
             Each card opens its own screen. Hidden until the profile has a name:
             before that this page's job is the import panel below. */}
         {hasProfile && profileFacts ? (
@@ -2239,8 +2248,8 @@ function ProfileScreen() {
               onOpenCompleteness={() => showView('completeness')}
               onOpenReadiness={() => showView('readiness')}
             />
+            <SettingsCard shown={vis.shown} total={vis.total} groups={vis.groups} onOpen={() => showView('settings')} />
             <CareerSnapshot facts={profileFacts} onOpen={goToProfilePart} onOpenAll={() => showView('details')} />
-            <SettingsCard shown={vis.shown} total={vis.total} hiddenLabels={vis.hidden} onOpen={() => showView('settings')} />
           </>
         ) : null}
 
