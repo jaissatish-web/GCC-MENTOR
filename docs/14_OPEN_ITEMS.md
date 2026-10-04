@@ -35,6 +35,25 @@ in [`SAAS_RELEASE_CHECKLIST.md`](SAAS_RELEASE_CHECKLIST.md).
 
 ---
 
+## S. Found in the 2026-10-04 platform audit — reported, not fixed
+
+Full context: [`PLATFORM_AUDIT_2026-10-04.md`](PLATFORM_AUDIT_2026-10-04.md) §2.
+
+- **S1 · No HTTP security headers.** No `X-Frame-Options` / CSP `frame-ancestors`
+  (signed-in pages, including Settings → delete data, can be framed — clickjacking), no
+  `X-Content-Type-Options: nosniff`, no `Referrer-Policy`, no `Permissions-Policy`
+  (microphone should be allowed for the mock interview only). Nothing in
+  `next.config.mjs`, `middleware.ts` or `vercel.json` sets them.
+- **S2 · PDF routes have no per-user limit.** `/api/resume/pdf` and
+  `/api/packages/[id]/pdf` launch headless Chromium on every request; a signed-in user
+  can loop them and run up compute.
+- **S3 · Typical duties is outside the AI guard.** `/api/profile/typical-duties` makes a
+  model call with the older `getRateLimitStatus` + `incrementRateLimit`: no admin pause,
+  no concurrency cap, and parallel requests can pass the daily limit together. Every
+  other AI route uses `reserveAiAction`.
+
+---
+
 ## 0. Standing: the paid locks are off
 
 **Every paid lock was removed on 2026-08-17 by founder decision**, so the full

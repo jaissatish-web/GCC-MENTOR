@@ -54,6 +54,7 @@ Each part of the product is one file. Go straight to the one you need.
 | [`DATA_INVENTORY_AND_RETENTION.md`](DATA_INVENTORY_AND_RETENTION.md) | Where every kind of personal data lives, who can read it, how long it stays, how it is deleted |
 | [`SAAS_REMEDIATION_2026-09-15.md`](SAAS_REMEDIATION_2026-09-15.md) | What the 2026-09-15 audit found and what was done about each item, with evidence |
 | [`FULL_SAAS_AUDIT_2026-09-15.md`](FULL_SAAS_AUDIT_2026-09-15.md) | The audit itself — kept unchanged as the baseline |
+| [`PLATFORM_AUDIT_2026-10-04.md`](PLATFORM_AUDIT_2026-10-04.md) | Mobile-first UX, security and AI-control audit of the signed-in app, with the prioritised list |
 
 ---
 
