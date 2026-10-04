@@ -12,6 +12,62 @@ in [`15_DECISION_LOG.md`](15_DECISION_LOG.md).
 
 ---
 
+## Queued 2026-10-04 — from the platform audit
+
+Source: [`PLATFORM_AUDIT_2026-10-04.md`](PLATFORM_AUDIT_2026-10-04.md). Grouped by what
+each item may touch. **D items are presentation only** — they must not change routes,
+API calls, validation, saving, scoring or permissions (`02_PHILOSOPHY.md` §5). Every D
+item is checked at 390px and 1280px in a browser before it is approved.
+
+### D · Design only — no core logic
+
+- **D1 · Put the phone reading sizes live.** Merge `fc45aaf` (phone text 12→13px, the
+  16px stage picker, two 44px tap areas) to `main`. Files: `app/globals.css`,
+  `components/layout/AppShell.tsx`, `components/package/StageSelect.tsx`,
+  `components/package/PreparationJourney.tsx`, `app/dashboard/page.tsx`.
+- **D2 · Neutral "Card checkout is not live yet" line.** It is alert-red in the in-app
+  footer on every signed-in screen. Keep the words (they are true), drop the red, or show
+  it only where prices appear. File: `components/layout/AppFooter.tsx`.
+- **D3 · Profile explainer card once.** Full card on the first visit; afterwards one line
+  that opens it. Remembered per browser only (a convenience, never state that matters).
+  File: `components/profile/ProfileOverview.tsx` (`ProfileExplainer`).
+- **D4 · Shorter Gulf Readiness screen on phones** (~5 screens today). Verdict and the
+  next three actions first; "score by area" and strengths behind a tap. Same result
+  object, same links. File: `components/profile/GulfReadinessView.tsx`.
+- **D5 · One paperwork line on the Gulf Readiness score card.** The verdict and the line
+  under it both name paperwork. File: `components/profile/ProfileOverview.tsx`
+  (`ScoreCards`).
+- **D6 · Dashboard shows the score with a next step**, not both scores again under the
+  profile's own cards. Same numbers, same links. File: `app/dashboard/page.tsx`.
+- **D7 · Desktop sidebar label "Resume Opti…" is cut off** beside the "Next" tag. File:
+  `components/layout/Sidebar.tsx`.
+
+### C · Security and AI-call control — touches server code, CTO review required
+
+- **C1 · HTTP security headers** (open item S1): frame-ancestors / X-Frame-Options,
+  nosniff, Referrer-Policy, Permissions-Policy with the microphone for the mock interview
+  only. `next.config.mjs`.
+- **C2 · Per-user limit on the PDF routes** (S2). `/api/resume/pdf`,
+  `/api/packages/[id]/pdf`.
+- **C3 · Typical duties under `reserveAiAction`** (S3). `/api/profile/typical-duties`.
+- **C4 · Global daily caps per AI service** set in `/admin/services` (a setting, no code).
+- **C5 · Admin view of AI cost per user and per service** from `ai_usage_log`.
+
+### F · New features — need a founder decision before any spec
+
+- **F1 · Job leads** (weekly list per trade and country, or "paste a job link").
+- **F2 · Salary guide** by role and country (basic, housing, transport, flights).
+- **F3 · Help text in Hindi / Malayalam / Arabic** for the profile and paperwork steps.
+- **F4 · Re-apply the paid locks** with the pricing decision (A0, R-4).
+
+### V · Founder checks on the live site
+
+- **V1 · Real signed-in walk on a phone:** CV upload → profile → optimized CV → PDF →
+  cover letter → Q&A → voice mock → report (R-3).
+- **V2 · Production setup:** migrations 049+ applied, `CRON_SECRET` set (R-1, R-2).
+
+---
+
 ## Done
 
 ### ✅ The LLM control layer
