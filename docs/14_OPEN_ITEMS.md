@@ -54,6 +54,18 @@ Full context: [`PLATFORM_AUDIT_2026-10-04.md`](PLATFORM_AUDIT_2026-10-04.md) §2
 
 ---
 
+## T. Resume templates — found while adding the 35 Gulf designs (2026-10-04)
+
+- **T1 · The Gulf Premium baseline never hid a field.** `scripts/verify-resume.ts` sets
+  only the switches that are ON; a missing key means SHOWN (`visible()` in
+  `lib/resumeDocument.ts`), so all 32,768 "permutations" render the same full CV —
+  `scripts/resume.golden.txt` holds one distinct hash 32,768 times. Gulf Premium is now
+  covered properly by `scripts/verify-engine-templates.ts` (every switch set explicitly,
+  every template, in `npm test`). Fix: set every key in `verify-resume.ts` explicitly
+  and recapture its golden from the current code, or retire it in favour of the new check.
+
+---
+
 ## 0. Standing: the paid locks are off
 
 **Every paid lock was removed on 2026-08-17 by founder decision**, so the full

@@ -11,6 +11,11 @@
  * engine.tsx), and a change to that engine restyles every one of them, including
  * resumes already delivered. Nothing measured that. This does.
  *
+ * EVERY SWITCH IS SET EXPLICITLY, on or off. A missing key means SHOWN
+ * (lib/resumeDocument.ts `visible()`), so a mask that only set the "on" keys
+ * would render the same full CV 32,768 times — which is what verify-resume.ts
+ * does for Gulf Premium (recorded in docs/14_OPEN_ITEMS.md).
+ *
  * WHAT IS MEASURED. Every template in the registry is rendered with the same
  * realistic CV (scripts/fixtures/templateFixture.ts) under:
  *   - every combination of the 15 visibility switches (`--full`, 32,768 each), or
@@ -97,7 +102,7 @@ function digestFor(templateId: string, masks: number[]): string {
     )
   for (const mask of masks) {
     const fv: Partial<FieldVisibility> = {}
-    for (let b = 0; b < N; b++) if (mask & (1 << b)) fv[VISIBILITY_KEYS[b]] = true
+    for (let b = 0; b < N; b++) fv[VISIBILITY_KEYS[b]] = (mask & (1 << b)) !== 0
     h.update(render(fv))
     h.update('\n')
   }
