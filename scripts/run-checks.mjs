@@ -53,6 +53,7 @@ const TS_CHECKS = [
   'verify-voice-transcription.ts',
   'verify-mock-report.ts',
   'verify-resume.ts',
+  'verify-engine-templates.ts',
   'docx-smoke.ts',
 ]
 

@@ -1,0 +1,62 @@
+{
+  "gulf_premium": {
+    "sample": "c35504d5fd3fd40dbc78c8a374791fa314c00f11581929b5a0750cd5f1ba479a",
+    "full": "e8b30984df2f1d95e61b8bd70257335d5cf6f10b12c18ce34724920447840efe"
+  },
+  "ats_classic": {
+    "sample": "d489bb3e2040f931108007ac8642e4bea48e19d7a34e4fcc3b5ecc26219b158a",
+    "full": "263f2a9230b33003057fe38f51fc80bdd5f8c150aac7a5c9af221b531cd5dd74"
+  },
+  "gcc_engineering": {
+    "sample": "61e7cce06a2a5570b35f93a506b0a7dc8c1a085f79c0957013acd50b8c29541e",
+    "full": "00a19cf78b5d4b78477d8862a9755bdb45c28ed727f3abdf4e4dddd6075669b6"
+  },
+  "executive_gcc": {
+    "sample": "d9b88e52ff75c5200775b8acfb08c309a08b62dc1f8d0e551f0f743501db51b2",
+    "full": "730e696ec289af1f68f219598d9e320570f4677366ac2cb7dd09e8da61eeacc4"
+  },
+  "modern_professional": {
+    "sample": "7b991030b55766fd9165708990bbd175a62c77ce9248fe139de2962cdced12e6",
+    "full": "8c2cd97face4868253d2314abb4d92e05401c369a6dc3eba7c40ec51a6098dbd"
+  },
+  "senior_compact": {
+    "sample": "31b205d6c607828e0766819d1d480fb66422347ea98cf40cbe28b801d8b158d3",
+    "full": "03a9e274f00aabf8b24e2aa3afcc2a566663e90d041677d6a7aeeee6f362df9b"
+  },
+  "gulf_minimal": {
+    "sample": "8be88bfab705462be7f44b9dcaa3cfe63c835d4dbd13b53b72133e80b29578f3",
+    "full": "0d7a9b8869cab3e4791f5f40f65886fcde7f58a6e4e4a33acc0d4463947de316"
+  },
+  "corporate_band": {
+    "sample": "1b8e8c2e9639150b29f19ba39a67c8c84cf48c8d96de11462fefbf75b1ca0e4e",
+    "full": "fce1431b6147c15b9c52e830cd04fb66b6bd43a1475f6306135088e58049df74"
+  },
+  "technical_sidebar": {
+    "sample": "f1896ae76a980cefe1cb5547d17c2cde964a8275e0eec65aea6bf5ac650377d7",
+    "full": "aa1e078d55bf8d26b8f9776aad79c10d07270bb0e03a75de651f8cdca47eb260"
+  },
+  "graduate_entry": {
+    "sample": "a6ee83783e8e2e77ebce9400e68ef4c7e25d3d656bd630028e700f9530266d0e",
+    "full": "3dfb7ad2c500f5bc71fe25f191cbd17aa1d4cad01a09ba8e799d36075d94ac1a"
+  },
+  "portrait_right": {
+    "sample": "916d8238606cb0ee9115c781c6bb4e557e8692972d7473492cc5d27567799a47",
+    "full": "e6013153e81e50d1b3dab9da0bbc8eb461feb8fa43c81da9792e9f72bf123a63"
+  },
+  "consultant_right": {
+    "sample": "a514da0c172b0057b17516bb2333e0bef99c3045e155cc52f0d7e2d1bc679896",
+    "full": "37f802d84bd0e31810177ec302a3455c2d65e99fe30d40e04819954541e59030"
+  },
+  "heritage_left": {
+    "sample": "4314f910adbbbbf224624e2d476087c332c6a455f0e7dd3943035577044c9bde",
+    "full": "e2906b1ae47fc21a2ded97a6903fe7b99b32770177743632ef484f941e6e83b7"
+  },
+  "project_twocol": {
+    "sample": "2f8fedc2f1081ec6a60dc0a6fee8d72ea45ccfa01d5ef0a1b2433b13df129d16",
+    "full": "034e631ddb7467ffe5313cf1ec0c0c832c7b576e942dc584a2daca7cbde82d54"
+  },
+  "creative_gcc": {
+    "sample": "c33e63b80d79bd1eacb1a25dc3d482261248718af6ce63a9443c5ff1ca11a724",
+    "full": "038b9d6f89d90e7f1e840c590e674e0f9f2b9a5e09c313255701a1bf96801c48"
+  }
+}
