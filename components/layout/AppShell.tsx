@@ -32,7 +32,8 @@ export function AppShell({
   hideNav?: boolean
 }) {
   return (
-    <div className="flex min-h-screen bg-canvas">
+    // `app-type`: the phone reading sizes in app/globals.css (2026-10-04).
+    <div className="app-type flex min-h-screen bg-canvas">
       {hideNav ? null : (
         <div className="dark-scope contents">
           <Sidebar />

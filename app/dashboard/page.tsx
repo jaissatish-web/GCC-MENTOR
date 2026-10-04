@@ -348,7 +348,7 @@ export default function DashboardPage() {
                       .map((m) => m.label.toLowerCase())
                       .join(', ')}${missing.length > 3 ? '…' : '.'}`}
               </p>
-              <Link href="/profile" className="text-[13px] font-semibold text-teal hover:underline">
+              <Link href="/profile" className="-my-2 inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-teal hover:underline">
                 {missing.length === 0 ? 'View Career Profile →' : 'Complete my profile →'}
               </Link>
             </section>

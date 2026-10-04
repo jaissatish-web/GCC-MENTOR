@@ -31,6 +31,18 @@ Inter (`font-redesign-sans`) for everything else, Plex Mono only for figures tha
 align. Nothing readable under 12px. One icon set: Heroicons (emoji icons were removed
 from the usage strip on 2026-09-23).
 
+### Phone reading sizes (2026-10-04)
+
+Most users are on phones. Measured at 390px, 12px was the most-used text size in the
+signed-in app (42% of the profile's text, 73% of "Add your target job"), and the mock
+interview had 10–11px labels under the 12px floor. So **on phones only** (below 640px,
+inside `AppShell`'s `.app-type`), `app/globals.css` steps each small size up one:
+10/11px → 12px, 12px → 13px, 12.5px → 13.5px. Desktop is unchanged; the public site is
+outside the shell and untouched; resume templates size themselves inline, so CV previews
+still match the PDF. **Form fields are 16px on phones** (`.field`, and `StageSelect`) —
+iOS Safari zooms the page on any field smaller than that. Standalone text links get a
+44px tap area (`inline-flex min-h-11 items-center`).
+
 ### Buttons — one meaning each
 
 `primary`/`purchase` (gold, ink text) = the page's one main action · `progress` (teal)

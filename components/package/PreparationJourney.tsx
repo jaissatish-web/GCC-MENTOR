@@ -76,7 +76,7 @@ export function PreparationJourney({
           </p>
         </div>
         {here !== 'resume' ? (
-          <Link href={`/package/${id}`} className="shrink-0 text-[13px] font-semibold text-teal underline-offset-4 hover:underline">
+          <Link href={`/package/${id}`} className="inline-flex min-h-11 shrink-0 items-center text-[13px] font-semibold text-teal underline-offset-4 hover:underline">
             {CTA.viewOptimizedCv}
           </Link>
         ) : null}

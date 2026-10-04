@@ -77,7 +77,8 @@ export function StageSelect({
       }}
       aria-label="Application stage"
       className={cn(
-        'min-h-11 cursor-pointer rounded-full border px-[11px] py-[6px] text-[12px] font-semibold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+        // 16px on phones: iOS Safari zooms the page on any field under 16px.
+        'min-h-11 cursor-pointer rounded-full border px-[11px] py-[6px] text-[16px] font-semibold leading-none sm:text-[12px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
         stageClass(value),
         className
       )}

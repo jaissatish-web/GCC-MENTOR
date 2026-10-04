@@ -266,3 +266,29 @@
     }
   }
 }
+
+/*
+ * PHONE READING SIZES for the signed-in app (founder 2026-10-04: most users
+ * are on phones). The app's helper and secondary text was mostly 12px — over
+ * 40% of all text on the profile, 73% on "Add your target job" (measured at
+ * 390px) — and some mock-interview labels were 10–11px, under the design
+ * system's own 12px floor. On phones only, each small size steps up one:
+ * 10/11px → 12px, 12px → 13px, 12.5px → 13.5px. Desktop is unchanged.
+ *
+ * Scoped to `.app-type` (the AppShell root), so the public site is untouched.
+ * Resume templates set their own sizes inline, so CV previews still match the
+ * PDF exactly.
+ */
+@media (max-width: 639px) {
+  .app-type .text-\[10px\],
+  .app-type .text-\[11px\] {
+    font-size: 12px;
+  }
+  .app-type .text-\[12px\],
+  .app-type .text-xs {
+    font-size: 13px;
+  }
+  .app-type .text-\[12\.5px\] {
+    font-size: 13.5px;
+  }
+}
