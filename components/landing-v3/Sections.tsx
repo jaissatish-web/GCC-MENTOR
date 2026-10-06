@@ -198,9 +198,9 @@ export function WhoItsFor() {
 /* ── Founder: the Gulf insider behind the product ─────────────────────── */
 
 const INSIGHTS = [
-  ['The software reads first', 'Mirror the job’s own words — its title, skills and standards — or a person never sees your CV.'],
+  ['Make your experience easy to find', 'Use the job’s relevant terminology for skills and standards you can support with your experience.'],
   ['The top third decides', 'Recruiters look for title, years, Gulf experience, visa and notice period — in seconds.'],
-  ['Numbers beat duties', '“Handled accounts” loses to “Cut month-end close from 9 to 5 days.” Every time.'],
+  ['Numbers beat duties', '“Cut month-end close from 9 to 5 days” shows a result more clearly than “Handled accounts.”'],
   ['Premium roles are won in the room', 'Practise answers with results before you face the client — not after.'],
 ] as const
 
@@ -264,7 +264,7 @@ export function Trust() {
           <SectionHead
             id="trust-title"
             eyebrow="Why you can trust it"
-            title={<>Your experience. Better presented — <em>never invented.</em></>}
+            title={<>Your experience. Clearer applications. <em>You stay in control.</em></>}
           />
           <ul className="mt-6 space-y-3">
             {rules.map((r) => (
@@ -359,7 +359,7 @@ export function PricingPreview() {
 /* ── FAQ: six questions, native accordion ─────────────────────────────── */
 
 const FAQ = [
-  ['What is ATS, and why does it matter?', 'An Applicant Tracking System is software many Gulf employers and agencies use to screen CVs and cover letters before a recruiter reads them. It looks for the job’s title, keywords and a readable layout. GCC Mentor prepares each application for that screen — using only your real experience.'],
+  ['What is ATS, and why does it matter?', 'An Applicant Tracking System helps employers manage applications. Some systems support keyword searches or screening, and each employer uses them differently. A readable CV with relevant skills helps make your experience easier to find. GCC Mentor helps you tailor your application and review every change.'],
   ['What are the optimization levels?', 'You choose. Easy is a light touch in the job’s keywords. Moderate adds suggested lines for the must-have requirements. High is the strongest rewrite. Suggestions are highlighted and only kept if you confirm they are true.'],
   ['Can GCC Mentor guarantee a job?', 'No. It helps you present your real experience clearly for each job. Employers make their own decisions — no score or CV can guarantee an interview or offer.'],
   ['Can I use my existing resume?', 'Yes. Upload a PDF or Word file, or paste the text. It becomes your Career Profile, and you check it before anything is written from it.'],

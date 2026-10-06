@@ -59,7 +59,7 @@ export function OptimizationLevels() {
   return (
     <div className="mt-8 grid gap-4 lg:mt-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch lg:gap-6">
       <div>
-        <div role="radiogroup" aria-label="Optimization level" className="grid grid-cols-3 gap-2">
+        <div role="radiogroup" aria-label="Optimization level" className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {LEVELS.map((l, i) => (
             <button
               key={l.key}
@@ -125,7 +125,7 @@ export function OptimizationLevels() {
             <Bold text={L.bullet} />
           </p>
           {L.suggestion ? (
-            <p key={`${L.key}-s`} className={cn(s.enter, 'flex items-start justify-between gap-3 rounded-[12px] border border-gold/50 bg-gold-soft px-3 py-2.5 text-ink')}>
+            <p key={`${L.key}-s`} className={cn(s.enter, 'flex flex-wrap items-start justify-between gap-3 rounded-[12px] border border-gold/50 bg-gold-soft px-3 py-2.5 text-ink')}>
               <span>
                 <span className="font-semibold mr-1.5 type-caption uppercase tracking-[0.08em] text-gold-ink">Suggested</span>
                 {L.suggestion}

@@ -14,7 +14,7 @@ const STEP_MS = 8000
  * The hero visual: one CV moving through the product — original → job match →
  * optimized → interview ready. Each time the four sheets complete, the next
  * example candidate takes over (nurse, accountant, engineer…), so a visitor
- * from any profession sees their own kind of job within a few seconds.
+ * from any profession can follow an example through the preparation steps.
  */
 const SHEETS = [
   { key: 'original', label: 'Original CV', short: 'Original' },
@@ -241,13 +241,13 @@ export function HeroStack() {
               {i < index ? <span className="absolute inset-0 bg-teal" /> : null}
               {i === index ? (
                 <span
-                  key={`${index}-${paused}-${reduced}-${who}`}
-                  className={cn('absolute inset-0 bg-teal', !paused && !reduced && visible && s.progressFill)}
+                  key={`${index}-${paused}-${userPaused}-${manual}-${reduced}-${who}`}
+                  className={cn('absolute inset-0 bg-teal', !paused && !userPaused && !manual && !reduced && visible && s.progressFill)}
                   style={{ ['--step-ms' as string]: `${STEP_MS}ms` }}
                 />
               ) : null}
             </span>
-            <span className={cn('type-caption font-semibold leading-tight transition-colors ', i === index ? 'text-ink' : 'text-ink-muted group-hover:text-ink-soft')}>
+            <span className={cn('type-caption break-words font-semibold leading-tight transition-colors ', i === index ? 'text-ink' : 'text-ink-muted group-hover:text-ink-soft')}>
               <span className="hidden font-mono type-helper text-ink-muted sm:inline">0{i + 1} </span>
               {sheet.short}
             </span>
