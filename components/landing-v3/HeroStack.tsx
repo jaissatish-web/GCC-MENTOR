@@ -247,7 +247,7 @@ export function HeroStack() {
                 />
               ) : null}
             </span>
-            <span className={cn('type-caption break-words font-semibold leading-tight transition-colors ', i === index ? 'text-ink' : 'text-ink-muted group-hover:text-ink-soft')}>
+            <span className={cn('block w-full min-w-0 type-caption break-words font-semibold leading-tight transition-colors ', i === index ? 'text-ink' : 'text-ink-muted group-hover:text-ink-soft')}>
               <span className="hidden font-mono type-helper text-ink-muted sm:inline">0{i + 1} </span>
               {sheet.short}
             </span>
