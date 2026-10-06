@@ -36,7 +36,7 @@ const LAYOUTS = {
 const persona = (key: string) => PERSONAS.find((p) => p.key === key)!
 const ItemRender = memo(function ItemRender({ item }: { item: Item }) {
   const Template = getTemplate(item.id).component
-  return <Template {...({ document: SAMPLE_CVS[item.who], profile: undefined, optimizedContent: undefined, skillsOrder: [], fieldVisibility: null } as unknown as GulfPremiumProps)} />
+  return <Template {...({ document: SAMPLE_CVS[item.who], profile: undefined, optimizedContent: undefined, skillsOrder: [], fieldVisibility: null, styleOverrides: { size: 'large' } } as unknown as GulfPremiumProps)} />
 })
 function itemName(item: Item) { return getTemplate(item.id).name }
 function itemTags(item: Item) {
