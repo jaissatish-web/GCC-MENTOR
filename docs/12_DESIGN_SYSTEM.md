@@ -34,19 +34,20 @@ fonts and sizes; UI styling must never change PDF layout.
 
 ### Reading sizes (2026-10-06)
 
-Use the shared role classes in `app/globals.css`, measured in rem:
+Use the shared role classes in `app/globals.css`, measured in rem. The founder
+requested a more compact scale after reviewing the initial audit deployment:
 
 | Role | Class | Phone | Desktop |
 |---|---|---|---|
-| Page title | `type-title` | 26px / 1.2 | 30px / 1.2 |
-| App section title | `type-section` | 20px / 1.3 | 22px / 1.3 |
-| Card title | `type-card` | 18px / 1.4 | 18px / 1.4 |
-| Main reading text | `type-body` | 16px / 1.6 | 16px / 1.6 |
-| Label or button | `type-label` | 15px / 1.4, semibold | same |
-| Hints and secondary text | `type-helper` | 14px / 1.5 | same |
-| Compact badges and metadata | `type-caption` | 13px / 1.4 | same |
-| Marketing headline | `type-hero` | 32–36px / 1.15 | 52–56px / 1.15 |
-| Marketing section title | `type-marketing-title` | 26px / 1.2 | 40px / 1.2 |
+| Page title | `type-title` | 22px / 1.25 | 26px / 1.25 |
+| App section title | `type-section` | 18px / 1.3 | 20px / 1.3 |
+| Card title | `type-card` | 16px / 1.4 | 16px / 1.4 |
+| Main reading text | `type-body` | 15px / 1.55 | 15px / 1.55 |
+| Label or button | `type-label` | 14px / 1.4, semibold | same |
+| Hints and secondary text | `type-helper` | 13px / 1.5 | same |
+| Compact badges and metadata | `type-caption` | 12.5px / 1.4 | same |
+| Marketing headline | `type-hero` | 28–30px / 1.2 | 44–48px / 1.2 |
+| Marketing section title | `type-marketing-title` | 22px / 1.25 | 32px / 1.25 |
 
 These classes carry no colour. Do not use a caption for an instruction or long
 paragraph. Keep long reading text left-aligned and about 60–70 characters wide.
@@ -54,7 +55,7 @@ Form fields are 16px at every width. Labels are semibold; input values are regul
 Buttons allow wrapping and remain at least 44px tall.
 
 The compatibility floor inside `.app-type main` raises older 12–13.5px classes
-to 14px, and 10–11.5px to 13px. Old 14px paragraph classes become 16px. It leaves
+to 13px, and 10–11.5px to 12px. Old 14px paragraph classes become 15px. It leaves
 compact navigation/header/footer layouts alone. `[data-document-preview]` and
 its descendants opt out; resume previews keep their own inline document type.
 Use role classes for new code rather than extending the compatibility list.

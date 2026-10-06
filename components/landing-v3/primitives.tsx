@@ -40,7 +40,7 @@ export function H2({ id, className, children }: { id?: string; className?: strin
 }
 
 export function Lead({ className, children }: { className?: string; children: ReactNode }) {
-  return <p className={cn('mt-3 max-w-[60ch] type-body text-ink-soft lg:text-lg', className)}>{children}</p>
+  return <p className={cn('mt-3 max-w-[60ch] type-body text-ink-soft lg:text-base', className)}>{children}</p>
 }
 
 export function SectionHead({
