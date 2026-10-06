@@ -37,22 +37,22 @@ const buttonVariants = cva(
          * changing hue, so the button does not become a different colour when
          * a thumb rests on it.
          */
-        primary: 'bg-gold font-bold text-ink hover:bg-gold-ink hover:text-white',
+        primary: 'bg-gold font-semibold text-ink hover:bg-gold-ink hover:text-white',
         /**
          * Purchase. Same gold, one step louder — this is the only place in the
          * product a button is allowed to lift.
          */
         purchase:
-          'bg-gold font-bold text-ink shadow-m-2 hover:bg-gold-ink hover:text-white hover:shadow-m-3 hover:-translate-y-px',
+          'bg-gold font-semibold text-ink shadow-m-2 hover:bg-gold-ink hover:text-white hover:shadow-m-3 hover:-translate-y-px',
         /** A step forward inside a flow: the brand, not the CTA. */
-        progress: 'bg-teal font-bold text-white shadow-m-1 hover:bg-teal-bright',
+        progress: 'bg-teal font-semibold text-white shadow-m-1 hover:bg-teal-bright',
         secondary:
           'border border-line-strong bg-white font-semibold text-ink hover:bg-canvas',
         ghost:
           'border border-transparent bg-transparent font-semibold text-teal hover:bg-teal-soft',
         danger:
           'border border-alert bg-white font-semibold text-alert hover:bg-alert-soft',
-        'danger-solid': 'bg-alert font-bold text-white hover:opacity-90',
+        'danger-solid': 'bg-alert font-semibold text-white hover:opacity-90',
         disabled: 'bg-canvas font-semibold text-ink-muted',
       },
       size: {

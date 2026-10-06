@@ -22,7 +22,7 @@ export function Eyebrow({ className, children }: { className?: string; children:
   )
 }
 
-/** Section titles use the same Inter family as the app. Role classes and
+/** Section titles use the same system sans-serif family as the app. Role classes and
  * responsive rem sizes live in app/globals.css. Colours remain local. */
 export function H2({ id, className, children }: { id?: string; className?: string; children: ReactNode }) {
   return (

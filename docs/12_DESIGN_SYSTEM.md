@@ -26,28 +26,30 @@ section, this section wins. The Meridian tokens were chosen by the founder on
 | `field` / `field.line` | `#FBF9F5` / `#948A7B` | Inputs (the `.field` class in `globals.css`) |
 
 Radius: `rounded-ctl` 11px for controls, `rounded-card` 16px and `rounded-card-lg` 20px
-for cards. Shadow: `shadow-m-1/2/3`. **Inter is the UI face for headings, body,
+for cards. Shadow: `shadow-m-1/2/3`. **System sans-serif is the UI face for headings, body,
 labels and controls** (founder-authorized typography audit, 2026-10-06).
-`font-display`, `font-sans` and `font-redesign-sans` all resolve to Inter. Plex
+`font-display`, `font-sans` and `font-redesign-sans` all resolve to the same system sans-serif stack. Plex
 Mono is for aligned figures. Resume templates retain their independent inline
 fonts and sizes; UI styling must never change PDF layout.
 
 ### Reading sizes (2026-10-06)
 
 Use the shared role classes in `app/globals.css`, measured in rem. The founder
-requested a more compact scale after reviewing the initial audit deployment:
+requested the MenaJobs typography direction: system fonts, compact sizes,
+semibold titles and regular body text. Existing bold UI utilities resolve to
+600; the hero retains 700. Document readers and thumbnails are excluded:
 
 | Role | Class | Phone | Desktop |
 |---|---|---|---|
 | Page title | `type-title` | 22px / 1.25 | 26px / 1.25 |
 | App section title | `type-section` | 18px / 1.3 | 20px / 1.3 |
 | Card title | `type-card` | 16px / 1.4 | 16px / 1.4 |
-| Main reading text | `type-body` | 15px / 1.55 | 15px / 1.55 |
-| Label or button | `type-label` | 14px / 1.4, semibold | same |
-| Hints and secondary text | `type-helper` | 13px / 1.5 | same |
-| Compact badges and metadata | `type-caption` | 12.5px / 1.4 | same |
-| Marketing headline | `type-hero` | 28–30px / 1.2 | 44–48px / 1.2 |
-| Marketing section title | `type-marketing-title` | 22px / 1.25 | 32px / 1.25 |
+| Main reading text | `type-body` | 15px / 1.5, regular | same |
+| Label or button | `type-label` | 14px / 1.4, medium | same |
+| Hints and secondary text | `type-helper` | 14px / 1.5 | same |
+| Compact badges and metadata | `type-caption` | 12px / 1.4 | same |
+| Marketing headline | `type-hero` | 28–30px / 1.2 | 36px / 1.2 |
+| Marketing section title | `type-marketing-title` | 22px / 1.25 | 30px / 1.25 |
 
 These classes carry no colour. Do not use a caption for an instruction or long
 paragraph. Keep long reading text left-aligned and about 60–70 characters wide.

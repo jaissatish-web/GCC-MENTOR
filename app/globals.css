@@ -43,10 +43,13 @@
     margin: 0;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    font-weight: 400;
   }
 
   /* Heading semantics do not impose a font on resume documents. UI headings
-     use the shared role classes below; font-display is an Inter alias. */
+     use the shared role classes below; font-display uses the system sans-serif stack. */
   h1,
   h2,
   h3 {
@@ -96,7 +99,7 @@
   .type-title {
     font-size: 1.375rem;
     line-height: 1.25;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.025em;
     overflow-wrap: anywhere;
   }
@@ -113,19 +116,20 @@
   }
   .type-body {
     font-size: 0.9375rem;
-    line-height: 1.55;
+    line-height: 1.5;
+    font-weight: 400;
   }
   .type-label {
     font-size: 0.875rem;
     line-height: 1.4;
-    font-weight: 600;
+    font-weight: 500;
   }
   .type-helper {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     line-height: 1.5;
   }
   .type-caption {
-    font-size: 0.78125rem;
+    font-size: 0.75rem;
     line-height: 1.4;
   }
   .type-hero {
@@ -138,7 +142,7 @@
   .type-marketing-title {
     font-size: 1.375rem;
     line-height: 1.25;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.025em;
     text-wrap: balance;
   }
@@ -152,11 +156,11 @@
     .type-marketing-title { font-size: 1.75rem; }
   }
   @media (min-width: 1024px) {
-    .type-hero { font-size: 2.75rem; }
-    .type-marketing-title { font-size: 2rem; }
+    .type-hero { font-size: 2.25rem; }
+    .type-marketing-title { font-size: 1.875rem; }
   }
   @media (min-width: 1280px) {
-    .type-hero { font-size: 3rem; }
+    .type-hero { font-size: 2.25rem; }
   }
 
   /*
@@ -345,7 +349,7 @@
 /* A paragraph at the old 14px body size is reading text, not a badge. */
 .app-type main :is(p.text-sm, p.text-\[14px\]):not([data-document-preview], [data-document-preview] *) {
   font-size: 0.9375rem;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 /*
@@ -405,4 +409,14 @@
 }
 .range-bar:focus-visible::-moz-range-thumb {
   box-shadow: 0 0 0 4px rgba(15, 76, 67, 0.3);
+}
+
+/* One calm weight hierarchy for the UI, including older hand-styled screens.
+ * Document readers and landing document thumbnails keep their authored type. */
+body :is(.font-bold, .font-extrabold, .font-black, b, strong):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *)) {
+  font-weight: 600;
+}
+header nav :is(a, button) {
+  font-size: 0.875rem;
+  font-weight: 500;
 }

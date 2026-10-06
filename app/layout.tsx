@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
-import { Instrument_Serif, Inter, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
+import { Instrument_Serif, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import { SITE_URL } from '@/lib/siteUrl'
 
-// One UI family: Inter for headings, reading text, labels and controls.
-// The serif/Jakarta declarations remain non-preloaded for explicit legacy
-// consumers; document templates own their fonts separately.
+// System sans-serif is the shared UI face, matching the MenaJobs reference.
+// Explicit legacy/document font declarations remain separate.
 const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
   weight: '400',
@@ -15,13 +14,6 @@ const instrumentSerif = Instrument_Serif({
   // so preloading it made every phone download a font it never draws. It stays
   // declared as a fallback; it would still load, with swap, if something used it.
   preload: false,
-})
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-inter',
-  display: 'swap',
 })
 
 const jakarta = Plus_Jakarta_Sans({
@@ -135,7 +127,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className={`${instrumentSerif.variable} ${inter.variable} ${jakarta.variable} ${plexMono.variable} font-redesign-sans bg-canvas text-ink antialiased`}
+        className={`${instrumentSerif.variable} ${jakarta.variable} ${plexMono.variable} font-redesign-sans bg-canvas text-ink antialiased`}
       >
         {children}
       </body>

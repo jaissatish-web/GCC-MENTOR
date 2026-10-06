@@ -212,7 +212,7 @@ export function Founder() {
       <Wrap className="relative grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
         <div>
           <span className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-soft">Built by a Gulf insider</span>
-          <h2 id="founder-title" className="mt-3 text-[22px] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[28px] lg:text-[34px]">
+          <h2 id="founder-title" className="mt-3 text-[22px] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[28px] lg:text-[30px]">
             Not built by a software company. <em className="not-italic text-gold-soft">Built by someone who has been there.</em>
           </h2>
           <div className="mt-6 flex items-center gap-4 rounded-[18px] bg-white/[0.08] p-4 ring-1 ring-white/15">
@@ -416,7 +416,7 @@ export function FinalCta() {
                 </li>
               ))}
             </ol>
-            <h2 id="final-title" className="mx-auto mt-6 max-w-[760px] text-[24px] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[32px] lg:text-[40px]">
+            <h2 id="final-title" className="mx-auto mt-6 max-w-[760px] text-[24px] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[32px] lg:text-[36px]">
               Stop sending the same CV. <em className="not-italic text-gold-soft">Prepare for your next Gulf opportunity.</em>
             </h2>
             <p className="mx-auto mt-4 max-w-[520px] type-body text-white/85 lg:text-[16px]">
