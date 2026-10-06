@@ -62,7 +62,7 @@ export function useAutoStep(count: number, ms: number, running: boolean) {
     setManual(true)
     setIndex(i)
   }
-  return { index, setIndex, choose, manual }
+  return { index, setIndex, choose, manual, resume: () => setManual(false) }
 }
 
 /** Counts from `from` to `to` once `start` is true. Instant under reduced motion. */

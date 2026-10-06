@@ -26,22 +26,40 @@ section, this section wins. The Meridian tokens were chosen by the founder on
 | `field` / `field.line` | `#FBF9F5` / `#948A7B` | Inputs (the `.field` class in `globals.css`) |
 
 Radius: `rounded-ctl` 11px for controls, `rounded-card` 16px and `rounded-card-lg` 20px
-for cards. Shadow: `shadow-m-1/2/3`. Type: Fraunces (`font-display`) for headings,
-Inter (`font-redesign-sans`) for everything else, Plex Mono only for figures that must
-align. Nothing readable under 12px. One icon set: Heroicons (emoji icons were removed
-from the usage strip on 2026-09-23).
+for cards. Shadow: `shadow-m-1/2/3`. **Inter is the UI face for headings, body,
+labels and controls** (founder-authorized typography audit, 2026-10-06).
+`font-display`, `font-sans` and `font-redesign-sans` all resolve to Inter. Plex
+Mono is for aligned figures. Resume templates retain their independent inline
+fonts and sizes; UI styling must never change PDF layout.
 
-### Phone reading sizes (2026-10-04)
+### Reading sizes (2026-10-06)
 
-Most users are on phones. Measured at 390px, 12px was the most-used text size in the
-signed-in app (42% of the profile's text, 73% of "Add your target job"), and the mock
-interview had 10–11px labels under the 12px floor. So **on phones only** (below 640px,
-inside `AppShell`'s `.app-type`), `app/globals.css` steps each small size up one:
-10/11px → 12px, 12px → 13px, 12.5px → 13.5px. Desktop is unchanged; the public site is
-outside the shell and untouched; resume templates size themselves inline, so CV previews
-still match the PDF. **Form fields are 16px on phones** (`.field`, and `StageSelect`) —
-iOS Safari zooms the page on any field smaller than that. Standalone text links get a
-44px tap area (`inline-flex min-h-11 items-center`).
+Use the shared role classes in `app/globals.css`, measured in rem:
+
+| Role | Class | Phone | Desktop |
+|---|---|---|---|
+| Page title | `type-title` | 26px / 1.2 | 30px / 1.2 |
+| App section title | `type-section` | 20px / 1.3 | 22px / 1.3 |
+| Card title | `type-card` | 18px / 1.4 | 18px / 1.4 |
+| Main reading text | `type-body` | 16px / 1.6 | 16px / 1.6 |
+| Label or button | `type-label` | 15px / 1.4, semibold | same |
+| Hints and secondary text | `type-helper` | 14px / 1.5 | same |
+| Compact badges and metadata | `type-caption` | 13px / 1.4 | same |
+| Marketing headline | `type-hero` | 32–36px / 1.15 | 52–56px / 1.15 |
+| Marketing section title | `type-marketing-title` | 26px / 1.2 | 40px / 1.2 |
+
+These classes carry no colour. Do not use a caption for an instruction or long
+paragraph. Keep long reading text left-aligned and about 60–70 characters wide.
+Form fields are 16px at every width. Labels are semibold; input values are regular.
+Buttons allow wrapping and remain at least 44px tall.
+
+The compatibility floor inside `.app-type main` raises older 12–13.5px classes
+to 14px, and 10–11.5px to 13px. Old 14px paragraph classes become 16px. It leaves
+compact navigation/header/footer layouts alone. `[data-document-preview]` and
+its descendants opt out; resume previews keep their own inline document type.
+Use role classes for new code rather than extending the compatibility list.
+The hero example reserves its height, advances every 8 seconds, pauses on focus
+or hover, and offers an explicit Pause/Resume button. Reduced motion stops autoplay.
 
 **One exception to "red = not built yet" (2026-10-04):** the signed-in footer's "Card
 checkout is not live yet" is neutral bold text — at the foot of every screen, red payment

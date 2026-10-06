@@ -55,7 +55,7 @@ export function FieldHint({ id, children }: { id?: string; children: React.React
 /** A field's error. Replaces the hint rather than stacking under it. */
 export function FieldError({ id, children }: { id?: string; children: React.ReactNode }) {
   return (
-    <p id={id} role="alert" className="text-[12.5px] font-semibold text-alert">
+    <p id={id} role="alert" className="type-helper font-semibold text-alert">
       {children}
     </p>
   )

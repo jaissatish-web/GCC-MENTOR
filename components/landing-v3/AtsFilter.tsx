@@ -15,8 +15,8 @@ import { Check, Cross, Line, Tag } from './primitives'
  */
 
 const CHECKS = [
-  ['Job title', 'Does your title match the vacancy?'],
-  ['Keywords & skills', 'Are the job’s exact words in your CV?'],
+  ['Job title', 'Is your target role clear?'],
+  ['Keywords & skills', 'Are relevant skills supported by your experience?'],
   ['Readable format', 'Can the software read your layout?'],
   ['Headings & dates', 'Are sections and dates where it expects?'],
   ['Cover letter', 'Does the letter speak to this job?'],
@@ -42,15 +42,15 @@ function ScanCard({ good, on }: { good: boolean; on: boolean }) {
   return (
     <div className={cn('relative min-w-0 overflow-hidden rounded-[18px] border bg-white p-3 shadow-lp-card sm:rounded-[20px] sm:p-5', good ? 'border-teal/30' : 'border-line')}>
       <div className="flex items-center justify-between">
-        <span className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted sm:text-[11px]">{good ? 'Prepared' : 'Generic CV'}</span>
+        <span className="font-semibold type-caption uppercase tracking-[0.08em] text-ink-muted">{good ? 'Prepared' : 'Generic CV'}</span>
         <Tag tone="muted" className="hidden sm:inline-flex">Example</Tag>
       </div>
       {/* The CV being read */}
       <div className="relative mt-2 overflow-hidden rounded-[12px] border border-line bg-canvas p-2 sm:mt-3 sm:p-3">
-        <div className="text-[11.5px] font-bold leading-tight text-ink sm:text-[12px]">{good ? 'Senior Accountant — IFRS · UAE VAT' : 'Accountant'}</div>
+        <div className="type-caption font-bold leading-tight text-ink">{good ? 'Senior Accountant — IFRS · UAE VAT' : 'Accountant'}</div>
         <div className="mt-2 flex flex-wrap gap-1">
           {(good ? ['IFRS 16', 'UAE VAT', 'SAP FICO', 'Month-end close'] : ['Accounts', 'Reports', 'Hard working']).map((k) => (
-            <span key={k} className={cn('rounded px-1.5 py-0.5 text-[11px] font-semibold', good ? 'bg-teal-soft text-teal' : 'bg-fill-subtle text-ink-muted')}>{k}</span>
+            <span key={k} className={cn('rounded px-1.5 py-0.5 type-caption font-semibold', good ? 'bg-teal-soft text-teal' : 'bg-fill-subtle text-ink-muted')}>{k}</span>
           ))}
         </div>
         <div className="mt-2 hidden space-y-1.5 sm:block">
@@ -68,16 +68,16 @@ function ScanCard({ good, on }: { good: boolean; on: boolean }) {
         </span>
         <span
           className={cn(
-            'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold transition-opacity duration-300 sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-[12.5px]',
+            'inline-flex items-center gap-1 rounded-full px-2 py-1 type-caption font-bold transition-opacity duration-300 sm:gap-1.5 sm:px-3 sm:py-1.5 ',
             done ? 'opacity-100' : 'opacity-0',
             good ? 'bg-ok-soft text-ok' : 'bg-alert-soft text-alert',
           )}
         >
           {good ? <Check className="size-3.5" /> : <Cross className="size-3.5" />}
-          {good ? 'To recruiter' : 'Filtered out'}
+          {good ? 'Clearer match' : 'Needs tailoring'}
         </span>
       </div>
-      <p className="mt-2 hidden text-[12px] text-ink-muted sm:block">{done ? (good ? 'Same person, same experience — now in the job’s words.' : 'Good experience. The software never showed it to anyone.') : 'ATS scanning…'}</p>
+      <p className="mt-2 hidden type-caption text-ink-muted sm:block">{done ? (good ? 'Same person, same experience — now in the job’s words.' : 'Relevant experience can be harder to identify in a generic CV.') : 'ATS scanning…'}</p>
     </div>
   )
 }
@@ -90,30 +90,30 @@ export function AtsFilter() {
       <ScanCard good on={seen} />
 
       <div className="col-span-2 rounded-[20px] bg-teal p-4 text-white shadow-m-3 sm:p-5 lg:col-span-1 lg:row-span-2">
-        <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-gold-soft">What the ATS checks</div>
+        <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-soft">What a clear application shows</div>
         <ul className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-1">
           {CHECKS.map(([k, q], i) => (
             <li key={k} className={cn(s.rise, 'flex gap-2 rounded-[12px] bg-white/[0.08] p-2.5 last:col-span-2 sm:gap-3 sm:p-3 lg:last:col-span-1')} data-on={seen} style={{ ['--d' as string]: `${300 + i * 120}ms` }}>
               <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-gold text-ink"><Check className="size-3" /></span>
               <span className="leading-snug">
-                <b className="block text-[12.5px] sm:text-[13.5px]">{k}</b>
-                <span className="hidden text-[12.5px] text-white/75 sm:inline">{q}</span>
+                <b className="block type-caption">{k}</b>
+                <span className="hidden type-caption text-white/75 sm:inline">{q}</span>
               </span>
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-[13px] font-semibold text-gold-soft">GCC Mentor prepares every one of these — for each job.</p>
+        <p className="mt-3 type-helper font-semibold text-gold-soft">GCC Mentor prepares every one of these — for each job.</p>
       </div>
 
       {/* The funnel: no numbers, only the shape of the problem. */}
       <div className="col-span-2 rounded-[20px] border border-line bg-white p-4 shadow-lp-card sm:p-5">
-        <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted">Where applications disappear</div>
+        <div className="font-semibold type-caption uppercase tracking-[0.08em] text-ink-muted">An example application journey</div>
         <ol className="mt-3 space-y-2">
           {FUNNEL.map(([label, w], i) => (
             <li key={label} className="flex items-center gap-3">
-              <span className="w-[42%] shrink-0 text-[12.5px] font-semibold leading-tight text-ink sm:w-[34%] sm:text-[13px]">
+              <span className="w-[42%] shrink-0 type-caption font-semibold leading-tight text-ink sm:w-[34%]">
                 {label}
-                {i === 1 ? <span className="mt-0.5 block text-[11px] font-bold text-alert">↓ many CVs stop here</span> : null}
+                {i === 1 ? <span className="mt-0.5 block type-caption font-bold text-alert">↓ screening varies by employer</span> : null}
               </span>
               <span className="relative h-7 flex-1 overflow-hidden rounded-[8px] bg-fill-subtle">
                 <span
@@ -124,7 +124,7 @@ export function AtsFilter() {
             </li>
           ))}
         </ol>
-        <p className="mt-2 text-[11px] text-ink-muted">Illustration of the screening stages, not measured data.</p>
+        <p className="mt-2 type-caption text-ink-muted">Illustration only. Match scores are guidance, not an employer’s screening result.</p>
       </div>
     </div>
   )

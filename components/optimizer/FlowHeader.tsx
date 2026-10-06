@@ -66,7 +66,7 @@ export function FlowHeader({
                 )}
               >
                 {state === 'done' ? <CheckIcon className="size-3.5 shrink-0" aria-hidden="true" /> : <span className="font-mono">{n}.</span>}
-                <span className="truncate">{label}</span>
+                <span className="min-w-0 break-words">{label}</span>
               </span>
             </li>
           )
@@ -74,8 +74,8 @@ export function FlowHeader({
       </ol>
 
       <div>
-        <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[30px]">{title}</h1>
-        {subtitle ? <div className="mt-1.5 max-w-[62ch] text-[14px] leading-relaxed text-ink-soft">{subtitle}</div> : null}
+        <h1 className="type-title text-ink">{title}</h1>
+        {subtitle ? <div className="mt-1.5 max-w-[62ch] type-body text-ink-soft">{subtitle}</div> : null}
       </div>
     </header>
   )

@@ -428,11 +428,11 @@ export function GccGlobe() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(31,90,138,0.10),transparent_70%)]" aria-hidden="true" />
       <div className="relative grid items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">
-          <span className="font-semibold text-[11px] uppercase tracking-[0.08em] text-teal lg:text-[12px]">Six Gulf markets</span>
+          <span className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Six Gulf markets</span>
           <h2 id="markets-title" className="mt-2 text-[26px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[34px] lg:text-[42px]">
             One profile. <em className="not-italic text-teal">Every GCC country.</em>
           </h2>
-          <p className="mt-2.5 max-w-[440px] text-[14.5px] leading-relaxed text-ink-soft lg:text-[16.5px]">
+          <p className="mt-2.5 max-w-[440px] type-helper leading-relaxed text-ink-soft lg:text-[16.5px]">
             From India, Asia, Africa or Europe — or moving between Gulf jobs. Prepare for any of the six markets from one career profile.
           </p>
 
@@ -448,11 +448,11 @@ export function GccGlobe() {
                   onBlur={() => setFocus(null)}
                   onClick={() => setFocus((v) => (v === g.code ? null : g.code))}
                   className={cn(
-                    'flex min-h-11 w-full items-center gap-1.5 rounded-[12px] px-2 text-left text-[12px] font-semibold ring-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:gap-2 sm:px-3 sm:text-[13px]',
+                    'flex min-h-11 w-full items-center gap-1.5 rounded-[12px] px-2 text-left type-caption font-semibold ring-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:gap-2 sm:px-3 ',
                     focus === g.code ? 'bg-teal text-white ring-teal' : 'bg-canvas text-ink ring-line hover:ring-teal/50',
                   )}
                 >
-                  <b className={cn('font-mono text-[11px] sm:text-[11px]', focus === g.code ? 'text-gold-soft' : 'text-gold-ink')}>{g.code}</b>
+                  <b className={cn('font-mono type-caption ', focus === g.code ? 'text-gold-soft' : 'text-gold-ink')}>{g.code}</b>
                   {g.country}
                 </button>
               </li>
@@ -463,23 +463,23 @@ export function GccGlobe() {
           <div className="mt-3 min-h-[76px] rounded-[16px] bg-canvas p-3.5 ring-1 ring-line lg:mt-4" aria-live="polite">
             {focused ? (
               <>
-                <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-gold-ink">{focused.country} · example roles</div>
+                <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">{focused.country} · example roles</div>
                 <div className="mt-1 text-[15px] font-semibold text-ink">{focused.role}</div>
-                <div className="text-[12.5px] text-ink-muted">CV, cover letter and interview prep made for {focused.country} jobs.</div>
+                <div className="type-caption text-ink-muted">CV, cover letter and interview prep made for {focused.country} jobs.</div>
               </>
             ) : arrival && arrivalTo ? (
               <>
-                <div className="font-semibold flex items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-blue">
+                <div className="font-semibold flex items-center gap-2 type-caption uppercase tracking-[0.08em] text-blue">
                   <span className="size-1.5 animate-glow-pulse rounded-full bg-blue" aria-hidden="true" />
                   {arrival.move ? 'Changing jobs in the Gulf' : 'Arriving'} · example
                 </div>
                 <div className="mt-1 text-[15px] font-semibold text-ink">
                   {cityOf(arrival.from).name} → {arrivalTo.name}, {arrivalTo.country}
                 </div>
-                <div className="text-[12.5px] text-ink-muted">{arrival.role} — application prepared with GCC Mentor</div>
+                <div className="type-caption text-ink-muted">{arrival.role} — application prepared with GCC Mentor</div>
               </>
             ) : (
-              <div className="text-[13px] text-ink-muted">Watch the routes — or pick a country.</div>
+              <div className="type-helper text-ink-muted">Watch the routes — or pick a country.</div>
             )}
           </div>
         </div>
@@ -497,7 +497,7 @@ export function GccGlobe() {
           />
         </div>
       </div>
-      <p className="relative mt-3 text-center text-[11px] text-ink-muted lg:text-right">Routes and roles are illustrative examples. Drag the globe to spin it.</p>
+      <p className="relative mt-3 text-center type-caption text-ink-muted lg:text-right">Routes and roles are illustrative examples. Drag the globe to spin it.</p>
     </div>
   )
 }

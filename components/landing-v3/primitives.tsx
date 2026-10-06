@@ -16,30 +16,20 @@ export function Wrap({ className, children }: { className?: string; children: Re
 
 export function Eyebrow({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <span className={cn('text-[12px] font-semibold uppercase tracking-[0.1em] text-teal lg:text-[13px]', className)}>
+    <span className={cn('type-caption font-semibold uppercase tracking-[0.08em] text-teal', className)}>
       {children}
     </span>
   )
 }
 
-/**
- * THE TYPE SYSTEM (2026-09-30). One family, Inter, at four weights:
- *   700 headings · 600 labels and buttons · 500 emphasis · 400 reading text.
- * Mono (IBM Plex) is for FIGURES only — scores and counts — never for words.
- * Phone → desktop scale:
- *   H1 31/35 → 52/58 · H2 26 → 42 · H3 18 → 20 · lead 16 → 18 · body 15–16
- *   small 13 · label 12 · floor 11 (nothing below 11px anywhere).
- * Colour: headings `ink`, reading text `ink-soft` (8.3:1), hints `ink-muted`
- * (5.1:1), accent words `teal`. Gold stays the action colour only.
- *
- * Section title. Accent words go in <em> — teal, same weight, upright.
- */
+/** Section titles use the same Inter family as the app. Role classes and
+ * responsive rem sizes live in app/globals.css. Colours remain local. */
 export function H2({ id, className, children }: { id?: string; className?: string; children: ReactNode }) {
   return (
     <h2
       id={id}
       className={cn(
-        'mt-2.5 text-[26px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[32px] lg:mt-3 lg:text-[42px] lg:leading-[1.1]',
+        'mt-2.5 type-marketing-title text-ink lg:mt-3',
         '[&_em]:not-italic [&_em]:text-teal',
         className,
       )}
@@ -50,7 +40,7 @@ export function H2({ id, className, children }: { id?: string; className?: strin
 }
 
 export function Lead({ className, children }: { className?: string; children: ReactNode }) {
-  return <p className={cn('mt-3 max-w-[560px] text-[16px] leading-[1.6] text-ink-soft lg:text-[18px]', className)}>{children}</p>
+  return <p className={cn('mt-3 max-w-[60ch] type-body text-ink-soft lg:text-lg', className)}>{children}</p>
 }
 
 export function SectionHead({
@@ -69,7 +59,7 @@ export function SectionHead({
   className?: string
 }) {
   return (
-    <div className={cn(center && 'mx-auto text-center [&_p]:mx-auto', 'max-w-[760px]', className)}>
+    <div className={cn(center && 'mx-auto sm:text-center sm:[&_p]:mx-auto', 'max-w-[760px]', className)}>
       <Eyebrow>{eyebrow}</Eyebrow>
       <H2 id={id}>{title}</H2>
       {lead ? <Lead>{lead}</Lead> : null}
@@ -78,7 +68,7 @@ export function SectionHead({
 }
 
 const BTN =
-  'group/btn inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[14px] px-5 text-[15.5px] font-bold transition-[background-color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 active:translate-y-px motion-reduce:transition-none lg:px-6'
+  'group/btn inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[14px] px-5 type-label transition-[background-color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 active:translate-y-px motion-reduce:transition-none lg:px-6'
 /** Gold is the action colour (Meridian rule). Ink on gold is 6.70:1. */
 export const BTN_GOLD = cn(
   BTN,
@@ -134,7 +124,7 @@ export function Tag({ tone = 'teal', className, children }: { tone?: 'teal' | 'g
     muted: 'bg-fill-subtle text-ink-soft',
     blue: 'bg-blue-soft text-blue',
   } as const
-  return <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-[3px] text-[11px] font-semibold leading-tight', tones[tone], className)}>{children}</span>
+  return <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-[3px] type-caption font-semibold', tones[tone], className)}>{children}</span>
 }
 
 export function Meter({ value, tone = 'teal', className }: { value: number; tone?: 'teal' | 'gold' | 'alert'; className?: string }) {

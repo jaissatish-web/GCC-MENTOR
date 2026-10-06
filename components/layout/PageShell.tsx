@@ -84,13 +84,13 @@ export function PageShell({
             {eyebrow ? (
               <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-teal">{eyebrow}</span>
             ) : null}
-            <h1 className="font-display text-[24px] leading-tight text-ink sm:text-[30px]">
+            <h1 className="type-title text-ink">
               {title}
             </h1>
             {subtitle ? (
               // ~70 characters: long enough for a real sentence, short enough to
               // stay comfortably readable on a wide screen.
-              <p className="max-w-[70ch] text-[14px] leading-relaxed text-ink-soft">{subtitle}</p>
+              <p className="max-w-[70ch] type-body text-ink-soft">{subtitle}</p>
             ) : null}
             {uses && uses.length > 0 ? (
               // One quiet line, not a row of pill boxes (2026-09-24): the pills

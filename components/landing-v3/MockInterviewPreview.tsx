@@ -46,11 +46,11 @@ export function MockInterviewPreview() {
             aria-selected={phase === i}
             onClick={() => choose(i)}
             className={cn(
-              'min-h-10 flex-1 rounded-full px-3 text-[12.5px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold sm:flex-none sm:px-4',
+              'min-h-10 flex-1 rounded-full px-3 type-caption font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold sm:flex-none sm:px-4',
               phase === i ? 'bg-white text-teal' : 'text-white/80 hover:text-white',
             )}
           >
-            <span className="font-mono text-[11px] opacity-70">{i + 1}</span> {p}
+            <span className="font-mono type-caption opacity-70">{i + 1}</span> {p}
           </button>
         ))}
       </div>
@@ -63,17 +63,17 @@ export function MockInterviewPreview() {
               <Image src="/interviewers/arab-man.webp" alt="" fill sizes="64px" className="object-cover" />
             </div>
             <div className="min-w-0">
-              <div className="text-[14px] font-bold">Hiring Manager</div>
-              <div className="text-[12px] leading-snug text-white/70">{p.jobs[0].country} · {p.jobs[0].title}</div>
+              <div className="type-helper font-bold">Hiring Manager</div>
+              <div className="type-caption leading-snug text-white/70">{p.jobs[0].country} · {p.jobs[0].title}</div>
             </div>
-            <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 font-mono text-[11px]">
+            <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 font-mono type-caption">
               <span className={cn('size-2 rounded-full', phase === 1 ? cn('bg-[#F08A7A]', s.pulse) : 'bg-white/40')} aria-hidden="true" />
               {phase === 1 ? 'REC 01:24' : 'LIVE'}
             </span>
           </div>
 
           <div className="mt-4 rounded-[16px] rounded-tl-[4px] bg-white p-4 text-ink">
-            <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-teal">Question 3 of 8</div>
+            <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Question 3 of 8</div>
             <p key={who} className="mt-1 text-[18px] font-bold leading-snug sm:text-[20px] tracking-[-0.02em]">“{p.mock.question}”</p>
           </div>
 
@@ -90,7 +90,7 @@ export function MockInterviewPreview() {
               ))}
             </div>
           </div>
-          <p className="mt-3 min-h-[40px] text-[13px] leading-snug text-white/80">
+          <p className="mt-3 min-h-[40px] type-helper leading-snug text-white/80">
             {phase === 0 && 'Asked from your CV and this job — not a generic list.'}
             {phase === 1 && p.mock.answer}
             {phase === 2 && 'Answer scored. Your report is ready.'}
@@ -118,14 +118,14 @@ export function MockInterviewPreview() {
               <span className="font-mono text-[24px] font-medium" aria-label={`Overall ${showReport ? p.mock.overall : 0} out of 100`}>{showReport ? overall : '—'}</span>
             </div>
             <div>
-              <div className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted">Overall · example</div>
+              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-ink-muted">Overall · example</div>
               <div className="text-[20px] font-bold tracking-[-0.02em]">{showReport ? 'Interview ready' : 'Scoring your answer…'}</div>
-              <div className="text-[12px] text-ink-muted">{showReport ? 'Targeted refinement' : 'Report appears when you finish'}</div>
+              <div className="type-helper text-ink-muted">{showReport ? 'Targeted refinement' : 'Report appears when you finish'}</div>
             </div>
           </div>
           <ul className="mt-4 space-y-2.5">
             {SCORES.map(([k, v], i) => (
-              <li key={k} className="text-[12.5px]">
+              <li key={k} className="type-caption">
                 <span className="flex justify-between"><span className="text-ink-soft">{k}</span><span className="font-mono text-ink">{showReport ? v : '··'}</span></span>
                 <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-line" aria-hidden="true">
                   <span
@@ -136,7 +136,7 @@ export function MockInterviewPreview() {
               </li>
             ))}
           </ul>
-          <div className="mt-4 grid gap-2 text-[12.5px] leading-snug sm:grid-cols-2">
+          <div className="mt-4 grid gap-2 type-caption leading-snug sm:grid-cols-2">
             <div className="hidden rounded-[12px] bg-ok-soft p-3 sm:block">
               <div className="flex items-center gap-1 font-bold text-ok"><Check className="size-3.5" /> What was good</div>
               <p className="mt-1 text-ink-soft">{p.mock.good}</p>
@@ -146,7 +146,7 @@ export function MockInterviewPreview() {
               <p className="mt-1 text-ink-soft">{p.mock.improve}</p>
             </div>
           </div>
-          <details className="group mt-2 rounded-[12px] border border-line px-3 py-2 text-[12.5px]">
+          <details className="group mt-2 rounded-[12px] border border-line px-3 py-2 type-caption">
             <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between font-bold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
               Suggested answer <span aria-hidden="true" className="transition-transform group-open:rotate-45">+</span>
             </summary>

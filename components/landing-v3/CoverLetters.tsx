@@ -66,15 +66,15 @@ export function CoverLetters() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="text-[15px] font-bold leading-tight text-ink tracking-[-0.02em]">{p.name}</div>
-                    <div className="text-[11px] text-ink-muted">{p.role}</div>
+                    <div className="type-helper text-ink-muted">{p.role}</div>
                   </div>
-                  <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-teal-soft font-mono text-[11px] text-teal">{job.code}</span>
+                  <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-teal-soft font-mono type-caption text-teal">{job.code}</span>
                 </div>
-                <div className="mt-3 border-t border-line pt-3 text-[11px] text-ink-muted">
+                <div className="mt-3 border-t border-line pt-3 type-helper text-ink-muted">
                   Hiring Manager · {job.employer}
                   <div className="mt-0.5 font-semibold text-ink">Re: {job.title}</div>
                 </div>
-                <div className="mt-3 space-y-2 font-[Georgia,serif] text-[13px] leading-[1.6] text-ink-soft">
+                <div className="mt-3 space-y-2 font-redesign-sans type-body text-ink-soft">
                   <p>Dear Hiring Manager,</p>
                   <p><Rich text={L.open} mark="bold" /></p>
                   <p><Rich text={L.body} mark="bold" /></p>
@@ -90,7 +90,7 @@ export function CoverLetters() {
           )
         })}
       </ol>
-      <p className="mt-2 text-center text-[12px] text-ink-muted">Example letters built from one example profile. ATS software reads cover letters too.</p>
+      <p className="mt-2 text-center type-helper text-ink-muted">Example letters built from one example profile. Each letter is tailored to a different job.</p>
     </div>
   )
 }
