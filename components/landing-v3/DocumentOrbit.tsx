@@ -9,7 +9,8 @@ import { PERSONAS } from './personas'
 import { SAMPLE_CVS } from './sampleCvs'
 
 // A curated view of the real collection: distinct layouts, colours and careers.
-// The front page belongs to the orbit; there is no duplicate centre preview.
+// The large preview sits inside the ring: rear cards pass behind it and
+// front cards overlap its lower half, preserving the original orbit composition.
 type Item = { id: TemplateId; who: string }
 const ITEMS: Item[] = [
   { id: 'gulf_premium', who: 'engineering' },
@@ -27,10 +28,10 @@ const N = ITEMS.length
 const STEP = (Math.PI * 2) / N
 const FRONT = Math.PI / 2
 const PAGE_W = 794
-const TURN_MS = 65_000
+const TURN_MS = 52_000
 const LAYOUTS = {
-  wide: { k: 1, ry: 75, box: 560, track: 255, trackW: 1000, trackH: 200, innerW: 700, innerH: 120 },
-  compact: { k: 0.78, ry: 44, box: 430, track: 200, trackW: 340, trackH: 110, innerW: 240, innerH: 70 },
+  wide: { k: 1, ry: 90, box: 620, track: 365, trackW: 1000, trackH: 220, innerW: 700, innerH: 140 },
+  compact: { k: 0.65, ry: 42, box: 400, track: 245, trackW: 340, trackH: 110, innerW: 240, innerH: 70 },
 } as const
 const persona = (key: string) => PERSONAS.find((p) => p.key === key)!
 const ItemRender = memo(function ItemRender({ item }: { item: Item }) {
@@ -97,9 +98,12 @@ export function DocumentOrbit({ className }: { className?: string }) {
   const [compact, setCompact] = useState(false)
   const [rx, setRx] = useState(460)
   const [zoomed, setZoomed] = useState(false)
+  const [boxW, setBoxW] = useState(1200)
 
 
   const L = compact ? LAYOUTS.compact : LAYOUTS.wide
+  const stageW = compact ? Math.min(250, Math.max(180, boxW - 64)) : 400
+  const stageH = Math.round(stageW * 1123 / PAGE_W)
   const paint = useCallback(() => {
     const lay = compactRef.current ? LAYOUTS.compact : LAYOUTS.wide
     const rx = rxRef.current
@@ -109,7 +113,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
       const th = angle.current + i * STEP
       const sn = Math.sin(th)
       const d = (sn + 1) / 2
-      const sc = (0.52 + 0.68 * d) * lay.k
+      const sc = (0.6 + 0.42 * d) * lay.k
       el.style.transform = `translate(-50%, -50%) translate(${(rx * Math.cos(th)).toFixed(1)}px, ${(lay.ry * sn).toFixed(1)}px) scale(${sc.toFixed(3)})`
       el.style.zIndex = String(sn > 0 ? 60 + Math.round(d * 40) : 10 + Math.round(d * 30))
       el.style.opacity = (0.5 + 0.5 * d).toFixed(2)
@@ -124,7 +128,8 @@ export function DocumentOrbit({ className }: { className?: string }) {
       const w = box.clientWidth
       const isCompact = w < 768
       compactRef.current = isCompact
-      rxRef.current = isCompact ? Math.max(55, Math.min(105, (w - 180) / 2)) : Math.min(430, (w - 300) / 2)
+      rxRef.current = isCompact ? Math.min(140, (w - 100) / 2) : Math.min(470, (w - 170) / 2)
+      setBoxW(w)
       setCompact(isCompact)
       setRx(rxRef.current)
       paint()
@@ -273,17 +278,17 @@ export function DocumentOrbit({ className }: { className?: string }) {
             ref={(n) => {
               slots.current[i] = n
             }}
-            onClick={() => { if (on) setZoomed(true); else bringToFront(i) }}
+            onClick={() => bringToFront(i)}
             aria-label={`Show ${itemName(item)} — ${p.name}, ${p.role}`}
             aria-pressed={on}
             className={cn(
-              'absolute left-1/2 w-[240px] rounded-[12px] border-2 bg-white p-1.5 text-left will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+              'absolute left-1/2 w-[170px] rounded-[12px] border-2 bg-white p-1.5 text-left will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
               'shadow-[0_8px_20px_rgba(15,76,67,.06)] data-[front=1]:shadow-[0_18px_34px_rgba(15,76,67,.16),0_34px_78px_rgba(15,76,67,.14)]',
               on ? 'border-teal' : 'border-line',
             )}
             style={{ top: L.track }}
           >
-            <FittedPage item={item} width={224} height={317} />
+            <FittedPage item={item} width={154} height={218} />
             <span className="flex flex-col px-1 pb-[3px] pt-[7px]">
               <span className="text-[11.5px] font-extrabold leading-tight text-ink">{itemName(item)}</span>
               <span className="truncate text-[11px] font-bold uppercase text-ink-muted">{p.sector}</span>
@@ -292,6 +297,17 @@ export function DocumentOrbit({ className }: { className?: string }) {
         )
       })}
 
+      {/* The stationary centre page is between the back and front of the ring. */}
+      <button
+        type="button"
+        data-orbit-centre="true"
+        onClick={() => setZoomed(true)}
+        aria-label={`Preview ${itemName(selected)} in full size`}
+        className="absolute left-1/2 z-50 -translate-x-1/2 overflow-hidden rounded-[12px] bg-white text-left ring-1 ring-line shadow-[0_12px_50px_rgba(15,76,67,.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        style={{ top: 8, width: stageW, height: stageH }}
+      >
+        <FittedPage item={selected} width={stageW} height={stageH} />
+      </button>
       </div>
 
       {/* Controls stay in flow, so wrapping never overlaps a resume. */}
@@ -310,7 +326,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
               </span>
             </div>
             <div className="mt-0.5 truncate text-[12.5px] text-ink-soft">
-              {who.name} · {who.role}
+              Example · {who.name} · {who.role}
             </div>
             <div className={cn('mt-1.5 flex items-center gap-1.5', compact && 'justify-center')}>
               {itemTags(selected).map((tag) => (

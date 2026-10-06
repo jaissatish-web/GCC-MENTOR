@@ -111,7 +111,7 @@ export function LandingPage() {
               id="templates-title"
               eyebrow="50 resume templates"
               title={<>Your experience. <em>A striking first impression.</em></>}
-              lead="Explore a selection of our 50 real resume templates. Find a layout for your profession, then make it yours. Tap the front resume to see it in full."
+              lead="Explore a selection of our 50 real resume templates. Find a layout for your profession, then make it yours. Tap a rotating template to bring it into focus, then view the full example."
             />
           </Wrap>
           <DocumentOrbit className="mt-4 lg:mt-8" />
