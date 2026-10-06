@@ -96,7 +96,7 @@ export function HeroCopy() {
         Build an ATS-ready CV.{' '}
         <em className="not-italic text-teal">Prepare for your Gulf interview.</em>
       </h1>
-      <p className="mt-4 max-w-[60ch] type-body text-ink-soft lg:mt-5 lg:text-[18px]">
+      <p className="mt-4 max-w-[60ch] type-body text-ink-soft lg:mt-5 lg:text-[16px]">
         Prepare a tailored CV, cover letter and interview practice for each Gulf job, using your real experience. Build your Career Profile once, then prepare each application in one place.
       </p>
       <div className="mt-6 flex flex-col gap-2.5 sm:flex-row lg:mt-8">
@@ -212,7 +212,7 @@ export function Founder() {
       <Wrap className="relative grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
         <div>
           <span className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-soft">Built by a Gulf insider</span>
-          <h2 id="founder-title" className="mt-3 text-[26px] font-bold leading-[1.15] tracking-[-0.03em] sm:text-[34px] lg:text-[42px]">
+          <h2 id="founder-title" className="mt-3 text-[22px] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[28px] lg:text-[34px]">
             Not built by a software company. <em className="not-italic text-gold-soft">Built by someone who has been there.</em>
           </h2>
           <div className="mt-6 flex items-center gap-4 rounded-[18px] bg-white/[0.08] p-4 ring-1 ring-white/15">
@@ -223,7 +223,7 @@ export function Founder() {
               <span className="block type-helper text-white/80">15+ years on Middle East EPC &amp; PMC projects</span>
             </div>
           </div>
-          <p className="mt-5 max-w-[520px] type-body text-white/85 lg:text-[17px]">
+          <p className="mt-5 max-w-[520px] type-body text-white/85 lg:text-[16px]">
             Fifteen years on Gulf projects for top clients showed him how candidates are really screened, shortlisted and interviewed — and how many strong people are filtered out by a CV that never reached a person. GCC Mentor puts that experience into every step.
           </p>
         </div>
@@ -416,10 +416,10 @@ export function FinalCta() {
                 </li>
               ))}
             </ol>
-            <h2 id="final-title" className="mx-auto mt-6 max-w-[760px] text-[28px] font-bold leading-[1.14] tracking-[-0.03em] sm:text-[38px] lg:text-[50px]">
+            <h2 id="final-title" className="mx-auto mt-6 max-w-[760px] text-[24px] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[32px] lg:text-[40px]">
               Stop sending the same CV. <em className="not-italic text-gold-soft">Prepare for your next Gulf opportunity.</em>
             </h2>
-            <p className="mx-auto mt-4 max-w-[520px] type-body text-white/85 lg:text-[18px]">
+            <p className="mx-auto mt-4 max-w-[520px] type-body text-white/85 lg:text-[16px]">
               Build your profile once. Tailor your CV and cover letter to each job, then practise the interview with feedback on what to improve.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
