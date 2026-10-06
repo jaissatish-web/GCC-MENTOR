@@ -103,15 +103,15 @@ export function LandingPage() {
           </Wrap>
         </section>
 
-        {/* Document showcase — the 10 real templates + letter, Q&A, scorecard */}
+        {/* Resume showcase — curated designs from the real 50-template collection */}
         <section id="templates" aria-labelledby="templates-title" className="overflow-hidden pt-11 sm:pt-16 lg:pt-[104px]">
           <Wrap>
             <SectionHead
               center
               id="templates-title"
-              eyebrow="Your application pack"
-              title={<>Real GCC templates. <em>Every document you need.</em></>}
-              lead="10 resume templates, plus a cover letter, interview questions and a mock-interview scorecard for each job. Tap any document."
+              eyebrow="50 resume templates"
+              title={<>Your experience. <em>A striking first impression.</em></>}
+              lead="Explore a selection of our 50 real resume templates. Find a layout for your profession, then make it yours. Tap the front resume to see it in full."
             />
           </Wrap>
           <DocumentOrbit className="mt-4 lg:mt-8" />
