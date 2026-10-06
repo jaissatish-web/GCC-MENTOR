@@ -129,6 +129,7 @@ export function ResumeDocumentView({
       >
         <div
           ref={innerRef}
+          data-document-preview
           style={{
             width: PAGE_WIDTH,
             transform: `scale(${scale})`,
@@ -224,7 +225,7 @@ function DocumentReader({ children, onClose }: { children: React.ReactNode; onCl
       </div>
       <div ref={bodyRef} className="flex-1 overflow-auto p-2">
         <div style={{ width: PAGE_WIDTH * z, height: height * z }} className="mx-auto">
-          <div ref={pageRef} style={{ width: PAGE_WIDTH, transform: `scale(${z})`, transformOrigin: 'top left' }} className="bg-white">
+          <div ref={pageRef} data-document-preview style={{ width: PAGE_WIDTH, transform: `scale(${z})`, transformOrigin: 'top left' }} className="bg-white">
             {children}
           </div>
         </div>

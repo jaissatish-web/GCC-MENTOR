@@ -144,7 +144,7 @@ function JobSubtitle({ pkg }: { pkg: PackageSummary }) {
   const parts = [pkg.target_company, countryLabel(pkg.target_country)].filter(Boolean) as string[]
   // The date already has its own line under the title (2026-09-23).
   if (parts.length === 0) return null
-  return <span className="block truncate text-[13px] font-medium text-ink-soft">{parts.join(' · ')}</span>
+  return <span className="block break-words type-helper font-medium text-ink-soft">{parts.join(' · ')}</span>
 }
 
 function ApplicationCard({
@@ -221,7 +221,7 @@ function ApplicationCard({
         <div className="min-w-0 flex-1">
           <Link
             href={`/package/${id}`}
-            className="block break-words rounded-ctl font-display text-[17px] font-semibold leading-snug text-ink underline-offset-4 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="block break-words rounded-ctl type-card text-ink underline-offset-4 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             {displayName}
           </Link>

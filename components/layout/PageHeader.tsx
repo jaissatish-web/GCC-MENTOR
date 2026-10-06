@@ -34,11 +34,11 @@ export function PageHeader({
       <div className="flex min-w-0 flex-col gap-1">
         {/* Same scale as PageShell (2026-09-23), so Settings reads as the same
             product as every other page. */}
-        <h1 className="font-display text-[26px] leading-tight text-ink sm:text-[30px]">
+        <h1 className="type-title text-ink">
           {title}
         </h1>
         {description ? (
-          <p className="max-w-[70ch] text-[14px] leading-relaxed text-ink-soft">
+          <p className="max-w-[70ch] type-body text-ink-soft">
             {description}
           </p>
         ) : null}
@@ -110,9 +110,9 @@ export function SectionCard({
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
         <div className="flex min-w-0 flex-col gap-1">
-          <h2 className="text-[16px] font-bold leading-snug text-ink">{title}</h2>
+          <h2 className="type-card text-ink">{title}</h2>
           {helper ? (
-            <p className="max-w-[70ch] text-[13px] leading-relaxed text-ink-muted">{helper}</p>
+            <p className="max-w-[70ch] type-helper text-ink-muted">{helper}</p>
           ) : null}
         </div>
         {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}

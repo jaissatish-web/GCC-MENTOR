@@ -55,8 +55,8 @@ export function LandingPage() {
             <SectionHead
               id="ats-title"
               eyebrow="Why you’re not getting calls"
-              title={<>It’s not your experience. <em>It’s the ATS.</em></>}
-              lead="Most Gulf employers and recruitment agencies run every CV and cover letter through ATS software first. If it can’t find the job’s words, no recruiter ever sees you."
+              title={<>Strong experience needs <em>a clear, readable CV.</em></>}
+              lead="Many employers use applicant tracking systems (ATS) to manage applications. A readable CV with relevant skills helps both the software and the recruiter understand how you fit the job."
             />
             <AtsFilter />
           </Wrap>

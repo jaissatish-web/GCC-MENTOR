@@ -196,10 +196,10 @@ export default function DashboardPage() {
     // next-action rule; only the presentation changed.
     <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 pb-10 pt-5 font-redesign-sans sm:px-6 lg:pt-8">
       <header className="flex flex-col gap-1">
-        <h1 className="font-display text-[24px] font-semibold leading-tight text-ink sm:text-[30px]">
+        <h1 className="type-title text-ink">
           {firstName ? `Good ${greeting()}, ${firstName}` : profileLoaded ? 'Welcome to GCC MENTOR' : `Good ${greeting()}`}
         </h1>
-        <p className="text-[14px] text-ink-soft">
+        <p className="type-body text-ink-soft">
           {firstRun
             ? 'Three steps from your current CV to an interview-ready application.'
             : targetParts
@@ -232,7 +232,7 @@ export default function DashboardPage() {
                     ? `Step ${currentStage.n} · ${currentStage.name}`
                     : 'All three steps done'}
             </span>
-            <h2 className="font-display text-[21px] font-semibold leading-snug text-white sm:text-[24px]">
+            <h2 className="type-section text-white">
               {loadError
                 ? 'Your saved work could not be loaded'
                 : !ready
@@ -241,7 +241,7 @@ export default function DashboardPage() {
                     ? 'Start with the CV you already have'
                     : nextAction.title}
             </h2>
-            <p className="max-w-[60ch] text-[14px] leading-relaxed text-teal-soft/90">
+            <p className="max-w-[60ch] type-body text-teal-soft">
               {loadError
                 ? 'Please try again to see your latest profile and application progress.'
                 : !ready
@@ -286,8 +286,8 @@ export default function DashboardPage() {
         <div className={cn('grid gap-6', listedJobs.length > 0 && 'lg:grid-cols-[minmax(0,1fr)_320px]')}>
           {listedJobs.length > 0 ? (
             <section aria-labelledby="jobs-h" className="flex min-w-0 flex-col gap-3">
-              <div className="flex items-center justify-between gap-3">
-                <h2 id="jobs-h" className="font-display text-[19px] font-semibold text-ink">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 id="jobs-h" className="type-section text-ink">
                   Your target jobs
                 </h2>
                 <div className="flex items-center gap-3">
@@ -301,7 +301,7 @@ export default function DashboardPage() {
                   </Link>
                 </div>
               </div>
-              <p className="-mt-1 text-[13px] text-ink-muted">Each job keeps its own CV, cover letter, interview Q&amp;A and practice.</p>
+              <p className="-mt-1 type-helper text-ink-muted">Each job keeps its own CV, cover letter, interview Q&amp;A and practice.</p>
               <ul className="flex flex-col gap-2">
                 {listedJobs.map((pkg) => (
                   <li key={pkg.id}>
@@ -310,8 +310,8 @@ export default function DashboardPage() {
                       className="flex flex-col gap-3 rounded-card border border-line bg-white p-4 shadow-m-1 transition-colors hover:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-row sm:items-center sm:justify-between"
                     >
                       <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="truncate text-[15px] font-semibold text-ink">{resumeLabel(pkg)}</span>
-                        <span className="truncate text-[13px] text-ink-muted">
+                        <span className="break-words type-card text-ink">{resumeLabel(pkg)}</span>
+                        <span className="break-words type-helper text-ink-muted">
                           {[pkg.target_company, dashboardCountryLabel(pkg.target_country)].filter(Boolean).join(' · ') ||
                             `Added ${relativeTime(pkg.created_at)}`}
                         </span>
@@ -334,7 +334,7 @@ export default function DashboardPage() {
               raised, so this stays the "your profile is incomplete" call to
               action (11_USER_JOURNEYS.md §3: load-bearing). */}
           <aside aria-labelledby="scores-h" className="flex min-w-0 flex-col gap-2">
-            <h2 id="scores-h" className="text-[15px] font-bold text-ink">
+            <h2 id="scores-h" className="type-card text-ink">
               Your profile scores
             </h2>
             <ScoreCards
@@ -362,7 +362,7 @@ export default function DashboardPage() {
 }
 
 const GOLD_CTA =
-  'inline-flex min-h-12 shrink-0 items-center justify-center rounded-ctl bg-gold px-6 text-[15px] font-bold text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal'
+  'inline-flex min-h-12 shrink-0 items-center justify-center rounded-ctl bg-gold px-6 type-card text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal'
 const GHOST_CTA =
   'inline-flex min-h-11 items-center justify-center rounded-ctl border border-white/35 px-3 text-[13.5px] font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white'
 

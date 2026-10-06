@@ -395,20 +395,13 @@ const config: Config = {
       },
       fontFamily: {
         serif: ['var(--font-instrument-serif)', 'Georgia', 'serif'],
-        sans:  ['var(--font-jakarta)', 'system-ui', 'sans-serif'],
-        // Redesign-only, opt-in stack (docs/redesign/DESIGN_SYSTEM.md §2) —
-        // collision-safe alongside `sans`, mirroring the `redesign-gold`
-        // naming pattern. Existing pages keep resolving through `sans`
-        // (Jakarta) unchanged until their own page-level ticket migrates
-        // them to `font-redesign-sans`.
-        'redesign-sans': ['var(--font-inter)', 'var(--font-jakarta)', 'system-ui', 'sans-serif'],
-        // Blueprint display face — a grotesque with enough weight to hold a
-        // heading without a serif's warmth. Paired with Inter for body and
-        // IBM Plex Mono for every figure.
-        'bp-display': ['var(--font-archivo)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
-        // Meridian's display face. Headings only — never body, never a value.
-        'display': ['var(--font-fraunces)', 'Georgia', 'serif'],
-        mono:  ['var(--font-plex-mono)', 'ui-monospace', 'monospace'],
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        'redesign-sans': ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        // Compatibility names resolve to the same UI face. Resume templates
+        // keep their own inline font stacks in components/templates/tokens.ts.
+        'bp-display': ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-plex-mono)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
         // Existing lg/xl/2xl/3xl values are retained for current call sites.

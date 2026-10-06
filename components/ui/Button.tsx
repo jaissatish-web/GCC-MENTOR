@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils'
  * the pair adjacent so they cannot drift.
  */
 const buttonVariants = cva(
-  'inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-ctl font-redesign-sans leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none',
+  'inline-flex select-none items-center justify-center gap-2 whitespace-normal break-words rounded-ctl font-redesign-sans leading-snug text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none',
   {
     variants: {
       variant: {
@@ -57,8 +57,8 @@ const buttonVariants = cva(
       },
       size: {
         // 44px minimum — the touch-target floor. Anything smaller is a link.
-        md: 'min-h-11 px-[22px] py-4 text-sm',
-        sm: 'min-h-11 px-4 py-2.5 text-[13px]',
+        md: 'min-h-12 px-[22px] py-3 type-label',
+        sm: 'min-h-11 px-4 py-2.5 type-label',
       },
     },
     defaultVariants: {

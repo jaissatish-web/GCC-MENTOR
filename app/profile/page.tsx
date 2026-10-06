@@ -783,7 +783,7 @@ function CardSection({
             <span className="flex flex-wrap items-center gap-2">
               <span
                 className={cn(
-                  'text-[15px] font-bold leading-snug',
+                  'type-card',
                   // Open, the title is plain graphite — you are reading the
                   // block, not looking for it. Closed, it is its own colour so
                   // you can find it again.
@@ -1901,7 +1901,7 @@ function ProfileScreen() {
 
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-canvas px-3 sm:px-5 py-10">
-        <h1 className="font-display text-[28px] leading-tight text-ink">
+        <h1 className="type-title text-ink">
           You already have a profile
         </h1>
         <p className="mt-3 text-[14px] leading-relaxed text-ink-soft">
@@ -2158,7 +2158,7 @@ function ProfileScreen() {
               {/* "Almost there, there" at 0% was two errors in four words — no
                   name to greet, and nowhere near "almost". The heading now says
                   what is true at each stage. */}
-              <h1 className="font-display text-[22px] font-bold leading-tight tracking-[-0.015em] text-ink">
+              <h1 className="type-title text-ink">
                 {!editor.full_name.trim()
                   ? 'Build your Career Profile'
                   : readiness.score >= 100

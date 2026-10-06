@@ -8,7 +8,7 @@ import { useAutoStep, useInView, useReducedMotion } from './hooks'
 import { PERSONAS, type Persona } from './personas'
 import { Check, Cross, Line, Meter, Rich, Tag } from './primitives'
 
-const STEP_MS = 3400
+const STEP_MS = 8000
 
 /**
  * The hero visual: one CV moving through the product — original → job match →
@@ -30,7 +30,7 @@ function SheetFrame({ stamp, tone, children }: { stamp: string; tone: 'muted' | 
         <Tag tone={tone === 'muted' ? 'muted' : tone} className="font-semibold uppercase tracking-[0.08em]">
           {stamp}
         </Tag>
-        <span className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted">Example</span>
+        <span className="font-semibold type-caption uppercase tracking-[0.08em] text-ink-muted">Example</span>
       </div>
       {children}
     </div>
@@ -43,14 +43,14 @@ function OriginalSheet({ p }: { p: Persona }) {
       <div className="mt-4 flex items-center gap-3">
         <span className="size-10 rounded-full bg-fill-subtle" aria-hidden="true" />
         <div className="flex-1">
-          <div className="text-[12.5px] font-bold uppercase tracking-wide text-ink-soft">{p.name}</div>
+          <div className="type-caption font-bold uppercase tracking-wide text-ink-soft">{p.name}</div>
           <Line w="50%" className="mt-1" />
         </div>
       </div>
-      <p className="mt-4 rounded-lg border border-dashed border-alert/40 bg-alert-soft/50 px-2.5 py-2 text-[11.5px] italic leading-snug text-ink-soft">
+      <p className="mt-4 rounded-lg border border-dashed border-alert/40 bg-alert-soft/50 px-2.5 py-2 type-helper italic text-ink-soft">
         “{p.before.objective}”
       </p>
-      <ul className="mt-3 list-disc space-y-0.5 pl-4 text-[11.5px] text-ink-muted">
+      <ul className="mt-3 list-disc space-y-0.5 pl-4 type-helper text-ink-muted">
         {p.before.duties.map((d) => (
           <li key={d}>{d}</li>
         ))}
@@ -59,10 +59,10 @@ function OriginalSheet({ p }: { p: Persona }) {
         <Line w="88%" />
         <Line w="70%" />
       </div>
-      <ul className="mt-auto space-y-1 pt-3 text-[11.5px] font-medium text-alert">
+      <ul className="mt-auto space-y-1 pt-3 type-helper font-medium text-alert">
         <li className="flex items-center gap-1.5"><Cross className="size-3.5" /> Generic summary</li>
         <li className="flex items-center gap-1.5"><Cross className="size-3.5" /> No Gulf positioning</li>
-        <li className="flex items-center gap-1.5"><Cross className="size-3.5" /> Same file for every job</li>
+        <li className="flex items-center gap-1.5"><Cross className="size-3.5 shrink-0" /> Same file for every job</li>
       </ul>
     </SheetFrame>
   )
@@ -72,21 +72,21 @@ function MatchSheet({ p }: { p: Persona }) {
   const job = p.jobs[0]
   return (
     <SheetFrame stamp="Job match" tone="alert">
-      <div className="mt-4 text-[11px] text-ink-muted">Target · {job.country}</div>
-      <div className="text-[14px] font-bold leading-snug text-ink">{job.title}</div>
-      <div className="text-[11px] text-ink-muted">{job.employer}</div>
+      <div className="mt-4 type-helper text-ink-muted">Target · {job.country}</div>
+      <div className="type-label text-ink">{job.title}</div>
+      <div className="type-helper text-ink-muted">{job.employer}</div>
       <div className="mt-3 flex items-end gap-2">
         <span className="font-mono text-[46px] font-medium leading-none text-alert">{job.before}</span>
-        <span className="pb-1.5 font-mono text-[13px] text-ink-muted">% ATS match</span>
+        <span className="pb-1.5 font-mono type-helper text-ink-muted">% ATS match</span>
       </div>
       <Meter value={job.before} tone="alert" className="mt-2.5" />
-      <div className="mt-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-muted">Missing keywords</div>
+      <div className="mt-4 type-caption font-semibold uppercase tracking-[0.1em] text-ink-muted">Missing keywords</div>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {p.missing.map((k) => (
           <Tag key={k} tone="alert">{k}</Tag>
         ))}
       </div>
-      <p className="mt-auto pt-3 text-[11.5px] leading-snug text-ink-soft">The experience is there. The CV just doesn’t say it in this job’s words.</p>
+      <p className="mt-auto pt-3 type-helper text-ink-soft">The experience is there. The CV just doesn’t say it in this job’s words.</p>
     </SheetFrame>
   )
 }
@@ -98,11 +98,11 @@ function OptimizedSheet({ p }: { p: Persona }) {
       <div className="mt-4 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="text-[16px] font-bold leading-tight text-ink tracking-[-0.02em]">{p.name}</div>
-          <div className="text-[11.5px] font-semibold leading-snug text-teal">{job.title}</div>
+          <div className="type-caption font-semibold leading-snug text-teal">{job.title}</div>
         </div>
         <div className="shrink-0 text-right">
           <div className="font-mono text-[28px] font-medium leading-none text-teal">{job.after}</div>
-          <div className="font-mono text-[11px] text-ink-muted">ATS · was {job.before}</div>
+          <div className="font-mono type-helper text-ink-muted">ATS · was {job.before}</div>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -110,13 +110,13 @@ function OptimizedSheet({ p }: { p: Persona }) {
           <Tag key={t} tone="teal">{t}</Tag>
         ))}
       </div>
-      <div className="mt-3 space-y-2 text-[11.5px] leading-snug text-ink-soft">
+      <div className="mt-3 space-y-2 type-helper text-ink-soft">
         {p.bullets.map((b) => (
           <p key={b}><Rich text={b} /></p>
         ))}
       </div>
-      <div className="mt-auto flex items-center gap-1.5 border-t border-line pt-3 text-[11px] font-semibold text-ok">
-        <Check className="size-3.5" /> Same employers, titles and dates
+      <div className="mt-auto flex items-center gap-1.5 border-t border-line pt-3 type-caption font-semibold text-ok">
+        <Check className="size-3.5" /> Your employers, titles and dates stay the same
       </div>
     </SheetFrame>
   )
@@ -126,26 +126,26 @@ function ReadySheet({ p }: { p: Persona }) {
   const job = p.jobs[0]
   return (
     <SheetFrame stamp="Interview ready" tone="gold">
-      <div className="mt-4 text-[14px] font-bold text-ink">Application pack · {job.title}</div>
-      <ul className="mt-3 space-y-2 text-[12.5px]">
+      <div className="mt-4 type-helper font-bold text-ink">Application pack · {job.title}</div>
+      <ul className="mt-3 space-y-2 type-caption">
         {[
           ['Optimized CV', `ATS ${job.after}`],
           ['Cover letter', 'Ready'],
           ['Interview Q&A', '25 answers'],
         ].map(([a, b]) => (
-          <li key={a} className="flex items-center justify-between rounded-[10px] bg-ok-soft px-3 py-2">
+          <li key={a} className="flex flex-wrap items-center justify-between gap-1 rounded-[10px] bg-ok-soft px-3 py-2">
             <span className="flex items-center gap-1.5 font-semibold text-ink"><Check className="size-3.5 text-ok" /> {a}</span>
-            <span className="font-mono text-[11px] text-ok">{b}</span>
+            <span className="font-mono type-caption text-ok">{b}</span>
           </li>
         ))}
       </ul>
       <div className="mt-3 rounded-[12px] border border-gold/40 bg-gold-soft px-3 py-2.5">
         <div className="flex items-center justify-between">
-          <span className="text-[12.5px] font-bold text-ink">Mock interview</span>
+          <span className="type-caption font-bold text-ink">Mock interview</span>
           <span className="font-mono text-[18px] font-medium text-gold-ink">{p.mock.overall}</span>
         </div>
         <Meter value={p.mock.overall} tone="gold" className="mt-1.5" />
-        <p className="mt-1.5 text-[11px] text-ink-soft">Next: {p.mock.improve.charAt(0).toLowerCase() + p.mock.improve.slice(1)}</p>
+        <p className="mt-1.5 type-caption text-ink-soft">Next: {p.mock.improve.charAt(0).toLowerCase() + p.mock.improve.slice(1)}</p>
       </div>
     </SheetFrame>
   )
@@ -157,7 +157,8 @@ export function HeroStack() {
   const reduced = useReducedMotion()
   const { ref, visible } = useInView<HTMLDivElement>(0.2)
   const [paused, setPaused] = useState(false)
-  const { index, choose } = useAutoStep(SHEETS.length, STEP_MS, visible && !paused && !reduced)
+  const [userPaused, setUserPaused] = useState(false)
+  const { index, choose, manual, resume } = useAutoStep(SHEETS.length, STEP_MS, visible && !paused && !userPaused && !reduced)
   const [who, setWho] = useState(0)
   const prev = useRef(index)
   const n = SHEETS.length
@@ -184,14 +185,14 @@ export function HeroStack() {
         <span className="relative size-10 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-m-2">
           <Image src={p.photo} alt="" fill sizes="40px" className="object-cover" />
         </span>
-        <span className="min-w-0 text-[12px] leading-tight">
-          <b className="block truncate text-[13px] text-ink">{p.name} · {p.role}</b>
+        <span className="min-w-0 type-caption leading-tight">
+          <b className="block break-words type-helper text-ink">{p.name} · {p.role}</b>
           <span className="text-ink-muted">Example candidate · {p.sector}</span>
         </span>
       </div>
 
       {/* Fixed height: the deck never pushes the page around as sheets change. */}
-      <div className="relative h-[392px] pr-[30px] pt-[38px] sm:h-[420px] lg:h-[476px] lg:pr-[70px] lg:pt-[56px]">
+      <div className="relative h-[520px] pr-[22px] pt-[32px] sm:h-[520px] lg:h-[560px] lg:pr-[70px] lg:pt-[56px]">
         <div className={cn(s.deck, 'h-full')} aria-roledescription="carousel" aria-label="One CV, prepared step by step">
           {SHEETS.map((sheet, i) => {
             const pos = (i - index + n) % n
@@ -210,7 +211,23 @@ export function HeroStack() {
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-4 gap-1.5 lg:mt-7" role="tablist" aria-label="Choose a stage">
+      {!reduced ? (
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            aria-pressed={userPaused || manual}
+            onClick={() => {
+              if (userPaused || manual) { setUserPaused(false); resume() }
+              else setUserPaused(true)
+            }}
+            className="min-h-11 rounded-ctl px-3 type-caption font-semibold text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          >
+            {userPaused || manual ? 'Resume examples' : 'Pause examples'}
+          </button>
+        </div>
+      ) : null}
+
+      <div className="mt-2 grid grid-cols-4 gap-1.5 lg:mt-7" role="tablist" aria-label="Choose a stage">
         {SHEETS.map((sheet, i) => (
           <button
             key={sheet.key}
@@ -230,8 +247,8 @@ export function HeroStack() {
                 />
               ) : null}
             </span>
-            <span className={cn('text-[11.5px] font-semibold leading-tight transition-colors sm:text-[12.5px]', i === index ? 'text-ink' : 'text-ink-muted group-hover:text-ink-soft')}>
-              <span className="hidden font-mono text-[11px] text-ink-muted sm:inline">0{i + 1} </span>
+            <span className={cn('type-caption font-semibold leading-tight transition-colors ', i === index ? 'text-ink' : 'text-ink-muted group-hover:text-ink-soft')}>
+              <span className="hidden font-mono type-helper text-ink-muted sm:inline">0{i + 1} </span>
               {sheet.short}
             </span>
           </button>

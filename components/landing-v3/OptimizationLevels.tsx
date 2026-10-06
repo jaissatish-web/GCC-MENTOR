@@ -78,9 +78,9 @@ export function OptimizationLevels() {
                 i === lvl ? 'border-teal bg-white shadow-m-3' : 'border-line bg-white/60 hover:border-teal/40',
               )}
             >
-              <span className="font-semibold hidden text-[11px] uppercase tracking-[0.08em] text-ink-muted sm:block">{l.tag}</span>
+              <span className="font-semibold hidden type-caption uppercase tracking-[0.08em] text-ink-muted sm:block">{l.tag}</span>
               <span className="text-[17px] font-bold text-ink min-[400px]:text-[20px] sm:text-[22px] tracking-[-0.02em]">{l.label}</span>
-              <span className="font-mono text-[11.5px] text-gold-ink">aims {l.band[0]}–{l.band[1]}</span>
+              <span className="font-mono type-caption text-gold-ink">aims {l.band[0]}–{l.band[1]}</span>
               {/* Intensity pips */}
               <span className="absolute right-3 top-3 hidden gap-0.5 sm:flex" aria-hidden="true">
                 {[0, 1, 2].map((p) => (
@@ -92,7 +92,7 @@ export function OptimizationLevels() {
         </div>
         <ul key={L.key} className={cn(s.enter, 'mt-4 space-y-2')}>
           {L.what.map((w) => (
-            <li key={w} className="flex gap-2.5 text-[14.5px] leading-snug text-ink-soft">
+            <li key={w} className="flex gap-2.5 type-helper leading-snug text-ink-soft">
               <Check className="mt-0.5 text-ok" /> {w}
             </li>
           ))}
@@ -102,13 +102,13 @@ export function OptimizationLevels() {
       {/* The same line at the chosen level */}
       <div className="rounded-[20px] border border-line bg-white p-4 shadow-lp-card sm:p-6">
         <div className="flex items-center justify-between gap-2">
-          <span className="font-semibold text-[11px] uppercase tracking-[0.08em] text-ink-muted">Same experience · {L.label} level</span>
+          <span className="font-semibold type-caption uppercase tracking-[0.08em] text-ink-muted">Same experience · {L.label} level</span>
           <Tag tone="muted">Example</Tag>
         </div>
         <div className="mt-4 flex items-end gap-3">
-          <span className="font-mono text-[14px] text-ink-muted line-through">52</span>
+          <span className="font-mono type-helper text-ink-muted line-through">52</span>
           <span className="font-mono text-[44px] font-medium leading-none text-teal">{L.score}</span>
-          <span className="pb-1 text-[12.5px] font-semibold text-ink-soft">ATS match for this job</span>
+          <span className="pb-1 type-caption font-semibold text-ink-soft">ATS match for this job</span>
         </div>
         <div className="relative mt-3">
           <Meter value={L.score} />
@@ -119,7 +119,7 @@ export function OptimizationLevels() {
             aria-hidden="true"
           />
         </div>
-        <div className="mt-5 space-y-2 text-[13px] leading-snug">
+        <div className="mt-5 space-y-2 type-helper leading-snug">
           <p className="rounded-[12px] bg-alert-soft/60 px-3 py-2.5 text-ink-muted line-through decoration-alert/40">Responsible for accounts and reports.</p>
           <p key={L.key} className={cn(s.enter, 'rounded-[12px] bg-ok-soft px-3 py-2.5 text-ink')}>
             <Bold text={L.bullet} />
@@ -127,16 +127,16 @@ export function OptimizationLevels() {
           {L.suggestion ? (
             <p key={`${L.key}-s`} className={cn(s.enter, 'flex items-start justify-between gap-3 rounded-[12px] border border-gold/50 bg-gold-soft px-3 py-2.5 text-ink')}>
               <span>
-                <span className="font-semibold mr-1.5 text-[11px] uppercase tracking-[0.08em] text-gold-ink">Suggested</span>
+                <span className="font-semibold mr-1.5 type-caption uppercase tracking-[0.08em] text-gold-ink">Suggested</span>
                 {L.suggestion}
               </span>
               <span className="flex shrink-0 gap-1">
-                <span className="rounded-md bg-teal px-2 py-0.5 text-[11px] font-bold text-white">Keep if true</span>
+                <span className="rounded-md bg-teal px-2 py-0.5 type-caption font-bold text-white">Keep if true</span>
               </span>
             </p>
           ) : null}
         </div>
-        <p className="mt-4 text-[12.5px] text-ink-muted">You review and approve every change before it goes into your CV.</p>
+        <p className="mt-4 type-helper text-ink-muted">You review and approve every change before it goes into your CV.</p>
       </div>
     </div>
   )
