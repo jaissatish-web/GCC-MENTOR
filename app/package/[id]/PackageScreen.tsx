@@ -696,8 +696,8 @@ function PackageScreenInner({ id }: { id: string }) {
             three identical rows in the Library otherwise — the target job
             title is not something they can change. Saves on blur or Enter;
             clearing it falls back to the job title rather than storing blank. */}
-        <label className="hidden flex-1 flex-wrap items-center gap-2 text-[12px] text-ink-muted lg:flex lg:max-w-[420px]">
-          <span className="sr-only lg:not-sr-only">Name in your library</span>
+        <label className={`${isRaw ? 'flex' : 'hidden lg:flex'} flex-1 flex-wrap items-center gap-2 text-[12px] text-ink-muted lg:max-w-[420px]`}>
+          <span className={isRaw ? '' : 'sr-only lg:not-sr-only'}>Name in your library</span>
           {/* A textarea that sizes to its text (field-sizing: content), so a
               long job title wraps instead of being clipped mid-word on a phone
               ("…Enginee", 2026-09-18). Enter still saves; it never adds a line.

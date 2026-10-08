@@ -714,3 +714,5 @@ Recorded voice update (2026-09-26): founder authorized the existing database; mi
   coverage does not substitute for these live checks. The test raw resume remains
   named "My Master Engineering CV" with the saved styling listed above.
 - DOCX is still unavailable for raw resumes because template layout parity is unresolved.
+- Raw resume naming is visible at phone widths; optimized workspace naming keeps
+  its existing desktop presentation. Actual device interaction remains unverified.
