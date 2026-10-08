@@ -457,6 +457,20 @@ console.log('\n065 · every Q&A set kept; 10 newest of each per package')
   check('12 mock interviews -> the 10 newest kept', ids(row.mock_interview_runs) === newest('cap-M'))
 }
 
+console.log('\nCareer Profile Resume · existing free quota and owner RLS')
+const freeInsert = () => svc(`insert into public.packages
+  (user_id, profile_id, tier, name, target_job_title, optimization_level, status,
+   optimized_content, document_snapshot, skills_order, field_visibility_snapshot, generation_count)
+  values ($1, $2, 'free', 'My Career Profile Resume', 'My Career Profile Resume', 'easy', 'saved',
+    null, null, '[]'::jsonb, '{}'::jsonb, 0) returning id`, [A, profileId])
+const rawId = (await freeInsert()).rows[0].id
+check('existing schema accepts a profile-only resume without JD or generated content', Boolean(rawId))
+check('existing unique index rejects a second raw resume', await throws(freeInsert))
+check('other user cannot read the raw resume', (await asUser(db, B, () => db.query('select id from public.packages where id = $1', [rawId]))).rows.length === 0)
+check('other user cannot rename the raw resume', (await asUser(db, B, () => db.query("update public.packages set name = 'Stolen' where id = $1", [rawId]))).affectedRows === 0)
+check('owner can rename raw resume while keeping its source badge', (await asUser(db, A, () => db.query("update public.packages set name = 'My Master Engineering CV' where id = $1", [rawId]))).affectedRows === 1)
+check('renaming does not change tier or create a document snapshot', (await svc('select tier, document_snapshot from public.packages where id = $1', [rawId])).rows[0].tier === 'free' && (await svc('select document_snapshot from public.packages where id = $1', [rawId])).rows[0].document_snapshot === null)
 await db.close()
+
 console.log(`\n${passes} passed, ${failures} failed`)
 if (failures > 0) process.exit(1)

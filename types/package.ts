@@ -228,6 +228,7 @@ export interface PackageServiceEvent {
 // ---- packages (migration 012) ----------------------------------------------
 
 export interface Package {
+  tier?: 'free' | 'paid' | null
   id: string
   user_id: string // RLS key
   profile_id: string // source of truth for fixed fields

@@ -173,6 +173,16 @@ Two rules follow, and both are load-bearing:
   document.** It never rebuilds, because rebuilding would read the live profile and
   reintroduce the exact bug the snapshot exists to prevent.
 
+### The Career Profile Resume record (2026-10-08)
+
+`POST /api/packages/career-profile` creates or returns the caller's existing
+`tier = 'free'` row after an owner-scoped profile lookup. Existing migration 038
+supplies the unique constraint; no new migration. Concurrent creation recovers by
+reading the winning row, never overwriting preferences. `optimized_content` and
+`document_snapshot` stay NULL; visibility and content are read live. Name, template
+and style remain package metadata. Raw records are omitted from target-job summary
+lists/counts and shown in a dedicated card on the same Library page.
+
 ### The one free-resume quota, enforced in the database
 
 A partial unique index, `packages_one_free_per_user`, allows exactly one

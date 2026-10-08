@@ -1,3 +1,4 @@
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { mostlyUnanswered, UNANSWERED_MESSAGE } from '@/lib/optimizer/buildOutcome'
 import { companyFromAdvert, countryFromAnalysis } from '@/lib/optimizer/jobFacts'
 import { NextRequest, NextResponse } from 'next/server'
@@ -202,6 +203,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
     if (!pkgRow) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+    if (isCareerProfileResume(pkgRow)) return NextResponse.json({ error: 'Create a target job to optimize a separate resume.' }, { status: 409 })
 
     // Idempotence: a double-click, a refresh, or a retry must not spend a
     // second build on a package that already has its resume.

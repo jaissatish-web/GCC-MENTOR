@@ -10,6 +10,18 @@ alongside what it reversed.
 A decision belongs here if changing it back would need a conversation. Format: date,
 what was decided, and the reasoning that made it the right call.
 
+
+## 2026-10-08 — Career Profile Resume in the existing Library
+
+Founder authorized one persistent `tier = 'free'` package per user, using migration
+038's existing unique index. Name, template and style are package preferences;
+content and visibility always come from the latest saved Career Profile, without AI,
+credits or a delivered snapshot. Raw content editing opens the existing Profile
+editor and uses its validated atomic save: reversing formatted document lines would
+lose structured dates, certification fields and hidden data. Optimized document
+editing and snapshots remain unchanged. PDF uses the same 50-template renderer;
+DOCX remains withdrawn pending layout parity. No schema or payment changes.
+
 ---
 
 ## 2026-10-04 (later still) — Pages that fill, long CVs, and a text style the user controls

@@ -1,4 +1,5 @@
 'use client'
+import { CareerProfileResumeCard } from '@/components/resume/CareerProfileResumeCard'
 
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/Button'
@@ -546,6 +547,8 @@ export default function TargetJobsPage() {
         ) : null
       }
     >
+
+      <CareerProfileResumeCard />
 
       {/* ONE TOOLBAR (2026-09-24 simplification): search and stage side by
           side. It was a search card, a four-tile usage block and a ten-column

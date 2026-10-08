@@ -28,6 +28,7 @@
  *   - it does not end on a section heading or a job's title, stranded from
  *     what follows.
  *
+ *   --raw           verify live Career Profile data through the same PDF route
  *   --short / --long   run only that pass
  *   STYLE='{"ink":"black","highlight":"none"}'   build every file with these style choices
  */
@@ -41,6 +42,7 @@ import { join } from 'node:path'
 import type { AddressInfo } from 'node:net'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { getDocumentProxy } from 'unpdf'
+import { buildCareerProfileResume } from '../lib/careerProfileResume'
 import { renderPackagePdf } from '../lib/pdf/renderPackage'
 import { atsTextOfPdf, checkAtsText, norm } from '../lib/atsFileCheck'
 import { availableTemplates, type TemplateEntry } from '../lib/templates'
@@ -177,6 +179,7 @@ async function main() {
   const { work_experience, skills, certifications, education, additional_information, ...profileRow } = profile
   const pkg = {
     id: 'pkg-1',
+    tier: process.argv.includes('--raw') ? 'free' : null,
     user_id: profile.user_id,
     profile_id: profile.id,
     target_job_title: 'Commissioning Leader – Instrumentation & Control',
@@ -220,6 +223,7 @@ async function main() {
     if (out) writeFileSync(join(out, `${t.id}${v.photo ? '' : '.nophoto'}.pdf`), r.pdf)
     const before = failures
     const { text, pages } = await atsTextOfPdf(r.pdf)
+    if (process.argv.includes('--raw') && r.document.summary !== buildCareerProfileResume(profile).summary) fail(`${where}: raw summary differs from profile`)
     const report = checkAtsText(text, pages, r.document, KEYWORDS)
     for (const item of report.items) if (item.status !== 'pass') fail(`${where}: ${item.status} — ${item.label}: ${item.detail}`)
     // Case-blind, as an ATS is: several designs print the name in capitals.
@@ -232,7 +236,7 @@ async function main() {
     const images = (Buffer.from(r.pdf).toString('latin1').match(/\/Subtype\s*\/Image/g) ?? []).length
     const wantImages = t.allowsPhoto && v.photo ? 1 : 0
     if (images !== wantImages) fail(`${where}: ${images} image(s) in the PDF, expected ${wantImages}`)
-    if (pages > 1) fail(`${where}: ${pages} pages for a two-job CV`)
+    if (pages > (process.argv.includes('--raw') ? 2 : 1)) fail(`${where}: ${pages} pages for a two-job CV`)
     if (failures === before) console.log(`  PASS  ${where} — ${report.passed}/${report.total} ATS checks, ${pages} page${pages === 1 ? '' : 's'}, ${images ? 'photo' : 'no photo'}`)
   }
   // The long CV.

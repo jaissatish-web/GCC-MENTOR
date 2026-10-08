@@ -1,4 +1,5 @@
 'use client'
+import { CAREER_RESUME_BADGE, CAREER_RESUME_NAME } from '@/lib/careerProfileResume'
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -38,7 +39,7 @@ const AVAILABLE_TEMPLATE_COUNT = Object.values(TEMPLATES).filter((t) => t.availa
 
 function TemplatesInner() {
   const router = useRouter()
-  const [packages, setPackages] = useState<PackageSummary[] | null>(null)
+  const [packages, setPackages] = useState<Array<Pick<PackageSummary, 'id' | 'name' | 'template_id' | 'target_job_title'>> | null>(null)
   const [selectedId, setSelectedId] = useState<string>('')
   const [templateId, setTemplateId] = useState<TemplateId>(DEFAULT_TEMPLATE_ID)
   const [error, setError] = useState<string | null>(null)
@@ -48,13 +49,19 @@ function TemplatesInner() {
     if (didInit.current) return
     didInit.current = true
     // Lightweight summaries of the newest 100 jobs (audit M08) — the picker needs names only.
-    fetch('/api/packages?view=summary&limit=100', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
+    Promise.all([
+      fetch('/api/packages?view=summary&limit=100', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)),
+      fetch('/api/packages/career-profile', { method: 'POST' }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ])
+      .then(([data, rawData]) => {
         // Every resume is listed while the locks are off (founder decision
         // 2026-08-17). This used to filter to paid packages; keeping that filter
         // would now show an empty gallery, because nothing is marked paid.
-        const list = (data?.packages as PackageSummary[] | undefined) ?? []
+        const raw = rawData?.package as { id: string; name: string | null; template_id: string | null } | undefined
+        const list = [
+          ...(raw ? [{ ...raw, name: `${raw.name || CAREER_RESUME_NAME} · ${CAREER_RESUME_BADGE}`, target_job_title: CAREER_RESUME_NAME }] : []),
+          ...((data?.packages as PackageSummary[] | undefined) ?? []),
+        ]
         setPackages(list)
         if (list.length > 0) setSelectedId(list[0].id)
       })

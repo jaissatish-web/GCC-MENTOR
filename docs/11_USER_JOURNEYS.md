@@ -236,66 +236,23 @@ screen.
 
 ---
 
-## 6. The free resume journey — designed, not reachable
+## 6. Career Profile Resume — existing Library (2026-10-08)
 
-The intended flow, as designed (still not reachable — see below):
+1. Save a Career Profile after PDF/DOCX import, pasted text or manual entry.
+2. Open `/dashboard/library`. The raw card creates/returns one `tier = 'free'`
+   package, even when the user has never optimized a CV. With no saved profile,
+   it links to Profile instead of inserting an empty package.
+3. Open **Customize and download**. The existing package Design screen supports
+   all 50 templates, preview, supported styling and PDF. Rename stays in the same
+   screen. **Raw Career Profile Data** remains visible in the app after renaming,
+   and is never passed to the exported template.
+4. **Edit Career Profile** opens the existing profile editor. Save there, return
+   to the resume: latest content and field visibility appear. No content snapshot,
+   AI call or optimization credit is created by this resume workflow.
+5. Existing optimized resumes keep their saved document snapshots and editor.
+   The raw record is not presented as an unfinished target job or in service pickers.
 
-```
-/create-resume  →  "type it myself"  →  /profile  →  a free resume appears
-                                                     in the Library, labelled free
-   ↓
-/package/[id]   →  choose a permitted template, adjust style, download the PDF
-   ↓
-"Edit"          →  /profile  (the CV follows the profile)
-```
-
-**Nothing creates that resume yet.** The gate, the one-per-user quota and the admin
-control panel all exist and are verified; the route, the entry point and the Library
-labelling do not. `types/package.ts`'s `Package` type does not even carry a `tier`
-field yet. See [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4.
-
-**"Edit → /profile" ONLY ever fired for a different case: any ordinary package that
-simply had not been generated yet** — created via the normal `/optimize/target` →
-`/optimize/setup` flow, whose Phase A always writes the row with `optimized_content:
-null`, then abandoned or interrupted before Phase B ran. `resumeKind()`
-(`lib/resumeKind.ts`) labels ANY such row "free" — the same word as the product-tier
-concept above, but a different thing: "nothing generated yet," not "designed to always
-be free." Since no route creates an actual `tier: 'free'` row, every real user who ever
-saw this "Edit" button was in that second case, never the first.
-
-**Changed twice on 2026-08-19, settled on the second pass.** First change: for that
-reachable case, "Edit" ran generation (`/optimize/generate/[id]`) before handing off to
-an editor, rather than sending the user to the profile. The founder's follow-up
-correction: clicking Edit must open the editor directly, never spend a model call first.
-It does not need to — `/package/[id]/edit` (§4 above) derives its starting text the same
-way the resume itself renders (`user_edited ?? generated ?? the profile's own`,
-`lib/resumeDocument.ts`), so a hand edit on a never-generated resume is honoured exactly
-like an edit on a generated one. `PATCH /api/packages/[id]` was extended to create the
-experience-block row on first edit when generation never did, so nothing is silently
-dropped. **"Edit" now always opens `/package/[id]/edit`, with no branch on whether the
-resume has been optimized.**
-
-**A side effect worth naming:** this makes `resumeKind()` a stricter check than it used
-to be. It once meant "does `optimized_content` exist at all"; a hand edit alone can now
-make that true without the model ever running, which would have mislabelled the user's
-own writing as AI output. `hasGeneratedContent()` (`lib/resumeKind.ts`) now checks for
-actual `generated` / `generated_bullets` text specifically, so "free" still means what it
-says regardless of how many hand edits a resume has.
-
-**Why this is safe from the historical loop, recorded so it is not rediscovered:** a
-free/ungenerated resume's "Edit text" once reached the preview screen, whose guard sent
-the contentless row to the generate screen, which requested generation, which refused
-because the row was unpaid, which returned it to the payment screen — a loop, from a
-button labelled Edit. See [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4 for the
-full account. That loop needed generation to run as a step in the Edit path; this design
-never calls generation from Edit at all, so there is no step left for the payment refusal
-to interrupt.
-
-**Still not resolved: what "Edit" should do for the genuine, once-and-only-ever-free
-product tier**, if/when W2 makes it reachable. Arguably this change is now the right
-plumbing for it — hand-editing a resume with no AI involved is exactly what a free tier
-should allow — but no route creates a `tier: 'free'` row yet, so this is unproven for
-that specific case. Flagged in `WORK_QUEUE.md` W2, not decided here.
+DOCX remains unavailable because preview/layout parity has not been established.
 
 ---
 

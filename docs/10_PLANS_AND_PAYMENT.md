@@ -149,59 +149,19 @@ work.
 
 ---
 
-## 4. The free tier — built, verified, and not reachable
+## 4. Career Profile Resume and deferred entitlement controls
 
-**Founder decision:** a free user keeps **one** resume built from their own typed
-profile, can use any permitted template, can edit it, and can download the PDF. They
-edit it by editing their Career Profile, and the CV follows.
+2026-10-08: one `tier = 'free'` package per user is now reachable from Resume
+Library, with all 50 templates, naming/style preferences and PDF. Its content and
+visibility follow Career Profile, and Edit uses Profile's validated save. Existing
+migration 038 enforces uniqueness; no new schema. Creation, preview, style and PDF
+call no LLM and reserve no optimization credits. `/api/optimize` rejects generation
+into this raw record; a separate target job keeps the existing optimization flow.
 
-**Note the quota is not enforced today either** — nothing creates a free-tier row, so
-nothing counts against it. The database index below still exists and would still bite.
-
-**What exists:**
-- ~~The access gate above~~ — **deleted**, see the banner at the top of this file
-- A `tier` column and a **database-level** partial unique index allowing exactly one
-  free resume per user — a quota enforced only in application code is a quota a
-  second code path forgets
-- The entitlements table, its reader, and the admin control panel
-- ~~A free resume's Edit correctly routes to the profile~~ — **changed 2026-08-19.**
-  This never actually governed a real `tier: 'free'` resume (none can exist — see
-  below); it governed any ordinary package that simply had no generated content yet,
-  which `resumeKind()` also labels "free". That case now opens the same per-resume
-  editor every generated resume gets (`/package/[id]/edit`) directly — no detour
-  through generation — since the editor derives its starting text the same way the
-  resume itself renders and saves a hand edit the same way either case. See
-  [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §6 for the full reasoning, including why
-  the loop noted below cannot recur for it. **What "Edit" should do for the genuine
-  free-tier resume, once one can exist, is still open** — flagged in `WORK_QUEUE.md` W2,
-  not decided here.
-
-**What does not exist:**
-- No route creates a free resume
-- No entry point in the UI
-- The Library neither lists nor labels free resumes
-- **No user-facing gate calls the entitlement readers yet**
-
-`/admin/plan` therefore carries a plain "not live yet" notice explaining exactly what
-does and does not happen. **That notice is removed in the same change that wires the
-first real gate** — a control panel that silently does nothing is the mistake this is
-deliberately avoiding.
-
-**A loop found and fixed while wiring the copy**, worth recording because it shows how
-these paths interact: a free resume clicking "Edit text" reached the preview screen,
-whose guard sent a row with no content to the generate screen, which requested
-generation, which refused because the row was unpaid, which returned it to the payment
-screen. **A loop, from a button labelled Edit.**
-
-**Cannot recur today, and more structurally than before** (2026-08-19 note, second
-pass): the loop needed generation to run as a step reached FROM Edit. The current design
-never calls generation from Edit at all — the editor above writes straight to
-`optimized_content` via `PATCH /api/packages/[id]`, whether or not the model has ever
-run — so there is no "unpaid → refused" step left in that path to interrupt, payment
-check present or not. Still worth re-reading this note before the paid lock returns
-(open items §A0), because the free-tier question above is still open.
-
----
+Entitlement table/readers and admin controls still exist but remain unenforced while
+payment locks are off. This feature does not change prices, packages or payment gates.
+DOCX remains withdrawn pending parity. Source identity is `tier`, not the presence or
+absence of generated text: an abandoned optimization is not a raw profile resume.
 
 ## 5. Payment — there is no checkout
 

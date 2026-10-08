@@ -1,4 +1,5 @@
 import { downloadFileName } from '@/lib/downloadName'
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { NextRequest, NextResponse } from 'next/server'
 import { Packer } from 'docx'
 import { createClient } from '@/lib/supabase/server'
@@ -82,6 +83,10 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
   }
   if (!pkgRow) {
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+  }
+
+  if (isCareerProfileResume(pkgRow)) {
+    return NextResponse.json({ error: 'Word download is unavailable until it matches the template preview. Please download PDF.' }, { status: 409 })
   }
 
   // NO PAYMENT GATE while the locks are off (founder decision 2026-08-17). Auth

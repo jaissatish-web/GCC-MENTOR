@@ -266,17 +266,14 @@ The snapshot stores the rendered document as delivered. Three rules follow:
 2. **Editing text re-applies only the summary and bullets onto the frozen
    document.** It deliberately does **not** rebuild, because rebuilding would read
    the live profile and reintroduce the exact bug the snapshot exists to prevent.
-3. **A free resume has no snapshot on purpose** and therefore renders from the live
-   profile. **Since 2026-09-17 every field of a saved resume is editable per resume**
-   (name, contact, roles, dates, skills, certifications, education, additional
-   information), stored in `document_snapshot` without touching the Career Profile. See
-   [`17_OPTIMIZER_ENGINE.md`](17_OPTIMIZER_ENGINE.md) §6c. Before that, **summary and
-   bullets were the one exception (2026-08-19):** `/package/[id]/edit`
-   ([`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §4) lets those be hand-written per
-   resume even before generation, saved as `user_edited` values that
-   `buildResumeDocument`'s `user_edited ?? generated ?? the profile's own` precedence
-   already knew how to prefer — no rebuild, no new mechanism, just a second writer
-   using a resolution order that already existed.
+3. **A Career Profile Resume (`tier = 'free'`) never uses a snapshot.** The shared
+   `buildCareerProfileResume()` adapter rebuilds it from the saved profile, including
+   responsibilities and highlights without AI rewriting or punctuation changes.
+   Preview and PDF use that same document and live visibility. Content Edit opens
+   the validated Career Profile editor. PATCH rejects independent raw content edits;
+   optimization refuses to generate into this row. Name/template/style still save
+   through the existing metadata path. Optimized resume editing remains per-resume.
+
 
 **This is where the worst defect in the project's history lived.** The snapshot had
 exactly one writer — generation — and generation refuses to run twice, while the

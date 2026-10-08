@@ -64,7 +64,12 @@ This is a **Gulf-specific requirement, not a preference**: photo, nationality, d
 of birth and visa status are normal on a Gulf CV and unwelcome on a Western one, and
 the user decides.
 
-Two rules:
+The Career Profile Resume reads this visibility live, including changes after
+creation. Its content Edit opens `/profile?view=details`; visibility opens
+`/profile?view=settings`. Both use the existing validated atomic profile save.
+No formatted-document lines are reverse-parsed into profile fields.
+
+For optimized resumes:
 - **A resume records the visibility state it was generated with**, in
   `field_visibility_snapshot`. Changing your preferences later does not retroactively
   alter a delivered document.

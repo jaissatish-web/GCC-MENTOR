@@ -1,4 +1,5 @@
 'use client'
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import { useRouter } from 'next/navigation'
@@ -156,6 +157,10 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           return
         }
         const p = pkgData.package as Package
+        if (isCareerProfileResume(p)) {
+          router.replace('/profile?view=details')
+          return
+        }
         const prof = (profileData as CareerProfileFull | null) ?? null
         const base =
           (p.document_snapshot as ResumeDocument | null) ??
@@ -178,7 +183,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
         setSaved(base)
       })
       .catch(() => setError('Could not load this resume.'))
-  }, [packageId])
+  }, [packageId, router])
 
   const dirty = useMemo(() => (draft && saved ? JSON.stringify(draft) !== JSON.stringify(saved) : false), [draft, saved])
 

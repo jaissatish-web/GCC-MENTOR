@@ -138,27 +138,12 @@ checkout" sentence replaced with the truth: there is no live card checkout at al
 a purchase is arranged directly. The pricing CTAs changed with it — "Get Started" pointed
 at a checkout that does not exist and now reads "Start free" → `/signup`.
 
-### W2 · Make the free tier reachable
-The foundation is built and verified; nothing creates a free resume. Needs: a route that
-creates a `tier='free'` package (note that two columns are NOT NULL and must be supplied),
-an entry point on the create-resume screen, Library listing plus labelling, the template
-picker reading the entitlements table, and **removal of the "not live yet" notice on the
-admin screen in the same change.**
+### W2 · Wire commercial entitlement gates when payments return
+Career Profile Resume creation, Library labelling, all-template preview/PDF and
+Profile-based editing are implemented (2026-10-08). Remaining work is commerce
+entitlement enforcement, deliberately outside the founder's current feature scope.
+Traces to: open items §A2.
 
-**Also decide, in the same change:** what `/package/[id]`'s "Edit" button does for a
-`tier: 'free'` resume specifically. 2026-08-19 changed that button, for the DIFFERENT
-"no content generated yet" case `resumeKind()` also calls "free", to run generation
-instead of routing to the profile. That was correct for an ordinary in-flight package,
-but is very likely wrong for a resume meant to stay free forever — spending a real model
-call, and reopening the exact refusal-loop the profile-routing was originally built to
-avoid once the payment lock returns. Whoever builds this route needs to branch on the
-row's actual `tier` column, not just `resumeKind()`, to keep the two cases apart.
-Traces to: open items §A2 · Owner: Hermes, with the gate wiring reviewed closely · Medium.
-
-### W3 · Decide and fix the free CV download
-A deliberate founder decision is currently switched off by a layout change. Either link it
-from the Library or the dashboard, or retire the free download on purpose.
-Traces to: open items §B4 · **Needs a founder answer before building.**
 
 ---
 

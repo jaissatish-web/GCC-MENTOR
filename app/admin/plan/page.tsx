@@ -42,10 +42,9 @@ export default async function AdminPlanPage() {
           like a working control while editing a row nothing read. This banner comes
           out in the same commit that wires the first gate. */}
       <p className="mt-5 rounded-ctl border border-teal/50 bg-canvas px-4 py-3 text-[13px] leading-relaxed text-ink-soft">
-        <strong className="text-teal">Not live yet.</strong> Your choices here are saved and
-        will be honoured as soon as the free-tier screens are wired to them. Until then the product
-        behaves as it does today: everything needs payment except the readiness score and a typed
-        profile. This notice disappears when enforcement lands.
+        <strong className="text-teal">Plan restrictions are not enforced yet.</strong> Your choices here are saved.
+        Career Profile Resume is available in Resume Library with all templates and PDF.
+        These controls will take effect when commercial entitlement gates are enabled.
       </p>
 
       {rows.length === 0 ? (

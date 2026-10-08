@@ -70,6 +70,10 @@ Everything in this section is built, deployed and working.
   job field; 47 take a photo; adjustable font, size, accent and photo size on 49 of them
   (ATS Classic is fixed on purpose), plus text colour, highlight, borders and header for
   print; long CVs break cleanly across pages.
+- **Career Profile Resume** in the existing Resume Library: one reusable resume
+  from saved profile facts, all 50 templates, custom naming/style and PDF. No JD,
+  AI optimization or credits. Permanent UI badge: **Raw Career Profile Data**.
+  Content edits open Career Profile; saved optimized resumes keep their snapshots.
 - Hard-delete of all personal data from Settings.
 
 **Meant to be paid — currently open to everyone**
@@ -111,11 +115,6 @@ product cannot take money from a stranger without the founder being involved in
 the transaction.
 
 **Also not live:**
-- **The free resume tier is built but unreachable.** The access gate, the
-  one-per-user quota and the admin control panel all exist and are verified.
-  There is no route that creates a free resume, no entry point in the UI, and the
-  Library neither lists nor labels them. The admin screen says "not live yet" on
-  its face for exactly this reason.
 - **The Word (DOCX) download is withdrawn.** The route still exists; nothing
   links to it. It was withdrawn because its output did not match what the screen
   showed.

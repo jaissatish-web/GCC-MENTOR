@@ -362,15 +362,13 @@ primarily India-based audience.
 
 **Until this is answered the product cannot take money from a stranger.**
 
-### A2 · Finish the free tier, or shelve it
+### A2 · Career Profile Resume implemented; commerce gates deferred
 
-The gate, the database quota and the admin control panel are built and verified. **No
-route creates a free resume and no UI offers one.** The remaining work is a creation
-route, an entry point, and Library listing plus labelling — plus wiring the first gate
-to the entitlements table and removing the "not live yet" notice in the same change.
-
-Related and unresolved: the free profile-only CV download still works but **nothing
-links to it** (§B4).
+2026-10-08: the existing Library creates one persistent profile-only resume, labelled
+**Raw Career Profile Data**, using all 50 templates and PDF without AI or credits.
+Editing uses Career Profile; optimized snapshots remain independent. No migration.
+Admin entitlement controls remain unenforced while the existing payment locks are off.
+Authenticated production journey still needs founder login for verification.
 
 ### A3 · Long-term pricing model — **decided: monthly subscription, deferred**
 
@@ -523,16 +521,11 @@ higher-risk rework — it is a narrower, safer answer to the same complaint, not
 substitute for the eventual port if one is still wanted for its own sake (one rendering
 implementation instead of two, not a defect this leaves behind).
 
-### B4 · The free CV download is unreachable
+### B4 · Profile-only PDF reachable — resolved 2026-10-08
 
-The route works. Its only link was removed from the profile page during a layout change,
-and nothing else points at it.
-
-This matters because the free profile-only download was a deliberate founder decision,
-on the reasoning that the AI rewrite is the paid product and putting your own facts on a
-page is not. **A deliberate decision is currently switched off as a side effect of a
-layout change.** It needs an explicit choice: link it from the Library or the dashboard,
-or retire the free download on purpose.
+The existing Library now offers Career Profile Resume → Customize and download →
+PDF using the package renderer and all 50 templates. The legacy `/api/resume/pdf`
+route remains compatible but has no new direct UI entry.
 
 ### B5 · Unsaved profile edits are lost on navigation
 
@@ -693,3 +686,21 @@ Separate branch only. Pending: preview migration 057, transcription credentials,
 
 
 Recorded voice update (2026-09-26): founder authorized the existing database; migration 057 is applied and storage/RLS verified. Question TTS is removed for this version. Remaining gates: Vercel branch preview environment values, STT key, scheduled worker and configured end-to-end testing.
+
+
+## 2026-10-08 verification gaps — Career Profile Resume
+
+- Full automated release suite: 39/39 scripts passed; disposable database suite
+  includes 131 assertions, including one-per-user raw quota and cross-user denial.
+- Production build passed with placeholder Supabase credentials. Live catalogue
+  confirms existing free unique index, nullable outputs/target fields, owner RLS,
+  and no authenticated UPDATE grant on tier or document snapshot. No live data written.
+- Real PDF check ran all 50 templates with/without a photo and with a long CV,
+  for optimized and raw sources: 147/150 cases passed in each. Tech Horizon fails
+  strict ATS email extraction in all three cases; reproduced unchanged on `220f1cc`.
+  Its template is preserved. Raw Graduate Entry uses two pages because profile
+  responsibilities are included; the raw check allows this without trimming facts.
+- Authenticated live import (PDF/DOCX/text/manual), profile-save-to-preview sync,
+  actual device mobile interactions and existing-user download still need browser
+  login. No successful authenticated live journey is claimed.
+- DOCX is still unavailable for raw resumes because template layout parity is unresolved.

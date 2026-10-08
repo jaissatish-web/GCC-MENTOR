@@ -1,3 +1,4 @@
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { PACKAGE_STATUSES } from '@/lib/utils'
@@ -264,7 +265,7 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   // ---- Load the current package (owner-scoped) to read its optimized_content -
   const { data: pkg, error: loadErr } = await supabase
     .from('packages')
-    .select('id, profile_id, status, optimized_content, document_snapshot, service_events, match_report')
+    .select('id, tier, profile_id, status, optimized_content, document_snapshot, service_events, match_report')
     .eq('id', packageId)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -287,6 +288,9 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
   const b = body as Record<string, unknown>
+  if (isCareerProfileResume(pkg) && ['document', 'summary', 'experience_blocks', 'suggestion_actions'].some((key) => key in b)) {
+    return NextResponse.json({ error: 'Edit raw resume content in Career Profile so all your saved profile data stays in sync.' }, { status: 409 })
+  }
 
   interface BlockEdit {
     profile_experience_id: string

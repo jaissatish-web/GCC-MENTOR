@@ -1,3 +1,4 @@
+import { buildCareerProfileResume, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { createElement } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { launchBrowser, waitForImages } from '@/lib/pdf/browser'
@@ -65,6 +66,7 @@ export async function renderPackagePdf(opts: {
   if (!pkgRow) return { ok: false, status: 404, error: 'Package not found' }
 
   const pkg = pkgRow as Record<string, unknown> & {
+    tier?: string | null
     profile_id: string
     target_job_title: string
     template_id?: string | null
@@ -104,10 +106,11 @@ export async function renderPackagePdf(opts: {
   // document was delivered is filled in first (applyLivePhotoToDocument), and
   // snapshots from before 2026-09-16 get their headline at render time.
   const optimizedContent = (pkg.optimized_content ?? { summary: { generated: '', source_profile_summary: '' }, experience_blocks: [] }) as OptimizedContent
-  const snapshot = pkg.document_snapshot ?? null
+  const raw = isCareerProfileResume(pkg)
+  const snapshot = raw ? null : pkg.document_snapshot ?? null
   const withPhoto = snapshot ? applyLivePhotoToDocument(snapshot, profile.photo_url, pkg.field_visibility_snapshot ?? null) : null
   const withTitle = withPhoto ? applyTargetTitleToDocument(withPhoto, pkg.target_job_title ?? null) : null
-  const documentForRender: ResumeDocument | null = withTitle
+  const documentForRender: ResumeDocument | null = raw ? buildCareerProfileResume(profileWithPhoto) : withTitle
     ? { ...withTitle, header: { ...withTitle.header, photoUrl: await signedPhotoUrl(withTitle.header.photoUrl) } }
     : null
 

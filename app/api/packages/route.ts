@@ -81,27 +81,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 
+  // Profile resumes have their own card in the same Library. Keep them out of
+  // target-job journeys and service pickers; the summary RPC predates this source.
+  const { data: rawRows, error: rawError } = await supabase.from('packages').select('id')
+    .eq('user_id', user.id).eq('tier', 'free')
+  if (rawError) return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  const rawIds = new Set((rawRows ?? []).map((row) => row.id))
   const rows = ((data as PackageSummary[] | null) ?? []).map((r) => ({ ...r, status: r.status as PackageStatus }))
   const page = rows.slice(0, limit)
   const last = page[page.length - 1]
   const body: PackageListPage = {
-    packages: page,
+    packages: page.filter((row) => !rawIds.has(row.id)),
     next_cursor: rows.length > limit && last ? { before: last.created_at, before_id: last.id } : null,
   }
 
   if (params.get('counts') === '1') {
     // Only the stage column — a few bytes per job — for the whole list.
-    const { data: stages, error: countError } = await supabase.from('packages').select('status').eq('user_id', user.id)
+    const { data: stages, error: countError } = await supabase.from('packages').select('id, status').eq('user_id', user.id)
     if (countError) {
       console.error('packages stage count error user=' + user.id, countError.message)
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
     const counts = emptyStageCounts()
-    for (const row of (stages as Array<{ status: PackageStatus }> | null) ?? []) {
+    for (const row of (stages as Array<{ id: string; status: PackageStatus }> | null) ?? []) {
+      if (rawIds.has(row.id)) continue
       if (row.status in counts) counts[row.status] += 1
     }
     body.counts = counts
-    body.total = (stages ?? []).length
+    body.total = (stages ?? []).filter((row) => !rawIds.has(row.id)).length
   }
 
   return NextResponse.json(body)

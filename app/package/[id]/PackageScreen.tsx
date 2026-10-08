@@ -34,6 +34,7 @@ import {
   type ResumeStyleOverrides,
   type SizeKey,
 } from '@/lib/resumeStyle'
+import { buildCareerProfileResume, isCareerProfileResume, CAREER_RESUME_BADGE } from '@/lib/careerProfileResume'
 import { resumeKind } from '@/lib/resumeKind'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
@@ -400,6 +401,7 @@ function PackageScreenInner({ id }: { id: string }) {
         // when the lock returns it must make the same decision as the PDF route,
         // never its own — see lib/resumeKind.ts.
         setPkg(p)
+        if (isCareerProfileResume(p)) setTab('design')
         setNameDraft(((p as { name?: string | null }).name ?? '') as string)
         setTrackerDraft({
           job_url: p.job_url ?? '',
@@ -432,6 +434,12 @@ function PackageScreenInner({ id }: { id: string }) {
         .then((data) => {
           const fresh = data?.package as Package | undefined
           if (!fresh) return
+          if (isCareerProfileResume(fresh)) {
+            fetch('/api/profile', { cache: 'no-store' })
+              .then((r) => { if (!r.ok) throw new Error(); return r.json() })
+              .then((latest) => setProfile(latest as CareerProfileFull))
+              .catch(() => setError('Could not refresh your Career Profile. Please reload before downloading.'))
+          }
           setPkg((prev) =>
             prev
               ? {
@@ -497,8 +505,9 @@ function PackageScreenInner({ id }: { id: string }) {
    * Not memoised on purpose: this runs after early returns, where a hook would
    * break the rules-of-hooks order, and it is one object spread.
    */
-  const snapshotDocument = (pkg.document_snapshot as ResumeDocument | null) ?? null
-  const documentWithLivePhoto = snapshotDocument
+  const isRaw = isCareerProfileResume(pkg)
+  const snapshotDocument = isRaw ? null : (pkg.document_snapshot as ResumeDocument | null) ?? null
+  const documentWithLivePhoto = isRaw && profile ? buildCareerProfileResume(profile) : snapshotDocument
     ? applyTargetTitleToDocument(
         applyLivePhotoToDocument(
           snapshotDocument,
@@ -556,7 +565,7 @@ function PackageScreenInner({ id }: { id: string }) {
    * to everyone who already had resumes. The rail inherits the same fallback.
    */
   const previewDocument: ResumeDocument | null =
-    (pkg.document_snapshot as ResumeDocument | null) ??
+    (isRaw ? documentWithLivePhoto : (pkg.document_snapshot as ResumeDocument | null)) ??
     (profile
       ? buildResumeDocument({
           profile,
@@ -667,7 +676,8 @@ function PackageScreenInner({ id }: { id: string }) {
             it is titled with the job. Never call a free resume "optimized" — it
             has not been through the model (docs/RULES.md). */}
         <div className="flex min-w-0 flex-col gap-0.5 lg:shrink-0">
-          <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">Application workspace</span>
+          <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">{isRaw ? 'Career Profile Resume' : 'Application workspace'}</span>
+          {isRaw ? <span className="self-start rounded-full bg-teal-soft px-3 py-1 text-[12px] font-semibold text-teal">{CAREER_RESUME_BADGE}</span> : null}
           <h1 className="break-words font-display text-[24px] leading-tight text-ink lg:text-[20px]">
             {pkg.name || pkg.target_job_title}
           </h1>
@@ -675,7 +685,7 @@ function PackageScreenInner({ id }: { id: string }) {
             {[
               pkg.target_company,
               countryName,
-              isFree ? 'CV not optimized yet' : `${pkg.optimization_level.charAt(0).toUpperCase()}${pkg.optimization_level.slice(1)} optimized CV`,
+              isRaw ? 'Latest saved profile · No AI optimization' : isFree ? 'CV not optimized yet' : `${pkg.optimization_level.charAt(0).toUpperCase()}${pkg.optimization_level.slice(1)} optimized CV`,
             ]
               .filter(Boolean)
               .join(' · ')}
@@ -724,7 +734,7 @@ function PackageScreenInner({ id }: { id: string }) {
             and edit changes" ran out past its half-width cell. From `sm` up the
             row is unchanged. */}
         <div className="grid grid-cols-2 items-stretch gap-2 sm:flex sm:flex-wrap sm:items-center lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
-          <StageSelect className="col-span-2 w-full sm:w-auto" value={pkg.status} onChange={(next) => void saveStage(next)} />
+          {!isRaw ? <StageSelect className="col-span-2 w-full sm:w-auto" value={pkg.status} onChange={(next) => void saveStage(next)} /> : null}
           {stageState ? <span className="col-span-2 text-[12px] text-alert">{stageState}</span> : null}
           <a
             href={pdfUrl}
@@ -748,10 +758,10 @@ function PackageScreenInner({ id }: { id: string }) {
               resume that HAS been optimized; that screen keeps its own job and
               its own route. */}
           <Link
-            href={`/package/${encodeURIComponent(id)}/edit`}
+            href={isRaw ? '/profile?view=details' : `/package/${encodeURIComponent(id)}/edit`}
             className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'whitespace-normal leading-tight', isFree && 'col-span-2 sm:col-auto')}
           >
-            {CTA.editCv}
+            {isRaw ? 'Edit Career Profile' : CTA.editCv}
           </Link>
           {/* THE DIFF, REACHABLE AGAIN (2026-09-12). Generation lands here, on
               the finished CV, so /optimize/preview — every changed line beside
@@ -829,7 +839,9 @@ function PackageScreenInner({ id }: { id: string }) {
           package journey plus transient notices, so the page explains what this
           job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
-        <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} />
+        {isRaw ? (
+          <p className="text-[13px] text-ink-soft">Content edits and field visibility are saved in your Career Profile. Your resume name, template and styling are saved here. <Link href="/profile?view=settings" className="font-semibold text-teal underline">Choose visible fields</Link></p>
+        ) : <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} />}
         {/* RESULTS FIRST, AS COLOURED CARDS (founder request 2026-09-17): target
             job, ATS score before → after, summary, what changed, next steps.
             components/package/ResultsOverview.tsx. */}
