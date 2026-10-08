@@ -203,8 +203,11 @@ Authenticated production verification on commit `5b174ab`: shared Library cards,
 profile shortcut to the actual Design screen, saved profile-based cover letter,
 24-question Q&A, five-question voice practice room, raw PDF and existing optimized
 PDF downloads passed. The raw PDF contains current profile facts and no UI badge.
-One raw record remains; all five optimized records retain their original update
-timestamps. Deployment build completed; no error/fatal runtime logs were returned.
+One raw record remains. Profile-based generations left all five optimized records
+with their original update timestamps. The subsequent optimized PDF smoke test
+added its normal `pdf_downloaded` history event, which updates that package
+timestamp without editing its resume content or snapshot. Deployment build
+completed; no error/fatal runtime logs were returned.
 
 Voice recording, transcription/review and physical mobile-device verification remain
 untested in this follow-up. A practice interview was created and left unanswered;
