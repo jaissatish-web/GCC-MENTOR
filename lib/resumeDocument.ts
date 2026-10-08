@@ -461,11 +461,11 @@ export function applyContentEditsToDocument(
  * the photo SIZE control appears for exactly the documents whose photo this
  * function restores.
  *
- * ADDITIVE ONLY, deliberately. A snapshot that already names a photo keeps it,
- * so the frozen document still decides WHICH photo was delivered. This only
- * fills the gap where the snapshot names none. Removing a photo is left alone:
- * that is a visibility question, and turning it into a deletion here would let
- * a later profile edit strip a photo out of a resume already paid for.
+ * Photos are live presentation (founder decision 2026-10-08): an upload from
+ * preview replaces the Career Profile photo, whose old object is deleted.
+ * Prefer that new photo without rebuilding or writing the frozen wording.
+ * Keep the document's visibility choice; only a previously empty photo slot
+ * needs showPhoto restored. With no available live photo, keep the snapshot.
  *
  * The caller passes the photo value in whatever form its renderer needs - a
  * storage object path server-side (signed afterwards, as the PDF route does)
@@ -477,10 +477,10 @@ export function applyLivePhotoToDocument(
   livePhoto: string | null | undefined,
   fieldVisibility: Partial<FieldVisibility> | null | undefined
 ): ResumeDocument {
-  if (doc.header.photoUrl) return doc
   if (!livePhoto) return doc
-  if (!visible(fieldVisibility, 'photo')) return doc
-  return { ...doc, header: { ...doc.header, photoUrl: livePhoto, showPhoto: true } }
+  const showPhoto = visible(fieldVisibility, 'photo') && (doc.header.photoUrl ? doc.header.showPhoto : true)
+  if (doc.header.photoUrl === livePhoto && doc.header.showPhoto === showPhoto) return doc
+  return { ...doc, header: { ...doc.header, photoUrl: livePhoto, showPhoto } }
 }
 
 /**

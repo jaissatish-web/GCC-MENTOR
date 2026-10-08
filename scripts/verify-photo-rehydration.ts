@@ -9,10 +9,8 @@
  * renderers prefer the snapshot, so no later upload and no template switch ever
  * brought the photo back.
  *
- * The rule has two halves and both matter. It must FILL a snapshot that names
- * no photo, and it must never OVERWRITE one that does — the frozen document
- * still decides which photo was delivered, and a later profile edit must not be
- * able to swap the photo on a resume someone already paid for.
+ * Photo replacement now uses the live Career Profile photo (2026-10-08),
+ * without changing delivered wording, mutating snapshots or unhiding fields.
  */
 
 import './resolve-paths'
@@ -46,11 +44,16 @@ check('photoUrl is filled in', filled.header.photoUrl === PATH)
 check('showPhoto is turned on', filled.header.showPhoto === true)
 check('a signed URL passes through untouched', applyLivePhotoToDocument(doc(null, false), SIGNED, VISIBLE).header.photoUrl === SIGNED)
 
-console.log('\nA delivered photo is never replaced')
+console.log('\nPhoto replacement preserves the delivered content')
 const delivered = doc('delivered.jpg', true)
 const kept = applyLivePhotoToDocument(delivered, PATH, VISIBLE)
-check('the snapshot keeps its own photo', kept.header.photoUrl === 'delivered.jpg')
-check('the document is returned untouched, not rebuilt', kept === delivered)
+check('the preview and PDF get the latest photo', kept.header.photoUrl === PATH)
+check('the original snapshot photo is untouched', delivered.header.photoUrl === 'delivered.jpg')
+check('only the header is copied', Object.keys(kept).length === Object.keys(delivered).length)
+const full = { ...delivered, summary: ['Frozen wording'], sections: [{ title: 'Frozen jobs' }] } as unknown as ResumeDocument
+const replaced = applyLivePhotoToDocument(full, PATH, VISIBLE)
+check('all non-photo content retains the same references', Object.keys(full).filter((key) => key !== 'header').every((key) => replaced[key as keyof ResumeDocument] === full[key as keyof ResumeDocument]))
+check('a hidden delivered photo stays hidden', applyLivePhotoToDocument(doc('old.jpg', false), PATH, VISIBLE).header.showPhoto === false)
 
 console.log('\nNothing is invented')
 check('no live photo leaves the document alone', applyLivePhotoToDocument(doc(null, false), null, VISIBLE).header.showPhoto === false)
@@ -58,7 +61,8 @@ check('an empty string is not a photo', applyLivePhotoToDocument(doc(null, false
 check('undefined is not a photo', applyLivePhotoToDocument(doc(null, false), undefined, VISIBLE).header.photoUrl === null)
 
 console.log('\nVisibility is obeyed')
-check('photo hidden means no photo', applyLivePhotoToDocument(doc(null, false), PATH, HIDDEN).header.photoUrl === null)
+check('hidden photo may have a source but never prints', applyLivePhotoToDocument(doc(null, false), PATH, HIDDEN).header.showPhoto === false)
+check('hidden field stays hidden after replacement', applyLivePhotoToDocument(delivered, PATH, HIDDEN).header.showPhoto === false)
 check('photo hidden leaves showPhoto false', applyLivePhotoToDocument(doc(null, false), PATH, HIDDEN).header.showPhoto === false)
 // visible() treats an absent key as visible ("hidden only when explicitly
 // false"), so a profile that has never touched visibility still gets its photo.

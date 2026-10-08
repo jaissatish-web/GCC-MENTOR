@@ -122,6 +122,12 @@ public. Verified with an unauthenticated probe: writes denied, signed-URL mintin
 denied, public URL not served.
 
 The resume templates that show a photo take a size the user can adjust.
+Resume preview also offers the same Upload/Replace photo control, even when the
+profile has no photo or the selected template is photo-less. It saves immediately
+through `/api/profile/photo` to this single profile record. Preview offers a
+per-resume Show photo toggle rather than deleting the shared photo. A highlighted
+tip explains that professional photos are common on some Gulf CVs but optional;
+employer instructions take priority. JPG/PNG/WebP, up to 5MB, remain the limits.
 
 ---
 

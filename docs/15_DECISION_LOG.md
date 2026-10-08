@@ -11,6 +11,24 @@ A decision belongs here if changing it back would need a conversation. Format: d
 what was decided, and the reasoning that made it the right call.
 
 
+## 2026-10-08 — Upload a Career Profile photo from resume preview
+
+Founder requested an upload action beside the template photo setting, including
+when a new user has no photo. Reuse PhotoUpload and the authenticated private
+Career Profile photo endpoint; save immediately to the profile and refresh the
+preview. Show/hide remains a per-resume style preference. Photo-less templates
+explain why the uploaded photo will not print; uploading remains available.
+
+Photo replacement is presentation: preview and PDF prefer the latest saved photo
+when available, including on optimized resumes. This supersedes the previous
+additive-only photo rehydration rule, since replacement deletes the old storage
+object anyway. Frozen optimized wording and saved field visibility are preserved.
+No snapshot writes, new table, AI calls or credit changes. Preview offers upload
+and replace, not global photo deletion. Highlight an optional Gulf CV photo tip
+without promising hiring effectiveness or claiming every employer requires one.
+
+---
+
 ## 2026-10-08 — Plain service menu and LinkedIn placeholder
 
 Founder requested removing menu category names (profile, tailored CV, apply and

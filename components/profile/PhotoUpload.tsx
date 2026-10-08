@@ -20,6 +20,7 @@ export function PhotoUpload({
   photoUrl,
   onChange,
   compact = false,
+  allowRemove = true,
 }: {
   photoUrl: string | null
   onChange: (nextUrl: string | null) => void
@@ -33,13 +34,17 @@ export function PhotoUpload({
    * context already explains itself.
    */
   compact?: boolean
+  /** Resume preview can hide a photo per resume without deleting it globally. */
+  allowRemove?: boolean
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
 
   async function upload(file: File) {
     setError(null)
+    setSaved(false)
     setBusy(true)
     try {
       const body = new FormData()
@@ -51,6 +56,7 @@ export function PhotoUpload({
         return
       }
       onChange(data?.photoUrl ?? null)
+      setSaved(true)
     } catch {
       setError('Could not upload your photo. Check your connection and try again.')
     } finally {
@@ -61,6 +67,7 @@ export function PhotoUpload({
 
   async function remove() {
     setError(null)
+    setSaved(false)
     setBusy(true)
     try {
       const res = await fetch('/api/profile/photo', { method: 'DELETE' })
@@ -109,6 +116,8 @@ export function PhotoUpload({
         <input
           ref={inputRef}
           type="file"
+          aria-label="Choose profile photo"
+          disabled={busy}
           accept="image/jpeg,image/png,image/webp"
           className="sr-only"
           onChange={(e) => {
@@ -117,7 +126,7 @@ export function PhotoUpload({
           }}
         />
 
-        {photoUrl ? (
+        {photoUrl && allowRemove ? (
           <button
             type="button"
             onClick={() => void remove()}
@@ -156,7 +165,7 @@ export function PhotoUpload({
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[13px] font-bold text-ink">Photo</span>
             <span className="rounded-[5px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-teal">
-              Expected in Gulf CVs
+              Gulf CV photo tip
             </span>
           </div>
           <p className="text-[12px] leading-snug text-ink-muted">
@@ -168,6 +177,8 @@ export function PhotoUpload({
             <input
               ref={inputRef}
               type="file"
+              aria-label="Choose profile photo"
+              disabled={busy}
               accept="image/jpeg,image/png,image/webp"
               className="sr-only"
               onChange={(e) => {
@@ -185,7 +196,7 @@ export function PhotoUpload({
             >
               {photoUrl ? 'Replace photo' : 'Upload photo'}
             </Button>
-            {photoUrl ? (
+            {photoUrl && allowRemove ? (
               <Button
                 type="button"
                 variant="danger"
@@ -206,6 +217,7 @@ export function PhotoUpload({
           {error}
         </p>
       ) : null}
+      {saved ? <p role="status" className="text-sm text-teal">Photo saved to Career Profile.</p> : null}
     </div>
   )
 }

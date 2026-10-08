@@ -18,6 +18,7 @@ import { getTemplate, type TemplateId } from '@/lib/templates'
 import { applyLivePhotoToDocument, applyTargetTitleToDocument, buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
+import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import {
   ACCENT_OPTIONS,
   FONT_OPTIONS,
@@ -435,12 +436,11 @@ function PackageScreenInner({ id }: { id: string }) {
         .then((data) => {
           const fresh = data?.package as Package | undefined
           if (!fresh) return
-          if (isCareerProfileResume(fresh)) {
-            fetch('/api/profile', { cache: 'no-store' })
-              .then((r) => { if (!r.ok) throw new Error(); return r.json() })
-              .then((latest) => setProfile(latest as CareerProfileFull))
-              .catch(() => setError('Could not refresh your Career Profile. Please reload before downloading.'))
-          }
+          // Photos are shared profile presentation even for frozen optimized CVs.
+          fetch('/api/profile', { cache: 'no-store' })
+            .then((r) => { if (!r.ok) throw new Error(); return r.json() })
+            .then((latest) => setProfile(latest as CareerProfileFull))
+            .catch(() => setError('Could not refresh your Career Profile. Please reload before downloading.'))
           setPkg((prev) =>
             prev
               ? {
@@ -495,7 +495,7 @@ function PackageScreenInner({ id }: { id: string }) {
   const photoPos = draftStyle.photo ?? PHOTO_DEFAULT
   /** Only offer the size control when there is actually a photo to size. */
   const hasPhoto = Boolean(
-    (pkg.document_snapshot as ResumeDocument | null)?.header?.photoUrl ?? profile?.photo_url,
+    profile?.photo_url ?? (pkg.document_snapshot as ResumeDocument | null)?.header?.photoUrl,
   )
   /**
    * The delivered document, with a photo uploaded after delivery filled in.
@@ -513,7 +513,7 @@ function PackageScreenInner({ id }: { id: string }) {
         applyLivePhotoToDocument(
           snapshotDocument,
           profile?.photo_url ?? null,
-          profile?.field_visibility ?? null,
+          pkg.field_visibility_snapshot ?? null,
         ),
         // Snapshots written before 2026-09-16 froze an empty headline. Filled
         // here so the screen shows what the PDF will print.
@@ -1492,14 +1492,28 @@ function PackageScreenInner({ id }: { id: string }) {
                   ) : null}
                 </div>
 
-                {styleable && allowsPhoto && hasPhoto ? (
+                {profile ? (
                   <div className="mt-4 border-t border-line pt-4">
                     <h3 className="text-[12px] font-bold uppercase tracking-wider text-ink-soft">Photo</h3>
-                    {/* PHOTO — show/hide plus size, both TASK-158/2026-08-19.
-                        Hidden entirely when the template prints no photo, or
-                        the resume has none to show. A control that cannot
-                        move is worse than an absent one. */}
-                    {allowsPhoto && hasPhoto ? (
+                    <div className="mt-2 rounded-ctl border border-teal/20 bg-teal-soft p-3">
+                      <p className="text-sm font-semibold text-teal">Make your Gulf CV feel personal</p>
+                      <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+                        A professional photo is common on some Gulf CVs. It is optional — follow the
+                        employer’s instructions, especially for ATS applications.
+                      </p>
+                    </div>
+                    <div className="mt-3">
+                      <PhotoUpload
+                        photoUrl={profile.photo_url ?? null}
+                        allowRemove={false}
+                        onChange={(photoUrl) => setProfile((current) => current ? { ...current, photo_url: photoUrl } : current)}
+                      />
+                      <p className="mt-2 text-sm text-ink-muted">Uploads save immediately to Career Profile. Show photo is a setting for this resume only.</p>
+                    </div>
+                    {!allowsPhoto ? (
+                      <p className="mt-2 text-sm text-ink-muted">{getTemplate(activeTemplateId).name} does not show photos. Choose a photo-supported template to include yours.</p>
+                    ) : null}
+                    {allowsPhoto ? (
                       <div className="mt-2">
                         {/* SHOW PHOTO (2026-08-19, founder-directed). Only
                             `false` is ever stored — see ResumeStyleOverrides's
@@ -1533,7 +1547,7 @@ function PackageScreenInner({ id }: { id: string }) {
                             Hidden while the photo itself is toggled off — a
                             size control for something invisible is confusing,
                             not merely redundant. */}
-                        {draftStyle.showPhoto !== false ? (
+                        {hasPhoto && draftStyle.showPhoto !== false ? (
                           <div className="mt-3 rounded-ctl border border-line bg-white p-3 shadow-m-1">
                             {/* A SIZE BAR, LIKE A VOLUME CONTROL (founder 2026-10-04).
                                 The track was `bg-canvas` — the page's own colour —
