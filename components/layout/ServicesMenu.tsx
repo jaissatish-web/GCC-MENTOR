@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { LockClosedIcon } from '@heroicons/react/24/solid'
 import { useCurrentStage } from '@/components/journey/useCurrentStage'
 import { stageById, type StageId } from '@/components/journey/stages'
-import { NAV_GROUPS, NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
+import { NAV_GROUPS, NAV_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
 
 /**
  * Every service, one tap away, from anywhere.
@@ -23,14 +23,6 @@ import { NAV_GROUPS, NAV_ITEMS, PLANNED_NAV_ITEMS, isNavItemActive, navHref, typ
  * only through a "More" sheet that itself only existed on small screens — and
  * on desktop the planned services were visible in the rail while on a phone
  * they were two taps down. One menu, every breakpoint, same contents.
- *
- * "NOT BUILT YET" IS A GROUP, NOT A LINK.
- * Saved Jobs render dashed, dimmed and WITHOUT an href — `PlannedNavItem` has
- * no href field at all, so they cannot accidentally become links later. This
- * audience is actively targeted by placement scams (`01_PRODUCT.md` §3), and a
- * menu row that looks live and goes nowhere is exactly the experience that
- * costs the trust this product is built on. Showing the roadmap is good;
- * letting someone tap into a dead end is not.
  *
  * WHY A SHEET FROM THE RIGHT. The trigger is top-right, so the panel arrives
  * from the side it was summoned from — a panel that flies in from the opposite
@@ -85,12 +77,12 @@ if (process.env.NODE_ENV !== 'production') {
 const BLURB: Record<string, string> = {
   '/dashboard': 'Your next step, and where you stand',
   '/profile': 'Built once, used by every CV',
-  '/cover-letter': 'Four tones, written for one job',
-  '/interview-qa': '25 answers from each final CV',
+  '/cover-letter': 'From your profile or a tailored CV',
+  '/interview-qa': 'Practice questions from your resume',
   '/mock-interview': 'Practice and get a saved report',
   '/dashboard/library': 'Your applications and their stage',
   '/optimize': 'Build a CV for a specific role',
-  '/templates': 'Fifteen designs to choose from',
+  '/templates': '50 designs to choose from',
 }
 
 function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onNavigate: () => void; active: boolean; mark?: 'next' | 'locked' | null }) {
@@ -111,7 +103,7 @@ function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onN
         aria-hidden="true"
         className={cn(
           'flex size-9 shrink-0 items-center justify-center rounded-ctl',
-          active ? 'bg-teal text-white' : 'bg-teal-soft text-teal',
+          item.iconClass,
         )}
       >
         <Icon className="size-[18px]" />
@@ -228,30 +220,6 @@ export function ServicesMenu() {
           )
         })}
 
-        {/* Roadmap, and deliberately not links — see the note at the top of this
-            file. `PlannedNavItem` carries no href by design. Red, so the
-            roadmap is countable at a glance before launch. */}
-        <div className="flex flex-col gap-2">
-          <SheetGroupLabel tone="alert">Not built yet</SheetGroupLabel>
-          {PLANNED_NAV_ITEMS.map((item) => {
-            const Icon = item.icon
-            return (
-              <div
-                key={item.label}
-                aria-disabled="true"
-                className="flex min-h-[52px] items-center gap-3 rounded-ctl border border-dashed border-alert/40 bg-alert-soft/30 px-3.5 py-3"
-              >
-                <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-alert-soft text-alert">
-                  <Icon className="size-[18px]" />
-                </span>
-                <span className="text-[14px] font-semibold text-ink-muted">{item.label}</span>
-                <span className="ml-auto rounded-full border border-alert/35 bg-alert-soft px-2 py-1 text-[9.5px] font-bold uppercase tracking-[0.08em] text-alert">
-                  Soon
-                </span>
-              </div>
-            )
-          })}
-        </div>
       </SideSheet>
     </>
   )

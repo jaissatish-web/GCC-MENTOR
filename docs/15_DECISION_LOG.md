@@ -11,6 +11,27 @@ A decision belongs here if changing it back would need a conversation. Format: d
 what was decided, and the reasoning that made it the right call.
 
 
+## 2026-10-08 — Dashboard overview and colorful service navigation
+
+Founder requested removing the unbuilt Saved Jobs menu item, consistent colorful
+service icons across desktop/tablet/mobile, top-positioned Profile complete and
+Gulf Readiness cards, and a dashboard showing overall status rather than individual
+optimized resume/job details. Service count cards link to their existing pages;
+the Resume Library owns all per-resume details. Keep the three-step map and
+state-aware next action, with generic dashboard wording.
+
+Count available resumes (one Career Profile Resume whenever a saved profile exists,
+plus saved optimized CVs), retained cover letters, retained Q&A sets and mock runs.
+Show preparation coverage, completed/in-progress practice, average saved mock report
+score and overall application-stage counts. These are current saved totals, not
+lifetime generation/credit usage. Use one owner-scoped SECURITY INVOKER aggregate
+RPC with existing RLS and a counts-only authenticated endpoint: no full documents,
+50-row truncation, new table, stored counter, generation or payment change. A small
+additive migration creates only that read function; dropping it reverses the DB
+change after reverting the dashboard/API.
+
+---
+
 ## 2026-10-08 — Career Profile Resume in the existing Library
 
 Founder authorized one persistent `tier = 'free'` package per user, using migration

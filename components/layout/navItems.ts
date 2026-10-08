@@ -2,12 +2,9 @@ import {
   Squares2X2Icon,
   ChatBubbleLeftRightIcon,
   QuestionMarkCircleIcon,
-  BookmarkIcon,
   BriefcaseIcon,
-  ChartBarIcon,
   RectangleStackIcon,
   UserCircleIcon,
-  ShieldCheckIcon,
   DocumentTextIcon,
   EnvelopeIcon,
   Cog6ToothIcon,
@@ -43,6 +40,8 @@ export interface NavItem {
   label: string
   href: string
   icon: React.ComponentType<{ className?: string }>
+  /** Shared icon color and background across every navigation surface. */
+  iconClass: string
   /**
    * When true the item only highlights on an exact pathname match.
    *
@@ -80,8 +79,8 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
-  { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
+  { label: 'Dashboard', href: '/dashboard', iconClass: 'bg-sky-50 text-sky-700', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
+  { label: 'Career Profile', href: '/profile', iconClass: 'bg-teal-soft text-teal', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
   // "Profile Strength" (/gcc-readiness) sat here from 2026-09-09 to 2026-09-11.
   // It left when Career Profile and Profile Strength became one page (founder
   // decision): both scores and what raises each now live on /profile, and
@@ -89,40 +88,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.
-  { label: 'Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, shortLabel: 'Library' },
-  { label: 'Resume Templates', href: '/templates', icon: RectangleStackIcon, shortLabel: 'Templates' },
-  { label: 'Resume Optimizer', href: '/optimize', icon: DocumentTextIcon, shortLabel: 'Optimize' },
-  { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon },
-  { label: 'Interview Q&A', href: '/interview-qa', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
-  { label: 'Mock Interview', href: '/mock-interview', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
-  { label: 'Settings', href: '/settings', icon: Cog6ToothIcon },
-] as const
-
-/**
- * Services that are agreed but not built.
- *
- * These are rendered in the nav as DIMMED, NON-INTERACTIVE rows under their own
- * "Coming soon" heading — never as links.
- *
- * DELIBERATE DEVIATION, founder decision 2026-08-15.
- * docs/redesign/PLANNED_SERVICES.md previously said "No nav entry, on any
- * breakpoint, for any of the three." The founder asked for them to be visible
- * in the sidebar and, given the choice, chose the dimmed non-clickable
- * treatment specifically so the roadmap is visible without anyone tapping into
- * a dead end. That is what the original rule was protecting against, so the
- * intent survives even though the letter of it changed. The doc has been
- * updated rather than left contradicting the code.
- *
- * They carry no href by construction: there is nothing to navigate to, and a
- * type without one cannot accidentally be turned into a link later.
- */
-export interface PlannedNavItem {
-  label: string
-  icon: React.ComponentType<{ className?: string }>
-}
-
-export const PLANNED_NAV_ITEMS: readonly PlannedNavItem[] = [
-  { label: 'Saved Jobs', icon: BookmarkIcon },
+  { label: 'Resume Library', href: '/dashboard/library', iconClass: 'bg-indigo-50 text-indigo-700', icon: BriefcaseIcon, shortLabel: 'Library' },
+  { label: 'Resume Templates', href: '/templates', iconClass: 'bg-rose-50 text-rose-700', icon: RectangleStackIcon, shortLabel: 'Templates' },
+  { label: 'Resume Optimizer', href: '/optimize', iconClass: 'bg-amber-50 text-amber-700', icon: DocumentTextIcon, shortLabel: 'Optimize' },
+  { label: 'Cover Letter', href: '/cover-letter', iconClass: 'bg-violet-50 text-violet-700', icon: EnvelopeIcon },
+  { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'bg-cyan-50 text-cyan-700', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
+  { label: 'Mock Interview', href: '/mock-interview', iconClass: 'bg-orange-50 text-orange-700', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
+  { label: 'Settings', href: '/settings', iconClass: 'bg-slate-100 text-slate-600', icon: Cog6ToothIcon },
 ] as const
 
 /**

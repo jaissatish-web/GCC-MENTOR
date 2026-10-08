@@ -2,90 +2,52 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
-import { Pill } from '@/components/ui/Pill'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { StageExplainer, StageRail } from '@/components/journey/JourneyStepper'
 import { stageById, stageSnapshot, stageStates } from '@/components/journey/stages'
 import { ScoreCards } from '@/components/profile/ProfileOverview'
-import { buttonVariants } from '@/components/ui/Button'
-import { cn, displayFirstName, GULF_COUNTRIES, packageStatusLabel, resumeLabel } from '@/lib/utils'
-import { cvReady, letterCount, mockDone, qaReady, type PackageListPage, type PackageSummary } from '@/lib/packageSummary'
+import { displayFirstName } from '@/lib/utils'
+import { type PackageListPage, type PackageSummary } from '@/lib/packageSummary'
+import { ActivityOverview, OverallProgress } from '@/components/dashboard/ActivityOverview'
+import { dashboardNextAction, type DashboardOverview } from '@/lib/dashboardOverview'
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
 import { answersFromReadinessCategory, scoreProfileReadiness, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
-/**
- * Dashboard — screens D1/D2 (TASK-034), route /dashboard.
- *
- * TASK-083 restyle (2026-08-12), per docs/redesign/PAGE_SPECS.md §C.
- * VISUAL-ONLY + two spec-approved content corrections. Every data source is
- * identical to before: GET /api/profile, GET /api/packages,
- * calculateReadiness() — same calls, same fields, same logic. No new query.
- *
- * SIMPLIFIED (2026-09-24, founder: "looks very complicated"). Three blocks:
- * the ONE next step (lib/nextAction.ts) with "N of 7 done", the target jobs
- * with CV · Letter · Q&A · Mock at a glance, and the two scores — Profile
- * strength and Gulf Readiness — each saying what it measures. The journey list,
- * metric tiles, quick actions, usage totals and planned card were removed:
- * each repeated the menu or another block. Still no new request.
- *
- * THREE STEPS (2026-09-25): "N of 7 done" became the three-step rail
- * (components/journey/stages.ts); see docs/12_DESIGN_SYSTEM.md §00.
- *
- * Two approved corrections, not scope creep:
- *  (1) the stale "ATS score check" locked tile is DROPPED (the scanner has
- *      been live since TASK-058) — it no longer appears anywhere.
- *  (2) a third metric tile, "Latest Job Match", once sat beside those two.
- *      REMOVED 2026-09-04 with the standalone Job Match service (founder
- *      decision). Not replaced: the Gulf Readiness figure already has its own
- *      widget on this page, so a third tile would have repeated it.
- */
-
-/**
- * A country a user would recognise, or nothing.
- *
- * `generic_gulf` is what the form stores when nobody picked a country, so it
- * returns null rather than printing "Generic Gulf" — our enum, not their job.
- */
-function dashboardCountryLabel(value: string | null): string | null {
-  if (!value || value === 'generic_gulf') return null
-  return GULF_COUNTRIES.find((c) => c.value === value)?.label ?? null
-}
-
-function relativeTime(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime()
-  const minutes = Math.floor(ms / 60000)
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `${days}d ago`
-  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
-}
-
-// Pull a JobMatchResult out of the most recent package's already-fetched
-// `ats_score_card` jsonb (Phase-2 reservation slot; the ATS scan stores
-// `job_match` there when a JD was provided). Display-only — no computation.
-
+/** Overall scores, saved totals and progress; individual resumes live in the Library. */
 export default function DashboardPage() {
   const router = useRouter()
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [packages, setPackages] = useState<PackageSummary[]>([])
-  // Every job the user has, not just the page of summaries below (audit M08).
-  const [packageTotal, setPackageTotal] = useState<number | null>(null)
   const [packagesLoaded, setPackagesLoaded] = useState(false)
   // A CV reading kept on the server until the user decides (migration 047).
   // When there is one, it is the next step above everything else.
   const [hasPendingDraft, setHasPendingDraft] = useState(false)
   const [loadError, setLoadError] = useState(false)
   const didInit = useRef(false)
+  const [overview, setOverview] = useState<DashboardOverview | null>(null)
+  const [overviewLoading, setOverviewLoading] = useState(true)
+  const [overviewError, setOverviewError] = useState(false)
+  const loadOverview = useCallback(async () => {
+    setOverviewLoading(true)
+    setOverviewError(false)
+    try {
+      const res = await fetch('/api/dashboard/overview', { cache: 'no-store' })
+      if (!res.ok) throw new Error('Could not load activity totals')
+      setOverview(await res.json() as DashboardOverview)
+    } catch {
+      setOverviewError(true)
+    } finally {
+      setOverviewLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (didInit.current) return
     didInit.current = true
+    void loadOverview()
     // Profile drives the ring, name, target line and "items left".
     fetch('/api/profile', { cache: 'no-store' })
       .then((res) => { if (res.status === 404) return null; if (!res.ok) throw new Error('Unable to load profile'); return res.json() })
@@ -96,14 +58,11 @@ export default function DashboardPage() {
       // Loaded flag so the "create your profile" nudge shows only after we KNOW
       // there is no profile — never a flash before the fetch resolves.
       .finally(() => setProfileLoaded(true))
-    // Lightweight summaries of the newest 50 jobs plus the total (audit M08) —
-    // enough for Recent Activity, the metric row and the next step, without
-    // downloading every job's CV, letters and interview transcripts.
-    fetch('/api/packages?view=summary&limit=50&counts=1', { cache: 'no-store' })
+    // Summaries choose the next destination; all-account totals use the aggregate RPC.
+    fetch('/api/packages?view=summary&limit=50', { cache: 'no-store' })
       .then((res) => { if (!res.ok) throw new Error('Unable to load packages'); return res.json() as Promise<PackageListPage> })
       .then((data) => {
         if (Array.isArray(data?.packages)) setPackages(data.packages)
-        if (typeof data?.total === 'number') setPackageTotal(data.total)
       })
       .catch(() => {
         setLoadError(true)
@@ -117,16 +76,10 @@ export default function DashboardPage() {
       .catch(() => {
         /* non-fatal */
       })
-  }, [])
+  }, [loadOverview])
 
   // No name, no "Good evening, there" — a greeting to nobody reads as a bug.
   const firstName = profile ? displayFirstName(profile.full_name) : ''
-  const country = profile ? GULF_COUNTRIES.find((c) => c.value === profile.target_country)?.label : undefined
-  const targetParts =
-    profile !== null
-      ? [profile.target_job_title, country, profile.target_company].filter(Boolean).join(' · ')
-      : ''
-
   // Ring score: the stored readiness_score (recomputed on save) is authoritative;
   // "still needed" reuses the same field-level calc as /profile — same
   // function, same weights, nothing recomputed differently here.
@@ -164,7 +117,6 @@ export default function DashboardPage() {
   const gulfAnswers = readiness ? answersFromReadinessCategory(readiness.category) : null
   // Same pure arithmetic the profile page runs — no network, no model call.
   const gulf = gulfAnswers && profile ? scoreProfileReadiness(scoringInputFromProfile(profile), gulfAnswers) : null
-  const packageCount = packageTotal ?? packages.length
 
   // Next best action — one action, chosen from real state.
   //
@@ -173,9 +125,8 @@ export default function DashboardPage() {
   // application", with no route back to the one they had already started. The
   // rules moved to lib/nextAction.ts, which reads only what these same two
   // fetches already returned.
-  const nextAction = computeNextAction(profile, packages, score, missing.length, hasPendingDraft)
+  const nextAction = dashboardNextAction(computeNextAction(profile, packages, score, missing.length, hasPendingDraft))
 
-  const listedJobs = packages.slice(0, 5)
   const ready = profileLoaded && packagesLoaded && !loadError
   // The map follows progress; the teal panel follows the next action. They
   // differ only when a CV reading is waiting, which is a to-do, not a step.
@@ -187,13 +138,6 @@ export default function DashboardPage() {
   const firstRun = ready && nextAction.state === 'no_profile'
 
   return (
-    // REDESIGNED 2026-09-25 (founder: "a new user does not know what to do,
-    // what is next, or where it comes from"). The page now opens on ONE map —
-    // three steps, joined, with the user's place marked — and the one action
-    // for that place directly under it. A first-time user sees how the product
-    // works and the three ways to start, inline; the blocking pop-up that used
-    // to cover this page on arrival is gone. Same three fetches, same
-    // next-action rule; only the presentation changed.
     <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 pb-10 pt-5 font-redesign-sans sm:px-6 lg:pt-8">
       <header className="flex flex-col gap-1">
         <h1 className="type-title text-ink">
@@ -202,11 +146,30 @@ export default function DashboardPage() {
         <p className="type-body text-ink-soft">
           {firstRun
             ? 'Three steps from your current CV to an interview-ready application.'
-            : targetParts
-              ? `Targeting ${targetParts}`
-              : 'Your applications, one step at a time.'}
+            : 'Your profile, saved work and preparation progress at a glance.'}
         </p>
       </header>
+
+      <section aria-labelledby="scores-heading" className="flex flex-col gap-3">
+        <h2 id="scores-heading" className="type-section text-ink">Your profile scores</h2>
+        {!profileLoaded ? <div aria-label="Loading profile scores" className="grid grid-cols-2 gap-3"><div className="h-52 animate-pulse rounded-card bg-canvas" /><div className="h-52 animate-pulse rounded-card bg-canvas" /></div> : profile ? (
+          <ScoreCards
+            className="m-0"
+            completeness={{ score, itemsLeft: missing.length, detail: missing.length === 0 ? 'Every section is complete' : `Add: ${missing.slice(0, 2).map((m) => m.label.toLowerCase()).join(', ')}${missing.length > 2 ? '…' : ''}` }}
+            gulf={gulf}
+            onOpenCompleteness={() => router.push('/profile?view=completeness')}
+            onOpenReadiness={() => router.push('/profile?view=readiness')}
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            <Link href="/profile" className="flex flex-col gap-2 rounded-card border border-line bg-white p-5"><span className="type-card text-teal">Profile complete</span><span className="type-body text-ink">{loadError ? 'Unavailable' : 'Not started'}</span><span className="type-helper text-ink-muted">Add your CV or enter your experience.</span><span className="type-helper font-semibold text-teal">Open Career Profile →</span></Link>
+            <Link href="/profile?view=readiness" className="flex flex-col gap-2 rounded-card border border-line bg-white p-5"><span className="type-card text-teal">Gulf Readiness</span><span className="type-body text-ink">{loadError ? 'Unavailable' : 'Add your profile'}</span><span className="type-helper text-ink-muted">Your saved profile is used to calculate this score.</span><span className="type-helper font-semibold text-teal">See readiness →</span></Link>
+          </div>
+        )}
+      </section>
+
+      <ActivityOverview overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
+      {overview && !overviewError ? <OverallProgress overview={overview} /> : null}
 
       {/* THE MAP + THE ONE NEXT STEP, as one object: the rail says where you
           are, the teal panel under it says what to do there. */}
@@ -282,81 +245,6 @@ export default function DashboardPage() {
           explaining itself, instead of an empty jobs list and blank scores. */}
       {snap && !snap.facts.profileDone && packages.length === 0 ? <StageExplainer states={states} /> : null}
 
-      {ready && profile ? (
-        <div className={cn('grid gap-6', listedJobs.length > 0 && 'lg:grid-cols-[minmax(0,1fr)_320px]')}>
-          {listedJobs.length > 0 ? (
-            <section aria-labelledby="jobs-h" className="flex min-w-0 flex-col gap-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 id="jobs-h" className="type-section text-ink">
-                  Your target jobs
-                </h2>
-                <div className="flex items-center gap-3">
-                  {packageCount > listedJobs.length ? (
-                    <Link href="/dashboard/library" className="text-[13px] font-semibold text-teal hover:underline">
-                      See all {packageCount}
-                    </Link>
-                  ) : null}
-                  <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'whitespace-nowrap')}>
-                    + Add job
-                  </Link>
-                </div>
-              </div>
-              <p className="-mt-1 type-helper text-ink-muted">Each job keeps its own CV, cover letter, interview Q&amp;A and practice.</p>
-              <ul className="flex flex-col gap-2">
-                {listedJobs.map((pkg) => (
-                  <li key={pkg.id}>
-                    <Link
-                      href={`/package/${pkg.id}`}
-                      className="flex flex-col gap-3 rounded-card border border-line bg-white p-4 shadow-m-1 transition-colors hover:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="break-words type-card text-ink">{resumeLabel(pkg)}</span>
-                        <span className="break-words type-helper text-ink-muted">
-                          {[pkg.target_company, dashboardCountryLabel(pkg.target_country)].filter(Boolean).join(' · ') ||
-                            `Added ${relativeTime(pkg.created_at)}`}
-                        </span>
-                      </span>
-                      <span className="flex shrink-0 flex-wrap items-center gap-2">
-                        <PackDots pkg={pkg} />
-                        <Pill variant={pkg.status}>{packageStatusLabel(pkg.status)}</Pill>
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-
-          {/* ── Both scores, ONE block (founder 2026-10-04, D6) ──
-              The same two cards as the Career Profile overview — a ring and a
-              number each — instead of two differently-built cards repeating
-              what the profile shows. Each still opens the screen where it is
-              raised, so this stays the "your profile is incomplete" call to
-              action (11_USER_JOURNEYS.md §3: load-bearing). */}
-          <aside aria-labelledby="scores-h" className="flex min-w-0 flex-col gap-2">
-            <h2 id="scores-h" className="type-card text-ink">
-              Your profile scores
-            </h2>
-            <ScoreCards
-              className="m-0"
-              completeness={{
-                score,
-                itemsLeft: missing.length,
-                detail:
-                  missing.length === 0
-                    ? 'Every section is complete'
-                    : `Add: ${missing
-                        .slice(0, 2)
-                        .map((m) => m.label.toLowerCase())
-                        .join(', ')}${missing.length > 2 ? '…' : ''}`,
-              }}
-              gulf={gulf}
-              onOpenCompleteness={() => router.push('/profile?view=completeness')}
-              onOpenReadiness={() => router.push('/profile?view=readiness')}
-            />
-          </aside>
-        </div>
-      ) : null}
     </div>
   )
 }
@@ -365,32 +253,6 @@ const GOLD_CTA =
   'inline-flex min-h-12 shrink-0 items-center justify-center rounded-ctl bg-gold px-6 type-card text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal'
 const GHOST_CTA =
   'inline-flex min-h-11 items-center justify-center rounded-ctl border border-white/35 px-3 text-[13.5px] font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white'
-
-/** CV · Letter · Q&A · Mock for one job — filled when done. */
-function PackDots({ pkg }: { pkg: PackageSummary }) {
-  const steps = [
-    ['CV', cvReady(pkg)],
-    ['Letter', letterCount(pkg) > 0],
-    ['Q&A', qaReady(pkg)],
-    ['Mock', mockDone(pkg)],
-  ] as const
-  const done = steps.filter(([, d]) => d).map(([l]) => l)
-  return (
-    <span className="flex items-center gap-1">
-      <span className="sr-only">Done: {done.length ? done.join(', ') : 'nothing yet'}.</span>
-      {steps.map(([label, isDone]) => (
-        <span
-          key={label}
-          aria-hidden="true"
-          className={cn('rounded-full px-2 py-0.5 text-[12px] font-semibold', isDone ? 'bg-ok-soft text-ok' : 'bg-canvas text-ink-muted')}
-        >
-          {isDone ? '✓ ' : ''}
-          {label}
-        </span>
-      ))}
-    </span>
-  )
-}
 
 function greeting(): string {
   const hour = new Date().getHours()

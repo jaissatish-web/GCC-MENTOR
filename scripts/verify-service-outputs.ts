@@ -81,7 +81,9 @@ check('...and fails with 2', !validateInterviewQa({ questions: [q(1), q(2)] }, 3
 {
   const base = { work_experience: [] } as unknown as CareerProfileFull
   const work = (location: string, start: string, end: string | null) => ({ location, start_date: start, end_date: end })
-  const now = new Date('2026-10-01')
+  // The calculation uses calendar months in the local timezone. A UTC-only
+  // date string becomes September 30 west of UTC and changes this boundary.
+  const now = new Date(2026, 9, 1)
   check('no Gulf roles -> "none on the CV"', /none on the CV/.test(gulfFactLine({ ...base, work_experience: [work('Pune, India', '2015-01-01', null)] } as never, now)))
   check('Gulf years counted only from Gulf roles', /^Gulf \(GCC\) experience: 10\+ years, in Qatar, UAE\./.test(
     gulfFactLine({ ...base, work_experience: [work('Mumbai, India', '2012-01-01', '2016-10-01'), work('Doha, Qatar', '2016-11-01', '2020-02-01'), work('Dubai, UAE', '2020-03-01', null)] } as never, now),

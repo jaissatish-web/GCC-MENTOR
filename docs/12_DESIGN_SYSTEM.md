@@ -97,8 +97,10 @@ Same backend and APIs; structure only.
   bar (Home, Profile, Library, Optimize). The "More" sheet was removed; ☰ lists everything.
 - **In-app footer is one line** (`AppFooter variant="compact"`): ©, help email, published legal
   pages, the checkout notice. The full footer stays on the public site.
-- **Dashboard:** greeting → next step (with "N of 7 done") → target jobs (CV · Letter · Q&A · Mock
-  chips + stage) → Profile strength and Gulf Readiness, each labelled with what it measures.
+- **Dashboard (2026-10-08):** greeting → Profile complete + Gulf Readiness → saved activity
+  totals + Resume Library CTA → overall progress report → three-step map and next action.
+  Per-resume and target-job details live only in the Library. Activity cards are two per
+  row on phones, four on desktop, with no horizontal scrolling.
 - **Service pages** (cover letter, Q&A, mock): one card — pick the job, see its pack
   (`PreparationJourney bare`), choose options, one gold button. "Built from" is a quiet line,
   hidden on phones.
@@ -118,14 +120,19 @@ letter "Step 5", Q&A "Step 6", mock "Step 7", the optimizer's own "Step 1 of 3",
 2. **Tailored CV** — Resume Optimizer + Templates (built from step 1)
 3. **Apply & interview** — Cover letter, Interview Q&A, Mock interview (built from step 2)
 
-- **Dashboard:** greeting → one card = `StageRail` (three joined dots: done ✓ / You are here /
-  Ready / 🔒 After step N) + the teal next-step panel under it. First run: the panel carries
+- **Dashboard:** below the score and overall activity/progress sections, one card =
+  `StageRail` (three joined dots: done ✓ / You are here / Ready / 🔒 After step N) + the
+  teal next-step panel under it. Its wording is generic; the CTA retains the correct destination. First run: the panel carries
   Upload my CV (gold) + Paste text + Type it in, and a "How it works" row of three cards (what each
   step gives, what it is built from) shows until step 1 is done. The blocking
   `ProfileKickstart` pop-up was deleted.
 - **Sidebar and ☰ menu** are grouped by the same steps (`NAV_GROUPS` in navItems.ts): numbered
   headings that turn into ticks, a "Step N of 3" card at the top, a gold **Next** tag on the step
   the user is on, a lock on steps whose previous step was never done (still real links).
+- **Menu icons (2026-10-08):** each destination has a distinct color and soft background,
+  shared through `NavItem.iconClass` by the sidebar, tablet rail, mobile service sheet and
+  bottom bar. Labels and active/next marks remain the primary navigation cues. The unbuilt
+  Saved Jobs item and its empty roadmap group are removed.
 - **Page eyebrows** read `Step N of 3 · <step>` (`stageEyebrow`).
 - **Step-3 pages with no job** show `StageGate`: the same rail, "… comes in step 3", and a button
   to the step the user is actually on (profile first if there is none).

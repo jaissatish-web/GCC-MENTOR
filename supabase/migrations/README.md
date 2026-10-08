@@ -154,3 +154,13 @@ Every migration in `docs/TASKS.md` that touches the data layer is flagged
 founder ever runs it. Applying a migration is the last step in that chain,
 never the first — the founder does not eyeball-approve their own scripts as
 they paste them in; the review happens before this checklist is even opened.
+
+## Applying 066 — dashboard overview
+
+Apply `066_dashboard_overview.sql` before deploying the dashboard/API using it.
+It creates only a read-only, owner-scoped aggregate function. No tables, policies
+or data change. Verify function existence, SECURITY INVOKER, pinned search path
+and EXECUTE grants; test owner isolation and anonymous denial. The dedicated
+`verify-dashboard-overview.mjs` check tests whole-account counts, legacy Q&A, raw
+profile resumes and drop/reapply reversal in disposable Postgres. To roll back,
+revert the UI/API first, then `DROP FUNCTION public.dashboard_overview();`.

@@ -157,6 +157,24 @@ use `list_package_summaries()` through `GET /api/packages?view=summary`: identit
 stage, tracker fields and flags/counts — never the CV, letters or transcripts. A
 screen loads one full row, for the job it opens, from `GET /api/packages/[id]`.
 
+### Dashboard totals (migration 066)
+
+`dashboard_overview()` is a stable, read-only SECURITY INVOKER function with a
+pinned search path, explicit `auth.uid()` filters and existing owner RLS. EXECUTE
+is granted only to authenticated users; there is no user-id argument. The
+counts-only `GET /api/dashboard/overview` endpoint authenticates first and returns
+`private, no-store`. It never returns document text, job identities or transcripts.
+
+It aggregates the whole account, without the summary list's 50/100-row limits.
+Available resumes = one when a saved Career Profile exists + all optimized CVs;
+no raw preference row has to be created for the dashboard. Draft targets are
+counted separately. Letter and mock totals count retained array entries. Q&A counts
+retained sets, falling back to one legacy latest set only when no set array exists.
+Completed mock counts require completed status and a saved report; the average
+uses numeric report scores within 0–100. Preparation coverage counts resumes with
+letters, Q&A or completed mock reports. Raw profiles never enter job-stage totals.
+No table, policy, career fact, quota or package snapshot is changed.
+
 ### Why `document_snapshot` exists — the most important thing in this table
 
 A package originally froze only the AI-written **text**. Every fixed field — name,

@@ -12,7 +12,6 @@ import { STAGES, stageById, type StageId, type StageState } from '@/components/j
 import {
   NAV_GROUPS,
   NAV_ITEMS,
-  PLANNED_NAV_ITEMS,
   isNavItemActive,
   navHref,
   type NavItem as NavItemType,
@@ -34,42 +33,6 @@ import {
  * overlay that sits above the page content.
  * Mobile (<768px): hidden — handled by MobileBottomNav + the header menu.
  */
-
-/**
- * The "Coming soon" group.
- *
- * Rendered as plain <div>s, not buttons or links: there is nothing to activate,
- * and a disabled control still takes focus in some browsers, which would put a
- * keyboard user on an item that does nothing. Marked aria-disabled so assistive
- * tech announces the state rather than the user discovering it by trying.
- */
-function PlannedGroup() {
-  return (
-    <div className="flex flex-col gap-1">
-      {/* Red, at the founder's request (2026-09-09), so every unbuilt thing in
-          the product can be found by scanning rather than remembering. */}
-      <div className="px-3 pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-alert">
-        Not built yet
-      </div>
-      {PLANNED_NAV_ITEMS.map((item) => {
-        const Icon = item.icon
-        return (
-          <div
-            key={item.label}
-            aria-disabled="true"
-            className="flex min-h-10 cursor-default items-center gap-3 rounded-xl px-3 text-[14px] font-medium text-ink-muted"
-          >
-            <Icon className="size-5 shrink-0 text-alert/70" />
-            <span className="flex-1 leading-tight">{item.label}</span>
-            <span className="shrink-0 rounded-full border border-alert/35 bg-alert-soft px-1.5 py-0.5 text-[12px] font-bold leading-none text-alert">
-              Soon
-            </span>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 function SignOutButton() {
   const [pending, setPending] = useState(false)
@@ -132,7 +95,9 @@ function NavItem({
             : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
       )}
     >
-      <Icon className={cn('size-5 shrink-0', active ? 'text-teal' : 'text-ink-muted', mark === 'locked' && !active && 'opacity-60')} />
+      <span aria-hidden="true" className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', item.iconClass, mark === 'locked' && !active && 'opacity-70')}>
+        <Icon className="size-[18px]" />
+      </span>
       {/* Wraps rather than truncating: "Resume Optimizer" beside the "Next"
           tag was cut to "Resume Opti…" (audit 2026-10-04, D7). */}
       <span className="min-w-0 flex-1 leading-tight">{item.label}</span>
@@ -231,7 +196,6 @@ export function Sidebar() {
             </div>
           )
         })}
-        <PlannedGroup />
       </nav>
       <div className="mt-auto flex flex-col gap-1 border-t border-line pt-4">
         <a
@@ -274,7 +238,7 @@ export function Sidebar() {
                 )}
                 title={item.label}
               >
-                <Icon className={cn('size-5 shrink-0', active ? 'text-teal' : 'text-ink-muted')} />
+                <span aria-hidden="true" className={cn('flex size-8 items-center justify-center rounded-lg', item.iconClass)}><Icon className="size-[18px]" /></span>
               </button>
             )
           })}

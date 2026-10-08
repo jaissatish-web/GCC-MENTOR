@@ -46,7 +46,7 @@ export function MobileBottomNav() {
               active ? 'font-semibold text-teal' : 'font-medium text-ink-muted'
             )}
           >
-            <Icon className={cn('size-5 shrink-0', active ? 'text-teal' : 'text-ink-muted')} />
+            <span aria-hidden="true" className={cn('flex size-7 items-center justify-center rounded-lg', item.iconClass)}><Icon className="size-[18px]" /></span>
             {item.shortLabel ?? item.label}
           </Link>
         )
