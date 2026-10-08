@@ -3084,3 +3084,16 @@ Resume documents, exports and landing resume thumbnails keep their authored
 font families, sizes and weights. Typography compatibility rules must explicitly
 exclude those boundaries. No database, AI, credits or pricing changes.
 See [12_DESIGN_SYSTEM.md](12_DESIGN_SYSTEM.md) for the current roles.
+
+
+## 2026-10-08 — Save preview changes before PDF download
+
+Founder requested one explicit save step for resume preview changes. Template,
+style and resume-name changes stay local until **Save changes** succeeds through
+the existing metadata PATCH. PDF download is disabled while changes are unsaved
+or saving; failed saves keep it disabled. Undo restores saved preferences.
+Gallery template previews follow the same rule. Profile photos still save
+immediately to Career Profile; downloads wait for an active upload to finish.
+Content editing stays in the existing editor (Career Profile for raw resumes),
+with existing validated saves and optimized snapshots preserved. No API, schema,
+AI, credit or export-renderer changes.

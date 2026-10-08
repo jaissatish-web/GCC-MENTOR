@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "node scripts/run-checks.mjs",
+    "test:preview": "node scripts/verify-preview-save.mjs",
     "test:db": "node scripts/verify-db-security.mjs",
     "check": "npm run typecheck && npm run lint && npm test"
   },

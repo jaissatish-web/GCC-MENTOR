@@ -21,6 +21,7 @@ export function PhotoUpload({
   onChange,
   compact = false,
   allowRemove = true,
+  onBusyChange,
 }: {
   photoUrl: string | null
   onChange: (nextUrl: string | null) => void
@@ -36,6 +37,8 @@ export function PhotoUpload({
   compact?: boolean
   /** Resume preview can hide a photo per resume without deleting it globally. */
   allowRemove?: boolean
+  /** Preview downloads must wait until the immediate profile save finishes. */
+  onBusyChange?: (busy: boolean) => void
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
@@ -46,6 +49,7 @@ export function PhotoUpload({
     setError(null)
     setSaved(false)
     setBusy(true)
+    onBusyChange?.(true)
     try {
       const body = new FormData()
       body.set('photo', file)
@@ -61,6 +65,7 @@ export function PhotoUpload({
       setError('Could not upload your photo. Check your connection and try again.')
     } finally {
       setBusy(false)
+      onBusyChange?.(false)
       if (inputRef.current) inputRef.current.value = ''
     }
   }
@@ -69,6 +74,7 @@ export function PhotoUpload({
     setError(null)
     setSaved(false)
     setBusy(true)
+    onBusyChange?.(true)
     try {
       const res = await fetch('/api/profile/photo', { method: 'DELETE' })
       if (!res.ok) {
@@ -81,6 +87,7 @@ export function PhotoUpload({
       setError('Could not remove your photo.')
     } finally {
       setBusy(false)
+      onBusyChange?.(false)
     }
   }
 

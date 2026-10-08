@@ -200,8 +200,11 @@ function PackageScreenInner({ id }: { id: string }) {
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [downloaded, setDownloaded] = useState(false)
-  const [switchingTo, setSwitchingTo] = useState<TemplateId | null>(null)
-  const [templateError, setTemplateError] = useState<string | null>(null)
+  const [draftTemplate, setDraftTemplate] = useState<TemplateId | null>(() =>
+    requestedTemplate ? getTemplate(requestedTemplate).id : null,
+  )
+  const saveInFlight = useRef(false)
+  const [photoBusy, setPhotoBusy] = useState(false)
   /**
    * Style is edited live and saved explicitly (TASK-152).
    *
@@ -218,7 +221,6 @@ function PackageScreenInner({ id }: { id: string }) {
   const [styleOpen, setStyleOpen] = useState(false)
   const [styleMsg, setStyleMsg] = useState<string | null>(null)
   const [nameDraft, setNameDraft] = useState('')
-  const [nameState, setNameState] = useState<string | null>(null)
   const [stageState, setStageState] = useState<string | null>(null)
   const [trackerDraft, setTrackerDraft] = useState({
     job_url: '',
@@ -228,92 +230,47 @@ function PackageScreenInner({ id }: { id: string }) {
   })
   const [trackerState, setTrackerState] = useState<string | null>(null)
 
-  /** Persist a template choice. Shared by the picker and the "trying" banner. */
-  const applyTemplate = useCallback(
-    async (nextId: TemplateId) => {
-      if (switchingTo) return
-      setSwitchingTo(nextId)
-      setTemplateError(null)
-      try {
-        const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ templateId: nextId }),
-        })
-        if (!res.ok) {
-          const b = await res.json().catch(() => ({}))
-          setTemplateError((b?.error as string) ?? 'Could not change the template.')
-          return
-        }
-        setPkg((prev) => (prev ? { ...prev, template_id: nextId } : prev))
-        // Drop ?template= once it is the saved value — leaving it would keep
-        // showing "not saved yet" for something that now is.
-        router.replace(`/package/${encodeURIComponent(id)}`)
-      } catch {
-        setTemplateError('Network error. Please try again.')
-      } finally {
-        setSwitchingTo(null)
-      }
-    },
-    [id, router, switchingTo],
-  )
+  // Gallery previews and picker choices share the same unsaved draft.
+  useEffect(() => {
+    if (requestedTemplate) setDraftTemplate(getTemplate(requestedTemplate).id)
+  }, [requestedTemplate])
 
-  /** Persist the style. Sends null when nothing is set, which is Reset. */
-  const saveStyle = useCallback(
-    async (next: ResumeStyleOverrides) => {
-      setStyleBusy(true)
-      setStyleMsg(null)
-      try {
-        const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            styleOverrides: Object.keys(next).length === 0 ? null : next,
-          }),
-        })
-        if (!res.ok) {
-          const bd = await res.json().catch(() => ({}))
-          setStyleMsg((bd?.error as string) ?? 'Could not save the style.')
-          return
-        }
-        setSavedStyle(next)
-        setPkg((prev) => (prev ? { ...prev, style_overrides: next } : prev))
-        setStyleMsg('Saved — your PDF will download with this style.')
-        window.setTimeout(() => setStyleMsg(null), 2600)
-      } catch {
-        setStyleMsg('Network error. Could not save the style.')
-      } finally {
-        setStyleBusy(false)
-      }
-    },
-    [id],
-  )
-
-  // Saves only when the value actually changed, so tabbing through the field
-  // does not fire a pointless write on a paid resume.
-  const saveName = useCallback(async () => {
-    const current = (pkg?.name as string | null) ?? ''
-    const next = nameDraft.trim()
-    if (!pkg || next === current.trim()) return
-    setNameState('Saving…')
+  /** Save the exact preview preferences in one metadata-only update. */
+  const saveChanges = useCallback(async () => {
+    if (!pkg || saveInFlight.current) return
+    const templateId = draftTemplate ?? getTemplate(pkg.template_id).id
+    const style = draftStyle
+    const name = nameDraft.trim()
+    saveInFlight.current = true
+    setStyleBusy(true)
+    setStyleMsg(null)
     try {
       const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: next }),
+        body: JSON.stringify({
+          templateId,
+          styleOverrides: Object.keys(style).length === 0 ? null : style,
+          name,
+        }),
       })
       if (!res.ok) {
-        const b = await res.json().catch(() => ({}))
-        setNameState((b?.error as string) ?? 'Could not save the name.')
+        const data = await res.json().catch(() => ({}))
+        setStyleMsg((data?.error as string) ?? 'Could not save changes. Please try again.')
         return
       }
-      setPkg((prev) => (prev ? { ...prev, name: next || null } : prev))
-      setNameState('Saved')
-      window.setTimeout(() => setNameState(null), 1600)
+      // Do not replace drafts: edits made during this request remain unsaved.
+      setSavedStyle(style)
+      setPkg((prev) => prev ? { ...prev, template_id: templateId, style_overrides: style, name: name || null } : prev)
+      setStyleMsg('Changes saved.')
+      if (requestedTemplate) router.replace(`/package/${encodeURIComponent(id)}?tab=design`)
     } catch {
-      setNameState('Network error.')
+      setStyleMsg('Network error. Could not save changes. Please try again.')
+    } finally {
+      saveInFlight.current = false
+      setStyleBusy(false)
     }
-  }, [id, nameDraft, pkg])
+  }, [id, pkg, draftTemplate, draftStyle, nameDraft, requestedTemplate, router])
 
   /**
    * Move this job along its pipeline, from the job's own page.
@@ -520,9 +477,17 @@ function PackageScreenInner({ id }: { id: string }) {
         pkg.target_job_title ?? null,
       )
     : null
-  const tryingTemplateId = requestedTemplate ? getTemplate(requestedTemplate).id : null
-  const isTrying = !!tryingTemplateId && tryingTemplateId !== savedTemplateId
-  const activeTemplateId = isTrying ? (tryingTemplateId as TemplateId) : savedTemplateId
+  const activeTemplateId = draftTemplate ?? savedTemplateId
+  const isTrying = activeTemplateId !== savedTemplateId
+  const changesDirty = styleDirty || isTrying || nameDraft.trim() !== (pkg.name ?? '').trim()
+  const downloadBlocked = changesDirty || styleBusy || photoBusy
+  const undoChanges = () => {
+    setDraftTemplate(savedTemplateId)
+    setDraftStyle(savedStyle)
+    setNameDraft(pkg.name ?? '')
+    setStyleMsg(null)
+    if (requestedTemplate) router.replace(`/package/${encodeURIComponent(id)}?tab=design`)
+  }
   const Template = getTemplate(activeTemplateId).component
   /**
    * No model-written text in this row, so it is the user's own profile in a
@@ -710,7 +675,6 @@ function PackageScreenInner({ id }: { id: string }) {
             rows={1}
             placeholder={pkg.target_job_title}
             onChange={(e) => setNameDraft(e.target.value.replace(/\n/g, ' '))}
-            onBlur={() => void saveName()}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault()
@@ -721,7 +685,6 @@ function PackageScreenInner({ id }: { id: string }) {
             // The shared field, at 44px. It was 34px with a 1.21:1 edge.
             className="field min-w-[180px] flex-1 resize-none py-2.5 leading-snug"
           />
-          {nameState ? <span className="shrink-0 text-teal">{nameState}</span> : null}
         </label>
 
         {/* The document's actions, pushed to the right of the same row.
@@ -737,13 +700,36 @@ function PackageScreenInner({ id }: { id: string }) {
         <div className="grid grid-cols-2 items-stretch gap-2 sm:flex sm:flex-wrap sm:items-center lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
           {!isRaw ? <StageSelect className="col-span-2 w-full sm:w-auto" value={pkg.status} onChange={(next) => void saveStage(next)} /> : null}
           {stageState ? <span className="col-span-2 text-[12px] text-alert">{stageState}</span> : null}
-          <a
-            href={pdfUrl}
-            onClick={() => setDownloaded(true)}
-            className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto')}
-          >
-            {CTA.downloadPdf}
-          </a>
+          {downloadBlocked ? (
+            <>
+              {changesDirty || styleBusy ? (
+                <button
+                  type="button"
+                  disabled={styleBusy || photoBusy}
+                  onClick={() => void saveChanges()}
+                  className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto disabled:cursor-not-allowed disabled:opacity-50')}
+                >
+                  {styleBusy ? 'Saving…' : 'Save changes'}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                disabled
+                aria-describedby="resume-save-status"
+                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'col-span-2 cursor-not-allowed opacity-50 sm:col-auto')}
+              >
+                {CTA.downloadPdf}
+              </button>
+            </>
+          ) : (
+            <a
+              href={pdfUrl}
+              onClick={() => setDownloaded(true)}
+              className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto')}
+            >
+              {CTA.downloadPdf}
+            </a>
+          )}
           {/* EDIT ALWAYS OPENS THE SAME EDITOR NOW (2026-08-19, second pass).
               An earlier version sent a never-optimized resume to
               /optimize/generate first, reasoning it had no wording "of its
@@ -777,29 +763,22 @@ function PackageScreenInner({ id }: { id: string }) {
               {CTA.seeChanges}
             </Link>
           ) : null}
-          {styleable && styleDirty ? (
-            <>
-              <span className="text-[12px] text-ink-muted">Unsaved</span>
-              <button
-                type="button"
-                disabled={styleBusy}
-                onClick={() => void saveStyle(draftStyle)}
-                className={buttonVariants({ variant: 'primary', size: 'sm' })}
-              >
-                {styleBusy ? 'Saving…' : 'Save style'}
-              </button>
-              <button
-                type="button"
-                disabled={styleBusy}
-                onClick={() => setDraftStyle(savedStyle)}
-                className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-              >
-                Undo
-              </button>
-            </>
-          ) : styleMsg ? (
-            <span role="status" className="text-[12px] text-teal">
-              {styleMsg}
+          {changesDirty ? (
+            <button
+              type="button"
+              disabled={styleBusy}
+              onClick={undoChanges}
+              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+            >
+              Undo changes
+            </button>
+          ) : null}
+          {downloadBlocked || styleMsg ? (
+            <span id="resume-save-status" role="status" className="col-span-2 text-[12px] text-ink-muted">
+              {styleBusy ? 'Saving changes — PDF download is temporarily disabled.'
+                : photoBusy ? 'Saving your photo — PDF download is temporarily disabled.'
+                : changesDirty ? `${styleMsg && styleMsg !== 'Changes saved.' ? `${styleMsg} ` : ''}Save changes to enable PDF download.`
+                : styleMsg}
             </span>
           ) : null}
         </div>
@@ -1104,26 +1083,9 @@ function PackageScreenInner({ id }: { id: string }) {
         {isTrying ? (
           <div className="flex flex-col gap-2 rounded-card border border-teal/50 bg-teal-soft px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[13px] text-teal">
-              Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Not saved yet — your
-              download still uses <strong>{getTemplate(savedTemplateId).name}</strong>.
+              Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Use Save changes
+              above to keep this template and enable PDF download.
             </p>
-            <span className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => void applyTemplate(activeTemplateId)}
-                disabled={!!switchingTo}
-                className={buttonVariants({ variant: 'primary', size: 'sm' })}
-              >
-                {switchingTo ? 'Saving…' : 'Save this template'}
-              </button>
-              <button
-                type="button"
-                onClick={() => router.replace(`/package/${encodeURIComponent(id)}`)}
-                className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-              >
-                Discard
-              </button>
-            </span>
           </div>
         ) : null}
         </>
@@ -1258,7 +1220,7 @@ function PackageScreenInner({ id }: { id: string }) {
                   />
                 </ResumeDocumentView>
                 <p className="mt-4 text-center text-[12px] text-ink-muted">
-                  A4 · {getTemplate(activeTemplateId).name} · this is exactly what downloads as your
+                  A4 · {getTemplate(activeTemplateId).name} · {downloadBlocked ? 'save changes before downloading your' : 'this is exactly what downloads as your'}
                   PDF.
                 </p>
               </div>
@@ -1276,11 +1238,6 @@ function PackageScreenInner({ id }: { id: string }) {
                   Your wording, dates and details stay exactly as they are — only the design
                   changes, and your PDF changes with it.
                 </p>
-                {templateError ? (
-                  <p role="alert" className="mt-3 text-[12px] text-alert">
-                    {templateError}
-                  </p>
-                ) : null}
                 {/* ---- Text style (TASK-152) --------------------------------
                     Above the template list, because it applies to whichever
                     template is active and the user reaches for it after
@@ -1506,6 +1463,7 @@ function PackageScreenInner({ id }: { id: string }) {
                       <PhotoUpload
                         photoUrl={profile.photo_url ?? null}
                         allowRemove={false}
+                        onBusyChange={setPhotoBusy}
                         onChange={(photoUrl) => setProfile((current) => current ? { ...current, photo_url: photoUrl } : current)}
                       />
                       <p className="mt-2 text-sm text-ink-muted">Uploads save immediately to Career Profile. Show photo is a setting for this resume only.</p>
@@ -1612,7 +1570,7 @@ function PackageScreenInner({ id }: { id: string }) {
                 {styleable ? (
                   styleDirty ? (
                     <p className="mt-3 text-[12px] text-ink-muted">
-                      Unsaved — use <strong className="text-ink-soft">Save style</strong> at the top.
+                      Unsaved — use <strong className="text-ink-soft">Save changes</strong> at the top.
                     </p>
                   ) : hasStyle ? (
                     <button
@@ -1620,7 +1578,6 @@ function PackageScreenInner({ id }: { id: string }) {
                       disabled={styleBusy}
                       onClick={() => {
                         setDraftStyle({})
-                        void saveStyle({})
                       }}
                       className={'mt-3 ' + buttonVariants({ variant: 'ghost', size: 'sm' })}
                     >
@@ -1637,10 +1594,11 @@ function PackageScreenInner({ id }: { id: string }) {
                     layout="rail"
                     document={previewDocument}
                     current={activeTemplateId}
-                    busyId={switchingTo}
+                    busyId={styleBusy ? activeTemplateId : null}
                     onSelect={(nextId) => {
                       if (nextId === activeTemplateId) return
-                      void applyTemplate(nextId)
+                      setDraftTemplate(nextId)
+                      setStyleMsg(null)
                     }}
                   />
                 </div>

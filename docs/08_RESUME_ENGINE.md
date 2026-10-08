@@ -416,3 +416,22 @@ hidden in a style attribute, the name the first text whenever it is shown, the p
 exactly when the design, the resume, the switch and the user's toggle all allow it, and
 every section present — under 20 visibility combinations with the photo shown and
 hidden, and under each of the 16 font, size, accent and photo-size choices.
+
+
+## Preview save and download state (2026-10-08)
+
+Template selections (including gallery previews), styling and custom resume names
+are local drafts. **Save changes** persists them together using the existing
+metadata PATCH. PDF download has no active link while any draft differs from
+saved preferences or a save is pending. A failed save leaves the draft intact
+and download disabled; **Undo changes** restores saved preferences. New changes
+made during a save still need another successful save. Resetting style to the
+template default also requires Save changes. Photo uploads save immediately to
+Career Profile; PDF download waits for the upload to finish. The content editor
+retains its existing explicit save; raw resume content is edited in Career Profile.
+
+Regression check: `CHROME_PATH=/path/to/chromium npm run test:preview`
+renders the actual preview component with isolated fixture API responses. Run
+`npm run build` first to also verify responsive overflow with production CSS.
+It covers both resume sources, save failures/retries, concurrent edits, gallery
+previews, resets, persisted reloads, photo-upload blocking and mobile controls.
