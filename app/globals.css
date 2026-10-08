@@ -43,13 +43,13 @@
     margin: 0;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    font-size: 0.9375rem;
-    line-height: 1.5;
+    font-size: 1rem;
+    line-height: 1.5625;
     font-weight: 400;
   }
 
   /* Heading semantics do not impose a font on resume documents. UI headings
-     use the shared role classes below; font-display uses the system sans-serif stack. */
+     use the shared role classes below; document fonts remain independent. */
   h1,
   h2,
   h3 {
@@ -97,26 +97,26 @@
   /* Product typography roles. Colours belong to the component, so these also
      work on teal panels. Rem units respect the browser's reading preference. */
   .type-title {
-    font-size: 1.375rem;
+    font-size: 1.625rem;
     line-height: 1.25;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.025em;
     overflow-wrap: anywhere;
   }
   .type-section {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     line-height: 1.3;
     font-weight: 600;
     letter-spacing: -0.015em;
   }
   .type-card {
-    font-size: 1rem;
+    font-size: 1.125rem;
     line-height: 1.4;
     font-weight: 600;
   }
   .type-body {
-    font-size: 0.9375rem;
-    line-height: 1.5;
+    font-size: 1rem;
+    line-height: 1.5625;
     font-weight: 400;
   }
   .type-label {
@@ -127,40 +127,68 @@
   .type-helper {
     font-size: 0.875rem;
     line-height: 1.5;
+    font-weight: 400;
   }
   .type-caption {
     font-size: 0.75rem;
     line-height: 1.4;
   }
   .type-hero {
-    font-size: 1.75rem;
-    line-height: 1.2;
+    font-size: 2rem;
+    line-height: 1.15;
     font-weight: 700;
-    letter-spacing: -0.03em;
-    text-wrap: balance;
-  }
-  .type-marketing-title {
-    font-size: 1.375rem;
-    line-height: 1.25;
-    font-weight: 600;
     letter-spacing: -0.025em;
     text-wrap: balance;
   }
-  @media (min-width: 390px) {
-    .type-hero { font-size: 1.875rem; }
+  .type-marketing-title {
+    font-size: 1.5rem;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  .type-lead {
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .type-button {
+    font-size: 1rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+  .type-stat {
+    font-size: 2rem;
+    line-height: 1.1;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  /* Long labels must also fit when the user enlarges browser text. */
+  .type-card,
+  .type-body,
+  .type-label,
+  .type-helper,
+  .type-caption,
+  .type-button,
+  .type-stat {
+    overflow-wrap: anywhere;
   }
   @media (min-width: 640px) {
-    .type-title { font-size: 1.625rem; }
+    .type-title { font-size: 1.75rem; }
     .type-section { font-size: 1.25rem; }
-    .type-hero { font-size: 2.25rem; }
+    .type-hero { font-size: 2.375rem; }
     .type-marketing-title { font-size: 1.75rem; }
+    .type-lead { font-size: 1.0625rem; }
+    .type-stat { font-size: 2.125rem; }
   }
   @media (min-width: 1024px) {
-    .type-hero { font-size: 2.25rem; }
-    .type-marketing-title { font-size: 1.875rem; }
-  }
-  @media (min-width: 1280px) {
-    .type-hero { font-size: 2.25rem; }
+    .type-title { font-size: 1.875rem; }
+    .type-section { font-size: 1.375rem; }
+    .type-card { font-size: 1.25rem; }
+    .type-hero { font-size: 2.625rem; }
+    .type-marketing-title { font-size: 2rem; }
+    .type-lead { font-size: 1.125rem; }
+    .type-stat { font-size: 2.25rem; }
   }
 
   /*
@@ -336,6 +364,17 @@
   }
 }
 
+/* Preserve the pre-existing inherited document baseline. Inline template sizes
+ * and line spacing still win; UI body sizing must never move resume content. */
+@layer base {
+  [data-document-preview],
+  #resume-render,
+  .actual-template-orbit-face {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+}
+
 /* Compatibility floor for existing app content while individual screens
  * adopt the role classes. Only main content is targeted: compact navigation,
  * headers and footers retain their measured layouts. Document previews opt
@@ -348,8 +387,8 @@
 }
 /* A paragraph at the old 14px body size is reading text, not a badge. */
 .app-type main :is(p.text-sm, p.text-\[14px\]):not([data-document-preview], [data-document-preview] *) {
-  font-size: 0.9375rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.5625;
 }
 
 /*
@@ -411,10 +450,19 @@
   box-shadow: 0 0 0 4px rgba(15, 76, 67, 0.3);
 }
 
-/* One calm weight hierarchy for the UI, including older hand-styled screens.
- * Document readers and landing document thumbnails keep their authored type. */
+/* Legacy emphasis stays semibold; principal headings have a distinct bold tier.
+ * Documents and landing document thumbnails retain their authored typography. */
 body :is(.font-bold, .font-extrabold, .font-black, b, strong):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *)) {
   font-weight: 600;
+}
+body :is(h1, h2):not(.type-card):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *)) {
+  font-weight: 700;
+}
+/* Keep the protected Tailwind palette/config untouched. Override only the UI
+ * family utilities; inline document fonts and mono figures remain independent. */
+body.font-redesign-sans,
+body :is(.font-redesign-sans, .font-sans, .font-display):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *)) {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 header nav :is(a, button) {
   font-size: 0.875rem;

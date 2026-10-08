@@ -3049,3 +3049,20 @@ Use the existing raw package and service-artifact fields; no database migration.
 where the user's own resume is visible with all 50 templates and saved styling,
 rather than the global gallery's sample CV. Unsaved profile drafts are not saved by
 this navigation; the button explicitly says it uses the latest saved profile.
+
+
+## 2026-10-08 — Premium Inter typography, approved by the founder
+
+Founder approved the reviewed typography proposal for the existing website and
+application: Inter UI text; 32/38/42px marketing headlines, 24/28/32px marketing
+section titles, 26/28/30px app page titles, 18/20px card titles, 16px body text
+and buttons, 14px labels/help, 12px metadata. Use 400/500/600/700 for body,
+labels, cards/actions and principal headings respectively. This replaces the
+2026-10-06 compact system-font direction. Keep wording, layouts, colors,
+navigation, data and all service behavior unchanged. Browser zoom remains
+supported through rem sizes. Fonts are served locally by Next's font loader.
+
+Resume documents, exports and landing resume thumbnails keep their authored
+font families, sizes and weights. Typography compatibility rules must explicitly
+exclude those boundaries. No database, AI, credits or pricing changes.
+See [12_DESIGN_SYSTEM.md](12_DESIGN_SYSTEM.md) for the current roles.

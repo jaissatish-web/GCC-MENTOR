@@ -57,8 +57,8 @@ const buttonVariants = cva(
       },
       size: {
         // 44px minimum — the touch-target floor. Anything smaller is a link.
-        md: 'min-h-12 px-[22px] py-3 type-label',
-        sm: 'min-h-11 px-4 py-2.5 type-label',
+        md: 'min-h-12 px-[22px] py-3 type-button',
+        sm: 'min-h-11 px-4 py-2.5 type-button',
       },
     },
     defaultVariants: {

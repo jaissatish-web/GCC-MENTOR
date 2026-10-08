@@ -11,6 +11,25 @@ outcome instead.
 
 ---
 
+## 2026-10-08 — Local PDF heading-recognition verification gap
+
+During the UI typography release, `verify-template-pdfs.ts --raw --short
+gulf_premium ats_classic medical_pearl` generated PDFs but failed the ATS
+section-heading recognition check in all six photo/no-photo cases using the
+bundled Chrome 149 and Open Sans fallback fonts. The exact same failures were
+reproduced from unchanged production main (`f35d8a4`) with the same runtime.
+The PDF renderer and templates are unchanged by this release. Recheck under
+production's font/runtime conditions before attributing the cause to a template
+or the local font fallback. This is not a passed PDF/ATS check.
+
+The typography release separately passed all 42 automated checks and a real
+Chrome comparison of all 50 templates with/without photos through preview,
+direct-render and landing-thumbnail boundaries: font family, size, weight, line
+spacing and element dimensions matched the previous UI stylesheet in all 300
+cases. Browser text scaling to 200% and 320/390/768/1440px layouts also passed.
+
+---
+
 ## 2026-09-15 audit — what is still open after the remediation branch
 
 The code for every audit item is on branch `claude/saas-production-hardening`; what

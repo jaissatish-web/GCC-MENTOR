@@ -1,9 +1,15 @@
 import type { Metadata } from 'next'
-import { Instrument_Serif, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
+import { Inter, Instrument_Serif, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import { SITE_URL } from '@/lib/siteUrl'
 
-// System sans-serif is the shared UI face, matching the MenaJobs reference.
+// One locally served variable face for UI text; documents keep their own fonts.
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
 // Explicit legacy/document font declarations remain separate.
 const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
@@ -127,7 +133,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className={`${instrumentSerif.variable} ${jakarta.variable} ${plexMono.variable} font-redesign-sans bg-canvas text-ink antialiased`}
+        className={`${inter.variable} ${instrumentSerif.variable} ${jakarta.variable} ${plexMono.variable} font-redesign-sans bg-canvas text-ink antialiased`}
       >
         {children}
       </body>

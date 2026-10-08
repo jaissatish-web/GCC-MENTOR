@@ -22,7 +22,7 @@ export function Eyebrow({ className, children }: { className?: string; children:
   )
 }
 
-/** Section titles use the same system sans-serif family as the app. Role classes and
+/** Section titles use the same Inter family as the app. Role classes and
  * responsive rem sizes live in app/globals.css. Colours remain local. */
 export function H2({ id, className, children }: { id?: string; className?: string; children: ReactNode }) {
   return (
@@ -40,7 +40,7 @@ export function H2({ id, className, children }: { id?: string; className?: strin
 }
 
 export function Lead({ className, children }: { className?: string; children: ReactNode }) {
-  return <p className={cn('mt-3 max-w-[60ch] type-body text-ink-soft lg:text-base', className)}>{children}</p>
+  return <p className={cn('mt-3 max-w-[60ch] type-lead text-ink-soft', className)}>{children}</p>
 }
 
 export function SectionHead({
@@ -68,7 +68,7 @@ export function SectionHead({
 }
 
 const BTN =
-  'group/btn inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[14px] px-5 type-label transition-[background-color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 active:translate-y-px motion-reduce:transition-none lg:px-6'
+  'group/btn inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[14px] px-5 type-button transition-[background-color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 active:translate-y-px motion-reduce:transition-none lg:px-6'
 /** Gold is the action colour (Meridian rule). Ink on gold is 6.70:1. */
 export const BTN_GOLD = cn(
   BTN,

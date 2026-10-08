@@ -96,7 +96,7 @@ export function HeroCopy() {
         Build an ATS-ready CV.{' '}
         <em className="not-italic text-teal">Prepare for your Gulf interview.</em>
       </h1>
-      <p className="mt-4 max-w-[60ch] type-body text-ink-soft lg:mt-5 lg:text-[16px]">
+      <p className="mt-4 max-w-[60ch] type-lead text-ink-soft lg:mt-5">
         Prepare a tailored CV, cover letter and interview practice for each Gulf job, using your real experience. Build your Career Profile once, then prepare each application in one place.
       </p>
       <div className="mt-6 flex flex-col gap-2.5 sm:flex-row lg:mt-8">
@@ -178,7 +178,7 @@ export function WhoItsFor() {
                 <Image src={img} alt={alt} fill sizes="(min-width: 1024px) 280px, (min-width: 640px) 50vw, 240px" className="object-cover transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none" />
               </div>
               <div className="p-4">
-                <h3 className="text-[15.5px] font-bold text-ink">{title}</h3>
+                <h3 className="type-card text-ink">{title}</h3>
                 <p className="mt-1 type-helper leading-snug text-ink-soft">{body}</p>
               </div>
             </li>
@@ -212,7 +212,7 @@ export function Founder() {
       <Wrap className="relative grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
         <div>
           <span className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-soft">Built by a Gulf insider</span>
-          <h2 id="founder-title" className="mt-3 text-[22px] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[28px] lg:text-[30px]">
+          <h2 id="founder-title" className="mt-3 type-marketing-title">
             Not built by a software company. <em className="not-italic text-gold-soft">Built by someone who has been there.</em>
           </h2>
           <div className="mt-6 flex items-center gap-4 rounded-[18px] bg-white/[0.08] p-4 ring-1 ring-white/15">
@@ -233,7 +233,7 @@ export function Founder() {
             {INSIGHTS.map(([title, body], i) => (
               <li key={title} className="w-[78%] shrink-0 snap-start rounded-[18px] bg-white p-4 text-ink shadow-m-3 sm:w-auto lg:p-5">
                 <span className="font-mono type-caption text-gold-ink">0{i + 1}</span>
-                <h3 className="mt-1 text-[18px] font-bold leading-tight lg:text-[20px] tracking-[-0.02em]">{title}</h3>
+                <h3 className="mt-1 type-card">{title}</h3>
                 <p className="mt-1.5 type-helper leading-snug text-ink-soft">{body}</p>
               </li>
             ))}
@@ -416,7 +416,7 @@ export function FinalCta() {
                 </li>
               ))}
             </ol>
-            <h2 id="final-title" className="mx-auto mt-6 max-w-[760px] text-[24px] font-bold leading-[1.2] tracking-[-0.03em] sm:text-[32px] lg:text-[36px]">
+            <h2 id="final-title" className="mx-auto mt-6 max-w-[760px] type-marketing-title">
               Stop sending the same CV. <em className="not-italic text-gold-soft">Prepare for your next Gulf opportunity.</em>
             </h2>
             <p className="mx-auto mt-4 max-w-[520px] type-body text-white/85 lg:text-[16px]">
@@ -426,7 +426,7 @@ export function FinalCta() {
               <Link href="/signup" className={cn(BTN_GOLD, 'w-full sm:w-auto')}>
                 Start My GCC Career Profile <ArrowRight />
               </Link>
-              <Link href="/gulf-readiness-score" className="inline-flex min-h-[52px] w-full items-center justify-center rounded-[14px] border border-white/40 px-5 text-[15.5px] font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto">
+              <Link href="/gulf-readiness-score" className="inline-flex min-h-[52px] w-full items-center justify-center rounded-[14px] border border-white/40 px-5 type-button text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto">
                 Free readiness score first
               </Link>
             </div>

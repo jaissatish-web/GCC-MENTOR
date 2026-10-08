@@ -26,40 +26,49 @@ section, this section wins. The Meridian tokens were chosen by the founder on
 | `field` / `field.line` | `#FBF9F5` / `#948A7B` | Inputs (the `.field` class in `globals.css`) |
 
 Radius: `rounded-ctl` 11px for controls, `rounded-card` 16px and `rounded-card-lg` 20px
-for cards. Shadow: `shadow-m-1/2/3`. **System sans-serif is the UI face for headings, body,
-labels and controls** (founder-authorized typography audit, 2026-10-06).
-`font-display`, `font-sans` and `font-redesign-sans` all resolve to the same system sans-serif stack. Plex
-Mono is for aligned figures. Resume templates retain their independent inline
-fonts and sizes; UI styling must never change PDF layout.
+for cards. Shadow: `shadow-m-1/2/3`. **Inter is the UI face for headings, body, labels and controls**
+(founder-approved premium typography, 2026-10-08). `next/font` serves the variable
+font locally with swap and fallback metric adjustment. UI `font-display`,
+`font-sans` and `font-redesign-sans` resolve to Inter through scoped CSS in
+`app/globals.css`; the protected Tailwind config remains unchanged. Plex Mono
+remains available for existing technical figures. Resume templates retain their
+independent inline fonts, sizes and weights; UI styling must never change PDF layout.
 
-### Reading sizes (2026-10-06)
+### Reading sizes (2026-10-08)
 
-Use the shared role classes in `app/globals.css`, measured in rem. The founder
-requested the MenaJobs typography direction: system fonts, compact sizes,
-semibold titles and regular body text. Existing bold UI utilities resolve to
-600; the hero retains 700. Document readers and thumbnails are excluded:
+Use shared role classes in `app/globals.css`, measured in rem. Regular paragraphs
+use 400, labels 500, cards/actions 600 and principal headings 700. Older emphasis
+utilities remain semibold; semantic main headings receive the bold tier.
 
-| Role | Class | Phone | Desktop |
-|---|---|---|---|
-| Page title | `type-title` | 22px / 1.25 | 26px / 1.25 |
-| App section title | `type-section` | 18px / 1.3 | 20px / 1.3 |
-| Card title | `type-card` | 16px / 1.4 | 16px / 1.4 |
-| Main reading text | `type-body` | 15px / 1.5, regular | same |
-| Label or button | `type-label` | 14px / 1.4, medium | same |
-| Hints and secondary text | `type-helper` | 14px / 1.5 | same |
-| Compact badges and metadata | `type-caption` | 12px / 1.4 | same |
-| Marketing headline | `type-hero` | 28–30px / 1.2 | 36px / 1.2 |
-| Marketing section title | `type-marketing-title` | 22px / 1.25 | 30px / 1.25 |
+| Role | Class | Phone | Tablet ≥640px | Desktop ≥1024px |
+|---|---|---|---|---|
+| Page title | `type-title` | 26px / 1.25 | 28px | 30px |
+| App section title | `type-section` | 20px / 1.3 | 20px | 22px |
+| Card title | `type-card` | 18px / 1.4 | 18px | 20px |
+| Main reading text | `type-body` | 16px / 1.5625 | same | same |
+| Label | `type-label` | 14px / 1.4, medium | same | same |
+| Button | `type-button` | 16px / 1.4, semibold | same | same |
+| Hints and secondary text | `type-helper` | 14px / 1.5 | same | same |
+| Metadata and eyebrows | `type-caption` | 12px / 1.4 | same | same |
+| Marketing headline | `type-hero` | 32px / 1.15 | 38px | 42px |
+| Marketing section title | `type-marketing-title` | 24px / 1.25 | 28px | 32px |
+| Marketing introduction | `type-lead` | 16px / 1.6 | 17px | 18px |
+| Dashboard counts | `type-stat` | 32px / 1.1 | 34px | 36px |
 
-These classes carry no colour. Do not use a caption for an instruction or long
-paragraph. Keep long reading text left-aligned and about 60–70 characters wide.
-Form fields are 16px at every width. Labels are semibold; input values are regular.
-Buttons allow wrapping and remain at least 44px tall.
+These classes carry no colour. Heading tracking is slightly tightened; body text
+has natural spacing. Do not use captions for instructions or long paragraphs.
+Keep long reading text left-aligned and about 60–70 characters wide. Form fields
+remain 16px at every width; buttons allow wrapping and remain at least 44px tall.
+`type-stat` uses tabular numerals for stable alignment. Keep semantic HTML headings
+and actual selectable text; a font choice does not guarantee better SEO rankings.
 
 The compatibility floor inside `.app-type main` raises older 12–13.5px classes
-to 13px, and 10–11.5px to 12px. Old 14px paragraph classes become 15px. It leaves
-compact navigation/header/footer layouts alone. `[data-document-preview]` and
-its descendants opt out; resume previews keep their own inline document type.
+to 13px, and 10–11.5px to 12px. Old 14px paragraph classes become 16px. It leaves
+compact navigation/header/footer layouts alone. UI family and emphasis rules
+exclude `[data-document-preview]`, `#resume-render`, `.actual-template-orbit-face`
+and their descendants. Document boundaries retain the previous inherited 15px /
+1.5 baseline, while inline template sizes and spacing take precedence. Resume
+previews keep their authored document typography.
 Use role classes for new code rather than extending the compatibility list.
 The hero example reserves its height, advances every 8 seconds, pauses on focus
 or hover, and offers an explicit Pause/Resume button. Reduced motion stops autoplay.

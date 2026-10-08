@@ -429,10 +429,10 @@ export function GccGlobe() {
       <div className="relative grid items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">
           <span className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Six Gulf markets</span>
-          <h2 id="markets-title" className="mt-2 text-[26px] font-bold leading-[1.15] tracking-[-0.03em] text-ink sm:text-[34px] lg:text-[42px]">
+          <h2 id="markets-title" className="mt-2 type-marketing-title text-ink">
             One profile. <em className="not-italic text-teal">Every GCC country.</em>
           </h2>
-          <p className="mt-2.5 max-w-[440px] type-helper leading-relaxed text-ink-soft lg:text-[16.5px]">
+          <p className="mt-2.5 max-w-[440px] type-lead text-ink-soft">
             From India, Asia, Africa or Europe — or moving between Gulf jobs. Prepare for any of the six markets from one career profile.
           </p>
 

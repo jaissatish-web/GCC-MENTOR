@@ -39,7 +39,7 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
             <Link key={service.key} href={service.href} className="flex min-w-0 flex-col gap-2 rounded-card border border-line bg-white p-4 shadow-m-1 transition-colors hover:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:p-5">
               <span aria-hidden="true" className={cn('flex size-10 items-center justify-center rounded-xl', service.color)}><Icon className="size-5" /></span>
               <span className="type-card text-ink">{service.label}</span>
-              <span className={cn('font-display text-[32px] font-bold leading-none text-ink', loading && 'animate-pulse')}>
+              <span className={cn('font-display type-stat text-ink', loading && 'animate-pulse')}>
                 {overview && !error ? overview[service.key].toLocaleString('en-IN') : '—'}
               </span>
               <span className="min-h-9 text-[12px] leading-snug text-ink-muted">
@@ -49,7 +49,7 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
                     ? `${overview.mock_completed_count} completed · ${overview.mock_in_progress_count} in progress`
                     : service.key === 'qa_set_count' ? 'Saved question-and-answer sets' : service.key === 'cover_letter_count' ? 'Saved letters in every tone' : 'Your profile and tailored CVs'}
               </span>
-              <span className="mt-auto text-[12.5px] font-semibold text-teal">{service.cta} <span aria-hidden="true">→</span></span>
+              <span className="mt-auto type-label font-semibold text-teal">{service.cta} <span aria-hidden="true">→</span></span>
             </Link>
           )
         })}
@@ -90,11 +90,11 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
         <div className="flex flex-col rounded-card border border-line bg-white p-5 shadow-m-1 sm:p-6">
           <h3 className="type-card text-ink">Interview practice</h3>
           <dl className="mt-5 grid grid-cols-2 gap-4">
-            <div><dt className="type-helper text-ink-muted">Completed reports</dt><dd className="mt-1 font-display text-[28px] font-bold text-ink">{overview.mock_completed_count}</dd></div>
-            <div><dt className="type-helper text-ink-muted">In progress</dt><dd className="mt-1 font-display text-[28px] font-bold text-ink">{overview.mock_in_progress_count}</dd></div>
+            <div><dt className="type-helper text-ink-muted">Completed reports</dt><dd className="mt-1 font-display type-stat text-ink">{overview.mock_completed_count}</dd></div>
+            <div><dt className="type-helper text-ink-muted">In progress</dt><dd className="mt-1 font-display type-stat text-ink">{overview.mock_in_progress_count}</dd></div>
           </dl>
           <p className="mt-5 type-helper text-ink-muted">Average saved report score</p>
-          <p className="mt-1 font-display text-[28px] font-bold text-ink">{overview.average_mock_score === null ? 'No scored reports yet' : `${overview.average_mock_score} / 100`}</p>
+          <p className={cn('mt-1 text-ink', overview.average_mock_score === null ? 'type-body' : 'font-display type-stat')}>{overview.average_mock_score === null ? 'No scored reports yet' : `${overview.average_mock_score} / 100`}</p>
           <p className="mt-2 type-helper text-ink-muted">Practice feedback helps you prepare. It does not predict hiring decisions.</p>
           <Link href="/mock-interview" className="mt-5 type-helper font-semibold text-teal">Continue interview practice →</Link>
         </div>
