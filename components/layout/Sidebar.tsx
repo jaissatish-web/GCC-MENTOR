@@ -4,11 +4,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/react/24/outline'
-import { CheckIcon, LockClosedIcon } from '@heroicons/react/24/solid'
+import { LockClosedIcon } from '@heroicons/react/24/solid'
 import { signOut } from '@/app/auth/actions'
 import { cn } from '@/lib/utils'
 import { useCurrentStage } from '@/components/journey/useCurrentStage'
-import { STAGES, stageById, type StageId, type StageState } from '@/components/journey/stages'
+import { type StageId } from '@/components/journey/stages'
 import {
   NAV_GROUPS,
   NAV_ITEMS,
@@ -20,13 +20,8 @@ import {
 /**
  * Desktop sidebar — per docs/redesign/DESIGN_SYSTEM.md §8.1–8.2.
  *
- * REDESIGNED 2026-09-25: the rail is now the product's map. Destinations are
- * grouped by the three steps (components/journey/stages.ts) — 1 Your profile,
- * 2 Tailored CV, 3 Apply & interview — each heading a numbered dot that turns
- * into a tick when done. A "Step N of 3" card at the top says where the user
- * is; the step they are on carries a gold "Next" tag; later steps are dimmed
- * with a lock but stay real links, because every page explains what it needs
- * first. Same destinations, same routes.
+ * A continuous service list with colored icons, without category headings.
+ * Journey guidance remains on Dashboard; destinations retain their state marks.
  *
  * Desktop (≥1024px): full 248px sidebar with labels.
  * Tablet (768–1023px): 48px icon-only bar; tap expands into a labeled
@@ -114,48 +109,6 @@ function NavItem({
   )
 }
 
-/** The step heading in the rail: a numbered dot that turns into a tick. */
-function StepHeading({ n, label, state }: { n: number; label: string; state: StageState | null }) {
-  return (
-    <div className="flex items-center gap-2 px-3 pb-1">
-      <span
-        aria-hidden="true"
-        className={cn(
-          'flex size-5 items-center justify-center rounded-full text-[11px] font-bold',
-          state === 'done' ? 'bg-ok text-white' : state === 'current' ? 'bg-gold text-ink' : state === 'open' ? 'border border-teal/50 bg-white text-teal' : 'border border-line-strong bg-white text-ink-muted',
-        )}
-      >
-        {state === 'done' ? <CheckIcon className="size-3" /> : n}
-      </span>
-      <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
-        <span className="sr-only">Step {n}: </span>
-        {label}
-      </span>
-    </div>
-  )
-}
-
-/** "Step 2 of 3" with a three-part bar — gone once every step is done. */
-function ProgressCard({ current, states, onClick }: { current: StageId; states: Record<StageId, StageState>; onClick?: () => void }) {
-  const stage = stageById(current)
-  return (
-    <Link
-      href="/dashboard"
-      onClick={onClick}
-      className="flex flex-col gap-1.5 rounded-card border border-gold/40 bg-gold-soft/70 p-3.5 transition-colors hover:border-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-    >
-      <span className="text-[12px] font-semibold text-gold-ink">Step {stage.n} of 3</span>
-      <span className="text-[14px] font-semibold leading-tight text-ink">{stage.name}</span>
-      <span aria-hidden="true" className="my-1 grid grid-cols-3 gap-1">
-        {STAGES.map((s) => (
-          <span key={s.id} className={cn('h-1.5 rounded-full', states[s.id] === 'current' ? 'bg-gold' : states[s.id] === 'done' ? 'bg-ok' : 'bg-white')} />
-        ))}
-      </span>
-      <span className="text-[12.5px] font-semibold text-teal">See your next step →</span>
-    </Link>
-  )
-}
-
 export function Sidebar() {
   const snap = useCurrentStage()
   const states = snap ? snap.states : null
@@ -179,17 +132,10 @@ export function Sidebar() {
   const navContent = (onNavigate?: () => void) => (
     <>
       <BrandMark />
-      {snap?.current ? <ProgressCard current={snap.current} states={snap.states} onClick={onNavigate} /> : null}
-      <nav className="flex flex-col gap-4">
+      <nav className="flex flex-col gap-0.5">
         {groups.map((g) => {
-          const stage = g.stage ? stageById(g.stage) : null
           return (
             <div key={g.key} className="flex flex-col gap-0.5">
-              {stage ? (
-                <StepHeading n={stage.n} label={stage.name} state={states ? states[stage.id] : null} />
-              ) : g.label ? (
-                <div className="px-3 pb-1 text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-muted">{g.label}</div>
-              ) : null}
               {g.items.map((item, i) => (
                 <NavItem key={item.label} item={item} active={isActive(item)} mark={markFor(g.stage, i)} onClick={onNavigate} />
               ))}

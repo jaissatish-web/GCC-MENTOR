@@ -91,8 +91,8 @@ least 44px tall.
 Founder brief: "dashboard and other pages look very complicated … make it real clean SaaS".
 Same backend and APIs; structure only.
 
-- **One navigation per screen size.** Desktop (≥1024): the grouped sidebar only (Your career ·
-  Build & prepare · Account, Sign out at the foot) — the top bar is hidden there. Tablet: icon
+- **One navigation per screen size.** Desktop (≥1024): the plain service sidebar only
+  (colored icons, Sign out at the foot) — the top bar is hidden there. Tablet: icon
   rail + top bar. Phone: top bar with the ☰ menu (founder request 2026-09-09) + a four-tab bottom
   bar (Home, Profile, Library, Optimize). The "More" sheet was removed; ☰ lists everything.
 - **In-app footer is one line** (`AppFooter variant="compact"`): ©, help email, published legal
@@ -126,9 +126,11 @@ letter "Step 5", Q&A "Step 6", mock "Step 7", the optimizer's own "Step 1 of 3",
   Upload my CV (gold) + Paste text + Type it in, and a "How it works" row of three cards (what each
   step gives, what it is built from) shows until step 1 is done. The blocking
   `ProfileKickstart` pop-up was deleted.
-- **Sidebar and ☰ menu** are grouped by the same steps (`NAV_GROUPS` in navItems.ts): numbered
-  headings that turn into ticks, a "Step N of 3" card at the top, a gold **Next** tag on the step
-  the user is on, a lock on steps whose previous step was never done (still real links).
+- **Sidebar and ☰ menu** show a continuous service list without category headings
+  or a sidebar journey card (founder request 2026-10-08). Internal `NAV_GROUPS`
+  preserve ordering and next/locked marks; journey guidance stays on Dashboard.
+- **LinkedIn Optimization** is linked from the shared menu to an authenticated
+  Coming soon page. No generation, inputs, credits or LinkedIn connection yet.
 - **Menu icons (2026-10-08):** each destination has a distinct color and soft background,
   shared through `NavItem.iconClass` by the sidebar, tablet rail, mobile service sheet and
   bottom bar. Labels and active/next marks remain the primary navigation cues. The unbuilt

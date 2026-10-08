@@ -11,6 +11,17 @@ A decision belongs here if changing it back would need a conversation. Format: d
 what was decided, and the reasoning that made it the right call.
 
 
+## 2026-10-08 — Plain service menu and LinkedIn placeholder
+
+Founder requested removing menu category names (profile, tailored CV, apply and
+interview, files and account). Show the existing destinations as a continuous
+list with their colored icons; remove the sidebar journey card as well so it
+cannot repeat the removed category names. Journey guidance stays on Dashboard.
+Add LinkedIn Optimization as a real navigation destination with an explicit
+Coming soon page, without generation, data collection or credit usage.
+
+---
+
 ## 2026-10-08 — Dashboard overview and colorful service navigation
 
 Founder requested removing the unbuilt Saved Jobs menu item, consistent colorful

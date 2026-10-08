@@ -4,12 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowRightStartOnRectangleIcon, Bars3Icon } from '@heroicons/react/24/outline'
-import { SideSheet, SheetGroupLabel } from '@/components/ui/SideSheet'
+import { SideSheet } from '@/components/ui/SideSheet'
 import { signOut } from '@/app/auth/actions'
 import { cn } from '@/lib/utils'
 import { LockClosedIcon } from '@heroicons/react/24/solid'
 import { useCurrentStage } from '@/components/journey/useCurrentStage'
-import { stageById, type StageId } from '@/components/journey/stages'
+import { type StageId } from '@/components/journey/stages'
 import { NAV_GROUPS, NAV_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
 
 /**
@@ -43,13 +43,12 @@ import { NAV_GROUPS, NAV_ITEMS, isNavItemActive, navHref, type NavItem } from '.
  */
 
 /**
- * Grouped by the three steps (2026-09-25), from the same NAV_GROUPS the
- * sidebar reads, so the phone menu teaches the same order as the dashboard.
+ * Internal groups keep the sidebar's order and state marks. Their category
+ * labels are not displayed in the menu (founder request 2026-10-08).
  */
 const GROUPS: ReadonlyArray<{ label: string; hrefs: readonly string[]; stage?: StageId; withSignOut?: true }> = NAV_GROUPS.map((g) => {
-  const stage = g.stage ? stageById(g.stage) : null
   return {
-    label: stage ? `Step ${stage.n} · ${stage.name}` : (g.label ?? 'Home'),
+    label: g.key,
     hrefs: g.hrefs,
     stage: g.stage,
     ...(g.key === 'account' ? { withSignOut: true as const } : {}),
@@ -83,6 +82,7 @@ const BLURB: Record<string, string> = {
   '/dashboard/library': 'Your applications and their stage',
   '/optimize': 'Build a CV for a specific role',
   '/templates': '50 designs to choose from',
+  '/linkedin-optimization': 'Coming soon',
 }
 
 function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onNavigate: () => void; active: boolean; mark?: 'next' | 'locked' | null }) {
@@ -209,12 +209,10 @@ export function ServicesMenu() {
           if (rows.length === 0 && !group.withSignOut) return null
           return (
             <div key={group.label} className="flex flex-col gap-2">
-              <SheetGroupLabel>{group.label}</SheetGroupLabel>
               {rows.map((item, i) => (
                 <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(group.stage, i)} />
               ))}
-              {/* Under Account, not at the very bottom: reachable without
-                  scrolling past the roadmap. */}
+              {/* Sign out remains an action after the service destinations. */}
               {group.withSignOut ? <SignOutRow /> : null}
             </div>
           )

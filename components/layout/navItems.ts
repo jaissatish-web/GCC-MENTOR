@@ -8,6 +8,7 @@ import {
   DocumentTextIcon,
   EnvelopeIcon,
   Cog6ToothIcon,
+  IdentificationIcon,
 } from '@heroicons/react/24/outline'
 
 /**
@@ -94,6 +95,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Cover Letter', href: '/cover-letter', iconClass: 'bg-violet-50 text-violet-700', icon: EnvelopeIcon },
   { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'bg-cyan-50 text-cyan-700', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
   { label: 'Mock Interview', href: '/mock-interview', iconClass: 'bg-orange-50 text-orange-700', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
+  { label: 'LinkedIn Optimization', href: '/linkedin-optimization', iconClass: 'bg-blue-100 text-blue-800', icon: IdentificationIcon },
   { label: 'Settings', href: '/settings', iconClass: 'bg-fuchsia-50 text-fuchsia-700', icon: Cog6ToothIcon },
 ] as const
 
@@ -133,11 +135,9 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
 }
 
 /**
- * THE NAV IS GROUPED BY THE THREE STEPS (2026-09-25). The sidebar and the
- * phone menu both read this, so the menu teaches the same order the dashboard
- * shows: step 1 profile, step 2 a CV for a job, step 3 apply and interview.
- * `stage` ties a group to components/journey/stages.ts for its done / current
- * / locked mark. Every NAV_ITEMS href appears in exactly one group.
+ * Internal ordering groups shared by the sidebar and phone menu. Category
+ * headings are hidden (founder 2026-10-08); `stage` retains next/locked marks.
+ * Every NAV_ITEMS href appears in exactly one group.
  */
 export interface NavGroup {
   key: string
@@ -152,6 +152,6 @@ export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'profile', label: 'Your profile', hrefs: ['/profile'], stage: 'profile' },
   { key: 'cv', label: 'Tailored CV', hrefs: ['/optimize', '/templates'], stage: 'cv' },
   { key: 'apply', label: 'Apply & interview', hrefs: ['/cover-letter', '/interview-qa', '/mock-interview'], stage: 'apply' },
-  { key: 'files', label: 'Your files', hrefs: ['/dashboard/library'] },
+  { key: 'files', label: 'Your files', hrefs: ['/dashboard/library', '/linkedin-optimization'] },
   { key: 'account', label: 'Account', hrefs: ['/settings'] },
 ]

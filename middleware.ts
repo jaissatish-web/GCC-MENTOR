@@ -16,6 +16,7 @@ const PROTECTED_ROUTES = [
   '/mock-interview',
   '/create-resume',
   '/templates',
+  '/linkedin-optimization',
   // /payments is now a redirect into /settings?tab=payments, but it stays
   // listed here: it must not become an unauthenticated route just because
   // its body is a redirect, and it was in fact never protected before.
@@ -148,6 +149,7 @@ export const config = {
     '/mock-interview/:path*',
     '/create-resume/:path*',
     '/templates/:path*',
+    '/linkedin-optimization/:path*',
     '/payments/:path*',
     '/login',
     '/signup',
