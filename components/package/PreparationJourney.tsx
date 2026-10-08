@@ -98,7 +98,7 @@ export function PreparationJourney({
           ) : null}
         </p>
       ) : null}
-      <ol aria-label="This job's pack" className={cn('grid grid-cols-4 gap-1.5', bare ? 'mt-2' : 'mt-3')}>
+      <ol aria-label={isRaw ? 'Career Profile preparation' : "This job's pack"} className={cn('grid grid-cols-4 gap-1.5', bare ? 'mt-2' : 'mt-3')}>
         {steps.map((step) => {
           const isHere = here === step.key
           const locked = step.key !== 'resume' && !cvReady

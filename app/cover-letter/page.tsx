@@ -273,13 +273,13 @@ function CoverLetterScreen() {
             {generating ? (
               <ProcessingInline
                 steps={[
-                  'Reading the saved CV for this job',
+                  isRaw ? 'Reading your saved Career Profile Resume' : 'Reading the saved CV for this job',
                   'Drawing on your Career Profile',
                   `Writing in the ${tone} tone`,
                   'Checking every line against your profile',
                 ]}
                 stepMs={5000}
-                notes={COVER_LETTER_NOTES}
+                notes={isRaw ? ['Written only from your saved Career Profile.', ...COVER_LETTER_NOTES.slice(1)] : COVER_LETTER_NOTES}
               />
             ) : null}
 
@@ -312,7 +312,7 @@ function CoverLetterScreen() {
           </Button>
         </div>
       ) : detailLoading && !detail ? (
-        <SkeletonGroup label="Loading this job's letters" className="mt-6">
+        <SkeletonGroup label={isRaw ? 'Loading your profile-based letters' : "Loading this job's letters"} className="mt-6">
           <Skeleton shape="title" />
           <Skeleton />
         </SkeletonGroup>
@@ -326,7 +326,7 @@ function CoverLetterScreen() {
             <span className="text-[12px] text-ink-muted">{letters.length} total</span>
           </div>
           <p className="-mt-2 text-[12px] leading-relaxed text-ink-muted">
-            Edit any letter below and press Save changes. Downloads use your saved text. The {SAVED_PER_PACKAGE} newest letters are kept for each job.
+            Edit any letter below and press Save changes. Downloads use your saved text. The {SAVED_PER_PACKAGE} newest letters are kept for each {isRaw ? 'resume' : 'job'}.
           </p>
           {letters.map((letter) => (
             <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-6">
@@ -383,16 +383,16 @@ function CoverLetterScreen() {
         <NextStep
           className="mt-6"
           title="Prepare for the interview"
-          body="Get likely questions for this job with answers drawn from the same CV, so what you say matches what you sent."
+          body={isRaw ? 'Prepare for interviews in your field with answers drawn from your saved Career Profile.' : 'Get likely questions for this job with answers drawn from the same CV, so what you say matches what you sent.'}
           href={`/interview-qa?package=${encodeURIComponent(selectedId)}`}
           cta={CTA.prepareInterviewQa}
-          secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: CTA.viewOptimizedCv }}
+          secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: isRaw ? 'See your resume' : CTA.viewOptimizedCv }}
         />
       ) : null}
 
       {/* Grounding notice */}
       <p className="mt-6 text-center text-[12px] text-ink-muted">
-        Written from this job&apos;s saved CV (once built) and your Career Profile — nothing that is in neither.
+        {isRaw ? 'Written only from your saved Career Profile. No job description or AI resume optimization is used.' : "Written from this job's saved CV (once built) and your Career Profile — nothing that is in neither."}
       </p>
     </PageShell>
   )

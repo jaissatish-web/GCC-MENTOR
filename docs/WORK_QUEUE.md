@@ -197,4 +197,17 @@ Shared Library cards, profile icon, CV/Letter/Q&A/Mock links, a **See your resum
 profile action and grounded profile-only service paths implemented. New route
 regressions cover owner denial, failed profile reads, changed master data, ignored
 stale job/AI metadata, service writes and optimized prompt parity. No migration.
-Live generation and physical phone verification results must be recorded after deployment.
+Validation: typecheck, lint, production build and **40/40 automated checks**
+passed, including all 50 templates and profile-only route/optimized prompt regressions.
+Authenticated production verification on commit `5b174ab`: shared Library cards,
+profile shortcut to the actual Design screen, saved profile-based cover letter,
+24-question Q&A, five-question voice practice room, raw PDF and existing optimized
+PDF downloads passed. The raw PDF contains current profile facts and no UI badge.
+One raw record remains; all five optimized records retain their original update
+timestamps. Deployment build completed; no error/fatal runtime logs were returned.
+
+Voice recording, transcription/review and physical mobile-device verification remain
+untested in this follow-up. A practice interview was created and left unanswered;
+Library marks Mock ready only after completion, matching the existing behavior.
+The follow-up also corrects inherited job-specific copy on profile-based screens;
+optimized screen wording remains unchanged. No database migration or RLS change.

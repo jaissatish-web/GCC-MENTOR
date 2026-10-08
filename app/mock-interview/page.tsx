@@ -368,7 +368,7 @@ function MockInterviewScreen() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-[12.5px] text-ink-muted">
                 {detailLoading && !detail
-                  ? 'Loading this job…'
+                  ? (isRaw ? 'Loading your Career Profile Resume…' : 'Loading this job…')
                   : run
                     ? `Latest run: ${run.status === 'completed' ? 'completed' : 'in progress'} · ${answeredCount}/${run.question_count} answered`
                     : 'No mock interview yet for this package.'}
@@ -466,11 +466,11 @@ function MockInterviewScreen() {
       {selectedId && run?.status === 'completed' ? (
         <NextStep
           className="mt-6"
-          title="Apply, then keep track"
-          body="Your CV, letter and preparation for this job are ready. When you apply, set its stage in your Resume Library so you always know where each application stands."
+          title={isRaw ? 'Keep preparing in your field' : 'Apply, then keep track'}
+          body={isRaw ? 'Your profile-based practice is saved in your Resume Library. Return any time to review or practise again.' : 'Your CV, letter and preparation for this job are ready. When you apply, set its stage in your Resume Library so you always know where each application stands.'}
           href="/dashboard/library"
           cta="Open my Resume Library"
-          secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: CTA.viewOptimizedCv }}
+          secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: isRaw ? 'See your resume' : CTA.viewOptimizedCv }}
         />
       ) : null}
 

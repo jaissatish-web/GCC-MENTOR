@@ -256,7 +256,7 @@ function InterviewQaScreen() {
             {sets.length > 1 ? (
               <label className="flex flex-col gap-2">
                 <span className="field-label">
-                  Saved Q&amp;A sets for this job ({sets.length} of {SAVED_PER_PACKAGE})
+                  Saved Q&amp;A sets for this {isRaw ? 'resume' : 'job'} ({sets.length} of {SAVED_PER_PACKAGE})
                 </span>
                 <select
                   className="field"
@@ -277,7 +277,7 @@ function InterviewQaScreen() {
             ) : null}
             {questionSet ? (
               <p className="text-[12px] leading-relaxed text-ink-muted">
-                A new set is saved alongside your earlier ones. The {SAVED_PER_PACKAGE} newest are kept for each job.
+                A new set is saved alongside your earlier ones. The {SAVED_PER_PACKAGE} newest are kept for each {isRaw ? 'resume' : 'job'}.
               </p>
             ) : null}
           </div>
@@ -294,7 +294,7 @@ function InterviewQaScreen() {
           </Button>
         </div>
       ) : detailLoading && !detail ? (
-        <SkeletonGroup label="Loading this job's Q&A" className="mt-6">
+        <SkeletonGroup label={isRaw ? 'Loading your profile-based Q&A' : "Loading this job's Q&A"} className="mt-6">
           <Skeleton shape="title" />
           <Skeleton />
         </SkeletonGroup>
@@ -363,15 +363,15 @@ function InterviewQaScreen() {
         <NextStep
           className="mt-6"
           title="Practise your answers"
-          body="Answer written interview questions for this job one at a time, and get a saved feedback report."
+          body={isRaw ? 'Practise interview questions in your professional field and get a saved feedback report.' : 'Answer written interview questions for this job one at a time, and get a saved feedback report.'}
           href={`/mock-interview?package=${encodeURIComponent(selectedId)}`}
           cta={CTA.startMockInterview}
-          secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: CTA.viewOptimizedCv }}
+          secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: isRaw ? 'See your resume' : CTA.viewOptimizedCv }}
         />
       ) : null}
 
       <p className="mt-6 text-center text-[12px] text-ink-muted">
-        Answers are written from this job&apos;s saved CV and your Career Profile. Any answer stating a number that is in neither is removed before you see it.
+        {isRaw ? 'Answers use only your saved Career Profile. Unsupported numbers are removed before you see them.' : "Answers are written from this job's saved CV and your Career Profile. Any answer stating a number that is in neither is removed before you see it."}
       </p>
     </PageShell>
   )
