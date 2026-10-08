@@ -694,13 +694,23 @@ Recorded voice update (2026-09-26): founder authorized the existing database; mi
   includes 131 assertions, including one-per-user raw quota and cross-user denial.
 - Production build passed with placeholder Supabase credentials. Live catalogue
   confirms existing free unique index, nullable outputs/target fields, owner RLS,
-  and no authenticated UPDATE grant on tier or document snapshot. No live data written.
+  and no authenticated UPDATE grant on tier or document snapshot. No migration required.
 - Real PDF check ran all 50 templates with/without a photo and with a long CV,
   for optimized and raw sources: 147/150 cases passed in each. Tech Horizon fails
   strict ATS email extraction in all three cases; reproduced unchanged on `220f1cc`.
   Its template is preserved. Raw Graduate Entry uses two pages because profile
   responsibilities are included; the raw check allows this without trimming facts.
-- Authenticated live import (PDF/DOCX/text/manual), profile-save-to-preview sync,
-  actual device mobile interactions and existing-user download still need browser
-  login. No successful authenticated live journey is claimed.
+- Production feature commit `98907ed` deployed READY to `gcc-mentor.vercel.app`.
+  Authenticated Library and raw preview verified against the saved profile. All 50
+  template buttons were present; ATS Classic/Gulf Premium switching, renaming with
+  the permanent badge, and saving Georgia/compact/teal/no-photo styling succeeded.
+  A read-only database check confirmed the saved preferences, one free record,
+  and no raw AI content or document snapshot. The five existing optimized records
+  retained update timestamps predating deployment. No runtime error/fatal logs
+  were returned for the production deployment's verification window.
+- The browser runtime stopped permitting authenticated observations after reload.
+  Live PDF downloads, profile-save-to-preview synchronization, fresh-account/import
+  journeys and actual mobile-device testing remain unverified. Local automated
+  coverage does not substitute for these live checks. The test raw resume remains
+  named "My Master Engineering CV" with the saved styling listed above.
 - DOCX is still unavailable for raw resumes because template layout parity is unresolved.
