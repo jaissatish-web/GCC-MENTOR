@@ -79,7 +79,7 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', iconClass: 'bg-sky-50 text-sky-700', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
+  { label: 'Dashboard', href: '/dashboard', iconClass: 'bg-blue-50 text-blue-700', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
   { label: 'Career Profile', href: '/profile', iconClass: 'bg-teal-soft text-teal', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
   // "Profile Strength" (/gcc-readiness) sat here from 2026-09-09 to 2026-09-11.
   // It left when Career Profile and Profile Strength became one page (founder
@@ -90,11 +90,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // job — title, employer, country — and carries its stage, applied → offer.
   { label: 'Resume Library', href: '/dashboard/library', iconClass: 'bg-indigo-50 text-indigo-700', icon: BriefcaseIcon, shortLabel: 'Library' },
   { label: 'Resume Templates', href: '/templates', iconClass: 'bg-rose-50 text-rose-700', icon: RectangleStackIcon, shortLabel: 'Templates' },
-  { label: 'Resume Optimizer', href: '/optimize', iconClass: 'bg-amber-50 text-amber-700', icon: DocumentTextIcon, shortLabel: 'Optimize' },
+  { label: 'Resume Optimizer', href: '/optimize', iconClass: 'bg-yellow-50 text-yellow-700', icon: DocumentTextIcon, shortLabel: 'Optimize' },
   { label: 'Cover Letter', href: '/cover-letter', iconClass: 'bg-violet-50 text-violet-700', icon: EnvelopeIcon },
   { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'bg-cyan-50 text-cyan-700', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
   { label: 'Mock Interview', href: '/mock-interview', iconClass: 'bg-orange-50 text-orange-700', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
-  { label: 'Settings', href: '/settings', iconClass: 'bg-slate-100 text-slate-600', icon: Cog6ToothIcon },
+  { label: 'Settings', href: '/settings', iconClass: 'bg-fuchsia-50 text-fuchsia-700', icon: Cog6ToothIcon },
 ] as const
 
 /**
