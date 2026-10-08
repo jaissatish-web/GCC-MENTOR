@@ -190,3 +190,11 @@ Traces to: open items §B6 · **Needs a founder answer.**
 Unsaved edits are lost when navigating to the visibility screen. Three reasonable fixes
 exist; one needs choosing.
 Traces to: open items §B5 · Small once chosen.
+
+
+### 2026-10-08 · Career Profile Resume service integration
+Shared Library cards, profile icon, CV/Letter/Q&A/Mock links, a **See your resume**
+profile action and grounded profile-only service paths implemented. New route
+regressions cover owner denial, failed profile reads, changed master data, ignored
+stale job/AI metadata, service writes and optimized prompt parity. No migration.
+Live generation and physical phone verification results must be recorded after deployment.

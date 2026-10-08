@@ -1,3 +1,4 @@
+import { PROFILE_ONLY_SERVICE_RULE } from '@/lib/careerProfileServiceContext'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { CareerProfileFull, TargetCountry } from '@/types/careerProfile'
 import type {
@@ -113,25 +114,26 @@ export function buildMockInterviewStartPrompt(
   target: MockInterviewTarget,
   jobDescription: string | null | undefined,
   config: MockInterviewConfig,
+  source: 'optimized_resume' | 'career_profile' = 'optimized_resume',
 ): BuiltPrompt {
+  const isRaw = source === 'career_profile'
   return {
     persona: PERSONA,
     instructions: [
       `Create a text mock interview plan with exactly ${config.questionCount} questions.`,
       modeInstruction(config.mode),
-      `Difficulty: ${config.difficulty}. Make the questions realistic for a Gulf interview and specific to the optimized resume.`,
-      'Do not invent facts. Ask from the supplied profile, optimized resume and job description.',
+      `Difficulty: ${config.difficulty}. Make the questions realistic for a Gulf interview and specific to the ${isRaw ? 'Career Profile Resume' : 'optimized resume'}.`,
+      isRaw ? PROFILE_ONLY_SERVICE_RULE : 'Do not invent facts. Ask from the supplied profile, optimized resume and job description.',
       'Keep every question one sentence. ideal_answer_points must be short bullet fragments, not full paragraphs.',
     ].join('\n'),
     input: [
       '## CAREER PROFILE',
       renderProfile(profile),
-      '## OPTIMIZED RESUME',
-      renderResume(resume),
-      '## TARGET JOB',
+      isRaw ? '## CAREER PROFILE RESUME' : '## OPTIMIZED RESUME',
+      isRaw ? renderResume(resume).replace(/Optimized/g, 'Profile') : renderResume(resume),
+      isRaw ? '## PROFESSIONAL FIELD' : '## TARGET JOB',
       renderTarget(target),
-      '## JOB DESCRIPTION',
-      jobDescription?.trim() || 'No job description was provided.',
+      ...(!isRaw ? ['## JOB DESCRIPTION', jobDescription?.trim() || 'No job description was provided.'] : []),
       '## OUTPUT FORMAT',
       `Return ONLY JSON:
 {

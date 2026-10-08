@@ -74,6 +74,9 @@ Everything in this section is built, deployed and working.
   from saved profile facts, all 50 templates, custom naming/style and PDF. No JD,
   AI optimization or credits. Permanent UI badge: **Raw Career Profile Data**.
   Content edits open Career Profile; saved optimized resumes keep their snapshots.
+  Same Library cards and service links: optional profile-only cover letters, Q&A
+  and mock interviews use the evidenced professional field without a JD. Career
+  Profile has **See your resume** to open template and style editing.
 - Hard-delete of all personal data from Settings.
 
 **Meant to be paid — currently open to everyone**

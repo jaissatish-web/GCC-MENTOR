@@ -273,6 +273,11 @@ The snapshot stores the rendered document as delivered. Three rules follow:
    the validated Career Profile editor. PATCH rejects independent raw content edits;
    optimization refuses to generate into this row. Name/template/style still save
    through the existing metadata path. Optimized resume editing remains per-resume.
+   Optional profile-only service generation shares this live adapter, never the
+   raw package's target metadata or optimized snapshot. It saves service artifacts
+   normally without rewriting the CV. `careerProfileServiceContext()` supplies a
+   profile-derived field and null company/country/industry/JD; the three prompt
+   builders branch only for this source. Existing optimized prompts retain parity.
 
 
 **This is where the worst defect in the project's history lived.** The snapshot had

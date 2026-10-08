@@ -3001,3 +3001,19 @@ Founder asked for CV reading that handles messy real-world CVs (tables, columns,
 ## 2026-10-01 — Gulf Readiness v2: one verdict, photo points, paperwork must-haves
 
 Founder asked for Gulf Readiness to match the real market, with photo points, a clear ready/not-ready answer and a guided path. Checked current requirements (professional photo customary on Gulf CVs; Saudi QVP/SVP verification enforced for most work visas; UAE skilled permits need attested degrees; health licences per regulator; SCE for engineers in Saudi). Decided (founder chose all three recommendations): photo up to 6 points — 0 none, 2 hidden, 4 shown, 6 with the user's professional-photo checklist (code cannot judge a photo); ONE verdict (Ready / Almost / Not ready) with the score, profile completeness demoted to a progress line; optional paperwork answers (migration 060, applied) that drive must-haves. New 20-point Gulf CV Essentials dimension scores availability and visa by quality, not mention. Fairness rule kept and tested: which nationality/age/gender/marital status/religion is never scored. Also fixed: the profile page's readiness ignored nationality/visa/notice/location while the dashboard used them. Not done: the anonymous funnel does not ask paperwork questions — it shows them as "not checked yet" and points to the free profile. See [09_SCORING.md](09_SCORING.md) §1 "Gulf Readiness v2".
+
+
+## 2026-10-08 — Profile-only career preparation in the shared Library
+
+Founder requested the Career Profile Resume in the same card grid as optimized
+resumes, with the Career Profile icon and CV/Letter/Q&A/Mock navigation. Optional
+AI services are now authorized for this source. The CV itself remains unoptimized,
+with no independent content editor or snapshot; only Career Profile saves its facts.
+The professional field is the saved profile title or latest recorded role, never
+the resume's custom label. No vacancy, company, JD or ATS gaps are inferred.
+Existing optimized prompt output, snapshots, saves and usage rules are preserved.
+Use the existing raw package and service-artifact fields; no database migration.
+**See your resume** on Career Profile opens the existing package Design screen,
+where the user's own resume is visible with all 50 templates and saved styling,
+rather than the global gallery's sample CV. Unsaved profile drafts are not saved by
+this navigation; the button explicitly says it uses the latest saved profile.

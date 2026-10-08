@@ -1,5 +1,6 @@
 'use client'
 
+import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -44,7 +45,8 @@ const CATEGORY_ORDER: InterviewQuestionCategory[] = [
   'company_role',
 ]
 
-function packageTarget(pkg: Pick<PackageSummary, 'target_job_title' | 'target_company'>): string {
+function packageTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
+  if (isCareerProfileResume(pkg)) return `${pkg.name || pkg.target_job_title} · ${CAREER_RESUME_BADGE}`
   return [pkg.target_job_title, pkg.target_company].filter(Boolean).join(' · ')
 }
 
@@ -74,6 +76,7 @@ function InterviewQaScreen() {
   const requestedIdRef = useRef(searchParams.get('package'))
   const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: true })
   const { list, total, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
+  const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [generating, setGenerating] = useState(false)
   const [genError, setGenError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -165,8 +168,8 @@ function InterviewQaScreen() {
       icon={QuestionMarkCircleIcon}
       eyebrow={stageEyebrow('apply')}
       title="Interview Q&A"
-      subtitle="Up to 25 likely questions for one target job, with answers drawn from your own experience."
-      uses={['Optimized CV', 'Target job', 'Career Profile']}
+      subtitle={isRaw ? 'Up to 25 practice questions in your professional field, drawn only from your saved Career Profile. No job description required.' : 'Up to 25 likely questions for one target job, with answers drawn from your own experience.'}
+      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-5 sm:p-6">
         {total === 0 ? (
@@ -187,7 +190,7 @@ function InterviewQaScreen() {
         ) : (
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
-              <span className="field-label">Which job are you preparing for?</span>
+              <span className="field-label">Which resume are you preparing from?</span>
               <select
                 value={selectedId ?? ''}
                 onChange={(e) => {
@@ -216,8 +219,8 @@ function InterviewQaScreen() {
             {generating ? (
               <ProcessingInline
                 steps={[
-                  'Reading the optimized resume',
-                  'Studying the target role and job description',
+                  isRaw ? 'Reading your saved Career Profile Resume' : 'Reading the optimized resume',
+                  isRaw ? 'Preparing for your professional field' : 'Studying the target role and job description',
                   'Writing Gulf-focused practice answers',
                   'Checking every number against your CV and profile',
                 ]}

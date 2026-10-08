@@ -239,10 +239,10 @@ screen.
 ## 6. Career Profile Resume — existing Library (2026-10-08)
 
 1. Save a Career Profile after PDF/DOCX import, pasted text or manual entry.
-2. Open `/dashboard/library`. The raw card creates/returns one `tier = 'free'`
+2. Open `/dashboard/library`. The shared resume card creates/returns one `tier = 'free'`
    package, even when the user has never optimized a CV. With no saved profile,
    it links to Profile instead of inserting an empty package.
-3. Open **Customize and download**. The existing package Design screen supports
+3. Open the resume workspace, or choose **See your resume** on Career Profile. The existing package Design screen supports
    all 50 templates, preview, supported styling and PDF. Rename stays in the same
    screen. **Raw Career Profile Data** remains visible in the app after renaming,
    and is never passed to the exported template.
@@ -250,7 +250,18 @@ screen.
    to the resume: latest content and field visibility appear. No content snapshot,
    AI call or optimization credit is created by this resume workflow.
 5. Existing optimized resumes keep their saved document snapshots and editor.
-   The raw record is not presented as an unfinished target job or in service pickers.
+   The raw record uses the same Library card and CV/Letter/Q&A/Mock links, with
+   the Career Profile icon and permanent badge. It is included in the three
+   service pickers even for users who have never optimized a CV. It is excluded
+   from target-job application-stage counts.
+6. Optional cover letter, Q&A and mock interview generation uses the latest saved
+   profile and its raw document, with no JD, employer, ATS gaps or saved optimized
+   content. The professional field comes from the profile target title or most
+   recent recorded role, never from the custom resume name. Existing AI limits,
+   grounding checks and service saves apply. The resume itself remains raw.
+7. Saved generated letters, Q&A and interviews remain dated artifacts. Regenerate
+   to use later profile changes; this never rewrites the raw resume or an optimized
+   CV. Recorded interviews retain their normal per-session evidence snapshot.
 
 DOCX remains unavailable because preview/layout parity has not been established.
 

@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { CheckIcon } from '@heroicons/react/24/outline'
+import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { UserCircleIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { CTA, NAMES } from '@/lib/serviceLabels'
 import { readMatchReport } from '@/components/optimizer/MatchResult'
@@ -33,14 +34,15 @@ export function PreparationJourney({
   /** Inside a service's own form card: no border of its own, no repeated job title. */
   bare?: boolean
 }) {
+  const isRaw = isCareerProfileResume(pkg)
   const id = encodeURIComponent(pkg.id)
   const reportRunId = completedReportRunId(pkg)
   const cvReady = isCvReady(pkg)
   const full = isSummary(pkg) ? null : pkg
-  const report = full ? readMatchReport(full.match_report) : null
+  const report = full && !isRaw ? readMatchReport(full.match_report) : null
   const before = report?.before.total
   const after = report?.after?.total
-  const description = full?.job_description?.trim() ?? ''
+  const description = isRaw ? '' : full?.job_description?.trim() ?? ''
   const [open, setOpen] = useState(false)
   const country = GULF_COUNTRIES.find((c) => c.value === pkg.target_country && c.value !== 'generic_gulf')?.label
 
@@ -58,13 +60,13 @@ export function PreparationJourney({
   const here: Step = current === 'report' ? 'mock' : current
 
   return (
-    <section aria-label={NAMES.targetJob} className={bare ? '' : 'rounded-card border border-line bg-white p-4 shadow-m-1'}>
+    <section aria-label={isRaw ? 'Career Profile Resume' : NAMES.targetJob} className={bare ? '' : 'rounded-card border border-line bg-white p-4 shadow-m-1'}>
       <div className={cn('flex items-start justify-between gap-3', bare && 'sr-only')}>
         <div className="min-w-0">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-muted">{NAMES.targetJob}</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-muted">{isRaw ? 'Career Profile Resume' : NAMES.targetJob}</p>
           <p className="mt-0.5 break-words font-display text-[18px] leading-tight text-ink">{pkg.name || pkg.target_job_title}</p>
           <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[13px] text-ink-soft">
-            {[pkg.target_company, country].filter(Boolean).join(' · ')}
+            {isRaw ? 'Based only on your saved profile · No job description' : [pkg.target_company, country].filter(Boolean).join(' · ')}
             {typeof before === 'number' && typeof after === 'number' ? (
               <span className="inline-flex items-center gap-1 font-semibold">
                 {pkg.target_company || country ? <span aria-hidden="true">·</span> : null}
@@ -77,11 +79,12 @@ export function PreparationJourney({
         </div>
         {here !== 'resume' ? (
           <Link href={`/package/${id}`} className="inline-flex min-h-11 shrink-0 items-center text-[13px] font-semibold text-teal underline-offset-4 hover:underline">
-            {CTA.viewOptimizedCv}
+            {isRaw ? 'See your resume' : CTA.viewOptimizedCv}
           </Link>
         ) : null}
       </div>
 
+      {isRaw ? <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE} · Profile-based preparation</p> : null}
       {bare && typeof before === 'number' && typeof after === 'number' ? (
         <p className="text-[13px] text-ink-soft">
           ATS <span className="font-mono text-ink-muted">{before}</span> → <span className="font-mono font-semibold text-teal">{after}</span>
@@ -89,7 +92,7 @@ export function PreparationJourney({
             <>
               {' · '}
               <Link href={`/package/${id}`} className="font-semibold text-teal underline-offset-4 hover:underline">
-                {CTA.viewOptimizedCv}
+                {isRaw ? 'See your resume' : CTA.viewOptimizedCv}
               </Link>
             </>
           ) : null}

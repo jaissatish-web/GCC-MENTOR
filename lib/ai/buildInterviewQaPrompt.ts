@@ -1,3 +1,4 @@
+import { PROFILE_ONLY_SERVICE_RULE } from '@/lib/careerProfileServiceContext'
 import type { CareerProfileFull, TargetCountry } from '@/types/careerProfile'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import { gccExperience } from '@/lib/experienceYears'
@@ -284,25 +285,31 @@ export function buildInterviewQaParts(
   jobDescription?: string | null,
   /** Computed facts + gap list (lib/ai/proseClaims.ts renderAnswerFacts). */
   factsBlock?: string,
+  source: 'optimized_resume' | 'career_profile' = 'optimized_resume',
 ): BuiltPartPrompt[] {
+  const isRaw = source === 'career_profile'
+  const profileScopes: Partial<Record<QaPart['key'], string>> = {
+    intro: 'introduction, career direction, real strengths, development areas and availability from the profile. No assumed employer or vacancy.',
+    technical: 'technical knowledge and methods in the candidate’s own saved roles, duties and skills. Explain how they approach their actual work; never invent an advert requirement.',
+    gulf_fit: 'two gulf_readiness questions based on the candidate’s recorded Gulf exposure or honest adaptation plans, and three company_role questions about suitability for work in their evidenced field. No assumed company, vacancy or missing job requirements.',
+  }
   const shared = [
     '## CAREER PROFILE',
     renderProfile(profile),
-    '## OPTIMIZED RESUME',
-    renderResumeDocument(resume),
-    '## TARGET JOB',
+    isRaw ? '## CAREER PROFILE RESUME' : '## OPTIMIZED RESUME',
+    isRaw ? renderResumeDocument(resume).replace(/Optimized/g, 'Profile') : renderResumeDocument(resume),
+    isRaw ? '## PROFESSIONAL FIELD' : '## TARGET JOB',
     renderTarget(target),
-    '## JOB DESCRIPTION',
-    renderJobDescription(jobDescription),
+    ...(!isRaw ? ['## JOB DESCRIPTION', renderJobDescription(jobDescription)] : []),
     [factsBlock ?? '## FACTS YOU MUST KEEP TO', gulfFactLine(profile)].join('\n'),
   ].join('\n\n')
   return QA_PARTS.map((part) => ({
     part,
     persona: INTERVIEW_QA_PERSONA,
-    instructions: INTERVIEW_QA_INSTRUCTIONS,
+    instructions: isRaw ? INTERVIEW_QA_INSTRUCTIONS.replace('Questions must be specific to this candidate and this job: name their real employers, projects, tools and results, and the advert\'s real requirements. No generic textbook questions.', 'Questions must be specific to this candidate’s real employers, projects, duties, tools and results. There is no advert or assumed vacancy. No generic textbook questions.') + '\n\n' + PROFILE_ONLY_SERVICE_RULE : INTERVIEW_QA_INSTRUCTIONS,
     input: [
       shared,
-      `## THIS PART\nWrite exactly ${part.count} questions: ${part.scope}`,
+      `## THIS PART\nWrite exactly ${part.count} questions: ${isRaw ? profileScopes[part.key] ?? part.scope : part.scope}`,
       '## OUTPUT FORMAT',
       outputSchema(part),
     ].join('\n\n'),

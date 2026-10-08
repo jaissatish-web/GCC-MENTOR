@@ -1,5 +1,6 @@
 'use client'
-import { CareerProfileResumeCard } from '@/components/resume/CareerProfileResumeCard'
+import { CAREER_RESUME_BADGE, CAREER_RESUME_NAME, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { useCareerProfileResume } from '@/lib/useCareerProfileResume'
 
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/Button'
@@ -7,7 +8,7 @@ import { CTA } from '@/lib/serviceLabels'
 import { Alert } from '@/components/ui/Alert'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { PageShell } from '@/components/layout/PageShell'
-import { BriefcaseIcon } from '@heroicons/react/24/outline'
+import { BriefcaseIcon, UserCircleIcon } from '@heroicons/react/24/outline'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn, GULF_COUNTRIES, PACKAGE_STATUSES } from '@/lib/utils'
 import { StageSelect } from '@/components/package/StageSelect'
@@ -163,6 +164,7 @@ function ApplicationCard({
   onStage: (next: PackageStatus) => void
   onDelete: () => void
 }) {
+  const isRaw = isCareerProfileResume(pkg)
   const letterPresent = letterCount(pkg) > 0
   const cvReady = isCvReady(pkg)
   const qaIsReady = qaReady(pkg)
@@ -220,6 +222,7 @@ function ApplicationCard({
       {/* Who and where — the title opens this job's workspace. */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0 flex-1">
+          {isRaw ? <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 text-[12px] font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE}</span> : null}
           <Link
             href={`/package/${id}`}
             className="block break-words rounded-ctl type-card text-ink underline-offset-4 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
@@ -227,15 +230,15 @@ function ApplicationCard({
             {displayName}
           </Link>
           <div className="mt-0.5 min-w-0">
-            <JobSubtitle pkg={pkg} />
+            {isRaw ? <span className="block type-helper text-ink-soft">Career Profile · No job description</span> : <JobSubtitle pkg={pkg} />}
           </div>
           {/* What tells two jobs with the same title apart. */}
           <p className="mt-1 text-[12px] text-ink-muted">
-            {levelLabel(pkg.optimization_level)} optimization · added {formatDay(pkg.created_at)}
+            {isRaw ? 'No AI optimization' : `${levelLabel(pkg.optimization_level)} optimization`} · added {formatDay(pkg.created_at)}
             {pkg.updated_at && pkg.updated_at.slice(0, 10) !== pkg.created_at.slice(0, 10) ? ` · updated ${formatDay(pkg.updated_at)}` : ''}
           </p>
         </div>
-        <StageSelect value={pkg.status} onChange={onStage} className="self-start" />
+        {!isRaw ? <StageSelect value={pkg.status} onChange={onStage} className="self-start" /> : null}
       </div>
 
       {/* Preparation for this job: four steps, each one tap away. */}
@@ -264,7 +267,7 @@ function ApplicationCard({
           </Link>
         ) : (
           <span className="w-full rounded-ctl bg-ok-soft px-3 py-2.5 text-center text-[13px] font-semibold text-ok sm:w-auto sm:text-left">
-            Ready to apply — every step done
+            {isRaw ? 'Your career preparation is ready' : 'Ready to apply — every step done'}
           </span>
         )}
         <Link href={`/package/${id}`} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'flex-1 sm:flex-none')}>
@@ -307,7 +310,7 @@ function ApplicationCard({
               ))}
             </div>
           ) : null}
-          <div>
+          {!isRaw ? <div>
             <button
               type="button"
               aria-expanded={targetOpen}
@@ -325,21 +328,21 @@ function ApplicationCard({
                 <p className="text-[12.5px] text-ink-muted" role="status">Loading target job…</p>
               )
             ) : null}
-          </div>
+          </div> : <p className="text-[13px] text-ink-soft">Cover letters, Q&A and mock interviews use your latest saved Career Profile. No vacancy or employer is assumed.</p>}
           <div className="flex flex-wrap items-center gap-2">
             {cvReady ? (
-              <Link href={`/package/${id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
-                {CTA.editCv}
+              <Link href={isRaw ? '/profile?view=details' : `/package/${id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
+                {isRaw ? 'Edit Career Profile' : CTA.editCv}
               </Link>
             ) : null}
-            <button
+            {!isRaw ? <button
               type="button"
               onClick={onDelete}
               aria-pressed={confirmingDelete}
               className={cn(buttonVariants({ variant: confirmingDelete ? 'danger-solid' : 'danger', size: 'sm' }))}
             >
               {confirmingDelete ? 'Confirm: delete this job and its documents' : 'Delete'}
-            </button>
+            </button> : null}
           </div>
           <p className="text-[12px] text-ink-muted">{templateNameFor(pkg.template_id)} template</p>
         </div>
@@ -350,6 +353,8 @@ function ApplicationCard({
 
 export default function TargetJobsPage() {
   const { usage } = useServiceUsage()
+  const careerResume = useCareerProfileResume()
+  const { resume: careerProfileResume, setResume: setCareerProfileResume } = careerResume
   const [items, setItems] = useState<PackageSummary[] | null>(null)
   const [cursor, setCursor] = useState<PackageListPage['next_cursor']>(null)
   const [counts, setCounts] = useState<Record<PackageStatus, number>>(emptyStageCounts())
@@ -458,7 +463,9 @@ export default function TargetJobsPage() {
   const renamePackage = useCallback(
     async (id: string, next: string) => {
       setOpError(null)
-      const prevName = items?.find((p) => p.id === id)?.name ?? null
+      const raw = careerProfileResume?.id === id
+      const prevName = raw ? careerProfileResume?.name ?? null : items?.find((p) => p.id === id)?.name ?? null
+      if (raw) setCareerProfileResume((prev) => prev ? { ...prev, name: next || null } : prev)
       setItems((list) => (list ? list.map((p) => (p.id === id ? { ...p, name: next || null } : p)) : list))
       try {
         const res = await fetch(`/api/packages/${encodeURIComponent(id)}`, {
@@ -469,14 +476,16 @@ export default function TargetJobsPage() {
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
           setItems((list) => (list ? list.map((p) => (p.id === id ? { ...p, name: prevName } : p)) : list))
+          if (raw) setCareerProfileResume((prev) => prev ? { ...prev, name: prevName } : prev)
           setOpError((body?.error as string) ?? 'Could not rename this job.')
         }
       } catch {
         setItems((list) => (list ? list.map((p) => (p.id === id ? { ...p, name: prevName } : p)) : list))
+        if (raw) setCareerProfileResume((prev) => prev ? { ...prev, name: prevName } : prev)
         setOpError('Network error. Could not rename this job.')
       }
     },
-    [items]
+    [items, careerProfileResume, setCareerProfileResume]
   )
 
   const deletePackage = useCallback(async (id: string) => {
@@ -530,6 +539,9 @@ export default function TargetJobsPage() {
 
   const list = items ?? []
   const filtering = Boolean(debouncedQuery) || stageFilter !== null
+  const raw = careerResume.resume
+  const rawMatches = raw && !stageFilter && (!debouncedQuery || `${raw.name || CAREER_RESUME_NAME} Career Profile ${CAREER_RESUME_BADGE}`.toLowerCase().includes(debouncedQuery.toLowerCase()))
+  const resumeList = [...(rawMatches ? [raw] : []), ...list]
 
   return (
     // The shared page frame (2026-09-23): the Library was the one list screen
@@ -538,7 +550,7 @@ export default function TargetJobsPage() {
       width="document"
       icon={BriefcaseIcon}
       title="Resume Library"
-      subtitle="Every job you are targeting, with its CV, cover letter, interview preparation and application stage."
+      subtitle="Your Career Profile Resume and targeted resumes, with their cover letters and interview preparation."
       actions={
         total > 0 ? (
           <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'shrink-0')}>
@@ -548,12 +560,11 @@ export default function TargetJobsPage() {
       }
     >
 
-      <CareerProfileResumeCard />
 
       {/* ONE TOOLBAR (2026-09-24 simplification): search and stage side by
           side. It was a search card, a four-tile usage block and a ten-column
           stage strip — three panels before the first job on a phone. */}
-      {total > 0 ? (
+      {total > 0 || raw ? (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
           <label className="flex min-w-0 flex-1 flex-col gap-1.5">
             <span className="sr-only">Search your jobs</span>
@@ -597,20 +608,20 @@ export default function TargetJobsPage() {
       {opError ? <Alert variant="danger">{opError}</Alert> : null}
       {loadError && items !== null ? <Alert variant="danger">{loadError}</Alert> : null}
 
-      {total === 0 && !filtering ? (
+      {total === 0 && !raw && careerResume.state === 'missing' && !filtering ? (
         <EmptyState
           icon={BriefcaseIcon}
-          title="Your targeted resumes will appear here"
-          body="Add the job you are applying for and we build a CV for it from your Career Profile. Its cover letter and interview preparation stay with it."
+          title="Save your Career Profile to see your resume"
+          body="Upload a resume, paste its text or enter your information. Your saved profile becomes your resume."
           action={
-            <Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>
-              {CTA.addTargetJob}
+            <Link href="/profile" className={buttonVariants({ variant: 'primary' })}>
+              Build Career Profile
             </Link>
           }
         />
       ) : null}
 
-      {total > 0 && list.length === 0 && !searching ? (
+      {(total > 0 || raw) && resumeList.length === 0 && !searching ? (
         <div className="rounded-card border border-line bg-white px-5 py-8 text-center">
           <p className="text-[14px] text-ink-soft">
             No jobs match these filters.{' '}
@@ -626,7 +637,9 @@ export default function TargetJobsPage() {
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-2">
-        {list.map((pkg) => (
+        {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 text-[13px] text-ink-soft">Opening your Career Profile Resume…</div> : null}
+        {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="text-[13px] text-alert">Could not open your Career Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
+        {resumeList.map((pkg) => (
           <ApplicationCard
             key={pkg.id}
             pkg={pkg}

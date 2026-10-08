@@ -1,6 +1,7 @@
 'use client'
 
 import { CallOrb, JOINING_LINES } from '@/components/mock-interview/CallOrb'
+import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -85,7 +86,8 @@ function writeDraft(key: string, value: string): void {
   }
 }
 
-function packageTarget(pkg: Pick<PackageSummary, 'target_job_title' | 'target_company'>): string {
+function packageTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
+  if (isCareerProfileResume(pkg)) return `${pkg.name || pkg.target_job_title} · ${CAREER_RESUME_BADGE}`
   return [pkg.target_job_title, pkg.target_company].filter(Boolean).join(' · ')
 }
 
@@ -100,6 +102,7 @@ function MockInterviewScreen() {
   const requestedIdRef = useRef(searchParams.get('package'))
   const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: true })
   const { list, total, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
+  const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [voiceReady, setVoiceReady] = useState<boolean | null>(null)
   useEffect(() => {
     let cancelled = false
@@ -274,8 +277,8 @@ function MockInterviewScreen() {
       icon={ChatBubbleLeftRightIcon}
       eyebrow={stageEyebrow('apply')}
       title="Mock Interview"
-      subtitle="Speak your answers to an animated interviewer, then request one complete review and track your practice progress."
-      uses={['Optimized CV', 'Target job', 'Career Profile']}
+      subtitle={isRaw ? 'Practise an interview in your professional field using only your saved Career Profile. No job description required.' : 'Speak your answers to an animated interviewer, then request one complete review and track your practice progress.'}
+      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-5 sm:p-6">
         {total === 0 ? (
@@ -292,7 +295,7 @@ function MockInterviewScreen() {
         ) : (
           <div className="flex flex-col gap-5">
             <label className="flex flex-col gap-1.5">
-              <span className="field-label">Which job are you practising for?</span>
+              <span className="field-label">Which resume are you practising from?</span>
               {/* Locked while a request is running, so a reply can never land on a different job. */}
               <select
                 value={selectedId ?? ''}

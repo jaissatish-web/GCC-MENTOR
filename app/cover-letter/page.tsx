@@ -1,5 +1,6 @@
 'use client'
 
+import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
@@ -40,7 +41,8 @@ import { StageGate } from '@/components/journey/StageGate'
  * its tone; pre-2026-08-18 letters simply show no label — never a guessed one.
  */
 
-function letterTarget(pkg: Pick<PackageSummary, 'target_job_title' | 'target_company'>): string {
+function letterTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
+  if (isCareerProfileResume(pkg)) return `${pkg.name || pkg.target_job_title} · ${CAREER_RESUME_BADGE}`
   // The employer only when there is one.
   const bits = [pkg.target_job_title, pkg.target_company].filter(Boolean)
   return bits.join(' · ')
@@ -60,6 +62,7 @@ function CoverLetterScreen() {
   const requestedIdRef = useRef(searchParams.get('package'))
   const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: false })
   const { list, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
+  const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [tone, setTone] = useState<CoverLetterTone>('professional')
 
   const [generating, setGenerating] = useState(false)
@@ -201,8 +204,8 @@ function CoverLetterScreen() {
       icon={EnvelopeIcon}
       eyebrow={stageEyebrow('apply')}
       title="Cover Letter"
-      subtitle="A letter for one of your target jobs, in the tone you choose — consistent with the CV it goes with."
-      uses={['Optimized CV', 'Target job', 'Career Profile']}
+      subtitle={isRaw ? 'A professional introduction for opportunities in your field, based only on your saved Career Profile. No job description required.' : 'A letter for one of your target jobs, in the tone you choose — consistent with the CV it goes with.'}
+      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
 
       {/* Centered generation form (720px, §C) */}
@@ -212,7 +215,7 @@ function CoverLetterScreen() {
         ) : (
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
-              <span className="field-label">Which job is this letter for?</span>
+              <span className="field-label">Which resume is this letter for?</span>
               <select
                 value={selectedId ?? ''}
                 onChange={(e) => {

@@ -11,6 +11,7 @@ import {
   SwatchIcon,
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
+import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { getTemplate, type TemplateId } from '@/lib/templates'
@@ -840,7 +841,7 @@ function PackageScreenInner({ id }: { id: string }) {
           job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
         {isRaw ? (
-          <p className="text-[13px] text-ink-soft">Content edits and field visibility are saved in your Career Profile. Your resume name, template and styling are saved here. <Link href="/profile?view=settings" className="font-semibold text-teal underline">Choose visible fields</Link></p>
+          <div className="flex flex-col gap-3"><p className="text-[13px] text-ink-soft">Content edits and field visibility are saved in your Career Profile. Your resume name, template and styling are saved here. <Link href="/profile?view=settings" className="font-semibold text-teal underline">Choose visible fields</Link></p><PreparationJourney pkg={pkg} current="resume" /></div>
         ) : <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} />}
         {/* RESULTS FIRST, AS COLOURED CARDS (founder request 2026-09-17): target
             job, ATS score before → after, summary, what changed, next steps.

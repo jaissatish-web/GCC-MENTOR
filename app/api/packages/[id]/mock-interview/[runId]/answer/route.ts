@@ -1,5 +1,6 @@
 import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import { NextResponse } from 'next/server'
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { createClient } from '@/lib/supabase/server'
 import { buildMockInterviewFeedbackPrompt } from '@/lib/ai/buildMockInterviewPrompt'
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
@@ -70,7 +71,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
-    .select('id, profile_id, mock_interview_runs, match_report')
+    .select('id, tier, profile_id, mock_interview_runs, match_report')
     .eq('id', params.id)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -158,7 +159,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       if (profile) {
         const ctx = {
           evidence: profileEvidenceText(profile),
-          gaps: gapTermsFromMatchReport(pkgRow.match_report, profile),
+          gaps: gapTermsFromMatchReport(isCareerProfileResume(pkgRow) ? null : pkgRow.match_report, profile),
           totalYears: totalExperienceYears(profile),
         }
         // Requirement gaps, plus certificates and named products the CV never

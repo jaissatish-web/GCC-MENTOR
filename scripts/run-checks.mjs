@@ -73,6 +73,7 @@ function run(label, args) {
 }
 
 for (const script of TS_CHECKS) run(script, [sucrase, join('scripts', script)])
+run('verify-career-profile-services.mjs', [join(root, 'scripts', 'verify-career-profile-services.mjs')])
 run('verify-career-profile-resume-api.mjs', [join('scripts', 'verify-career-profile-resume-api.mjs')])
 run('verify-db-security.mjs', [join('scripts', 'verify-db-security.mjs')])
 run('verify-voice-db.mjs', [join('scripts', 'verify-voice-db.mjs')])

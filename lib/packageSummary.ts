@@ -1,3 +1,4 @@
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import type { InterviewQuestionSet, MockInterviewRun, Package, PackageStatus } from '@/types/package'
 
 /**
@@ -16,6 +17,7 @@ import type { InterviewQuestionSet, MockInterviewRun, Package, PackageStatus } f
  */
 export interface PackageSummary {
   id: string
+  tier?: Package['tier']
   profile_id: string
   name: string | null
   target_job_title: string
@@ -56,7 +58,7 @@ export function isSummary(p: PackageListItem): p is PackageSummary {
 }
 
 export function cvReady(p: PackageListItem): boolean {
-  return isSummary(p) ? p.has_resume : p.optimized_content != null
+  return isCareerProfileResume(p) || (isSummary(p) ? p.has_resume : p.optimized_content != null)
 }
 
 export function letterCount(p: PackageListItem): number {

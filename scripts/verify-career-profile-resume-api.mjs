@@ -41,8 +41,8 @@ profile.user_id = 'owner'
 const created = (await (await POST()).json()).package
 assert.equal(created.name, 'My Career Profile Resume')
 assert.equal(created.tier, 'free')
-assert.equal(created.optimized_content, null)
-assert.equal(created.document_snapshot, null)
+assert.equal(rows[0].optimized_content, null)
+assert.equal(rows[0].document_snapshot, null)
 rows[0].name = 'My Master Engineering CV'
 rows[0].template_id = 'ats_classic'
 await Promise.all(Array.from({ length: 10 }, () => POST()))
@@ -57,7 +57,7 @@ assert.equal((await POST()).status, 500)
 failInsert = false
 rows = [{ id: 'other-package', user_id: 'other', tier: 'free' }]
 const own = (await (await POST()).json()).package
-assert.equal(own.user_id, 'owner')
+assert.equal(own.id, 'raw-owner')
 assert.equal(rows[0].id, 'other-package')
 // Call the actual PATCH route: raw content writes are rejected before derived
 // content, scoring or privileged writes; owner metadata still uses the existing path.

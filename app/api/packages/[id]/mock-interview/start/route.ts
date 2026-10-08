@@ -4,6 +4,8 @@ import { voiceAdmin, voiceEnabled, transcriptionReady } from '@/lib/voice/server
 import { VOICE_RUBRIC } from '@/lib/voice/types'
 import { isInterviewerId } from '@/lib/voice/interviewers'
 import { NextResponse } from 'next/server'
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
+import { careerProfileServiceContext } from '@/lib/careerProfileServiceContext'
 import { createClient } from '@/lib/supabase/server'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { buildMockInterviewStartPrompt } from '@/lib/ai/buildMockInterviewPrompt'
@@ -67,7 +69,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot',
+      'id, tier, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
@@ -77,8 +79,9 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
   if (!pkgRow) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+  const isRaw = isCareerProfileResume(pkgRow)
   const optimizedContent = pkgRow.optimized_content as OptimizedContent | null
-  if (!optimizedContent) {
+  if (!isRaw && !optimizedContent) {
     return NextResponse.json({ error: 'Build the optimized resume before starting a mock interview.' }, { status: 400 })
   }
 
@@ -98,23 +101,31 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
   const snapshot = pkgRow.document_snapshot
-  const resume: ResumeDocument =
+  const rawContext = isRaw ? careerProfileServiceContext(profile) : null
+  const target = rawContext?.target ?? {
+    target_job_title: pkgRow.target_job_title as string,
+    target_country: pkgRow.target_country as MockInterviewRun['target_country'],
+    target_company: pkgRow.target_company as string | null,
+    target_industry: pkgRow.target_industry as string | null,
+  }
+  const jobDescription = isRaw ? null : pkgRow.job_description as string | null
+  const resume: ResumeDocument = rawContext?.resume ?? (
     isRecord(snapshot) && isRecord(snapshot.header)
       ? (snapshot as unknown as ResumeDocument)
       : buildResumeDocument({
           profile,
-          optimizedContent,
+          optimizedContent: optimizedContent!,
           skillsOrder: (pkgRow.skills_order as string[] | null) ?? [],
           fieldVisibility: (pkgRow.field_visibility_snapshot as Record<string, boolean> | null) ?? null,
           // The application's title, so this document's headline matches the CV.
           targetJobTitle: (pkgRow.target_job_title as string | null) ?? null,
-        })
+        }))
 
   const allowed = allowedNumbersFor(profile, [
     ...resumeDocumentTexts(resume),
-    pkgRow.job_description as string | null,
-    pkgRow.target_job_title as string | null,
-    pkgRow.target_company as string | null,
+    jobDescription,
+    target.target_job_title,
+    target.target_company,
   ])
 
   const reservation = await reserveAiAction({
@@ -133,14 +144,10 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     const prompt = buildMockInterviewStartPrompt(
       profile,
       resume,
-      {
-        target_job_title: pkgRow.target_job_title as string,
-        target_country: pkgRow.target_country as MockInterviewRun['target_country'],
-        target_company: pkgRow.target_company as string | null,
-        target_industry: pkgRow.target_industry as string | null,
-      },
-      pkgRow.job_description as string | null,
+      target,
+      jobDescription,
       { mode, difficulty, questionCount },
+      isRaw ? 'career_profile' : 'optimized_resume',
     )
 
     let normalized
@@ -198,7 +205,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'Could not start the mock interview. Nothing was used — please try again.' }, { status: 502 })
     }
 
-    const fingerprint = createHash('sha256').update(JSON.stringify({ resume, job: pkgRow.job_description, title: pkgRow.target_job_title, company: pkgRow.target_company })).digest('hex')
+    const fingerprint = createHash('sha256').update(JSON.stringify({ resume, job: jobDescription, title: target.target_job_title, company: target.target_company })).digest('hex')
     const run: MockInterviewRun = {
       input_mode: voice ? 'voice' : 'text',
       ...(voice ? { interviewer_id: isInterviewerId(body.interviewerId) ? body.interviewerId : 'british-woman' } : {}),
@@ -206,9 +213,9 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       id: crypto.randomUUID(),
       generated_at: new Date().toISOString(),
       completed_at: null,
-      target_job_title: pkgRow.target_job_title as string,
-      target_company: pkgRow.target_company as string | null,
-      target_country: pkgRow.target_country as MockInterviewRun['target_country'],
+      target_job_title: target.target_job_title,
+      target_company: target.target_company,
+      target_country: target.target_country,
       mode,
       difficulty,
       question_count: questionCount,

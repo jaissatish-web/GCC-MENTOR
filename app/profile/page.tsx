@@ -1,4 +1,5 @@
 'use client'
+import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -2193,6 +2194,7 @@ function ProfileScreen() {
               </Button>
             </div>
           </div>
+          <CareerProfileResumeButton />
         </header>
 
         {/* The CV reader's "please check these" — first, while it is fresh. */}
@@ -2312,6 +2314,7 @@ function ProfileScreen() {
         onBack={backToOverview}
         action={saveButton}
       />
+      <div className="px-5 py-3"><CareerProfileResumeButton /></div>
       {parseNotesBlock}
       {loadErrorBlock}
 

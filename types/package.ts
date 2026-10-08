@@ -138,7 +138,7 @@ export interface InterviewQuestionSet {
   target_company: string | null
   target_country: TargetCountry | null
   question_count: number
-  source: 'optimized_resume'
+  source: 'optimized_resume' | 'career_profile'
   questions: InterviewQuestionAnswer[]
 }
 

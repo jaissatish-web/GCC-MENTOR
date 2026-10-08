@@ -15,6 +15,7 @@
  * and extraction (TASK-020) already treat their own inputs.
  */
 
+import { PROFILE_ONLY_SERVICE_RULE } from '@/lib/careerProfileServiceContext'
 import { GROUNDING_INSTRUCTION } from './grounding'
 import type { CareerProfileFull, ProfileWorkExperience, TargetCountry } from '@/types/careerProfile'
 import type { CoverLetterTone } from '@/types/package'
@@ -283,20 +284,23 @@ export function buildCoverLetterPrompt(
   tone: CoverLetterTone = 'professional',
   savedResume?: ResumeDocument | null,
   facts?: CoverLetterFacts,
+  source: 'optimized_resume' | 'career_profile' = 'optimized_resume',
 ): BuiltPrompt {
+  const isRaw = source === 'career_profile'
   const system = [
     COVER_LETTER_PERSONA,
     GROUNDING_INSTRUCTION,
     LETTER_FORMAT_NOTE,
-    NATURAL_VOICE,
+    isRaw ? NATURAL_VOICE.replace('Every body paragraph links one or two facts from the SAVED CV to something the JOB DESCRIPTION asks for, in the job description\'s own words.', 'Every body paragraph highlights one or two relevant facts from the saved Career Profile Resume. There is no job description to match.') : NATURAL_VOICE,
     TONE_INSTRUCTIONS[tone],
+    ...(isRaw ? [PROFILE_ONLY_SERVICE_RULE, 'Write a general professional introduction letter for opportunities in the candidate’s evidenced field, not an application to a specific advertised vacancy.'] : []),
   ].join('\n\n')
 
   const user = [
-    ...(savedResume ? ['## SAVED CV FOR THIS JOB — PRIMARY SOURCE\n' + renderSavedResume(savedResume), '## RULE\n' + SAVED_RESUME_RULE] : []),
+    ...(savedResume ? [(isRaw ? '## CAREER PROFILE RESUME — PRIMARY SOURCE\n' : '## SAVED CV FOR THIS JOB — PRIMARY SOURCE\n') + renderSavedResume(savedResume), '## RULE\n' + SAVED_RESUME_RULE] : []),
     renderCareerProfile(profile),
-    '## TARGET\n' + renderTarget(target),
-    '## JOB DESCRIPTION\n' + renderJobDescription(jobDescription),
+    isRaw ? '## PROFESSIONAL FIELD\n' + renderTarget(target) : '## TARGET\n' + renderTarget(target),
+    ...(!isRaw ? ['## JOB DESCRIPTION\n' + renderJobDescription(jobDescription)] : []),
     ...(facts && (facts.totalYears !== null || facts.gaps.length > 0) ? ['## FACTS YOU MUST KEEP TO\n' + renderFacts(facts)] : []),
     '## OUTPUT FORMAT\n' + renderOutputFormat(),
   ].join('\n\n')

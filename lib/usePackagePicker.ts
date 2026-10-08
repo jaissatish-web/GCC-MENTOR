@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PackageListPage, PackageSummary } from '@/lib/packageSummary'
+import { fetchCareerProfileResumeSummary } from '@/lib/useCareerProfileResume'
 import type { Package } from '@/types/package'
 
 /**
@@ -37,16 +38,17 @@ export function usePackagePicker(opts: { requestedId: string | null; onlyWithRes
     setListError(null)
     const qs = new URLSearchParams({ view: 'summary', limit: '100', counts: '1' })
     if (onlyWithResume) qs.set('resume', '1')
-    fetch(`/api/packages?${qs.toString()}`, { cache: 'no-store' })
+    Promise.all([fetch(`/api/packages?${qs.toString()}`, { cache: 'no-store' })
       .then((r) => {
         if (!r.ok) throw new Error(String(r.status))
         return r.json() as Promise<PackageListPage>
-      })
-      .then((data) => {
+      }), fetchCareerProfileResumeSummary().then((resume) => ({ resume, error: false })).catch(() => ({ resume: null, error: true }))])
+      .then(([data, raw]) => {
         if (cancelled) return
-        const rows = data.packages ?? []
+        if (raw.error && (!(data.packages?.length) || (requestedId && !data.packages.some((p) => p.id === requestedId)))) throw new Error('Profile resume unavailable')
+        const rows = [...(raw.resume ? [raw.resume] : []), ...(data.packages ?? []).filter((p) => p.id !== raw.resume?.id)]
         setList(rows)
-        setTotal(typeof data.total === 'number' ? data.total : rows.length)
+        setTotal(typeof data.total === 'number' ? data.total + Number(Boolean(raw.resume)) : rows.length)
         setSelectedId((current) => current ?? rows.find((p) => p.id === requestedId)?.id ?? rows[0]?.id ?? null)
       })
       .catch(() => {

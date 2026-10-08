@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { insertPackageForUser } from '@/lib/packages/serverWrites'
 import { CAREER_RESUME_NAME } from '@/lib/careerProfileResume'
+import { CAREER_RESUME_SUMMARY_SELECT, careerProfileResumeSummary } from '@/lib/careerProfileResumeSummary'
+import type { Package } from '@/types/package'
 import { getTemplate } from '@/lib/templates'
 
 /** Idempotent creation. The existing partial unique index arbitrates concurrent clicks. */
@@ -10,11 +12,15 @@ export async function POST(): Promise<NextResponse> {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
-    const find = () => supabase.from('packages').select('id, name, template_id, tier')
+    const respond = (row: unknown) => NextResponse.json({
+      package: { id: (row as Package).id, name: (row as Package).name, template_id: (row as Package).template_id, tier: 'free' },
+      summary: careerProfileResumeSummary(row as Package),
+    })
+    const find = () => supabase.from('packages').select(CAREER_RESUME_SUMMARY_SELECT)
       .eq('user_id', user.id).eq('tier', 'free').maybeSingle()
     const existing = await find()
     if (existing.error) throw new Error('Resume lookup failed')
-    if (existing.data) return NextResponse.json({ package: existing.data })
+    if (existing.data) return respond(existing.data)
 
     // No profile ID or user ID is accepted from the client.
     const { data: profile, error } = await supabase.from('career_profiles').select('id')
@@ -32,14 +38,14 @@ export async function POST(): Promise<NextResponse> {
         optimized_content: null, document_snapshot: null, skills_order: [],
         field_visibility_snapshot: {}, is_paid: false, generation_count: 0,
       },
-      select: 'id, name, template_id, tier',
+      select: CAREER_RESUME_SUMMARY_SELECT,
     })
-    if (result.row) return NextResponse.json({ package: result.row })
+    if (result.row) return respond(result.row)
     // A competing request may have won the unique-index race. Read, never upsert:
     // upsert could reset a user's saved name, template or styles.
     const winner = await find()
     if (winner.error || !winner.data) throw new Error('Resume creation failed')
-    return NextResponse.json({ package: winner.data })
+    return respond(winner.data)
   } catch {
     return NextResponse.json({ error: 'Could not open your Career Profile Resume. Please try again.' }, { status: 500 })
   }

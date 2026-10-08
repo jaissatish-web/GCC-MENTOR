@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
+import { careerProfileServiceContext } from '@/lib/careerProfileServiceContext'
 import { createClient } from '@/lib/supabase/server'
 import { generate } from '@/lib/ai/provider'
 import { buildCoverLetterPrompt } from '@/lib/ai/buildCoverLetterPrompt'
@@ -136,7 +138,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, profile_id, target_job_title, target_industry, target_country, target_company, job_description, optimized_content, document_snapshot, skills_order, field_visibility_snapshot, match_report',
+      'id, tier, profile_id, target_job_title, target_industry, target_country, target_company, job_description, optimized_content, document_snapshot, skills_order, field_visibility_snapshot, match_report',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
@@ -168,9 +170,11 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
   }
 
   // The saved CV for THIS job, exactly as the user sees and downloads it.
+  const isRaw = isCareerProfileResume(pkgRow)
   const optimizedContent = pkgRow.optimized_content as OptimizedContent | null
   const snapshot = pkgRow.document_snapshot
-  const savedResume: ResumeDocument | null = optimizedContent
+  const rawContext = isRaw ? careerProfileServiceContext(profile) : null
+  const savedResume: ResumeDocument | null = rawContext?.resume ?? (optimizedContent
     ? isObject(snapshot) && isObject(snapshot.header)
       ? (snapshot as unknown as ResumeDocument)
       : buildResumeDocument({
@@ -181,9 +185,9 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
           // The application's title, so this document's headline matches the CV.
           targetJobTitle: (pkgRow.target_job_title as string | null) ?? null,
         })
-    : null
+    : null)
 
-  const target: CoverLetterTarget = {
+  const target: CoverLetterTarget = rawContext?.target ?? {
     target_job_title: pkgRow.target_job_title as string,
     target_industry: pkgRow.target_industry as string | null,
     target_country: pkgRow.target_country as CoverLetterTarget['target_country'],
@@ -205,13 +209,13 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
   try {
     const claimCtx = {
       evidence: profileEvidenceText(profile),
-      gaps: gapTermsFromMatchReport(pkgRow.match_report, profile),
+      gaps: gapTermsFromMatchReport(isRaw ? null : pkgRow.match_report, profile),
       totalYears: totalExperienceYears(profile),
     }
     const { system, user: userPrompt } = buildCoverLetterPrompt(
       profile,
       target,
-      pkgRow.job_description as string | null,
+      isRaw ? null : pkgRow.job_description as string | null,
       tone,
       savedResume,
       {
@@ -220,8 +224,9 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
         // saved CV (2026-10-02: "intercompany transactions" was claimed). The
         // sentence check keeps the analysis gaps only: on a thin profile the wider
         // list cut ordinary accounting sentences and gutted the letter.
-        gaps: withUnshownRequirements(claimCtx.gaps, pkgRow.match_report, [claimCtx.evidence, savedResumeText(savedResume)].join('\n')).filter((g) => g.kind !== 'soft_skill').map((g) => g.term),
+        gaps: withUnshownRequirements(claimCtx.gaps, isRaw ? null : pkgRow.match_report, [claimCtx.evidence, savedResumeText(savedResume)].join('\n')).filter((g) => g.kind !== 'soft_skill').map((g) => g.term),
       },
+      isRaw ? 'career_profile' : 'optimized_resume',
     )
     const giveUpAt = startedAt + DEADLINE_MS
     const groundedProfile = profile
@@ -345,8 +350,8 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
     const letter: CoverLetter = {
       id: crypto.randomUUID(),
       generated_at: new Date().toISOString(),
-      target_job_title: pkgRow.target_job_title as string,
-      target_company: pkgRow.target_company as string | null,
+      target_job_title: target.target_job_title,
+      target_company: target.target_company,
       tone,
       greeting: parsedLetter.greeting,
       opening_paragraph: parsedLetter.opening_paragraph,
@@ -362,7 +367,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
         packageId,
         userId: user.id,
         letter,
-        meta: { tone, source: savedResume ? 'saved_cv' : 'career_profile' },
+        meta: { tone, source: isRaw ? 'career_profile' : savedResume ? 'saved_cv' : 'career_profile' },
       })
     } catch (e) {
       console.error('cover-letter: save FAILED user=' + user.id + ' pkg=' + packageId, e instanceof Error ? e.message : String(e))
