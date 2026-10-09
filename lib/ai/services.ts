@@ -39,6 +39,8 @@ export const AI_SERVICES = {
   job_match_explanation: { label: 'Job Match Explanation', built: true, description: 'The semantic half of Job Match — why each category scored as it did.' },
   cover_letter: { label: 'Cover Letter', built: true, description: 'Writes a cover letter for a resume package.' },
   qa_generation: { label: 'Interview Q&A', built: true, description: 'Generates role-specific interview questions and answers from an optimized resume package.' },
+  linkedin_optimization: { label: 'LinkedIn Optimization', built: true, description: 'Prepares discipline-specific LinkedIn content from confirmed Career Profile facts.' },
+  linkedin_review: { label: 'LinkedIn · Fact-check Review', built: true, description: 'Checks generated LinkedIn claims against the confirmed profile.' },
   mock_interview: { label: 'Mock Interview', built: true, description: 'Runs text mock interviews and reports from an optimized resume package.' },
 } as const
 
@@ -60,6 +62,8 @@ export function isServiceKey(v: unknown): v is ServiceKey {
  * less often.
  */
 export const TOKEN_BUDGET: Record<ServiceKey, number> = {
+  linkedin_optimization: 14000,
+  linkedin_review: 3000,
   extraction: 8000,
   optimization: 8000,
   ats_scan: 4000,

@@ -3097,3 +3097,26 @@ immediately to Career Profile; downloads wait for an active upload to finish.
 Content editing stays in the existing editor (Career Profile for raw resumes),
 with existing validated saves and optimized snapshots preserved. No API, schema,
 AI, credit or export-renderer changes.
+
+## 2026-10-09 — Personalized LinkedIn preparation
+
+Founder approved a complete LinkedIn Optimization service in the existing page:
+Career Profile-only, optional LinkedIn PDF/DOCX comparison, or pasted profile
+text. Imported details require confirmation and explicit decisions for identity,
+role and date differences. Saved Career Profile supplies career facts; imports
+never overwrite it. Target roles/JDs and extra instructions supply direction,
+not evidence of qualifications or achievements.
+
+Generation uses the common AI task runner with a discipline/seniority-specific
+advisor persona, deterministic grounding and a separate semantic fact-check.
+There are no invented advisor credentials, client counts, hiring uplift claims,
+or LinkedIn account connections. Three headline choices, About, selected role
+descriptions, saved skills and tailored advice form one private editable draft.
+Users copy the content themselves and confirm checklist completion. The preview
+is an illustrative profile view, not a live LinkedIn account.
+
+Migration 067 adds one owner-readable LinkedIn draft per user and an independent
+admin-controlled abuse ceiling (5 successful generations/day by default). Writes
+are validated, ownership-scoped service routes with optimistic revisions. Resume
+packages, Career Profile saves, payment/credits and existing AI prompts remain
+unchanged. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).

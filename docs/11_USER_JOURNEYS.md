@@ -291,3 +291,13 @@ DOCX remains unavailable because preview/layout parity has not been established.
 ## Recorded interview journey (test branch)
 
 Saved resume → existing setup → animated interviewer and visible question → record/pause/listen → submit → next question → explicit review → report and comparable practice history. See [complete journey](RECORDED_VOICE_INTERVIEW.md).
+
+
+## Prepare a LinkedIn profile (2026-10-09)
+
+Career Profile → LinkedIn Optimization → optional existing-profile import and
+conflict review → goals/selected roles/privacy → generation and fact-check →
+editable content and illustrative profile preview → copy into LinkedIn → mark
+updated and save the checklist. A first profile starts with Career Profile only.
+Profile corrections use the existing Profile editor. Saved output remains until
+a new generation succeeds. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).

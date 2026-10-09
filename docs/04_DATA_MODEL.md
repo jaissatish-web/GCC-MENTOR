@@ -292,3 +292,13 @@ direct upload that never passes through the route. Owner-folder policies unchang
 ## Recorded voice interview extension (unreleased)
 
 Migration 057 adds owner-readable, service-written voice sessions and per-question answers, frozen profile/run snapshots, resumable review leases, private audio storage and a delayed cleanup queue. Existing package mock run JSON remains the report/history projection. See [details](RECORDED_VOICE_INTERVIEW.md).
+
+
+## LinkedIn draft storage (migration 067)
+
+`linkedin_drafts` has one auth-user-keyed private row per user: revision, imported
+comparison, setup, generated output, selected headline, completed/skipped task
+arrays, profile fingerprint and update timestamp. Authenticated access is
+owner-only SELECT; all mutations use validated authenticated server routes.
+Deleting the auth user cascades to this artifact. No Career Profile/resume
+package columns are changed. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).

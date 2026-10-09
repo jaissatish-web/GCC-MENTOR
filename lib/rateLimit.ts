@@ -57,6 +57,7 @@ export const LIMIT_ACTION_PROMO_REDEMPTION = 'promo_redemption'
  * /admin/services overrides any of them without a deploy, and env vars override
  * the code default.
  */
+export const LIMIT_ACTION_LINKEDIN = 'linkedin_optimization'
 export const LIMIT_ACTION_JOB_DESCRIPTION = 'job_description'
 export const LIMIT_ACTION_COVER_LETTER = 'cover_letter'
 export const LIMIT_ACTION_INTERVIEW_QA = 'interview_qa'
@@ -73,6 +74,7 @@ const DEFAULT_PROMO_REDEMPTIONS_PER_DAY = 10
 
 /** action -> [env var, code default]. Actions not listed use the extraction default. */
 const DAILY_DEFAULTS: Record<string, [string, number]> = {
+  [LIMIT_ACTION_LINKEDIN]: ['RATE_LIMIT_LINKEDIN_PER_DAY', 5],
   [LIMIT_ACTION_JOB_DESCRIPTION]: ['RATE_LIMIT_JOB_DESCRIPTIONS_PER_DAY', 30],
   [LIMIT_ACTION_COVER_LETTER]: ['RATE_LIMIT_COVER_LETTERS_PER_DAY', 20],
   [LIMIT_ACTION_INTERVIEW_QA]: ['RATE_LIMIT_INTERVIEW_QA_PER_DAY', 10],

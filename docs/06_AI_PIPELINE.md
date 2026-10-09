@@ -618,3 +618,14 @@ worse than the narrow gap — and the counters now show how often it happens.
 ## Deferred recorded interview review (unreleased)
 
 Voice capture/upload calls do not call AI. Explicit review queues sequential, leased transcription and grounded feedback units. STT and feedback are separately persisted and quota guarded; final reports use existing atomic package writes. Whisper is used only for saved audio transcription. See [setup and limitations](RECORDED_VOICE_INTERVIEW.md).
+
+
+## LinkedIn generation and review (2026-10-09)
+
+`linkedin_optimization` generates a candidate-specific package via `runAiTask`
+with the common grounding instruction and new shape/prose checks. The separate
+`linkedin_review` task audits it semantically before saving. Both reuse provider
+configuration/defaults and admin prompt controls. Imports reuse extraction only,
+without profile writes. Generation is reserved under `linkedin_optimization`
+and successful saves count usage; failures release the reservation. Existing
+AI services/prompts and commercial allowances are unchanged. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).

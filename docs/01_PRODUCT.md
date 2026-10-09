@@ -208,3 +208,12 @@ The product is not finished until all six are true. Three are.
 Conditions 1 and 2 are the same blocker: **choosing a payment provider that works
 from Saudi Arabia.** That is a founder decision, and it is currently the item
 standing between this product and revenue.
+
+
+## LinkedIn Optimization (2026-10-09)
+
+The existing LinkedIn page now prepares personalized headlines, About, experience
+descriptions, saved skills and advice from Career Profile. Users review optional
+profile imports, define goals, preview the content and apply it themselves on
+LinkedIn. A private saved draft and checklist track their updates; there is no
+account connection or promised hiring uplift. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).

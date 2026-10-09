@@ -164,3 +164,8 @@ and EXECUTE grants; test owner isolation and anonymous denial. The dedicated
 `verify-dashboard-overview.mjs` check tests whole-account counts, legacy Q&A, raw
 profile resumes and drop/reapply reversal in disposable Postgres. To roll back,
 revert the UI/API first, then `DROP FUNCTION public.dashboard_overview();`.
+
+
+067 adds one private LinkedIn draft per user and its independent service guard.
+Authenticated access is owner-only SELECT; validated server routes own mutations.
+No Career Profile or resume package changes. See docs/19_LINKEDIN_OPTIMIZATION.md.

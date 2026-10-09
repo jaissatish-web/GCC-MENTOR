@@ -31,6 +31,7 @@ Each part of the product is one file. Go straight to the one you need.
 | [`05_SECURITY.md`](05_SECURITY.md) | Auth, row-level security, database privileges, PII rules, what must be verified and how |
 | [`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) | Providers, per-feature model config, prompt building, the grounding validator, cost control |
 | [`07_CAREER_PROFILE.md`](07_CAREER_PROFILE.md) | The profile data layer, resume extraction, the editor, field visibility |
+| [`19_LINKEDIN_OPTIMIZATION.md`](19_LINKEDIN_OPTIMIZATION.md) | Personalized LinkedIn content, import review, draft storage and profile preview |
 | [`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) | The 50 templates, styling, the frozen delivered document, PDF rendering |
 | [`17_OPTIMIZER_ENGINE.md`](17_OPTIMIZER_ENGINE.md) | **Resume optimization end to end** — analysis, evidence, plan, section generation, quality gate, review, the before/after match score |
 | [`09_SCORING.md`](09_SCORING.md) | GCC Readiness and Job Match — two different scores, deliberately |

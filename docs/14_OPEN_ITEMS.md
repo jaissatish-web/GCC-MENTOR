@@ -735,3 +735,21 @@ Recorded voice update (2026-09-26): founder authorized the existing database; mi
 - DOCX is still unavailable for raw resumes because template layout parity is unresolved.
 - Raw resume naming is visible at phone widths; optimized workspace naming keeps
   its existing desktop presentation. Actual device interaction remains unverified.
+
+## 2026-10-09 — LinkedIn release verification and existing PDF diagnostic
+
+The LinkedIn service has deterministic/API/real-SQL tests plus browser fixture
+coverage at 320/390/768/1440 widths. Signed-in production generation and provider
+quality still require an available authenticated user session; fixture responses
+must not be reported as live AI results.
+
+During this release, the existing all-50-template short PDF check built all 100
+photo/no-photo exports, but 86 reported unrecognised headings. The identical test
+against untouched main `16c90fea7af055241010617072eb7f48e5b1943b` produced the same
+86 failures. Text extraction splits letter-spaced headings, e.g. `WORK EXPERIEN C E`
+and `EDUC ATION`, so the strict heading matcher misses them. This is an existing
+PDF/ATS diagnostic limitation in this Chromium environment, not a LinkedIn
+regression. No resume renderer, template, font or ATS checker changed in this
+release. A separate export/ATS investigation is needed; do not claim this PDF
+check passed. Tests used the real PDF renderer with an isolated photo request
+fixture (loopback servers are unavailable in the workspace).
