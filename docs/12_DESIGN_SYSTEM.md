@@ -672,7 +672,7 @@ not certification of physical iPhone/Safari behavior or live authenticated flows
 The per-resume hub shows numbered history cards and a shared interactive progress
 chart; detailed reports live behind attempt links. Dashboard uses the same chart
 and coaching cards. Five saved score areas can be selected, and every point can
-be explored with a touch button. Green lines connect comparable attempts only;
+be explored with a touch button. Coloured lines connect comparable attempts only;
 grey points retain other settings without implying improvement.
 
 A report opens eight icon cards. Each reveals one focused category with a back
@@ -681,3 +681,15 @@ transcript, feedback, stronger answer and delivery notes. Coaching actions expan
 in place. No synthetic scores, completion rewards or hiring predictions. Reuse
 `ui-system.css` typography, 12px phone gutters, one padded content card, 44px
 minimum controls, semantic headings, focused detail headings and SVG text labels.
+
+## Colourful practice journey (2026-10-09)
+
+The shared progress card has a full-width dark teal gradient header, gold score
+ring and truthful comparison tiles. Four coloured skill buttons select the chart
+metric, with an area fill and brief line entrance. Milestones show the first
+matching attempt, latest review and next practice; they do not invent rewards or
+completion percentages. Saved coaching expands under “Your next moves”.
+The practice CTA opens existing setup without starting generation. Dashboard,
+mock interview and optimized resume overview reuse the same component/data.
+Hover/entrance effects respect reduced motion. All typography remains controlled
+by ui-system.css. No backend, model, scoring or database changes.

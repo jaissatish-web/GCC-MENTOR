@@ -117,6 +117,7 @@ function MockInterviewScreen() {
   const [busy, setBusy] = useState<'start' | 'answer' | 'finish' | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
 
+  const practiceSetup = useRef<HTMLDetailsElement>(null)
   const requestedRunId = searchParams.get('run')
   const run = requestedRunId ? detail?.mock_interview_runs?.find((item) => item.id === requestedRunId) ?? null : latestRun(detail)
   const progress = interviewProgress(detail?.mock_interview_runs ?? [], run?.status === 'completed' ? run.id : undefined)
@@ -324,7 +325,7 @@ function MockInterviewScreen() {
             </label>
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
 
-            <details className="group" open={(detail?.mock_interview_runs?.length ?? 0) === 0 || Boolean(opError || detailError || busy)}>
+            <details ref={practiceSetup} className="group" open={(detail?.mock_interview_runs?.length ?? 0) === 0 || Boolean(opError || detailError || busy)}>
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-teal [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Mic size={18} aria-hidden="true" />Start a new practice</span><ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary>
               <div className="mt-4 flex flex-col gap-5">
             <label className="flex flex-col gap-1.5">
@@ -403,7 +404,7 @@ function MockInterviewScreen() {
             </Link>
           </li>)}
         </ul>
-        {progress && <InterviewProgress packageId={selectedId} progress={progress} />}
+        {progress && <InterviewProgress packageId={selectedId} progress={progress} onPractice={() => { if (practiceSetup.current) { practiceSetup.current.open = true; practiceSetup.current.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' }); practiceSetup.current.querySelector('select')?.focus({ preventScroll: true }) } }} />}
       </section> : null}
 
       {run && run.status !== 'completed' && run.input_mode !== 'voice' ? (

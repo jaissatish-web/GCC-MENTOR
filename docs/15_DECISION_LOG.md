@@ -1,6 +1,16 @@
 # DECISION LOG — what was decided, when, and why
 
 
+## 2026-10-09 — Colourful interactive practice progress card
+
+Founder requested a more engaging shared progress visual. Use a dark teal score
+ring, colourful skill cards that control the chart, a gradient score area,
+chronological milestone buttons and expandable next-action cards. Reuse it on
+the dashboard, mock-interview hub and optimized resume overview. Keep saved
+scores, strict comparison identity, coaching wording and universal typography.
+Use brief entrance/hover transitions with reduced-motion support; no fabricated
+rewards, score increases or completion percentages. No backend or schema changes.
+
 ## 2026-10-09 — Visual interview practice hub and drill-down cards
 
 Founder requested a graphical practice journey, compact improved/next-focus

@@ -313,6 +313,6 @@ Existing setup is expandable for returning users and open for first practice.
 
 Dashboard reuses the interactive five-area score chart, first/previous changes,
 improved areas, lowest current areas and expandable saved coaching actions.
-Only matching frozen-resume/settings/rubric scores form a green trend. Different
+Only matching frozen-resume/settings/rubric scores form a coloured trend. Different
 settings appear as grey points with separate-baseline labels. Actual decreases
 remain visible. No content rewriting, new model calls or database changes.

@@ -15,9 +15,9 @@ const require = createRequire(root + '/package.json')
 const fixture = spawnSync(process.execPath, ['-r', 'sucrase/register', '-e', `require('./scripts/resolve-paths'); const {attempt}=require('./scripts/verify-interview-progress'); const {interviewProgress}=require('./lib/interviewProgress'); const {makeTemplateFixture}=require('./scripts/fixtures/templateFixture'); const runs=Array.from({length:12},(_,i)=>({...attempt(i+1,i===0?50:i===1?65:60),opening_note:'Practice interview',target_job_title:'Engineer',target_company:null,target_country:'uae',current_index:5,questions:Array.from({length:5},(_,j)=>({id:'q-'+j,question:'Explain a technical example.',focus:'Technical',answer:'Saved answer',feedback:'Saved feedback',score:7}))}));runs.forEach(r=>{r.final_report.executive_summary='Use specific evidence and connect your experience to the question. '.repeat(8);r.final_report.priority_focus='Answer the question with a structured, evidence-based response. '.repeat(8)}); console.log(JSON.stringify({runs,profile:makeTemplateFixture().profile,progress:interviewProgress(runs)}));`], { encoding: 'utf8' })
 assert.equal(fixture.status, 0, fixture.stderr)
 const { runs, profile, progress } = JSON.parse(fixture.stdout.trim().split('\n').at(-1))
-const pkg = { id: 'resume-a', name: 'Engineering CV', target_job_title: 'Engineer', target_country: 'uae', tier: null, has_resume: true, is_paid: true, optimized_content: { summary: 'Saved CV' }, status: 'saved', mock_interview_runs: runs, cover_letters: [], interview_questions: null, skills_order: [], field_visibility_snapshot: {} }
+const pkg = { id: 'resume-a', name: 'Engineering CV', target_job_title: 'Engineer', target_country: 'uae', tier: null, has_resume: true, is_paid: true, optimized_content: { summary: 'Saved CV' }, status: 'saved', optimization_level: 'high', mock_interview_runs: runs, cover_letters: [], interview_questions: null, skills_order: [], field_visibility_snapshot: {} }
 const otherPkg = { ...pkg, id: 'resume-b', name: 'Other CV', target_job_title: 'Project Engineer', mock_interview_runs: [runs[0]] }
-writeFileSync(dir + '/entry.mjs', `import React from 'react';import {createRoot} from 'react-dom/client';import Mock from ${JSON.stringify(root + '/app/mock-interview/page.tsx')};import Dashboard from ${JSON.stringify(root + '/app/dashboard/page.tsx')};import {Interviewer} from ${JSON.stringify(root + '/components/mock-interview/Interviewer.tsx')};const q=new URLSearchParams(location.search);const screen=q.get('screen');createRoot(document.getElementById('root')).render(screen==='host'?React.createElement('div',{style:{height:'70vh'}},React.createElement(Interviewer,{interviewerId:q.get('host'),recording:false})):screen==='dashboard'?React.createElement(Dashboard):React.createElement(Mock));`)
+writeFileSync(dir + '/entry.mjs', `import React from 'react';import {createRoot} from 'react-dom/client';import Mock from ${JSON.stringify(root + '/app/mock-interview/page.tsx')};import Dashboard from ${JSON.stringify(root + '/app/dashboard/page.tsx')};import {ResultsOverview} from ${JSON.stringify(root + '/components/package/ResultsOverview.tsx')};const fixturePkg=${JSON.stringify(pkg)};import {Interviewer} from ${JSON.stringify(root + '/components/mock-interview/Interviewer.tsx')};const q=new URLSearchParams(location.search);const screen=q.get('screen');createRoot(document.getElementById('root')).render(screen==='workspace'?React.createElement(ResultsOverview,{pkg:fixturePkg,document:null,onScored:()=>{}}):screen==='host'?React.createElement('div',{style:{height:'70vh'}},React.createElement(Interviewer,{interviewerId:q.get('host'),recording:false})):screen==='dashboard'?React.createElement(Dashboard):React.createElement(Mock));`)
 writeFileSync(dir + '/navigation.js', `export function useSearchParams(){return new URLSearchParams(location.search)}export function usePathname(){return location.pathname}export function useRouter(){return{replace:u=>location.assign(u),push:u=>location.assign(u),refresh:()=>location.reload()}}`)
 writeFileSync(dir + '/link.js', `import React from 'react';export default function Link({prefetch,replace,scroll,...p}){return React.createElement('a',p)}`)
 writeFileSync(dir + '/image.js', `import React from 'react';export default function Image({fill,priority,sizes,...p}){return React.createElement('img',{...p,style:fill?{position:'absolute',height:'100%',width:'100%',inset:0,...p.style}:p.style})}`)
@@ -62,7 +62,10 @@ try {
     assert.equal(await page.$$eval('[aria-label="Saved mock interviews"] > ul > li', els => els.length), 12)
     assert.equal(await page.$$eval('#interview-report', els => els.length), 0, 'Hub contains no individual report')
     assert.equal(await page.$$eval('[aria-label="Explore interview scores"] button', els => els.length), 12)
-    await page.select('[aria-label="Compare score area"]', 'technical_score')
+    await page.click('[aria-label="Explore Technical knowledge"]')
+    assert.equal(await page.$eval('[aria-label="Compare score area"]',el=>el.value),'technical_score')
+    await page.$$eval('button',els=>els.find(el=>el.textContent.includes('Choose my next practice')).click())
+    assert.ok(await page.$eval('details.group',el=>el.open))
     await page.click('[aria-label="Explore interview scores"] button')
     assert.ok(await page.$eval('[aria-label="Interview progress report"] [role="status"]', el=>el.textContent.includes('Mock interview 1')))
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
@@ -102,6 +105,12 @@ try {
     await page.waitForSelector('[aria-label="Interview progress report"]')
     assert.ok(await page.$eval('[aria-label="Your interview practice"]', el=>el.textContent.includes('12 saved interviews')))
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1))
+    await page.goto('https://interview.test/?screen=workspace',{waitUntil:'networkidle0'})
+    await page.waitForSelector('[aria-label="Interview progress report"]')
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1))
+    await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
+    assert.equal(await page.$eval('.practice-chart-line',el=>getComputedStyle(el).animationName),'none')
+    await page.emulateMediaFeatures([])
     for (const host of ['british-woman', 'british-man', 'south-asian-woman', 'south-asian-man', 'arab-woman', 'arab-man']) {
       await page.goto(`https://interview.test/?screen=host&host=${host}`, { waitUntil: 'networkidle0' })
       const image = await page.$eval('img', el => ({ fit: getComputedStyle(el).objectFit, position: getComputedStyle(el).objectPosition, animation: getComputedStyle(el).animationName, transform: getComputedStyle(el).transform, loaded: el.complete && el.naturalWidth > 0, src: el.getAttribute('src') }))
@@ -119,5 +128,5 @@ try {
   assert.equal(await page.$$eval('#interview-report', els => els.length), 0, 'Missing run must not open a different report')
   assert.deepEqual(writes, [], "Browsing results never starts AI review")
   assert.deepEqual(errors, [])
-  console.log('PASS: card hub, 12-point interactive charts, eight result categories, question explorer and answer tabs, original saved text, dashboard, six widths, six uncropped hosts, no AI writes/overflow/runtime errors')
+  console.log('PASS: card hub, 12-point interactive charts, eight result categories, question explorer and answer tabs, original saved text, dashboard and resume overview, skill-to-chart controls, next-practice setup, reduced motion, six widths, six uncropped hosts, no AI writes/overflow/runtime errors')
 } finally { await browser.close(); rmSync(dir, { recursive: true, force: true }) }

@@ -408,3 +408,15 @@
     font-size: var(--ui-caption-size);
   }
 }
+
+/* Shared interview journey: decorative motion only; typography stays in ui-system.css. */
+.practice-skill { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+@media (hover: hover) { .practice-skill:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 90, 85, .08); } }
+.practice-skill-bar, .practice-score-ring { transition: width 450ms ease, stroke-dasharray 450ms ease; }
+.practice-chart-line { stroke-dasharray: 1; animation: practice-chart-enter 650ms ease-out both; }
+@keyframes practice-chart-enter { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .practice-skill, .practice-skill-bar, .practice-score-ring { transition: none; }
+  .practice-skill:hover { transform: none; }
+  .practice-chart-line { animation: none; }
+}

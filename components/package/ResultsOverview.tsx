@@ -4,6 +4,8 @@ import { RESCORE_NOTES } from '@/lib/processingNotes'
 import { AtsFileCheck } from '@/components/package/AtsFileCheck'
 
 import Link from 'next/link'
+import { InterviewProgress } from '@/components/mock-interview/InterviewProgress'
+import { interviewProgress } from '@/lib/interviewProgress'
 import { FileText, Mail, MessagesSquare, Mic, PenLine, Target, TrendingUp, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { buttonVariants } from '@/components/ui/Button'
@@ -83,6 +85,7 @@ export function ResultsOverview({
 
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
+  const practiceProgress = interviewProgress(pkg.mock_interview_runs ?? [])
   const mockReady = Boolean(pkg.mock_interview_runs?.some((r) => r.status === 'completed'))
 
   // HOW OFTEN EACH SERVICE WAS USED FOR THIS CV (founder request 2026-09-17).
@@ -285,6 +288,7 @@ export function ResultsOverview({
           accent="text-sec-experience"
         />
       </div>
+      {practiceProgress && <InterviewProgress progress={practiceProgress} packageId={pkg.id} compact />}
     </section>
   )
 }
