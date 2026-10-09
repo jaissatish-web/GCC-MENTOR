@@ -398,7 +398,7 @@
   font-size: 0.75rem;
 }
 /* A paragraph at the old 14px body size is reading text, not a badge. */
-.app-type main :is(p.text-sm, p.text-\[14px\]):not([data-document-preview], [data-document-preview] *) {
+.app-type main :is(p.text-sm, p.text-\[14px\]):not([data-document-preview], [data-document-preview] *, .linkedin-workspace p) {
   font-size: 1rem;
   line-height: 1.5625;
 }
@@ -482,4 +482,75 @@ header nav :is(a, button) {
 @media (max-width: 639px) {
   /* Raised surfaces are quieter on phones; document styling stays independent. */
   .ui-surface { box-shadow: 0 1px 3px rgba(20, 24, 28, 0.04); }
+}
+
+
+/* LinkedIn is a content workspace; the profile example has its own compact,
+   familiar reading scale, separate from SaaS marketing and resume documents. */
+.linkedin-workspace .linkedin-profile-preview {
+  color: #191919;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.linkedin-workspace .linkedin-profile-preview :is(h2, h3, p, span) {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.linkedin-workspace .linkedin-profile-preview .linkedin-profile-card {
+  padding: 16px;
+  border: 1px solid #e0dfdc;
+  border-radius: 8px;
+  background: white;
+}
+.linkedin-workspace .linkedin-profile-preview p {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.linkedin-workspace .linkedin-profile-preview h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: normal;
+}
+.linkedin-workspace .linkedin-profile-preview h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.linkedin-workspace .linkedin-profile-preview .linkedin-profile-name {
+  font-size: 1.25rem;
+}
+.linkedin-workspace .linkedin-profile-preview .linkedin-profile-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 14px;
+  border: 1px solid #0a66c2;
+  border-radius: 24px;
+  color: #0a66c2;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.linkedin-workspace .linkedin-profile-preview .linkedin-profile-action-primary {
+  background: #0a66c2;
+  color: white;
+}
+@media (max-width: 639px) {
+  .linkedin-workspace { gap: 16px; }
+  .linkedin-workspace > header h1 { font-size: 1.375rem; font-weight: 600; }
+  .linkedin-workspace h2 { font-size: 1rem; font-weight: 600; line-height: 1.4; }
+  .linkedin-workspace .type-marketing-title { font-size: 1.25rem; }
+  .linkedin-workspace p,
+  .linkedin-workspace blockquote { font-size: 0.9375rem; font-weight: 400; line-height: 1.5; }
+  .linkedin-workspace .linkedin-profile-preview {
+    width: calc(100% + 24px);
+    margin-inline: -12px;
+    background: #f3f2ef;
+  }
+  .linkedin-workspace .linkedin-profile-preview .linkedin-profile-card {
+    border-inline: 0;
+    border-radius: 0;
+  }
+  .linkedin-workspace .linkedin-profile-preview .linkedin-preview-notice {
+    font-size: 0.75rem;
+  }
 }

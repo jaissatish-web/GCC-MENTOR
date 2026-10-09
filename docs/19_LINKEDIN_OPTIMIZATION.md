@@ -98,3 +98,14 @@ profile PDF export instructions. No fabricated hiring-improvement statistics or
 third-party testimonials are displayed. The PDF export option is unavailable in
 LinkedIn's mobile app and may not be available to every member; mobile users can
 paste profile text or use Career Profile.
+
+
+## Mobile presentation (2026-10-09)
+
+LinkedIn setup/results use a quieter phone scale (22px page title, 16px section
+headings, 15px reading text; editable fields stay 16px). The illustrative preview
+has an independent profile scale: 20px name, 18px section titles and 14px regular
+body/headline text. On phones, preview cards reach the screen edges, with an
+overlapping avatar, compact banner and section rows for skills. Blue introduction
+controls are decorative examples, not LinkedIn actions or account integration.
+No connection counts, endorsements or other unsupported facts are invented.

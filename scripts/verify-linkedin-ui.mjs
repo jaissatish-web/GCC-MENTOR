@@ -9,7 +9,6 @@ import {
   readFileSync,
   writeFileSync,
   rmSync,
-  readdirSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -114,10 +113,11 @@ try {
           : yes(),
     ),
   )
-  const css = readdirSync('.next/static/css')
-    .filter((file) => file.endsWith('.css'))
-    .map((file) => readFileSync(join('.next/static/css', file), 'utf8'))
-    .join('\n')
+  const landing = readFileSync('.next/server/app/index.html', 'utf8')
+  const bodyClass = /<body class="([^"]+)"/.exec(landing)[1]
+  const cssFiles = [...new Set([...landing.matchAll(/href="(\/_next\/static\/css\/[^"]+\.css)"/g)].map(match => match[1]))]
+  assert.ok(cssFiles.length, 'Run npm run build before this browser check.')
+  const css = cssFiles.map(file => readFileSync(file.replace('/_next/', '.next/'), 'utf8')).join('\n')
   browser = await puppeteer.launch({
     executablePath: process.env.CHROME_PATH,
     headless: true,
@@ -169,8 +169,10 @@ try {
         return request.respond({
           status: 200,
           contentType: 'text/html',
-          body: `<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body><div class="app-type" id="root"></div><script src="/fixture.js"></script></body></html>`,
+          body: `<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body class="${bodyClass}"><div class="app-type" id="root"></div><script src="/fixture.js"></script></body></html>`,
         })
+      if (url.pathname.startsWith('/_next/static/media/'))
+        return request.respond({status: 200, contentType: 'font/woff2', body: readFileSync(url.pathname.replace('/_next/', '.next/'))})
       if (url.pathname === '/fixture.js')
         return request.respond({
           status: 200,
@@ -291,9 +293,14 @@ try {
     await page.setViewport({ width, height: 900 })
     await page.goto('https://preview.test')
     await ready()
+    await page.evaluate(() => document.fonts.ready)
     await fits()
     if (process.env.LINKEDIN_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.LINKEDIN_SCREENSHOT_DIR, `linkedin-setup-${width}.png`), fullPage: true })
     assert.ok(await page.$('h1'))
+    if (width < 640) {
+      assert.equal(await page.$eval('h1', el => getComputedStyle(el).fontSize), '22px')
+      assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontWeight), '600')
+    }
     await click('Continue')
     await fits()
     const roleField = await page.$(
@@ -309,10 +316,33 @@ try {
     await page.waitForSelector('textarea[aria-label="About content"]')
     await fits()
     assert.equal(generateRequests.at(-1).setup.targetRoles, 'Staff Nurse')
+    if (width < 640) {
+      assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontSize), '16px')
+      assert.equal(await page.$eval('textarea', el => getComputedStyle(el).fontSize), '16px')
+    }
     assert.equal(await disabled('Changes saved'), true)
+    if (process.env.LINKEDIN_SCREENSHOT_DIR) await page.screenshot({path: join(process.env.LINKEDIN_SCREENSHOT_DIR, `linkedin-results-${width}.png`), fullPage: true})
     await click('Preview your optimized profile')
     await page.waitForSelector('[data-testid="linkedin-preview"]')
     await fits()
+    const preview = await page.$eval('[data-testid="linkedin-preview"]', el => ({
+      body: getComputedStyle(el.querySelector('.linkedin-profile-headline')).fontSize,
+      metadata: getComputedStyle(el.querySelector('.linkedin-profile-card p.text-sm')).fontSize,
+      family: getComputedStyle(el.querySelector('h2')).fontFamily,
+      weight: getComputedStyle(el.querySelector('.linkedin-profile-headline')).fontWeight,
+      name: getComputedStyle(el.querySelector('.linkedin-profile-name')).fontSize,
+      cardX: el.querySelector('section').getBoundingClientRect().x,
+      cardWidth: el.querySelector('section').getBoundingClientRect().width,
+    }))
+    assert.equal(preview.body, '14px')
+    assert.equal(preview.metadata, '14px')
+    assert.ok(preview.family.includes('Arial'))
+    assert.equal(preview.weight, '400')
+    assert.equal(preview.name, '20px')
+    if (width < 640) {
+      assert.equal(preview.cardX, 0, 'Phone profile card reaches the screen edge')
+      assert.equal(preview.cardWidth, width)
+    }
     assert.ok(
       await page.evaluate(() =>
         document.body.textContent.includes('Illustrative preview'),

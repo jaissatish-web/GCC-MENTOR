@@ -330,6 +330,7 @@ export function LinkedInWorkspace() {
       subtitle="Turn your career facts into a clear professional story for the Middle East."
       icon={IdentificationIcon}
       width="wide"
+      className="linkedin-workspace"
       uses={['Career Profile', 'career goals']}
     >
       {error && (

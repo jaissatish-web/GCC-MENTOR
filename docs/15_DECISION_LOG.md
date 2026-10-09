@@ -1,5 +1,15 @@
 # DECISION LOG — what was decided, when, and why
 
+
+## 2026-10-09 — Compact LinkedIn workspace and familiar mobile profile preview
+
+The founder found LinkedIn setup/results too large and bold and the preview
+unlike a LinkedIn mobile profile. Scope the quieter mobile scale to this
+workspace and give the illustrative preview independent typography and full-width
+phone cards. Use a compact banner/avatar, introduction controls shown as visual
+examples, and skill rows; retain the visible illustrative notice. No integration,
+LLM prompt, generation, save or Career Profile behavior changes.
+
 ## 2026-10-09 — Mobile reading space and quieter typography
 
 Founder approved the mobile audit recommendations: one 12px phone gutter,
