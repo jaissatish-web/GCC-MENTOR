@@ -1,6 +1,16 @@
 # DECISION LOG — what was decided, when, and why
 
 
+## 2026-10-09 — One code-owned universal UI configuration
+
+Founder requested one place controlling text, fonts, sizes and standard component
+styles throughout the platform. Centralize in app/ui-system.css with responsive
+CSS tokens and semantic defaults for legacy markup. Remove per-page LinkedIn
+application typography overrides. Preserve authored resume documents and the
+illustrative profile's explicitly configured compact scale. No settings page,
+user database preferences, logic or SEO ranking claims are introduced.
+
+
 ## 2026-10-09 — Compact LinkedIn workspace and familiar mobile profile preview
 
 The founder found LinkedIn setup/results too large and bold and the preview

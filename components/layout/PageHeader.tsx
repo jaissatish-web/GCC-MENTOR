@@ -104,7 +104,7 @@ export function SectionCard({
     <section
       id={id}
       className={cn(
-        'ui-surface rounded-card border border-line bg-white p-4 sm:p-6',
+        'ui-card ui-surface rounded-card border border-line bg-white',
         className
       )}
     >

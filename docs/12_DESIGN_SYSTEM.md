@@ -34,44 +34,46 @@ font locally with swap and fallback metric adjustment. UI `font-display`,
 remains available for existing technical figures. Resume templates retain their
 independent inline fonts, sizes and weights; UI styling must never change PDF layout.
 
-### Reading sizes (2026-10-09)
+### Universal UI configuration (2026-10-09)
 
-Use shared role classes in `app/globals.css`, measured in rem. Regular paragraphs
-use 400, labels 500 and app headings/actions 600 on phones. Marketing headlines
-use 650; desktop page titles use 700. Heading roles own their weight, rather
-than a global h1/h2 override. Older emphasis utilities remain semibold.
+`app/ui-system.css` is the only configuration point for application typography,
+responsive sizes, weights, line spacing, standard card padding/radius/shadow and
+page gutters. It is imported once by `globals.css`. This is code-owned and has
+no user-facing settings or database record. Do not add page-specific type scales.
+Change the `--ui-*` tokens there to change every consumer together.
 
-| Role | Class | Phone | Tablet ≥640px | Desktop ≥1024px |
-|---|---|---|---|---|
-| Page title | `type-title` | 24px / 1.25 | 28px | 30px |
-| App section title | `type-section` | 18px / 1.3 | 20px | 22px |
-| Card title | `type-card` | 16px / 1.4 | 18px | 20px |
-| Main reading text | `type-body` | 16px / 1.5625 | same | same |
-| Label | `type-label` | 14px / 1.4, medium | same | same |
-| Button | `type-button` | 15px / 1.4, semibold | 16px | 16px |
-| Hints and secondary text | `type-helper` | 14px / 1.5 | same | same |
-| Metadata and eyebrows | `type-caption` | 12px / 1.4 | same | same |
-| Marketing headline | `type-hero` | 30px / 1.2 (28px below 360px) | 38px | 42px |
-| Marketing section title | `type-marketing-title` | 22px / 1.25 | 28px | 32px |
-| Marketing introduction | `type-lead` | 16px / 1.6 | 17px | 18px |
-| Dashboard counts | `type-stat` | 32px / 1.1 | 34px | 36px |
+| Role | Phone | Tablet | Desktop |
+|---|---|---|---|
+| Page title | 22px | 28px | 30px |
+| Section heading | 16px | 20px | 22px |
+| Card heading | 16px | 18px | 20px |
+| Paragraph | 15px | 16px | 16px |
+| Label/helper | 14px | 14px | 14px |
+| Caption | 12px | 12px | 12px |
+| Input | 16px | 16px | 16px |
+| Button | 15px | 16px | 16px |
+| Marketing hero | 30px (28 below 360px) | 38px | 42px |
 
-Phone page gutters use the shared `page-gutter`: 12px at each edge, then 24px
-from 640px. Form cards use 16px padding on phones, and service subtitles span
-the full header width. Avoid adding a second card around an upload panel.
-Controls must wrap at narrow widths and with enlarged text. `ui-surface` gives
-cards a quiet mobile shadow; desktop shadows retain their existing depth.
+Inter is the shared application face. Paragraph weight is 400, label weight 500,
+heading/action weight 600. Semantic h1/h2/h3 and paragraph defaults normalize
+legacy pages as well as `type-*` classes. Explicit roles retain hierarchy: hero,
+section, card, helper, caption and numeric stats are different roles, not different
+page designs. Old utility sizes map to those same tokens.
 
-These classes carry no colour. Heading tracking is slightly tightened; body text
-has natural spacing. Do not use captions for instructions or long paragraphs.
-Keep long reading text left-aligned and about 60–70 characters wide. Form fields
-remain 16px at every width; buttons allow wrapping and remain at least 44px tall.
-`type-stat` uses tabular numerals for stable alignment. Keep semantic HTML headings
-and actual selectable text; a font choice does not guarantee better SEO rankings.
+Standard padded cards use 16px phone/24px larger-screen padding, a shared 16px
+radius and quiet shadow. Dense rows and document layouts retain their structure.
+Phone gutters are 12px; larger screens use 24px. Keep long copy left aligned,
+real semantic headings and selectable text. Typography supports readability and
+accessibility; it does not promise an SEO ranking increase.
 
-The compatibility floor inside `.app-type main` raises older 12–13.5px classes
-to 13px, and 10–11.5px to 12px. Old 14px paragraph classes become 16px. It leaves
-compact navigation/header/footer layouts alone. UI family and emphasis rules
+Resume renderer/export boundaries retain their authored document typography and
+are explicitly excluded from UI normalization. The illustrative LinkedIn profile
+uses a deliberate compact document-example scale, also defined by `--ui-profile-*`
+tokens in the same configuration file. LinkedIn setup/results use the universal
+application roles, with no page-specific font-size overrides.
+
+Legacy small-text utilities map to caption tokens; semantic paragraphs map to
+the reading role. Explicit helper and caption roles keep compact metadata clear. UI family and emphasis rules
 exclude `[data-document-preview]`, `#resume-render`, `.actual-template-orbit-face`
 and their descendants. Document boundaries retain the previous inherited 15px /
 1.5 baseline, while inline template sizes and spacing take precedence. Resume
@@ -651,7 +653,9 @@ After a production build, run `CHROME_PATH=/path/to/chromium npm run test:mobile
 The shared PageShell, SectionCard, Button and score cards are rendered with the
 current build's referenced CSS at 320, 360, 390, 430, 768 and 1440px, with normal
 and doubled root text. Assertions cover overflow, phone subtitle alignment,
-heading weights, 16px fields and 44px minimum controls. The test uses isolated
+heading weights, 16px fields and 44px minimum controls. A runtime token-change
+check also proves that old utility-styled markup adopts centrally configured
+fonts, sizes, radius and padding while a document keeps its own authored styles. The test uses isolated
 markup and no account or production APIs.
 
 For the initial change, actual client-page fixtures additionally covered the

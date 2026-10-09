@@ -67,15 +67,46 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${(width >= 1024 ? 30 : width >= 640 ? 28 : 24) * scale}px`)
-      assert.equal(result.weight, width >= 1024 ? '700' : '600')
+      assert.equal(result.titleSize, `${(width >= 1024 ? 30 : width >= 640 ? 28 : 22) * scale}px`)
+      assert.equal(result.weight, '600')
       assert.equal(result.inputSize, `${16 * scale}px`)
-      assert.equal(result.bodySize, `${16 * scale}px`)
+      assert.equal(result.bodySize, `${(width < 640 ? 15 : 16) * scale}px`)
       assert.ok(result.buttonHeight >= 44)
       if (width < 640) assert.equal(result.subtitleX, result.iconX, 'Phone subtitle must use the full header width')
       else assert.equal(result.subtitleX, result.titleX, 'Larger screens align subtitle with title')
     }
   }
+  // A single token change must affect both modern roles and older page markup.
+  await page.setViewport({width: 390, height: 844})
+  await page.setContent(`<html><head><style>${css}</style></head><body class="app-type"><main>
+    <h1 class="text-5xl font-black">Legacy title</h1>
+    <h2 class="text-4xl">Legacy section</h2>
+    <p class="text-xl">Legacy paragraph</p>
+    <div class="rounded-card p-6">Card</div>
+    <div data-document-preview><div id="resume-render" style="font-family:Georgia">
+      <h1 style="font-size:21px;font-weight:700">Document title</h1>
+      <p style="font-size:11px">Document body</p>
+    </div></div>
+  </main></body></html>`)
+  await page.evaluate(() => {
+    const root = document.documentElement.style
+    root.setProperty('--ui-title-size', '27px')
+    root.setProperty('--ui-section-size', '19px')
+    root.setProperty('--ui-body-size', '18px')
+    root.setProperty('--ui-font', 'Arial')
+    root.setProperty('--ui-card-radius', '9px')
+    root.setProperty('--ui-card-padding', '21px')
+  })
+  const configured = await page.evaluate(() => {
+    const style = s => getComputedStyle(document.querySelector(s))
+    return {title: style('main > h1').fontSize, section: style('main > h2').fontSize,
+      body: style('main > p').fontSize, family: style('main > h1').fontFamily,
+      radius: style('.rounded-card').borderRadius, padding: style('.rounded-card').paddingTop,
+      documentTitle: style('#resume-render h1').fontSize, documentWeight: style('#resume-render h1').fontWeight,
+      documentFamily: style('#resume-render h1').fontFamily, documentBody: style('#resume-render p').fontSize}
+  })
+  assert.deepEqual(configured, {title:'27px', section:'19px', body:'18px', family:'Arial',
+    radius:'9px', padding:'21px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px'})
   console.log('PASS: shared page/card layout, full-width phone subtitle, readable fields, heading weight, 44px controls, and no overflow at six widths × normal/enlarged text.')
 } finally {
   await browser.close()
