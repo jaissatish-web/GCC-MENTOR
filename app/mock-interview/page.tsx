@@ -20,11 +20,12 @@ import { CTA } from '@/lib/serviceLabels'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
-import { SAVED_PER_PACKAGE } from '@/lib/packageSummary'
 import type { MockInterviewDifficulty, MockInterviewMode, MockInterviewRun, Package } from '@/types/package'
 import { stageEyebrow } from '@/components/journey/stages'
 import { StageGate } from '@/components/journey/StageGate'
 import { VoiceInterview } from '@/components/mock-interview/VoiceInterview'
+import { InterviewProgress } from '@/components/mock-interview/InterviewProgress'
+import { interviewProgress, orderedAttempts } from '@/lib/interviewProgress'
 import { InterviewReport } from '@/components/mock-interview/InterviewReport'
 import { InterviewerPicker } from '@/components/mock-interview/InterviewerPicker'
 import type { InterviewerId } from '@/lib/voice/interviewers'
@@ -118,7 +119,8 @@ function MockInterviewScreen() {
   const [drafts, setDrafts] = useState<Record<string, string>>({})
 
   const requestedRunId = searchParams.get('run')
-  const run = detail?.mock_interview_runs?.find((item) => item.id === requestedRunId) ?? latestRun(detail)
+  const run = requestedRunId ? detail?.mock_interview_runs?.find((item) => item.id === requestedRunId) ?? null : latestRun(detail)
+  const progress = interviewProgress(detail?.mock_interview_runs ?? [], run?.status === 'completed' ? run.id : undefined)
   const currentQuestion = run?.status === 'in_progress' ? run.questions.find((q) => !q.answer) ?? null : null
   const answeredCount = run?.questions.filter((q) => q.answer).length ?? 0
   const currentDraftKey = selectedId && run && currentQuestion ? draftKey(selectedId, run.id, currentQuestion.id) : null
@@ -142,7 +144,7 @@ function MockInterviewScreen() {
     picker.updateDetail(packageId, (p) => {
       const runs = p.mock_interview_runs ?? []
       const exists = runs.some((r) => r.id === next.id)
-      return { ...p, mock_interview_runs: exists ? runs.map((r) => (r.id === next.id ? next : r)) : [...runs, next].slice(-SAVED_PER_PACKAGE) }
+      return { ...p, mock_interview_runs: exists ? runs.map((r) => (r.id === next.id ? next : r)) : [...runs, next] }
     })
     picker.patchSummary(
       packageId,
@@ -263,9 +265,10 @@ function MockInterviewScreen() {
         <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}`} className="shrink-0 text-sm font-semibold text-teal hover:underline">← Exit room</Link>
         <span className="min-w-0 truncate text-right text-xs font-semibold text-ink sm:text-sm">{run.target_job_title}</span>
       </header>
-      {run.status === 'completed' ? <div className="mx-auto w-full max-w-[1100px] flex-1 overflow-y-auto p-4 sm:p-6">
+      {run.status === 'completed' ? <div className="mx-auto w-full max-w-[1100px] flex-1 overflow-y-auto px-3 py-4 sm:p-6">
         <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} />
-        <Card tone="light" className="mt-5 p-5"><InterviewReport run={run} /></Card>
+        {progress && <InterviewProgress packageId={selectedId} progress={progress} />}
+        <InterviewReport run={run} />
       </div> : <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} room />}
     </div>
   }
@@ -277,7 +280,7 @@ function MockInterviewScreen() {
       icon={ChatBubbleLeftRightIcon}
       eyebrow={stageEyebrow('apply')}
       title="Mock Interview"
-      subtitle={isRaw ? 'Practise an interview in your professional field using only your saved Career Profile. No job description required.' : 'Speak your answers to an animated interviewer, then request one complete review and track your practice progress.'}
+      subtitle={isRaw ? 'Practise an interview in your professional field using only your saved Career Profile. No job description required.' : 'Speak your answers to your selected virtual interviewer, then request one complete review and track your practice progress.'}
       uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">
@@ -302,6 +305,7 @@ function MockInterviewScreen() {
                 onChange={(e) => {
                   setOpError(null)
                   setSelectedId(e.target.value)
+                  router.replace(`/mock-interview?package=${encodeURIComponent(e.target.value)}`, { scroll: false })
                 }}
                 disabled={busy !== null}
                 className="field"
@@ -313,10 +317,6 @@ function MockInterviewScreen() {
                 ))}
               </select>
             </label>
-            {detail && (detail.mock_interview_runs?.length ?? 0) > 0 ? <label className="flex flex-col gap-2"><span className="field-label">Saved interviews for this resume ({detail.mock_interview_runs?.length ?? 0} of {SAVED_PER_PACKAGE} — the newest are kept)</span><select className="field" value={run?.id ?? ''} onChange={e => {
-              const selected = detail.mock_interview_runs?.find(r => r.id === e.target.value)
-              router.replace(`/mock-interview?package=${encodeURIComponent(selectedId!)}&run=${encodeURIComponent(e.target.value)}${selected?.input_mode === 'voice' ? '&room=1' : ''}`)
-            }}>{(detail.mock_interview_runs ?? []).slice().reverse().map(r => <option value={r.id} key={r.id}>{new Date(r.generated_at).toLocaleDateString()} · {r.mode} · {r.difficulty} · {r.status === 'completed' ? 'Report' : 'Continue'}</option>)}</select></label> : null}
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
 
             <label className="flex flex-col gap-1.5">
@@ -370,7 +370,7 @@ function MockInterviewScreen() {
                 {detailLoading && !detail
                   ? (isRaw ? 'Loading your Career Profile Resume…' : 'Loading this job…')
                   : run
-                    ? `Latest run: ${run.status === 'completed' ? 'completed' : 'in progress'} · ${answeredCount}/${run.question_count} answered`
+                    ? `Selected interview: ${run.status === 'completed' ? 'completed' : 'in progress'} · ${answeredCount}/${run.question_count} answered`
                     : 'No mock interview yet for this package.'}
               </p>
               <Button type="button" variant="primary" onClick={() => void start()} disabled={!selectedId || busy !== null || !detail || voiceReady !== true} busy={busy === 'start'} busyLabel="Starting…">
@@ -381,7 +381,21 @@ function MockInterviewScreen() {
         )}
       </Card>
 
-      {run?.input_mode === 'voice' && selectedId ? <Card tone="light" className="flex items-center gap-4 p-4 sm:p-5">
+      {requestedRunId && detail && !run && !detailLoading ? <p role="alert" className="text-ink-muted">This interview is no longer available for the selected resume. Choose a saved attempt below.</p> : null}
+      {detail && selectedId && (detail.mock_interview_runs?.length ?? 0) > 0 ? <section className="space-y-4" aria-label="Saved mock interviews">
+        <div><h2 className="type-section">Your interview history</h2><p className="mt-1 text-sm text-ink-muted">All saved attempts for this resume. Open any interview to view its questions and report.</p></div>
+        <ul className="divide-y divide-line rounded-card border border-line bg-white">
+          {orderedAttempts(detail.mock_interview_runs ?? []).map((attempt, index) => <li key={attempt.id}>
+            <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(attempt.id)}`} aria-current={attempt.id === run?.id ? 'true' : undefined} className={cn('flex min-h-14 flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-teal-soft', attempt.id === run?.id && 'bg-teal-soft')}>
+              <div className="min-w-0"><h3 className="type-card">Mock interview {index + 1}</h3><p className="mt-1 text-sm text-ink-muted">{new Date(attempt.generated_at).toLocaleDateString()} · {attempt.mode.replaceAll('_', ' ')} · {attempt.difficulty} · {attempt.question_count} questions</p></div>
+              <span className="text-sm text-teal">{attempt.status === 'completed' ? `View report${attempt.final_report ? ` · ${attempt.final_report.overall_score}/100` : ''}` : 'Continue'} →</span>
+            </Link>
+          </li>)}
+        </ul>
+        {progress && <InterviewProgress packageId={selectedId} progress={progress} />}
+      </section> : null}
+
+      {run?.input_mode === 'voice' && selectedId ? <Card tone="light" className="flex flex-wrap items-center gap-4 p-4 sm:p-5">
         <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-teal-soft sm:size-20"><Image src={getInterviewer(run.interviewer_id).image} alt="" fill sizes="80px" className="object-cover object-top" /></div>
         <div className="min-w-0 flex-1"><p className="text-sm font-semibold text-ink">{run.status === 'completed' ? 'Review your interview' : 'Continue your interview'} with {getInterviewer(run.interviewer_id).name}</p><p className="mt-1 text-xs text-ink-muted">{run.question_count} questions · {run.status === 'completed' ? 'Report ready' : 'Your answers are saved as you go'}</p></div>
         <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}&room=1`} className={buttonVariants({ variant: 'primary' })}>Open room</Link>
@@ -389,7 +403,7 @@ function MockInterviewScreen() {
 
       {run && (run.input_mode !== 'voice' || run.status === 'completed') ? (
         <section id="interview-report" className="mt-6 scroll-mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">
-          <Card tone="light" className="p-4 sm:p-6">
+          <div className={run.status === 'completed' ? 'min-w-0' : 'ui-card min-w-0 rounded-card border border-line bg-white p-4 sm:p-6'}>
             <div className="flex flex-col gap-1">
               <h2 className="font-display text-[21px] font-semibold text-ink">
                 {run.status === 'completed' ? 'Preparation report' : currentQuestion ? `Question ${answeredCount + 1}` : 'Ready to finish'}
@@ -444,7 +458,7 @@ function MockInterviewScreen() {
                 </Button>
               </div>
             )}
-          </Card>
+          </div>
 
           <aside className="flex flex-col gap-3">
             {run.questions.map((q, index) => (

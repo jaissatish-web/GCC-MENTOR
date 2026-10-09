@@ -56,6 +56,7 @@ const TS_CHECKS = [
   'verify-deadlines.ts',
   'verify-voice-transcription.ts',
   'verify-mock-report.ts',
+  'verify-interview-progress.ts',
   'verify-resume.ts',
   'verify-engine-templates.ts',
   'verify-template-quality.ts',
@@ -83,6 +84,8 @@ run('verify-career-profile-resume-api.mjs', [join('scripts', 'verify-career-prof
 run('verify-db-security.mjs', [join('scripts', 'verify-db-security.mjs')])
 run('verify-dashboard-overview.mjs', [join('scripts', 'verify-dashboard-overview.mjs')])
 run('verify-voice-db.mjs', [join('scripts', 'verify-voice-db.mjs')])
+run('verify-interview-history-db.mjs', [join('scripts', 'verify-interview-history-db.mjs')])
+run('verify-interview-progress-api.mjs', [join('scripts', 'verify-interview-progress-api.mjs')])
 
 const failed = results.filter((r) => !r.ok)
 console.log(`\n${results.length - failed.length}/${results.length} checks passed`)

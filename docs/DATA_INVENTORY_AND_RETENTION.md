@@ -83,3 +83,12 @@ reads the published text.
 ## Recorded voice data (unreleased)
 
 Private answer audio is retained for three days, then removed by the configured worker through the Storage API. Frozen career/run snapshots, transcripts, speaking metrics and coaching reports persist for practice history until interview/parent deletion. Stopped unsent audio can remain in device IndexedDB. Service-owned cleanup queues retain object paths for delayed removal after signed upload expiry. A configured worker is required. See [storage, deletion and setup](RECORDED_VOICE_INTERVIEW.md).
+
+## Mock interview history — 2026-10-09
+
+All mock attempts are retained in existing owner-scoped package history until
+explicit interview/package/account deletion. Migration 068 removes the mock-only
+ten-run cap and recovers missing voice history from existing session/answer data.
+Already-pruned legacy text records with no session cannot be recovered. Voice
+audio still expires after three days; transcripts, feedback and reports remain.
+No new table, external data destination or change to cover letter/Q&A retention.

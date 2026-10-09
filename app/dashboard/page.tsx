@@ -8,6 +8,7 @@ import { stageById, stageSnapshot, stageStates } from '@/components/journey/stag
 import { ScoreCards } from '@/components/profile/ProfileOverview'
 import { displayFirstName } from '@/lib/utils'
 import { type PackageListPage, type PackageSummary } from '@/lib/packageSummary'
+import { InterviewProgressOverview } from '@/components/dashboard/InterviewProgressOverview'
 import { ActivityOverview, OverallProgress } from '@/components/dashboard/ActivityOverview'
 import { dashboardNextAction, type DashboardOverview } from '@/lib/dashboardOverview'
 import { calculateReadiness } from '@/lib/readiness'
@@ -170,6 +171,7 @@ export default function DashboardPage() {
 
       <ActivityOverview overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
       {overview && !overviewError ? <OverallProgress overview={overview} /> : null}
+      <InterviewProgressOverview />
 
       {/* THE MAP + THE ONE NEXT STEP, as one object: the rail says where you
           are, the teal panel under it says what to do there. */}

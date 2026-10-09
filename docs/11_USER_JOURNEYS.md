@@ -290,7 +290,7 @@ DOCX remains unavailable because preview/layout parity has not been established.
 
 ## Recorded interview journey (test branch)
 
-Saved resume → existing setup → animated interviewer and visible question → record/pause/listen → submit → next question → explicit review → report and comparable practice history. See [complete journey](RECORDED_VOICE_INTERVIEW.md).
+Saved resume → existing setup → uncropped seated interviewer and visible question → record/pause/listen → submit → next question → explicit review → report and comparable practice history. See [complete journey](RECORDED_VOICE_INTERVIEW.md).
 
 
 ## Prepare a LinkedIn profile (2026-10-09)
@@ -301,3 +301,12 @@ editable content and illustrative profile preview → copy into LinkedIn → mar
 updated and save the checklist. A first profile starts with Career Profile only.
 Profile corrections use the existing Profile editor. Saved output remains until
 a new generation succeeds. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).
+
+## Mock interview history and progress (2026-10-09)
+
+Choose a resume in Mock Interview → see all numbered saved attempts → open any
+report or continue an unfinished recording → repeat practice. The selected
+completed attempt compares with earlier matching frozen-resume/settings/rubric
+attempts, including honest decreases. Dashboard shows the same progress summary
+with a link to that resume's history, without listing job or CV content. Reports
+have wider mobile reading space and no redundant enclosing/priority card.

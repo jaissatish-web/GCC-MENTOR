@@ -441,7 +441,7 @@ check('expired job analyses are purged', purge056.job_analyses_deleted === 1)
 check('unexpired job analyses are kept', (await svc('select count(*)::int n from public.job_analyses')).rows[0].n === 1)
 
 // ---------------------------------------------------------------------------
-console.log('\n065 · every Q&A set kept; 10 newest of each per package')
+console.log('\n065/068 · ten letters/Q&A sets; persistent mock interviews')
 {
   for (let i = 1; i <= 12; i++) {
     await svc("select public.package_append_cover_letter($1, $2, $3::jsonb, $4::jsonb)", [pkgB, B, JSON.stringify({ id: `cap-L${i}` }), ev('cover_letter_generated')])
@@ -454,7 +454,7 @@ console.log('\n065 · every Q&A set kept; 10 newest of each per package')
   check('12 letters -> the 10 newest kept, oldest first', ids(row.cover_letters) === newest('cap-L'))
   check('12 Q&A sets -> the 10 newest kept', ids(row.interview_question_sets) === newest('cap-Q'))
   check('interview_questions is the newest set', row.interview_questions.id === 'cap-Q12')
-  check('12 mock interviews -> the 10 newest kept', ids(row.mock_interview_runs) === newest('cap-M'))
+  check('12 mock interviews -> all attempts kept', ids(row.mock_interview_runs) === Array.from({ length: 12 }, (_, i) => `cap-M${i + 1}`).join(','))
 }
 
 console.log('\nCareer Profile Resume · existing free quota and owner RLS')

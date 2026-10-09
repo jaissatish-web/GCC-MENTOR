@@ -289,7 +289,7 @@ the same rule `lib/storage/profilePhoto.ts` applies, now also enforced by Storag
 direct upload that never passes through the route. Owner-folder policies unchanged.
 
 
-## Recorded voice interview extension (unreleased)
+## Recorded voice interview extension
 
 Migration 057 adds owner-readable, service-written voice sessions and per-question answers, frozen profile/run snapshots, resumable review leases, private audio storage and a delayed cleanup queue. Existing package mock run JSON remains the report/history projection. See [details](RECORDED_VOICE_INTERVIEW.md).
 
@@ -302,3 +302,17 @@ arrays, profile fingerprint and update timestamp. Authenticated access is
 owner-only SELECT; all mutations use validated authenticated server routes.
 Deleting the auth user cascades to this artifact. No Career Profile/resume
 package columns are changed. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).
+
+### Persistent mock interview history (2026-10-09)
+
+Migration 068 supersedes only migration 065's ten-run mock limit. Existing
+packages.mock_interview_runs retains all attempts, with owner-scoped, server-only,
+idempotent append. Missing voice history is restored from owner-matched existing
+sessions/answers; retained runs and optimized document snapshots are unchanged.
+No new table, column or permission. Dashboard progress reads owner package
+history in pages, returns score summaries only, and does not modify data.
+
+Migration 068 applied to the connected production project on 2026-10-09 after
+disposable Postgres tests. Verified cap removal, invoker security, owner filter,
+idempotent append and service-role-only execution. Live recovery scan found no
+missing voice runs. Security advisory results were unchanged from before migration.

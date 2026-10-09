@@ -68,19 +68,6 @@ function SavedAudio({ api, questionId, expiresAt, deletedAt }: { api: string; qu
   if (expired) return <p className="mt-3 rounded-ctl bg-canvas px-3 py-2 text-xs text-ink-muted">Recording expired after three days. Your transcript and coaching report remain available.</p>
   return <div className="mt-3">{url ? <audio controls src={url} className="w-full" aria-label="Saved answer recording" onError={() => { setUrl(null); setError('Playback link expired. Open it again.') }} /> : <Button type="button" variant="secondary" size="sm" onClick={() => { setError(''); void jsonRequest(api, { action: 'playback', questionId }).then(p => setUrl(p.url)).catch(e => setError(e.message)) }}>Listen to saved answer</Button>}{expiresAt ? <p className="mt-2 text-xs text-ink-muted">Audio available until {new Date(expiresAt).toLocaleString()}.</p> : null}{error && <p role="alert" className="text-sm text-alert">{error}</p>}</div>
 }
-function Progress({ history }: { history: VoiceSessionView['history'] }) {
-  if (!history.length) return null
-  const first = history[0].report.overall_score
-  const last = history[history.length - 1].report.overall_score
-  const previous = history.length > 1 ? history[history.length - 2].report.overall_score : null
-  return <section className="rounded-2xl border border-line bg-white p-5"><h3 className="text-xl font-semibold">Your practice progress</h3><p className="mt-2 text-sm text-ink-muted">Same saved resume, target job, mode, difficulty, question count and scoring rubric. Questions may differ; trends are practice guidance.</p>
-    {previous === null ? <p className="mt-3 text-sm">This is your baseline. Complete another comparable interview to see a trend.</p> : <p className="mt-3 font-semibold">Overall: {last}/100 · {last - first >= 0 ? '+' : ''}{last - first} from first · {last - previous >= 0 ? '+' : ''}{last - previous} from previous</p>}
-    <div className="mt-5 flex h-40 items-end gap-2" role="img" aria-label={`Overall scores by comparable attempt: ${history.map((h, i) => `attempt ${i + 1}: ${h.report.overall_score}`).join(', ')}`}>
-      {history.slice(-8).map((h, i) => <div key={h.id} className="flex h-full min-w-0 flex-1 flex-col justify-end text-center"><span className="text-sm font-bold">{h.report.overall_score}</span><div className="mx-auto w-full max-w-12 rounded-t bg-teal" style={{ height: `${Math.max(2, h.report.overall_score)}%` }} /><span className="mt-1 text-xs">#{Math.max(0, history.length - 8) + i + 1}</span></div>)}
-    </div>
-    {history.length > 1 && <div className="mt-5 space-y-2">{(['technical_score', 'role_fit_score', 'answer_structure_score'] as const).map(key => <p key={key} className="flex justify-between gap-4 text-sm"><span>{key.replaceAll('_', ' ')}</span><span>{history[0].report[key]} → {history[history.length - 1].report[key]}</span></p>)}</div>}
-  </section>
-}
 function AnswerReview({ answer, question, api }: { answer: VoiceAnswer; question: string; api: string }) {
   return <details className="rounded-xl border border-line bg-white p-4"><summary className="cursor-pointer font-semibold">{question}</summary><SavedAudio api={api} questionId={answer.question_id} expiresAt={answer.audio_delete_after} deletedAt={answer.audio_deleted_at} />
     <h4 className="mt-4 font-semibold">Your transcript</h4><p className="mt-2 whitespace-pre-wrap text-sm">{answer.transcript}</p><p className="mt-1 text-xs text-ink-muted">Automatically transcribed. Check against the recording if feedback seems unexpected.</p>
@@ -180,6 +167,6 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
       />
     </div>}
     {view.status === 'failed' && <div role="alert" className="rounded-xl bg-alert-soft p-5"><p>{view.last_error || 'Review was interrupted. Your recordings are saved.'}</p><Button className="mt-3" onClick={() => void review()} busy={busy}>Retry review</Button></div>}
-    {view.status === 'completed' && <><Progress history={view.history} />{run.final_report && <div className="rounded-2xl bg-teal-soft p-5"><h3 className="text-xl font-semibold">Your next three improvements</h3><ol className="mt-3 list-decimal space-y-2 pl-5">{run.final_report.improvement_plan.slice(0, 3).map((p, i) => <li key={i}>{p}</li>)}</ol><p className="mt-3 text-sm">Practise these points, then start another interview with the same settings to track your progress.</p></div>}<div className="space-y-3">{run.questions.map(q => { const a = view.answers.find(a => a.question_id === q.id); return a ? <AnswerReview key={q.id} answer={a} question={q.question} api={api} /> : null })}</div></>}
+    {view.status === 'completed' && <>{run.final_report && <div className="rounded-2xl bg-teal-soft p-5"><h3 className="text-xl font-semibold">Your next three improvements</h3><ol className="mt-3 list-decimal space-y-2 pl-5">{run.final_report.improvement_plan.slice(0, 3).map((p, i) => <li key={i}>{p}</li>)}</ol><p className="mt-3 text-sm">Practise these points, then start another interview with the same settings to track your progress.</p></div>}<div className="space-y-3">{run.questions.map(q => { const a = view.answers.find(a => a.question_id === q.id); return a ? <AnswerReview key={q.id} answer={a} question={q.question} api={api} /> : null })}</div></>}
   </section>
 }

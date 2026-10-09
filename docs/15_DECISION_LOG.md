@@ -1,6 +1,20 @@
 # DECISION LOG — what was decided, when, and why
 
 
+## 2026-10-09 — Persistent mock interview history and comparable progress
+
+Founder requested natural seated interviewer framing, wider mobile reports, all
+attempts per resume and progress in the interview workspace and dashboard. Keep
+existing snapshots and scoring. Remove only the mock interview ten-run cap;
+restore missing voice runs from existing owner-matched session/answer records.
+No new tables or changes to cover letter/Q&A limits, payments or AI prompts.
+Compare saved scores only with earlier completed attempts using the same frozen
+resume, input mode, interview mode, difficulty, question count and rubric. Show
+negative changes honestly and explain that practice scores are not hiring odds.
+Existing audio expiry stays three days; transcripts/reports remain until deletion.
+Use the universal UI typography and remove redundant report wrappers.
+
+
 ## 2026-10-09 — One code-owned universal UI configuration
 
 Founder requested one place controlling text, fonts, sizes and standard component

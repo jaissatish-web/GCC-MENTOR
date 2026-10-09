@@ -99,9 +99,9 @@ export function emptyStageCounts(): Record<PackageStatus, number> {
 }
 
 /**
- * How many cover letters, Q&A sets and mock interviews one package keeps
+ * How many cover letters and Q&A sets one package keeps
  * (founder, 2026-10-03; enforced in the database by migration 065 — when an
- * 11th is saved the oldest is dropped). Shown on each service's page.
+ * 11th is saved the oldest is dropped). Mock attempts are uncapped since 068.
  */
 export const SAVED_PER_PACKAGE = 10
 

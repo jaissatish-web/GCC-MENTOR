@@ -1,11 +1,15 @@
 # Recorded voice interviews — test branch
 
-Status: implemented behind a server flag. On 2026-09-26 the founder authorized using the existing Supabase project; migration 057 was applied there and its permissions/private bucket verified. Main website code is not merged. The branch preview has its public Supabase URL/key and flag, but a new deployment and the remaining server-only secrets are required for a live test.
+Status: implemented on main. Voice starts/reviews remain controlled by the existing server flag and provider/storage configuration. The founder authorized migration 068 on 2026-10-09 to retain all mock attempts using the existing tables. No new billing behavior.
 
 ## User journey
-Select a saved resume and the existing mode, difficulty and question count. Start opens a dedicated interview room. Choose a male or female illustrated interviewer. Questions are displayed as text. The silent avatar gently moves and blinks; reduced-motion preferences disable the animation. Candidates read each question before recording. This is not a live interviewer or video call.
+Select a saved resume and the existing mode, difficulty and question count. Start opens a dedicated interview room. Choose a male or female illustrated interviewer. Questions are displayed as text. The seated portrait fits entirely inside the panel without cropping, zooming or scale animation. Candidates read each question before recording. This is not a live interviewer or video call.
 
 Start speaking requests microphone permission. Pause, resume, stop/listen and re-record are available. Seven seconds of silence after speech pauses recording; it does not discard or automatically grade the answer. Each answer is capped at three minutes and 8 MiB. Submit saves the recording, then Next question advances explicitly. After all answers are saved, Review my interview starts transcription and coaching. No transcription or grading runs while recording.
+
+The interview workspace lists every saved attempt for the selected resume as Mock interview 1, 2, etc.; each opens its questions/report. Reports use one phone gutter and one padded section, without an extra enclosing card or nested priority box. The same progress card appears in the workspace and dashboard. It reports all five saved score dimensions, actual increases/decreases from the previous matching interview and the overall change from the first matching interview. Viewing an earlier report excludes later attempts. Missing snapshot/rubric identity is a baseline, not a verified comparison. Different modes/settings remain accessible but start separate comparison groups.
+
+Migration 068 removes only the mock ten-run limit and makes append idempotent by run id. It restores missing owner-matched voice snapshots, saved transcripts/feedback and reports from the existing session/answer tables; retained package runs are untouched. Deleting sessions are excluded. Previously pruned legacy text runs without a separate session cannot be reconstructed. Cover letter/Q&A limits and audio expiry stay unchanged. Roll back application code without deleting history; the old append function can be restored separately if its old limit is explicitly wanted.
 
 Review saves each successful transcription and each successful feedback result independently, so retries retain completed work. The report includes suggested answers, wording corrections, content feedback and observable speaking measures. Progress compares the same frozen resume/job, mode, difficulty, count and rubric. Different generated questions can affect scores; these are practice indicators, not validated hiring predictions. Pace and pauses do not establish confidence, emotion or ability. Speech transcripts may contain errors and must be checked against the audio.
 
@@ -33,3 +37,14 @@ Reference: https://platform.openai.com/docs/guides/speech-to-text
 ## Branch verification — 2026-09-26
 
 Passed TypeScript, lint, production build and all 26 `npm test` suites (including 29 voice-specific database assertions). Browser run at 320, 390 and 1280 px passed recording, manual pause/resume, submit, explicit next, saved-answer reload and explicit-only review with fake microphone input and mocked API/storage responses. No horizontal overflow or browser runtime errors observed. Automatic silence on real microphones, provider review and deployed storage/scheduler remain release gates above.
+
+## History/mobile verification — 2026-10-09
+
+`npm run check` passes 49 suites, including dedicated comparison/API/history
+recovery tests and existing owner RLS/lifecycle/optimizer checks. Production build
+passes. `CHROME_PATH=/path/to/chromium npm run test:interview` uses actual React
+workspace/report/dashboard components, synthetic API replies and production CSS
+at 320/360/390/430/768/1440px. It verifies 12 clickable attempts, earlier-report
+comparisons, wide priority text, all six uncropped/unchanging portraits and no
+layout overflow/runtime errors. Shared mobile/enlarged-text checks also pass.
+These offline fixtures do not verify live provider calls or real phone recording.

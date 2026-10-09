@@ -13,7 +13,8 @@
     "test:preview": "node scripts/verify-preview-save.mjs",
     "test:db": "node scripts/verify-db-security.mjs",
     "check": "npm run typecheck && npm run lint && npm test",
-    "test:mobile": "node scripts/verify-mobile-layout.mjs"
+    "test:mobile": "node scripts/verify-mobile-layout.mjs",
+    "test:interview": "node scripts/verify-interview-ui.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

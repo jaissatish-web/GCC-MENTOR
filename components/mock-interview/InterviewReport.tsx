@@ -161,10 +161,10 @@ export function InterviewReport({ run }: { run: MockInterviewRun }) {
       </div>
     </section>
 
-    <section className="rounded-card border border-line bg-[#F4EFE4] p-5 sm:p-6">
+    <section className="rounded-card border border-line bg-[#F4EFE4] p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[11px] font-bold text-gold-text">EXECUTIVE ASSESSMENT</p><h3 className="mt-1 font-display text-[24px] font-semibold text-ink">Where you stand now</h3></div><span className="rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-teal shadow-m-1">{status.label}</span></div>
       <p className="mt-4 text-[14px] leading-7 text-ink-soft">{report.executive_summary || fallbackSummary}</p>
-      <div className="mt-5 rounded-ctl border border-[#D6B36A]/50 bg-white/70 p-4"><p className="text-[11px] font-bold text-gold-text">WORK ON THIS FIRST</p><p className="mt-1 text-[13px] font-semibold leading-relaxed text-ink">{report.priority_focus || report.improvement_plan[0] || 'Build one clear situation–action–result example for the weakest answer.'}</p></div>
+      <div className="mt-4 border-t border-[#D6B36A]/50 pt-4"><p className="text-[11px] font-bold text-gold-text">WORK ON THIS FIRST</p><p className="mt-1 text-[13px] font-semibold leading-relaxed text-ink">{report.priority_focus || report.improvement_plan[0] || 'Build one clear situation–action–result example for the weakest answer.'}</p></div>
     </section>
 
     <section>
