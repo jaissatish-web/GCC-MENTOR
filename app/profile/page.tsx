@@ -2033,7 +2033,7 @@ function ProfileScreen() {
     />
   )
   const loadErrorBlock = loadError ? (
-    <div className="mx-5 mt-4 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">{loadError}</div>
+    <div className="mx-3 sm:mx-5 mt-4 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">{loadError}</div>
   ) : null
 
   // ---- Completeness ---------------------------------------------------------
@@ -2112,7 +2112,7 @@ function ProfileScreen() {
     return (
       <main className={MAIN_CLASS}>
         {/* Readiness header — the ring IS the header, on dark navy */}
-        <header className="flex flex-col gap-4 bg-white px-5 pb-6 pt-4">
+        <header className="page-gutter flex flex-col gap-4 bg-white pb-5 pt-4 sm:pb-6">
           {/* STACKS ON MOBILE, and must.
               Three items in one nowrap row — photo, ring, text — squeezed the
               text column to 33px inside a 335px phone: one word per line. The
@@ -2122,7 +2122,7 @@ function ProfileScreen() {
               Photo and ring share a row; the text gets its own below until there
               is room for all three. */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-4">
+            <div className="flex min-w-0 flex-wrap items-start gap-3 sm:flex-nowrap sm:items-center sm:gap-4">
             {/* Photo first: it is what a Gulf recruiter looks at first, and it
                 used to sit buried between form sections. */}
             {/* id=f_photo: the Gulf Readiness photo step jumps here. */}
@@ -2138,9 +2138,9 @@ function ProfileScreen() {
                 profile is" (it drops as you fill sections). The other number, the
                 Gulf Readiness widget below, is "how ready you are for the Gulf
                 market" — a different thing, so each carries its own label. */}
-            <div className="flex shrink-0 flex-col items-center gap-1">
+            <div className="flex w-[110px] max-w-full shrink-0 flex-col items-center gap-1">
               <ReadinessRing score={readiness.score} size={68} />
-              <span className="text-[12px] font-bold uppercase tracking-wide text-ink-muted">Profile complete</span>
+              <span className="type-caption text-center font-medium text-ink-muted">Profile complete</span>
             </div>
             {/* On a phone the Save button joins this row. Alone on its own line it
                 floated at the right edge under the text, detached from anything. */}
@@ -2207,7 +2207,7 @@ function ProfileScreen() {
             that key was already read+cleared in the mount pass, so this can never
             reappear after a reload. */}
         {claimedScan ? (
-          <div className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-ctl border border-teal/40 bg-white px-4 py-3">
+          <div className="mx-3 sm:mx-5 mt-4 flex items-start justify-between gap-3 rounded-ctl border border-teal/40 bg-white px-4 py-3">
             <div className="flex flex-col gap-1">
               <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-teal">
                 Welcome back
@@ -2262,7 +2262,7 @@ function ProfileScreen() {
             calling it. It saves first, so edits made here are never left behind,
             and the required-field check still runs. */}
         {hasSavedProfile && editor.full_name.trim() ? (
-          <div className="mx-5 mt-4 flex flex-col gap-3 rounded-card border border-teal/30 bg-teal-soft/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mx-3 sm:mx-5 mt-4 flex flex-col gap-3 rounded-card border border-teal/30 bg-teal-soft/50 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-0.5">
               <p className="text-[14px] font-bold text-ink">Your profile is saved. Next: a CV for a specific job.</p>
               <p className="text-[13px] leading-relaxed text-ink-soft">
@@ -2314,12 +2314,12 @@ function ProfileScreen() {
         onBack={backToOverview}
         action={saveButton}
       />
-      <div className="px-5 py-3"><CareerProfileResumeButton /></div>
+      <div className="page-gutter py-3"><CareerProfileResumeButton /></div>
       {parseNotesBlock}
       {loadErrorBlock}
 
       {/* Editor body */}
-      <div id="profile-editor" className="flex scroll-mt-4 flex-col gap-2.5 px-5 py-4">
+      <div id="profile-editor" className="page-gutter flex scroll-mt-4 flex-col gap-2.5 py-4">
         {/* One plain sentence naming the whole job before the first step, so
             the user knows how long this is and where they are inside it. */}
         <p className="px-1 pb-1 text-[13px] leading-relaxed text-ink-muted">

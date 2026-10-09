@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
  */
 
 export function Wrap({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn('mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-10', className)}>{children}</div>
+  return <div className={cn('page-gutter mx-auto w-full max-w-[1200px] lg:px-10', className)}>{children}</div>
 }
 
 export function Eyebrow({ className, children }: { className?: string; children: ReactNode }) {

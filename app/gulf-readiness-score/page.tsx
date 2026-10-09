@@ -91,7 +91,7 @@ export default function GulfReadinessScorePage() {
   const Shell = ({ children, wide }: { children: React.ReactNode; wide?: boolean }) => (
     <main className="min-h-dvh bg-canvas text-ink">
       <header className="border-b border-line bg-canvas/95">
-        <div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-3 sm:px-8">
+        <div className="page-gutter mx-auto flex min-h-[64px] max-w-[1100px] flex-wrap items-center justify-between gap-2 py-2 sm:min-h-[72px] sm:px-8">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="font-display flex h-9 w-9 items-center justify-center rounded-ctl bg-teal text-lg text-white">G</span>
             <span className="font-bold tracking-wide">GCC MENTOR</span>
@@ -106,7 +106,7 @@ export default function GulfReadinessScorePage() {
           </Link>
         </div>
       </header>
-      <div className={`mx-auto px-5 py-12 sm:px-8 lg:py-16 ${wide ? 'max-w-[820px]' : 'max-w-[600px]'}`}>{children}</div>
+      <div className={`page-gutter mx-auto py-8 sm:px-8 sm:py-12 lg:py-16 ${wide ? 'max-w-[820px]' : 'max-w-[600px]'}`}>{children}</div>
     </main>
   )
 
@@ -121,7 +121,7 @@ export default function GulfReadinessScorePage() {
   }) => (
     <div className="text-center">
       <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">{eyebrow}</p>
-      <h1 className="mt-4 font-display text-3xl leading-tight sm:text-4xl">{title}</h1>
+      <h1 className="mt-3 type-title text-ink">{title}</h1>
       <div className="mx-auto mt-8 flex max-w-md flex-col gap-3">
         {options.map((o) => (
           <button
@@ -144,15 +144,15 @@ export default function GulfReadinessScorePage() {
       <Shell>
         <div className="text-center">
           <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Free Gulf readiness score</p>
-          <h1 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">How Gulf-ready is your career?</h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-ink-soft">
+          <h1 className="mt-3 type-hero text-ink">How Gulf-ready is your career?</h1>
+          <p className="mt-3 type-body text-ink-soft">
             Two questions and your CV. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
           </p>
         </div>
 
-        <div className="mt-8 rounded-card border border-line bg-canvas p-5 shadow-redesign-md sm:p-7">
+        <div className="mt-6">
           <div
-            className={`rounded-card border-2 border-dashed p-7 text-center transition-colors ${dragging ? 'border-teal bg-teal/10' : 'border-line-strong bg-white'}`}
+            className={`rounded-card border-2 border-dashed px-4 py-6 text-center transition-colors sm:p-7 ${dragging ? 'border-teal bg-teal/10' : 'border-line-strong bg-white'}`}
             onDragOver={(e: DragEvent) => {
               e.preventDefault()
               setDragging(true)
@@ -265,7 +265,7 @@ export default function GulfReadinessScorePage() {
           <ProcessingOrbit size={168} />
           <div>
             <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Building your scorecard</p>
-            <h1 className="mt-3 font-display text-3xl">Scoring your Gulf readiness</h1>
+            <h1 className="mt-3 type-title">Scoring your Gulf readiness</h1>
           </div>
           <div className="w-full max-w-sm text-left">
             <ProcessingSteps steps={ANALYZE_STEPS} stepMs={1600} notes={SCAN_NOTES} />
@@ -280,7 +280,7 @@ export default function GulfReadinessScorePage() {
     <Shell wide>
       <div className="mb-6 text-center">
         <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your Gulf readiness</p>
-        <h1 className="mt-3 font-display text-3xl">Here&rsquo;s where your career stands</h1>
+        <h1 className="mt-3 type-title">Here&rsquo;s where your career stands</h1>
       </div>
       {result ? <ScorecardResult result={result} locked /> : null}
     </Shell>

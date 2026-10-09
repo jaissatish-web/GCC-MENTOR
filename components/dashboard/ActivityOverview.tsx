@@ -69,7 +69,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
     <section aria-labelledby="overall-progress-heading" className="flex flex-col gap-4">
       <h2 id="overall-progress-heading" className="type-section text-ink">Your progress report</h2>
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-card border border-line bg-white p-5 shadow-m-1 sm:p-6">
+        <div className="rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-6">
           <h3 className="type-card text-ink">Preparation coverage</h3>
           <p className="mt-1 type-helper text-ink-muted">Across your {overview.resume_count} available resumes.</p>
           {overview.resume_count === 0 ? <p className="mt-4 type-body text-ink-soft">Save your Career Profile to start building your resume and preparation.</p> : null}
@@ -87,7 +87,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
           </div>
           {overview.draft_resume_count > 0 ? <Link href="/dashboard/library" className="mt-5 block type-helper font-semibold text-teal">{overview.draft_resume_count} tailored resume{overview.draft_resume_count === 1 ? '' : 's'} still to build →</Link> : null}
         </div>
-        <div className="flex flex-col rounded-card border border-line bg-white p-5 shadow-m-1 sm:p-6">
+        <div className="flex flex-col rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-6">
           <h3 className="type-card text-ink">Interview practice</h3>
           <dl className="mt-5 grid grid-cols-2 gap-4">
             <div><dt className="type-helper text-ink-muted">Completed reports</dt><dd className="mt-1 font-display type-stat text-ink">{overview.mock_completed_count}</dd></div>
@@ -99,7 +99,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
           <Link href="/mock-interview" className="mt-5 type-helper font-semibold text-teal">Continue interview practice →</Link>
         </div>
       </div>
-      <div className="rounded-card border border-line bg-white p-5 shadow-m-1 sm:p-6">
+      <div className="rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="type-card text-ink">Application status</h3>
           <Link href="/dashboard/library" className="type-helper font-semibold text-teal">Manage in Resume Library →</Link>

@@ -67,7 +67,7 @@ export function PageContainer({
   return (
     <main
       className={cn(
-        'mx-auto w-full px-3 pb-12 pt-4 font-redesign-sans sm:px-6',
+        'page-gutter mx-auto w-full pb-12 pt-4 font-redesign-sans',
         width === 'wide' ? 'max-w-[1180px]' : 'max-w-[900px]',
         className
       )}
@@ -104,7 +104,7 @@ export function SectionCard({
     <section
       id={id}
       className={cn(
-        'rounded-card border border-line bg-white p-5 shadow-redesign-md sm:p-6',
+        'ui-surface rounded-card border border-line bg-white p-4 sm:p-6',
         className
       )}
     >

@@ -218,7 +218,7 @@ function ApplicationCard({
   const displayName = (pkg.name ?? '').trim() || pkg.target_job_title
 
   return (
-    <article className="flex min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-3.5 shadow-m-1 transition-shadow hover:shadow-m-2 sm:gap-4 sm:p-5">
+    <article className="ui-surface flex min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-3.5 shadow-m-1 transition-shadow hover:shadow-m-2 sm:gap-4 sm:p-5">
       {/* Who and where — the title opens this job's workspace. */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0 flex-1">

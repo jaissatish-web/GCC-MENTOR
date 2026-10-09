@@ -79,7 +79,7 @@ export default function OnboardingReportPage() {
       <div className="mx-auto max-w-[820px] px-3 py-12 sm:px-8 lg:py-16">
         <div className="mb-6 text-center">
           <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your full Gulf readiness report</p>
-          <h1 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">Unlocked — here&rsquo;s everything we found</h1>
+          <h1 className="mt-3 type-title">Unlocked — here&rsquo;s everything we found</h1>
           <p className="mx-auto mt-3 max-w-md text-[14px] leading-relaxed text-ink-soft">
             Every dimension, and your ranked action plan. Next we build your Career Profile so you can act on it.
           </p>

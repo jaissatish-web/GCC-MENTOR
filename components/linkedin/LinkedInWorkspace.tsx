@@ -29,7 +29,7 @@ const secondary =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-ctl border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-50'
 const input =
   'w-full min-w-0 rounded-ctl border border-line bg-white px-3 py-2.5 text-base text-ink focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/20'
-const card = 'rounded-card border border-line bg-white p-5 sm:p-7'
+const card = 'ui-surface min-w-0 rounded-card border border-line bg-white p-4 sm:p-7'
 
 async function responseJson(response: Response) {
   const body = await response.json().catch(() => ({
@@ -797,15 +797,15 @@ export function LinkedInWorkspace() {
               ) : (
                 <>
                   {stage === 0 && (
-                    <section className="grid overflow-hidden rounded-card border border-line bg-white md:grid-cols-[1.3fr_1fr]">
-                      <div className="p-6 sm:p-9">
+                    <section className="ui-surface grid min-w-0 overflow-hidden rounded-card border border-line bg-white md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+                      <div className="min-w-0 p-4 sm:p-9">
                         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-teal">
                           YOUR NEXT CHAPTER, CLEARLY TOLD
                         </p>
-                        <h2 className="mt-4 max-w-lg text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl">
+                        <h2 className="mt-3 max-w-lg type-marketing-title text-ink sm:mt-4">
                           Make your experience easier to discover.
                         </h2>
-                        <p className="mt-4 max-w-lg leading-7 text-ink-soft">
+                        <p className="mt-3 max-w-lg type-body text-ink-soft sm:mt-4">
                           For careers across the Gulf, a clear headline,
                           credible experience and relevant skills help
                           recruiters understand where you fit. We shape your
@@ -901,7 +901,7 @@ export function LinkedInWorkspace() {
                                 changeSetup('mode', 'existing')
                             }}
                             aria-pressed={setup.source === option.value}
-                            className={`rounded-ctl border p-5 text-left ${setup.source === option.value ? 'border-teal bg-teal-soft' : 'border-line bg-white hover:bg-canvas'}`}
+                            className={`min-w-0 rounded-ctl border p-4 text-left [overflow-wrap:anywhere] sm:p-5 ${setup.source === option.value ? 'border-teal bg-teal-soft' : 'border-line bg-white hover:bg-canvas'}`}
                           >
                             <option.icon className="size-6 text-teal" />
                             <span className="mt-3 block font-semibold text-ink">

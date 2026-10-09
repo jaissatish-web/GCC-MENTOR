@@ -55,7 +55,7 @@ export function AuthShell({
         </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-[1120px] flex-1 items-center gap-8 px-4 py-8 sm:px-6 sm:py-12 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-14 lg:py-16">
+      <main className="page-gutter mx-auto grid w-full max-w-[1120px] flex-1 items-center gap-8 py-6 sm:py-12 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-14 lg:py-16">
         {/* Brand panel — desktop only */}
         <aside className="relative hidden overflow-hidden rounded-[28px] bg-teal p-10 text-white lg:flex lg:min-h-[560px] lg:flex-col">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_85%_0%,rgba(201,150,46,0.28),transparent_70%)]" aria-hidden="true" />
@@ -106,8 +106,8 @@ export function AuthShell({
 /** The white form card. Its title is the page's only <h1>. */
 export function AuthCard({ title, subtitle, children }: { title: string; subtitle?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="rounded-[22px] border border-line bg-white p-5 shadow-lp-card sm:p-8">
-      <h1 className="text-[26px] font-bold leading-tight tracking-[-0.03em] text-ink sm:text-[28px]">{title}</h1>
+    <section className="ui-surface rounded-card border border-line bg-white p-4 sm:rounded-[22px] sm:p-8">
+      <h1 className="type-title text-ink">{title}</h1>
       {subtitle ? <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{subtitle}</p> : null}
       <div className="mt-6">{children}</div>
     </section>

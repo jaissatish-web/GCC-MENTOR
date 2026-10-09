@@ -34,26 +34,33 @@ font locally with swap and fallback metric adjustment. UI `font-display`,
 remains available for existing technical figures. Resume templates retain their
 independent inline fonts, sizes and weights; UI styling must never change PDF layout.
 
-### Reading sizes (2026-10-08)
+### Reading sizes (2026-10-09)
 
 Use shared role classes in `app/globals.css`, measured in rem. Regular paragraphs
-use 400, labels 500, cards/actions 600 and principal headings 700. Older emphasis
-utilities remain semibold; semantic main headings receive the bold tier.
+use 400, labels 500 and app headings/actions 600 on phones. Marketing headlines
+use 650; desktop page titles use 700. Heading roles own their weight, rather
+than a global h1/h2 override. Older emphasis utilities remain semibold.
 
 | Role | Class | Phone | Tablet ≥640px | Desktop ≥1024px |
 |---|---|---|---|---|
-| Page title | `type-title` | 26px / 1.25 | 28px | 30px |
-| App section title | `type-section` | 20px / 1.3 | 20px | 22px |
-| Card title | `type-card` | 18px / 1.4 | 18px | 20px |
+| Page title | `type-title` | 24px / 1.25 | 28px | 30px |
+| App section title | `type-section` | 18px / 1.3 | 20px | 22px |
+| Card title | `type-card` | 16px / 1.4 | 18px | 20px |
 | Main reading text | `type-body` | 16px / 1.5625 | same | same |
 | Label | `type-label` | 14px / 1.4, medium | same | same |
-| Button | `type-button` | 16px / 1.4, semibold | same | same |
+| Button | `type-button` | 15px / 1.4, semibold | 16px | 16px |
 | Hints and secondary text | `type-helper` | 14px / 1.5 | same | same |
 | Metadata and eyebrows | `type-caption` | 12px / 1.4 | same | same |
-| Marketing headline | `type-hero` | 32px / 1.15 | 38px | 42px |
-| Marketing section title | `type-marketing-title` | 24px / 1.25 | 28px | 32px |
+| Marketing headline | `type-hero` | 30px / 1.2 (28px below 360px) | 38px | 42px |
+| Marketing section title | `type-marketing-title` | 22px / 1.25 | 28px | 32px |
 | Marketing introduction | `type-lead` | 16px / 1.6 | 17px | 18px |
 | Dashboard counts | `type-stat` | 32px / 1.1 | 34px | 36px |
+
+Phone page gutters use the shared `page-gutter`: 12px at each edge, then 24px
+from 640px. Form cards use 16px padding on phones, and service subtitles span
+the full header width. Avoid adding a second card around an upload panel.
+Controls must wrap at narrow widths and with enlarged text. `ui-surface` gives
+cards a quiet mobile shadow; desktop shadows retain their existing depth.
 
 These classes carry no colour. Heading tracking is slightly tightened; body text
 has natural spacing. Do not use captions for instructions or long paragraphs.
@@ -637,3 +644,21 @@ renders to static markup with no stylesheet, so a Tailwind-classed template prod
 completely unstyled PDF — the actual paid deliverable. Templates therefore use inline
 styles from a single tokens file mirroring the Tailwind config. **Those two files must
 be kept in step by hand.**
+
+### Mobile regression checks (2026-10-09)
+
+After a production build, run `CHROME_PATH=/path/to/chromium npm run test:mobile`.
+The shared PageShell, SectionCard, Button and score cards are rendered with the
+current build's referenced CSS at 320, 360, 390, 430, 768 and 1440px, with normal
+and doubled root text. Assertions cover overflow, phone subtitle alignment,
+heading weights, 16px fields and 44px minimum controls. The test uses isolated
+markup and no account or production APIs.
+
+For the initial change, actual client-page fixtures additionally covered the
+landing, dashboard, Career Profile and its detail screens, Resume Library,
+templates, resume workspace, service forms, LinkedIn setup, free readiness tool,
+auth forms and optimization setup. Onboarding's mocked redirect does not verify
+its authenticated import journey. Preview-save and LinkedIn browser regressions
+passed; 50 templates × photo/no-photo × three document boundaries retained
+identical computed document typography and dimensions. These are Chromium checks,
+not certification of physical iPhone/Safari behavior or live authenticated flows.

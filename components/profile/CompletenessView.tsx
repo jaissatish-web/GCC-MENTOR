@@ -68,7 +68,7 @@ export function CompletenessView({
   const next = sections.find((s) => s.status === 'missing') ?? sections.find((s) => s.status === 'attention') ?? null
 
   return (
-    <div className="flex flex-col gap-5 px-5 py-4">
+    <div className="flex flex-col gap-5 px-3 sm:px-5 py-4">
       {/* 1 · HOW COMPLETE */}
       <section
         aria-labelledby="completeness-h"

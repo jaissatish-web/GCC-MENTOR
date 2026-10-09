@@ -159,7 +159,7 @@ export function ProfileExplainer() {
         onClick={() => setOpen(true)}
         aria-expanded={false}
         aria-controls="profile-explainer"
-        className="mx-5 mt-4 flex min-h-12 items-center gap-3 rounded-card bg-gradient-to-r from-teal to-teal-bright px-4 py-2.5 text-left text-white shadow-m-1 transition-shadow hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+        className="mx-3 sm:mx-5 mt-4 flex min-h-12 items-center gap-3 rounded-card bg-gradient-to-r from-teal to-teal-bright px-4 py-2.5 text-left text-white shadow-m-1 transition-shadow hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
       >
         <ShieldCheckIcon className="size-5 shrink-0" aria-hidden="true" />
         <span className="min-w-0 flex-1 text-[13.5px] font-semibold leading-snug">Your profile is the base for everything we make</span>
@@ -175,7 +175,7 @@ export function ProfileExplainer() {
     <section
       id="profile-explainer"
       aria-labelledby="profile-explainer-h"
-      className="relative mx-5 mt-4 overflow-hidden rounded-card-lg bg-gradient-to-br from-teal via-teal to-teal-bright p-4 text-white shadow-m-2 sm:p-6"
+      className="relative mx-3 sm:mx-5 mt-4 overflow-hidden rounded-card-lg bg-gradient-to-br from-teal via-teal to-teal-bright p-4 text-white shadow-m-2 sm:p-6"
     >
       {seenBefore ? (
         <button
@@ -246,12 +246,12 @@ export function ProfileExplainer() {
 // ---------------------------------------------------------------------------
 
 const CARD_BUTTON =
-  'group flex h-full w-full flex-col items-center gap-2 rounded-card border bg-gradient-to-b to-white p-3.5 text-center shadow-m-1 transition-all hover:-translate-y-0.5 hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas motion-reduce:transform-none motion-reduce:transition-none sm:p-5'
+  'group flex h-full w-full flex-col items-center gap-2 rounded-card border bg-gradient-to-b to-white p-3 text-center shadow-m-1 transition-all hover:-translate-y-0.5 hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas motion-reduce:transform-none motion-reduce:transition-none sm:p-5'
 
 function CardLink({ children }: { children: React.ReactNode }) {
   return (
-    <span className="mt-auto inline-flex min-h-8 items-center gap-1 pt-1 text-[12.5px] font-bold text-teal">
-      {children}
+    <span className="mt-auto inline-flex min-h-8 max-w-full items-center gap-1 pt-1 text-[12.5px] font-bold text-teal">
+      <span className="min-w-0 break-words">{children}</span>
       <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
     </span>
   )
@@ -278,9 +278,9 @@ export function ScoreCards({
   const profileFixes = gulf ? gulf.recommendations.filter((r) => (r.stage ?? 'profile') === 'profile').length : 0
 
   return (
-    <section aria-label="Your two scores" className={cn('grid grid-cols-2 gap-3 sm:gap-4', className ?? 'mx-5 mt-4')}>
+    <section aria-label="Your two scores" className={cn('grid grid-cols-2 gap-3 sm:gap-4', className ?? 'mx-3 sm:mx-5 mt-4')}>
       <button type="button" onClick={onOpenCompleteness} className={cn(CARD_BUTTON, 'border-teal/20 from-teal-soft')}>
-        <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-teal">Profile complete</span>
+        <span className="max-w-full break-words text-[12px] font-bold uppercase tracking-[0.1em] text-teal">Profile complete</span>
         <ScoreRing value={completeness.score} size={92} label="Profile complete" />
         <span className="text-[14px] font-bold leading-snug text-ink">
           {completeness.itemsLeft === 0
@@ -296,7 +296,7 @@ export function ScoreCards({
         onClick={onOpenReadiness}
         className={cn(CARD_BUTTON, tone ? tone.card : 'from-canvas', 'border-line')}
       >
-        <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-teal">Gulf Readiness</span>
+        <span className="max-w-full break-words text-[12px] font-bold uppercase tracking-[0.1em] text-teal">Gulf Readiness</span>
         <ScoreRing value={gulf ? gulf.finalScore : null} size={92} tone={tone?.ring ?? 'teal'} suffix="/100" label="Gulf Readiness" />
         <span className={cn('rounded-full px-2.5 py-0.5 text-[13px] font-bold leading-snug', tone?.chip ?? 'bg-canvas text-ink-muted')}>
           {/* The verdict alone ("Almost ready"). Its full label adds the reason
@@ -397,7 +397,7 @@ export function CareerSnapshot({
   onOpenAll: () => void
 }) {
   return (
-    <section aria-labelledby="snapshot-h" className="mx-5 mt-4 rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-5">
+    <section aria-labelledby="snapshot-h" className="mx-3 sm:mx-5 mt-4 rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <div className="flex min-w-0 flex-col">
           <h2 id="snapshot-h" className="font-display text-[18px] font-semibold text-ink">
@@ -489,7 +489,7 @@ export function SettingsCard({
   return (
     <section
       aria-labelledby="settings-card-h"
-      className="group relative mx-5 mt-4 overflow-hidden rounded-card border border-sec-summary/20 bg-white shadow-m-1 transition-all focus-within:ring-2 focus-within:ring-teal hover:-translate-y-0.5 hover:shadow-m-2 motion-reduce:transform-none"
+      className="group relative mx-3 sm:mx-5 mt-4 overflow-hidden rounded-card border border-sec-summary/20 bg-white shadow-m-1 transition-all focus-within:ring-2 focus-within:ring-teal hover:-translate-y-0.5 hover:shadow-m-2 motion-reduce:transform-none"
     >
       <div className="flex items-center gap-3 bg-gradient-to-r from-sec-summary/10 via-sec-summary/[0.04] to-white px-4 py-3.5 sm:px-5">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-ctl bg-white text-sec-summary shadow-m-1">
@@ -564,7 +564,7 @@ export function ViewHeader({
   action?: React.ReactNode
 }) {
   return (
-    <header className="flex flex-col gap-2 bg-white px-5 pb-5 pt-2">
+    <header className="flex flex-col gap-2 bg-white px-3 sm:px-5 pb-5 pt-2">
       <button
         type="button"
         onClick={onBack}
@@ -576,7 +576,7 @@ export function ViewHeader({
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">Career Profile · {eyebrow}</span>
-          <h1 className="font-display text-[24px] font-bold leading-tight tracking-[-0.015em] text-ink">{title}</h1>
+          <h1 className="type-title text-ink">{title}</h1>
           <p className="text-[13px] leading-relaxed text-ink-soft">{description}</p>
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
@@ -630,7 +630,7 @@ export function SaveBar({
       // Sticky only while there is something to do. Saved, it sits at the end
       // of the form: pinned, it covered a sixth of a phone screen for nothing.
       className={cn(
-        'z-20 mx-5 mt-4 flex flex-col gap-2 rounded-card border bg-white/95 p-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between',
+        'z-20 mx-3 sm:mx-5 mt-4 flex flex-col gap-2 rounded-card border bg-white/95 p-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between',
         state === 'saved' ? 'border-line shadow-m-1' : 'sticky bottom-[76px] border-gold/50 shadow-m-3 md:bottom-4',
       )}
     >
@@ -674,7 +674,7 @@ export function SaveBar({
             type="button"
             onClick={onSave}
             disabled={state === 'saving'}
-            className="min-h-11 flex-1 rounded-ctl bg-gold px-5 text-[14px] font-bold text-ink hover:bg-gold-ink hover:text-white disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-none"
+            className="min-h-11 flex-1 rounded-ctl bg-gold px-3 sm:px-5 text-[14px] font-bold text-ink hover:bg-gold-ink hover:text-white disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-none"
           >
             {state === 'saving' ? 'Saving…' : 'Save changes'}
           </button>

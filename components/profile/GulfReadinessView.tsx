@@ -113,7 +113,7 @@ export function GulfReadinessView({
 
   if (!gulf) {
     return (
-      <div className="px-5 py-6">
+      <div className="px-3 sm:px-5 py-6">
         <QuietNote>Working out your Gulf Readiness…</QuietNote>
       </div>
     )
@@ -143,7 +143,7 @@ export function GulfReadinessView({
   ]
 
   return (
-    <div className="flex flex-col gap-6 px-5 py-4">
+    <div className="flex flex-col gap-6 px-3 sm:px-5 py-4">
       {/* THE ANSWER */}
       <section
         aria-labelledby="verdict-h"

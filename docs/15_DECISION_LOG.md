@@ -1,5 +1,16 @@
 # DECISION LOG — what was decided, when, and why
 
+## 2026-10-09 — Mobile reading space and quieter typography
+
+Founder approved the mobile audit recommendations: one 12px phone gutter,
+lighter heading hierarchy, 12–16px padding on necessary cards, and full-width
+subtitles below service titles. Inter, the brand palette, workflows and desktop
+content widths stay. Fix the Career Profile photo/score/save row and narrow or
+enlarged-text controls through wrapping, not clipped overflow. Public Gulf
+Readiness gets its own metadata and canonical; private career documents remain
+outside search indexing. No template document typography, exports, AI, credits,
+authentication, database or payment logic changes.
+
 **Newest first. Append here the moment a decision is made, before the code is
 written.**
 

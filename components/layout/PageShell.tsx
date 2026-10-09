@@ -69,13 +69,13 @@ export function PageShell({
     // That is precisely the drift this component exists to prevent, and a page
     // cannot own its own font if the frame is meant to make pages feel like one
     // product.
-    <main className={cn('mx-auto flex w-full flex-col gap-5 px-4 pb-12 pt-5 font-redesign-sans sm:px-6 lg:pt-8', WIDTH[width], className)}>
+    <main className={cn('page-gutter mx-auto flex w-full flex-col gap-4 pb-12 pt-5 font-redesign-sans sm:gap-5 lg:pt-8', WIDTH[width], className)}>
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex min-w-0 gap-3.5">
+        <div className={cn('grid min-w-0 gap-x-3 gap-y-1.5', Icon ? 'grid-cols-[auto_minmax(0,1fr)]' : 'grid-cols-1')}>
           {Icon ? (
             <span
               aria-hidden="true"
-              className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-ctl bg-teal-soft text-teal sm:size-12"
+              className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-ctl bg-teal-soft text-teal sm:size-12"
             >
               <Icon className="size-6" />
             </span>
@@ -87,17 +87,17 @@ export function PageShell({
             <h1 className="type-title text-ink">
               {title}
             </h1>
-            {subtitle ? (
-              // ~70 characters: long enough for a real sentence, short enough to
-              // stay comfortably readable on a wide screen.
-              <p className="max-w-[70ch] type-body text-ink-soft">{subtitle}</p>
-            ) : null}
-            {uses && uses.length > 0 ? (
-              // One quiet line, not a row of pill boxes (2026-09-24): the pills
-              // read as buttons, and on a phone they took three rows.
-              <p className="hidden text-[12.5px] text-ink-muted sm:block">Uses your {uses.join(' · ')}</p>
-            ) : null}
           </div>
+          {subtitle ? (
+            <p className={cn('col-span-full max-w-[70ch] type-body text-ink-soft', Icon && 'sm:col-span-1 sm:col-start-2')}>
+              {subtitle}
+            </p>
+          ) : null}
+          {uses && uses.length > 0 ? (
+            <p className={cn('col-span-full hidden type-helper text-ink-muted sm:block', Icon && 'sm:col-span-1 sm:col-start-2')}>
+              Uses your {uses.join(' · ')}
+            </p>
+          ) : null}
         </div>
         {actions ? (
           <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">{actions}</div>

@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
  * Exported props and tone behavior remain unchanged. The redesign uses the
  * shared surface, line, radius, and shadow tokens from DESIGN_SYSTEM.md §8.
  */
-const cardVariants = cva('rounded-card border font-redesign-sans', {
+const cardVariants = cva('ui-surface rounded-card border font-redesign-sans', {
   variants: {
     tone: {
       light: 'border-line bg-white shadow-redesign-sm',

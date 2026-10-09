@@ -7,6 +7,8 @@ import { resendConfirmation, signup } from './actions'
 export const metadata = {
   title: 'Create your account',
   description: 'Create your free GCC MENTOR account and build one Career Profile for every Gulf job application.',
+  alternates: { canonical: '/signup' },
+  robots: { index: false, follow: true },
 }
 
 /**

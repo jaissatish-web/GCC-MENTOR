@@ -171,7 +171,7 @@ function InterviewQaScreen() {
       subtitle={isRaw ? 'Up to 25 practice questions in your professional field, drawn only from your saved Career Profile. No job description required.' : 'Up to 25 likely questions for one target job, with answers drawn from your own experience.'}
       uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
-      <Card tone="light" className="p-5 sm:p-6">
+      <Card tone="light" className="p-4 sm:p-6">
         {total === 0 ? (
           <StageGate what="Interview Q&A" />
         ) : list.length === 0 ? (

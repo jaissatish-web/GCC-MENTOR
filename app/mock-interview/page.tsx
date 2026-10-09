@@ -280,7 +280,7 @@ function MockInterviewScreen() {
       subtitle={isRaw ? 'Practise an interview in your professional field using only your saved Career Profile. No job description required.' : 'Speak your answers to an animated interviewer, then request one complete review and track your practice progress.'}
       uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
-      <Card tone="light" className="p-5 sm:p-6">
+      <Card tone="light" className="p-4 sm:p-6">
         {total === 0 ? (
           <StageGate what="Your mock interview" />
         ) : list.length === 0 ? (
@@ -389,7 +389,7 @@ function MockInterviewScreen() {
 
       {run && (run.input_mode !== 'voice' || run.status === 'completed') ? (
         <section id="interview-report" className="mt-6 scroll-mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">
-          <Card tone="light" className="p-5 sm:p-6">
+          <Card tone="light" className="p-4 sm:p-6">
             <div className="flex flex-col gap-1">
               <h2 className="font-display text-[21px] font-semibold text-ink">
                 {run.status === 'completed' ? 'Preparation report' : currentQuestion ? `Question ${answeredCount + 1}` : 'Ready to finish'}

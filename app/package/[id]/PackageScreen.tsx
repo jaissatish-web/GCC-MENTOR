@@ -636,7 +636,7 @@ function PackageScreenInner({ id }: { id: string }) {
           announced a state the user cannot be in any other way — an unpaid
           package never reaches this screen, it is redirected — so it was telling
           them something that is always true. */}
-      <div className="flex flex-col gap-3 px-5 pb-3 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
+      <div className="flex flex-col gap-3 px-3 pb-3 sm:px-5 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
         {/* THE JOB, NOT THE DOCUMENT (2026-09-23): this page is the workspace for
             one target job — its CV, letter, interview preparation and stage — so
             it is titled with the job. Never call a free resume "optimized" — it
@@ -818,7 +818,7 @@ function PackageScreenInner({ id }: { id: string }) {
           left rail beside the document (TASK-146). What remains here is the
           package journey plus transient notices, so the page explains what this
           job can become without adding backend state. */}
-      <div className="flex w-full flex-col gap-4 px-5 pb-8 lg:gap-3">
+      <div className="flex w-full flex-col gap-4 px-3 pb-8 sm:px-5 lg:gap-3">
         {isRaw ? (
           <div className="flex flex-col gap-3"><p className="text-[13px] text-ink-soft">Content edits and field visibility are saved in your Career Profile. Your resume name, template and styling are saved here. <Link href="/profile?view=settings" className="font-semibold text-teal underline">Choose visible fields</Link></p><PreparationJourney pkg={pkg} current="resume" /></div>
         ) : <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} />}

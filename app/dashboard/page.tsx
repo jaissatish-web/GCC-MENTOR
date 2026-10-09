@@ -138,7 +138,7 @@ export default function DashboardPage() {
   const firstRun = ready && nextAction.state === 'no_profile'
 
   return (
-    <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 pb-10 pt-5 font-redesign-sans sm:px-6 lg:pt-8">
+    <div className="page-gutter mx-auto flex w-full max-w-[1120px] flex-col gap-5 pb-10 pt-5 font-redesign-sans sm:gap-6 lg:pt-8">
       <header className="flex flex-col gap-1">
         <h1 className="type-title text-ink">
           {firstName ? `Good ${greeting()}, ${firstName}` : profileLoaded ? 'Welcome to GCC MENTOR' : `Good ${greeting()}`}

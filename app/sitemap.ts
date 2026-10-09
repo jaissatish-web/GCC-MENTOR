@@ -4,7 +4,7 @@ import { SITE_URL } from '@/lib/siteUrl'
 /**
  * sitemap.xml (2026-08-19).
  *
- * PUBLIC ROUTES ONLY — the four a logged-out visitor can actually reach and
+ * INDEXABLE PUBLIC ROUTES ONLY — the two tools a logged-out visitor can reach and
  * that render real content. Everything behind middleware.ts's auth check is
  * deliberately absent: submitting a URL that answers every crawl with a login
  * redirect is how a site teaches a search engine to distrust its own sitemap.
@@ -20,7 +20,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: SITE_URL, lastModified: now, changeFrequency: 'weekly', priority: 1 },
     { url: `${SITE_URL}/gulf-readiness-score`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${SITE_URL}/signup`, lastModified: now, changeFrequency: 'yearly', priority: 0.5 },
-    { url: `${SITE_URL}/login`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ]
 }

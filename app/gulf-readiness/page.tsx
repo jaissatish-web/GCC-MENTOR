@@ -44,7 +44,7 @@ function ScoreCard({ label, value, tone }: { label: string; value: number; tone:
 }
 
 function List({ title, items, icon }: { title: string; items: string[]; icon: string }) {
-  return <section className="rounded-card border border-line bg-white p-6"><h2 className="font-display text-2xl">{title}</h2><div className="mt-4 space-y-3">{items.map((item, i) => <div key={`${item}-${i}`} className="flex gap-3 rounded-ctl bg-canvas p-3 text-sm leading-relaxed"><span className="shrink-0 text-teal">{icon}</span><span>{item}</span></div>)}</div></section>
+  return <section className="rounded-card border border-line bg-white p-6"><h2 className="type-section">{title}</h2><div className="mt-4 space-y-3">{items.map((item, i) => <div key={`${item}-${i}`} className="flex gap-3 rounded-ctl bg-canvas p-3 text-sm leading-relaxed"><span className="shrink-0 text-teal">{icon}</span><span>{item}</span></div>)}</div></section>
 }
 
 /**
@@ -61,7 +61,7 @@ function Checklist({ title, signals }: { title: string; signals: Signal[] }) {
   return (
     <section className="rounded-card border border-line bg-white p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-display text-2xl">{title}</h2>
+        <h2 className="type-section">{title}</h2>
         <span className="font-mono text-sm text-ink-500">
           {done}/{signals.length} passed
         </span>
@@ -136,7 +136,7 @@ function NextStep({ score }: { score: Score }) {
           {ready ? 'You are ready to apply' : 'You are close'}
         </p>
 
-        <h2 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">
+        <h2 className="mt-3 type-marketing-title">
           {ready
             ? 'Your CV clears the Gulf basics. Now aim it at a specific role.'
             : gain > 0
@@ -233,13 +233,13 @@ export default function GulfReadinessPage() {
         .catch(err => setError(err instanceof Error ? err.message : 'Your scan could not be found.'))
     }, [])
 
-  if (error) return <main className="min-h-dvh bg-canvas px-3 sm:px-5 py-20 text-center"><h1 className="font-display text-4xl">Your scan is unavailable</h1><p className="mx-auto mt-4 max-w-lg text-ink-soft">{error}</p><Link href="/ats-scan" className="mt-8 inline-flex rounded-ctl bg-teal px-6 py-3 font-bold text-white">Scan my CV again</Link></main>
+  if (error) return <main className="min-h-dvh bg-canvas px-3 sm:px-5 py-20 text-center"><h1 className="type-title">Your scan is unavailable</h1><p className="mx-auto mt-4 max-w-lg text-ink-soft">{error}</p><Link href="/ats-scan" className="mt-8 inline-flex rounded-ctl bg-teal px-6 py-3 font-bold text-white">Scan my CV again</Link></main>
   if (!score) return <main className="flex min-h-dvh items-center justify-center bg-canvas"><p className="font-mono text-sm text-ink-500">Preparing your CV scan…</p></main>
 
   const overallTone = score.overall_score >= 75 ? 'green' : score.overall_score >= 55 ? 'gold' : 'terra'
   return <main className="min-h-dvh bg-canvas text-ink"><header className="border-b border-line bg-canvas/95"><div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-3 sm:px-8"><Link href="/" className="flex items-center gap-2.5"><span className="font-display flex h-9 w-9 items-center justify-center rounded-ctl bg-teal text-lg text-white">G</span><span className="font-bold tracking-wide">GCC MENTOR</span></Link><Link href="/login" className="text-sm font-semibold text-ink-muted">Log in</Link></div></header>
-    <div className="mx-auto max-w-[1100px] px-3 py-12 sm:px-8 lg:py-16"><div className="mx-auto max-w-4xl text-center"><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your free CV scan</p><h1 className="mt-4 font-display text-5xl leading-tight sm:text-6xl">Here is what is holding your CV back.</h1><p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-ink-soft">{score.summary}</p></div>
-      <section className={`mx-auto mt-10 max-w-4xl rounded-card border-2 ${overallTone === 'green' ? 'border-teal bg-teal-soft' : overallTone === 'gold' ? 'border-teal bg-teal-soft' : 'border-alert bg-alert-soft'} p-7 sm:p-10`}><div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left"><div className="flex size-32 shrink-0 flex-col items-center justify-center rounded-full border-8 border-white/70 bg-white shadow-sm"><span className="font-mono text-5xl font-bold">{score.overall_score}</span><span className="text-xs text-ink-500">out of 100</span></div><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-500">Overall CV score</p><h2 className="mt-2 font-display text-3xl">{score.overall_score >= 75 ? 'Strong foundation' : score.overall_score >= 55 ? 'Good foundation, but needs work' : 'Needs attention before you apply'}</h2><p className="mt-2 text-sm leading-relaxed text-ink-soft">This score is based only on what your submitted resume actually contains. It is a diagnostic, not a promise of employment.</p></div></div></section>
+    <div className="mx-auto max-w-[1100px] px-3 py-12 sm:px-8 lg:py-16"><div className="mx-auto max-w-4xl text-center"><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your free CV scan</p><h1 className="mt-4 type-hero">Here is what is holding your CV back.</h1><p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-ink-soft">{score.summary}</p></div>
+      <section className={`mx-auto mt-10 max-w-4xl rounded-card border-2 ${overallTone === 'green' ? 'border-teal bg-teal-soft' : overallTone === 'gold' ? 'border-teal bg-teal-soft' : 'border-alert bg-alert-soft'} p-7 sm:p-10`}><div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left"><div className="flex size-32 shrink-0 flex-col items-center justify-center rounded-full border-8 border-white/70 bg-white shadow-sm"><span className="font-mono text-5xl font-bold">{score.overall_score}</span><span className="text-xs text-ink-500">out of 100</span></div><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-500">Overall CV score</p><h2 className="mt-2 type-section">{score.overall_score >= 75 ? 'Strong foundation' : score.overall_score >= 55 ? 'Good foundation, but needs work' : 'Needs attention before you apply'}</h2><p className="mt-2 text-sm leading-relaxed text-ink-soft">This score is based only on what your submitted resume actually contains. It is a diagnostic, not a promise of employment.</p></div></div></section>
       <section className="mx-auto mt-8 grid max-w-4xl gap-4 md:grid-cols-3"><ScoreCard label="Structure" value={score.category_scores.structure} tone="green" /><ScoreCard label="Clarity & impact" value={score.category_scores.clarity_and_impact} tone="gold" /><ScoreCard label="Gulf readiness" value={score.category_scores.gulf_readiness} tone="terra" /></section>
       {score.signals ? (
         <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">
@@ -254,7 +254,7 @@ export default function GulfReadinessPage() {
       )}
 
       {/* Job Match section — only shown when a JD was provided */}
-      {jobMatch ? <section className="mx-auto mt-8 max-w-4xl rounded-card border border-teal/50 bg-white p-6 sm:p-8"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:text-left"><div><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Job match</p><h2 className="mt-2 font-display text-3xl">How you fit this role</h2></div><div className="flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-6 border-teal/40 bg-canvas shadow-sm"><span className="font-mono text-4xl font-bold">{jobMatch.overall_score}</span><span className="text-xs text-ink-500">/100</span></div></div><p className="mt-5 border-l-4 border-teal bg-canvas p-4 text-sm leading-relaxed text-ink-soft">{jobMatch.diagnosis}</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{Object.entries(jobMatch.categories).filter(([, c]) => c.applicable).map(([key, c]) => <div key={key} className="rounded-ctl border border-line bg-canvas p-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-500">{CATEGORY_LABELS[key] ?? key}</p><span className="font-mono text-lg font-bold text-teal">{c.score}<span className="text-xs text-ink-muted">/100</span></span></div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{c.explanation}</p></div>)}</div></section> : null}
+      {jobMatch ? <section className="mx-auto mt-8 max-w-4xl rounded-card border border-teal/50 bg-white p-6 sm:p-8"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:text-left"><div><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Job match</p><h2 className="mt-2 type-section">How you fit this role</h2></div><div className="flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-6 border-teal/40 bg-canvas shadow-sm"><span className="font-mono text-4xl font-bold">{jobMatch.overall_score}</span><span className="text-xs text-ink-500">/100</span></div></div><p className="mt-5 border-l-4 border-teal bg-canvas p-4 text-sm leading-relaxed text-ink-soft">{jobMatch.diagnosis}</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{Object.entries(jobMatch.categories).filter(([, c]) => c.applicable).map(([key, c]) => <div key={key} className="rounded-ctl border border-line bg-canvas p-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-500">{CATEGORY_LABELS[key] ?? key}</p><span className="font-mono text-lg font-bold text-teal">{c.score}<span className="text-xs text-ink-muted">/100</span></span></div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{c.explanation}</p></div>)}</div></section> : null}
 
       <NextStep score={score} />
     </div></main>

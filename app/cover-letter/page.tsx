@@ -209,7 +209,7 @@ function CoverLetterScreen() {
     >
 
       {/* Centered generation form (720px, §C) */}
-      <Card tone="light" className="p-5 sm:p-6">
+      <Card tone="light" className="p-4 sm:p-6">
         {list.length === 0 ? (
           <StageGate what="Your cover letter" />
         ) : (
@@ -247,7 +247,7 @@ function CoverLetterScreen() {
                       onClick={() => setTone(opt.value)}
                       title={opt.description}
                       className={cn(
-                        'flex min-h-11 flex-col items-start gap-0.5 rounded-ctl border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+                        'flex min-h-11 min-w-0 flex-col items-start gap-0.5 rounded-ctl border px-3 py-2 text-left [overflow-wrap:anywhere] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
                         // The chosen tone must look chosen from across the room.
                         active
                           ? 'border-2 border-teal bg-teal-soft'
@@ -329,7 +329,7 @@ function CoverLetterScreen() {
             Edit any letter below and press Save changes. Downloads use your saved text. The {SAVED_PER_PACKAGE} newest letters are kept for each {isRaw ? 'resume' : 'job'}.
           </p>
           {letters.map((letter) => (
-            <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-6">
+            <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-4 sm:p-6">
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="break-words text-[13px] font-bold text-ink">
