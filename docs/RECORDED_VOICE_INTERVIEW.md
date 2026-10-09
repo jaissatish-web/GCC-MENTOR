@@ -7,7 +7,7 @@ Select a saved resume and the existing mode, difficulty and question count. Star
 
 Start speaking requests microphone permission. Pause, resume, stop/listen and re-record are available. Seven seconds of silence after speech pauses recording; it does not discard or automatically grade the answer. Each answer is capped at three minutes and 8 MiB. Submit saves the recording, then Next question advances explicitly. After all answers are saved, Review my interview starts transcription and coaching. No transcription or grading runs while recording.
 
-The interview workspace lists every saved attempt for the selected resume as Mock interview 1, 2, etc.; each opens its questions/report. Reports use one phone gutter and one padded section, without an extra enclosing card or nested priority box. The same progress card appears in the workspace and dashboard. It reports all five saved score dimensions, actual increases/decreases from the previous matching interview and the overall change from the first matching interview. Viewing an earlier report excludes later attempts. Missing snapshot/rubric identity is a baseline, not a verified comparison. Different modes/settings remain accessible but start separate comparison groups.
+The workspace shows numbered saved-attempt cards with a graphical progress journey below them. Opening a completed attempt displays a dedicated eight-card result explorer; answers open question cards and separate transcript/feedback/stronger-answer/delivery tabs. Coaching cards expand individually. Dashboard reuses the five-area chart, actual first/previous differences, improved areas and next focus. Green points connect matching frozen-resume/settings/rubric attempts only; grey points are separate baselines. All feedback remains the saved content. Browsing completed reports never starts or resumes AI processing. Recording and explicit review behavior remain unchanged.
 
 Migration 068 removes only the mock ten-run limit and makes append idempotent by run id. It restores missing owner-matched voice snapshots, saved transcripts/feedback and reports from the existing session/answer tables; retained package runs are untouched. Deleting sessions are excluded. Previously pruned legacy text runs without a separate session cannot be reconstructed. Cover letter/Q&A limits and audio expiry stay unchanged. Roll back application code without deleting history; the old append function can be restored separately if its old limit is explicitly wanted.
 
@@ -44,7 +44,7 @@ Passed TypeScript, lint, production build and all 26 `npm test` suites (includin
 recovery tests and existing owner RLS/lifecycle/optimizer checks. Production build
 passes. `CHROME_PATH=/path/to/chromium npm run test:interview` uses actual React
 workspace/report/dashboard components, synthetic API replies and production CSS
-at 320/360/390/430/768/1440px. It verifies 12 clickable attempts, earlier-report
-comparisons, wide priority text, all six uncropped/unchanging portraits and no
-layout overflow/runtime errors. Shared mobile/enlarged-text checks also pass.
+at 320/360/390/430/768/1440px. It verifies 12 attempt cards and chart points, the eight-category explorer,
+question cards and voice tabs, unchanged saved priority text, dashboard charts,
+all six uncropped portraits and no AI writes/layout overflow/runtime errors. Shared mobile/enlarged-text checks also pass.
 These offline fixtures do not verify live provider calls or real phone recording.

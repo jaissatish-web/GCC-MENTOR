@@ -666,3 +666,18 @@ its authenticated import journey. Preview-save and LinkedIn browser regressions
 passed; 50 templates × photo/no-photo × three document boundaries retained
 identical computed document typography and dimensions. These are Chromium checks,
 not certification of physical iPhone/Safari behavior or live authenticated flows.
+
+## Interview card explorer and score journey (2026-10-09)
+
+The per-resume hub shows numbered history cards and a shared interactive progress
+chart; detailed reports live behind attempt links. Dashboard uses the same chart
+and coaching cards. Five saved score areas can be selected, and every point can
+be explored with a touch button. Green lines connect comparable attempts only;
+grey points retain other settings without implying improvement.
+
+A report opens eight icon cards. Each reveals one focused category with a back
+button. Answer cards drill down to one question, then voice-answer tabs separate
+transcript, feedback, stronger answer and delivery notes. Coaching actions expand
+in place. No synthetic scores, completion rewards or hiring predictions. Reuse
+`ui-system.css` typography, 12px phone gutters, one padded content card, 44px
+minimum controls, semantic headings, focused detail headings and SVG text labels.

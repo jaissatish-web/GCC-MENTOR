@@ -5,7 +5,6 @@ import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileR
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
@@ -15,6 +14,7 @@ import { Button, buttonVariants } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
+import { ArrowLeft, ChevronRight, Mic, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CTA } from '@/lib/serviceLabels'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
@@ -29,7 +29,6 @@ import { interviewProgress, orderedAttempts } from '@/lib/interviewProgress'
 import { InterviewReport } from '@/components/mock-interview/InterviewReport'
 import { InterviewerPicker } from '@/components/mock-interview/InterviewerPicker'
 import type { InterviewerId } from '@/lib/voice/interviewers'
-import { getInterviewer } from '@/lib/voice/interviewers'
 
 const MODES: Array<{ value: MockInterviewMode; label: string; body: string }> = [
   { value: 'mixed', label: 'Mixed', body: 'HR, technical, Gulf readiness and manager questions.' },
@@ -266,11 +265,17 @@ function MockInterviewScreen() {
         <span className="min-w-0 truncate text-right text-xs font-semibold text-ink sm:text-sm">{run.target_job_title}</span>
       </header>
       {run.status === 'completed' ? <div className="mx-auto w-full max-w-[1100px] flex-1 overflow-y-auto px-3 py-4 sm:p-6">
-        <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} />
-        {progress && <InterviewProgress packageId={selectedId} progress={progress} />}
-        <InterviewReport run={run} />
+        <InterviewReport key={run.id} run={run} answers={<VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} reviewOnly />} />
       </div> : <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} room />}
     </div>
+  }
+
+  if (requestedRunId && selectedId && run?.status === 'completed') {
+    const attemptNumber = orderedAttempts(detail?.mock_interview_runs ?? []).findIndex(item => item.id === run.id) + 1
+    return <PageShell icon={ChatBubbleLeftRightIcon} eyebrow="YOUR SAVED INTERVIEW" title={`Mock interview ${attemptNumber}`} subtitle="Explore one feedback card at a time. Your saved answers and report stay unchanged.">
+      <Link className="inline-flex min-h-11 items-center gap-2 text-teal hover:underline" href={`/mock-interview?package=${encodeURIComponent(selectedId)}`}><ArrowLeft size={17} aria-hidden="true" />Back to interview journey</Link>
+      <InterviewReport key={run.id} run={run} answers={run.input_mode === 'voice' ? <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} reviewOnly /> : undefined} />
+    </PageShell>
   }
 
   const unanswered = run ? run.questions.length - answeredCount : 0
@@ -319,6 +324,9 @@ function MockInterviewScreen() {
             </label>
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
 
+            <details className="group" open={(detail?.mock_interview_runs?.length ?? 0) === 0 || Boolean(opError || detailError || busy)}>
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-teal [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Mic size={18} aria-hidden="true" />Start a new practice</span><ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary>
+              <div className="mt-4 flex flex-col gap-5">
             <label className="flex flex-col gap-1.5">
               <span className="field-label">Interview type</span>
               <select value={mode} onChange={(e) => setMode(e.target.value as MockInterviewMode)} className="field">
@@ -377,6 +385,8 @@ function MockInterviewScreen() {
                 {CTA.startMockInterview}
               </Button>
             </div>
+              </div>
+            </details>
           </div>
         )}
       </Card>
@@ -384,36 +394,29 @@ function MockInterviewScreen() {
       {requestedRunId && detail && !run && !detailLoading ? <p role="alert" className="text-ink-muted">This interview is no longer available for the selected resume. Choose a saved attempt below.</p> : null}
       {detail && selectedId && (detail.mock_interview_runs?.length ?? 0) > 0 ? <section className="space-y-4" aria-label="Saved mock interviews">
         <div><h2 className="type-section">Your interview history</h2><p className="mt-1 text-sm text-ink-muted">All saved attempts for this resume. Open any interview to view its questions and report.</p></div>
-        <ul className="divide-y divide-line rounded-card border border-line bg-white">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {orderedAttempts(detail.mock_interview_runs ?? []).map((attempt, index) => <li key={attempt.id}>
-            <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(attempt.id)}`} aria-current={attempt.id === run?.id ? 'true' : undefined} className={cn('flex min-h-14 flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-teal-soft', attempt.id === run?.id && 'bg-teal-soft')}>
-              <div className="min-w-0"><h3 className="type-card">Mock interview {index + 1}</h3><p className="mt-1 text-sm text-ink-muted">{new Date(attempt.generated_at).toLocaleDateString()} · {attempt.mode.replaceAll('_', ' ')} · {attempt.difficulty} · {attempt.question_count} questions</p></div>
-              <span className="text-sm text-teal">{attempt.status === 'completed' ? `View report${attempt.final_report ? ` · ${attempt.final_report.overall_score}/100` : ''}` : 'Continue'} →</span>
+            <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(attempt.id)}${attempt.input_mode === 'voice' && attempt.status !== 'completed' ? '&room=1' : ''}`} className="group ui-card flex h-full min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-4 transition-colors hover:border-teal hover:bg-teal-soft/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+              <div className="flex items-center justify-between gap-3"><span className="grid size-10 place-items-center rounded-xl bg-teal-soft text-teal">{index + 1}</span><span className="flex items-center gap-1 rounded-full bg-canvas px-2 py-1 text-xs text-ink-muted">{attempt.status === 'completed' ? <CheckCircle2 size={13} aria-hidden="true" /> : <Mic size={13} aria-hidden="true" />}{attempt.status === 'completed' ? 'Reviewed' : 'In progress'}</span></div>
+              <h3 className="type-card">Mock interview {index + 1}</h3><p className="text-sm text-ink-muted">{new Date(attempt.generated_at).toLocaleDateString()} · {attempt.mode.replaceAll('_', ' ')} · {attempt.difficulty}</p>
+              <span className="mt-auto flex items-center justify-between border-t border-line pt-3 text-sm text-teal"><span>{attempt.status === 'completed' ? 'Explore result' : 'Continue practice'}</span><ChevronRight size={17} aria-hidden="true" /></span>
             </Link>
           </li>)}
         </ul>
         {progress && <InterviewProgress packageId={selectedId} progress={progress} />}
       </section> : null}
 
-      {run?.input_mode === 'voice' && selectedId ? <Card tone="light" className="flex flex-wrap items-center gap-4 p-4 sm:p-5">
-        <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-teal-soft sm:size-20"><Image src={getInterviewer(run.interviewer_id).image} alt="" fill sizes="80px" className="object-cover object-top" /></div>
-        <div className="min-w-0 flex-1"><p className="text-sm font-semibold text-ink">{run.status === 'completed' ? 'Review your interview' : 'Continue your interview'} with {getInterviewer(run.interviewer_id).name}</p><p className="mt-1 text-xs text-ink-muted">{run.question_count} questions · {run.status === 'completed' ? 'Report ready' : 'Your answers are saved as you go'}</p></div>
-        <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}&room=1`} className={buttonVariants({ variant: 'primary' })}>Open room</Link>
-      </Card> : null}
-
-      {run && (run.input_mode !== 'voice' || run.status === 'completed') ? (
+      {run && run.status !== 'completed' && run.input_mode !== 'voice' ? (
         <section id="interview-report" className="mt-6 scroll-mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">
-          <div className={run.status === 'completed' ? 'min-w-0' : 'ui-card min-w-0 rounded-card border border-line bg-white p-4 sm:p-6'}>
+          <div className="ui-card min-w-0 rounded-card border border-line bg-white p-4 sm:p-6">
             <div className="flex flex-col gap-1">
               <h2 className="font-display text-[21px] font-semibold text-ink">
-                {run.status === 'completed' ? 'Preparation report' : currentQuestion ? `Question ${answeredCount + 1}` : 'Ready to finish'}
+                {currentQuestion ? `Question ${answeredCount + 1}` : 'Ready to finish'}
               </h2>
               <p className="text-[12.5px] text-ink-muted">{run.opening_note}</p>
             </div>
 
-            {run.status === 'completed' && run.final_report ? (
-              <InterviewReport run={run} />
-            ) : currentQuestion ? (
+            {currentQuestion ? (
               <div className="mt-5 flex flex-col gap-4">
                 <div className="rounded-ctl bg-canvas p-4">
                   <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">{currentQuestion.focus}</span>
@@ -466,7 +469,7 @@ function MockInterviewScreen() {
                 <div className="flex items-start justify-between gap-3">
                   <span className="font-mono text-[12px] font-bold text-teal">Q{index + 1}</span>
                   <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-bold uppercase', q.answer ? 'bg-teal-soft text-teal' : 'bg-canvas text-ink-muted')}>
-                    {q.answer ? 'Answered' : run.status === 'completed' ? 'Skipped' : 'Open'}
+                    {q.answer ? 'Answered' : 'Open'}
                   </span>
                 </div>
                 <p className="mt-2 break-words text-[13px] font-semibold leading-snug text-ink">{q.question}</p>

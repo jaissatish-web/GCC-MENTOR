@@ -29,3 +29,10 @@ const unsorted = [third, first, second]
 assert.deepEqual(orderedAttempts(unsorted).map(r => r.id), [first.id, second.id, third.id])
 assert.equal(unsorted[0], third, 'History ordering is read-only')
 console.log('PASS: all score dimensions, honest decreases, first/previous deltas, selected-report cutoff, strict comparison identity, malformed scores, empty/unfinished/15-attempt history')
+
+const five = interviewProgress(Array.from({length: 5}, (_, i) => attempt(i + 1, 40 + i * 10)))!
+assert.deepEqual(five.timeline.map(p => p.scores.overall_score), [40,50,60,70,80])
+assert.equal(five.metrics[0].fromFirst, 40)
+assert.equal(five.metrics[0].delta, 10)
+assert.equal(interviewProgress([first,second,third], second.id)!.timeline.length, 2)
+assert.deepEqual(interviewProgress([first,{...second,difficulty:'challenging'}])!.timeline.map(p => p.comparable), [false,true])

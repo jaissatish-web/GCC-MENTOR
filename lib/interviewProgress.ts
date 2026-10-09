@@ -39,6 +39,12 @@ export function interviewProgress(runs: InterviewAttempt[], selectedId?: string)
     mode: selected.mode, difficulty: selected.difficulty, questionCount: selected.question_count,
     previousNumber: previous ? all.findIndex(r => r.id === previous.id) + 1 : null,
     comparableCount: earlier.length + 1,
+    timeline: all.slice(0, position + 1).flatMap((attempt, index) => {
+      if (attempt.status !== 'completed' || !validReport(attempt.final_report)) return []
+      return [{ id: attempt.id, number: index + 1,
+        comparable: attempt.id === selected.id || comparableAttempts(selected, attempt),
+        scores: Object.fromEntries(INTERVIEW_METRICS.map(({ key }) => [key, attempt.final_report![key]])) as Record<typeof INTERVIEW_METRICS[number]['key'], number> }]
+    }),
     metrics: INTERVIEW_METRICS.map(({ key, label }) => ({ key, label, score: report[key],
       previous: previous?.final_report?.[key] ?? null,
       delta: previous?.final_report ? report[key] - previous.final_report[key] : null,

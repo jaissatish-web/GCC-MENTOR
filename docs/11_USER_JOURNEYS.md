@@ -304,9 +304,15 @@ a new generation succeeds. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZ
 
 ## Mock interview history and progress (2026-10-09)
 
-Choose a resume in Mock Interview → see all numbered saved attempts → open any
-report or continue an unfinished recording → repeat practice. The selected
-completed attempt compares with earlier matching frozen-resume/settings/rubric
-attempts, including honest decreases. Dashboard shows the same progress summary
-with a link to that resume's history, without listing job or CV content. Reports
-have wider mobile reading space and no redundant enclosing/priority card.
+Choose a resume in Mock Interview → numbered saved-attempt cards → graphical
+progress journey below them. The hub never automatically opens an individual
+report. Select an attempt → dedicated eight-card result explorer → assessment,
+scores, strengths, gaps, practice, caution points or answer cards → one question
+and its answer/feedback/stronger-answer/speaking-note tabs → back to cards/history.
+Existing setup is expandable for returning users and open for first practice.
+
+Dashboard reuses the interactive five-area score chart, first/previous changes,
+improved areas, lowest current areas and expandable saved coaching actions.
+Only matching frozen-resume/settings/rubric scores form a green trend. Different
+settings appear as grey points with separate-baseline labels. Actual decreases
+remain visible. No content rewriting, new model calls or database changes.

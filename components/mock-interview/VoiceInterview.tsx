@@ -6,6 +6,7 @@ import { VOICE_BUCKET, type VoiceSessionView, type VoiceAnswer } from '@/lib/voi
 import { draftOperation } from '@/lib/voice/localDraft'
 import type { MockInterviewRun } from '@/types/package'
 import { Interviewer } from './Interviewer'
+import { InterviewAnswerCards } from './InterviewAnswerCards'
 import { CallOrb, REVIEWING_LINES } from './CallOrb'
 import { useRecorder } from './useRecorder'
 
@@ -68,14 +69,21 @@ function SavedAudio({ api, questionId, expiresAt, deletedAt }: { api: string; qu
   if (expired) return <p className="mt-3 rounded-ctl bg-canvas px-3 py-2 text-xs text-ink-muted">Recording expired after three days. Your transcript and coaching report remain available.</p>
   return <div className="mt-3">{url ? <audio controls src={url} className="w-full" aria-label="Saved answer recording" onError={() => { setUrl(null); setError('Playback link expired. Open it again.') }} /> : <Button type="button" variant="secondary" size="sm" onClick={() => { setError(''); void jsonRequest(api, { action: 'playback', questionId }).then(p => setUrl(p.url)).catch(e => setError(e.message)) }}>Listen to saved answer</Button>}{expiresAt ? <p className="mt-2 text-xs text-ink-muted">Audio available until {new Date(expiresAt).toLocaleString()}.</p> : null}{error && <p role="alert" className="text-sm text-alert">{error}</p>}</div>
 }
-function AnswerReview({ answer, question, api }: { answer: VoiceAnswer; question: string; api: string }) {
-  return <details className="rounded-xl border border-line bg-white p-4"><summary className="cursor-pointer font-semibold">{question}</summary><SavedAudio api={api} questionId={answer.question_id} expiresAt={answer.audio_delete_after} deletedAt={answer.audio_deleted_at} />
-    <h4 className="mt-4 font-semibold">Your transcript</h4><p className="mt-2 whitespace-pre-wrap text-sm">{answer.transcript}</p><p className="mt-1 text-xs text-ink-muted">Automatically transcribed. Check against the recording if feedback seems unexpected.</p>
-    {answer.feedback && <><h4 className="mt-4 font-semibold">What went well and what to improve · {answer.feedback.score}/10</h4><p className="mt-2 text-sm whitespace-pre-wrap">{answer.feedback.feedback}</p><h4 className="mt-4 font-semibold">A stronger answer to practise</h4><p className="mt-2 text-sm whitespace-pre-wrap">{answer.feedback.better_answer}</p><h4 className="mt-4 font-semibold">Wording to improve</h4>{answer.feedback.grammar.length ? <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">{answer.feedback.grammar.map((g, i) => <li key={i}>{g}</li>)}</ul> : <p className="mt-2 text-sm">No specific wording correction identified.</p>}{answer.feedback.follow_up && <><h4 className="mt-4 font-semibold">Practise next</h4><p className="mt-2 text-sm">{answer.feedback.follow_up}</p></>}</>}
-    {answer.delivery && <><h4 className="mt-4 font-semibold">Speaking observations</h4><p className="mt-2 text-sm">{answer.delivery.words_per_minute ?? '—'} words/min · {answer.delivery.long_pause_count ?? 'Unavailable'} pauses of 2+ seconds · {answer.delivery.filler_count} transcribed fillers</p><p className="mt-2 text-xs text-ink-muted">{answer.delivery.note}</p></>}
-  </details>
+function AnswerReview({ answer, api }: { answer: VoiceAnswer; api: string }) {
+  const [tab, setTab] = useState('answer')
+  const tabs = [{ id: 'answer', title: 'Your answer' }, { id: 'feedback', title: 'Coach feedback' }, { id: 'better', title: 'Stronger answer' }, { id: 'delivery', title: 'Speaking notes' }]
+  return <div className="space-y-4">
+    <div className="flex flex-wrap gap-2" aria-label="Answer sections">{tabs.map(item => <button key={item.id} type="button" aria-pressed={tab === item.id} onClick={() => setTab(item.id)} className={`min-h-11 rounded-lg border px-3 text-sm ${tab === item.id ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink-muted'}`}>{item.title}</button>)}</div>
+    <article className="ui-card rounded-card border border-line bg-white p-4">
+      <h4 className="type-card">{tabs.find(item => item.id === tab)?.title}</h4>
+      {tab === 'answer' && <><SavedAudio api={api} questionId={answer.question_id} expiresAt={answer.audio_delete_after} deletedAt={answer.audio_deleted_at} /><p className="mt-4 whitespace-pre-wrap text-ink-soft">{answer.transcript || 'No transcript is available for this answer.'}</p><p className="mt-3 text-xs text-ink-muted">Automatically transcribed. Check against the recording if feedback seems unexpected.</p></>}
+      {tab === 'feedback' && (answer.feedback ? <><span className="mt-3 inline-block rounded-full bg-teal-soft px-3 py-1 text-teal">{answer.feedback.score}/10</span><p className="mt-4 whitespace-pre-wrap text-ink-soft">{answer.feedback.feedback}</p><h4 className="mt-5 type-card">Wording to improve</h4>{answer.feedback.grammar.length ? <ul className="mt-3 list-disc space-y-2 pl-5">{answer.feedback.grammar.map((g, i) => <li key={i}>{g}</li>)}</ul> : <p className="mt-3 text-sm">No specific wording correction identified.</p>}</> : <p className="mt-3">No saved feedback is available.</p>)}
+      {tab === 'better' && (answer.feedback ? <><p className="mt-4 whitespace-pre-wrap text-ink-soft">{answer.feedback.better_answer}</p>{answer.feedback.follow_up && <div className="mt-5 border-t border-line pt-4"><h4 className="type-card">Practise next</h4><p className="mt-3">{answer.feedback.follow_up}</p></div>}</> : <p className="mt-3">No suggested answer is available.</p>)}
+      {tab === 'delivery' && (answer.delivery ? <><div className="mt-4 grid grid-cols-2 gap-3"><div className="rounded-xl bg-canvas p-3"><p className="text-xs text-ink-muted">Pace</p><p>{answer.delivery.words_per_minute ?? 'Unavailable'} words/min</p></div><div className="rounded-xl bg-canvas p-3"><p className="text-xs text-ink-muted">Transcribed fillers</p><p>{answer.delivery.filler_count}</p></div></div><p className="mt-4">Pauses of 2+ seconds: {answer.delivery.long_pause_count ?? 'Unavailable'}</p><p className="mt-3 text-sm text-ink-muted">{answer.delivery.note}</p></> : <p className="mt-3">Speaking observations are unavailable for this answer.</p>)}
+    </article>
+  </div>
 }
-export function VoiceInterview({ packageId, run, onUpdated, room = false }: { packageId: string; run: MockInterviewRun; onUpdated: () => void; room?: boolean }) {
+export function VoiceInterview({ packageId, run, onUpdated, room = false, reviewOnly = false }: { packageId: string; run: MockInterviewRun; onUpdated: () => void; room?: boolean; reviewOnly?: boolean }) {
   const api = `/api/packages/${encodeURIComponent(packageId)}/mock-interview/${encodeURIComponent(run.id)}/voice`
   const [view, setView] = useState<VoiceSessionView | null>(null)
   const [index, setIndex] = useState<number | null>(null)
@@ -100,7 +108,7 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
   useEffect(() => { void reload().catch(e => setError(e.message)) }, [reload])
   const reviewing = view?.status === 'queued' || view?.status === 'processing'
   useEffect(() => {
-    if (!reviewing) return
+    if (!reviewing || reviewOnly) return
     let stopped = false
     let timer: ReturnType<typeof setTimeout>
     async function step() {
@@ -115,15 +123,15 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
     }
     void step()
     return () => { stopped = true; clearTimeout(timer) }
-  }, [reviewing, api, reload])
+  }, [reviewing, reviewOnly, api, reload])
   useEffect(() => {
-    if (view?.status !== 'failed' || failedResumes.current >= 2) return
+    if (reviewOnly || view?.status !== 'failed' || failedResumes.current >= 2) return
     const timer = setTimeout(() => {
       failedResumes.current++
       void jsonRequest(api, { action: 'review' }).then(() => reload()).catch(e => setError(e instanceof Error ? e.message : 'Review paused. Retry when ready.'))
     }, 8000 * (failedResumes.current + 1))
     return () => clearTimeout(timer)
-  }, [view?.status, api, reload])
+  }, [view?.status, reviewOnly, api, reload])
   async function review() {
     setBusy(true); setError(null); setRequested(true)
     try { await jsonRequest(api, { action: 'review' }); await reload() }
@@ -148,16 +156,16 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
   const savedCurrent = Boolean(currentAnswer?.saved_at)
   const allSaved = saved === run.questions.length
   const showReviewing = reviewing || (requested && view.status === 'recording' && allSaved)
-  return <section className={room ? `flex min-h-0 w-full flex-1 flex-col gap-2 p-2 sm:gap-3 sm:p-4 ${view.status === 'recording' && !allSaved ? 'overflow-hidden' : 'overflow-y-auto'}` : 'mt-6 space-y-5'} aria-label="Recorded voice interview">
-    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-1"><h2 className="text-sm font-semibold text-ink sm:text-xl">{view.status === 'completed' ? 'Your recorded interview review' : showReviewing ? 'Reviewing your interview' : `Question ${Math.min((index ?? 0) + 1, run.questions.length)} of ${run.questions.length} · ${saved} saved`}</h2><Button variant="ghost" size="sm" onClick={() => void remove()} disabled={busy || recording || reviewing}>Delete interview</Button></div>
+  return <section className={room ? `flex min-h-0 w-full flex-1 flex-col gap-2 p-2 sm:gap-3 sm:p-4 ${view.status === 'recording' && !allSaved ? 'overflow-hidden' : 'overflow-y-auto'}` : 'space-y-5'} aria-label="Recorded voice interview">
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 px-1"><h3 className="text-sm font-semibold text-ink sm:text-xl">{view.status === 'completed' ? 'Your recorded interview review' : showReviewing ? 'Reviewing your interview' : `Question ${Math.min((index ?? 0) + 1, run.questions.length)} of ${run.questions.length} · ${saved} saved`}</h3><Button variant="ghost" size="sm" onClick={() => void remove()} disabled={busy || recording || reviewing}>Delete interview</Button></div>
     {error && <p role="alert" className="rounded-lg bg-alert-soft p-3 text-sm text-alert">{error}</p>}
-    {view.status === 'recording' && question && !allSaved && <div className={room ? 'flex min-h-0 flex-1 flex-col gap-2 md:grid md:grid-cols-[1.15fr_1fr] md:gap-4' : 'grid gap-5 lg:grid-cols-[1.15fr_1fr]'}>
+    {!reviewOnly && view.status === 'recording' && question && !allSaved && <div className={room ? 'flex min-h-0 flex-1 flex-col gap-2 md:grid md:grid-cols-[1.15fr_1fr] md:gap-4' : 'grid gap-5 lg:grid-cols-[1.15fr_1fr]'}>
       <div className={room ? 'h-[34dvh] min-h-[124px] max-h-[320px] shrink-0 md:h-full md:max-h-none' : 'min-h-[280px]'}><Interviewer interviewerId={run.interviewer_id} recording={recording} /></div>
       <div className={room ? 'flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto md:justify-center md:gap-5' : 'space-y-4'}><div className={`min-h-0 overflow-y-auto rounded-2xl border border-line bg-white p-3 sm:p-5 ${room ? 'flex-1 md:flex-none md:max-h-[40vh]' : ''}`}><p className="text-xs font-semibold text-teal sm:text-sm">Question {(index ?? 0) + 1} of {run.questions.length} · {question.focus}</p><h3 className="mt-2 text-base font-semibold leading-snug text-ink sm:mt-3 sm:text-xl sm:leading-relaxed">{question.question}</h3></div>
         {savedCurrent ? <div className="shrink-0 rounded-2xl bg-teal-soft p-3 sm:p-5"><p className="font-semibold">Recording saved. No grading yet.</p><SavedAudio api={api} questionId={question.id} expiresAt={currentAnswer?.audio_delete_after} deletedAt={currentAnswer?.audio_deleted_at} /><Button className="mt-3" onClick={() => setIndex(run.questions.findIndex(q => !view.answers.some(a => a.question_id === q.id && a.saved_at)))}>Next question</Button></div> : <Recording room={room} key={question.id} api={api} draftKey={`gcc.voice.${packageId}.${run.id}.${question.id}`} questionId={question.id} onSaved={async () => { await reload() }} onRecording={setRecording} />}
       </div>
     </div>}
-    {view.status === 'recording' && allSaved && !showReviewing && <div className="rounded-2xl border border-line bg-white p-5"><h3 className="text-xl font-semibold">Your interview is complete</h3><p className="mt-2 text-sm text-ink-muted">Listen to your saved answers below. Audio is kept for three days; transcripts and reports remain. Transcription and grading begin only when you request review.</p><Button className="mt-4" onClick={() => void review()} busy={busy} busyLabel="Starting review…">Review my interview</Button><div className="mt-5 space-y-3">{run.questions.map((q, i) => { const answer = view.answers.find(a => a.question_id === q.id); return <details key={q.id} className="rounded-lg border border-line p-3"><summary className="cursor-pointer">Question {i + 1}: {q.question}</summary><SavedAudio api={api} questionId={q.id} expiresAt={answer?.audio_delete_after} deletedAt={answer?.audio_deleted_at} /></details> })}</div></div>}
+    {!reviewOnly && view.status === 'recording' && allSaved && !showReviewing && <div className="rounded-2xl border border-line bg-white p-5"><h3 className="text-xl font-semibold">Your interview is complete</h3><p className="mt-2 text-sm text-ink-muted">Listen to your saved answers below. Audio is kept for three days; transcripts and reports remain. Transcription and grading begin only when you request review.</p><Button className="mt-4" onClick={() => void review()} busy={busy} busyLabel="Starting review…">Review my interview</Button><div className="mt-5 space-y-3">{run.questions.map((q, i) => { const answer = view.answers.find(a => a.question_id === q.id); return <details key={q.id} className="rounded-lg border border-line p-3"><summary className="cursor-pointer">Question {i + 1}: {q.question}</summary><SavedAudio api={api} questionId={q.id} expiresAt={answer?.audio_delete_after} deletedAt={answer?.audio_deleted_at} /></details> })}</div></div>}
     {showReviewing && <div className="rounded-2xl border border-line bg-white">
       <CallOrb
         label="Reviewing"
@@ -167,6 +175,10 @@ export function VoiceInterview({ packageId, run, onUpdated, room = false }: { pa
       />
     </div>}
     {view.status === 'failed' && <div role="alert" className="rounded-xl bg-alert-soft p-5"><p>{view.last_error || 'Review was interrupted. Your recordings are saved.'}</p><Button className="mt-3" onClick={() => void review()} busy={busy}>Retry review</Button></div>}
-    {view.status === 'completed' && <>{run.final_report && <div className="rounded-2xl bg-teal-soft p-5"><h3 className="text-xl font-semibold">Your next three improvements</h3><ol className="mt-3 list-decimal space-y-2 pl-5">{run.final_report.improvement_plan.slice(0, 3).map((p, i) => <li key={i}>{p}</li>)}</ol><p className="mt-3 text-sm">Practise these points, then start another interview with the same settings to track your progress.</p></div>}<div className="space-y-3">{run.questions.map(q => { const a = view.answers.find(a => a.question_id === q.id); return a ? <AnswerReview key={q.id} answer={a} question={q.question} api={api} /> : null })}</div></>}
+    {view.status === 'completed' && <InterviewAnswerCards key={run.id} run={run} renderAnswer={q => {
+      const answer = view.answers.find(a => a.question_id === q.id)
+      return answer ? <AnswerReview key={q.id} answer={answer} api={api} /> : <p>No saved recording review is available for this question.</p>
+    }} />}
+
   </section>
 }

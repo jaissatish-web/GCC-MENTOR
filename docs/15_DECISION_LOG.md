@@ -1,6 +1,19 @@
 # DECISION LOG — what was decided, when, and why
 
 
+## 2026-10-09 — Visual interview practice hub and drill-down cards
+
+Founder requested a graphical practice journey, compact improved/next-focus
+cards and clickable interview/result sections instead of a wall of paragraphs.
+The per-resume hub shows numbered attempts and aggregate progress only; a run
+opens its own results with back navigation. Use real saved score history, show
+different settings as separate baselines, and retain honest decreases. Report
+cards reveal existing feedback/answers without rewriting content or AI calls.
+Dashboard reuses the same chart. Keep universal typography, small phone gutters,
+recording/review logic, ownership, retention and resume snapshots unchanged.
+No migration, dependency or credit/payment changes.
+
+
 ## 2026-10-09 — Persistent mock interview history and comparable progress
 
 Founder requested natural seated interviewer framing, wider mobile reports, all

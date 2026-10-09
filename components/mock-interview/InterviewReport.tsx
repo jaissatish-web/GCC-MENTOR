@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/Button'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { ArrowLeft, ChevronRight, BarChart3, FileCheck2, Sparkles, Target, ShieldCheck, Lightbulb, MessagesSquare, MessageSquare } from 'lucide-react'
+import { CoachingCards } from './CoachingCards'
+import { InterviewAnswerCards } from './InterviewAnswerCards'
 import type { MockInterviewFinalReport, MockInterviewRun } from '@/types/package'
 
 type ScoreKey = 'technical' | 'role_fit' | 'gulf_readiness' | 'answer_structure'
@@ -125,68 +127,49 @@ function ListSection({ title, intro, items, tone = 'neutral', ordered = false }:
   </section>
 }
 
-export function InterviewReport({ run }: { run: MockInterviewRun }) {
+type ReportView = 'overview' | 'assessment' | 'scores' | 'strengths' | 'gaps' | 'care' | 'plan' | 'practice' | 'answers'
+
+export function InterviewReport({ run, answers }: { run: MockInterviewRun; answers?: ReactNode }) {
+  const [view, setView] = useState<ReportView>('overview')
+  const heading = useRef<HTMLHeadingElement>(null)
+  useEffect(() => { if (view !== 'overview') heading.current?.focus() }, [view])
   const report = run.final_report
   if (!report) return null
   const status = statusFor(report.overall_score)
-  const ref = run.id.replaceAll('-', '').slice(0, 10).toUpperCase()
   const completed = new Date(run.completed_at ?? run.generated_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-  const fallbackSummary = `${status.label}. Your strongest signals are ${report.strengths.slice(0, 2).join(' and ').toLowerCase() || 'still emerging'}. Your first priority is ${report.weak_points[0]?.toLowerCase() || 'to add specific evidence and results to each answer'}.`
-  const scoreFallback: Record<ScoreKey, string> = {
-    technical: 'Measures how clearly your answers demonstrate role knowledge, methods and problem-solving evidence.',
-    role_fit: 'Measures how directly your experience and examples match the target role.',
-    gulf_readiness: 'Measures how clearly your answers address Gulf workplace, client and site expectations.',
-    answer_structure: 'Measures whether answers are focused, specific and easy for an interviewer to follow.',
-  }
-
-  return <div className="mt-5 space-y-5">
-    <section className="overflow-hidden rounded-card border border-[#C7A96A] bg-[#0C302F] text-white shadow-m-3">
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/15 px-5 py-4 sm:px-7">
-        <div><p className="font-display text-[22px] font-semibold">GCC MENTOR</p><p className="mt-0.5 text-[10px] font-semibold tracking-[0.16em] text-[#B8D5CF]">INTERVIEW READINESS RECORD</p></div>
-        <ShareMenu run={run} />
-      </div>
-      <div className="grid gap-6 px-5 py-6 sm:grid-cols-[1fr_230px] sm:px-7 sm:py-8">
-        <div>
-          <p className="text-[11px] font-semibold tracking-[0.12em] text-[#D6B36A]">PRACTICE ASSESSMENT</p>
-          <div className="mt-3 flex items-end gap-2"><strong className="font-display text-7xl leading-none sm:text-8xl">{report.overall_score}</strong><span className="pb-2 text-lg text-[#B8D5CF]">/100</span></div>
-          <p className="mt-3 max-w-[520px] text-[13px] leading-relaxed text-[#DCE8E5]">AI-guided preparation feedback based on this interview. It is not an employer assessment or hiring prediction.</p>
-        </div>
-        <div className="flex items-center gap-4 rounded-card border border-white/15 bg-white/[0.06] p-4 sm:flex-col sm:justify-center sm:text-center">
-          <div className="grid size-20 shrink-0 place-items-center rounded-full border-[7px] border-[#D6B36A] bg-[#153E3B] font-display text-2xl font-semibold">{report.overall_score}</div>
-          <div><p className="font-display text-[20px] font-semibold">{status.label}</p><p className="mt-1 text-[11px] text-[#B8D5CF]">{status.note}</p></div>
-        </div>
-      </div>
-      <div className="grid gap-2 border-t border-white/15 bg-black/10 px-5 py-3 text-[10px] text-[#AFCBC5] sm:grid-cols-3 sm:px-7">
-        <span>Assessment ref {ref}</span><span className="sm:text-center">{run.mode.replaceAll('_', ' ')} · {run.difficulty}</span><span className="sm:text-right">Completed {completed}</span>
-      </div>
-    </section>
-
-    <section className="rounded-card border border-line bg-[#F4EFE4] p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[11px] font-bold text-gold-text">EXECUTIVE ASSESSMENT</p><h3 className="mt-1 font-display text-[24px] font-semibold text-ink">Where you stand now</h3></div><span className="rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-teal shadow-m-1">{status.label}</span></div>
-      <p className="mt-4 text-[14px] leading-7 text-ink-soft">{report.executive_summary || fallbackSummary}</p>
-      <div className="mt-4 border-t border-[#D6B36A]/50 pt-4"><p className="text-[11px] font-bold text-gold-text">WORK ON THIS FIRST</p><p className="mt-1 text-[13px] font-semibold leading-relaxed text-ink">{report.priority_focus || report.improvement_plan[0] || 'Build one clear situation–action–result example for the weakest answer.'}</p></div>
-    </section>
-
-    <section>
-      <div className="mb-3"><h3 className="font-display text-[21px] font-semibold text-ink">Score diagnosis</h3><p className="mt-1 text-[12px] text-ink-muted">What each score says about this interview and why it matters.</p></div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {SCORE_ROWS.map(row => {
-          const value = Number(report[row.field])
-          return <article key={row.key} className="rounded-card border border-line bg-white p-4 shadow-m-1">
-            <div className="flex items-center justify-between gap-3"><h4 className="text-[13px] font-bold text-ink">{row.label}</h4><strong className="font-mono text-lg text-teal">{value}</strong></div>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-teal" style={{ width: `${value}%` }} /></div>
-            <p className="mt-3 text-[12px] leading-relaxed text-ink-muted">{report.score_explanations?.[row.key] || scoreFallback[row.key]}</p>
-          </article>
-        })}
-      </div>
-    </section>
-
-    <div className="grid gap-4 sm:grid-cols-2">
-      <ListSection title="Strongest signals" intro="What already works in your answers" items={report.strengths} tone="positive" />
-      <ListSection title="Where you lose marks" intro="Specific gaps reducing your impact" items={report.weak_points} tone="warning" />
+  const sections = [
+    { id: 'assessment', title: 'Your assessment', intro: 'Where you stand and your first priority', icon: FileCheck2, color: 'bg-teal-soft text-teal' },
+    { id: 'scores', title: 'Score breakdown', intro: 'Understand all four skill areas', icon: BarChart3, color: 'bg-blue-soft text-blue' },
+    { id: 'answers', title: 'Your answers', intro: `${run.questions.length} question cards · explore one at a time`, icon: MessageSquare, color: 'bg-violet-50 text-violet-700' },
+    { id: 'strengths', title: 'Your strengths', intro: `${report.strengths.length} signals to build on`, icon: Sparkles, color: 'bg-teal-soft text-teal' },
+    { id: 'gaps', title: 'Improve these areas', intro: `${report.weak_points.length} opportunities to practise`, icon: Target, color: 'bg-gold-soft text-gold-text' },
+    { id: 'plan', title: 'Your practice plan', intro: 'Small actions for the next interview', icon: Lightbulb, color: 'bg-gold-soft text-gold-text' },
+    { id: 'care', title: 'Answers to handle carefully', intro: `${report.risky_answers.length} points to check before an interview`, icon: ShieldCheck, color: 'bg-alert-soft text-alert' },
+    { id: 'practice', title: 'Next challenge', intro: `${report.next_practice_questions.length} questions to rehearse`, icon: MessagesSquare, color: 'bg-cyan-50 text-cyan-800' },
+  ] as const
+  const active = sections.find(section => section.id === view)
+  const summary = report.executive_summary || `${status.label}. Focus next on ${report.weak_points[0] || 'specific evidence and clear examples'}.`
+  return <section id="interview-report" className="space-y-4" aria-label="Interview result explorer">
+    <div className="ui-card rounded-card border border-teal/20 bg-[#0C302F] p-4 text-white sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-[#B8D5CF]">YOUR PRACTICE RESULT</p><h2 className="mt-1 type-section">{status.label}</h2><p className="mt-2 text-sm text-[#DCE8E5]">{run.mode.replaceAll('_', ' ')} · {run.difficulty} · {completed}</p></div><ShareMenu run={run} /></div>
+      <div className="mt-5 flex items-center gap-4"><div className="relative grid size-20 shrink-0 place-items-center"><svg viewBox="0 0 80 80" className="absolute inset-0 size-full -rotate-90" aria-hidden="true"><circle cx="40" cy="40" r="34" fill="none" stroke="#335A56" strokeWidth="6" /><circle cx="40" cy="40" r="34" fill="none" stroke="#D6B36A" strokeWidth="6" strokeDasharray={`${report.overall_score * 2.136} 213.6`} strokeLinecap="round" /></svg><span className="text-2xl font-semibold">{report.overall_score}</span></div><div><p>Overall score · {report.overall_score}/100</p><p className="mt-1 text-sm text-[#B8D5CF]">{status.note}. Open a card to explore your feedback.</p></div></div>
     </div>
-    <ListSection title="Answers that need care" intro="Claims, gaps or wording to correct before a real interview" items={report.risky_answers} tone="warning" />
-    <ListSection title="Your improvement plan" intro="Complete these in order, then repeat the interview" items={report.improvement_plan} ordered />
-    <ListSection title="Questions to practise next" intro="Use specific examples and say the answers aloud" items={report.next_practice_questions} ordered />
-  </div>
+    {view === 'overview' ? <div className="space-y-3"><h3 className="type-card">Choose what to explore</h3><div className="grid grid-cols-2 gap-3 lg:grid-cols-3" aria-label="Result cards">
+      {sections.map(section => <button key={section.id} type="button" onClick={() => setView(section.id)} className="group ui-card min-w-0 rounded-card border border-line bg-white p-4 text-left transition-colors hover:border-teal hover:bg-teal-soft/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+        <span className={`grid size-11 place-items-center rounded-xl ${section.color}`}><section.icon size={22} aria-hidden="true" /></span><span className="mt-4 block type-card">{section.title}</span><span className="mt-2 block type-helper text-ink-muted">{section.intro}</span><span className="mt-4 flex items-center justify-between text-sm text-teal">Explore<ChevronRight size={17} aria-hidden="true" /></span>
+      </button>)}
+    </div></div> : <div className="space-y-4">
+      <button type="button" onClick={() => setView('overview')} className="inline-flex min-h-11 items-center gap-2 text-teal hover:underline"><ArrowLeft size={17} aria-hidden="true" />Back to result cards</button>
+      <h2 ref={heading} tabIndex={-1} className="type-section outline-none">{active?.title}</h2>
+      {view === 'assessment' && <div className="ui-card rounded-card border border-line bg-white p-4"><h3 className="type-card">Where you stand now</h3><p className="mt-3 whitespace-pre-wrap text-ink-soft">{summary}</p><div className="mt-4 border-t border-line pt-4"><h3 className="type-card text-gold-text">Work on this first</h3><p className="mt-3 whitespace-pre-wrap text-ink-soft">{report.priority_focus || report.improvement_plan[0] || 'Build one clear situation–action–result example.'}</p></div></div>}
+      {view === 'scores' && <div className="grid gap-3 sm:grid-cols-2">{SCORE_ROWS.map(row => <article key={row.key} className="ui-card rounded-card border border-line bg-white p-4"><div className="flex items-start justify-between gap-3"><h3 className="type-card">{row.label}</h3><span className="text-teal">{Number(report[row.field])}/100</span></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-teal" style={{ width: `${Number(report[row.field])}%` }} /></div><p className="mt-4 text-ink-soft">{report.score_explanations?.[row.key] || 'Use the answer feedback to build specific evidence for this area.'}</p></article>)}</div>}
+      {view === 'strengths' && (report.strengths.length ? <ListSection title="Strongest signals" items={report.strengths} tone="positive" /> : <p className="ui-card rounded-card border border-line bg-white p-4">No specific strengths were identified in this attempt. Use the practice plan to build your next examples.</p>)}
+      {view === 'gaps' && (report.weak_points.length ? <ListSection title="Where to focus" items={report.weak_points} tone="warning" /> : <p>No specific gaps were identified in this report.</p>)}
+      {view === 'care' && (report.risky_answers.length ? <ListSection title="Check these points" items={report.risky_answers} tone="warning" /> : <p>No specific caution points were identified in this report.</p>)}
+      {view === 'plan' && (report.improvement_plan.length ? <CoachingCards items={report.improvement_plan} title="Your improvement plan" /> : <p>No practice actions were saved for this attempt.</p>)}
+      {view === 'practice' && (report.next_practice_questions.length ? <CoachingCards items={report.next_practice_questions} title="Questions to practise next" /> : <p>No follow-up questions were saved for this attempt.</p>)}
+      {view === 'answers' && (answers ?? <InterviewAnswerCards run={run} />)}
+    </div>}
+    <p className="text-xs text-ink-muted">AI-guided practice feedback, not an employer assessment or hiring prediction. All content comes from this saved interview.</p>
+  </section>
 }
