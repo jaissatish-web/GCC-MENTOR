@@ -5,24 +5,25 @@
   --ui-weight-regular: 400;
   --ui-weight-label: 500;
   --ui-weight-heading: 600;
-  --ui-title-size: 1.375rem;
-  --ui-section-size: 1rem;
-  --ui-card-title-size: 1rem;
-  --ui-body-size: 0.9375rem;
+  --ui-weight-title: 700;
+  --ui-title-size: 1.5rem;
+  --ui-section-size: 1.25rem;
+  --ui-card-title-size: 1.125rem;
+  --ui-body-size: 1rem;
   --ui-label-size: 0.875rem;
   --ui-helper-size: 0.875rem;
   --ui-caption-size: 0.75rem;
   --ui-input-size: 1rem;
-  --ui-button-size: 0.9375rem;
-  --ui-hero-size: 1.875rem;
-  --ui-marketing-size: 1.375rem;
+  --ui-button-size: 1rem;
+  --ui-hero-size: 2rem;
+  --ui-marketing-size: 1.625rem;
   --ui-lead-size: 1rem;
   --ui-stat-size: 2rem;
-  --ui-body-line: 1.5625;
+  --ui-body-line: 1.6;
   --ui-heading-line: 1.3;
   --ui-label-line: 1.4;
-  --ui-heading-tracking: -0.025em;
-  --ui-page-gutter: 12px;
+  --ui-heading-tracking: -0.02em;
+  --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
   --ui-card-radius: 16px;
   --ui-card-shadow: 0 1px 3px rgba(20, 24, 28, 0.04);
@@ -37,12 +38,12 @@
 @media (min-width: 640px) {
   :root {
     --ui-title-size: 1.75rem;
-    --ui-section-size: 1.25rem;
+    --ui-section-size: 1.375rem;
     --ui-card-title-size: 1.125rem;
     --ui-body-size: 1rem;
     --ui-button-size: 1rem;
     --ui-hero-size: 2.375rem;
-    --ui-marketing-size: 1.75rem;
+    --ui-marketing-size: 2rem;
     --ui-lead-size: 1.0625rem;
     --ui-stat-size: 2.125rem;
     --ui-page-gutter: 24px;
@@ -51,101 +52,114 @@
 }
 @media (min-width: 1024px) {
   :root {
-    --ui-title-size: 1.875rem;
-    --ui-section-size: 1.375rem;
+    --ui-title-size: 2rem;
+    --ui-section-size: 1.5rem;
     --ui-card-title-size: 1.25rem;
-    --ui-hero-size: 2.625rem;
-    --ui-marketing-size: 2rem;
+    --ui-hero-size: clamp(3rem, 3.6vw, 3.25rem);
+    --ui-marketing-size: 2.25rem;
     --ui-lead-size: 1.125rem;
     --ui-stat-size: 2.25rem;
   }
 }
-@media (max-width: 359px) { :root { --ui-hero-size: 1.75rem; } }
+@media (max-width: 359px) { :root { --ui-hero-size: 1.875rem; } }
 
-/* Semantic fallback brings older pages onto the same roles without changing
-   their HTML hierarchy, links, colors, behavior or authored document content. */
-body :is(h1, h2, h3, h4, h5, h6, p, span, label, legend, button, input, textarea, select, a, li, dt, dd, blockquote, .font-redesign-sans, .font-sans, .font-display):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-family: var(--ui-font);
-}
-body :is(h1, h2, h3, h4, h5, h6, .type-title, .type-section, .type-card):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-weight: var(--ui-weight-heading);
+/* Element defaults have lower specificity than authored utilities. Explicit
+   type-* roles supply the shared scale; text-sm/text-xl and bold utilities
+   retain their meanings. Document and LinkedIn examples remain isolated. */
+body :is(h1, h2, h3, h4, h5, h6):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  font-weight: var(--ui-weight-title);
   line-height: var(--ui-heading-line);
   letter-spacing: var(--ui-heading-tracking);
-  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
-body :is(.text-xs, .text-\[12px\], .text-\[12\.5px\], .text-\[13px\], .text-\[13\.5px\]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-size: var(--ui-caption-size);
-}
-body :is(.text-\[10px\], .text-\[11px\], .text-\[11\.5px\]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-size: var(--ui-caption-size);
-}
-body :is(.text-sm, .text-base, .text-lg, .text-\[14px\], .text-\[15px\], .text-\[16px\], .text-\[17px\], .text-\[18px\]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-size: var(--ui-body-size); }
-body :is(.text-xl, .text-2xl, .text-\[20px\], .text-\[22px\], .text-\[24px\]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-size: var(--ui-section-size); }
-body :is(.text-3xl, .text-4xl, .text-5xl, .text-6xl, .text-\[28px\], .text-\[30px\], .text-\[32px\], .text-\[36px\], .text-\[48px\]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-size: var(--ui-stat-size); }
-body :is(h1, .type-title):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-size: var(--ui-title-size);
-}
-body :is(h2, .type-section):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-size: var(--ui-section-size);
-}
-body :is(h3, h4, h5, h6, .type-card):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body h1:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-size: var(--ui-title-size); }
+body h2:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-size: var(--ui-section-size); }
+body :is(h3, h4, h5, h6):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-card-title-size);
+  font-weight: var(--ui-weight-heading);
 }
-body :is(p, li, blockquote, .type-body):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-size: var(--ui-body-size);
-  font-weight: var(--ui-weight-regular);
-  line-height: var(--ui-body-line);
-  overflow-wrap: anywhere;
+body :is(p, li, blockquote):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  word-break: normal;
+  overflow-wrap: break-word;
 }
-body :is(label, legend, dt, .type-label):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body :is(label, legend, dt):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-label-size);
   font-weight: var(--ui-weight-label);
   line-height: var(--ui-label-line);
 }
-body :is(.type-helper):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-size: var(--ui-helper-size);
-  font-weight: var(--ui-weight-regular);
-  line-height: var(--ui-body-line);
-}
-body :is(.type-caption):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-size: var(--ui-caption-size);
-  line-height: var(--ui-label-line);
-}
-body :is(button, .type-button):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-size: var(--ui-button-size);
-  font-weight: var(--ui-weight-heading);
-  line-height: var(--ui-label-line);
-  overflow-wrap: anywhere;
-}
+body :is(button, input, textarea, select):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-family: inherit; }
 body :is(input, textarea, select, .field):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-input-size);
   font-weight: var(--ui-weight-regular);
   line-height: var(--ui-body-line);
 }
-body :is(.type-hero):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+
+.type-title:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  font-size: var(--ui-title-size);
+  font-weight: var(--ui-weight-title);
+  line-height: var(--ui-heading-line);
+}
+.type-section:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  font-size: var(--ui-section-size);
+  font-weight: var(--ui-weight-heading);
+  line-height: var(--ui-heading-line);
+}
+.type-card:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  font-size: var(--ui-card-title-size);
+  font-weight: var(--ui-weight-heading);
+  line-height: var(--ui-heading-line);
+}
+.type-body:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  font-size: var(--ui-body-size);
+  font-weight: var(--ui-weight-regular);
+  line-height: var(--ui-body-line);
+}
+.type-label:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  font-size: var(--ui-label-size);
+  font-weight: var(--ui-weight-label);
+  line-height: var(--ui-label-line);
+}
+.type-helper:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  font-size: var(--ui-helper-size);
+  font-weight: var(--ui-weight-regular);
+  line-height: var(--ui-body-line);
+}
+.type-caption:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  font-size: var(--ui-caption-size);
+  font-weight: var(--ui-weight-regular);
+  line-height: var(--ui-label-line);
+}
+.type-button:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  font-size: var(--ui-button-size);
+  font-weight: var(--ui-weight-heading);
+  line-height: var(--ui-label-line);
+}
+.type-hero:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-hero-size);
-  line-height: 1.2;
-  font-weight: var(--ui-weight-heading);
+  font-weight: var(--ui-weight-title);
+  line-height: 1.15;
+  letter-spacing: var(--ui-heading-tracking);
   text-wrap: balance;
 }
-body :is(.type-marketing-title):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+.type-marketing-title:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-marketing-size);
-  font-weight: var(--ui-weight-heading);
+  font-weight: var(--ui-weight-title);
+  line-height: 1.2;
+  letter-spacing: var(--ui-heading-tracking);
   text-wrap: balance;
 }
-body :is(.type-lead):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+.type-lead:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  max-width: 62ch;
   font-size: var(--ui-lead-size);
   font-weight: var(--ui-weight-regular);
   line-height: var(--ui-body-line);
 }
-body :is(.type-stat):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+.type-stat:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-stat-size);
   line-height: 1.1;
   font-weight: var(--ui-weight-heading);
   font-variant-numeric: tabular-nums lining-nums;
-}
-body :is(.font-bold, .font-extrabold, .font-black, b, strong):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  font-weight: var(--ui-weight-heading);
 }
 body :is(.rounded-card, .rounded-card-lg, .ui-surface):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   border-radius: var(--ui-card-radius);

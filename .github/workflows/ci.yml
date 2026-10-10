@@ -47,3 +47,15 @@ jobs:
       - name: Verification scripts and disposable-database security suite
         run: npm test
       - run: npm run build
+      - name: Install browser for typography verification
+        run: npx puppeteer browsers install chrome
+      - name: Verify responsive typography with production CSS
+        run: |
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:mobile
+      - name: Save typography screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: typography-screenshots
+          path: artifacts/typography
+          if-no-files-found: ignore

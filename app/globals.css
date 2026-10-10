@@ -45,6 +45,7 @@
     margin: 0;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    font-family: var(--ui-font);
     font-size: var(--ui-body-size);
     line-height: var(--ui-body-line);
     font-weight: var(--ui-weight-regular);
@@ -94,8 +95,6 @@
 }
 
 @layer components {
-  .font-display { font-weight: var(--ui-weight-heading); }
-
   /*
    * ONE LOOK FOR EVERY BOX A PERSON TYPES INTO.
    *
