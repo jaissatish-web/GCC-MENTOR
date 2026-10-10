@@ -44,7 +44,7 @@ const SEGMENT: Record<SectionStatus, string> = {
 
 export function SectionChip({ tag }: { tag: SectionTag | null }) {
   if (!tag) return null
-  return <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[12px] font-semibold leading-tight', tag.chip)}>{tag.label}</span>
+  return <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 type-caption font-semibold leading-tight', tag.chip)}>{tag.label}</span>
 }
 
 export function CompletenessView({
@@ -76,10 +76,10 @@ export function CompletenessView({
       >
         <ScoreRing value={score} size={132} label="Profile complete" className="self-center" />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <h2 id="completeness-h" className="font-display text-[21px] font-semibold leading-snug text-ink">
+          <h2 id="completeness-h" className="font-display type-section font-semibold leading-snug text-ink">
             {score >= 100 ? 'Your profile is complete' : `Your profile is ${score}% complete`}
           </h2>
-          <p className="text-[13.5px] leading-relaxed text-ink-soft">
+          <p className="type-helper leading-relaxed text-ink-soft">
             {missing.length === 0
               ? 'Nothing is missing. Keep it up to date as your career moves.'
               : `${missing.length} item${missing.length === 1 ? '' : 's'} left. Each one makes every CV built from this profile stronger.`}{' '}
@@ -87,7 +87,7 @@ export function CompletenessView({
           </p>
           {/* The nine parts as one bar: a graph of where the profile stands. */}
           <div className="mt-1 flex flex-col gap-1.5">
-            <div className="flex items-baseline justify-between gap-2 text-[12px]">
+            <div className="flex items-baseline justify-between gap-2 type-caption">
               <span className="font-semibold text-ink">
                 {done} of {counted.length} key sections done
               </span>
@@ -109,7 +109,7 @@ export function CompletenessView({
           className="flex w-full items-center gap-3 rounded-card bg-teal px-4 py-3.5 text-left text-white shadow-m-2 transition-colors hover:bg-teal-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
         >
           <span className="flex min-w-0 flex-1 flex-col">
-            <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-teal-soft">Do this next · {next.label}</span>
+            <span className="type-caption font-semibold uppercase tracking-[0.1em] text-teal-soft">Do this next · {next.label}</span>
             <span className="text-[14.5px] font-semibold leading-snug">{next.hint}</span>
           </span>
           <ArrowRightIcon className="size-5 shrink-0" aria-hidden="true" />
@@ -119,10 +119,10 @@ export function CompletenessView({
       {/* 2 · PART BY PART */}
       <section aria-labelledby="parts-h" className="flex flex-col gap-3">
         <div className="flex flex-col">
-          <h2 id="parts-h" className="text-[15px] font-bold text-ink">
+          <h2 id="parts-h" className="type-label font-semibold text-ink">
             Your profile, part by part
           </h2>
-          <p className="text-[12.5px] text-ink-muted">Tap a part to open it.</p>
+          <p className="type-helper text-ink-muted">Tap a part to open it.</p>
         </div>
         <ul className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           {sections.map((s) => {
@@ -140,19 +140,19 @@ export function CompletenessView({
                   <span className="flex items-center justify-between gap-2">
                     <span
                       aria-hidden="true"
-                      className={cn('flex size-7 items-center justify-center rounded-full text-[12px] font-bold tabular-nums', s.accent?.chip ?? 'bg-canvas text-ink-muted')}
+                      className={cn('flex size-7 items-center justify-center rounded-full type-caption font-semibold tabular-nums', s.accent?.chip ?? 'bg-canvas text-ink-muted')}
                     >
                       {s.status === 'complete' ? '✓' : s.step}
                     </span>
                     <StatusChip status={s.status} />
                   </span>
-                  <span className={cn('text-[15px] font-bold leading-snug', s.accent?.text ?? 'text-ink')}>{s.label}</span>
-                  <span className="text-[12.5px] leading-snug text-ink-soft">{s.hint}</span>
+                  <span className={cn('type-label font-semibold leading-snug', s.accent?.text ?? 'text-ink')}>{s.label}</span>
+                  <span className="type-helper leading-snug text-ink-soft">{s.hint}</span>
                   <span className="mt-auto flex items-center justify-between gap-2 pt-1">
-                    <span className={cn('text-[12px] font-semibold', s.total === 0 ? 'text-ink-muted' : left > 0 ? 'text-gold-ink' : 'text-ok')}>
+                    <span className={cn('type-caption font-semibold', s.total === 0 ? 'text-ink-muted' : left > 0 ? 'text-gold-ink' : 'text-ok')}>
                       {s.total === 0 ? 'Not scored' : left > 0 ? `+${left} pts available` : 'All points earned'}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-teal">
+                    <span className="inline-flex items-center gap-1 type-helper font-semibold text-teal">
                       Open
                       <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
                     </span>
@@ -167,10 +167,10 @@ export function CompletenessView({
       {/* 3 · STILL MISSING */}
       <section aria-labelledby="missing-h" className="flex flex-col gap-3">
         <div className="flex flex-col">
-          <h2 id="missing-h" className="text-[15px] font-bold text-ink">
+          <h2 id="missing-h" className="type-label font-semibold text-ink">
             Still missing
           </h2>
-          <p className="text-[12.5px] text-ink-muted">Each one opens the exact box to fill in.</p>
+          <p className="type-helper text-ink-muted">Each one opens the exact box to fill in.</p>
         </div>
         {missing.length === 0 ? (
           <QuietNote>Nothing is missing from your score. Optional parts can still make your CV richer.</QuietNote>
@@ -184,12 +184,12 @@ export function CompletenessView({
                   className="flex min-h-12 w-full items-center justify-between gap-3 rounded-ctl border border-line bg-white px-3.5 py-2.5 text-left transition-colors hover:border-teal/50 hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   <span className="flex min-w-0 flex-col gap-1">
-                    <span className="text-[13.5px] font-semibold leading-snug text-ink">{m.label}</span>
+                    <span className="type-helper font-semibold leading-snug text-ink">{m.label}</span>
                     <SectionChip tag={m.section} />
                   </span>
                   <span className="flex shrink-0 flex-col items-end gap-0.5">
-                    {m.points > 0 ? <span className="font-mono text-[12px] font-semibold text-gold-ink">+{m.points} pts</span> : null}
-                    <span className="text-[12.5px] font-bold text-teal">Fill in →</span>
+                    {m.points > 0 ? <span className="font-mono type-caption font-semibold text-gold-ink">+{m.points} pts</span> : null}
+                    <span className="type-helper font-semibold text-teal">Fill in →</span>
                   </span>
                 </button>
               </li>

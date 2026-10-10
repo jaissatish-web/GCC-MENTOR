@@ -98,19 +98,19 @@ function ShareMenu({ run }: { run: MockInterviewRun }) {
     setMessage('Report link copied. The recipient must sign in to view the private report.')
   }
   return <details className="relative">
-    <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-ctl border border-[#D6B36A]/60 bg-white/10 px-4 text-[13px] font-bold text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F0D9A4] [&::-webkit-details-marker]:hidden">
+    <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-ctl border border-[#D6B36A]/60 bg-white/10 px-4 type-helper font-semibold text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F0D9A4] [&::-webkit-details-marker]:hidden">
       <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></svg>
       Share result
     </summary>
     <div className="absolute right-0 z-20 mt-2 w-[260px] rounded-card border border-line bg-white p-2 text-ink shadow-m-3">
-      <button type="button" onClick={() => void shareAnywhere()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left text-[13px] font-semibold hover:bg-teal-soft">Share card to any app</button>
-      <button type="button" onClick={() => openSocial('whatsapp')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left text-[13px] font-semibold hover:bg-teal-soft">WhatsApp</button>
-      <button type="button" onClick={() => openSocial('facebook')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left text-[13px] font-semibold hover:bg-teal-soft">Facebook</button>
-      <button type="button" onClick={() => openSocial('telegram')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left text-[13px] font-semibold hover:bg-teal-soft">Telegram</button>
-      <button type="button" onClick={() => void copyLink()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left text-[13px] font-semibold hover:bg-teal-soft">Copy private report link</button>
-      <button type="button" onClick={() => void download()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left text-[13px] font-semibold hover:bg-teal-soft">Download PNG card</button>
-      <p className="px-3 py-2 text-[11px] leading-relaxed text-ink-muted">Instagram is available through “Share card to any app” on supported phones.</p>
-      {message ? <p role="status" className="rounded-ctl bg-canvas px-3 py-2 text-[11px] leading-relaxed text-ink-muted">{message}</p> : null}
+      <button type="button" onClick={() => void shareAnywhere()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Share card to any app</button>
+      <button type="button" onClick={() => openSocial('whatsapp')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">WhatsApp</button>
+      <button type="button" onClick={() => openSocial('facebook')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Facebook</button>
+      <button type="button" onClick={() => openSocial('telegram')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Telegram</button>
+      <button type="button" onClick={() => void copyLink()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Copy private report link</button>
+      <button type="button" onClick={() => void download()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Download PNG card</button>
+      <p className="px-3 py-2 type-caption leading-relaxed text-ink-muted">Instagram is available through “Share card to any app” on supported phones.</p>
+      {message ? <p role="status" className="rounded-ctl bg-canvas px-3 py-2 type-caption leading-relaxed text-ink-muted">{message}</p> : null}
     </div>
   </details>
 }
@@ -120,9 +120,9 @@ function ListSection({ title, intro, items, tone = 'neutral', ordered = false }:
   const accent = tone === 'positive' ? 'bg-ok' : tone === 'warning' ? 'bg-gold' : 'bg-teal'
   const List = ordered ? 'ol' : 'ul'
   return <section className="rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-5">
-    <div className="flex items-center gap-3"><span className={`h-8 w-1 rounded-full ${accent}`} /><div><h3 className="font-display text-[18px] font-semibold text-ink">{title}</h3>{intro ? <p className="mt-0.5 text-[12px] text-ink-muted">{intro}</p> : null}</div></div>
+    <div className="flex items-center gap-3"><span className={`h-8 w-1 rounded-full ${accent}`} /><div><h3 className="font-display type-card font-semibold text-ink">{title}</h3>{intro ? <p className="mt-0.5 type-caption text-ink-muted">{intro}</p> : null}</div></div>
     <List className="mt-4 space-y-3">
-      {items.map((item, index) => <li key={`${index}-${item}`} className="flex gap-3 text-[13px] leading-relaxed text-ink-soft"><span className="mt-0.5 font-mono text-[11px] font-semibold text-teal">{ordered ? String(index + 1).padStart(2, '0') : '•'}</span><span>{item}</span></li>)}
+      {items.map((item, index) => <li key={`${index}-${item}`} className="flex gap-3 type-helper leading-relaxed text-ink-soft"><span className="mt-0.5 font-mono type-caption font-semibold text-teal">{ordered ? String(index + 1).padStart(2, '0') : '•'}</span><span>{item}</span></li>)}
     </List>
   </section>
 }
@@ -152,7 +152,7 @@ export function InterviewReport({ run, answers }: { run: MockInterviewRun; answe
   return <section id="interview-report" className="space-y-4" aria-label="Interview result explorer">
     <div className="ui-card rounded-card border border-teal/20 bg-[#0C302F] p-4 text-white sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-[#B8D5CF]">YOUR PRACTICE RESULT</p><h2 className="mt-1 type-section">{status.label}</h2><p className="mt-2 text-sm text-[#DCE8E5]">{run.mode.replaceAll('_', ' ')} · {run.difficulty} · {completed}</p></div><ShareMenu run={run} /></div>
-      <div className="mt-5 flex items-center gap-4"><div className="relative grid size-20 shrink-0 place-items-center"><svg viewBox="0 0 80 80" className="absolute inset-0 size-full -rotate-90" aria-hidden="true"><circle cx="40" cy="40" r="34" fill="none" stroke="#335A56" strokeWidth="6" /><circle cx="40" cy="40" r="34" fill="none" stroke="#D6B36A" strokeWidth="6" strokeDasharray={`${report.overall_score * 2.136} 213.6`} strokeLinecap="round" /></svg><span className="text-2xl font-semibold">{report.overall_score}</span></div><div><p>Overall score · {report.overall_score}/100</p><p className="mt-1 text-sm text-[#B8D5CF]">{status.note}. Open a card to explore your feedback.</p></div></div>
+      <div className="mt-5 flex flex-wrap items-center gap-4"><div className="relative grid size-20 shrink-0 place-items-center"><svg viewBox="0 0 80 80" className="absolute inset-0 size-full -rotate-90" aria-hidden="true"><circle cx="40" cy="40" r="34" fill="none" stroke="#335A56" strokeWidth="6" /><circle cx="40" cy="40" r="34" fill="none" stroke="#D6B36A" strokeWidth="6" strokeDasharray={`${report.overall_score * 2.136} 213.6`} strokeLinecap="round" /></svg><span className="text-2xl font-semibold">{report.overall_score}</span></div><div className="min-w-0 flex-[1_1_180px]"><p>Overall score · {report.overall_score}/100</p><p className="mt-1 text-sm text-[#B8D5CF]">{status.note}. Open a card to explore your feedback.</p></div></div>
     </div>
     {view === 'overview' ? <div className="space-y-3"><h3 className="type-card">Choose what to explore</h3><div className="grid grid-cols-2 gap-3 lg:grid-cols-3" aria-label="Result cards">
       {sections.map(section => <button key={section.id} type="button" onClick={() => setView(section.id)} className="group ui-card min-w-0 rounded-card border border-line bg-white p-4 text-left transition-colors hover:border-teal hover:bg-teal-soft/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">

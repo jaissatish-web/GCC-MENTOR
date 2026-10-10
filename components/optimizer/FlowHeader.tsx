@@ -1,5 +1,6 @@
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { CheckIcon } from '@heroicons/react/24/solid'
+import { GulfContext } from '@/components/layout/GulfContext'
 import { cn } from '@/lib/utils'
 
 /**
@@ -42,7 +43,7 @@ export function FlowHeader({
             <ArrowLeftIcon className="size-5" aria-hidden="true" />
           </button>
         ) : null}
-        <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">Step 2 of 3 · Resume Optimizer</span>
+        <GulfContext>Gulf CV · Step {step} of 3</GulfContext>
       </div>
 
       <ol aria-label={`Step ${step} of ${STEPS.length}`} className="grid grid-cols-3 gap-2">
@@ -61,7 +62,7 @@ export function FlowHeader({
               />
               <span
                 className={cn(
-                  'flex items-center gap-1 text-[12px] font-semibold leading-tight',
+                  'flex items-center gap-1 type-caption font-semibold leading-tight',
                   state === 'todo' ? 'text-ink-muted' : state === 'done' ? 'text-ok' : 'text-teal',
                 )}
               >

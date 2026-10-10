@@ -1,3 +1,4 @@
+import { LandingExamples, ExampleDisclosure } from './LandingExamples'
 import { HowItWorks } from '@/components/journey/HowItWorks'
 import { AppFooter } from '@/components/layout/AppFooter'
 import { AuthLinkCatcher } from '@/components/auth/AuthLinkCatcher'
@@ -51,42 +52,14 @@ export function LandingPage() {
         <ProofStrip />
         <ServicesPreview />
 
-        {/* The hidden filter — why good candidates get no calls */}
-        <section id="ats" aria-labelledby="ats-title" className="py-11 sm:py-16 lg:py-[104px]">
-          <Wrap>
-            <SectionHead
-              id="ats-title"
-              eyebrow="Why you’re not getting calls"
-              title={<>Make your experience <em>easy to find.</em></>}
-              lead="A clear CV helps recruiters and applicant tracking systems (ATS) find your relevant skills."
-            />
-            <AtsFilter />
-          </Wrap>
-        </section>
-
-        {/* Who it's for — people and professions */}
-        <WhoItsFor />
-
-        {/* 2 · Pain → solution */}
-        <section id="problems" aria-labelledby="problems-title" className="hidden md:block py-11 sm:py-16 lg:py-[104px]">
-          <Wrap>
-            <SectionHead
-              id="problems-title"
-              eyebrow="Sound familiar?"
-              title={<>Good experience. <em>Wrong CV for the job.</em></>}
-            />
-            <PainSolution />
-          </Wrap>
-        </section>
-
         {/* 3 · Journey */}
-        <section id="journey" aria-labelledby="journey-title" className="border-y border-line bg-white py-11 sm:py-16 lg:py-[104px]">
+        <section id="journey" aria-labelledby="journey-title" className="border-y border-line bg-white py-11 sm:py-16 lg:py-20">
           <Wrap>
             <SectionHead
               id="journey-title"
               eyebrow="How it works"
               title={<>One profile. <em>Three simple steps.</em></>}
-              lead="Build once. Prepare for each job. Keep everything in your Resume Library."
+              lead="Build your profile. Create a CV, or tailor it for your next Gulf role."
             />
             <JourneyOverview />
             <div className="mt-5 flex justify-center"><HowItWorks className="border border-teal/25 bg-teal-soft" /></div>
@@ -100,21 +73,8 @@ export function LandingPage() {
           </Wrap>
         </section>
 
-        {/* You choose how hard to optimize */}
-        <section id="levels" aria-labelledby="levels-title" className="py-11 sm:py-16 lg:py-[104px]">
-          <Wrap>
-            <SectionHead
-              id="levels-title"
-              eyebrow="Optimization level"
-              title={<>A light edit. <em>Or a fuller rewrite.</em></>}
-              lead="Choose the level. Review and approve every change."
-            />
-            <OptimizationLevels />
-          </Wrap>
-        </section>
-
         {/* Resume showcase — curated designs from the real 50-template collection */}
-        <section id="templates" aria-labelledby="templates-title" className="overflow-hidden pt-11 sm:pt-16 lg:pt-[104px]">
+        <section id="templates" aria-labelledby="templates-title" className="overflow-hidden pt-11 sm:pt-16 lg:pt-20">
           <Wrap>
             <SectionHead
               center
@@ -127,35 +87,8 @@ export function LandingPage() {
           <DocumentOrbit className="mt-4 lg:mt-8" />
         </section>
 
-        {/* A different cover letter for every job */}
-        <section id="letters" aria-labelledby="letters-title" className="border-t border-line bg-white py-11 sm:py-16 lg:py-[104px]">
-          <Wrap>
-            <SectionHead
-              center
-              id="letters-title"
-              eyebrow="Cover letters"
-              title={<>The right letter. <em>For each job.</em></>}
-              lead="Written for the role, in your preferred tone."
-            />
-            <CoverLetters />
-          </Wrap>
-        </section>
-
-        {/* 4 · One profile, prepared per job */}
-        <section id="match" aria-labelledby="match-title" className="border-t border-line py-11 sm:py-16 lg:py-[104px]">
-          <Wrap>
-            <SectionHead
-              center
-              id="match-title"
-              eyebrow="Prepared per job"
-              title={<>Your experience. <em>Matched to the role.</em></>}
-            />
-            <MatchEngine />
-          </Wrap>
-        </section>
-
         {/* 5 · Before / after */}
-        <section id="cv" aria-labelledby="cv-title" className="border-y border-line bg-white py-11 sm:py-16 lg:py-[104px]">
+        <section id="cv" aria-labelledby="cv-title" className="border-y border-line bg-white py-11 sm:py-16 lg:py-20">
           <Wrap>
             <SectionHead
               center
@@ -168,7 +101,7 @@ export function LandingPage() {
         </section>
 
         {/* 6 · Mock interview */}
-        <section id="interview" aria-labelledby="interview-title" className="py-11 sm:py-16 lg:py-[104px]">
+        <section id="interview" aria-labelledby="interview-title" className="py-11 sm:py-16 lg:py-20">
           <Wrap>
             <SectionHead
               id="interview-title"
@@ -180,14 +113,27 @@ export function LandingPage() {
           </Wrap>
         </section>
 
+        <section aria-labelledby="examples-title" className="border-y border-line bg-white py-10 sm:py-14">
+          <Wrap>
+            <SectionHead id="examples-title" eyebrow="Explore the details" title={<>See how your <em>Gulf application comes together.</em></>} />
+            <LandingExamples>
+              <ExampleDisclosure id="letters" title="A cover letter for each target job"><CoverLetters /></ExampleDisclosure>
+              <ExampleDisclosure id="match" title="How your experience matches a role"><MatchEngine /></ExampleDisclosure>
+              <ExampleDisclosure id="levels" title="Choose how much to improve your CV"><OptimizationLevels /></ExampleDisclosure>
+              <ExampleDisclosure id="ats" title="Make your experience easier to find"><AtsFilter /></ExampleDisclosure>
+              <ExampleDisclosure id="problems" title="Common CV problems, explained visually"><PainSolution /></ExampleDisclosure>
+              <ExampleDisclosure id="who" title="For professionals across the Gulf"><WhoItsFor /></ExampleDisclosure>
+              <ExampleDisclosure id="trust" title="Your experience stays in your control"><Trust /></ExampleDisclosure>
+            </LandingExamples>
+          </Wrap>
+        </section>
+
         {/* Founder */}
         <Founder />
 
-        {/* 8 · Trust */}
-        <Trust />
 
         {/* 9 · Markets — the globe */}
-        <section id="markets" aria-labelledby="markets-title" className="py-11 sm:py-16 lg:py-[104px]">
+        <section id="markets" aria-labelledby="markets-title" className="py-11 sm:py-16 lg:py-20">
           <Wrap>
             <GccGlobe />
           </Wrap>

@@ -61,7 +61,7 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
       >
         <Icon className={tone === 'page' ? 'size-7' : 'size-5'} />
       </span>
-      <p className={cn('font-semibold text-ink', tone === 'page' ? 'text-[15px]' : 'text-[13px]')}>
+      <p className={cn('font-semibold text-ink', tone === 'page' ? 'type-card' : 'type-label')}>
         {title}
       </p>
       {/* ink-700, not ink-400. Measured 2026-09-08: ink-400 (#6B7A8D) is
@@ -70,7 +70,7 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
           not be born failing the standard, so this one uses ink-700 (7.71:1).
           The token itself is a wider problem, recorded in 14_OPEN_ITEMS.md. */}
       {body ? (
-        <p className={cn('max-w-[34ch] text-ink-soft', tone === 'page' ? 'text-[13px]' : 'text-[12px]')}>
+        <p className={cn('max-w-[34ch] text-ink-soft', tone === 'page' ? 'type-helper' : 'type-caption')}>
           {body}
         </p>
       ) : null}

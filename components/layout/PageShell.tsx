@@ -1,3 +1,4 @@
+import { GulfContext } from './GulfContext'
 import { cn } from '@/lib/utils'
 
 /**
@@ -70,20 +71,18 @@ export function PageShell({
     // cannot own its own font if the frame is meant to make pages feel like one
     // product.
     <main className={cn('page-gutter mx-auto flex w-full flex-col gap-5 pb-12 pt-6 font-redesign-sans sm:gap-6 lg:pt-9', WIDTH[width], className)}>
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <header className="workspace-heading flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className={cn('grid min-w-0 gap-x-3 gap-y-1.5', Icon ? 'grid-cols-[auto_minmax(0,1fr)]' : 'grid-cols-1')}>
           {Icon ? (
             <span
               aria-hidden="true"
-              className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-ctl bg-teal-soft text-teal sm:size-12"
+              className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-ctl border border-teal/10 bg-teal-soft/50 text-teal sm:size-10"
             >
               <Icon className="size-6" />
             </span>
           ) : null}
           <div className="flex min-w-0 flex-col gap-1.5">
-            {eyebrow ? (
-              <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-teal">{eyebrow}</span>
-            ) : null}
+            <GulfContext>{eyebrow ? `Gulf careers · ${eyebrow}` : 'Your Gulf career workspace'}</GulfContext>
             <h1 className="type-title text-ink">
               {title}
             </h1>
@@ -93,11 +92,7 @@ export function PageShell({
               {subtitle}
             </p>
           ) : null}
-          {uses && uses.length > 0 ? (
-            <p className={cn('col-span-full hidden type-helper text-ink-muted sm:block', Icon && 'sm:col-span-1 sm:col-start-2')}>
-              Uses your {uses.join(' · ')}
-            </p>
-          ) : null}
+          {uses && uses.length > 0 ? <span className="sr-only">Uses your {uses.join(' · ')}</span> : null}
         </div>
         {actions ? (
           <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">{actions}</div>
@@ -106,7 +101,7 @@ export function PageShell({
 
       {/* A hairline under the header on every page — the cheapest way to make
           screens feel like one product rather than several. */}
-      <div className="h-px w-full bg-line" />
+
 
       {children}
     </main>

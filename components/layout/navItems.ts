@@ -80,8 +80,8 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Home', href: '/dashboard', iconClass: 'bg-blue-50 text-blue-700', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
-  { label: 'Career Profile', href: '/profile', iconClass: 'bg-teal-soft text-teal', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
+  { label: 'Home', href: '/dashboard', iconClass: 'bg-teal-soft/60 text-teal', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
+  { label: 'Career Profile', href: '/profile', iconClass: 'bg-teal-soft/60 text-teal', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
   // "Profile Strength" (/gcc-readiness) sat here from 2026-09-09 to 2026-09-11.
   // It left when Career Profile and Profile Strength became one page (founder
   // decision): both scores and what raises each now live on /profile, and
@@ -89,14 +89,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.
-  { label: 'My CVs', href: '/dashboard/library', iconClass: 'bg-indigo-50 text-indigo-700', icon: BriefcaseIcon, shortLabel: 'My CVs' },
-  { label: 'Resume Templates', href: '/templates', iconClass: 'bg-rose-50 text-rose-700', icon: RectangleStackIcon, shortLabel: 'Templates' },
-  { label: 'Tailor for a job', href: '/optimize', iconClass: 'bg-yellow-50 text-yellow-700', icon: DocumentTextIcon, shortLabel: 'Tailor' },
-  { label: 'Cover Letter', href: '/cover-letter', iconClass: 'bg-violet-50 text-violet-700', icon: EnvelopeIcon },
-  { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'bg-cyan-50 text-cyan-700', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
-  { label: 'Mock Interview', href: '/mock-interview', iconClass: 'bg-orange-50 text-orange-700', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
-  { label: 'LinkedIn Optimization', href: '/linkedin-optimization', iconClass: 'bg-blue-100 text-blue-800', icon: IdentificationIcon },
-  { label: 'Settings', href: '/settings', iconClass: 'bg-fuchsia-50 text-fuchsia-700', icon: Cog6ToothIcon },
+  { label: 'My CVs', href: '/dashboard/library', iconClass: 'bg-teal-soft/60 text-teal', icon: BriefcaseIcon, shortLabel: 'My CVs' },
+  { label: 'Resume Templates', href: '/templates', iconClass: 'bg-teal-soft/60 text-teal', icon: RectangleStackIcon, shortLabel: 'Templates' },
+  { label: 'Tailor for a job', href: '/optimize', iconClass: 'bg-teal-soft/60 text-teal', icon: DocumentTextIcon, shortLabel: 'Tailor' },
+  { label: 'Cover Letter', href: '/cover-letter', iconClass: 'bg-teal-soft/60 text-teal', icon: EnvelopeIcon },
+  { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'bg-teal-soft/60 text-teal', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
+  { label: 'Mock Interview', href: '/mock-interview', iconClass: 'bg-teal-soft/60 text-teal', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
+  { label: 'LinkedIn Optimization', href: '/linkedin-optimization', iconClass: 'bg-teal-soft/60 text-teal', icon: IdentificationIcon },
+  { label: 'Settings', href: '/settings', iconClass: 'bg-teal-soft/60 text-teal', icon: Cog6ToothIcon },
 ] as const
 
 /**
@@ -143,10 +143,10 @@ export interface NavGroup {
 
 export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'home', label: null, hrefs: ['/dashboard'] },
-  { key: 'profile', label: 'Your profile', hrefs: ['/profile'], stage: 'profile' },
-  { key: 'files', label: 'My CVs', hrefs: ['/dashboard/library'] },
-  { key: 'cv', label: 'Create a CV', hrefs: ['/optimize', '/templates'], stage: 'cv' },
+  { key: 'profile', label: null, hrefs: ['/profile'], stage: 'profile' },
+  { key: 'files', label: null, hrefs: ['/dashboard/library'] },
+  { key: 'cv', label: 'Build your CV', hrefs: ['/optimize', '/templates'], stage: 'cv' },
   { key: 'apply', label: 'Job preparation', hrefs: ['/cover-letter', '/interview-qa', '/mock-interview'], stage: 'apply' },
-  { key: 'professional', label: 'Your online profile', hrefs: ['/linkedin-optimization'] },
+  { key: 'professional', label: 'Professional profile', hrefs: ['/linkedin-optimization'] },
   { key: 'account', label: 'Account', hrefs: ['/settings'] },
 ]

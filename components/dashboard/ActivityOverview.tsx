@@ -5,10 +5,10 @@ import { cn, PACKAGE_STATUSES } from '@/lib/utils'
 import { coveragePercent, type DashboardOverview } from '@/lib/dashboardOverview'
 
 const SERVICES = [
-  { key: 'resume_count', label: 'Resumes', href: '/dashboard/library', cta: 'Open resumes', icon: BriefcaseIcon, color: 'bg-indigo-50 text-indigo-700' },
-  { key: 'cover_letter_count', label: 'Cover letters', href: '/cover-letter', cta: 'Open cover letters', icon: EnvelopeIcon, color: 'bg-violet-50 text-violet-700' },
-  { key: 'qa_set_count', label: 'Q&A sets', href: '/interview-qa', cta: 'Open interview Q&A', icon: QuestionMarkCircleIcon, color: 'bg-cyan-50 text-cyan-700' },
-  { key: 'mock_interview_count', label: 'Mock interviews', href: '/mock-interview', cta: 'Open mock interviews', icon: ChatBubbleLeftRightIcon, color: 'bg-orange-50 text-orange-700' },
+  { key: 'resume_count', label: 'Resumes', href: '/dashboard/library', cta: 'Open resumes', icon: BriefcaseIcon, color: 'bg-teal-soft/60 text-teal' },
+  { key: 'cover_letter_count', label: 'Cover letters', href: '/cover-letter', cta: 'Open cover letters', icon: EnvelopeIcon, color: 'bg-teal-soft/60 text-teal' },
+  { key: 'qa_set_count', label: 'Q&A sets', href: '/interview-qa', cta: 'Open interview Q&A', icon: QuestionMarkCircleIcon, color: 'bg-teal-soft/60 text-teal' },
+  { key: 'mock_interview_count', label: 'Mock interviews', href: '/mock-interview', cta: 'Open mock interviews', icon: ChatBubbleLeftRightIcon, color: 'bg-teal-soft/60 text-teal' },
 ] as const
 
 export function ActivityOverview({ overview, loading, error, onRetry }: {
@@ -21,10 +21,10 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
     <section aria-labelledby="activity-heading" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 id="activity-heading" className="type-section text-ink">Your saved work</h2>
-          <p className="mt-1 type-helper text-ink-muted">Open a service to pick up where you left off.</p>
+          <h2 id="activity-heading" className="type-section text-ink">Your preparation</h2>
+          <p className="mt-1 type-helper text-ink-muted">CVs, letters and interview practice for your Gulf applications.</p>
         </div>
-        <Link href="/dashboard/library" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>View all resumes →</Link>
+        <Link href="/dashboard/library" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>My CVs →</Link>
       </div>
       {error ? (
         <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-alert/30 bg-alert-soft p-4">
@@ -37,19 +37,19 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
           const Icon = service.icon
           return (
             <Link key={service.key} href={service.href} className="flex min-w-0 flex-col gap-2 rounded-card border border-line bg-white p-4 shadow-m-1 transition-colors hover:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:p-5">
-              <span aria-hidden="true" className={cn('flex size-10 items-center justify-center rounded-xl', service.color)}><Icon className="size-5" /></span>
-              <span className="type-card text-ink">{service.label}</span>
+              <span aria-hidden="true" className={cn('flex size-8 items-center justify-center rounded-xl', service.color)}><Icon className="size-5" /></span>
+              <span className="type-label font-semibold text-ink">{service.label}</span>
               <span className={cn('font-display type-stat text-ink', loading && 'animate-pulse')}>
                 {overview && !error ? overview[service.key].toLocaleString('en-IN') : '—'}
               </span>
-              <span className="min-h-9 type-caption text-ink-muted">
+              <span className="type-caption text-ink-muted">
                 {service.key === 'resume_count' && overview && !error
                   ? `${overview.profile_resume_count} Career Profile · ${overview.optimized_resume_count} optimized`
                   : service.key === 'mock_interview_count' && overview && !error
                     ? `${overview.mock_completed_count} completed · ${overview.mock_in_progress_count} in progress`
                     : service.key === 'qa_set_count' ? 'Saved question-and-answer sets' : service.key === 'cover_letter_count' ? 'Saved letters in every tone' : 'Your profile and tailored CVs'}
               </span>
-              <span className="mt-auto type-label font-semibold text-teal">{service.cta} <span aria-hidden="true">→</span></span>
+              <span className="mt-auto type-caption font-medium text-teal">{service.cta} <span aria-hidden="true">→</span></span>
             </Link>
           )
         })}
@@ -61,9 +61,9 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
 
 export function OverallProgress({ overview }: { overview: DashboardOverview }) {
   const coverage = [
-    { label: 'Resumes with a cover letter', value: overview.resumes_with_letter, href: '/cover-letter', color: 'bg-violet-600' },
-    { label: 'Resumes with interview Q&A', value: overview.resumes_with_qa, href: '/interview-qa', color: 'bg-cyan-600' },
-    { label: 'Resumes with a completed mock', value: overview.resumes_with_mock, href: '/mock-interview', color: 'bg-orange-600' },
+    { label: 'Resumes with a cover letter', value: overview.resumes_with_letter, href: '/cover-letter', color: 'bg-teal-soft/60 text-teal' },
+    { label: 'Resumes with interview Q&A', value: overview.resumes_with_qa, href: '/interview-qa', color: 'bg-teal-soft/60 text-teal' },
+    { label: 'Resumes with a completed mock', value: overview.resumes_with_mock, href: '/mock-interview', color: 'bg-teal-soft/60 text-teal' },
   ]
   return (
     <section aria-labelledby="overall-progress-heading" className="flex flex-col gap-4">
@@ -76,7 +76,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
           <div className="mt-5 flex flex-col gap-5">
             {coverage.map((item) => (
               <Link key={item.label} href={item.href} className="rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-                <span className="flex items-start justify-between gap-3 text-[13px] text-ink-soft">
+                <span className="flex items-start justify-between gap-3 type-helper text-ink-soft">
                   <span>{item.label}</span><span className="shrink-0 font-semibold text-ink">{item.value} / {overview.resume_count}</span>
                 </span>
                 <span role="progressbar" aria-label={item.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={coveragePercent(item.value, overview.resume_count)} aria-valuetext={`${item.value} of ${overview.resume_count} resumes`} className="mt-2 block h-2 overflow-hidden rounded-full bg-canvas">
@@ -106,7 +106,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
         </div>
         <p className="mt-1 type-helper text-ink-muted">{overview.target_job_count} target jobs. Career Profile Resume is separate from applications.</p>
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {PACKAGE_STATUSES.map((stage) => <div key={stage.value} className="min-w-0 rounded-ctl bg-canvas p-3"><dt className="text-[12px] leading-snug text-ink-muted">{stage.label}</dt><dd className="mt-1 text-xl font-semibold text-ink">{overview.stages[stage.value]}</dd></div>)}
+          {PACKAGE_STATUSES.map((stage) => <div key={stage.value} className="min-w-0 rounded-ctl bg-canvas p-3"><dt className="type-caption leading-snug text-ink-muted">{stage.label}</dt><dd className="mt-1 text-xl font-semibold text-ink">{overview.stages[stage.value]}</dd></div>)}
         </dl>
       </div>
     </section>

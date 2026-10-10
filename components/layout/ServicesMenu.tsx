@@ -100,9 +100,9 @@ function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onN
         {item.href === '/linkedin-optimization' ? <span className="type-caption text-ink-muted">Coming soon</span> : null}
       </span>
       {mark === 'next' ? (
-        <span className="ml-auto shrink-0 rounded-full bg-gold px-2 py-0.5 text-[12px] font-bold text-ink">Next</span>
+        <span className="ml-auto shrink-0 rounded-full bg-gold px-2 py-0.5 type-caption font-semibold text-ink">Next</span>
       ) : mark === 'locked' ? (
-        <span className="ml-auto flex shrink-0 items-center gap-1 text-[12px] text-ink-muted">
+        <span className="ml-auto flex shrink-0 items-center gap-1 type-caption text-ink-muted">
           <LockClosedIcon aria-hidden="true" className="size-3.5" />
           Later
         </span>
@@ -144,7 +144,7 @@ function SignOutRow() {
         <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-canvas text-ink-soft">
           <ArrowRightStartOnRectangleIcon className="size-[18px]" />
         </span>
-        <span className="text-[14px] font-semibold leading-tight text-ink">
+        <span className="type-label font-semibold leading-tight text-ink">
           {pending ? 'Signing out…' : 'Sign out'}
         </span>
       </button>
@@ -187,7 +187,7 @@ export function ServicesMenu({ placement = 'header' }: { placement?: 'header' | 
         aria-haspopup="dialog"
         className={cn(
           'flex shrink-0 flex-col items-center justify-center rounded-ctl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
-          bottom ? 'min-h-11 min-w-0 flex-1 gap-1 px-0.5 text-[12px] leading-tight' : 'ml-auto size-11 bg-teal-soft hover:bg-teal/15',
+          bottom ? 'min-h-11 min-w-0 flex-1 gap-1 px-0.5 type-caption leading-tight' : 'ml-auto size-11 bg-teal-soft hover:bg-teal/15',
           bottom && (moreActive || open ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted'),
         )}
       >

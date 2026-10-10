@@ -13,7 +13,7 @@ export function Interviewer({ interviewerId, recording }: { interviewerId?: Inte
     </div>
     <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-2 text-white sm:bottom-6 sm:left-6">
       <div><p className="font-display text-2xl leading-tight sm:text-3xl">{host.name}</p><p className="text-xs text-white/80 sm:text-sm">Virtual interviewer · {host.label}</p></div>
-      {recording && <span className="rounded-full bg-red-500/90 px-3 py-1 text-xs font-bold">● Recording</span>}
+      {recording && <span className="rounded-full bg-red-500/90 px-3 py-1 text-xs font-semibold">● Recording</span>}
     </div>
   </div>
 }

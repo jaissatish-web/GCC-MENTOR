@@ -23,6 +23,7 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
 } from '@heroicons/react/24/outline'
+import { GulfContext } from '@/components/layout/GulfContext'
 import { cn } from '@/lib/utils'
 import { ScoreRing, type RingTone } from '@/components/profile/ScoreRing'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
@@ -70,7 +71,7 @@ export function StatusChip({ status, className }: { status: SectionStatus; class
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-bold',
+        'inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 type-caption font-semibold',
         meta.chip,
         className,
       )}
@@ -162,8 +163,8 @@ export function ProfileExplainer() {
         className="mx-3 sm:mx-5 mt-4 flex min-h-12 items-center gap-3 rounded-card bg-gradient-to-r from-teal to-teal-bright px-4 py-2.5 text-left text-white shadow-m-1 transition-shadow hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
       >
         <ShieldCheckIcon className="size-5 shrink-0" aria-hidden="true" />
-        <span className="min-w-0 flex-1 text-[13.5px] font-semibold leading-snug">Your profile is the base for everything we make</span>
-        <span className="flex shrink-0 items-center gap-1 text-[12.5px] font-bold text-white/90">
+        <span className="min-w-0 flex-1 type-helper font-semibold leading-snug">Your profile is the base for everything we make</span>
+        <span className="flex shrink-0 items-center gap-1 type-helper font-semibold text-white/90">
           How it works
           <ChevronDownIcon className="size-4" aria-hidden="true" />
         </span>
@@ -182,7 +183,7 @@ export function ProfileExplainer() {
           type="button"
           onClick={() => setOpen(false)}
           aria-expanded={true}
-          className="absolute right-2 top-2 z-10 inline-flex min-h-11 items-center rounded-ctl px-3 text-[12.5px] font-bold text-white/90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="absolute right-2 top-2 z-10 inline-flex min-h-11 items-center rounded-ctl px-3 type-helper font-semibold text-white/90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
           Hide
         </button>
@@ -195,10 +196,10 @@ export function ProfileExplainer() {
             <ShieldCheckIcon className="size-6 text-white" aria-hidden="true" />
           </span>
           <div className="flex min-w-0 flex-col gap-1">
-            <h2 id="profile-explainer-h" className="font-display text-[19px] font-semibold leading-snug sm:text-[21px]">
+            <h2 id="profile-explainer-h" className="font-display type-section font-semibold leading-snug sm:type-section">
               Your profile is the base for everything we make
             </h2>
-            <p className="text-[13.5px] leading-relaxed text-white/85">
+            <p className="type-helper leading-relaxed text-white/85">
               Keep it correct once, and every document comes out right. We use only what is written here.
             </p>
           </div>
@@ -213,22 +214,22 @@ export function ProfileExplainer() {
                   <Icon className="size-5" aria-hidden="true" />
                 </span>
                 <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-[13.5px] font-bold leading-snug">
+                  <span className="type-helper font-semibold leading-snug">
                     <span className="text-ink-muted">{i + 1}.</span> {s.title}
                   </span>
-                  <span className="text-[12.5px] leading-snug text-ink-soft">{s.body}</span>
+                  <span className="type-helper leading-snug text-ink-soft">{s.body}</span>
                 </span>
               </li>
             )
           })}
         </ol>
 
-        <p className="flex items-start gap-2 rounded-ctl bg-white/10 px-3 py-2.5 text-[12.5px] leading-relaxed text-white/90">
+        <p className="flex items-start gap-2 rounded-ctl bg-white/10 px-3 py-2.5 type-helper leading-relaxed text-white/90">
           <CheckCircleIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <span>If we ever suggest something new, you see it first. It is kept only if you confirm it is true.</span>
         </p>
 
-        <p className="flex flex-wrap items-center gap-1.5 text-[12px]">
+        <p className="flex flex-wrap items-center gap-1.5 type-caption">
           <span className="font-semibold text-white/80">Used by:</span>
           {USED_BY.map((u) => (
             <span key={u} className="rounded-full bg-white/15 px-2 py-0.5 font-semibold text-white">
@@ -246,11 +247,11 @@ export function ProfileExplainer() {
 // ---------------------------------------------------------------------------
 
 const CARD_BUTTON =
-  'group flex h-full w-full flex-col items-center gap-2 rounded-card border bg-gradient-to-b to-white p-3 text-center shadow-m-1 transition-all hover:-translate-y-0.5 hover:shadow-m-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas motion-reduce:transform-none motion-reduce:transition-none sm:p-5'
+  'group flex h-full w-full flex-col items-start gap-2 rounded-card border border-line bg-white p-4 text-left transition-colors hover:border-teal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 sm:p-5'
 
 function CardLink({ children }: { children: React.ReactNode }) {
   return (
-    <span className="mt-auto inline-flex min-h-8 max-w-full items-center gap-1 pt-1 text-[12.5px] font-bold text-teal">
+    <span className="mt-auto inline-flex min-h-8 max-w-full items-center gap-1 pt-1 type-helper font-semibold text-teal">
       <span className="min-w-0 break-words">{children}</span>
       <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
     </span>
@@ -278,34 +279,34 @@ export function ScoreCards({
   const profileFixes = gulf ? gulf.recommendations.filter((r) => (r.stage ?? 'profile') === 'profile').length : 0
 
   return (
-    <section aria-label="Your two scores" className={cn('grid grid-cols-2 gap-3 sm:gap-4', className ?? 'mx-3 sm:mx-5 mt-4')}>
-      <button type="button" onClick={onOpenCompleteness} className={cn(CARD_BUTTON, 'border-teal/20 from-teal-soft')}>
-        <span className="max-w-full break-words text-[12px] font-bold uppercase tracking-[0.1em] text-teal">Profile complete</span>
-        <ScoreRing value={completeness.score} size={92} label="Profile complete" />
-        <span className="text-[14px] font-bold leading-snug text-ink">
+    <section aria-label="Your two scores" className={cn('score-cards grid grid-cols-2 gap-3 sm:gap-4', className ?? 'mx-3 sm:mx-5 mt-4')}>
+      <button type="button" onClick={onOpenCompleteness} className={CARD_BUTTON}>
+        <span className="max-w-full break-words type-label font-medium text-ink-soft">Profile complete</span>
+        <span className="type-stat text-teal">{completeness.score}<span className="ml-1 type-label text-ink-muted">%</span></span>
+        <span className="type-label font-semibold leading-snug text-ink">
           {completeness.itemsLeft === 0
             ? 'Nothing left to add'
             : `${completeness.itemsLeft} item${completeness.itemsLeft === 1 ? '' : 's'} left`}
         </span>
-        <span className="text-[12px] leading-snug text-ink-soft">{completeness.detail}</span>
+        <span className="type-caption leading-snug text-ink-soft">{completeness.detail}</span>
         <CardLink>{completeness.itemsLeft === 0 ? 'See my sections' : "See what's missing"}</CardLink>
       </button>
 
       <button
         type="button"
         onClick={onOpenReadiness}
-        className={cn(CARD_BUTTON, tone ? tone.card : 'from-canvas', 'border-line')}
+        className={CARD_BUTTON}
       >
-        <span className="max-w-full break-words text-[12px] font-bold uppercase tracking-[0.1em] text-teal">Gulf Readiness</span>
-        <ScoreRing value={gulf ? gulf.finalScore : null} size={92} tone={tone?.ring ?? 'teal'} suffix="/100" label="Gulf Readiness" />
-        <span className={cn('rounded-full px-2.5 py-0.5 text-[13px] font-bold leading-snug', tone?.chip ?? 'bg-canvas text-ink-muted')}>
+        <span className="max-w-full break-words type-label font-medium text-ink-soft">Gulf Readiness</span>
+        <span className="type-stat text-teal">{gulf ? gulf.finalScore : '—'}<span className="ml-1 type-label text-ink-muted">/100</span></span>
+        <span className={cn('max-w-full break-words rounded-full px-2.5 py-0.5 type-helper font-semibold leading-snug', tone?.chip ?? 'bg-canvas text-ink-muted')}>
           {/* The verdict alone ("Almost ready"). Its full label adds the reason
               ("— 2 paperwork steps to check"), which the line below already
               counts — shown twice, the chip wrapped to three lines on a phone
               (audit 2026-10-04, D5). The Gulf Readiness screen keeps the full label. */}
           {gulf ? gulf.verdict.label.split(' — ')[0] : 'Working it out…'}
         </span>
-        <span className="text-[12px] leading-snug text-ink-soft">
+        <span className="type-caption leading-snug text-ink-soft">
           {!gulf
             ? 'How ready you are for GCC jobs'
             : paperworkLeft + profileFixes === 0
@@ -368,11 +369,11 @@ function FactTile({
         <Icon className="size-4" aria-hidden="true" />
       </span>
       <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-muted">{label}</span>
-        <span className={cn('break-words text-[14px] font-semibold leading-snug', value ? 'text-ink' : 'text-ink-muted')}>
+        <span className="type-caption font-semibold uppercase tracking-[0.08em] text-ink-muted">{label}</span>
+        <span className={cn('break-words type-label font-semibold leading-snug', value ? 'text-ink' : 'text-ink-muted')}>
           {value ?? 'Not added yet'}
         </span>
-        {note ? <span className="text-[12px] leading-snug text-ink-muted">{note}</span> : null}
+        {note ? <span className="type-caption leading-snug text-ink-muted">{note}</span> : null}
       </span>
     </button>
   )
@@ -383,7 +384,7 @@ const IDENTITY_BADGE = 'bg-sec-identity/10 text-sec-identity'
 const STATUS_BADGE = 'bg-sec-status/10 text-sec-status'
 
 /**
- * "Your career at a glance" — the six facts a Gulf recruiter asks first. Each
+ * "Career details" — the six facts a Gulf recruiter asks first. Each
  * tile opens the field or section it comes from; the header opens the whole
  * profile (everything read from the CV).
  */
@@ -400,31 +401,31 @@ export function CareerSnapshot({
     <section aria-labelledby="snapshot-h" className="mx-3 sm:mx-5 mt-4 rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <div className="flex min-w-0 flex-col">
-          <h2 id="snapshot-h" className="font-display text-[18px] font-semibold text-ink">
-            Your career at a glance
+          <h2 id="snapshot-h" className="font-display type-card font-semibold text-ink">
+            Career details
           </h2>
-          <p className="text-[12.5px] text-ink-muted">Tap any box to change it.</p>
+          <p className="type-helper text-ink-muted">Your experience and target market.</p>
         </div>
         <button
           type="button"
           onClick={onOpenAll}
-          className="-mr-1 inline-flex min-h-11 items-center gap-1 rounded-ctl px-1 text-[13px] font-bold text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          className="-mr-1 inline-flex min-h-11 items-center gap-1 rounded-ctl px-1 type-helper font-semibold text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
-          Full profile
+          Edit profile
           <ArrowRightIcon className="size-4" aria-hidden="true" />
         </button>
       </div>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         <FactTile
           icon={BriefcaseIcon}
-          badge={EXPERIENCE_BADGE}
+          badge="bg-teal-soft text-teal"
           label="Current role"
           value={facts.currentTitle}
           onClick={() => onOpen({ sectionId: 'sec_work_experience' })}
         />
         <FactTile
           icon={ClockIcon}
-          badge={EXPERIENCE_BADGE}
+          badge="bg-teal-soft text-teal"
           label="Experience"
           value={facts.years !== null ? `${facts.years} year${facts.years === 1 ? '' : 's'}` : null}
           note="Counted from your job dates"
@@ -432,7 +433,7 @@ export function CareerSnapshot({
         />
         <FactTile
           icon={GlobeAltIcon}
-          badge={EXPERIENCE_BADGE}
+          badge="bg-teal-soft text-teal"
           label="Gulf experience"
           value={facts.gcc.roles > 0 ? `${facts.gcc.years} year${facts.gcc.years === 1 ? '' : 's'}` : null}
           note={facts.gcc.roles > 0 ? facts.gcc.countries.join(', ') : 'No Gulf-based job found yet'}
@@ -440,21 +441,21 @@ export function CareerSnapshot({
         />
         <FactTile
           icon={MapPinIcon}
-          badge={IDENTITY_BADGE}
+          badge="bg-teal-soft text-teal"
           label="Location"
           value={facts.location}
           onClick={() => onOpen({ field: 'current_location' })}
         />
         <FactTile
           icon={FlagIcon}
-          badge={STATUS_BADGE}
+          badge="bg-teal-soft text-teal"
           label="Target role"
           value={facts.target}
           onClick={() => onOpen({ field: 'target_job_title' })}
         />
         <FactTile
           icon={IdentificationIcon}
-          badge={IDENTITY_BADGE}
+          badge="bg-teal-soft text-teal"
           label="Visa · notice"
           value={facts.availability}
           onClick={() => onOpen({ field: 'visa_status' })}
@@ -489,17 +490,17 @@ export function SettingsCard({
   return (
     <section
       aria-labelledby="settings-card-h"
-      className="group relative mx-3 sm:mx-5 mt-4 overflow-hidden rounded-card border border-sec-summary/20 bg-white shadow-m-1 transition-all focus-within:ring-2 focus-within:ring-teal hover:-translate-y-0.5 hover:shadow-m-2 motion-reduce:transform-none"
+      className="group relative mx-3 sm:mx-5 mt-4 overflow-hidden rounded-card border border-line bg-white shadow-m-1 transition-all focus-within:ring-2 focus-within:ring-teal hover:-translate-y-0.5 hover:shadow-m-2 motion-reduce:transform-none"
     >
-      <div className="flex items-center gap-3 bg-gradient-to-r from-sec-summary/10 via-sec-summary/[0.04] to-white px-4 py-3.5 sm:px-5">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-ctl bg-white text-sec-summary shadow-m-1">
+      <div className="flex items-center gap-3 bg-canvas/40 px-4 py-3.5 sm:px-5">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-ctl bg-white text-teal shadow-m-1">
           <AdjustmentsHorizontalIcon className="size-5" aria-hidden="true" />
         </span>
         <div className="flex min-w-0 flex-1 flex-col">
-          <h2 id="settings-card-h" className="text-[15.5px] font-bold text-ink">
+          <h2 id="settings-card-h" className="type-card font-semibold text-ink">
             Profile settings
           </h2>
-          <p className="text-[12.5px] leading-snug text-ink-soft">
+          <p className="type-helper leading-snug text-ink-soft">
             What your CV shows — <span className="font-semibold text-ink">{shown} of {total} details on</span>
           </p>
         </div>
@@ -507,7 +508,7 @@ export function SettingsCard({
         <button
           type="button"
           onClick={onOpen}
-          className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-ctl bg-white px-3 text-[13px] font-bold text-teal shadow-m-1 after:absolute after:inset-0 after:rounded-card focus-visible:outline-none"
+          className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-ctl bg-white px-3 type-helper font-semibold text-teal shadow-m-1 after:absolute after:inset-0 after:rounded-card focus-visible:outline-none"
         >
           <span aria-hidden="true">Manage</span>
           <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
@@ -525,14 +526,14 @@ export function SettingsCard({
                 <span className={cn('flex size-7 shrink-0 items-center justify-center rounded-full', g.badge)}>
                   <Icon className="size-4" aria-hidden="true" />
                 </span>
-                <span className="min-w-0 text-[12.5px] font-bold leading-tight text-ink">{g.title}</span>
+                <span className="min-w-0 type-helper font-semibold leading-tight text-ink">{g.title}</span>
               </span>
-              <span className={cn('inline-flex items-center gap-1 text-[12px] font-semibold', all ? 'text-ok' : 'text-ink-soft')}>
+              <span className={cn('inline-flex items-center gap-1 type-caption font-semibold', all ? 'text-ok' : 'text-ink-soft')}>
                 {all ? <EyeIcon className="size-3.5" aria-hidden="true" /> : <EyeSlashIcon className="size-3.5" aria-hidden="true" />}
                 {all ? `All ${g.total} on CV` : `${g.shown} of ${g.total} on CV`}
               </span>
               {g.hidden.length > 0 ? (
-                <span className="text-[12px] leading-snug text-ink-muted">Hidden: {g.hidden.join(', ')}</span>
+                <span className="type-caption leading-snug text-ink-muted">Hidden: {g.hidden.join(', ')}</span>
               ) : null}
             </li>
           )
@@ -568,16 +569,16 @@ export function ViewHeader({
       <button
         type="button"
         onClick={onBack}
-        className="-ml-1 inline-flex min-h-11 items-center gap-1.5 self-start rounded-ctl px-1 text-[13px] font-bold text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        className="-ml-1 inline-flex min-h-11 items-center gap-1.5 self-start rounded-ctl px-1 type-helper font-semibold text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
       >
         <ArrowLeftIcon className="size-4" aria-hidden="true" />
         Profile overview
       </button>
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
-          <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">Career Profile · {eyebrow}</span>
+          <GulfContext>Gulf profile · {eyebrow}</GulfContext>
           <h1 className="type-title text-ink">{title}</h1>
-          <p className="text-[13px] leading-relaxed text-ink-soft">{description}</p>
+          <p className="type-helper leading-relaxed text-ink-soft">{description}</p>
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
@@ -588,7 +589,7 @@ export function ViewHeader({
 /** A quiet, dashed note — the empty state of a block on a detail screen. */
 export function QuietNote({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex items-start gap-2 rounded-ctl border border-dashed border-line-strong bg-canvas/60 px-3.5 py-3 text-[13px] leading-relaxed text-ink-soft">
+    <p className="flex items-start gap-2 rounded-ctl border border-dashed border-line-strong bg-canvas/60 px-3.5 py-3 type-helper leading-relaxed text-ink-soft">
       <ChatBubbleLeftRightIcon className="mt-0.5 size-4 shrink-0 text-ink-muted" aria-hidden="true" />
       <span>{children}</span>
     </p>
@@ -636,7 +637,7 @@ export function SaveBar({
     >
       <p
         className={cn(
-          'flex min-w-0 items-center gap-2 text-[13.5px] font-semibold',
+          'flex min-w-0 items-center gap-2 type-helper font-semibold',
           state === 'saved' && 'text-ok',
           state === 'dirty' && 'text-gold-ink',
           state === 'saving' && 'text-ink-soft',
@@ -665,7 +666,7 @@ export function SaveBar({
           <button
             type="button"
             onClick={onFinish}
-            className="min-h-11 flex-1 rounded-ctl border border-line-strong bg-white px-4 text-[13px] font-semibold text-ink hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-none"
+            className="min-h-11 flex-1 rounded-ctl border border-line-strong bg-white px-4 type-helper font-semibold text-ink hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-none"
           >
             {finishLabel}
           </button>
@@ -674,7 +675,7 @@ export function SaveBar({
             type="button"
             onClick={onSave}
             disabled={state === 'saving'}
-            className="min-h-11 flex-1 rounded-ctl bg-gold px-3 sm:px-5 text-[14px] font-bold text-ink hover:bg-gold-ink hover:text-white disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-none"
+            className="min-h-11 flex-1 rounded-ctl bg-teal px-3 sm:px-5 type-label font-semibold text-white hover:bg-teal-bright disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-none"
           >
             {state === 'saving' ? 'Saving…' : 'Save changes'}
           </button>

@@ -130,7 +130,7 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
   return (
     <span
       className={cn(
-        'rounded-[4px] px-2 py-1 text-[12px] font-semibold leading-none',
+        'rounded-[4px] px-2 py-1 type-caption font-semibold leading-none',
         present
           ? 'bg-teal-soft text-teal'
           : 'border border-dashed border-line-strong bg-canvas text-ink-muted'
@@ -222,7 +222,7 @@ function ApplicationCard({
       {/* Who and where — the title opens this job's workspace. */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0 flex-1">
-          {isRaw ? <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 text-[12px] font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE}</span> : null}
+          {isRaw ? <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE}</span> : null}
           <Link
             href={`/package/${id}`}
             className="block break-words rounded-ctl type-card text-ink underline-offset-4 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
@@ -233,7 +233,7 @@ function ApplicationCard({
             {isRaw ? <span className="block type-helper text-ink-soft">Career Profile · No job description</span> : <JobSubtitle pkg={pkg} />}
           </div>
           {/* What tells two jobs with the same title apart. */}
-          <p className="mt-1 text-[12px] text-ink-muted">
+          <p className="mt-1 type-caption text-ink-muted">
             {isRaw ? 'No AI optimization' : `${levelLabel(pkg.optimization_level)} optimization`} · added {formatDay(pkg.created_at)}
             {pkg.updated_at && pkg.updated_at.slice(0, 10) !== pkg.created_at.slice(0, 10) ? ` · updated ${formatDay(pkg.updated_at)}` : ''}
           </p>
@@ -248,7 +248,7 @@ function ApplicationCard({
             <Link
               href={st.href}
               className={cn(
-                'flex min-h-11 items-center justify-center gap-1 rounded-ctl border px-1 py-1.5 text-center text-[12px] font-semibold leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-col sm:gap-0.5',
+                'flex min-h-11 items-center justify-center gap-1 rounded-ctl border px-1 py-1.5 text-center type-caption font-semibold leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-col sm:gap-0.5',
                 st.done ? 'border-ok/30 bg-ok-soft text-ok' : 'border-dashed border-line-strong bg-canvas text-ink-muted hover:border-teal/50',
               )}
             >
@@ -266,7 +266,7 @@ function ApplicationCard({
             Next: {next.label}
           </Link>
         ) : (
-          <span className="w-full rounded-ctl bg-ok-soft px-3 py-2.5 text-center text-[13px] font-semibold text-ok sm:w-auto sm:text-left">
+          <span className="w-full rounded-ctl bg-ok-soft px-3 py-2.5 text-center type-helper font-semibold text-ok sm:w-auto sm:text-left">
             {isRaw ? 'Your career preparation is ready' : 'Ready to apply — every step done'}
           </span>
         )}
@@ -277,7 +277,7 @@ function ApplicationCard({
           type="button"
           aria-expanded={detailsOpen}
           onClick={() => setDetailsOpen((v) => !v)}
-          className="min-h-11 px-2 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:ml-auto"
+          className="min-h-11 px-2 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:ml-auto"
         >
           {detailsOpen ? 'Hide details' : 'Details'}
         </button>
@@ -286,7 +286,7 @@ function ApplicationCard({
       {detailsOpen ? (
         <div className="flex flex-col gap-3 border-t border-line pt-3">
           <label className="flex flex-col gap-1">
-            <span className="text-[12px] font-semibold text-ink-muted">Name in your library (to tell versions apart)</span>
+            <span className="type-caption font-semibold text-ink-muted">Name in your library (to tell versions apart)</span>
             <NameField value={pkg.name ?? ''} fallback={pkg.target_job_title} onSave={onRename} />
           </label>
           <ServiceUsageLine
@@ -304,7 +304,7 @@ function ApplicationCard({
           {trackerItems.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {trackerItems.map((item) => (
-                <span key={item} className="rounded-full border border-line bg-canvas px-2.5 py-1 text-[12px] font-semibold text-ink-soft">
+                <span key={item} className="rounded-full border border-line bg-canvas px-2.5 py-1 type-caption font-semibold text-ink-soft">
                   {item}
                 </span>
               ))}
@@ -315,7 +315,7 @@ function ApplicationCard({
               type="button"
               aria-expanded={targetOpen}
               onClick={toggleTarget}
-              className="min-h-11 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              className="min-h-11 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               {targetOpen ? 'Hide target job' : `${CTA.viewTargetJob} and ATS score`}
             </button>
@@ -323,12 +323,12 @@ function ApplicationCard({
               detail ? (
                 <TargetJobCard pkg={detail} className="mt-1 shadow-none" />
               ) : detailState === 'error' ? (
-                <p className="text-[12.5px] text-alert">Could not load this target job. Try again.</p>
+                <p className="type-helper text-alert">Could not load this target job. Try again.</p>
               ) : (
-                <p className="text-[12.5px] text-ink-muted" role="status">Loading target job…</p>
+                <p className="type-helper text-ink-muted" role="status">Loading target job…</p>
               )
             ) : null}
-          </div> : <p className="text-[13px] text-ink-soft">Cover letters, Q&A and mock interviews use your latest saved Career Profile. No vacancy or employer is assumed.</p>}
+          </div> : <p className="type-helper text-ink-soft">Cover letters, Q&A and mock interviews use your latest saved Career Profile. No vacancy or employer is assumed.</p>}
           <div className="flex flex-wrap items-center gap-2">
             {cvReady ? (
               <Link href={isRaw ? '/profile?view=details' : `/package/${id}/edit`} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
@@ -344,7 +344,7 @@ function ApplicationCard({
               {confirmingDelete ? 'Confirm: delete this job and its documents' : 'Delete'}
             </button> : null}
           </div>
-          <p className="text-[12px] text-ink-muted">{templateNameFor(pkg.template_id)} template</p>
+          <p className="type-caption text-ink-muted">{templateNameFor(pkg.template_id)} template</p>
         </div>
       ) : null}
     </article>
@@ -596,7 +596,7 @@ export default function TargetJobsPage() {
         </div>
       ) : null}
       {total > 0 ? (
-        <p className="-mt-2 text-[12.5px] text-ink-muted" role="status" aria-live="polite">
+        <p className="-mt-2 type-helper text-ink-muted" role="status" aria-live="polite">
           {searching
             ? 'Searching all your jobs…'
             : filtering
@@ -623,7 +623,7 @@ export default function TargetJobsPage() {
 
       {(total > 0 || raw) && resumeList.length === 0 && !searching ? (
         <div className="rounded-card border border-line bg-white px-5 py-8 text-center">
-          <p className="text-[14px] text-ink-soft">
+          <p className="type-label text-ink-soft">
             No jobs match these filters.{' '}
             <button
               type="button"
@@ -637,8 +637,8 @@ export default function TargetJobsPage() {
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-2">
-        {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 text-[13px] text-ink-soft">Opening your Career Profile Resume…</div> : null}
-        {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="text-[13px] text-alert">Could not open your Career Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
+        {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 type-helper text-ink-soft">Opening your Career Profile Resume…</div> : null}
+        {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="type-helper text-alert">Could not open your Career Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
         {resumeList.map((pkg) => (
           <ApplicationCard
             key={pkg.id}

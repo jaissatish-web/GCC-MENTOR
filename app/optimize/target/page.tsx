@@ -208,7 +208,7 @@ function TargetScreen() {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5 py-10 font-redesign-sans">
         <Card tone="light" className="flex w-full max-w-[520px] flex-col gap-3 p-6 sm:p-8">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+          <p className="type-caption font-semibold uppercase tracking-[0.14em] text-ink-muted">
             Before your first CV
           </p>
           <h1 className="type-title text-ink">First, your Career Profile</h1>
@@ -256,7 +256,7 @@ function TargetScreen() {
       </div>
 
       {loadError ? (
-        <div className="rounded-card border border-alert/30 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+        <div className="rounded-card border border-alert/30 bg-alert-soft px-3.5 py-3 type-helper text-alert">
           {loadError}
         </div>
       ) : null}
@@ -281,11 +281,11 @@ function TargetScreen() {
             {/* Plain words (2026-09-12): "package" is our table name and
                 "Phase 2" our roadmap. And say what replacing really removes —
                 setup deletes the whole old row, letters and stage included. */}
-            <p className="text-[12px] leading-snug text-teal">
+            <p className="type-caption leading-snug text-teal">
               You already have a CV for &ldquo;{similar.title}&rdquo;. Replace it with a new one, or keep
               both?
             </p>
-            <p className="mt-0.5 text-[12px] text-ink-muted">
+            <p className="mt-0.5 type-caption text-ink-muted">
               Replacing removes the old one — its CV, cover letters and stage — once the new one is created.
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -295,7 +295,7 @@ function TargetScreen() {
                   setReplacingId(similar.id)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-ctl bg-teal px-3.5 py-2 text-[12px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+                className="min-h-11 rounded-ctl bg-teal px-3.5 py-2 type-caption font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
               >
                 Replace it
               </button>
@@ -305,7 +305,7 @@ function TargetScreen() {
                   setReplacingId(null)
                   setDismissed(true)
                 }}
-                className="min-h-11 rounded-ctl border border-line-strong bg-white px-3.5 py-2 text-[12px] font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+                className="min-h-11 rounded-ctl border border-line-strong bg-white px-3.5 py-2 type-caption font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
               >
                 Keep both
               </button>
@@ -314,7 +314,7 @@ function TargetScreen() {
         ) : null}
 
         {similar && replacingId ? (
-          <div className="rounded-card border border-teal/30 bg-teal-soft px-3.5 py-3 text-[12px] leading-snug text-teal">
+          <div className="rounded-card border border-teal/30 bg-teal-soft px-3.5 py-3 type-caption leading-snug text-teal">
             Your existing &ldquo;{similar.title}&rdquo; CV will be replaced once the new one is created.{' '}
             <button
               type="button"
@@ -338,15 +338,15 @@ function TargetScreen() {
             <FieldLabel htmlFor="f_job_description" optional>
               {NAMES.jobDescription}
             </FieldLabel>
-            <span className="rounded-[5px] bg-teal-soft px-2 py-1 text-[12px] font-semibold uppercase tracking-wider text-teal">
+            <span className="rounded-[5px] bg-teal-soft px-2 py-1 type-caption font-semibold uppercase tracking-wider text-teal">
               Best results
             </span>
           </div>
           <div className="flex flex-col gap-2.5 rounded-card border border-dashed border-teal p-4">
-            <div className="text-[13px] font-medium leading-snug text-ink">
+            <div className="type-helper font-medium leading-snug text-ink">
               Paste the job advert for the most accurate ATS score
             </div>
-            <p className="text-[12px] leading-snug text-ink-muted">
+            <p className="type-caption leading-snug text-ink-muted">
               We match your CV to its exact requirements. Without it, we work from the job title and the score is an estimate.
             </p>
             <textarea
@@ -366,14 +366,14 @@ function TargetScreen() {
         {/* Was "Still free — you'll see what changes before you pay." There is
             no checkout yet, so a sentence about paying is a promise about a
             step that does not exist. What IS true is the preview. */}
-        <p className="text-center text-[12px] leading-snug text-ink-muted">
+        <p className="text-center type-caption leading-snug text-ink-muted">
           Next you choose how strongly to optimize. Your ATS score before and after is shown with the result.
         </p>
         <Button variant="progress" className="w-full" disabled={!canContinue} onClick={onContinue}>
           {CTA.chooseLevel}
         </Button>
         {!canContinue ? (
-          <p className="text-center text-[12px] text-ink-muted">
+          <p className="text-center type-caption text-ink-muted">
             Add a job title to continue.
           </p>
         ) : null}
@@ -390,7 +390,7 @@ function InputChip({ label, state }: { label: string; state: 'ready' | 'needed' 
       <span
         aria-hidden="true"
         className={cn(
-          'flex size-7 items-center justify-center rounded-full text-[12px] font-bold',
+          'flex size-7 items-center justify-center rounded-full type-caption font-semibold',
           state === 'ready' && 'bg-ok text-white',
           state === 'needed' && 'border-2 border-dashed border-teal text-teal',
           state === 'unknown' && 'border border-line-strong text-ink-muted',
@@ -399,8 +399,8 @@ function InputChip({ label, state }: { label: string; state: 'ready' | 'needed' 
       >
         {state === 'ready' ? '✓' : state === 'output' ? '★' : state === 'needed' ? '•' : '?'}
       </span>
-      <span className="text-[12px] font-semibold leading-tight text-ink">{label}</span>
-      <span className="text-[12px] leading-tight text-ink-muted">
+      <span className="type-caption font-semibold leading-tight text-ink">{label}</span>
+      <span className="type-caption leading-tight text-ink-muted">
         {state === 'ready' ? 'Ready' : state === 'needed' ? 'Add below' : state === 'output' ? 'You get' : 'Not loaded'}
       </span>
     </span>

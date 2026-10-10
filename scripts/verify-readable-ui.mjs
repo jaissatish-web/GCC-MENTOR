@@ -119,15 +119,19 @@ try {
         await page.waitForSelector('[role="dialog"]', { hidden: true })
         assert.equal(await page.evaluate(() => document.activeElement.getAttribute('aria-label')), 'More services')
       }
-      await page.$eval('details summary', element => element.click())
-      assert.ok(await page.$eval('details', element => element.open), 'Progress reports expand')
+      await page.evaluate(() => [...document.querySelectorAll('details')].find(el => el.textContent.includes('Your progress reports')).querySelector('summary').click())
+      assert.ok(await page.evaluate(() => [...document.querySelectorAll('details')].find(el => el.textContent.includes('Your progress reports')).open), 'Progress reports expand')
     }
     scenario = 'saved'
     await page.goto(`${origin}/profile`, { waitUntil: 'networkidle0' })
-    await page.waitForFunction(() => document.body.textContent.includes('Your CV is ready to preview.'))
+    await page.waitForFunction(() => document.body.textContent.includes('Preview your CV'))
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Profile fits the viewport')
     assert.ok(await page.evaluate(() => [...document.querySelectorAll('button')].some(el => el.textContent.includes('Preview CV'))), 'Saved profile has its original CV preview action')
     assert.ok(await page.evaluate(() => [...document.querySelectorAll('button')].some(el => el.textContent.includes('Tailor for a job'))), 'Saved profile keeps its save-before-tailoring action')
+    const insights = await page.$('details')
+    assert.ok(insights, 'Detailed profile insights remain accessible')
+    assert.equal(await insights.evaluate(el => el.open), false, 'Profile editing has priority over secondary insights')
+    assert.ok(await page.$('[aria-labelledby="profile-sections-title"]'), 'Profile sections are accessible directly')
     await page.screenshot({ path: `artifacts/readable-ui/profile-${width}.png`, fullPage: false })
     await page.goto(origin, { waitUntil: 'networkidle0' })
     assert.ok(await page.$('#services'), 'Landing explains services before the detailed walkthrough')
@@ -148,6 +152,9 @@ try {
       await page.click('header details a[href="#services"]')
       assert.equal(await page.$eval('header details', element => element.open), false, 'Section selection closes the navigation menu')
     }
+    await page.evaluate(() => { location.hash = 'letters' })
+    await page.waitForFunction(() => document.querySelector('#letters').open)
+    assert.ok(await page.$eval('#letters', element => element.open), 'Cover-letter fragment opens its example directly')
     assert.ok(await page.$('#journey details'), 'Detailed application demo remains available')
     await page.$eval('#journey summary', element => element.click())
     assert.ok(await page.$eval('#journey details', element => element.open), 'Application demo expands')

@@ -36,7 +36,7 @@ function SignOutButton() {
       <button
         type="submit"
         disabled={pending}
-        className="flex min-h-10 w-full items-center gap-3 rounded-ctl px-3 text-[13px] font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-60"
+        className="flex min-h-10 w-full items-center gap-3 rounded-ctl px-3 type-helper font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-60"
       >
         <ArrowRightStartOnRectangleIcon className="size-5 text-ink-muted" />
         {pending ? 'Signing out…' : 'Sign out'}
@@ -48,10 +48,10 @@ function SignOutButton() {
 function BrandMark() {
   return (
     <Link href="/dashboard" className="flex items-center gap-2.5 px-2">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal text-[15px] font-bold text-white shadow-redesign-sm">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal type-label font-semibold text-white shadow-redesign-sm">
         G
       </div>
-      <span className="flex flex-col"><span className="text-[14px] font-semibold text-ink">GCC MENTOR</span><span className="text-[12px] leading-4 text-ink-muted">Your Gulf career workspace</span></span>
+      <span className="flex flex-col"><span className="type-label font-semibold text-ink">GCC MENTOR</span><span className="type-caption leading-4 text-ink-muted">Your Gulf career workspace</span></span>
     </Link>
   )
 }
@@ -81,10 +81,10 @@ function NavItem({
       aria-current={active ? 'page' : undefined}
       title={mark === 'locked' ? 'Opens after the step before it' : undefined}
       className={cn(
-        'flex min-h-11 items-center gap-3 rounded-ctl px-3 py-1.5 text-[14px] font-redesign-sans transition-colors',
+        'flex min-h-11 items-center gap-3 rounded-ctl px-3 py-1.5 type-label font-redesign-sans transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-white',
         active
-          ? 'border border-teal/30 bg-teal-soft font-medium text-teal'
+          ? 'border border-teal/15 bg-teal-soft/70 font-medium text-teal'
           : mark === 'locked'
             ? 'border border-transparent font-medium text-ink-muted hover:bg-canvas'
             : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
@@ -97,7 +97,7 @@ function NavItem({
           tag was cut to "Resume Opti…" (audit 2026-10-04, D7). */}
       <span className="min-w-0 flex-1 leading-tight">{item.label}</span>
       {mark === 'next' ? (
-        <span className="shrink-0 rounded-full bg-gold px-2 py-0.5 text-[12px] font-bold leading-tight text-ink">Next</span>
+        <span className="shrink-0 rounded-full bg-gold px-2 py-0.5 type-caption font-semibold leading-tight text-ink">Next</span>
       ) : null}
       {mark === 'locked' ? (
         <>
@@ -136,7 +136,7 @@ export function Sidebar() {
         {groups.map((g) => {
           return (
             <div key={g.key} className="flex flex-col gap-0.5">
-              {g.label ? <p className="px-3 pb-1 pt-3 type-caption font-semibold text-teal">{g.label}</p> : null}
+              {g.label ? <p className="px-3 pb-1 pt-3 type-caption font-medium text-ink-muted">{g.label}</p> : null}
               {g.items.map((item, i) => (
                 <NavItem key={item.label} item={item} active={isActive(item)} mark={markFor(g.stage, i)} onClick={onNavigate} />
               ))}
@@ -145,9 +145,10 @@ export function Sidebar() {
         })}
       </nav>
       <div className="mt-auto flex flex-col gap-1 border-t border-line pt-4">
+        <p className="px-3 pb-2 type-caption text-ink-muted">Saudi Arabia · UAE · Qatar<br />Oman · Kuwait · Bahrain</p>
         <a
           href="mailto:jaissatish@gmail.com"
-          className="flex min-h-10 items-center rounded-ctl px-3 text-[13px] font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          className="flex min-h-10 items-center rounded-ctl px-3 type-helper font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
           Help · jaissatish@gmail.com
         </a>
@@ -160,7 +161,7 @@ export function Sidebar() {
     <>
       {/* Desktop sidebar — ≥1024px. Pinned, and scrollable inside itself when
           the screen is short (founder, 2026-09-17). */}
-      <aside className="hidden w-[248px] flex-none flex-col gap-6 overflow-y-auto overscroll-contain border-r border-line bg-white px-4 py-6 [scrollbar-width:thin] lg:sticky lg:top-0 lg:flex lg:h-dvh">
+      <aside className="hidden w-[248px] flex-none flex-col gap-6 overflow-y-auto overscroll-contain workspace-navigation border-r border-line bg-white px-4 py-6 [scrollbar-width:thin] lg:sticky lg:top-0 lg:flex lg:h-dvh">
         {navContent()}
       </aside>
 
@@ -178,7 +179,7 @@ export function Sidebar() {
                 type="button"
                 onClick={() => setTabletExpanded(true)}
                 className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-ctl text-[14px] font-redesign-sans transition-colors',
+                  'flex h-11 w-11 items-center justify-center rounded-ctl type-label font-redesign-sans transition-colors',
                   active
                     ? 'border border-teal/25 bg-teal/[0.09] font-semibold text-teal'
                     : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
@@ -196,7 +197,7 @@ export function Sidebar() {
       {tabletExpanded && (
         <div className="fixed inset-0 z-40 md:flex lg:hidden">
           <div className="absolute inset-0 bg-teal/60 backdrop-blur-sm" onClick={() => setTabletExpanded(false)} />
-          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-6 overflow-y-auto overscroll-contain border-r border-line bg-white px-4 py-6 shadow-redesign-lg [scrollbar-width:thin]">
+          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-6 overflow-y-auto overscroll-contain workspace-navigation border-r border-line bg-white px-4 py-6 shadow-redesign-lg [scrollbar-width:thin]">
             <button
               type="button"
               onClick={() => setTabletExpanded(false)}

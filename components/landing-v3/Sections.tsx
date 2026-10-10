@@ -191,7 +191,7 @@ const FIELDS = [
 
 export function WhoItsFor() {
   return (
-    <section id="who" aria-labelledby="who-title" className="py-11 sm:py-16 lg:py-[104px]">
+    <section aria-labelledby="who-title" className="py-3">
       <Wrap>
         <SectionHead
           id="who-title"
@@ -233,7 +233,7 @@ const INSIGHTS = [
 
 export function Founder() {
   return (
-    <section id="founder" aria-labelledby="founder-title" className="relative overflow-hidden bg-teal py-16 text-white lg:py-[104px]">
+    <section id="founder" aria-labelledby="founder-title" className="relative overflow-hidden bg-teal py-16 text-white lg:py-20">
       <Image src="/landing/founder-refinery-night.jpg" alt="" fill sizes="100vw" className="object-cover opacity-[0.14]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_15%_10%,rgba(201,150,46,0.25),transparent_70%)]" aria-hidden="true" />
       <Wrap className="relative grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
@@ -285,7 +285,7 @@ export function Trust() {
     'You approve every change. Delete your data any time.',
   ]
   return (
-    <section id="trust" aria-labelledby="trust-title" className="border-y border-line bg-white py-11 sm:py-16 lg:py-[104px]">
+    <section aria-labelledby="trust-title" className="bg-white py-3">
       <Wrap className="grid items-center gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
         <div>
           <SectionHead
@@ -350,7 +350,7 @@ export function Trust() {
 
 export function PricingPreview() {
   return (
-    <section id="pricing" aria-labelledby="pricing-title" className="py-11 sm:py-16 lg:py-[104px]">
+    <section id="pricing" aria-labelledby="pricing-title" className="py-11 sm:py-16 lg:py-20">
       <Wrap>
         <SectionHead center id="pricing-title" eyebrow="Pricing" title={<>Start free. <em>Add services per job.</em></>} />
         <div className="mx-auto mt-8 grid max-w-[880px] gap-3 md:grid-cols-2 lg:mt-12 lg:gap-5">
@@ -405,7 +405,7 @@ const FAQ_JSON_LD = JSON.stringify({
 
 export function Faq() {
   return (
-    <section id="faq" aria-labelledby="faq-title" className="border-t border-line bg-white py-11 sm:py-16 lg:py-[104px]">
+    <section id="faq" aria-labelledby="faq-title" className="border-t border-line bg-white py-11 sm:py-16 lg:py-20">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: FAQ_JSON_LD }} />
       <Wrap className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <SectionHead id="faq-title" eyebrow="Questions" title={<>Before <em>you start.</em></>} />

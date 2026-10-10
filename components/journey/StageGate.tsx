@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { GulfContext } from '@/components/layout/GulfContext'
 import { buttonVariants } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { StageRail } from './JourneyStepper'
@@ -25,15 +26,16 @@ export function StageGate({ what }: { /** e.g. "Your cover letter" */ what: stri
 
   return (
     <div className="flex flex-col items-center gap-5 px-2 py-6 text-center">
+      <GulfContext>Prepare for your next Gulf role</GulfContext>
       <StageRail states={states} className="w-full max-w-[460px]" />
       <div className="flex max-w-[48ch] flex-col gap-2">
-        <h2 className="font-display text-[20px] font-semibold leading-snug text-ink">{what} comes in step 3</h2>
-        <p className="text-[14px] leading-relaxed text-ink-soft">
+        <h2 className="font-display type-section font-semibold leading-snug text-ink">{what} comes in step 3</h2>
+        <p className="type-helper leading-relaxed text-ink-soft">
           It is written for one target job, from the CV we tailor for that job.{' '}
           {onProfile ? 'Start with step 1: your profile.' : 'First, add the job you want in step 2.'}
         </p>
       </div>
-      <Link href={onProfile ? '/profile?import=upload' : target.href} className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
+      <Link href={onProfile ? '/profile?import=upload' : target.href} className={cn(buttonVariants({ variant: 'primary' }), 'type-helper')}>
         {onProfile ? 'Start step 1: add your CV' : 'Go to step 2: add a target job'}
       </Link>
     </div>

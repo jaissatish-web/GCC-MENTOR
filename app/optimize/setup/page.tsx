@@ -363,7 +363,7 @@ function SetupScreen() {
           onBack={() => router.push('/optimize/target')}
           backLabel="Back to target job"
           title={`Choose your ${NAMES.level.toLowerCase()}`}
-          subtitle="Your employers, job titles, dates and education never change. Only your summary and work activities are rewritten, from your Career Profile."
+          subtitle="Choose the amount of rewriting. Your career facts stay the same."
         />
 
         {loadError ? <Alert variant="danger">{loadError}</Alert> : null}
@@ -372,9 +372,9 @@ function SetupScreen() {
         <Card tone="light" className="flex flex-col gap-2 p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">{NAMES.targetJob}</p>
-              <p className="mt-0.5 break-words font-display text-[19px] leading-tight text-ink">{draft.target_job_title}</p>
-              <p className="mt-1 text-[12.5px] text-ink-soft">
+              <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">{NAMES.targetJob}</p>
+              <p className="mt-0.5 break-words font-display type-section leading-tight text-ink">{draft.target_job_title}</p>
+              <p className="mt-1 type-helper text-ink-soft">
                 {hasJobDescription
                   ? `${NAMES.jobDescription} added`
                   : `No ${NAMES.jobDescription.toLowerCase()} — the ATS score will be an estimate`}
@@ -383,7 +383,7 @@ function SetupScreen() {
             <button
               type="button"
               onClick={() => router.push('/optimize/target')}
-              className="min-h-11 shrink-0 px-2 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              className="min-h-11 shrink-0 px-2 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               Change
             </button>
@@ -394,12 +394,12 @@ function SetupScreen() {
                 type="button"
                 aria-expanded={showDescription}
                 onClick={() => setShowDescription((v) => !v)}
-                className="min-h-11 self-start text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                className="min-h-11 self-start type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
               >
                 {showDescription ? 'Hide job description' : 'Show job description'}
               </button>
               {showDescription ? (
-                <div className="max-h-60 overflow-y-auto whitespace-pre-wrap rounded-ctl border border-line bg-canvas p-3 text-[13px] leading-relaxed text-ink-soft">
+                <div className="max-h-60 overflow-y-auto whitespace-pre-wrap rounded-ctl border border-line bg-canvas p-3 type-helper leading-relaxed text-ink-soft">
                   {draft.job_description}
                 </div>
               ) : null}
@@ -412,7 +412,7 @@ function SetupScreen() {
 
         {/* 2. The level */}
         <Card tone="light" className="flex flex-col gap-3 p-5">
-          <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">{NAMES.level}</p>
+          <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">{NAMES.level}</p>
           {/* Full cards, stacked on a phone: three 100px buttons could only say
               "Easy · Aims for 60–75", and what each level DOES sat in a box
               below that changed as you tapped. Now every level says what it
@@ -443,21 +443,21 @@ function SetupScreen() {
                       >
                         {selected ? <span className="size-2.5 rounded-full bg-teal" /> : null}
                       </span>
-                      <span className="text-[16px] font-bold text-ink">{l.label}</span>
+                      <span className="text-[16px] font-semibold text-ink">{l.label}</span>
                     </span>
-                    <span className="rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold text-ink-soft">{l.tag}</span>
+                    <span className="rounded-full bg-white px-2 py-0.5 type-caption font-semibold text-ink-soft">{l.tag}</span>
                   </span>
-                  <span className="text-[12.5px] font-semibold text-teal">
+                  <span className="type-helper font-semibold text-teal">
                     {check ? `ATS score up to ${check.expected[l.value]}` : checkState === 'loading' ? 'Working out your score…' : l.aim}
                   </span>
                   {l.value === 'high' && check?.highIfConfirmed && check.highIfConfirmed > check.expected.high ? (
-                    <span className="-mt-1 text-[12px] font-semibold text-gold-ink">
+                    <span className="-mt-1 type-caption font-semibold text-gold-ink">
                       up to {check.highIfConfirmed} if you have the skills this job lists
                     </span>
                   ) : null}
                   <ul className="flex flex-col gap-1.5">
                     {l.changes.map((c) => (
-                      <li key={c} className="flex gap-1.5 text-[13px] leading-snug text-ink-soft">
+                      <li key={c} className="flex gap-1.5 type-helper leading-snug text-ink-soft">
                         <span aria-hidden="true" className="mt-[7px] size-1 shrink-0 rounded-full bg-ink-muted" />
                         {c}
                       </li>
@@ -478,9 +478,9 @@ function SetupScreen() {
 
           {/* Parts to rewrite — all by default, adjustable. */}
           <details className="group rounded-ctl border border-line bg-canvas px-3 py-2">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-[13px] font-semibold text-ink">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 type-helper font-semibold text-ink">
               <span>Choose which parts to rewrite</span>
-              <span className="text-[12px] font-normal text-ink-muted">
+              <span className="type-caption font-normal text-ink-muted">
                 {allSelected ? 'All selected' : nothingSelected ? 'None selected' : 'Some selected'}
               </span>
             </summary>
@@ -494,13 +494,13 @@ function SetupScreen() {
                   onToggle={() => setExpOn((prev) => ({ ...prev, [e.id]: !prev[e.id] }))}
                 />
               ))}
-              <p className="text-[12px] text-ink-muted">Skills are put in order of relevance, never reworded.</p>
+              <p className="type-caption text-ink-muted">Skills are put in order of relevance, never reworded.</p>
             </div>
           </details>
         </Card>
 
         {/* 3. What you get */}
-        <div className="rounded-card border border-teal/30 bg-teal-soft/50 px-4 py-3 text-[13px] leading-relaxed text-ink-soft">
+        <div className="rounded-card border border-teal/30 bg-teal-soft/50 px-4 py-3 type-helper leading-relaxed text-ink-soft">
           <strong className="text-ink">You will see:</strong> your {NAMES.atsScore} before and after for this target job,
           and your {NAMES.optimizedCv.toLowerCase()}, saved in your {NAMES.library}.
         </div>
@@ -508,14 +508,14 @@ function SetupScreen() {
         {/* First time only: how it works, and the one-time agreement (migration 061). */}
         {needsAgreement ? (
           <Card tone="light" className="flex flex-col gap-3 border-gold/50 p-5">
-            <p className="text-[14px] font-bold text-ink">{firstTime ? 'Your first optimization — how it works' : 'Before you optimize'}</p>
-            <ul className="flex flex-col gap-1.5 text-[13px] leading-snug text-ink-soft">
+            <p className="type-label font-semibold text-ink">{firstTime ? 'Your first optimization — how it works' : 'Before you optimize'}</p>
+            <ul className="flex flex-col gap-1.5 type-helper leading-snug text-ink-soft">
               <li>• <strong className="text-ink">Easy</strong> rewords only what your profile says.</li>
               <li>• <strong className="text-ink">Moderate</strong> and <strong className="text-ink">High</strong> also add points for the job’s duties that someone doing your job almost certainly does.</li>
               <li>• Your certificates, education, employers, job titles, dates and personal details are never added or changed.</li>
               <li>• This first time you will see every added point in yellow and can remove any. After that, you optimize and download in one step.</li>
             </ul>
-            <label className="flex cursor-pointer items-start gap-2.5 rounded-ctl border border-line bg-canvas p-3 text-[13px] text-ink">
+            <label className="flex cursor-pointer items-start gap-2.5 rounded-ctl border border-line bg-canvas p-3 type-helper text-ink">
               <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-teal" />
               <span>I understand, and I will only send CVs that are true about me — I can talk about every line in an interview.</span>
             </label>
@@ -524,7 +524,7 @@ function SetupScreen() {
 
         {error ? <Alert variant="danger">{error}</Alert> : null}
         {nothingSelected ? (
-          <p className="text-center text-[12px] text-ink-muted">Select the summary or at least one role to rewrite.</p>
+          <p className="text-center type-caption text-ink-muted">Select the summary or at least one role to rewrite.</p>
         ) : null}
 
         <Button
@@ -568,12 +568,12 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
   return (
     <Card tone="light" className={cn('flex flex-col gap-2.5 border-2 p-5', tone.box)}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className={cn('text-[15px] font-bold', tone.title)}>{tone.label}</p>
-        <p className="text-[12.5px] text-ink-muted">
+        <p className={cn('type-label font-semibold', tone.title)}>{tone.label}</p>
+        <p className="type-helper text-ink-muted">
           Your CV today: <strong className="font-mono text-ink">{check.before}</strong>
         </p>
       </div>
-      <p className="text-[13px] leading-relaxed text-ink-soft">
+      <p className="type-helper leading-relaxed text-ink-soft">
         {check.fieldMatch === 'same'
           ? `Your experience (${check.candidateField}) matches this ${check.jobField} role.`
           : check.fieldMatch === 'related'
@@ -584,8 +584,8 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
           title — shown, so the user sees exactly what the score is based on. */}
       {check.typical ? (
         <div className="flex flex-col gap-2 rounded-ctl border border-gold/40 bg-gold-soft/60 p-3">
-          <p className="text-[13px] font-semibold text-ink">No job advert pasted — matched against typical {title} requirements in the Gulf</p>
-          <p className="text-[12.5px] leading-snug text-ink-soft">
+          <p className="type-helper font-semibold text-ink">No job advert pasted — matched against typical {title} requirements in the Gulf</p>
+          <p className="type-helper leading-snug text-ink-soft">
             Your CV is written for what most Gulf adverts for this title ask. A real advert uses its own words, and the ATS
             looks for those exact words — so if you have the advert (even a WhatsApp message), paste it for a much stronger match.
           </p>
@@ -594,13 +594,13 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
               Paste the real advert
             </button>
             {check.typicalAdvert ? (
-              <button type="button" onClick={() => setShowAdvert((v) => !v)} className="min-h-9 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline">
+              <button type="button" onClick={() => setShowAdvert((v) => !v)} className="min-h-9 type-helper font-semibold text-teal underline-offset-2 hover:underline">
                 {showAdvert ? 'Hide typical requirements' : 'See the typical requirements'}
               </button>
             ) : null}
           </div>
           {showAdvert && check.typicalAdvert ? (
-            <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-ctl border border-line bg-white p-3 font-sans text-[12.5px] leading-relaxed text-ink-soft">{check.typicalAdvert}</pre>
+            <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-ctl border border-line bg-white p-3 font-sans type-helper leading-relaxed text-ink-soft">{check.typicalAdvert}</pre>
           ) : null}
         </div>
       ) : null}
@@ -608,8 +608,8 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
         <div className="flex flex-col gap-2 rounded-ctl border border-line bg-white p-3">
           {check.askCertifications.length ? (
             <>
-              <p className="text-[13px] font-semibold text-ink">This job asks for certificates your profile does not show</p>
-              <p className="text-[12px] leading-snug text-ink-muted">
+              <p className="type-helper font-semibold text-ink">This job asks for certificates your profile does not show</p>
+              <p className="type-caption leading-snug text-ink-muted">
                 We never add certificates for you. If you really hold one, tell us here — it goes on your Career Profile and raises your score.
               </p>
               <ul className="flex flex-col divide-y divide-line">
@@ -627,7 +627,7 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
             </>
           ) : null}
           {added.length ? (
-            <p className="flex items-start gap-1.5 text-[12.5px] font-semibold text-ok">
+            <p className="flex items-start gap-1.5 type-helper font-semibold text-ok">
               <CheckIcon aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={2.5} />
               Added to your Career Profile: {added.join(', ')}. Your scores above include it, and your CV will list it.
             </p>
@@ -652,13 +652,13 @@ function PartToggle({ label, on, onToggle }: { label: string; on: boolean; onTog
     >
       <span
         className={cn(
-          'flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[12px] text-white',
+          'flex size-5 shrink-0 items-center justify-center rounded-[6px] type-caption text-white',
           on ? 'bg-teal' : 'border-[1.5px] border-line-strong',
         )}
       >
         {on ? '✓' : ''}
       </span>
-      <span className="text-[13px] font-semibold text-ink">{label}</span>
+      <span className="type-helper font-semibold text-ink">{label}</span>
     </button>
   )
 }
@@ -684,7 +684,7 @@ function CertAsk({ cert, onAdded }: { cert: { term: string; importance: 'must' |
   const [year, setYear] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const field = 'min-h-11 w-full rounded-ctl border border-line-strong bg-white px-3 text-[14px] text-ink focus:border-teal focus:outline-none'
+  const field = 'min-h-11 w-full rounded-ctl border border-line-strong bg-white px-3 type-label text-ink focus:border-teal focus:outline-none'
 
   const save = async () => {
     setSaving(true)
@@ -710,15 +710,15 @@ function CertAsk({ cert, onAdded }: { cert: { term: string; importance: 'must' |
 
   return (
     <li className="flex flex-col gap-2 py-2">
-      <div className="flex flex-wrap items-center justify-between gap-2 text-[13px]">
+      <div className="flex flex-wrap items-center justify-between gap-2 type-helper">
         <span className="text-ink">
           {cert.term}
-          {cert.importance === 'must' ? <span className="ml-1.5 text-[12px] font-semibold text-alert">required</span> : null}
+          {cert.importance === 'must' ? <span className="ml-1.5 type-caption font-semibold text-alert">required</span> : null}
         </span>
         <span className="flex items-center gap-3">
-          {cert.gain > 0 ? <span className="font-mono text-[12px] font-semibold text-teal">+{cert.gain} point{cert.gain === 1 ? '' : 's'}</span> : null}
+          {cert.gain > 0 ? <span className="font-mono type-caption font-semibold text-teal">+{cert.gain} point{cert.gain === 1 ? '' : 's'}</span> : null}
           {!open ? (
-            <button type="button" onClick={() => setOpen(true)} className="min-h-9 rounded-ctl border border-teal/40 px-3 text-[12.5px] font-semibold text-teal hover:bg-teal-soft">
+            <button type="button" onClick={() => setOpen(true)} className="min-h-9 rounded-ctl border border-teal/40 px-3 type-helper font-semibold text-teal hover:bg-teal-soft">
               Yes, I have it
             </button>
           ) : null}
@@ -726,26 +726,26 @@ function CertAsk({ cert, onAdded }: { cert: { term: string; importance: 'must' |
       </div>
       {open ? (
         <div className="flex flex-col gap-2 rounded-ctl bg-canvas p-3">
-          <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">
+          <label className="flex flex-col gap-1 type-caption font-semibold text-ink-soft">
             Certificate name — keep the job’s words so the ATS finds it
             <input value={name} onChange={(e) => setName(e.target.value)} className={field} maxLength={200} />
           </label>
           <div className="grid gap-2 sm:grid-cols-[1fr_120px]">
-            <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">
+            <label className="flex flex-col gap-1 type-caption font-semibold text-ink-soft">
               Issued by (optional)
               <input value={issuer} onChange={(e) => setIssuer(e.target.value)} className={field} maxLength={200} placeholder="e.g. PMI, USGBC, RTA" />
             </label>
-            <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">
+            <label className="flex flex-col gap-1 type-caption font-semibold text-ink-soft">
               Year (optional)
               <input value={year} onChange={(e) => setYear(e.target.value.replace(/D/g, '').slice(0, 4))} className={field} inputMode="numeric" placeholder="2021" />
             </label>
           </div>
-          {error ? <p className="text-[12.5px] text-alert">{error}</p> : null}
+          {error ? <p className="type-helper text-alert">{error}</p> : null}
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => void save()} disabled={saving || name.trim().length < 2} className={buttonVariants({ variant: 'primary', size: 'sm' })}>
               {saving ? 'Saving…' : 'I hold this — add it to my profile'}
             </button>
-            <button type="button" onClick={() => setOpen(false)} className="min-h-9 px-2 text-[12.5px] font-semibold text-ink-muted hover:text-ink">
+            <button type="button" onClick={() => setOpen(false)} className="min-h-9 px-2 type-helper font-semibold text-ink-muted hover:text-ink">
               Cancel
             </button>
           </div>
@@ -791,8 +791,8 @@ function HighSkillsChecklist({ items, upTo, onAdded }: { items: Array<{ term: st
   return (
     <Card tone="light" className="flex flex-col gap-3 border-2 border-gold/40 bg-gold-soft/40 p-4">
       <div className="flex flex-col gap-1">
-        <p className="text-[15px] font-bold text-ink">This job also asks for these — tick the ones you really have</p>
-        <p className="text-[12.5px] leading-snug text-ink-soft">
+        <p className="type-label font-semibold text-ink">This job also asks for these — tick the ones you really have</p>
+        <p className="type-helper leading-snug text-ink-soft">
           They are not on your Career Profile yet, so we cannot write them for you. Tick only what you really use or know — an
           interviewer may ask about any of them. Each one goes on your profile’s Skills and into this CV. High can reach up to {upTo}.
         </p>
@@ -803,7 +803,7 @@ function HighSkillsChecklist({ items, upTo, onAdded }: { items: Array<{ term: st
             const on = ticked.includes(i.term)
             return (
               <li key={i.term}>
-                <label className={cn('flex min-h-11 cursor-pointer items-center gap-2.5 rounded-ctl border bg-white px-3 py-2 text-[13.5px]', on ? 'border-teal' : 'border-line')}>
+                <label className={cn('flex min-h-11 cursor-pointer items-center gap-2.5 rounded-ctl border bg-white px-3 py-2 type-helper', on ? 'border-teal' : 'border-line')}>
                   <input
                     type="checkbox"
                     checked={on}
@@ -822,18 +822,18 @@ function HighSkillsChecklist({ items, upTo, onAdded }: { items: Array<{ term: st
         </ul>
       ) : null}
       {added.length ? (
-        <p className="flex items-start gap-1.5 text-[12.5px] font-semibold text-ok">
+        <p className="flex items-start gap-1.5 type-helper font-semibold text-ok">
           <CheckIcon aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={2.5} />
           Added to your Career Profile: {added.join(', ')}. The scores above include them.
         </p>
       ) : null}
-      {error ? <p className="text-[12.5px] text-alert">{error}</p> : null}
+      {error ? <p className="type-helper text-alert">{error}</p> : null}
       {open.length ? (
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" onClick={() => void save()} disabled={saving || !ticked.length} className={buttonVariants({ variant: 'primary', size: 'sm' })}>
             {saving ? 'Saving…' : ticked.length ? `I have ${ticked.length === 1 ? 'this' : 'these ' + ticked.length} — add to my profile` : 'Tick what you have'}
           </button>
-          <span className="text-[12px] text-ink-muted">Or skip — High still works with what your profile already shows.</span>
+          <span className="type-caption text-ink-muted">Or skip — High still works with what your profile already shows.</span>
         </div>
       ) : null}
     </Card>

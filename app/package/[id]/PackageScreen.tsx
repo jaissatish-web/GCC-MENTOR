@@ -1,4 +1,6 @@
 'use client'
+import { GulfContext } from '@/components/layout/GulfContext'
+import { EditorSettingsPanel } from '@/components/resume/EditorSettingsPanel'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import {
@@ -160,7 +162,7 @@ function WorkspaceTabs({
             aria-selected={active}
             onClick={() => onChange(it.key)}
             className={cn(
-              'relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-ctl px-1 py-1.5 text-[13px] font-bold leading-tight transition-colors sm:min-h-11 sm:flex-row sm:gap-2 sm:px-3 sm:text-[14px]',
+              'relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-ctl px-1 py-1.5 type-helper font-semibold leading-tight transition-colors sm:min-h-11 sm:flex-row sm:gap-2 sm:px-3 sm:type-label',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1',
               active ? 'bg-teal text-white shadow-m-1' : 'text-ink-soft hover:bg-teal-soft hover:text-teal',
             )}
@@ -171,7 +173,7 @@ function WorkspaceTabs({
             {it.badge ? (
               <span
                 className={cn(
-                  'absolute right-1 top-1 min-w-5 rounded-full px-1.5 text-center text-[12px] font-bold leading-5 sm:static sm:leading-normal sm:py-0.5',
+                  'absolute right-1 top-1 min-w-5 rounded-full px-1.5 text-center type-caption font-semibold leading-5 sm:static sm:leading-normal sm:py-0.5',
                   active ? 'bg-white text-teal' : 'bg-gold-soft text-gold-ink',
                 )}
               >
@@ -623,7 +625,7 @@ function PackageScreenInner({ id }: { id: string }) {
      * Below `lg` nothing changes: a phone keeps one natural page scroll, because
      * nested scroll areas on a touch screen are how you lose the user.
      */
-    <main className="mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-canvas font-redesign-sans">
+    <main className={cn("mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-canvas font-redesign-sans", tab === 'design' && 'pb-40 lg:pb-0')}>
       {/* ONE HEADER ROW (TASK-160, founder-directed).
           This was five stacked rows — back arrow, "Unlocked & saved to Library"
           badge, title, name field, then the action toolbar below — each one full
@@ -643,12 +645,12 @@ function PackageScreenInner({ id }: { id: string }) {
             it is titled with the job. Never call a free resume "optimized" — it
             has not been through the model (docs/RULES.md). */}
         <div className="flex min-w-0 flex-col gap-0.5 lg:shrink-0">
-          <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">{isRaw ? 'Career Profile Resume' : 'Application workspace'}</span>
-          {isRaw ? <span className="self-start rounded-full bg-teal-soft px-3 py-1 text-[12px] font-semibold text-teal">{CAREER_RESUME_BADGE}</span> : null}
-          <h1 className="break-words font-display text-[24px] leading-tight text-ink lg:text-[20px]">
+          <GulfContext>{isRaw ? 'Gulf CV · Career Profile' : 'Gulf application workspace'}</GulfContext>
+          {isRaw ? <span className="self-start rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold text-teal">{CAREER_RESUME_BADGE}</span> : null}
+          <h1 className="break-words font-display type-title leading-tight text-ink lg:type-section">
             {pkg.name || pkg.target_job_title}
           </h1>
-          <p className="text-[12.5px] text-ink-soft">
+          <p className="type-helper text-ink-soft">
             {[
               pkg.target_company,
               countryName,
@@ -663,7 +665,7 @@ function PackageScreenInner({ id }: { id: string }) {
             three identical rows in the Library otherwise — the target job
             title is not something they can change. Saves on blur or Enter;
             clearing it falls back to the job title rather than storing blank. */}
-        <label className={`${isRaw ? 'flex' : 'hidden lg:flex'} flex-1 flex-wrap items-center gap-2 text-[12px] text-ink-muted lg:max-w-[420px]`}>
+        <label className={`${isRaw ? 'flex' : 'hidden lg:flex'} flex-1 flex-wrap items-center gap-2 type-caption text-ink-muted lg:max-w-[420px]`}>
           <span className={isRaw ? '' : 'sr-only lg:not-sr-only'}>Name in your library</span>
           {/* A textarea that sizes to its text (field-sizing: content), so a
               long job title wraps instead of being clipped mid-word on a phone
@@ -684,7 +686,7 @@ function PackageScreenInner({ id }: { id: string }) {
             }}
             style={{ fieldSizing: 'content' } as React.CSSProperties}
             // The shared field, at 44px. It was 34px with a 1.21:1 edge.
-            className="field min-w-[180px] flex-1 resize-none py-2.5 leading-snug"
+            className="resume-name-field field min-w-[180px] flex-1 resize-none py-2.5 leading-snug"
           />
         </label>
 
@@ -700,7 +702,7 @@ function PackageScreenInner({ id }: { id: string }) {
             row is unchanged. */}
         <div className="grid grid-cols-2 items-stretch gap-2 sm:flex sm:flex-wrap sm:items-center lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
           {!isRaw ? <StageSelect className="col-span-2 w-full sm:w-auto" value={pkg.status} onChange={(next) => void saveStage(next)} /> : null}
-          {stageState ? <span className="col-span-2 text-[12px] text-alert">{stageState}</span> : null}
+          {stageState ? <span className="col-span-2 type-caption text-alert">{stageState}</span> : null}
           {downloadBlocked ? (
             <>
               {changesDirty || styleBusy ? (
@@ -708,7 +710,7 @@ function PackageScreenInner({ id }: { id: string }) {
                   type="button"
                   disabled={styleBusy || photoBusy}
                   onClick={() => void saveChanges()}
-                  className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto disabled:cursor-not-allowed disabled:opacity-50')}
+                  className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto disabled:cursor-not-allowed disabled:opacity-50', tab === 'design' && 'editor-desktop-action')}
                 >
                   {styleBusy ? 'Saving…' : 'Save changes'}
                 </button>
@@ -717,7 +719,7 @@ function PackageScreenInner({ id }: { id: string }) {
                 type="button"
                 disabled
                 aria-describedby="resume-save-status"
-                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'col-span-2 cursor-not-allowed opacity-50 sm:col-auto')}
+                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'col-span-2 cursor-not-allowed opacity-50 sm:col-auto', tab === 'design' && 'editor-desktop-action')}
               >
                 {CTA.downloadPdf}
               </button>
@@ -726,7 +728,7 @@ function PackageScreenInner({ id }: { id: string }) {
             <a
               href={pdfUrl}
               onClick={() => setDownloaded(true)}
-              className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto')}
+              className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto', tab === 'design' && 'editor-desktop-action')}
             >
               {CTA.downloadPdf}
             </a>
@@ -775,7 +777,7 @@ function PackageScreenInner({ id }: { id: string }) {
             </button>
           ) : null}
           {downloadBlocked || styleMsg ? (
-            <span id="resume-save-status" role="status" className="col-span-2 text-[12px] text-ink-muted">
+            <span id="resume-save-status" role="status" className={cn("col-span-2 type-caption text-ink-muted", tab === 'design' && 'editor-desktop-action')}>
               {styleBusy ? 'Saving changes — PDF download is temporarily disabled.'
                 : photoBusy ? 'Saving your photo — PDF download is temporarily disabled.'
                 : changesDirty ? `${styleMsg && styleMsg !== 'Changes saved.' ? `${styleMsg} ` : ''}Save changes to enable PDF download.`
@@ -795,8 +797,8 @@ function PackageScreenInner({ id }: { id: string }) {
       {pkg.optimized_content === null && (pkg as { tier?: string | null }).tier !== 'free' ? (
         <div className="mx-5 mb-3 flex flex-col gap-3 rounded-card border border-gold/40 bg-gold-soft/40 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-0.5">
-            <p className="text-[14px] font-bold text-ink">The CV for this job isn&apos;t optimized yet</p>
-            <p className="text-[12.5px] leading-relaxed text-ink-soft">
+            <p className="type-label font-semibold text-ink">The CV for this job isn&apos;t optimized yet</p>
+            <p className="type-helper leading-relaxed text-ink-soft">
               What you see below is your Career Profile laid out as a CV. Optimize it to get the version
               written for {pkg.target_job_title}.
             </p>
@@ -821,7 +823,7 @@ function PackageScreenInner({ id }: { id: string }) {
           job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-3 pb-8 sm:px-5 lg:gap-3">
         {isRaw ? (
-          <div className="flex flex-col gap-3"><p className="text-[13px] text-ink-soft">Content edits and field visibility are saved in your Career Profile. Your resume name, template and styling are saved here. <Link href="/profile?view=settings" className="font-semibold text-teal underline">Choose visible fields</Link></p><PreparationJourney pkg={pkg} current="resume" /></div>
+          <div className="flex flex-col gap-3"><p className="type-helper text-ink-soft">Edit content in your Career Profile. Save your CV design here. <Link href="/profile?view=settings" className="font-semibold text-teal underline">Choose visible fields</Link></p><PreparationJourney pkg={pkg} current="resume" bare /></div>
         ) : <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} />}
         {/* RESULTS FIRST, AS COLOURED CARDS (founder request 2026-09-17): target
             job, ATS score before → after, summary, what changed, next steps.
@@ -875,7 +877,7 @@ function PackageScreenInner({ id }: { id: string }) {
           const report = readMatchReport(pkg.match_report)
           if (!report?.after)
             return (
-              <p className="rounded-card border border-line bg-white px-4 py-5 text-[14px] text-ink-soft">
+              <p className="rounded-card border border-line bg-white px-4 py-5 type-label text-ink-soft">
                 There is no ATS score for this job yet. It appears here once the CV has been optimized against the job.
               </p>
             )
@@ -884,10 +886,10 @@ function PackageScreenInner({ id }: { id: string }) {
           return (
             <>
               <details className="group rounded-card border border-line bg-white shadow-m-1">
-                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-[14px] font-semibold text-ink">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 type-label font-semibold text-ink">
                   <span>{NAMES.atsScore} details: score parts, why it fits, what is missing</span>
-                  <span className="text-[13px] text-teal group-open:hidden">Show</span>
-                  <span className="hidden text-[13px] text-teal group-open:inline">Hide</span>
+                  <span className="type-helper text-teal group-open:hidden">Show</span>
+                  <span className="hidden type-helper text-teal group-open:inline">Hide</span>
                 </summary>
                 <div className="px-1 pb-1">
                   <MatchResult report={report} packageId={id} roleNames={roleNames} />
@@ -939,24 +941,24 @@ function PackageScreenInner({ id }: { id: string }) {
         <section className="rounded-card border border-line bg-white p-3 shadow-m-1 sm:p-4">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+              <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">
                 Next steps for this job
               </p>
-              <h2 className="font-display text-[18px] leading-tight text-ink">
+              <h2 className="font-display type-card leading-tight text-ink">
                 {pkg.name || pkg.target_job_title}
               </h2>
             </div>
-            <p className="text-[12.5px] text-ink-soft">
+            <p className="type-helper text-ink-soft">
               {[pkg.target_company, countryName].filter(Boolean).join(' · ') || 'Target job'}
             </p>
           </div>
           <div className="mt-3 flex flex-col gap-3 rounded-ctl border border-teal/30 bg-teal-soft/50 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
+              <p className="type-caption font-semibold uppercase tracking-[0.12em] text-teal">
                 Next step · {readyCount}/4 ready
               </p>
-              <p className="mt-1 text-[14px] font-bold text-ink">{nextJourneyStep.title}</p>
-              <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-soft">{nextJourneyStep.body}</p>
+              <p className="mt-1 type-label font-semibold text-ink">{nextJourneyStep.title}</p>
+              <p className="mt-0.5 type-helper leading-relaxed text-ink-soft">{nextJourneyStep.body}</p>
             </div>
             <Link
               href={nextJourneyStep.href}
@@ -976,15 +978,15 @@ function PackageScreenInner({ id }: { id: string }) {
           <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+                <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">
                   Application tracker
                 </p>
-                <h2 className="font-display text-[18px] leading-tight text-ink">Recruiter follow-up details</h2>
+                <h2 className="font-display type-card leading-tight text-ink">Recruiter follow-up details</h2>
               </div>
-              {trackerState ? <p className="text-[12px] font-semibold text-teal">{trackerState}</p> : null}
+              {trackerState ? <p className="type-caption font-semibold text-teal">{trackerState}</p> : null}
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-ink-soft">
+              <label className="flex flex-col gap-1.5 type-caption font-semibold text-ink-soft">
                 Job link
                 <input
                   type="url"
@@ -994,7 +996,7 @@ function PackageScreenInner({ id }: { id: string }) {
                   className="field font-normal"
                 />
               </label>
-              <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-ink-soft">
+              <label className="flex flex-col gap-1.5 type-caption font-semibold text-ink-soft">
                 Application deadline
                 <input
                   type="date"
@@ -1005,7 +1007,7 @@ function PackageScreenInner({ id }: { id: string }) {
                   className="field font-normal"
                 />
               </label>
-              <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-ink-soft">
+              <label className="flex flex-col gap-1.5 type-caption font-semibold text-ink-soft">
                 Interview date
                 <input
                   type="datetime-local"
@@ -1014,7 +1016,7 @@ function PackageScreenInner({ id }: { id: string }) {
                   className="field font-normal"
                 />
               </label>
-              <label className="flex flex-col gap-1.5 text-[12px] font-semibold text-ink-soft sm:row-span-2">
+              <label className="flex flex-col gap-1.5 type-caption font-semibold text-ink-soft sm:row-span-2">
                 Notes
                 <textarea
                   value={trackerDraft.application_notes}
@@ -1050,21 +1052,21 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
 
           <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
-            <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">Service history</p>
-            <h2 className="mt-1 font-display text-[18px] leading-tight text-ink">Package timeline</h2>
+            <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">Service history</p>
+            <h2 className="mt-1 font-display type-card leading-tight text-ink">Package timeline</h2>
             <div className="mt-4 flex flex-col gap-3">
               {serviceTimeline.length > 0 ? (
                 serviceTimeline.map((event) => (
                   <div key={event.id} className="grid grid-cols-[10px_minmax(0,1fr)] gap-3">
                     <span className="mt-1.5 size-2.5 rounded-full bg-teal ring-4 ring-teal-soft" />
                     <div>
-                      <p className="text-[13px] font-semibold leading-snug text-ink">{event.label}</p>
-                      <p className="mt-0.5 text-[12px] text-ink-muted">{formatTimelineDate(event.at)}</p>
+                      <p className="type-helper font-semibold leading-snug text-ink">{event.label}</p>
+                      <p className="mt-0.5 type-caption text-ink-muted">{formatTimelineDate(event.at)}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-[13px] leading-relaxed text-ink-muted">
+                <p className="type-helper leading-relaxed text-ink-muted">
                   Activity for this application will appear here as you build and download each service.
                 </p>
               )}
@@ -1083,7 +1085,7 @@ function PackageScreenInner({ id }: { id: string }) {
             (TASK-141). */}
         {isTrying ? (
           <div className="flex flex-col gap-2 rounded-card border border-teal/50 bg-teal-soft px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[13px] text-teal">
+            <p className="type-helper text-teal">
               Previewing <strong>{getTemplate(activeTemplateId).name}</strong>. Use Save changes
               above to keep this template and enable PDF download.
             </p>
@@ -1100,7 +1102,7 @@ function PackageScreenInner({ id }: { id: string }) {
         {/* No duration: "next one takes a minute" was a timing claim of the
             kind removed everywhere on 2026-09-11. */}
         {downloaded && !isFree ? (
-          <div className="rounded-card border border-teal/40 bg-teal-soft px-3.5 py-3 text-[13px] text-teal">
+          <div className="rounded-card border border-teal/40 bg-teal-soft px-3.5 py-3 type-helper text-teal">
             Applying somewhere else? Your profile is saved — add the next job and it is reused.
           </div>
         ) : null}
@@ -1110,7 +1112,7 @@ function PackageScreenInner({ id }: { id: string }) {
         {/* The next things this job needs, from the job's own page. */}
         {!isFree && !showOverview && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
           <div className="flex flex-col gap-2 rounded-card border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[13px] text-ink-soft">
+            <p className="type-helper text-ink-soft">
               <strong className="text-ink">Next for this job:</strong> a cover letter, written from your optimized CV
               and this target job.
             </p>
@@ -1125,7 +1127,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
         {!isFree && !showOverview && cvReady && !qaReady ? (
           <div className="flex flex-col gap-2 rounded-card border border-teal/30 bg-teal-soft/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[13px] text-ink-soft">
+            <p className="type-helper text-ink-soft">
               <strong className="text-ink">Interview prep:</strong> up to 25 practice answers from this
               optimized CV and target job.
             </p>
@@ -1140,7 +1142,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
         {!isFree && !showOverview && cvReady && qaReady && !mockReady ? (
           <div className="flex flex-col gap-2 rounded-card border border-gold/40 bg-gold-soft/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[13px] text-ink-soft">
+            <p className="type-helper text-ink-soft">
               <strong className="text-ink">Practice next:</strong> run a text mock interview for this CV and save the final report.
             </p>
             <Link
@@ -1156,6 +1158,13 @@ function PackageScreenInner({ id }: { id: string }) {
 
         {tab === 'design' ? (
         <>
+        <div className="editor-action-dock fixed inset-x-3 z-20 rounded-card border border-line bg-white/95 p-3 shadow-m-3 backdrop-blur-md md:left-[76px] lg:hidden" aria-label="Save and download CV">
+          <div className="flex gap-2">
+            {changesDirty || styleBusy ? <button type="button" disabled={styleBusy || photoBusy} onClick={() => void saveChanges()} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{styleBusy ? 'Saving…' : 'Save changes'}</button> : null}
+            {downloadBlocked ? <button type="button" disabled aria-describedby="resume-save-status" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</button> : <a href={pdfUrl} onClick={() => setDownloaded(true)} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</a>}
+          </div>
+          {downloadBlocked || styleMsg ? <p role="status" className="mt-2 type-caption text-ink-muted">{styleBusy ? 'Saving changes…' : photoBusy ? 'Saving your photo…' : changesDirty ? styleMsg && styleMsg !== 'Changes saved.' ? styleMsg : 'Save changes to enable PDF download.' : styleMsg}</p> : null}
+        </div>
         {/* TEMPLATES LEFT, DOCUMENT CENTRED (TASK-146, founder-directed).
             The templates used to hide behind a "Change template" toggle that
             pushed a four-across grid above the resume, so choosing a design
@@ -1174,68 +1183,18 @@ function PackageScreenInner({ id }: { id: string }) {
             Below lg it stacks: document first, templates under it. On a phone
             the resume is what you came to see, and a rail would push it off
             the first screen. */}
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
-          {profile ? (
-            <section className="order-1 min-w-0 flex-1 lg:order-2 lg:sticky lg:top-3 lg:max-h-[calc(100dvh-1.5rem)] lg:overflow-y-auto">
-              {/* A page on a desk. The wrapper is flex-COL: it used to be a
-                  plain `flex justify-center`, which made the caption below a
-                  second flex ITEM sitting beside the sheet — so the resume was
-                  pushed off-centre to the left with its caption stranded on the
-                  right. That is the "not centred" the founder reported, and it
-                  was a one-word layout bug, not a design decision. */}
-              {/* ON A PHONE THE PAGE COMES OUT OF ITS BOX (founder 2026-10-04):
-                  inside the page gutter plus this frame's padding the A4 sheet
-                  had ~326px of a 390px screen. It now reaches 8px from each
-                  edge (~374px); the framed "page on a desk" returns from `sm`. */}
-              <div className="-mx-3 flex flex-col items-center sm:mx-0 sm:rounded-card sm:bg-gradient-to-b sm:from-canvas sm:to-canvas/60 sm:p-5 sm:ring-1 sm:ring-line/70">
-                {/* fitToHeight: show a WHOLE page, then scroll for the next one
-                    (TASK-154). Without it the pane from TASK-153 showed roughly
-                    half a page at true size. */}
-                <ResumeDocumentView className="w-full max-w-[794px] rounded-[3px]">
-                  {/* Registry lookup, not a hard-coded import: the screen must
-                      show the same template the PDF and Word routes resolve, or
-                      "what you see is what downloads" stops being true the
-                      moment a second template exists. */}
-                  <Template
-                    // The delivered document wins over the live profile — see
-                    // migration 034. Without this the on-screen resume silently
-                    // changes whenever the Career Profile is edited, including
-                    // for resumes already paid for.
-                    // A photo uploaded after delivery is filled in here for the
-                    // same reason the PDF route does it: a snapshot frozen
-                    // before the upload carries `photoUrl: null` and would
-                    // never show one again. `profile.photo_url` is already a
-                    // signed URL on this screen (GET /api/profile signs it),
-                    // so it is passed straight through.
-                    document={documentWithLivePhoto}
-                    profile={profile}
-                    optimizedContent={(pkg.optimized_content ?? {
-                      summary: { generated: '', source_profile_summary: '' },
-                      experience_blocks: [],
-                    }) as OptimizedContent}
-                    skillsOrder={pkg.skills_order ?? []}
-                    fieldVisibility={pkg.field_visibility_snapshot ?? null}
-                    // The DRAFT, not the saved value — the point of the panel is
-                    // that the change is visible before it is committed.
-                    styleOverrides={draftStyle}
-                  />
-                </ResumeDocumentView>
-                <p className="mt-4 text-center text-[12px] text-ink-muted">
-                  A4 · {getTemplate(activeTemplateId).name} · {downloadBlocked ? 'save changes before downloading your' : 'this is exactly what downloads as your'}
-                  PDF.
-                </p>
-              </div>
-            </section>
-          ) : null}
-
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-6">
           {previewDocument ? (
-            <aside className="order-2 shrink-0 lg:order-1 lg:sticky lg:top-3 lg:max-h-[calc(100dvh-1.5rem)] lg:w-[260px] lg:overflow-y-auto">
+            <EditorSettingsPanel hasPhotoControls={Boolean(profile)} onOpen={(panel) => {
+              if (panel === 'text') setStyleOpen(true)
+              if (panel === 'photo') setPhotoOpen(true)
+            }}>
               {/* No card around the controls on a phone (founder 2026-10-04):
                   its border and padding took 34px of width from the templates,
                   which then overlapped two-across. The card returns from `sm`. */}
-              <div className="sm:rounded-card sm:border sm:border-line sm:bg-white sm:p-4">
-                <h2 className="font-display text-[17px] leading-tight text-ink">Template settings</h2>
-                <p className="mt-1 text-[12px] leading-snug text-ink-muted">
+              <div className="min-w-0">
+                <h2 className="hidden type-card text-ink lg:block">Template settings</h2>
+                <p className="mt-1 hidden type-helper text-ink-muted lg:block">
                   Choose the look of your Gulf CV.
                 </p>
                 {/* ---- Text style (TASK-152) --------------------------------
@@ -1247,7 +1206,7 @@ function PackageScreenInner({ id }: { id: string }) {
                     highlight, borders and header added it runs long on a phone,
                     so it is closed by default and one line says what is set.
                     The photo controls sit outside it, always in reach. */}
-                <div className="mt-4 border-t border-line pt-4">
+                <div data-editor-section="text" className="mt-4 border-t border-line pt-4">
                   <button
                     type="button"
                     aria-expanded={styleOpen}
@@ -1256,12 +1215,12 @@ function PackageScreenInner({ id }: { id: string }) {
                     className="flex min-h-11 w-full items-center justify-between gap-3 rounded-ctl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                   >
                     <span className="min-w-0">
-                      <span className="block text-[12px] font-bold uppercase tracking-wider text-ink-soft">
+                      <span className="block type-caption font-semibold uppercase tracking-wider text-ink-soft">
                         Text settings
                       </span>
-                      <span className="mt-0.5 block text-[12px] text-ink-muted">{styleSummary}</span>
+                      <span className="mt-0.5 block type-caption text-ink-muted">{styleSummary}</span>
                     </span>
-                    <span className="flex shrink-0 items-center gap-1 rounded-full border border-line-strong bg-white px-3 py-1.5 text-[12px] font-semibold text-teal shadow-m-1">
+                    <span className="flex shrink-0 items-center gap-1 rounded-full border border-line-strong bg-white px-3 py-1.5 type-caption font-semibold text-teal shadow-m-1">
                       {styleOpen ? 'Collapse' : 'Expand'}
                       <ChevronDownIcon
                         className={cn('size-4 transition-transform', styleOpen && 'rotate-180')}
@@ -1290,7 +1249,7 @@ function PackageScreenInner({ id }: { id: string }) {
                             }
                           />
                           <div className="mt-3">
-                            <span className="text-[12px] text-ink-muted">Accent colour</span>
+                            <span className="type-caption text-ink-muted">Accent colour</span>
                             {/* 36px swatches with room between them: they were
                                 28px dots 6px apart, the smallest targets on the
                                 screen, and a miss picks the neighbouring colour. */}
@@ -1340,7 +1299,7 @@ function PackageScreenInner({ id }: { id: string }) {
                                   bars. None keeps the lines; Borders below
                                   takes those away too. */}
                               <div className="mt-3">
-                                <span className="text-[12px] text-ink-muted">
+                                <span className="type-caption text-ink-muted">
                                   Highlight · <span className="text-ink-soft">{highlightLabel}</span>
                                 </span>
                                 <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
@@ -1349,7 +1308,7 @@ function PackageScreenInner({ id }: { id: string }) {
                                     aria-pressed={!draftStyle.highlight}
                                     onClick={() => setDraftStyle((s) => ({ ...s, highlight: undefined }))}
                                     className={
-                                      'min-h-11 rounded-ctl px-3 py-2 text-[13px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1 ' +
+                                      'min-h-11 rounded-ctl px-3 py-2 type-helper font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1 ' +
                                       (!draftStyle.highlight
                                         ? 'bg-teal text-white'
                                         : 'border border-line bg-white text-ink-soft hover:border-teal/60')
@@ -1394,7 +1353,7 @@ function PackageScreenInner({ id }: { id: string }) {
                               </div>
                               {/* BORDERS: only `false` is ever stored, as with
                                   Show photo — drawing them is the default. */}
-                              <label className="mt-2 flex min-h-11 cursor-pointer items-center justify-between gap-3 text-[12px] text-ink-muted">
+                              <label className="mt-2 flex min-h-11 cursor-pointer items-center justify-between gap-3 type-caption text-ink-muted">
                                 <span>
                                   <span className="block text-ink-soft">Lines &amp; borders</span>
                                   <span className="block">Box edges, tag outlines and heading lines</span>
@@ -1425,7 +1384,7 @@ function PackageScreenInner({ id }: { id: string }) {
                               ) : null}
                             </>
                           ) : (
-                            <p className="mt-3 text-[12px] leading-relaxed text-ink-muted">
+                            <p className="mt-3 type-caption leading-relaxed text-ink-muted">
                               {getTemplate(activeTemplateId).name} has no shaded boxes or coloured header, so
                               highlight, border and header choices apply to the other designs.
                             </p>
@@ -1438,7 +1397,7 @@ function PackageScreenInner({ id }: { id: string }) {
                         // maximum ATS compatibility. A styling control — the photo
                         // especially — would work against the one thing this
                         // template sells, so it stays fixed on purpose.
-                        <p className="mt-2 text-[12px] leading-relaxed text-ink-muted">
+                        <p className="mt-2 type-caption leading-relaxed text-ink-muted">
                           <strong className="text-ink-soft">{getTemplate(activeTemplateId).name}</strong>{' '}
                           uses a fixed text-only design. Choose another template for custom fonts,
                           colours or photos.
@@ -1449,7 +1408,7 @@ function PackageScreenInner({ id }: { id: string }) {
                 </div>
 
                 {profile ? (
-                  <div className="mt-4 border-t border-line pt-4">
+                  <div data-editor-section="photo" className="mt-4 border-t border-line pt-4">
                     <button
                       type="button"
                       aria-expanded={photoOpen}
@@ -1457,8 +1416,8 @@ function PackageScreenInner({ id }: { id: string }) {
                       onClick={() => setPhotoOpen((open) => !open)}
                       className="flex min-h-11 w-full items-center justify-between gap-3 rounded-ctl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                     >
-                      <span className="min-w-0"><span className="block text-[12px] font-bold uppercase tracking-wider text-ink-soft">Photo settings</span><span className="mt-0.5 block text-[12px] text-ink-muted">Optional profile photo</span></span>
-                      <span className="flex shrink-0 items-center gap-1 rounded-full border border-line-strong bg-white px-3 py-1.5 text-[12px] font-semibold text-teal shadow-m-1">
+                      <span className="min-w-0"><span className="block type-caption font-semibold uppercase tracking-wider text-ink-soft">Photo settings</span><span className="mt-0.5 block type-caption text-ink-muted">Optional profile photo</span></span>
+                      <span className="flex shrink-0 items-center gap-1 rounded-full border border-line-strong bg-white px-3 py-1.5 type-caption font-semibold text-teal shadow-m-1">
                         {photoOpen ? 'Collapse' : 'Expand'}
                         <ChevronDownIcon aria-hidden="true" className={cn('size-4 transition-transform', photoOpen && 'rotate-180')} />
                       </span>
@@ -1489,7 +1448,7 @@ function PackageScreenInner({ id }: { id: string }) {
                             own doc — so unchecking writes `showPhoto: false`
                             and re-checking removes the key entirely rather
                             than writing `true`. */}
-                        <label className="flex min-h-11 cursor-pointer items-center justify-between text-[12px] text-ink-muted">
+                        <label className="flex min-h-11 cursor-pointer items-center justify-between type-caption text-ink-muted">
                           <span className="text-ink-soft">Show photo</span>
                           <input
                             type="checkbox"
@@ -1527,10 +1486,10 @@ function PackageScreenInner({ id }: { id: string }) {
                                 0–100 value in steps of 5, saved exactly as before. */}
                             <label
                               htmlFor="photo-size"
-                              className="flex items-baseline justify-between text-[13px] font-semibold text-ink"
+                              className="flex items-baseline justify-between type-helper font-semibold text-ink"
                             >
                               <span>Photo size</span>
-                              <span className="rounded-full bg-teal-soft px-2 py-0.5 font-mono text-[12px] font-bold text-teal">
+                              <span className="rounded-full bg-teal-soft px-2 py-0.5 font-mono type-caption font-semibold text-teal">
                                 {photoPos}%{photoPos === PHOTO_DEFAULT ? ' · default' : ''}
                               </span>
                             </label>
@@ -1567,7 +1526,7 @@ function PackageScreenInner({ id }: { id: string }) {
                                 <PlusIcon className="size-5" aria-hidden="true" />
                               </button>
                             </div>
-                            <div className="mt-1.5 flex justify-between px-[52px] text-[12px] text-ink-muted">
+                            <div className="mt-1.5 flex justify-between px-[52px] type-caption text-ink-muted">
                               <span>Smaller</span>
                               <span>Larger</span>
                             </div>
@@ -1581,7 +1540,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
                 {styleable ? (
                   styleDirty ? (
-                    <p className="mt-3 text-[12px] text-ink-muted">
+                    <p className="mt-3 type-caption text-ink-muted">
                       Unsaved — use <strong className="text-ink-soft">Save changes</strong> at the top.
                     </p>
                   ) : hasStyle ? (
@@ -1598,8 +1557,8 @@ function PackageScreenInner({ id }: { id: string }) {
                   ) : null
                 ) : null}
 
-                <div className="mt-4 border-t border-line pt-4">
-                  <h3 className="mb-3 text-[12px] font-bold uppercase tracking-wider text-ink-soft">
+                <div data-editor-section="templates" className="mt-4 border-t border-line pt-4">
+                  <h3 className="mb-3 type-caption font-semibold uppercase tracking-wider text-ink-soft">
                     Gulf templates
                   </h3>
                   <TemplatePicker
@@ -1615,8 +1574,62 @@ function PackageScreenInner({ id }: { id: string }) {
                   />
                 </div>
               </div>
-            </aside>
+            </EditorSettingsPanel>
           ) : null}
+          {profile ? (
+            <section className="order-3 min-w-0 flex-1 lg:order-2 lg:sticky lg:top-3 lg:max-h-[calc(100dvh-1.5rem)] lg:overflow-y-auto">
+              {/* A page on a desk. The wrapper is flex-COL: it used to be a
+                  plain `flex justify-center`, which made the caption below a
+                  second flex ITEM sitting beside the sheet — so the resume was
+                  pushed off-centre to the left with its caption stranded on the
+                  right. That is the "not centred" the founder reported, and it
+                  was a one-word layout bug, not a design decision. */}
+              {/* ON A PHONE THE PAGE COMES OUT OF ITS BOX (founder 2026-10-04):
+                  inside the page gutter plus this frame's padding the A4 sheet
+                  had ~326px of a 390px screen. It now reaches 8px from each
+                  edge (~374px); the framed "page on a desk" returns from `sm`. */}
+              <div className="-mx-3 flex flex-col items-center sm:mx-0 sm:rounded-card sm:bg-gradient-to-b sm:from-canvas sm:to-canvas/60 sm:p-5 sm:ring-1 sm:ring-line/70">
+                {/* fitToHeight: show a WHOLE page, then scroll for the next one
+                    (TASK-154). Without it the pane from TASK-153 showed roughly
+                    half a page at true size. */}
+                <ResumeDocumentView className="w-full max-w-[794px] rounded-[3px]">
+                  {/* Registry lookup, not a hard-coded import: the screen must
+                      show the same template the PDF and Word routes resolve, or
+                      "what you see is what downloads" stops being true the
+                      moment a second template exists. */}
+                  <Template
+                    // The delivered document wins over the live profile — see
+                    // migration 034. Without this the on-screen resume silently
+                    // changes whenever the Career Profile is edited, including
+                    // for resumes already paid for.
+                    // A photo uploaded after delivery is filled in here for the
+                    // same reason the PDF route does it: a snapshot frozen
+                    // before the upload carries `photoUrl: null` and would
+                    // never show one again. `profile.photo_url` is already a
+                    // signed URL on this screen (GET /api/profile signs it),
+                    // so it is passed straight through.
+                    document={documentWithLivePhoto}
+                    profile={profile}
+                    optimizedContent={(pkg.optimized_content ?? {
+                      summary: { generated: '', source_profile_summary: '' },
+                      experience_blocks: [],
+                    }) as OptimizedContent}
+                    skillsOrder={pkg.skills_order ?? []}
+                    fieldVisibility={pkg.field_visibility_snapshot ?? null}
+                    // The DRAFT, not the saved value — the point of the panel is
+                    // that the change is visible before it is committed.
+                    styleOverrides={draftStyle}
+                  />
+                </ResumeDocumentView>
+                <p className="mt-4 text-center type-caption text-ink-muted">
+                  A4 · {getTemplate(activeTemplateId).name} · {downloadBlocked ? 'save changes before downloading your' : 'this is exactly what downloads as your'}
+                  PDF.
+                </p>
+              </div>
+            </section>
+          ) : null}
+
+
         </div>
         </>
         ) : null}
@@ -1646,7 +1659,7 @@ function StyleChoice({
 }) {
   return (
     <div className="mt-3">
-      <span className="text-[12px] text-ink-muted">{label}</span>
+      <span className="type-caption text-ink-muted">{label}</span>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
         {([['', 'Default'], ...options] as [string, string][]).map(([k, lbl]) => {
           const active = value === k
@@ -1658,7 +1671,7 @@ function StyleChoice({
               onClick={() => onChange(k)}
               className={
                 // 44px: the touch floor Button.tsx sets. These measured 32px.
-                'min-h-11 rounded-ctl px-3 py-2 text-[13px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1 ' +
+                'min-h-11 rounded-ctl px-3 py-2 type-helper font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1 ' +
                 (active
                   ? 'bg-teal text-white'
                   : 'border border-line bg-white text-ink-soft hover:border-teal/60')

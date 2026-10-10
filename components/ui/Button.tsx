@@ -28,16 +28,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        /**
-         * THE one action on a screen. Gold fill, ink text.
-         *
-         * `gold` is 2.66:1 against white and is a FILL ONLY — white text on it
-         * would be unreadable, which is the trap `signal-ink` on `signal` was.
-         * Ink on gold measures 6.70. Hover deepens the fill rather than
-         * changing hue, so the button does not become a different colour when
-         * a thumb rests on it.
-         */
-        primary: 'bg-gold font-semibold text-ink hover:bg-gold-ink hover:text-white',
+        /** Main app actions share teal. Gold remains a restrained purchase/hero accent. */
+        primary: 'bg-teal font-semibold text-white shadow-m-1 hover:bg-teal-bright',
         /**
          * Purchase. Same gold, one step louder — this is the only place in the
          * product a button is allowed to lift.

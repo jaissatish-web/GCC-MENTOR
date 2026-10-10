@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { GulfContext } from '@/components/layout/GulfContext'
+import { DocumentTextIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline'
 import { HowItWorks } from '@/components/journey/HowItWorks'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import { useRouter } from 'next/navigation'
@@ -142,7 +144,8 @@ export default function DashboardPage() {
 
   return (
     <div className="page-gutter mx-auto flex w-full max-w-[1120px] flex-col gap-6 pb-10 pt-6 font-redesign-sans sm:gap-8 lg:pt-9">
-      <header className="flex flex-col gap-1">
+      <header className="workspace-heading flex flex-col gap-2">
+        <GulfContext />
         <h1 className="type-title text-ink">
           {firstName ? `Good ${greeting()}, ${firstName}` : profileLoaded ? 'Welcome to GCC MENTOR' : `Good ${greeting()}`}
         </h1>
@@ -154,25 +157,9 @@ export default function DashboardPage() {
         <div className="self-start"><HowItWorks /></div>
       </header>
 
-      {ready && profile ? (
-        <section aria-label="Choose your CV" className="grid gap-4 sm:grid-cols-2">
-          <div className="flex flex-col items-start gap-3 rounded-card border border-line bg-white p-5 sm:p-6">
-            <h2 className="type-card text-ink">Create my CV</h2>
-            <p className="type-helper text-ink-soft">From your saved Career Profile.</p>
-            <CareerProfileResumeButton />
-          </div>
-          <div className="flex flex-col items-start gap-3 rounded-card border border-line bg-white p-5 sm:p-6">
-            <h2 className="type-card text-ink">Tailor for a job</h2>
-            <p className="type-helper text-ink-soft">Use a job description to prepare your application.</p>
-            <Link href="/optimize/target" className="inline-flex min-h-11 items-center rounded-ctl bg-teal px-4 type-button text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">Add target job</Link>
-          </div>
-        </section>
-      ) : null}
-
-
       {/* Lead with the existing next action; the compact map supports it. */}
-      <section aria-label="Your progress and next step" className="overflow-hidden rounded-card border border-line bg-white shadow-m-2">
-        <div className="flex flex-col gap-4 bg-teal p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+      <section aria-label="Your progress and next step" className="workspace-panel overflow-hidden">
+        <div className="workspace-next flex flex-col gap-5 overflow-hidden p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
           <div className="flex min-w-0 flex-col gap-1.5">
             <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal-soft">
               {loadError
@@ -229,14 +216,41 @@ export default function DashboardPage() {
             </Link>
           )}
         </div>
-        <div className="border-t border-white/20 bg-white px-2 py-5 sm:px-8">
-          {ready ? (
-            <StageRail states={states} className="mx-auto max-w-[720px]" />
-          ) : (
-            <div className="mx-auto h-[84px] max-w-[520px] animate-pulse rounded-ctl bg-canvas" />
-          )}
-        </div>
+        <details className="group border-t border-line">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-6 type-label text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
+            Your application journey <span aria-hidden="true" className="text-lg group-open:rotate-45">+</span>
+          </summary>
+          <div className="px-2 pb-5 sm:px-8">
+            {ready ? <StageRail states={states} className="mx-auto max-w-[720px]" /> : <div className="h-20 animate-pulse rounded-ctl bg-canvas" />}
+          </div>
+        </details>
       </section>
+
+      {ready && profile ? (
+        <section aria-label="Choose your CV" className="workspace-panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal-soft/60 text-teal"><DocumentTextIcon className="size-6" aria-hidden="true" /></span>
+            <div><h2 className="type-card text-ink">Your profile CV</h2><p className="mt-1 type-helper text-ink-muted">Your saved experience, in any template.</p></div>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <CareerProfileResumeButton showHint={false} />
+            <Link href="/optimize/target" className="inline-flex min-h-11 items-center type-label text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">Another job <ArrowUpRightIcon className="ml-1 size-4" aria-hidden="true" /></Link>
+          </div>
+        </section>
+      ) : null}
+
+      {ready && packages.length > 0 ? (
+        <section aria-labelledby="recent-cvs-heading" className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3"><h2 id="recent-cvs-heading" className="type-section text-ink">Recent CVs</h2><Link href="/dashboard/library" className="inline-flex min-h-11 items-center type-label text-teal hover:underline">View all →</Link></div>
+          <div className="workspace-panel divide-y divide-line">
+            {packages.slice(0, 3).map((item) => <Link key={item.id} href={`/package/${encodeURIComponent(item.id)}`} className="flex min-h-20 items-center gap-3 rounded-card px-5 py-4 transition-colors hover:bg-teal-soft/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+              <DocumentTextIcon className="size-5 shrink-0 text-teal" aria-hidden="true" />
+              <span className="min-w-0 flex-1"><span className="block type-label font-semibold text-ink">{item.name || item.target_job_title}</span><span className="mt-1 block type-helper text-ink-muted">{[item.target_company, item.target_country?.replaceAll('_', ' ')].filter(Boolean).join(' · ') || 'Gulf application'}</span></span>
+              <ArrowUpRightIcon className="size-4 shrink-0 text-teal" aria-hidden="true" />
+            </Link>)}
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="scores-heading" className="flex flex-col gap-3">
         <h2 id="scores-heading" className="type-section text-ink">Your profile scores</h2>

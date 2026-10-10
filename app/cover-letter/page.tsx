@@ -177,7 +177,7 @@ function CoverLetterScreen() {
   if (listError) {
     return (
       <main className="mx-auto flex w-full max-w-[900px] flex-col items-start gap-3 px-3 py-8 font-redesign-sans sm:px-8 lg:px-10">
-        <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+        <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
           {listError}
         </div>
         <Button type="button" variant="secondary" onClick={picker.reloadList}>
@@ -254,10 +254,10 @@ function CoverLetterScreen() {
                           : 'border-field-line bg-field hover:border-teal-bright',
                       )}
                     >
-                      <span className={cn('text-[13px] font-semibold', active ? 'text-teal' : 'text-ink')}>
+                      <span className={cn('type-helper font-semibold', active ? 'text-teal' : 'text-ink')}>
                         {opt.label}
                       </span>
-                      <span className="text-[12px] leading-snug text-ink-muted">{opt.description}</span>
+                      <span className="type-caption leading-snug text-ink-muted">{opt.description}</span>
                     </button>
                   )
                 })}
@@ -265,7 +265,7 @@ function CoverLetterScreen() {
             </fieldset>
 
             {genError ? (
-              <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+              <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
                 {genError}
               </p>
             ) : null}
@@ -304,7 +304,7 @@ function CoverLetterScreen() {
 
       {detailError ? (
         <div className="mt-6 flex flex-col items-start gap-3">
-          <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+          <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
             {detailError}
           </p>
           <Button type="button" variant="secondary" onClick={picker.reloadDetail}>
@@ -322,27 +322,27 @@ function CoverLetterScreen() {
       {letters.length > 0 ? (
         <section className="mt-6 flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-[20px] text-ink">Generated letters</h2>
-            <span className="text-[12px] text-ink-muted">{letters.length} total</span>
+            <h2 className="font-display type-section text-ink">Generated letters</h2>
+            <span className="type-caption text-ink-muted">{letters.length} total</span>
           </div>
-          <p className="-mt-2 text-[12px] leading-relaxed text-ink-muted">
+          <p className="-mt-2 type-caption leading-relaxed text-ink-muted">
             Edit any letter below and press Save changes. Downloads use your saved text. The {SAVED_PER_PACKAGE} newest letters are kept for each {isRaw ? 'resume' : 'job'}.
           </p>
           {letters.map((letter) => (
             <Card key={letter.id} tone="light" className="flex flex-col gap-3 p-4 sm:p-6">
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="break-words text-[13px] font-bold text-ink">
+                  <p className="break-words type-helper font-semibold text-ink">
                     {letter.target_job_title}
                     {letter.target_company ? ` · ${letter.target_company}` : ''}
                   </p>
                   {letter.tone ? (
-                    <span className="rounded-full bg-teal-soft px-2 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-teal">
+                    <span className="rounded-full bg-teal-soft px-2 py-0.5 type-caption font-semibold uppercase tracking-wide text-teal">
                       {TONE_OPTIONS.find((o) => o.value === letter.tone)?.label ?? letter.tone}
                     </span>
                   ) : null}
                 </div>
-                <p className="text-[12px] text-ink-muted">
+                <p className="type-caption text-ink-muted">
                   Generated {new Date(letter.generated_at).toLocaleString()}
                   {letter.edited_at ? ` · your edits saved ${new Date(letter.edited_at).toLocaleString()}` : ''}
                 </p>
@@ -372,7 +372,7 @@ function CoverLetterScreen() {
                 <Button type="button" variant="ghost" onClick={() => void copyLetter(letter)}>
                   {copiedId === letter.id ? 'Copied' : 'Copy'}
                 </Button>
-                {isDirty(letter) ? <span className="text-[12px] font-semibold text-gold-ink">Unsaved changes</span> : null}
+                {isDirty(letter) ? <span className="type-caption font-semibold text-gold-ink">Unsaved changes</span> : null}
               </div>
             </Card>
           ))}
@@ -391,7 +391,7 @@ function CoverLetterScreen() {
       ) : null}
 
       {/* Grounding notice */}
-      <p className="mt-6 text-center text-[12px] text-ink-muted">
+      <p className="mt-6 text-center type-caption text-ink-muted">
         {isRaw ? 'Written only from your saved Career Profile. No job description or AI resume optimization is used.' : "Written from this job's saved CV (once built) and your Career Profile — nothing that is in neither."}
       </p>
     </PageShell>

@@ -105,7 +105,7 @@ async function CompactFooter() {
     <footer className="mt-10 border-t border-line">
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-1.5 px-4 py-5 text-[12px] text-ink-muted sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <span>© {year} GCC MENTOR</span>
+          <span>© {year} GCC MENTOR · Middle East careers</span>
           <a href="mailto:jaissatish@gmail.com" className="font-semibold text-teal hover:underline">
             Help: jaissatish@gmail.com
           </a>

@@ -1,4 +1,5 @@
 'use client'
+import { GulfContext } from '@/components/layout/GulfContext'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
@@ -641,9 +642,9 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-ctl border border-dashed border-line-strong px-4 py-3 text-[13px] font-semibold text-teal transition-colors hover:border-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-ctl border border-dashed border-line-strong px-4 py-3 type-helper font-semibold text-teal transition-colors hover:border-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-white"
     >
-      <span aria-hidden="true" className="text-[15px] leading-none">
+      <span aria-hidden="true" className="type-label leading-none">
         +
       </span>
       {label}
@@ -667,7 +668,7 @@ function AddRowButton({ label, onClick }: { label: string; onClick: () => void }
 function PointsChip({ earned, total }: { earned: number; total: number }) {
   if (total === 0) {
     return (
-      <span className="shrink-0 whitespace-nowrap rounded-full border border-line-strong px-2.5 py-1 text-[12px] font-semibold text-ink-muted">
+      <span className="shrink-0 whitespace-nowrap rounded-full border border-line-strong px-2.5 py-1 type-caption font-semibold text-ink-muted">
         Optional
       </span>
     )
@@ -680,7 +681,7 @@ function PointsChip({ earned, total }: { earned: number; total: number }) {
   return (
     <span
       className={cn(
-        'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-bold tabular-nums',
+        'shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 type-caption font-semibold tabular-nums',
         complete ? 'bg-ok-soft text-ok' : 'bg-gold-soft text-gold-ink'
       )}
     >
@@ -765,7 +766,7 @@ function CardSection({
               readable from the numbers column alone without reading any text. */}
           <span
             className={cn(
-              'flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-bold tabular-nums',
+              'flex size-8 shrink-0 items-center justify-center rounded-full type-helper font-semibold tabular-nums',
               done || open
                 // Open or finished, the marker is `signal`: the one colour that
                 // means "this is where you are acting".
@@ -793,7 +794,7 @@ function CardSection({
                 {title}
               </span>
               {badge ? (
-                <span className="rounded-[5px] bg-canvas px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-soft">
+                <span className="rounded-[5px] bg-canvas px-1.5 py-0.5 type-caption font-semibold uppercase tracking-wider text-ink-soft">
                   {badge}
                 </span>
               ) : null}
@@ -813,7 +814,7 @@ function CardSection({
                   // visa and contact..."; at two, a measured 8 of 9 still did.
                   // A sentence that stops mid-word reads as unfinished, and
                   // these are each one sentence — the card can afford it.
-                  'text-[12px] leading-relaxed text-ink-muted'
+                  'type-caption leading-relaxed text-ink-muted'
                 )}
               >
                 {helper}
@@ -832,7 +833,7 @@ function CardSection({
             <span
               aria-hidden="true"
               className={cn(
-                'text-[12px] text-ink-muted transition-transform',
+                'type-caption text-ink-muted transition-transform',
                 open && 'rotate-180'
               )}
             >
@@ -909,15 +910,15 @@ const SECTION_FIELDS: Record<string, readonly string[]> = {
  * literal here would compile to nothing at all.
  */
 const SECTION_ACCENT: Record<string, { text: string; chip: string; rule: string }> = {
-  sec_status: { text: 'text-sec-status', chip: 'bg-sec-status/10 text-sec-status', rule: 'border-l-sec-status' },
-  sec_identity: { text: 'text-sec-identity', chip: 'bg-sec-identity/10 text-sec-identity', rule: 'border-l-sec-identity' },
-  sec_license: { text: 'text-sec-license', chip: 'bg-sec-license/10 text-sec-license', rule: 'border-l-sec-license' },
-  sec_summary: { text: 'text-sec-summary', chip: 'bg-sec-summary/10 text-sec-summary', rule: 'border-l-sec-summary' },
-  sec_work_experience: { text: 'text-sec-experience', chip: 'bg-sec-experience/10 text-sec-experience', rule: 'border-l-sec-experience' },
-  sec_education: { text: 'text-sec-education', chip: 'bg-sec-education/10 text-sec-education', rule: 'border-l-sec-education' },
-  sec_skills: { text: 'text-sec-skills', chip: 'bg-sec-skills/10 text-sec-skills', rule: 'border-l-sec-skills' },
-  sec_certifications: { text: 'text-sec-certifications', chip: 'bg-sec-certifications/10 text-sec-certifications', rule: 'border-l-sec-certifications' },
-  sec_additional: { text: 'text-sec-additional', chip: 'bg-sec-additional/10 text-sec-additional', rule: 'border-l-sec-additional' },
+  sec_status: { text: 'text-ink', chip: 'bg-teal-soft text-teal', rule: 'border-l-teal/20' },
+  sec_identity: { text: 'text-ink', chip: 'bg-teal-soft text-teal', rule: 'border-l-teal/20' },
+  sec_license: { text: 'text-ink', chip: 'bg-teal-soft text-teal', rule: 'border-l-teal/20' },
+  sec_summary: { text: 'text-ink', chip: 'bg-teal-soft text-teal', rule: 'border-l-teal/20' },
+  sec_work_experience: { text: 'text-ink', chip: 'bg-teal-soft text-teal', rule: 'border-l-teal/20' },
+  sec_education: { text: 'text-ink', chip: 'bg-teal-soft text-teal', rule: 'border-l-teal/20' },
+  sec_skills: { text: 'text-ink', chip: 'bg-teal-soft text-teal', rule: 'border-l-teal/20' },
+  sec_certifications: { text: 'text-ink', chip: 'bg-teal-soft text-teal', rule: 'border-l-teal/20' },
+  sec_additional: { text: 'text-ink', chip: 'bg-teal-soft text-teal', rule: 'border-l-teal/20' },
 }
 
 const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
@@ -1903,7 +1904,7 @@ function ProfileScreen() {
         <h1 className="type-title text-ink">
           You already have a profile
         </h1>
-        <p className="mt-3 text-[14px] leading-relaxed text-ink-soft">
+        <p className="mt-3 type-label leading-relaxed text-ink-soft">
           We read your CV. What would you like to do with it?
         </p>
 
@@ -1917,12 +1918,12 @@ function ProfileScreen() {
           className="mt-6 rounded-card border-2 border-teal bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
           <span className="flex items-center gap-2">
-            <span className="text-[15px] font-bold text-ink">Add it to my profile</span>
-            <span className="rounded-[5px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-teal">
+            <span className="type-label font-semibold text-ink">Add it to my profile</span>
+            <span className="rounded-[5px] bg-teal-soft px-1.5 py-0.5 type-caption font-semibold uppercase tracking-wider text-teal">
               Recommended
             </span>
           </span>
-          <span className="mt-1.5 block text-[13px] leading-relaxed text-ink-soft">
+          <span className="mt-1.5 block type-helper leading-relaxed text-ink-soft">
             Keeps everything you already have. Adds{' '}
             <strong className="text-ink">
               {addedTotal} new {addedTotal === 1 ? 'entry' : 'entries'}
@@ -1944,12 +1945,12 @@ function ProfileScreen() {
           }}
           className="mt-3 rounded-card border border-line bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert"
         >
-          <span className="text-[15px] font-bold text-ink">Replace my profile</span>
-          <span className="mt-1.5 block text-[13px] leading-relaxed text-ink-soft">
+          <span className="type-label font-semibold text-ink">Replace my profile</span>
+          <span className="mt-1.5 block type-helper leading-relaxed text-ink-soft">
             Starts fresh from this CV only.
           </span>
           {lostEntries > 0 || losses.fields.length > 0 ? (
-            <span className="mt-3 block rounded-ctl border border-alert/40 bg-alert-soft px-3 py-2.5 text-[12px] leading-relaxed text-alert">
+            <span className="mt-3 block rounded-ctl border border-alert/40 bg-alert-soft px-3 py-2.5 type-caption leading-relaxed text-alert">
               This removes{' '}
               {lostEntries > 0 ? (
                 <strong>
@@ -1962,7 +1963,7 @@ function ProfileScreen() {
             </span>
           ) : null}
           {replaceMissing.length > 0 ? (
-            <span className="mt-2 block text-[12px] leading-relaxed text-ink-soft">
+            <span className="mt-2 block type-caption leading-relaxed text-ink-soft">
               This CV has no <strong className="text-ink">{replaceMissing.join(', ')}</strong> — you&apos;ll
               add {replaceMissing.length === 1 ? 'it' : 'them'} before the new profile is saved.
             </span>
@@ -1976,15 +1977,15 @@ function ProfileScreen() {
           onClick={keepCurrentProfile}
           className="mt-3 rounded-card border border-line bg-canvas p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
-          <span className="text-[14px] font-bold text-ink">Keep my profile as it is</span>
-          <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
+          <span className="type-label font-semibold text-ink">Keep my profile as it is</span>
+          <span className="mt-1 block type-helper leading-relaxed text-ink-soft">
             Discards this CV reading. Nothing in your profile changes.
           </span>
         </button>
 
         {/* Was "Nothing is saved either way until you press Save on the next
             screen." Both halves are now the other way round (2026-09-11). */}
-        <p className="mt-6 text-center text-[12px] leading-relaxed text-ink-muted">
+        <p className="mt-6 text-center type-caption leading-relaxed text-ink-muted">
           Whichever you choose is saved straight away. Until you choose, this CV reading is kept for
           you — you can close this page and come back to it.
         </p>
@@ -2031,7 +2032,7 @@ function ProfileScreen() {
     />
   )
   const loadErrorBlock = loadError ? (
-    <div className="mx-3 sm:mx-5 mt-4 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 text-[12px] text-alert">{loadError}</div>
+    <div className="mx-3 sm:mx-5 mt-4 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 type-caption text-alert">{loadError}</div>
   ) : null
 
   // ---- Completeness ---------------------------------------------------------
@@ -2109,75 +2110,21 @@ function ProfileScreen() {
     const vis = visibilitySummary(editor.field_visibility)
     return (
       <main className={MAIN_CLASS}>
-        {/* Readiness header — the ring IS the header, on dark navy */}
-        <header className="page-gutter flex flex-col gap-4 bg-white pb-5 pt-4 sm:pb-6">
-          {/* STACKS ON MOBILE, and must.
-              Three items in one nowrap row — photo, ring, text — squeezed the
-              text column to 33px inside a 335px phone: one word per line. The
-              ring block is `shrink-0` and its label is ~110px wide, so the text
-              was the only thing that could give. Pre-existing, and the 12px type
-              floor made it worse by widening that label.
-              Photo and ring share a row; the text gets its own below until there
-              is room for all three. */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex min-w-0 flex-wrap items-start gap-3 sm:flex-nowrap sm:items-center sm:gap-4">
-            {/* Photo first: it is what a Gulf recruiter looks at first, and it
-                used to sit buried between form sections. */}
-            {/* id=f_photo: the Gulf Readiness photo step jumps here. */}
-            <div id="f_photo" tabIndex={-1} className="rounded-card focus:outline-none">
-              <PhotoUpload
-                compact
-                photoUrl={editor.photo_url || null}
-                onChange={(next) => setField({ photo_url: next ?? '' })}
-              />
+        <header className="workspace-heading page-gutter flex flex-col gap-4 pb-5 pt-6 sm:pt-8">
+          <GulfContext />
+          <div className="flex items-center gap-4">
+            <div id="f_photo" tabIndex={-1} className="shrink-0 rounded-card focus:outline-none">
+              <PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} />
             </div>
-            {/* CAREER PROFILE COMPLETENESS — one of two distinct numbers on this
-                page, and it is now labelled as such. This ring is "how complete your
-                profile is" (it drops as you fill sections). The other number, the
-                Gulf Readiness widget below, is "how ready you are for the Gulf
-                market" — a different thing, so each carries its own label. */}
-            <div className="flex w-[110px] max-w-full shrink-0 flex-col items-center gap-1">
-              <ReadinessRing score={readiness.score} size={68} />
-              <span className="type-caption text-center font-medium text-ink-muted">Profile complete</span>
-            </div>
-            {/* On a phone the Save button joins this row. Alone on its own line it
-                floated at the right edge under the text, detached from anything. */}
-            <div className="ml-auto self-start sm:hidden">
-              <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>
-                Save
-              </Button>
-            </div>
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-              {/* Says what this page IS before anything else (2026-09-23): the
-                  source every CV, letter and interview answer is written from. */}
-              <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
-                Your Gulf career profile
-              </span>
+            <div className="min-w-0 flex-1">
               <h1 className="type-title text-ink">Career Profile</h1>
-              <p className="max-w-[55ch] type-helper text-ink-soft">
-                <span className="font-semibold text-ink">Career Profile — {readiness.score}% complete,{' '}
-                {itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>
-              </p>
+              <p className="mt-1 type-helper text-ink-soft">{editor.full_name || 'Your experience. Your next Gulf role.'}</p>
             </div>
-
-            {/* SAVE AT THE TOP RIGHT (TASK-161, founder's call).
-                It was only at the very bottom of a nine-section form, which meant
-                saving required scrolling past everything still unfilled. It stays
-                at the bottom too — reaching the end of the form is also a natural
-                moment to save — and both call the identical onSubmit('exit'), so
-                there is one save path and not two behaviours to keep in step. */}
-            <div className="ml-auto hidden shrink-0 self-start sm:block">
-              <Button
-                variant="primary"
-                size="sm"
-                busy={submitting}
-                busyLabel="Saving…"
-                onClick={() => void onSubmit('stay')}
-              >
-                Save
-              </Button>
-            </div>
+            <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>Save</Button>
+          </div>
+          <div className="flex items-center gap-3">
+            <span role="progressbar" aria-label="Profile complete" aria-valuemin={0} aria-valuemax={100} aria-valuenow={readiness.score} className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-line"><span className="block h-full rounded-full bg-teal" style={{ width: `${readiness.score}%` }} /></span>
+            <span className="shrink-0 type-caption text-ink-muted">{readiness.score}% complete · {itemsLeft} left</span>
           </div>
         </header>
 
@@ -2193,20 +2140,20 @@ function ProfileScreen() {
         {claimedScan ? (
           <div className="mx-3 sm:mx-5 mt-4 flex items-start justify-between gap-3 rounded-ctl border border-teal/40 bg-white px-4 py-3">
             <div className="flex flex-col gap-1">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-teal">
+              <p className="type-caption font-semibold uppercase tracking-[0.14em] text-teal">
                 Welcome back
               </p>
-              <p className="text-[13px] font-medium text-ink">
+              <p className="type-helper font-medium text-ink">
                 Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
               </p>
               <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span className="font-mono text-2xl font-bold text-teal">
+                <span className="font-mono text-2xl font-semibold text-teal">
                   {claimedScan.overall_score}
                   <span className="text-sm">/100</span>
                 </span>
-                <span className="font-mono text-[12px] text-ink-soft">Structure {claimedScan.category_scores.structure}</span>
-                <span className="font-mono text-[12px] text-ink-soft">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
-                <span className="font-mono text-[12px] text-ink-soft">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
+                <span className="font-mono type-caption text-ink-soft">Structure {claimedScan.category_scores.structure}</span>
+                <span className="font-mono type-caption text-ink-soft">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
+                <span className="font-mono type-caption text-ink-soft">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
               </div>
             </div>
             <button
@@ -2222,15 +2169,15 @@ function ProfileScreen() {
 
 
         {hasSavedProfile && editor.full_name.trim() ? (
-          <div className="mx-3 sm:mx-5 mt-4 flex flex-col gap-3 rounded-card border border-teal/30 bg-teal-soft/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mx-3 sm:mx-5 mt-4 flex flex-col gap-3 rounded-card border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-0.5">
-              <p className="text-[14px] font-bold text-ink">Your CV is ready to preview.</p>
-              <p className="text-[13px] leading-relaxed text-ink-soft">
-                Choose a template, or tailor your CV for a job.
+              <p className="type-label font-semibold text-ink">Preview your CV</p>
+              <p className="type-helper leading-relaxed text-ink-soft">
+                Your saved experience. Your choice of Gulf template.
               </p>
             </div>
-            <div className="flex flex-col gap-3 sm:items-end">
-            <CareerProfileResumeButton />
+            <div className="flex flex-wrap items-center gap-3">
+            <CareerProfileResumeButton showHint={false} />
             <Button
               variant="progress"
               size="sm"
@@ -2246,19 +2193,28 @@ function ProfileScreen() {
         ) : null}
 
 
-        {/* THE TWO SCORES, PROFILE SETTINGS, CAREER AT A GLANCE (2026-10-04).
-            Each card opens its own screen. Hidden until the profile has a name:
-            before that this page's job is the import panel below. */}
         {hasProfile && profileFacts ? (
           <>
-            <ScoreCards
-              completeness={{ score: readiness.score, itemsLeft, detail: `${doneCount} of ${keyCount} key sections done` }}
-              gulf={gulfReadiness}
-              onOpenCompleteness={() => showView('completeness')}
-              onOpenReadiness={() => showView('readiness')}
-            />
-            <SettingsCard shown={vis.shown} total={vis.total} groups={vis.groups} onOpen={() => showView('settings')} />
-            <CareerSnapshot facts={profileFacts} onOpen={goToProfilePart} onOpenAll={() => showView('details')} />
+            <section aria-labelledby="profile-sections-title" className="mx-3 mt-6 sm:mx-5">
+              <div className="mb-3 flex items-center justify-between gap-3"><h2 id="profile-sections-title" className="type-section text-ink">Your details</h2><button type="button" onClick={() => showView('details')} className="min-h-11 type-label text-teal hover:underline">Edit profile →</button></div>
+              <div className="workspace-panel divide-y divide-line">
+                {sectionStatuses.map((section, index) => (
+                  <button key={section.id} type="button" onClick={() => goToProfilePart({ sectionId: section.id })} className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left hover:bg-teal-soft/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal sm:px-5">
+                    <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-teal-soft/60 type-caption text-teal">{index + 1}</span>
+                    <span className="min-w-0 flex-1"><span className="block type-label font-semibold text-ink">{section.label}</span><span className="mt-0.5 block type-caption text-ink-muted">{section.hint}</span></span>
+                    <StatusChip status={section.status} />
+                  </button>
+                ))}
+              </div>
+            </section>
+            <details className="group mx-3 mt-5 rounded-card border border-line bg-white sm:mx-5">
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 type-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">Profile insights & CV visibility<span aria-hidden="true" className="text-lg text-teal group-open:rotate-45">+</span></summary>
+              <div className="border-t border-line pb-4">
+                <ScoreCards completeness={{ score: readiness.score, itemsLeft, detail: `${doneCount} of ${keyCount} key sections done` }} gulf={gulfReadiness} onOpenCompleteness={() => showView('completeness')} onOpenReadiness={() => showView('readiness')} />
+                <SettingsCard shown={vis.shown} total={vis.total} groups={vis.groups} onOpen={() => showView('settings')} />
+                <CareerSnapshot facts={profileFacts} onOpen={goToProfilePart} onOpenAll={() => showView('details')} />
+              </div>
+            </details>
           </>
         ) : null}
 
@@ -2308,7 +2264,7 @@ function ProfileScreen() {
       <div id="profile-editor" className="page-gutter flex scroll-mt-4 flex-col gap-2.5 py-4">
         {/* One plain sentence naming the whole job before the first step, so
             the user knows how long this is and where they are inside it. */}
-        <p className="px-1 pb-1 text-[13px] leading-relaxed text-ink-muted">
+        <p className="px-1 pb-1 type-helper leading-relaxed text-ink-muted">
           {doneCount === keyCount ? (
             <>All {keyCount} key sections are complete — review anything below.</>
           ) : (
@@ -2409,7 +2365,7 @@ function ProfileScreen() {
             <button
               type="button"
               onClick={() => showView('settings')}
-              className="-mx-1 inline-flex min-h-11 items-center px-1 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              className="-mx-1 inline-flex min-h-11 items-center px-1 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               What appears on your CV →
             </button>
@@ -2541,15 +2497,15 @@ function ProfileScreen() {
                 <option value="yes">Yes, it can be transferred</option>
                 <option value="no">No</option>
               </select>
-              <p className="mt-1 text-[12px] leading-snug text-ink-soft">Your Iqama or work visa moving to a new employer without you leaving the country. Shown on your CV only if you answer.</p>
+              <p className="mt-1 type-caption leading-snug text-ink-soft">Your Iqama or work visa moving to a new employer without you leaving the country. Shown on your CV only if you answer.</p>
             </div>
             {/* GULF PAPERWORK (Gulf Readiness v2, 2026-10-01, migration 060).
                 Optional and private: they drive the readiness verdict and the
                 paperwork steps, and never appear on a CV. "Not answered" is
                 "not checked" in the verdict, never a failure. */}
             <div className="mt-2 flex flex-col gap-0.5 sm:col-span-2">
-              <p className="text-[13px] font-semibold text-ink">Gulf paperwork</p>
-              <p className="text-[12px] leading-snug text-ink-soft">
+              <p className="type-helper font-semibold text-ink">Gulf paperwork</p>
+              <p className="type-caption leading-snug text-ink-soft">
                 Optional and private — never shown on your CV. Your Gulf Readiness uses it to tell you what is left before an employer can hire you.
               </p>
             </div>
@@ -2567,7 +2523,7 @@ function ProfileScreen() {
                 <option value="not_started">Not started</option>
                 <option value="not_needed">Not needed for my job</option>
               </select>
-              <p className="text-[12px] leading-snug text-ink-muted">Skilled Gulf work permits need your degree attested (home country, then the embassy).</p>
+              <p className="type-caption leading-snug text-ink-muted">Skilled Gulf work permits need your degree attested (home country, then the embassy).</p>
             </div>
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor="f_professional_licence">Professional licence</FieldLabel>
@@ -2583,7 +2539,7 @@ function ProfileScreen() {
                 <option value="not_started">Not started</option>
                 <option value="not_needed">Not needed for my job</option>
               </select>
-              <p className="text-[12px] leading-snug text-ink-muted">For regulated jobs — nurses, doctors, pharmacists (DHA, DOH, SCFHS…), engineers in Saudi (SCE).</p>
+              <p className="type-caption leading-snug text-ink-muted">For regulated jobs — nurses, doctors, pharmacists (DHA, DOH, SCFHS…), engineers in Saudi (SCE).</p>
             </div>
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor="f_saudi_verification">Saudi professional verification</FieldLabel>
@@ -2599,7 +2555,7 @@ function ProfileScreen() {
                 <option value="not_started">Not started</option>
                 <option value="not_needed">Not applying to Saudi</option>
               </select>
-              <p className="text-[12px] leading-snug text-ink-muted">Needed for most Saudi work visas: QVP for qualifications, SVP skills test for trades.</p>
+              <p className="type-caption leading-snug text-ink-muted">Needed for most Saudi work visas: QVP for qualifications, SVP skills test for trades.</p>
             </div>
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor="f_arabic_level">Arabic</FieldLabel>
@@ -2616,7 +2572,7 @@ function ProfileScreen() {
                 <option value="fluent">Fluent</option>
                 <option value="native">Native</option>
               </select>
-              <p className="text-[12px] leading-snug text-ink-muted">A plus for many Gulf roles — basic counts too.</p>
+              <p className="type-caption leading-snug text-ink-muted">A plus for many Gulf roles — basic counts too.</p>
             </div>
             {editor.photo_url ? (
               <div className="sm:col-span-2">
@@ -2727,7 +2683,7 @@ function ProfileScreen() {
             {editor.work_experience.map((w, i) => (
               <div key={w.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[13px] font-bold text-sec-experience">
+                  <span className="type-helper font-semibold text-sec-experience">
                     {w.role.trim() || `Role ${i + 1}`}
                   </span>
                   <button
@@ -2815,11 +2771,11 @@ function ProfileScreen() {
             manufactured "no gaps!"). */}
         {employmentGaps.length > 0 ? (
           <div className="flex flex-col gap-2 rounded-ctl border border-line/70 bg-white px-3.5 py-3">
-            <span className="text-[12px] font-semibold text-ink-soft">
+            <span className="type-caption font-semibold text-ink-soft">
               Employment gaps &mdash; just for your awareness
             </span>
             {employmentGaps.map((g, i) => (
-              <p key={i} className="text-[12px] leading-snug text-ink-muted">
+              <p key={i} className="type-caption leading-snug text-ink-muted">
                 We noticed a {g.gapMonths}-month gap between {g.precedingCompany || 'a previous role'} and{' '}
                 {g.followingCompany || 'your next role'}. This isn&rsquo;t scored &mdash; just something to be aware of.
               </p>
@@ -2847,7 +2803,7 @@ function ProfileScreen() {
             {editor.education.map((x, i) => (
               <div key={x.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[13px] font-bold text-sec-education">
+                  <span className="type-helper font-semibold text-sec-education">
                     {x.degree.trim() || `Qualification ${i + 1}`}
                   </span>
                   <button
@@ -2892,7 +2848,7 @@ function ProfileScreen() {
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
-                <span className="w-5 shrink-0 text-right text-[12px] font-semibold text-sec-skills">{i + 1}</span>
+                <span className="w-5 shrink-0 text-right type-caption font-semibold text-sec-skills">{i + 1}</span>
                 <Input tone="light"
                   value={s.name}
                   placeholder="e.g. Piping stress analysis (CAESAR II)"
@@ -2935,7 +2891,7 @@ function ProfileScreen() {
             {editor.certifications.map((c, i) => (
               <div key={c.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[13px] font-bold text-sec-certifications">
+                  <span className="type-helper font-semibold text-sec-certifications">
                     {c.name.trim() || `Certification ${i + 1}`}
                   </span>
                   <button

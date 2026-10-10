@@ -48,17 +48,17 @@ export function CallOrb({
           </span>
         </span>
         {label ? (
-          <span className="absolute -bottom-3 rounded-full bg-white px-3 py-1 text-[11.5px] font-bold uppercase tracking-[0.12em] text-teal shadow">
+          <span className="absolute -bottom-3 rounded-full bg-white px-3 py-1 text-[11.5px] font-semibold uppercase tracking-[0.12em] text-teal shadow">
             {label}
           </span>
         ) : null}
       </div>
       <div className="flex max-w-md flex-col gap-2">
         <h3 className="font-display text-[22px] font-semibold leading-snug text-ink sm:text-[26px]">{title}</h3>
-        <p key={i} className="min-h-[3rem] text-[15px] leading-relaxed text-ink-soft motion-safe:animate-[orb-fade_0.6s_ease-out]">
+        <p key={i} className="min-h-[3rem] type-body leading-relaxed text-ink-soft motion-safe:animate-[orb-fade_0.6s_ease-out]">
           {lines[i]}
         </p>
-        {detail ? <p className="text-[13.5px] font-semibold text-teal">{detail}</p> : null}
+        {detail ? <p className="type-helper font-semibold text-teal">{detail}</p> : null}
       </div>
       <style jsx global>{`
         @keyframes orb-ring { 0% { transform: scale(0.72); opacity: 0.9 } 100% { transform: scale(1.25); opacity: 0 } }

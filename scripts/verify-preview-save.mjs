@@ -54,8 +54,15 @@ try {
   browser = await puppeteer.launch({ executablePath, headless: true, pipe: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-zygote', '--single-process'] })
   const cssPath = join(root, '.next/static/css')
-  const css = existsSync(cssPath) ? readdirSync(cssPath).filter((file) => file.endsWith('.css')).map((file) => readFileSync(join(cssPath, file), 'utf8')).join('\n') : ''
+  let css = existsSync(cssPath) ? readdirSync(cssPath).filter((file) => file.endsWith('.css')).map((file) => readFileSync(join(cssPath, file), 'utf8')).join('\n') : ''
+  const builtLanding = existsSync(join(root, '.next/server/app/index.html')) ? readFileSync(join(root, '.next/server/app/index.html'), 'utf8') : ''
+  const bodyClass = builtLanding.match(/<body[^>]*class="([^"]+)"/)?.[1] ?? ''
+  css = css.replace(/url\((?:["']?)([^)"']+\.woff2)(?:["']?)\)/g, (_, url) => {
+    const fontPath = join(root, '.next/static/media', url.split('/').at(-1))
+    return existsSync(fontPath) ? `url("data:font/woff2;base64,${readFileSync(fontPath).toString('base64')}")` : `url("${url}")`
+  })
   const page = await browser.newPage()
+  await page.setViewport({ width: 1440, height: 960 })
   const errors = []
   page.on('pageerror', (e) => errors.push(e.message))
   let profile, pkg, writes, failSave, pendingSave, releaseSave, pendingPhoto, releasePhoto
@@ -76,7 +83,7 @@ try {
       const url = new URL(request.url())
       if (url.origin !== 'https://preview.test') return request.abort()
       const json = (status, data) => request.respond({ status, contentType: 'application/json', body: JSON.stringify(data) })
-      if (url.pathname === '/' || url.pathname.startsWith('/package/')) return request.respond({ status: 200, contentType: 'text/html', body: '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div class="app-type" id="root"></div><script src="/fixture.js"></script></body></html>'.replace('</head>', `<style>${css}</style></head>`) })
+      if (url.pathname === '/' || url.pathname.startsWith('/package/')) return request.respond({ status: 200, contentType: 'text/html', body: '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div class="app-type" id="root"></div><script src="/fixture.js"></script></body></html>'.replace('</head>', `<style>${css}</style></head>`).replace('<body>', `<body class="${bodyClass}">`) })
       if (url.pathname === '/fixture.js') return request.respond({ status: 200, contentType: 'application/javascript', body: readFileSync(join(scratch, 'fixture.js')) })
       if (url.pathname === '/api/profile/photo') {
         if (pendingPhoto) await new Promise((done) => { releasePhoto = done })
@@ -107,15 +114,16 @@ try {
   const click = async (label) => {
     const buttons = await page.$$('button')
     for (const button of buttons) {
-      if ((await button.evaluate((e) => e.textContent.trim())) === label) { await button.click(); return }
+      if ((await button.evaluate((e) => e.textContent.trim())) === label && await button.evaluate(el => el.getClientRects().length > 0)) { await button.click(); return }
     }
     throw new Error(`Missing button ${label}`)
   }
   const blocked = async (expected) => {
     await page.waitForFunction((shouldBlock) => {
-      const link = document.querySelector('a[href$="/pdf"]')
-      const button = [...document.querySelectorAll('button')].find((e) => e.textContent.trim() === 'Download PDF')
-      return shouldBlock ? !link && button?.disabled : !!link && !button
+      const visible = element => element.getClientRects().length > 0
+      const links = [...document.querySelectorAll('a[href$="/pdf"]')].filter(visible)
+      const buttons = [...document.querySelectorAll('button')].filter(e => visible(e) && e.textContent.trim() === 'Download PDF')
+      return shouldBlock ? links.length === 0 && buttons.length === 1 && buttons[0].disabled : links.length === 1 && buttons.length === 0
     }, {}, expected)
   }
   const rename = async (name) => {
@@ -191,14 +199,52 @@ try {
   mkdirSync('artifacts/preview-settings', { recursive: true })
   for (const width of [320, 390, 768, 1440]) {
     reset(); await page.setViewport({ width, height: 960 }); await load()
-    await page.click('[aria-controls="photo-settings-panel"]')
-    assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), false)
-    await page.click('[aria-controls="text-style-panel"]')
-    assert.equal(await page.$eval('[aria-controls="photo-settings-panel"]', el => el.getAttribute('aria-expanded')), 'true', 'Text and photo panels expand independently')
-    await page.click('[aria-controls="text-style-panel"]')
-    await page.click('[aria-controls="photo-settings-panel"]')
-    await page.$eval('[aria-controls="text-style-panel"]', el => el.scrollIntoView({ block: 'start' }))
-    await page.screenshot({ path: `artifacts/preview-settings/settings-${width}.png`, fullPage: false })
+    if (width < 1024) {
+      assert.equal(await page.$eval('.editor-settings-panel', el => el.open), false, 'Mobile opens on the document, not the settings')
+      await click('Templates')
+      await page.waitForFunction(() => document.querySelector('.editor-settings-panel').open)
+      assert.equal(await page.$$eval('[aria-label="Resume templates"] > button', buttons => buttons.length), 50)
+      await page.click('[aria-label^="Gulf Premium —"]'); await blocked(true)
+      await page.keyboard.press('Escape')
+      await page.waitForFunction(() => !document.querySelector('.editor-settings-panel').open)
+      assert.equal(await page.evaluate(() => document.activeElement.textContent.trim()), 'Templates', 'Escape returns focus to the design control')
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight))
+      assert.ok(await page.$eval('[aria-label="Save and download CV"]', el => { const rect = el.getBoundingClientRect(); return rect.top >= 0 && rect.bottom <= innerHeight }), 'Save/download remain visible after scrolling the CV')
+      await click('Save changes'); await blocked(false)
+      await click('Text')
+      await page.waitForFunction(() => document.querySelector('.editor-settings-panel').open)
+      await click('Large'); await blocked(true)
+      await click('Back to preview')
+      await page.waitForFunction(() => !document.querySelector('.editor-settings-panel').open)
+      await click('Save changes'); await blocked(false)
+      await click('Photo')
+      await page.waitForFunction(() => document.querySelector('.editor-settings-panel').open)
+      assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), false)
+      await page.keyboard.press('Tab')
+      assert.ok(await page.evaluate(() => document.querySelector('.editor-settings-panel').contains(document.activeElement)), 'Sheet keeps keyboard focus inside')
+      if (width === 390) {
+        pendingPhoto = true
+        await (await page.$('[aria-label="Choose profile photo"]')).uploadFile(join(root, 'public/sample/sample-headshot.jpg'))
+        await blocked(true)
+        await click('Back to preview')
+        releasePhoto(); pendingPhoto = false
+        await blocked(false)
+        await click('Photo')
+        await page.waitForFunction(() => document.querySelector('.editor-settings-panel').open)
+      }
+      await page.screenshot({ path: `artifacts/preview-settings/settings-${width}.png`, fullPage: false })
+      await click('Back to preview')
+      await page.waitForFunction(() => !document.querySelector('.editor-settings-panel').open)
+      await page.screenshot({ path: `artifacts/preview-settings/preview-${width}.png`, fullPage: false })
+    } else {
+      await page.click('[aria-controls="photo-settings-panel"]')
+      assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), false)
+      await page.click('[aria-controls="text-style-panel"]')
+      assert.equal(await page.$eval('[aria-controls="photo-settings-panel"]', el => el.getAttribute('aria-expanded')), 'true', 'Text and photo panels expand independently')
+      await page.click('[aria-controls="text-style-panel"]')
+      await page.click('[aria-controls="photo-settings-panel"]')
+      await page.screenshot({ path: `artifacts/preview-settings/settings-${width}.png`, fullPage: false })
+    }
     await rename('My Master Engineering CV'); await blocked(true)
     if (css) assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `No overflow at ${width}px`)
     await click('Save changes'); await blocked(false)

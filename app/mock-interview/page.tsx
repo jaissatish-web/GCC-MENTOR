@@ -240,7 +240,7 @@ function MockInterviewScreen() {
   if (listError) {
     return (
       <main className="mx-auto flex w-full max-w-[980px] flex-col items-start gap-3 px-3 sm:px-5 py-8 font-redesign-sans">
-        <p role="alert" className="text-[14px] text-alert">{listError}</p>
+        <p role="alert" className="type-label text-alert">{listError}</p>
         <Button type="button" variant="secondary" onClick={picker.reloadList}>
           Try again
         </Button>
@@ -354,10 +354,10 @@ function MockInterviewScreen() {
             <InterviewerPicker value={interviewerId} onChange={setInterviewerId} disabled={busy !== null} />
 
             {voiceReady === false ? <p className="rounded-ctl bg-canvas p-3 text-sm text-ink-muted">Recorded interviews are being prepared. Your previous interview reports remain available.</p> : null}
-            {opError ? <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">{opError}</p> : null}
+            {opError ? <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">{opError}</p> : null}
             {detailError ? (
               <div className="flex flex-col items-start gap-2">
-                <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">{detailError}</p>
+                <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">{detailError}</p>
                 <Button type="button" variant="secondary" onClick={picker.reloadDetail}>Try again</Button>
               </div>
             ) : null}
@@ -375,7 +375,7 @@ function MockInterviewScreen() {
             ) : null}
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-[12.5px] text-ink-muted">
+              <p className="type-helper text-ink-muted">
                 {detailLoading && !detail
                   ? (isRaw ? 'Loading your Career Profile Resume…' : 'Loading this job…')
                   : run
@@ -411,17 +411,17 @@ function MockInterviewScreen() {
         <section id="interview-report" className="mt-6 scroll-mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">
           <div className="ui-card min-w-0 rounded-card border border-line bg-white p-4 sm:p-6">
             <div className="flex flex-col gap-1">
-              <h2 className="font-display text-[21px] font-semibold text-ink">
+              <h2 className="font-display type-section font-semibold text-ink">
                 {currentQuestion ? `Question ${answeredCount + 1}` : 'Ready to finish'}
               </h2>
-              <p className="text-[12.5px] text-ink-muted">{run.opening_note}</p>
+              <p className="type-helper text-ink-muted">{run.opening_note}</p>
             </div>
 
             {currentQuestion ? (
               <div className="mt-5 flex flex-col gap-4">
                 <div className="rounded-ctl bg-canvas p-4">
-                  <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">{currentQuestion.focus}</span>
-                  <p className="mt-2 font-display text-[19px] font-semibold leading-snug text-ink">{currentQuestion.question}</p>
+                  <span className="type-caption font-semibold uppercase tracking-[0.12em] text-teal">{currentQuestion.focus}</span>
+                  <p className="mt-2 font-display type-section font-semibold leading-snug text-ink">{currentQuestion.question}</p>
                 </div>
                 <label className="flex flex-col gap-1.5">
                   <span className="sr-only">Your answer</span>
@@ -434,7 +434,7 @@ function MockInterviewScreen() {
                     placeholder="Type your answer as you would say it in the interview..."
                     aria-describedby="answer-count"
                   />
-                  <span id="answer-count" className="self-end text-[12px] text-ink-muted">
+                  <span id="answer-count" className="self-end type-caption text-ink-muted">
                     {answerDraft.length.toLocaleString('en-US')} / {MOCK_ANSWER_MAX_CHARS.toLocaleString('en-US')} characters
                   </span>
                 </label>
@@ -449,14 +449,14 @@ function MockInterviewScreen() {
                   ) : null}
                 </div>
                 {answeredCount > 0 && unanswered > 0 ? (
-                  <p className="text-[12px] leading-relaxed text-ink-muted">
+                  <p className="type-caption leading-relaxed text-ink-muted">
                     Finishing now reviews your {answeredCount} answered {answeredCount === 1 ? 'question' : 'questions'} only; the other {unanswered} are skipped. A finished report is final — start a new interview to practise again.
                   </p>
                 ) : null}
               </div>
             ) : (
               <div className="mt-5 flex flex-col gap-3 rounded-ctl bg-canvas p-4">
-                <p className="text-[14px] text-ink-soft">All questions are answered. Generate your preparation report.</p>
+                <p className="type-label text-ink-soft">All questions are answered. Generate your preparation report.</p>
                 <Button type="button" variant="primary" onClick={() => void finish()} disabled={busy !== null} busy={busy === 'finish'} busyLabel="Finishing…">
                   Finish and get report
                 </Button>
@@ -468,13 +468,13 @@ function MockInterviewScreen() {
             {run.questions.map((q, index) => (
               <Card key={q.id} tone="light" className="p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <span className="font-mono text-[12px] font-bold text-teal">Q{index + 1}</span>
-                  <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-bold uppercase', q.answer ? 'bg-teal-soft text-teal' : 'bg-canvas text-ink-muted')}>
+                  <span className="font-mono type-caption font-semibold text-teal">Q{index + 1}</span>
+                  <span className={cn('rounded-full px-2 py-0.5 type-caption font-semibold uppercase', q.answer ? 'bg-teal-soft text-teal' : 'bg-canvas text-ink-muted')}>
                     {q.answer ? 'Answered' : 'Open'}
                   </span>
                 </div>
-                <p className="mt-2 break-words text-[13px] font-semibold leading-snug text-ink">{q.question}</p>
-                {q.feedback ? <p className="mt-2 text-[12.5px] leading-relaxed text-ink-muted">{q.feedback}</p> : null}
+                <p className="mt-2 break-words type-helper font-semibold leading-snug text-ink">{q.question}</p>
+                {q.feedback ? <p className="mt-2 type-helper leading-relaxed text-ink-muted">{q.feedback}</p> : null}
               </Card>
             ))}
           </aside>
@@ -492,7 +492,7 @@ function MockInterviewScreen() {
         />
       ) : null}
 
-      <p className="mt-6 text-center text-[12px] text-ink-muted">
+      <p className="mt-6 text-center type-caption text-ink-muted">
         Recorded voice practice in English. Feedback supports preparation; it does not predict hiring decisions.
       </p>
     </PageShell>

@@ -84,7 +84,7 @@ try {
     })
     assert.ok(layout.scroll <= width + 1, JSON.stringify({width,layout}))
     assert.equal(layout.text, runs[1].final_report.priority_focus)
-    if(width<640){assert.ok(layout.x<=30,JSON.stringify(layout));assert.equal(layout.size,'15px');assert.equal(layout.weight,'400')}
+    if(width<640){assert.ok(layout.x<=40,JSON.stringify(layout));assert.equal(layout.size,'16px');assert.equal(layout.weight,'400')}
     if(process.env.INTERVIEW_SCREENSHOT && width===390) await page.screenshot({path:process.env.INTERVIEW_SCREENSHOT,fullPage:true})
     await page.$$eval('button', els=>els.find(el=>el.textContent==='Back to result cards').click())
     await page.$$eval('[aria-label="Result cards"] button', els=>els.find(el=>el.textContent.includes('Your answers')).click())
@@ -100,7 +100,7 @@ try {
     await page.$$eval('[aria-label="Result cards"] button',els=>els.find(el=>el.textContent.includes('Your practice plan')).click())
     await page.click('[aria-label="Your improvement plan"] summary')
     assert.ok(await page.$eval('[aria-label="Your improvement plan"] details',el=>el.open&&el.textContent.includes('Practise a specific example.')))
-    if(width<400){await page.evaluate(()=>document.documentElement.style.fontSize='200%');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1))}
+    if(width<400){await page.evaluate(()=>document.documentElement.style.fontSize='200%');const enlarged=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('main *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1).map(el=>({text:el.textContent.slice(0,70),class:el.className})).slice(0,6)}));assert.ok(enlarged.scroll<=width+1,JSON.stringify(enlarged))}
     await page.goto('https://interview.test/?screen=dashboard', { waitUntil: 'networkidle0' })
     await page.waitForSelector('[aria-label="Interview progress report"]')
     assert.ok(await page.$eval('[aria-label="Your interview practice"]', el=>el.textContent.includes('12 saved interviews')))

@@ -141,7 +141,7 @@ function InterviewQaScreen() {
   if (listError) {
     return (
       <main className="mx-auto flex w-full max-w-[960px] flex-col items-start gap-3 px-3 py-8 font-redesign-sans sm:px-8 lg:px-10">
-        <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+        <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
           {listError}
         </div>
         <Button type="button" variant="secondary" onClick={picker.reloadList}>
@@ -182,7 +182,7 @@ function InterviewQaScreen() {
             title="Build an optimized resume first"
             body="The questions and answers are based on the final CV for a target job, so build that CV before preparing interview answers."
             action={
-              <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'text-[14px]')}>
+              <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'type-label')}>
                 {CTA.optimizeCv}
               </Link>
             }
@@ -211,7 +211,7 @@ function InterviewQaScreen() {
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current="qa" /> : null}
 
             {genError ? (
-              <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+              <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
                 {genError}
               </p>
             ) : null}
@@ -230,7 +230,7 @@ function InterviewQaScreen() {
             ) : null}
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-col gap-1 text-[12.5px] text-ink-soft">
+              <div className="flex flex-col gap-1 type-helper text-ink-soft">
                 {selectedSummary ? (
                   <>{questionSet ? <span>Saved {new Date(questionSet.generated_at).toLocaleString()}</span> : null}</>
                 ) : null}
@@ -276,7 +276,7 @@ function InterviewQaScreen() {
               </label>
             ) : null}
             {questionSet ? (
-              <p className="text-[12px] leading-relaxed text-ink-muted">
+              <p className="type-caption leading-relaxed text-ink-muted">
                 A new set is saved alongside your earlier ones. The {SAVED_PER_PACKAGE} newest are kept for each {isRaw ? 'resume' : 'job'}.
               </p>
             ) : null}
@@ -286,7 +286,7 @@ function InterviewQaScreen() {
 
       {detailError ? (
         <div className="mt-6 flex flex-col items-start gap-3">
-          <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
+          <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
             {detailError}
           </p>
           <Button type="button" variant="secondary" onClick={picker.reloadDetail}>
@@ -304,13 +304,13 @@ function InterviewQaScreen() {
         <section className="mt-6 flex flex-col gap-5">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="font-display text-[21px] font-semibold text-ink">Practice set</h2>
-              <p className="break-words text-[12.5px] text-ink-muted">
+              <h2 className="font-display type-section font-semibold text-ink">Practice set</h2>
+              <p className="break-words type-helper text-ink-muted">
                 {questionSet.question_count} questions for {questionSet.target_job_title}
                 {questionSet.target_company ? ` · ${questionSet.target_company}` : ''}
               </p>
             </div>
-            <span className="w-fit rounded-full bg-teal-soft px-3 py-1 text-[12px] font-bold uppercase tracking-[0.08em] text-teal">
+            <span className="w-fit rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold uppercase tracking-[0.08em] text-teal">
               Saved in this resume package
             </span>
           </div>
@@ -319,7 +319,7 @@ function InterviewQaScreen() {
               the page 22 phone screens long and gave the answer away before the
               candidate had tried. */}
           <div className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[13px] leading-relaxed text-ink-soft">
+            <p className="type-helper leading-relaxed text-ink-soft">
               Read each question and answer it out loud first, then tap <strong>Show sample answer</strong> to compare.{' '}
               <mark className="rounded bg-gold-soft px-1 text-ink">[Highlighted parts]</mark> are for your own real example.
             </p>
@@ -335,7 +335,7 @@ function InterviewQaScreen() {
 
           {grouped.map((group) => (
             <div key={group.category} className="flex flex-col gap-3">
-              <h3 className="text-[12px] font-bold uppercase tracking-[0.14em] text-ink-muted">
+              <h3 className="type-caption font-semibold uppercase tracking-[0.14em] text-ink-muted">
                 {CATEGORY_LABEL[group.category]}
               </h3>
               {group.items.map((item) => (
@@ -370,7 +370,7 @@ function InterviewQaScreen() {
         />
       ) : null}
 
-      <p className="mt-6 text-center text-[12px] text-ink-muted">
+      <p className="mt-6 text-center type-caption text-ink-muted">
         {isRaw ? 'Answers use only your saved Career Profile. Unsupported numbers are removed before you see them.' : "Answers are written from this job's saved CV and your Career Profile. Any answer stating a number that is in neither is removed before you see it."}
       </p>
     </PageShell>
@@ -408,17 +408,17 @@ function QaCard({ item, number, open, onToggle }: { item: InterviewQuestionAnswe
     <Card tone="light" className="p-5">
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-canvas px-2.5 py-1 font-mono text-[12px] font-semibold text-ink-soft">
+          <span className="rounded-full bg-canvas px-2.5 py-1 font-mono type-caption font-semibold text-ink-soft">
             Q{number.toString().padStart(2, '0')}
           </span>
-          <span className="rounded-full bg-teal-soft px-2.5 py-1 text-[12px] font-semibold text-teal">{item.difficulty}</span>
+          <span className="rounded-full bg-teal-soft px-2.5 py-1 type-caption font-semibold text-teal">{item.difficulty}</span>
           {item.tags.slice(0, 2).map((tag) => (
-            <span key={tag} className="rounded-full border border-line bg-white px-2.5 py-1 text-[12px] text-ink-muted">
+            <span key={tag} className="rounded-full border border-line bg-white px-2.5 py-1 type-caption text-ink-muted">
               {tag}
             </span>
           ))}
         </div>
-        <h4 className="font-display text-[18px] font-semibold leading-snug text-ink">{item.question}</h4>
+        <h4 className="font-display type-card font-semibold leading-snug text-ink">{item.question}</h4>
         <p className="type-helper text-ink-muted">
           <strong className="text-ink-soft">Why they ask: </strong>
           {item.why_asked}
@@ -428,14 +428,14 @@ function QaCard({ item, number, open, onToggle }: { item: InterviewQuestionAnswe
           aria-expanded={open}
           aria-controls={answerId}
           onClick={onToggle}
-          className="min-h-11 w-fit rounded-ctl border border-teal/40 bg-white px-4 text-[13.5px] font-semibold text-teal"
+          className="min-h-11 w-fit rounded-ctl border border-teal/40 bg-white px-4 type-helper font-semibold text-teal"
         >
           {open ? 'Hide sample answer' : 'Show sample answer'}
         </button>
         {open ? (
           <div id={answerId} className="flex flex-col gap-3">
             <AnswerText text={item.answer} />
-            <div className="grid gap-3 border-t border-line pt-3 text-[12.5px] leading-relaxed text-ink-muted md:grid-cols-2">
+            <div className="grid gap-3 border-t border-line pt-3 type-helper leading-relaxed text-ink-muted md:grid-cols-2">
               <p>
                 <strong className="block text-ink-soft">From your CV</strong>
                 {item.resume_basis}

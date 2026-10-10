@@ -63,9 +63,9 @@ export function PreparationJourney({
     <section aria-label={isRaw ? 'Career Profile Resume' : NAMES.targetJob} className={bare ? '' : 'rounded-card border border-line bg-white p-4 shadow-m-1'}>
       <div className={cn('flex items-start justify-between gap-3', bare && 'sr-only')}>
         <div className="min-w-0">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.1em] text-ink-muted">{isRaw ? 'Career Profile Resume' : NAMES.targetJob}</p>
-          <p className="mt-0.5 break-words font-display text-[18px] leading-tight text-ink">{pkg.name || pkg.target_job_title}</p>
-          <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[13px] text-ink-soft">
+          <p className="type-caption font-semibold uppercase tracking-[0.1em] text-ink-muted">{isRaw ? 'Career Profile Resume' : NAMES.targetJob}</p>
+          <p className="mt-0.5 break-words font-display type-card leading-tight text-ink">{pkg.name || pkg.target_job_title}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-x-2 type-helper text-ink-soft">
             {isRaw ? 'Based only on your saved profile · No job description' : [pkg.target_company, country].filter(Boolean).join(' · ')}
             {typeof before === 'number' && typeof after === 'number' ? (
               <span className="inline-flex items-center gap-1 font-semibold">
@@ -78,15 +78,15 @@ export function PreparationJourney({
           </p>
         </div>
         {here !== 'resume' ? (
-          <Link href={`/package/${id}`} className="inline-flex min-h-11 shrink-0 items-center text-[13px] font-semibold text-teal underline-offset-4 hover:underline">
+          <Link href={`/package/${id}`} className="inline-flex min-h-11 shrink-0 items-center type-helper font-semibold text-teal underline-offset-4 hover:underline">
             {isRaw ? 'See your resume' : CTA.viewOptimizedCv}
           </Link>
         ) : null}
       </div>
 
-      {isRaw ? <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE} · Profile-based preparation</p> : null}
+      {isRaw && !bare ? <p className="mb-2 flex items-center gap-1.5 type-caption font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE} · Profile-based preparation</p> : null}
       {bare && typeof before === 'number' && typeof after === 'number' ? (
-        <p className="text-[13px] text-ink-soft">
+        <p className="type-helper text-ink-soft">
           ATS <span className="font-mono text-ink-muted">{before}</span> → <span className="font-mono font-semibold text-teal">{after}</span>
           {here !== 'resume' ? (
             <>
@@ -110,7 +110,7 @@ export function PreparationJourney({
             </>
           )
           const cls = cn(
-            'flex min-h-10 items-center justify-center gap-1.5 rounded-ctl border px-1 text-[13px] font-semibold',
+            'flex min-h-10 items-center justify-center gap-1.5 rounded-ctl border px-1 type-helper font-semibold',
             isHere ? 'border-teal bg-teal-soft text-teal' : step.ready ? 'border-ok/30 bg-ok-soft text-ok' : 'border-line text-ink-muted',
           )
           return (
@@ -136,12 +136,12 @@ export function PreparationJourney({
               type="button"
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
-              className="min-h-10 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              className="min-h-10 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               {open ? 'Hide job description' : 'Show job description'}
             </button>
             {open ? (
-              <div className="mt-1 max-h-72 overflow-y-auto whitespace-pre-wrap rounded-ctl border border-line bg-canvas p-3 text-[13px] leading-relaxed text-ink-soft">
+              <div className="mt-1 max-h-72 overflow-y-auto whitespace-pre-wrap rounded-ctl border border-line bg-canvas p-3 type-helper leading-relaxed text-ink-soft">
                 {description}
               </div>
             ) : null}

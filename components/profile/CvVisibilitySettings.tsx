@@ -102,10 +102,10 @@ export function CvVisibilitySettings({
   return (
     <div className="flex flex-col gap-4 px-5 py-4">
       <div className="flex flex-col gap-1.5 rounded-card border border-teal/20 bg-teal-soft/60 p-4">
-        <p className="text-[14px] font-bold text-ink">
+        <p className="type-label font-semibold text-ink">
           {shown} of {total} details are shown on your CV
         </p>
-        <p className="text-[13px] leading-relaxed text-ink-soft">
+        <p className="type-helper leading-relaxed text-ink-soft">
           Turn a detail off to leave it out of the CVs you make from now on. Hiding never deletes it, and CVs you
           already made keep the settings they were made with.
         </p>
@@ -116,7 +116,7 @@ export function CvVisibilitySettings({
         const rows = VISIBILITY_FIELDS.filter((f) => f.group === g.id)
         return (
           <section key={g.id} aria-labelledby={`vis-${g.id}`} className="rounded-card border border-line bg-white shadow-m-1">
-            <h2 id={`vis-${g.id}`} className="flex items-center gap-2.5 border-b border-line px-4 py-3 text-[14.5px] font-bold text-ink">
+            <h2 id={`vis-${g.id}`} className="flex items-center gap-2.5 border-b border-line px-4 py-3 text-[14.5px] font-semibold text-ink">
               <span className={cn('flex size-8 items-center justify-center rounded-full', g.badge)}>
                 <Icon className="size-4" aria-hidden="true" />
               </span>
@@ -128,11 +128,11 @@ export function CvVisibilitySettings({
                 return (
                   <li key={key} className="flex items-center justify-between gap-3 px-4 py-2.5">
                     <div className="flex min-w-0 flex-col gap-0.5">
-                      <span className="text-[13.5px] font-semibold text-ink">{label}</span>
-                      <span className="text-[12px] leading-snug text-ink-muted">{hint}</span>
+                      <span className="type-helper font-semibold text-ink">{label}</span>
+                      <span className="type-caption leading-snug text-ink-muted">{hint}</span>
                       <span
                         className={cn(
-                          'mt-0.5 inline-flex items-center gap-1 text-[12px] font-semibold',
+                          'mt-0.5 inline-flex items-center gap-1 type-caption font-semibold',
                           !filled[key] ? 'text-ink-muted' : on ? 'text-ok' : 'text-ink-soft',
                         )}
                       >
@@ -149,7 +149,7 @@ export function CvVisibilitySettings({
         )
       })}
 
-      <p className="flex items-start gap-2.5 rounded-ctl border border-line bg-white px-3.5 py-3 text-[12px] leading-snug text-ink-soft">
+      <p className="flex items-start gap-2.5 rounded-ctl border border-line bg-white px-3.5 py-3 type-caption leading-snug text-ink-soft">
         <LockClosedIcon className="mt-0.5 size-4 shrink-0 text-teal" aria-hidden="true" />
         <span>
           Passport and visa details are private to your account, and any access by our team is logged. We never ask for
