@@ -296,10 +296,11 @@ export function buildInterviewQaParts(
   const shared = [
     '## CAREER PROFILE',
     renderProfile(profile),
-    isRaw ? '## CAREER PROFILE RESUME' : '## OPTIMIZED RESUME',
+    isRaw ? '## CAREER PROFILE RESUME' : '## SAVED CV FOR THIS JOB — PRIMARY SOURCE',
     isRaw ? renderResumeDocument(resume).replace(/Optimized/g, 'Profile') : renderResumeDocument(resume),
     isRaw ? '## PROFESSIONAL FIELD' : '## TARGET JOB',
     renderTarget(target),
+    ...(!isRaw ? ['SOURCE RULE: The saved CV is the candidate-reviewed version for this application. A skill present there must not be described as missing just because it is absent from the general Career Profile or an older match report. Ask for depth and a real example instead. Job-description requirements alone never prove a skill.'] : []),
     ...(!isRaw ? ['## JOB DESCRIPTION', renderJobDescription(jobDescription)] : []),
     [factsBlock ?? '## FACTS YOU MUST KEEP TO', gulfFactLine(profile)].join('\n'),
   ].join('\n\n')

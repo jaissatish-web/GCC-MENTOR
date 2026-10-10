@@ -30,7 +30,14 @@ export function dashboardNextAction(action: NextAction): NextAction {
     job_needs_qa: 'Prepare your interview answers',
     job_needs_mock: 'Practise your next interview',
   }
-  return titles[action.state] ? { ...action, title: titles[action.state]! } : action
+  const bodies: Partial<Record<NextAction['state'], string>> = {
+    job_unpaid: 'Your target job is saved. Continue preparing its CV.',
+    job_not_generated: 'Build the tailored CV for this saved application.',
+    job_needs_letter: 'Write a letter from your saved CV for this employer and role.',
+    job_needs_qa: 'Practise answers using the saved CV and requirements for this job.',
+    job_needs_mock: 'Practise the interview, then use the feedback to improve your answers.',
+  }
+  return titles[action.state] ? { ...action, title: titles[action.state]!, body: bodies[action.state] ?? action.body } : action
 }
 
 export function coveragePercent(ready: number, total: number): number {

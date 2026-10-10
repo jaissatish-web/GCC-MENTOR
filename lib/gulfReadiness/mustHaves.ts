@@ -22,8 +22,6 @@ import type { PaperworkStatus } from '@/types/careerProfile'
 const HEALTH = /\b(nurse|nursing|doctor|physician|surgeon|pharmac\w*|dentist|dental|radiograph\w*|radiolog\w*|physiotherap\w*|midwife|paramedic|anaesthe\w*|anesthe\w*|medical laboratory|lab technologist|optometrist|dietitian|respiratory therapist|gnm|bsn|mbbs|bds|b\.?\s?pharm|pharm\.?\s?d)\b/
 const ENGINEER = /\bengineer(ing)?\b/
 const DEGREE = /\b(bachelor|master|bhm|b\.\s?a\b|m\.\s?a\b|ba in|ma in|b\.?\s?arch|b\.?\s?ed|llm|b\.?\s?tech|m\.?\s?tech|b\.\s?e\b|m\.\s?e\b|b\.?\s?sc|m\.?\s?sc|b\.?\s?com|m\.?\s?com|bca|mca|mba|bba|ph\.?\s?d|diploma|degree|ll\.?\s?b|mbbs|bds|bsn|gnm|b\.?\s?pharm)\b/
-const HEALTH_LICENCE_TEXT = /\b(dha|doh|haad|mohap|moh licen[cs]e|scfhs|qchp|dhp|nhra|omsb|prometric|dataflow) ?(licen[cs]e|eligib|registered|passed|cleared)?/
-const SCE_TEXT = /\bsaudi council of engineers\b|\bsce\b/
 
 export type Profession = 'health' | 'engineer' | 'other'
 
@@ -93,8 +91,9 @@ export function evaluateMustHaves(text: string, facts: GulfFacts, today: Date): 
 
   // 4. Professional licence — regulated jobs only (health anywhere; engineers for Saudi).
   if (profession === 'health' || (profession === 'engineer' && target === 'saudi_arabia')) {
-    let s = fromStatus(facts.professionalLicence)
-    if (s === 'unknown' && (profession === 'health' ? HEALTH_LICENCE_TEXT.test(t) : SCE_TEXT.test(t))) s = 'ok'
+    // A regulator name, exam or verification mention is not a confirmed licence.
+    // Ask the candidate: text may be negative, expired, or for another country.
+    const s = fromStatus(facts.professionalLicence)
     if (s !== 'na') {
       if (profession === 'health') {
         const regulator = (target && HEALTH_REGULATORS[target]) || 'the health regulator of your target country'
@@ -102,7 +101,7 @@ export function evaluateMustHaves(text: string, facts: GulfFacts, today: Date): 
           key: 'professional_licence',
           label: PAPERWORK_COPY.professional_licence_health.label,
           status: s,
-          why: `Gulf hospitals and clinics hire only licensed or licence-eligible staff — you need ${regulator}.`,
+          why: `Check the licensing or eligibility requirements with ${regulator} for your target role. An exam or document-verification result alone does not confirm registration.`,
           steps: PAPERWORK_COPY.professional_licence_health.steps(regulator),
           field: 'professional_licence',
         })

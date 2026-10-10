@@ -29,6 +29,7 @@
  * claim, whatever sentence carries it.
  */
 
+import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import { BANNED_WORDS, INTENSIFIERS } from '@/lib/optimizer/qualityGate'
 import { containsTermRaw, coversContentStems, stem, tokenize } from '@/lib/optimizer/text'
@@ -244,8 +245,33 @@ export function removeClaimSentences(
  * meet is not a gap: reports saved before 2026-10-03 list "ICU experience" as
  * missing for an ICU nurse (lib/optimizer/experienceMet.ts).
  */
-export function gapTermsFromMatchReport(matchReport: unknown, profile?: Pick<CareerProfileFull, 'work_experience'>): GapTerm[] {
-  const gaps = gapsInReport(matchReport)
+/** Candidate claims only: target titles and job requirements are not evidence. */
+export function candidateResumeEvidence(resume: ResumeDocument): string {
+  return [resume.summary ?? '', ...resume.experience.flatMap((x) => x.bullets), ...resume.skills.map((x) => x.name), ...resume.certifications.map((x) => x.display)].join('\n')
+}
+
+function positivelyShown(resume: ResumeDocument, term: string, aliases: string[] = []): boolean {
+  return candidateResumeEvidence(resume).split('\n').some((line) =>
+    containsTermRaw(line, term, aliases) && !/\b(no|not|never|without|lack|lacking|missing|don't|doesn't|didn't)\b/i.test(line.replace(/[’‘]/g, "'")),
+  )
+}
+
+/** Reject a provably false statement about what this saved CV lists. */
+export function contradictsSavedCv(text: string, resume: ResumeDocument, matchReport: unknown): boolean {
+  const report = matchReport as { target?: { keywords?: GapTerm[] } } | null
+  const keywords = report?.target?.keywords
+  if (!Array.isArray(keywords)) return false
+  const normalized = text.replace(/[’‘]/g, "'")
+  const missing = [...normalized.matchAll(/\b(?:profile|cv|resume)\s+(?:does\s+not|doesn't|do\s+not|don't)\s+(?:mention|list|show|include|state|contain|document)\b([^.!?\n]*)/gi)]
+  return missing.some((m) => keywords.some((k) =>
+    typeof k.term === 'string' && containsTermRaw(m[1], k.term, k.aliases ?? []) && positivelyShown(resume, k.term, k.aliases),
+  ))
+}
+
+export function gapTermsFromMatchReport(matchReport: unknown, profile?: Pick<CareerProfileFull, 'work_experience'>, resume?: ResumeDocument | null): GapTerm[] {
+  // Saved, candidate-reviewed CV content is the same evidence for all services.
+  // Analysis gaps can predate a confirmed addition or a manual CV edit.
+  const gaps = gapsInReport(matchReport).filter((g) => !resume || !positivelyShown(resume, g.term, g.aliases))
   if (!profile) return gaps
   return gaps.filter((g) => !(/\b(experience|years?)\b/i.test(g.term) && experienceRequirementMet(profile, g.term).ok))
 }

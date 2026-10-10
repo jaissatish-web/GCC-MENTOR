@@ -45,6 +45,7 @@ import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } fr
 import { ResultsOverview } from '@/components/package/ResultsOverview'
 import { CTA, NAMES, USES } from '@/lib/serviceLabels'
 import { StageSelect } from '@/components/package/StageSelect'
+import { needsClaimReview, CLAIM_REVIEW_MESSAGE } from '@/lib/optimizer/claimReview'
 import { MatchResult, readMatchReport } from '@/components/optimizer/MatchResult'
 import { SuggestionsPanel } from '@/components/optimizer/SuggestionsPanel'
 
@@ -554,6 +555,7 @@ function PackageScreenInner({ id }: { id: string }) {
   // shipping one. Re-link it once the generator mirrors the template.
   const cvReady = pkg.optimized_content != null
   const showOverview = !isFree && cvReady
+  const claimReviewRequired = !isRaw && needsClaimReview(pkg.match_report)
   const improveCount = (readMatchReport(pkg.match_report)?.suggestions ?? []).filter((sg) => sg.status === 'pending').length
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
@@ -692,6 +694,7 @@ function PackageScreenInner({ id }: { id: string }) {
             TASK-160 collapsed five stacked rows into this one specifically to
             give the A4 sheet its vertical room back, and a new full-width
             header would spend exactly what that bought. */}
+        {claimReviewRequired ? <p role="status" className="rounded-ctl border border-gold/50 bg-gold-soft p-3 type-helper text-gold-ink">{CLAIM_REVIEW_MESSAGE}</p> : null}
         {/* ON A PHONE (founder 2026-10-04): stage and Download PDF take a full
             row each, then Edit CV and Review changes share one — and a label
             may wrap INSIDE its button. Buttons never wrap by default, so "Review
@@ -700,7 +703,9 @@ function PackageScreenInner({ id }: { id: string }) {
         <div className="grid grid-cols-2 items-stretch gap-2 sm:flex sm:flex-wrap sm:items-center lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
           {!isRaw ? <StageSelect className="col-span-2 w-full sm:w-auto" value={pkg.status} onChange={(next) => void saveStage(next)} /> : null}
           {stageState ? <span className="col-span-2 text-[12px] text-alert">{stageState}</span> : null}
-          {downloadBlocked ? (
+          {claimReviewRequired ? (
+            <Link href={`/optimize/preview/${id}`} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto')}>Review claims before download</Link>
+          ) : downloadBlocked ? (
             <>
               {changesDirty || styleBusy ? (
                 <button

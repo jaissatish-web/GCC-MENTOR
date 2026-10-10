@@ -23,7 +23,7 @@ assert.ok(profile.work_experience.some(r => r.role === fallback.target.target_jo
 assert.equal(careerProfileServiceContext({ ...profile, target_job_title: null, work_experience: [] }).target.target_job_title, 'Career opportunities')
 
 // Compare optimized prompts to the shipped implementation, including default args.
-// Golden hashes captured from shipped af19fe2. Exclude the date-dependent Gulf experience sentence.
+// Golden hashes from af19fe2, except the intentional saved-CV source rule for Q&A (2026-10-10). Exclude the date-dependent Gulf experience sentence.
 for (const [file, fn, args] of [
   ['buildCoverLetterPrompt', 'buildCoverLetterPrompt', [profile, { target_job_title: 'Engineer', target_company: 'Acme', target_country: 'saudi_arabia', target_industry: 'engineering' }, 'A real advert', 'professional', fixture.document, { totalYears: 12, gaps: ['missing tool'] }]],
   ['buildInterviewQaPrompt', 'buildInterviewQaParts', [profile, context.resume, { target_job_title: 'Engineer', target_company: 'Acme', target_country: 'saudi_arabia', target_industry: 'engineering' }, 'A real advert', 'Real facts']],
@@ -32,11 +32,11 @@ for (const [file, fn, args] of [
   const path = require.resolve(`../lib/ai/${file}.ts`)
   const expected = {
     buildCoverLetterPrompt: '55b347b6d0901c979260ebd7012bb676cf06cfbe6ea775ca0b618160f73128a2',
-    buildInterviewQaParts: 'ddec5f83039e0cb0093e556aca309e601686467ff6ff62ed665b4045fc88784c',
+    buildInterviewQaParts: 'a9cebefc1e290429f90b04a3e772647732640820fd0859e2037e14099b9a56cb',
     buildMockInterviewStartPrompt: 'd70581d2de447b607aa24af09626b53086b2ef713135f007ec8965486e6d603d',
   }
   const hash = createHash('sha256').update(JSON.stringify(require(path)[fn](...args)).replace(/Gulf \(GCC\) experience: [^\\]+/g,'GULF FACT LINE')).digest('hex')
-  assert.equal(hash, expected[fn], `${fn}: optimized prompts unchanged`)
+  assert.equal(hash, expected[fn], `${fn}: optimized prompt baseline`)
 }
 const mock = (path, exports) => { const id = require.resolve(path); require.cache[id] = { id, filename: id, loaded: true, exports } }
 let user = { id: 'owner' }, failProfile = false, failAi = false, calls = [], finishes = [], writes = []
@@ -94,6 +94,17 @@ for (const [post, body] of routes) {
   assert.equal((await post(request(body), { params: Promise.resolve({ id: 'raw-owner' }) })).status, 503)
   failProfile = false
 }
+// A legacy optimized CV must be reviewed BEFORE AI calls or credit consumption.
+const originalRow = row
+row = { ...row, tier: 'basic', optimized_content: fixture.optimizedContent, match_report: { auto_applied: true, suggestions: [{ id: 'legacy', status: 'confirmed', block: 'role', text: 'Unconfirmed tool experience' }] } }
+for (const [post, body] of routes) {
+  const countBefore = calls.length
+  const response = await post(request(body), { params: Promise.resolve({ id: 'raw-owner' }) })
+  assert.equal(response.status, 409)
+  assert.equal((await response.json()).code, 'CLAIM_REVIEW_REQUIRED')
+  assert.equal(calls.length, countBefore, 'Review gate must not spend an AI call')
+}
+row = originalRow
 const before = JSON.stringify(row)
 for (const [post, body] of routes) {
   const response = await post(request(body), { params: Promise.resolve({ id: 'raw-owner' }) })

@@ -40,6 +40,8 @@ export interface ScoreDocument {
   hasPhone: boolean
 }
 
+export const MATCH_SCORE_VERSION = '2026-10-10'
+
 export function scoreDocumentFromResume(doc: ResumeDocument): ScoreDocument {
   const contact = doc.header.contactItems
   const contactText = contact ? contact.map((c) => `${c.kind}:${c.text}`).join(' ') : doc.header.identityContact ?? ''

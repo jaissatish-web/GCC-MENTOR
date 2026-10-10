@@ -1,3 +1,4 @@
+import { needsClaimReview, CLAIM_REVIEW_MESSAGE } from '@/lib/optimizer/claimReview'
 import { NextResponse } from 'next/server'
 import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { careerProfileServiceContext } from '@/lib/careerProfileServiceContext'
@@ -18,6 +19,7 @@ import {
 import { allowedNumbersFor, resumeDocumentTexts, unsourcedNumbers } from '@/lib/ai/answerGrounding'
 import {
   gapTermsFromMatchReport,
+  contradictsSavedCv,
   groundAnswer,
   removePersonalClaims,
   profileEvidenceText,
@@ -105,6 +107,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
   if (!pkgRow) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+  if (!isCareerProfileResume(pkgRow) && needsClaimReview(pkgRow.match_report)) return NextResponse.json({ error: CLAIM_REVIEW_MESSAGE, code: 'CLAIM_REVIEW_REQUIRED', reviewUrl: `/optimize/preview/${packageId}` }, { status: 409 })
 
   const isRaw = isCareerProfileResume(pkgRow)
   const optimizedContent = pkgRow.optimized_content as OptimizedContent | null
@@ -187,7 +190,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
       // lib/optimizer/v3/engine.ts REGION_WORDS): a Riyadh nurse's every "Gulf"
       // sentence was cut because the job listed "Gulf experience" as a gap.
       evidence: [profileEvidenceText(profile), ...resumeDocumentTexts(resume), ...(workedInGcc(profile) ? REGION_WORDS : [])].join('\n'),
-      gaps: gapTermsFromMatchReport(isRaw ? null : pkgRow.match_report, profile),
+      gaps: gapTermsFromMatchReport(isRaw ? null : pkgRow.match_report, profile, resume),
       totalYears: totalExperienceYears(profile),
     }
     const parts = buildInterviewQaParts(
@@ -225,6 +228,8 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
             },
           },
           validateShape: (output) => {
+            const questions = normalizeInterviewQa(output).questions
+            if (!isRaw && questions.some((q) => contradictsSavedCv(`${q.question} ${q.answer}`, resume, pkgRow.match_report))) return 'A question or answer incorrectly says a skill on the saved CV is missing. Use the saved CV as the source and ask about a real example instead.'
             const validation = validateInterviewQa(output, p.part.count - 2)
             return validation.valid ? null : validation.failures.slice(0, 5).join('; ')
           },
@@ -261,7 +266,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
     // removed, and an answer left with nothing true coaches honesty instead.
     let reworded = 0
     const kept = parsed.questions
-      .filter((q) => unsourcedNumbers(q.answer, allowed).length === 0)
+      .filter((q) => unsourcedNumbers(q.answer, allowed).length === 0 && (isRaw || !contradictsSavedCv(`${q.question} ${q.answer}`, resume, pkgRow.match_report)))
       .map((q) => {
         const grounded = groundAnswer(q.answer, claimCtx)
         // Family, marital status, relocation: the candidate's to state (2026-09-23).
@@ -270,7 +275,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
         return grounded.changed || personal.changed ? { ...q, answer: personal.text } : q
       })
     const dropped = parsed.questions.length - kept.length
-    if (kept.length === 0) {
+    if (kept.length < MIN_QA_QUESTIONS) {
       return NextResponse.json({ error: 'Could not generate grounded answers. Nothing was used — please try again.' }, { status: 502 })
     }
 

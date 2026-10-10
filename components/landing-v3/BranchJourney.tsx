@@ -51,7 +51,7 @@ export function BranchJourney() {
           {/* ── Trunk: built once ── */}
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-1 lg:gap-3">
             <div key={`profile-${who}`} className={cn(s.enter, 'rounded-[16px] border border-line bg-white p-3 shadow-m-1 lg:p-4')}>
-              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">1 · Career Profile</div>
+              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Stage 1 · Your profile</div>
               <div className="mt-2 flex items-center gap-2.5">
                 <span className="relative size-10 shrink-0 overflow-hidden rounded-full ring-2 ring-teal-soft">
                   <Image src={p.photo} alt="" fill sizes="40px" className="object-cover" />
@@ -64,7 +64,7 @@ export function BranchJourney() {
               <div className="mt-2 hidden type-caption text-ink-soft sm:block">Built once from your CV. Your source of truth.</div>
             </div>
             <div className="rounded-[16px] border border-line bg-white p-3 shadow-m-1 lg:p-4">
-              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">2 · Gulf Readiness</div>
+              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Gulf Readiness</div>
               <div className="mt-2 flex items-center gap-2.5">
                 <span className="font-mono text-[28px] font-medium leading-none text-teal">{p.readiness[1]}</span>
                 <span className="type-caption leading-tight text-ink-muted">
@@ -98,7 +98,7 @@ export function BranchJourney() {
           {/* Branch: phones — a short label instead of curves. */}
           <div className="flex items-center gap-2 px-1 lg:hidden" aria-hidden="true">
             <span className="h-px flex-1 bg-line-strong" />
-            <span className="type-caption font-semibold text-ink-muted">3 · then one branch per target job</span>
+            <span className="type-caption font-semibold text-ink-muted">Stage 2 · prepare for each target job</span>
             <span className="h-px flex-1 bg-line-strong" />
           </div>
 
@@ -139,7 +139,7 @@ export function BranchJourney() {
                         [Mail, 'Letter', TONES[i]],
                         [MessagesSquare, 'Q&A', '25'],
                         [Mic, 'Mock', String(mockFor(p.mock.overall, i))],
-                      ].map(([Icon, label, val], k) => {
+                      ].map(([Icon, label, val]) => {
                         const I = Icon as typeof FileText
                         return (
                           <span
@@ -152,7 +152,7 @@ export function BranchJourney() {
                             <I className={cn('size-3.5 shrink-0 lg:size-4', on ? 'text-ok' : 'text-ink-muted')} aria-hidden="true" />
                             <span className="min-w-0 max-w-full leading-tight">
                               <span className="block type-caption font-semibold text-ink-muted">
-                                <span className="hidden lg:inline">{k + 4} · </span>
+
                                 {label as string}
                               </span>
                               <span className="block truncate type-caption font-semibold text-ink">{val as string}</span>
@@ -168,15 +168,16 @@ export function BranchJourney() {
           </ol>
         </div>
 
-        {/* ── Selected job: its pack, steps 4–7 ── */}
+        {/* Selected application: CV preparation and interview practice. */}
         <div className="mt-4 lg:mt-6">
           <div className="mb-2.5 flex flex-wrap items-center gap-2 type-helper font-semibold text-ink">
             <Tag tone="gold">Target job {lane + 1}</Tag>
             {job.title} · {job.country}
           </div>
+          <p className="mb-3 type-helper font-semibold text-teal">Stage 3 · Practice and apply — everything stays with this job.</p>
           <div key={`${who}-${lane}`} className={cn(s.enter, '-mx-3 flex snap-x gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4 lg:gap-3 [&>*]:w-[78%] [&>*]:shrink-0 [&>*]:snap-start sm:[&>*]:w-auto [&::-webkit-scrollbar]:hidden')}>
             <div className="rounded-[14px] border border-line bg-white p-3.5">
-              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">4 · Optimized CV</div>
+              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Stage 2 · Tailored CV</div>
               <div className="mt-1.5 flex items-baseline gap-1.5 font-mono">
                 <s className="type-helper text-alert">{job.before}</s>
                 <span className="text-ink-muted">→</span>
@@ -186,17 +187,17 @@ export function BranchJourney() {
               <p className="mt-1.5 type-helper text-ink-soft"><Rich text={p.bullets[lane % 2]} /></p>
             </div>
             <div className="rounded-[14px] border border-line bg-white p-3.5">
-              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">5 · Cover letter</div>
+              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Cover letter</div>
               <Tag tone="teal" className="mt-1.5">{TONES[lane]} tone</Tag>
               <p className="mt-1.5 type-helper text-ink-soft">Dear Hiring Manager, {p.cover}</p>
             </div>
             <div className="rounded-[14px] border border-line bg-white p-3.5">
-              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">6 · Interview Q&amp;A</div>
+              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Interview Q&amp;A</div>
               <div className="mt-1.5 type-helper text-ink-muted">25 questions for this job</div>
               <p className="mt-1 type-caption font-semibold leading-snug text-ink">“{questions[lane]}”</p>
             </div>
             <div className="rounded-[14px] border border-gold/40 bg-gold-soft/60 p-3.5">
-              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">7 · Mock interview</div>
+              <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">Mock interview</div>
               <div className="mt-1.5 flex items-center gap-2">
                 <span className="font-mono text-[22px] font-medium text-ink">{mockFor(p.mock.overall, lane)}</span>
                 <span className="type-helper text-ink-muted">/100 · practice score</span>

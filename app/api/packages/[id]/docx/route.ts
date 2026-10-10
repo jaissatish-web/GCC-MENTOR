@@ -1,3 +1,4 @@
+import { needsClaimReview, CLAIM_REVIEW_MESSAGE } from '@/lib/optimizer/claimReview'
 import { downloadFileName } from '@/lib/downloadName'
 import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { NextRequest, NextResponse } from 'next/server'
@@ -84,6 +85,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
   if (!pkgRow) {
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
+  if (!isCareerProfileResume(pkgRow) && needsClaimReview(pkgRow.match_report)) return NextResponse.json({ error: CLAIM_REVIEW_MESSAGE, code: 'CLAIM_REVIEW_REQUIRED', reviewUrl: `/optimize/preview/${packageId}` }, { status: 409 })
 
   if (isCareerProfileResume(pkgRow)) {
     return NextResponse.json({ error: 'Word download is unavailable until it matches the template preview. Please download PDF.' }, { status: 409 })

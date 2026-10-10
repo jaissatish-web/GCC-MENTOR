@@ -1,4 +1,4 @@
-import { ESSENTIAL_POINTS, PHOTO_POINTS } from '@/lib/gulfReadiness/config'
+import { ESSENTIAL_POINTS } from '@/lib/gulfReadiness/config'
 import { normalise } from '@/lib/gulfReadiness/evidence'
 import type { GulfFacts } from '@/lib/gulfReadiness/types'
 
@@ -6,9 +6,9 @@ import type { GulfFacts } from '@/lib/gulfReadiness/types'
  * Gulf CV Essentials — the 20 points (Gulf Readiness v2, 2026-10-01).
  *
  * What a Gulf recruiter checks in the first seconds, beyond the CV's content:
- * a professional photo, how soon you can join, your visa (or passport) position,
- * a WhatsApp number, Arabic, a driving licence, and that nationality and location
- * are stated. Structured facts win when the engine has them (a Career Profile);
+ * availability, visa (or passport) position, contact details, and location.
+ * A photo is optional; Arabic and driving requirements apply only when the
+ * target job explicitly requires them. Structured facts win when the engine has them (a Career Profile);
  * the CV text is the fallback (the anonymous scan).
  *
  * FAIRNESS RULE. Nationality and location earn points only for being STATED.
@@ -46,26 +46,8 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
   const P = ESSENTIAL_POINTS
   const items: EssentialItem[] = []
 
-  // Photo — the one essential plain text cannot show.
-  const photo = facts.photo ?? 'unknown'
-  if (photo === 'unknown') {
-    items.push({ key: 'photo', earned: 0, max: P.photo, applicable: false })
-  } else {
-    items.push({
-      key: 'photo',
-      earned: PHOTO_POINTS[photo],
-      max: P.photo,
-      applicable: true,
-      gap:
-        photo === 'none'
-          ? { title: 'Add a professional photo', why: 'A professional headshot is expected on Gulf CVs — leaving it out reads as unfamiliarity with the market.' }
-          : photo === 'hidden'
-            ? { title: 'Show your photo on your CV', why: 'Your photo is uploaded but hidden from your CV. Gulf recruiters expect to see it.' }
-            : photo === 'shown'
-              ? { title: 'Confirm your photo is professional', why: 'Check it against the four-point checklist: plain light background, formal clothes, head and shoulders, recent.' }
-              : undefined,
-    })
-  }
+  // A photo is a template preference, not evidence of job readiness.
+  items.push({ key: 'photo', earned: 0, max: P.photo, applicable: false })
 
   // Notice period — sooner is better.
   const noticeRaw =
@@ -88,11 +70,13 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
 
   // Visa (in the Gulf) or passport (outside it).
   if (inGulf) {
-    const visa = (facts.visaStatus?.trim() || text.match(/\b(visa|iqama)[^\n]{0,40}/)?.[0] || '').toLowerCase()
-    const strong =
-      facts.visaTransferable === true ||
-      /transferable|residen|golden|iqama|employment visa|work visa|green visa|family|husband|spouse|cancel/.test(visa)
-    const earned = !visa ? 0 : strong ? 3 : 2
+    const visa = (facts.visaStatus?.trim() || text.match(/[^\n]{0,40}\b(?:visa|iqama)\b[^\n]{0,40}/)?.[0] || '').toLowerCase()
+    const negative = /\b(non[\s-]*transfer(?:r)?able|not(?:\s+\w+){0,2}\s+transfer(?:r)?able|cancelled|canceled|expired|not\s+valid|invalid)\b/.test(visa)
+    const statedTransferable = /\btransfer(?:r)?able\b/.test(visa) && !negative
+    // Explicit false wins over text. Holding a residence visa never proves
+    // transferability or work permission; cancelled/expired status cannot pass.
+    const strong = !negative && (facts.visaTransferable === true || (facts.visaTransferable == null && statedTransferable))
+    const earned = !visa && facts.visaTransferable == null ? 0 : strong ? 3 : negative ? 1 : 2
     items.push({
       key: 'visa_or_passport',
       earned,
@@ -101,7 +85,7 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
       gap: !visa
         ? { title: 'State your visa status', why: 'Gulf employers check first whether they can hire you without a new visa — say what you hold and whether it is transferable.' }
         : earned < P.visa_or_passport
-          ? { title: 'Explain your visa position', why: 'On a visit visa the employer must sponsor a new work visa — say you are ready to convert and can join quickly.' }
+          ? { title: 'Explain your visa position', why: 'Confirm your current status and transfer conditions with the employer or relevant authority. A visa mention alone does not confirm permission to work.' }
           : undefined,
     })
   } else {
@@ -140,9 +124,9 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
     key: 'arabic',
     earned: arabicEarned,
     max: P.arabic,
-    applicable: true,
+    applicable: facts.arabicRequired === true,
     gap:
-      arabicEarned >= P.arabic
+      facts.arabicRequired !== true || arabicEarned >= P.arabic
         ? undefined
         : level === 'none'
           ? { title: 'Pick up basic Arabic', why: 'Even basic Arabic helps in Gulf interviews and customer-facing roles. Update your level once you have it.' }
@@ -153,16 +137,16 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
 
   // Driving licence.
   const licenceText = text.match(/driving licen[cs]e[^\n]{0,40}/)?.[0] ?? ''
-  const gccLicence = (facts.hasDrivingLicence === true && GCC_LICENCE.test(facts.drivingLicenceCountry ?? '')) || GCC_LICENCE.test(licenceText)
-  const anyLicence = facts.hasDrivingLicence === true || !!licenceText
+  const gccLicence = facts.hasDrivingLicence !== false && ((facts.hasDrivingLicence === true && GCC_LICENCE.test(facts.drivingLicenceCountry ?? '')) || GCC_LICENCE.test(licenceText))
+  const anyLicence = facts.hasDrivingLicence !== false && (facts.hasDrivingLicence === true || !!licenceText)
   const licenceEarned = gccLicence ? P.driving_licence : anyLicence ? 1 : 0
   items.push({
     key: 'driving_licence',
     earned: licenceEarned,
     max: P.driving_licence,
-    applicable: true,
+    applicable: facts.drivingLicenceRequired === true,
     gap:
-      licenceEarned === P.driving_licence || facts.hasDrivingLicence === false
+      facts.drivingLicenceRequired !== true || licenceEarned === P.driving_licence || facts.hasDrivingLicence === false
         ? undefined
         : anyLicence
           ? { title: 'Mention a Gulf driving licence if you have one', why: 'A UAE or other GCC licence is valued for field, sales and supervisory roles — a home licence counts for less.' }

@@ -52,12 +52,8 @@ export const SITUATION_POINTS: Record<Scenario, number> = {
  * freed situation points are redistributed to education and skills.
  */
 export const SCENARIO_WEIGHTS: Record<Scenario, Record<DimensionKey, number>> = {
-  // v2 (2026-10-01): Gulf CV Essentials is 20 everywhere — the same 20 points
-  // (photo 6, notice 3, visa or passport 3, WhatsApp 2, Arabic 2, driving
-  // licence 2, nationality + location 2) for every scenario, so "a professional
-  // photo is worth 6" is true for everyone. Its 20 came out of resume quality
-  // (which no longer double-counts visa / notice / nationality / languages) and
-  // evenly from the rest.
+  // Essentials retains 20 points in each scenario. The engine normalizes
+  // this dimension over applicable items; photo is never a readiness criterion.
   currently_in_gulf: {
     gulf_market_position: 12,
     work_experience: 24,
@@ -205,12 +201,11 @@ export const BAND_MESSAGES: Record<Scenario, Record<ScoreBand['key'], { label: s
 
 /**
  * The 20 points of Gulf CV Essentials. Sums to SCENARIO_WEIGHTS[*].gulf_essentials
- * (asserted below), so each item's number here IS its number in the score.
+ * (asserted below). The engine normalizes over applicable items.
  *
- * Market basis (checked 2026-10-01): a professional headshot is customary on a
- * Gulf CV and leaving it out reads as unfamiliarity with the market; recruiters
- * screen on availability (notice), visa / passport status and contact by
- * WhatsApp; Arabic and a Gulf driving licence are a plus for many roles.
+ * Item weights are normalized over applicable criteria. Photo is retained as
+ * a compatibility key but is never scored. Arabic and driving licence are
+ * optional unless a job explicitly requires them.
  */
 export const ESSENTIAL_POINTS = {
   photo: 6,

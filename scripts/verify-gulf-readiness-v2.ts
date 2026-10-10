@@ -3,9 +3,8 @@
  *
  *   node_modules/.bin/sucrase-node scripts/verify-gulf-readiness-v2.ts
  *
- * Pins the founder-approved rules:
- *   - photo: 0 none · 2 hidden · 4 shown · 6 shown + checklist confirmed; unknown
- *     (pasted text) is left out, never counted as missing
+ * Pins the audited rules:
+ *   - photo is optional and never affects readiness
  *   - notice period scored by how soon, not whether it is mentioned
  *   - must-haves apply only where they really apply (Saudi verification for a
  *     Saudi target, licence for regulated jobs, attestation with a degree)
@@ -65,11 +64,8 @@ const hidden = score({ ...base, photo_url: 'p.jpg', photo_visible: false })
 const shown = score({ ...base, photo_url: 'p.jpg', photo_visible: true })
 const confirmed = score({ ...base, photo_url: 'p.jpg', photo_visible: true, photo_checklist_confirmed: true })
 const e = (r: ReturnType<typeof score>) => essentialsOf(r).score
-check('essentials: none < hidden < shown < confirmed', e(none) < e(hidden) && e(hidden) < e(shown) && e(shown) < e(confirmed), [e(none), e(hidden), e(shown), e(confirmed)])
-check('a confirmed professional photo is worth 6 points over none', e(confirmed) - e(none) === 6, e(confirmed) - e(none))
-check('no photo → "Add a professional photo" worth +6', none.recommendations.some((r) => r.title === 'Add a professional photo' && r.gain === 6))
-check('shown but unconfirmed → asked to confirm the checklist', shown.recommendations.some((r) => r.title === 'Confirm your photo is professional'))
-check('confirmed photo → no photo step', !confirmed.recommendations.some((r) => /photo/i.test(r.title)))
+check('photo upload, display and checklist do not change readiness', e(none) === e(hidden) && e(hidden) === e(shown) && e(shown) === e(confirmed))
+check('no photo requirement is suggested', [none, hidden, shown, confirmed].every((r) => !r.recommendations.some((x) => /photo/i.test(x.title))))
 const pasted = calculateGulfReadiness({ answers: IN_GULF, resumeText: 'x '.repeat(10), facts: { photo: 'unknown' } })
 check('anonymous pasted text: photo left out, never told it is missing', !pasted.recommendations.some((r) => /photo/i.test(r.title)))
 

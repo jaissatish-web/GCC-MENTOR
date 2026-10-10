@@ -29,7 +29,7 @@ import {
   TITLE_ANALYSIS_SYSTEM_PROMPT,
   validateTargetProfile,
 } from './jobAnalysis'
-import { maxAchievableScore, scoreDocumentFromResume, scoreResume } from './score'
+import { MATCH_SCORE_VERSION, maxAchievableScore, scoreDocumentFromResume, scoreResume } from './score'
 import type { JobTargetProfile, MatchReport, OptimizationMode, VerifiedBridge } from './types'
 
 export interface GenerateCall {
@@ -260,6 +260,7 @@ export function buildAnalysisReport(opts: {
   })
   return {
     report_version: 1,
+    score_version: MATCH_SCORE_VERSION,
     mode: target.mode,
     analysis_id: opts.analysisId,
     target,

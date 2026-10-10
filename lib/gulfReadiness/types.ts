@@ -88,6 +88,9 @@ export interface GulfFacts {
   hasDrivingLicence?: boolean | null
   drivingLicenceCountry?: string | null
   whatsapp?: string | null
+  /** Score these only when a target job explicitly requires them. */
+  arabicRequired?: boolean
+  drivingLicenceRequired?: boolean
   arabicLevel?: ArabicLevel | null
   degreeAttestation?: PaperworkStatus | null
   professionalLicence?: PaperworkStatus | null

@@ -1,3 +1,4 @@
+import { needsClaimReview, CLAIM_REVIEW_MESSAGE } from '@/lib/optimizer/claimReview'
 import { buildCareerProfileResume, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { createElement } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -64,6 +65,7 @@ export async function renderPackagePdf(opts: {
     return { ok: false, status: 500, error: 'Internal server error' }
   }
   if (!pkgRow) return { ok: false, status: 404, error: 'Package not found' }
+  if (!isCareerProfileResume(pkgRow) && needsClaimReview(pkgRow.match_report)) return { ok: false, status: 409, error: CLAIM_REVIEW_MESSAGE, detail: `/optimize/preview/${packageId}` }
 
   const pkg = pkgRow as Record<string, unknown> & {
     tier?: string | null

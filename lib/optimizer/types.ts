@@ -128,6 +128,8 @@ export type KeptOriginalReason = 'grounding' | 'quality' | 'review' | 'no_output
 
 export interface MatchReport {
   report_version: 1
+  /** Identifies the deterministic rules used for this saved result. */
+  score_version?: string
   mode: OptimizationMode
   analysis_id: string | null
   target: JobTargetProfile

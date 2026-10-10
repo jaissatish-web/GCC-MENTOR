@@ -1,3 +1,4 @@
+import { needsClaimReview, CLAIM_REVIEW_MESSAGE } from '@/lib/optimizer/claimReview'
 import { NextRequest, NextResponse } from 'next/server'
 import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import { isCareerProfileResume } from '@/lib/careerProfileResume'
@@ -13,6 +14,7 @@ import {
   checkProseClaims,
   yearsToState,
   gapTermsFromMatchReport,
+  candidateResumeEvidence,
   profileEvidenceText,
   removeClaimSentences,
   totalExperienceYears,
@@ -151,6 +153,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
   if (!pkgRow) {
     return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   }
+  if (!isCareerProfileResume(pkgRow) && needsClaimReview(pkgRow.match_report)) return NextResponse.json({ error: CLAIM_REVIEW_MESSAGE, code: 'CLAIM_REVIEW_REQUIRED', reviewUrl: `/optimize/preview/${packageId}` }, { status: 409 })
 
   let profile
   try {
@@ -208,8 +211,8 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
   let succeeded = false
   try {
     const claimCtx = {
-      evidence: profileEvidenceText(profile),
-      gaps: gapTermsFromMatchReport(isRaw ? null : pkgRow.match_report, profile),
+      evidence: [profileEvidenceText(profile), savedResume ? candidateResumeEvidence(savedResume) : ''].join('\n'),
+      gaps: gapTermsFromMatchReport(isRaw ? null : pkgRow.match_report, profile, savedResume),
       totalYears: totalExperienceYears(profile),
     }
     const { system, user: userPrompt } = buildCoverLetterPrompt(

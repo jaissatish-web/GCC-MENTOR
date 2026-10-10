@@ -11,6 +11,7 @@ import { Alert } from '@/components/ui/Alert'
 import { readMatchReport } from '@/components/optimizer/MatchResult'
 import { applySuggestionsToDocument, type Suggestion } from '@/lib/optimizer/suggestions'
 import { scoreDocumentFromResume, scoreResume } from '@/lib/optimizer/score'
+import { documentWithoutAutomaticClaims, reviewSuggestions } from '@/lib/optimizer/claimReview'
 import { NAMES } from '@/lib/serviceLabels'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { MatchReport } from '@/lib/optimizer/types'
@@ -28,8 +29,8 @@ import type { ProfileSkill } from '@/types/careerProfile'
  *   blue    a keyword from the job description
  *   yellow  a suggested line or skill the profile does not state (Moderate/High)
  *
- * Everything is editable in place. Yellow items start selected, so the level's
- * target score is visible at once, and the live ATS score updates with every
+ * Everything is editable in place. New yellow claims start excluded until
+ * the candidate confirms each one, and the live ATS score updates with every
  * change (same deterministic scorer as the server). Saving requires the user to
  * confirm the yellow items they kept are true. One PATCH saves it all into the
  * optimized result: the edited document, then kept suggestions confirmed (with
@@ -105,23 +106,25 @@ function PreviewInner({ packageId }: { packageId: string }) {
         const p = data?.package as Package | undefined
         if (!p) return setError('Could not find this CV.')
         if (!p.optimized_content) return router.replace(`/optimize/generate/${encodeURIComponent(packageId)}`)
-        const doc = p.document_snapshot as ResumeDocument | null
+        const savedDoc = p.document_snapshot as ResumeDocument | null
+        const doc = savedDoc ? documentWithoutAutomaticClaims(savedDoc, readMatchReport(p.match_report)) : null
         if (!doc) return router.replace(`/package/${encodeURIComponent(packageId)}/edit`)
         setPkg(p)
         setSummary(doc.summary ?? '')
         setSkills(doc.skills ?? [])
         setRoles(Object.fromEntries(doc.experience.map((x) => [x.entry.id, [...x.bullets]])))
         const report = readMatchReport(p.match_report)
-        const pending = (report?.suggestions ?? []).filter((s) => s.status === 'pending')
-        setDrafts(Object.fromEntries(pending.map((s) => [s.id, { keep: true, text: s.text }])))
+        const pending = reviewSuggestions(report).filter((s) => s.status === 'pending')
+        setDrafts(Object.fromEntries(pending.map((s) => [s.id, { keep: false, text: s.text }])))
       })
       .catch(() => setError('Could not load this CV. Check your connection and try again.'))
   }, [packageId, router])
 
   const report: MatchReport | null = pkg ? readMatchReport(pkg.match_report) : null
-  const doc = (pkg?.document_snapshot as ResumeDocument | null) ?? null
+  const savedDoc = (pkg?.document_snapshot as ResumeDocument | null) ?? null
+  const doc = useMemo(() => savedDoc ? documentWithoutAutomaticClaims(savedDoc, report) : null, [savedDoc, report])
   const oc = pkg?.optimized_content ?? null
-  const pending: Suggestion[] = useMemo(() => (report?.suggestions ?? []).filter((s) => s.status === 'pending'), [report])
+  const pending: Suggestion[] = useMemo(() => reviewSuggestions(report).filter((s) => s.status === 'pending'), [report])
 
   const keywordRe = useMemo(() => {
     const terms = (report?.target.keywords ?? [])
@@ -183,8 +186,8 @@ function PreviewInner({ packageId }: { packageId: string }) {
   const summarySource = (oc.summary?.source_profile_summary ?? '').trim()
   const bySkillName = new Set(doc.skills.map((s) => s.name.toLowerCase()))
   const skillSuggestions = pending.filter((s) => s.block === 'skills')
-  // Optimizer v3: the user agreed once on the level screen — no tick here.
-  const needsConfirm = kept.length > 0 && report?.engine !== 'v3'
+  // Each kept claim must be explicitly confirmed for this CV.
+  const needsConfirm = kept.length > 0
 
   const save = async () => {
     if (needsConfirm && !confirmed) {
@@ -248,7 +251,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
           <span className="rounded-[4px] bg-ok-soft px-2 py-1 text-ink">Green · reworded from your profile</span>
           <span className="rounded-[4px] bg-[#DCEAF7] px-2 py-1 font-semibold text-sec-status">Blue · job description keyword</span>
           <span className="rounded-[4px] border border-gold/60 bg-gold-soft px-2 py-1 text-ink">
-            {report?.engine === 'v3' ? 'Yellow · added for this job, typical of your field — remove anything not true' : 'Yellow · suggested, not in your profile — keep only if true'}
+            Yellow · suggested claim — confirm only if true for you
           </span>
         </div>
 
@@ -410,11 +413,11 @@ function PreviewInner({ packageId }: { packageId: string }) {
       </div>
 
       {/* Sticky score + save */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-white/95 shadow-m-2 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-m-2 backdrop-blur">
         <div className="mx-auto flex w-full max-w-[900px] flex-col gap-2 px-4 py-3 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-ok">{NAMES.atsScore}</span>
+              <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-ok">Draft match score</span>
               {before !== null ? <span className="font-mono text-[18px] text-ink-muted">{before}</span> : null}
               {before !== null && liveScore !== null ? <span aria-hidden="true" className="text-ink-muted">→</span> : null}
               {liveScore !== null ? <span className="font-mono text-[28px] font-bold leading-none text-ok">{liveScore}</span> : <span className="text-[13px] text-ink-muted">not available</span>}
@@ -432,6 +435,9 @@ function PreviewInner({ packageId }: { packageId: string }) {
               {saving ? 'Saving…' : 'Save optimized CV'}
             </button>
           </div>
+          {report?.after && liveScore !== report.after.total ? (
+            <p className="type-helper text-ink-muted">Saved result: {report.after.total}/100. This review recalculates the current draft; saving updates the saved score.</p>
+          ) : null}
           {needsConfirm ? (
             <label className="flex min-h-11 items-start gap-2 text-[12.5px] text-ink">
               <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 size-4 accent-teal" />
@@ -466,7 +472,7 @@ function ClickToEdit({ onEdit, children }: { onEdit: () => void; children: React
       tabIndex={0}
       onClick={onEdit}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') onEdit()
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit() }
       }}
       className="group relative cursor-text rounded-ctl border border-transparent p-2 hover:border-line hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
     >
@@ -479,7 +485,7 @@ function ClickToEdit({ onEdit, children }: { onEdit: () => void; children: React
 function EditBox({ value, rows, hint, onChange, onDone }: { value: string; rows: number; hint?: string; onChange: (v: string) => void; onDone: () => void }) {
   return (
     <div className="flex flex-col gap-2">
-      <textarea autoFocus value={value} rows={rows} onChange={(e) => onChange(e.target.value)} className="field text-[14px] leading-relaxed" />
+      <textarea autoFocus value={value} rows={rows} onChange={(e) => onChange(e.target.value)} className="field text-[16px] leading-relaxed sm:text-[14px]" />
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12px] text-ink-muted">{hint ?? ''}</span>
         <button type="button" onClick={onDone} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
@@ -497,14 +503,14 @@ function SuggestedLine({ s, draft, onChange, re }: { s: Suggestion; draft: Draft
   return (
     <div className={cn('flex flex-col gap-2 rounded-ctl border p-3', keep ? 'border-gold bg-gold-soft' : 'border-dashed border-line-strong bg-white')}>
       {edit ? (
-        <textarea autoFocus value={text} rows={3} onChange={(e) => onChange({ text: e.target.value })} className="field text-[14px]" />
+        <textarea autoFocus value={text} rows={3} onChange={(e) => onChange({ text: e.target.value })} className="field text-[16px] sm:text-[14px]" />
       ) : (
         <p className={cn('text-[14px] leading-relaxed text-ink', !keep && 'text-ink-muted line-through')}>
           <Colored text={text} source={null} re={re} />
         </p>
       )}
       <span className="text-[12px] text-ink-muted">
-        {keep ? `Suggested for the job requirement “${s.requirement}”. Keep it only if you really did this.` : 'Removed — this line will not be on your CV.'}
+        {keep ? `Suggested for the job requirement “${s.requirement}”. Keep it only if you really did this.` : 'Not included — confirm only if this is true for you.'}
       </span>
       {/* Keep / Remove as two plain 44px buttons (launch audit: an unlabelled
           checkbox was the only way to remove a line, and easy to miss). */}
@@ -515,7 +521,7 @@ function SuggestedLine({ s, draft, onChange, re }: { s: Suggestion; draft: Draft
           onClick={() => onChange({ keep: true })}
           className={cn('min-h-11 rounded-ctl border px-4 text-[13.5px] font-semibold', keep ? 'border-teal bg-teal text-white' : 'border-line-strong bg-white text-ink')}
         >
-          {keep ? '✓ Keep' : 'Keep'}
+          {keep ? '✓ Confirmed for this CV' : 'Yes, I did this'}
         </button>
         <button
           type="button"
@@ -523,7 +529,7 @@ function SuggestedLine({ s, draft, onChange, re }: { s: Suggestion; draft: Draft
           onClick={() => onChange({ keep: false })}
           className={cn('min-h-11 rounded-ctl border px-4 text-[13.5px] font-semibold', !keep ? 'border-alert bg-alert-soft text-alert' : 'border-line-strong bg-white text-ink')}
         >
-          {!keep ? '✕ Removed' : 'Remove'}
+          {!keep ? 'Not included' : 'Remove'}
         </button>
         <button type="button" onClick={() => setEdit((v) => !v)} className="ml-auto min-h-11 px-2 text-[13px] font-semibold text-teal underline-offset-2 hover:underline">
           {edit ? 'Done' : 'Edit wording'}

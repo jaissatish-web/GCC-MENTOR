@@ -3,16 +3,17 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { StageExplainer, StageRail } from '@/components/journey/JourneyStepper'
+import { StageExplainer } from '@/components/journey/JourneyStepper'
 import { stageById, stageSnapshot, stageStates } from '@/components/journey/stages'
 import { ScoreCards } from '@/components/profile/ProfileOverview'
 import { displayFirstName } from '@/lib/utils'
 import { type PackageListPage, type PackageSummary } from '@/lib/packageSummary'
+import { DashboardNextStep } from '@/components/dashboard/DashboardNextStep'
 import { InterviewProgressOverview } from '@/components/dashboard/InterviewProgressOverview'
 import { ActivityOverview, OverallProgress } from '@/components/dashboard/ActivityOverview'
 import { dashboardNextAction, type DashboardOverview } from '@/lib/dashboardOverview'
 import { calculateReadiness } from '@/lib/readiness'
-import { computeNextAction } from '@/lib/nextAction'
+import { computeNextAction, focusJob } from '@/lib/nextAction'
 import { answersFromReadinessCategory, scoreProfileReadiness, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
@@ -135,6 +136,7 @@ export default function DashboardPage() {
   const current = snap?.current ?? null
   const states = snap?.states ?? stageStates('profile', { profileDone: false, cvDone: false, applyDone: false })
   const currentStage = current ? stageById(current) : null
+  const focusedJob = ready && current !== 'profile' ? focusJob(packages) : null
   const draftWaiting = nextAction.state === 'draft_waiting'
   const firstRun = ready && nextAction.state === 'no_profile'
 
@@ -147,9 +149,11 @@ export default function DashboardPage() {
         <p className="type-body text-ink-soft">
           {firstRun
             ? 'Three steps from your current CV to an interview-ready application.'
-            : 'Your profile, saved work and preparation progress at a glance.'}
+            : 'Continue your application, then check your scores and saved progress.'}
         </p>
       </header>
+
+      <DashboardNextStep ready={ready} loadError={loadError} draftWaiting={draftWaiting} firstRun={firstRun} currentStage={currentStage} states={states} focusedJob={focusedJob} nextAction={nextAction} />
 
       <section aria-labelledby="scores-heading" className="flex flex-col gap-3">
         <h2 id="scores-heading" className="type-section text-ink">Your profile scores</h2>
@@ -170,78 +174,16 @@ export default function DashboardPage() {
       </section>
 
       <ActivityOverview overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
-      {overview && !overviewError ? <OverallProgress overview={overview} /> : null}
-      <InterviewProgressOverview />
-
-      {/* THE MAP + THE ONE NEXT STEP, as one object: the rail says where you
-          are, the teal panel under it says what to do there. */}
-      <section aria-label="Your progress and next step" className="overflow-hidden rounded-card border border-line bg-white shadow-m-2">
-        <div className="px-2 pb-5 pt-6 sm:px-8">
-          {ready ? (
-            <StageRail states={states} className="mx-auto max-w-[720px]" />
-          ) : (
-            <div className="mx-auto h-[84px] max-w-[520px] animate-pulse rounded-ctl bg-canvas" />
-          )}
+      <details className="group rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-6">
+        <summary className="min-h-11 cursor-pointer rounded-ctl type-card text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+          Detailed progress and interview reports
+          <span className="mt-1 block type-helper font-normal text-ink-muted">Expand to see application coverage and practice feedback.</span>
+        </summary>
+        <div className="mt-5 flex flex-col gap-6">
+          {overview && !overviewError ? <OverallProgress overview={overview} /> : null}
+          <InterviewProgressOverview />
         </div>
-
-        <div className="flex flex-col gap-4 bg-teal p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal-soft">
-              {loadError
-                ? 'Something went wrong'
-                : !ready
-                  ? 'Your next step'
-                  : draftWaiting
-                    ? 'Waiting for your decision'
-                    : currentStage
-                    ? `Step ${currentStage.n} · ${currentStage.name}`
-                    : 'All three steps done'}
-            </span>
-            <h2 className="type-section text-white">
-              {loadError
-                ? 'Your saved work could not be loaded'
-                : !ready
-                  ? 'Loading your next step…'
-                  : firstRun
-                    ? 'Start with the CV you already have'
-                    : nextAction.title}
-            </h2>
-            <p className="max-w-[60ch] type-body text-teal-soft">
-              {loadError
-                ? 'Please try again to see your latest profile and application progress.'
-                : !ready
-                  ? 'Checking your profile and saved applications.'
-                  : firstRun
-                    ? 'We read it and fill in your Career Profile for you. Every CV, letter and interview answer after this is written from it, so you only do this once.'
-                    : nextAction.body}
-            </p>
-          </div>
-          {loadError ? (
-            <button type="button" onClick={() => window.location.reload()} className="min-h-11 shrink-0 rounded-ctl bg-white px-5 py-3 text-sm font-semibold text-teal">
-              Try again
-            </button>
-          ) : !ready ? null : firstRun ? (
-            <div className="flex shrink-0 flex-col gap-2 sm:w-[250px]">
-              <Link href="/profile?import=upload" className={GOLD_CTA}>
-                Upload my CV
-              </Link>
-              <div className="grid grid-cols-2 gap-2">
-                <Link href="/profile?import=paste" className={GHOST_CTA}>
-                  Paste text
-                </Link>
-                <Link href="/profile" className={GHOST_CTA}>
-                  Type it in
-                </Link>
-              </div>
-              <span className="text-center text-[12px] text-teal-soft/80">PDF or Word file</span>
-            </div>
-          ) : (
-            <Link href={nextAction.href} className={GOLD_CTA}>
-              {nextAction.cta}
-            </Link>
-          )}
-        </div>
-      </section>
+      </details>
 
       {/* Until step 1 is done, show what the three steps give — the product
           explaining itself, instead of an empty jobs list and blank scores. */}
@@ -250,11 +192,6 @@ export default function DashboardPage() {
     </div>
   )
 }
-
-const GOLD_CTA =
-  'inline-flex min-h-12 shrink-0 items-center justify-center rounded-ctl bg-gold px-6 type-button text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal'
-const GHOST_CTA =
-  'inline-flex min-h-11 items-center justify-center rounded-ctl border border-white/35 px-3 text-[13.5px] font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white'
 
 function greeting(): string {
   const hour = new Date().getHours()

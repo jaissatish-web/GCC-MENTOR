@@ -9,11 +9,12 @@ import type { FunnelAnswers, GulfReadinessResult } from '@/lib/gulfReadiness/typ
  * clears this. Abandon signup and nothing is retained anywhere.
  *
  * sessionStorage, not localStorage: it is scoped to the tab and cleared when the tab
- * closes, which matches "temporary" honestly. The tradeoff — a closed tab or a
+ * closes. A four-hour TTL is also checked before reuse. The tradeoff — a closed tab or a
  * different device loses it — is acceptable; the user re-runs a free, instant scan.
  */
 
 export const HANDOFF_KEY = 'gulf_readiness_handoff'
+export const HANDOFF_TTL_MS = 4 * 60 * 60 * 1000
 
 export interface ReadinessHandoff {
   version: 1
@@ -40,8 +41,15 @@ export function readHandoff(): ReadinessHandoff | null {
     const raw = sessionStorage.getItem(HANDOFF_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw) as ReadinessHandoff
-    return parsed?.version === 1 && parsed.result ? parsed : null
+    const created = Date.parse(parsed?.createdAt)
+    const age = Date.now() - created
+    if (parsed?.version !== 1 || !parsed.result || !Number.isFinite(created) || age < 0 || age >= HANDOFF_TTL_MS) {
+      clearHandoff()
+      return null
+    }
+    return parsed
   } catch {
+    clearHandoff()
     return null
   }
 }
