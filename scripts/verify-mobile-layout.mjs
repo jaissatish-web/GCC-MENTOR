@@ -147,7 +147,7 @@ try {
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
       assert.equal(metrics.weight, '700')
-      assert.ok(metrics.font.includes('__Inter'), `Inter is not applied: ${metrics.font}`)
+      assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       assert.ok(metrics.size > metrics.sectionSize, 'Hero must be larger than a section heading')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
     }

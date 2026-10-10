@@ -51,7 +51,7 @@ jobs:
         run: npx puppeteer browsers install chrome
       - name: Verify responsive typography with production CSS
         run: |
-          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(puppeteer.executablePath())")" npm run test:mobile
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:mobile
       - name: Save typography screenshots
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
