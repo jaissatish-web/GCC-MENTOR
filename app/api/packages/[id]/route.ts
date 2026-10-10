@@ -10,10 +10,11 @@ import { appendPackageEventAtomic, updatePackageServerFields } from '@/lib/packa
 import type { PackageServiceEventType } from '@/types/package'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { OptimizedContent, Package, PackageStatus } from '@/types/package'
-import { scoreDocumentFromResume, scoreResume } from '@/lib/optimizer/score'
+import { MATCH_SCORE_VERSION, scoreDocumentFromResume, scoreResume } from '@/lib/optimizer/score'
 import { validateKeywords } from '@/lib/optimizer/jobAnalysis'
 import type { MatchReport } from '@/lib/optimizer/types'
 import { ResumeEditError, sanitizeEditedDocument } from '@/lib/resumeEdits'
+import { documentWithoutAutomaticClaims, needsClaimReview, CLAIM_REVIEW_MESSAGE } from '@/lib/optimizer/claimReview'
 import { applySuggestionsToDocument, type Suggestion } from '@/lib/optimizer/suggestions'
 
 /**
@@ -605,6 +606,14 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   // Apply confirmed suggestions onto the document and mirror them likewise.
   const storedForSuggestions = (pkg as { match_report?: MatchReport | null }).match_report ?? null
   let nextSuggestions: Suggestion[] | null = null
+  const legacyReview = needsClaimReview(storedForSuggestions)
+  if (legacyReview) {
+    const automatic = storedForSuggestions!.suggestions!.filter((s) => s.status === 'confirmed')
+    if (!automatic.every((s) => suggestionActions.some((a) => a.id === s.id))) {
+      return NextResponse.json({ error: CLAIM_REVIEW_MESSAGE, code: 'CLAIM_REVIEW_REQUIRED' }, { status: 409 })
+    }
+    if (nextSnapshot) nextSnapshot = documentWithoutAutomaticClaims(nextSnapshot, storedForSuggestions)
+  }
   if (suggestionActions.length > 0) {
     if (!storedForSuggestions?.suggestions?.length || !nextSnapshot) {
       return NextResponse.json({ error: 'There are no suggestions on this resume.' }, { status: 400 })
@@ -615,7 +624,7 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
       // A line added straight into the CV (auto_applied) can be removed later too;
       // the edited document the same request carries no longer has it.
       if (act?.action === 'dismiss' && s.status === 'confirmed' && storedForSuggestions.auto_applied) return { ...s, status: 'dismissed' as const }
-      if (!act || s.status !== 'pending') return s
+      if (!act || (s.status !== 'pending' && !(legacyReview && s.status === 'confirmed'))) return s
       if (act.action === 'dismiss') return { ...s, status: 'dismissed' as const }
       const done = { ...s, text: act.text ?? s.text, status: 'confirmed' as const }
       confirmed.push(done)
@@ -659,6 +668,8 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
         ...storedReport,
         after,
         after_edited: true,
+        score_version: MATCH_SCORE_VERSION,
+        ...(legacyReview ? { auto_applied: false } : {}),
         ...(suggestions.length ? { suggestions, projected_with_suggestions: Math.max(projected, after.total) } : {}),
       }
     }

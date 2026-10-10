@@ -12,6 +12,7 @@ import { recordMockAnswerAtomic } from '@/lib/packages/serverWrites'
 import { loadCareerProfileFull } from '@/lib/packages/profileLoader'
 import {
   gapTermsFromMatchReport,
+  candidateResumeEvidence,
   groundAnswer,
   notInCvFeedback,
   profileEvidenceText,
@@ -20,6 +21,7 @@ import {
   unverifiedEntityClaims,
 } from '@/lib/ai/proseClaims'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
+import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { MockInterviewRun } from '@/types/package'
 
 /**
@@ -71,7 +73,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
-    .select('id, tier, profile_id, mock_interview_runs, match_report')
+    .select('id, tier, profile_id, mock_interview_runs, match_report, document_snapshot')
     .eq('id', params.id)
     .eq('user_id', user.id)
     .maybeSingle()
@@ -158,8 +160,8 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
       const profile = await loadCareerProfileFull(supabase, pkgRow.profile_id as string, user.id)
       if (profile) {
         const ctx = {
-          evidence: profileEvidenceText(profile),
-          gaps: gapTermsFromMatchReport(isCareerProfileResume(pkgRow) ? null : pkgRow.match_report, profile),
+          evidence: [profileEvidenceText(profile), pkgRow.document_snapshot ? candidateResumeEvidence(pkgRow.document_snapshot as ResumeDocument) : ''].join('\n'),
+          gaps: gapTermsFromMatchReport(isCareerProfileResume(pkgRow) ? null : pkgRow.match_report, profile, pkgRow.document_snapshot as ResumeDocument | null),
           totalYears: totalExperienceYears(profile),
         }
         // Requirement gaps, plus certificates and named products the CV never

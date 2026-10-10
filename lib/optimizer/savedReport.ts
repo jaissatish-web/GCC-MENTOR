@@ -13,7 +13,7 @@ import type { OptimizationLevel } from '@/types/package'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import { baselineDocument, profileFingerprint, qualificationScore } from './analyze'
 import { buildEvidenceMap } from './evidence'
-import { maxAchievableScore, scoreDocumentFromResume, scoreResume } from './score'
+import { MATCH_SCORE_VERSION, maxAchievableScore, scoreDocumentFromResume, scoreResume } from './score'
 import { reachableTargetBand } from './suggestions'
 import { containsTermRaw } from './text'
 import type { JobTargetProfile, MatchReport, VerifiedBridge } from './types'
@@ -36,6 +36,7 @@ export function reportForSavedDocument(opts: {
   const text = JSON.stringify(document)
   return {
     report_version: 1,
+    score_version: MATCH_SCORE_VERSION,
     mode: target.mode,
     analysis_id: opts.analysisId,
     target,

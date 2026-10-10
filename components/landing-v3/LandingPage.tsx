@@ -82,7 +82,7 @@ export function LandingPage() {
           <Wrap>
             <SectionHead
               id="journey-title"
-              eyebrow="How it works · 7 steps"
+              eyebrow="How it works · 3 stages"
               title={<>One profile. <em>Every job you target.</em></>}
               lead="Build your profile once. Then each target job gets its own CV, cover letter, interview questions and mock interview."
             />

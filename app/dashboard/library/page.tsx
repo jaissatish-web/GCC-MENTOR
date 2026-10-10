@@ -253,7 +253,7 @@ function ApplicationCard({
               )}
             >
               <span aria-hidden="true">{st.done ? '✓' : '○'}</span>
-              <span className="truncate">{st.label}</span>
+              <span className="break-words">{st.label}</span>
               <span className="sr-only">{st.done ? 'ready' : 'not yet'}</span>
             </Link>
           </li>
@@ -267,7 +267,7 @@ function ApplicationCard({
           </Link>
         ) : (
           <span className="w-full rounded-ctl bg-ok-soft px-3 py-2.5 text-center text-[13px] font-semibold text-ok sm:w-auto sm:text-left">
-            {isRaw ? 'Your career preparation is ready' : 'Ready to apply — every step done'}
+            {isRaw ? 'Career preparation complete' : 'Application pack complete'}
           </span>
         )}
         <Link href={`/package/${id}`} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'flex-1 sm:flex-none')}>

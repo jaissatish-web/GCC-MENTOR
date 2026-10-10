@@ -511,9 +511,9 @@ function SetupScreen() {
             <p className="text-[14px] font-bold text-ink">{firstTime ? 'Your first optimization — how it works' : 'Before you optimize'}</p>
             <ul className="flex flex-col gap-1.5 text-[13px] leading-snug text-ink-soft">
               <li>• <strong className="text-ink">Easy</strong> rewords only what your profile says.</li>
-              <li>• <strong className="text-ink">Moderate</strong> and <strong className="text-ink">High</strong> also add points for the job’s duties that someone doing your job almost certainly does.</li>
+              <li>• <strong className="text-ink">Moderate</strong> and <strong className="text-ink">High</strong> also suggest lines for missing job requirements. These are questions for you to confirm, not assumed experience.</li>
               <li>• Your certificates, education, employers, job titles, dates and personal details are never added or changed.</li>
-              <li>• This first time you will see every added point in yellow and can remove any. After that, you optimize and download in one step.</li>
+              <li>• Every new suggested claim starts excluded. Confirm each true claim on the review screen before saving it to your CV.</li>
             </ul>
             <label className="flex cursor-pointer items-start gap-2.5 rounded-ctl border border-line bg-canvas p-3 text-[13px] text-ink">
               <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-teal" />

@@ -205,9 +205,10 @@ function withLicence(d: DetectorOutput, facts: GulfFacts): DetectorOutput {
 
 /** Each essential with something left becomes its own step, worth its real points. */
 function addEssentialSteps(recs: Recommendation[], items: EssentialItem[]): void {
+  const judgedMax = items.filter((i) => i.applicable).reduce((sum, i) => sum + i.max, 0)
   for (const i of items) {
     if (!i.applicable || !i.gap) continue
-    const gain = Math.round((i.max - i.earned) * 10) / 10
+    const gain = judgedMax ? Math.round((i.max - i.earned) / judgedMax * 20 * 10) / 10 : 0
     if (gain <= 0) continue
     recs.push({
       dimension: 'gulf_essentials',

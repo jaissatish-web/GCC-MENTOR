@@ -294,15 +294,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
       await ensureAdvert()
       const { analysis, analysisId } = await getAnalysisV3(analysisInput())
-      // Straight into the CV only after the one-time agreement AND a first
-      // optimization the user has seen on the review page.
-      const { count: previous } = await supabase
-        .from('packages')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .neq('id', generatePackageId)
-        .not('optimized_content', 'is', null)
-      const autoApply = !!profile.optimizer_consent_at && !!previous
+      // Every newly generated claim requires its own candidate confirmation.
+      const autoApply = false
       const result = await buildV3({ profile, target: targetFields, level, selectedBlocks, jobDescription: advert, typicalAdvert: typical, analysis, analysisId, autoApply, route: '/api/optimize' })
       if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
       console.log(

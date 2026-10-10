@@ -23,6 +23,7 @@ const require = createRequire(import.meta.url)
 const sucrase = require.resolve('sucrase/bin/sucrase-node')
 
 const TS_CHECKS = [
+  'verify-audit-regressions.ts',
   'verify-linkedin.ts',
   'verify-dashboard-ui.ts',
   'verify-career-profile-resume.ts',
@@ -76,6 +77,7 @@ function run(label, args) {
 }
 
 for (const script of TS_CHECKS) run(script, [sucrase, join('scripts', script)])
+run('verify-claim-review-api.mjs', [join(root, 'scripts', 'verify-claim-review-api.mjs')])
 run('verify-career-profile-services.mjs', [join(root, 'scripts', 'verify-career-profile-services.mjs')])
 run('verify-linkedin-api.mjs', [join(root, 'scripts', 'verify-linkedin-api.mjs')])
 run('verify-linkedin-db.mjs', [join(root, 'scripts', 'verify-linkedin-db.mjs')])

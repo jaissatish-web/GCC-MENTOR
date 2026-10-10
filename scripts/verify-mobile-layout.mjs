@@ -16,6 +16,8 @@ const rendered = spawnSync(process.execPath, ['-r', 'sucrase/register', '-e', `
   const {FileText} = require('lucide-react');
   const {Button} = require('./components/ui/Button');
   const {ScoreCards} = require('./components/profile/ProfileOverview');
+  const {DashboardNextStep} = require('./components/dashboard/DashboardNextStep');
+  const {stageById, stageStates} = require('./components/journey/stages');
   console.log(renderToStaticMarkup(React.createElement(PageShell, {
     title: 'Cover letter', subtitle: 'A clear letter based on your resume and target role.', icon: FileText
   }, React.createElement(SectionCard, null,
@@ -23,7 +25,16 @@ const rendered = spawnSync(process.execPath, ['-r', 'sucrase/register', '-e', `
     React.createElement('p', {className: 'type-body'}, 'Review your information before continuing.'),
     React.createElement('input', {className: 'field w-full', 'aria-label': 'Target role'}),
     React.createElement(Button, {size: 'sm'}, 'Continue')
-  ), React.createElement(ScoreCards, {
+  ), React.createElement(DashboardNextStep, {
+    ready: true, loadError: false, draftWaiting: false, firstRun: false,
+    currentStage: stageById('apply'), states: stageStates('apply', {profileDone: true, cvDone: true, applyDone: false}),
+    focusedJob: {id: 'fixture', target_job_title: 'Senior Instrumentation and Controls Commissioning Engineer', target_company: 'Example Gulf Engineering Company'},
+    nextAction: {state: 'job_needs_qa', title: 'Prepare your interview answers', body: 'Practise answers using your saved CV and confirmed experience.', href: '/interview-qa', cta: 'Prepare interview Q&A'}
+  }), React.createElement(DashboardNextStep, {
+    ready: true, loadError: false, draftWaiting: false, firstRun: true,
+    currentStage: stageById('profile'), states: stageStates('profile', {profileDone: false, cvDone: false, applyDone: false}),
+    focusedJob: null, nextAction: {state: 'no_profile', title: 'Start with your CV', body: '', href: '/profile', cta: 'Upload my CV'}
+  }), React.createElement(ScoreCards, {
     completeness: {score: 64, itemsLeft: 3, detail: '5 of 8 sections complete'},
     gulf: null, onOpenCompleteness: () => {}, onOpenReadiness: () => {}, className: 'mt-4'
   }))));

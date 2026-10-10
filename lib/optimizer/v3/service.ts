@@ -10,9 +10,8 @@
  *   buildV3()        the CV, in the exact shapes the existing screens read
  *                    (OptimizedContent, skills_order, ResumeDocument, MatchReport)
  *
- * Added points: with the one-time agreement and a previous optimization
- * (`autoApply`) they go straight into the CV; otherwise they are pending
- * suggestions the review page shows in yellow. Certificates and licences are
+ * Added factual claims always stay pending until the candidate confirms each
+ * one on the review page. Prior agreement is not evidence of a new claim. Certificates and licences are
  * never written — `ask_certifications` offers them to the user instead.
  */
 import { buildResumeDocument, drivingLicenceLine, type ResumeDocument } from '@/lib/resumeDocument'
@@ -21,7 +20,7 @@ import type { ExperienceBlock, OptimizationLevel, OptimizedContent } from '@/typ
 import type { OptimizationTarget, SelectedBlocks } from '@/lib/ai/buildOptimizationPrompt'
 import { analysisInputHash, baselineDocument, profileFingerprint, sha256 } from '../analyze'
 import { getAnalysisByHash, saveAnalysis } from '../analysisStore'
-import { scoreDocumentFromResume, scoreResume, type ScoreDocument } from '../score'
+import { MATCH_SCORE_VERSION, scoreDocumentFromResume, scoreResume, type ScoreDocument } from '../score'
 import { applySuggestionsToDocument, reachableTargetBand, type Suggestion } from '../suggestions'
 import { containsTermRaw } from '../text'
 import type { KeywordKind, MatchReport, MatchScore } from '../types'
@@ -268,16 +267,16 @@ export async function buildV3(opts: {
         block: e.id,
         requirement: addable.find((r) => containsTermRaw(b.text, r.term))?.term ?? '',
         text: b.text,
-        status: opts.autoApply ? 'confirmed' : 'pending',
+        status: 'pending',
       })
     })
     if (job.keptOriginal) kept.push({ block: e.id, reason: 'grounding' })
     const rewritten = job.keptOriginal ? source : job.bullets.filter((b) => !b.isNew).map((b) => b.text)
-    const generated = opts.autoApply ? (job.keptOriginal ? [...source, ...newPts.map((b) => b.text)] : job.bullets.map((b) => b.text)) : rewritten
+    const generated = rewritten
     blocks.push({
       profile_experience_id: e.id,
-      was_optimized: !job.keptOriginal || (opts.autoApply && newPts.length > 0),
-      generated_bullets: job.keptOriginal && !(opts.autoApply && newPts.length) ? null : generated,
+      was_optimized: !job.keptOriginal,
+      generated_bullets: job.keptOriginal ? null : generated,
       source_bullets: source,
       claims: [],
     })
@@ -310,6 +309,7 @@ export async function buildV3(opts: {
   const kindOf = (k: string): KeywordKind => (({ licence: 'certification', equipment: 'skill', standard: 'tool', experience_years: 'domain' }) as Record<string, KeywordKind>)[k] ?? (k as KeywordKind)
   const report: MatchReport = {
     report_version: 1,
+    score_version: MATCH_SCORE_VERSION,
     engine: 'v3',
     mode: modeOf(jd),
     analysis_id: opts.analysisId,
@@ -331,7 +331,7 @@ export async function buildV3(opts: {
     target_band: reachableTargetBand(level, check.expected[level]),
     field_match: { match: a.fieldMatch, job_field: a.jobField, candidate_field: a.candidateField },
     ask_certifications: check.askCertifications,
-    ...(opts.autoApply && suggestions.length ? { auto_applied: true } : {}),
+    auto_applied: false,
     ...(opts.typicalAdvert && jd ? { advert_source: 'typical' as const, typical_advert: jd } : {}),
     added_terms: [
       ...new Set([
@@ -346,6 +346,6 @@ export async function buildV3(opts: {
     skillsOrder: finalOrder,
     documentSnapshot,
     report,
-    stats: { ms: w.ms, caught: w.caught.length, keptOriginal: kept.length, newPoints: suggestions.length, autoApplied: opts.autoApply },
+    stats: { ms: w.ms, caught: w.caught.length, keptOriginal: kept.length, newPoints: suggestions.length, autoApplied: false },
   }
 }

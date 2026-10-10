@@ -2637,7 +2637,7 @@ function ProfileScreen() {
                 <ConfirmToggle
                   id="f_photo_checklist_confirmed"
                   label="My photo is professional"
-                  hint={`${PHOTO_CHECKLIST.join(' · ')}. Most Gulf employers expect a professional photo on the CV.`}
+                  hint={`${PHOTO_CHECKLIST.join(' · ')}. A photo is optional. Follow the employer’s instructions and your chosen application format; it does not affect readiness.`}
                   checked={editor.photo_checklist_confirmed}
                   onChange={(v) => setField({ photo_checklist_confirmed: v })}
                 />

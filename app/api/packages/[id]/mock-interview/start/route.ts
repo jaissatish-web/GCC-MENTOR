@@ -1,3 +1,4 @@
+import { needsClaimReview, CLAIM_REVIEW_MESSAGE } from '@/lib/optimizer/claimReview'
 import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
 import { createHash } from 'node:crypto'
 import { voiceAdmin, voiceEnabled, transcriptionReady } from '@/lib/voice/server'
@@ -69,7 +70,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   const { data: pkgRow, error: pkgError } = await supabase
     .from('packages')
     .select(
-      'id, tier, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot',
+      'id, tier, profile_id, target_job_title, target_country, target_company, target_industry, job_description, optimized_content, skills_order, field_visibility_snapshot, document_snapshot, match_report',
     )
     .eq('id', packageId)
     .eq('user_id', user.id)
@@ -79,6 +80,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
   if (!pkgRow) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
+  if (!isCareerProfileResume(pkgRow) && needsClaimReview(pkgRow.match_report)) return NextResponse.json({ error: CLAIM_REVIEW_MESSAGE, code: 'CLAIM_REVIEW_REQUIRED', reviewUrl: `/optimize/preview/${packageId}` }, { status: 409 })
   const isRaw = isCareerProfileResume(pkgRow)
   const optimizedContent = pkgRow.optimized_content as OptimizedContent | null
   if (!isRaw && !optimizedContent) {

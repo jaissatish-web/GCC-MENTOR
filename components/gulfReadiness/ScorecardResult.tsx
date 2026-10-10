@@ -89,6 +89,9 @@ export function ScorecardResult({
           </div>
         </div>
 
+        {source === 'resume' ? (
+          <p className="mt-4 type-helper text-ink-muted">This score uses your CV and the answers you provided. Adding or correcting details in your Career Profile may update it. Your photo choice does not affect readiness.</p>
+        ) : null}
         {result.lowResumeSignal ? (
           <p className="mt-5 rounded-ctl border border-line bg-canvas/60 px-3.5 py-2.5 text-[12px] text-ink-muted">
             {source === 'profile'

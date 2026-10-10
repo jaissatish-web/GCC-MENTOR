@@ -74,9 +74,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Resume text: from a file (extracted here) or pasted directly.
   let resumeText = ''
-  // Photo, for Gulf CV Essentials: a PDF can tell us whether it carries an image;
-  // pasted text and Word files cannot, so the photo is left out of their score.
-  let photo: 'none' | 'shown' | 'unknown' = 'unknown'
+  // An embedded image could be a logo or decoration, not a candidate photo.
+  // Photo choice is optional and does not affect readiness.
+  const photo = 'unknown' as const
   const file = formData.get('file')
   const pasted = formData.get('resume_text')
 
@@ -86,7 +86,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: extracted.error, code: extracted.code }, { status: 400 })
     }
     resumeText = extracted.text
-    if (typeof extracted.imageCount === 'number') photo = extracted.imageCount > 0 ? 'shown' : 'none'
   } else if (typeof pasted === 'string') {
     resumeText = pasted
   }
