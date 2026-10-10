@@ -550,7 +550,7 @@ export default function TargetJobsPage() {
       width="document"
       icon={BriefcaseIcon}
       title="Resume Library"
-      subtitle="Your Career Profile Resume and targeted resumes, with their cover letters and interview preparation."
+      subtitle="Your saved resumes, cover letters and interview preparation."
       actions={
         total > 0 ? (
           <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'shrink-0')}>

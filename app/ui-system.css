@@ -19,7 +19,8 @@
   --ui-marketing-size: 1.625rem;
   --ui-lead-size: 1rem;
   --ui-stat-size: 2rem;
-  --ui-body-line: 1.6;
+  --ui-body-line: 1.7;
+  --ui-lead-line: 1.75;
   --ui-heading-line: 1.3;
   --ui-label-line: 1.4;
   --ui-heading-tracking: -0.02em;
@@ -52,6 +53,7 @@
 }
 @media (min-width: 1024px) {
   :root {
+    --ui-body-size: 1.0625rem;
     --ui-title-size: 2rem;
     --ui-section-size: 1.5rem;
     --ui-card-title-size: 1.25rem;
@@ -150,10 +152,10 @@ body :is(input, textarea, select, .field):not(:where([data-document-preview], [d
   text-wrap: balance;
 }
 .type-lead:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
-  max-width: 62ch;
+  max-width: 52ch;
   font-size: var(--ui-lead-size);
   font-weight: var(--ui-weight-regular);
-  line-height: var(--ui-body-line);
+  line-height: var(--ui-lead-line);
 }
 .type-stat:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-stat-size);

@@ -80,7 +80,7 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', iconClass: 'bg-blue-50 text-blue-700', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
+  { label: 'Home', href: '/dashboard', iconClass: 'bg-blue-50 text-blue-700', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
   { label: 'Career Profile', href: '/profile', iconClass: 'bg-teal-soft text-teal', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
   // "Profile Strength" (/gcc-readiness) sat here from 2026-09-09 to 2026-09-11.
   // It left when Career Profile and Profile Strength became one page (founder
@@ -89,7 +89,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.
-  { label: 'Resume Library', href: '/dashboard/library', iconClass: 'bg-indigo-50 text-indigo-700', icon: BriefcaseIcon, shortLabel: 'Library' },
+  { label: 'Resume Library', href: '/dashboard/library', iconClass: 'bg-indigo-50 text-indigo-700', icon: BriefcaseIcon, shortLabel: 'Resumes' },
   { label: 'Resume Templates', href: '/templates', iconClass: 'bg-rose-50 text-rose-700', icon: RectangleStackIcon, shortLabel: 'Templates' },
   { label: 'Resume Optimizer', href: '/optimize', iconClass: 'bg-yellow-50 text-yellow-700', icon: DocumentTextIcon, shortLabel: 'Optimize' },
   { label: 'Cover Letter', href: '/cover-letter', iconClass: 'bg-violet-50 text-violet-700', icon: EnvelopeIcon },
@@ -100,19 +100,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
 ] as const
 
 /**
- * The five destinations pinned to the mobile bottom bar. The rest of
- * NAV_ITEMS appears in the "More" drawer, so every destination stays
- * reachable on a phone without a horizontal scroll.
+ * Three familiar destinations plus the shared More drawer. Service routes
+ * remain available in the drawer and in the dashboard's next action.
  */
-// Resume Optimizer joined the bar 2026-09-12. It is the product's core action
-// and was two taps away behind "More" on a phone, while its `shortLabel`
-// ("Optimize") already existed for exactly this bar. Four destinations plus
-// More is the five-slot bar docs/12_DESIGN_SYSTEM.md §7 describes.
 export const MOBILE_PRIMARY_HREFS: readonly string[] = [
   '/dashboard',
-  '/dashboard/library',
   '/profile',
-  '/optimize',
+  '/dashboard/library',
 ]
 
 export const MOBILE_PRIMARY_ITEMS: readonly NavItem[] = NAV_ITEMS.filter((i) =>
@@ -150,8 +144,9 @@ export interface NavGroup {
 export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'home', label: null, hrefs: ['/dashboard'] },
   { key: 'profile', label: 'Your profile', hrefs: ['/profile'], stage: 'profile' },
+  { key: 'files', label: 'Your files', hrefs: ['/dashboard/library'] },
   { key: 'cv', label: 'Tailored CV', hrefs: ['/optimize', '/templates'], stage: 'cv' },
   { key: 'apply', label: 'Apply & interview', hrefs: ['/cover-letter', '/interview-qa', '/mock-interview'], stage: 'apply' },
-  { key: 'files', label: 'Your files', hrefs: ['/dashboard/library', '/linkedin-optimization'] },
+  { key: 'professional', label: 'Your online profile', hrefs: ['/linkedin-optimization'] },
   { key: 'account', label: 'Account', hrefs: ['/settings'] },
 ]

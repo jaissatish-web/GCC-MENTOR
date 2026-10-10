@@ -13,17 +13,16 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotLiveText } from '@/components/ui/NotLive'
+import { LandingSectionMenu } from './LandingSectionMenu'
 import s from './concept.module.css'
 import { ArrowRight, BTN_GOLD, BTN_LINE, BTN_TEAL, Check, SectionHead, Wrap } from './primitives'
 
 /* ── Navigation ───────────────────────────────────────────────────────── */
 
 export const NAV = [
-  ['Why no calls?', '#ats'],
+  ['Services', '#services'],
   ['How it works', '#journey'],
   ['Templates', '#templates'],
-  ['Interview', '#interview'],
-  ['Founder', '#founder'],
   ['Pricing', '#pricing'],
   ['FAQ', '#faq'],
 ] as const
@@ -56,27 +55,7 @@ export function LandingNav() {
           <Link href="/signup" className={cn(BTN_GOLD, 'hidden min-h-11 rounded-ctl px-4 type-helper sm:inline-flex')}>
             Start free
           </Link>
-          {/* Menu without JavaScript: <details> is keyboard- and screen-reader-native. */}
-          <details className="group relative xl:hidden">
-            <summary aria-label="Open section menu" className="grid size-11 cursor-pointer list-none place-items-center rounded-ctl border border-line bg-white text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
-              <svg className="size-5 group-open:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              </svg>
-              <svg className="hidden size-5 group-open:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <path d="M6 6l12 12M18 6L6 18" />
-              </svg>
-            </summary>
-            <nav aria-label="Page sections" className="absolute right-0 top-[52px] w-[min(260px,calc(100vw-32px))] rounded-card border border-line bg-white p-2 shadow-m-3">
-              {NAV.map(([label, href]) => (
-                <a key={href} href={href} className="flex min-h-11 items-center rounded-ctl px-3 text-[15px] font-semibold text-ink hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-                  {label}
-                </a>
-              ))}
-              <Link href="/signup" className={cn(BTN_GOLD, 'mt-2 w-full')}>
-                Build my career profile
-              </Link>
-            </nav>
-          </details>
+          <LandingSectionMenu anchors={NAV} />
         </div>
       </div>
     </header>
@@ -90,31 +69,80 @@ export function HeroCopy() {
     <div className="min-w-0">
       <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-line bg-white px-3 py-1.5 type-caption font-semibold text-ink-soft shadow-m-1">
         <span className="size-2 shrink-0 rounded-full bg-ok" aria-hidden="true" />
-        <span>Built by a 15-year Gulf EPC &amp; PMC professional</span>
+        <span>Built on 15+ years of Gulf experience</span>
       </p>
       <h1 className="mt-4 type-hero text-ink lg:mt-6">
-        Build an ATS-ready CV.{' '}
-        <em className="not-italic text-teal">Prepare for your Gulf interview.</em>
+        Your next Gulf role.{' '}
+        <em className="block not-italic text-teal">Start prepared.</em>
       </h1>
       <p className="mt-4 max-w-[60ch] type-lead text-ink-soft lg:mt-5">
-        Prepare a tailored CV, cover letter and interview practice for each Gulf job, using your real experience. Build your Career Profile once, then prepare each application in one place.
+        Tailor your CV, write your cover letter and practise interviews — all from your real experience.
       </p>
       <div className="mt-6 flex flex-col gap-2.5 sm:flex-row lg:mt-8">
         <Link href="/signup" className={BTN_GOLD}>
-          Build My Gulf Career Profile <ArrowRight />
+          Build my profile <ArrowRight />
         </Link>
-        <a href="#journey" className={BTN_LINE}>
-          See How It Works
+        <a href="#journey" className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[14px] px-5 type-button text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+          How it works <ArrowRight />
         </a>
       </div>
       <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 type-helper font-medium text-ink-soft lg:mt-7" aria-label="Why people trust it">
-        {['Any profession, any Gulf country', 'You review every change', 'Free readiness check'].map((t) => (
+        {['6 Gulf countries', 'You approve changes', 'Free to start'].map((t) => (
           <li key={t} className="flex items-center gap-1.5">
             <Check className="size-4 text-ok" /> {t}
           </li>
         ))}
       </ul>
     </div>
+  )
+}
+
+/* A short product overview before the detailed demonstrations. */
+const SERVICES = [
+  { icon: Globe2, title: 'Gulf Readiness', body: 'See your readiness score and what to improve.', href: '/gulf-readiness-score', action: 'Check free', preview: 'Your Gulf score' },
+  { icon: FileText, title: 'Your Gulf CV', body: 'Tailor your CV to a job. Choose from 50 templates.', href: '#templates', action: 'Explore templates', preview: 'CV + job description' },
+  { icon: Mail, title: 'Cover Letters', body: 'Introduce your experience for each target job.', href: '#letters', action: 'See an example', preview: 'One letter per job' },
+  { icon: MessagesSquare, title: 'Interview Practice', body: 'Prepare with Q&A, mock interviews and feedback.', href: '#interview', action: 'See how it works', preview: 'Practise → improve' },
+] as const
+
+export function ServicesPreview() {
+  return (
+    <section id="services" aria-labelledby="services-title" className="border-b border-line bg-white py-11 sm:py-16 lg:py-20">
+      <Wrap>
+        <SectionHead id="services-title" eyebrow="All in one place" title={<>Everything for <em>your next application.</em></>} />
+        <div className="mt-7 grid grid-cols-2 gap-3 lg:mt-9 lg:grid-cols-4 lg:gap-4">
+          {SERVICES.map(({ icon: Icon, title, body, href, action, preview }) => (
+            <a key={title} href={href} className="group flex min-w-0 flex-col rounded-card border border-line bg-canvas p-4 transition-colors sm:p-5 hover:border-teal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+              <div className="flex flex-col items-start gap-3">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal-soft text-teal"><Icon aria-hidden="true" className="size-5" /></span>
+                <h3 className="type-card text-ink">{title}</h3>
+              </div>
+              <p className="mt-3 type-helper text-ink-soft">{body}</p>
+              <span className="mt-4 hidden rounded-ctl border border-line bg-white px-3 py-2 type-caption text-teal sm:block">{preview}</span>
+              <span className="mt-auto flex items-center gap-2 pt-5 type-label text-teal">{action}<ArrowRight /></span>
+            </a>
+          ))}
+        </div>
+      </Wrap>
+    </section>
+  )
+}
+
+export function JourneyOverview() {
+  const steps = [
+    { icon: Users, title: 'Build your profile', body: 'Upload your CV and review your experience.' },
+    { icon: FileText, title: 'Prepare your application', body: 'Add a job description. Tailor your CV and letter.' },
+    { icon: MessagesSquare, title: 'Practise your interview', body: 'Prepare answers and get feedback.' },
+  ] as const
+  return (
+    <ol className="mt-7 grid gap-3 sm:grid-cols-3 lg:mt-9 lg:gap-5" aria-label="Three preparation steps">
+      {steps.map(({ icon: Icon, title, body }, i) => (
+        <li key={title} className="relative flex gap-4 rounded-card border border-line bg-canvas p-5 sm:flex-col">
+          <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-teal text-white"><Icon className="size-5" /></span>
+          <div><span className="type-caption text-teal">Step {i + 1}</span><h3 className="mt-1 type-card text-ink">{title}</h3><p className="mt-2 type-helper text-ink-soft">{body}</p></div>
+        </li>
+      ))}
+    </ol>
   )
 }
 
@@ -213,7 +241,7 @@ export function Founder() {
         <div>
           <span className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-soft">Built by a Gulf insider</span>
           <h2 id="founder-title" className="mt-3 type-marketing-title">
-            Not built by a software company. <em className="not-italic text-gold-soft">Built by someone who has been there.</em>
+            Gulf experience. <em className="not-italic text-gold-soft">Built into your preparation.</em>
           </h2>
           <div className="mt-6 flex items-center gap-4 rounded-[18px] bg-white/[0.08] p-4 ring-1 ring-white/15">
             <span className="grid size-14 shrink-0 place-items-center rounded-full bg-gold text-[20px] font-bold text-ink tracking-[-0.02em]" aria-hidden="true">SKJ</span>
@@ -224,11 +252,11 @@ export function Founder() {
             </div>
           </div>
           <p className="mt-5 max-w-[520px] type-body text-white/85 lg:text-[16px]">
-            Fifteen years on Gulf projects for top clients showed him how candidates are really screened, shortlisted and interviewed — and how many strong people are filtered out by a CV that never reached a person. GCC Mentor puts that experience into every step.
+            Built from 15+ years on Gulf projects, helping you present your experience clearly and prepare for interviews.
           </p>
         </div>
         <div>
-          <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-soft">What 15 years in the Gulf taught him — and what the product does</div>
+          <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-soft">Practical Gulf career guidance</div>
           <ol className="-mx-4 mt-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
             {INSIGHTS.map(([title, body], i) => (
               <li key={title} className="w-[78%] shrink-0 snap-start rounded-[18px] bg-white p-4 text-ink shadow-m-3 sm:w-auto lg:p-5">
@@ -383,8 +411,8 @@ export function Faq() {
       <Wrap className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <SectionHead id="faq-title" eyebrow="Questions" title={<>Before <em>you start.</em></>} />
         <div className="space-y-2">
-          {FAQ.map(([q, a], i) => (
-            <details key={q} open={i === 0} className="group rounded-[16px] border border-line bg-canvas open:bg-white open:shadow-lp-card">
+          {FAQ.map(([q, a]) => (
+            <details key={q} className="group rounded-[16px] border border-line bg-canvas open:bg-white open:shadow-lp-card">
               <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-[15px] font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal lg:px-5 lg:text-[16px] [&::-webkit-details-marker]:hidden">
                 {q}
                 <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-white text-[18px] leading-none text-teal transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none">+</span>
@@ -417,14 +445,14 @@ export function FinalCta() {
               ))}
             </ol>
             <h2 id="final-title" className="mx-auto mt-6 max-w-[760px] type-marketing-title">
-              Stop sending the same CV. <em className="not-italic text-gold-soft">Prepare for your next Gulf opportunity.</em>
+              Your next Gulf opportunity. <em className="not-italic text-gold-soft">Start with your profile.</em>
             </h2>
             <p className="mx-auto mt-4 max-w-[520px] type-body text-white/85 lg:text-[16px]">
-              Build your profile once. Tailor your CV and cover letter to each job, then practise the interview with feedback on what to improve.
+              One profile for your CV, cover letters and interview preparation.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
               <Link href="/signup" className={cn(BTN_GOLD, 'w-full sm:w-auto')}>
-                Start My GCC Career Profile <ArrowRight />
+                Build my profile <ArrowRight />
               </Link>
               <Link href="/gulf-readiness-score" className="inline-flex min-h-[52px] w-full items-center justify-center rounded-[14px] border border-white/40 px-5 type-button text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto">
                 Free readiness score first

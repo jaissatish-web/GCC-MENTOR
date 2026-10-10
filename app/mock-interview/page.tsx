@@ -286,7 +286,7 @@ function MockInterviewScreen() {
       icon={ChatBubbleLeftRightIcon}
       eyebrow={stageEyebrow('apply')}
       title="Mock Interview"
-      subtitle={isRaw ? 'Practise an interview in your professional field using only your saved Career Profile. No job description required.' : 'Speak your answers to your selected virtual interviewer, then request one complete review and track your practice progress.'}
+      subtitle={isRaw ? 'Practise from your saved profile and get feedback. No job description needed.' : 'Practise your answers, then see what to improve.'}
       uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">

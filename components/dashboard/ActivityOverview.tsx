@@ -21,10 +21,10 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
     <section aria-labelledby="activity-heading" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 id="activity-heading" className="type-section text-ink">Your saved activity</h2>
-          <p className="mt-1 type-helper text-ink-muted">Your totals at a glance. Open a service to continue.</p>
+          <h2 id="activity-heading" className="type-section text-ink">Your saved work</h2>
+          <p className="mt-1 type-helper text-ink-muted">Open a service to pick up where you left off.</p>
         </div>
-        <Link href="/dashboard/library" className={buttonVariants({ variant: 'primary', size: 'sm' })}>Open Resume Library</Link>
+        <Link href="/dashboard/library" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>View all resumes →</Link>
       </div>
       {error ? (
         <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-alert/30 bg-alert-soft p-4">
@@ -42,7 +42,7 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
               <span className={cn('font-display type-stat text-ink', loading && 'animate-pulse')}>
                 {overview && !error ? overview[service.key].toLocaleString('en-IN') : '—'}
               </span>
-              <span className="min-h-9 text-[12px] leading-snug text-ink-muted">
+              <span className="min-h-9 type-caption text-ink-muted">
                 {service.key === 'resume_count' && overview && !error
                   ? `${overview.profile_resume_count} Career Profile · ${overview.optimized_resume_count} optimized`
                   : service.key === 'mock_interview_count' && overview && !error
@@ -54,7 +54,7 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
           )
         })}
       </div>
-      <p className="type-helper text-ink-muted">Counts show currently saved items, including Career Profile preparation. They are not credit usage or lifetime generation totals.</p>
+      <p className="type-caption text-ink-muted">Saved items only. These counts do not show credit usage.</p>
     </section>
   )
 }

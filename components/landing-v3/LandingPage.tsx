@@ -11,7 +11,7 @@ import { MatchEngine } from './MatchEngine'
 import { MockInterviewPreview } from './MockInterviewPreview'
 import { PainSolution } from './PainSolution'
 import { SectionHead, Wrap } from './primitives'
-import { LandingNav, Faq, FinalCta, Founder, HeroCopy, MobileStickyCta, PricingPreview, ProofStrip, Trust, WhoItsFor } from './Sections'
+import { LandingNav, Faq, FinalCta, Founder, HeroCopy, JourneyOverview, MobileStickyCta, PricingPreview, ProofStrip, ServicesPreview, Trust, WhoItsFor } from './Sections'
 
 /**
  * THE LANDING PAGE — v3 (founder-approved 2026-09-29, built as the
@@ -48,6 +48,7 @@ export function LandingPage() {
         </section>
 
         <ProofStrip />
+        <ServicesPreview />
 
         {/* The hidden filter — why good candidates get no calls */}
         <section id="ats" aria-labelledby="ats-title" className="py-11 sm:py-16 lg:py-[104px]">
@@ -55,8 +56,8 @@ export function LandingPage() {
             <SectionHead
               id="ats-title"
               eyebrow="Why you’re not getting calls"
-              title={<>Strong experience needs <em>a clear, readable CV.</em></>}
-              lead="Many employers use applicant tracking systems (ATS) to manage applications. A readable CV with relevant skills helps both the software and the recruiter understand how you fit the job."
+              title={<>Make your experience <em>easy to find.</em></>}
+              lead="A clear CV helps recruiters and applicant tracking systems (ATS) find your relevant skills."
             />
             <AtsFilter />
           </Wrap>
@@ -82,11 +83,18 @@ export function LandingPage() {
           <Wrap>
             <SectionHead
               id="journey-title"
-              eyebrow="How it works · 7 steps"
-              title={<>One profile. <em>Every job you target.</em></>}
-              lead="Build your profile once. Then each target job gets its own CV, cover letter, interview questions and mock interview."
+              eyebrow="How it works"
+              title={<>One profile. <em>Three simple steps.</em></>}
+              lead="Build once. Prepare for each job. Keep everything in your Resume Library."
             />
-            <BranchJourney />
+            <JourneyOverview />
+            <details className="group mt-6 rounded-card border border-line bg-white">
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 type-label text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
+                See a sample application
+                <span aria-hidden="true" className="text-xl group-open:rotate-45">+</span>
+              </summary>
+              <div className="border-t border-line px-3 pb-5 sm:px-5"><BranchJourney /></div>
+            </details>
           </Wrap>
         </section>
 
@@ -96,8 +104,8 @@ export function LandingPage() {
             <SectionHead
               id="levels-title"
               eyebrow="Optimization level"
-              title={<>You choose <em>how hard to push.</em></>}
-              lead="Pick the intensity for each job. Optimize, review every line, then prepare for the interview before you face the client."
+              title={<>A light edit. <em>Or a fuller rewrite.</em></>}
+              lead="Choose the level. Review and approve every change."
             />
             <OptimizationLevels />
           </Wrap>
@@ -110,8 +118,8 @@ export function LandingPage() {
               center
               id="templates-title"
               eyebrow="50 resume templates"
-              title={<>Your experience. <em>A striking first impression.</em></>}
-              lead="Explore a selection of our 50 real resume templates. Find a layout for your profession, then make it yours. Tap a rotating template to bring it into focus, then view the full example."
+              title={<>Your experience. <em>Your style.</em></>}
+              lead="Choose from 50 resume templates. Tap a design to explore it."
             />
           </Wrap>
           <DocumentOrbit className="mt-4 lg:mt-8" />
@@ -124,8 +132,8 @@ export function LandingPage() {
               center
               id="letters-title"
               eyebrow="Cover letters"
-              title={<>A different cover letter <em>for every job.</em></>}
-              lead="Same you. A new letter each time — written to that company, that role and its keywords, in the tone you choose."
+              title={<>The right letter. <em>For each job.</em></>}
+              lead="Written for the role, in your preferred tone."
             />
             <CoverLetters />
           </Wrap>
@@ -138,7 +146,7 @@ export function LandingPage() {
               center
               id="match-title"
               eyebrow="Prepared per job"
-              title={<>Your information stays the same. <em>Each application is prepared around the job.</em></>}
+              title={<>Your experience. <em>Matched to the role.</em></>}
             />
             <MatchEngine />
           </Wrap>
@@ -151,7 +159,7 @@ export function LandingPage() {
               center
               id="cv-title"
               eyebrow="Before / after"
-              title={<>See what your CV is missing <em>before the recruiter does.</em></>}
+              title={<>See the difference <em>in your CV.</em></>}
             />
             <BeforeAfterCv />
           </Wrap>
@@ -164,7 +172,7 @@ export function LandingPage() {
               id="interview-title"
               eyebrow="Mock interview"
               title={<>Practise the interview <em>before it counts.</em></>}
-              lead="Questions from your CV and the job. Answer out loud. See your score and what to fix."
+              lead="Practise your answers. Get feedback on what to improve."
             />
             <MockInterviewPreview />
           </Wrap>

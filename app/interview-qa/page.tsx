@@ -168,7 +168,7 @@ function InterviewQaScreen() {
       icon={QuestionMarkCircleIcon}
       eyebrow={stageEyebrow('apply')}
       title="Interview Q&A"
-      subtitle={isRaw ? 'Up to 25 practice questions in your professional field, drawn only from your saved Career Profile. No job description required.' : 'Up to 25 likely questions for one target job, with answers drawn from your own experience.'}
+      subtitle={isRaw ? 'Practise up to 25 questions from your profile. No job description needed.' : 'Practise up to 25 questions for your target job, using your own experience.'}
       uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">
@@ -388,7 +388,7 @@ export default function InterviewQaPage() {
 /** "[your example: ...]" in a sample answer, highlighted as the part the candidate fills in. */
 function AnswerText({ text }: { text: string }) {
   return (
-    <p className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">
+    <p className="whitespace-pre-line type-body text-ink-soft">
       {text.split(/(\[[^\]]+\])/).map((part, i) =>
         /^\[[^\]]+\]$/.test(part) ? (
           <mark key={i} className="rounded bg-gold-soft px-1 text-ink">
@@ -419,7 +419,7 @@ function QaCard({ item, number, open, onToggle }: { item: InterviewQuestionAnswe
           ))}
         </div>
         <h4 className="font-display text-[18px] font-semibold leading-snug text-ink">{item.question}</h4>
-        <p className="text-[12.5px] leading-relaxed text-ink-muted">
+        <p className="type-helper text-ink-muted">
           <strong className="text-ink-soft">Why they ask: </strong>
           {item.why_asked}
         </p>

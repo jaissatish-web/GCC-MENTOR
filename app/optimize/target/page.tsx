@@ -211,10 +211,9 @@ function TargetScreen() {
           <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
             Before your first CV
           </p>
-          <h1 className="font-display text-[26px] leading-tight text-ink">First, your Career Profile</h1>
-          <p className="text-[14px] leading-relaxed text-ink-soft">
-            Every CV is written only from the facts in your Career Profile, so it needs to exist before we
-            can tailor one. Upload your CV and we fill it in for you.
+          <h1 className="type-title text-ink">First, your Career Profile</h1>
+          <p className="type-body text-ink-soft">
+            Upload your CV to build your profile. We use your saved experience to tailor each application.
           </p>
           <div className="mt-3 flex flex-col gap-2.5">
             <Link href="/profile?import=upload" className={buttonVariants({ variant: 'primary' })}>
@@ -240,8 +239,7 @@ function TargetScreen() {
         title="Add your target job"
         subtitle={
           <>
-            Tell us the job you are applying for. It is saved in your {NAMES.library}, and your cover letter,
-            interview Q&amp;A and mock interview use it too.
+            Paste the job description to prepare your CV, letter and interview practice.
           </>
         }
       />

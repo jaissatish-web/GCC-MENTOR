@@ -43,6 +43,7 @@ __pycache__/
 
 # Misc
 .eslintcache
+artifacts/
 
 # Written by scripts/docx-smoke.ts on every run (npm test). A check's output,
 # not source.

@@ -3,14 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowRightStartOnRectangleIcon, Bars3Icon } from '@heroicons/react/24/outline'
+import { ArrowRightStartOnRectangleIcon, Bars3Icon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
 import { SideSheet } from '@/components/ui/SideSheet'
 import { signOut } from '@/app/auth/actions'
 import { cn } from '@/lib/utils'
 import { LockClosedIcon } from '@heroicons/react/24/solid'
 import { useCurrentStage } from '@/components/journey/useCurrentStage'
 import { type StageId } from '@/components/journey/stages'
-import { NAV_GROUPS, NAV_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
+import { NAV_GROUPS, NAV_ITEMS, MOBILE_PRIMARY_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
 
 /**
  * Every service, one tap away, from anywhere.
@@ -74,13 +74,13 @@ if (process.env.NODE_ENV !== 'production') {
 
 /** A one-line "what is this" for rows whose name does not say it. */
 const BLURB: Record<string, string> = {
-  '/dashboard': 'Your next step, and where you stand',
-  '/profile': 'Built once, used by every CV',
-  '/cover-letter': 'From your profile or a tailored CV',
-  '/interview-qa': 'Practice questions from your resume',
-  '/mock-interview': 'Practice and get a saved report',
-  '/dashboard/library': 'Your applications and their stage',
-  '/optimize': 'Build a CV for a specific role',
+  '/dashboard': 'Continue your preparation',
+  '/profile': 'Your experience in one place',
+  '/cover-letter': 'Write a letter for your application',
+  '/interview-qa': 'Practise questions and answers',
+  '/mock-interview': 'Practise and get feedback',
+  '/dashboard/library': 'Open your saved resumes',
+  '/optimize': 'Tailor your CV to a job',
   '/templates': '50 designs to choose from',
   '/linkedin-optimization': 'Coming soon',
 }
@@ -95,8 +95,7 @@ function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onN
       className={cn(
         'flex min-h-[52px] items-center gap-3 rounded-ctl bg-white px-3.5 py-3 shadow-m-1 transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
-        active ? 'ring-1 ring-teal/30' : 'hover:bg-teal-soft/50',
-        mark === 'locked' && !active && 'opacity-70',
+        active ? 'bg-teal-soft ring-1 ring-teal/30' : 'hover:bg-teal-soft/50',
       )}
     >
       <span
@@ -108,10 +107,10 @@ function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onN
       >
         <Icon className="size-[18px]" />
       </span>
-      <span className="flex min-w-0 flex-col">
-        <span className="text-[14px] font-semibold leading-tight text-ink">{item.label}</span>
+      <span className="flex min-w-0 flex-1 flex-col gap-1">
+        <span className="type-label font-medium text-ink">{item.label}</span>
         {BLURB[item.href] ? (
-          <span className="truncate text-[12px] text-ink-muted">{BLURB[item.href]}</span>
+          <span className="type-caption text-ink-muted">{BLURB[item.href]}</span>
         ) : null}
       </span>
       {mark === 'next' ? (
@@ -167,7 +166,7 @@ function SignOutRow() {
   )
 }
 
-export function ServicesMenu() {
+export function ServicesMenu({ placement = 'header' }: { placement?: 'header' | 'bottom' }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname() ?? ''
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -182,6 +181,8 @@ export function ServicesMenu() {
   const itemFor = (href: string) => NAV_ITEMS.find((i) => i.href === href)
   const snap = useCurrentStage()
   const states = snap ? snap.states : null
+  const bottom = placement === 'bottom'
+  const moreActive = bottom && NAV_ITEMS.some(item => !MOBILE_PRIMARY_ITEMS.includes(item) && isNavItemActive(item, pathname))
   const markFor = (stage: StageId | undefined, index: number): 'next' | 'locked' | null => {
     if (!stage || !states) return null
     if (states[stage] === 'locked') return 'locked'
@@ -195,12 +196,16 @@ export function ServicesMenu() {
         ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="All services"
+        aria-label={bottom ? 'More services' : 'All services'}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="ml-auto flex size-10 shrink-0 flex-col items-center justify-center gap-[3.5px] rounded-ctl bg-teal-soft transition-colors hover:bg-teal/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+        className={cn(
+          'flex shrink-0 flex-col items-center justify-center rounded-ctl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+          bottom ? 'min-h-11 min-w-0 flex-1 gap-1 px-0.5 text-[12px] leading-tight' : 'ml-auto size-11 bg-teal-soft hover:bg-teal/15',
+          bottom && (moreActive || open ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted'),
+        )}
       >
-        <Bars3Icon className="size-5 text-teal" />
+        {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-lg bg-teal-soft text-teal"><EllipsisHorizontalIcon className="size-5" /></span><span>More</span></> : <Bars3Icon className="size-5 text-teal" />}
       </button>
 
       <SideSheet open={open} onClose={close} title="All services" returnFocusTo={triggerRef}>

@@ -75,7 +75,7 @@ export function FlowHeader({
 
       <div>
         <h1 className="type-title text-ink">{title}</h1>
-        {subtitle ? <div className="mt-1.5 max-w-[62ch] type-body text-ink-soft">{subtitle}</div> : null}
+        {subtitle ? <div className="mt-2 max-w-[55ch] type-body text-ink-soft">{subtitle}</div> : null}
       </div>
     </header>
   )

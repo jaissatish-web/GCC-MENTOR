@@ -69,7 +69,7 @@ export function PageShell({
     // That is precisely the drift this component exists to prevent, and a page
     // cannot own its own font if the frame is meant to make pages feel like one
     // product.
-    <main className={cn('page-gutter mx-auto flex w-full flex-col gap-4 pb-12 pt-5 font-redesign-sans sm:gap-5 lg:pt-8', WIDTH[width], className)}>
+    <main className={cn('page-gutter mx-auto flex w-full flex-col gap-5 pb-12 pt-6 font-redesign-sans sm:gap-6 lg:pt-9', WIDTH[width], className)}>
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className={cn('grid min-w-0 gap-x-3 gap-y-1.5', Icon ? 'grid-cols-[auto_minmax(0,1fr)]' : 'grid-cols-1')}>
           {Icon ? (
@@ -89,7 +89,7 @@ export function PageShell({
             </h1>
           </div>
           {subtitle ? (
-            <p className={cn('col-span-full max-w-[70ch] type-body text-ink-soft', Icon && 'sm:col-span-1 sm:col-start-2')}>
+            <p className={cn('col-span-full max-w-[55ch] type-body text-ink-soft', Icon && 'sm:col-span-1 sm:col-start-2')}>
               {subtitle}
             </p>
           ) : null}

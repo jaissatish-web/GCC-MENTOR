@@ -50,6 +50,23 @@ export function SideSheet({
       if (e.key === 'Escape') {
         onClose()
         returnFocusTo?.current?.focus()
+        return
+      }
+      if (e.key === 'Tab') {
+        const panel = panelRef.current
+        const targets = panel ? Array.from(panel.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex="0"]')).filter(el => el.getClientRects().length > 0) : []
+        const first = targets[0]
+        const last = targets[targets.length - 1]
+        if (!first) {
+          e.preventDefault()
+          panel?.focus()
+        } else if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && (document.activeElement === last || document.activeElement === panel)) {
+          e.preventDefault()
+          first.focus()
+        }
       }
     }
     document.addEventListener('keydown', onKey)
@@ -86,7 +103,7 @@ export function SideSheet({
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="flex size-9 items-center justify-center rounded-ctl bg-canvas text-ink-soft transition-colors hover:bg-line/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="flex size-11 items-center justify-center rounded-ctl bg-canvas text-ink-soft transition-colors hover:bg-line/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             <XMarkIcon className="size-[18px]" />
           </button>

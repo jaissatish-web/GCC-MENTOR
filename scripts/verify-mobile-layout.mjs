@@ -80,7 +80,7 @@ try {
       assert.equal(result.titleSize, `${(width >= 1024 ? 32 : width >= 640 ? 28 : 24) * scale}px`)
       assert.equal(result.weight, '700')
       assert.equal(result.inputSize, `${16 * scale}px`)
-      assert.equal(result.bodySize, `${16 * scale}px`)
+      assert.equal(result.bodySize, `${(width >= 1024 ? 17 : 16) * scale}px`)
       assert.ok(result.buttonHeight >= 44)
       if (width < 640) assert.equal(result.subtitleX, result.iconX, 'Phone subtitle must use the full header width')
       else assert.equal(result.subtitleX, result.titleX, 'Larger screens align subtitle with title')

@@ -2168,7 +2168,7 @@ function ProfileScreen() {
                       ? `Almost there, ${firstName}`
                       : `Keep going, ${firstName}`}
               </h1>
-              <p className="text-[12px] leading-relaxed text-ink-soft">
+              <p className="max-w-[55ch] type-helper text-ink-soft">
                 <span className="font-semibold text-ink">Career Profile — {readiness.score}% complete,{' '}
                 {itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
                 Profiles like yours — <span className="font-semibold text-teal">{categoryCopy.highlight}</span> —{' '}

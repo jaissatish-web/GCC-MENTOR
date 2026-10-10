@@ -139,51 +139,20 @@ export default function DashboardPage() {
   const firstRun = ready && nextAction.state === 'no_profile'
 
   return (
-    <div className="page-gutter mx-auto flex w-full max-w-[1120px] flex-col gap-5 pb-10 pt-5 font-redesign-sans sm:gap-6 lg:pt-8">
+    <div className="page-gutter mx-auto flex w-full max-w-[1120px] flex-col gap-6 pb-10 pt-6 font-redesign-sans sm:gap-8 lg:pt-9">
       <header className="flex flex-col gap-1">
         <h1 className="type-title text-ink">
           {firstName ? `Good ${greeting()}, ${firstName}` : profileLoaded ? 'Welcome to GCC MENTOR' : `Good ${greeting()}`}
         </h1>
         <p className="type-body text-ink-soft">
           {firstRun
-            ? 'Three steps from your current CV to an interview-ready application.'
-            : 'Your profile, saved work and preparation progress at a glance.'}
+            ? 'Start with your profile. We’ll guide you from there.'
+            : 'Continue your preparation for your next Gulf role.'}
         </p>
       </header>
 
-      <section aria-labelledby="scores-heading" className="flex flex-col gap-3">
-        <h2 id="scores-heading" className="type-section text-ink">Your profile scores</h2>
-        {!profileLoaded ? <div aria-label="Loading profile scores" className="grid grid-cols-2 gap-3"><div className="h-52 animate-pulse rounded-card bg-canvas" /><div className="h-52 animate-pulse rounded-card bg-canvas" /></div> : profile ? (
-          <ScoreCards
-            className="m-0"
-            completeness={{ score, itemsLeft: missing.length, detail: missing.length === 0 ? 'Every section is complete' : `Add: ${missing.slice(0, 2).map((m) => m.label.toLowerCase()).join(', ')}${missing.length > 2 ? '…' : ''}` }}
-            gulf={gulf}
-            onOpenCompleteness={() => router.push('/profile?view=completeness')}
-            onOpenReadiness={() => router.push('/profile?view=readiness')}
-          />
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            <Link href="/profile" className="flex flex-col gap-2 rounded-card border border-line bg-white p-5"><span className="type-card text-teal">Profile complete</span><span className="type-body text-ink">{loadError ? 'Unavailable' : 'Not started'}</span><span className="type-helper text-ink-muted">Add your CV or enter your experience.</span><span className="type-helper font-semibold text-teal">Open Career Profile →</span></Link>
-            <Link href="/profile?view=readiness" className="flex flex-col gap-2 rounded-card border border-line bg-white p-5"><span className="type-card text-teal">Gulf Readiness</span><span className="type-body text-ink">{loadError ? 'Unavailable' : 'Add your profile'}</span><span className="type-helper text-ink-muted">Your saved profile is used to calculate this score.</span><span className="type-helper font-semibold text-teal">See readiness →</span></Link>
-          </div>
-        )}
-      </section>
-
-      <ActivityOverview overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
-      {overview && !overviewError ? <OverallProgress overview={overview} /> : null}
-      <InterviewProgressOverview />
-
-      {/* THE MAP + THE ONE NEXT STEP, as one object: the rail says where you
-          are, the teal panel under it says what to do there. */}
+      {/* Lead with the existing next action; the compact map supports it. */}
       <section aria-label="Your progress and next step" className="overflow-hidden rounded-card border border-line bg-white shadow-m-2">
-        <div className="px-2 pb-5 pt-6 sm:px-8">
-          {ready ? (
-            <StageRail states={states} className="mx-auto max-w-[720px]" />
-          ) : (
-            <div className="mx-auto h-[84px] max-w-[520px] animate-pulse rounded-ctl bg-canvas" />
-          )}
-        </div>
-
         <div className="flex flex-col gap-4 bg-teal p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
           <div className="flex min-w-0 flex-col gap-1.5">
             <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal-soft">
@@ -203,7 +172,7 @@ export default function DashboardPage() {
                 : !ready
                   ? 'Loading your next step…'
                   : firstRun
-                    ? 'Start with the CV you already have'
+                    ? 'Start with your CV'
                     : nextAction.title}
             </h2>
             <p className="max-w-[60ch] type-body text-teal-soft">
@@ -212,7 +181,7 @@ export default function DashboardPage() {
                 : !ready
                   ? 'Checking your profile and saved applications.'
                   : firstRun
-                    ? 'We read it and fill in your Career Profile for you. Every CV, letter and interview answer after this is written from it, so you only do this once.'
+                    ? 'Upload your CV to build your profile. Review it once, then use it for every application.'
                     : nextAction.body}
             </p>
           </div>
@@ -241,11 +210,50 @@ export default function DashboardPage() {
             </Link>
           )}
         </div>
+        <div className="border-t border-white/20 bg-white px-2 py-5 sm:px-8">
+          {ready ? (
+            <StageRail states={states} className="mx-auto max-w-[720px]" />
+          ) : (
+            <div className="mx-auto h-[84px] max-w-[520px] animate-pulse rounded-ctl bg-canvas" />
+          )}
+        </div>
       </section>
 
       {/* Until step 1 is done, show what the three steps give — the product
           explaining itself, instead of an empty jobs list and blank scores. */}
       {snap && !snap.facts.profileDone && packages.length === 0 ? <StageExplainer states={states} /> : null}
+
+      <section aria-labelledby="scores-heading" className="flex flex-col gap-3">
+        <h2 id="scores-heading" className="type-section text-ink">Your profile scores</h2>
+        {!profileLoaded ? <div aria-label="Loading profile scores" className="grid grid-cols-2 gap-3"><div className="h-52 animate-pulse rounded-card bg-canvas" /><div className="h-52 animate-pulse rounded-card bg-canvas" /></div> : profile ? (
+          <ScoreCards
+            className="m-0"
+            completeness={{ score, itemsLeft: missing.length, detail: missing.length === 0 ? 'Every section is complete' : `Add: ${missing.slice(0, 2).map((m) => m.label.toLowerCase()).join(', ')}${missing.length > 2 ? '…' : ''}` }}
+            gulf={gulf}
+            onOpenCompleteness={() => router.push('/profile?view=completeness')}
+            onOpenReadiness={() => router.push('/profile?view=readiness')}
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            <Link href="/profile" className="flex flex-col gap-2 rounded-card border border-line bg-white p-5"><span className="type-card text-teal">Profile complete</span><span className="type-body text-ink">{loadError ? 'Unavailable' : 'Not started'}</span><span className="type-helper text-ink-muted">Add your CV or enter your experience.</span><span className="type-helper font-semibold text-teal">Open Career Profile →</span></Link>
+            <Link href="/profile?view=readiness" className="flex flex-col gap-2 rounded-card border border-line bg-white p-5"><span className="type-card text-teal">Gulf Readiness</span><span className="type-body text-ink">{loadError ? 'Unavailable' : 'Add your profile'}</span><span className="type-helper text-ink-muted">Your saved profile is used to calculate this score.</span><span className="type-helper font-semibold text-teal">See readiness →</span></Link>
+          </div>
+        )}
+      </section>
+
+      <ActivityOverview overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
+
+      <details className="group rounded-card border border-line bg-white shadow-m-1">
+        <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
+          <span><span className="block type-card text-ink">Your progress reports</span><span className="mt-1 block type-helper text-ink-muted">Application progress and interview feedback</span></span>
+          <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-teal-soft text-xl text-teal group-open:rotate-45">+</span>
+        </summary>
+        <div className="flex flex-col gap-6 border-t border-line p-4 sm:p-6">
+          {overview && !overviewError ? <OverallProgress overview={overview} /> : null}
+          {overviewLoading ? <p role="status" className="type-helper text-ink-muted">Loading your progress…</p> : overviewError ? <p className="type-helper text-ink-muted">Reload your activity totals above to see application progress.</p> : null}
+          <InterviewProgressOverview />
+        </div>
+      </details>
 
     </div>
   )

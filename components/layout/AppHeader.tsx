@@ -51,7 +51,7 @@ export function AppHeader() {
           </span>
         </Link>
 
-        <ServicesMenu />
+        <div className="ml-auto hidden md:block"><ServicesMenu /></div>
       </div>
     </header>
   )

@@ -81,10 +81,10 @@ function NavItem({
       aria-current={active ? 'page' : undefined}
       title={mark === 'locked' ? 'Opens after the step before it' : undefined}
       className={cn(
-        'flex min-h-10 items-center gap-3 rounded-ctl px-3 text-[14px] font-redesign-sans transition-colors',
+        'flex min-h-11 items-center gap-3 rounded-ctl px-3 py-1.5 text-[14px] font-redesign-sans transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-white',
         active
-          ? 'border border-teal/30 bg-teal-soft font-semibold text-teal'
+          ? 'border border-teal/30 bg-teal-soft font-medium text-teal'
           : mark === 'locked'
             ? 'border border-transparent font-medium text-ink-muted hover:bg-canvas'
             : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
@@ -132,7 +132,7 @@ export function Sidebar() {
   const navContent = (onNavigate?: () => void) => (
     <>
       <BrandMark />
-      <nav className="flex flex-col gap-0.5">
+      <nav aria-label="Primary" className="flex flex-col gap-2">
         {groups.map((g) => {
           return (
             <div key={g.key} className="flex flex-col gap-0.5">
@@ -164,7 +164,7 @@ export function Sidebar() {
       </aside>
 
       {/* Tablet collapsed sidebar — 768–1023px */}
-      <aside className="relative hidden w-[48px] flex-none flex-col items-center gap-5 overflow-y-auto overscroll-contain border-r border-line bg-white px-2 py-4 [scrollbar-width:none] md:flex lg:hidden">
+      <aside className="relative hidden w-[64px] flex-none flex-col items-center gap-5 overflow-y-auto overscroll-contain border-r border-line bg-white px-2 py-4 [scrollbar-width:none] md:flex lg:hidden">
         {/* No logo here (2026-09-24): on a tablet the top bar beside this rail
             already carries it, and two "G" marks side by side read as a bug. */}
         <nav className="flex flex-col items-center gap-1">
@@ -199,7 +199,7 @@ export function Sidebar() {
             <button
               type="button"
               onClick={() => setTabletExpanded(false)}
-              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-ctl text-ink-muted hover:text-ink"
+              className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-ctl text-ink-muted hover:text-ink"
               aria-label="Close navigation"
             >
               ✕

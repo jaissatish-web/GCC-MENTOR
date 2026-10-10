@@ -4,11 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { MOBILE_PRIMARY_ITEMS, isNavItemActive, navHref } from './navItems'
+import { ServicesMenu } from './ServicesMenu'
 
 /**
  * Mobile bottom nav — DESIGN_SYSTEM.md §8.3.
  *
- * Four pinned destinations plus "More". Which four is decided in ./navItems
+ * Home, Profile, Resumes and the shared "More" drawer. Items live in ./navItems
  * (MOBILE_PRIMARY_HREFS) rather than re-listed here, so the bar can never
  * disagree with the sidebar about labels, icons, order or routes — it had
  * already drifted once, still showing "Library" after the rail was renamed.
@@ -43,7 +44,7 @@ export function MobileBottomNav() {
               // padding is 336px, wider than a 320px phone.
               'flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-ctl px-0.5 text-center text-[12px] leading-tight font-redesign-sans transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
-              active ? 'font-semibold text-teal' : 'font-medium text-ink-muted'
+              active ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted'
             )}
           >
             <span aria-hidden="true" className={cn('flex size-7 items-center justify-center rounded-lg', item.iconClass)}><Icon className="size-[18px]" /></span>
@@ -52,8 +53,7 @@ export function MobileBottomNav() {
         )
       })}
 
-      {/* No "More" slot (2026-09-24): the header's menu already lists every
-          destination, and two menus for the same list was one too many. */}
+      <ServicesMenu placement="bottom" />
     </nav>
   )
 }
