@@ -52,6 +52,7 @@ const server = createServer((req, res) => {
   const relative = pathname.startsWith('/_next/static/') ? `.next/${pathname.slice(7)}`
     : pathname === '/' ? '.next/server/app/index.html'
       : pathname === '/dashboard' ? '.next/server/app/dashboard.html'
+        : pathname === '/profile' ? '.next/server/app/profile.html'
         : `public${pathname}`
   const file = resolve(root, relative)
   if (!file.startsWith(`${root}/`) || !existsSync(file)) {
@@ -96,6 +97,11 @@ try {
         assert.ok(dimensions.links.some(e => e.href === '/profile?import=upload' && e.bottom < 700), 'First action must be visible without scrolling')
         for (const href of ['/profile?import=upload', '/profile?import=paste', '/profile']) assert.ok(dimensions.links.some(e => e.href === href), `Missing entry path ${href}`)
       }
+      if (state === 'saved') {
+        assert.ok(await page.$('[aria-label="Choose your CV"]'), 'Saved profile exposes both CV paths')
+        assert.ok(await page.$('[aria-label="Choose your CV"] a[href="/optimize/target"]'), 'New target remains accessible alongside existing next step')
+        assert.ok(await page.$eval('[aria-label="Choose your CV"]', el => el.textContent.includes('Preview CV')), 'Existing profile preview is accessible')
+      }
       await page.screenshot({ path: `artifacts/readable-ui/dashboard-${width}-${state}.png`, fullPage: false })
       if (width < 768) {
         const trigger = await page.$('button[aria-label="More services"]')
@@ -116,8 +122,27 @@ try {
       await page.$eval('details summary', element => element.click())
       assert.ok(await page.$eval('details', element => element.open), 'Progress reports expand')
     }
+    scenario = 'saved'
+    await page.goto(`${origin}/profile`, { waitUntil: 'networkidle0' })
+    await page.waitForFunction(() => document.body.textContent.includes('Your CV is ready to preview.'))
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Profile fits the viewport')
+    assert.ok(await page.evaluate(() => [...document.querySelectorAll('button')].some(el => el.textContent.includes('Preview CV'))), 'Saved profile has its original CV preview action')
+    assert.ok(await page.evaluate(() => [...document.querySelectorAll('button')].some(el => el.textContent.includes('Tailor for a job'))), 'Saved profile keeps its save-before-tailoring action')
+    await page.screenshot({ path: `artifacts/readable-ui/profile-${width}.png`, fullPage: false })
     await page.goto(origin, { waitUntil: 'networkidle0' })
     assert.ok(await page.$('#services'), 'Landing explains services before the detailed walkthrough')
+    const guideTrigger = await page.$('main button[data-state="closed"]')
+    assert.ok(guideTrigger, 'Visual guide has a homepage trigger')
+    await guideTrigger.click()
+    await page.waitForSelector('[role="dialog"]')
+    const guideText = await page.$eval('[role="dialog"]', el => el.textContent)
+    for (const label of ['Upload CV', 'Paste text', 'Enter details', 'Career Profile', 'Create my CV', 'Tailor for a job', 'Choose template', 'Save / Download', 'Cover letter']) assert.ok(guideText.includes(label), `Guide misses ${label}`)
+    assert.ok(await page.$eval('[role="dialog"]', el => el.scrollWidth <= el.clientWidth + 1), 'Guide fits mobile width')
+    await page.screenshot({ path: `artifacts/readable-ui/guide-${width}.png`, fullPage: false })
+    await page.keyboard.press('Escape')
+    await page.waitForSelector('[role="dialog"]', { hidden: true })
+    assert.equal(await page.evaluate(() => document.activeElement.textContent.includes('How it works')), true, 'Guide returns focus to trigger')
+
     if (width < 1280) {
       await page.click('summary[aria-label="Open section menu"]')
       await page.click('header details a[href="#services"]')

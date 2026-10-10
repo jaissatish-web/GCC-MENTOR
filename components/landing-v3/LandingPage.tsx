@@ -1,3 +1,4 @@
+import { HowItWorks } from '@/components/journey/HowItWorks'
 import { AppFooter } from '@/components/layout/AppFooter'
 import { AuthLinkCatcher } from '@/components/auth/AuthLinkCatcher'
 import { AtsFilter } from './AtsFilter'
@@ -88,6 +89,7 @@ export function LandingPage() {
               lead="Build once. Prepare for each job. Keep everything in your Resume Library."
             />
             <JourneyOverview />
+            <div className="mt-5 flex justify-center"><HowItWorks className="border border-teal/25 bg-teal-soft" /></div>
             <details className="group mt-6 rounded-card border border-line bg-white">
               <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 type-label text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
                 See a sample application

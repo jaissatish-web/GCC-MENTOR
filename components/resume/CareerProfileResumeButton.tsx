@@ -24,8 +24,8 @@ export function CareerProfileResumeButton() {
     }
   }
   return <div className="flex flex-col items-start gap-1">
-    <Button variant="secondary" size="sm" busy={busy} busyLabel="Opening…" onClick={() => void open()}><UserCircleIcon className="size-4" aria-hidden="true" />See your resume</Button>
-    <span className="text-[12px] text-ink-muted">Uses your latest saved Career Profile.</span>
+    <Button variant="secondary" size="sm" busy={busy} busyLabel="Opening…" onClick={() => void open()}><UserCircleIcon className="size-4" aria-hidden="true" />Preview CV</Button>
+    <span className="text-[12px] text-ink-muted">Save profile changes before previewing.</span>
     {error ? <p role="alert" className="text-[13px] text-alert">{error}</p> : null}
   </div>
 }

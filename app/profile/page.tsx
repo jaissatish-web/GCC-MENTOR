@@ -22,7 +22,6 @@ import { ResumeImport } from '@/components/profile/ResumeImport'
 import { TypicalDuties } from '@/components/profile/TypicalDuties'
 import {
   CareerSnapshot,
-  ProfileExplainer,
   SaveBar,
   ScoreCards,
   SettingsCard,
@@ -36,7 +35,7 @@ import { GulfReadinessView } from '@/components/profile/GulfReadinessView'
 import { CvVisibilitySettings, visibilitySummary } from '@/components/profile/CvVisibilitySettings'
 import { gccExperience, totalExperienceYears } from '@/lib/experienceYears'
 import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
-import { cn, displayFirstName } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CAREER_PROFILE_PARSE_NOTES_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
 import { mergeDraftIntoProfile, describeReplaceLosses } from '@/lib/profileMerge'
@@ -1670,7 +1669,6 @@ function ProfileScreen() {
   const phoneParts = useMemo(() => splitPhone(editor?.phone), [editor?.phone])
   const whatsappParts = useMemo(() => splitPhone(editor?.whatsapp), [editor?.whatsapp])
 
-  const firstName = (editor && displayFirstName(editor.full_name)) || 'there'
   const categoryCopy = CATEGORY_COPY[readiness.category]
   const itemsLeft = readiness.missing.length
 
@@ -2021,7 +2019,7 @@ function ProfileScreen() {
       message={saveError}
       onSave={() => void onSubmit('stay')}
       onFinish={view === 'overview' ? () => router.push('/dashboard') : backToOverview}
-      finishLabel={view === 'overview' ? 'Done — go to dashboard' : 'Back to my profile'}
+      finishLabel={view === 'overview' ? 'Done' : 'Back to profile'}
     />
   ) : null
   const parseNotesBlock = (
@@ -2043,7 +2041,7 @@ function ProfileScreen() {
         <ViewHeader
           eyebrow="Completeness"
           title="Profile completeness"
-          description="How complete your Career Profile is, and exactly what is left to add."
+          description="Complete the missing details."
           onBack={backToOverview}
         />
         <CompletenessView
@@ -2067,7 +2065,7 @@ function ProfileScreen() {
         <ViewHeader
           eyebrow="Gulf Readiness"
           title="Gulf Readiness"
-          description="How ready you are for GCC jobs, and the steps that raise it — paperwork first, then your profile."
+          description="Your score and next improvements."
           onBack={backToOverview}
         />
         <GulfReadinessView
@@ -2093,7 +2091,7 @@ function ProfileScreen() {
         <ViewHeader
           eyebrow="Settings"
           title="Profile settings"
-          description="Choose what appears on your CV. Changes are saved with the rest of your profile."
+          description="Choose what appears on your CV."
           onBack={backToOverview}
           action={saveButton}
         />
@@ -2156,23 +2154,10 @@ function ProfileScreen() {
               <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
                 Step 1 of 3 · Your profile
               </span>
-              {/* "Almost there, there" at 0% was two errors in four words — no
-                  name to greet, and nowhere near "almost". The heading now says
-                  what is true at each stage. */}
-              <h1 className="type-title text-ink">
-                {!editor.full_name.trim()
-                  ? 'Build your Career Profile'
-                  : readiness.score >= 100
-                    ? `Your profile is complete, ${firstName}`
-                    : readiness.score >= 80
-                      ? `Almost there, ${firstName}`
-                      : `Keep going, ${firstName}`}
-              </h1>
+              <h1 className="type-title text-ink">Career Profile</h1>
               <p className="max-w-[55ch] type-helper text-ink-soft">
                 <span className="font-semibold text-ink">Career Profile — {readiness.score}% complete,{' '}
-                {itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>{' '}
-                Profiles like yours — <span className="font-semibold text-teal">{categoryCopy.highlight}</span> —{' '}
-                {categoryCopy.rest}
+                {itemsLeft} item{itemsLeft === 1 ? '' : 's'} left.</span>
               </p>
             </div>
 
@@ -2194,7 +2179,6 @@ function ProfileScreen() {
               </Button>
             </div>
           </div>
-          <CareerProfileResumeButton />
         </header>
 
         {/* The CV reader's "please check these" — first, while it is fresh. */}
@@ -2236,8 +2220,31 @@ function ProfileScreen() {
           </div>
         ) : null}
 
-        {/* WHAT THIS PAGE IS — in plain words, on the page's one coloured panel. */}
-        <ProfileExplainer />
+
+        {hasSavedProfile && editor.full_name.trim() ? (
+          <div className="mx-3 sm:mx-5 mt-4 flex flex-col gap-3 rounded-card border border-teal/30 bg-teal-soft/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-0.5">
+              <p className="text-[14px] font-bold text-ink">Your CV is ready to preview.</p>
+              <p className="text-[13px] leading-relaxed text-ink-soft">
+                Choose a template, or tailor your CV for a job.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:items-end">
+            <CareerProfileResumeButton />
+            <Button
+              variant="progress"
+              size="sm"
+              className="shrink-0"
+              busy={submitting}
+              busyLabel="Saving…"
+              onClick={() => void onSubmit('confirm')}
+            >
+              Tailor for a job
+            </Button>
+            </div>
+          </div>
+        ) : null}
+
 
         {/* THE TWO SCORES, PROFILE SETTINGS, CAREER AT A GLANCE (2026-10-04).
             Each card opens its own screen. Hidden until the profile has a name:
@@ -2261,27 +2268,6 @@ function ProfileScreen() {
             the optimizer" path already existed (onSubmit('confirm')) with nothing
             calling it. It saves first, so edits made here are never left behind,
             and the required-field check still runs. */}
-        {hasSavedProfile && editor.full_name.trim() ? (
-          <div className="mx-3 sm:mx-5 mt-4 flex flex-col gap-3 rounded-card border border-teal/30 bg-teal-soft/50 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col gap-0.5">
-              <p className="text-[14px] font-bold text-ink">Your profile is saved. Next: a CV for a specific job.</p>
-              <p className="text-[13px] leading-relaxed text-ink-soft">
-                Tell us the role and we tailor your CV to it — using only what is in this profile.
-              </p>
-            </div>
-            <Button
-              variant="progress"
-              size="sm"
-              className="shrink-0"
-              busy={submitting}
-              busyLabel="Saving…"
-              onClick={() => void onSubmit('confirm')}
-            >
-              Build a CV for a job
-            </Button>
-          </div>
-        ) : null}
-
         {/* START OR UPDATE FROM A RESUME — the three ways in that used to live on
             the /create-resume screen and in the sidebar (founder decision
             2026-08-18: fold them onto the Career Profile itself, and 2026-08-18:
@@ -2310,7 +2296,7 @@ function ProfileScreen() {
       <ViewHeader
         eyebrow="Full profile"
         title="Your full profile"
-        description="Everything we read from your CV, in nine parts. Open a part to check or change it."
+        description="Review and edit your details."
         onBack={backToOverview}
         action={saveButton}
       />

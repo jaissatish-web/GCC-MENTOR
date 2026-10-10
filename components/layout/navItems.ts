@@ -89,9 +89,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.
-  { label: 'Resume Library', href: '/dashboard/library', iconClass: 'bg-indigo-50 text-indigo-700', icon: BriefcaseIcon, shortLabel: 'Resumes' },
+  { label: 'My CVs', href: '/dashboard/library', iconClass: 'bg-indigo-50 text-indigo-700', icon: BriefcaseIcon, shortLabel: 'My CVs' },
   { label: 'Resume Templates', href: '/templates', iconClass: 'bg-rose-50 text-rose-700', icon: RectangleStackIcon, shortLabel: 'Templates' },
-  { label: 'Resume Optimizer', href: '/optimize', iconClass: 'bg-yellow-50 text-yellow-700', icon: DocumentTextIcon, shortLabel: 'Optimize' },
+  { label: 'Tailor for a job', href: '/optimize', iconClass: 'bg-yellow-50 text-yellow-700', icon: DocumentTextIcon, shortLabel: 'Tailor' },
   { label: 'Cover Letter', href: '/cover-letter', iconClass: 'bg-violet-50 text-violet-700', icon: EnvelopeIcon },
   { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'bg-cyan-50 text-cyan-700', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
   { label: 'Mock Interview', href: '/mock-interview', iconClass: 'bg-orange-50 text-orange-700', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
@@ -144,9 +144,9 @@ export interface NavGroup {
 export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'home', label: null, hrefs: ['/dashboard'] },
   { key: 'profile', label: 'Your profile', hrefs: ['/profile'], stage: 'profile' },
-  { key: 'files', label: 'Your files', hrefs: ['/dashboard/library'] },
-  { key: 'cv', label: 'Tailored CV', hrefs: ['/optimize', '/templates'], stage: 'cv' },
-  { key: 'apply', label: 'Apply & interview', hrefs: ['/cover-letter', '/interview-qa', '/mock-interview'], stage: 'apply' },
+  { key: 'files', label: 'My CVs', hrefs: ['/dashboard/library'] },
+  { key: 'cv', label: 'Create a CV', hrefs: ['/optimize', '/templates'], stage: 'cv' },
+  { key: 'apply', label: 'Job preparation', hrefs: ['/cover-letter', '/interview-qa', '/mock-interview'], stage: 'apply' },
   { key: 'professional', label: 'Your online profile', hrefs: ['/linkedin-optimization'] },
   { key: 'account', label: 'Account', hrefs: ['/settings'] },
 ]

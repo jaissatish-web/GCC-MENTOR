@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { HowItWorks } from '@/components/journey/HowItWorks'
 import Link from 'next/link'
 import {
   ClipboardList,
@@ -82,9 +83,7 @@ export function HeroCopy() {
         <Link href="/signup" className={BTN_GOLD}>
           Build my profile <ArrowRight />
         </Link>
-        <a href="#journey" className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[14px] px-5 type-button text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-          How it works <ArrowRight />
-        </a>
+        <HowItWorks />
       </div>
       <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 type-helper font-medium text-ink-soft lg:mt-7" aria-label="Why people trust it">
         {['6 Gulf countries', 'You approve changes', 'Free to start'].map((t) => (

@@ -136,6 +136,7 @@ export function Sidebar() {
         {groups.map((g) => {
           return (
             <div key={g.key} className="flex flex-col gap-0.5">
+              {g.label ? <p className="px-3 pb-1 pt-3 type-caption font-semibold text-teal">{g.label}</p> : null}
               {g.items.map((item, i) => (
                 <NavItem key={item.label} item={item} active={isActive(item)} mark={markFor(g.stage, i)} onClick={onNavigate} />
               ))}

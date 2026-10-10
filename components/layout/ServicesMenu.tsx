@@ -46,9 +46,10 @@ import { NAV_GROUPS, NAV_ITEMS, MOBILE_PRIMARY_ITEMS, isNavItemActive, navHref, 
  * Internal groups keep the sidebar's order and state marks. Their category
  * labels are not displayed in the menu (founder request 2026-10-08).
  */
-const GROUPS: ReadonlyArray<{ label: string; hrefs: readonly string[]; stage?: StageId; withSignOut?: true }> = NAV_GROUPS.map((g) => {
+const GROUPS: ReadonlyArray<{ label: string; heading: string | null; hrefs: readonly string[]; stage?: StageId; withSignOut?: true }> = NAV_GROUPS.map((g) => {
   return {
     label: g.key,
+    heading: g.label,
     hrefs: g.hrefs,
     stage: g.stage,
     ...(g.key === 'account' ? { withSignOut: true as const } : {}),
@@ -70,19 +71,6 @@ if (process.env.NODE_ENV !== 'production') {
   if (missing.length > 0) {
     console.warn(`ServicesMenu: these destinations are in no group and will not appear — ${missing.join(', ')}`)
   }
-}
-
-/** A one-line "what is this" for rows whose name does not say it. */
-const BLURB: Record<string, string> = {
-  '/dashboard': 'Continue your preparation',
-  '/profile': 'Your experience in one place',
-  '/cover-letter': 'Write a letter for your application',
-  '/interview-qa': 'Practise questions and answers',
-  '/mock-interview': 'Practise and get feedback',
-  '/dashboard/library': 'Open your saved resumes',
-  '/optimize': 'Tailor your CV to a job',
-  '/templates': '50 designs to choose from',
-  '/linkedin-optimization': 'Coming soon',
 }
 
 function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onNavigate: () => void; active: boolean; mark?: 'next' | 'locked' | null }) {
@@ -109,9 +97,7 @@ function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onN
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="type-label font-medium text-ink">{item.label}</span>
-        {BLURB[item.href] ? (
-          <span className="type-caption text-ink-muted">{BLURB[item.href]}</span>
-        ) : null}
+        {item.href === '/linkedin-optimization' ? <span className="type-caption text-ink-muted">Coming soon</span> : null}
       </span>
       {mark === 'next' ? (
         <span className="ml-auto shrink-0 rounded-full bg-gold px-2 py-0.5 text-[12px] font-bold text-ink">Next</span>
@@ -214,6 +200,7 @@ export function ServicesMenu({ placement = 'header' }: { placement?: 'header' | 
           if (rows.length === 0 && !group.withSignOut) return null
           return (
             <div key={group.label} className="flex flex-col gap-2">
+              {group.heading ? <h2 className="px-3 pt-3 type-caption font-semibold text-teal">{group.heading}</h2> : null}
               {rows.map((item, i) => (
                 <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(group.stage, i)} />
               ))}

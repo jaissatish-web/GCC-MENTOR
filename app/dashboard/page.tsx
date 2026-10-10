@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { HowItWorks } from '@/components/journey/HowItWorks'
+import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { StageExplainer, StageRail } from '@/components/journey/JourneyStepper'
+import { StageRail } from '@/components/journey/JourneyStepper'
 import { stageById, stageSnapshot, stageStates } from '@/components/journey/stages'
 import { ScoreCards } from '@/components/profile/ProfileOverview'
 import { displayFirstName } from '@/lib/utils'
@@ -146,10 +148,27 @@ export default function DashboardPage() {
         </h1>
         <p className="type-body text-ink-soft">
           {firstRun
-            ? 'Start with your profile. We’ll guide you from there.'
-            : 'Continue your preparation for your next Gulf role.'}
+            ? 'Create your CV or prepare for a job.'
+            : 'Your CVs and job preparation, in one place.'}
         </p>
+        <div className="self-start"><HowItWorks /></div>
       </header>
+
+      {ready && profile ? (
+        <section aria-label="Choose your CV" className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col items-start gap-3 rounded-card border border-line bg-white p-5 sm:p-6">
+            <h2 className="type-card text-ink">Create my CV</h2>
+            <p className="type-helper text-ink-soft">From your saved Career Profile.</p>
+            <CareerProfileResumeButton />
+          </div>
+          <div className="flex flex-col items-start gap-3 rounded-card border border-line bg-white p-5 sm:p-6">
+            <h2 className="type-card text-ink">Tailor for a job</h2>
+            <p className="type-helper text-ink-soft">Use a job description to prepare your application.</p>
+            <Link href="/optimize/target" className="inline-flex min-h-11 items-center rounded-ctl bg-teal px-4 type-button text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">Add target job</Link>
+          </div>
+        </section>
+      ) : null}
+
 
       {/* Lead with the existing next action; the compact map supports it. */}
       <section aria-label="Your progress and next step" className="overflow-hidden rounded-card border border-line bg-white shadow-m-2">
@@ -181,8 +200,8 @@ export default function DashboardPage() {
                 : !ready
                   ? 'Checking your profile and saved applications.'
                   : firstRun
-                    ? 'Upload your CV to build your profile. Review it once, then use it for every application.'
-                    : nextAction.body}
+                    ? 'Upload, paste or enter your details.'
+                    : nextAction.state === 'no_target_job' ? 'Choose a job to tailor your CV.' : 'Continue where you left off.'}
             </p>
           </div>
           {loadError ? (
@@ -218,10 +237,6 @@ export default function DashboardPage() {
           )}
         </div>
       </section>
-
-      {/* Until step 1 is done, show what the three steps give — the product
-          explaining itself, instead of an empty jobs list and blank scores. */}
-      {snap && !snap.facts.profileDone && packages.length === 0 ? <StageExplainer states={states} /> : null}
 
       <section aria-labelledby="scores-heading" className="flex flex-col gap-3">
         <h2 id="scores-heading" className="type-section text-ink">Your profile scores</h2>

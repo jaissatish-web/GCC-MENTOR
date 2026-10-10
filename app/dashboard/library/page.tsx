@@ -549,8 +549,8 @@ export default function TargetJobsPage() {
     <PageShell
       width="document"
       icon={BriefcaseIcon}
-      title="Resume Library"
-      subtitle="Your saved resumes, cover letters and interview preparation."
+      title="My CVs"
+      subtitle="Your profile CV and job applications."
       actions={
         total > 0 ? (
           <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'shrink-0')}>
