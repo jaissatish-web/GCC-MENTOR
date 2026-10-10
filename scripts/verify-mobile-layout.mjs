@@ -33,7 +33,9 @@ const rendered = spawnSync(process.execPath, ['-r', 'sucrase/register', '-e', `
 assert.equal(rendered.status, 0, rendered.stderr)
 const readiness = readFileSync('.next/server/app/gulf-readiness-score.html', 'utf8')
 assert.match(readiness, /<title>Free Gulf Readiness Score/)
-assert.match(readiness, /rel="canonical" href="https:\/\/[^"]+\/gulf-readiness-score"/)
+const canonical = readiness.match(/rel="canonical" href="([^"]+)"/)?.[1]
+assert.ok(canonical, 'Readiness must publish a canonical URL')
+assert.equal(canonical, new URL('/gulf-readiness-score', process.env.NEXT_PUBLIC_APP_URL || 'https://gcc-mentor.vercel.app').href)
 const sitemap = readFileSync('.next/server/app/sitemap.xml.body', 'utf8')
 assert.ok(!sitemap.includes('/login') && !sitemap.includes('/signup'), 'Auth pages must stay out of the public sitemap.')
 const landing = readFileSync('.next/server/app/index.html', 'utf8')
