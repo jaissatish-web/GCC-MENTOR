@@ -219,6 +219,7 @@ function PackageScreenInner({ id }: { id: string }) {
   const [styleBusy, setStyleBusy] = useState(false)
   // Text style opens and closes (founder, 2026-10-04); closed by default.
   const [styleOpen, setStyleOpen] = useState(false)
+  const [photoOpen, setPhotoOpen] = useState(false)
   const [styleMsg, setStyleMsg] = useState<string | null>(null)
   const [nameDraft, setNameDraft] = useState('')
   const [stageState, setStageState] = useState<string | null>(null)
@@ -1233,10 +1234,9 @@ function PackageScreenInner({ id }: { id: string }) {
                   its border and padding took 34px of width from the templates,
                   which then overlapped two-across. The card returns from `sm`. */}
               <div className="sm:rounded-card sm:border sm:border-line sm:bg-white sm:p-4">
-                <h2 className="font-display text-[17px] leading-tight text-ink">Templates</h2>
+                <h2 className="font-display text-[17px] leading-tight text-ink">Template settings</h2>
                 <p className="mt-1 text-[12px] leading-snug text-ink-muted">
-                  Your wording, dates and details stay exactly as they are — only the design
-                  changes, and your PDF changes with it.
+                  Choose the look of your Gulf CV.
                 </p>
                 {/* ---- Text style (TASK-152) --------------------------------
                     Above the template list, because it applies to whichever
@@ -1257,12 +1257,12 @@ function PackageScreenInner({ id }: { id: string }) {
                   >
                     <span className="min-w-0">
                       <span className="block text-[12px] font-bold uppercase tracking-wider text-ink-soft">
-                        Text style
+                        Text settings
                       </span>
                       <span className="mt-0.5 block text-[12px] text-ink-muted">{styleSummary}</span>
                     </span>
                     <span className="flex shrink-0 items-center gap-1 rounded-full border border-line-strong bg-white px-3 py-1.5 text-[12px] font-semibold text-teal shadow-m-1">
-                      {styleOpen ? 'Close' : 'Edit'}
+                      {styleOpen ? 'Collapse' : 'Expand'}
                       <ChevronDownIcon
                         className={cn('size-4 transition-transform', styleOpen && 'rotate-180')}
                         aria-hidden="true"
@@ -1440,9 +1440,8 @@ function PackageScreenInner({ id }: { id: string }) {
                         // template sells, so it stays fixed on purpose.
                         <p className="mt-2 text-[12px] leading-relaxed text-ink-muted">
                           <strong className="text-ink-soft">{getTemplate(activeTemplateId).name}</strong>{' '}
-                          keeps a fixed, colourless style on purpose — that is what maximum ATS
-                          compatibility means. Pick any other template below for a photo, font, size and
-                          colour choices.
+                          uses a fixed text-only design. Choose another template for custom fonts,
+                          colours or photos.
                         </p>
                       )}
                     </div>
@@ -1451,12 +1450,24 @@ function PackageScreenInner({ id }: { id: string }) {
 
                 {profile ? (
                   <div className="mt-4 border-t border-line pt-4">
-                    <h3 className="text-[12px] font-bold uppercase tracking-wider text-ink-soft">Photo</h3>
+                    <button
+                      type="button"
+                      aria-expanded={photoOpen}
+                      aria-controls="photo-settings-panel"
+                      onClick={() => setPhotoOpen((open) => !open)}
+                      className="flex min-h-11 w-full items-center justify-between gap-3 rounded-ctl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                    >
+                      <span className="min-w-0"><span className="block text-[12px] font-bold uppercase tracking-wider text-ink-soft">Photo settings</span><span className="mt-0.5 block text-[12px] text-ink-muted">Optional profile photo</span></span>
+                      <span className="flex shrink-0 items-center gap-1 rounded-full border border-line-strong bg-white px-3 py-1.5 text-[12px] font-semibold text-teal shadow-m-1">
+                        {photoOpen ? 'Collapse' : 'Expand'}
+                        <ChevronDownIcon aria-hidden="true" className={cn('size-4 transition-transform', photoOpen && 'rotate-180')} />
+                      </span>
+                    </button>
+                    <div id="photo-settings-panel" hidden={!photoOpen}>
                     <div className="mt-2 rounded-ctl border border-teal/20 bg-teal-soft p-3">
                       <p className="text-sm font-semibold text-teal">Make your Gulf CV feel personal</p>
                       <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-                        A professional photo is common on some Gulf CVs. It is optional — follow the
-                        employer’s instructions, especially for ATS applications.
+                        Photo optional. Follow the employer’s instructions.
                       </p>
                     </div>
                     <div className="mt-3">
@@ -1564,6 +1575,7 @@ function PackageScreenInner({ id }: { id: string }) {
                         ) : null}
                       </div>
                     ) : null}
+                    </div>
                   </div>
                 ) : null}
 
@@ -1588,7 +1600,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
                 <div className="mt-4 border-t border-line pt-4">
                   <h3 className="mb-3 text-[12px] font-bold uppercase tracking-wider text-ink-soft">
-                    Template
+                    Gulf templates
                   </h3>
                   <TemplatePicker
                     layout="rail"

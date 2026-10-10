@@ -168,7 +168,7 @@ function InterviewQaScreen() {
       icon={QuestionMarkCircleIcon}
       eyebrow={stageEyebrow('apply')}
       title="Interview Q&A"
-      subtitle={isRaw ? 'Practise up to 25 questions from your profile. No job description needed.' : 'Practise up to 25 questions for your target job, using your own experience.'}
+      subtitle={isRaw ? 'Practise up to 25 questions from your profile. No job description needed.' : 'Practise for your target Gulf job, using your own experience.'}
       uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">

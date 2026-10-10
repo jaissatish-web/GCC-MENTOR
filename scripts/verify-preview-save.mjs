@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync, readdirSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync, readdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve, join } from 'node:path'
 import puppeteer from 'puppeteer-core'
@@ -127,13 +127,18 @@ try {
   for (const raw of [true, false]) {
     reset(raw); await load(); await blocked(false)
     const snapshot = JSON.stringify(pkg.document_snapshot)
+    const names = await page.$$eval('[aria-label="Resume templates"] > button', buttons => buttons.map(button => button.getAttribute('aria-label').split(' — ')[0]))
+    assert.equal(names.length, 50, 'Every template stays available to every profession')
+    assert.equal(new Set(names).size, 50, 'Template names remain distinct')
+    assert.ok(names.every(name => /^(Gulf|GCC) /.test(name)), 'Every template has a neutral Gulf name')
+    assert.equal(await page.$('[aria-label="Filter templates by field"]'), null, 'No profession filter implies a restriction')
     await page.click('[aria-controls="text-style-panel"]')
     await click('Large'); await blocked(true)
     await click('Helvetica'); await page.click('button[aria-label="Navy"]'); await click('Dark')
     await blocked(true)
     assert.equal(writes.length, 0, 'Changing style does not save silently')
     await rename('My Master Engineering CV')
-    await page.click('[aria-label^="ATS Classic —"]'); await blocked(true)
+    await page.click('[aria-label^="Gulf Classic —"]'); await blocked(true)
     assert.equal(writes.length, 0, 'Changing template does not save silently')
     failSave = true
     await click('Save changes')
@@ -158,9 +163,9 @@ try {
     assert.equal(writes.at(-1).styleOverrides.ink, 'dark')
     assert.equal(JSON.stringify(pkg.document_snapshot), snapshot, 'Preferences never overwrite content snapshots')
     await load(); await blocked(false)
-    await page.click('[aria-label^="Creative GCC —"]'); await blocked(true)
+    await page.click('[aria-label^="Gulf Creative —"]'); await blocked(true)
     await click('Undo changes'); await blocked(false)
-    await page.click('[aria-label^="Creative GCC —"]'); await click('Save changes'); await blocked(false)
+    await page.click('[aria-label^="Gulf Creative —"]'); await click('Save changes'); await blocked(false)
     await click('Reset to template default'); await blocked(true)
     await click('Save changes'); await blocked(false)
     assert.equal(pkg.style_overrides, null, 'Reset saves template defaults')
@@ -172,13 +177,28 @@ try {
     console.log(`PASS ${raw ? 'Career Profile' : 'optimized'} preview: styles, template, name, failure, retry, pending save, concurrent edit, reset, undo, gallery and reload`)
   }
   reset(); await load(); pendingPhoto = true
+  assert.equal(await page.$eval('[aria-controls="photo-settings-panel"]', el => el.getAttribute('aria-expanded')), 'false')
+  assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), true, 'Photo controls start collapsed')
+  await page.click('[aria-controls="photo-settings-panel"]')
+  assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), false, 'Photo controls expand')
   await (await page.$('[aria-label="Choose profile photo"]')).uploadFile(join(root, 'public/sample/sample-headshot.jpg'))
   await blocked(true)
+  await page.click('[aria-controls="photo-settings-panel"]')
+  assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), true, 'Photo controls collapse during upload without interrupting it')
   releasePhoto(); pendingPhoto = false
   await blocked(false)
   assert.equal(writes.length, 0, 'Photo keeps its existing immediate Career Profile save')
+  mkdirSync('artifacts/preview-settings', { recursive: true })
   for (const width of [320, 390, 768, 1440]) {
     reset(); await page.setViewport({ width, height: 960 }); await load()
+    await page.click('[aria-controls="photo-settings-panel"]')
+    assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), false)
+    await page.click('[aria-controls="text-style-panel"]')
+    assert.equal(await page.$eval('[aria-controls="photo-settings-panel"]', el => el.getAttribute('aria-expanded')), 'true', 'Text and photo panels expand independently')
+    await page.click('[aria-controls="text-style-panel"]')
+    await page.click('[aria-controls="photo-settings-panel"]')
+    await page.$eval('[aria-controls="text-style-panel"]', el => el.scrollIntoView({ block: 'start' }))
+    await page.screenshot({ path: `artifacts/preview-settings/settings-${width}.png`, fullPage: false })
     await rename('My Master Engineering CV'); await blocked(true)
     if (css) assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `No overflow at ${width}px`)
     await click('Save changes'); await blocked(false)

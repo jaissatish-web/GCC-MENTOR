@@ -82,9 +82,9 @@ function TemplatesInner() {
     <PageShell
       width="wide"
       icon={RectangleStackIcon}
-      eyebrow="Part of your optimized CV"
-      title="Resume templates"
-      subtitle={`${AVAILABLE_TEMPLATE_COUNT} designs for GCC applications. Every preview uses the same example CV, so you can compare them.`}
+      eyebrow="Gulf CV designs"
+      title="Gulf templates"
+      subtitle={`${AVAILABLE_TEMPLATE_COUNT} designs. Any profession. All six Gulf countries.`}
     >
       {/* The action bar sticks so the choice made at the bottom of a long
           gallery is still actionable without scrolling back. top-16, not

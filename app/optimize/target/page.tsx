@@ -236,7 +236,7 @@ function TargetScreen() {
       <FlowHeader
         step={1}
         onBack={() => router.back()}
-        title="Add your target job"
+        title="Add your target Gulf job"
         subtitle={
           <>
             Paste the job description to prepare your CV, letter and interview practice.

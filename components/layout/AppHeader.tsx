@@ -46,9 +46,7 @@ export function AppHeader() {
           >
             G
           </span>
-          <span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink">
-            GCC MENTOR
-          </span>
+          <span className="flex flex-col"><span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink">GCC MENTOR</span><span className="text-[12px] leading-4 text-ink-muted">Your Gulf career workspace</span></span>
         </Link>
 
         <div className="ml-auto hidden md:block"><ServicesMenu /></div>

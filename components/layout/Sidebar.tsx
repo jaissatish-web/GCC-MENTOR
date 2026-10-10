@@ -51,7 +51,7 @@ function BrandMark() {
       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal text-[15px] font-bold text-white shadow-redesign-sm">
         G
       </div>
-      <span className="text-[14px] font-semibold text-ink">GCC MENTOR</span>
+      <span className="flex flex-col"><span className="text-[14px] font-semibold text-ink">GCC MENTOR</span><span className="text-[12px] leading-4 text-ink-muted">Your Gulf career workspace</span></span>
     </Link>
   )
 }

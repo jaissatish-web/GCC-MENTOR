@@ -2152,7 +2152,7 @@ function ProfileScreen() {
               {/* Says what this page IS before anything else (2026-09-23): the
                   source every CV, letter and interview answer is written from. */}
               <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
-                Step 1 of 3 · Your profile
+                Your Gulf career profile
               </span>
               <h1 className="type-title text-ink">Career Profile</h1>
               <p className="max-w-[55ch] type-helper text-ink-soft">

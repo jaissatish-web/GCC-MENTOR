@@ -550,7 +550,7 @@ export default function TargetJobsPage() {
       width="document"
       icon={BriefcaseIcon}
       title="My CVs"
-      subtitle="Your profile CV and job applications."
+      subtitle="Your CVs and applications for Gulf jobs."
       actions={
         total > 0 ? (
           <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'shrink-0')}>

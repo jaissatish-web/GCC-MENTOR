@@ -149,7 +149,7 @@ export default function DashboardPage() {
         <p className="type-body text-ink-soft">
           {firstRun
             ? 'Create your CV or prepare for a job.'
-            : 'Your CVs and job preparation, in one place.'}
+            : 'Your Gulf CVs and job preparation, in one place.'}
         </p>
         <div className="self-start"><HowItWorks /></div>
       </header>

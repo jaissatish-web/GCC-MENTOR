@@ -204,7 +204,7 @@ function CoverLetterScreen() {
       icon={EnvelopeIcon}
       eyebrow={stageEyebrow('apply')}
       title="Cover Letter"
-      subtitle={isRaw ? 'Introduce your experience using your saved profile. No job description needed.' : 'Write a letter for your target job, in your preferred tone.'}
+      subtitle={isRaw ? 'Introduce your experience using your saved profile. No job description needed.' : 'A letter for your target Gulf job, in your preferred tone.'}
       uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
 
