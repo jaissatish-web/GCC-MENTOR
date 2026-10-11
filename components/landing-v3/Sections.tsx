@@ -13,7 +13,7 @@ import {
   Users,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { LandingSectionMenu } from './LandingSectionMenu'
+import { PremiumNav } from './PremiumNav'
 import s from './concept.module.css'
 import launch from './launch.module.css'
 import { ArrowRight, BTN_GOLD, BTN_LINE, BTN_TEAL, Check, SectionHead, Wrap } from './primitives'
@@ -21,49 +21,16 @@ import { ArrowRight, BTN_GOLD, BTN_LINE, BTN_TEAL, Check, SectionHead, Wrap } fr
 /* ── Navigation ───────────────────────────────────────────────────────── */
 
 export const NAV = [
-  ['Interview prep', '#interview'],
-  ['Why us', '#about'],
-  ['Services', '#services'],
   ['How it works', '#journey'],
+  ['Services', '#services'],
+  ['Interview coaching', '#interview'],
   ['Templates', '#templates'],
+  ['About', '#about'],
   ['Pricing', '#pricing'],
-  ['Privacy', '#privacy'],
-  ['FAQ', '#faq'],
 ] as const
 
-function Mark() {
-  return <span className="grid size-9 place-items-center rounded-ctl bg-teal text-[16px] font-bold text-white tracking-[-0.02em]">G</span>
-}
-
 export function LandingNav() {
-  return (
-    <header className="sticky top-0 z-40 border-b border-line/80 bg-canvas/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-[64px] max-w-[1240px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
-        <Link href="/" className="flex shrink-0 items-center gap-2 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">
-          <Mark />
-          <span className="text-[15px] font-bold tracking-[-0.03em] text-ink max-[359px]:sr-only sm:text-[16px]">GCC MENTOR</span>
-        </Link>
-
-        <nav aria-label="Page sections" className="hidden items-center gap-0.5 xl:flex">
-          {NAV.map(([label, href]) => (
-            <a key={href} href={href} className="rounded-ctl px-3 py-2 type-helper font-semibold text-ink-soft transition-colors hover:bg-teal-soft hover:text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-              {label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <Link href="/login" className="flex min-h-11 items-center rounded-ctl px-2.5 type-helper font-semibold text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-            Log in
-          </Link>
-          <Link href="/signup" className={cn(BTN_GOLD, 'hidden min-h-11 rounded-ctl px-4 type-helper sm:inline-flex')}>
-            Start free
-          </Link>
-          <LandingSectionMenu anchors={NAV} />
-        </div>
-      </div>
-    </header>
-  )
+  return <PremiumNav anchors={NAV} />
 }
 
 /* ── Hero copy (the visual is HeroStack, a client component) ─────────── */
