@@ -1,0 +1,50 @@
+[
+  {
+    "width": 360,
+    "canvas": 294,
+    "client": 360,
+    "scroll": 360
+  },
+  {
+    "width": 375,
+    "canvas": 309,
+    "client": 375,
+    "scroll": 375
+  },
+  {
+    "width": 390,
+    "canvas": 324,
+    "client": 390,
+    "scroll": 390
+  },
+  {
+    "width": 430,
+    "canvas": 364,
+    "client": 430,
+    "scroll": 430
+  },
+  {
+    "width": 768,
+    "canvas": 600,
+    "client": 768,
+    "scroll": 768
+  },
+  {
+    "width": 1024,
+    "canvas": 503,
+    "client": 1024,
+    "scroll": 1024
+  },
+  {
+    "width": 1440,
+    "canvas": 600,
+    "client": 1440,
+    "scroll": 1440
+  },
+  {
+    "width": 1920,
+    "canvas": 600,
+    "client": 1920,
+    "scroll": 1920
+  }
+]
