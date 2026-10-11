@@ -39,7 +39,6 @@ export function LandingPage() {
             <Image src="/landing/gulf-candidates-v2.webp" alt="Illustrative engineering candidates in safety helmets discussing a project in the Gulf" fill priority sizes="(min-width: 1024px) 50vw, 100vw" className={s.heroPhoto} />
             <div className={s.visualTop}><span className={s.visualPill}><Globe2 size={15} aria-hidden="true" /> SIX MARKETS. YOUR NEXT CHAPTER.</span><span className={s.visualCoordinates}>GCC / CAREER JOURNEY</span></div>
             <div className={s.candidateCaption}><span className={s.candidateIcon}><ShieldCheck size={23} aria-hidden="true" /></span><div><strong>Practise. Review. Improve.</strong><p>A clearer next step after each interview.</p></div></div>
-            <span className={s.visualFoot}>AI-GENERATED ILLUSTRATION · NOT CUSTOMER PHOTOGRAPHS</span>
           </div>
         </div>
       </section>
