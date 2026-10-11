@@ -81,7 +81,7 @@ function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onN
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex min-h-[52px] items-center gap-3 rounded-ctl bg-white px-3.5 py-3 shadow-m-1 transition-colors',
+        'flex min-h-11 items-center gap-2.5 rounded-ctl bg-white px-3 py-2 shadow-m-1 transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
         active ? 'bg-teal-soft ring-1 ring-teal/30' : 'hover:bg-teal-soft/50',
       )}
@@ -89,7 +89,7 @@ function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onN
       <span
         aria-hidden="true"
         className={cn(
-          'flex size-9 shrink-0 items-center justify-center rounded-ctl',
+          'flex size-7 shrink-0 items-center justify-center rounded-ctl',
           item.iconClass,
         )}
       >
@@ -135,12 +135,12 @@ function SignOutRow() {
         type="submit"
         disabled={pending}
         className={cn(
-          'flex min-h-[52px] w-full items-center gap-3 rounded-ctl bg-white px-3.5 py-3 text-left shadow-m-1 transition-colors',
+          'flex min-h-11 w-full items-center gap-2.5 rounded-ctl bg-white px-3 py-2 text-left shadow-m-1 transition-colors',
           'hover:bg-canvas disabled:cursor-default disabled:opacity-70',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
         )}
       >
-        <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-canvas text-ink-soft">
+        <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-ctl bg-canvas text-ink-soft">
           <ArrowRightStartOnRectangleIcon className="size-[18px]" />
         </span>
         <span className="type-label font-semibold leading-tight text-ink">
@@ -198,10 +198,10 @@ export function ServicesMenu({ placement = 'header' }: { placement?: 'header' | 
           const rows = group.hrefs.map(itemFor).filter(Boolean) as NavItem[]
           if (rows.length === 0 && !group.withSignOut) return null
           return (
-            <div key={group.label} className="flex flex-col gap-2">
-              {group.heading ? <h2 className="px-3 pt-3 type-caption font-semibold text-teal">{group.heading}</h2> : null}
+            <div key={group.label} className="flex flex-col gap-1">
+              {group.heading ? <h2 className="px-3 pt-2 type-caption font-semibold text-teal">{group.heading}</h2> : null}
               {rows.map((item, i) => (
-                <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(group.stage, i)} />
+                <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(item.href === '/cover-letter' ? 'apply' : group.stage, item.href === '/cover-letter' ? 0 : item.href === '/interview-qa' ? 1 : item.href === '/mock-interview' ? 2 : i)} />
               ))}
               {/* Sign out remains an action after the service destinations. */}
               {group.withSignOut ? <SignOutRow /> : null}

@@ -154,11 +154,11 @@ letter "Step 5", Q&A "Step 6", mock "Step 7", the optimizer's own "Step 1 of 3",
   Upload my CV (gold) + Paste text + Type it in, and a "How it works" row of three cards (what each
   step gives, what it is built from) shows until step 1 is done. The blocking
   `ProfileKickstart` pop-up was deleted.
-- **Sidebar and ☰ menu** show a continuous service list without category headings
-  or a sidebar journey card (founder request 2026-10-08). Internal `NAV_GROUPS`
-  preserve ordering and next/locked marks; journey guidance stays on Dashboard.
-- **LinkedIn Optimization** is linked from the shared menu to an authenticated
-  Coming soon page. No generation, inputs, credits or LinkedIn connection yet.
+- **Sidebar and ☰ menu** show compact service groups with short category headings
+  and no sidebar journey card. Shared `NAV_GROUPS` preserve ordering; journey
+  guidance stays on Dashboard.
+- **LinkedIn and NaukriGulf Optimization** link directly to output-first guides
+  and authenticated preparation workspaces. Users copy and publish changes themselves.
 - **Menu icons (2026-10-08):** each destination has a distinct color and soft background,
   shared through `NavItem.iconClass` by the sidebar, tablet rail, mobile service sheet and
   bottom bar. Labels and active/next marks remain the primary navigation cues. The unbuilt
@@ -703,3 +703,11 @@ The practice CTA opens existing setup without starting generation. Dashboard,
 mock interview and optimized resume overview reuse the same component/data.
 Hover/entrance effects respect reduced motion. All typography remains controlled
 by ui-system.css. No backend, model, scoring or database changes.
+
+## Compact service navigation (2026-10-11)
+
+Build your CV contains Tailor for a job → Resume Templates → Cover Letter.
+Job preparation contains Interview Q&A and Mock Interview. Cover Letter keeps
+its application-stage progress mark. Sidebar and phone menu use tighter row
+padding/category spacing and 28px colored icon tiles; rows remain at least 44px
+for touch. Shared per-service colors apply to tablet and bottom navigation too.

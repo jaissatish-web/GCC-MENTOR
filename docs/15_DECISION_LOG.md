@@ -1,5 +1,9 @@
 # DECISION LOG — what was decided, when, and why
 
+## 2026-10-11 — Compact colored service navigation
+
+Founder moves Cover Letter into Build your CV, directly below Resume Templates. Shared sidebar/phone-menu groups and tablet order reflect this. Reduce row padding, icon size and category spacing while retaining 44px tap targets and readable labels. Each service gets a distinct colored icon tile. Cover Letter remains part of the application stage for progress badges; category placement does not change prerequisites or feature behavior.
+
 ## 2026-10-11 — Direct platform entry and output-first preparation
 
 Founder requests removal of the Professional Profiles hub. Navigation goes directly to LinkedIn or NaukriGulf; the retired hub URL redirects to LinkedIn for existing bookmarks. Introductions prioritize deliverables, copy destinations, Gulf relevance, three steps and concise practical tips. No invented user observations or daily-edit ranking guarantees. Results show actual draft saved timestamp, fixed job dates and prominent copy controls. Both writing and independent review use existing OpenRouter reasoning-off request shaping; grounding, limits, independent review and quotas remain intact. Current usage logs have no duration field, so elapsed generation speed cannot be established from them.

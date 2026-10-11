@@ -81,7 +81,7 @@ function NavItem({
       aria-current={active ? 'page' : undefined}
       title={mark === 'locked' ? 'Opens after the step before it' : undefined}
       className={cn(
-        'flex min-h-11 items-center gap-3 rounded-ctl px-3 py-1.5 type-label font-redesign-sans transition-colors',
+        'flex min-h-11 items-center gap-2.5 rounded-ctl px-2.5 py-1 type-label font-redesign-sans transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-white',
         active
           ? 'border border-teal/15 bg-teal-soft/70 font-medium text-teal'
@@ -90,7 +90,7 @@ function NavItem({
             : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
       )}
     >
-      <span aria-hidden="true" className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg', item.iconClass, mark === 'locked' && !active && 'opacity-70')}>
+      <span aria-hidden="true" className={cn('flex size-7 shrink-0 items-center justify-center rounded-lg', item.iconClass, mark === 'locked' && !active && 'opacity-70')}>
         <Icon className="size-[18px]" />
       </span>
       {/* Wraps rather than truncating: "Resume Optimizer" beside the "Next"
@@ -132,13 +132,13 @@ export function Sidebar() {
   const navContent = (onNavigate?: () => void) => (
     <>
       <BrandMark />
-      <nav aria-label="Primary" className="flex flex-col gap-2">
+      <nav aria-label="Primary" className="flex flex-col gap-1">
         {groups.map((g) => {
           return (
             <div key={g.key} className="flex flex-col gap-0.5">
-              {g.label ? <p className="px-3 pb-1 pt-3 type-caption font-medium text-ink-muted">{g.label}</p> : null}
+              {g.label ? <p className="px-2.5 pb-0.5 pt-2 type-caption font-medium text-ink-muted">{g.label}</p> : null}
               {g.items.map((item, i) => (
-                <NavItem key={item.label} item={item} active={isActive(item)} mark={markFor(g.stage, i)} onClick={onNavigate} />
+                <NavItem key={item.label} item={item} active={isActive(item)} mark={markFor(item.href === '/cover-letter' ? 'apply' : g.stage, item.href === '/cover-letter' ? 0 : item.href === '/interview-qa' ? 1 : item.href === '/mock-interview' ? 2 : i)} onClick={onNavigate} />
               ))}
             </div>
           )
