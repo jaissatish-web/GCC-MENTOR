@@ -11,7 +11,7 @@ import dynamic from 'next/dynamic'
  */
 export const DocumentOrbit = dynamic(() => import('./DocumentOrbit').then((m) => m.DocumentOrbit), {
   ssr: false,
-  loading: () => <div className="h-[760px] md:h-[960px]" aria-hidden="true" />,
+  loading: () => <div className="h-[610px] md:h-[770px]" aria-hidden="true" />,
 })
 
 export const GccGlobe = dynamic(() => import('./GccGlobe').then((m) => m.GccGlobe), {

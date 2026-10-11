@@ -1,151 +1,55 @@
-import { LandingExamples, ExampleDisclosure } from './LandingExamples'
-import { HowItWorks } from '@/components/journey/HowItWorks'
-import { AppFooter } from '@/components/layout/AppFooter'
+import Link from 'next/link'
+import Image from 'next/image'
+import { ArrowRight, Check, FileText, Globe2, Mail, MessagesSquare, ShieldCheck, Sparkles } from 'lucide-react'
 import { AuthLinkCatcher } from '@/components/auth/AuthLinkCatcher'
-import { AtsFilter } from './AtsFilter'
-import { BeforeAfterCv } from './BeforeAfterCv'
-import { CoverLetters } from './CoverLetters'
-import { OptimizationLevels } from './OptimizationLevels'
-import { BranchJourney } from './BranchJourney'
-import { DocumentOrbit, GccGlobe } from './lazy'
-import { HeroStack } from './HeroStack'
-import { MatchEngine } from './MatchEngine'
-import { MockInterviewPreview } from './MockInterviewPreview'
-import { PainSolution } from './PainSolution'
-import { SectionHead, Wrap } from './primitives'
-import { LandingNav, Faq, FinalCta, Founder, HeroCopy, JourneyOverview, MobileStickyCta, PricingPreview, ProofStrip, ServicesPreview, Trust, WhoItsFor } from './Sections'
+import { AppFooter } from '@/components/layout/AppFooter'
+import { LandingNav, PricingPreview, Faq, MobileStickyCta } from './Sections'
+import { DocumentOrbit } from './lazy'
+import { RolePathways } from './RolePathways'
+import s from './launch.module.css'
 
-/**
- * THE LANDING PAGE — v3 (founder-approved 2026-09-29, built as the
- * /landing-concept prototype and promoted to the home page).
- *
- * Everything lives in components/landing-v3/. The previous page (landing-v2)
- * is kept unrouted for rollback, like landing-legacy before it.
- * The nav's section links are checked against the ids here by
- * scripts/verify-landing-anchors.ts.
- *
- * Story: pain-first hero → the ATS filter → who it's for → the branching
- * journey → optimization level → the document ring → a letter per job →
- * match → before/after → mock interview → the founder → trust → the GCC
- * globe → pricing → FAQ → one ask.
- */
+const services = [
+  { icon: Globe2, problem: '“Am I ready for the Gulf?”', title: 'Find your starting point.', body: 'Check your Gulf Readiness score and see which parts of your profile need attention.', result: 'Your score + areas to improve', href: '/gulf-readiness-score', action: 'Check my readiness' },
+  { icon: FileText, problem: '“My CV doesn’t fit this job.”', title: 'Make your experience relevant.', body: 'Compare your profile with a job description. Review keywords and tailor your CV using experience you can support.', result: 'Job match + a tailored CV', href: '#templates', action: 'Explore resume styles' },
+  { icon: Mail, problem: '“What should I say to the recruiter?”', title: 'Introduce yourself clearly.', body: 'Create a cover letter for the role, with the relevant experience from your profile and optimized CV.', result: 'A cover letter for this application', href: '/signup', action: 'Prepare my application' },
+  { icon: MessagesSquare, problem: '“I struggle to explain my experience.”', title: 'Walk in with practice.', body: 'Prepare with role-specific Q&A. Try a mock interview and use the feedback to improve your answers.', result: 'Practice answers + interview feedback', href: '#interview', action: 'See interview preparation' },
+]
+const trustRules = [
+  { icon: ShieldCheck, title: 'Your Career Profile is the foundation', body: 'Review the information extracted from your CV before using it.' },
+  { icon: Check, title: 'You review and approve the changes', body: 'Keep suggestions only when you can support them with your real experience.' },
+  { icon: FileText, title: 'Each application has its own purpose', body: 'Save separate CVs for separate target jobs and prepare for each interview.' },
+]
 export function LandingPage() {
-  return (
-    <div className="w-full overflow-x-clip bg-canvas pb-[76px] font-redesign-sans text-ink antialiased lg:pb-0">
-      <LandingNav />
-      {/* Finishes emailed sign-in / reset links that Supabase sent to the home page. */}
-      <div className="mx-auto max-w-[460px] px-4 empty:hidden">
-        <AuthLinkCatcher />
-      </div>
-      <main>
-        {/* 1 · Hero */}
-        <section
-          aria-label="Introduction"
-          className="relative overflow-hidden bg-[radial-gradient(70%_55%_at_85%_20%,rgba(15,76,67,0.10),transparent_70%)] pb-10 pt-8 lg:pb-20 lg:pt-16"
-        >
-          <Wrap className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
-            <HeroCopy />
-            <HeroStack />
-          </Wrap>
-        </section>
-
-        <ProofStrip />
-        <ServicesPreview />
-
-        {/* 3 · Journey */}
-        <section id="journey" aria-labelledby="journey-title" className="border-y border-line bg-white py-11 sm:py-16 lg:py-20">
-          <Wrap>
-            <SectionHead
-              id="journey-title"
-              eyebrow="How it works"
-              title={<>One profile. <em>Three simple steps.</em></>}
-              lead="Build your profile. Create a CV, or tailor it for your next Gulf role."
-            />
-            <JourneyOverview />
-            <div className="mt-5 flex justify-center"><HowItWorks className="border border-teal/25 bg-teal-soft" /></div>
-            <details className="group mt-6 rounded-card border border-line bg-white">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 type-label text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
-                See a sample application
-                <span aria-hidden="true" className="text-xl group-open:rotate-45">+</span>
-              </summary>
-              <div className="border-t border-line px-3 pb-5 sm:px-5"><BranchJourney /></div>
-            </details>
-          </Wrap>
-        </section>
-
-        {/* Resume showcase — curated designs from the real 50-template collection */}
-        <section id="templates" aria-labelledby="templates-title" className="overflow-hidden pt-11 sm:pt-16 lg:pt-20">
-          <Wrap>
-            <SectionHead
-              center
-              id="templates-title"
-              eyebrow="50 resume templates"
-              title={<>Your experience. <em>Your style.</em></>}
-              lead="Choose from 50 resume templates. Tap a design to explore it."
-            />
-          </Wrap>
-          <DocumentOrbit className="mt-4 lg:mt-8" />
-        </section>
-
-        {/* 5 · Before / after */}
-        <section id="cv" aria-labelledby="cv-title" className="border-y border-line bg-white py-11 sm:py-16 lg:py-20">
-          <Wrap>
-            <SectionHead
-              center
-              id="cv-title"
-              eyebrow="Before / after"
-              title={<>See the difference <em>in your CV.</em></>}
-            />
-            <BeforeAfterCv />
-          </Wrap>
-        </section>
-
-        {/* 6 · Mock interview */}
-        <section id="interview" aria-labelledby="interview-title" className="py-11 sm:py-16 lg:py-20">
-          <Wrap>
-            <SectionHead
-              id="interview-title"
-              eyebrow="Mock interview"
-              title={<>Practise the interview <em>before it counts.</em></>}
-              lead="Practise your answers. Get feedback on what to improve."
-            />
-            <MockInterviewPreview />
-          </Wrap>
-        </section>
-
-        <section aria-labelledby="examples-title" className="border-y border-line bg-white py-10 sm:py-14">
-          <Wrap>
-            <SectionHead id="examples-title" eyebrow="Explore the details" title={<>See how your <em>Gulf application comes together.</em></>} />
-            <LandingExamples>
-              <ExampleDisclosure id="letters" title="A cover letter for each target job"><CoverLetters /></ExampleDisclosure>
-              <ExampleDisclosure id="match" title="How your experience matches a role"><MatchEngine /></ExampleDisclosure>
-              <ExampleDisclosure id="levels" title="Choose how much to improve your CV"><OptimizationLevels /></ExampleDisclosure>
-              <ExampleDisclosure id="ats" title="Make your experience easier to find"><AtsFilter /></ExampleDisclosure>
-              <ExampleDisclosure id="problems" title="Common CV problems, explained visually"><PainSolution /></ExampleDisclosure>
-              <ExampleDisclosure id="who" title="For professionals across the Gulf"><WhoItsFor /></ExampleDisclosure>
-              <ExampleDisclosure id="trust" title="Your experience stays in your control"><Trust /></ExampleDisclosure>
-            </LandingExamples>
-          </Wrap>
-        </section>
-
-        {/* Founder */}
-        <Founder />
-
-
-        {/* 9 · Markets — the globe */}
-        <section id="markets" aria-labelledby="markets-title" className="py-11 sm:py-16 lg:py-20">
-          <Wrap>
-            <GccGlobe />
-          </Wrap>
-        </section>
-
-        {/* 10 · Pricing, 11 · FAQ, 12 · Final CTA */}
-        <PricingPreview />
-        <Faq />
-        <FinalCta />
-      </main>
-      <AppFooter />
-      <MobileStickyCta />
-    </div>
-  )
+  return <div className={s.page + ' font-redesign-sans pb-[90px] lg:pb-0'}>
+    <LandingNav />
+    <div className="mx-auto max-w-[460px] px-4 empty:hidden"><AuthLinkCatcher /></div>
+    <main>
+      <section className={s.hero} aria-labelledby="hero-title">
+        <div className={s.wrap + ' ' + s.heroGrid}>
+          <div className={s.heroCopy}>
+            <span className={s.eyebrow}><span className={s.liveDot} />YOUR GULF CAREER STARTS HERE</span>
+            <h1 id="hero-title">Your experience.<br /><span>More Gulf<br className={s.desktopBreak} /> opportunities.</span></h1>
+            <p className={s.lead}>Turn one Career Profile into applications for the Gulf roles you’re aiming for. Tailor your CV, write your cover letter and practise your interview — in one place.</p>
+            <div className={s.actions}><Link href="/signup" className={s.primary}>Build my Career Profile <ArrowRight size={18} aria-hidden="true" /></Link><a href="#journey" className={s.secondary}>See how it works <ArrowRight size={17} aria-hidden="true" /></a></div>
+            <p className={s.ctaNote}><Check size={15} aria-hidden="true" />Free to start <span>·</span> Your real experience <span>·</span> You approve changes</p>
+          </div>
+          <div className={s.heroVisual}>
+            <Image src="/landing/market-uae-dubai.jpg" alt="Dubai skyline at night, representing a Gulf career destination" fill priority sizes="(min-width: 1024px) 50vw, 100vw" className={s.heroPhoto} />
+            <div className={s.visualTop}><span className={s.visualPill}><Globe2 size={15} aria-hidden="true" /> SIX MARKETS. YOUR NEXT CHAPTER.</span><span className={s.visualCoordinates}>GCC / CAREER JOURNEY</span></div>
+            <div className={s.heroPreview}><div className={s.previewHeader}><span className={s.previewMark}>G</span><span>YOUR APPLICATION WORKSPACE</span><ShieldCheck size={19} aria-hidden="true" /></div><div className={s.previewTitle}>One profile.<br /><strong>A direction for every role.</strong></div><div className={s.previewFlow}><span><Check size={15} aria-hidden="true" /> Career Profile</span><ArrowRight size={17} aria-hidden="true" /><span>Target job</span></div><div className={s.previewOutputs}><span><FileText size={20} aria-hidden="true" />Tailored CV</span><span><Mail size={20} aria-hidden="true" />Cover letter</span><span><MessagesSquare size={20} aria-hidden="true" />Interview prep</span></div><p>Illustrative workflow · built around your experience</p></div>
+            <span className={s.visualFoot}>PREPARE FOR THE MOVE. PREPARE FOR THE ROLE.</span>
+          </div>
+        </div>
+      </section>
+      <div className={s.marketBand} aria-label="Six GCC markets"><div className={s.wrap}><span>YOUR AMBITION HAS A DESTINATION</span><ul>{['Saudi Arabia', 'UAE', 'Qatar', 'Oman', 'Kuwait', 'Bahrain'].map(c => <li key={c}>{c}</li>)}</ul></div></div>
+      <section id="services" className={s.section} aria-labelledby="services-title"><div className={s.wrap}><div className={s.sectionIntro}><div><span className={s.eyebrow}>FROM DOUBT TO A CLEAR NEXT STEP</span><h2 id="services-title">You bring the experience.<br /><span>We help you present it.</span></h2></div><p>Applying abroad comes with questions. Each part of GCC Mentor helps you tackle one of them.</p></div><div className={s.serviceGrid}>{services.map(({icon: Icon, ...item}, i) => <article key={item.title} className={s.serviceCard}><div className={s.serviceTop}><Icon size={24} aria-hidden="true" /><span>0{i + 1}</span></div><p className={s.problem}>{item.problem}</p><h3>{item.title}</h3><p>{item.body}</p><div className={s.serviceResult}><Check size={16} aria-hidden="true" />{item.result}</div><a href={item.href}>{item.action}<ArrowRight size={17} aria-hidden="true" /></a></article>)}</div></div></section>
+      <section id="journey" className={s.section + ' ' + s.journey} aria-labelledby="journey-title"><div className={s.wrap}><div className={s.centerHead}><span className={s.eyebrow}>ONE PROFILE. MULTIPLE POSSIBILITIES.</span><h2 id="journey-title">Same experience.<br /><span>Different roles. Relevant applications.</span></h2><p>Build your profile once. For each suitable role, add its job description and prepare a separate application with the experience that matters.</p></div><RolePathways /><ol className={s.steps}>{[['Build your foundation', 'Upload your existing CV or paste its text. Review the extracted information in your Career Profile.'], ['Give each application a target', 'Add a job description, check your match and review the suggested CV changes. Choose a template and save it in your library.'], ['Prepare for the conversation', 'Create the cover letter, study interview Q&A and practise with a mock interview. Repeat for your next target role.']].map(([title, body], i) => <li key={title}><span>0{i + 1}</span><div><h3>{title}</h3><p>{body}</p></div></li>)}</ol></div></section>
+      <section id="templates" className={s.section + ' ' + s.templates} aria-labelledby="templates-title"><div className={s.wrap + ' ' + s.sectionIntro}><div><span className={s.eyebrow}>50 RESUME TEMPLATES</span><h2 id="templates-title">Your next chapter.<br /><span>Beautifully presented.</span></h2></div><p>Explore the rotating collection. Choose a design, open the full preview and find a style that suits your application.</p></div><DocumentOrbit className="mt-8" /><p className={s.wrap + ' ' + s.demoNote}>Previews use illustrative candidate data. Your resume uses the information you review and approve.</p></section>
+      <section id="interview" className={s.section + ' ' + s.interview} aria-labelledby="interview-title"><div className={s.wrap + ' ' + s.twoColumn}><div><span className={s.eyebrow}>BEYOND THE CV</span><h2 id="interview-title">Don’t just prepare<br />your application.<br /><span>Prepare yourself.</span></h2><p className={s.lead}>A strong CV starts the conversation. Practise explaining your experience so you can make that conversation count.</p><Link href="/signup" className={s.primary}>Start my preparation <ArrowRight size={18} aria-hidden="true" /></Link></div><div className={s.practiceCard}><div className={s.practiceHeading}><MessagesSquare aria-hidden="true" /><span>YOUR PRACTICE ROOM</span><span className={s.exampleBadge}>EXAMPLE</span></div><p className={s.question}>“Tell me about a challenge you handled in your previous role.”</p><div className={s.answerFramework}><span>Set the context</span><span>Explain your action</span><span>Describe the result</span></div><div className={s.feedback}><Sparkles size={20} aria-hidden="true" /><div><strong>Turn feedback into your next improvement.</strong><p>Review your answers, identify gaps and practise again before the real interview.</p></div></div><div className={s.practiceFooter}><span>Role-specific Q&A</span><span>Mock interviews</span><span>Feedback</span></div></div></div></section>
+      <section className={s.section + ' ' + s.readiness} aria-labelledby="readiness-title"><div className={s.wrap + ' ' + s.readinessGrid}><div><span className={s.eyebrow}>NOT SURE WHERE TO BEGIN?</span><h2 id="readiness-title">Start with clarity.<br /><span>Check your Gulf Readiness.</span></h2><p>Your score is a preparation guide. Use it to understand your profile and what to improve before your next application.</p><Link href="/gulf-readiness-score" className={s.primary}>Check my readiness — free <ArrowRight size={18} aria-hidden="true" /></Link></div><div className={s.readinessVisual}><Globe2 size={48} strokeWidth={1.2} aria-hidden="true" /><strong>Know where you stand.</strong><span>Your profile → your score → your next steps</span><p>Readiness is a guide, not a prediction of hiring.</p></div></div></section>
+      <section className={s.section} aria-labelledby="trust-title"><div className={s.wrap + ' ' + s.trustGrid}><div><span className={s.eyebrow}>GULF KNOWLEDGE. YOUR REAL STORY.</span><h2 id="trust-title">Built from Gulf experience.<br /><span>Grounded in yours.</span></h2><p>Founded by Satish Kumar Jaiswal, with 15+ years of engineering and commissioning experience, including Gulf projects. GCC Mentor brings practical career preparation into one connected workspace.</p></div><div className={s.trustRules}>{trustRules.map(({icon: Icon, title, body}) => <div key={title}><Icon size={22} aria-hidden="true" /><div><h3>{title}</h3><p>{body}</p></div></div>)}</div></div></section>
+      <PricingPreview /><Faq />
+      <section className={s.final} aria-labelledby="final-title"><div className={s.wrap}><span className={s.eyebrow}>YOUR EXPERIENCE IS THE STARTING POINT</span><h2 id="final-title">Give your Gulf ambition<br /><span>a clear next step.</span></h2><p>One profile. A focused application for each role. A better-prepared you.</p><Link href="/signup" className={s.primary}>Build my Career Profile <ArrowRight size={18} aria-hidden="true" /></Link><span className={s.finalNote}>Free to start · Review your data · Stay in control</span></div></section>
+    </main><AppFooter /><MobileStickyCta />
+  </div>
 }
