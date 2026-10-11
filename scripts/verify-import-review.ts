@@ -2,6 +2,7 @@ import './resolve-paths'
 import assert from 'node:assert/strict'
 import { buildImportReview, addWordingSuggestions, safeWording, redactImportText } from '../lib/resumeParse/importReview'
 import { currentImportValue, applyImportChange } from '../lib/resumeParse/reviewEditor'
+import { importAttention } from '../lib/resumeParse/importAttention'
 import { checkDraft } from '../lib/resumeParse/check'
 import { prepass } from '../lib/resumeParse/prepass'
 import type { CareerProfileDraft } from '../types/careerProfile'
@@ -37,4 +38,18 @@ const duplicate = review.changes.find(c => c.kind === 'duplicate')!
 const withRepeat = applyImportChange(editor, duplicate, duplicate.before, () => 'new')
 assert.equal(withRepeat.skills.length, 2)
 assert.equal(applyImportChange(withRepeat, duplicate, duplicate.before, () => 'new'), withRepeat)
+const completeEditor = { ...editor, full_name: 'Test Person', email: 'test@example.com', phone: '+919876543210', professional_summary: 'Engineer with experience in DCS.' }
+assert.deepEqual(importAttention(review, completeEditor), [], 'clean current data must not produce invented problems')
+const missing = importAttention(review, { ...completeEditor, email: '', phone: '', professional_summary: '' })
+assert.equal(missing.length, 3)
+assert.deepEqual(missing.slice(0, 2).map(item => item.field), ['email', 'phone'], 'contact gaps take priority')
+assert.ok(missing.every(item => !item.change), 'missing career facts cannot be automatically invented')
+const pendingCorrection = importAttention(review, { ...completeEditor, professional_summary: raw.professional_summary! })
+assert.equal(pendingCorrection.length, 1)
+assert.equal(pendingCorrection[0].change?.before, raw.professional_summary)
+assert.equal(importAttention(review, { ...completeEditor, professional_summary: 'My own corrected summary.' }).length, 0, 'manual edits clear pending suggestions')
+const restoredAttention = importAttention(review, { ...restored, full_name: 'Test Person', email: 'test@example.com', phone: '+919876543210', professional_summary: completeEditor.professional_summary })
+assert.equal(restoredAttention[0].change?.id, change.id, 'restored spelling is actionable again')
+assert.ok(!importAttention(review, { ...completeEditor, work_experience: [] }).some(item => item.field.startsWith('work_experience')), 'freshers need no invented job history')
+assert.equal(importAttention(review, { ...completeEditor, email: '', phone: '', full_name: '', professional_summary: '', skills: [] }).length, 3, 'shortlist is limited to three real issues')
 console.log('PASS import review: factual safeguards, privacy masking, audit evidence, restore, stale edits and duplicate protection')

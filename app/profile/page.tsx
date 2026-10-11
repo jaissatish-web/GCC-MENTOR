@@ -3,6 +3,7 @@
 import { ImportReviewCard } from '@/components/profile/ImportReviewCard'
 import type { ImportReview } from '@/lib/resumeParse/importReview'
 import { applyImportChange, currentImportValue } from '@/lib/resumeParse/reviewEditor'
+import { importAttention } from '@/lib/resumeParse/importAttention'
 import { organizeCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
 import { CategoryEditor } from '@/components/profile/CategoryEditor'
 import { GulfContext } from '@/components/layout/GulfContext'
@@ -2044,6 +2045,7 @@ function ProfileScreen() {
   const importReviewBlock = importReview ? (
     <ImportReviewCard
       review={importReview}
+      attention={importAttention(importReview, editor)}
       busy={submitting}
       currentValue={change => currentImportValue(editor, change)}
       onChange={(change, value) => setEditor(e => e ? applyImportChange(e, change, value, uid) : e)}
