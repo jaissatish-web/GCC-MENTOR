@@ -36,6 +36,8 @@ export default function robots(): MetadataRoute.Robots {
         '/templates',
         '/create-resume',
         '/linkedin-optimization',
+        '/naukrigulf-optimization',
+        '/professional-profile',
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

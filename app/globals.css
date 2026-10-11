@@ -419,3 +419,8 @@
   .practice-skill:hover { transform: none; }
   .practice-chart-line { animation: none; }
 }
+
+/* Professional profile introductions: quiet motion, no layout shift. */
+.professional-story-card { animation: professional-float 7s ease-in-out infinite; }
+@keyframes professional-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) { .professional-story-card { animation: none; } }

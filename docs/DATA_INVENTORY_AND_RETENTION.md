@@ -92,3 +92,13 @@ ten-run cap and recovers missing voice history from existing session/answer data
 Already-pruned legacy text records with no session cannot be recovered. Voice
 audio still expires after three days; transcripts, feedback and reports remain.
 No new table, external data destination or change to cover letter/Q&A retention.
+
+## NaukriGulf preparation (2026-10-11)
+
+Private `naukrigulf_drafts` stores a structured comparison, setup, generated
+content, checklist and revision. It is separate from Career Profile and LinkedIn
+drafts. No uploaded file or account credentials are stored. Owner-only reads;
+validated owner-scoped API writes. Both Career Profile deletion and auth-account
+deletion remove it through foreign-key cascades. Existing LinkedIn drafts have
+only the auth-account cascade; the Settings cleanup gap is recorded in
+`14_OPEN_ITEMS.md`.

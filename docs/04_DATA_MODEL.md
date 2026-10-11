@@ -325,3 +325,11 @@ grants and profile-delete cascade. Nullable category UUID/name, category order
 columns. Rows in one category share its metadata. No existing data is rewritten.
 The existing atomic save RPC dynamically handles these real columns; the API
 whitelists them and validates category consistency and limits before saving.
+
+## NaukriGulf drafts (migration 070, 2026-10-11)
+
+`naukrigulf_drafts` is separate from `linkedin_drafts`, one private revisioned
+row per user. Same import/setup/output/checklist shape, owner-only SELECT, no
+anonymous or direct authenticated writes. Service-role API writes follow session
+authentication and validation. User/profile-owner foreign keys both cascade;
+Settings profile deletion reaches this table. See `20_PROFESSIONAL_PROFILES.md`.

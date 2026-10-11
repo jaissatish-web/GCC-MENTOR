@@ -1,7 +1,6 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   IdentificationIcon,
   ArrowUpTrayIcon,
@@ -16,11 +15,12 @@ import type { CareerProfileFull } from '@/types/careerProfile'
 import { checklistKeys, completion, publicText } from '@/lib/linkedin/model'
 import {
   DEFAULT_SETUP,
-  FIELD_LIMITS,
   type LinkedInConflict,
   type LinkedInDraft,
   type LinkedInSetup,
 } from '@/lib/linkedin/types'
+import { PROFESSIONAL_PLATFORMS, type ProfessionalPlatform } from '@/lib/professionalProfiles/config'
+import { checklistKeys as naukrigulfChecklistKeys } from '@/lib/naukrigulf/model'
 import { ProfilePreview } from './ProfilePreview'
 
 const primary =
@@ -57,7 +57,11 @@ function Field({
     </label>
   )
 }
-export function LinkedInWorkspace() {
+export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: ProfessionalPlatform }) {
+  const config = PROFESSIONAL_PLATFORMS[platform]
+  const platformName = config.name
+  const limits = config.limits
+  const getChecklistKeys = platform === 'naukrigulf' ? naukrigulfChecklistKeys : checklistKeys
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [draft, setDraft] = useState<LinkedInDraft | null>(null)
   const [setup, setSetup] = useState<LinkedInSetup>(DEFAULT_SETUP)
@@ -77,13 +81,19 @@ export function LinkedInWorkspace() {
   const [notice, setNotice] = useState('')
   const [missingProfile, setMissingProfile] = useState(false)
 
-  async function load(initial = false) {
+  function protectUnsaved(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (dirty || busy) {
+      e.preventDefault()
+      setError(busy ? 'Wait for the current action to finish before leaving.' : 'Save your content and checklist before returning to the guide.')
+    }
+  }
+  const load = useCallback(async (initial = false) => {
     setError('')
     if (initial) setLoading(true)
     try {
       const [profileResponse, draftResponse] = await Promise.all([
         fetch('/api/profile'),
-        fetch('/api/linkedin'),
+        fetch(config.api),
       ])
       if (profileResponse.status === 404 || draftResponse.status === 422) {
         setMissingProfile(true)
@@ -124,10 +134,10 @@ export function LinkedInWorkspace() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [config.api])
   useEffect(() => {
     void load(true)
-  }, []) // Loaded once; refresh is an explicit user action.
+  }, [load]) // Loaded once; refresh is an explicit user action.
 
   function changeSetup<K extends keyof LinkedInSetup>(
     key: K,
@@ -157,7 +167,7 @@ export function LinkedInWorkspace() {
           }),
         }
       const data = await responseJson(
-        await fetch('/api/linkedin/import', request),
+        await fetch(`${config.api}/import`, request),
       )
       setDraft(data.draft)
       setConflicts(data.conflicts)
@@ -181,7 +191,7 @@ export function LinkedInWorkspace() {
     setNotice('')
     try {
       const data = await responseJson(
-        await fetch('/api/linkedin/generate', {
+        await fetch(`${config.api}/generate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -214,7 +224,7 @@ export function LinkedInWorkspace() {
     setNotice('')
     try {
       const data = await responseJson(
-        await fetch('/api/linkedin', {
+        await fetch(config.api, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -265,7 +275,7 @@ export function LinkedInWorkspace() {
   async function copy(text: string) {
     try {
       await navigator.clipboard.writeText(text)
-      setNotice('Copied. Paste it on LinkedIn, then mark the section complete.')
+      setNotice(`Copied. Paste it on ${platformName}, then mark the section complete.`)
     } catch {
       setError(
         'Copy is unavailable in this browser. Select the text and copy it manually.',
@@ -291,7 +301,7 @@ export function LinkedInWorkspace() {
             onChange={() => mark(key, 'completed')}
             className="size-4 accent-teal"
           />
-          Updated on LinkedIn
+          Updated on {platformName}
         </label>
         <label className="flex min-h-11 items-center gap-2 text-sm text-ink-muted">
           <input
@@ -313,7 +323,7 @@ export function LinkedInWorkspace() {
   const percent =
     draft?.output && profile
       ? completion(
-          checklistKeys(draft.output, profile),
+          getChecklistKeys(draft.output, profile),
           draft.completed,
           draft.skipped,
         )
@@ -326,13 +336,17 @@ export function LinkedInWorkspace() {
 
   return (
     <PageShell
-      title="LinkedIn Optimization"
+      title={`${platformName} Optimization`}
       subtitle="Turn your career facts into a clear professional story for the Middle East."
       icon={IdentificationIcon}
       width="wide"
       className="linkedin-workspace"
       uses={['Career Profile', 'career goals']}
     >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link href={config.home} onClick={protectUnsaved} className={secondary}>← {platformName} guide</Link>
+        <Link href="/professional-profile" onClick={protectUnsaved} className="inline-flex min-h-11 items-center text-sm font-semibold text-teal">All professional profiles</Link>
+      </div>
       {error && (
         <div
           role="alert"
@@ -363,7 +377,7 @@ export function LinkedInWorkspace() {
           </h2>
           <p className="mt-3 leading-7 text-ink-soft">
             Upload your resume, paste its text, or enter your details. Review
-            and save those facts before preparing your LinkedIn profile.
+            and save those facts before preparing your {platformName} profile.
           </p>
           <Link href="/profile" className={`${primary} mt-5`}>
             Open Career Profile
@@ -418,7 +432,7 @@ export function LinkedInWorkspace() {
                       version.
                     </p>
                   )}
-                  <ProfilePreview profile={profile} draft={draft} />
+                  <ProfilePreview profile={profile} draft={draft} platform={platform} />
                 </>
               ) : view === 'results' && draft?.output ? (
                 <fieldset
@@ -436,7 +450,7 @@ export function LinkedInWorkspace() {
                         Ready to make your profile yours
                       </h2>
                       <p className="mt-2 max-w-xl text-ink-soft">
-                        Review, copy and paste each section on LinkedIn. Mark it
+                        Review, copy and paste each section on {platformName}. Mark it
                         complete only after you’ve made the change.
                       </p>
                     </div>
@@ -461,7 +475,7 @@ export function LinkedInWorkspace() {
                   <section className={card}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="font-semibold text-ink">
-                        Your LinkedIn update progress
+                        Your {platformName} update progress
                       </h2>
                       <span className="text-xl font-semibold text-teal">
                         {percent}%
@@ -469,7 +483,7 @@ export function LinkedInWorkspace() {
                     </div>
                     <div
                       role="progressbar"
-                      aria-label="LinkedIn update checklist"
+                      aria-label={`${platformName} update checklist`}
                       aria-valuemin={0}
                       aria-valuemax={100}
                       aria-valuenow={percent}
@@ -524,10 +538,9 @@ export function LinkedInWorkspace() {
                     )}
                   </section>
                   <section className={card}>
-                    <h2 className="type-section text-ink">Headline</h2>
+                    <h2 className="type-section text-ink">{config.headline}</h2>
                     <p className="mt-2 text-sm leading-6 text-ink-soft">
-                      Open your profile, select the pencil in your introduction,
-                      and replace the Headline field. Choose one option below.
+                      {platform === 'linkedin' ? 'Open your profile, select the pencil in your introduction, and replace the Headline field. Choose one option below.' : 'Open your NaukriGulf profile and replace the CV headline with one reviewed option below.'}
                     </p>
                     <div className="mt-5 space-y-4">
                       {draft.output.headlines.map((headline, index) => (
@@ -551,10 +564,10 @@ export function LinkedInWorkspace() {
                             Option {index + 1}
                           </label>
                           <textarea
-                            aria-label={`Headline option ${index + 1}`}
+                            aria-label={`${config.headline} option ${index + 1}`}
                             className={`${input} mt-3`}
                             rows={2}
-                            maxLength={FIELD_LIMITS.headline}
+                            maxLength={limits.headline}
                             value={headline}
                             onChange={(e) =>
                               edit('headline', (old) => ({
@@ -571,7 +584,7 @@ export function LinkedInWorkspace() {
                           />
                           <p className="mt-1 text-xs text-ink-muted">
                             {Array.from(headline).length}/
-                            {FIELD_LIMITS.headline} characters
+                            {limits.headline} characters
                           </p>
                         </div>
                       ))}
@@ -582,17 +595,16 @@ export function LinkedInWorkspace() {
                     )}
                   </section>
                   <section className={card}>
-                    <h2 className="type-section text-ink">About</h2>
+                    <h2 className="type-section text-ink">{config.summary}</h2>
                     <p className="mt-2 text-sm leading-6 text-ink-soft">
-                      Use the pencil beside About on your profile. If it’s
-                      missing, add it through Add profile section.
+                      {platform === 'linkedin' ? 'Use the pencil beside About on your profile. If it’s missing, add it through Add profile section.' : 'Open the profile summary field in NaukriGulf and paste your reviewed content.'}
                     </p>
                     <textarea
-                      aria-label="About content"
+                      aria-label={`${config.summary} content`}
                       className={`${input} mt-4 leading-7`}
                       rows={10}
                       value={draft.output.about}
-                      maxLength={FIELD_LIMITS.about}
+                      maxLength={limits.about}
                       onChange={(e) =>
                         edit('about', (old) => ({
                           ...old,
@@ -602,7 +614,7 @@ export function LinkedInWorkspace() {
                     />
                     <p className="mt-1 text-xs text-ink-muted">
                       {Array.from(draft.output.about).length}/
-                      {FIELD_LIMITS.about} characters
+                      {limits.about} characters
                     </p>
                     {taskControls('about', draft.output.about)}
                   </section>
@@ -624,7 +636,7 @@ export function LinkedInWorkspace() {
                           employers and dates come from Career Profile.
                         </p>
                         <p className="mt-3 text-sm leading-6 text-ink-soft">
-                          Edit this role in LinkedIn’s Experience section and
+                          Edit this role in {platformName}’s {config.experience} section and
                           paste only the description below. Check the fixed job
                           fields against Career Profile.
                         </p>
@@ -632,7 +644,7 @@ export function LinkedInWorkspace() {
                           aria-label={`Experience ${entry.id}`}
                           className={`${input} mt-4 leading-7`}
                           rows={7}
-                          maxLength={FIELD_LIMITS.experience}
+                          maxLength={limits.experience}
                           value={entry.description}
                           onChange={(e) =>
                             edit(`experience:${entry.id}`, (old) => ({
@@ -651,7 +663,7 @@ export function LinkedInWorkspace() {
                         />
                         <p className="mt-1 text-xs text-ink-muted">
                           {Array.from(entry.description).length}/
-                          {FIELD_LIMITS.experience} characters
+                          {limits.experience} characters
                         </p>
                         {taskControls(
                           `experience:${entry.id}`,
@@ -666,7 +678,7 @@ export function LinkedInWorkspace() {
                         Skills to emphasize
                       </h2>
                       <p className="mt-2 text-sm leading-6 text-ink-soft">
-                        Add these saved skills individually in LinkedIn’s Skills
+                        Add these saved skills individually in {platformName}’s {config.skills}
                         section. Put the most relevant first.
                       </p>
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -755,6 +767,18 @@ export function LinkedInWorkspace() {
                       {taskControls('certifications')}
                     </section>
                   )}
+                  {platform === 'naukrigulf' && <>
+                    <section className={card}>
+                      <h2 className="type-section text-ink">Job preferences & availability</h2>
+                      <p className="mt-2 text-sm leading-6 text-ink-soft">Confirm these in NaukriGulf. Preferred roles and locations are your chosen direction; they do not change your current career facts.</p>
+                      <dl className="mt-4 grid gap-4 sm:grid-cols-2">{[
+                        ['Preferred roles', draft.setup?.targetRoles], ['Preferred industry', draft.setup?.industries], ['Preferred locations', draft.setup?.countries], ['Current location', profile.current_location], ['Notice period', profile.notice_period], ['Visa status', profile.visa_status],
+                      ].map(([label, value]) => <div key={label}><dt className="text-sm text-ink-muted">{label}</dt><dd className="mt-1 break-words text-sm font-medium text-ink">{mask(value) || 'Confirm on NaukriGulf'}</dd></div>)}</dl>
+                      <p className="mt-4 text-xs leading-6 text-ink-muted">Review any salary, work authorization and availability questions yourself. GCC Mentor does not infer answers or submit these fields.</p>
+                      {taskControls('preferences')}
+                    </section>
+                    <section className={card}><h2 className="type-section text-ink">Upload your current CV</h2><p className="mt-3 text-sm leading-6 text-ink-soft">Choose the appropriate saved CV, check its content and download it from My CVs. Upload it to NaukriGulf yourself, then check that the attachment opens correctly.</p><Link href="/dashboard/library" className={`${secondary} mt-4`}>Open My CVs</Link>{taskControls('resume')}</section>
+                  </>}
                   <section className={card}>
                     <h2 className="type-section text-ink">
                       Your advisor’s recommendations
@@ -773,13 +797,10 @@ export function LinkedInWorkspace() {
                       Finish the presentation
                     </h2>
                     <p className="mt-3 leading-7 text-ink-soft">
-                      Use a clear professional photo and a relevant banner.
-                      Review your profile’s visibility and contact settings. Add
-                      genuine work samples to Featured only when you have
-                      permission to share them.
+                      {platform === 'linkedin' ? 'Use a clear professional photo and a relevant banner. Review your profile’s visibility and contact settings. Add genuine work samples to Featured only when you have permission to share them.' : 'Use a clear recent photo if you choose to add one. Review your profile’s visibility and contact settings inside NaukriGulf. Check that all required portal fields are complete.'}
                     </p>
                     <p className="mt-3 text-sm text-ink-muted">
-                      You control what appears on LinkedIn. No account password
+                      You control what appears on {platformName}. No account password
                       or direct account access is needed.
                     </p>
                     {taskControls('presentation')}
@@ -797,47 +818,6 @@ export function LinkedInWorkspace() {
                 </fieldset>
               ) : (
                 <>
-                  {stage === 0 && (
-                    <section className="ui-surface grid min-w-0 overflow-hidden rounded-card border border-line bg-white md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
-                      <div className="min-w-0 p-4 sm:p-9">
-                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-teal">
-                          YOUR NEXT CHAPTER, CLEARLY TOLD
-                        </p>
-                        <h2 className="mt-3 max-w-lg type-marketing-title text-ink sm:mt-4">
-                          Make your experience easier to discover.
-                        </h2>
-                        <p className="mt-3 max-w-lg type-body text-ink-soft sm:mt-4">
-                          For careers across the Gulf, a clear headline,
-                          credible experience and relevant skills help
-                          recruiters understand where you fit. We shape your
-                          story around your field and goals.
-                        </p>
-                        <blockquote className="mt-6 border-l-2 border-teal pl-4 text-lg font-medium text-ink">
-                          “Your real experience. A clearer professional story.”
-                        </blockquote>
-                        <p className="mt-1 pl-4 text-xs text-ink-muted">
-                          The GCC Mentor approach
-                        </p>
-                        <a
-                          href="https://www.linkedin.com/help/recruiter/answer/a6508895"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-5 block text-xs leading-6 text-ink-muted underline"
-                        >
-                          LinkedIn Recruiter search supports criteria such as
-                          skills, job titles, location and industry. No hiring
-                          outcome is guaranteed.
-                        </a>
-                      </div>
-                      <Image
-                        width={960}
-                        height={960}
-                        src="/landing/who-any-profession.jpg"
-                        alt="Professionals preparing for their next career opportunity"
-                        className="h-48 w-full object-cover md:h-full"
-                      />
-                    </section>
-                  )}
                   <nav
                     aria-label="Preparation steps"
                     className="flex flex-wrap gap-3 text-sm"
@@ -863,7 +843,7 @@ export function LinkedInWorkspace() {
                       </h2>
                       <p className="mt-2 leading-7 text-ink-soft">
                         Your saved Career Profile supplies the facts. An
-                        existing LinkedIn profile is optional comparison
+                        existing {platformName} profile is optional comparison
                         material.
                       </p>
                       <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -878,14 +858,14 @@ export function LinkedInWorkspace() {
                             },
                             {
                               value: 'upload',
-                              label: 'Upload LinkedIn profile',
+                              label: `Upload ${platformName} profile`,
                               detail:
                                 'Upload a profile PDF. DOCX is also supported.',
                               icon: ArrowUpTrayIcon,
                             },
                             {
                               value: 'paste',
-                              label: 'Paste LinkedIn profile',
+                              label: `Paste ${platformName} profile`,
                               detail:
                                 'Copy your existing profile sections here.',
                               icon: DocumentTextIcon,
@@ -931,10 +911,10 @@ export function LinkedInWorkspace() {
                               }
                             >
                               <option value="existing">
-                                Improve my existing LinkedIn profile
+                                Improve my existing {platformName} profile
                               </option>
                               <option value="new">
-                                Prepare my first LinkedIn profile
+                                Prepare my first {platformName} profile
                               </option>
                             </select>
                           </Field>
@@ -947,9 +927,9 @@ export function LinkedInWorkspace() {
                         <div className="mt-6 space-y-4">
                           {setup.source === 'upload' ? (
                             <>
-                              <Field label="Your LinkedIn profile PDF or DOCX">
+                              <Field label={`Your ${platformName} profile PDF or DOCX`}>
                                 <input
-                                  aria-label="LinkedIn profile file"
+                                  aria-label={`${platformName} profile file`}
                                   className={input}
                                   type="file"
                                   accept=".pdf,.docx"
@@ -958,26 +938,12 @@ export function LinkedInWorkspace() {
                                   }
                                 />
                               </Field>
-                              <p className="text-sm leading-6 text-ink-muted">
-                                On desktop LinkedIn: Me → View profile → More or
-                                Resources → Save to PDF. This option may not
-                                appear for every member and isn’t available in
-                                the mobile app. On your phone, paste your
-                                profile text or use Career Profile.
-                              </p>
-                              <a
-                                className="text-sm text-teal underline"
-                                href="https://www.linkedin.com/help/linkedin/answer/a541960"
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                LinkedIn’s download instructions
-                              </a>
+                              {platform === 'linkedin' ? <><p className="text-sm leading-6 text-ink-muted">On desktop LinkedIn: Me → View profile → More or Resources → Save to PDF. This option may not appear for every member and isn’t available in the mobile app. On your phone, paste your profile text or use Career Profile.</p><a className="text-sm text-teal underline" href="https://www.linkedin.com/help/linkedin/answer/a541960" target="_blank" rel="noreferrer">LinkedIn’s download instructions</a></> : <p className="text-sm leading-6 text-ink-muted">Upload a PDF or DOCX containing your current NaukriGulf career content, or paste text from your own profile. This is optional comparison material. You can continue directly with Career Profile.</p>}
                             </>
                           ) : (
                             <Field
-                              label="Paste your LinkedIn profile"
-                              help="Include About and Experience. 100–30,000 characters. Do not paste passwords or identity documents."
+                              label={`Paste your ${platformName} profile`}
+                              help={`Include ${config.summary} and ${config.experience}. 100–30,000 characters. Do not paste passwords or identity documents.`}
                             >
                               <textarea
                                 className={input}
@@ -989,7 +955,7 @@ export function LinkedInWorkspace() {
                             </Field>
                           )}
                           <p className="text-sm text-ink-muted">
-                            This path is for an existing LinkedIn profile. If
+                            This path is for an existing {platformName} profile. If
                             you have an ordinary CV or need a first profile,
                             choose Use Career Profile.
                           </p>
@@ -1011,7 +977,7 @@ export function LinkedInWorkspace() {
                               </p>
                               <p className="whitespace-pre-wrap text-sm leading-6 text-ink-soft">
                                 {draft.imported.summary ||
-                                  'No About section was identified.'}
+                                  `No ${config.summary} section was identified.`}
                               </p>
                               {draft.imported.experience.map((entry, i) => (
                                 <p key={i} className="text-sm text-ink-soft">
@@ -1035,7 +1001,7 @@ export function LinkedInWorkspace() {
                                   }
                                 />
                                 I reviewed this extraction and confirm this is
-                                my own LinkedIn profile. Career Profile will
+                                my own {platformName} profile. Career Profile will
                                 supply the career facts.
                               </label>
                               {conflicts.map((conflict) => (
@@ -1362,10 +1328,10 @@ export function LinkedInWorkspace() {
                         ))}
                       </dl>
                       <p className="mt-6 rounded-ctl bg-teal-soft p-4 text-sm leading-6 text-ink">
-                        Your advisor will prepare headlines, About, experience
+                        Your advisor will prepare {config.headline.toLowerCase()} options, {config.summary}, experience
                         descriptions, saved skills and tailored advice. We
                         fact-check the writing before saving it. You’ll make the
-                        changes on LinkedIn yourself.
+                        changes on {platformName} yourself.
                       </p>
                       {draft?.output && (
                         <p className="mt-4 text-sm text-amber-800">
@@ -1386,7 +1352,7 @@ export function LinkedInWorkspace() {
                           disabled={!canContinue}
                           onClick={() => void generate()}
                         >
-                          Optimize LinkedIn
+                          Optimize {platformName}
                         </button>
                       </div>
                     </section>

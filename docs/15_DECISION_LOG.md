@@ -1,5 +1,17 @@
 # DECISION LOG — what was decided, when, and why
 
+## 2026-10-11 — Professional profile introductions and NaukriGulf preparation
+
+Founder requested a full NaukriGulf flow alongside LinkedIn and visual first
+pages explaining recruiter discovery, useful habits and platform-specific
+profile fields. Reuse the proven editor, import comparison, grounded generation,
+independent review and checklist interaction. Keep platform drafts separate.
+Add a dedicated NaukriGulf prompt/service, private revision-protected storage
+and profile/account-delete cascades. Entry pages precede setup and remain
+reachable without discarding work. Introductions use illustrative professional
+artwork and official guidance; no claim that daily trivial edits guarantee
+higher rankings, calls or hiring. Users apply changes themselves.
+
 ## 2026-10-11 — Editable Career Profile categories
 
 Founder authorized custom named categories, multiple entries, optional levels,

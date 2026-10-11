@@ -4,6 +4,16 @@ The existing `/linkedin-optimization` navigation destination now prepares
 personalized content for users to apply on LinkedIn themselves. It does not
 sign in to LinkedIn, create accounts, scrape profiles or update the live profile.
 
+## Entry page
+
+`/professional-profile` offers LinkedIn and NaukriGulf preparation.
+`/linkedin-optimization` is now an introduction with illustrative professional
+artwork, reasons to complete a profile, meaningful activity habits, field
+guidance and official sources. Its CTA opens `/linkedin-optimization/workspace`;
+existing drafts resume there. Workspace/preview have guide and hub links.
+Unsaved content/checklist or in-flight actions block those links until saved
+or complete. The guide does not promise rankings or recruiter responses.
+
 ## Journey
 
 1. Save Career Profile at `/profile` first. The service accepts any discipline,
@@ -109,3 +119,16 @@ body/headline text. On phones, preview cards reach the screen edges, with an
 overlapping avatar, compact banner and section rows for skills. Blue introduction
 controls are decorative examples, not LinkedIn actions or account integration.
 No connection counts, endorsements or other unsupported facts are invented.
+
+## Current verification (2026-10-11)
+
+The shared editor and preview select platform labels, endpoints and conservative
+writing budgets without changing LinkedIn’s API, saved draft contract or AI
+prompt. Typecheck, lint, build and 54/54 automated checks passed. New introduction,
+preview and workspace-link checks use isolated server rendering; these do not
+prove mobile layout or click behavior in a real browser. Browser/mobile and
+signed-in production generation remain pending in this environment.
+
+The existing LinkedIn draft is deleted with the auth account, but can remain
+after Settings deletes Career Profile and retains the login. This pre-existing
+retention issue is recorded in `14_OPEN_ITEMS.md`; it was not modified here.

@@ -2,16 +2,21 @@
 import Image from 'next/image'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { LinkedInDraft } from '@/lib/linkedin/types'
+import { PROFESSIONAL_PLATFORMS, type ProfessionalPlatform } from '@/lib/professionalProfiles/config'
 import { publicText } from '@/lib/linkedin/model'
 
 /** Illustrative profile view, not an embedded or connected LinkedIn account. */
 export function ProfilePreview({
   profile,
   draft,
+  platform = 'linkedin',
 }: {
   profile: CareerProfileFull
   draft: LinkedInDraft
+  platform?: ProfessionalPlatform
 }) {
+  const config = PROFESSIONAL_PLATFORMS[platform]
+  const platformName = config.name
   const output = draft.output!
   const text = (value: string | null | undefined) =>
     publicText(value, draft.setup?.omitTerms ?? []).replace(
@@ -22,12 +27,12 @@ export function ProfilePreview({
   return (
     <div
       className="linkedin-profile-preview mx-auto w-full max-w-[850px] space-y-2"
-      data-testid="linkedin-preview"
+      data-testid={`${platform}-preview`}
       dir={draft.setup?.language === 'Arabic' ? 'rtl' : 'ltr'}
     >
       <p className="linkedin-preview-notice px-4 py-3 text-sm text-ink-muted">
-        Illustrative preview of your content. LinkedIn’s actual layout may
-        differ. This does not update your LinkedIn account.
+        Illustrative preview of your content. {platformName}’s actual layout may
+        differ. This does not update your {platformName} account.
       </p>
       <section className="linkedin-profile-card overflow-hidden !p-0">
         <div
@@ -59,21 +64,21 @@ export function ProfilePreview({
           <p className="mt-3 text-sm text-ink-muted">
             {text(profile.current_location) || 'Your professional profile'}
           </p>
-          <div className="mt-3 flex flex-wrap gap-2" aria-hidden="true">
+          {platform === 'linkedin' && <div className="mt-3 flex flex-wrap gap-2" aria-hidden="true">
             <span className="linkedin-profile-action linkedin-profile-action-primary">Open to</span>
             <span className="linkedin-profile-action">Add profile section</span>
-          </div>
+          </div>}
         </div>
       </section>
       <section className={card}>
-        <h2 className="type-section text-ink">About</h2>
+        <h2 className="type-section text-ink">{config.summary}</h2>
         <p className="mt-3 whitespace-pre-wrap break-words leading-normal text-ink-soft">
           {output.about}
         </p>
       </section>
       {output.experience.length > 0 && (
         <section className={card}>
-          <h2 className="type-section text-ink">Experience</h2>
+          <h2 className="type-section text-ink">{config.experience}</h2>
           <div className="divide-y divide-line">
             {output.experience.map((entry) => {
               const role = profile.work_experience.find(
@@ -126,7 +131,7 @@ export function ProfilePreview({
       )}
       {output.skills.length > 0 && (
         <section className={card}>
-          <h2 className="type-section text-ink">Skills</h2>
+          <h2 className="type-section text-ink">{config.skills}</h2>
           <div className="mt-3 divide-y divide-line">
             {output.skills.map((skill) => (
               <span

@@ -97,7 +97,6 @@ function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onN
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="type-label font-medium text-ink">{item.label}</span>
-        {item.href === '/linkedin-optimization' ? <span className="type-caption text-ink-muted">Coming soon</span> : null}
       </span>
       {mark === 'next' ? (
         <span className="ml-auto shrink-0 rounded-full bg-gold px-2 py-0.5 type-caption font-semibold text-ink">Next</span>

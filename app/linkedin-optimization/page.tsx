@@ -1,4 +1,2 @@
-import { LinkedInWorkspace } from '@/components/linkedin/LinkedInWorkspace'
-export default function LinkedInOptimizationPage() {
-  return <LinkedInWorkspace />
-}
+import { ProfileIntroduction } from '@/components/professional/ProfileIntroduction'
+export default function Page() { return <ProfileIntroduction platform="linkedin" /> }

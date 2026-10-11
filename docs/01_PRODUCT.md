@@ -217,3 +217,13 @@ descriptions, saved skills and advice from Career Profile. Users review optional
 profile imports, define goals, preview the content and apply it themselves on
 LinkedIn. A private saved draft and checklist track their updates; there is no
 account connection or promised hiring uplift. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).
+
+## Professional profile preparation (2026-10-11)
+
+LinkedIn and NaukriGulf now have visual introductions and dedicated preparation
+workspaces, reachable through Professional Profiles. Both use confirmed Career
+Profile facts, optional old-profile comparison, independent fact review, editable
+content, illustrative preview and saved update checklists. NaukriGulf adds
+preferences/availability and CV-upload guidance. Users apply changes themselves;
+there is no direct platform connection, guaranteed ranking or hiring result.
+See `20_PROFESSIONAL_PROFILES.md` for verification limits.

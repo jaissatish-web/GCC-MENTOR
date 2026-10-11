@@ -316,3 +316,12 @@ improved areas, lowest current areas and expandable saved coaching actions.
 Only matching frozen-resume/settings/rubric scores form a coloured trend. Different
 settings appear as grey points with separate-baseline labels. Actual decreases
 remain visible. No content rewriting, new model calls or database changes.
+
+## Professional profile preparation (2026-10-11)
+
+Professional Profiles navigation opens `/professional-profile`. LinkedIn and
+NaukriGulf cards lead to their separate introductory pages, then the respective
+`/workspace` routes for source selection → direction → preparation → editable
+results/preview/update checklist. Existing drafts resume without generating
+again. Guide/hub links are available in the workspace; save unsaved content
+first. Users paste and save on the destination platform themselves.

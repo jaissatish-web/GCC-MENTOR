@@ -95,6 +95,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Cover Letter', href: '/cover-letter', iconClass: 'bg-teal-soft/60 text-teal', icon: EnvelopeIcon },
   { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'bg-teal-soft/60 text-teal', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
   { label: 'Mock Interview', href: '/mock-interview', iconClass: 'bg-teal-soft/60 text-teal', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
+  { label: 'Professional Profiles', href: '/professional-profile', iconClass: 'bg-teal-soft/60 text-teal', icon: IdentificationIcon },
+  { label: 'NaukriGulf Optimization', href: '/naukrigulf-optimization', iconClass: 'bg-teal-soft/60 text-teal', icon: IdentificationIcon },
   { label: 'LinkedIn Optimization', href: '/linkedin-optimization', iconClass: 'bg-teal-soft/60 text-teal', icon: IdentificationIcon },
   { label: 'Settings', href: '/settings', iconClass: 'bg-teal-soft/60 text-teal', icon: Cog6ToothIcon },
 ] as const
@@ -147,6 +149,6 @@ export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'files', label: null, hrefs: ['/dashboard/library'] },
   { key: 'cv', label: 'Build your CV', hrefs: ['/optimize', '/templates'], stage: 'cv' },
   { key: 'apply', label: 'Job preparation', hrefs: ['/cover-letter', '/interview-qa', '/mock-interview'], stage: 'apply' },
-  { key: 'professional', label: 'Professional profile', hrefs: ['/linkedin-optimization'] },
+  { key: 'professional', label: 'Professional profile', hrefs: ['/professional-profile', '/linkedin-optimization', '/naukrigulf-optimization'] },
   { key: 'account', label: 'Account', hrefs: ['/settings'] },
 ]

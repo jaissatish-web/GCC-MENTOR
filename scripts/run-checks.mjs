@@ -24,6 +24,7 @@ const sucrase = require.resolve('sucrase/bin/sucrase-node')
 
 const TS_CHECKS = [
   'verify-linkedin.ts',
+  'verify-professional-profiles.ts',
   'verify-dashboard-ui.ts',
   'verify-career-profile-resume.ts',
   'verify-next-action.ts',
@@ -79,6 +80,8 @@ function run(label, args) {
 for (const script of TS_CHECKS) run(script, [sucrase, join('scripts', script)])
 run('verify-career-profile-services.mjs', [join(root, 'scripts', 'verify-career-profile-services.mjs')])
 run('verify-linkedin-api.mjs', [join(root, 'scripts', 'verify-linkedin-api.mjs')])
+run('verify-naukrigulf-api.mjs', [join(root, 'scripts', 'verify-naukrigulf-api.mjs')])
+run('verify-naukrigulf-db.mjs', [join(root, 'scripts', 'verify-naukrigulf-db.mjs')])
 run('verify-linkedin-db.mjs', [join(root, 'scripts', 'verify-linkedin-db.mjs')])
 run('verify-profile-photo-api.mjs', [join(root, 'scripts', 'verify-profile-photo-api.mjs')])
 run('verify-career-profile-resume-api.mjs', [join('scripts', 'verify-career-profile-resume-api.mjs')])

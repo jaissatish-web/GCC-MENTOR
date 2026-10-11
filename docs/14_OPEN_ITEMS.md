@@ -753,3 +753,11 @@ regression. No resume renderer, template, font or ATS checker changed in this
 release. A separate export/ATS investigation is needed; do not claim this PDF
 check passed. Tests used the real PDF renderer with an isolated photo request
 fixture (loopback servers are unavailable in the workspace).
+
+### LinkedIn draft retention after Settings deletion (found 2026-10-11)
+
+`linkedin_drafts` cascades on auth-user deletion, while Settings deletes only
+Career Profile and keeps the login. A saved LinkedIn draft can survive that
+action. Add profile-delete cleanup in a separate retention fix; do not claim
+Settings currently deletes LinkedIn drafts. New NaukriGulf drafts reference
+both the profile owner and auth owner, with database cascades.

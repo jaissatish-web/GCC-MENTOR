@@ -218,6 +218,7 @@ export function outputShape(
   value: unknown,
   profile: CareerProfileFull,
   ids: string[],
+  limits: { headline: number; about: number; experience: number } = FIELD_LIMITS,
 ): string | null {
   if (!record(value)) return 'Expected a structured LinkedIn content package.'
   const bounded = (text: unknown, max: number) =>
@@ -227,10 +228,10 @@ export function outputShape(
   if (
     !Array.isArray(value.headlines) ||
     value.headlines.length !== 3 ||
-    !value.headlines.every((text) => bounded(text, FIELD_LIMITS.headline))
+    !value.headlines.every((text) => bounded(text, limits.headline))
   )
     return 'Return three headlines within the headline length budget.'
-  if (!bounded(value.about, FIELD_LIMITS.about))
+  if (!bounded(value.about, limits.about))
     return 'About must be non-empty and within the length budget.'
   if (
     !Array.isArray(value.experience) ||
@@ -245,7 +246,7 @@ export function outputShape(
       typeof entry.id !== 'string' ||
       !ids.includes(entry.id) ||
       found.has(entry.id) ||
-      !bounded(entry.description, FIELD_LIMITS.experience)
+      !bounded(entry.description, limits.experience)
     )
       return 'Experience must have unique saved IDs and descriptions within the length budget.'
     found.add(entry.id)
