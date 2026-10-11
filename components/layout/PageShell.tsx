@@ -28,10 +28,10 @@ import { cn } from '@/lib/utils'
 export type ShellWidth = 'form' | 'default' | 'wide' | 'document'
 
 const WIDTH: Record<ShellWidth, string> = {
-  form: 'max-w-[760px]',
-  default: 'max-w-[980px]',
-  wide: 'max-w-[1120px]',
-  document: 'max-w-[1240px]',
+  form: 'ui-page-form',
+  default: 'ui-page-default',
+  wide: 'ui-page-wide',
+  document: 'ui-page-document',
 }
 
 export function PageShell({
@@ -70,19 +70,19 @@ export function PageShell({
     // That is precisely the drift this component exists to prevent, and a page
     // cannot own its own font if the frame is meant to make pages feel like one
     // product.
-    <main className={cn('page-gutter mx-auto flex w-full flex-col gap-5 pb-12 pt-6 font-redesign-sans sm:gap-6 lg:pt-9', WIDTH[width], className)}>
+    <main className={cn('ui-page page-gutter mx-auto flex w-full flex-col pb-12 font-redesign-sans', WIDTH[width], className)}>
       <header className="workspace-heading flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className={cn('grid min-w-0 gap-x-3 gap-y-1.5', Icon ? 'grid-cols-[auto_minmax(0,1fr)]' : 'grid-cols-1')}>
           {Icon ? (
             <span
               aria-hidden="true"
-              className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-ctl border border-teal/10 bg-teal-soft/50 text-teal sm:size-10"
+              className="mt-0.5 flex size-8 shrink-0 items-center justify-center text-teal"
             >
               <Icon className="size-6" />
             </span>
           ) : null}
           <div className="flex min-w-0 flex-col gap-1.5">
-            <GulfContext>{eyebrow ? `Gulf careers · ${eyebrow}` : 'Your Gulf career workspace'}</GulfContext>
+            {eyebrow ? <GulfContext>{eyebrow}</GulfContext> : null}
             <h1 className="type-title text-ink">
               {title}
             </h1>

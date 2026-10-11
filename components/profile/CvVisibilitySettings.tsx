@@ -101,7 +101,7 @@ export function CvVisibilitySettings({
   const { shown, total } = visibilitySummary(value)
   return (
     <div className="flex flex-col gap-4 px-5 py-4">
-      <div className="flex flex-col gap-1.5 rounded-card border border-teal/20 bg-teal-soft/60 p-4">
+      <div className="ui-section flex flex-col gap-1.5">
         <p className="type-label font-semibold text-ink">
           {shown} of {total} details are shown on your CV
         </p>

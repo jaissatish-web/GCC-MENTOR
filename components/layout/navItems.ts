@@ -80,8 +80,8 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Home', href: '/dashboard', iconClass: 'bg-teal-soft text-teal', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
-  { label: 'Career Profile', href: '/profile', iconClass: 'bg-[#ede9fe] text-[#6d28d9]', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
+  { label: 'Home', href: '/dashboard', iconClass: 'ui-nav-home', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
+  { label: 'Career Profile', href: '/profile', iconClass: 'ui-nav-profile', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
   // "Profile Strength" (/gcc-readiness) sat here from 2026-09-09 to 2026-09-11.
   // It left when Career Profile and Profile Strength became one page (founder
   // decision): both scores and what raises each now live on /profile, and
@@ -89,15 +89,15 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.
-  { label: 'My CVs', href: '/dashboard/library', iconClass: 'bg-[#e0f2fe] text-[#0369a1]', icon: BriefcaseIcon, shortLabel: 'My CVs' },
-  { label: 'Resume Templates', href: '/templates', iconClass: 'bg-[#fef3c7] text-[#92400e]', icon: RectangleStackIcon, shortLabel: 'Templates' },
-  { label: 'Cover Letter', href: '/cover-letter', iconClass: 'bg-[#ffe4e6] text-[#be123c]', icon: EnvelopeIcon },
-  { label: 'Tailor for a job', href: '/optimize', iconClass: 'bg-[#d1fae5] text-[#047857]', icon: DocumentTextIcon, shortLabel: 'Tailor' },
-  { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'bg-[#e0e7ff] text-[#4338ca]', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
-  { label: 'Mock Interview', href: '/mock-interview', iconClass: 'bg-[#fae8ff] text-[#a21caf]', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
-  { label: 'NaukriGulf Optimization', href: '/naukrigulf-optimization', iconClass: 'bg-[#ffedd5] text-[#c2410c]', icon: IdentificationIcon },
-  { label: 'LinkedIn Optimization', href: '/linkedin-optimization', iconClass: 'bg-[#dbeafe] text-[#0a66c2]', icon: IdentificationIcon },
-  { label: 'Settings', href: '/settings', iconClass: 'bg-[#f1f5f9] text-[#475569]', icon: Cog6ToothIcon },
+  { label: 'My CVs', href: '/dashboard/library', iconClass: 'ui-nav-library', icon: BriefcaseIcon, shortLabel: 'My CVs' },
+  { label: 'Resume Templates', href: '/templates', iconClass: 'ui-nav-templates', icon: RectangleStackIcon, shortLabel: 'Templates' },
+  { label: 'Cover Letter', href: '/cover-letter', iconClass: 'ui-nav-letter', icon: EnvelopeIcon },
+  { label: 'Tailor for a job', href: '/optimize', iconClass: 'ui-nav-tailor', icon: DocumentTextIcon, shortLabel: 'Tailor' },
+  { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'ui-nav-qa', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
+  { label: 'Mock Interview', href: '/mock-interview', iconClass: 'ui-nav-mock', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
+  { label: 'NaukriGulf Optimization', href: '/naukrigulf-optimization', iconClass: 'ui-nav-naukrigulf', icon: IdentificationIcon },
+  { label: 'LinkedIn Optimization', href: '/linkedin-optimization', iconClass: 'ui-nav-linkedin', icon: IdentificationIcon },
+  { label: 'Settings', href: '/settings', iconClass: 'ui-nav-settings', icon: Cog6ToothIcon },
 ] as const
 
 /**

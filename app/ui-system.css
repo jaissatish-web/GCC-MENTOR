@@ -2,32 +2,93 @@
    Code-owned only: no public settings, database storage or user preference UI. */
 :root {
   --ui-font: var(--font-inter, Inter), ui-sans-serif, system-ui, sans-serif;
+  --ui-mono-font: var(--font-plex-mono), monospace;
   --ui-weight-regular: 400;
   --ui-weight-label: 500;
   --ui-weight-heading: 600;
   --ui-weight-title: 700;
-  --ui-title-size: 1.5rem;
+  --ui-title-size: 1.625rem;
   --ui-section-size: 1.25rem;
-  --ui-card-title-size: 1.125rem;
+  --ui-card-title-size: 1.0625rem;
   --ui-body-size: 1rem;
   --ui-label-size: 0.875rem;
   --ui-helper-size: 0.875rem;
   --ui-caption-size: 0.75rem;
+  --ui-demo-caption-size: 0.6875rem;
   --ui-input-size: 1rem;
   --ui-button-size: 1rem;
   --ui-hero-size: 2rem;
-  --ui-marketing-size: 1.625rem;
+  --ui-hero-line: 1.18;
+  --ui-marketing-size: 1.5rem;
   --ui-lead-size: 1rem;
   --ui-stat-size: 2rem;
-  --ui-body-line: 1.6;
+  --ui-body-line: 1.55;
   --ui-lead-line: 1.65;
   --ui-heading-line: 1.25;
   --ui-label-line: 1.4;
   --ui-heading-tracking: -0.02em;
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
-  --ui-card-radius: 16px;
-  --ui-card-shadow: 0 1px 3px rgba(20, 24, 28, 0.04);
+  --ui-card-radius: 12px;
+  --ui-card-shadow: none;
+  /* Semantic palette: RGB triplets allow shared opacity utilities. */
+  --ui-canvas-rgb: 248 250 249;
+  --ui-surface-rgb: 255 255 255;
+  --ui-ink-rgb: 20 24 28;
+  --ui-ink-soft-rgb: 65 75 85;
+  --ui-ink-muted-rgb: 97 107 118;
+  --ui-brand-rgb: 15 76 67;
+  --ui-brand-hover-rgb: 18 105 92;
+  --ui-brand-soft-rgb: 228 238 235;
+  --ui-line-rgb: 225 231 228;
+  --ui-line-strong-rgb: 192 203 197;
+  --ui-accent-rgb: 201 150 46;
+  --ui-accent-ink-rgb: 138 97 20;
+  --ui-accent-soft-rgb: 247 239 221;
+  --ui-success-rgb: 44 110 73;
+  --ui-success-soft-rgb: 227 239 232;
+  --ui-error-rgb: 163 53 40;
+  --ui-error-soft-rgb: 248 230 226;
+  --ui-canvas: rgb(var(--ui-canvas-rgb));
+  --ui-surface: rgb(var(--ui-surface-rgb));
+  --ui-ink: rgb(var(--ui-ink-rgb));
+  --ui-muted: rgb(var(--ui-ink-muted-rgb));
+  --ui-brand: rgb(var(--ui-brand-rgb));
+  --ui-brand-hover: rgb(var(--ui-brand-hover-rgb));
+  --ui-brand-soft: rgb(var(--ui-brand-soft-rgb));
+  --ui-line: rgb(var(--ui-line-rgb));
+  --ui-line-strong: rgb(var(--ui-line-strong-rgb));
+  --ui-inverse: #fff;
+  --ui-hero-background: #102d36;
+  --ui-control-radius: 10px;
+  --ui-hero-radius: 16px;
+  --ui-control-height: 44px;
+  --ui-field-border: #89978f;
+  --ui-page-width: 980px;
+  --ui-wide-width: 1120px;
+  --ui-form-width: 760px;
+  --ui-document-width: 1240px;
+  --ui-page-top: 24px;
+  --ui-page-gap: 20px;
+  --ui-section-gap: 16px;
+  --ui-control-gap: 8px;
+  --ui-section-padding: 48px;
+  --ui-empty-padding: 28px;
+  --ui-marketing-gutter: 16px;
+  --ui-marketing-width: 1240px;
+  --ui-header-gap: 8px;
+  --ui-list-gap: 12px;
+  --ui-card-hover-shadow: 0 3px 12px rgb(20 24 28 / .05);
+  --ui-nav-profile-bg: #ede9fe; --ui-nav-profile-ink: #6d28d9;
+  --ui-nav-library-bg: #e0f2fe; --ui-nav-library-ink: #0369a1;
+  --ui-nav-templates-bg: #fef3c7; --ui-nav-templates-ink: #92400e;
+  --ui-nav-tailor-bg: #d1fae5; --ui-nav-tailor-ink: #047857;
+  --ui-nav-letter-bg: #ffe4e6; --ui-nav-letter-ink: #be123c;
+  --ui-nav-qa-bg: #e0e7ff; --ui-nav-qa-ink: #4338ca;
+  --ui-nav-mock-bg: #fae8ff; --ui-nav-mock-ink: #a21caf;
+  --ui-nav-naukrigulf-bg: #ffedd5; --ui-nav-naukrigulf-ink: #c2410c;
+  --ui-nav-linkedin-bg: #dbeafe; --ui-nav-linkedin-ink: #0a66c2;
+  --ui-nav-settings-bg: #f1f5f9; --ui-nav-settings-ink: #475569;
   /* Deliberate document-example exception; still configured in this one file. */
   --ui-profile-font: Arial, Helvetica, sans-serif;
   --ui-profile-body-size: 0.875rem;
@@ -38,27 +99,31 @@
 }
 @media (min-width: 640px) {
   :root {
-    --ui-title-size: 1.75rem;
+    --ui-title-size: 1.875rem;
     --ui-section-size: 1.375rem;
     --ui-card-title-size: 1.125rem;
     --ui-body-size: 1rem;
     --ui-button-size: 1rem;
     --ui-hero-size: 2.375rem;
-    --ui-marketing-size: 2rem;
+    --ui-marketing-size: 1.875rem;
     --ui-lead-size: 1.0625rem;
     --ui-stat-size: 2.125rem;
     --ui-page-gutter: 24px;
+    --ui-page-gap: 24px;
+    --ui-page-top: 28px;
+    --ui-section-padding: 64px;
+    --ui-marketing-gutter: 32px;
     --ui-card-padding: 24px;
   }
 }
 @media (min-width: 1024px) {
   :root {
     --ui-body-size: 1rem;
-    --ui-title-size: 1.75rem;
+    --ui-title-size: 1.875rem;
     --ui-section-size: 1.375rem;
     --ui-card-title-size: 1.125rem;
-    --ui-hero-size: clamp(3rem, 3.6vw, 3.25rem);
-    --ui-marketing-size: 2.25rem;
+    --ui-hero-size: clamp(2.75rem, 3.6vw, 3.25rem);
+    --ui-marketing-size: 2rem;
     --ui-lead-size: 1.125rem;
     --ui-stat-size: 2.25rem;
   }
@@ -97,67 +162,67 @@ body :is(input, textarea, select, .field):not(:where([data-document-preview], [d
   line-height: var(--ui-body-line);
 }
 
-.type-title:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-title:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-title-size);
   font-weight: var(--ui-weight-title);
   line-height: var(--ui-heading-line);
 }
-.type-section:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-section:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-section-size);
   font-weight: var(--ui-weight-heading);
   line-height: var(--ui-heading-line);
 }
-.type-card:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-card:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-card-title-size);
   font-weight: var(--ui-weight-heading);
   line-height: var(--ui-heading-line);
 }
-.type-body:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-body:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-body-size);
   font-weight: var(--ui-weight-regular);
   line-height: var(--ui-body-line);
 }
-.type-label:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-label:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-label-size);
   font-weight: var(--ui-weight-label);
   line-height: var(--ui-label-line);
 }
-.type-helper:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-helper:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-helper-size);
   font-weight: var(--ui-weight-regular);
   line-height: var(--ui-body-line);
 }
-.type-caption:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-caption:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-caption-size);
   font-weight: var(--ui-weight-regular);
   line-height: var(--ui-label-line);
 }
-.type-button:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-button:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-button-size);
   font-weight: var(--ui-weight-heading);
   line-height: var(--ui-label-line);
 }
-.type-hero:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-hero:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-hero-size);
   font-weight: var(--ui-weight-title);
-  line-height: 1.15;
+  line-height: var(--ui-hero-line);
   letter-spacing: var(--ui-heading-tracking);
   text-wrap: balance;
 }
-.type-marketing-title:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-marketing-title:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-marketing-size);
   font-weight: var(--ui-weight-title);
   line-height: 1.2;
   letter-spacing: var(--ui-heading-tracking);
   text-wrap: balance;
 }
-.type-lead:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-lead:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   max-width: 52ch;
   font-size: var(--ui-lead-size);
   font-weight: var(--ui-weight-regular);
   line-height: var(--ui-lead-line);
 }
-.type-stat:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+body .type-stat:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-stat-size);
   line-height: 1.1;
   font-weight: var(--ui-weight-heading);
@@ -179,18 +244,18 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 
 /* Gulf workspace identity. These classes style application chrome only.
    Document fonts, template copy and export layouts remain isolated. */
-.gulf-context { display:flex; align-items:center; gap:8px; color:#0f4c43; font-size:var(--ui-label-size); font-weight:500; line-height:1.4; }
-.workspace-heading { border-bottom:1px solid #e7e3db; padding-bottom:20px; }
-.workspace-next { position:relative; isolation:isolate; background:#0f4c43; }
-.workspace-next::after { content:""; position:absolute; z-index:-1; pointer-events:none; width:220px; height:260px; right:-60px; top:-55px; border:1px solid rgba(235,208,146,.18); border-radius:50% 50% 0 0; transform:rotate(24deg); box-shadow:0 0 0 24px rgba(235,208,146,.04),0 0 0 48px rgba(235,208,146,.025); }
-.workspace-panel { background:#fff; border:1px solid #e7e3db; border-radius:var(--ui-card-radius); box-shadow:0 4px 24px -18px rgba(15,76,67,.2); }
-.app-type { background:radial-gradient(ellipse at 100% 0%,rgba(201,150,46,.035),transparent 38%),#f8f7f4; }
-.app-type .field { background:#fff; border-color:#9a9f9b; border-radius:10px; }
-.app-type .field:hover:not(:disabled) { border-color:#0f4c43; }
-.app-type .workspace-navigation { background:#fffefa; }
+.gulf-context { display:flex; align-items:center; gap:8px; color:var(--ui-brand); font-size:var(--ui-label-size); font-weight:500; line-height:1.4; }
+.workspace-heading { border-bottom:1px solid var(--ui-line); padding-bottom:var(--ui-section-gap); }
+.workspace-next { position:relative; isolation:isolate; background:var(--ui-brand); }
+.workspace-next::after { content:none; }
+.workspace-panel { background:var(--ui-surface); border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); box-shadow:var(--ui-card-shadow); }
+.app-type { background:var(--ui-canvas); }
+.app-type .field { background:var(--ui-surface); border-color:var(--ui-field-border); border-radius:var(--ui-control-radius); }
+.app-type .field:hover:not(:disabled) { border-color:var(--ui-brand); }
+.app-type .workspace-navigation { background:var(--ui-surface); }
 .editor-mobile-toolbar { position:sticky; top:56px; z-index:20; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); }
 @media(min-width:1024px) { .editor-mobile-toolbar { display:none; } }
-.editor-settings-panel { padding:0; border:1px solid #e7e3db; border-radius:16px; background:white; color:inherit; }
+.editor-settings-panel { padding:0; border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); background:var(--ui-surface); color:inherit; }
 .editor-settings-scroll { padding:20px; }
 @media(min-width:1024px) {
   .editor-settings-panel { position:sticky; top:12px; margin:0; width:280px; max-width:280px; flex-shrink:0; max-height:calc(100dvh - 24px); overflow-y:auto; }
@@ -216,3 +281,254 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 .editor-action-dock { bottom:calc(76px + env(safe-area-inset-bottom)); }
 @media(min-width:768px) { .editor-action-dock { bottom:12px; } }
 @media(max-width:1023px) { .app-type .editor-desktop-action { display:none; } }
+
+/* Shared layouts and component roles. Content panels group data; explanatory
+   prose uses ui-section without another box. */
+.ui-page { padding-top:var(--ui-page-top); gap:var(--ui-page-gap); }
+.ui-page-default { max-width:var(--ui-page-width); }
+.ui-page-wide { max-width:var(--ui-wide-width); }
+.ui-page-form { max-width:var(--ui-form-width); }
+.ui-page-document { max-width:var(--ui-document-width); }
+.ui-section { min-width:0; padding-block:var(--ui-section-gap); }
+.ui-section + .ui-section { border-top:1px solid var(--ui-line); }
+.ui-empty { padding:var(--ui-empty-padding) var(--ui-card-padding); }
+.ui-button { border-radius:var(--ui-control-radius); min-height:var(--ui-control-height); gap:var(--ui-control-gap); }
+.ui-button:hover { box-shadow:var(--ui-card-hover-shadow); }
+.ui-alert { font-size:var(--ui-helper-size); line-height:var(--ui-body-line); border-radius:var(--ui-control-radius); }
+.ui-alert-info { border-color:transparent; background:transparent; padding-inline:0; }
+.ui-hero { border-radius:var(--ui-hero-radius); background:var(--ui-hero-background); }
+.ui-hero-title { font-size:var(--ui-hero-size); line-height:var(--ui-hero-line); letter-spacing:var(--ui-heading-tracking); font-weight:var(--ui-weight-title); }
+.ui-nav-home { background:var(--ui-brand-soft); color:var(--ui-brand); }
+.ui-nav-profile { background:var(--ui-nav-profile-bg); color:var(--ui-nav-profile-ink); }
+.ui-nav-library { background:var(--ui-nav-library-bg); color:var(--ui-nav-library-ink); }
+.ui-nav-templates { background:var(--ui-nav-templates-bg); color:var(--ui-nav-templates-ink); }
+.ui-nav-tailor { background:var(--ui-nav-tailor-bg); color:var(--ui-nav-tailor-ink); }
+.ui-nav-letter { background:var(--ui-nav-letter-bg); color:var(--ui-nav-letter-ink); }
+.ui-nav-qa { background:var(--ui-nav-qa-bg); color:var(--ui-nav-qa-ink); }
+.ui-nav-mock { background:var(--ui-nav-mock-bg); color:var(--ui-nav-mock-ink); }
+.ui-nav-naukrigulf { background:var(--ui-nav-naukrigulf-bg); color:var(--ui-nav-naukrigulf-ink); }
+.ui-nav-linkedin { background:var(--ui-nav-linkedin-bg); color:var(--ui-nav-linkedin-ink); }
+.ui-nav-settings { background:var(--ui-nav-settings-bg); color:var(--ui-nav-settings-ink); }
+
+/* Theme bridge for retained Tailwind semantic utilities. */
+body .bg-canvas:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-canvas-rgb) / 1); }
+body .bg-canvas\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-canvas-rgb) / 0.4); }
+body .bg-canvas\/50:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-canvas-rgb) / 0.5); }
+body .bg-canvas\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-canvas-rgb) / 0.6); }
+body .bg-canvas\/90:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-canvas-rgb) / 0.9); }
+body .bg-canvas\/95:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-canvas-rgb) / 0.95); }
+body .hover\:bg-canvas:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-canvas-rgb) / 1); }
+body .bg-white:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 1); }
+body .bg-white\/10:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.1); }
+body .bg-white\/15:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.15); }
+body .bg-white\/20:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.2); }
+body .bg-white\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.4); }
+body .bg-white\/5:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.05); }
+body .bg-white\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.6); }
+body .bg-white\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.7); }
+body .bg-white\/80:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.8); }
+body .bg-white\/85:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.85); }
+body .bg-white\/90:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.9); }
+body .bg-white\/95:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.95); }
+body .focus\:bg-white:focus:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 1); }
+body .hover\:bg-white:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 1); }
+body .hover\:bg-white\/10:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.1); }
+body .hover\:bg-white\/15:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-surface-rgb) / 0.15); }
+body .bg-ink:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-ink-rgb) / 1); }
+body .bg-ink\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-ink-rgb) / 0.4); }
+body .bg-ink\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-ink-rgb) / 0.7); }
+body .bg-ink-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-ink-soft-rgb) / 1); }
+body .bg-ink-muted:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-ink-muted-rgb) / 1); }
+body .bg-ink-muted\/50:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-ink-muted-rgb) / 0.5); }
+body .bg-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 1); }
+body .bg-teal\/10:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 0.1); }
+body .bg-teal\/25:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 0.25); }
+body .bg-teal\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 0.3); }
+body .bg-teal\/35:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 0.35); }
+body .bg-teal\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 0.4); }
+body .bg-teal\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 0.6); }
+body .bg-teal\/80:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 0.8); }
+body .hover\:bg-teal\/15:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 0.15); }
+body .bg-teal-bright:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-hover-rgb) / 1); }
+body .hover\:bg-teal-bright:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-hover-rgb) / 1); }
+body .bg-teal-dark:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 1); }
+body .hover\:bg-teal-dark:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-rgb) / 1); }
+body .bg-teal-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 1); }
+body .bg-teal-soft\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 0.3); }
+body .bg-teal-soft\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 0.4); }
+body .bg-teal-soft\/50:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 0.5); }
+body .bg-teal-soft\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 0.6); }
+body .bg-teal-soft\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 0.7); }
+body .hover\:bg-teal-soft:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 1); }
+body .hover\:bg-teal-soft\/20:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 0.2); }
+body .hover\:bg-teal-soft\/30:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 0.3); }
+body .hover\:bg-teal-soft\/50:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 0.5); }
+body .bg-line:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-line-rgb) / 1); }
+body .bg-line\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-line-rgb) / 0.3); }
+body .bg-line\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-line-rgb) / 0.6); }
+body .bg-line\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-line-rgb) / 0.7); }
+body .hover\:bg-line\/60:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-line-rgb) / 0.6); }
+body .bg-line-strong:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-line-strong-rgb) / 1); }
+body .bg-line-strong\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-line-strong-rgb) / 0.7); }
+body .bg-gold:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-rgb) / 1); }
+body .bg-gold\/15:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-rgb) / 0.15); }
+body .bg-gold\/25:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-rgb) / 0.25); }
+body .bg-gold-ink:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-ink-rgb) / 1); }
+body .hover\:bg-gold-ink:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-ink-rgb) / 1); }
+body .bg-gold-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-soft-rgb) / 1); }
+body .bg-gold-soft\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-soft-rgb) / 0.4); }
+body .bg-gold-soft\/50:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-soft-rgb) / 0.5); }
+body .bg-gold-soft\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-soft-rgb) / 0.6); }
+body .hover\:bg-gold-soft\/30:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-accent-soft-rgb) / 0.3); }
+body .bg-ok:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-success-rgb) / 1); }
+body .bg-ok-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-success-soft-rgb) / 1); }
+body .bg-ok-soft\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-success-soft-rgb) / 0.6); }
+body .bg-alert:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-rgb) / 1); }
+body .bg-alert\/5:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-rgb) / 0.05); }
+body .bg-alert\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-rgb) / 0.7); }
+body .hover\:bg-alert\/5:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-rgb) / 0.05); }
+body .hover\:bg-alert\/90:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-rgb) / 0.9); }
+body .bg-alert-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-soft-rgb) / 1); }
+body .bg-alert-soft\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-soft-rgb) / 0.3); }
+body .bg-alert-soft\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-soft-rgb) / 0.4); }
+body .bg-alert-soft\/50:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-soft-rgb) / 0.5); }
+body .bg-alert-soft\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-soft-rgb) / 0.6); }
+body .hover\:bg-alert-soft:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-soft-rgb) / 1); }
+body .text-canvas:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-canvas-rgb) / 1); }
+body .hover\:text-white:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 1); }
+body .text-white:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 1); }
+body .text-white\/45:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.45); }
+body .text-white\/55:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.55); }
+body .text-white\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.6); }
+body .text-white\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.7); }
+body .text-white\/75:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.75); }
+body .text-white\/80:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.8); }
+body .text-white\/85:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.85); }
+body .text-white\/90:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.9); }
+body .hover\:text-ink:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-rgb) / 1); }
+body .text-ink:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-rgb) / 1); }
+body .text-ink\/55:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-rgb) / 0.55); }
+body .text-ink-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-soft-rgb) / 1); }
+body .text-ink-muted:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-muted-rgb) / 1); }
+body .text-ink-muted\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-muted-rgb) / 0.7); }
+body .hover\:text-teal:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-rgb) / 1); }
+body .text-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-rgb) / 1); }
+body .text-teal-bright:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-hover-rgb) / 1); }
+body .text-teal-dark:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-rgb) / 1); }
+body .text-teal-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-soft-rgb) / 1); }
+body .text-teal-soft\/80:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-soft-rgb) / 0.8); }
+body .text-line:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-line-rgb) / 1); }
+body .text-line-strong:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-line-strong-rgb) / 1); }
+body .text-gold:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-accent-rgb) / 1); }
+body .text-gold-ink:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-accent-ink-rgb) / 1); }
+body .text-gold-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-accent-soft-rgb) / 1); }
+body .text-ok:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-success-rgb) / 1); }
+body .text-ok-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-success-soft-rgb) / 1); }
+body .hover\:text-alert:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-error-rgb) / 1); }
+body .text-alert:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-error-rgb) / 1); }
+body .text-alert-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-error-soft-rgb) / 1); }
+body .border-canvas:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-canvas-rgb) / 1); }
+body .border-white:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 1); }
+body .border-white\/15:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.15); }
+body .border-white\/20:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.2); }
+body .border-white\/25:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.25); }
+body .border-white\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.3); }
+body .border-white\/35:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.35); }
+body .border-white\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.4); }
+body .border-white\/5:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.05); }
+body .border-white\/50:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.5); }
+body .border-white\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.7); }
+body .hover\:border-white\/60:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-surface-rgb) / 0.6); }
+body .border-ink:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-ink-rgb) / 1); }
+body .border-ink-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-ink-soft-rgb) / 1); }
+body .border-ink-muted:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-ink-muted-rgb) / 1); }
+body .border-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 1); }
+body .border-teal\/10:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.1); }
+body .border-teal\/15:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.15); }
+body .border-teal\/20:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.2); }
+body .border-teal\/25:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.25); }
+body .border-teal\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.3); }
+body .border-teal\/35:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.35); }
+body .border-teal\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.4); }
+body .border-teal\/50:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.5); }
+body .focus\:border-teal:focus:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 1); }
+body .hover\:border-teal:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 1); }
+body .hover\:border-teal\/40:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.4); }
+body .hover\:border-teal\/50:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.5); }
+body .hover\:border-teal\/60:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.6); }
+body .hover\:border-teal\/70:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 0.7); }
+body .border-teal-bright:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-hover-rgb) / 1); }
+body .hover\:border-teal-bright:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-hover-rgb) / 1); }
+body .border-teal-dark:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-rgb) / 1); }
+body .border-teal-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-brand-soft-rgb) / 1); }
+body .border-line:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-line-rgb) / 1); }
+body .border-line\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-line-rgb) / 0.6); }
+body .border-line\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-line-rgb) / 0.7); }
+body .border-line\/80:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-line-rgb) / 0.8); }
+body .hover\:border-line:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-line-rgb) / 1); }
+body .border-line-strong:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-line-strong-rgb) / 1); }
+body .border-gold:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-accent-rgb) / 1); }
+body .border-gold\/20:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-accent-rgb) / 0.2); }
+body .border-gold\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-accent-rgb) / 0.3); }
+body .border-gold\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-accent-rgb) / 0.4); }
+body .border-gold\/50:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-accent-rgb) / 0.5); }
+body .border-gold\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-accent-rgb) / 0.6); }
+body .border-gold-ink:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-accent-ink-rgb) / 1); }
+body .border-gold-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-accent-soft-rgb) / 1); }
+body .border-gold-soft\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-accent-soft-rgb) / 0.7); }
+body .border-ok:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-success-rgb) / 1); }
+body .border-ok\/25:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-success-rgb) / 0.25); }
+body .border-ok\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-success-rgb) / 0.3); }
+body .border-ok\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-success-rgb) / 0.4); }
+body .border-ok-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-success-soft-rgb) / 1); }
+body .border-alert:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-error-rgb) / 1); }
+body .border-alert\/20:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-error-rgb) / 0.2); }
+body .border-alert\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-error-rgb) / 0.3); }
+body .border-alert\/35:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-error-rgb) / 0.35); }
+body .border-alert\/40:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-error-rgb) / 0.4); }
+body .hover\:border-alert:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-error-rgb) / 1); }
+body .border-alert-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-error-soft-rgb) / 1); }
+body .ui-surface:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { box-shadow:var(--ui-card-shadow); }
+
+/* Legacy utility text follows shared roles; explicit type-* roles win. */
+body .text-xs:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-caption-size); }
+body .text-sm:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-helper-size); }
+body .text-base:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-body-size); }
+body .text-lg:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-card-title-size); }
+body .text-xl:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-section-size); }
+body .text-2xl:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-title-size); }
+body .text-3xl:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-stat-size); }
+body .text-4xl:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-hero-size); }
+body .text-\[10px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-demo-caption-size); }
+body .text-\[11px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-caption-size); }
+body .text-\[12px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-caption-size); }
+body .text-\[13px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-helper-size); }
+body .text-\[14px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-label-size); }
+body .text-\[15px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-body-size); }
+body .text-\[16px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-body-size); }
+body .text-\[17px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-card-title-size); }
+body .text-\[18px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-card-title-size); }
+body .text-\[20px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-section-size); }
+body .text-\[22px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-section-size); }
+body .text-\[24px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-title-size); }
+body .text-\[26px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-title-size); }
+body .text-\[28px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-title-size); }
+body .text-\[30px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-stat-size); }
+body .text-\[32px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-hero-size); }
+body .rounded-ctl:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-radius:var(--ui-control-radius); }
+body .font-mono:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-family:var(--ui-mono-font); }
+
+/* Authored utilities inherit the configured emphasis and font family. */
+body .font-normal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-regular); }
+body .font-medium:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-label); }
+body .font-semibold:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-heading); }
+body .font-bold:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-title); }
+body .type-title:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-title); }
+body .type-hero:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-title); }
+body .type-section:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-heading); }
+body .type-card:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-heading); }
+body .type-body:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-regular); }
+body .type-helper:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-regular); }
+body .type-caption:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-regular); }
+body .type-label:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-label); }
+body .type-button:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-heading); }

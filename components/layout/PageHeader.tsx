@@ -27,7 +27,7 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        'flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6',
+        'workspace-heading flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6',
         className
       )}
     >
@@ -51,8 +51,8 @@ export function PageHeader({
 /**
  * PageContainer — the matching content column.
  *
- * `width="normal"` (900px) is the reading-width default every form and report
- * page uses. `width="wide"` (1180px) is for the grid/listing pages (Dashboard,
+ * `width="normal"` (980px) is the reading-width default every form and report
+ * page uses. `width="wide"` (1120px) is for the grid/listing pages (Dashboard,
  * Resume Library) that genuinely need the extra columns.
  */
 export function PageContainer({
@@ -67,8 +67,8 @@ export function PageContainer({
   return (
     <main
       className={cn(
-        'page-gutter mx-auto w-full pb-12 pt-4 font-redesign-sans',
-        width === 'wide' ? 'max-w-[1180px]' : 'max-w-[900px]',
+        'ui-page page-gutter mx-auto w-full pb-12 font-redesign-sans',
+        width === 'wide' ? 'ui-page-wide' : 'ui-page-default',
         className
       )}
     >

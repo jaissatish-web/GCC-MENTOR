@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { GulfContext } from '@/components/layout/GulfContext'
 import { DocumentTextIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline'
 import { HowItWorks } from '@/components/journey/HowItWorks'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
@@ -143,9 +142,8 @@ export default function DashboardPage() {
   const firstRun = ready && nextAction.state === 'no_profile'
 
   return (
-    <div className="page-gutter mx-auto flex w-full max-w-[1120px] flex-col gap-6 pb-10 pt-6 font-redesign-sans sm:gap-8 lg:pt-9">
+    <div className="ui-page ui-page-wide page-gutter mx-auto flex w-full flex-col pb-10 font-redesign-sans">
       <header className="workspace-heading flex flex-col gap-2">
-        <GulfContext />
         <h1 className="type-title text-ink">
           {firstName ? `Good ${greeting()}, ${firstName}` : profileLoaded ? 'Welcome to GCC MENTOR' : `Good ${greeting()}`}
         </h1>
@@ -159,7 +157,7 @@ export default function DashboardPage() {
 
       {/* Lead with the existing next action; the compact map supports it. */}
       <section aria-label="Your progress and next step" className="workspace-panel overflow-hidden">
-        <div className="workspace-next flex flex-col gap-5 overflow-hidden p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+        <div className="workspace-next ui-card flex flex-col gap-5 overflow-hidden sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-col gap-1.5">
             <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal-soft">
               {loadError

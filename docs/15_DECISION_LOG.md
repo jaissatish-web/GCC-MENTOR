@@ -1,5 +1,9 @@
 # DECISION LOG — what was decided, when, and why
 
+## 2026-10-11 — Universal clean UI configuration
+
+Founder approves an application-wide consistency pass: app/ui-system.css owns fonts, responsive role sizes/weights/line spacing, semantic colors, page widths/gutters/rhythm and component radii/padding/shadows. Shared components and public landing consume these settings; existing utility colors bridge to variables outside document boundaries. Keep Inter, white/neutral surfaces and deep Gulf teal actions. Colored navigation accents remain centralized. Replace redundant instruction boxes with plain sections, reduce repeated header chrome and standardize layout. Preserve all data flows, messages, actions, templates and exports. Browser QA unavailable in managed environment; run build/type/lint and offline checks, report limit.
+
 ## 2026-10-11 — Compact colored service navigation
 
 Founder moves Cover Letter into Build your CV, directly below Resume Templates. Shared sidebar/phone-menu groups and tablet order reflect this. Reduce row padding, icon size and category spacing while retaining 44px tap targets and readable labels. Each service gets a distinct colored icon tile. Cover Letter remains part of the application stage for progress badges; category placement does not change prerequisites or feature behavior.

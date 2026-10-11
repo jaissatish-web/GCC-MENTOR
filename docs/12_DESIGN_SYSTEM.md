@@ -1,6 +1,7 @@
 # DESIGN SYSTEM — one visual language, no per-page invention
 
-`tailwind.config.ts` is authoritative. It is a **protected file**.
+`app/ui-system.css` owns the current UI configuration. The retained Tailwind
+configuration is a **protected file**; it supplies compatibility utilities.
 
 ---
 
@@ -25,18 +26,18 @@ section, this section wins. The Meridian tokens were chosen by the founder on
 
 | Token | Value | Role |
 |---|---|---|
-| `canvas` | `#FAF7F2` | Page ground, warm light |
+| `canvas` | `#F8FAF9` | Neutral page ground |
 | `white` | `#FFFFFF` | Cards and panels |
 | `ink` / `ink-soft` / `ink-muted` | `#14181C` / `#414B55` / `#616B76` | Headings / body / secondary (all ≥5:1) |
 | `teal` / `teal-bright` / `teal-soft` | `#0F4C43` / `#12695C` / `#E4EEEB` | The brand: headers, dark panels, links, "this is us" |
 | `gold` / `gold-ink` / `gold-soft` | `#C9962E` / `#8A6114` / `#F7EFDD` | The ACTION: the one primary button per screen. Gold is a fill; gold text uses `gold-ink` |
 | `ok` / `ok-soft` | `#2C6E49` / `#E3EFE8` | Done, success |
 | `alert` / `alert-soft` | `#A33528` / `#F8E6E2` | Error, risk, not built yet |
-| `line` / `line-strong` | `#EAE4DB` / `#D2C9BC` | Decorative hairlines |
+| `line` / `line-strong` | `#E1E7E4` / `#C0CBC5` | Decorative hairlines |
 | `field` / `field.line` | `#FBF9F5` / `#948A7B` | Inputs (the `.field` class in `globals.css`) |
 
-Radius: `rounded-ctl` 11px for controls, `rounded-card` 16px and `rounded-card-lg` 20px
-for cards. Shadow: `shadow-m-1/2/3`. **Inter is the UI face for headings, body, labels and controls**
+Current radius: controls 10px, standard cards 12px, heroes 16px. Shared
+content surfaces use no raised shadow; dialogs retain elevation. **Inter is the UI face for headings, body, labels and controls**
 (founder-approved premium typography, 2026-10-08). `next/font` serves the variable
 font locally with swap and fallback metric adjustment. UI `font-display`,
 `font-sans` and `font-redesign-sans` resolve to Inter through scoped CSS in
@@ -44,53 +45,56 @@ font locally with swap and fallback metric adjustment. UI `font-display`,
 remains available for existing technical figures. Resume templates retain their
 independent inline fonts, sizes and weights; UI styling must never change PDF layout.
 
-### Universal UI configuration (2026-10-09)
+### Universal UI configuration (2026-10-11)
 
-`app/ui-system.css` is the only configuration point for application typography,
-responsive sizes, weights, line spacing, standard card padding/radius/shadow and
-page gutters. It is imported once by `globals.css`. This is code-owned and has
-no user-facing settings or database record. Do not add page-specific type scales.
-Change the `--ui-*` tokens there to change every consumer together.
+`app/ui-system.css` is the code-owned configuration for UI font families,
+responsive sizes/weights/line spacing, semantic colors, categorical navigation
+accents, control/card/hero radii, surface shadows, card padding, page widths,
+gutters and vertical rhythm. There is no public settings screen or database
+record. Main application components and landing campaign consume these variables.
+Retained Tailwind semantic colors and text utilities bridge to those variables
+outside document boundaries; new code should use shared components/type roles.
+Protected Tailwind config is unchanged.
 
-| Role | Phone | Tablet | Desktop |
-|---|---|---|---|
-| Page title | 22px | 28px | 30px |
-| Section heading | 16px | 20px | 22px |
-| Card heading | 16px | 18px | 20px |
-| Paragraph | 15px | 16px | 16px |
-| Label/helper | 14px | 14px | 14px |
-| Caption | 12px | 12px | 12px |
-| Input | 16px | 16px | 16px |
-| Button | 15px | 16px | 16px |
-| Marketing hero | 30px (28 below 360px) | 38px | 42px |
+| Role | Phone | Tablet/laptop |
+|---|---|---|
+| Page title | 26px | 30px |
+| Section heading | 20px | 22px |
+| Card heading | 17px | 18px |
+| Paragraph/input/button | 16px | 16px |
+| Label/helper | 14px | 14px |
+| Caption | 12px | 12px |
+| Hero | 32px (30 on narrow phones) | 38px tablet; 44–52px desktop |
+| Marketing section | 24px | 30px tablet; 32px desktop |
 
-Inter is the shared application face. Paragraph weight is 400, label weight 500,
-heading/action weight 600. Semantic h1/h2/h3 and paragraph defaults normalize
-legacy pages as well as `type-*` classes. Explicit roles retain hierarchy: hero,
-section, card, helper, caption and numeric stats are different roles, not different
-page designs. Old utility sizes map to those same tokens.
+Inter remains the reading face. Paragraphs are 400, labels 500, section/card
+headings 600 and titles 700. Main actions use deep Gulf teal with white text,
+white surfaces sit on a neutral canvas, and service icon accents are centralized.
+Status colors retain their distinct meanings. Small illustrative-diagram labels
+have an explicit 11px token; ordinary labels/copy use the reading roles.
 
-Standard padded cards use 16px phone/24px larger-screen padding, a shared 16px
-radius and quiet shadow. Dense rows and document layouts retain their structure.
-Phone gutters are 12px; larger screens use 24px. Keep long copy left aligned,
-real semantic headings and selectable text. Typography supports readability and
-accessibility; it does not promise an SEO ranking increase.
+Standard cards use 16px phone/24px larger-screen padding, 12px corners and no
+raised shadow. Controls have 10px corners and at least 44px targets. Shared
+PageShell/PageContainer widths are form 760, default 980, wide 1120 and document
+1240px. Phone gutters are 16px and larger-screen gutters 24px. Headers have a
+quiet separator and no repeated default regional eyebrow or boxed icon tile.
+The shell branding continues to identify the Gulf workspace.
 
-Resume renderer/export boundaries retain their authored document typography and
-are explicitly excluded from UI normalization. The illustrative LinkedIn profile
-uses a deliberate compact document-example scale, also defined by `--ui-profile-*`
-tokens in the same configuration file. LinkedIn setup/results use the universal
-application roles, with no page-specific font-size overrides.
+Instruction-only sections use `ui-section` without another card; editable forms,
+separate results, choices and important warnings retain useful boundaries. Shared
+empty states and neutral info messages are unboxed. The dashboard, platform
+guides, visibility guidance and interview progress empty/loading states adopt
+this quieter presentation. No action, data source or service behavior changes.
 
-Legacy small-text utilities map to caption tokens; semantic paragraphs map to
-the reading role. Explicit helper and caption roles keep compact metadata clear. UI family and emphasis rules
-exclude `[data-document-preview]`, `#resume-render`, `.actual-template-orbit-face`
-and their descendants. Document boundaries retain the previous inherited 15px /
-1.5 baseline, while inline template sizes and spacing take precedence. Resume
-previews keep their authored document typography.
-Use role classes for new code rather than extending the compatibility list.
-The hero example reserves its height, advances every 8 seconds, pauses on focus
-or hover, and offers an explicit Pause/Resume button. Reduced motion stops autoplay.
+Resume renderer/export boundaries keep authored document typography, colors and
+layout. CSS bridges explicitly exclude `[data-document-preview]`, `#resume-render`,
+`.actual-template-orbit-face`, `.linkedin-profile-preview` and descendants. The
+existing document 15px/1.5 inherited baseline remains. Template files are untouched.
+Illustrative profile/document layouts have their own configured reading roles.
+
+Verification: production build, lint, typecheck and relevant offline regression
+checks are required. Browser/mobile visual verification remains unavailable in
+the managed environment and must not be claimed from CSS/source inspection.
 
 **One exception to "red = not built yet" (2026-10-04):** the signed-in footer's "Card
 checkout is not live yet" is neutral bold text — at the foot of every screen, red payment
@@ -98,8 +102,8 @@ text read as a warning. Everywhere else `NotLive` / `NotLiveText` stay red.
 
 ### Buttons — one meaning each
 
-`primary`/`purchase` (gold, ink text) = the page's one main action · `progress` (teal)
-= a step forward inside a flow, and the "what happens next" hand-off · `secondary`
+`primary`/`progress` (teal, white text) = main and next-step actions · `purchase`
+(gold, ink text) = restrained commercial accent · `secondary`
 (white, `line-strong` border) · `ghost` (teal text) · `danger`. Every button is at
 least 44px tall.
 

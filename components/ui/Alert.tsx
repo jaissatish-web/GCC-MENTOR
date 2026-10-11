@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils'
  * ground, so it survives a monochrome screenshot and a colour-blind reader.
  */
 const alertVariants = cva(
-  'flex items-start gap-2.5 rounded-ctl border px-3.5 py-3 font-redesign-sans text-[13px] leading-relaxed',
+  'ui-alert flex items-start gap-2.5 rounded-ctl border px-3.5 py-3 font-redesign-sans type-helper',
   {
     variants: {
       variant: {
@@ -54,7 +54,7 @@ const alertVariants = cva(
          * just no rule. It is the same failure that shipped white labels on a
          * white card, which is why every variant here is contrast-checked.
          */
-        info: 'border-teal-soft bg-teal-soft text-teal',
+        info: 'ui-alert-info text-ink-soft',
         /** Something completed. Used sparingly — most successes need no box. */
         // Meridian's status green, not the navy-era `emerald`. ok on ok-soft 5.18.
         success: 'border-ok/25 bg-ok-soft text-ok',

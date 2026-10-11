@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 /**
- * Card — the standard raised surface.
+ * Card — a quiet boundary for a distinct form or result.
  *
  * Exported props and tone behavior remain unchanged. The redesign uses the
  * shared surface, line, radius, and shadow tokens from DESIGN_SYSTEM.md §8.
@@ -11,10 +11,10 @@ import { cn } from '@/lib/utils'
 const cardVariants = cva('ui-surface rounded-card border font-redesign-sans', {
   variants: {
     tone: {
-      light: 'border-line bg-white shadow-redesign-sm',
-      dark: 'border-line bg-white shadow-redesign-md',
+      light: 'border-line bg-white',
+      dark: 'border-line bg-white',
       'dark-interactive':
-        'border-line bg-white shadow-redesign-md transition-all duration-300 hover:-translate-y-1 hover:border-teal hover:shadow-redesign-lg motion-reduce:transform-none motion-reduce:transition-none',
+        'border-line bg-white transition-colors duration-200 hover:border-teal motion-reduce:transition-none',
     },
   },
   defaultVariants: {
