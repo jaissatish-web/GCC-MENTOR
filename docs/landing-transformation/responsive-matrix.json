@@ -1,0 +1,50 @@
+[
+  {
+    "width": 360,
+    "client": 360,
+    "render": 360,
+    "scroll": 360
+  },
+  {
+    "width": 375,
+    "client": 375,
+    "render": 375,
+    "scroll": 375
+  },
+  {
+    "width": 390,
+    "client": 390,
+    "render": 390,
+    "scroll": 390
+  },
+  {
+    "width": 430,
+    "client": 430,
+    "render": 430,
+    "scroll": 430
+  },
+  {
+    "width": 768,
+    "client": 768,
+    "render": 768,
+    "scroll": 768
+  },
+  {
+    "width": 1024,
+    "client": 1024,
+    "render": 1024,
+    "scroll": 1024
+  },
+  {
+    "width": 1440,
+    "client": 1440,
+    "render": 1440,
+    "scroll": 1440
+  },
+  {
+    "width": 1920,
+    "client": 1920,
+    "render": 1920,
+    "scroll": 1920
+  }
+]

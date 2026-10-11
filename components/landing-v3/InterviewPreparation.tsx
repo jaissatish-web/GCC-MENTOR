@@ -9,8 +9,8 @@ export function InterviewPreparation() {
       <div className={s.twoColumn}>
         <div>
           <span className={s.eyebrow}>YOUR GUIDED INTERVIEW PREPARATION</span>
-          <h2 id="interview-title">You don’t have to<br />figure it out alone.<br /><span>Practise with a clear next step.</span></h2>
-          <p className={s.lead}>Build confidence through preparation. Practise questions for your role, understand what worked in your answer and know what to strengthen next.</p>
+          <h2 id="interview-title">Practice Before the Real Interview.<br /><span>Improve After Every Attempt.</span></h2>
+          <p className={s.lead}>Practise questions based on your optimized resume and target job. Speak your answers, review question-level feedback and choose what to work on before your next session.</p>
           <ul className={s.coachingBenefits}>
             <li><Check size={18} aria-hidden="true" /><span>Prepare with role-specific Q&A and HR or technical interview practice.</span></li>
             <li><Check size={18} aria-hidden="true" /><span>Get AI-guided feedback on your answers, with stronger wording to practise.</span></li>
