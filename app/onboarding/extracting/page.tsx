@@ -9,6 +9,7 @@ import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { cn } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CAREER_PROFILE_PARSE_NOTES_KEY, CLAIMED_RESUME_TEXT_KEY } from '@/lib/onboardingDraft'
 import { EXTRACTION_NOTES } from '@/lib/processingNotes'
+import { uploadResumeFile, requestResumeImport, IMPORT_DISPLAY_FAILED } from '@/lib/resumeParse/clientImport'
 
 /**
  * Extraction progress screen — screen 03 (TASK-023), route /onboarding/extracting.
@@ -77,6 +78,8 @@ function ExtractingScreen() {
   const [stage, setStage] = useState<Stage>('collect')
   const [rowCount, setRowCount] = useState(0)
   const [serverMessage, setServerMessage] = useState('')
+  const [checkSaved, setCheckSaved] = useState(false)
+  const importBusy = useRef(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // No valid path → send the user back to the chooser.
@@ -89,10 +92,12 @@ function ExtractingScreen() {
     (path === 'upload' ? file !== null : (text ?? '').trim().length >= 50)
 
   const runExtraction = useCallback(async (overrideText?: string) => {
-    if (!path) return
+    if (!path || importBusy.current) return
+    importBusy.current = true
     const bodyText = overrideText ?? text
     setStage('extracting')
     setServerMessage('')
+    setCheckSaved(false)
 
     // Client-side timer advances the four rows (~20s). Started at 1 (active).
     setRowCount(1)
@@ -101,52 +106,29 @@ function ExtractingScreen() {
     }, ROW_MS)
 
     try {
-      const res =
-        path === 'upload'
-          ? await uploadFile(file!)
-          : await postText(bodyText)
-
-      if (!res.ok) {
-        // Surface the server's own message verbatim (e.g. 429 rate limit).
-        // A 504 with no JSON is the platform's timeout page, not our route
-        // (2026-09-11) — say so, rather than a generic failure.
-        let msg =
-          res.status === 504
-            ? 'Reading your CV took too long and was stopped. Nothing was changed — please try again.'
-            : 'Extraction failed. Please try again.'
-        try {
-          const body = await res.json()
-          msg = (body?.error ?? body?.message) || msg
-        } catch {
-          /* keep default */
+      const result = await requestResumeImport(() =>
+        path === 'upload' ? uploadResumeFile(file!) : postText(bodyText),
+      )
+      if (!result.ok) {
+        setServerMessage(result.error)
+        setCheckSaved(result.checkSaved)
+        setStage('error')
+        return
+      }
+      try {
+        window.sessionStorage.setItem(CAREER_PROFILE_DRAFT_KEY, JSON.stringify(result.draft))
+        if (Array.isArray(result.warnings)) {
+          window.sessionStorage.setItem(CAREER_PROFILE_PARSE_NOTES_KEY, JSON.stringify(result.warnings))
         }
-        setServerMessage(msg)
+        router.push('/profile')
+      } catch {
+        setServerMessage(IMPORT_DISPLAY_FAILED)
+        setCheckSaved(true)
         setStage('error')
-        clearInterval(timer)
-        return
       }
-
-      const body = await res.json()
-      const draft = body?.draft
-      if (!draft) {
-        setServerMessage('Unexpected response from the server.')
-        setStage('error')
-        clearInterval(timer)
-        return
-      }
-
-      // Success — store draft (session only) and go straight to the review
-      // screen; the checklist may jump straight to done.
-      window.sessionStorage.setItem(CAREER_PROFILE_DRAFT_KEY, JSON.stringify(draft))
-      if (Array.isArray(body?.report?.warnings)) {
-        window.sessionStorage.setItem(CAREER_PROFILE_PARSE_NOTES_KEY, JSON.stringify(body.report.warnings))
-      }
+    } finally {
       clearInterval(timer)
-      router.push('/profile')
-    } catch {
-      setServerMessage('Network error. Please check your connection and try again.')
-      setStage('error')
-      clearInterval(timer)
+      importBusy.current = false
     }
   }, [file, path, router, text])
 
@@ -205,7 +187,10 @@ function ExtractingScreen() {
                 ref={fileInputRef}
                 type="file"
                 accept=".pdf,.docx,.doc"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                onChange={(e) => {
+                  setFile(e.target.files?.[0] ?? null)
+                  e.target.value = ''
+                }}
                 className="sr-only"
               />
               <button
@@ -243,10 +228,11 @@ function ExtractingScreen() {
             !
           </div>
           <h1 className="mt-6 font-display text-[27px] leading-tight text-ink">
-            We couldn&apos;t read that
+            Your CV import needs attention
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">{serverMessage}</p>
           <div className="mt-8 flex flex-col gap-3">
+            {checkSaved ? <button type="button" onClick={() => window.location.assign('/profile')} className="font-semibold text-teal underline">Check saved CV reading</button> : null}
             <Button
               variant="primary"
               className="w-full"
@@ -293,12 +279,6 @@ function ExtractingScreen() {
 }
 
 // ---- API calls -------------------------------------------------------------
-
-async function uploadFile(file: File): Promise<Response> {
-  const form = new FormData()
-  form.append('file', file)
-  return fetch('/api/parse/upload', { method: 'POST', body: form })
-}
 
 async function postText(text: string): Promise<Response> {
   return fetch('/api/parse/text', {

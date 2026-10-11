@@ -14,6 +14,7 @@ import { ProcessingInline } from '@/components/ui/Processing'
 import { EXTRACTION_NOTES } from '@/lib/processingNotes'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 import type { ParseWarning } from '@/lib/resumeParse/check'
+import { uploadResumeFile, requestResumeImport, IMPORT_DISPLAY_FAILED } from '@/lib/resumeParse/clientImport'
 
 /**
  * Inline resume import, on the Career Profile page (founder decision 2026-08-18).
@@ -70,9 +71,11 @@ export function ResumeImport({
   onFillManually: () => void
 }) {
   const fileInput = useRef<HTMLInputElement>(null)
+  const importBusy = useRef(false)
   const [mode, setMode] = useState<Mode>(initialMode)
   const [parsing, setParsing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [checkSaved, setCheckSaved] = useState(false)
   const [text, setText] = useState('')
   const [dragging, setDragging] = useState(false)
   // A deep link (?import=upload|paste) is an explicit intent, so it opens the
@@ -116,73 +119,36 @@ export function ResumeImport({
   }
 
   const run = async (call: () => Promise<Response>) => {
+    // React state updates are asynchronous; this also blocks a second drop/click.
+    if (importBusy.current) return
+    importBusy.current = true
     setParsing(true)
     setError(null)
+    setCheckSaved(false)
     try {
-      const res = await call()
-      const body = (await res.json().catch(() => null)) as {
-        draft?: CareerProfileDraft
-        report?: { warnings?: ParseWarning[] }
-        error?: string
-        code?: string
-        recreation?: RecreationQuota
-      } | null
-      if (!res.ok || !body?.draft) {
-        // The server's limit is the source of truth — if it says none are
-        // left, show that state rather than a one-off error.
-        if (body?.code === 'RECREATE_LIMIT' && body.recreation) setQuota(body.recreation)
-        // No JSON at all means the platform answered, not our route — most
-        // often its timeout page (2026-09-11). Say which, and that it is safe
-        // to retry: nothing is written, and only a success counts.
-        setError(
-          // A 401 arrived as the bare word "Unauthorized" (seen live
-          // 2026-09-12): true, but no use to someone holding a CV. Say what
-          // happened and what to do; nothing was read, so nothing counted.
-          (res.status === 401
-            ? "Your sign-in could not be confirmed just now. Nothing was changed and it didn't count against your limit — please try again, or sign in again if it keeps happening."
-            : null) ||
-            body?.error ||
-            (res.status === 504
-              ? "Reading your CV took too long and was stopped. Nothing was changed, and it didn't count against your limit — please try again."
-              : "Something went wrong on our side while reading your CV. Nothing was changed, and it didn't count against your limit — please try again."),
-        )
-        setParsing(false)
+      const result = await requestResumeImport(call)
+      if (!result.ok) {
+        if (result.recreation) setQuota(result.recreation)
+        setError(result.error)
+        setCheckSaved(result.checkSaved)
         return
       }
-      // Success — hand the draft up. The parent swaps the page (add/replace) or
-      // fills the editor, so we leave `parsing` on until this component unmounts
-      // or the parent re-renders it; reset defensively in case it stays mounted.
-      onDraft(body.draft, body.report?.warnings)
+      try {
+        onDraft(result.draft, result.warnings)
+        setMode('idle')
+        setText('')
+      } catch {
+        setError(IMPORT_DISPLAY_FAILED)
+        setCheckSaved(true)
+      }
+    } finally {
       setParsing(false)
-      setMode('idle')
-      setText('')
-    } catch {
-      setError('Network error. Please check your connection and try again.')
-      setParsing(false)
+      importBusy.current = false
     }
   }
 
   const chooseFile = (file: File | null) => {
-    if (!file) return
-    // Same limits the server enforces (app/api/parse/upload/route.ts, audit
-    // M12): checked here first so an oversized file is refused instantly
-    // instead of failing at the platform's 4.5 MB request limit.
-    if (/\.doc$/i.test(file.name)) {
-      setError("Older .doc files can't be read. Save it as .docx or PDF, or paste your CV text.")
-      return
-    }
-    if (!/\.(pdf|docx)$/i.test(file.name)) {
-      setError('Only PDF and Word (.docx) files are supported.')
-      return
-    }
-    const limitBytes = /\.pdf$/i.test(file.name) ? 4 * 1024 * 1024 : 2 * 1024 * 1024
-    if (file.size > limitBytes) {
-      setError('This file is too large. PDFs can be up to 4MB and Word (.docx) files up to 2MB.')
-      return
-    }
-    const form = new FormData()
-    form.append('file', file)
-    void run(() => fetch('/api/parse/upload', { method: 'POST', body: form }))
+    if (file) void run(() => uploadResumeFile(file))
   }
 
   const submitText = () => {
@@ -384,7 +350,11 @@ export function ResumeImport({
                 type="file"
                 accept=".pdf,.doc,.docx"
                 className="sr-only"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => chooseFile(e.target.files?.[0] ?? null)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  const selected = e.target.files?.[0] ?? null
+                  e.target.value = '' // Selecting the same file again must trigger onChange.
+                  chooseFile(selected)
+                }}
               />
               <p className="text-[13px] text-ink-soft">Drop your resume here, or</p>
               <button
@@ -420,9 +390,10 @@ export function ResumeImport({
       )}
 
       {error ? (
-        <p role="alert" className="mt-3 rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-2.5 text-[12px] text-alert">
-          {error}
-        </p>
+        <div role="alert" className="mt-3 rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-2.5 text-[12px] text-alert">
+          <p>{error}</p>
+          {checkSaved ? <button type="button" onClick={() => window.location.assign('/profile')} className="mt-2 inline-block font-semibold underline">Refresh and check saved CV</button> : null}
+        </div>
       ) : null}
     </div>
   )
