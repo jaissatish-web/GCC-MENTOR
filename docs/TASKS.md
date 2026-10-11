@@ -13,6 +13,6 @@ User-authorized ten-part implementation. Baseline main `7236d4455ea924df7c207ca0
 - [x] Part 7: Mock interview, feedback and improvement demonstration.
 - [x] Part 8: Globe, guidance, founder, trust, verified pricing and final CTA.
 - [x] Part 9: Full responsive/accessibility/performance/regression validation.
-- [ ] Part 10: Preview review, production release and final evidence.
+- [x] Part 10: Preview review, production release and final evidence. PR #6 merged; production ea22e839b950e9e74f25c605b999de5f89efe749 READY. Post-release record: `landing-transformation/10-production-release.md`.
 
 Protected scope: backend/auth/payment/credits/data/template renderers and content remain unchanged. Eight-width actual fixed-frame rendering and interaction checks are recorded in `landing-transformation/09-implementation-and-validation.md`; physical-device and field-performance limits remain explicit.
