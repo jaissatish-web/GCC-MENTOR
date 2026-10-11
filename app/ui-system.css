@@ -238,6 +238,22 @@ body :is(.ui-card):not(:where([data-document-preview], [data-document-preview] *
   padding: var(--ui-card-padding);
 }
 .page-gutter { padding-inline: var(--ui-page-gutter); }
+/* Phones get one page inset and one panel inset. Nested editable rows are
+   separated by rules rather than another padded box. Desktop stays unchanged. */
+@media (max-width: 639px) {
+  .app-type { --ui-page-gutter: 12px; --ui-card-padding: 12px; }
+  .app-type .ui-panel-padding { padding-inline: var(--ui-card-padding); }
+  .app-type .ui-nested-body { padding-inline: 0; }
+  body .app-type .ui-mobile-flat:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+    padding-inline: 0;
+    border-inline-width: 0;
+    border-top-width: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: transparent;
+  }
+  .app-type .ui-mobile-flat:last-child { border-bottom-width: 0; }
+}
 header nav :is(a, button) { font-size: var(--ui-label-size); font-weight: var(--ui-weight-label); }
 /* Standard manually-authored padded cards share the same spacing tokens. */
 body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { padding: var(--ui-card-padding); }

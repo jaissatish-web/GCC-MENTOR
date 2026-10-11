@@ -773,7 +773,7 @@ function CardSection({
           onClick={onToggle}
           aria-expanded={open}
           aria-controls={panelId}
-          className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal sm:p-5"
+          className="ui-panel-padding flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal sm:p-5"
         >
           {/* Step marker — a tick once the block is complete, so progress is
               readable from the numbers column alone without reading any text. */}
@@ -857,7 +857,7 @@ function CardSection({
       </h2>
 
       {open ? (
-        <div id={panelId} className="border-t border-line p-4 sm:p-5">
+        <div id={panelId} className="ui-panel-padding border-t border-line p-4 sm:p-5">
           {action ? <div className="mb-4 flex flex-wrap gap-2">{action}</div> : null}
           {children}
         </div>
@@ -2719,7 +2719,7 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-4">
             {editor.work_experience.map((w, i) => (
-              <div key={w.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
+              <div key={w.key} className="ui-mobile-flat flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex items-center justify-between">
                   <span className="type-helper font-semibold text-sec-experience">
                     {w.role.trim() || `Role ${i + 1}`}
@@ -2839,7 +2839,7 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.education.map((x, i) => (
-              <div key={x.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
+              <div key={x.key} className="ui-mobile-flat flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex items-center justify-between">
                   <span className="type-helper font-semibold text-sec-education">
                     {x.degree.trim() || `Qualification ${i + 1}`}
@@ -2927,7 +2927,7 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-3">
             {editor.certifications.map((c, i) => (
-              <div key={c.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
+              <div key={c.key} className="ui-mobile-flat flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
                 <div className="flex items-center justify-between">
                   <span className="type-helper font-semibold text-sec-certifications">
                     {c.name.trim() || `Certification ${i + 1}`}

@@ -35,9 +35,9 @@ export function CategoryEditor<T extends CategoryEditorEntry>({ value, onChange 
   }
   return <div className="space-y-4">
     <p className="field-hint">Suggested groups preserve your original details. Review them, move an item to another category or create your own. Category names do not add readiness points.</p>
-    {groups.map((group, index) => <details key={group.id} open className="rounded-card border border-line bg-canvas">
-      <summary className="min-h-12 cursor-pointer px-4 py-3 font-semibold text-ink">{group.name} <span className="font-normal text-ink-muted">· {group.items.filter(i => i.label || i.value).length} items</span></summary>
-      <div className="space-y-4 border-t border-line p-4">
+    {groups.map((group, index) => <details key={group.id} open className="ui-mobile-flat rounded-card border border-line bg-canvas">
+      <summary className="ui-nested-body min-h-12 cursor-pointer px-4 py-3 font-semibold text-ink">{group.name} <span className="font-normal text-ink-muted">· {group.items.filter(i => i.label || i.value).length} items</span></summary>
+      <div className="ui-nested-body space-y-4 border-t border-line p-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="space-y-1"><span className="field-label">Category name</span><input className="field" value={group.name} maxLength={80} onChange={e => updateCategory(group.id,{category_name:e.target.value})} /></label>
           <label className="space-y-1"><span className="field-label">Resume position</span><select className="field" value={group.position} onChange={e => updateCategory(group.id,{category_position:e.target.value as CategoryMetadata['category_position']})}>{CATEGORY_POSITIONS.map(position => <option key={position} value={position}>{CATEGORY_POSITION_LABELS[position]}</option>)}</select></label>
@@ -48,7 +48,7 @@ export function CategoryEditor<T extends CategoryEditorEntry>({ value, onChange 
           <button type="button" className={control} disabled={index===groups.length-1} aria-label={'Move '+group.name+' down'} onClick={() => moveCategory(index,1)}><ArrowDown size={16} /></button>
           <button type="button" className={control} aria-label={'Delete category '+group.name} onClick={() => { if (window.confirm('Delete this category and its items? This change takes effect when you save your profile.')) onChange(value.filter(row => row.category_id !== group.id)) }}><Trash2 size={16} /></button>
         </div>
-        {group.items.map((item,itemIndex) => <div key={item.key} className="space-y-3 rounded-ctl border border-line bg-white p-3 sm:p-4">
+        {group.items.map((item,itemIndex) => <div key={item.key} className="ui-mobile-flat space-y-3 rounded-ctl border border-line bg-white p-3 sm:p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1"><span className="field-label">Item name</span><input className="field" placeholder="e.g. Honeywell Experion" maxLength={200} value={item.label} onChange={e => updateItem(item.key,{label:e.target.value})} /></label>
             <label className="space-y-1"><span className="field-label">Level / proficiency <span className="text-ink-muted">(optional)</span></span><input className="field" placeholder="e.g. Advanced, Fluent" maxLength={100} value={item.level || ''} onChange={e => updateItem(item.key,{level:e.target.value})} /></label>

@@ -28,7 +28,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
   const sentencePreview = completed.find(c => (c.kind === 'spelling' || c.kind === 'wording') && c.before && c.after)
   return (
     <section aria-labelledby="import-review-heading" className="mx-3 mt-4 overflow-hidden rounded-card border border-rose-200 bg-white sm:mx-5">
-      <div className="bg-gradient-to-br from-rose-50 via-white to-white p-4 sm:p-5">
+      <div className="ui-panel-padding bg-gradient-to-br from-rose-50 via-white to-white p-4 sm:p-5">
         <div className="flex items-start gap-3">
           <span className="flex size-11 shrink-0 items-center justify-center rounded-ctl bg-teal text-white"><DocumentMagnifyingGlassIcon className="size-6" aria-hidden="true" /></span>
           <div className="min-w-0 flex-1">
@@ -49,7 +49,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
           <Comparison change={sentencePreview} applied={currentValue(sentencePreview) === sentencePreview.after} compact />
         </div>}
       </div>
-      <div className="border-t border-rose-200 p-4 sm:p-5">
+      <div className="ui-panel-padding border-t border-rose-200 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="type-label text-rose-800">{attention.length ? 'Needs attention before you apply' : checks.length || incompleteWording ? 'Verify your imported details' : 'No outstanding corrections found'}</h3>
           {attention.length > 0 && <span className="rounded-full bg-rose-100 px-2.5 py-1 type-caption font-bold text-rose-800">{attention.length} next step{attention.length === 1 ? '' : 's'}</span>}
@@ -74,7 +74,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
         </ol>
         {attention.some(item => item.change) && <p className="mt-3 type-caption text-ink-muted">Review the wording, then press Save after applying or editing.</p>}
       </div>
-      {open && <div id="import-review-details" className="border-t border-line p-4 sm:p-5">
+      {open && <div id="import-review-details" className="ui-panel-padding border-t border-line p-4 sm:p-5">
         <p className="mb-3 type-caption text-ink-muted">Changes recorded during your latest import. Later profile edits are preserved.</p>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Import review views">
           <button type="button" aria-pressed={tab === 'changes'} className={buttonVariants({ variant: tab === 'changes' ? 'primary' : 'ghost', size: 'sm' })} onClick={() => setTab('changes')}>Changes & checks</button>
