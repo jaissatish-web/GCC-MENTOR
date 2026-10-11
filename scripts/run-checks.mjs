@@ -38,6 +38,7 @@ const TS_CHECKS = [
   'verify-profile-data.ts',
   'verify-profile-categories.ts',
   'verify-resume-parse.ts',
+  'verify-import-review.ts',
   'verify-loose-duties.ts',
   'verify-match-terms.ts',
   'verify-optimizer-v3.ts',
@@ -86,6 +87,8 @@ run('verify-naukrigulf-db.mjs', [join(root, 'scripts', 'verify-naukrigulf-db.mjs
 run('verify-linkedin-db.mjs', [join(root, 'scripts', 'verify-linkedin-db.mjs')])
 run('verify-profile-photo-api.mjs', [join(root, 'scripts', 'verify-profile-photo-api.mjs')])
 run('verify-career-profile-resume-api.mjs', [join('scripts', 'verify-career-profile-resume-api.mjs')])
+run('verify-import-review-api.mjs', [join('scripts', 'verify-import-review-api.mjs')])
+run('verify-import-review-db.mjs', [join('scripts', 'verify-import-review-db.mjs')])
 run('verify-db-security.mjs', [join('scripts', 'verify-db-security.mjs')])
 run('verify-dashboard-overview.mjs', [join('scripts', 'verify-dashboard-overview.mjs')])
 run('verify-profile-categories-db.mjs', [join(root, 'scripts', 'verify-profile-categories-db.mjs')])

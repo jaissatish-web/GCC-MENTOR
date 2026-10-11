@@ -1,5 +1,8 @@
 'use client'
 
+import { ImportReviewCard } from '@/components/profile/ImportReviewCard'
+import type { ImportReview } from '@/lib/resumeParse/importReview'
+import { applyImportChange, currentImportValue } from '@/lib/resumeParse/reviewEditor'
 import { organizeCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
 import { CategoryEditor } from '@/components/profile/CategoryEditor'
 import { GulfContext } from '@/components/layout/GulfContext'
@@ -1033,6 +1036,14 @@ function ProfileScreen() {
   // The CV reader's "please check" list for the draft just loaded
   // (lib/resumeParse, 2026-10-01). Empty = nothing to show.
   const [parseNotes, setParseNotes] = useState<ParseWarning[]>([])
+  const [importReview, setImportReview] = useState<ImportReview | null>(null)
+  const reviewRequest = useRef(0)
+  const refreshImportReview = useCallback(() => {
+    const request = ++reviewRequest.current
+    fetch('/api/profile/import-review', { cache: 'no-store' }).then(r => r.ok ? r.json() : null)
+      .then(body => { if (request === reviewRequest.current && body?.review?.version === 1) setImportReview(body.review) }).catch(() => {})
+  }, [])
+  useEffect(() => { refreshImportReview() }, [refreshImportReview])
   /**
    * An uploaded resume waiting for the user's decision (TASK-133). Non-null
    * only when a draft arrived AND a real saved profile already exists —
@@ -1213,6 +1224,7 @@ function ProfileScreen() {
   // (a fresh GET), never the possibly-unsaved editor, matching that contract.
   const ingestDraft = useCallback((draft: CareerProfileDraft, notes?: ParseWarning[]) => {
     setParseNotes(notes ?? [])
+    refreshImportReview()
     // The ?import= deep link has done its job once a reading arrives. Left in
     // the URL, the import panel reopened in paste mode after the user chose
     // Add or Replace — an empty box asking for another CV (seen live
@@ -1235,7 +1247,7 @@ function ProfileScreen() {
         // editor (replace unavailable), never auto-save over unknown state.
         setEditor(fromDraft(draft))
       })
-  }, [importParam, router])
+  }, [importParam, router, refreshImportReview])
 
   // ---- Live readiness from the current editor state ------------------------
   const readiness: ReadinessResult = useMemo(() => {
@@ -1884,6 +1896,9 @@ function ProfileScreen() {
   const keepCurrentProfile = useCallback(() => {
     if (!pendingDraft) return
     setEditor(fromFull(pendingDraft.existing))
+    reviewRequest.current++
+    setImportReview(null)
+    void fetch('/api/profile/import-review', { method: 'DELETE' }).catch(() => {})
     setPendingDraft(null)
     resolvesPendingRef.current = false
     void fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
@@ -2026,7 +2041,23 @@ function ProfileScreen() {
       finishLabel={view === 'overview' ? 'Done' : 'Back to profile'}
     />
   ) : null
-  const parseNotesBlock = (
+  const importReviewBlock = importReview ? (
+    <ImportReviewCard
+      review={importReview}
+      busy={submitting}
+      currentValue={change => currentImportValue(editor, change)}
+      onChange={(change, value) => setEditor(e => e ? applyImportChange(e, change, value, uid) : e)}
+      onEdit={field => goToProfilePart({ sectionId: field.startsWith('work_experience') ? 'sec_work_experience' : field === 'professional_summary' ? 'sec_summary' : field === 'skills' ? 'sec_skills' : field.startsWith('education') ? 'sec_education' : field.startsWith('certifications') ? 'sec_certifications' : field.startsWith('additional') ? 'sec_additional' : sectionOfField(field) ?? 'sec_identity', field: field.includes('.') ? undefined : field })}
+      onRemove={async () => {
+        const response = await fetch('/api/profile/import-review', { method: 'DELETE' })
+        if (!response.ok) throw new Error('remove failed')
+        reviewRequest.current++
+        setImportReview(null)
+      }}
+    />
+  ) : null
+
+  const parseNotesBlock = importReview ? null : (
     <ParseNotes
       notes={parseNotes}
       jobNames={editor.work_experience.map((w) => w.company)}
@@ -2132,6 +2163,7 @@ function ProfileScreen() {
         </header>
 
         {/* The CV reader's "please check these" — first, while it is fresh. */}
+        {importReviewBlock}
         {parseNotesBlock}
         {loadErrorBlock}
 
@@ -2260,6 +2292,7 @@ function ProfileScreen() {
         action={saveButton}
       />
       <div className="page-gutter py-3"><CareerProfileResumeButton /></div>
+      {importReviewBlock}
       {parseNotesBlock}
       {loadErrorBlock}
 

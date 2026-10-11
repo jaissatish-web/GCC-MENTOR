@@ -1,3 +1,6 @@
+import { buildImportReview } from '@/lib/resumeParse/importReview'
+import { reviewWording } from '@/lib/resumeParse/reviewWording'
+import { savePendingDraft } from '@/lib/pendingDraft'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { SESSION_COOKIE_NAME, claimAnonymousSession } from '@/lib/anonymousSession'
@@ -58,6 +61,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const claimed = await claimAnonymousSession(token)
+
+  if (claimed?.extractedProfile && claimed.resumeText) {
+    const original = structuredClone(claimed.extractedProfile)
+    const review = buildImportReview(original, claimed.extractedProfile, claimed.resumeText, [])
+    await reviewWording(review, claimed.extractedProfile, { userId: user.id, route: '/api/anonymous-session/claim' })
+    await savePendingDraft(supabase, user.id, claimed.extractedProfile, 'paste', { version: 'v2', ms: 0, attempts: 0, repaired: false, inputTokens: 0, outputTokens: 0, host: null, layout: [], warnings: [], review })
+  }
 
   const response = NextResponse.json({
     draft: claimed?.extractedProfile ?? null,

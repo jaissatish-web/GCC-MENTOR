@@ -1,3 +1,5 @@
+import { buildImportReview, type ImportReview } from './importReview'
+import { reviewWording } from './reviewWording'
 import { generate } from '@/lib/ai/provider'
 import { attachLooseDuties } from './looseDuties'
 import { extractJsonObject, normalizeDraft } from '@/lib/ai/extractionPrompt'
@@ -38,6 +40,8 @@ export interface ParseReport {
   layout: string[]
   /** Field-level "please check" notes for the editor. Field paths, never values. */
   warnings: ParseWarning[]
+  /** Private source comparison; contains resume text, never log this report. */
+  review?: ImportReview
 }
 
 export type ParseFailure =
@@ -114,6 +118,7 @@ export async function extractProfile(
 
   let inputTokens = 0, outputTokens = 0, attempts = 0
   let host: string | null = null
+  let bestRaw: CareerProfileDraft | null = null
   let best: ReturnType<typeof checkDraft> | null = null
   let note = ''
   for (let round = 0; round < 2; round++) {
@@ -152,6 +157,7 @@ export async function extractProfile(
     if (!best || checked.critical.length < best.critical.length ||
         (checked.critical.length === best.critical.length && checked.draft.work_experience.length > best.draft.work_experience.length)) {
       best = checked
+      bestRaw = normalized
     }
     if (!best.critical.length) break
     note = repairNote(best.critical)
@@ -160,6 +166,11 @@ export async function extractProfile(
   // Safety net: a "Job responsibilities" block the model left out goes under the
   // most recent job, in the CV's own words, with a note (launch audit 2026-10-02).
   const loose = attachLooseDuties(best.draft, text)
+  const warnings = loose ? [...best.warnings, loose] : best.warnings
+  // The anonymous scanner keeps its original latency and extraction behavior.
+  // Signup/import is the authenticated moment for cleanup and private history.
+  const review = opts.userId ? buildImportReview(bestRaw ?? best.draft, best.draft, text, warnings) : undefined
+  if (review) await reviewWording(review, best.draft, { ...opts, giveUpAt })
 
   return {
     ok: true,
@@ -174,7 +185,8 @@ export async function extractProfile(
       outputTokens,
       host,
       layout: opts.layout ?? [],
-      warnings: loose ? [...best.warnings, loose] : best.warnings,
+      warnings,
+      review,
     },
   }
 }

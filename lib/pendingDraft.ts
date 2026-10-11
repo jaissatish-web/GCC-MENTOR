@@ -1,3 +1,4 @@
+import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 import type { createClient } from '@/lib/supabase/server'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 import type { ParseReport } from '@/lib/resumeParse/pipeline'
@@ -53,6 +54,12 @@ export async function savePendingDraft(
   if (error && /report/.test(error.message)) {
     const { report: _omit, ...withoutReport } = row
     ;({ error } = await supabase.from('pending_profile_drafts').upsert(withoutReport, { onConflict: 'user_id' }))
+  }
+  if (report?.review) {
+    try {
+      const { error: reviewError } = await createServiceRoleClient().from('resume_import_reviews').upsert({ user_id: userId, review: report.review, created_at: report.review.createdAt }, { onConflict: 'user_id' })
+      if (reviewError) console.error('import review save failed: user=' + userId, reviewError.code)
+    } catch { console.error('import review save unavailable: user=' + userId) }
   }
   if (error) console.error('pending draft save failed: user=' + userId, error.message)
 }

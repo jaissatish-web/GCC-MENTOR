@@ -81,6 +81,9 @@ export async function deleteMyData(
   // data as the profile but is NOT reached by its cascade — a first-time
   // user's reading has no profile row to hang off. Deleted first, so a failure
   // here stops the whole action before anything is gone.
+  const { error: reviewError } = await supabase.from('resume_import_reviews').delete().eq('user_id', user.id)
+  if (reviewError) return { error: 'Could not delete your import comparison. Please retry.' }
+
   const { error: pendingError } = await supabase
     .from('pending_profile_drafts')
     .delete()

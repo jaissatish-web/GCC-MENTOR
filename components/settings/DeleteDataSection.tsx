@@ -36,7 +36,7 @@ export function DeleteDataSection() {
     <Card tone="light" className="border border-alert/40 p-6">
       <h2 className="text-lg font-bold text-ink">Delete my data</h2>
       <p className="mt-2 text-sm text-ink-soft">
-        Permanently deletes your Career Profile, work history, skills, certifications, education,
+        Permanently deletes your Career Profile, work history, skills, certifications, education, saved resume import comparisons,
         and every saved package in your Library. This is a real deletion, not a hide — it cannot
         be undone. Your login stays active; you would start onboarding fresh.
       </p>
