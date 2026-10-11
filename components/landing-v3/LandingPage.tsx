@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ArrowRight, FileText } from 'lucide-react'
 import { AuthLinkCatcher } from '@/components/auth/AuthLinkCatcher'
-import { AppFooter } from '@/components/layout/AppFooter'
+import { LandingFooter } from './LandingFooter'
 import { LandingNav, PricingPreview, Faq } from './Sections'
 import { DocumentOrbit, GccGlobe } from './lazy'
 import { ApplicationStudio } from './ApplicationStudio'
@@ -25,6 +25,6 @@ export function LandingPage() {
       <section id="markets" className={s.section} aria-labelledby="markets-title"><div className={s.wrap}><GccGlobe /></div></section>
       <AboutMentor /><PrivacyControl /><PricingPreview /><Faq />
       <section className={s.final} aria-labelledby="final-title"><div className={s.wrap}><span className={s.eyebrow}>YOUR EXPERIENCE IS THE STARTING POINT</span><h2 id="final-title">Your Next Gulf Opportunity Deserves Better Preparation.</h2><p>Start with your real experience. Build stronger applications. Practice interviews. Learn from every attempt.</p><div className="flex flex-wrap items-center justify-center gap-3"><Link href="/gulf-readiness-score" className={s.primary}>Check My Free GCC Readiness <ArrowRight size={18} aria-hidden="true" /></Link><a href="#services" className={s.secondary}>Explore GCC Mentor Services</a></div></div></section>
-    </main><AppFooter />
+    </main><LandingFooter />
   </div>
 }
