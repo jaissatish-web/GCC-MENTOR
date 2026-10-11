@@ -6,9 +6,9 @@ import { LandingPage } from '@/components/landing-v3/LandingPage'
  * they get (56 characters); the description answers "why no calls?" and ends
  * on the free first step (under 160). No guarantee of a job — see RULES.
  */
-const TITLE = 'ATS-Ready Gulf CV & Interview Prep | GCC MENTOR'
+const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
 const DESCRIPTION =
-  'Prepare an ATS-ready Gulf CV, tailored cover letters and interview practice using your real experience. Start with GCC MENTOR’s free Gulf Readiness score.'
+  'One profile for job-specific CVs, cover letters and voice interview practice. Prepare for Gulf opportunities. Start with your free GCC readiness assessment.'
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },

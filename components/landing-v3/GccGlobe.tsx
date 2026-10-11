@@ -422,7 +422,7 @@ export function GccGlobe() {
   return (
     <div className="relative overflow-hidden rounded-[28px] border border-line bg-white p-4 shadow-lp-card sm:p-6 lg:p-10">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(31,90,138,0.10),transparent_70%)]" aria-hidden="true" />
-      <div className="relative grid items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
+      <div className="relative grid grid-cols-[minmax(0,1fr)] items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">
           <span className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Six Gulf markets</span>
           <h2 id="markets-title" className="mt-2 type-marketing-title text-ink">
@@ -456,7 +456,7 @@ export function GccGlobe() {
           </ul>
 
           {/* Live card: the focused country, or the latest "landing". */}
-          <div className="mt-3 min-h-[76px] rounded-[16px] bg-canvas p-3.5 ring-1 ring-line lg:mt-4" aria-live="polite">
+          <div className="mt-3 min-h-[76px] rounded-[16px] bg-canvas p-3.5 ring-1 ring-line lg:mt-4" aria-live={focus ? 'polite' : 'off'}>
             {focused ? (
               <>
                 <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">{focused.country} · preparation guidance</div>
@@ -480,10 +480,10 @@ export function GccGlobe() {
           </div>
         </div>
 
-        <div ref={wrapRef} className="order-1 mx-auto w-full max-w-[600px] lg:order-2">
+        <div ref={wrapRef} className="order-1 mx-auto min-w-0 w-full max-w-[600px] lg:order-2">
           <canvas
             ref={canvasRef}
-            className="block aspect-square w-full cursor-grab touch-pan-y active:cursor-grabbing"
+            className="block aspect-square max-w-full w-full cursor-grab touch-pan-y active:cursor-grabbing"
             style={{
               maskImage: 'radial-gradient(ellipse 70% 68% at 50% 52%, #000 70%, transparent 100%)',
               WebkitMaskImage: 'radial-gradient(ellipse 70% 68% at 50% 52%, #000 70%, transparent 100%)',
