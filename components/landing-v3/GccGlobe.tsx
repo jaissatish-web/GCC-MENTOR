@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useReducedMotion } from './hooks'
 import { cn } from '@/lib/utils'
 import { LAND_DOTS_B64 } from './globeDots'
 
@@ -44,24 +45,16 @@ const ORIGINS: Record<string, City> = {
   Colombo: { name: 'Colombo', lat: 6.93, lng: 79.86 },
   Kathmandu: { name: 'Kathmandu', lat: 27.72, lng: 85.32 },
 }
-const LABELLED_ORIGINS = new Set(['Kochi', 'Mumbai', 'Delhi', 'Manila', 'Cairo', 'London', 'Dhaka', 'Nairobi'])
+const LABELLED_ORIGINS = new Set(['Kochi', 'Mumbai', 'Delhi'])
 
 /** from → to (GCC code), with an example role. `move` = changing jobs inside the Gulf. */
 const FLIGHTS: Array<{ from: string; to: string; role: string; move?: boolean }> = [
-  { from: 'Kochi', to: 'QA', role: 'Registered Nurse' },
+  { from: 'Delhi', to: 'SA', role: 'Instrumentation Engineer' },
   { from: 'Mumbai', to: 'AE', role: 'Finance Manager' },
-  { from: 'Delhi', to: 'SA', role: 'Project Manager' },
-  { from: 'Manila', to: 'KW', role: 'Staff Nurse' },
-  { from: 'Cairo', to: 'SA', role: 'Civil Engineer' },
-  { from: 'London', to: 'BH', role: 'Software Engineer' },
-  { from: 'Karachi', to: 'OM', role: 'Electrical Engineer' },
-  { from: 'Dhaka', to: 'QA', role: 'Site Supervisor' },
-  { from: 'Nairobi', to: 'AE', role: 'Hospitality Manager' },
-  { from: 'Colombo', to: 'OM', role: 'Accountant' },
-  { from: 'Kathmandu', to: 'KW', role: 'IT Analyst' },
-  { from: 'AE', to: 'SA', role: 'HR Business Partner', move: true },
-  { from: 'QA', to: 'AE', role: 'Sales Manager', move: true },
-  { from: 'KW', to: 'BH', role: 'Operations Lead', move: true },
+  { from: 'Kochi', to: 'QA', role: 'Commissioning Lead' },
+  { from: 'Delhi', to: 'KW', role: 'IT Analyst' },
+  { from: 'Mumbai', to: 'BH', role: 'Operations Lead' },
+  { from: 'Kochi', to: 'OM', role: 'Electrical Engineer' },
 ]
 
 const DEG = Math.PI / 180
@@ -115,13 +108,15 @@ export function GccGlobe() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const focusRef = useRef<string | null>(null)
   const drawRef = useRef<((now: number) => void) | null>(null)
+  const reducedMotion = useReducedMotion()
+  const [paused, setPaused] = useState(false)
   const [focus, setFocus] = useState<string | null>(null)
   const [arrival, setArrival] = useState<{ from: string; to: string; role: string; move?: boolean } | null>(null)
   const arcs = useMemo(() => FLIGHTS.map((f) => arcPoints(cityOf(f.from), cityOf(f.to))), [])
 
   useEffect(() => {
     focusRef.current = focus
-  }, [focus])
+  }, [focus, paused, reducedMotion])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -132,7 +127,7 @@ export function GccGlobe() {
 
     const dots = decodeDots()
     const nDots = dots.length / 3
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = reducedMotion || paused || (navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4)
     let size = 0
     let dpr = 1
     let frame = 0
@@ -172,8 +167,8 @@ export function GccGlobe() {
       const W = size * dpr
       const c = W / 2
       const compact = size < 560
-      const cy = compact ? W * 0.5 : W * 0.6
-      const R = compact ? W * 0.43 : W * 0.56
+      const cy = W * 0.5
+      const R = W * 0.43
       ctx.clearRect(0, 0, W, W)
 
       // Rotation: a slow sway around the Gulf, or turn to face the focused country.
@@ -367,8 +362,9 @@ export function GccGlobe() {
 
     drawRef.current = draw
 
+    let lastDraw = 0
     const loop = (now: number) => {
-      draw(now)
+      if (now - lastDraw >= 32) { draw(now); lastDraw = now }
       frame = visible && document.visibilityState === 'visible' && !reduced ? requestAnimationFrame(loop) : 0
     }
     const kick = () => {
@@ -413,12 +409,12 @@ export function GccGlobe() {
       canvas.removeEventListener('pointerup', up)
       canvas.removeEventListener('pointercancel', up)
     }
-  }, [arcs])
+  }, [arcs, paused, reducedMotion])
 
   // Reduced motion has no loop: redraw once when the focused country changes.
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) drawRef.current?.(performance.now())
-  }, [focus])
+    if (reducedMotion || paused || navigator.hardwareConcurrency <= 4) drawRef.current?.(performance.now())
+  }, [focus, paused, reducedMotion])
 
   const focused = GCC.find((g) => g.code === focus)
   const arrivalTo = arrival ? GCC.find((g) => g.code === arrival.to) : null
@@ -430,10 +426,10 @@ export function GccGlobe() {
         <div className="order-2 lg:order-1">
           <span className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Six Gulf markets</span>
           <h2 id="markets-title" className="mt-2 type-marketing-title text-ink">
-            One profile. <em className="not-italic text-teal">Every GCC country.</em>
+            Six Gulf Destinations. <em className="not-italic text-teal">One Better-Prepared Career Journey.</em>
           </h2>
           <p className="mt-2.5 max-w-[440px] type-lead text-ink-soft">
-            From India, Asia, Africa or Europe — or moving between Gulf jobs. Prepare for any of the six markets from one career profile.
+            Your destination changes. Your real experience remains the foundation. Select a country to explore preparation considerations.
           </p>
 
           <ul className="mt-4 grid grid-cols-3 gap-1.5 sm:gap-2 lg:mt-5" aria-label="GCC countries">
@@ -442,11 +438,11 @@ export function GccGlobe() {
                 <button
                   type="button"
                   aria-pressed={focus === g.code}
-                  onMouseEnter={() => setFocus(g.code)}
-                  onMouseLeave={() => setFocus(null)}
-                  onFocus={() => setFocus(g.code)}
-                  onBlur={() => setFocus(null)}
-                  onClick={() => setFocus((v) => (v === g.code ? null : g.code))}
+
+
+
+
+                  onClick={() => setFocus(g.code)}
                   className={cn(
                     'flex min-h-11 w-full items-center gap-1.5 rounded-[12px] px-2 text-left type-caption font-semibold ring-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:gap-2 sm:px-3 ',
                     focus === g.code ? 'bg-teal text-white ring-teal' : 'bg-canvas text-ink ring-line hover:ring-teal/50',
@@ -463,8 +459,8 @@ export function GccGlobe() {
           <div className="mt-3 min-h-[76px] rounded-[16px] bg-canvas p-3.5 ring-1 ring-line lg:mt-4" aria-live="polite">
             {focused ? (
               <>
-                <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">{focused.country} · example roles</div>
-                <div className="mt-1 text-[15px] font-semibold text-ink">{focused.role}</div>
+                <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">{focused.country} · preparation guidance</div>
+                <div className="mt-1 text-[15px] font-semibold text-ink">{focused.role}</div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft">Check the role’s required skills and project context. Prepare a clear CV, qualification records and accurate availability details. Confirm documentation requests with the employer; use the CV, cover letter and interview tools to prepare.</p>
                 <div className="type-caption text-ink-muted">CV, cover letter and interview prep made for {focused.country} jobs.</div>
               </>
             ) : arrival && arrivalTo ? (
@@ -497,7 +493,7 @@ export function GccGlobe() {
           />
         </div>
       </div>
-      <p className="relative mt-3 text-center type-caption text-ink-muted lg:text-right">Routes and roles are illustrative examples. Drag the globe to spin it.</p>
+      <button type="button" onClick={() => setPaused(v => !v)} disabled={reducedMotion} aria-pressed={paused || reducedMotion} className="relative mt-3 min-h-11 rounded-lg border border-line px-4 text-[13px] font-semibold text-teal focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal">{reducedMotion ? 'Motion off' : paused ? 'Play globe' : 'Pause globe'}</button><p className="relative mt-3 text-center type-caption text-ink-muted lg:text-right">Routes and roles are illustrative examples. Drag the globe to spin it.</p>
     </div>
   )
 }

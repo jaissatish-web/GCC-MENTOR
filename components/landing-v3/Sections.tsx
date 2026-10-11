@@ -26,7 +26,7 @@ export const NAV = [
   ['Interview coaching', '#interview'],
   ['Templates', '#templates'],
   ['About', '#about'],
-  ['Pricing', '#pricing'],
+  ['Access', '#pricing'],
 ] as const
 
 export function LandingNav() {
@@ -319,31 +319,21 @@ export function Trust() {
 /* Demo pricing requested by the founder. No billing actions or entitlements. */
 
 export function PricingPreview() {
-  const plans = [
-    { name: 'Start', price: '₹999', items: ['5 resumes', '10 cover letters', '5 interview Q&A sets', '2 mock interviews'] },
-    { name: 'Grow', price: '₹1,799', items: ['More application preparation', 'Job-specific cover letters', 'Role-specific interview Q&A', 'Mock interview practice'] },
-    { name: 'Advance', price: '₹2,999', items: ['30 resumes', '30 cover letters', '30 interview Q&A sets', '5 mock interviews'] },
-  ]
-  return <section id="pricing" aria-labelledby="pricing-title" className={launch.section}>
-    <div className={launch.wrap}>
-      <div className={launch.centerHead}><span className={launch.eyebrow}>DEMO PRICING · FOR PREVIEW ONLY</span><h2 id="pricing-title">A plan for your<br /><span>next chapter.</span></h2><p>Illustrative packages and prices. Final inclusions and pricing will be confirmed before purchase.</p></div>
-      <div className={launch.pricingCards}>{plans.map(plan => <article key={plan.name}><span className={launch.exampleChip}>Demo package</span><h3>{plan.name}</h3><strong>{plan.price}</strong><span>Illustrative package price</span><ul>{plan.items.map(item => <li key={item}><Check className="size-4 shrink-0" />{item}</li>)}</ul><span className={launch.demoOnly}>Preview only · Not available to purchase</span></article>)}</div>
-      <p className={launch.demoNote}>The Grow package quantities are still being finalized. This section does not activate billing or change account access.</p>
-    </div>
-  </section>
+  return <section id="pricing" aria-labelledby="pricing-title" className={launch.section}><div className={launch.wrap + ' ' + launch.readinessGrid}><div><span className={launch.eyebrow}>TRANSPARENT SERVICE ACCESS</span><h2 id="pricing-title">Start with readiness.<br /><span>Continue with a guided workspace.</span></h2><p>The free readiness assessment is available before signup. Create an account to build your Career Profile and see the services and usage available to you.</p><Link href="/signup" className={launch.primary}>Explore account access <ArrowRight /></Link></div><div className={launch.processingNote}><ShieldCheck size={26} aria-hidden="true" /><div><h3>Checkout is not currently enabled.</h3><p>Service access is granted directly or through an access code. Review your current package and usage in Settings. No demo prices, discounts or purchasable packages are advertised here.</p></div></div></div></section>
 }
 
 /* ── FAQ: six questions, native accordion ─────────────────────────────── */
 
 const FAQ = [
-  ['What is ATS, and why does it matter?', 'An Applicant Tracking System helps employers manage applications. Some systems support keyword searches or screening, and each employer uses them differently. A readable CV with relevant skills helps make your experience easier to find. GCC Mentor helps you tailor your application and review every change.'],
-  ['What are the optimization levels?', 'You choose. Easy is a light touch in the job’s keywords. Moderate adds suggested lines for the must-have requirements. High is the strongest rewrite. Suggestions are highlighted and only kept if you confirm they are true.'],
-  ['Can GCC Mentor guarantee a job?', 'No. It helps you present your real experience clearly for each job. Employers make their own decisions — no score or CV can guarantee an interview or offer.'],
-  ['Can I use my existing resume?', 'Yes. Upload a PDF or Word file, or paste the text. It becomes your Career Profile, and you check it before anything is written from it.'],
-  ['Does GCC Mentor invent experience?', 'No. Employers, titles, dates and education are never changed. If a job asks for something your profile doesn’t show, a suggestion is highlighted and only kept if you confirm it’s true.'],
-  ['Can I create different CVs for different GCC jobs?', 'Yes. Each target job gets its own optimized CV, cover letter and interview prep, all saved in your Resume Library.'],
-  ['Which Gulf countries are supported?', 'Saudi Arabia, the UAE, Qatar, Oman, Kuwait and Bahrain. GCC Mentor is not a recruitment agency — it does not list jobs or contact employers.'],
-  ['Can I use GCC Mentor on mobile?', 'Yes. Every step — upload, review, cover letter and mock interview — is designed to work on a phone.'],
+  ['What is GCC Mentor?', 'GCC Mentor is a Gulf career preparation platform connecting a Career Profile, job-specific CVs and cover letters, professional profile guidance, interview Q&A and voice mock interview practice with feedback.'],
+  ['Is it only for engineers?', 'No. Engineering and industrial experience inform the platform, while the Career Profile and target-job workflow support other professional sectors too.'],
+  ['Can I use my existing CV?', 'Yes. Upload your resume or paste its text, then review the extracted information before using it as your Career Profile.'],
+  ['Does GCC Mentor invent experience?', 'Your actual Career Profile is the foundation. Review suggestions and keep only facts you can support. A requirement that is not evidenced should remain a gap, not become an invented skill, certification or achievement.'],
+  ['How does the free readiness assessment work?', 'Upload or paste your resume and provide the required career details. The assessment shows profile preparation strengths and gaps using the shared Gulf readiness rules. It is guidance, not a probability of getting hired.'],
+  ['Can I prepare for multiple jobs?', 'Yes. Use one Career Profile with separate job descriptions to prepare and save job-specific CVs, matching letters and interview preparation.'],
+  ['How do mock interviews work?', 'Choose Quick (5 questions), Standard (10) or Deep (15), with HR, Technical, Gulf readiness, Manager or Mixed mode. Speak your answers, review transcript-based question feedback and saved reports, then practise again with relevant questions.'],
+  ['Is employment guaranteed?', 'No. GCC Mentor helps you prepare. Employers decide whom to interview or hire; a CV, score or practice session cannot guarantee selection.'],
+  ['How is my data handled?', 'Your signed-in workspace uses account-based access controls. Relevant profile and job information is sent to configured AI providers when you use AI services. Settings → Delete my data removes your Career Profile and saved packages; your login and some operational records remain.'],
 ] as const
 
 /** FAQPage structured data — the same questions and answers shown on the page. */

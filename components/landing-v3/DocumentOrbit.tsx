@@ -116,9 +116,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
       const sn = Math.sin(th)
       const d = (sn + 1) / 2
       const f = focus.current[i]
-      const sc = (0.55 + 0.35 * d) * lay.k * (1 - f) + (compactRef.current ? 1.2 : 1.72) * f
-      el.style.transform = `translate(-50%, -50%) translate(${(rx * Math.cos(th) * (1 - f)).toFixed(1)}px, ${(lay.ry * sn * (1 - f)).toFixed(1)}px) scale(${sc.toFixed(3)})`
-      el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 30 : 10 + d * 25) * (1 - f) + 110 * f))
+      const sc = (0.55 + 0.35 * d) * lay.k * (1 - f) + (compactRef.current ? 1.1 : 1.5) * f
+      el.style.transform = `translate(-50%, -50%) translate(${(rx * Math.cos(th) * (1 - f)).toFixed(1)}px, ${(lay.ry * sn * (1 - f) - (compactRef.current ? 14 : 28) * f).toFixed(1)}px) scale(${sc.toFixed(3)})`
+      el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 40 : 10 + d * 30) * (1 - f) + 50 * f))
       el.style.opacity = (0.55 + 0.45 * Math.max(d, f)).toFixed(2)
       el.dataset.front = sn > 0 ? '1' : '0'
     }

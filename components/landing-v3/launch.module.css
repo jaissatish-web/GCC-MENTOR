@@ -361,3 +361,14 @@
 @media(prefers-reduced-motion:reduce){.studioPack,.demoStage,.interviewerOrb:before,.interviewerOrb:after{animation:none}.primary{transition:none}.primary:hover{transform:none}}
 
 .interviewDemo[data-motion="paused"] .interviewerOrb:before,.interviewDemo[data-motion="paused"] .interviewerOrb:after{animation-play-state:paused}
+
+/* Landing-only connective motion and final action contrast. */
+.studioConnector span{position:relative}
+.studioConnector span:after{content:'';position:absolute;left:-2px;top:0;width:6px;height:12px;border-radius:8px;background:#C9962E;animation:profile-flow 2.8s ease-in-out infinite}
+.studio[data-motion="paused"] .studioConnector span:after{animation-play-state:paused}
+.studioConnector span:nth-child(2):after{animation-delay:.35s}
+.studioConnector span:nth-child(3):after{animation-delay:.7s}
+@keyframes profile-flow{0%{transform:translateY(-12px);opacity:0}20%,75%{opacity:1}100%{transform:translateY(52px);opacity:0}}
+.final .secondary{color:#f4dfb3;border:1px solid #c9962e80;padding-inline:20px}
+.founderOverlay .demoNote{color:#e7eee9!important;font-size:11px!important}
+@media(prefers-reduced-motion:reduce){.studioConnector span:after{animation:none}.primary:hover{transform:none}}

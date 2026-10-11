@@ -15,7 +15,7 @@ const LoadedDocumentOrbit = dynamic(() => import('./DocumentOrbit').then((m) => 
   loading: () => <div className="h-[620px] md:h-[710px]" aria-hidden="true" />,
 })
 
-export const GccGlobe = dynamic(() => import('./GccGlobe').then((m) => m.GccGlobe), {
+const LoadedGccGlobe = dynamic(() => import('./GccGlobe').then((m) => m.GccGlobe), {
   ssr: false,
   loading: () => <div className="min-h-[760px] rounded-[28px] border border-line bg-white lg:min-h-[640px]" aria-hidden="true" />,
 })
@@ -37,4 +37,17 @@ export function DocumentOrbit({ className }: { className?: string }) {
   return <div ref={ref} className={(className ?? '') + ' min-h-[620px] md:min-h-[710px]'}>
     {ready ? <LoadedDocumentOrbit /> : <div className="h-[620px] md:h-[710px]" aria-hidden="true" />}
   </div>
+}
+
+export function GccGlobe() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) { setReady(true); observer.disconnect() }
+    }, { rootMargin: '240px' })
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
+  return <div ref={ref} className="min-h-[760px] lg:min-h-[640px]">{ready ? <LoadedGccGlobe /> : null}</div>
 }
