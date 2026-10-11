@@ -21,10 +21,12 @@ import { ArrowRight, BTN_GOLD, BTN_LINE, BTN_TEAL, Check, SectionHead, Wrap } fr
 /* ── Navigation ───────────────────────────────────────────────────────── */
 
 export const NAV = [
+  ['Why GCC Mentor', '#about'],
   ['Services', '#services'],
   ['How it works', '#journey'],
   ['Templates', '#templates'],
   ['Pricing', '#pricing'],
+  ['Privacy', '#privacy'],
   ['FAQ', '#faq'],
 ] as const
 

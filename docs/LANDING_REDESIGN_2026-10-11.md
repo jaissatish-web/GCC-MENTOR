@@ -1,40 +1,39 @@
-# GCC Mentor landing page — implementation and CTO review
+# GCC Mentor landing page — people-led revision and CTO review
 
-## Brief and implemented direction
+## Current implementation
 
-A fresh marketing composition built around “Your experience. More Gulf opportunities.”
+The user requested helmeted candidates, stronger marketing and trust content, data control, guided preparation, customer voices and a photograph showing one profile supporting multiple applications.
 
-The narrative moves from the visitor's ambition to four practical questions, then shows one reviewed Career Profile feeding multiple job-specific applications. Interactive Engineering, Finance and IT examples make the branching workflow tangible. Each target role shows a CV, cover letter and interview preparation. Examples are explicitly illustrative; role suitability depends on the candidate and job requirements.
+Headline: “Your Gulf dream. Let’s prepare for it.”
 
-The visual system uses warm ivory, forest green, muted botanical surfaces and Dubai skyline photography. Desktop uses an editorial split hero; phones use a stacked hero, full-width primary action and sequential workflow. Service cards become single-column below 400px. Existing navigation, mobile section menu, pricing access information, FAQ and mobile sticky signup remain available.
+- Custom AI-generated photograph of three engineering candidates in safety helmets at a Gulf project, used in the hero and the application-path visual. Clearly labelled as illustration, not actual customers.
+- Founder story: Satish Kumar Jaiswal, 15+ years of engineering and commissioning experience including Gulf projects. Industrial backdrop is not presented as a founder photograph.
+- Why good experience can be overlooked: generic CVs, unclear contribution and preparation stopping at the CV. No unsupported claim that most candidates fail or any fabricated failure percentage.
+- Service solutions: readiness, job-specific CVs, cover letters, Q&A and mock interviews.
+- One profile → three example target applications, combining candidate photography and accessible HTML labels. Existing Engineering/Finance/IT interactive examples retained.
+- Existing rotating resume collection, preview controls, sample CVs and template implementation retained.
+- Dedicated privacy/control section: signed-in workspace, reviewing changes, choosing where to submit and deleting Career Profile data/saved packages from Settings.
+- AI processing disclosed: relevant information is sent to configured AI providers. No unsupported “zero sharing” promise. Login and operational records are not described as deleted by the profile deletion action.
+- Customer-voice area contains clearly labelled common questions and a feedback invitation. No verified publishable testimonials were located in the repository, so customer quotes, names, ratings and results were not invented.
+- Navigation includes Why GCC Mentor and Privacy section anchors.
 
-The rotating collection continues to render real resume templates with existing pause/play, previous/next and full-size preview controls. Template implementation and sample CV contents were not edited. Landing typography rules explicitly exclude descendants of the template preview containers.
+## Image provenance
 
-## Marketing review
+Asset: public/landing/gulf-candidates-v2.webp
+Created using the built-in image-generation tool; optimized to a 146 KB WebP.
+Prompt: Premium authentic editorial landscape photograph of three South Asian engineering professionals, two men and one woman, ages approximately 28–40, in white safety helmets and reflective vests reviewing a tablet at a modern Gulf industrial project, warm dawn light, subtle skyline, forest green and sand palette, natural faces/hands/PPE, no text, logos or testimonial claim. Illustrative personas, not actual customers.
+Original generation retained separately; the website references the repository asset.
 
-- The hero identifies the product purpose and the primary action.
-- Pain points lead to specific outputs: readiness, CV relevance, cover letters and interview practice.
-- “One profile, multiple roles” is demonstrated rather than only stated.
-- Three steps explain upload/review, job targeting and preparation.
-- The readiness CTA supplies a lower-commitment starting point.
-- No invented customer counts, reviews, recruiter endorsements, hiring guarantees, score predictions or new checkout claims.
-- Existing pricing and checkout status are retained.
-- Gulf positioning includes the six GCC markets and destination imagery.
-- Application examples do not promise eligibility for unrelated roles.
+## CTO review
 
-## Technical review and validation
+Marketing copy explains purpose, preparation gaps, solutions, workflow, provenance and control without invented outcomes. Testimonials remain pending real feedback and publication permission.
 
-- Server-rendered marketing content; client state is limited to the career-example tabs and retained interactive components.
-- Tabs have keyboard arrow/Home/End navigation, selected state and an associated panel.
-- Main actions and new tab buttons have touch-sized controls and visible keyboard focus.
-- The existing orbit honors reduced motion and pauses offscreen.
-- Heavy resume previews retain dynamic loading below the fold.
-- No API, authentication, database, payment, profile storage or resume export changes.
-- TypeScript check: passed.
-- Repository checks: 49/49 passed.
-- Production build: passed.
-- Lint: passed without warnings or errors.
+Data-control wording was checked against app/settings/actions.ts and components/settings/DeleteDataSection.tsx. AI-provider processing was checked against lib/ai/provider.ts. No backend, auth, payment, data-storage or generation logic was changed.
 
-## Review limitation
+Marketing content remains server-rendered. Heavy template rendering remains dynamically loaded below the fold. The new scene uses actual HTML labels rather than text baked into an image. Landing CSS continues to exclude template preview descendants. Mobile stacks the photographs, application cards and trust sections, retaining usable touch targets.
 
-The managed environment does not expose the required control-browser capability. Mobile and desktop browser QA, screenshots, hydration interaction checks and visual sign-off were therefore not performed. Responsive rules were reviewed in source, but the landing page is not yet fully visually signed off. Recheck at 360/390/430px phone widths and 1280/1366/1440px desktop widths after deployment, including the career tabs, resume controls, full-size dialog and sticky mobile CTA.
+Validation: TypeScript, lint, production build and repository checks are run for this revision. Final results are reported with the release.
+
+## Verification limit
+
+The required control-browser capability is unavailable in this managed environment. Browser screenshots, responsive rendering and hydrated interaction QA could not be performed. Source review and build checks do not constitute complete mobile/desktop visual sign-off.
