@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-10-11 · Landing campaign presentation
+
+The founder-supplied mobile reference guides the public landing campaign: ice
+backgrounds, blue/cyan actions, navy interview panels, helmeted candidate imagery
+and responsive product demonstrations. This marketing presentation is scoped to
+`components/landing-v3/launch.module.css`; the signed-in design tokens and authored
+resume templates are unchanged. Template preview descendants are excluded from
+marketing heading, paragraph and span rules. Application and interview demos have
+manual controls, pausing and reduced-motion support.
+
 ## 00. MERIDIAN — the current identity, and one product system (2026-09-23)
 
 **This section is the current truth.** §0 below (Blueprint) and §2–§5 (the navy/gold

@@ -13,9 +13,9 @@ import {
   Users,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { NotLiveText } from '@/components/ui/NotLive'
 import { LandingSectionMenu } from './LandingSectionMenu'
 import s from './concept.module.css'
+import launch from './launch.module.css'
 import { ArrowRight, BTN_GOLD, BTN_LINE, BTN_TEAL, Check, SectionHead, Wrap } from './primitives'
 
 /* ── Navigation ───────────────────────────────────────────────────────── */
@@ -349,41 +349,21 @@ export function Trust() {
   )
 }
 
-/* ── Pricing preview. No prices: checkout is not live (founder decision M10). ── */
+/* Demo pricing requested by the founder. No billing actions or entitlements. */
 
 export function PricingPreview() {
-  return (
-    <section id="pricing" aria-labelledby="pricing-title" className="py-11 sm:py-16 lg:py-20">
-      <Wrap>
-        <SectionHead center id="pricing-title" eyebrow="Pricing" title={<>Start free. <em>Add services per job.</em></>} />
-        <div className="mx-auto mt-8 grid max-w-[880px] gap-3 md:grid-cols-2 lg:mt-12 lg:gap-5">
-          <div className="flex flex-col rounded-[20px] border border-line bg-white p-5 shadow-lp-card lg:p-7">
-            <div className="font-semibold type-caption uppercase tracking-[0.08em] text-ink-muted">Free</div>
-            <div className="mt-1 text-[22px] font-bold text-ink lg:text-[26px] tracking-[-0.02em]">Know where you stand</div>
-            <ul className="mt-4 space-y-2 type-helper text-ink-soft">
-              {['Gulf Readiness score — no card', 'Career Profile from your CV', 'Browse all resume templates'].map((t) => (
-                <li key={t} className="flex gap-2"><Check className="mt-0.5 text-ok" /> {t}</li>
-              ))}
-            </ul>
-            <Link href="/gulf-readiness-score" className={cn(BTN_LINE, 'mt-6')}>Check my readiness — free</Link>
-          </div>
-          <div className="relative flex flex-col rounded-[20px] border-2 border-teal bg-white p-5 shadow-m-3 lg:p-7">
-            <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">Per job · confirm price directly</div>
-            <div className="mt-1 text-[22px] font-bold text-ink lg:text-[26px] tracking-[-0.02em]">Prepare each application</div>
-            <ul className="mt-4 space-y-2 type-helper text-ink-soft">
-              {['Optimized CV, ATS before & after', 'Cover letter in 4 tones', 'Interview Q&A + mock interview'].map((t) => (
-                <li key={t} className="flex gap-2"><Check className="mt-0.5 text-ok" /> {t}</li>
-              ))}
-            </ul>
-            <Link href="/signup" className={cn(BTN_TEAL, 'mt-6')}>Create my account</Link>
-          </div>
-        </div>
-        <p className="mx-auto mt-4 max-w-[640px] text-center type-caption text-ink-muted">
-          <NotLiveText>Card checkout is not live yet.</NotLiveText> Current access is shown in your account.
-        </p>
-      </Wrap>
-    </section>
-  )
+  const plans = [
+    { name: 'Start', price: '₹999', items: ['5 resumes', '10 cover letters', '5 interview Q&A sets', '2 mock interviews'] },
+    { name: 'Grow', price: '₹1,799', items: ['More application preparation', 'Job-specific cover letters', 'Role-specific interview Q&A', 'Mock interview practice'] },
+    { name: 'Advance', price: '₹2,999', items: ['30 resumes', '30 cover letters', '30 interview Q&A sets', '5 mock interviews'] },
+  ]
+  return <section id="pricing" aria-labelledby="pricing-title" className={launch.section}>
+    <div className={launch.wrap}>
+      <div className={launch.centerHead}><span className={launch.eyebrow}>DEMO PRICING · FOR PREVIEW ONLY</span><h2 id="pricing-title">A plan for your<br /><span>next chapter.</span></h2><p>Illustrative packages and prices. Final inclusions and pricing will be confirmed before purchase.</p></div>
+      <div className={launch.pricingCards}>{plans.map(plan => <article key={plan.name}><span className={launch.exampleChip}>Demo package</span><h3>{plan.name}</h3><strong>{plan.price}</strong><span>Illustrative package price</span><ul>{plan.items.map(item => <li key={item}><Check className="size-4 shrink-0" />{item}</li>)}</ul><span className={launch.demoOnly}>Preview only · Not available to purchase</span></article>)}</div>
+      <p className={launch.demoNote}>The Grow package quantities are still being finalized. This section does not activate billing or change account access.</p>
+    </div>
+  </section>
 }
 
 /* ── FAQ: six questions, native accordion ─────────────────────────────── */

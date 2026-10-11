@@ -237,6 +237,12 @@ update would close it properly.
 
 ## 7. Prices
 
+**Landing demo, 2026-10-11:** by founder request, the public landing page displays
+illustrative Start ₹999, Grow ₹1,799 and Advance ₹2,999 packages. Each card is
+labelled demo, has no purchase action and does not read or change billing. Grow
+quantities are not decided. These marketing examples are not live entitlements
+or replacements for the backend pricing below.
+
 Prices live in the `pricing` table, which the founder edits **directly in Supabase** —
 no admin screen, no redeploy, live on the next page load. Code carries a fallback
 matching the seeded row so the landing page cannot break. **The database always wins.**

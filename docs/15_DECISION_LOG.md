@@ -1,5 +1,16 @@
 # DECISION LOG — what was decided, when, and why
 
+## 2026-10-11 — Reference-inspired mobile landing rebuild
+
+Founder supplied a light blue mobile concept. Rebuild marketing presentation with
+blue/cyan accents, readable mobile sections, existing helmeted candidates and the
+unchanged rotating resume templates. Demonstrate one Career Profile branching
+into JD-specific CVs, individual letters, Q&A and mock interviews. Add pausable,
+visible-only interactive application and interview demos; clearly label examples.
+Pricing is demo only, without checkout. Keep backend, templates and real scoring
+unchanged. Do not import fabricated social proof or salary/hiring predictions.
+
+
 
 ## 2026-10-09 — Colourful interactive practice progress card
 
