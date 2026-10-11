@@ -88,9 +88,9 @@
 .coachingEntry:hover { background:#eef4f0; }
 .coachingIcon { display:grid; place-items:center; width:44px; height:44px; flex-shrink:0; border-radius:50%; color:var(--lp-green); background:var(--lp-gold-soft); border:1px solid #e8d7b4; }
 .coachingText { display:flex; flex-direction:column; gap:5px; min-width:0; }
-.coachingText small { font-size:8px; letter-spacing:.09em; line-height:1.5; font-weight:700; color:var(--lp-muted); }
+.coachingText small { font-size:10px; letter-spacing:.06em; line-height:1.5; font-weight:700; color:var(--lp-muted); }
 .coachingText strong { font-size:17px; letter-spacing:-.03em; line-height:1.3; font-weight:650; }
-.coachingText>span { font-size:11px; line-height:1.5; color:var(--lp-muted); }
+.coachingText>span { font-size:12px; line-height:1.5; color:var(--lp-muted); }
 .coachingEntry>svg { margin-left:auto; flex-shrink:0; }
 .preparationRail { display:grid; grid-template-columns:1fr; gap:16px; border-top:1px solid var(--lp-line); margin-top:30px; padding:22px 0; }
 .preparationRail>div { display:flex; align-items:center; gap:12px; }
@@ -156,3 +156,7 @@
   .system :is(.primary,.navCta,.secondary,.signIn,.coachingEntry,.desktopNav a,.menuNav a) { transition:none; }
   .heroCopy,.visualColumn { animation:none; }
 }
+
+.orbitCompanion { padding-block:32px!important; background:linear-gradient(180deg,#f8faf9,#eef4f0); border-bottom:1px solid var(--lp-line); }
+.orbitCompanion :global(#templates-title) { font-size:var(--lp-heading); }
+@media(min-width:960px) { .orbitCompanion { padding-top:40px!important; } }

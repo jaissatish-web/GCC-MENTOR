@@ -9,8 +9,8 @@ import { PERSONAS } from './personas'
 import { SAMPLE_CVS } from './sampleCvs'
 
 // A curated view of the real collection: distinct layouts, colours and careers.
-// The large preview sits inside the ring: rear cards pass behind it and
-// front cards overlap its lower half, preserving the original orbit composition.
+// Each real document mounts once. The selected card itself moves into the
+// ellipse; no disconnected, duplicated center renderer is mounted.
 type Item = { id: TemplateId; who: string }
 const ITEMS: Item[] = [
   { id: 'gulf_premium', who: 'engineering' },
@@ -30,8 +30,8 @@ const FRONT = Math.PI / 2
 const PAGE_W = 794
 const TURN_MS = 52_000
 const LAYOUTS = {
-  wide: { k: 1, ry: 90, box: 620, track: 365, trackW: 1000, trackH: 220, innerW: 700, innerH: 140 },
-  compact: { k: 0.65, ry: 42, box: 400, track: 245, trackW: 340, trackH: 110, innerW: 240, innerH: 70 },
+  wide: { k: 1, ry: 115, box: 540, track: 260, trackW: 1000, trackH: 350, innerW: 700, innerH: 220 },
+  compact: { k: 0.65, ry: 62, box: 350, track: 170, trackW: 340, trackH: 230, innerW: 240, innerH: 160 },
 } as const
 const persona = (key: string) => PERSONAS.find((p) => p.key === key)!
 const ItemRender = memo(function ItemRender({ item }: { item: Item }) {
@@ -41,7 +41,7 @@ const ItemRender = memo(function ItemRender({ item }: { item: Item }) {
 function itemName(item: Item) { return getTemplate(item.id).name }
 function itemTags(item: Item) {
   const t = getTemplate(item.id)
-  return [t.atsLevel === 'maximum' ? 'Maximum ATS' : 'High ATS', t.allowsPhoto ? 'Photo option' : 'No photo']
+  return [t.atsLevel === 'maximum' ? 'ATS-focused layout' : 'Review parsing for your application', t.allowsPhoto ? 'Photo option' : 'No photo']
 }
 
 // Measure the actual template, including longer examples, and contain the
@@ -91,6 +91,10 @@ export function DocumentOrbit({ className }: { className?: string }) {
   const rxRef = useRef(460)
   const compactRef = useRef(false)
   const reduced = useRef(false)
+  const focus = useRef(ITEMS.map((_, i) => i === 0 ? 1 : 0))
+  const hovering = useRef(false)
+  const gesture = useRef<{ x: number; y: number } | null>(null)
+  const suppressClick = useRef(false)
   const kick = useRef<() => void>(() => {})
 
   const [sel, setSel] = useState(0)
@@ -98,12 +102,10 @@ export function DocumentOrbit({ className }: { className?: string }) {
   const [compact, setCompact] = useState(false)
   const [rx, setRx] = useState(460)
   const [zoomed, setZoomed] = useState(false)
-  const [boxW, setBoxW] = useState(1200)
+  const [motionReduced, setMotionReduced] = useState(false)
 
 
   const L = compact ? LAYOUTS.compact : LAYOUTS.wide
-  const stageW = compact ? Math.min(250, Math.max(180, boxW - 64)) : 400
-  const stageH = Math.round(stageW * 1123 / PAGE_W)
   const paint = useCallback(() => {
     const lay = compactRef.current ? LAYOUTS.compact : LAYOUTS.wide
     const rx = rxRef.current
@@ -113,10 +115,11 @@ export function DocumentOrbit({ className }: { className?: string }) {
       const th = angle.current + i * STEP
       const sn = Math.sin(th)
       const d = (sn + 1) / 2
-      const sc = (0.6 + 0.42 * d) * lay.k
-      el.style.transform = `translate(-50%, -50%) translate(${(rx * Math.cos(th)).toFixed(1)}px, ${(lay.ry * sn).toFixed(1)}px) scale(${sc.toFixed(3)})`
-      el.style.zIndex = String(sn > 0 ? 60 + Math.round(d * 40) : 10 + Math.round(d * 30))
-      el.style.opacity = (0.5 + 0.5 * d).toFixed(2)
+      const f = focus.current[i]
+      const sc = (0.55 + 0.35 * d) * lay.k * (1 - f) + (compactRef.current ? 1.2 : 1.72) * f
+      el.style.transform = `translate(-50%, -50%) translate(${(rx * Math.cos(th) * (1 - f)).toFixed(1)}px, ${(lay.ry * sn * (1 - f)).toFixed(1)}px) scale(${sc.toFixed(3)})`
+      el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 30 : 10 + d * 25) * (1 - f) + 110 * f))
+      el.style.opacity = (0.55 + 0.45 * Math.max(d, f)).toFixed(2)
       el.dataset.front = sn > 0 ? '1' : '0'
     }
   }, [])
@@ -128,8 +131,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
       const w = box.clientWidth
       const isCompact = w < 768
       compactRef.current = isCompact
-      rxRef.current = isCompact ? Math.min(140, (w - 100) / 2) : Math.min(470, (w - 170) / 2)
-      setBoxW(w)
+      rxRef.current = isCompact ? Math.max(65, Math.min(140, (w - 104) / 2)) : Math.min(470, (w - 170) / 2)
       setCompact(isCompact)
       setRx(rxRef.current)
       paint()
@@ -144,6 +146,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
     const box = boxRef.current
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
     reduced.current = media.matches
+    setMotionReduced(media.matches)
     if (media.matches) {
       playingRef.current = false
       setPlaying(false)
@@ -153,7 +156,11 @@ export function DocumentOrbit({ className }: { className?: string }) {
     let last = 0
 
     const loop = (now: number) => {
-      const dt = last ? Math.min(now - last, 100) : 16
+      if (last && now - last < 32) {
+        frame = requestAnimationFrame(loop)
+        return
+      }
+      const dt = last ? Math.min(now - last, 100) : 33
       last = now
       if (target.current !== null) {
         const diff = target.current - angle.current
@@ -163,7 +170,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
         } else {
           angle.current += diff * (1 - Math.pow(0.84, dt / 33))
         }
-      } else if (playingRef.current) {
+      } else if (playingRef.current && !hovering.current) {
         angle.current -= (dt / TURN_MS) * Math.PI * 2
         const f = frontIndex(angle.current)
         if (f !== selRef.current) {
@@ -171,13 +178,19 @@ export function DocumentOrbit({ className }: { className?: string }) {
           setSel(f)
         }
       }
+      for (let i = 0; i < N; i++) {
+        const goal = i === selRef.current ? 1 : 0
+        focus.current[i] += (goal - focus.current[i]) * (1 - Math.pow(0.78, dt / 33))
+        if (Math.abs(goal - focus.current[i]) < 0.001) focus.current[i] = goal
+      }
       paint()
       frame = 0
       sync()
     }
 
     const sync = () => {
-      const moving = target.current !== null || playingRef.current
+      const settling = focus.current.some((f, i) => f !== (i === selRef.current ? 1 : 0))
+      const moving = target.current !== null || settling || (playingRef.current && !hovering.current)
       const run = visible && moving && document.visibilityState === 'visible'
       if (run && !frame) {
         frame = requestAnimationFrame(loop)
@@ -196,9 +209,14 @@ export function DocumentOrbit({ className }: { className?: string }) {
     if (box) io.observe(box)
     const onMedia = () => {
       reduced.current = media.matches
+      setMotionReduced(media.matches)
       if (media.matches) {
         playingRef.current = false
         setPlaying(false)
+        if (target.current !== null) angle.current = target.current
+        target.current = null
+        focus.current = ITEMS.map((_, i) => i === selRef.current ? 1 : 0)
+        paint()
       }
       sync()
     }
@@ -224,6 +242,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
     setSel(idx)
     if (reduced.current) {
       angle.current += delta
+      focus.current = ITEMS.map((_, i) => i === idx ? 1 : 0)
       target.current = null
       paint()
     } else {
@@ -233,6 +252,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
   }
 
   const toggle = () => {
+    if (reduced.current) return
     const next = !playingRef.current
     playingRef.current = next
     target.current = null
@@ -240,6 +260,12 @@ export function DocumentOrbit({ className }: { className?: string }) {
     kick.current()
   }
 
+  const pause = () => {
+    playingRef.current = false
+    setPlaying(false)
+    kick.current()
+  }
+  const openPreview = () => { pause(); setZoomed(true) }
   const selected = ITEMS[sel]
   const who = persona(selected.who)
 
@@ -247,10 +273,44 @@ export function DocumentOrbit({ className }: { className?: string }) {
     <div
       ref={boxRef}
       className={cn('relative isolate w-full overflow-hidden', className)}
+      role="region"
+      onKeyDown={(event) => {
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+          event.preventDefault()
+          bringToFront(selRef.current + (event.key === 'ArrowLeft' ? -1 : 1))
+        }
+      }}
       aria-roledescription="carousel"
       aria-label="Resume template collection"
     >
-      <div className="relative" style={{ height: L.box }}>
+      <div
+        className="relative"
+        style={{ height: L.box, touchAction: 'pan-y' }}
+        onMouseEnter={() => { hovering.current = true; kick.current() }}
+        onMouseLeave={() => { hovering.current = false; kick.current() }}
+        onFocusCapture={pause}
+        onPointerDown={(event) => {
+          if (!event.isPrimary) return
+          gesture.current = { x: event.clientX, y: event.clientY }
+          suppressClick.current = false
+          pause()
+        }}
+        onPointerMove={(event) => {
+          if (!gesture.current) return
+          const dx = event.clientX - gesture.current.x
+          const dy = event.clientY - gesture.current.y
+          if (Math.abs(dx) > 32 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+            suppressClick.current = true
+            gesture.current = null
+            bringToFront(selRef.current + (dx < 0 ? 1 : -1))
+          }
+        }}
+        onPointerUp={() => { gesture.current = null }}
+        onPointerCancel={() => { gesture.current = null }}
+        onClickCapture={(event) => {
+          if (suppressClick.current) { event.preventDefault(); event.stopPropagation(); suppressClick.current = false }
+        }}
+      >
       <div
         aria-hidden="true"
         className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-teal/20 shadow-[inset_0_-22px_46px_rgba(15,76,67,.08),0_26px_56px_rgba(15,76,67,.10)]"
@@ -278,13 +338,14 @@ export function DocumentOrbit({ className }: { className?: string }) {
             ref={(n) => {
               slots.current[i] = n
             }}
-            onClick={() => bringToFront(i)}
-            aria-label={`Show ${itemName(item)} — ${p.name}, ${p.role}`}
+            onClick={() => on ? openPreview() : bringToFront(i)}
+            data-orbit-centre={on ? 'true' : undefined}
+            aria-label={`${on ? 'Open' : 'Show'} ${itemName(item)} — ${p.name}, ${p.role}`}
             aria-pressed={on}
             className={cn(
               'absolute left-1/2 w-[170px] rounded-[12px] border-2 bg-white p-1.5 text-left will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
               'shadow-[0_8px_20px_rgba(15,76,67,.06)] data-[front=1]:shadow-[0_18px_34px_rgba(15,76,67,.16),0_34px_78px_rgba(15,76,67,.14)]',
-              on ? 'border-teal' : 'border-line',
+              on ? 'border-[#C9962E]' : 'border-line',
             )}
             style={{ top: L.track }}
           >
@@ -297,19 +358,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
         )
       })}
 
-      {/* The stationary centre page is between the back and front of the ring. */}
-      <button
-        type="button"
-        data-orbit-centre="true"
-        onClick={() => setZoomed(true)}
-        aria-label={`Preview ${itemName(selected)} in full size`}
-        className="absolute left-1/2 z-50 -translate-x-1/2 overflow-hidden rounded-[12px] bg-white text-left ring-1 ring-line shadow-[0_12px_50px_rgba(15,76,67,.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-        style={{ top: 8, width: stageW, height: stageH }}
-      >
-        <FittedPage item={selected} width={stageW} height={stageH} />
-      </button>
       </div>
 
+      <p className="relative px-4 text-center text-[12px] text-ink-muted">Select a design{compact ? ' or swipe' : ''} · Open the complete page</p>
       {/* Controls stay in flow, so wrapping never overlaps a resume. */}
       <div className="relative z-[120] mt-4 flex justify-center px-3 pb-5">
         <div
@@ -318,7 +369,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             compact ? 'gap-2.5 p-3' : 'gap-[18px] py-3 pl-[22px] pr-3.5',
           )}
         >
-          <div className={cn(compact ? 'w-full text-center' : 'min-w-[270px] text-left')} aria-live="polite">
+          <div className={cn(compact ? 'w-full text-center' : 'min-w-[270px] text-left')} aria-live={playing ? 'off' : 'polite'}>
             <div className={cn('flex items-baseline gap-2.5', compact && 'justify-center')}>
               <span className="type-card font-bold tracking-[-0.02em]">{itemName(selected)}</span>
               <span className="font-mono text-[12px] text-ink-muted">
@@ -342,7 +393,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
               <path d="M15 6l-6 6 6 6" />
             </svg>
           </button>
-          <button type="button" onClick={toggle} className="flex min-h-11 items-center gap-2 rounded-full bg-teal px-4 text-[13px] font-bold text-white hover:bg-[#0B3A33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">
+          <button type="button" onClick={toggle} disabled={motionReduced} className="flex min-h-11 items-center gap-2 rounded-full bg-teal px-4 text-[13px] font-bold text-white hover:bg-[#0B3A33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">
             {playing ? (
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                 <path d="M15.75 5.25v13.5M8.25 5.25v13.5" />
@@ -352,14 +403,14 @@ export function DocumentOrbit({ className }: { className?: string }) {
                 <path d="M7 5v14l12-7z" />
               </svg>
             )}
-            {playing ? 'Pause' : 'Play'}
+            {motionReduced ? 'Motion off' : playing ? 'Pause' : 'Play'}
           </button>
           <button type="button" onClick={() => bringToFront(sel + 1)} aria-label="Next template" className="flex size-11 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M9 6l6 6-6 6" />
             </svg>
           </button>
-          <button type="button" onClick={() => setZoomed(true)} className="min-h-11 rounded-full border border-line px-4 type-label text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">View full size</button>
+          <button type="button" onClick={openPreview} className="min-h-11 rounded-full border border-line px-4 type-label text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">View full size</button>
           {(
             <Link href="/templates" className="flex min-h-11 items-center rounded-full border border-teal px-4 text-[13px] font-extrabold text-teal hover:bg-teal-soft">
               Explore all {availableTemplates().length} templates
