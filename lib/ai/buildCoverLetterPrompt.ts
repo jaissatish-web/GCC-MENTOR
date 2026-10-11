@@ -1,3 +1,4 @@
+import { categoryFact } from '@/lib/profileCategories'
 /**
  * Cover letter prompt builder (TASK-065).
  *
@@ -183,6 +184,9 @@ function renderCareerProfile(profile: CareerProfileFull): string {
     .join('\n')
   if (education) sections.push('## EDUCATION\n' + education)
 
+  const additional = (profile.additional_information ?? []).map(categoryFact).filter(Boolean).join('\n')
+  if (additional) sections.push('## CUSTOM CATEGORIES\n' + additional)
+
   sections.push('## RULE\n' + FIXED_FIELD_INSTRUCTION)
 
   return sections.join('\n\n')
@@ -220,6 +224,7 @@ function renderSavedResume(doc: ResumeDocument): string {
   if (experience) lines.push('Experience:\n' + experience)
   if ((doc.skills ?? []).length > 0) lines.push('Skills: ' + doc.skills.map((s) => s.name).join(', '))
   if ((doc.certifications ?? []).length > 0) lines.push('Certifications: ' + doc.certifications.map((c) => c.display).join('; '))
+  if ((doc.additional ?? []).length) lines.push('Custom categories:\n' + doc.additional.map(a => [a.entry.category_name, a.display].filter(Boolean).join(': ')).join('\n'))
   return lines.join('\n\n')
 }
 

@@ -1,3 +1,4 @@
+import { resumeCategoryGroups, type CategoryPosition } from '@/lib/profileCategories'
 import type { CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { OptimizedContent } from '@/types/package'
 import { T, PAGE, SIZE, KEEP_WITH_NEXT, NO_SPLIT } from './tokens'
@@ -222,6 +223,7 @@ export default function GulfPremium({
   }
   const body: React.CSSProperties = { ...bodyTextStyle, fontFamily: sansFont, fontSize: sz(SIZE.body), color: bodyInk }
 
+  const customSections = (position: CategoryPosition) => resumeCategoryGroups(additional).filter(g => g.position === position).map(g => <Section key={g.id} title={g.id === '__legacy' ? 'Additional information' : g.name} labelStyle={labelStyle}><div style={body}>{g.id === '__legacy' ? g.items.map(item => item.display).filter(Boolean).join(' · ') : g.items.map(item => <div key={item.entry.id} style={{ marginBottom: '3px', whiteSpace: 'pre-wrap' }}>{item.display}</div>)}</div></Section>)
   return (
     <div
       id="resume-render"
@@ -327,6 +329,7 @@ export default function GulfPremium({
       ) : null}
 
       {/* ── EXPERIENCE ── */}
+      {customSections('after_summary')}
       {experience.length > 0 ? (
         <Section title="Experience" labelStyle={labelStyle}>
           {experience.map(({ entry, bullets, range, companyLine }) => {
@@ -404,6 +407,7 @@ export default function GulfPremium({
       ) : null}
 
       {/* ── KEY SKILLS ── reordered by relevance, never reworded ── */}
+      {customSections('after_experience')}
       {skills.length > 0 ? (
         <Section title="Key skills" labelStyle={labelStyle}>
           <div style={body}>{skills.map((s) => s.name).join(' · ')}</div>
@@ -411,6 +415,7 @@ export default function GulfPremium({
       ) : null}
 
       {/* ── CERTIFICATIONS ── */}
+      {customSections('after_skills')}
       {certifications.length > 0 ? (
         <Section title="Certifications" labelStyle={labelStyle}>
           <div style={body}>
@@ -420,6 +425,7 @@ export default function GulfPremium({
       ) : null}
 
       {/* ── EDUCATION ── */}
+      {customSections('after_certifications')}
       {education.length > 0 ? (
         <Section title="Education" labelStyle={labelStyle}>
           {education.map((ed) => (
@@ -454,13 +460,8 @@ export default function GulfPremium({
       ) : null}
 
       {/* ── ADDITIONAL INFORMATION ── one block, one toggle (MVP scope) ── */}
-      {additional.length > 0 ? (
-        <Section title="Additional information" labelStyle={labelStyle}>
-          <div style={body}>
-            {additional.map((a) => a.display).filter(Boolean).join(' · ')}
-          </div>
-        </Section>
-      ) : null}
+      {customSections('after_education')}
+      {customSections('end')}
     </div>
   )
 }

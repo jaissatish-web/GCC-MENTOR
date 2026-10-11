@@ -1,4 +1,6 @@
 'use client'
+
+import { resumeCategoryGroups } from '@/lib/profileCategories'
 import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
@@ -482,23 +484,16 @@ function EditResumeInner({ packageId }: { packageId: string }) {
             </button>
           </Section>
 
-          {/* ---- Additional information ---- */}
-          <Section title="Additional information" hint="Languages, memberships, awards — one per line.">
-            <RowList
-              items={draft.additional.map((a) => a.display)}
-              itemLabel="Item"
-              addLabel="Add an item"
-              onChange={(lines) =>
-                update((d) => ({
-                  ...d,
-                  additional: lines.map((display, i) => ({
-                    entry: (d.additional[i]?.entry ?? { id: tempId('info') }) as ResumeDocument['additional'][number]['entry'],
-                    display,
-                  })),
-                }))
-              }
-            />
-          </Section>
+          {/* Named custom sections retain their entry identity and metadata. */}
+          {resumeCategoryGroups(draft.additional).map(group => <Section key={group.id} title={group.name} hint="Edit this resume’s items. Category position and visibility are set in Career Profile.">
+            <RowList items={group.items.map(a => a.display)} itemLabel="Item" addLabel="Add an item"
+              onChange={lines => update(d => ({ ...d, additional: [
+                ...d.additional.filter(a => (a.entry.category_id || a.entry.category_name || '__legacy') !== group.id),
+                ...lines.map((display,i) => ({ entry: (group.items[i]?.entry ?? { ...group.items[0]?.entry, id: tempId('info') }) as ResumeDocument['additional'][number]['entry'], display })),
+              ] }))} />
+          </Section>)}
+          {draft.additional.length === 0 ? <Section title="Additional information" hint="Add an item, or create named categories in Career Profile."><button type="button" className={removeBtn} onClick={() => update(d => ({ ...d, additional: [{ entry: { id: tempId('info') } as ResumeDocument['additional'][number]['entry'], display: '' }] }))}>Add an item</button></Section> : null}
+
         </div>
 
         {/* ---- Live preview ---- */}

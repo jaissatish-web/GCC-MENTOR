@@ -186,3 +186,27 @@ as Complete / Needs attention / Missing / Optional with one "Fill next", and a s
 as written, sets each role's `gcc_country` from its written location, and drops the CV
 headline from Additional information (`lib/ai/extractionPrompt.ts`,
 `scripts/verify-profile-data.ts`).
+
+## Editable categories (2026-10-11)
+
+The final profile section is **Your categories**. Existing additional information
+is grouped using its headings when opened in the editor; original values and row
+IDs remain intact. Users can create and rename categories, add items with name,
+optional level and details, move items between categories, and order categories
+and items. Each category has a resume position and visibility switch. Empty
+categories persist as blank placeholder rows but never render on a resume.
+Save profile commits the complete change atomically through the existing RPC.
+Limits: 30 categories, 200 entries, category name 80 characters, level 100,
+item name 200 and details 10,000. Duplicate names or inconsistent metadata fail
+validation. Levels come only from user input or explicitly written CV facts.
+
+Resume visibility controls presentation; stored facts remain available as
+reference to career services. The existing master additional-information
+visibility switch controls all custom categories. Mobile controls stack and
+use 44px minimum action targets; physical mobile/browser verification is pending.
+
+Validation: 51/51 automated checks, 300 template/position cases, local atomic
+save/RLS/rollback/delete tests, typecheck, lint and production build passed.
+Migration 069 is applied; live columns, constraints, indexes, grants and owner
+policy checked. No new grant or policy. Browser interaction, authenticated
+production save/export and physical-device QA remain unverified.

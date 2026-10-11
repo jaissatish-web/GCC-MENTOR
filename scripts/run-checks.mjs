@@ -34,6 +34,7 @@ const TS_CHECKS = [
   'verify-gulf-readiness-v2.ts',
   'verify-profile-merge.ts',
   'verify-profile-data.ts',
+  'verify-profile-categories.ts',
   'verify-resume-parse.ts',
   'verify-loose-duties.ts',
   'verify-match-terms.ts',
@@ -83,6 +84,7 @@ run('verify-profile-photo-api.mjs', [join(root, 'scripts', 'verify-profile-photo
 run('verify-career-profile-resume-api.mjs', [join('scripts', 'verify-career-profile-resume-api.mjs')])
 run('verify-db-security.mjs', [join('scripts', 'verify-db-security.mjs')])
 run('verify-dashboard-overview.mjs', [join('scripts', 'verify-dashboard-overview.mjs')])
+run('verify-profile-categories-db.mjs', [join(root, 'scripts', 'verify-profile-categories-db.mjs')])
 run('verify-voice-db.mjs', [join('scripts', 'verify-voice-db.mjs')])
 run('verify-interview-history-db.mjs', [join('scripts', 'verify-interview-history-db.mjs')])
 run('verify-interview-progress-api.mjs', [join('scripts', 'verify-interview-progress-api.mjs')])

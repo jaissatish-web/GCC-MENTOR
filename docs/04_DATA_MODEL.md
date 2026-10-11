@@ -316,3 +316,12 @@ Migration 068 applied to the connected production project on 2026-10-09 after
 disposable Postgres tests. Verified cap removal, invoker security, owner filter,
 idempotent append and service-role-only execution. Live recovery scan found no
 missing voice runs. Security advisory results were unchanged from before migration.
+
+## Custom category metadata (migration 069, 2026-10-11)
+
+`profile_additional_information` retains its existing owner-scoped rows, RLS,
+grants and profile-delete cascade. Nullable category UUID/name, category order
+(0–200), semantic position, optional level and show-on-resume flag are additive
+columns. Rows in one category share its metadata. No existing data is rewritten.
+The existing atomic save RPC dynamically handles these real columns; the API
+whitelists them and validates category consistency and limits before saving.

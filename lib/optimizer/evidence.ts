@@ -1,3 +1,4 @@
+import { categoryFact } from '@/lib/profileCategories'
 /**
  * Evidence map: every target keyword against the candidate's own profile
  * (2026-09-17). PURE — no AI, no database.
@@ -43,7 +44,7 @@ export function profileWideText(profile: CareerProfileFull): string {
     ...(profile.skills ?? []).map((s) => s.name),
     ...(profile.certifications ?? []).map((c) => [c.name, c.issuer ?? ''].join(' ')),
     ...(profile.education ?? []).map((e) => [e.degree, e.field_of_study ?? '', e.institution].join(' ')),
-    ...(profile.additional_information ?? []).map((a) => `${a.label}: ${a.value}`),
+    ...(profile.additional_information ?? []).map((a) => categoryFact(a)),
   ].join('\n')
 }
 
@@ -57,7 +58,7 @@ function listedText(profile: CareerProfileFull): string {
     ...(profile.skills ?? []).map((s) => s.name),
     ...(profile.certifications ?? []).map((c) => c.name),
     ...(profile.education ?? []).map((e) => [e.degree, e.field_of_study ?? ''].join(' ')),
-    ...(profile.additional_information ?? []).map((a) => `${a.label}: ${a.value}`),
+    ...(profile.additional_information ?? []).map((a) => categoryFact(a)),
   ].join('\n')
 }
 

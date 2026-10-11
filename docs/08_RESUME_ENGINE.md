@@ -435,3 +435,15 @@ renders the actual preview component with isolated fixture API responses. Run
 `npm run build` first to also verify responsive overflow with production CSS.
 It covers both resume sources, save failures/retries, concurrent edits, gallery
 previews, resets, persisted reloads, photo-upload blocking and mobile controls.
+
+## Named custom sections (2026-10-11)
+
+Category metadata is carried inside each `additional[].entry`, preserving the
+frozen document contract. `resumeCategoryGroups` places named sections after
+summary, experience, education, skills, certifications or at the end in all
+50 templates and DOCX. PDF uses the same template document. Empty and hidden
+categories are excluded during document construction. Legacy snapshots without
+metadata retain the previous flat Additional information rendering. Per-resume
+edits preserve category metadata and long category text. Profile facts, names
+and explicit levels also reach optimization, cover letters and interview
+preparation through grounded service context; no proficiency is inferred.

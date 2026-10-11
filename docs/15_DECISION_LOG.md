@@ -1,5 +1,16 @@
 # DECISION LOG — what was decided, when, and why
 
+## 2026-10-11 — Editable Career Profile categories
+
+Founder authorized custom named categories, multiple entries, optional levels,
+category/entry ordering, visibility and resume position. Extend existing owner-
+scoped additional-information rows with metadata; retain their IDs, atomic save,
+RLS and hard-delete behavior. Group existing entries conservatively for review
+without bulk rewriting production records. Keep custom facts in existing grounded
+profile contexts. Render named sections in all 50 templates and DOCX; preserve
+legacy documents and frozen resume snapshots. Adding a category earns no points.
+
+
 ## 2026-10-11 — Reference-inspired mobile landing rebuild
 
 Founder supplied a light blue mobile concept. Rebuild marketing presentation with

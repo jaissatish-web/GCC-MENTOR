@@ -48,7 +48,7 @@ export const VISIBILITY_FIELDS: ReadonlyArray<{ key: keyof FieldVisibility; labe
   { key: 'whatsapp', label: 'WhatsApp', hint: 'The preferred contact channel across the Gulf.', group: 'contact' },
   { key: 'email', label: 'Email', hint: 'Contact for interview calls and offers.', group: 'contact' },
   { key: 'linkedin_url', label: 'LinkedIn URL', hint: 'Employers often check your profile.', group: 'contact' },
-  { key: 'additional_information', label: 'Additional information', hint: 'The whole block — languages, awards, the rest.', group: 'extra' },
+  { key: 'additional_information', label: 'Custom categories', hint: 'Master visibility for all categories. Set each category’s visibility in Career Profile.', group: 'extra' },
 ]
 
 const GROUPS: ReadonlyArray<{ id: Group; title: string; icon: React.ComponentType<{ className?: string }>; badge: string }> = [

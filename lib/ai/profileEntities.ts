@@ -1,3 +1,4 @@
+import { categoryFact } from '@/lib/profileCategories'
 /**
  * Profile-derived entity extraction for the grounding validator (2026-09-16).
  *
@@ -234,7 +235,7 @@ export function buildProfileEntities(profile: CareerProfileFull): ProfileEntitie
       ...(w.highlights ?? []),
     ]),
     ...(profile.certifications ?? []).map((c) => c.name),
-    ...(profile.additional_information ?? []).map((a) => `${a.label} ${a.value}`),
+    ...(profile.additional_information ?? []).map((a) => categoryFact(a)),
     ...(profile.skills ?? []).map((s) => s.name),
     // The computed total (and one below, for "over N years") is a fact of the
     // profile's own dates, so the summary may state it (2026-09-18).
@@ -249,7 +250,7 @@ export function buildProfileEntities(profile: CareerProfileFull): ProfileEntitie
   for (const e of entries.values()) addAll(all, e.entities)
   addAll(all, extractNamedEntities(profile.professional_summary ?? ''))
   for (const a of profile.additional_information ?? []) {
-    addAll(all, extractNamedEntities(`${a.label} ${a.value}`))
+    addAll(all, extractNamedEntities(categoryFact(a)))
   }
 
   return {

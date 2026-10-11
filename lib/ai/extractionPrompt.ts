@@ -35,7 +35,7 @@ RULES:
 6. professional_summary: COPY the resume's own summary / profile / objective paragraph exactly as written — same wording, same grammatical person. Do NOT rewrite it, do NOT convert it to first person, do NOT write a new one. Omit if the resume has no summary-like paragraph.
 7. skills: a flat list of named skills. Do NOT categorize or create sub-objects.
 8. Every item in work_experience/skills/certifications/education/additional_information MUST carry "sort_order" — the order the item appears in the resume, starting at 1. Do NOT include "id", "profile_id" or "created_at" on any item.
-9. additional_information: capture anything else the resume contains that does not fit a named field — e.g. languages, marital status, driving licence, salary expectation, expected salary, availability, projects, LinkedIn, address, hobbies, gap notes. Each entry: {"label": <short AI-suggested label, e.g. "Languages">, "value": <the text>, "sort_order": <n>}. The user can rename the label later; keep it short. Do NOT add the resume's title line / headline (the job title printed under the name) as an entry — it is not additional information.
+9. additional_information: preserve original extra section headings as category_name (e.g. Languages, Projects, Awards, Memberships). Capture separate named items as separate entries within the category. Set level only when explicitly written (e.g. Fluent, Advanced); otherwise omit level. Keep item values verbatim. Never infer skill levels.  capture anything else the resume contains that does not fit a named field — e.g. languages, marital status, driving licence, salary expectation, expected salary, availability, projects, LinkedIn, address, hobbies, gap notes. Each entry: {"label": <short AI-suggested label, e.g. "Languages">, "value": <the text>, "sort_order": <n>}. The user can rename the label later; keep it short. Do NOT add the resume's title line / headline (the job title printed under the name) as an entry — it is not additional information.
 10. work_experience highlights: preserve each bullet as a separate string, original wording.
 
 OUTPUT SCHEMA (all five arrays must be present; use [] if none):
@@ -61,7 +61,7 @@ OUTPUT SCHEMA (all five arrays must be present; use [] if none):
   "skills": [ { "name": "string", "sort_order": 1 } ],
   "certifications": [ { "name": "string", "issuer": "string", "issue_date": "string", "expiry_date": "string", "sort_order": 1 } ],
   "education": [ { "degree": "string", "institution": "string", "field_of_study": "string", "start_year": 2015, "end_year": 2019, "sort_order": 1 } ],
-  "additional_information": [ { "label": "string", "value": "string", "sort_order": 1 } ]
+  "additional_information": [ { "label": "string", "value": "string", "category_name": "string", "level": null, "sort_order": 1 } ]
 }
 
 Every key in the parent object and every item is OPTIONAL except sort_order on items and the five arrays themselves. ANOTHER reminder: NO id, profile_id, created_at, currently_in_gulf, current_employer, current_project, target_job_title, target_industry, target_country, or target_company keys anywhere.`
@@ -142,7 +142,11 @@ export function normalizeDraft(raw: unknown): CareerProfileDraft | null {
     certifications: withSortOrder(certsArr, 1) as DraftCertification[],
     education: withSortOrder(eduArr, 1) as DraftEducation[],
     additional_information: (withSortOrder(addlArr, 1) as DraftAdditionalInformation[])
-      .map((a) => ({ ...a, value: typeof a.value === 'string' ? stripIdNumbers(a.label, a.value) : a.value }))
+      .map((a) => ({ ...a,
+        category_id: undefined, category_order: undefined, category_position: undefined, show_on_resume: true,
+        category_name: typeof a.category_name === 'string' ? a.category_name.trim().slice(0,80) || null : null,
+        level: typeof a.level === 'string' ? stripIdNumbers('level', a.level).trim().slice(0,100) || null : null,
+        value: typeof a.value === 'string' ? stripIdNumbers(a.label, a.value) : a.value }))
       .filter((a) => typeof a.value !== 'string' || a.value.trim() !== '')
       // The CV's headline is not additional information: stored here it printed
       // as an extra "Headline:" line under a CV that already carries a title.

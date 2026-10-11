@@ -1,3 +1,4 @@
+import { resumeCategoryGroups, type CategoryPosition } from '@/lib/profileCategories'
 import type { GulfPremiumProps } from './GulfPremium'
 import { buildResumeDocument, type ResumeDocument, type ResumeContactItem } from '@/lib/resumeDocument'
 import { KEEP_WITH_NEXT, NO_SPLIT, PAGE } from './tokens'
@@ -1023,18 +1024,15 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
       </Section>
     ) : null
 
-  const AdditionalBlock =
-    additional.length > 0 ? (
-      <Section theme={theme} title={label('additional')}>
+  const CustomBlocks = (position: CategoryPosition, sectionTheme = theme) =>
+    resumeCategoryGroups(additional).filter(group => group.position === position).map(group => (
+      <Section key={group.id} theme={sectionTheme} title={group.id === '__legacy' ? label('additional') : group.name}>
         <ul style={{ margin: 0, paddingLeft: '16px' }}>
-          {additional.map((item) => (
-            <li key={item.entry.id} style={{ ...body, marginBottom: `${2 * theme.density}px` }}>
-              {item.display}
-            </li>
-          ))}
+          {group.items.map(item => <li key={item.entry.id} style={{ ...body, color: sectionTheme.ink, marginBottom: `${2 * theme.density}px` }}>{item.display}</li>)}
         </ul>
       </Section>
-    ) : null
+    ))
+  const AdditionalBlock = CustomBlocks('end')
 
   // Absent attribute unless the theme asks: the fifteen keep identical markup.
   const fillPage = theme.fillPage ? '' : undefined
@@ -1210,8 +1208,8 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
               {header.targetJobTitle}
             </p>
           ) : null}
-          {SummaryBlock}
-          {ExperienceBlock}
+          {SummaryBlock}{CustomBlocks('after_summary')}
+          {ExperienceBlock}{CustomBlocks('after_experience')}
           {AdditionalBlock}
         </div>
         <aside
@@ -1289,17 +1287,17 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
                 }
             return (
               <>
-                {skills.length > 0 ? renderSkills(railTheme, skills, label('skills'), true) : null}
+                {skills.length > 0 ? renderSkills(railTheme, skills, label('skills'), true) : null}{CustomBlocks('after_skills', railTheme)}
                 {certifications.length > 0
                   ? renderList(railTheme, certifications.map((c) => c.display), label('certifications'))
-                  : null}
+                  : null}{CustomBlocks('after_certifications', railTheme)}
                 {education.length > 0
                   ? renderList(
                       railTheme,
                       education.map((e) => e.line + (e.years ? `, ${e.years}` : '')),
                       label('education'),
                     )
-                  : null}
+                  : null}{CustomBlocks('after_education', railTheme)}
               </>
             )
           })()}
@@ -1338,13 +1336,13 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
                   ))}
               </p>
             ) : null}
-            {SkillsBlock}
-            {CertificationsBlock}
-            {EducationBlock}
+            {SkillsBlock}{CustomBlocks('after_skills')}
+            {CertificationsBlock}{CustomBlocks('after_certifications')}
+            {EducationBlock}{CustomBlocks('after_education')}
           </aside>
           <div style={{ minWidth: 0, flex: 1 }}>
-            {SummaryBlock}
-            {ExperienceBlock}
+            {SummaryBlock}{CustomBlocks('after_summary')}
+            {ExperienceBlock}{CustomBlocks('after_experience')}
             {AdditionalBlock}
           </div>
         </div>
@@ -1358,29 +1356,29 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
       {ContactStrip}
       {theme.sectionOrder === 'skills-first' ? (
         <>
-          {SummaryBlock}
-          {SkillsBlock}
-          {ExperienceBlock}
-          {EducationBlock}
-          {CertificationsBlock}
+          {SummaryBlock}{CustomBlocks('after_summary')}
+          {SkillsBlock}{CustomBlocks('after_skills')}
+          {ExperienceBlock}{CustomBlocks('after_experience')}
+          {EducationBlock}{CustomBlocks('after_education')}
+          {CertificationsBlock}{CustomBlocks('after_certifications')}
           {AdditionalBlock}
         </>
       ) : theme.sectionOrder === 'credentials-first' ? (
         <>
-          {SummaryBlock}
-          {CertificationsBlock}
-          {ExperienceBlock}
-          {EducationBlock}
-          {SkillsBlock}
+          {SummaryBlock}{CustomBlocks('after_summary')}
+          {CertificationsBlock}{CustomBlocks('after_certifications')}
+          {ExperienceBlock}{CustomBlocks('after_experience')}
+          {EducationBlock}{CustomBlocks('after_education')}
+          {SkillsBlock}{CustomBlocks('after_skills')}
           {AdditionalBlock}
         </>
       ) : (
         <>
-          {SummaryBlock}
-          {ExperienceBlock}
-          {EducationBlock}
-          {SkillsBlock}
-          {CertificationsBlock}
+          {SummaryBlock}{CustomBlocks('after_summary')}
+          {ExperienceBlock}{CustomBlocks('after_experience')}
+          {EducationBlock}{CustomBlocks('after_education')}
+          {SkillsBlock}{CustomBlocks('after_skills')}
+          {CertificationsBlock}{CustomBlocks('after_certifications')}
           {AdditionalBlock}
         </>
       )}

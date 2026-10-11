@@ -1,3 +1,4 @@
+import { categoryFact } from '@/lib/profileCategories'
 /**
  * Category bridges (2026-09-18). PURE.
  *
@@ -58,7 +59,7 @@ export function categoryBridges(profile: CareerProfileFull, target: JobTargetPro
   const listed = [
     ...(profile.skills ?? []).map((s) => s.name),
     ...(profile.certifications ?? []).map((c) => c.name),
-    ...(profile.additional_information ?? []).map((a) => a.value),
+    ...(profile.additional_information ?? []).map(categoryFact),
   ].join('\n')
 
   for (const k of target.keywords) {

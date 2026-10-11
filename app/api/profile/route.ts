@@ -1,3 +1,4 @@
+import { validateCategoryEntries } from '@/lib/profileCategories'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { ARABIC_LEVELS, PAPERWORK_STATUSES } from '@/types/careerProfile'
@@ -280,11 +281,13 @@ function validateEducation(list: unknown): string | null {
 }
 
 function validateAdditional(list: unknown): string | null {
+  const categoryError = validateCategoryEntries(list)
+  if (categoryError) return categoryError
   if (!Array.isArray(list)) return 'additional_information'
   for (const item of list) {
     if (!isObject(item)) return 'additional_information'
-    if (requireString(item.label, 'label')) return 'additional_information.label'
-    if (requireString(item.value, 'value')) return 'additional_information.value'
+    if (typeof item.label !== 'string' || item.label.length > 200 || (!item.category_id && requireString(item.label, 'label'))) return 'additional_information.label'
+    if (typeof item.value !== 'string' || item.value.length > 10000 || (!item.category_id && requireString(item.value, 'value'))) return 'additional_information.value'
     if (typeof item.sort_order !== 'number') return 'additional_information.sort_order'
   }
   return null
@@ -469,7 +472,9 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       const { profile_id: _ignoredProfile, created_at: _ignoredCreated, ...rest } = r
       void _ignoredProfile
       void _ignoredCreated
-      const row: Record<string, unknown> = { ...rest }
+      const row: Record<string, unknown> = table === 'profile_additional_information'
+        ? Object.fromEntries(Object.entries(rest).filter(([k]) => ['id','label','value','sort_order','category_id','category_name','category_order','category_position','level','show_on_resume'].includes(k)))
+        : { ...rest }
       // Month-precision dates ("2021-03") and bare years ("2019") are what
       // resumes actually contain; Postgres `date` rejects both.
       for (const f of dateFields) {

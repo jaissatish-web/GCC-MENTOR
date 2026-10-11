@@ -23,7 +23,8 @@ assert.ok(profile.work_experience.some(r => r.role === fallback.target.target_jo
 assert.equal(careerProfileServiceContext({ ...profile, target_job_title: null, work_experience: [] }).target.target_job_title, 'Career opportunities')
 
 // Compare optimized prompts to the shipped implementation, including default args.
-// Golden hashes captured from shipped af19fe2. Exclude the date-dependent Gulf experience sentence.
+// Category context added 2026-10-11 to cover letters and mock interviews.
+// Exclude the date-dependent Gulf experience sentence.
 for (const [file, fn, args] of [
   ['buildCoverLetterPrompt', 'buildCoverLetterPrompt', [profile, { target_job_title: 'Engineer', target_company: 'Acme', target_country: 'saudi_arabia', target_industry: 'engineering' }, 'A real advert', 'professional', fixture.document, { totalYears: 12, gaps: ['missing tool'] }]],
   ['buildInterviewQaPrompt', 'buildInterviewQaParts', [profile, context.resume, { target_job_title: 'Engineer', target_company: 'Acme', target_country: 'saudi_arabia', target_industry: 'engineering' }, 'A real advert', 'Real facts']],
@@ -31,12 +32,12 @@ for (const [file, fn, args] of [
 ]) {
   const path = require.resolve(`../lib/ai/${file}.ts`)
   const expected = {
-    buildCoverLetterPrompt: '55b347b6d0901c979260ebd7012bb676cf06cfbe6ea775ca0b618160f73128a2',
+    buildCoverLetterPrompt: 'f34f06660680b09f2a77e2afc9b58865998fab9acdc3b57a182a110dd637df15',
     buildInterviewQaParts: 'ddec5f83039e0cb0093e556aca309e601686467ff6ff62ed665b4045fc88784c',
-    buildMockInterviewStartPrompt: 'd70581d2de447b607aa24af09626b53086b2ef713135f007ec8965486e6d603d',
+    buildMockInterviewStartPrompt: '2b347fd0bc3ec50cdea825c6af8f59d71e9cc7521bad34280e865bcd014ed610',
   }
   const hash = createHash('sha256').update(JSON.stringify(require(path)[fn](...args)).replace(/Gulf \(GCC\) experience: [^\\]+/g,'GULF FACT LINE')).digest('hex')
-  assert.equal(hash, expected[fn], `${fn}: optimized prompts unchanged`)
+  assert.equal(hash, expected[fn], `${fn}: optimized prompt regression baseline`)
 }
 const mock = (path, exports) => { const id = require.resolve(path); require.cache[id] = { id, filename: id, loaded: true, exports } }
 let user = { id: 'owner' }, failProfile = false, failAi = false, calls = [], finishes = [], writes = []

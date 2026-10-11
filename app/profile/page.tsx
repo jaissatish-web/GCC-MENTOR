@@ -1,4 +1,7 @@
 'use client'
+
+import { organizeCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
+import { CategoryEditor } from '@/components/profile/CategoryEditor'
 import { GulfContext } from '@/components/layout/GulfContext'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import { PageSkeleton } from '@/components/ui/Skeleton'
@@ -205,7 +208,7 @@ interface EditableEdu {
   end_year: string
 }
 
-interface EditableAdditional {
+interface EditableAdditional extends CategoryMetadata {
   key: string
   id?: string
   label: string
@@ -369,6 +372,12 @@ function ai(o: unknown): EditableAdditional {
     id: typeof a.id === 'string' ? a.id : undefined,
     label: str(a.label),
     value: str(a.value),
+    category_id: typeof a.category_id === 'string' ? a.category_id : null,
+    category_name: typeof a.category_name === 'string' ? a.category_name : null,
+    category_order: typeof a.category_order === 'number' ? a.category_order : null,
+    category_position: a.category_position as CategoryMetadata['category_position'],
+    level: typeof a.level === 'string' ? a.level : '',
+    show_on_resume: a.show_on_resume !== false,
   }
 }
 
@@ -402,7 +411,7 @@ function fromDraft(d: CareerProfileDraft): EditorData {
     skills: (d.skills ?? []).map(sk),
     certifications: (d.certifications ?? []).map(ce),
     education: (d.education ?? []).map(ed),
-    additional_information: (d.additional_information ?? []).map(ai),
+    additional_information: organizeCategoryEntries((d.additional_information ?? []).map(ai), () => crypto.randomUUID()),
   }
 }
 
@@ -445,7 +454,7 @@ function fromFull(p: CareerProfileFull): EditorData {
     skills: (p.skills ?? []).map(sk),
     certifications: (p.certifications ?? []).map(ce),
     education: (p.education ?? []).map(ed),
-    additional_information: (p.additional_information ?? []).map(ai),
+    additional_information: organizeCategoryEntries((p.additional_information ?? []).map(ai), () => crypto.randomUUID()),
   }
 }
 
@@ -553,7 +562,7 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
   })
 
   const additional_information = e.additional_information.map((a, i) => {
-    const row: Record<string, unknown> = { label: a.label, value: a.value, sort_order: i }
+    const row: Record<string, unknown> = { label: a.label, value: a.value, sort_order: i, category_id: a.category_id ?? null, category_name: a.category_name ?? null, category_order: a.category_order ?? 0, category_position: a.category_position ?? 'end', level: a.level || null, show_on_resume: a.show_on_resume !== false }
     if (typeof a.id === 'string' && a.id !== '') row.id = a.id
     return row
   })
@@ -930,7 +939,7 @@ const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
   { id: 'sec_education', label: 'Education' },
   { id: 'sec_skills', label: 'Skills' },
   { id: 'sec_certifications', label: 'Certifications' },
-  { id: 'sec_additional', label: 'Additional information' },
+  { id: 'sec_additional', label: 'Your categories' },
 ]
 
 // Both are the shared `.field` control (globals.css). They were hand-written
@@ -1730,13 +1739,7 @@ function ProfileScreen() {
     )
   }, [])
 
-  const addAdditional = useCallback(() => {
-    setEditor((e) =>
-      e
-        ? { ...e, additional_information: [...e.additional_information, { key: uid(), label: '', value: '' }] }
-        : e
-    )
-  }, [])
+
 
   // Phone/WhatsApp write back as one joined string — see the phoneParts note above.
   const setPhone = useCallback(
@@ -2916,62 +2919,8 @@ function ProfileScreen() {
           </div>
         </CardSection>
 
-        {/* ADDITIONAL INFORMATION — one block, AI-suggested labels the user can rename.
-            MVP: a single section; not individually toggleable per field (Phase 2). */}
-        <CardSection
-          {...sectionProps('sec_additional')}
-          title="Additional information"
-          helper="Languages, availability, references — what a recruiter asks next."
-          action={
-              <button
-                type="button"
-                onClick={addAdditional}
-                className={buttonVariants({ variant: 'ghost', size: 'sm' })}
-              >
-                <span aria-hidden="true">+</span> Add
-              </button>
-            }
-        >
-          <p className="field-hint">
-            Anything a recruiter asks next. Name each item however you like.
-          </p>
-          <div className="flex flex-col gap-3">
-            {editor.additional_information.map((a) => (
-              <div key={a.key} className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
-                <div className="flex gap-2">
-                  <Input tone="light"
-                    label="Label"
-                    placeholder="e.g. Languages"
-                    value={a.label}
-                    onChange={(e) => setEditor((s) => s && ({ ...s, additional_information: updateList(s.additional_information, a.key, { label: e.target.value }) }))}
-                  />
-                  <div className="flex items-end pb-1">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setEditor((e) => (e ? { ...e, additional_information: e.additional_information.filter((x) => x.key !== a.key) } : e))
-                      }
-                      aria-label="Remove item"
-                      className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-                <label className="flex flex-col gap-1.5">
-                  <span className="field-label">Details</span>
-                  <textarea
-                    rows={2}
-                    placeholder="e.g. English (fluent), Hindi (native), Arabic (basic)"
-                    className={textareaClass}
-                    value={a.value}
-                    onChange={(e) => setEditor((s) => s && ({ ...s, additional_information: updateList(s.additional_information, a.key, { value: e.target.value }) }))}
-                  />
-                </label>
-              </div>
-            ))}
-            <AddRowButton label="Add another item" onClick={addAdditional} />
-          </div>
+        <CardSection {...sectionProps('sec_additional')} title="Your categories" helper="Group languages, projects, memberships and other details. Add your own categories and choose where they appear on your resume.">
+          <CategoryEditor value={editor.additional_information} onChange={(rows) => setEditor(e => e && ({ ...e, additional_information: rows }))} />
         </CardSection>
       </div>
 

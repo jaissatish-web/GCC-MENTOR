@@ -33,7 +33,7 @@ RULES
 8. certifications: licences and certificates (PMP, DHA License, NEBOSH…), with issuer and dates as written.
 9. professional_summary: COPY the resume's own summary / profile / objective paragraph word for word. Omit if there is none. Never write one.
 10. Personal details: nationality, date_of_birth (as written), passport_type ("ECR" or "Non-ECR" only), passport_validity_date, visa_status, visa_transferable (true/false only if stated), notice_period, current_location — only when written.
-11. additional_information: anything else worth keeping that has no field above — languages, marital status, driving licence, salary expectation, availability, gender, religion, projects summary, hobbies. Each: {"label": short label, "value": text, "sort_order": n}. Not the headline/job title under the name. Not passport or ID numbers.
+11. additional_information: preserve original extra section headings as category_name (e.g. Languages, Projects, Awards, Memberships). Capture separate named items as separate entries within the category. Set level only when explicitly written (e.g. Fluent, Advanced); otherwise omit level. Keep item values verbatim. Never infer skill levels.  anything else worth keeping that has no field above — languages, marital status, driving licence, salary expectation, availability, gender, projects summary, hobbies. Each: {"label": short label, "value": text, "sort_order": n}. Not the headline/job title under the name. Not passport or ID numbers.
 12. Every array item carries "sort_order" (its position, from 1). Never output id, profile_id, created_at, or any target_* / currently_in_gulf / current_employer / current_project key.
 
 OUTPUT SCHEMA (all five arrays must be present; [] if none):
@@ -56,7 +56,7 @@ OUTPUT SCHEMA (all five arrays must be present; [] if none):
   "skills": [ { "name": "string", "sort_order": 1 } ],
   "certifications": [ { "name": "string", "issuer": "string", "issue_date": "string", "expiry_date": "string", "sort_order": 1 } ],
   "education": [ { "degree": "string", "institution": "string", "field_of_study": "string", "start_year": 2015, "end_year": 2019, "sort_order": 1 } ],
-  "additional_information": [ { "label": "string", "value": "string", "sort_order": 1 } ]
+  "additional_information": [ { "label": "string", "value": "string", "category_name": "string", "level": null, "sort_order": 1 } ]
 }`
 
 /** Sent with a second attempt when the checks found the first one incomplete. */

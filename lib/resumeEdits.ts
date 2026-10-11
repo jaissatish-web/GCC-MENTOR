@@ -1,3 +1,4 @@
+import { validateCategoryEntries } from '@/lib/profileCategories'
 /**
  * Per-resume edits of EVERY field (2026-09-17, founder decision).
  *
@@ -140,9 +141,17 @@ export function sanitizeEditedDocument(incoming: unknown, existing: ResumeDocume
     years: str(x.years, LIMITS.short),
   })).filter((e) => e.line !== '')
 
-  const additional = withEntry<ResumeDocument['additional'][number]>(list(incoming.additional, LIMITS.items), 'info', (x) => ({
-    display: str(x.display, LIMITS.line),
-  })).filter((a) => a.display !== '')
+  const existingAdditional = new Map((existing?.additional ?? []).map(a => [a.entry.id, a.entry]))
+  const additional = list(incoming.additional, 200).filter(isObject).map((x, i) => {
+    const input = isObject(x.entry) ? x.entry : {}
+    const id = safeId(input.id, 'info')
+    const prior = existingAdditional.get(id)
+    const entry = { ...(prior ?? {}), ...input, id, sort_order: i } as ResumeDocument['additional'][number]['entry']
+    return { entry, display: str(x.display, entry.category_id || entry.category_name ? 10000 : LIMITS.line) }
+  }).filter(a => a.display !== '')
+  const categoryError = validateCategoryEntries(additional.map(a => a.entry))
+  if (categoryError) throw new ResumeEditError(categoryError)
+
 
   return {
     header: {

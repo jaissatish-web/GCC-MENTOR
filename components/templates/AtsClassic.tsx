@@ -1,3 +1,4 @@
+import { resumeCategoryGroups, type CategoryPosition } from '@/lib/profileCategories'
 import type { GulfPremiumProps } from './GulfPremium'
 import { buildResumeDocument } from '@/lib/resumeDocument'
 import { KEEP_WITH_NEXT, NO_SPLIT, PAGE } from './tokens'
@@ -89,6 +90,7 @@ export default function AtsClassic({
     .filter(Boolean)
     .join(' | ')
 
+  const customSections = (position: CategoryPosition) => resumeCategoryGroups(additional).filter(g => g.position === position).map(g => <section key={g.id}><h2 style={h2Style}>{g.name}</h2><ul style={{ margin: 0, paddingLeft: '17px' }}>{g.items.map(item => <li key={item.entry.id} style={{ ...bodyStyle, marginBottom: '2px' }}>{item.display}</li>)}</ul></section>)
   return (
     <div
       id="resume-render"
@@ -139,6 +141,7 @@ export default function AtsClassic({
         </section>
       ) : null}
 
+      {customSections('after_summary')}
       {experience.length > 0 ? (
         <section>
           <h2 style={h2Style}>Work Experience</h2>
@@ -171,6 +174,7 @@ export default function AtsClassic({
         </section>
       ) : null}
 
+      {customSections('after_experience')}
       {education.length > 0 ? (
         <section>
           <h2 style={h2Style}>Education</h2>
@@ -183,6 +187,7 @@ export default function AtsClassic({
         </section>
       ) : null}
 
+      {customSections('after_education')}
       {skills.length > 0 ? (
         <section>
           <h2 style={h2Style}>Skills</h2>
@@ -192,6 +197,7 @@ export default function AtsClassic({
         </section>
       ) : null}
 
+      {customSections('after_skills')}
       {certifications.length > 0 ? (
         <section>
           <h2 style={h2Style}>Certifications</h2>
@@ -205,18 +211,8 @@ export default function AtsClassic({
         </section>
       ) : null}
 
-      {additional.length > 0 ? (
-        <section>
-          <h2 style={h2Style}>Additional Information</h2>
-          <ul style={{ margin: 0, paddingLeft: '17px' }}>
-            {additional.map((item) => (
-              <li key={item.entry.id} style={{ ...bodyStyle, marginBottom: '2px' }}>
-                {item.display}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      {customSections('after_certifications')}
+      {customSections('end')}
     </div>
   )
 }

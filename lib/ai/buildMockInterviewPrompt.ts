@@ -1,3 +1,4 @@
+import { categoryFact } from '@/lib/profileCategories'
 import { PROFILE_ONLY_SERVICE_RULE } from '@/lib/careerProfileServiceContext'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { CareerProfileFull, TargetCountry } from '@/types/careerProfile'
@@ -64,6 +65,7 @@ function renderProfile(profile: CareerProfileFull): string {
     profile.professional_summary ? `Summary: ${profile.professional_summary}` : null,
     `Skills: ${skills || 'None'}`,
     `Experience:\n${exp || 'None'}`,
+    (profile.additional_information ?? []).map(categoryFact).filter(Boolean).join('\n'),
   ]
     .filter(Boolean)
     .join('\n')
@@ -81,6 +83,7 @@ function renderResume(resume: ResumeDocument): string {
         .map((e) => [`- ${e.entry.role} at ${e.companyLine} (${e.range})`, ...e.bullets.slice(0, 3).map((b) => `  - ${b}`)].join('\n'))
         .join('\n\n'),
     'Optimized skills: ' + resume.skills.slice(0, 16).map((s) => s.name).join(', '),
+    (resume.additional ?? []).map(a => [a.entry.category_name, a.display].filter(Boolean).join(': ')).join('\n'),
   ]
     .filter(Boolean)
     .join('\n\n')

@@ -1,3 +1,4 @@
+import { categoryFact } from '@/lib/profileCategories'
 /**
  * Optimization prompt builder — universal, profession-neutral (TASK-018,
  * rebuilt 2026-09-16).
@@ -247,7 +248,7 @@ function renderCareerProfile(
   const additional = (profile.additional_information ?? [])
     .slice()
     .sort((a, b) => a.sort_order - b.sort_order)
-    .map((a) => `- ${a.label}: ${a.value}`)
+    .map((a) => `- ${categoryFact(a)}`)
     .join('\n')
   sections.push(
     '## ADDITIONAL INFORMATION (fixed, read-only)\n' + (additional || 'None.'),

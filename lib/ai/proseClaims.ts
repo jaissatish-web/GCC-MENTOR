@@ -1,3 +1,4 @@
+import { categoryFact } from '@/lib/profileCategories'
 /**
  * Claim checks for generated PROSE — cover letters, interview answers, mock
  * interview model answers (2026-09-18).
@@ -63,7 +64,7 @@ export function profileEvidenceText(profile: CareerProfileFull): string {
   for (const s of profile.skills ?? []) parts.push(s.name)
   for (const c of profile.certifications ?? []) parts.push(c.name, c.issuer)
   for (const ed of profile.education ?? []) parts.push(ed.degree, ed.field_of_study, ed.institution)
-  for (const a of profile.additional_information ?? []) parts.push(a.label, a.value)
+  for (const a of profile.additional_information ?? []) parts.push(categoryFact(a))
   return parts.filter(Boolean).join('\n')
 }
 

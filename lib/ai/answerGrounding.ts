@@ -1,3 +1,4 @@
+import { categoryFact } from '@/lib/profileCategories'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 
@@ -85,7 +86,7 @@ export function profileNumberSources(profile: CareerProfileFull): string[] {
     t.push(ed.degree, ed.institution, ed.field_of_study)
     t.push(ed.start_year != null ? String(ed.start_year) : null, ed.end_year != null ? String(ed.end_year) : null)
   }
-  for (const a of profile.additional_information ?? []) t.push(a.label, a.value)
+  for (const a of profile.additional_information ?? []) t.push(categoryFact(a))
   return t.filter((x): x is string => typeof x === 'string' && x.length > 0)
 }
 

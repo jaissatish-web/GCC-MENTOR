@@ -1,3 +1,4 @@
+import type { CategoryMetadata } from '@/lib/profileCategories'
 /**
  * Career Profile schema types (TASK-011).
  *
@@ -200,7 +201,7 @@ export interface ProfileEducation {
 // ---- profile_additional_information (migration 011) ------------------------
 // MVP scope: one section, one show/hide toggle for the whole block.
 
-export interface ProfileAdditionalInformation {
+export interface ProfileAdditionalInformation extends CategoryMetadata {
   id: string
   profile_id: string
   label: string // AI suggests it; user can rename

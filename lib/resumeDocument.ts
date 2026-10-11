@@ -353,12 +353,13 @@ export function buildResumeDocument({
       return { entry, line: joinParts([qualification, entry.institution], ' — '), years }
     })
 
-  // ---- Additional information (one block, one visibility decision) --------
+  // ---- Additional information and custom categories ----------------------
   const additional: ResumeAdditionalItem[] = visible(fv, 'additional_information')
     ? (profile.additional_information ?? [])
+        .filter(entry => entry.show_on_resume !== false && Boolean(entry.label?.trim() || entry.value?.trim()))
         .slice()
         .sort((a, b) => a.sort_order - b.sort_order)
-        .map((entry) => ({ entry, display: joinParts([entry.label, readableList(stripIdNumbers(entry.label, entry.value ?? ''))], ': ') }))
+        .map((entry) => ({ entry, display: joinParts([entry.label, entry.level ? `(${stripIdNumbers('level', entry.level)})` : '', readableList(stripIdNumbers(entry.label, entry.value ?? ''))], ': ') }))
     : []
 
   return {

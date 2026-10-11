@@ -1,3 +1,4 @@
+import { categoryFact } from '@/lib/profileCategories'
 import { PROFILE_ONLY_SERVICE_RULE } from '@/lib/careerProfileServiceContext'
 import type { CareerProfileFull, TargetCountry } from '@/types/careerProfile'
 import type { ResumeDocument } from '@/lib/resumeDocument'
@@ -169,7 +170,7 @@ function renderProfile(profile: CareerProfileFull): string {
   const additional = (profile.additional_information ?? [])
     .slice()
     .sort((a, b) => a.sort_order - b.sort_order)
-    .map((i) => `- ${i.label}: ${i.value}`)
+    .map((i) => `- ${categoryFact(i)}`)
     .join('\n')
   if (additional) sections.push('Additional information:\n' + additional)
 

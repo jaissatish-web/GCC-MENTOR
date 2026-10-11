@@ -1,3 +1,4 @@
+import { resumeCategoryGroups, type CategoryPosition } from '@/lib/profileCategories'
 import {
   Document,
   Paragraph,
@@ -109,9 +110,17 @@ export function buildResumeDocx(doc: ResumeDocument): Document {
     }
   }
 
+  const customSections = (position: CategoryPosition) => {
+    for (const group of resumeCategoryGroups(additional).filter(g => g.position === position)) {
+      children.push(sectionLabel(group.id === '__legacy' ? 'Additional information' : group.name))
+      for (const item of group.items) children.push(body(item.display))
+    }
+  }
+
   // ---- Sections -------------------------------------------------------------
   if (summary) children.push(sectionLabel('Professional summary'), body(summary))
 
+  customSections('after_summary')
   if (experience.length > 0) {
     children.push(sectionLabel('Experience'))
     for (const e of experience) {
@@ -160,15 +169,18 @@ export function buildResumeDocx(doc: ResumeDocument): Document {
     }
   }
 
+  customSections('after_experience')
   if (skills.length > 0) {
     children.push(sectionLabel('Key skills'), body(skills.map((s) => s.name).join(' · ')))
   }
 
+  customSections('after_skills')
   if (certifications.length > 0) {
     children.push(sectionLabel('Certifications'))
     for (const c of certifications) children.push(body(c.display))
   }
 
+  customSections('after_certifications')
   if (education.length > 0) {
     children.push(sectionLabel('Education'))
     for (const ed of education) {
@@ -177,10 +189,8 @@ export function buildResumeDocx(doc: ResumeDocument): Document {
     }
   }
 
-  if (additional.length > 0) {
-    children.push(sectionLabel('Additional information'))
-    for (const a of additional) children.push(body(a.display))
-  }
+  customSections('after_education')
+  customSections('end')
 
   return new Document({
     sections: [{ properties: {}, children }],
