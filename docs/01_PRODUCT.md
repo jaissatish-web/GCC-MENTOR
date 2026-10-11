@@ -221,7 +221,7 @@ account connection or promised hiring uplift. See [19_LINKEDIN_OPTIMIZATION.md](
 ## Professional profile preparation (2026-10-11)
 
 LinkedIn and NaukriGulf now have visual introductions and dedicated preparation
-workspaces, reachable through Professional Profiles. Both use confirmed Career
+workspaces, reachable directly from LinkedIn and NaukriGulf navigation. Both use confirmed Career
 Profile facts, optional old-profile comparison, independent fact review, editable
 content, illustrative preview and saved update checklists. NaukriGulf adds
 preferences/availability and CV-upload guidance. Users apply changes themselves;

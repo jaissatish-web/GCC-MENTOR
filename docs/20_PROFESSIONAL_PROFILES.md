@@ -1,17 +1,21 @@
 # Professional profile preparation
 
-`/professional-profile` is the signed-in hub for LinkedIn and NaukriGulf.
-Both tools first show a photo-led introduction, platform purpose, useful
-activity habits, profile fields, GCC Mentor’s approach and an optimization CTA.
-Official platform guidance is linked. The suggested daily routine is a product
-recommendation, not a claim about ranking algorithms; meaningful updates and
-accurate information are emphasized. No recruiter-response or hiring promise.
+LinkedIn and NaukriGulf are direct navigation destinations. The retired
+`/professional-profile` hub is no longer displayed; existing bookmarks redirect
+to LinkedIn. Each introduction leads with copy-ready deliverables, their paste
+destinations, why the platform is useful for Gulf applications, GCC Mentor's
+benefits, three action steps and visual practical-tip cards. Optimization CTAs
+appear immediately and at the end. The daily-edit ranking tip is explicitly
+unverified, without invented customer observations. Official guidance is linked.
+Workspace links return to the platform guide or open the other platform, with
+existing unsaved/busy guards. Results emphasize copy buttons, factual employment
+dates and the actual last-saved timestamp (not an external profile update date).
 
 ## NaukriGulf
 
 `/naukrigulf-optimization` → `/naukrigulf-optimization/workspace`. New layouts
 authenticate server-side and use the existing AppShell; protected middleware
-is unchanged. The hub/new routes are noindex and disallowed in robots.
+is unchanged. The new routes are noindex and disallowed in robots.
 
 The editor reuses LinkedIn’s established source selection, optional upload/paste,
 import ownership/conflict review, target direction, selected roles, language,
@@ -37,6 +41,23 @@ field when pasting. LinkedIn’s existing budgets remain unchanged.
 prompt keys. Existing atomic usage reservations run before generation; successful
 usage counts only after independent review and persistence. Default daily
 ceiling 5, concurrency 1. Commercial locks remain in the existing demo phase.
+
+## Generation latency
+
+Writing and independent review run sequentially because review needs the written
+output. Both now use the existing OpenRouter `reasoningOff` option to reduce
+extended reasoning overhead; other providers ignore this transport hint.
+Grounding validation, shape checks, independent review, repair and fallback
+behavior remain mandatory. No model/configuration or output budget was changed.
+The processing screen shows actual seconds elapsed and the pipeline sequence;
+it does not invent stage completion or a countdown.
+
+Read-only aggregate usage diagnostics on 2026-10-11 found two LinkedIn writing
+calls averaging 5,082 output tokens and two reviews averaging 2,223; one
+NaukriGulf writing call used 10,093 and its review 2,419, all on configured
+DeepSeek V4 Flash. This tiny sample is not a latency benchmark. Existing usage
+rows have no duration field, so actual speed improvement remains unmeasured.
+A signed-in real-model smoke test is still needed after deployment.
 
 ## Storage and deletion
 

@@ -1,5 +1,9 @@
 # DECISION LOG — what was decided, when, and why
 
+## 2026-10-11 — Direct platform entry and output-first preparation
+
+Founder requests removal of the Professional Profiles hub. Navigation goes directly to LinkedIn or NaukriGulf; the retired hub URL redirects to LinkedIn for existing bookmarks. Introductions prioritize deliverables, copy destinations, Gulf relevance, three steps and concise practical tips. No invented user observations or daily-edit ranking guarantees. Results show actual draft saved timestamp, fixed job dates and prominent copy controls. Both writing and independent review use existing OpenRouter reasoning-off request shaping; grounding, limits, independent review and quotas remain intact. Current usage logs have no duration field, so elapsed generation speed cannot be established from them.
+
 ## 2026-10-11 — Professional profile introductions and NaukriGulf preparation
 
 Founder requested a full NaukriGulf flow alongside LinkedIn and visual first

@@ -6,13 +6,16 @@ sign in to LinkedIn, create accounts, scrape profiles or update the live profile
 
 ## Entry page
 
-`/professional-profile` offers LinkedIn and NaukriGulf preparation.
-`/linkedin-optimization` is now an introduction with illustrative professional
-artwork, reasons to complete a profile, meaningful activity habits, field
-guidance and official sources. Its CTA opens `/linkedin-optimization/workspace`;
-existing drafts resume there. Workspace/preview have guide and hub links.
-Unsaved content/checklist or in-flight actions block those links until saved
-or complete. The guide does not promise rankings or recruiter responses.
+Users open `/linkedin-optimization` directly from navigation. The removed
+Professional Profiles hub URL redirects here for old bookmarks. The introduction
+shows deliverable/paste-destination cards, Gulf relevance, three steps and
+practical tips with clear uncertainty around daily-edit ranking claims.
+Its CTA opens `/linkedin-optimization/workspace`; existing drafts resume there.
+Workspace/preview link back to the guide and to NaukriGulf directly. Unsaved
+content/checklist or in-flight actions block those links until saved or complete.
+Results show last-saved date, highlighted employment dates and prominent copy
+controls. Writing and independent review use existing OpenRouter reasoning-off
+request shaping; safety checks remain unchanged. See doc 20 for diagnostics.
 
 ## Journey
 

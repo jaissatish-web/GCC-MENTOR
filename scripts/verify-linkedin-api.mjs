@@ -113,6 +113,7 @@ let generated
 stub('../lib/ai/runTask.ts', {
   runAiTask: async (task) => {
     aiCalls.push(task)
+    assert.equal(task.openRouter?.reasoningOff, true, "Both writing and independent review use fast request shaping")
     if (task.service === 'linkedin_review') {
       if (race) rows.get(user.id).revision = 'changed-in-another-tab'
       if (profileRace) profile.full_name = 'Updated during generation'

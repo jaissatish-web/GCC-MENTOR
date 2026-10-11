@@ -123,6 +123,8 @@ export async function POST(req: NextRequest) {
       instructions: LINKEDIN_INSTRUCTIONS,
       input: buildLinkedInInput(profile, setup, imported),
       deadlineAt,
+      // Writing and factual audit do not need extended model reasoning.
+      openRouter: { reasoningOff: true },
       grounding: {
         mode: 'enforced',
         profile: evidence,
@@ -152,6 +154,8 @@ export async function POST(req: NextRequest) {
         output: generated.value,
       }),
       deadlineAt,
+      // Writing and factual audit do not need extended model reasoning.
+      openRouter: { reasoningOff: true },
       grounding: {
         mode: 'not_applicable',
         reason:

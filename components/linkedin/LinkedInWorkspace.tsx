@@ -80,6 +80,14 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [missingProfile, setMissingProfile] = useState(false)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  useEffect(() => {
+    if (busy !== 'generate') return
+    const started = Date.now()
+    setElapsedSeconds(0)
+    const timer = window.setInterval(() => setElapsedSeconds(Math.floor((Date.now() - started) / 1000)), 1000)
+    return () => window.clearInterval(timer)
+  }, [busy])
 
   function protectUnsaved(e: React.MouseEvent<HTMLAnchorElement>) {
     if (dirty || busy) {
@@ -287,11 +295,11 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {text && (
           <button
-            className={secondary}
+            className={primary}
             type="button"
             onClick={() => void copy(text)}
           >
-            Copy text
+            Copy {key === 'headline' ? config.headline : key === 'about' ? config.summary : key.startsWith('experience:') ? 'job description' : 'text'}
           </button>
         )}
         <label className="flex min-h-11 items-center gap-2 text-sm text-ink">
@@ -345,7 +353,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href={config.home} onClick={protectUnsaved} className={secondary}>← {platformName} guide</Link>
-        <Link href="/professional-profile" onClick={protectUnsaved} className="inline-flex min-h-11 items-center text-sm font-semibold text-teal">All professional profiles</Link>
+        <Link href={PROFESSIONAL_PLATFORMS[platform === 'linkedin' ? 'naukrigulf' : 'linkedin'].home} onClick={protectUnsaved} className="inline-flex min-h-11 items-center text-sm font-semibold text-teal">Prepare {platform === 'linkedin' ? 'NaukriGulf' : 'LinkedIn'}</Link>
       </div>
       {error && (
         <div
@@ -406,6 +414,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                   ? 'You’ll review the extracted details before they are used.'
                   : 'Your confirmed facts, discipline and goals guide the writing. We check the result before saving it.'}
               </p>
+              {busy === 'generate' && <p className="text-sm text-ink-muted">{elapsedSeconds}s elapsed · Writing → fact-check → save. Keep this page open; your saved draft stays available if this attempt fails.</p>}
             </section>
           )}
           {!busy || busy === 'save' ? (
@@ -447,10 +456,10 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                         YOUR PERSONALIZED CONTENT
                       </p>
                       <h2 className="mt-2 type-section text-ink">
-                        Ready to make your profile yours
+                        Your content is ready to copy
                       </h2>
                       <p className="mt-2 max-w-xl text-ink-soft">
-                        Review, copy and paste each section on {platformName}. Mark it
+                        Review → Copy → Paste on {platformName} → Save there. Mark it
                         complete only after you’ve made the change.
                       </p>
                     </div>
@@ -465,6 +474,10 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       Preview your optimized profile
                     </button>
                   </section>
+                  <div className="flex flex-wrap gap-3 rounded-card border border-line bg-teal-soft/40 p-4 text-sm text-ink">
+                    <span><strong>Last saved here: </strong><time dateTime={draft.updated_at}>{new Date(draft.updated_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</time></span>
+                    <span>Job dates come from Career Profile. Copy descriptions; check dates separately.</span>
+                  </div>
                   {stale && (
                     <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink">
                       Career Profile has changed since this content was
@@ -630,8 +643,8 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                         <h2 className="mt-2 type-section text-ink">
                           {mask(role?.role)} · {mask(role?.company)}
                         </h2>
-                        <p className="mt-2 text-sm text-ink-muted">
-                          {role?.start_date?.slice(0, 7)} –{' '}
+                        <p className="mt-2 w-fit rounded-ctl bg-teal-soft px-3 py-2 text-sm font-semibold text-ink">
+                          Employment dates: {role?.start_date?.slice(0, 7)} –{' '}
                           {role?.end_date?.slice(0, 7) ?? 'Present'} · Titles,
                           employers and dates come from Career Profile.
                         </p>
