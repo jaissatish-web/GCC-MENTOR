@@ -1,0 +1,38 @@
+.overlay { background:rgb(8 38 34 / .65); backdrop-filter:blur(6px); animation:fadeIn .2s ease-out; }
+.dialog { background:var(--ui-canvas); border:1px solid rgb(var(--ui-brand-rgb) / .25); box-shadow:0 24px 90px rgb(8 38 34 / .3); animation:fadeIn .25s ease-out; }
+.hero { position:relative; isolation:isolate; overflow:hidden; background:linear-gradient(125deg,var(--ui-brand),var(--ui-hero-background) 60%,var(--ui-brand-hover)); color:var(--ui-inverse); }
+.hero::before { content:''; position:absolute; right:-50px; top:-100px; width:280px; height:280px; border:1px solid rgb(201 150 46 / .3); border-radius:50%; box-shadow:0 0 0 35px rgb(201 150 46 / .07),0 0 0 70px rgb(201 150 46 / .04); z-index:-1; }
+.heroTitle { color:var(--ui-inverse); }
+.eyebrow { color:#f1d391; }
+.heroDescription { color:rgb(255 255 255 / .85); }
+.close { color:white; background:rgb(255 255 255 / .1); border:1px solid rgb(255 255 255 / .2); }
+.close:hover { background:rgb(255 255 255 / .2); }
+.route { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; margin-top:16px; }
+.routeStop { position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:var(--ui-caption-size); color:rgb(255 255 255 / .85); }
+.routeStop:not(:last-child)::after { content:''; position:absolute; left:calc(50% + 18px); right:calc(-50% + 18px); top:15px; height:1px; background:rgb(255 255 255 / .25); }
+.routeIcon { position:relative; z-index:1; display:grid; place-items:center; width:32px; height:32px; border:1px solid rgb(241 211 145 / .6); border-radius:50%; color:#f1d391; background:#16473e; animation:glow 4s ease-in-out infinite; }
+.routeStop:nth-child(2) .routeIcon { animation-delay:1s; }
+.routeStop:nth-child(3) .routeIcon { animation-delay:2s; }
+.routeStop:nth-child(4) .routeIcon { animation-delay:3s; }
+.connector { position:relative; height:30px; width:2px; margin:0 auto; background:rgb(var(--ui-brand-rgb) / .2); overflow:hidden; }
+.connector::after { content:''; position:absolute; left:0; top:-10px; width:2px; height:10px; border-radius:2px; background:rgb(var(--ui-accent-ink-rgb)); animation:travel 2.8s ease-in-out infinite; }
+.tree { position:relative; }
+.node { position:relative; min-width:0; border:1px solid rgb(var(--ui-brand-rgb) / .2); border-radius:var(--ui-card-radius); padding:12px; background:linear-gradient(120deg,white,rgb(var(--ui-brand-soft-rgb) / .45)); }
+.goldNode { border-color:rgb(var(--ui-accent-rgb) / .5); background:linear-gradient(120deg,white,rgb(var(--ui-accent-soft-rgb) / .5)); }
+.branch { position:relative; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding-top:14px; }
+.branch::before { content:''; position:absolute; top:0; left:25%; right:25%; height:14px; border:1px solid rgb(var(--ui-brand-rgb) / .25); border-bottom:0; border-radius:8px 8px 0 0; }
+.stage { display:flex; align-items:center; gap:8px; margin-bottom:10px; color:var(--ui-brand); font-weight:var(--ui-weight-heading); font-size:var(--ui-label-size); }
+.stageNumber { display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:var(--ui-brand); color:white; font-size:var(--ui-caption-size); }
+.link { display:inline-flex; align-items:center; gap:6px; min-height:44px; color:var(--ui-brand); font-size:var(--ui-helper-size); font-weight:var(--ui-weight-heading); text-decoration:underline; text-underline-offset:3px; }
+.link:hover { color:var(--ui-brand-hover); }
+.link:focus-visible { outline:2px solid var(--ui-brand); outline-offset:3px; border-radius:4px; }
+.serviceRow { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--ui-line); }
+.serviceRow:last-child { border-bottom:0; }
+.details summary { cursor:pointer; min-height:44px; display:flex; align-items:center; gap:6px; font-size:var(--ui-helper-size); font-weight:var(--ui-weight-heading); color:var(--ui-brand); }
+.details summary::marker { color:var(--ui-brand); }
+.paused .routeIcon,.paused .connector::after { animation-play-state:paused; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes glow { 0%,65%,100% { box-shadow:0 0 0 0 rgb(241 211 145 / 0); } 25% { box-shadow:0 0 0 5px rgb(241 211 145 / .18); } }
+@keyframes travel { 0% { transform:translateY(0); } 70%,100% { transform:translateY(42px); } }
+@media(min-width:640px) { .node { padding:18px; } .branch { gap:16px; } }
+@media(prefers-reduced-motion:reduce) { .overlay,.dialog,.routeIcon,.connector::after { animation:none; } }

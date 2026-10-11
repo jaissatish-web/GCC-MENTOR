@@ -30,6 +30,7 @@ const TS_CHECKS = [
   'verify-career-profile-resume.ts',
   'verify-next-action.ts',
   'verify-stages.ts',
+  'verify-journey-guide.ts',
   'verify-profile-readiness.ts',
   'verify-gcc-experience.ts',
   'verify-gulf-readiness.ts',
