@@ -76,7 +76,7 @@ export function PageShell({
           {Icon ? (
             <span
               aria-hidden="true"
-              className="mt-0.5 flex size-8 shrink-0 items-center justify-center text-teal"
+              className="workspace-heading-icon mt-0.5 flex size-8 shrink-0 items-center justify-center text-teal"
             >
               <Icon className="size-6" />
             </span>
@@ -98,10 +98,6 @@ export function PageShell({
           <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">{actions}</div>
         ) : null}
       </header>
-
-      {/* A hairline under the header on every page — the cheapest way to make
-          screens feel like one product rather than several. */}
-
 
       {children}
     </main>

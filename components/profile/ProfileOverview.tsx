@@ -565,11 +565,11 @@ export function ViewHeader({
   action?: React.ReactNode
 }) {
   return (
-    <header className="flex flex-col gap-2 bg-white px-3 sm:px-5 pb-5 pt-2">
+    <header className="workspace-heading workspace-profile-heading flex flex-col gap-2">
       <button
         type="button"
         onClick={onBack}
-        className="-ml-1 inline-flex min-h-11 items-center gap-1.5 self-start rounded-ctl px-1 type-helper font-semibold text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+        className="workspace-heading-link inline-flex min-h-11 items-center gap-1.5 self-start rounded-ctl type-helper font-semibold focus-visible:outline-none"
       >
         <ArrowLeftIcon className="size-4" aria-hidden="true" />
         Profile overview

@@ -21,7 +21,7 @@ export function HowItWorks({ className = '' }: { className?: string }) {
   const [paused, setPaused] = useState(false)
   return (
     <Dialog.Root>
-      <Dialog.Trigger className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-ctl px-4 type-button text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${className}`}>
+      <Dialog.Trigger className={`journey-guide-trigger inline-flex min-h-11 items-center justify-center gap-2 rounded-ctl px-4 type-button text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${className}`}>
         How it works <Network className="size-4" aria-hidden="true" />
       </Dialog.Trigger>
       <Dialog.Portal>

@@ -31,14 +31,14 @@ export function FlowHeader({
   backLabel?: string
 }) {
   return (
-    <header className="flex flex-col gap-5">
+    <header className="workspace-heading flex flex-col gap-5">
       <div className="flex items-center gap-2">
         {onBack ? (
           <button
             type="button"
             aria-label={backLabel}
             onClick={onBack}
-            className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-ctl text-ink hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="workspace-heading-link flex size-11 shrink-0 items-center justify-center rounded-ctl focus-visible:outline-none"
           >
             <ArrowLeftIcon className="size-5" aria-hidden="true" />
           </button>
@@ -46,7 +46,7 @@ export function FlowHeader({
         <GulfContext>Gulf CV · Step {step} of 3</GulfContext>
       </div>
 
-      <ol aria-label={`Step ${step} of ${STEPS.length}`} className="grid grid-cols-3 gap-2">
+      <ol aria-label={`Step ${step} of ${STEPS.length}`} className="workspace-flow-steps grid grid-cols-3 gap-2">
         {STEPS.map((label, i) => {
           const n = i + 1
           const state = n < step ? 'done' : n === step ? 'current' : 'todo'
@@ -76,7 +76,7 @@ export function FlowHeader({
 
       <div>
         <h1 className="type-title text-ink">{title}</h1>
-        {subtitle ? <div className="mt-2 max-w-[55ch] type-body text-ink-soft">{subtitle}</div> : null}
+        {subtitle ? <div className="workspace-heading-description mt-2 max-w-[55ch] type-body text-ink-soft">{subtitle}</div> : null}
       </div>
     </header>
   )
