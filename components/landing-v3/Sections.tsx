@@ -21,7 +21,8 @@ import { ArrowRight, BTN_GOLD, BTN_LINE, BTN_TEAL, Check, SectionHead, Wrap } fr
 /* ── Navigation ───────────────────────────────────────────────────────── */
 
 export const NAV = [
-  ['Why GCC Mentor', '#about'],
+  ['Interview prep', '#interview'],
+  ['Why us', '#about'],
   ['Services', '#services'],
   ['How it works', '#journey'],
   ['Templates', '#templates'],
@@ -472,7 +473,7 @@ export function MobileStickyCta() {
     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 pb-[calc(10px+env(safe-area-inset-bottom,0px))] pt-2.5 backdrop-blur-md lg:hidden">
       <div className="mx-auto flex max-w-[560px] items-center gap-3">
         <div className="min-w-0 flex-1 type-caption leading-tight text-ink-muted">
-          <b className="block type-helper text-ink">One profile, every Gulf job</b>
+          <b className="block type-helper text-ink">Prepare. Practise. Improve.</b>
           Free to start · no card
         </div>
         <Link href="/signup" className={cn(BTN_GOLD, 'min-h-12 shrink-0 px-4 type-helper')}>

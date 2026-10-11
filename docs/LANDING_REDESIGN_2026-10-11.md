@@ -37,3 +37,11 @@ Validation: TypeScript, lint, production build and repository checks are run for
 ## Verification limit
 
 The required control-browser capability is unavailable in this managed environment. Browser screenshots, responsive rendering and hydrated interaction QA could not be performed. Source review and build checks do not constitute complete mobile/desktop visual sign-off.
+
+## Interview-first revision
+
+Interview preparation is now the hero promise and the first full section after the GCC markets strip. The page demonstrates a supportive preparation cycle, an AI-guided HR-style answer review and illustrative saved-score progress.
+
+Claims were checked against app/mock-interview/page.tsx, components/mock-interview/InterviewProgress.tsx, InterviewAnswerCards.tsx and the report validator. Existing progress compares matching resume/settings and supports five score areas, improvement guidance and saved attempts. The landing preview labels scores as illustrative and acknowledges scores may decrease. Confidence is presented as a preparation goal, not a measured confidence score or guaranteed outcome. AI review is not represented as a human recruiter review.
+
+This change does not alter interview service behavior or resume templates. Browser visual QA remains unavailable.
