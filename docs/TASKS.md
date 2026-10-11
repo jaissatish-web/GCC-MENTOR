@@ -5,7 +5,7 @@
 User-authorized ten-part implementation. Baseline main `7236d4455ea924df7c207ca0f05770a5fd0804ce`. Branch `redesign/landing-transformation-20261011`.
 
 - [x] Part 1: Repository verification, capability audit, desktop baseline and baseline code checks. Details and validation limits: `landing-transformation/01-audit.md`.
-- [ ] Part 2: Landing tokens, navigation, hero and founder credibility.
+- [x] Part 2: Landing tokens, navigation, hero and founder credibility. Preview and desktop evidence: `landing-transformation/02-design-system-and-completion.md`. Mobile visual validation remains open.
 - [ ] Part 3: Real resume orbit and template showcase.
 - [ ] Part 4: Application problems and readiness preview.
 - [ ] Part 5: Application branching and truthful CV comparison.
