@@ -126,7 +126,7 @@ export function CareerJourneyHero() {
           <h1 id="hero-title">Your Gulf dream.<br /><em>A plan for every opportunity.</em></h1>
           <p><strong>One Career Profile. Multiple target roles and job descriptions.</strong> A specific optimized CV and cover letter for each job — plus repeat Q&A and mock interviews to practise, improve and prepare.</p>
           <span className={h.ambition}>Aim for better-paying Gulf roles with preparation built around your real experience.</span>
-          <div className={h.actions}><Link href="/gulf-readiness-score" className={s.primary}>Check My Free GCC Readiness <ArrowRight size={18} aria-hidden="true" /></Link><span><Check size={15} aria-hidden="true" /> See your score before signup</span></div>
+          <div className={h.actions}><Link id="hero-readiness-cta" href="/gulf-readiness-score" className={s.primary}>Check My Free GCC Readiness <ArrowRight size={18} aria-hidden="true" /></Link><span><Check size={15} aria-hidden="true" /> See your score before signup</span></div>
         </div>
         <div className={h.photo}>
           <Image src="/landing/gulf-candidates-v2.webp" alt="Illustrative Gulf professionals in safety helmets reviewing a project" fill priority sizes="(min-width: 900px) 280px, 160px" />
@@ -160,14 +160,14 @@ export function CareerJourneyHero() {
           </div>
         </div>
         <div className={h.practice} style={{ '--job-color': selected.color } as CSSProperties}>
-          <div className={h.practiceHeading}><span className={h.practiceIcon}><RotateCcw size={22} aria-hidden="true" /></span><div><span className={h.practiceEyebrow}>PREPARE FOR THIS PARTICULAR JOB</span><strong>{target[0]} · {selected.country}</strong><small>Practise → review feedback → try again → better prepared</small></div><span className={h.demo}>Fictional product demo</span></div>
+          <div className={h.practiceHeading}><span className={h.practiceIcon}><RotateCcw size={22} aria-hidden="true" /></span><div><span className={h.practiceEyebrow}>PREPARE FOR THIS PARTICULAR JOB</span><strong>{target[0]} · {selected.country}</strong><small>Practise → review feedback → try again → better prepared</small></div><span className={h.demo}>See GCC Mentor in Action</span></div>
           <div className={h.practiceGrid}>
             <div className={h.study}><span className={h.practiceLabel}><BookOpen size={16} aria-hidden="true" /> Multiple Q&A sets</span><div className={h.sessions} aria-label="Example Q&A sets">{[0, 1, 2].map(i => <button type="button" key={i} aria-pressed={questionSet === i} onClick={() => { setQuestionSet(i) }}>Set {i + 1}<Check size={12} aria-hidden="true" /></button>)}</div><p>{questionSet === 0 ? target[2] : questionSet === 1 ? `Which real example demonstrates your ${target[1].toLowerCase()} experience?` : `How does your experience match the ${target[0]} job description?`}</p></div>
             <div className={h.rehearse}><span className={h.practiceLabel}><Mic size={16} aria-hidden="true" /> Multiple mock interviews</span><div className={h.sessions} aria-label="Example mock interview sessions">{practice.map((p, i) => <button type="button" key={p.label} aria-pressed={session === i} onClick={() => { setSession(i) }}>Practice {i + 1}</button>)}</div><p>{practice[session].label} · {practice[session].action}</p></div>
             <div className={h.feedback}><span className={h.practiceLabel}><Sparkles size={16} aria-hidden="true" /> Your next improvement</span><p>{practice[session].feedback}</p><a href="#interview">Explore interview coaching <ArrowRight size={14} aria-hidden="true" /></a></div>
           </div>
         </div>
-        <div className={h.workspaceFoot}><span><ShieldCheck size={15} aria-hidden="true" /> One truthful profile. Separate preparation for every application.</span><a href="#services">Explore all services <ArrowRight size={15} aria-hidden="true" /></a></div>
+        <div className={h.workspaceFoot}><span><ShieldCheck size={15} aria-hidden="true" /> Sample data shown for demonstration purposes.</span><a href="#services">Explore all services <ArrowRight size={15} aria-hidden="true" /></a></div>
       </div>
       <div className={h.trust}><span><b>6</b> Gulf destinations</span><span><b>50</b> CV templates</span><span>Mechanical · Electrical · Instrumentation · Civil · IT · Finance · Healthcare & more</span><p><ShieldCheck size={16} aria-hidden="true" /> Founded by Satish Kumar Jaiswal · approximately 15 years of industry experience</p></div>
     </div>
