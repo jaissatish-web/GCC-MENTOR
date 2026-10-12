@@ -7,7 +7,7 @@ import { useAutoStep, useInView, useReducedMotion } from './hooks'
 import s from './interview.module.css'
 const stages = ['Practice', 'Question feedback', 'Progress']
 const metrics = [['Technical knowledge',60,78],['Role fit',64,80],['Gulf readiness',55,72],['Answer structure',48,74]] as const
-export function InterviewDemo() {
+export function InterviewDemo({ compact = false }: { compact?: boolean }) {
   const reduced = useReducedMotion()
   const { ref, visible } = useInView<HTMLDivElement>(0.15)
   const [paused,setPaused] = useState(false)
@@ -17,7 +17,7 @@ export function InterviewDemo() {
   const [mode,setMode] = useState('Mixed')
   const { index,choose,manual,resume } = useAutoStep(3,10000,visible && !paused && !focused && !reduced)
   const moving=visible && !paused && !manual && !focused && !reduced
-  return <div ref={ref} className={s.demo} data-motion={moving?'playing':'paused'} onMouseEnter={()=>setFocused(true)} onMouseLeave={()=>setFocused(false)} onFocusCapture={()=>setFocused(true)} onBlurCapture={e=>{if(!e.currentTarget.contains(e.relatedTarget))setFocused(false)}}>
+  return <div ref={ref} className={s.demo + (compact ? " " + s.compact : "")} data-motion={moving?'playing':'paused'} onMouseEnter={()=>setFocused(true)} onMouseLeave={()=>setFocused(false)} onFocusCapture={()=>setFocused(true)} onBlurCapture={e=>{if(!e.currentTarget.contains(e.relatedTarget))setFocused(false)}}>
     <div className={s.head}><span><Mic size={17} aria-hidden="true" />Voice mock interview</span><b>Illustrative demo</b></div>
     <div className={s.tabs} aria-label="Interview demonstration stages">{stages.map((t,i)=><button type="button" key={t} aria-pressed={index===i} onClick={()=>choose(i)}>{t}</button>)}</div>
     <div className={s.stage}>
