@@ -21,3 +21,8 @@ Protected scope: backend/auth/payment/credits/data/template renderers and conten
 - [x] Adapt founder-supplied reference into a responsive, interactive hero: CV → Career Profile → six GCC destinations → four application tools.
 - [x] Use fictional Muslim sample candidate names; preserve profession-specific source facts and all existing service routes, resume orbit and application logic.
 - [x] Keep free readiness as the primary CTA and visibly identify the showcase as a demo.
+
+## 2026-10-12 — Hero value correction
+- [x] Show one Career Profile branching into three distinct job descriptions, each with its own optimized CV, cover letter, repeated Q&A sets and mock sessions.
+- [x] Add an auto-cycling application demo with pause, manual selection and reduced-motion support; make repeated same-job practice and feedback visible.
+- [x] Emphasize preparation and a plan for better-paying Gulf opportunities, preserving existing product logic and the resume orbit.
