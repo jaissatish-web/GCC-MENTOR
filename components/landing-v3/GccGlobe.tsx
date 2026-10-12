@@ -103,7 +103,7 @@ function decodeDots(): Float32Array {
   return out
 }
 
-export function GccGlobe() {
+export function GccGlobe({ compact = false }: { compact?: boolean }) {
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const focusRef = useRef<string | null>(null)
@@ -420,16 +420,16 @@ export function GccGlobe() {
   const arrivalTo = arrival ? GCC.find((g) => g.code === arrival.to) : null
 
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-line bg-white p-4 shadow-lp-card sm:p-6 lg:p-10">
+    <div className={cn("relative overflow-hidden rounded-[20px] border border-line bg-white p-4 sm:p-6", compact ? "lg:p-6" : "lg:p-10")}>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(31,90,138,0.10),transparent_70%)]" aria-hidden="true" />
       <div className="relative grid grid-cols-[minmax(0,1fr)] items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">
           <span className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Six Gulf markets</span>
           <h2 id="markets-title" className="mt-2 type-marketing-title text-ink">
-            Six Gulf Destinations. <em className="not-italic text-teal">One Better-Prepared Career Journey.</em>
+            Six Gulf destinations.<br /><em className="not-italic text-teal">Your next chapter.</em>
           </h2>
           <p className="mt-2.5 max-w-[440px] type-lead text-ink-soft">
-            Your destination changes. Your real experience remains the foundation. Select a country to explore preparation considerations.
+            Select a destination. Explore what to prepare.
           </p>
 
           <ul className="mt-4 grid grid-cols-3 gap-1.5 sm:gap-2 lg:mt-5" aria-label="GCC countries">
@@ -460,7 +460,7 @@ export function GccGlobe() {
             {focused ? (
               <>
                 <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">{focused.country} · preparation guidance</div>
-                <div className="mt-1 text-[15px] font-semibold text-ink">{focused.role}</div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft">Check the role’s required skills and project context. Prepare a clear CV, qualification records and accurate availability details. Confirm documentation requests with the employer; use the CV, cover letter and interview tools to prepare.</p>
+                <div className="mt-1 text-[15px] font-semibold text-ink">{focused.role}</div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft">Match the role’s skills. Prepare your CV, qualification records and availability details. Confirm documentation requests with the employer.</p>
                 <div className="type-caption text-ink-muted">CV, cover letter and interview prep made for {focused.country} jobs.</div>
               </>
             ) : arrival && arrivalTo ? (
@@ -480,7 +480,7 @@ export function GccGlobe() {
           </div>
         </div>
 
-        <div ref={wrapRef} className="order-1 mx-auto min-w-0 w-full max-w-[600px] lg:order-2">
+        <div ref={wrapRef} className={cn("order-1 mx-auto min-w-0 w-full lg:order-2",compact ? "max-w-[260px] lg:max-w-[420px]" : "max-w-[600px]")}>
           <canvas
             ref={canvasRef}
             className="block aspect-square max-w-full w-full cursor-grab touch-pan-y active:cursor-grabbing"

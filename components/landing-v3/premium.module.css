@@ -160,3 +160,5 @@
 .orbitCompanion { padding-block:32px!important; background:linear-gradient(180deg,#f8faf9,#eef4f0); border-bottom:1px solid var(--lp-line); }
 .orbitCompanion :global(#templates-title) { font-size:var(--lp-heading); }
 @media(min-width:960px) { .orbitCompanion { padding-top:40px!important; } }
+
+@media(max-width:400px){.navInner{gap:8px}.navActions{gap:4px}.system .brand{gap:8px;font-size:15px}.brand small{font-size:7px}.system .signIn{padding-inline:5px}}

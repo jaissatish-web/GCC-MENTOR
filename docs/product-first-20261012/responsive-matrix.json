@@ -1,0 +1,42 @@
+[
+  {
+    "width": 360,
+    "scroll": 360,
+    "sections": 7
+  },
+  {
+    "width": 375,
+    "scroll": 375,
+    "sections": 7
+  },
+  {
+    "width": 390,
+    "scroll": 390,
+    "sections": 7
+  },
+  {
+    "width": 430,
+    "scroll": 430,
+    "sections": 7
+  },
+  {
+    "width": 768,
+    "scroll": 768,
+    "sections": 7
+  },
+  {
+    "width": 1024,
+    "scroll": 1024,
+    "sections": 7
+  },
+  {
+    "width": 1440,
+    "scroll": 1440,
+    "sections": 7
+  },
+  {
+    "width": 1920,
+    "scroll": 1920,
+    "sections": 7
+  }
+]

@@ -365,11 +365,11 @@ export function DocumentOrbit({ className }: { className?: string }) {
       <div className="relative z-[120] mt-4 flex justify-center px-3 pb-5">
         <div
           className={cn(
-            'flex flex-wrap items-center justify-center rounded-[18px] border border-line bg-white/95 shadow-[0_16px_40px_rgba(20,24,28,.10)]',
+            'flex min-w-0 max-w-full flex-wrap items-center justify-center rounded-[18px] border border-line bg-white/95 shadow-[0_16px_40px_rgba(20,24,28,.10)]',
             compact ? 'gap-2.5 p-3' : 'gap-[18px] py-3 pl-[22px] pr-3.5',
           )}
         >
-          <div className={cn(compact ? 'w-full text-center' : 'min-w-[270px] text-left')} aria-live={playing ? 'off' : 'polite'}>
+          <div className={cn(compact ? 'w-full min-w-0 text-center' : 'min-w-[270px] text-left')} aria-live={playing ? 'off' : 'polite'}>
             <div className={cn('flex items-baseline gap-2.5', compact && 'justify-center')}>
               <span className="type-card font-bold tracking-[-0.02em]">{itemName(selected)}</span>
               <span className="font-mono text-[12px] text-ink-muted">
@@ -379,7 +379,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             <div className="mt-0.5 truncate text-[12.5px] text-ink-soft">
               Example · {who.name} · {who.role}
             </div>
-            <div className={cn('mt-1.5 flex items-center gap-1.5', compact && 'justify-center')}>
+            <div className={cn('mt-1.5 flex flex-wrap items-center gap-1.5', compact && 'justify-center')}>
               {itemTags(selected).map((tag) => (
                 <span key={tag} className="rounded-full bg-canvas px-[9px] py-[3px] text-[11px] font-bold uppercase tracking-[0.06em] text-ink-muted">
                   {tag}
