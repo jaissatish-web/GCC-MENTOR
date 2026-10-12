@@ -48,7 +48,7 @@ export function ProductShowcase() {
   const refs = useRef<Array<HTMLButtonElement|null>>([])
   const q=(set===1?questions:moreQuestions)[question]
   function choose(next:number) { setTab(next); refs.current[next]?.focus() }
-  return <section id="services" className={s.section} aria-labelledby="services-title"><div className={s.wrap}>
+  return <section id="services" className={s.section} aria-labelledby="services-title"><div id="journey" className={s.wrap}>
     <div className={s.sectionHead}><div><span className={s.eyebrow}>EXPLORE YOUR OUTPUTS</span><h2 id="services-title">One profile. A complete application.</h2></div><p>Select a tool. Explore what you can prepare.</p></div>
     <div className={s.workbench}><div className={s.productTabs} role="tablist" aria-label="Product demonstrations">{tabs.map(({label,icon:Icon},i)=><button ref={el=>{refs.current[i]=el}} role="tab" type="button" key={label} id={'product-tab-'+i} aria-selected={tab===i} aria-controls="product-panel" tabIndex={tab===i?0:-1} onClick={()=>setTab(i)} onKeyDown={e=>{let n:number|undefined;if(e.key==='ArrowRight')n=(i+1)%tabs.length;if(e.key==='ArrowLeft')n=(i+tabs.length-1)%tabs.length;if(e.key==='Home')n=0;if(e.key==='End')n=tabs.length-1;if(n!==undefined){e.preventDefault();choose(n)}}}><Icon size={18} aria-hidden="true" />{label}</button>)}</div>
       <div className={s.contextBar}><span><span className={s.avatar}>AM</span><b>Aarav Mehta</b> <small>Fictional profile</small></span><label>Target application<select value={role} onChange={e=>setRole(Number(e.target.value))}>{roles.map((r,i)=><option value={i} key={r}>{r} · {countries[i]}</option>)}</select></label></div>
