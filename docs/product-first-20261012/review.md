@@ -51,3 +51,9 @@ Genuine founder portrait remains missing and explicitly labeled as a placeholder
 - public/landing/qa/index.html
 
 Screenshots in this folder are cropped from the real browser canvas only, without repainting or reconstruction.
+
+## Final hero and typography refinement
+
+Updated preview: https://gcc-mentor-bjafeee8b-satishs-projects-c02c354b.vercel.app/
+
+Code commit `014808df0e9ffa24ee0d01edcf6d5f4d5ae43979`, Vercel `dpl_CgZZ49LWYniUywQYm8RrUMA9aLri` READY. Clear Gulf career headline, larger professional photograph with improved crop, more readable document output text and touch controls. Seven-section composition and all signature interactions retained. Typecheck and lint passed after this refinement; Vercel production build passed. Root overflow rechecked at 360, 390, 768 and 1440 px. Actual final 390/1440 screenshots: `gcc-polished-390.jpg`, `gcc-polished-1440.jpg`. This remains preview-only; production is unchanged.
