@@ -35,3 +35,8 @@ Protected scope: backend/auth/payment/credits/data/template renderers and conten
 - [x] Use yellow badges, green primary actions, blue application tools and violet interview coaching with neutral section backgrounds.
 - [x] Add consistent section spacing and clearer boundaries on mobile and desktop.
 - [x] Generate two photo-style illustrations, optimize to WebP and use in a visual-first service showcase and interview section; preserve detailed interactive examples behind an explicit control.
+
+## 2026-10-12 — Continuous demos and clearer interview coaching
+- [x] Remove playback buttons from active landing hero, orbit, globe and mock demo; resume orbit after temporary drag/full-size preview interactions.
+- [x] Add all six interviewer choices and matching portraits, clear listening/answering simulation states and structured per-question review with strengths, corrections, six coaching areas, corrected answer and next steps.
+- [x] Expand hero examples to 16 professions, include “Other professions — your role too”, vary engineering targets and strengthen arrows linking profile, roles, packs and practice.

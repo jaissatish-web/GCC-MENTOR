@@ -109,14 +109,13 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
   const focusRef = useRef<string | null>(null)
   const drawRef = useRef<((now: number) => void) | null>(null)
   const reducedMotion = useReducedMotion()
-  const [paused, setPaused] = useState(false)
   const [focus, setFocus] = useState<string | null>(null)
   const [arrival, setArrival] = useState<{ from: string; to: string; role: string; move?: boolean } | null>(null)
   const arcs = useMemo(() => FLIGHTS.map((f) => arcPoints(cityOf(f.from), cityOf(f.to))), [])
 
   useEffect(() => {
     focusRef.current = focus
-  }, [focus, paused, reducedMotion])
+  }, [focus, reducedMotion])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -127,7 +126,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
 
     const dots = decodeDots()
     const nDots = dots.length / 3
-    const reduced = reducedMotion || paused || (navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4)
+    const reduced = reducedMotion
     let size = 0
     let dpr = 1
     let frame = 0
@@ -409,12 +408,12 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
       canvas.removeEventListener('pointerup', up)
       canvas.removeEventListener('pointercancel', up)
     }
-  }, [arcs, paused, reducedMotion])
+  }, [arcs, reducedMotion])
 
   // Reduced motion has no loop: redraw once when the focused country changes.
   useEffect(() => {
-    if (reducedMotion || paused || navigator.hardwareConcurrency <= 4) drawRef.current?.(performance.now())
-  }, [focus, paused, reducedMotion])
+    if (reducedMotion) drawRef.current?.(performance.now())
+  }, [focus, reducedMotion])
 
   const focused = GCC.find((g) => g.code === focus)
   const arrivalTo = arrival ? GCC.find((g) => g.code === arrival.to) : null
@@ -493,7 +492,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
           />
         </div>
       </div>
-      <button type="button" onClick={() => setPaused(v => !v)} disabled={reducedMotion} aria-pressed={paused || reducedMotion} className="relative mt-3 min-h-11 rounded-lg border border-line px-4 text-[13px] font-semibold text-teal focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal">{reducedMotion ? 'Motion off' : paused ? 'Play globe' : 'Pause globe'}</button><p className="relative mt-3 text-center type-caption text-ink-muted lg:text-right">Routes and roles are illustrative examples. Drag the globe to spin it.</p>
+<p className="relative mt-3 text-center type-caption text-ink-muted lg:text-right">Routes and roles are illustrative examples. Drag the globe to spin it.</p>
     </div>
   )
 }

@@ -92,7 +92,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
   const compactRef = useRef(false)
   const reduced = useRef(false)
   const focus = useRef(ITEMS.map((_, i) => i === 0 ? 1 : 0))
-  const hovering = useRef(false)
   const gesture = useRef<{ x: number; y: number } | null>(null)
   const suppressClick = useRef(false)
   const kick = useRef<() => void>(() => {})
@@ -102,7 +101,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
   const [compact, setCompact] = useState(false)
   const [rx, setRx] = useState(460)
   const [zoomed, setZoomed] = useState(false)
-  const [motionReduced, setMotionReduced] = useState(false)
 
 
   const L = compact ? LAYOUTS.compact : LAYOUTS.wide
@@ -146,7 +144,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
     const box = boxRef.current
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
     reduced.current = media.matches
-    setMotionReduced(media.matches)
     if (media.matches) {
       playingRef.current = false
       setPlaying(false)
@@ -170,7 +167,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
         } else {
           angle.current += diff * (1 - Math.pow(0.84, dt / 33))
         }
-      } else if (playingRef.current && !hovering.current) {
+      } else if (playingRef.current) {
         angle.current -= (dt / TURN_MS) * Math.PI * 2
         const f = frontIndex(angle.current)
         if (f !== selRef.current) {
@@ -190,7 +187,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
 
     const sync = () => {
       const settling = focus.current.some((f, i) => f !== (i === selRef.current ? 1 : 0))
-      const moving = target.current !== null || settling || (playingRef.current && !hovering.current)
+      const moving = target.current !== null || settling || (playingRef.current)
       const run = visible && moving && document.visibilityState === 'visible'
       if (run && !frame) {
         frame = requestAnimationFrame(loop)
@@ -209,7 +206,8 @@ export function DocumentOrbit({ className }: { className?: string }) {
     if (box) io.observe(box)
     const onMedia = () => {
       reduced.current = media.matches
-      setMotionReduced(media.matches)
+        playingRef.current = !media.matches
+      setPlaying(!media.matches)
       if (media.matches) {
         playingRef.current = false
         setPlaying(false)
@@ -236,8 +234,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
     const idx = ((i % N) + N) % N
     let delta = FRONT - (angle.current + idx * STEP)
     delta = Math.atan2(Math.sin(delta), Math.cos(delta))
-    playingRef.current = false
-    setPlaying(false)
     selRef.current = idx
     setSel(idx)
     if (reduced.current) {
@@ -248,15 +244,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
     } else {
       target.current = angle.current + delta
     }
-    kick.current()
-  }
-
-  const toggle = () => {
-    if (reduced.current) return
-    const next = !playingRef.current
-    playingRef.current = next
-    target.current = null
-    setPlaying(next)
     kick.current()
   }
 
@@ -286,9 +273,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
       <div
         className="relative"
         style={{ height: L.box, touchAction: 'pan-y' }}
-        onMouseEnter={() => { hovering.current = true; kick.current() }}
-        onMouseLeave={() => { hovering.current = false; kick.current() }}
-        onFocusCapture={pause}
         onPointerDown={(event) => {
           if (!event.isPrimary) return
           gesture.current = { x: event.clientX, y: event.clientY }
@@ -305,8 +289,8 @@ export function DocumentOrbit({ className }: { className?: string }) {
             bringToFront(selRef.current + (dx < 0 ? 1 : -1))
           }
         }}
-        onPointerUp={() => { gesture.current = null }}
-        onPointerCancel={() => { gesture.current = null }}
+        onPointerUp={() => { gesture.current = null; playingRef.current = !reduced.current; setPlaying(!reduced.current); kick.current() }}
+        onPointerCancel={() => { gesture.current = null; playingRef.current = !reduced.current; setPlaying(!reduced.current); kick.current() }}
         onClickCapture={(event) => {
           if (suppressClick.current) { event.preventDefault(); event.stopPropagation(); suppressClick.current = false }
         }}
@@ -393,18 +377,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
               <path d="M15 6l-6 6 6 6" />
             </svg>
           </button>
-          <button type="button" onClick={toggle} disabled={motionReduced} className="flex min-h-11 items-center gap-2 rounded-full bg-teal px-4 text-[13px] font-bold text-white hover:bg-[#0B3A33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">
-            {playing ? (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-                <path d="M15.75 5.25v13.5M8.25 5.25v13.5" />
-              </svg>
-            ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M7 5v14l12-7z" />
-              </svg>
-            )}
-            {motionReduced ? 'Motion off' : playing ? 'Pause' : 'Play'}
-          </button>
+
           <button type="button" onClick={() => bringToFront(sel + 1)} aria-label="Next template" className="flex size-11 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M9 6l6 6-6 6" />
@@ -418,7 +391,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
           )}
         </div>
       </div>
-      {zoomed ? <FullSize item={selected} onClose={() => setZoomed(false)} /> : null}
+      {zoomed ? <FullSize item={selected} onClose={() => { setZoomed(false); playingRef.current = !reduced.current; setPlaying(!reduced.current); kick.current() }} /> : null}
     </div>
   )
 }
