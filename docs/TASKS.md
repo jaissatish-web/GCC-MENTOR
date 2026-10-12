@@ -26,3 +26,7 @@ Protected scope: backend/auth/payment/credits/data/template renderers and conten
 - [x] Show one Career Profile branching into three distinct job descriptions, each with its own optimized CV, cover letter, repeated Q&A sets and mock sessions.
 - [x] Add an auto-cycling application demo with pause, manual selection and reduced-motion support; make repeated same-job practice and feedback visible.
 - [x] Emphasize preparation and a plan for better-paying Gulf opportunities, preserving existing product logic and the resume orbit.
+
+## 2026-10-12 — Different target roles from the same profile
+- [x] Show four distinct role targets per profession (mechanical: Lead, Maintenance, Commissioning, QA/QC), each with a separate JD and application pack.
+- [x] Align selected interview preparation and sample questions to that target role while retaining the single source Career Profile.
