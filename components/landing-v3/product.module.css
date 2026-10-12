@@ -11,3 +11,17 @@
 
 @media(max-width:767px){.heroCopy h1{font-size:32px;letter-spacing:-.045em}.heroCopy h1 br{display:none}.heroCopy h1 em{display:block}}
 @media(max-width:767px){.context>.eyebrow,.context>p{display:none}.context h3{font-size:17px;margin:0 0 8px}.integrity{margin-top:10px;padding-top:8px}.interviewPitch>svg,.interviewPitch>p{display:none}.interviewStats{border:0;margin:0;padding:0 0 5px}.heroGrid{gap:20px}}
+
+/* Final visual polish: stronger Gulf identity and readable product outputs. */
+.hero{padding-top:44px;background:radial-gradient(ellipse at 90% 20%,#eee5c9,transparent 50%),linear-gradient(120deg,#f8faf9,#edf4ef)}
+.heroCopy h1{font-size:clamp(38px,4vw,52px);line-height:1.12;letter-spacing:-.045em;margin-top:17px}
+.heroCopy>.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.085em}
+.heroCopy>.eyebrow:before{content:'';height:6px;width:6px;border-radius:50%;background:var(--gold)}
+.heroCopy>p:not(.founderLine){font-size:17px;line-height:1.7;margin-top:18px;max-width:460px}
+.heroCopy .founderLine{font-size:12px;max-width:440px}
+.heroPhoto{height:265px;border-radius:20px 20px 5px 5px}.heroPhoto img{object-position:50% 31%}.heroPhoto>span{font-size:10px}
+.miniApp{margin:-35px 18px 0;border-radius:13px;box-shadow:0 20px 45px #0f4c4320}.miniBody{padding:18px 20px}.appBar{padding:12px 15px}
+.profileSource strong{font-size:14px}.profileSource small{font-size:11px}.roleSwitch button{font-size:11px}.miniRole strong{font-size:18px}.miniRole small{font-size:11px}.miniOutputs strong{font-size:12px}.miniOutputs span{font-size:11px}
+.sectionHead p{font-size:14px}.productTabs button{font-size:13px}.contextBar{font-size:12px}.contextBar small{font-size:11px}.contextBar select{font-size:13px}
+.context p{font-size:14px}.paper{padding:26px 30px;border-top:3px solid var(--green);border-radius:5px;box-shadow:0 12px 28px #103f2f10}.paperTop{border-bottom:1px solid var(--line);font-size:9px;padding-bottom:12px}.paper h3{font-size:22px;letter-spacing:.015em}.paper p{font-size:13px;line-height:1.8}.paper>b{font-size:13px}.paper>small{font-size:11px}.paper h4{font-size:10px}.paperFoot{font-size:11px}.chips>span{font-size:11px}.segment button{font-size:12px}.reportRow{font-size:13px}.networkBody p{font-size:13px}.answerReveal p{font-size:14px}
+@media(max-width:767px){.hero{padding-top:25px}.heroCopy h1{font-size:37px;margin:12px 0 14px}.heroCopy>p:not(.founderLine){font-size:15px;line-height:1.65;margin:14px 0 18px}.heroCopy>.eyebrow{font-size:9px;letter-spacing:.055em}.heroCopy .founderLine{font-size:11px;max-width:360px}.heroLinks{font-size:12px}.heroPhoto{height:165px}.heroPhoto img{object-position:50% 28%}.heroPhoto>span{font-size:8px}.miniApp{margin:-22px 8px 0}.miniBody{padding:13px 14px}.appBar{padding:10px 12px}.profileSource strong{font-size:12px}.profileSource small{font-size:10px}.roleSwitch button{font-size:11px;min-height:44px}.miniRole strong{font-size:16px}.miniRole small{font-size:10px}.miniOutputs a{min-height:48px}.miniOutputs strong{font-size:11px}.miniOutputs span{font-size:10px}.productTabs button{font-size:11px}.contextBar select{font-size:12px}.paper{padding:20px 17px}.paper h3{font-size:20px}.paper p{font-size:12px}.paper>b{font-size:12px}.paper>small{font-size:10px}.paper h4{font-size:9px}.paperTop{font-size:8px}.paperFoot{font-size:10px}.segment button{font-size:11px}.chips>span{font-size:10px}.answerReveal p,.networkBody p{font-size:13px}.sectionHead p{font-size:13px}.reportRow{font-size:13px}}
