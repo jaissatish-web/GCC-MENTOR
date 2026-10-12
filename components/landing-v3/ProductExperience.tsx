@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useState } from 'react'
 import { ArrowRight, Check, FileText, Mail, BookOpen, Mic, UserRound, ShieldCheck, CheckCheck, ChevronRight } from 'lucide-react'
@@ -19,14 +18,7 @@ const tabs = [
   { label: 'Mock Interview', icon: Mic },
   { label: 'LinkedIn / NaukriGulf', icon: UserRound },
 ]
-export function ProductHero() {
-  const [role, setRole] = useState(0)
-  const profile = PROFESSION_EXAMPLES[role]
-  return <section className={s.hero} aria-labelledby="hero-title"><div className={s.wrap + ' ' + s.heroGrid}>
-    <div className={s.heroCopy}><span className={s.eyebrow}>YOUR COMPLETE GULF CAREER PLATFORM</span><h1 id="hero-title">Your Gulf career.<br /><em>Better prepared.</em></h1><p>Tailor your CV and cover letter. Practise interviews with personalized feedback. One Career Profile powers every application.</p><ul className={s.audience} aria-label="Who GCC Mentor supports">{['Mechanical','Electrical','Instrumentation','Civil','IT & Finance','Healthcare & more'].map(d=><li key={d}>{d}</li>)}</ul><Link href="/gulf-readiness-score" className={s.primary}>Check My Free GCC Readiness <ArrowRight size={17} aria-hidden="true" /></Link><div className={s.heroLinks}><span><Check size={14} /> No signup needed</span><a href="#services">Explore the product <ArrowRight size={14} /></a></div><p className={s.founderLine}><ShieldCheck size={19} aria-hidden="true" />Built by a Gulf engineering professional with approximately 15 years of industry experience.</p></div>
-    <div className={s.heroVisual}><div className={s.heroPhoto}><Image src="/landing/gulf-candidates-v2.webp" alt="Illustrative Gulf engineering professionals reviewing a project" fill priority sizes="(min-width: 900px) 560px, 100vw" /><span>YOUR EXPERIENCE. YOUR NEXT CHAPTER.</span></div><div className={s.miniApp}><div className={s.appBar}><span className={s.appDot} /> GCC MENTOR <span>Application workspace · demo</span></div><div className={s.miniBody}><div className={s.profileSource}><span className={s.avatar}>{profile.initials}</span><div><strong>{profile.name}’s Career Profile</strong><small>Fictional professional · sample application</small></div><CheckCheck size={20} /></div><div className={s.roleSwitch} aria-label="Example applications">{[0,1,3].map(i=><button key={i} type="button" aria-pressed={role===i} onClick={()=>setRole(i)}>{PROFESSION_EXAMPLES[i].department}<ChevronRight size={13} /></button>)}</div><div className={s.miniRole} key={role}><span className={s.eyebrow}>APPLICATION {String(role+1).padStart(2,'0')}</span><strong>{roles[role]}</strong><small>{roleFocus[role]}</small></div><div className={s.miniOutputs}><a href="#services"><FileText size={18} /><strong>Tailored CV</strong><span>+ cover letter</span></a><a href="#interview"><Mic size={18} /><strong>Interview prep</strong><span>+ saved feedback</span></a></div></div></div></div>
-  </div><div className={s.wrap + ' ' + s.proofRail}><span><b>50</b> real CV templates</span><span><b>6</b> GCC destinations</span><span><b>1</b> profile, multiple applications</span></div></section>
-}
+export { CareerJourneyHero as ProductHero } from './CareerJourneyHero'
 
 export function ProductShowcase() {
   const [tab,setTab] = useState(0)

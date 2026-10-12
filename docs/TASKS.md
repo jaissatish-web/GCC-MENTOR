@@ -16,3 +16,8 @@ User-authorized ten-part implementation. Baseline main `7236d4455ea924df7c207ca0
 - [ ] Part 10: Preview review, production release and final evidence.
 
 Protected scope: backend/auth/payment/credits/data/template renderers and content remain unchanged. Eight-width actual fixed-frame rendering and interaction checks are recorded in `landing-transformation/09-implementation-and-validation.md`; physical-device and field-performance limits remain explicit.
+
+## 2026-10-12 — Hero career journey visual
+- [x] Adapt founder-supplied reference into a responsive, interactive hero: CV → Career Profile → six GCC destinations → four application tools.
+- [x] Use fictional Muslim sample candidate names; preserve profession-specific source facts and all existing service routes, resume orbit and application logic.
+- [x] Keep free readiness as the primary CTA and visibly identify the showcase as a demo.
