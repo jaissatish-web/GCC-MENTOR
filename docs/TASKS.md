@@ -30,3 +30,8 @@ Protected scope: backend/auth/payment/credits/data/template renderers and conten
 ## 2026-10-12 — Different target roles from the same profile
 - [x] Show four distinct role targets per profession (mechanical: Lead, Maintenance, Commissioning, QA/QC), each with a separate JD and application pack.
 - [x] Align selected interview preparation and sample questions to that target role while retaining the single source Career Profile.
+
+## 2026-10-12 — Landing colour, spacing and photography polish
+- [x] Use yellow badges, green primary actions, blue application tools and violet interview coaching with neutral section backgrounds.
+- [x] Add consistent section spacing and clearer boundaries on mobile and desktop.
+- [x] Generate two photo-style illustrations, optimize to WebP and use in a visual-first service showcase and interview section; preserve detailed interactive examples behind an explicit control.
