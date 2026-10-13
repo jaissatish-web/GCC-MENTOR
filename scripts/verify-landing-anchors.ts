@@ -24,8 +24,7 @@ import path from 'path'
 
 const NAV = path.join(process.cwd(), 'components/landing-premium/PremiumLanding.tsx')
 const PAGE = path.join(process.cwd(), 'app/page.tsx')
-// Landing v3 (2026-09-29): the nav is LandingNav in Sections.tsx and the
-// section ids live across the landing-v3 components.
+// The active navigation and section IDs live in the premium landing composition.
 const SECTIONS = path.join(process.cwd(), 'components/landing-premium')
 
 const nav = fs.readFileSync(NAV, 'utf8')

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { LandingPage } from '@/components/landing-v3/LandingPage'
+import { PremiumLanding } from '@/components/landing-premium/PremiumLanding'
 
 /**
  * What a Gulf job seeker reads in a search result. The title leads with what
@@ -18,11 +18,7 @@ export const metadata: Metadata = {
   twitter: { title: TITLE, description: DESCRIPTION },
 }
 
-/**
- * The home page — landing v3 (components/landing-v3/LandingPage.tsx).
- * Metadata comes from app/layout.tsx. Landing v2 is kept unrouted in
- * components/landing-v2/ for rollback.
- */
+/** The single public landing page; shared animations remain in landing-v3. */
 export default function Home() {
-  return <LandingPage />
+  return <PremiumLanding />
 }
