@@ -74,3 +74,44 @@
  .demo{margin-left:auto}
  .practiceGrid{gap:10px}
 }
+
+/* Targeted follow-up: concise application copy and optional mobile controls. */
+.hero .quickStart{font-size:13px;line-height:1.6}
+.quickStart strong{display:inline;font-size:inherit}
+.practiceToggle{display:none}
+.answerComparison{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;font-size:11px;line-height:1.5}
+.answerComparison>div{min-width:0}
+.answerComparison>div+div{border-left:1px solid var(--line);padding-left:10px}
+.answerComparison strong,.answerComparison span{display:block}
+.answerComparison strong{color:var(--green);margin-bottom:3px}
+.answerComparison span{color:#627066}
+@media(max-width:767px){
+ .intro{margin-bottom:14px}
+ .intro p{margin-bottom:8px}
+ .ambition{margin-bottom:12px}
+ .toolbar{gap:6px;padding:9px 12px}
+ .hero .quickStart{padding-top:10px;font-size:13px}
+ .hero .scopeNote{padding-top:6px;font-size:11px}
+ .flow{gap:10px;padding-top:12px}
+ .profile{padding:10px 12px}
+ .profile ul{margin:8px 0}
+ .profile li{font-size:11px}
+ .jobRows{min-height:270px}
+ .jobRow{min-height:270px}
+ .jobDetails>strong{min-height:39px}
+ .jd{min-height:28px}
+ .practice{margin-top:12px;padding:12px}
+ .practice:before{display:none}
+ .practiceHeading{margin-bottom:10px;display:grid;grid-template-columns:30px minmax(0,1fr);align-items:start}
+ .practiceHeading>div{min-width:0}
+ .practiceHeading strong{min-height:42px}
+ .practiceHeading .demo{grid-column:2;margin:0;justify-self:start}
+ .practiceToggle{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;width:100%;margin-bottom:10px;padding:9px 10px;border:1px solid #dcd8e4;border-radius:7px;background:#fff;color:#725492;font-size:12px;text-align:left}
+ .practiceToggle:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+ .practiceGrid .feedback{border:0;padding:0}
+ .practiceGrid[data-expanded=false] .study,.practiceGrid[data-expanded=false] .rehearse{display:none}
+ .practiceGrid[data-expanded=true] .study,.practiceGrid[data-expanded=true] .rehearse{border-top:1px solid var(--line);padding-top:10px}
+ .answerComparison{font-size:12px;gap:10px}
+ .feedback .progressNote{font-size:11px}
+ .workspaceFoot{padding-block:10px}
+}

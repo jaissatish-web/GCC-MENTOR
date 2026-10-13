@@ -96,6 +96,7 @@ export function CareerJourneyHero() {
   const [job, setJob] = useState(0)
   const [session, setSession] = useState(0)
   const [questionSet, setQuestionSet] = useState(0)
+  const [practiceExpanded, setPracticeExpanded] = useState(false)
   // Animation starts only after the visitor's motion preference is known.
   const [playing, setPlaying] = useState(false)
   useEffect(() => {
@@ -124,8 +125,8 @@ export function CareerJourneyHero() {
         <div>
           <span className={s.eyebrow}>YOUR GULF CAREER PREPARATION PARTNER</span>
           <h1 id="hero-title">Your Next Gulf Career Move<br /><em>Starts With Better Preparation.</em></h1>
-          <p>Whether you’re aiming for your first Gulf job, a better position, or a promotion, GCC Mentor helps you prepare a job-matched CV, cover letter, interview Q&A and guided practice—all from one profile.</p>
-          <span className={h.ambition}>Know your gaps. Prepare. Practise. Track your improvement.</span>
+          <p>Prepare for your first Gulf job, a better position, a career change or promotion—with a job-matched CV, cover letter, interview Q&A and guided practice, all from one profile.</p>
+          <span className={h.ambition}>Know Your Gaps → Prepare → Practise → Improve</span>
           <div className={h.actions}><Link id="hero-readiness-cta" href="/gulf-readiness-score" className={s.primary}>Check My Free GCC Readiness <ArrowRight size={18} aria-hidden="true" /></Link><span><Check size={15} aria-hidden="true" /> See your score before signup.</span></div>
         </div>
         <div className={h.photo}>
@@ -136,7 +137,7 @@ export function CareerJourneyHero() {
 
       <div className={h.workspace}>
         <div className={h.toolbar}><span><i aria-hidden="true" /> CAREER PROFILE + TARGET JOB → PREPARATION PACK</span><div className={h.controls}><label>Explore a profession<select value={profession} onChange={e => { setProfession(Number(e.target.value)) }}>{heroProfiles.map((p, i) => <option key={p.department} value={i}>{p.department}</option>)}</select></label></div></div>
-        <p className={h.quickStart}><strong>Found a Gulf Job? Get Ready to Apply. Get Ready to Interview.</strong><span>Found a job <ArrowRight size={12} aria-hidden="true" /> Match CV <ArrowRight size={12} aria-hidden="true" /> Cover letter <ArrowRight size={12} aria-hidden="true" /> Interview Q&A <ArrowRight size={12} aria-hidden="true" /> Practise</span></p><p className={h.scopeNote}>Engineering, HSE, IT, healthcare, finance, logistics, administration & more. Explore examples below; use your own role and job description.</p>
+        <p className={h.quickStart}><strong>Found a Gulf job?</strong> Prepare your job-matched CV, cover letter and interview questions—all from one Career Profile.</p><p className={h.scopeNote}>Engineering, QA/QC, HSE, construction, maintenance, IT, finance, healthcare, logistics & administration. Your role. Your job description.</p>
         <div className={h.flow}>
           <div className={h.source}>
             <h2 className={h.step}><b>1</b> Your Career Profile</h2>
@@ -161,10 +162,11 @@ export function CareerJourneyHero() {
         </div>
         <div className={h.practice} style={{ '--job-color': selected.color } as CSSProperties}>
           <div className={h.practiceHeading}><span className={h.practiceIcon}><RotateCcw size={22} aria-hidden="true" /></span><div><span className={h.practiceEyebrow}>PREPARE FOR THIS PARTICULAR JOB</span><strong>{target[0]} · {selected.country}</strong><small>Practise → Feedback → Improve → Track Progress</small></div><span className={h.demo}>Illustrative practice</span></div>
-          <div className={h.practiceGrid}>
+          <button type="button" className={h.practiceToggle} aria-expanded={practiceExpanded} aria-controls="hero-practice-controls" onClick={() => setPracticeExpanded(current => !current)}>{practiceExpanded ? 'Hide extra practice controls' : 'Explore Q&A & practice sessions'} <ArrowRight size={15} aria-hidden="true" /></button>
+          <div id="hero-practice-controls" className={h.practiceGrid} data-expanded={practiceExpanded}>
             <div className={h.study}><span className={h.practiceLabel}><BookOpen size={16} aria-hidden="true" /> Job-specific Q&A</span><div className={h.sessions} aria-label="Example Q&A sets">{[0, 1, 2].map(i => <button type="button" key={i} aria-pressed={questionSet === i} onClick={() => { setQuestionSet(i) }}>Set {i + 1}<Check size={12} aria-hidden="true" /></button>)}</div><p>{questionSet === 0 ? target[2] : questionSet === 1 ? `Which real example demonstrates your ${target[1].toLowerCase()} experience?` : `How does your experience match the ${target[0]} job description?`}</p></div>
             <div className={h.rehearse}><span className={h.practiceLabel}><Mic size={16} aria-hidden="true" /> Review your practice</span><div className={h.sessions} aria-label="Example mock interview sessions">{practice.map((p, i) => <button type="button" key={p.label} aria-pressed={session === i} onClick={() => { setSession(i) }}>Practice {i + 1}</button>)}</div><p>{practice[session].label} · {practice[session].action}</p><small className={h.progressNote}>Compare saved sessions with the same resume and practice settings.</small></div>
-            <div className={h.feedback}><span className={h.practiceLabel}><Sparkles size={16} aria-hidden="true" /> Answer structure feedback</span><p>{practice[session].feedback}</p><a href="#interview">Explore interview coaching <ArrowRight size={14} aria-hidden="true" /></a></div>
+            <div className={h.feedback}><span className={h.practiceLabel}><Sparkles size={16} aria-hidden="true" /> Practice feedback & progress</span><div className={h.answerComparison} aria-label="Illustrative answer comparison"><div><strong>Earlier answer</strong><span>“I checked the records and spoke with the team.”</span></div><div><strong>Suggested structure</strong><span>Situation → your action → verified result</span></div></div><p><strong>What worked:</strong> Relevant checks and teamwork.<br /><strong>What to improve:</strong> {practice[session].feedback}</p><small className={h.progressNote}>Illustrative example. Compare saved sessions with matching resume and practice settings.</small><a href="#interview">Explore interview coaching <ArrowRight size={14} aria-hidden="true" /></a></div>
           </div>
         </div>
         <div className={h.workspaceFoot}><span><ShieldCheck size={15} aria-hidden="true" /> Sample data shown for demonstration purposes.</span><a href="#services">Explore all services <ArrowRight size={15} aria-hidden="true" /></a></div>
