@@ -79,10 +79,10 @@ const branchPaths = [
   'M0 150 C35 150 20 260 70 260',
 ] as const
 const outputs = [
-  { label: 'Optimized CV', icon: FileText },
-  { label: 'Cover letter', icon: Mail },
-  { label: 'Q&A sets', icon: BookOpen },
-  { label: 'Mock sessions', icon: Mic },
+  { label: 'Job-Matched CV', icon: FileText },
+  { label: 'Tailored Cover Letter', icon: Mail },
+  { label: 'Interview Q&A', icon: BookOpen },
+  { label: 'Mock Interview Practice', icon: Mic },
 ] as const
 const practice = [
   { label: 'First practice', action: 'Explain the situation', feedback: 'Your example needs context. Describe the problem and your responsibility.' },
@@ -122,24 +122,24 @@ export function CareerJourneyHero() {
     <div className={s.wrap}>
       <div className={h.intro}>
         <div>
-          <span className={s.eyebrow}>GULF JOBS TAKE MORE THAN LUCK. PREPARATION + A PLAN.</span>
-          <h1 id="hero-title">Your Gulf dream.<br /><em>A plan for every opportunity.</em></h1>
-          <p><strong>One Career Profile. Multiple target roles and job descriptions.</strong> A specific optimized CV and cover letter for each job — plus repeat Q&A and mock interviews to practise, improve and prepare.</p>
-          <span className={h.ambition}>Aim for better-paying Gulf roles with preparation built around your real experience.</span>
-          <div className={h.actions}><Link id="hero-readiness-cta" href="/gulf-readiness-score" className={s.primary}>Check My Free GCC Readiness <ArrowRight size={18} aria-hidden="true" /></Link><span><Check size={15} aria-hidden="true" /> See your score before signup</span></div>
+          <span className={s.eyebrow}>YOUR GULF CAREER PREPARATION PARTNER</span>
+          <h1 id="hero-title">Your Next Gulf Career Move<br /><em>Starts With Better Preparation.</em></h1>
+          <p>Whether you’re aiming for your first Gulf job, a better position, or a promotion, GCC Mentor helps you prepare a job-matched CV, cover letter, interview Q&A and guided practice—all from one profile.</p>
+          <span className={h.ambition}>Know your gaps. Prepare. Practise. Track your improvement.</span>
+          <div className={h.actions}><Link id="hero-readiness-cta" href="/gulf-readiness-score" className={s.primary}>Check My Free GCC Readiness <ArrowRight size={18} aria-hidden="true" /></Link><span><Check size={15} aria-hidden="true" /> See your score before signup.</span></div>
         </div>
         <div className={h.photo}>
           <Image src="/landing/gulf-candidates-v2.webp" alt="Illustrative Gulf professionals in safety helmets reviewing a project" fill priority sizes="(min-width: 900px) 280px, 160px" />
-          <span>MORE THAN LUCK.<br />PREPARATION + A PLAN.</span>
+          <span>YOUR REAL EXPERIENCE.<br />JOB-SPECIFIC PREPARATION.</span>
         </div>
       </div>
 
       <div className={h.workspace}>
-        <div className={h.toolbar}><span><i aria-hidden="true" /> ONE PROFILE. A PLAN FOR EACH JOB.</span><div className={h.controls}><label>Explore a profession<select value={profession} onChange={e => { setProfession(Number(e.target.value)) }}>{heroProfiles.map((p, i) => <option key={p.department} value={i}>{p.department}</option>)}</select></label></div></div>
-        <p className={h.scopeNote}>For all Gulf job seekers — engineers, technicians, supervisors, healthcare, finance, office and other professionals. These are examples; preparation follows your own role.</p>
+        <div className={h.toolbar}><span><i aria-hidden="true" /> CAREER PROFILE + TARGET JOB → PREPARATION PACK</span><div className={h.controls}><label>Explore a profession<select value={profession} onChange={e => { setProfession(Number(e.target.value)) }}>{heroProfiles.map((p, i) => <option key={p.department} value={i}>{p.department}</option>)}</select></label></div></div>
+        <p className={h.quickStart}><strong>Found a Gulf Job? Get Ready to Apply. Get Ready to Interview.</strong><span>Found a job <ArrowRight size={12} aria-hidden="true" /> Match CV <ArrowRight size={12} aria-hidden="true" /> Cover letter <ArrowRight size={12} aria-hidden="true" /> Interview Q&A <ArrowRight size={12} aria-hidden="true" /> Practise</span></p><p className={h.scopeNote}>Engineering, HSE, IT, healthcare, finance, logistics, administration & more. Explore examples below; use your own role and job description.</p>
         <div className={h.flow}>
           <div className={h.source}>
-            <h2 className={h.step}><b>1</b> One Career Profile</h2>
+            <h2 className={h.step}><b>1</b> Your Career Profile</h2>
             <Link href="/gulf-readiness-score" className={h.upload}><Upload size={18} aria-hidden="true" /><span>Upload your CV once <small>Your experience, organized</small></span><ArrowRight size={15} aria-hidden="true" /></Link>
             <div className={h.profile}>
               <div className={h.identity}><span className={h.avatar}>{candidate.split(' ').map(n => n[0]).join('')}</span><div><strong>{candidate}</strong><small>{profile.role}</small></div></div>
@@ -150,21 +150,21 @@ export function CareerJourneyHero() {
           </div>
           <div className={h.branches} aria-hidden="true"><svg viewBox="0 0 70 300" preserveAspectRatio="none"><defs><marker id="hero-route-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0 L6 3 L0 6 Z" fill="#c9962e" stroke="none"/></marker></defs>{branchPaths.map(path => <path key={path} d={path} markerEnd="url(#hero-route-arrow)" />)}<path className={h.activeRoute} d={branchPaths[job]} markerEnd="url(#hero-route-arrow)" /></svg></div>
           <div className={h.applications}>
-            <div className={h.branchHead}><h2 className={h.step}><b>2</b> Different target roles & JDs</h2><h2 className={h.step}><b>3</b> A separate pack for each job</h2></div>
-            <div className={h.jobRows} aria-label="Example job-specific application packs">{jobs.map((j, index) => <button type="button" key={j.country} className={h.jobRow} aria-pressed={job === index} onClick={() => chooseJob(index)} style={{ '--job-color': j.color } as CSSProperties}>
+            <div className={h.branchHead}><h2 className={h.step}><b>2</b> Choose a target job</h2><h2 className={h.step}><b>3</b> Complete preparation pack</h2></div>
+            <label className={h.mobileJobChoice}>Target job<select value={job} onChange={e => chooseJob(Number(e.target.value))}>{jobs.map((j, i) => <option key={j.country} value={i}>{j.country} · {targets[i][0]}</option>)}</select></label><div className={h.jobRows} aria-label="Example job-specific application packs">{jobs.map((j, index) => <button type="button" key={j.country} className={h.jobRow} aria-pressed={job === index} onClick={() => chooseJob(index)} style={{ '--job-color': j.color } as CSSProperties}>
               <span className={h.jobDetails}><span className={h.jobMeta}><span aria-hidden="true">{j.flag}</span> {j.country} <small>JOB {index + 1}</small></span><strong>{targets[index][0]}</strong><span className={h.jd}><FileText size={13} aria-hidden="true" /> JD {index + 1} · {targets[index][1]}</span></span>
               <ArrowRight className={h.rowArrow} size={19} aria-hidden="true" />
               <span className={h.mobilePackArrow}><ArrowRight size={15} aria-hidden="true"/> This job’s preparation pack</span><span className={h.rowOutputs}>{outputs.map(({ label, icon: Icon }, output) => <span key={label} className={h.document} data-output={output}><Icon size={20} aria-hidden="true" /><strong>{label}</strong><small>{output < 2 ? `For job ${index + 1}` : 'Repeat & improve'}</small></span>)}</span>
             </button>)}</div>
-            <p className={h.sameJob}><Sparkles size={16} aria-hidden="true" /> Different role. Different JD. Different optimized CV. The same truthful Career Profile.</p>
+            <p className={h.sameJob}><Sparkles size={16} aria-hidden="true" /> Your Real Experience. Job-Specific Preparation. Nothing Invented.</p>
           </div>
         </div>
         <div className={h.practice} style={{ '--job-color': selected.color } as CSSProperties}>
-          <div className={h.practiceHeading}><span className={h.practiceIcon}><RotateCcw size={22} aria-hidden="true" /></span><div><span className={h.practiceEyebrow}>PREPARE FOR THIS PARTICULAR JOB</span><strong>{target[0]} · {selected.country}</strong><small>Practise → review feedback → try again → better prepared</small></div><span className={h.demo}>See GCC Mentor in Action</span></div>
+          <div className={h.practiceHeading}><span className={h.practiceIcon}><RotateCcw size={22} aria-hidden="true" /></span><div><span className={h.practiceEyebrow}>PREPARE FOR THIS PARTICULAR JOB</span><strong>{target[0]} · {selected.country}</strong><small>Practise → Feedback → Improve → Track Progress</small></div><span className={h.demo}>Illustrative practice</span></div>
           <div className={h.practiceGrid}>
-            <div className={h.study}><span className={h.practiceLabel}><BookOpen size={16} aria-hidden="true" /> Multiple Q&A sets</span><div className={h.sessions} aria-label="Example Q&A sets">{[0, 1, 2].map(i => <button type="button" key={i} aria-pressed={questionSet === i} onClick={() => { setQuestionSet(i) }}>Set {i + 1}<Check size={12} aria-hidden="true" /></button>)}</div><p>{questionSet === 0 ? target[2] : questionSet === 1 ? `Which real example demonstrates your ${target[1].toLowerCase()} experience?` : `How does your experience match the ${target[0]} job description?`}</p></div>
-            <div className={h.rehearse}><span className={h.practiceLabel}><Mic size={16} aria-hidden="true" /> Multiple mock interviews</span><div className={h.sessions} aria-label="Example mock interview sessions">{practice.map((p, i) => <button type="button" key={p.label} aria-pressed={session === i} onClick={() => { setSession(i) }}>Practice {i + 1}</button>)}</div><p>{practice[session].label} · {practice[session].action}</p></div>
-            <div className={h.feedback}><span className={h.practiceLabel}><Sparkles size={16} aria-hidden="true" /> Your next improvement</span><p>{practice[session].feedback}</p><a href="#interview">Explore interview coaching <ArrowRight size={14} aria-hidden="true" /></a></div>
+            <div className={h.study}><span className={h.practiceLabel}><BookOpen size={16} aria-hidden="true" /> Job-specific Q&A</span><div className={h.sessions} aria-label="Example Q&A sets">{[0, 1, 2].map(i => <button type="button" key={i} aria-pressed={questionSet === i} onClick={() => { setQuestionSet(i) }}>Set {i + 1}<Check size={12} aria-hidden="true" /></button>)}</div><p>{questionSet === 0 ? target[2] : questionSet === 1 ? `Which real example demonstrates your ${target[1].toLowerCase()} experience?` : `How does your experience match the ${target[0]} job description?`}</p></div>
+            <div className={h.rehearse}><span className={h.practiceLabel}><Mic size={16} aria-hidden="true" /> Review your practice</span><div className={h.sessions} aria-label="Example mock interview sessions">{practice.map((p, i) => <button type="button" key={p.label} aria-pressed={session === i} onClick={() => { setSession(i) }}>Practice {i + 1}</button>)}</div><p>{practice[session].label} · {practice[session].action}</p><small className={h.progressNote}>Compare saved sessions with the same resume and practice settings.</small></div>
+            <div className={h.feedback}><span className={h.practiceLabel}><Sparkles size={16} aria-hidden="true" /> Answer structure feedback</span><p>{practice[session].feedback}</p><a href="#interview">Explore interview coaching <ArrowRight size={14} aria-hidden="true" /></a></div>
           </div>
         </div>
         <div className={h.workspaceFoot}><span><ShieldCheck size={15} aria-hidden="true" /> Sample data shown for demonstration purposes.</span><a href="#services">Explore all services <ArrowRight size={15} aria-hidden="true" /></a></div>
