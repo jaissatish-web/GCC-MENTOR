@@ -30,8 +30,8 @@ const FRONT = Math.PI / 2
 const PAGE_W = 794
 const TURN_MS = 52_000
 const LAYOUTS = {
-  wide: { k: 1, ry: 115, box: 640, track: 325, trackW: 1000, trackH: 350, innerW: 700, innerH: 220 },
-  compact: { k: 0.65, ry: 62, box: 420, track: 220, trackW: 340, trackH: 230, innerW: 240, innerH: 160 },
+  wide: { k: 1, ry: 115, box: 540, track: 260, trackW: 1000, trackH: 350, innerW: 700, innerH: 220 },
+  compact: { k: 0.65, ry: 62, box: 350, track: 170, trackW: 340, trackH: 230, innerW: 240, innerH: 160 },
 } as const
 const persona = (key: string) => PERSONAS.find((p) => p.key === key)!
 const ItemRender = memo(function ItemRender({ item }: { item: Item }) {
@@ -110,9 +110,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
       const sn = Math.sin(th)
       const d = (sn + 1) / 2
       const f = focus.current[i]
-      const sc = (0.55 + 0.35 * d) * lay.k * (1 - f) + (compactRef.current ? 1.4 : 2.1) * f
+      const sc = (0.55 + 0.35 * d) * lay.k * (1 - f) + (compactRef.current ? 1.1 : 1.5) * f
       el.style.transform = `translate(-50%, -50%) translate(${(rx * Math.cos(th) * (1 - f)).toFixed(1)}px, ${(lay.ry * sn * (1 - f) - (compactRef.current ? 14 : 28) * f).toFixed(1)}px) scale(${sc.toFixed(3)})`
-      el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 40 : 10 + d * 30) * (1 - f) + 110 * f))
+      el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 40 : 10 + d * 30) * (1 - f) + 50 * f))
       el.style.opacity = (0.55 + 0.45 * Math.max(d, f)).toFixed(2)
       el.dataset.front = sn > 0 ? '1' : '0'
     }
