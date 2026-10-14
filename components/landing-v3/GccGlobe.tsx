@@ -466,12 +466,12 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
               <>
                 <div className="font-semibold flex items-center gap-2 type-caption uppercase tracking-[0.08em] text-blue">
                   <span className="size-1.5 animate-glow-pulse rounded-full bg-blue" aria-hidden="true" />
-                  {arrival.move ? 'Changing jobs in the Gulf' : 'Arriving'} · example
+                  Gulf career paths
                 </div>
                 <div className="mt-1 text-[15px] font-semibold text-ink">
                   {cityOf(arrival.from).name} → {arrivalTo.name}, {arrivalTo.country}
                 </div>
-                <div className="type-caption text-ink-muted">{arrival.role} — application prepared with GCC Mentor</div>
+                <div className="type-caption text-ink-muted">Prepare for {arrival.role} opportunities</div>
               </>
             ) : (
               <div className="type-helper text-ink-muted">Watch the routes — or pick a country.</div>
@@ -492,7 +492,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
           />
         </div>
       </div>
-<p className="relative mt-3 text-center type-caption text-ink-muted lg:text-right">Routes and roles are illustrative examples. Drag the globe to spin it.</p>
+<p className="relative mt-3 text-center type-caption text-ink-muted lg:text-right">Drag the globe to explore Gulf markets.</p>
     </div>
   )
 }
