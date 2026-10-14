@@ -10,12 +10,12 @@ export const profiles: DemoProfile[] = [...PROFESSION_EXAMPLES,
 ]
 export const services = [
  ['GCC Readiness','Understand your preparation gaps.','/gulf-readiness-score','readiness'],
- ['ATS Job Match','Compare your CV with a target JD.','/ats-scan','match'],
+ ['ATS Job Match','Compare your CV with a target JD.','/optimize/target','match'],
  ['Resume Optimization','Present your real experience for the role.','/optimize/target','cv'],
  ['Cover Letter','Introduce your relevance to this job.','/cover-letter','letter'],
  ['Interview Q&A','Prepare role-specific answer structures.','/interview-qa','qa'],
  ['Mock Interview','Practise and review your next step.','/mock-interview','interview'],
- ['Resume Templates','Choose from 50 real CV designs.','/templates','templates'],
+ ['Resume Templates','Choose from 50+ real CV designs.','/templates','templates'],
  ['Saved Reports','Revisit applications and preparation.','/dashboard/library','reports'],
 ] as const
 export const problems = [
