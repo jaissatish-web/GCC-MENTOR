@@ -342,5 +342,5 @@ export function DocumentOrbit({ className }: { className?: string }) {
 /** The landing and saved-resume previews share the same native text reader. */
 function FullSize({ item, onClose }: { item: Item; onClose: () => void }) {
   const p = persona(item.who)
-  return <DocumentReader title={itemName(item)} caption={`Example · ${p.name}, ${p.role}`} onClose={onClose}><div className="actual-template-orbit-face"><ItemRender item={item} /></div></DocumentReader>
+  return <DocumentReader title={itemName(item)} caption={`${p.name} · ${p.role}`} onClose={onClose}><div className="actual-template-orbit-face"><ItemRender item={item} /></div></DocumentReader>
 }
