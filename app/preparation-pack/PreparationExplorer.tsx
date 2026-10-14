@@ -1,61 +1,50 @@
 'use client'
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowDown, ArrowRight, BriefcaseBusiness, Check, ClipboardCheck, FileText, FolderOpen, Mail, Mic, ShieldCheck, UserRound, BookOpen } from 'lucide-react'
+import { ArrowRight, BriefcaseBusiness, Check, ClipboardCheck, FileText, FolderOpen, Mail, Mic, ShieldCheck, UserRound, BookOpen, MapPin, Sparkles, Circle, ArrowDown, GraduationCap, ChevronDown, AudioLines } from 'lucide-react'
 import { LEVELS, PROFESSIONS, OUTPUTS, professionRole } from './catalog'
+import { JourneyResume } from './JourneyResume'
 import s from './explorer.module.css'
 type Output = (typeof OUTPUTS)[number]['id']
 const ICONS = [ClipboardCheck, FileText, Mail, BookOpen, Mic, FolderOpen]
-const LABELS = ['Job match', 'Tailored CV', 'Cover letter', 'Interview Q&A', 'Mock interview', 'Review & improve']
-/** Small native vector/document visuals: never screenshots or customer results. */
-function PackVisual({ kind, large = false }: { kind: Output; large?: boolean }) {
- return <div className={`${s.visual} ${large ? s.large : ''}`} aria-hidden="true">
-  {kind==='match'?<div className={s.matchVisual}><div className={s.matchCircle}><Check size={large?32:20}/></div><div className={s.matchChecks}><span><Check/>Experience</span><span><Check/>Skills</span><span><span className={s.gapDot}/>Review gaps</span></div></div>:null}
-  {kind==='cv'?<div className={s.paper}><div className={s.paperHead}><span className={s.avatar}><UserRound/></span><div><i/><i/></div></div><b/><i/><i/><i/><b/><i/><i/><div className={s.paperChips}><span/><span/><span/></div></div>:null}
-  {kind==='letter'?<div className={s.letterVisual}><div className={s.paper}><b/><i/><i/><i/><i/><i/><span className={s.signature}/></div><span className={s.envelope}><Mail size={large?34:23}/></span></div>:null}
-  {kind==='qa'?<div className={s.chat}><div><BookOpen size={large?24:17}/><span>Q</span><i/></div><div><Check size={large?22:15}/><span>A</span><i/></div><div><span>Q</span><i/></div></div>:null}
-  {kind==='mock'?<div className={s.mockVisual}><div className={s.interviewer}><UserRound size={large?42:27}/><span/></div><div className={s.wave}>{[14,26,36,22,42,28,18,32,22].map((h,i)=><i key={i} style={{height:h,animationDelay:`${i*0.12}s`}}/>)}</div><span className={s.micBadge}><Mic size={large?20:14}/></span></div>:null}
-  {kind==='review'?<div className={s.reviewVisual}><div className={s.chart}><i/><i/><i/><i/></div><span className={s.reviewCheck}><Check size={large?24:17}/></span><div className={s.reviewArrow}><ArrowRight/></div></div>:null}
- </div>
-}
+const LABELS = ['Job match','Tailored CV','Cover letter','Interview Q&A','Mock interview','Review & improve']
+const JOB_IMAGES = ['/landing/hero-plant-night.jpg','/landing/service-optimized-resume.png','/landing/founder-refinery-night.jpg']
+const SERVICE_IMAGES: Record<Output,string> = {match:'/landing/service-readiness.png',cv:'/landing/service-optimized-resume.png',letter:'/landing/service-cover-letter.png',qa:'/landing/service-interview-qa.png',mock:'/landing/interview-practice-v1.webp',review:'/landing/service-mock-interview.png'}
+function StageHeading({number,title,hint}:{number:number;title:string;hint:string}) {return <div className={s.stageHeading}><span>{number}</span><div><h2>{title}</h2><p>{hint}</p></div></div>}
 export function PreparationExplorer() {
- const [profession, setProfession] = useState(0)
- const [level, setLevel] = useState(3)
- const [job, setJob] = useState(0)
- const [output, setOutput] = useState<Output>('cv')
- const p = PROFESSIONS[profession]
- const role = professionRole(p, level)
- const active = OUTPUTS.find(o=>o.id===output)!
- const outputIndex = OUTPUTS.findIndex(o=>o.id===output)
+ const [profession,setProfession]=useState(0)
+ const [level,setLevel]=useState(3)
+ const [job,setJob]=useState(0)
+ const [output,setOutput]=useState<Output>('cv')
+ const p=PROFESSIONS[profession],role=professionRole(p,level),focus=p.paths[job]
+ const active=OUTPUTS.find(item=>item.id===output)!,outputIndex=OUTPUTS.findIndex(item=>item.id===output)
  return <div className={s.page}>
-  <header className={s.header}><Link href="/" className={s.logo} aria-label="GCC Mentor — return to main landing page"><span>G</span><div>GCC MENTOR<small>PREPARE FOR YOUR NEXT CHAPTER</small></div></Link><span className={s.demoBadge}>Visual service demo</span></header>
+  <header className={s.header}><Link href="/" className={s.logo} aria-label="GCC Mentor — return to main landing page"><span>G</span><div>GCC MENTOR<small>PREPARE FOR YOUR NEXT CHAPTER</small></div></Link><span className={s.demoBadge}>Service demo</span></header>
+  <section className={s.hero} aria-labelledby="explorer-title"><Image src="/landing/hero-gcc-engineer.png" alt="Illustrative Gulf professional with a skyline" fill priority sizes="(max-width: 1200px) 100vw, 1200px"/><div className={s.heroCopy}><span>ONE PROFILE. MULTIPLE CAREER PATHS.</span><h1 id="explorer-title">Gulf Opportunity<br/>Journey</h1><p>Complete preparation.<br/>You apply.</p></div></section>
   <main className={s.main}>
-   <section className={s.intro} aria-labelledby="explorer-title"><span className={s.eyebrow}>SEE YOUR GULF PREPARATION JOURNEY</span><h1 id="explorer-title">One profile. <em>Many opportunities.</em></h1><p>Choose your profession. Follow the arrows.</p><div className={s.controls}><label>Your discipline<select value={profession} onChange={e=>{setProfession(Number(e.target.value));setJob(0)}}>{PROFESSIONS.map((item,i)=><option key={item.name} value={i}>{item.name}</option>)}</select></label><label>Your career level<select value={level} onChange={e=>setLevel(Number(e.target.value))}>{LEVELS.map((item,i)=><option key={item} value={i}>{item}</option>)}</select></label></div></section>
-   <section className={s.journey} aria-label="One Career Profile branches into separate job preparation packs">
-    <div className={s.stageLabel}><span>1</span> YOUR STARTING POINT</div>
-    <div className={s.profile}><div className={s.profileAvatar}><UserRound size={37}/><span><Check size={13}/></span></div><div className={s.profileIdentity}><span className={s.eyebrow}>ONE CAREER PROFILE</span><h2>{role}</h2><div className={s.profileFields}><span><BriefcaseBusiness size={14}/>Experience</span><span><ShieldCheck size={14}/>Skills</span><span><FileText size={14}/>Qualifications</span></div></div><div className={s.profileDocuments} aria-hidden="true"><FileText/><FileText/><FileText/></div></div>
-    <div className={s.profileActions}><span><ShieldCheck size={16}/>Your real experience</span><Link href="/gulf-readiness-score">GCC readiness <ArrowRight size={14}/></Link></div>
-    <div className={s.flow}><span/><ArrowDown size={20}/><small>Reuse your profile</small></div>
-    <div className={s.stageLabel}><span>2</span> CHOOSE A JOB PATH</div>
-    <div className={s.jobs}>{p.paths.map((path,i)=><button key={path} type="button" data-tone={i} aria-pressed={job===i} aria-controls="job-pack" className={s.job} onClick={()=>setJob(i)}><span className={s.jobNumber}>JOB {i+1}<span>{job===i?<Check size={14}/>:<ArrowRight size={14}/>}</span></span><div className={s.jobIcon}><BriefcaseBusiness size={27}/></div><h3>{path}</h3><span className={s.jdTag}><FileText size={13}/>Different job description</span><div className={s.jobMini} aria-hidden="true"><i/><i/><i/></div></button>)}</div>
-    <div className={s.flow}><span/><ArrowDown size={20}/><small>Different JD → different pack</small></div>
-    <div id="job-pack" className={s.pack} data-tone={job}><div className={s.packHead}><div><div className={s.stageLabel}><span>3</span> YOUR JOB-SPECIFIC PACK</div><h2 aria-live="polite">{p.paths[job]}</h2></div><span className={s.applicationBadge}>Application {job+1}</span></div>
-     <div className={s.outputs}>{OUTPUTS.map((item,i)=>{const Icon=ICONS[i];return <button key={item.id} type="button" className={s.output} aria-pressed={output===item.id} aria-controls="sample-output" data-active={output===item.id} onClick={()=>setOutput(item.id)}><PackVisual kind={item.id}/><span className={s.outputLabel}><Icon size={17}/>{LABELS[i]}</span><span className={s.outputHint}>{['Find your fit','Your facts, this job','Make the introduction','Prepare your answers','Practise your interview','Your next improvement'][i]}</span></button>})}</div>
-     <div id="sample-output" className={s.preview}><div className={s.previewArt}><PackVisual kind={output} large/><span className={s.sampleBadge}>Illustrative sample</span></div><div className={s.previewContent}><span className={s.eyebrow}>APPLICATION {job+1} · {p.paths[job]}</span><h3 aria-live="polite">{LABELS[outputIndex]}</h3>
-      {output==='match'?<div className={s.evidence}><span><Check size={16}/>{p.skills[job]}</span><span><ClipboardCheck size={16}/>Compare with the actual JD</span></div>:null}
-      {output==='cv'?<div className={s.cvSample}><b>{role}</b><span className={s.focusStrip}>{p.paths[job]}</span><div className={s.skillChips}>{[p.skills[job],...p.skills.filter((_,i)=>i!==job)].map(skill=><span key={skill}>{skill}</span>)}</div><small>Same experience. Relevant skills first.</small></div>:null}
-      {output==='letter'?<div className={s.letterSample}><span>Dear Hiring Team,</span><b>{role}</b><span>My experience → your {p.paths[job].toLowerCase()} role</span><div className={s.letterLines} aria-hidden="true"><i/><i/><i/></div></div>:null}
-      {output==='qa'?<><p className={s.question}>{p.question}</p><div className={s.answerSteps}><span>Situation</span><ArrowRight size={14}/><span>Your action</span><ArrowRight size={14}/><span>Result</span></div></>:null}
-      {output==='mock'?<><p className={s.question}>“Tell me about your experience in {p.paths[job].toLowerCase()}.”</p><div className={s.answerSteps}><span>Answer</span><ArrowRight size={14}/><span>Feedback</span><ArrowRight size={14}/><span>Try again</span></div><small>Animated demo · no audio or recording</small></>:null}
-      {output==='review'?<><div className={s.evidence}><span><Check size={16}/>Answer clarity</span><span><Check size={16}/>Relevant examples</span><span><ArrowRight size={16}/>Next practice step</span></div><small>Illustrative chart, not a score prediction</small></>:null}
-      <Link href={active.href} className={s.serviceLink}>{output==='match'?'Add a real job description':`Open ${LABELS[outputIndex].toLowerCase()}`} <ArrowRight size={16}/></Link>
-     </div></div>
-    </div>
-    <div className={s.flow}><span/><ArrowDown size={20}/></div>
-    <div className={s.finish}><div className={s.stageLabel}><span>4</span> REVIEW · APPLY · PRACTISE AGAIN</div><div className={s.finishVisual}><div><FileText/><span>Your CV</span></div><ArrowRight/><div><ShieldCheck/><span>Your review</span></div><ArrowRight/><div><BriefcaseBusiness/><span>Employer application</span></div></div><p>You submit through the employer&apos;s channel.</p><Link href="/profile" className={s.primary}>Build my Career Profile <ArrowRight size={18}/></Link></div>
+   <section className={s.stage} aria-labelledby="profile-title"><StageHeading number={1} title="Your profile" hint="Choose where your journey starts."/><div className={s.rail} aria-hidden="true"><Circle className={s.travelDot}/><ArrowDown className={s.railArrow}/></div>
+    <div className={s.profileGrid}><div className={s.profile}><div className={s.portrait}><Image src="/landing/hero-gcc-engineer.png" alt="Illustrative profile portrait" fill sizes="100px"/></div><div className={s.profileDetails}><h3 id="profile-title" aria-live="polite">{role}</h3><span className={s.family}>{p.name}</span><div className={s.controls}><label><Sparkles size={15}/>Discipline<div className={s.selectWrap}><select value={profession} onChange={e=>{setProfession(Number(e.target.value));setJob(0)}}>{PROFESSIONS.map((item,i)=><option key={item.name} value={i}>{item.name}</option>)}</select><ChevronDown size={18}/></div></label><label><BriefcaseBusiness size={15}/>Career level<div className={s.selectWrap}><select value={level} onChange={e=>setLevel(Number(e.target.value))}>{LEVELS.map((item,i)=><option key={item} value={i}>{item}</option>)}</select><ChevronDown size={18}/></div></label></div></div></div><div className={s.profileFacts}><span><UserRound/>Your experience</span><span><GraduationCap/>Skills & certifications</span><span><ShieldCheck/>Your reviewed facts</span><span><MapPin/>Saudi · UAE · Qatar + more</span><Link href="/gulf-readiness-score">Check GCC readiness <ArrowRight size={14}/></Link></div></div>
    </section>
-   <div className={s.extras}><span>Prepare your online presence too</span><Link href="/linkedin-optimization">LinkedIn <ArrowRight size={14}/></Link><Link href="/naukrigulf-optimization">NaukriGulf <ArrowRight size={14}/></Link></div>
-   <footer className={s.footnote}>Example paths, not live vacancies. Account and service access may be required.</footer>
+   <section className={s.stage} aria-labelledby="opportunities-title"><StageHeading number={2} title="Your opportunities" hint="One profile. Different job descriptions."/><div className={s.rail} aria-hidden="true"><Circle className={s.travelDot}/><ArrowDown className={s.railArrow}/></div><h3 id="opportunities-title" className={s.microHint}>Choose a path. Each gets its own preparation pack.</h3>
+    <div className={s.jobs}>{p.paths.map((path,i)=><button key={path} className={s.job} data-tone={i} type="button" aria-pressed={job===i} aria-controls="job-pack" onClick={()=>setJob(i)}><div className={s.jobPhoto}><Image src={profession===10?'/landing/who-any-profession.jpg':profession>8?SERVICE_IMAGES[(['cv','qa','mock'] as Output[])[i]]:JOB_IMAGES[i]} alt="" fill sizes="(max-width: 640px) 30vw, 330px"/>{job===i?<span className={s.selectedMark}><Check size={18}/></span>:null}</div><div className={s.jobText}><BriefcaseBusiness size={23}/><h3>{path}</h3><ArrowRight size={16}/></div><span className={s.jobHint}>Job description {i+1}</span></button>)}</div>
+   </section>
+   <section className={s.stage} id="job-pack" aria-labelledby="pack-title"><StageHeading number={3} title="Your application pack" hint="One target job. Its own CV, letter and interview preparation."/><div className={s.rail} aria-hidden="true"><Circle className={s.travelDot}/><ArrowDown className={s.railArrow}/></div><h3 id="pack-title" className={s.selectedRole} aria-live="polite">{role} <span>· {focus}</span></h3>
+    <div className={s.outputs}>{OUTPUTS.map((item,i)=>{const Icon=ICONS[i];return <button type="button" key={item.id} className={s.output} aria-pressed={output===item.id} aria-controls="sample-output" data-active={output===item.id} onClick={()=>setOutput(item.id)}><Icon size={25}/><span>{LABELS[i]}</span></button>})}</div>
+    <div key={`${profession}-${job}-${output}`} id="sample-output" className={s.sample}>
+     <div className={s.sampleVisual}>{output==='cv'?<JourneyResume profession={profession} role={role} focus={focus}/>:<div className={s.outputPhoto}><Image src={SERVICE_IMAGES[output]} alt={`Illustrative ${LABELS[outputIndex]} preparation scene`} fill sizes="(max-width: 640px) 90vw, 520px"/></div>}<span className={s.sampleBadge}>Fictional sample · application {job+1}</span></div>
+     <div className={s.sampleDetails}><span className={s.eyebrow}>{focus}</span><h3>{LABELS[outputIndex]} for {role}</h3>
+      {output==='cv'||output==='qa'?<><div className={s.question}><BookOpen size={23}/><p>{p.question}</p></div><div className={s.answer}><UserRound size={24}/><div><b>Your own example</b><div className={s.answerSteps}><span>Situation</span><ArrowRight size={13}/><span>Action</span><ArrowRight size={13}/><span>Result</span></div><small>Use facts and outcomes you can support.</small></div></div><div className={s.skills}>{p.skills.map(skill=><span key={skill}>{skill}</span>)}</div></>:null}
+      {output==='match'?<div className={s.checks}><span><Check/>{p.skills[job]}</span><span><ClipboardCheck/>Compare your experience with the actual JD</span><span><ArrowRight/>Review missing requirements</span></div>:null}
+      {output==='letter'?<div className={s.letter}><b>Dear Hiring Team,</b><p>My experience in {p.skills[job].toLowerCase()} → your {focus.toLowerCase()} role.</p><span>Your background → employer needs → clear introduction</span></div>:null}
+      {output==='mock'?<><div className={s.question}><Mic/><p>“Tell me about your experience in {focus.toLowerCase()}.”</p></div><div className={s.answerSteps}><span>Answer</span><ArrowRight size={13}/><span>Feedback</span><ArrowRight size={13}/><span>Try again</span></div></>:null}
+      {output==='review'?<div className={s.checks}><span><Check/>Answer clarity</span><span><Check/>Relevant examples</span><span><ArrowRight/>Your next practice step</span></div>:null}
+      <Link href={active.href} className={s.serviceLink}>{output==='match'?'Add an actual job description':`Open ${LABELS[outputIndex].toLowerCase()}`} <ArrowRight size={16}/></Link>
+     </div>
+    </div>
+   </section>
+   <section className={`${s.stage} ${s.lastStage}`} aria-labelledby="interview-title"><StageHeading number={4} title="Your interview" hint="Practise with relevant questions."/><div className={s.interviewGrid}><div className={s.interviewPhoto}><Image src="/landing/interview-practice-v1.webp" alt="Illustrative interview practice scene" fill sizes="(max-width: 640px) 90vw, 550px"/><div className={s.interviewOverlay}><Mic size={20}/><span>Sample practice</span><span className={s.movingAudio} aria-hidden="true"><AudioLines/></span></div></div><div className={s.interviewDetails}><h3 id="interview-title">Mock interview for {focus.toLowerCase()}</h3><div className={s.question}><BookOpen/><p>{p.question}</p></div><div className={s.checks}><span><Check/>Structure your answers</span><span><Sparkles/>Review your feedback</span><span><ArrowRight/>Prepare a stronger example</span></div><Link href="/mock-interview" className={s.serviceLink}>Start interview practice <ArrowRight size={16}/></Link></div></div><p className={s.motionNote}>Animated demonstration · no audio plays or recording starts.</p></section>
+   <div className={s.final}><Link href="/profile" className={s.primary}><FileText size={22}/>Build my Career Profile <ArrowRight size={19}/></Link><div className={s.extras}><Link href="/linkedin-optimization">LinkedIn profile guidance <ArrowRight size={15}/></Link><Link href="/naukrigulf-optimization">NaukriGulf profile guidance <ArrowRight size={15}/></Link></div><p>Example paths, not live vacancies. We prepare; you apply through the employer&apos;s channel.</p></div>
   </main>
  </div>
 }
