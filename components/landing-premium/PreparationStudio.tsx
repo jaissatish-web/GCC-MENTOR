@@ -1,29 +1,40 @@
 'use client'
-import { useRef, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, BookOpen, Check, FileText, Mail, ShieldCheck, UserRound } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { ArrowRight, FileText, ShieldCheck, UserRound } from 'lucide-react'
 import { profiles } from './data'
 import s from './premium.module.css'
-const tabs = ['ATS CV','Cover letter','Interview Q&A','LinkedIn','NaukriGulf'] as const
-const routes = ['/optimize/target','/cover-letter','/interview-qa','/linkedin-optimization','/naukrigulf-optimization'] as const
-/** Fictional preparation examples. No portal access, generation or application submission. */
+
+const previews = [
+ { title: 'ATS CV', route: '/optimize/target', image: '/landing/service-optimized-resume.png', alt: 'A professionally presented CV on a laptop and printed resume in a Gulf workspace' },
+ { title: 'Cover letter', route: '/cover-letter', image: '/landing/service-cover-letter.png', alt: 'A cover letter and matching CV presented together on a laptop in a Gulf workspace' },
+ { title: 'Interview Q&A', route: '/interview-qa', image: '/landing/service-interview-qa.png', alt: 'Question and answer preparation cards on a laptop beside career documents' },
+ { title: 'Mock interview', route: '/mock-interview', image: '/landing/service-mock-interview.png', alt: 'A candidate preparing for a virtual mock interview on a laptop' },
+ { title: 'LinkedIn', route: '/linkedin-optimization', image: '/professional/profile-hero-v1.webp', alt: 'Professionals preparing their online career profiles for Gulf opportunities' },
+ { title: 'NaukriGulf', route: '/naukrigulf-optimization', image: '/landing/application-preparation-v1.webp', alt: 'A professional preparing a Gulf job application and career documents' },
+] as const
+
+/** Illustrative service photos, never represented as generated customer outputs. */
 export function PreparationStudio() {
- const [role,setRole]=useState(0),[tab,setTab]=useState(0),[after,setAfter]=useState(true),[category,setCategory]=useState('Technical')
- const refs=useRef<Array<HTMLButtonElement|null>>([])
- const p=profiles[role]
- const question=category==='Technical'?p.question:category==='HR & behavioral'?'Tell me about a time you worked with another team.':category==='Role scenario'?'An important record is incomplete. What would you do?':'How would you adapt to a new Gulf project team?'
- const answer=category==='Technical'?p.answer:category==='HR & behavioral'?'Use a real situation. Explain your responsibility, your action and the verified result. Be specific about your own contribution.':category==='Role scenario'?'Identify the missing evidence, inform the responsible person and follow the approved review process. Never claim an unverified activity is complete.':'Clarify responsibilities and local procedures, ask when unsure and explain how you would communicate with colleagues. Use a real example of adapting to a new team.'
+ const [role, setRole] = useState(0)
+ const [tab, setTab] = useState(0)
+ const refs = useRef<Array<HTMLButtonElement | null>>([])
+ const p = profiles[role]
+ const preview = previews[tab]
  return <div className={s.studio} id="preparation-demo">
-  <div className={s.studioBar}><span><i/>LIVE PRODUCT PREVIEW <small>Sample data</small></span><label>Choose your profession<select value={role} onChange={e=>setRole(Number(e.target.value))}>{profiles.map((p,i)=><option key={p.department} value={i}>{p.department}</option>)}</select></label></div>
+  <div className={s.studioBar}><span><i/>YOUR PREPARATION PACK <small>Explore the services</small></span><label>Choose your profession<select value={role} onChange={e => setRole(Number(e.target.value))}>{profiles.map((profile, i) => <option key={profile.department} value={i}>{profile.department}</option>)}</select></label></div>
   <div className={s.flowStrip} aria-label="Preparation workflow"><span><FileText size={18}/>Target job description</span><ArrowRight size={17}/><span><UserRound size={18}/>Your Career Profile</span><ArrowRight size={17}/><span><ShieldCheck size={18}/>Preparation pack</span></div>
-  <details className={s.contextDetails}><summary>View the sample job and Career Profile <span>+</span></summary><div className={s.contextGrid}><div><span className={s.kicker}>SAMPLE JOB DESCRIPTION</span><h3>{p.role} · {p.country}</h3><p>Looking for practical experience in {p.skills.join(', ').toLowerCase()}. The role involves clear records, coordination and following approved procedures.</p><small>Illustrative vacancy · not a live job listing</small></div><div><span className={s.kicker}>SAME TRUTHFUL CAREER PROFILE</span><h3>{p.name}</h3><p>{p.source}</p><small>Fictional candidate · no extra qualifications added</small></div></div></details>
-  <div className={s.tabs} role="tablist" aria-label="Preparation output">{tabs.map((t,i)=><button key={t} ref={el=>{refs.current[i]=el}} type="button" role="tab" data-kind={i} id={`prep-tab-${i}`} aria-selected={tab===i} aria-controls="prep-output" tabIndex={tab===i?0:-1} onClick={()=>setTab(i)} onKeyDown={e=>{const next=e.key==='ArrowRight'?(i+1)%tabs.length:e.key==='ArrowLeft'?(i+tabs.length-1)%tabs.length:e.key==='Home'?0:e.key==='End'?tabs.length-1:null;if(next!==null){e.preventDefault();setTab(next);refs.current[next]?.focus()}}}>{t}</button>)}</div>
-  <div className={s.output} role="tabpanel" id="prep-output" aria-labelledby={`prep-tab-${tab}`} tabIndex={0}>
-   {tab===0?<><div className={s.outputTop}><div><span className={s.kicker}>ATS-ORIENTED · PROFILE-GROUNDED</span><h3>ATS-Optimized Resume From Your Real Experience</h3></div><div className={s.segment} aria-label="Resume comparison"><button type="button" aria-pressed={!after} onClick={()=>setAfter(false)}>Original</button><button type="button" aria-pressed={after} onClick={()=>setAfter(true)}>Optimized</button></div></div><div className={s.cvGrid}><div className={s.cvExplanation}><h4>{after?'Same facts. Better presentation.':'Experience without enough context.'}</h4><ul>{(after?['Clearer role positioning','Relevant terminology from real work','Readable structure and truthful skills']:['Generic profile wording','Relevant work is difficult to find','Limited context for the target role']).map(t=><li key={t}><Check size={16}/>{t}</li>)}</ul><p>We improve how your experience is presented. We do not invent qualifications.</p></div><article className={s.paper}><div className={s.paperLabel}><FileText size={17}/>{after?'OPTIMIZED CV':'ORIGINAL CV'}<span>Demo</span></div><h4>{p.name}</h4><span>{p.role} · {p.country}</span><hr/><h5>PROFESSIONAL SUMMARY</h5><p>{after?p.summary:'Experienced professional seeking a suitable opportunity.'}</p><h5>RELEVANT EXPERIENCE</h5><p>{after?p.targeted:p.original}</p><h5>SKILLS FROM THIS PROFILE</h5><div className={s.chips}>{p.skills.map(skill=><span key={skill}>{skill}</span>)}</div></article></div></>:
-   tab===1?<><div className={s.outputTop}><div><span className={s.kicker}>SAME PROFILE · SAME TARGET JOB</span><h3>A Relevant Cover Letter for Every Job</h3></div><Mail size={26}/></div><article className={s.letter}><div className={s.paperLabel}>APPLICATION · {p.role}<span>Demo</span></div><p>Dear Hiring Manager,</p><p>I am applying for the {p.role} position in {p.country}. My practical experience includes {p.skills.join(', ').toLowerCase()}.</p><p>{p.targeted} I would welcome a discussion about how this background relates to your role requirements.</p><p>Kind regards,<br/><strong>{p.name}</strong></p></article></>:
-   tab===2?<><div className={s.outputTop}><div><span className={s.kicker}>ROLE-SPECIFIC SCENARIOS</span><h3>Know What to Say Before the Interview</h3></div><BookOpen size={26}/></div><label className={s.category}>Question category<select value={category} onChange={e=>setCategory(e.target.value)}>{['Technical','HR & behavioral','Role scenario','Gulf workplace'].map(t=><option key={t}>{t}</option>)}</select></label><div className={s.question}><span>QUESTION · {p.role}</span><h4>{question}</h4></div><div className={s.suggested}><strong>Suggested answer structure</strong><p>{answer}</p></div><p className={s.small}>Study different relevant scenarios and prepare your own examples. These are preparation examples, not confidential employer questions.</p></>:
-   <><div className={s.outputTop}><div><span className={s.kicker}>PROFILE PREPARATION</span><h3>{tabs[tab]}: present your experience clearly.</h3></div><UserRound size={26}/></div><article className={s.network}><span className={s.platform}>{tabs[tab]}</span><h4>{p.name}</h4><strong>{p.role} | {p.skills.slice(0,2).join(' | ')}</strong><p>{p.summary}</p><div className={s.chips}>{p.skills.map(skill=><span key={skill}>{skill}</span>)}</div></article><p className={s.small}>Get headline, summary and profile guidance. Review the suggestions and update your own {tabs[tab]} profile. No automatic portal editing or application submission.</p></>}
+  <div className={`${s.tabs} ${s.photoTabs}`} role="tablist" aria-label="Preparation output">{previews.map((item, i) => <button key={item.title} ref={el => { refs.current[i] = el }} type="button" role="tab" data-kind={i} id={`prep-tab-${i}`} aria-selected={tab === i} aria-controls="prep-output" tabIndex={tab === i ? 0 : -1} onClick={() => setTab(i)} onKeyDown={e => {
+   const next = e.key === 'ArrowRight' ? (i + 1) % previews.length : e.key === 'ArrowLeft' ? (i + previews.length - 1) % previews.length : e.key === 'Home' ? 0 : e.key === 'End' ? previews.length - 1 : null
+   if (next !== null) { e.preventDefault(); setTab(next); refs.current[next]?.focus() }
+  }}>{item.title}</button>)}</div>
+  <div className={s.photoOutput} role="tabpanel" id="prep-output" aria-labelledby={`prep-tab-${tab}`} tabIndex={0}>
+   <figure className={s.servicePhoto}>
+    <Image key={preview.image} src={preview.image} alt={preview.alt} fill sizes="(max-width: 767px) 100vw, (max-width: 1200px) 90vw, 1180px" />
+    <figcaption><span>{preview.title}</span><small>{p.department} · {p.country}</small></figcaption>
+   </figure>
   </div>
-  <div className={s.studioFoot}><span><ShieldCheck size={16}/>Illustrative outputs · grounded in the sample profile</span><Link href={routes[tab]}>Open {tabs[tab]} preparation <ArrowRight size={16}/></Link></div>
+  <div className={s.studioFoot}><span><ShieldCheck size={16}/>Illustrative service photos</span><Link href={preview.route}>Open {preview.title} preparation <ArrowRight size={16}/></Link></div>
  </div>
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { ArrowRight, Check, Mic, MessageCircle, Target, Volume2, CircleAlert, Sparkles } from 'lucide-react'
 import { INTERVIEWERS, getInterviewer } from '@/lib/voice/interviewers'
 import { useInView, useReducedMotion } from './hooks'
@@ -20,6 +20,10 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
   const reduced = useReducedMotion()
   const { ref, visible } = useInView<HTMLDivElement>(0.1)
   const [index,setIndex] = useState(0)
+  const [expanded, setExpanded] = useState(false)
+  const [interacted, setInteracted] = useState(false)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const stageId = useId()
   const [clock,setClock] = useState(0)
   const [length,setLength] = useState(10)
   const [mode,setMode] = useState('Mixed')
@@ -28,20 +32,25 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
   const answering = clock % 12 >= 5
   const moving = visible && !reduced
   useEffect(() => {
-    if (!visible || reduced) return
+    if (!visible || reduced || interacted) return
     const timer = window.setInterval(() => { if (!document.hidden) setIndex(i => (i + 1) % 3) }, index === 1 ? 40000 : 18000)
     return () => window.clearInterval(timer)
-  }, [visible, reduced, index, hostId])
+  }, [visible, reduced, index, hostId, interacted])
   useEffect(() => {
     if (!visible || index !== 0 || reduced) return
     const timer = window.setInterval(() => { if (!document.hidden) setClock(c => c + 1) }, 1000)
     return () => window.clearInterval(timer)
   }, [visible, index, reduced])
-  function choose(next:number) { setIndex(next); setClock(0) }
-  return <div ref={ref} className={s.demo + (compact ? ' ' + s.compact : '')} data-motion={moving?'playing':'static'}>
+  function choose(next:number) { setInteracted(true); setIndex(next); setClock(0); stageRef.current?.scrollTo({ top: 0 }) }
+  return <div ref={ref} className={s.demo + (compact ? ' ' + s.compact : '') + (expanded ? ' ' + s.expanded : '')} data-motion={moving?'playing':'static'}>
     <div className={s.head}><span><Mic size={17} aria-hidden="true" />Voice mock interview</span><b>Illustrative demo</b></div>
     <div className={s.tabs} aria-label="Interview demonstration stages">{stages.map((t,i)=><button type="button" key={t} aria-pressed={index===i} onClick={()=>choose(i)}>{t}</button>)}</div>
-    <div className={s.stage}>
+    <div className={s.previewControls}>
+      <button type="button" aria-expanded={expanded} aria-controls={stageId} onClick={() => { setInteracted(true); setExpanded(value => !value); stageRef.current?.scrollTo({ top: 0 }) }}>{expanded ? 'Collapse preview' : 'Expand preview'}</button>
+      <a href="#main-content" onClick={event => { const target = document.getElementById('main-content'); if (target) { event.preventDefault(); setExpanded(false); choose(0); target.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth', block: 'start' }) } }}>Back to landing page ↑</a>
+    </div>
+    <p className={s.scrollHint}>Scroll inside to explore · Use the tabs to return to practice</p>
+    <div ref={stageRef} id={stageId} className={s.stage} tabIndex={0} role="region" aria-label={`${stages[index]} preview — scroll for details`}>
       {index===0?<>
         <div className={s.options}><label>Interviewer<select value={hostId} onChange={e=>{setHostId(e.target.value);setClock(0)}}>{INTERVIEWERS.map(person=><option key={person.id} value={person.id}>{person.name} · {person.label}</option>)}</select></label><label>Session<select value={length} onChange={e=>setLength(Number(e.target.value))}><option value={5}>Quick · 5 questions</option><option value={10}>Standard · 10 questions</option><option value={15}>Deep · 15 questions</option></select></label><label>Mode<select value={mode} onChange={e=>setMode(e.target.value)}>{['HR','Technical','Gulf readiness','Manager','Mixed'].map(m=><option key={m}>{m}</option>)}</select></label></div>
         <div className={s.interviewer}><div className={s.portrait} data-speaking={!answering}><Image key={host.id} src={host.image} alt={`${host.name}, ${host.label}, virtual interviewer illustration`} fill sizes="112px" className="object-cover" /></div><div><span>YOUR VIRTUAL INTERVIEWER</span><h3>{host.name}</h3><p>{mode} mode · Question {Math.min(4,length)} of {length}</p><b>{host.label}</b></div></div>

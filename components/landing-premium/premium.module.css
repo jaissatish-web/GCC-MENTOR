@@ -35,3 +35,15 @@
 .services a[data-service='qa']>svg:first-child,.services a[data-service='reports']>svg:first-child{color:#79539f}
 .services a[data-service='interview']>svg:first-child,.services a[data-service='readiness']>svg:first-child{color:rgb(var(--ui-accent-ink-rgb))}
 @media(max-width:767px){.heroVisual{min-height:390px}.heroVisualText strong{font-size:23px}.heroVisualText p{font-size:15px}}
+
+/* Photo-led service preview: one visual per selected service. */
+.photoTabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+.photoTabs button:nth-child(4),.photoTabs button:nth-child(5){grid-column:auto}
+.photoOutput{padding:12px;background:var(--paper)}
+.servicePhoto{position:relative;aspect-ratio:16/9;min-width:0;margin:0;overflow:hidden;border-radius:12px;background:var(--brand-soft)}
+.servicePhoto>img{object-fit:cover}
+.servicePhoto figcaption{position:absolute;inset:auto 0 0;padding:42px 18px 16px;background:linear-gradient(transparent,#082d29e8);color:white;pointer-events:none}
+.servicePhoto figcaption>span{display:block;font-size:22px;font-weight:700;line-height:1.3}
+.servicePhoto figcaption>small{display:block;font-size:13px;margin-top:4px;color:#e1eee9}
+@media(min-width:768px){.photoTabs{grid-template-columns:repeat(6,minmax(0,1fr))}.photoOutput{padding:16px}.servicePhoto{aspect-ratio:2/1}}
+@media(max-width:480px){.servicePhoto{aspect-ratio:4/3}.servicePhoto figcaption>span{font-size:20px}.photoTabs button{font-size:12px}}
