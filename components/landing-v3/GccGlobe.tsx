@@ -338,8 +338,8 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         ctx.strokeStyle = `rgba(255,214,140,${0.55 * dim})`
         ctx.lineWidth = 1 * dpr
         ctx.beginPath()
-        ctx.font = `700 ${(on ? 12 : 11) * dpr}px Inter, system-ui, sans-serif`
-        const label = `${g.code} · ${g.country}`
+        ctx.font = `700 ${(on ? 13 : 12) * dpr}px Inter, system-ui, sans-serif`
+        const label = g.country
         const w = ctx.measureText(label).width + 14 * dpr
         const h = 20 * dpr
         const px = Math.min(W * 0.9 - w / 2, Math.max(W * 0.1 + w / 2, lx))
@@ -498,3 +498,4 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
     </div>
   )
 }
+

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Target, Mic, Activity, Wrench, Compass, Globe2, ListChecks, RotateCcw, FileCheck2 } from 'lucide-react'
 import s from './premium.module.css'
 import { INTERVIEW_METRICS } from '@/lib/interviewProgress'
+import { SavedProgressPreview } from './SavedProgressPreview'
 const Demo=dynamic(()=>import('../landing-v3/InterviewDemo').then(m=>m.InterviewDemo),{ssr:false})
 export function InterviewExperience(){
  const ref=useRef<HTMLDivElement>(null),[ready,setReady]=useState(false)
@@ -26,13 +27,13 @@ export function ProgressPreview(){
   <div className={s.progressIntro}>
    <span className={s.kicker}>FEEDBACK INTO YOUR NEXT STEP</span>
    <h3>Know what to work on.<br/>Make every practice count.</h3>
-   <p>One completed interview. Five feedback areas. A focused plan for your next session.</p>
+   <p>Know your strengths, choose your next focus and compare your saved practice sessions.</p>
    <ol className={s.progressSequence}>
     <li><span><Mic size={20}/></span><div><strong>Practise for your target role</strong><small>Bring your real experience into each answer.</small></div></li>
     <li><span><FileCheck2 size={20}/></span><div><strong>Review your feedback</strong><small>See strengths and areas to work on.</small></div></li>
     <li><span><RotateCcw size={20}/></span><div><strong>Compare matching sessions</strong><small>Review changes and choose your next focus.</small></div></li>
    </ol>
-   <Link href="/mock-interview" className={s.primary}>Start my interview preparation <ArrowRight size={18}/></Link>
+   <Link href="/mock-interview" className={s.primary}>Start my interview preparation <ArrowRight size={18}/></Link><SavedProgressPreview/>
   </div>
   <div className={s.feedbackMap}>
    <div className={s.mapHeader}><span><Activity size={17}/> YOUR FEEDBACK MAP</span><small>Explore the five areas</small></div>
@@ -48,3 +49,4 @@ export function ProgressPreview(){
   </div>
  </div>
 }
+

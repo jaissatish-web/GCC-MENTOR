@@ -22,3 +22,33 @@
 .stage,.compact .stage{min-height:0;height:min(440px,60dvh);overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:auto;scrollbar-gutter:stable;-webkit-overflow-scrolling:touch}
 .expanded .stage,.expanded.compact .stage{height:min(720px,72dvh)}
 @media(max-width:480px){.stage,.compact .stage{height:min(380px,52dvh)}.expanded .stage,.expanded.compact .stage{height:min(620px,65dvh)}.previewControls button,.previewControls a{font-size:11px;padding:8px}.scrollHint{padding:7px 16px}}
+
+
+/* Landing refinement: readable content with natural page scrolling. */
+.demo{border-color:var(--line,#e1e7e4);border-radius:16px;box-shadow:0 12px 32px #102d3610}
+.head{background:var(--deep,#102d36);font-size:15px;padding:16px 20px}
+.tabs{background:var(--paper,#f8faf9);padding:10px 12px;gap:6px}
+.tabs button{min-height:48px;font-size:14px;color:var(--brand,#0f4c43);background:white;border:1px solid var(--line,#e1e7e4)}
+.tabs button[aria-pressed=true]{background:var(--brand,#0f4c43);color:white;border-color:var(--brand,#0f4c43)}
+.stage,.compact .stage,.expanded .stage,.expanded.compact .stage{height:auto;min-height:0;overflow:visible;padding:20px;scrollbar-gutter:auto}
+.options{gap:10px;grid-template-columns:1fr 1fr}.options label{font-size:13px}.options label:first-child{grid-column:1/-1}.options select{font-size:16px;min-height:44px;padding:8px;border-radius:8px;background:white}
+.compact .portrait{width:72px;height:80px}.interviewer p,.interviewer b{font-size:13px}.interviewer span{font-size:12px;letter-spacing:.03em}
+.turnSteps{font-size:12px}.turnSteps span[data-active=true]{color:var(--brand,#0f4c43)}
+.portrait[data-speaking=true]{box-shadow:0 0 0 3px var(--brand-soft,#e4eeeb)}
+.question{background:var(--brand-soft,#e4eeeb)}.question>span,.label{font-size:12px;letter-spacing:.03em}
+.compact .question h3{font-size:19px;line-height:1.4}.turnStatus{background:var(--paper,#f8faf9);border-color:var(--line,#e1e7e4);color:var(--brand,#0f4c43)}
+.turnStatus[data-answering=true]{background:#f7efdd;border-color:#e7d6ad;color:#735414}
+.turnStatus strong{font-size:14px}.turnStatus small{font-size:13px}.wave i,.wave[data-answering=true] i{background:var(--brand,#0f4c43)}.compact .wave{height:28px;margin-top:6px}
+.answer strong,.feedback strong{font-size:15px}.answer p,.feedback p,.details p,.compact .answer p,.compact .feedback p,.compact .details p{font-size:15px!important}
+.action{font-size:14px;min-height:48px;background:var(--brand,#0f4c43);color:white}
+.compact .note,.note{display:block;font-size:13px!important;line-height:1.6!important}
+.reviewQuestion{background:var(--paper,#f8faf9)}.reviewQuestion strong{font-size:13px}.reviewQuestion p{font-size:15px!important}
+.verdictGrid strong{font-size:14px}.verdictGrid p{font-size:14px!important}
+.feedbackDetails{border-block:1px solid var(--line,#e1e7e4);margin-top:16px}
+.feedbackDetails summary{display:flex;align-items:center;min-height:48px;cursor:pointer;font-size:14px;font-weight:650;color:var(--brand,#0f4c43);padding:12px 0}
+.feedbackDetails summary:after{content:'+';margin-left:auto;font-size:20px}.feedbackDetails[open] summary:after{content:'−'}
+.reviewGrid{padding-bottom:16px}.reviewItem{background:var(--paper,#f8faf9);border-color:var(--line,#e1e7e4)}.reviewItem strong{font-size:14px;color:var(--deep,#102d36)}.reviewItem small{font-size:13px;color:var(--brand,#0f4c43)}.reviewItem p{font-size:14px!important}.reviewItem b{font-size:12px}
+.betterAnswer{background:var(--brand-soft,#e4eeeb);border-color:var(--line,#e1e7e4)}.betterAnswer>span{font-size:14px;color:var(--brand,#0f4c43)}.betterAnswer p{font-size:15px!important;color:var(--deep,#102d36)}.betterAnswer small{font-size:13px}
+.nextSteps strong{font-size:14px}.nextSteps ol{font-size:14px}.metrics>div,.metrics b{font-size:14px}.overall{background:var(--brand-soft,#e4eeeb)}.overall strong{color:var(--brand,#0f4c43)}
+@media(max-width:767px){.head,.compact .head{font-size:15px;padding:16px}.compact .tabs button{font-size:13px}.stage,.compact .stage{padding:16px}.compact .question h3{font-size:18px}.turnSteps{font-size:12px}.turnSteps svg{width:14px}.verdictGrid{grid-template-columns:1fr}.reviewGrid{grid-template-columns:1fr}.options select,.compact .options select{font-size:16px;min-height:44px}}
+@media(prefers-reduced-motion:reduce){.demo *{animation:none!important;transition:none!important}}
