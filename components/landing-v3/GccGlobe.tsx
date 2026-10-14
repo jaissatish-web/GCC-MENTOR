@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import Image from 'next/image'
+import { gccDestinations } from '../landing-premium/gccDestinations'
 import { useReducedMotion } from './hooks'
 import { cn } from '@/lib/utils'
 import { LAND_DOTS_B64 } from './globeDots'
@@ -447,7 +449,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
                     focus === g.code ? 'bg-teal text-white ring-teal' : 'bg-canvas text-ink ring-line hover:ring-teal/50',
                   )}
                 >
-                  <b className={cn('font-mono type-caption ', focus === g.code ? 'text-gold-soft' : 'text-gold-ink')}>{g.code}</b>
+                  <Image src={gccDestinations.find((destination) => destination.country === (g.code === 'AE' ? 'United Arab Emirates' : g.country))!.src} alt="" aria-hidden="true" width={24} height={18} unoptimized className="h-[18px] w-6 shrink-0 rounded-sm object-cover" />
                   {g.country}
                 </button>
               </li>
