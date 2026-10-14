@@ -35,10 +35,12 @@ RULES
 10. Personal details: nationality, date_of_birth (as written), passport_type ("ECR" or "Non-ECR" only), passport_validity_date, visa_status, visa_transferable (true/false only if stated), notice_period, current_location — only when written.
 11. additional_information: preserve original extra section headings as category_name (e.g. Languages, Projects, Awards, Memberships). Capture separate named items as separate entries within the category. Set level only when explicitly written (e.g. Fluent, Advanced); otherwise omit level. Keep item values verbatim. Never infer skill levels.  anything else worth keeping that has no field above — languages, marital status, driving licence, salary expectation, availability, gender, projects summary, hobbies. Each: {"label": short label, "value": text, "sort_order": n}. Not the headline/job title under the name. Not passport or ID numbers.
 12. Every array item carries "sort_order" (its position, from 1). Never output id, profile_id, created_at, or any target_* / currently_in_gulf / current_employer / current_project key.
+13. professional_headline: COPY the professional title explicitly printed beneath the candidate's name. Omit if absent. Do not infer a headline from a job, summary or vacancy.
 
 OUTPUT SCHEMA (all five arrays must be present; [] if none):
 {
   "full_name": "string",
+  "professional_headline": "string",
   "nationality": "string",
   "date_of_birth": "string",
   "passport_type": "ECR" | "Non-ECR",

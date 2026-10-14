@@ -31,6 +31,30 @@ const INK = '#14202B'
 const MUTED = '#55636F'
 const RULE = '#C9D2DA'
 
+/** Durable, readable single-column designs. Existing template IDs remain unchanged. */
+export const ATS_PROFESSIONAL: TemplateTheme = {
+  displayFont: SANS, bodyFont: SANS, bodySize: 11, nameSize: 25, headingSize: 11.5,
+  density: 1, ink: '#17212B', muted: '#465361', rule: '#C8D0D6',
+  accent: '#17212B', accentSoft: '#F1F4F5', headingStyle: 'rule', layout: 'single',
+  uppercaseName: false, allowPhoto: false, skillStyle: 'inline',
+  showExperienceDescription: true,
+  headerContactLines: true,
+  labels: { summary: 'Professional Summary', experience: 'Work Experience', skills: 'Skills', certifications: 'Certifications', education: 'Education' },
+}
+
+export const GCC_PROFESSIONAL: TemplateTheme = {
+  ...ATS_PROFESSIONAL, displayFont: GROTESK, bodyFont: GROTESK,
+  accent: '#155B50', accentSoft: '#EFF6F3', headingStyle: 'bar',
+  nameSize: 26, allowPhoto: true, photoSide: 'right', photoShape: 'rounded',
+  sectionOrder: 'skills-first',
+}
+
+export const SENIOR_PROFESSIONAL: TemplateTheme = {
+  ...ATS_PROFESSIONAL, bodySize: 10.5, headingSize: 11, nameSize: 25,
+  density: 0.85, accent: '#173A5E', accentSoft: '#F0F4F7',
+  sectionOrder: 'skills-first',
+}
+
 export const GCC_ENGINEERING: TemplateTheme = {
   displayFont: SANS,
   bodyFont: SANS,

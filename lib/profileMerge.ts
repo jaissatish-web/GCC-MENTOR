@@ -1,4 +1,5 @@
 import type { CareerProfileDraft, CareerProfileFull } from '@/types/careerProfile'
+import { isHeadlineEntry } from '@/lib/resumeHeadline'
 
 /**
  * Merging a newly-uploaded resume into an EXISTING Career Profile (TASK-133).
@@ -64,6 +65,7 @@ function rowKey(table: ChildTable, row: Row): string {
     case 'skills':
       return norm(row.name)
     case 'additional_information':
+      if (isHeadlineEntry({ label: row.label, category_name: row.category_name })) return '__professional_headline'
       return norm(row.label) + '|' + norm(row.value)
   }
 }

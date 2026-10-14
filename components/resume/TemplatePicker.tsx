@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { availableTemplates, getTemplate, type TemplateId } from '@/lib/templates'
+import { getTemplate, TEMPLATE_FIELDS, type TemplateField, type TemplateId } from '@/lib/templates'
+import { templateCatalog, type TemplatePurpose } from '@/lib/templateCatalog'
+import { DocumentReader } from '@/components/resume/ResumeDocumentView'
 import { cn } from '@/lib/utils'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
@@ -59,13 +61,13 @@ const PHONE_GAP = 16
 
 const LAYOUT = {
   /** Top three-quarters of the page. */
-  grid: { cardW: 240, pageFraction: 0.75, wrap: 'flex flex-wrap justify-center gap-5' },
+  grid: { cardW: 240, pageFraction: 1, wrap: 'flex flex-wrap justify-center gap-5' },
   /**
    * The gallery on a phone (2026-09-24): two across instead of one. At 240px
    * a 390px screen fitted one card per row and fifteen templates ran to
    * ~7,400px. 160px cards, two per row, halve that and still read.
    */
-  gridPhone: { cardW: 160, pageFraction: 0.72, wrap: 'grid grid-cols-2 justify-items-center gap-4' },
+  gridPhone: { cardW: 160, pageFraction: 1, wrap: 'grid grid-cols-2 justify-items-center gap-4' },
   /** Shorter still: ten previews in a sticky column must stay scannable. */
   rail: { cardW: 212, pageFraction: 0.66, wrap: 'flex flex-col items-center gap-3' },
 } as const
@@ -121,7 +123,12 @@ export function TemplatePicker({
   layout?: 'grid' | 'rail'
 }) {
   const [hovered, setHovered] = useState<TemplateId | null>(null)
-  const templates = availableTemplates()
+  const [purpose, setPurpose] = useState<TemplatePurpose>('all')
+  const [field, setField] = useState<TemplateField | ''>('')
+  const [search, setSearch] = useState('')
+  const [previewing, setPreviewing] = useState(false)
+  const templates = templateCatalog({ purpose, field, search })
+  const PreviewTemplate = getTemplate(current).component
   // Card width has to be known in JS (the preview is scaled to it), so the
   // phone layout is chosen by a media query rather than by CSS alone.
   const [phone, setPhone] = useState(false)
@@ -168,7 +175,21 @@ export function TemplatePicker({
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <p className="type-helper text-ink-muted">All Gulf designs · Any profession</p>
+      <p className="type-helper text-ink-muted">Your content stays the same. Choose a design for how you will apply.</p>
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter resume designs">
+        {([['recommended', 'Recommended'], ['all', 'All designs'], ['ats', 'ATS · Single column'], ['photo', 'Optional photo'], ['senior', 'Senior & executive'], ['entry', 'Early career']] as const).map(([value, label]) => (
+          <button type="button" key={value} aria-pressed={purpose === value} onClick={() => setPurpose(value)} className={cn('min-h-11 rounded-ctl border px-3 type-caption font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal', purpose === value ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink-soft')}>{label}</button>
+        ))}
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <label className="min-w-0 type-caption font-semibold text-ink-soft">Search designs<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, style or profession" className="field mt-1 w-full" /></label>
+        <label className="min-w-0 type-caption font-semibold text-ink-soft">Profession<select value={field} onChange={e => setField(e.target.value as TemplateField | '')} className="field mt-1 w-full"><option value="">All professions</option>{TEMPLATE_FIELDS.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}</select></label>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="type-caption text-ink-muted" role="status">{templates.length} designs</p>
+        <button type="button" className="min-h-11 rounded-ctl border border-teal/30 bg-white px-3 type-caption font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal" onClick={() => setPreviewing(true)}>View selected design full size</button>
+      </div>
+      {templates.length === 0 ? <div className="rounded-card border border-line bg-white p-4 type-helper text-ink-soft">No matching designs.<button type="button" className="ml-2 min-h-11 font-semibold text-teal" onClick={() => { setPurpose('all'); setField(''); setSearch('') }}>Clear filters</button></div> : null}
       <div ref={wrapRef} role="group" aria-label="Resume templates" className={wrap}>
         {templates.map((t) => {
           const Template = getTemplate(t.id).component
@@ -198,7 +219,7 @@ export function TemplatePicker({
               <LazyPreview height={previewH}>
                 <span
                   className="absolute left-0 top-0 block origin-top-left"
-                  style={{ width: PAGE_W, transform: `scale(${SCALE})` }}
+                  style={{ width: PAGE_W, zoom: SCALE, textRendering: 'geometricPrecision' }}
                 >
                   <Template
                     {...({
@@ -227,7 +248,7 @@ export function TemplatePicker({
                     </span>
                   ) : t.atsLevel === 'maximum' ? (
                     <span className="whitespace-nowrap rounded-[4px] bg-canvas px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-soft">
-                      Max ATS
+                      Single column
                     </span>
                   ) : null}
                 </span>
@@ -244,6 +265,7 @@ export function TemplatePicker({
           )
         })}
       </div>
+      {previewing ? <DocumentReader title={getTemplate(current).name} onClose={() => setPreviewing(false)}><PreviewTemplate {...({ document, profile: undefined, optimizedContent: undefined } as unknown as GulfPremiumProps)} /></DocumentReader> : null}
     </div>
   )
 }

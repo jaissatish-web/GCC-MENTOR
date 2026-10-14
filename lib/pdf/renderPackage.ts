@@ -1,4 +1,3 @@
-import { buildCareerProfileResume, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { createElement } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { launchBrowser, waitForImages } from '@/lib/pdf/browser'
@@ -6,7 +5,8 @@ import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
 import { type GulfPremiumProps } from '@/components/templates/GulfPremium'
 import { getTemplate } from '@/lib/templates'
 import { readStyleOverrides } from '@/lib/resumeStyle'
-import { applyLivePhotoToDocument, applyTargetTitleToDocument, buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
+import { resolvePackageResumeDocument } from '@/lib/packageResumeDocument'
+import type { ResumeDocument } from '@/lib/resumeDocument'
 import type {
   CareerProfile,
   CareerProfileFull,
@@ -106,13 +106,11 @@ export async function renderPackagePdf(opts: {
   // document was delivered is filled in first (applyLivePhotoToDocument), and
   // snapshots from before 2026-09-16 get their headline at render time.
   const optimizedContent = (pkg.optimized_content ?? { summary: { generated: '', source_profile_summary: '' }, experience_blocks: [] }) as OptimizedContent
-  const raw = isCareerProfileResume(pkg)
-  const snapshot = raw ? null : pkg.document_snapshot ?? null
-  const withPhoto = snapshot ? applyLivePhotoToDocument(snapshot, profile.photo_url, pkg.field_visibility_snapshot ?? null) : null
-  const withTitle = withPhoto ? applyTargetTitleToDocument(withPhoto, pkg.target_job_title ?? null) : null
-  const documentForRender: ResumeDocument | null = raw ? buildCareerProfileResume(profileWithPhoto) : withTitle
-    ? { ...withTitle, header: { ...withTitle.header, photoUrl: await signedPhotoUrl(withTitle.header.photoUrl) } }
-    : null
+  const resolved = resolvePackageResumeDocument(pkg, profile)
+  const documentForRender: ResumeDocument = {
+    ...resolved,
+    header: { ...resolved.header, photoUrl: await signedPhotoUrl(resolved.header.photoUrl) },
+  }
 
   const props: GulfPremiumProps = {
     document: documentForRender,
@@ -168,15 +166,7 @@ export async function renderPackagePdf(opts: {
       await browser.close().catch(() => {})
     }
 
-    const document =
-      documentForRender ??
-      buildResumeDocument({
-        profile,
-        optimizedContent,
-        skillsOrder: pkg.skills_order ?? [],
-        fieldVisibility: pkg.field_visibility_snapshot ?? null,
-        targetJobTitle: pkg.target_job_title ?? null,
-      })
+    const document = documentForRender
     return { ok: true, pdf, document, profile, pkg, templateId: entry.id }
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error)

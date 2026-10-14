@@ -1,5 +1,6 @@
 import { stripIdNumbers } from '@/lib/idNumbers'
 import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
+import { HEADLINE_CATEGORY, HEADLINE_LABEL } from '@/lib/resumeHeadline'
 import type {
   CareerProfileDraft,
   DraftWorkExperience,
@@ -37,10 +38,12 @@ RULES:
 8. Every item in work_experience/skills/certifications/education/additional_information MUST carry "sort_order" — the order the item appears in the resume, starting at 1. Do NOT include "id", "profile_id" or "created_at" on any item.
 9. additional_information: preserve original extra section headings as category_name (e.g. Languages, Projects, Awards, Memberships). Capture separate named items as separate entries within the category. Set level only when explicitly written (e.g. Fluent, Advanced); otherwise omit level. Keep item values verbatim. Never infer skill levels.  capture anything else the resume contains that does not fit a named field — e.g. languages, marital status, driving licence, salary expectation, expected salary, availability, projects, LinkedIn, address, hobbies, gap notes. Each entry: {"label": <short AI-suggested label, e.g. "Languages">, "value": <the text>, "sort_order": <n>}. The user can rename the label later; keep it short. Do NOT add the resume's title line / headline (the job title printed under the name) as an entry — it is not additional information.
 10. work_experience highlights: preserve each bullet as a separate string, original wording.
+11. professional_headline: COPY the professional title explicitly printed beneath the candidate's name. Omit if absent. Never use a vacancy title or infer it from employment history.
 
 OUTPUT SCHEMA (all five arrays must be present; use [] if none):
 {
   "full_name": "string",
+  "professional_headline": "string",
   "photo_url": "string",
   "nationality": "string",
   "date_of_birth": "string",
@@ -126,6 +129,8 @@ export function normalizeDraft(raw: unknown): CareerProfileDraft | null {
   const certsArr = Array.isArray(raw.certifications) ? raw.certifications : []
   const eduArr = Array.isArray(raw.education) ? raw.education : []
   const addlArr = Array.isArray(raw.additional_information) ? raw.additional_information : []
+  const headline = typeof raw.professional_headline === 'string' ? raw.professional_headline.trim().slice(0, 200) : ''
+  const headerRows: DraftAdditionalInformation[] = headline ? [{ label: HEADLINE_LABEL, value: headline, category_name: HEADLINE_CATEGORY, show_on_resume: true, sort_order: addlArr.length + 1 }] : []
 
   return {
     ...(parent as unknown as CareerProfileDraft),
@@ -141,7 +146,7 @@ export function normalizeDraft(raw: unknown): CareerProfileDraft | null {
     skills: withSortOrder(skillsArr, 1) as DraftSkill[],
     certifications: withSortOrder(certsArr, 1) as DraftCertification[],
     education: withSortOrder(eduArr, 1) as DraftEducation[],
-    additional_information: (withSortOrder(addlArr, 1) as DraftAdditionalInformation[])
+    additional_information: [...(withSortOrder(addlArr, 1) as DraftAdditionalInformation[])
       .map((a) => ({ ...a,
         category_id: undefined, category_order: undefined, category_position: undefined, show_on_resume: true,
         category_name: typeof a.category_name === 'string' ? a.category_name.trim().slice(0,80) || null : null,
@@ -150,11 +155,12 @@ export function normalizeDraft(raw: unknown): CareerProfileDraft | null {
       .filter((a) => typeof a.value !== 'string' || a.value.trim() !== '')
       // The CV's headline is not additional information: stored here it printed
       // as an extra "Headline:" line under a CV that already carries a title.
-      .filter((a) => typeof a.label !== 'string' || !HEADLINE_LABEL.test(a.label.trim())),
+      .filter((a) => typeof a.label !== 'string' || !HEADLINE_LABEL_PATTERN.test(a.label.trim()))
+      .filter((a) => a.category_name !== HEADLINE_CATEGORY), ...headerRows],
   }
 }
 
-const HEADLINE_LABEL = /^(headline|title|job title|professional title|profile title|designation|current title)$/i
+const HEADLINE_LABEL_PATTERN = /^(headline|title|job title|professional title|profile title|designation|current title)$/i
 
 /**
  * The token ceiling for one extraction (2026-09-11: was 8,192).

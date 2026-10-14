@@ -136,7 +136,7 @@ try {
     reset(raw); await load(); await blocked(false)
     const snapshot = JSON.stringify(pkg.document_snapshot)
     const names = await page.$$eval('[aria-label="Resume templates"] > button', buttons => buttons.map(button => button.getAttribute('aria-label').split(' — ')[0]))
-    assert.equal(names.length, 50, 'Every template stays available to every profession')
+    assert.equal(names.length, 53, 'Every template stays available to every profession')
     assert.equal(new Set(names).size, 50, 'Template names remain distinct')
     assert.ok(names.every(name => /^(Gulf|GCC) /.test(name)), 'Every template has a neutral Gulf name')
     assert.equal(await page.$('[aria-label="Filter templates by field"]'), null, 'No profession filter implies a restriction')

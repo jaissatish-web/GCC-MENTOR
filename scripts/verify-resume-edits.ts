@@ -53,6 +53,7 @@ const existing: ResumeDocument = {
 const edited = JSON.parse(JSON.stringify(existing)) as ResumeDocument
 edited.header.displayName = 'Asha R.'
 edited.header.targetJobTitle = 'Senior Electrical Engineer'
+edited.experience[0].entry.description = 'User-reviewed project context'
 edited.header.photoUrl = 'https://evil.example/x.jpg'
 edited.experience[0].entry.role = 'Senior Electrical Engineer'
 edited.experience[0].range = 'Jan 2019 — Present'
@@ -75,6 +76,7 @@ edited.additional = [{ entry: { id: 'info-new-1' } as ResumeDocument['additional
 
 const out = sanitizeEditedDocument(edited, existing)
 check('name and headline are editable', out.header.displayName === 'Asha R.' && out.header.targetJobTitle === 'Senior Electrical Engineer')
+check('project or role context is editable', out.experience[0].entry.description === 'User-reviewed project context')
 check('the stored photo is kept; an edited photo URL is ignored', out.header.photoUrl === 'user/photo.jpg' && out.header.showPhoto === true)
 check('role title, dates and company line are editable', out.experience[0].entry.role === 'Senior Electrical Engineer' && out.experience[0].range === 'Jan 2019 — Present' && out.experience[0].companyLine === 'Acme Power · Abu Dhabi')
 check('blank activities are dropped, others kept in order', JSON.stringify(out.experience[0].bullets) === JSON.stringify(['Tested LV and MV panels', 'Commissioned substations']))

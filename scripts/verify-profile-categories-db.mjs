@@ -26,6 +26,13 @@ try{
   assert.equal((await asUser(db,owner,()=>db.query('select count(*)::int n from public.profile_additional_information'))).rows[0].n,1)
   assert.equal((await save(owner,{full_name:'Stale tab'},saved,'2000-01-01T00:00:00Z')).rows[0].result.status,'conflict')
   assert.ok(await denied(()=>save(owner,{full_name:'Bad position'},[{...saved[0],category_position:'illegal'}])))
+  const headline={label:'Professional headline',value:'Senior Electrical Engineer',sort_order:0,category_id:crypto.randomUUID(),category_name:'Resume headline',category_order:0,category_position:'end',show_on_resume:true}
+  await save(owner,{full_name:'Synthetic owner'},[headline])
+  const header=(await asUser(db,owner,()=>db.query('select * from public.profile_additional_information'))).rows[0]
+  assert.equal(header.value,'Senior Electrical Engineer')
+  await save(owner,{full_name:'Synthetic owner'},[{...header,value:'',show_on_resume:false}])
+  const cleared=(await asUser(db,owner,()=>db.query('select * from public.profile_additional_information'))).rows[0]
+  assert.equal(cleared.id,header.id);assert.equal(cleared.value,'');assert.equal(cleared.show_on_resume,false)
   await asUser(db,owner,()=>db.query('delete from public.career_profiles'))
   assert.equal((await asUser(db,owner,()=>db.query('select * from public.profile_additional_information'))).rows.length,0)
   assert.equal((await asUser(db,other,()=>db.query('select * from public.profile_additional_information'))).rows.length,1)

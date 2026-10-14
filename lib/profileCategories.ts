@@ -70,9 +70,34 @@ export function groupCategoryEntries<T extends CategoryMetadata>(rows: T[]): Cat
   return Array.from(groups.values()).sort((a,b) => a.order - b.order)
 }
 
-/** Legacy flat snapshots stay flat; category metadata travels with each entry. */
-export function resumeCategoryGroups<T extends { entry: CategoryMetadata }>(items: T[]) {
-  return groupCategoryEntries(items.map(item => ({ ...item.entry, item }))).map(group => ({ ...group, items: group.items.map(row => row.item) }))
+function headingKey(value: string): string {
+  return value.toLowerCase().replace(/achivement|achievment/g, 'achievement').replace(/[^a-z0-9]/g, '').replace(/s$/, '')
+}
+
+/** A category already supplies its heading; keep item names that add information. */
+export function categoryItemDisplay(display: string, categoryName?: string | null): string {
+  if (!categoryName?.trim()) return display // pre-category snapshots keep their labels
+  const category = headingKey(categoryName)
+  let value = display
+  for (let i = 0; i < 3; i++) {
+    const prefix = /^\s*([^:\n]+?)\s*(?::|\s[—–-]\s)\s*/.exec(value)
+    if (!prefix) break
+    const key = headingKey(prefix[1])
+    const redundant = key === category || (category.includes('achievement') && /^(key)?achievement$/.test(key))
+    if (!redundant) break
+    const remaining = value.slice(prefix[0].length)
+    if (!remaining.trim()) break // never erase a label-only item
+    value = remaining
+  }
+  return value
+}
+
+/** Presentation only: also fixes existing snapshots without rewriting their content. */
+export function resumeCategoryGroups<T extends { entry: CategoryMetadata; display: string }>(items: T[]) {
+  return groupCategoryEntries(items.map(item => ({ ...item.entry, item }))).map(group => ({
+    ...group,
+    items: group.items.map(row => ({ ...row.item, display: categoryItemDisplay(row.item.display, row.item.entry.category_name) })),
+  }))
 }
 
 export function validateCategoryEntries(rows: unknown): string | null {

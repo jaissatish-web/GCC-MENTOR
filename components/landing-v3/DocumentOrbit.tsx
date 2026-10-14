@@ -2,6 +2,7 @@
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { DocumentReader } from '@/components/resume/ResumeDocumentView'
 import { getTemplate, type TemplateId } from '@/lib/templates'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
 import { PERSONAS } from './personas'
@@ -55,8 +56,10 @@ const FittedPage = memo(function FittedPage({ item, width, height }: { item: Ite
   const scale = Math.min(width / PAGE_W, height / pageH)
   return (
     <div aria-hidden="true" className="actual-template-orbit-face relative overflow-hidden bg-white" style={{ width, height }}>
-      <div ref={page} className="absolute top-0" style={{ width: PAGE_W, left: (width - PAGE_W * scale) / 2, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none' }}>
-        <ItemRender item={item} />
+      <div className="absolute top-0" style={{ left: (width - PAGE_W * scale) / 2, width: PAGE_W * scale }}>
+        <div ref={page} style={{ width: PAGE_W, zoom: scale, textRendering: 'geometricPrecision', pointerEvents: 'none' }}>
+          <ItemRender item={item} />
+        </div>
       </div>
     </div>
   )
@@ -314,7 +317,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             aria-label={`Open ${itemName(item)} — ${p.name}, ${p.role}`}
             aria-pressed={on}
             className={cn(
-              'absolute left-1/2 w-[170px] rounded-[12px] border-2 bg-white p-1.5 text-left will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+              'absolute left-1/2 w-[170px] rounded-[12px] border-2 bg-white p-1.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
               'shadow-[0_8px_20px_rgba(15,76,67,.06)] data-[front=1]:shadow-[0_18px_34px_rgba(15,76,67,.16),0_34px_78px_rgba(15,76,67,.14)]',
               on ? 'border-[#C9962E]' : 'border-line',
             )}
@@ -336,59 +339,8 @@ export function DocumentOrbit({ className }: { className?: string }) {
   )
 }
 
-/** Full-size, crisp preview in a native modal dialog (Esc and backdrop close it). */
+/** The landing and saved-resume previews share the same native text reader. */
 function FullSize({ item, onClose }: { item: Item; onClose: () => void }) {
-  const ref = useRef<HTMLDialogElement | null>(null)
-  const [w, setW] = useState(PAGE_W)
-  useEffect(() => {
-    const d = ref.current
-    if (!d) return
-    const measure = () => setW(Math.min(PAGE_W, window.innerWidth - 40))
-    measure()
-    window.addEventListener('resize', measure)
-    if (!d.open) d.showModal()
-    const close = () => onClose()
-    d.addEventListener('close', close)
-    return () => { d.removeEventListener('close', close); window.removeEventListener('resize', measure) }
-  }, [onClose])
   const p = persona(item.who)
-  return (
-    <dialog
-      ref={ref}
-      aria-label={`${itemName(item)} — full size`}
-      onClick={(e) => {
-        if (e.target === ref.current) ref.current?.close()
-      }}
-      className="m-auto max-h-[92dvh] w-fit max-w-[calc(100vw-16px)] overflow-hidden rounded-[16px] bg-transparent p-0 backdrop:bg-ink/70 backdrop:backdrop-blur-sm"
-    >
-      <div className="flex max-h-[92dvh] flex-col overflow-hidden rounded-[16px] bg-white">
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line px-4 py-3">
-          <div className="min-w-0 leading-tight">
-            <b className="block truncate text-[14px] text-ink">{itemName(item)}</b>
-            <span className="block truncate text-[12px] text-ink-muted">Example · {p.name}, {p.role}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => ref.current?.close()}
-            className="grid size-10 shrink-0 place-items-center rounded-full border border-line text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-            aria-label="Close preview"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-canvas p-2 sm:p-4" tabIndex={0} aria-label="Scrollable template preview">
-          <div className="actual-template-orbit-face mx-auto bg-white shadow-m-2" style={{ width: w }}>
-            <div style={{ width: PAGE_W, zoom: w / PAGE_W }}>
-              <ItemRender item={item} />
-            </div>
-          </div>
-        </div>
-        <div className="shrink-0 border-t border-line bg-white px-4 py-2">
-          <button type="button" onClick={() => ref.current?.close()} className="min-h-11 w-full rounded-lg bg-teal px-4 text-sm font-semibold text-white">Back to landing page</button>
-        </div>
-      </div>
-    </dialog>
-  )
+  return <DocumentReader title={itemName(item)} caption={`Example · ${p.name}, ${p.role}`} onClose={onClose}><div className="actual-template-orbit-face"><ItemRender item={item} /></div></DocumentReader>
 }

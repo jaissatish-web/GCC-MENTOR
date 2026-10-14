@@ -1,4 +1,5 @@
 import { stripIdNumbers } from '@/lib/idNumbers'
+import { isHeadlineEntry, resolveProfileHeadline } from '@/lib/resumeHeadline'
 import { sortCertificationsNewestFirst, sortEducationNewestFirst, sortExperienceNewestFirst } from '@/lib/resumeOrder'
 import type {
   CareerProfileFull,
@@ -132,6 +133,8 @@ export interface ResumeDocument {
     photoUrl: string | null
     displayName: string
     targetJobTitle: string
+    /** A user cleared/edited the headline; legacy repair must not restore it. */
+    headlineEdited?: boolean
     hasAnyIdentity: boolean
     identityPrimary: string
     identityContact: string
@@ -266,7 +269,10 @@ export function buildResumeDocument({
   ].filter((i) => i.text.trim() !== '')
 
   const hasAnyIdentity = Boolean(identityPrimary || identityContact || identityGulf)
-  const hasHeaderText = Boolean(displayName || profile.target_job_title || hasAnyIdentity)
+  const headline = targetJobTitle !== undefined && targetJobTitle !== null
+    ? targetJobTitle.trim()
+    : resolveProfileHeadline(profile)
+  const hasHeaderText = Boolean(displayName || headline || hasAnyIdentity)
 
   // ---- Summary (user-edited > generated > the user's own) -----------------
   //
@@ -295,8 +301,10 @@ export function buildResumeDocument({
       const block = blocksById.get(entry.id)
       const bullets =
         block?.user_edited_bullets ?? block?.generated_bullets ?? entry.highlights ?? []
+      const descriptionLines = (entry.description ?? '').split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+      const descriptionInBullets = descriptionLines.length > 0 && descriptionLines.every(line => bullets.some(b => b.trim() === line))
       return {
-        entry,
+        entry: descriptionInBullets ? { ...entry, description: null } : entry,
         bullets: bullets.filter((b) => b && b.trim() !== ''),
         range: dateRange(entry.start_date, entry.end_date),
         companyLine: joinParts([entry.company, entry.location]),
@@ -356,7 +364,7 @@ export function buildResumeDocument({
   // ---- Additional information and custom categories ----------------------
   const additional: ResumeAdditionalItem[] = visible(fv, 'additional_information')
     ? (profile.additional_information ?? [])
-        .filter(entry => entry.show_on_resume !== false && Boolean(entry.label?.trim() || entry.value?.trim()))
+        .filter(entry => !isHeadlineEntry(entry) && entry.show_on_resume !== false && Boolean(entry.label?.trim() || entry.value?.trim()))
         .slice()
         .sort((a, b) => a.sort_order - b.sort_order)
         .map((entry) => ({ entry, display: joinParts([entry.label, entry.level ? `(${stripIdNumbers('level', entry.level)})` : '', readableList(stripIdNumbers(entry.label, entry.value ?? ''))], ': ') }))
@@ -367,7 +375,7 @@ export function buildResumeDocument({
       showPhoto,
       photoUrl: profile.photo_url,
       displayName,
-      targetJobTitle: targetJobTitle ?? profile.target_job_title ?? '',
+      targetJobTitle: headline,
       hasAnyIdentity,
       identityPrimary,
       identityContact,
@@ -508,10 +516,10 @@ export function applyTargetTitleToDocument(
   doc: ResumeDocument,
   packageTargetTitle: string | null | undefined
 ): ResumeDocument {
-  if (doc.header.targetJobTitle && doc.header.targetJobTitle.trim() !== '') return doc
+  if (doc.header.headlineEdited || (doc.header.targetJobTitle && doc.header.targetJobTitle.trim() !== '')) return doc
   const title = packageTargetTitle?.trim()
   if (!title) return doc
-  return { ...doc, header: { ...doc.header, targetJobTitle: title } }
+  return { ...doc, header: { ...doc.header, targetJobTitle: title, hasHeaderText: true } }
 }
 
 /**

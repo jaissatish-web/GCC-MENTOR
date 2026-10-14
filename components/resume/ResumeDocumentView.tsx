@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 /**
  * Shows a resume template as a DOCUMENT — the whole page, scaled to fit,
@@ -19,9 +20,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * sharing one template), scale it down uniformly and reserve exactly the space
  * the scaled result occupies.
  *
- * `zoom` would be simpler but it is not honoured consistently across browsers
- * for nested inline-styled trees, and it affects layout in ways `transform`
- * does not; transform + an explicitly sized wrapper is predictable everywhere.
+ * Native CSS zoom keeps the fixed A4 layout while rasterizing text at the
+ * displayed size. The full-screen reader uses the same original document,
+ * with fit and 75–200% magnification; no screenshot is enlarged.
  */
 
 const PAGE_WIDTH = 794
@@ -132,24 +133,19 @@ export function ResumeDocumentView({
           data-document-preview
           style={{
             width: PAGE_WIDTH,
-            transform: `scale(${scale})`,
-            transformOrigin: 'top left',
+            zoom: scale,
+            textRendering: 'geometricPrecision',
           }}
           className="shadow-[0_1px_3px_rgba(10,26,47,0.10),0_12px_32px_rgba(10,26,47,0.10)]"
         >
           {children}
         </div>
       </div>
-      {/* On a phone the page is ~45% size: readable only as a thumbnail
-          (launch audit I5). The reader shows the same page larger. */}
-      {reader && scale < 0.8 ? (
-        <div className="mt-3 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setReading(true)}
-            className="min-h-11 rounded-ctl border border-teal/40 bg-white px-4 text-[13.5px] font-semibold text-teal"
-          >
-            Read full size
+      {reader ? (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-ctl border border-line bg-white px-3 py-2">
+          <span className="type-caption text-ink-soft">A4 document · {Math.round(scale * 100)}% fit</span>
+          <button type="button" onClick={() => setReading(true)} className="min-h-11 rounded-ctl bg-teal px-4 text-[13.5px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">
+            Open full-size preview
           </button>
         </div>
       ) : null}
@@ -160,76 +156,61 @@ export function ResumeDocumentView({
 
 const ZOOMS = [
   { label: 'Fit', value: 0 },
-  { label: 'Large', value: 0.75 },
-  { label: 'Actual size', value: 1 },
+  { label: '75%', value: 0.75 },
+  { label: '100%', value: 1 },
+  { label: '125%', value: 1.25 },
+  { label: '150%', value: 1.5 },
+  { label: '200%', value: 2 },
 ] as const
 
-/** Full-screen view of the page: scrolls both ways, three zoom levels, Escape or Close to leave. */
-function DocumentReader({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+/** Native text at the selected magnification, never an enlarged screenshot. */
+export function DocumentReader({ children, onClose, title = 'Resume preview', caption = 'A4 · Original document' }: { children: React.ReactNode; onClose: () => void; title?: string; caption?: string }) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
-  const pageRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
-  const [zoom, setZoom] = useState<number>(0.75)
-  const [fit, setFit] = useState(0.5)
-  const [height, setHeight] = useState(1123)
+  const [zoom, setZoom] = useState<number>(0)
+  const [fit, setFit] = useState(1)
 
   useEffect(() => {
-    const measure = () => {
-      if (bodyRef.current) setFit(Math.min(1, (bodyRef.current.clientWidth - 16) / PAGE_WIDTH))
-      if (pageRef.current) setHeight(pageRef.current.offsetHeight)
-    }
+    const dialog = dialogRef.current
+    const body = bodyRef.current
+    if (!dialog || !body) return
+    const opener = document.activeElement as HTMLElement | null
+    const measure = () => setFit(Math.min(1, Math.max(0.2, (body.clientWidth - 32) / PAGE_WIDTH)))
+    if (!dialog.open) dialog.showModal()
     measure()
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const observer = new ResizeObserver(measure)
+    observer.observe(body)
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    window.addEventListener('keydown', onKey)
-    window.addEventListener('resize', measure)
     closeRef.current?.focus()
     return () => {
+      observer.disconnect()
+      if (dialog.open) dialog.close()
       document.body.style.overflow = previous
-      window.removeEventListener('keydown', onKey)
-      window.removeEventListener('resize', measure)
+      opener?.focus()
     }
-  }, [onClose])
+  }, [])
 
-  const z = zoom === 0 ? fit : Math.max(fit, zoom)
-  return (
-    <div role="dialog" aria-modal="true" aria-label="Your CV at full size" className="fixed inset-0 z-[70] flex flex-col bg-[#1f2a28]">
-      <div className="flex flex-wrap items-center gap-2 bg-white px-3 py-2 shadow">
-        <div className="flex gap-1" role="group" aria-label="Zoom">
-          {ZOOMS.map((o) => (
-            <button
-              key={o.label}
-              type="button"
-              aria-pressed={zoom === o.value}
-              onClick={() => setZoom(o.value)}
-              className={
-                'min-h-11 rounded-ctl px-3 text-[13px] font-semibold ' +
-                (zoom === o.value ? 'bg-teal text-white' : 'border border-line text-ink')
-              }
-            >
-              {o.label}
-            </button>
-          ))}
+  const z = zoom === 0 ? fit : zoom
+  if (typeof document === 'undefined') return null
+  return createPortal(
+    <dialog ref={dialogRef} onCancel={e => { e.preventDefault(); onClose() }} aria-label={title} aria-modal="true" className="fixed inset-0 z-[90] m-0 h-dvh max-h-none w-screen max-w-none border-0 bg-[#e8eeec] p-0 backdrop:bg-ink/70">
+      <div className="flex h-full flex-col">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-white px-4 py-3">
+          <div className="min-w-0"><h2 className="text-[15px] font-semibold text-ink">{title}</h2><p className="text-[12px] text-ink-muted">{caption}</p></div>
+          <button ref={closeRef} type="button" onClick={onClose} className="min-h-11 rounded-ctl border border-line bg-white px-4 text-[13.5px] font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">Close preview</button>
         </div>
-        <button
-          ref={closeRef}
-          type="button"
-          onClick={onClose}
-          className="ml-auto min-h-11 rounded-ctl border border-line px-4 text-[13.5px] font-semibold text-ink"
-        >
-          Close
-        </button>
-      </div>
-      <div ref={bodyRef} className="flex-1 overflow-auto p-2">
-        <div style={{ width: PAGE_WIDTH * z, height: height * z }} className="mx-auto">
-          <div ref={pageRef} data-document-preview style={{ width: PAGE_WIDTH, transform: `scale(${z})`, transformOrigin: 'top left' }} className="bg-white">
-            {children}
+        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-line bg-white px-4 py-2" role="group" aria-label="Document zoom">
+          {ZOOMS.map(option => <button key={option.label} type="button" aria-pressed={zoom === option.value} onClick={() => setZoom(option.value)} className={'min-h-11 rounded-ctl px-3 text-[13px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ' + (zoom === option.value ? 'bg-teal text-white' : 'border border-line text-ink')}>{option.label}</button>)}
+          <span className="ml-auto text-[12px] text-ink-soft">{Math.round(z * 100)}% · Scroll to read</span>
+        </div>
+        <div ref={bodyRef} className="min-h-0 flex-1 overflow-auto overscroll-contain p-4" tabIndex={0} aria-label="Scrollable resume document">
+          <div style={{ width: PAGE_WIDTH * z }} className="mx-auto bg-white shadow-[0_4px_32px_rgba(10,26,47,.16)]">
+            <div data-document-preview style={{ width: PAGE_WIDTH, zoom: z, textRendering: 'geometricPrecision' }} className="bg-white">{children}</div>
           </div>
         </div>
       </div>
-    </div>
+    </dialog>, document.body,
   )
 }

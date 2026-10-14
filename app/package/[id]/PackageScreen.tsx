@@ -17,7 +17,8 @@ import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { getTemplate, type TemplateId } from '@/lib/templates'
-import { applyLivePhotoToDocument, applyTargetTitleToDocument, buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
+import type { ResumeDocument } from '@/lib/resumeDocument'
+import { resolvePackageResumeDocument } from '@/lib/packageResumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { PhotoUpload } from '@/components/profile/PhotoUpload'
@@ -38,7 +39,7 @@ import {
   type ResumeStyleOverrides,
   type SizeKey,
 } from '@/lib/resumeStyle'
-import { buildCareerProfileResume, isCareerProfileResume, CAREER_RESUME_BADGE } from '@/lib/careerProfileResume'
+import { isCareerProfileResume, CAREER_RESUME_BADGE } from '@/lib/careerProfileResume'
 import { resumeKind } from '@/lib/resumeKind'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
@@ -467,19 +468,7 @@ function PackageScreenInner({ id }: { id: string }) {
    * break the rules-of-hooks order, and it is one object spread.
    */
   const isRaw = isCareerProfileResume(pkg)
-  const snapshotDocument = isRaw ? null : (pkg.document_snapshot as ResumeDocument | null) ?? null
-  const documentWithLivePhoto = isRaw && profile ? buildCareerProfileResume(profile) : snapshotDocument
-    ? applyTargetTitleToDocument(
-        applyLivePhotoToDocument(
-          snapshotDocument,
-          profile?.photo_url ?? null,
-          pkg.field_visibility_snapshot ?? null,
-        ),
-        // Snapshots written before 2026-09-16 froze an empty headline. Filled
-        // here so the screen shows what the PDF will print.
-        pkg.target_job_title ?? null,
-      )
-    : null
+  const documentWithLivePhoto = profile ? resolvePackageResumeDocument({ ...pkg, document_snapshot: pkg.document_snapshot as ResumeDocument | null }, profile) : (pkg.document_snapshot as ResumeDocument | null) ?? null
   const activeTemplateId = draftTemplate ?? savedTemplateId
   const isTrying = activeTemplateId !== savedTemplateId
   const changesDirty = styleDirty || isTrying || nameDraft.trim() !== (pkg.name ?? '').trim()
@@ -533,20 +522,7 @@ function PackageScreenInner({ id }: { id: string }) {
    * button as "I can't find the option anywhere" — it was there, and invisible
    * to everyone who already had resumes. The rail inherits the same fallback.
    */
-  const previewDocument: ResumeDocument | null =
-    (isRaw ? documentWithLivePhoto : (pkg.document_snapshot as ResumeDocument | null)) ??
-    (profile
-      ? buildResumeDocument({
-          profile,
-          optimizedContent: (pkg.optimized_content ?? {
-            summary: { generated: '', source_profile_summary: '' },
-            experience_blocks: [],
-          }) as OptimizedContent,
-          skillsOrder: pkg.skills_order ?? [],
-          fieldVisibility: pkg.field_visibility_snapshot ?? null,
-          targetJobTitle: pkg.target_job_title ?? null,
-        })
-      : null)
+  const previewDocument: ResumeDocument | null = documentWithLivePhoto
   // Where the job is, in words — never the stored enum ("saudi_arabia").
   const countryName = pkg ? GULF_COUNTRIES.find((c) => c.value === pkg.target_country && c.value !== 'generic_gulf')?.label ?? null : null
   const pdfUrl = `/api/packages/${encodeURIComponent(id)}/pdf`

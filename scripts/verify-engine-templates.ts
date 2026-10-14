@@ -149,6 +149,15 @@ function main() {
     process.exit(2)
   }
   const golden = JSON.parse(readFileSync(goldenPath, 'utf-8')) as Golden
+  // Adding a design must never re-baseline existing delivered templates.
+  if (process.argv.includes('--capture-new')) {
+    for (const id of ids.filter(id => !golden[id])) {
+      golden[id] = { sample: digestFor(id, sample), full: digestFor(id, every) }
+      console.log(`captured new design ${id}`)
+    }
+    writeFileSync(goldenPath, JSON.stringify(golden, null, 2) + '\n')
+    return
+  }
   let failures = 0
   for (const id of ids) {
     const want = golden[id]
