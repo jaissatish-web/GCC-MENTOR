@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
   return [
     { url: SITE_URL, lastModified: now, changeFrequency: 'weekly', priority: 1 },
+    { url: `${SITE_URL}/preparation-pack`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE_URL}/gulf-readiness-score`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
   ]
 }

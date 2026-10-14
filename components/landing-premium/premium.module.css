@@ -65,3 +65,5 @@
 .templatesCopy{min-width:0;padding-inline:12px}
 @media(min-width:768px){.templatesWrap{width:min(1200px,calc(100% - 32px))}.templatesCopy{padding-inline:0}}
 @media(min-width:1024px){.templatesGrid{grid-template-columns:minmax(0,1fr) minmax(0,3fr);gap:24px}.templatesCopy .heading{margin-bottom:16px}}
+
+.packExplore{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;margin-top:20px}.packExplore p{font-size:13px;color:var(--muted);max-width:560px}.packExplore .primary{max-width:100%}
