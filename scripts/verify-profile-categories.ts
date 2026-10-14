@@ -2,7 +2,7 @@ import './resolve-paths'
 import assert from 'node:assert/strict'
 import * as React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { organizeCategoryEntries, groupCategoryEntries, resumeCategoryGroups, validateCategoryEntries, CATEGORY_POSITIONS, categoryFact } from '../lib/profileCategories'
+import { organizeCategoryEntries, groupCategoryEntries, resumeCategoryGroups, validateCategoryEntries, CATEGORY_POSITIONS, categoryFact, categoryItemDisplay } from '../lib/profileCategories'
 import { makeTemplateFixture } from './fixtures/templateFixture'
 import { availableTemplates } from '../lib/templates'
 import { buildCareerProfileResume } from '../lib/careerProfileResume'
@@ -18,6 +18,27 @@ import JSZip from 'jszip'
 ;(globalThis as unknown as { React: unknown }).React = React
 async function main() {
   const { profile, optimizedContent } = makeTemplateFixture()
+  assert.equal(categoryItemDisplay('Key Achievement: Reduced downtime by 20%.', 'Key Achievements'), 'Reduced downtime by 20%.')
+  assert.equal(categoryItemDisplay('Key Achivement: Improved handover.', 'Key Achievements'), 'Improved handover.')
+  assert.equal(categoryItemDisplay('Key Achievement: Key Achievement: Delivered safely.', 'Key Achievements'), 'Delivered safely.')
+  assert.equal(categoryItemDisplay('Achievement: Delivered safely.', 'Awards & Achievements'), 'Delivered safely.')
+  assert.equal(categoryItemDisplay('Languages: English, Hindi', 'Languages'), 'English, Hindi')
+  assert.equal(categoryItemDisplay('Project Delta: Commissioned utilities.', 'Projects'), 'Project Delta: Commissioned utilities.')
+  assert.equal(categoryItemDisplay('NEBOSH: Completed training.', 'Certifications'), 'NEBOSH: Completed training.')
+  assert.equal(categoryItemDisplay('Key Achievement: Reduced downtime.', null), 'Key Achievement: Reduced downtime.')
+  assert.equal(categoryItemDisplay('Key Achievement:', 'Key Achievements'), 'Key Achievement:')
+  const achievementDoc=buildCareerProfileResume({...profile,additional_information:[{id:'achievement',profile_id:profile.id,created_at:'',sort_order:0,label:'Key Achievement',value:'Reduced downtime by 20%.',category_id:'10000000-0000-4000-8000-000000000099',category_name:'Key Achievements',category_position:'end',show_on_resume:true}]})
+  const frozenAchievement=JSON.stringify(achievementDoc)
+  for (const t of availableTemplates()) {
+    const html=renderToStaticMarkup(React.createElement(t.component!,{profile,optimizedContent,document:achievementDoc}))
+    assert.ok(html.includes('Key Achievements'),t.id+' keeps category heading')
+    assert.ok(!html.includes('Key Achievement:'),t.id+' removes repeated item heading')
+    assert.ok(html.includes('Reduced downtime by 20%.'),t.id+' keeps achievement sentence')
+  }
+  const achievementZip=await JSZip.loadAsync(await Packer.toBuffer(buildResumeDocx(achievementDoc)))
+  const achievementXml=await achievementZip.file('word/document.xml')!.async('string')
+  assert.ok(achievementXml.includes('Key Achievements') && !achievementXml.includes('Key Achievement:'))
+  assert.equal(JSON.stringify(achievementDoc),frozenAchievement,'presentation must not mutate saved document')
   let seq = 0
   const uuid = () => `10000000-0000-4000-8000-${String(++seq).padStart(12,'0')}`
   const legacy = [{label:'Languages',value:'English (fluent)',id:'legacy',sort_order:0},{label:'Projects',value:'Site commissioning',id:'project',sort_order:1}]

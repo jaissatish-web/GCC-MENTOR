@@ -9,6 +9,8 @@ A candidate's professional headline can be imported verbatim, edited in Career P
 
 A shared `resolvePackageResumeDocument` now resolves screen, editor, PDF and Word content. Tailored resumes preserve their saved document, including per-application edits. Career Profile resumes reflect the latest saved profile. Explicitly cleared headlines are not resurrected by legacy title repair. The no-snapshot PDF path now receives the application's title rather than rendering from the profile and only reporting the correct title afterwards.
 
+Named categories print their heading once. Redundant item prefixes such as `Key Achievement:` beneath `Key Achievements` are suppressed in preview, PDF and Word, including existing snapshots. Achievement sentences, meaningful item names and stored source data remain unchanged.
+
 The resume editor also lets users edit or clear the separate project/role context. Raw-profile rendering avoids printing an identical description both as context and as an activity. No profile content is deleted during rendering.
 
 ## Designs
