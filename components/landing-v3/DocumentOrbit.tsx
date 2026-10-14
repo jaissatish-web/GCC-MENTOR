@@ -123,7 +123,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
     if (!box) return
     const measure = () => {
       const w = box.clientWidth
-      const isCompact = w < 768
+      const isCompact = w < 480
       compactRef.current = isCompact
       rxRef.current = isCompact ? Math.max(65, Math.min(140, (w - 104) / 2)) : Math.min(470, (w - 170) / 2)
       setCompact(isCompact)

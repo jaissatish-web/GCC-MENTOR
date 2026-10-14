@@ -58,3 +58,11 @@
 .interviewMount{min-height:0}
 .demoPlaceholder{min-height:440px}
 @media(min-width:768px){.interviewGrid{grid-template-columns:1fr 1fr;align-items:start}}
+
+/* Template showcase: almost edge-to-edge on phones, equal columns on desktop. */
+.templatesWrap{width:min(1200px,calc(100% - 8px))}
+.templatesGrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:center}
+.templatesCopy{min-width:0;padding-inline:12px}
+.templatesGrid>.orbit>.small{padding-inline:12px}
+@media(min-width:768px){.templatesWrap{width:min(1200px,calc(100% - 32px))}.templatesCopy{padding-inline:0}}
+@media(min-width:1024px){.templatesGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.templatesCopy .heading{margin-bottom:16px}.templatesGrid>.orbit>.small{text-align:center}}
