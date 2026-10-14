@@ -13,7 +13,6 @@
 @media(prefers-reduced-motion:reduce){.page *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
 /* The reused interview retains its stages, with a stable readable preview viewport. */
-.interviewMount [class*="interview_stage__"]{height:780px;min-height:780px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
 .interviewMount [class*="interview_stage__"] p{font-size:15px!important;line-height:1.6!important}
 .interviewMount [class*="interview_head__"]{background:var(--deep)}
 .interviewMount [class*="interview_options__"] select{min-height:44px;font-size:16px}
@@ -47,3 +46,15 @@
 .servicePhoto figcaption>small{display:block;font-size:13px;margin-top:4px;color:#e1eee9}
 @media(min-width:768px){.photoTabs{grid-template-columns:repeat(6,minmax(0,1fr))}.photoOutput{padding:16px}.servicePhoto{aspect-ratio:2/1}}
 @media(max-width:480px){.servicePhoto{aspect-ratio:4/3}.servicePhoto figcaption>span{font-size:20px}.photoTabs button{font-size:12px}}
+
+/* Replace the long interview pitch with one focused dashboard photograph. */
+.coachPhoto{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:16px;margin:0;background:var(--brand-soft)}
+.coachPhoto>img{object-fit:cover;object-position:45% center}
+.coachPhoto figcaption{position:absolute;inset:auto 0 0;padding:55px 20px 20px;background:linear-gradient(transparent,#082d29f2);color:white}
+.coachPhoto figcaption>span{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;color:#f4dfb3}
+.coachPhoto figcaption>strong{display:block;font-size:clamp(22px,3vw,30px);font-weight:750;line-height:1.2;margin-top:5px}
+.coachPhoto figcaption>small{display:block;font-size:11px;margin-top:7px;color:#e1eee9}
+.coachPitch>.textLink{margin-top:12px}
+.interviewMount{min-height:0}
+.demoPlaceholder{min-height:440px}
+@media(min-width:768px){.interviewGrid{grid-template-columns:1fr 1fr;align-items:start}}

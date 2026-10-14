@@ -1,15 +1,15 @@
 'use client'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import { profiles } from './data'
-import { ArrowRight, Check, Target } from 'lucide-react'
+import { ArrowRight, Target } from 'lucide-react'
 import s from './premium.module.css'
 const Demo=dynamic(()=>import('../landing-v3/InterviewDemo').then(m=>m.InterviewDemo),{ssr:false})
 export function InterviewExperience(){
- const ref=useRef<HTMLDivElement>(null),[ready,setReady]=useState(false),[role,setRole]=useState(0)
+ const ref=useRef<HTMLDivElement>(null),[ready,setReady]=useState(false)
  useEffect(()=>{const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){setReady(true);io.disconnect()}},{rootMargin:'240px'});if(ref.current)io.observe(ref.current);return()=>io.disconnect()},[])
- return <div className={s.interviewGrid}><div className={s.coachPitch}><span className={s.kicker}>WHAT TO SAY. HOW TO SAY IT. WHEN TO BE CONCISE.</span><h3>Turn your experience into a clear answer.</h3><label className={s.category}>Your practice profession<select value={role} onChange={e=>setRole(Number(e.target.value))}>{profiles.map((p,i)=><option key={p.department} value={i}>{p.department}</option>)}</select></label><div className={s.question}><span>ROLE-SPECIFIC PRACTICE EXAMPLE</span><h4>{profiles[role].question}</h4><p>{profiles[role].answer}</p></div><ul className={s.checks}><li><Check size={17}/>Technical and behavioral preparation</li><li><Check size={17}/>What was right, incomplete or unclear</li><li><Check size={17}/>Suggested structure and next practice</li></ul><Link href="/mock-interview" className={s.textLink}>Open mock interview practice <ArrowRight size={17}/></Link></div><div ref={ref} className={s.interviewMount}>{ready?<Demo compact/>:<div className={s.demoPlaceholder}><Target size={32}/><p>Interview practice demonstration</p></div>}</div></div>
+ return <div className={s.interviewGrid}><div className={s.coachPitch}><figure className={s.coachPhoto}><Image src="/landing/service-mock-interview.png" alt="Illustrative Gulf interview dashboard showing a virtual interviewer, feedback scores and a progress chart" fill sizes="(min-width: 768px) 550px, calc(100vw - 32px)"/><figcaption><span>YOUR INTERVIEW. YOUR PROGRESS.</span><strong>Practise. Review. Improve.</strong><small>Illustrative dashboard · sample scores</small></figcaption></figure><Link href="/mock-interview" className={s.textLink}>Start your interview preparation <ArrowRight size={17}/></Link></div><div ref={ref} className={s.interviewMount}>{ready?<Demo compact/>:<div className={s.demoPlaceholder}><Target size={32}/><p>Interview practice demonstration</p></div>}</div></div>
 }
 const scores=[{session:'1',structure:48,technical:60},{session:'2',structure:61,technical:69},{session:'3',structure:74,technical:78}]
 export function ProgressPreview(){

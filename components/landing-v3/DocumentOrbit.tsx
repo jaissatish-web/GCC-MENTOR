@@ -1,9 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
-import { availableTemplates, getTemplate, type TemplateId } from '@/lib/templates'
+import { getTemplate, type TemplateId } from '@/lib/templates'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
 import { PERSONAS } from './personas'
 import { SAMPLE_CVS } from './sampleCvs'
@@ -39,11 +38,6 @@ const ItemRender = memo(function ItemRender({ item }: { item: Item }) {
   return <Template {...({ document: SAMPLE_CVS[item.who], profile: undefined, optimizedContent: undefined, skillsOrder: [], fieldVisibility: null, styleOverrides: { size: 'large' } } as unknown as GulfPremiumProps)} />
 })
 function itemName(item: Item) { return getTemplate(item.id).name }
-function itemTags(item: Item) {
-  const t = getTemplate(item.id)
-  return [t.atsLevel === 'maximum' ? 'ATS-focused layout' : 'Review parsing for your application', t.allowsPhoto ? 'Photo option' : 'No photo']
-}
-
 // Measure the actual template, including longer examples, and contain the
 // entire page without clipping its footer or changing the document renderer.
 const FittedPage = memo(function FittedPage({ item, width, height }: { item: Item; width: number; height: number }) {
@@ -97,10 +91,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
   const kick = useRef<() => void>(() => {})
 
   const [sel, setSel] = useState(0)
-  const [playing, setPlaying] = useState(true)
   const [compact, setCompact] = useState(false)
   const [rx, setRx] = useState(460)
-  const [zoomed, setZoomed] = useState(false)
+  const [zoomed, setZoomed] = useState<Item | null>(null)
 
 
   const L = compact ? LAYOUTS.compact : LAYOUTS.wide
@@ -146,7 +139,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
     reduced.current = media.matches
     if (media.matches) {
       playingRef.current = false
-      setPlaying(false)
     }
     let visible = false
     let frame = 0
@@ -207,11 +199,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
     const onMedia = () => {
       reduced.current = media.matches
         playingRef.current = !media.matches
-      setPlaying(!media.matches)
       if (media.matches) {
         playingRef.current = false
-        setPlaying(false)
-        if (target.current !== null) angle.current = target.current
+          if (target.current !== null) angle.current = target.current
         target.current = null
         focus.current = ITEMS.map((_, i) => i === selRef.current ? 1 : 0)
         paint()
@@ -249,12 +239,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
 
   const pause = () => {
     playingRef.current = false
-    setPlaying(false)
     kick.current()
   }
-  const openPreview = () => { pause(); setZoomed(true) }
-  const selected = ITEMS[sel]
-  const who = persona(selected.who)
+  const openPreview = (item: Item) => { pause(); setZoomed(item) }
 
   return (
     <div
@@ -289,8 +276,8 @@ export function DocumentOrbit({ className }: { className?: string }) {
             bringToFront(selRef.current + (dx < 0 ? 1 : -1))
           }
         }}
-        onPointerUp={() => { gesture.current = null; playingRef.current = !reduced.current; setPlaying(!reduced.current); kick.current() }}
-        onPointerCancel={() => { gesture.current = null; playingRef.current = !reduced.current; setPlaying(!reduced.current); kick.current() }}
+        onPointerUp={() => { gesture.current = null; playingRef.current = !reduced.current; kick.current() }}
+        onPointerCancel={() => { gesture.current = null; playingRef.current = !reduced.current; kick.current() }}
         onClickCapture={(event) => {
           if (suppressClick.current) { event.preventDefault(); event.stopPropagation(); suppressClick.current = false }
         }}
@@ -322,9 +309,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
             ref={(n) => {
               slots.current[i] = n
             }}
-            onClick={() => on ? openPreview() : bringToFront(i)}
+            onClick={() => openPreview(item)}
             data-orbit-centre={on ? 'true' : undefined}
-            aria-label={`${on ? 'Open' : 'Show'} ${itemName(item)} — ${p.name}, ${p.role}`}
+            aria-label={`Open ${itemName(item)} — ${p.name}, ${p.role}`}
             aria-pressed={on}
             className={cn(
               'absolute left-1/2 w-[170px] rounded-[12px] border-2 bg-white p-1.5 text-left will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
@@ -344,54 +331,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
 
       </div>
 
-      <p className="relative px-4 text-center text-[12px] text-ink-muted">Select a design{compact ? ' or swipe' : ''} · Open the complete page</p>
-      {/* Controls stay in flow, so wrapping never overlaps a resume. */}
-      <div className="relative z-[120] mt-4 flex justify-center px-3 pb-5">
-        <div
-          className={cn(
-            'flex min-w-0 max-w-full flex-wrap items-center justify-center rounded-[18px] border border-line bg-white/95 shadow-[0_16px_40px_rgba(20,24,28,.10)]',
-            compact ? 'gap-2.5 p-3' : 'gap-[18px] py-3 pl-[22px] pr-3.5',
-          )}
-        >
-          <div className={cn(compact ? 'w-full min-w-0 text-center' : 'min-w-[270px] text-left')} aria-live={playing ? 'off' : 'polite'}>
-            <div className={cn('flex items-baseline gap-2.5', compact && 'justify-center')}>
-              <span className="type-card font-bold tracking-[-0.02em]">{itemName(selected)}</span>
-              <span className="font-mono text-[12px] text-ink-muted">
-                {String(sel + 1).padStart(2, '0')} / {String(N).padStart(2, '0')}
-              </span>
-            </div>
-            <div className="mt-0.5 truncate text-[12.5px] text-ink-soft">
-              Example · {who.name} · {who.role}
-            </div>
-            <div className={cn('mt-1.5 flex flex-wrap items-center gap-1.5', compact && 'justify-center')}>
-              {itemTags(selected).map((tag) => (
-                <span key={tag} className="rounded-full bg-canvas px-[9px] py-[3px] text-[11px] font-bold uppercase tracking-[0.06em] text-ink-muted">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-          {!compact && <div className="h-11 w-px bg-line" aria-hidden="true" />}
-          <button type="button" onClick={() => bringToFront(sel - 1)} aria-label="Previous template" className="flex size-11 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M15 6l-6 6 6 6" />
-            </svg>
-          </button>
-
-          <button type="button" onClick={() => bringToFront(sel + 1)} aria-label="Next template" className="flex size-11 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M9 6l6 6-6 6" />
-            </svg>
-          </button>
-          <button type="button" onClick={openPreview} className="min-h-11 rounded-full border border-line px-4 type-label text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">View full size</button>
-          {(
-            <Link href="/templates" className="flex min-h-11 items-center rounded-full border border-teal px-4 text-[13px] font-extrabold text-teal hover:bg-teal-soft">
-              Explore all {availableTemplates().length} templates
-            </Link>
-          )}
-        </div>
-      </div>
-      {zoomed ? <FullSize item={selected} onClose={() => { setZoomed(false); playingRef.current = !reduced.current; setPlaying(!reduced.current); kick.current() }} /> : null}
+      {zoomed ? <FullSize item={zoomed} onClose={() => { setZoomed(null); playingRef.current = !reduced.current; kick.current() }} /> : null}
     </div>
   )
 }
