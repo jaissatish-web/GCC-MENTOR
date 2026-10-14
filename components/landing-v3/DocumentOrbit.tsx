@@ -56,8 +56,10 @@ const FittedPage = memo(function FittedPage({ item, width, height }: { item: Ite
   const scale = Math.min(width / PAGE_W, height / pageH)
   return (
     <div aria-hidden="true" className="actual-template-orbit-face relative overflow-hidden bg-white" style={{ width, height }}>
-      <div ref={page} className="absolute top-0" style={{ width: PAGE_W, left: (width - PAGE_W * scale) / 2, zoom: scale, textRendering: 'geometricPrecision', pointerEvents: 'none' }}>
-        <ItemRender item={item} />
+      <div className="absolute top-0" style={{ left: (width - PAGE_W * scale) / 2, width: PAGE_W * scale }}>
+        <div ref={page} style={{ width: PAGE_W, zoom: scale, textRendering: 'geometricPrecision', pointerEvents: 'none' }}>
+          <ItemRender item={item} />
+        </div>
       </div>
     </div>
   )
