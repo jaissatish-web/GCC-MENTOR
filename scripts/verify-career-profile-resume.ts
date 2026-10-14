@@ -39,7 +39,7 @@ assert.ok(!hidden.header.contactItems?.some((i) => i.kind === 'email'))
 const partial = { ...profile, professional_summary: null, work_experience: [], skills: [], certifications: [], education: [], additional_information: [], photo_url: null }
 assert.equal(buildCareerProfileResume(partial).summary, '')
 const templates = availableTemplates()
-assert.equal(templates.length, 50)
+assert.equal(templates.length, 53)
 for (const template of templates) {
   for (const candidate of [profile, changed, partial, { ...profile, photo_url: null }, makeLongTemplateFixture().profile]) {
     const document = buildCareerProfileResume(candidate)
@@ -53,4 +53,4 @@ for (const template of templates) {
     assert.ok(!html.includes('undefined'), template.id + ': no missing-value leakage')
   }
 }
-console.log('PASS: raw data, synchronization, visibility, partial/long profiles and 250 renders across all 50 templates')
+console.log('PASS: raw data, synchronization, visibility, partial/long profiles and 265 renders across all 53 templates')

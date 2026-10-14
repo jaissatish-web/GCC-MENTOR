@@ -198,5 +198,17 @@
   "falcon_executive": {
     "sample": "8ecc97dc41dbf1934b6fbc6bac132c617790cc7db236ed6ad8e645bbf7b4cd1e",
     "full": "eff9b6d3f329d06e6102db73f99d4dbb31ab13001f1b4c2b87b3435890e14263"
+  },
+  "ats_professional": {
+    "sample": "5f53b32d9b0e949b026c1973fcec1ef60c023fd05895dbe3342a5f9537a4dd09",
+    "full": "0eed148206dee5090b75eadf833af1234e163c0b1a87ea9639d63a58799c58d6"
+  },
+  "gcc_professional": {
+    "sample": "1cf817a04988b2475ce93b68623af683a35dd882f03afd3fef105cb334d90463",
+    "full": "bbcc7ca26cec3f369cc90eac26221c28544badad55bc6ee00eb4b655493c02b4"
+  },
+  "senior_professional": {
+    "sample": "15f8466bc40554686df785e9c437fd70ee1c464dc6bb77ad1e599a67fdaf916a",
+    "full": "e75743f83405ddd565dc267064c538fa25abeffbf8f704e2a4214ef71cfa089d"
   }
 }

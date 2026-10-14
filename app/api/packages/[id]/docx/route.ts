@@ -3,7 +3,8 @@ import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { NextRequest, NextResponse } from 'next/server'
 import { Packer } from 'docx'
 import { createClient } from '@/lib/supabase/server'
-import { buildResumeDocument } from '@/lib/resumeDocument'
+import type { ResumeDocument } from '@/lib/resumeDocument'
+import { resolvePackageResumeDocument } from '@/lib/packageResumeDocument'
 import { buildResumeDocx } from '@/lib/resumeDocx'
 import type {
   CareerProfile,
@@ -102,6 +103,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     optimized_content?: OptimizedContent | null
     skills_order?: string[] | null
     field_visibility_snapshot?: CareerProfileFull['field_visibility'] | null
+    document_snapshot?: ResumeDocument | null
   }
 
   // ---- Load the LIVE profile, scoped to BOTH id and caller (contract #3) ----
@@ -146,18 +148,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
   }
 
   // ---- Shared, render-agnostic derivation (the whole point of TASK-032) -----
-  const doc = buildResumeDocument({
-    profile,
-    optimizedContent: (pkg.optimized_content ?? {
-      summary: { generated: '', source_profile_summary: '' },
-      experience_blocks: [],
-    }) as OptimizedContent,
-    skillsOrder: pkg.skills_order ?? [],
-    // The application's title, not the Career Profile's — see
-    // ResumeDocumentInput.targetJobTitle.
-    targetJobTitle: (pkg.target_job_title as string | null) ?? null,
-    fieldVisibility: pkg.field_visibility_snapshot ?? null,
-  })
+  const doc = resolvePackageResumeDocument(pkg, profile)
 
   try {
     const wordDoc = buildResumeDocx(doc)

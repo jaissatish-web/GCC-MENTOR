@@ -121,7 +121,8 @@ export function TemplatePicker({
   layout?: 'grid' | 'rail'
 }) {
   const [hovered, setHovered] = useState<TemplateId | null>(null)
-  const templates = availableTemplates()
+  const [purpose, setPurpose] = useState<'all' | 'ats' | 'photo'>('all')
+  const templates = availableTemplates().filter(t => purpose === 'all' || (purpose === 'ats' ? !t.allowsPhoto && t.theme?.layout !== 'sidebar' && t.theme?.layout !== 'sidebar-filled' : t.allowsPhoto))
   // Card width has to be known in JS (the preview is scaled to it), so the
   // phone layout is chosen by a media query rather than by CSS alone.
   const [phone, setPhone] = useState(false)
@@ -168,7 +169,12 @@ export function TemplatePicker({
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <p className="type-helper text-ink-muted">All Gulf designs · Any profession</p>
+      <p className="type-helper text-ink-muted">Your content stays the same. Choose a design for how you will apply.</p>
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter resume designs">
+        {([['all', 'All designs'], ['ats', 'ATS · Single column'], ['photo', 'Optional photo']] as const).map(([value, label]) => (
+          <button type="button" key={value} aria-pressed={purpose === value} onClick={() => setPurpose(value)} className={cn('min-h-11 rounded-ctl border px-3 type-caption font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal', purpose === value ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink-soft')}>{label}</button>
+        ))}
+      </div>
       <div ref={wrapRef} role="group" aria-label="Resume templates" className={wrap}>
         {templates.map((t) => {
           const Template = getTemplate(t.id).component
@@ -227,7 +233,7 @@ export function TemplatePicker({
                     </span>
                   ) : t.atsLevel === 'maximum' ? (
                     <span className="whitespace-nowrap rounded-[4px] bg-canvas px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-ink-soft">
-                      Max ATS
+                      Single column
                     </span>
                   ) : null}
                 </span>

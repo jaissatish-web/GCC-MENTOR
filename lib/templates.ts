@@ -25,6 +25,9 @@ import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
  */
 
 export type TemplateId =
+  | 'ats_professional'
+  | 'gcc_professional'
+  | 'senior_professional'
   | 'gulf_premium'
   | 'ats_classic'
   | 'gcc_engineering'
@@ -234,6 +237,21 @@ function engineTemplate(
  * for the same template.
  */
 export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
+  ats_professional: engineTemplate('ats_professional', themes.ATS_PROFESSIONAL, {
+    name: 'ATS Professional', description: 'Readable single-column design · No photo',
+    recommendedFor: ['Online applications', 'All professions'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'ats', atsLevel: 'maximum',
+  }),
+  gcc_professional: engineTemplate('gcc_professional', themes.GCC_PROFESSIONAL, {
+    name: 'GCC Professional', description: 'Clean Gulf presentation · Optional photo',
+    recommendedFor: ['Recruiter sharing', 'All professions'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'professional',
+  }),
+  senior_professional: engineTemplate('senior_professional', themes.SENIOR_PROFESSIONAL, {
+    name: 'Senior Professional', description: 'Long careers · Clear type and compact spacing',
+    recommendedFor: ['Experienced professionals', 'Managers', 'Technical specialists'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'senior', atsLevel: 'maximum',
+  }),
   gulf_premium: {
     id: 'gulf_premium',
     version: 1,

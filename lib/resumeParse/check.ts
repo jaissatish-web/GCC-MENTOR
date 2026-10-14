@@ -1,4 +1,5 @@
 import type { CareerProfileDraft, DraftWorkExperience } from '@/types/careerProfile'
+import { isHeadlineEntry } from '@/lib/resumeHeadline'
 import { parseCvDate, splitRange, yearOf } from './dates'
 import type { Prepass } from './prepass'
 
@@ -93,6 +94,12 @@ export function checkDraft(input: CareerProfileDraft, text: string, pre: Prepass
   const tokenSet = new Set(tokens(text))
   const textDigits = text.replace(/\D/g, '')
   const d = draft as unknown as Record<string, unknown>
+  draft.additional_information = draft.additional_information.filter(row => {
+    if (!isHeadlineEntry(row)) return true
+    const present = typeof row.value === 'string' && text.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').includes(row.value.normalize('NFKC').toLowerCase().replace(/\s+/g, ' '))
+    if (!present) warnings.push({ field: 'professional_headline', message: 'The proposed headline was not found in the CV. Add your preferred title in Career Profile.' })
+    return present
+  })
 
   // ---- contact: the CV's own text decides
   const email = typeof draft.email === 'string' ? draft.email.trim() : ''

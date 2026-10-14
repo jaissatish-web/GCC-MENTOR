@@ -48,6 +48,7 @@ import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CAREER_PROFILE_PARSE_NOTES_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
 import { mergeDraftIntoProfile, describeReplaceLosses } from '@/lib/profileMerge'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
+import { isHeadlineEntry, profileHeadline, setProfileHeadline } from '@/lib/resumeHeadline'
 import { calculateReadiness, fieldPointsFor, type ReadinessResult } from '@/lib/readiness'
 import { answersFromReadinessCategory, scoreProfileReadiness } from '@/lib/gulfReadiness/fromProfile'
 import { toDateInputValue, toMonthInputValue } from '@/lib/partialDates'
@@ -2021,6 +2022,14 @@ function ProfileScreen() {
   }
 
   const hasProfile = Boolean(hasSavedProfile || editor.full_name.trim())
+  const headlineEntry = profileHeadline(editor.additional_information)
+  const headlineValue = headlineEntry?.value ?? editor.target_job_title
+  const headlineShown = headlineEntry?.show_on_resume !== false
+  const updateHeadline = (value: string, shown = headlineShown) => setEditor(e => e && ({
+    ...e,
+    additional_information: setProfileHeadline(e.additional_information, value, shown, () => crypto.randomUUID())
+      .map(row => row.key ? row : { ...row, key: uid() }),
+  }))
   const saveState: 'saved' | 'dirty' | 'saving' | 'error' = submitting ? 'saving' : saveError ? 'error' : isDirty ? 'dirty' : 'saved'
   const saveButton = (
     <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>
@@ -2421,6 +2430,28 @@ function ProfileScreen() {
               error={invalidFields.has('full_name') ? 'Full name is required.' : undefined}
               className="sm:col-span-2"
             />
+            <div className="sm:col-span-2">
+              <TextField
+                id="f_professional_headline"
+                label="Professional headline"
+                placeholder="e.g. Senior Mechanical Engineer · Project Delivery"
+                maxLength={200}
+                helper="Appears beneath your name. Use your own professional title; your application target and employment titles stay separate."
+                value={headlineValue}
+                onChange={e => updateHeadline(e.target.value)}
+              />
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                <label className="flex min-h-11 items-center gap-2 type-helper text-ink-soft">
+                  <input type="checkbox" checked={headlineShown} onChange={e => updateHeadline(headlineValue, e.target.checked)} className="size-4 accent-teal" />
+                  Show headline beneath my name
+                </label>
+                {!headlineValue.trim() && editor.work_experience.some(w => w.role.trim()) ? (
+                  <button type="button" className="min-h-11 type-helper font-semibold text-teal" onClick={() => updateHeadline(editor.work_experience.find(w => w.role.trim())!.role)}>
+                    Use a title from my experience
+                  </button>
+                ) : null}
+              </div>
+            </div>
             <PhoneField
               id="f_phone"
               label="Phone"
@@ -2955,7 +2986,7 @@ function ProfileScreen() {
         </CardSection>
 
         <CardSection {...sectionProps('sec_additional')} title="Your categories" helper="Group languages, projects, memberships and other details. Add your own categories and choose where they appear on your resume.">
-          <CategoryEditor value={editor.additional_information} onChange={(rows) => setEditor(e => e && ({ ...e, additional_information: rows }))} />
+          <CategoryEditor value={editor.additional_information.filter(row => !isHeadlineEntry(row))} onChange={(rows) => setEditor(e => e && ({ ...e, additional_information: [...rows, ...e.additional_information.filter(isHeadlineEntry)] }))} />
         </CardSection>
       </div>
 

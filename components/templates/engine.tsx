@@ -219,6 +219,10 @@ export interface TemplateTheme {
   /** Single layout: what follows the summary. Engineers and technicians lead with
    * skills; licensed roles (nursing, HSE) lead with their credentials. */
   sectionOrder?: 'skills-first' | 'credentials-first'
+  /** New professional designs preserve the separate employment context field. */
+  showExperienceDescription?: boolean
+  /** Separate contact and Gulf availability lines in the new readable designs. */
+  headerContactLines?: boolean
   /** Header contact facts in two columns instead of one — a Gulf CV carries up
    * to eleven of them, which stacked one per line make a very tall masthead. */
   contactColumns?: 2
@@ -789,7 +793,13 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
           </p>
         ) : null}
         {contactLine && theme.layout === 'single' && !theme.contactBar ? (
-          useIcons ? (
+          theme.headerContactLines ? (
+            <div style={{ marginTop: '5px' }}>
+              {[header.identityContact, header.identityPrimary, header.identityGulf].filter(Boolean).map((line, i) => (
+                <p key={i} style={{ ...body, fontSize: pt(theme.bodySize - 0.8), color: theme.muted, margin: '2px 0 0', overflowWrap: 'anywhere' }}>{line}</p>
+              ))}
+            </div>
+          ) : useIcons ? (
             // A single-column theme with icons on but no colour band still has
             // to draw them here — this branch was missed on the first pass and
             // caught by counting <svg> in the exported render, not by reading.
@@ -961,6 +971,9 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
               <p style={{ ...body, margin: '1px 0 0', fontSize: pt(theme.bodySize - 0.5), color: theme.muted, ...KEEP_WITH_NEXT }}>
                 {item.companyLine}
               </p>
+            ) : null}
+            {theme.showExperienceDescription && item.entry.description && !item.bullets.some(b => b.trim() === item.entry.description!.trim()) ? (
+              <p style={{ ...body, margin: '4px 0 0', whiteSpace: 'pre-wrap', ...KEEP_WITH_NEXT }}>{item.entry.description}</p>
             ) : null}
             {item.bullets.length > 0 ? (
               <ul style={{ margin: `${3 * theme.density}px 0 0`, paddingLeft: '16px' }}>

@@ -30,6 +30,5 @@ export function buildCareerProfileResume(profile: CareerProfileFull) {
     },
     skillsOrder: [],
     fieldVisibility: profile.field_visibility,
-    targetJobTitle: profile.target_job_title,
   })
 }

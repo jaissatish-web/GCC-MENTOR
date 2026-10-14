@@ -10,7 +10,8 @@ import { AppShell } from '@/components/layout/AppShell'
 import { buttonVariants } from '@/components/ui/Button'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { getTemplate } from '@/lib/templates'
-import { buildResumeDocument, type ResumeContactItem, type ResumeDocument } from '@/lib/resumeDocument'
+import type { ResumeContactItem, ResumeDocument } from '@/lib/resumeDocument'
+import { resolvePackageResumeDocument } from '@/lib/packageResumeDocument'
 import { CONTACT_KIND_LABELS, withSyncedIdentity } from '@/lib/resumeEdits'
 import { readStyleOverrides } from '@/lib/resumeStyle'
 import { cn } from '@/lib/utils'
@@ -164,17 +165,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           return
         }
         const prof = (profileData as CareerProfileFull | null) ?? null
-        const base =
-          (p.document_snapshot as ResumeDocument | null) ??
-          (prof
-            ? buildResumeDocument({
-                profile: prof,
-                optimizedContent: (p.optimized_content as OptimizedContent | null) ?? EMPTY_CONTENT,
-                skillsOrder: p.skills_order ?? [],
-                fieldVisibility: p.field_visibility_snapshot ?? null,
-                targetJobTitle: p.target_job_title ?? null,
-              })
-            : null)
+        const base = prof ? resolvePackageResumeDocument({ ...p, document_snapshot: p.document_snapshot as ResumeDocument | null }, prof) : (p.document_snapshot as ResumeDocument | null) ?? null
         if (!base) {
           setError('Could not load this resume. Please try again.')
           return
@@ -394,6 +385,10 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                     <TextField label="Dates" placeholder="Mar 2019 — Present" value={item.range} onChange={(v) => setItem((x) => ({ ...x, range: v }))} />
                   </div>
                   <TextField label="Company and location" placeholder="Company · City, Country" value={item.companyLine} onChange={(v) => setItem((x) => ({ ...x, companyLine: v, entry: { ...x.entry, company: v.split(' · ')[0] ?? v } }))} />
+                  <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">
+                    Project or role context (optional)
+                    <textarea value={item.entry.description ?? ''} maxLength={10000} rows={3} className="field font-normal" onChange={e => setItem(x => ({ ...x, entry: { ...x.entry, description: e.target.value || null } }))} />
+                  </label>
                   <div className="text-[12px] font-semibold text-ink-soft">Activities</div>
                   <RowList items={item.bullets} onChange={(next) => setItem((x) => ({ ...x, bullets: next }))} addLabel="Add an activity" multiline itemLabel="Activity" />
                 </div>
