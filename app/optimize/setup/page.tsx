@@ -45,7 +45,7 @@ import { CTA, NAMES } from '@/lib/serviceLabels'
  * SUBMIT: POST /api/optimize (Phase A — creates the package, no model call),
  * then /optimize/generate/[packageId] runs the build. Every part of the CV that
  * the AI may rewrite (summary + each role's activities) is selected by default;
- * the choice is behind "Choose which parts to rewrite" for the few who want it.
+ * the choice is behind "Advanced: choose parts to rewrite" for the few who want it.
  */
 
 interface TargetDraft {
@@ -363,7 +363,7 @@ function SetupScreen() {
           onBack={() => router.push('/optimize/target')}
           backLabel="Back to target job"
           title={`Choose your ${NAMES.level.toLowerCase()}`}
-          subtitle="Choose the amount of rewriting. Your career facts stay the same."
+          subtitle="Moderate is recommended for most applications. Your career facts stay the same."
         />
 
         {loadError ? <Alert variant="danger">{loadError}</Alert> : null}
@@ -417,6 +417,8 @@ function SetupScreen() {
               "Easy · Aims for 60–75", and what each level DOES sat in a box
               below that changed as you tapped. Now every level says what it
               changes before it is chosen. */}
+          <p className="text-base font-semibold text-ink" aria-live="polite">Selected: {levelInfo.label} · {levelInfo.tag}</p>
+          <details className="group"><summary className="min-h-11 cursor-pointer content-center text-sm font-semibold text-teal">Compare rewrite styles (optional)</summary>
           <div role="radiogroup" aria-label={NAMES.level} className="grid gap-2.5 sm:grid-cols-3">
             {LEVELS.map((l) => {
               const selected = level === l.value
@@ -432,7 +434,7 @@ function SetupScreen() {
                     selected ? 'border-teal bg-teal-soft/60' : 'border-line bg-white hover:border-teal/40',
                   )}
                 >
-                  <span className="flex items-center justify-between gap-2">
+                  <span className="flex flex-wrap items-center justify-between gap-2">
                     <span className="flex items-center gap-2">
                       <span
                         aria-hidden="true"
@@ -467,6 +469,7 @@ function SetupScreen() {
               )
             })}
           </div>
+          </details>
           <Alert variant={level === 'easy' ? 'info' : 'warning'}>{levelInfo.explain}</Alert>
 
           {/* HIGH's tick-list (founder, 2026-10-02): the job's tools, standards and
@@ -479,7 +482,7 @@ function SetupScreen() {
           {/* Parts to rewrite — all by default, adjustable. */}
           <details className="group rounded-ctl border border-line bg-canvas px-3 py-2">
             <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 type-helper font-semibold text-ink">
-              <span>Choose which parts to rewrite</span>
+              <span>Advanced: choose parts to rewrite</span>
               <span className="type-caption font-normal text-ink-muted">
                 {allSelected ? 'All selected' : nothingSelected ? 'None selected' : 'Some selected'}
               </span>

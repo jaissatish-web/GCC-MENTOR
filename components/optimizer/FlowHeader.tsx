@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
  *
  * Presentation only. `onBack` is the screen's own back behaviour, unchanged.
  */
-const STEPS = ['Target job', 'Level', 'Optimized CV'] as const
+const STEPS = ['Target job', 'Rewrite style', 'Review CV'] as const
 
 export function FlowHeader({
   step,
@@ -31,7 +31,7 @@ export function FlowHeader({
   backLabel?: string
 }) {
   return (
-    <header className="workspace-heading flex flex-col gap-5">
+    <header className="workspace-heading flex flex-col gap-3">
       <div className="flex items-center gap-2">
         {onBack ? (
           <button
@@ -43,7 +43,7 @@ export function FlowHeader({
             <ArrowLeftIcon className="size-5" aria-hidden="true" />
           </button>
         ) : null}
-        <GulfContext>Gulf CV · Step {step} of 3</GulfContext>
+        <GulfContext>CV setup · Step {step} of 3</GulfContext>
       </div>
 
       <ol aria-label={`Step ${step} of ${STEPS.length}`} className="workspace-flow-steps grid grid-cols-3 gap-2">

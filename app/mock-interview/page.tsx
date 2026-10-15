@@ -1,7 +1,8 @@
 'use client'
 
 import { CallOrb, JOINING_LINES } from '@/components/mock-interview/CallOrb'
-import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { useApplicationLock } from '@/components/journey/ApplicationWorkspace'
+import { CAREER_RESUME_NAME, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -87,7 +88,7 @@ function writeDraft(key: string, value: string): void {
 }
 
 function packageTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
-  if (isCareerProfileResume(pkg)) return `${pkg.name || pkg.target_job_title} · ${CAREER_RESUME_BADGE}`
+  if (isCareerProfileResume(pkg)) return `${CAREER_RESUME_NAME} · ${CAREER_RESUME_BADGE}`
   return [pkg.target_job_title, pkg.target_company].filter(Boolean).join(' · ')
 }
 
@@ -99,8 +100,7 @@ function latestRun(pkg: Package | null): MockInterviewRun | null {
 function MockInterviewScreen() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const requestedIdRef = useRef(searchParams.get('package'))
-  const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: true })
+  const picker = usePackagePicker({ requestedId: searchParams.get('package'), onlyWithResume: true })
   const { list, total, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
   const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [voiceReady, setVoiceReady] = useState<boolean | null>(null)
@@ -116,6 +116,7 @@ function MockInterviewScreen() {
   const [interviewerId, setInterviewerId] = useState<InterviewerId>('british-woman')
   const [opError, setOpError] = useState<string | null>(null)
   const [busy, setBusy] = useState<'start' | 'answer' | 'finish' | null>(null)
+  useApplicationLock(busy !== null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
 
   const practiceSetup = useRef<HTMLDetailsElement>(null)
@@ -327,7 +328,7 @@ function MockInterviewScreen() {
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
 
             <details ref={practiceSetup} className="group" open={(detail?.mock_interview_runs?.length ?? 0) === 0 || Boolean(opError || detailError || busy)}>
-              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-teal [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Mic size={18} aria-hidden="true" />Start a new practice</span><ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary>
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-teal [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Mic size={18} aria-hidden="true" />Start another interview</span><ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary>
               <div className="mt-4 flex flex-col gap-5">
             <label className="flex flex-col gap-1.5">
               <span className="field-label">Answer format</span>
@@ -388,11 +389,11 @@ function MockInterviewScreen() {
                 {detailLoading && !detail
                   ? (isRaw ? 'Loading your Career Profile Resume…' : 'Loading this job…')
                   : run
-                    ? `Selected interview: ${run.status === 'completed' ? 'completed' : 'in progress'} · ${answeredCount}/${run.question_count} answered`
+                    ? 'Your existing interview stays saved in history. Starting another creates a separate attempt.'
                     : 'No mock interview yet for this package.'}
               </p>
               <Button type="button" variant="primary" onClick={() => void start()} disabled={!selectedId || busy !== null || !detail || (inputMode === 'voice' && voiceReady !== true)} busy={busy === 'start'} busyLabel="Starting…">
-                {CTA.startMockInterview}
+                {(detail?.mock_interview_runs?.length ?? 0) > 0 ? 'Start another interview' : CTA.startMockInterview}
               </Button>
             </div>
               </div>
@@ -409,7 +410,7 @@ function MockInterviewScreen() {
             <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(attempt.id)}${attempt.input_mode === 'voice' && attempt.status !== 'completed' ? '&room=1' : ''}`} className="group ui-card flex h-full min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-4 transition-colors hover:border-teal hover:bg-teal-soft/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
               <div className="flex items-center justify-between gap-3"><span className="grid size-10 place-items-center rounded-xl bg-teal-soft text-teal">{index + 1}</span><span className="flex items-center gap-1 rounded-full bg-canvas px-2 py-1 text-xs text-ink-muted">{attempt.status === 'completed' ? <CheckCircle2 size={13} aria-hidden="true" /> : <Mic size={13} aria-hidden="true" />}{attempt.status === 'completed' ? 'Reviewed' : 'In progress'}</span></div>
               <h3 className="type-card">Mock interview {index + 1}</h3><p className="text-sm text-ink-muted">{new Date(attempt.generated_at).toLocaleDateString()} · {attempt.mode.replaceAll('_', ' ')} · {attempt.difficulty}</p>
-              <span className="mt-auto flex items-center justify-between border-t border-line pt-3 text-sm text-teal"><span>{attempt.status === 'completed' ? 'Explore result' : 'Continue practice'}</span><ChevronRight size={17} aria-hidden="true" /></span>
+              <span className="mt-auto flex items-center justify-between border-t border-line pt-3 text-sm text-teal"><span>{attempt.status === 'completed' ? 'Explore result' : 'Resume interview'}</span><ChevronRight size={17} aria-hidden="true" /></span>
             </Link>
           </li>)}
         </ul>
@@ -494,9 +495,9 @@ function MockInterviewScreen() {
         <NextStep
           className="mt-6"
           title={isRaw ? 'Keep preparing in your field' : 'Apply, then keep track'}
-          body={isRaw ? 'Your profile-based practice is saved in your Resume Library. Return any time to review or practise again.' : 'Your CV, letter and preparation for this job are ready. When you apply, set its stage in your Resume Library so you always know where each application stands.'}
+          body={isRaw ? 'Your profile-based practice is saved in your My applications & CVs. Return any time to review or practise again.' : 'Your CV, letter and preparation for this job are ready. When you apply, set its stage in your My applications & CVs so you always know where each application stands.'}
           href="/dashboard/library"
-          cta="Open my Resume Library"
+          cta="Open my My applications & CVs"
           secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: isRaw ? 'See your resume' : CTA.viewOptimizedCv }}
         />
       ) : null}

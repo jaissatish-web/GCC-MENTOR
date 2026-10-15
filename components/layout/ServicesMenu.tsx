@@ -6,9 +6,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowRightStartOnRectangleIcon, Bars3Icon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
 import { SideSheet } from '@/components/ui/SideSheet'
 import { signOut } from '@/app/auth/actions'
+import { useApplicationWorkspace } from '@/components/journey/ApplicationWorkspace'
 import { cn } from '@/lib/utils'
 import { LockClosedIcon } from '@heroicons/react/24/solid'
-import { useCurrentStage } from '@/components/journey/useCurrentStage'
 import { type StageId } from '@/components/journey/stages'
 import { NAV_GROUPS, NAV_ITEMS, MOBILE_PRIMARY_ITEMS, isNavItemActive, navHref, type NavItem } from './navItems'
 
@@ -74,10 +74,11 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onNavigate: () => void; active: boolean; mark?: 'next' | 'locked' | null }) {
+  const workspace = useApplicationWorkspace()
   const Icon = item.icon
   return (
     <Link
-      href={navHref(item)}
+      href={workspace?.href(navHref(item)) ?? navHref(item)}
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
       className={cn(
@@ -130,7 +131,7 @@ function MenuRow({ item, onNavigate, active, mark = null }: { item: NavItem; onN
 function SignOutRow() {
   const [pending, setPending] = useState(false)
   return (
-    <form action={signOut} onSubmit={() => setPending(true)}>
+    <form action={signOut} onSubmit={() => { setPending(true); try { sessionStorage.removeItem('gcc-application-selection-v1'); sessionStorage.removeItem('gcc-journey-goal-v1') } catch { /* optional */ } }}>
       <button
         type="submit"
         disabled={pending}
@@ -164,15 +165,12 @@ export function ServicesMenu({ placement = 'header' }: { placement?: 'header' | 
   }, [pathname])
 
   const itemFor = (href: string) => NAV_ITEMS.find((i) => i.href === href)
-  const snap = useCurrentStage()
-  const states = snap ? snap.states : null
+  const workspace = useApplicationWorkspace()
   const bottom = placement === 'bottom'
   const moreActive = bottom && NAV_ITEMS.some(item => !MOBILE_PRIMARY_ITEMS.includes(item) && isNavItemActive(item, pathname))
-  const markFor = (stage: StageId | undefined, index: number): 'next' | 'locked' | null => {
-    if (!stage || !states) return null
-    if (states[stage] === 'locked') return 'locked'
-    if (states[stage] === 'current' && index === 0) return 'next'
-    return null
+  const markFor = (item: NavItem): 'next' | null => {
+    const target = workspace?.nextAction?.href.split('?')[0]
+    return target && (target === navHref(item) || (item.href === '/optimize' && target.startsWith('/optimize/'))) ? 'next' : null
   }
 
   return (
@@ -200,8 +198,8 @@ export function ServicesMenu({ placement = 'header' }: { placement?: 'header' | 
           return (
             <div key={group.label} className="flex flex-col gap-1">
               {group.heading ? <h2 className="px-3 pt-2 type-caption font-semibold text-teal">{group.heading}</h2> : null}
-              {rows.map((item, i) => (
-                <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(item.href === '/cover-letter' ? 'apply' : group.stage, item.href === '/cover-letter' ? 0 : item.href === '/interview-qa' ? 1 : item.href === '/mock-interview' ? 2 : i)} />
+              {rows.map((item) => (
+                <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(item)} />
               ))}
               {/* Sign out remains an action after the service destinations. */}
               {group.withSignOut ? <SignOutRow /> : null}

@@ -132,7 +132,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
               payment step while the locks are off, so it reassured the user
               about something that never happened. What is true: the job is kept. */}
           <p className="mt-3 text-[12px] text-ink-muted">
-            Nothing is lost — this job stays in your Resume Library and can be built again from there.
+            Nothing is lost — this job stays in your My applications & CVs and can be built again from there.
           </p>
           <div className="mt-7 flex flex-col gap-3">
             <Button variant="primary" className="w-full" onClick={() => void run()}>

@@ -79,6 +79,7 @@ const EMPTY: TargetDraft = {
 function TargetScreen() {
   const router = useRouter()
   const [draft, setDraft] = useState<TargetDraft>(EMPTY)
+  const [draftSaved, setDraftSaved] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [existingPackages, setExistingPackages] = useState<PackageSummary[] | null>(null)
@@ -155,6 +156,15 @@ function TargetScreen() {
       })
       .catch(() => setExistingPackages([]))
   }, [])
+
+  useEffect(() => {
+    if (!loaded || noProfile) return
+    const timer = window.setTimeout(() => {
+      try { window.sessionStorage.setItem(OPTIMIZATION_TARGET_DRAFT_KEY, JSON.stringify(draft)); setDraftSaved(Boolean(draft.target_job_title.trim() || draft.job_description.trim())) }
+      catch { setDraftSaved(false) }
+    }, 400)
+    return () => window.clearTimeout(timer)
+  }, [draft, loaded, noProfile])
 
   const set = useCallback(<K extends keyof TargetDraft>(key: K, value: TargetDraft[K]) => {
     setDraft((d) => ({ ...d, [key]: value }))
@@ -243,6 +253,7 @@ function TargetScreen() {
           </>
         }
       />
+      {draftSaved ? <p role="status" className="text-sm text-teal">Draft saved in this tab — return here to continue. Keep this tab open.</p> : null}
 
       {/* What the optimized CV is built from — the two inputs, side by side,
           so the user sees the profile is already in hand and only the job is

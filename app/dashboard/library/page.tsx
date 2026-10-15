@@ -29,9 +29,9 @@ import type { ServiceUsageCounts } from '@/app/api/service-usage/route'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 
 /**
- * Resume Library — route /dashboard/library.
+ * My applications & CVs — route /dashboard/library.
  *
- * NAMED "TARGET JOBS" 2026-09-09 → 2026-09-11, then "Resume Library" again by
+ * NAMED "TARGET JOBS" 2026-09-09 → 2026-09-11, then "My applications & CVs" again by
  * founder decision. The row is the JOB — role, employer, country, stage — and
  * the CV and letters are things that job has.
  *
@@ -397,7 +397,7 @@ export default function TargetJobsPage() {
         if (typeof data.total === 'number') setTotal(data.total)
       })
       .catch(() => {
-        if (seq === requestSeq.current) setLoadError('Could not load your Resume Library. Check your connection and try again.')
+        if (seq === requestSeq.current) setLoadError('Could not load your My applications & CVs. Check your connection and try again.')
       })
       .finally(() => {
         if (seq === requestSeq.current) setSearching(false)
@@ -513,7 +513,7 @@ export default function TargetJobsPage() {
 
   if (items === null && !loadError) {
     return (
-      <SkeletonGroup label="Loading your Resume Library" className="py-6">
+      <SkeletonGroup label="Loading your My applications & CVs" className="py-6">
         {[0, 1, 2].map((i) => (
           <div key={i} className="rounded-card border border-line bg-white p-4">
             <Skeleton shape="title" className="mb-2.5" />
@@ -549,7 +549,7 @@ export default function TargetJobsPage() {
     <PageShell
       width="document"
       icon={BriefcaseIcon}
-      title="My CVs"
+      title="My applications & CVs"
       subtitle="Your CVs and applications for Gulf jobs."
       actions={
         total > 0 ? (

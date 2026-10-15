@@ -86,7 +86,7 @@ export function stageById(id: StageId): Stage {
 /** "Step 2 of 3 · Tailored CV" — the eyebrow every service page carries. */
 export function stageEyebrow(id: StageId): string {
   const s = stageById(id)
-  return `Step ${s.n} of 3 · ${s.name}`
+  return s.name
 }
 
 /**

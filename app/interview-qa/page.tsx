@@ -1,7 +1,8 @@
 'use client'
 
-import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
-import { Suspense, useMemo, useRef, useState } from 'react'
+import { useApplicationLock } from '@/components/journey/ApplicationWorkspace'
+import { CAREER_RESUME_NAME, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { Suspense, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
@@ -46,7 +47,7 @@ const CATEGORY_ORDER: InterviewQuestionCategory[] = [
 ]
 
 function packageTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
-  if (isCareerProfileResume(pkg)) return `${pkg.name || pkg.target_job_title} · ${CAREER_RESUME_BADGE}`
+  if (isCareerProfileResume(pkg)) return `${CAREER_RESUME_NAME} · ${CAREER_RESUME_BADGE}`
   return [pkg.target_job_title, pkg.target_company].filter(Boolean).join(' · ')
 }
 
@@ -73,11 +74,11 @@ function qaToText(set: InterviewQuestionSet): string {
  */
 function InterviewQaScreen() {
   const searchParams = useSearchParams()
-  const requestedIdRef = useRef(searchParams.get('package'))
-  const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: true })
+  const picker = usePackagePicker({ requestedId: searchParams.get('package'), onlyWithResume: true })
   const { list, total, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
   const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [generating, setGenerating] = useState(false)
+  useApplicationLock(generating)
   const [genError, setGenError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [showAll, setShowAll] = useState(false)

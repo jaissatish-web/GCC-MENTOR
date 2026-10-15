@@ -80,7 +80,7 @@ function JourneyTree() {
     <section className={s.node} aria-label="Shared CV outputs and storage">
       <h4 className="type-card text-teal">Your CV, ready to use</h4>
       <ol className="mt-3 grid gap-2 sm:grid-cols-3">{results.map(({ label, icon: Icon }) => <li key={label} className="flex items-center gap-2 type-helper text-ink-soft"><Icon className="size-4 shrink-0 text-teal" aria-hidden="true" />{label}</li>)}</ol>
-      <div className="mt-2 flex flex-wrap gap-x-5"><GuideLink href="/templates">Browse templates</GuideLink><GuideLink href="/dashboard/library">Find saved work in My CVs</GuideLink></div>
+      <div className="mt-2 flex flex-wrap gap-x-5"><GuideLink href="/templates">Browse templates</GuideLink><GuideLink href="/dashboard/library">Find saved work in My applications & CVs</GuideLink></div>
       <p className="type-caption text-ink-muted">Both CV paths support preparation services. Choose the saved CV relevant to your application.</p>
     </section>
     <Connector />
@@ -97,7 +97,7 @@ function JourneyTree() {
       <section className={cn(s.node, s.goldNode)}><Mic className="size-6 text-gold-ink" aria-hidden="true" /><h4 className="mt-2 type-card text-gold-ink">Mock Interview</h4><p className="mt-2 type-helper text-ink-soft">Practise your answers, request feedback and work on improvements.</p><GuideLink href="/mock-interview">Start practising</GuideLink></section>
     </div>
     <Connector />
-    <section className="border-t border-line pt-3"><h4 className="type-label text-teal">Return to your next step</h4><p className="mt-1 type-helper text-ink-soft">Home shows your progress. My CVs keeps your saved preparation together. Settings gives you account and data controls.</p><div className="flex flex-wrap gap-x-5"><GuideLink href="/dashboard">Home</GuideLink><GuideLink href="/dashboard/library">My CVs</GuideLink><GuideLink href="/settings">Settings</GuideLink></div></section>
+    <section className="border-t border-line pt-3"><h4 className="type-label text-teal">Return to your next step</h4><p className="mt-1 type-helper text-ink-soft">Home shows your progress. My applications & CVs keeps your saved preparation together. Settings gives you account and data controls.</p><div className="flex flex-wrap gap-x-5"><GuideLink href="/dashboard">Home</GuideLink><GuideLink href="/dashboard/library">My applications & CVs</GuideLink><GuideLink href="/settings">Settings</GuideLink></div></section>
     <p className="mt-3 type-caption text-ink-muted">Choose the services you need for each application. Review the requirements and any applicable plan limits on the service page.</p>
   </div>
 }

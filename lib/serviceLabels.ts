@@ -16,16 +16,16 @@ export const NAMES = {
   jobDescription: 'Job description',
   optimizedCv: 'Optimized CV',
   atsScore: 'ATS score',
-  level: 'Optimization level',
+  level: 'Rewrite style',
   coverLetter: 'Cover letter',
   interviewQa: 'Interview Q&A',
   mockInterview: 'Mock interview',
-  library: 'Resume Library',
+  library: 'My applications & CVs',
 } as const
 
 export const CTA = {
   addTargetJob: 'Add target job',
-  chooseLevel: 'Next: choose level',
+  chooseLevel: 'Next: choose rewrite style',
   optimizeCv: 'Optimize CV',
   viewOptimizedCv: 'View optimized CV',
   editCv: 'Edit CV',

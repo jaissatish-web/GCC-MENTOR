@@ -282,7 +282,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
   overflow-wrap:anywhere;
 }
 .app-type .workspace-heading .workspace-heading-icon { display:none; }
-.app-type .workspace-heading > .grid { grid-template-columns:minmax(0,1fr); }
+
 .app-type .workspace-heading p:is(.type-body,.type-helper) { font-size:14px; line-height:1.6; }
 .app-type .workspace-heading :is(.workspace-heading-link,.journey-guide-trigger) {
   color:var(--ui-brand);

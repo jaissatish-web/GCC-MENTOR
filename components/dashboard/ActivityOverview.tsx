@@ -102,7 +102,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
       <div className="rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="type-card text-ink">Application status</h3>
-          <Link href="/dashboard/library" className="type-helper font-semibold text-teal">Manage in Resume Library →</Link>
+          <Link href="/dashboard/library" className="type-helper font-semibold text-teal">Manage in My applications & CVs →</Link>
         </div>
         <p className="mt-1 type-helper text-ink-muted">{overview.target_job_count} target jobs. Career Profile Resume is separate from applications.</p>
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">

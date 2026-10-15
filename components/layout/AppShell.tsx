@@ -1,6 +1,7 @@
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 import { AppHeader } from '@/components/layout/AppHeader'
+import { ApplicationWorkspace, ApplicationContextBar } from '@/components/journey/ApplicationWorkspace'
 import { AppFooter } from '@/components/layout/AppFooter'
 /**
  * The authenticated app frame.
@@ -33,7 +34,7 @@ export function AppShell({
 }) {
   return (
     // `app-type`: the phone reading sizes in app/globals.css (2026-10-04).
-    <div className="app-type flex min-h-screen bg-canvas">
+    <ApplicationWorkspace><div className="app-type flex min-h-screen bg-canvas">
       {hideNav ? null : (
         <div className="dark-scope contents">
           <Sidebar />
@@ -55,7 +56,8 @@ export function AppShell({
           them — the same reason the nav lives here. */}
       <div className={hideNav ? 'flex min-h-screen min-w-0 flex-1 flex-col' : 'flex min-h-screen min-w-0 flex-1 flex-col pb-20 md:pb-0'}>
         {hideNav ? null : <AppHeader />}
-        <main className="min-w-0 flex-1">{children}</main>
+        {hideNav ? null : <ApplicationContextBar />}
+        <div className="min-w-0 flex-1">{children}</div>
         {hideNav ? null : <AppFooter variant="compact" />}
       </div>
       {hideNav ? null : (
@@ -63,6 +65,6 @@ export function AppShell({
           <MobileBottomNav />
         </div>
       )}
-    </div>
+    </div></ApplicationWorkspace>
   )
 }

@@ -121,6 +121,7 @@ export default function GulfReadinessScorePage() {
   }) => (
     <div className="text-center">
       <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">{eyebrow}</p>
+<button type="button" onClick={() => setStep(step === 'q1' ? 'upload' : 'q1')} className="mb-3 min-h-11 px-2 text-sm font-semibold text-teal">← Back</button>
       <h1 className="mt-3 type-title text-ink">{title}</h1>
       <div className="mx-auto mt-8 flex max-w-md flex-col gap-3">
         {options.map((o) => (
@@ -146,7 +147,7 @@ export default function GulfReadinessScorePage() {
           <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Free Gulf readiness score</p>
           <h1 className="mt-3 type-hero text-ink">How Gulf-ready is your career?</h1>
           <p className="mt-3 type-body text-ink-soft">
-            Two questions and your CV. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
+            Optional check: two questions and your CV. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
           </p>
         </div>
 
