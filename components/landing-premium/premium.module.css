@@ -298,3 +298,56 @@
 @media(max-width:639px){.pictureCaption{align-items:flex-start;flex-direction:column}.pictureCaption .primary{width:100%}.page .demoJobs{grid-template-columns:1fr}.page .demoJobs button{min-height:64px;padding:12px}.page .demoJobs button>span{font-size:13px}.page .demoJobs b{margin-top:3px}.page .photoTabs{grid-template-columns:repeat(2,minmax(0,1fr))}.page .studioBar{align-items:stretch}.happyProfessional{height:260px}.challengeList>li{padding:18px;gap:12px}}
 
 .page .studioBar{background:var(--paper);border-bottom:1px solid var(--line)}
+
+/* Mobile reading rhythm: keep the desktop composition while reducing heading bulk. */
+@media(max-width:767px){
+ .page{--mobile-section-space:44px;--mobile-block-gap:24px}
+ .page .section{padding-block:var(--mobile-section-space)}
+ .page .heading{margin-bottom:22px}
+ .page .heading h2,.page .navy h2,.page .final h2{font-size:clamp(24px,6.6vw,28px);line-height:1.24;letter-spacing:-.025em;overflow-wrap:break-word}
+ .page .heroCopy h1{font-size:clamp(28px,8vw,34px);line-height:1.15;letter-spacing:-.03em}
+ .page .heading p,.page .heroCopy>p,.page .progressIntro>p,.page .navy p,.page .final p{font-size:15px;line-height:1.65}
+ .page .kicker{font-size:11px;line-height:1.6;letter-spacing:.055em}
+ .page .heroGrid{gap:28px}
+ .page .heroVisualText strong{font-size:21px;line-height:1.25}
+ .page .heroVisualText>span{font-size:10px;letter-spacing:.04em}
+ .page .professionLine{font-size:13px;line-height:1.65}
+ .page .trustBand{gap:16px;padding-block:24px}
+ .page .heroBenefits{gap:12px 10px}
+ .page .heroBenefits li{align-items:flex-start;line-height:1.5}
+ .page .heroBenefits svg{margin-top:2px}
+ .page .interviewGrid,.page .progressExperience,.page .founderGrid{gap:32px}
+ .page .coachPitch .textLink{margin-top:12px}
+ .page .progressIntro h3{font-size:22px;line-height:1.3}
+ .page .founder h3{font-size:20px;line-height:1.35}
+ .page .founder p{font-size:15px;line-height:1.65}
+ .page .accessGrid{gap:16px}
+ .page .accessGrid article{padding:20px;gap:12px}
+ .page .accessGrid h3{font-size:20px;line-height:1.35}
+ .page .challengeList{gap:16px;margin-top:24px!important}
+ .page .challengeList h3{font-size:16px;line-height:1.4}
+ .page .challengeList>li{padding:18px;gap:12px}
+ .page .challengeList small{font-size:14px;line-height:1.65}
+ .page .faqGrid{gap:20px}
+ .page .faqGrid .heading{margin-bottom:0}
+ .page .faq summary{font-size:15px;line-height:1.5;padding-block:18px}
+ .page .final{padding-block:48px}
+ .page .happyProfessional{height:auto;aspect-ratio:3/2;margin-bottom:24px!important}
+ .page .pictureCaption{gap:16px;padding-top:16px}
+ .page .pictureCaption strong{font-size:17px;line-height:1.35}
+ .page .pictureCaption small{font-size:14px;line-height:1.5}
+ .page .primary,.page .outline,.page .textLink{font-size:14px;min-height:48px}
+ .page .studioBar select{font-size:16px;min-height:48px}
+ .page .rotationControl{min-height:44px}
+ .page .photoTabs>button:nth-child(n){grid-column:auto;grid-row:auto;min-width:0;min-height:48px}
+ .page .destinationItem{min-height:64px}
+}
+@media(max-width:639px){
+ .page .photoTabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px}
+ .page .studioBar{gap:12px;padding:16px}
+ .page .demoJobs{gap:8px;padding:12px}
+ .page .demoJobs button{min-height:64px}
+ .page .preparationPicturePanel{padding:12px}
+ .page .preparationPicture{height:auto;aspect-ratio:4/3}
+ .page .preparationCv{aspect-ratio:1}
+}
