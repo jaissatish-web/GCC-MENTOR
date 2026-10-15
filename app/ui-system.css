@@ -269,64 +269,32 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 .workspace-next::after { content:none; }
 .workspace-panel { background:var(--ui-surface); border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); box-shadow:var(--ui-card-shadow); }
 .app-type { background:var(--ui-canvas); }
-/* The career-map treatment is shared by workspace introductions. Keep these
-   selectors attached to application headers, never to document descendants. */
+/* Compact application headings keep the working controls above the fold. */
 .app-type { --ui-card-shadow:0 2px 12px rgb(20 24 28 / .035); }
 .app-type .workspace-heading {
-  position:relative;
-  isolation:isolate;
-  padding:16px;
-  border:1px solid rgb(var(--ui-brand-rgb) / .2);
-  border-radius:var(--ui-hero-radius);
-  background:var(--ui-hero-gradient);
-  color:var(--ui-inverse);
-  box-shadow:0 6px 20px rgb(8 38 34 / .08);
+  padding:0 0 16px;
+  border:0;
+  border-bottom:1px solid var(--ui-line);
+  border-radius:0;
+  background:transparent;
+  color:var(--ui-ink);
+  box-shadow:none;
   overflow-wrap:anywhere;
 }
-.app-type .workspace-heading::before {
-  content:'';
-  position:absolute;
-  inset:0;
-  z-index:-1;
-  pointer-events:none;
-  border-radius:inherit;
-  background:radial-gradient(circle at 95% -20%,transparent 0 110px,rgb(var(--ui-accent-rgb) / .16) 111px 112px,transparent 113px 146px,rgb(var(--ui-accent-rgb) / .05) 147px 180px,transparent 181px);
-}
-.app-type .workspace-heading .type-title { color:var(--ui-inverse); }
-.app-type .workspace-heading p:is(.type-body,.type-helper) { color:var(--ui-hero-copy); }
-.app-type .workspace-heading .workspace-heading-description { color:var(--ui-hero-copy); }
-.app-type .workspace-heading .gulf-context { color:var(--ui-hero-label); }
-.app-type .workspace-heading .workspace-heading-icon {
-  width:40px; height:40px; margin-top:0;
-  border:1px solid rgb(var(--ui-accent-rgb) / .5);
-  border-radius:12px;
-  color:var(--ui-hero-label);
-  background:rgb(255 255 255 / .06);
-}
+.app-type .workspace-heading .workspace-heading-icon { display:none; }
+.app-type .workspace-heading > .grid { grid-template-columns:minmax(0,1fr); }
+.app-type .workspace-heading p:is(.type-body,.type-helper) { font-size:14px; line-height:1.6; }
 .app-type .workspace-heading :is(.workspace-heading-link,.journey-guide-trigger) {
-  color:var(--ui-inverse);
-  border:1px solid rgb(255 255 255 / .25);
-  background:rgb(255 255 255 / .08);
+  color:var(--ui-brand);
+  border:1px solid var(--ui-line);
+  background:var(--ui-surface);
   padding-inline:12px;
 }
-.app-type .workspace-heading :is(.workspace-heading-link,.journey-guide-trigger):hover { background:rgb(255 255 255 / .16); }
-.app-type .workspace-heading :is(button,a):focus-visible { outline:2px solid var(--ui-hero-label); outline-offset:3px; }
-.app-type .workspace-heading .ui-button:is(.bg-teal,.bg-teal-bright) { background:var(--ui-inverse); color:var(--ui-brand); }
-.app-type .workspace-heading .ui-button:is(.bg-teal,.bg-teal-bright):hover { background:var(--ui-brand-soft); }
-.app-type .workspace-heading .ui-button.bg-transparent { color:var(--ui-inverse); border-color:rgb(255 255 255 / .25); }
-.app-type .workspace-heading .ui-button.bg-transparent:hover { background:rgb(255 255 255 / .12); }
-.app-type .workspace-heading [role="progressbar"] { background:rgb(255 255 255 / .2); }
-.app-type .workspace-heading [role="progressbar"] > span { background:var(--ui-hero-label); }
-.app-type .workspace-heading [role="progressbar"] + span { color:var(--ui-hero-copy); }
+.app-type .workspace-heading :is(.workspace-heading-link,.journey-guide-trigger):hover { background:var(--ui-brand-soft); }
+.app-type .workspace-heading :is(button,a):focus-visible { outline:2px solid var(--ui-brand); outline-offset:3px; }
 .app-type main > .workspace-heading.page-gutter,
 .app-type .workspace-profile-heading { margin-inline:var(--ui-page-gutter); }
-.app-type .workspace-flow-steps .type-caption { color:var(--ui-hero-copy); }
-.app-type .workspace-flow-steps [aria-current="step"] .type-caption { color:var(--ui-hero-label); }
-.app-type .workspace-flow-steps .bg-teal { background:var(--ui-hero-label); }
-.app-type .workspace-flow-steps .bg-line { background:rgb(255 255 255 / .22); }
-.app-type .workspace-flow-steps .bg-ok { background:#8cdbb5; }
 .app-type .workspace-next { background:var(--ui-hero-gradient); }
-@media(min-width:640px) { .app-type .workspace-heading { padding:24px; } }
 .app-type .field { background:var(--ui-surface); border-color:var(--ui-field-border); border-radius:var(--ui-control-radius); }
 .app-type .field:hover:not(:disabled) { border-color:var(--ui-brand); }
 .app-type .workspace-navigation { background:var(--ui-surface); }

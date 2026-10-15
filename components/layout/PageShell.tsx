@@ -39,7 +39,6 @@ export function PageShell({
   subtitle,
   actions,
   width = 'default',
-  icon: Icon,
   eyebrow,
   uses,
   children,
@@ -72,15 +71,7 @@ export function PageShell({
     // product.
     <main className={cn('ui-page page-gutter mx-auto flex w-full flex-col pb-12 font-redesign-sans', WIDTH[width], className)}>
       <header className="workspace-heading flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className={cn('grid min-w-0 gap-x-3 gap-y-1.5', Icon ? 'grid-cols-[auto_minmax(0,1fr)]' : 'grid-cols-1')}>
-          {Icon ? (
-            <span
-              aria-hidden="true"
-              className="workspace-heading-icon mt-0.5 flex size-8 shrink-0 items-center justify-center text-teal"
-            >
-              <Icon className="size-6" />
-            </span>
-          ) : null}
+        <div className="grid min-w-0 grid-cols-1 gap-y-1.5">
           <div className="flex min-w-0 flex-col gap-1.5">
             {eyebrow ? <GulfContext>{eyebrow}</GulfContext> : null}
             <h1 className="type-title text-ink">
@@ -88,7 +79,7 @@ export function PageShell({
             </h1>
           </div>
           {subtitle ? (
-            <p className={cn('col-span-full max-w-[55ch] type-body text-ink-soft', Icon && 'sm:col-span-1 sm:col-start-2')}>
+            <p className="max-w-[65ch] type-body text-ink-soft">
               {subtitle}
             </p>
           ) : null}

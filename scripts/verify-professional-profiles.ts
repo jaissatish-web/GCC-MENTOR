@@ -45,8 +45,8 @@ for(const platform of ['linkedin','naukrigulf'] as const) {
   const config=PROFESSIONAL_PLATFORMS[platform]
   const intro=renderToStaticMarkup(React.createElement(ProfileIntroduction,{platform}))
   assert.ok(intro.includes(`${config.home}/workspace`))
-  assert.ok(intro.includes('Illustrative artwork'))
-  assert.ok(intro.includes('useful daily check-in'))
+  assert.ok(!intro.includes('profile-hero-v1.webp'))
+  assert.ok(intro.includes('Profile update guidance') && intro.includes('<details'))
   assert.ok(intro.includes('https://'))
   assert.ok(intro.includes('What you get') && intro.includes('where it goes'))
   assert.ok(!intro.includes('/professional-profile'))
