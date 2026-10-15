@@ -44,7 +44,7 @@ export function PreparationStudio() {
  const [playing, setPlaying] = useState(true)
  const root = useRef<HTMLDivElement>(null), manualUntil = useRef(0)
  const refs = useRef<Array<HTMLButtonElement | null>>([])
- const p = PROFESSIONS[profession], role = rolesByPath[profession][job], preview = previews[tab], picture = pictures[tab]
+ const p = PROFESSIONS[profession], role = rolesByPath[profession][job], preview = previews[tab]
  useEffect(() => {
   if (!playing) return
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -67,7 +67,7 @@ export function PreparationStudio() {
    if (next !== null) { event.preventDefault(); setTab(next); refs.current[next]?.focus() }
   }}>{item.title}</button>)}</div>
   <div className={s.preparationPicturePanel} role="tabpanel" id="prep-output" aria-labelledby={`prep-tab-${tab}`} tabIndex={0}>
-   <figure className={`${s.preparationPicture} ${tab === 0 ? s.preparationCv : ''}`}><Image key={picture.src} src={picture.src} alt={picture.alt} fill sizes="(min-width: 1200px) 1140px, calc(100vw - 64px)"/></figure>
+   <figure className={`${s.preparationPicture} ${tab === 0 ? s.preparationCv : ''}`}>{pictures.map((picture, index) => <Image key={picture.src} src={picture.src} alt={index === tab ? picture.alt : ''} aria-hidden={index !== tab} fill loading="eager" sizes="(min-width: 1200px) 1140px, calc(100vw - 64px)" style={{visibility: index === tab ? 'visible' : 'hidden'}}/>)}</figure>
    <div className={s.pictureCaption}><span><strong>{preview.title}</strong><small>{role}</small></span><Link href={preview.route} className={s.primary}>Open {preview.title} <ArrowRight size={17}/></Link></div>
   </div>
  </div>
