@@ -445,12 +445,12 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
 
                   onClick={() => setFocus(g.code)}
                   className={cn(
-                    'flex min-h-11 w-full items-center gap-1.5 rounded-[12px] px-2 text-left type-caption font-semibold ring-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:gap-2 sm:px-3 ',
+                    'grid min-h-14 w-full grid-cols-[24px_minmax(0,1fr)] items-center gap-1.5 rounded-[12px] px-2 text-left type-caption font-semibold ring-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:gap-2 sm:px-3 ',
                     focus === g.code ? 'bg-teal text-white ring-teal' : 'bg-canvas text-ink ring-line hover:ring-teal/50',
                   )}
                 >
                   <Image src={gccDestinations.find((destination) => destination.country === (g.code === 'AE' ? 'United Arab Emirates' : g.country))!.src} alt="" aria-hidden="true" width={24} height={18} unoptimized className="h-[18px] w-6 shrink-0 rounded-sm object-cover" />
-                  {g.country}
+                  <span className="min-w-0 text-xs leading-snug">{g.country}</span>
                 </button>
               </li>
             ))}

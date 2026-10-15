@@ -267,3 +267,32 @@
 .page .resumePhoto{width:100%;max-width:360px;height:240px}
 .page .cvProduct ul{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;max-width:none;width:100%}
 @media(max-width:767px){.page .cvProduct{min-height:0;padding:16px}.page .resumePhoto{max-width:320px;height:210px}.page .cvProduct ul{gap:12px}.page .cvProduct li{font-size:13px}}
+/* Destination alignment and picture-led preparation, October review. */
+.destinationList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;list-style:none!important;padding:0!important;margin:16px 0 0!important}
+.destinationItem{display:grid;grid-template-columns:36px minmax(0,1fr);align-items:center;gap:12px;min-height:68px;padding:12px;background:var(--paper);border:1px solid var(--line);border-radius:12px;min-width:0}
+.destinationFlag{display:block;width:36px;height:27px;object-fit:cover;border:1px solid var(--line);border-radius:3px}
+.destinationName{font-size:13px;line-height:1.35;font-weight:650;color:var(--deep);text-align:left}
+.page .rotationControl{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--brand);padding:9px 12px;font-size:12px;font-weight:600;min-height:40px}
+.page .studioBar label{font-size:13px;font-weight:600;color:var(--deep)}
+.page .demoJobs button>span{font-size:14px;letter-spacing:0;line-height:1.4;padding-right:14px}
+.page .demoJobs b{font-size:11px;font-weight:500;color:var(--muted)}
+.preparationPicturePanel{padding:16px;background:white;outline-offset:-3px}
+.preparationPicture{position:relative;margin:0!important;width:100%;height:clamp(260px,36vw,430px);overflow:hidden;border-radius:12px;background:var(--paper)}
+.preparationPicture img{object-fit:cover;object-position:center 43%}
+.preparationCv img{object-fit:contain;padding:12px}
+.pictureCaption{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 4px 4px}
+.pictureCaption strong{display:block;color:var(--deep);font-size:18px}
+.pictureCaption small{display:block;color:var(--muted);font-size:14px;margin-top:4px}
+.happyProfessional{position:relative;height:310px;overflow:hidden;border-radius:16px;margin:0 0 24px!important;background:var(--paper)}
+.happyProfessional img{object-fit:cover;object-position:center 40%}
+.page .progressIntro> .primary{margin-top:14px}
+.challengeList{display:grid;gap:14px;list-style:none!important;padding:0!important;margin:28px 0 0!important}
+.challengeList>li{display:flex;align-items:flex-start;gap:16px;border:1px solid var(--line);border-radius:14px;padding:22px;background:white;min-width:0}
+.challengeList .problemNumber{font-size:16px;line-height:26px}
+.page .challengeList h3{font-size:18px;line-height:1.4;margin:0 0 5px}
+.page .challengeList p{font-size:14px;line-height:1.6;margin:0 0 12px;color:var(--muted)}
+.challengeList small{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.65;color:var(--brand)}
+.challengeList small svg{flex-shrink:0;margin-top:3px}
+@media(min-width:640px){.destinationList{grid-template-columns:repeat(3,minmax(0,1fr))}.preparationPicturePanel{padding:22px}.challengeList{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){.destinationList{grid-template-columns:repeat(6,minmax(0,1fr))}.destinationItem{gap:10px;padding:12px 10px}}
+@media(max-width:639px){.pictureCaption{align-items:flex-start;flex-direction:column}.pictureCaption .primary{width:100%}.page .demoJobs{grid-template-columns:1fr}.page .demoJobs button{min-height:64px;padding:12px}.page .demoJobs button>span{font-size:13px}.page .demoJobs b{margin-top:3px}.page .photoTabs{grid-template-columns:repeat(2,minmax(0,1fr))}.page .studioBar{align-items:stretch}.happyProfessional{height:260px}.challengeList>li{padding:18px;gap:12px}}
