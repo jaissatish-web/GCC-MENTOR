@@ -109,3 +109,245 @@
 @keyframes feedback-flow{to{stroke-dashoffset:-440}}
 @media(min-width:900px){.progressExperience{grid-template-columns:.8fr 1.2fr;gap:50px}.feedbackMap{padding:28px}.feedbackBranches{grid-template-columns:120px 55px minmax(0,1fr)}.progressSection{padding-block:80px}}
 @media(max-width:480px){.feedbackMap{padding:18px 14px;border-radius:18px}.feedbackBranches{grid-template-columns:78px 22px minmax(0,1fr)}.reportNode>div{width:48px;height:64px}.reportNode strong{font-size:11px}.reportNode small{font-size:10px}.reportNode>span{font-size:8px;padding:4px}.metricNodes>button{padding:9px 8px;gap:7px;min-height:57px}.metricNodes strong{font-size:12px}.metricNodes small{font-size:9px}.metricNodes>button>svg:first-child{width:16px}.metricNodes>button>svg:last-child{display:none}.branchLines{height:325px}.mapHeader{align-items:flex-start}.mapHeader>small{max-width:85px;text-align:right}.focusCard{padding:15px;min-height:169px}.progressIntro .primary{width:100%}}
+
+
+/* Audit refinement: one brand, a shared spacing rhythm and product-first previews. */
+.page{--space-1:8px;--space-2:12px;--space-3:16px;--space-4:24px;--space-5:32px;--space-6:48px;--space-7:64px}
+.page .section{padding-block:var(--space-6)}
+.page .heading{margin-bottom:var(--space-4)}
+.page .heading h2{font-size:clamp(28px,3vw,40px);line-height:1.2}
+.page .kicker{font-size:12px;letter-spacing:.07em}
+.page .primary,.page .outline{min-height:48px;font-size:15px;border-radius:10px}
+.page .heroCtaRow>a{font-size:15px}
+.page .heroVisual{min-height:460px}
+.page .heroCopy h1{font-size:clamp(34px,4.1vw,50px)}
+.page .professionLine{margin-top:16px;font-size:13px;color:var(--brand);font-weight:600;line-height:1.6}
+.page .heroBenefits{margin-top:16px!important;font-size:13px}
+.page .trustBand{grid-template-columns:1fr 1.4fr 1fr;align-items:center;padding-block:24px}
+.page .trustBand>span{flex-wrap:nowrap;align-items:flex-start;line-height:1.6}
+.page .trustBand a{font-weight:600}
+.page .studioBar label{font-size:13px}
+.page .studioBar select{width:260px;border:2px solid var(--gold);background:#fffaf0;border-radius:9px}
+.page .studioBar small{font-size:13px}
+.page .demoJobs{gap:12px;padding:16px;background:var(--paper)}
+.page .demoJobs button{min-height:84px;padding:12px;background:white}
+.page .demoJobs button>span{font-size:12px;letter-spacing:0;text-transform:none;font-weight:650;color:var(--deep);padding-right:12px}
+.page .demoJobs button>b{font-size:13px;font-weight:500;color:var(--muted);margin-top:4px}
+.page .tabs{background:var(--paper)}
+.page .tabs button{font-size:14px;min-height:48px;border:1px solid transparent}
+.page .tabs button[aria-selected=true]{background:var(--brand);border-color:var(--brand);color:white}
+.page .tabs button:hover:not([aria-selected=true]){background:var(--brand-soft);color:var(--brand)}
+.productOutput{align-items:center;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:32px;padding:24px}
+.outputDocument{border:1px solid var(--line);border-radius:12px;background:var(--paper);overflow:hidden;min-width:0}
+.documentBar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--brand-soft);color:var(--brand);font-size:14px;font-weight:650;border-bottom:1px solid var(--line)}
+.documentBar>span:last-child{margin-left:auto;font-size:12px;font-weight:500}
+.cvProduct{display:flex;align-items:center;justify-content:center;gap:16px;padding:16px;background:white;min-height:350px}
+.resumePhoto{position:relative;width:240px;height:320px;flex-shrink:0;background:white}
+.cvProduct ul{display:grid;gap:18px;list-style:none;padding:0;max-width:180px}
+.cvProduct li{display:flex;gap:7px;font-size:13px;color:var(--muted);line-height:1.5}
+.cvProduct li svg{flex-shrink:0;color:var(--brand);margin-top:2px}
+.letterPreview,.answerPreview,.profilePreview{padding:24px;background:white;min-height:350px}
+.page .letterPreview>span{display:block;font-size:12px;color:var(--muted);padding-bottom:12px;border-bottom:1px solid var(--line)}
+.page .letterPreview h4,.page .answerPreview h4,.page .profilePreview h4{font-size:20px;line-height:1.4;margin-block:16px}
+.page .letterPreview p,.page .answerPreview p,.page .profilePreview p{font-size:15px;line-height:1.65;color:var(--muted);margin-top:12px}
+.answerPreview ol{display:grid;gap:16px;padding:0;list-style:none;margin-top:20px!important}
+.answerPreview li{padding-left:16px;border-left:2px solid var(--gold)}
+.answerPreview strong{font-size:15px;color:var(--deep)}
+.page .answerPreview li p{margin-top:4px}
+.profilePreview>.kicker:not(:first-child){margin-top:24px}
+.page .profilePreview .profileNote{font-size:13px;padding-top:16px;border-top:1px solid var(--line)}
+.page .demoContext h3{font-size:clamp(23px,2.2vw,29px);line-height:1.25;margin:8px 0 14px}
+.page .demoContext p{font-size:16px;line-height:1.65;margin:0}
+.outputBenefits{display:grid;gap:10px;padding:0;list-style:none;margin:20px 0 24px!important}
+.outputBenefits li{display:flex;gap:8px;align-items:flex-start;font-size:15px;color:var(--muted)}
+.outputBenefits svg{flex-shrink:0;color:var(--brand);margin-top:3px}
+.page .demoSkills span{font-size:13px;padding:6px 9px}
+.page .studioFoot{font-size:13px;padding:16px 24px;background:var(--paper)}
+.page .templatesGrid{grid-template-columns:minmax(0,1fr) minmax(0,1.8fr);gap:24px}
+.page .templatesWrap{width:min(1200px,calc(100% - 64px))}
+.page .templatesCopy .heading h2{font-size:clamp(28px,2.8vw,38px)}
+.page .coachPhoto{aspect-ratio:16/10;max-height:340px}
+.page .coachPhoto figcaption{padding:36px 20px 18px}
+.page .coachPhoto figcaption>strong{font-size:25px}
+.page .interviewGrid{gap:32px;align-items:start}
+.page .interviewMount p{font-size:15px!important}
+.page .progressSection{background:var(--paper)}
+.page .progressExperience{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:start}
+.page .progressIntro h3{font-size:26px;margin:8px 0 12px}
+.page .progressIntro>p{font-size:16px;max-width:none}
+.page .progressSequence{gap:12px;margin:20px 0!important}
+.page .progressSequence li:not(:last-child):after{height:12px}
+.page .feedbackMap{padding:24px;border-radius:16px;background:var(--deep);border-color:var(--deep);box-shadow:0 12px 32px #102d3610}
+.page .feedbackBranches{grid-template-columns:96px 32px minmax(0,1fr);padding-top:20px}
+.page .metricNodes strong{font-size:14px}
+.page .metricNodes small{font-size:12px}
+.page .metricNodes>button{min-height:58px}
+.page .reportNode strong{font-size:13px}
+.page .reportNode small{font-size:12px}
+.page .reportNode>span{font-size:11px}
+.page .mapHeader>span,.page .mapHeader>small{font-size:12px;letter-spacing:0}
+.page .focusCard{min-height:0;background:#f7efdd;border-radius:12px}
+.page .focusCard p{font-size:14px}
+.page .focusConnector{font-size:11px;letter-spacing:.04em}
+.page .compareStrip strong{font-size:14px}
+.page .compareStrip small,.page .mapFootnote{font-size:12px}
+.savedProgress{padding:20px;margin-top:24px;border:1px solid var(--line);border-radius:16px;background:white}
+.savedProgressHead{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);font-size:12px}
+.savedProgressHead>span:first-child{display:flex;gap:7px;align-items:center;color:var(--brand);font-weight:650}
+.page .savedProgress h3{font-size:23px;margin:16px 0 8px;line-height:1.3}
+.page .savedProgress>p{font-size:14px;line-height:1.65;color:var(--muted)}
+.progressEmpty{display:grid;justify-items:center;text-align:center;gap:10px;padding:28px 12px;background:var(--paper);border-radius:10px;margin-top:16px;color:var(--brand)}
+.progressEmpty strong{font-size:17px;color:var(--deep)}
+.page .progressEmpty p{font-size:14px;line-height:1.6;max-width:370px;color:var(--muted)}
+.progressEmpty button{display:flex;align-items:center;gap:6px;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--brand)}
+.savedProgress>.textLink{margin-top:12px;font-size:14px}
+.reportPicker{display:block;font-size:13px;color:var(--muted);margin-top:16px}
+.reportPicker select{display:block;width:100%;min-height:44px;margin-top:5px;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:16px;background:white}
+.metricPicker{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.metricPicker button{min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;color:var(--brand);background:var(--paper)}
+.metricPicker button[aria-pressed=true]{background:var(--brand);color:white;border-color:var(--brand)}
+.sessionChart{display:block;width:100%;height:auto;margin-top:16px;color:var(--brand)}
+.sessionChart text{fill:var(--muted);font-size:13px;font-family:inherit}
+.page .chartStatus{font-size:13px}
+.page .services>a{min-height:150px;padding:20px}
+.page .services h3{font-size:17px}
+.page .services p{font-size:15px}
+.page .differences{gap:16px 32px}
+.page .differences li{font-size:15px}
+.page .founder{align-items:center}
+.page .founder p{font-size:16px;line-height:1.65}
+.page .navy{background:var(--deep)}
+.page .final{background:var(--deep);padding-block:48px}
+.page .final p,.page .final small{color:#dce8e5}
+.page .final .primary{background:var(--gold);border-color:var(--gold);color:var(--deep)}
+.page .final .primary:hover{background:#dfb454;border-color:#dfb454}
+.page .moreGuidance{margin-block:8px 16px}
+.page .moreGuidance summary{font-size:16px}
+.page .problems strong{font-size:16px}
+.page .problems small{font-size:14px}
+@media(max-width:1023px){.cvProduct{flex-direction:column;min-height:350px}.cvProduct ul{grid-template-columns:1fr 1fr;gap:12px;max-width:none}.resumePhoto{width:210px;height:280px}.productOutput{grid-template-columns:1fr 1fr;gap:24px}.page .feedbackBranches{grid-template-columns:78px 24px minmax(0,1fr)}}
+@media(max-width:767px){
+ .page .section{padding-block:32px}.page .wrap{width:calc(100% - 32px)}
+ .page .heroVisual{min-height:340px}.page .heroCopy h1{font-size:clamp(34px,8vw,42px)}
+ .page .trustBand{grid-template-columns:1fr;gap:12px;padding-block:20px}
+ .page .professionLine{font-size:14px}.page .heroBenefits{font-size:13px}
+ .page .studioBar label{width:100%}.page .studioBar select{width:100%;font-size:16px}
+ .page .studioBar small{margin-left:0}.page .studioBar>span{gap:8px}
+ .page .demoJobs{gap:8px;padding:12px}.page .demoJobs button{padding:10px 8px;min-height:98px}
+ .page .demoJobs button>span{font-size:12px;line-height:1.4}.page .demoJobs button>b{font-size:12px;line-height:1.4}
+ .page .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:10px;gap:6px}
+ .page .tabs button{font-size:13px;min-height:48px;line-height:1.4}
+ .productOutput{grid-template-columns:1fr;gap:20px;padding:16px}
+ .outputDocument{order:2}.productOutput .demoContext{order:1}
+ .page .demoContext h3{font-size:24px}.page .demoContext p{font-size:16px}
+ .outputBenefits{margin:16px 0!important;gap:8px}.outputBenefits li{font-size:15px}
+ .productOutput .primary{width:100%}.letterPreview,.answerPreview,.profilePreview{padding:20px;min-height:0}
+ .page .letterPreview p,.page .answerPreview p,.page .profilePreview p{font-size:16px}
+ .cvProduct{flex-direction:row;gap:12px;min-height:0;padding:12px}.resumePhoto{width:180px;height:260px}
+ .cvProduct ul{display:grid;grid-template-columns:1fr;gap:12px;max-width:140px}.cvProduct li{font-size:12px}
+ .documentBar{font-size:14px;padding:12px}.documentBar>span:last-child{font-size:12px}
+ .page .studioFoot{padding:14px 16px;gap:8px;font-size:13px}
+ .page .templatesGrid,.page .interviewGrid,.page .progressExperience{grid-template-columns:1fr;gap:24px}
+ .page .templatesWrap{width:calc(100% - 8px)}.page .templatesCopy{padding-inline:12px}
+ .page .coachPhoto{max-height:260px;aspect-ratio:16/9}.page .coachPhoto figcaption>strong{font-size:23px}
+ .page .progressIntro h3{font-size:24px}.page .savedProgress h3{font-size:22px}
+ .page .savedProgress{padding:16px}.savedProgressHead{align-items:flex-start}
+ .page .feedbackMap{padding:20px 16px}.page .feedbackBranches{grid-template-columns:78px 22px minmax(0,1fr)}
+ .page .metricNodes strong{font-size:13px}.page .metricNodes small{font-size:12px}
+ .page .mapHeader>small{max-width:110px}.page .reportNode>span{font-size:10px}
+ .page .feedbackBranches .branchLines{height:325px}.page .focusCard p{font-size:14px}
+ .page .services{gap:12px}.page .services>a{padding:16px;min-height:160px}.page .services h3{font-size:16px}
+ .page .services p{font-size:14px}.page .founder{align-items:flex-start}
+ .page .final{padding-block:40px}.page .final .primary{width:100%}
+}
+@media(max-width:359px){.cvProduct{flex-direction:column}.cvProduct ul{grid-template-columns:1fr 1fr;max-width:none}.page .demoJobs{grid-template-columns:1fr}.page .demoJobs button{min-height:64px}.page .feedbackBranches{grid-template-columns:1fr}.page .branchLines{display:none}.page .reportNode{flex-direction:row;flex-wrap:wrap;margin-bottom:16px}.page .reportNode>div{width:32px;height:40px}}
+
+/* Fit the original landscape CV photograph without a tall empty image slot. */
+.page .cvProduct{flex-direction:column;gap:14px;min-height:350px}
+.page .resumePhoto{width:100%;max-width:360px;height:240px}
+.page .cvProduct ul{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;max-width:none;width:100%}
+@media(max-width:767px){.page .cvProduct{min-height:0;padding:16px}.page .resumePhoto{max-width:320px;height:210px}.page .cvProduct ul{gap:12px}.page .cvProduct li{font-size:13px}}
+/* Destination alignment and picture-led preparation, October review. */
+.destinationList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;list-style:none!important;padding:0!important;margin:16px 0 0!important}
+.destinationItem{display:grid;grid-template-columns:36px minmax(0,1fr);align-items:center;gap:12px;min-height:68px;padding:12px;background:var(--paper);border:1px solid var(--line);border-radius:12px;min-width:0}
+.destinationFlag{display:block;width:36px;height:27px;object-fit:cover;border:1px solid var(--line);border-radius:3px}
+.destinationName{font-size:13px;line-height:1.35;font-weight:650;color:var(--deep);text-align:left}
+.page .rotationControl{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--brand);padding:9px 12px;font-size:12px;font-weight:600;min-height:40px}
+.page .studioBar label{font-size:13px;font-weight:600;color:var(--deep)}
+.page .demoJobs button>span{font-size:14px;letter-spacing:0;line-height:1.4;padding-right:14px}
+.page .demoJobs b{font-size:11px;font-weight:500;color:var(--muted)}
+.preparationPicturePanel{padding:16px;background:white;outline-offset:-3px}
+.preparationPicture{position:relative;margin:0!important;width:100%;height:clamp(260px,36vw,430px);overflow:hidden;border-radius:12px;background:var(--paper)}
+.preparationPicture img{object-fit:cover;object-position:center 43%}
+.preparationCv img{object-fit:contain;padding:12px}
+.pictureCaption{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 4px 4px}
+.pictureCaption strong{display:block;color:var(--deep);font-size:18px}
+.pictureCaption small{display:block;color:var(--muted);font-size:14px;margin-top:4px}
+.happyProfessional{position:relative;height:310px;overflow:hidden;border-radius:16px;margin:0 0 24px!important;background:var(--paper)}
+.happyProfessional img{object-fit:cover;object-position:center 40%}
+.page .progressIntro> .primary{margin-top:14px}
+.challengeList{display:grid;gap:14px;list-style:none!important;padding:0!important;margin:28px 0 0!important}
+.challengeList>li{display:flex;align-items:flex-start;gap:16px;border:1px solid var(--line);border-radius:14px;padding:22px;background:white;min-width:0}
+.challengeList .problemNumber{font-size:16px;line-height:26px}
+.page .challengeList h3{font-size:18px;line-height:1.4;margin:0 0 5px}
+.page .challengeList p{font-size:14px;line-height:1.6;margin:0 0 12px;color:var(--muted)}
+.challengeList small{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.65;color:var(--brand)}
+.challengeList small svg{flex-shrink:0;margin-top:3px}
+@media(min-width:640px){.destinationList{grid-template-columns:repeat(3,minmax(0,1fr))}.preparationPicturePanel{padding:22px}.challengeList{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){.destinationList{grid-template-columns:repeat(6,minmax(0,1fr))}.destinationItem{gap:10px;padding:12px 10px}}
+@media(max-width:639px){.pictureCaption{align-items:flex-start;flex-direction:column}.pictureCaption .primary{width:100%}.page .demoJobs{grid-template-columns:1fr}.page .demoJobs button{min-height:64px;padding:12px}.page .demoJobs button>span{font-size:13px}.page .demoJobs b{margin-top:3px}.page .photoTabs{grid-template-columns:repeat(2,minmax(0,1fr))}.page .studioBar{align-items:stretch}.happyProfessional{height:260px}.challengeList>li{padding:18px;gap:12px}}
+
+.page .studioBar{background:var(--paper);border-bottom:1px solid var(--line)}
+
+/* Mobile reading rhythm: keep the desktop composition while reducing heading bulk. */
+@media(max-width:767px){
+ .page{--mobile-section-space:44px;--mobile-block-gap:24px}
+ .page .section{padding-block:var(--mobile-section-space)}
+ .page .heading{margin-bottom:22px}
+ .page .heading h2,.page .navy h2,.page .final h2{font-size:clamp(24px,6.6vw,28px);line-height:1.24;letter-spacing:-.025em;overflow-wrap:break-word}
+ .page .heroCopy h1{font-size:clamp(28px,8vw,34px);line-height:1.15;letter-spacing:-.03em}
+ .page .heading p,.page .heroCopy>p,.page .progressIntro>p,.page .navy p,.page .final p{font-size:15px;line-height:1.65}
+ .page .kicker{font-size:11px;line-height:1.6;letter-spacing:.055em}
+ .page .heroGrid{gap:28px}
+ .page .heroVisualText strong{font-size:21px;line-height:1.25}
+ .page .heroVisualText>span{font-size:10px;letter-spacing:.04em}
+ .page .professionLine{font-size:13px;line-height:1.65}
+ .page .trustBand{gap:16px;padding-block:24px}
+ .page .heroBenefits{gap:12px 10px}
+ .page .heroBenefits li{align-items:flex-start;line-height:1.5}
+ .page .heroBenefits svg{margin-top:2px}
+ .page .interviewGrid,.page .progressExperience,.page .founderGrid{gap:32px}
+ .page .coachPitch .textLink{margin-top:12px}
+ .page .progressIntro h3{font-size:22px;line-height:1.3}
+ .page .founder h3{font-size:20px;line-height:1.35}
+ .page .founder p{font-size:15px;line-height:1.65}
+ .page .accessGrid{gap:16px}
+ .page .accessGrid article{padding:20px;gap:12px}
+ .page .accessGrid h3{font-size:20px;line-height:1.35}
+ .page .challengeList{gap:16px;margin-top:24px!important}
+ .page .challengeList h3{font-size:16px;line-height:1.4}
+ .page .challengeList>li{padding:18px;gap:12px}
+ .page .challengeList small{font-size:14px;line-height:1.65}
+ .page .faqGrid{gap:20px}
+ .page .faqGrid .heading{margin-bottom:0}
+ .page .faq summary{font-size:15px;line-height:1.5;padding-block:18px}
+ .page .final{padding-block:48px}
+ .page .happyProfessional{height:auto;aspect-ratio:3/2;margin-bottom:24px!important}
+ .page .pictureCaption{gap:16px;padding-top:16px}
+ .page .pictureCaption strong{font-size:17px;line-height:1.35}
+ .page .pictureCaption small{font-size:14px;line-height:1.5}
+ .page .primary,.page .outline,.page .textLink{font-size:14px;min-height:48px}
+ .page .studioBar select{font-size:16px;min-height:48px}
+ .page .rotationControl{min-height:44px}
+ .page .photoTabs>button:nth-child(n){grid-column:auto;grid-row:auto;min-width:0;min-height:48px}
+ .page .destinationItem{min-height:64px}
+}
+@media(max-width:639px){
+ .page .photoTabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px}
+ .page .studioBar{gap:12px;padding:16px}
+ .page .demoJobs{gap:8px;padding:12px}
+ .page .demoJobs button{min-height:64px}
+ .page .preparationPicturePanel{padding:12px}
+ .page .preparationPicture{height:auto;aspect-ratio:4/3}
+ .page .preparationCv{aspect-ratio:1}
+}

@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from 'react'
  */
 const LoadedDocumentOrbit = dynamic(() => import('./DocumentOrbit').then((m) => m.DocumentOrbit), {
   ssr: false,
-  loading: () => <div className="h-[620px] md:h-[710px]" aria-hidden="true" />,
+  loading: () => <div className="h-[350px] md:h-[480px]" aria-hidden="true" />,
 })
 
 const LoadedGccGlobe = dynamic(() => import('./GccGlobe').then((m) => m.GccGlobe), {
@@ -34,8 +34,8 @@ export function DocumentOrbit({ className }: { className?: string }) {
     if (ref.current) observer.observe(ref.current)
     return () => observer.disconnect()
   }, [])
-  return <div ref={ref} className={(className ?? '') + ' min-h-[620px] md:min-h-[710px]'}>
-    {ready ? <LoadedDocumentOrbit /> : <div className="h-[620px] md:h-[710px]" aria-hidden="true" />}
+  return <div ref={ref} className={(className ?? '') + ' min-h-[350px] md:min-h-[480px]'}>
+    {ready ? <LoadedDocumentOrbit /> : <div className="h-[350px] md:h-[480px]" aria-hidden="true" />}
   </div>
 }
 

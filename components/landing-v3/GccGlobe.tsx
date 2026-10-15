@@ -338,8 +338,8 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         ctx.strokeStyle = `rgba(255,214,140,${0.55 * dim})`
         ctx.lineWidth = 1 * dpr
         ctx.beginPath()
-        ctx.font = `700 ${(on ? 12 : 11) * dpr}px Inter, system-ui, sans-serif`
-        const label = `${g.code} · ${g.country}`
+        ctx.font = `700 ${(on ? 13 : 12) * dpr}px Inter, system-ui, sans-serif`
+        const label = g.country
         const w = ctx.measureText(label).width + 14 * dpr
         const h = 20 * dpr
         const px = Math.min(W * 0.9 - w / 2, Math.max(W * 0.1 + w / 2, lx))
@@ -445,12 +445,12 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
 
                   onClick={() => setFocus(g.code)}
                   className={cn(
-                    'flex min-h-11 w-full items-center gap-1.5 rounded-[12px] px-2 text-left type-caption font-semibold ring-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:gap-2 sm:px-3 ',
+                    'grid min-h-14 w-full grid-cols-[24px_minmax(0,1fr)] items-center gap-1.5 rounded-[12px] px-2 text-left type-caption font-semibold ring-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:gap-2 sm:px-3 ',
                     focus === g.code ? 'bg-teal text-white ring-teal' : 'bg-canvas text-ink ring-line hover:ring-teal/50',
                   )}
                 >
                   <Image src={gccDestinations.find((destination) => destination.country === (g.code === 'AE' ? 'United Arab Emirates' : g.country))!.src} alt="" aria-hidden="true" width={24} height={18} unoptimized className="h-[18px] w-6 shrink-0 rounded-sm object-cover" />
-                  {g.country}
+                  <span className="min-w-0 text-xs leading-snug">{g.country}</span>
                 </button>
               </li>
             ))}
@@ -498,3 +498,4 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
     </div>
   )
 }
+

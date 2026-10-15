@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Target, Mic, Activity, Wrench, Compass, Globe2, ListChecks, RotateCcw, FileCheck2 } from 'lucide-react'
+import { ArrowRight, Target, Activity, Wrench, Compass, Globe2, ListChecks, RotateCcw, FileCheck2 } from 'lucide-react'
 import s from './premium.module.css'
 import { INTERVIEW_METRICS } from '@/lib/interviewProgress'
 const Demo=dynamic(()=>import('../landing-v3/InterviewDemo').then(m=>m.InterviewDemo),{ssr:false})
@@ -24,27 +24,24 @@ export function ProgressPreview(){
  const current=feedbackAreas[selected], Icon=current.icon
  return <div className={s.progressExperience}>
   <div className={s.progressIntro}>
-   <span className={s.kicker}>FEEDBACK INTO YOUR NEXT STEP</span>
-   <h3>Know what to work on.<br/>Make every practice count.</h3>
-   <p>One completed interview. Five feedback areas. A focused plan for your next session.</p>
-   <ol className={s.progressSequence}>
-    <li><span><Mic size={20}/></span><div><strong>Practise for your target role</strong><small>Bring your real experience into each answer.</small></div></li>
-    <li><span><FileCheck2 size={20}/></span><div><strong>Review your feedback</strong><small>See strengths and areas to work on.</small></div></li>
-    <li><span><RotateCcw size={20}/></span><div><strong>Compare matching sessions</strong><small>Review changes and choose your next focus.</small></div></li>
-   </ol>
-   <Link href="/mock-interview" className={s.primary}>Start my interview preparation <ArrowRight size={18}/></Link>
+   <figure className={s.happyProfessional}><Image src="/landing/happy-professional-v1.webp" alt="Smiling professional reviewing interview preparation on her laptop" fill sizes="(min-width: 900px) 540px, calc(100vw - 32px)"/></figure>
+   <span className={s.kicker}>TURN FEEDBACK INTO CONFIDENCE</span>
+   <h3>A clear picture.<br/>A focused next step.</h3>
+   <p>Explore what your interview report reviews. Choose an area in the graph to see how it helps you prepare.</p>
+   <Link href="/mock-interview" className={s.primary}>Prepare for my interview <ArrowRight size={18}/></Link>
   </div>
   <div className={s.feedbackMap}>
    <div className={s.mapHeader}><span><Activity size={17}/> YOUR FEEDBACK MAP</span><small>Explore the five areas</small></div>
    <div className={s.feedbackBranches}>
-    <div className={s.reportNode}><div><FileCheck2 size={29}/></div><strong>Your interview</strong><small>Completed report</small><span>5 feedback areas</span></div>
+    <div className={s.reportNode}><div><FileCheck2 size={29}/></div><strong>Your interview</strong><small>After your practice</small><span>5 feedback areas</span></div>
     <svg className={s.branchLines} viewBox="0 0 100 300" preserveAspectRatio="none" aria-hidden="true"><path d="M0 150 H35 M35 30 V270 M35 30 H100 M35 90 H100 M35 150 H100 M35 210 H100 M35 270 H100"/><path className={s.flowSignal} d={`M0 150 H35 V${30 + INTERVIEW_METRICS.findIndex(metric=>metric.key===selected)*60} H100`}/></svg>
     <div className={s.metricNodes} aria-label="Interview feedback areas">{INTERVIEW_METRICS.map(({key,label})=>{const area=feedbackAreas[key], I=area.icon;return <button key={key} type="button" aria-pressed={selected===key} aria-controls="preparation-focus" onClick={()=>setSelected(key)} style={{'--metric-colour':area.colour} as React.CSSProperties}><I size={19}/><span><strong>{label}</strong><small>{area.hint}</small></span><ArrowRight size={15}/></button>})}</div>
    </div>
    <div className={s.focusConnector} aria-hidden="true"><span/><ArrowRight size={17}/><span>YOUR NEXT FOCUS</span></div>
    <div id="preparation-focus" className={s.focusCard} aria-live="polite" aria-atomic="true"><span className={s.focusIcon}><Icon size={23}/></span><div><h4>{current.heading}</h4><p>{current.detail}</p></div></div>
    <div className={s.compareStrip}><RotateCcw size={20}/><div><strong>Practise again → compare your reports</strong><small>Same resume, rubric, input mode and practice settings.</small></div></div>
-   <p className={s.mapFootnote}>Your saved reports supply the scores and improvement plan. Changes can go up or down.</p>
+   <p className={s.mapFootnote}>Complete a practice interview to receive your own scores and feedback. No previous report needed to start.</p>
   </div>
  </div>
 }
+
