@@ -14,7 +14,7 @@ import { NAV_ITEMS, NAV_GROUPS } from '../components/layout/navItems'
 ;(globalThis as unknown as {React: unknown}).React = React
 // Isolate the introduction from app-router session/navigation hooks for SSR checks.
 const shell = require.resolve('../components/layout/PageShell')
-require.cache[shell] = { id: shell, filename: shell, loaded: true, exports: { PageShell: ({children}: {children: React.ReactNode}) => React.createElement('main', null, children) } } as NodeModule
+require.cache[shell] = { id: shell, filename: shell, loaded: true, exports: { PageShell: ({children, actions, title}: {children: React.ReactNode; actions?: React.ReactNode; title: string}) => React.createElement('main', null, React.createElement('h1', null, title), actions, children) } } as NodeModule
 const { ProfileIntroduction } = require('../components/professional/ProfileIntroduction')
 const { ProfilePreview } = require('../components/linkedin/ProfilePreview')
 const { LinkedInWorkspace } = require('../components/linkedin/LinkedInWorkspace')
