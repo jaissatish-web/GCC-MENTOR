@@ -296,3 +296,5 @@
 @media(min-width:640px){.destinationList{grid-template-columns:repeat(3,minmax(0,1fr))}.preparationPicturePanel{padding:22px}.challengeList{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1024px){.destinationList{grid-template-columns:repeat(6,minmax(0,1fr))}.destinationItem{gap:10px;padding:12px 10px}}
 @media(max-width:639px){.pictureCaption{align-items:flex-start;flex-direction:column}.pictureCaption .primary{width:100%}.page .demoJobs{grid-template-columns:1fr}.page .demoJobs button{min-height:64px;padding:12px}.page .demoJobs button>span{font-size:13px}.page .demoJobs b{margin-top:3px}.page .photoTabs{grid-template-columns:repeat(2,minmax(0,1fr))}.page .studioBar{align-items:stretch}.happyProfessional{height:260px}.challengeList>li{padding:18px;gap:12px}}
+
+.page .studioBar{background:var(--paper);border-bottom:1px solid var(--line)}
