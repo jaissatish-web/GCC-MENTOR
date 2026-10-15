@@ -5,28 +5,28 @@
   --ui-mono-font: var(--font-plex-mono), monospace;
   --ui-weight-regular: 400;
   --ui-weight-label: 500;
-  --ui-weight-heading: 600;
-  --ui-weight-title: 700;
-  --ui-title-size: 1.625rem;
-  --ui-section-size: 1.25rem;
-  --ui-card-title-size: 1.0625rem;
-  --ui-body-size: 1rem;
+  --ui-weight-heading: 500;
+  --ui-weight-title: 600;
+  --ui-title-size: 1.375rem;
+  --ui-section-size: 1.125rem;
+  --ui-card-title-size: 1rem;
+  --ui-body-size: 0.9375rem;
   --ui-label-size: 0.875rem;
   --ui-helper-size: 0.875rem;
   --ui-caption-size: 0.75rem;
   --ui-demo-caption-size: 0.6875rem;
   --ui-input-size: 1rem;
-  --ui-button-size: 1rem;
+  --ui-button-size: 0.875rem;
   --ui-hero-size: 2rem;
   --ui-hero-line: 1.18;
   --ui-marketing-size: 1.5rem;
   --ui-lead-size: 1rem;
-  --ui-stat-size: 2rem;
+  --ui-stat-size: 1.5rem;
   --ui-body-line: 1.55;
   --ui-lead-line: 1.65;
-  --ui-heading-line: 1.25;
+  --ui-heading-line: 1.35;
   --ui-label-line: 1.4;
-  --ui-heading-tracking: -0.02em;
+  --ui-heading-tracking: -0.015em;
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
   --ui-card-radius: 12px;
@@ -34,8 +34,8 @@
   /* Semantic palette: RGB triplets allow shared opacity utilities. */
   --ui-canvas-rgb: 248 250 249;
   --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 20 24 28;
-  --ui-ink-soft-rgb: 65 75 85;
+  --ui-ink-rgb: 35 51 49;
+  --ui-ink-soft-rgb: 76 91 87;
   --ui-ink-muted-rgb: 97 107 118;
   --ui-brand-rgb: 15 76 67;
   --ui-brand-hover-rgb: 18 105 92;
@@ -66,7 +66,7 @@
   --ui-control-radius: 10px;
   --ui-hero-radius: 16px;
   --ui-control-height: 44px;
-  --ui-field-border: #89978f;
+  --ui-field-border: #a4b2ac;
   --ui-page-width: 980px;
   --ui-wide-width: 1120px;
   --ui-form-width: 760px;
@@ -102,15 +102,15 @@
 }
 @media (min-width: 640px) {
   :root {
-    --ui-title-size: 1.875rem;
-    --ui-section-size: 1.375rem;
-    --ui-card-title-size: 1.125rem;
-    --ui-body-size: 1rem;
-    --ui-button-size: 1rem;
+    --ui-title-size: 1.5rem;
+    --ui-section-size: 1.25rem;
+    --ui-card-title-size: 1rem;
+    --ui-body-size: 0.9375rem;
+    --ui-button-size: 0.875rem;
     --ui-hero-size: 2.375rem;
     --ui-marketing-size: 1.875rem;
     --ui-lead-size: 1.0625rem;
-    --ui-stat-size: 2.125rem;
+    --ui-stat-size: 1.75rem;
     --ui-page-gutter: 24px;
     --ui-page-gap: 24px;
     --ui-page-top: 28px;
@@ -121,14 +121,14 @@
 }
 @media (min-width: 1024px) {
   :root {
-    --ui-body-size: 1rem;
-    --ui-title-size: 1.875rem;
-    --ui-section-size: 1.375rem;
-    --ui-card-title-size: 1.125rem;
+    --ui-body-size: 0.9375rem;
+    --ui-title-size: 1.5rem;
+    --ui-section-size: 1.25rem;
+    --ui-card-title-size: 1rem;
     --ui-hero-size: clamp(2.75rem, 3.6vw, 3.25rem);
     --ui-marketing-size: 2rem;
     --ui-lead-size: 1.125rem;
-    --ui-stat-size: 2.25rem;
+    --ui-stat-size: 1.75rem;
   }
 }
 @media (max-width: 359px) { :root { --ui-hero-size: 1.875rem; } }
@@ -297,6 +297,14 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 .app-type .workspace-next { background:var(--ui-hero-gradient); }
 .app-type .field { background:var(--ui-surface); border-color:var(--ui-field-border); border-radius:var(--ui-control-radius); }
 .app-type .field:hover:not(:disabled) { border-color:var(--ui-brand); }
+/* Daily-use app typography: one scale for Home, Profile, forms and reports.
+   Keep inputs at 16px; CV/document previews retain their explicit exclusions. */
+.app-type { font-size:var(--ui-body-size); line-height:var(--ui-body-line); }
+.app-type :is(.uppercase,[class*="tracking-wider"],[class*="tracking-wide"]):not(:where([data-document-preview] *,#resume-render *,.actual-template-orbit-face *)) { letter-spacing:.025em; }
+.app-type .workspace-heading h1 { font-weight:var(--ui-weight-title); }
+.app-type .workspace-next { background:var(--ui-hero-gradient); }
+.app-type .ui-goal-card h3 { font-size:var(--ui-body-size); font-weight:var(--ui-weight-label); line-height:1.45; }
+.app-type .ui-service-icon { opacity:.9; }
 /* Service identity follows the same palette in navigation, cards and guides.
    Labels and icons carry the meaning; colour is a supporting cue. */
 [data-ui-service] { --service-ink:var(--ui-brand); --service-soft:var(--ui-brand-soft); }
@@ -310,9 +318,9 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 [data-ui-service="linkedin"] { --service-ink:var(--ui-nav-linkedin-ink); --service-soft:var(--ui-nav-linkedin-bg); }
 [data-ui-service="naukrigulf"] { --service-ink:var(--ui-nav-naukrigulf-ink); --service-soft:var(--ui-nav-naukrigulf-bg); }
 .ui-service-icon { color:var(--service-ink,var(--ui-brand)); background:var(--service-soft,var(--ui-brand-soft)); }
-.app-type .ui-service-card { border-top:3px solid var(--service-ink,var(--ui-brand)); background:var(--ui-surface); }
+.app-type .ui-service-card { border-top:1px solid var(--ui-line); background:var(--ui-surface); }
 .ui-service-card:hover { box-shadow:var(--ui-card-hover-shadow); }
-.app-type main[data-ui-service] > .ui-surface { border-top:3px solid var(--service-ink,var(--ui-brand)); }
+.app-type main[data-ui-service] > .ui-surface { border-top:1px solid var(--ui-line); }
 .app-type select.field { background-color:rgb(var(--ui-brand-soft-rgb) / .35); }
 .app-type :is(button,a,input,select,textarea,summary):focus-visible { outline:2px solid var(--ui-brand); outline-offset:3px; }
 .app-type .ui-goal-card { display:flex; align-items:flex-start; gap:12px; }

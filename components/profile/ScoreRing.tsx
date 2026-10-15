@@ -77,7 +77,7 @@ export function ScoreRing({
         />
       </svg>
       <span aria-hidden="true" className="absolute inset-0 flex flex-col items-center justify-center leading-none">
-        <span className={cn('font-mono font-semibold tabular-nums text-ink', big ? 'text-[34px]' : size >= 80 ? 'text-[22px]' : 'text-[18px]')}>
+        <span className={cn('font-mono font-semibold tabular-nums text-ink', big ? 'type-stat' : size >= 80 ? 'type-section' : 'type-card')}>
           {value === null ? '—' : clamped}
           {suffix === '%' && value !== null ? <span className={big ? 'text-[18px]' : 'text-[12px]'}>%</span> : null}
         </span>

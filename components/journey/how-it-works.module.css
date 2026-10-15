@@ -1,20 +1,20 @@
 .overlay { background:rgb(8 38 34 / .65); backdrop-filter:blur(6px); animation:fadeIn .2s ease-out; }
 .dialog { background:var(--ui-canvas); border:1px solid rgb(var(--ui-brand-rgb) / .25); box-shadow:0 24px 90px rgb(8 38 34 / .3); animation:fadeIn .25s ease-out; }
-.hero { position:relative; background:var(--ui-surface); color:var(--ui-ink); border-bottom:1px solid var(--ui-line); }
+.hero { position:relative; background:var(--ui-hero-gradient); color:var(--ui-inverse); border-bottom:1px solid var(--ui-line); }
 /* A quiet header keeps the guide readable on a phone. */
-.heroTitle { color:var(--ui-ink); max-width:28ch; text-wrap:balance; }
-.eyebrow { color:var(--ui-brand); }
-.heroDescription { color:rgb(var(--ui-ink-soft-rgb)); max-width:55ch; }
-.close { color:var(--ui-muted); background:var(--ui-canvas); border:1px solid var(--ui-line); }
+.heroTitle { color:var(--ui-inverse); max-width:28ch; text-wrap:balance; }
+.eyebrow { color:var(--ui-hero-label); }
+.heroDescription { color:var(--ui-hero-copy); max-width:55ch; }
+.close { color:var(--ui-inverse); background:rgb(255 255 255 / .08); border:1px solid rgb(255 255 255 / .25); }
 .close:hover { color:var(--ui-brand); background:var(--ui-brand-soft); }
 .close:focus-visible { outline:2px solid var(--ui-brand); outline-offset:2px; }
 .route { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:14px; }
-.routeStop { display:flex; min-width:0; align-items:center; justify-content:center; gap:8px; padding:8px; border-radius:var(--ui-control-radius); background:var(--service-soft,var(--ui-brand-soft)); font-size:var(--ui-helper-size); font-weight:500; color:var(--service-ink,var(--ui-brand)); }
-.routeIcon { display:grid; flex-shrink:0; place-items:center; width:24px; height:24px; }
+.routeStop { display:flex; min-width:0; align-items:center; justify-content:center; gap:8px; padding:8px; border-radius:var(--ui-control-radius); background:rgb(255 255 255 / .07); font-size:var(--ui-helper-size); font-weight:400; color:var(--ui-inverse); }
+.routeIcon { color:var(--ui-hero-label); display:grid; flex-shrink:0; place-items:center; width:24px; height:24px; }
 .connector { position:relative; height:30px; width:2px; margin:0 auto; background:rgb(var(--ui-brand-rgb) / .2); overflow:hidden; }
 .connector::after { content:''; position:absolute; left:0; top:-10px; width:2px; height:10px; border-radius:2px; background:rgb(var(--ui-accent-ink-rgb)); animation:travel 2.8s ease-in-out infinite; }
 .tree { position:relative; }
-.node { position:relative; min-width:0; border:1px solid rgb(var(--ui-brand-rgb) / .2); border-radius:var(--ui-card-radius); padding:12px; background:var(--ui-surface); border-top:3px solid var(--service-ink,var(--ui-brand)); }
+.node { position:relative; min-width:0; border:1px solid rgb(var(--ui-brand-rgb) / .2); border-radius:var(--ui-card-radius); padding:12px; background:var(--ui-surface); border-top:1px solid var(--ui-line); }
  .node :global(.text-teal),.node :global(.text-gold-ink) { color:var(--service-ink,var(--ui-brand)); }
 .node h4 { line-height:1.4; }
 .serviceIcon { display:flex; align-items:center; justify-content:center; width:36px; height:36px; flex-shrink:0; border-radius:var(--ui-control-radius); background:var(--service-soft,var(--ui-brand-soft)); color:var(--service-ink,var(--ui-brand)); }
