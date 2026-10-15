@@ -6,9 +6,8 @@ import { usePathname } from 'next/navigation'
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/react/24/outline'
 import { LockClosedIcon } from '@heroicons/react/24/solid'
 import { signOut } from '@/app/auth/actions'
+import { useApplicationWorkspace } from '@/components/journey/ApplicationWorkspace'
 import { cn } from '@/lib/utils'
-import { useCurrentStage } from '@/components/journey/useCurrentStage'
-import { type StageId } from '@/components/journey/stages'
 import {
   NAV_GROUPS,
   NAV_ITEMS,
@@ -32,7 +31,7 @@ import {
 function SignOutButton() {
   const [pending, setPending] = useState(false)
   return (
-    <form action={signOut} onSubmit={() => setPending(true)}>
+    <form action={signOut} onSubmit={() => { setPending(true); try { sessionStorage.removeItem('gcc-application-selection-v1'); sessionStorage.removeItem('gcc-journey-goal-v1') } catch { /* optional */ } }}>
       <button
         type="submit"
         disabled={pending}
@@ -73,10 +72,11 @@ function NavItem({
    */
   mark?: 'next' | 'locked' | null
 }) {
+  const workspace = useApplicationWorkspace()
   const Icon = item.icon
   return (
     <Link
-      href={navHref(item)}
+      href={workspace?.href(navHref(item)) ?? navHref(item)}
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       title={mark === 'locked' ? 'Opens after the step before it' : undefined}
@@ -110,8 +110,7 @@ function NavItem({
 }
 
 export function Sidebar() {
-  const snap = useCurrentStage()
-  const states = snap ? snap.states : null
+  const workspace = useApplicationWorkspace()
   const pathname = usePathname()
   const [tabletExpanded, setTabletExpanded] = useState(false)
 
@@ -122,11 +121,9 @@ export function Sidebar() {
     ...g,
     items: g.hrefs.map((h) => NAV_ITEMS.find((i) => i.href === h)).filter((i): i is NavItemType => Boolean(i)),
   }))
-  const markFor = (stage: StageId | undefined, index: number): 'next' | 'locked' | null => {
-    if (!stage || !states) return null
-    if (states[stage] === 'locked') return null
-    if (states[stage] === 'current' && index === 0) return 'next'
-    return null
+  const markFor = (item: NavItemType): 'next' | null => {
+    const target = workspace?.nextAction?.href.split('?')[0]
+    return target && (target === navHref(item) || (item.href === '/optimize' && target.startsWith('/optimize/'))) ? 'next' : null
   }
 
   const navContent = (onNavigate?: () => void) => (
@@ -137,8 +134,8 @@ export function Sidebar() {
           return (
             <div key={g.key} className="flex flex-col gap-0.5">
               {g.label ? <p className="px-2.5 pb-0.5 pt-2 type-caption font-medium text-ink-muted">{g.label}</p> : null}
-              {g.items.map((item, i) => (
-                <NavItem key={item.label} item={item} active={isActive(item)} mark={markFor(item.href === '/cover-letter' ? 'apply' : g.stage, item.href === '/cover-letter' ? 0 : item.href === '/interview-qa' ? 1 : item.href === '/mock-interview' ? 2 : i)} onClick={onNavigate} />
+              {g.items.map((item) => (
+                <NavItem key={item.label} item={item} active={isActive(item)} mark={markFor(item)} onClick={onNavigate} />
               ))}
             </div>
           )

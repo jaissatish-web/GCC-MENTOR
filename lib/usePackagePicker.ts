@@ -1,5 +1,7 @@
 'use client'
 
+import { useApplicationWorkspace } from '@/components/journey/ApplicationWorkspace'
+import { cvReady } from '@/lib/packageSummary'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PackageListPage, PackageSummary } from '@/lib/packageSummary'
 import { fetchCareerProfileResumeSummary } from '@/lib/useCareerProfileResume'
@@ -22,10 +24,22 @@ import type { Package } from '@/types/package'
  */
 export function usePackagePicker(opts: { requestedId: string | null; onlyWithResume: boolean }) {
   const { requestedId, onlyWithResume } = opts
+  const workspace = useApplicationWorkspace()
+  const selectWorkspace = workspace?.select
+  const refreshWorkspace = workspace?.refresh
+  const workspaceRows = workspace?.rows
+  const workspaceReady = workspace?.ready
+  const workspaceError = workspace?.error
+  const workspaceSelectedId = workspace?.selected?.id
+  const appliedRequest = useRef<string | null | undefined>(undefined)
   const [list, setList] = useState<PackageSummary[] | null>(null)
   const [total, setTotal] = useState<number | null>(null)
   const [listError, setListError] = useState<string | null>(null)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedIdLocal] = useState<string | null>(null)
+  const setSelectedId = useCallback((id: string | null) => {
+    setSelectedIdLocal(id)
+    if (id) selectWorkspace?.(id)
+  }, [selectWorkspace])
   const [detail, setDetail] = useState<Package | null>(null)
   const [detailError, setDetailError] = useState<string | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -34,6 +48,7 @@ export function usePackagePicker(opts: { requestedId: string | null; onlyWithRes
   const waitingFor = useRef<string | null>(null)
 
   useEffect(() => {
+    if (workspace) return
     let cancelled = false
     setListError(null)
     const qs = new URLSearchParams({ view: 'summary', limit: '100', counts: '1' })
@@ -49,7 +64,7 @@ export function usePackagePicker(opts: { requestedId: string | null; onlyWithRes
         const rows = [...(raw.resume ? [raw.resume] : []), ...(data.packages ?? []).filter((p) => p.id !== raw.resume?.id)]
         setList(rows)
         setTotal(typeof data.total === 'number' ? data.total + Number(Boolean(raw.resume)) : rows.length)
-        setSelectedId((current) => current ?? rows.find((p) => p.id === requestedId)?.id ?? rows[0]?.id ?? null)
+        setSelectedIdLocal((current) => current ?? rows.find((p) => p.id === requestedId)?.id ?? rows[0]?.id ?? null)
       })
       .catch(() => {
         if (!cancelled) setListError('Could not load your saved jobs. Check your connection and try again.')
@@ -57,7 +72,28 @@ export function usePackagePicker(opts: { requestedId: string | null; onlyWithRes
     return () => {
       cancelled = true
     }
-  }, [onlyWithResume, requestedId, listKey])
+  }, [onlyWithResume, requestedId, listKey, workspace])
+
+  useEffect(() => {
+    if (!workspaceRows) return
+    if (workspaceError) { setListError('Could not load your saved CVs. Try again.'); return }
+    if (!workspaceReady) return
+    const rows = onlyWithResume ? workspaceRows.filter(cvReady) : workspaceRows
+    setList(rows)
+    setTotal(workspaceRows.length)
+    setListError(null)
+    const requestChanged = appliedRequest.current !== requestedId
+    appliedRequest.current = requestedId
+    const requested = requestChanged ? rows.find(p => p.id === requestedId) : null
+    if (requestChanged && requestedId && !requested) {
+      setSelectedIdLocal(null)
+      setListError('That CV is no longer available in your recent applications. Choose a CV using Preparing above, or open My applications & CVs.')
+      return
+    }
+    const selected = requested ?? rows.find(p => p.id === workspaceSelectedId) ?? rows[0]
+    setSelectedIdLocal(selected?.id ?? null)
+    if (requested && requested.id !== workspaceSelectedId) selectWorkspace?.(requested.id)
+  }, [workspaceRows, workspaceSelectedId, workspaceReady, workspaceError, selectWorkspace, onlyWithResume, requestedId])
 
   useEffect(() => {
     if (!selectedId) {
@@ -95,7 +131,8 @@ export function usePackagePicker(opts: { requestedId: string | null; onlyWithRes
   /** Keep the list's flags in step after a save (e.g. one more letter). */
   const patchSummary = useCallback((packageId: string, patch: Partial<PackageSummary>) => {
     setList((rows) => (rows ? rows.map((p) => (p.id === packageId ? { ...p, ...patch } : p)) : rows))
-  }, [])
+    refreshWorkspace?.()
+  }, [refreshWorkspace])
 
   const selectedSummary = list?.find((p) => p.id === selectedId) ?? null
   const openDetail = detail && detail.id === selectedId ? detail : null
@@ -112,7 +149,7 @@ export function usePackagePicker(opts: { requestedId: string | null; onlyWithRes
     detailLoading,
     updateDetail,
     patchSummary,
-    reloadList: () => setListKey((k) => k + 1),
+    reloadList: () => workspace ? workspace.refresh() : setListKey((k) => k + 1),
     reloadDetail: () => setDetailKey((k) => k + 1),
   }
 }

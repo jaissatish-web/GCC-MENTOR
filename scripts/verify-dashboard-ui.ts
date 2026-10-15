@@ -30,7 +30,7 @@ const progress = renderToStaticMarkup(React.createElement(OverallProgress, { ove
 assert.equal((progress.match(/role="progressbar"/g) ?? []).length, 3)
 assert.ok(progress.includes('78.5 / 100'))
 assert.ok(progress.includes('aria-valuenow="67"'))
-assert.ok(progress.includes('Manage in Resume Library'))
+assert.ok(progress.includes('Manage in My applications &amp; CVs'))
 assert.equal(coveragePercent(0, 0), 0)
 assert.equal(coveragePercent(10, 2), 100)
 assert.equal(coveragePercent(1, 3), 33)

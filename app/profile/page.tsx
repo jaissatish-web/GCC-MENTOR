@@ -1841,6 +1841,7 @@ function ProfileScreen() {
         if (savedBody?.updated_at) savedVersionRef.current = savedBody.updated_at
         // What is now saved — the save bar reads "All changes saved" until the next edit.
         setSavedBaseline(JSON.stringify(buildPutBody(editor)))
+        window.dispatchEvent(new Event('gcc-profile-updated'))
         // A save succeeded, so the profile now exists — the import panel folds
         // into "Recreate my profile" (2026-09-11).
         setHasSavedProfile(true)

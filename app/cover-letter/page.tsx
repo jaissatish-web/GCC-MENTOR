@@ -1,7 +1,8 @@
 'use client'
 
-import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
-import { Suspense, useMemo, useRef, useState } from 'react'
+import { useApplicationLock } from '@/components/journey/ApplicationWorkspace'
+import { careerResumeLabel, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { Suspense, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
@@ -42,7 +43,7 @@ import { StageGate } from '@/components/journey/StageGate'
  */
 
 function letterTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
-  if (isCareerProfileResume(pkg)) return `${pkg.name || pkg.target_job_title} · ${CAREER_RESUME_BADGE}`
+  if (isCareerProfileResume(pkg)) return `${careerResumeLabel(pkg)} · ${CAREER_RESUME_BADGE}`
   // The employer only when there is one.
   const bits = [pkg.target_job_title, pkg.target_company].filter(Boolean)
   return bits.join(' · ')
@@ -59,13 +60,13 @@ function CoverLetterScreen() {
   // ?package=<id> — arriving from a job's own page or the dashboard's next
   // step, with that job already chosen. Read once; unknown ids fall back.
   const searchParams = useSearchParams()
-  const requestedIdRef = useRef(searchParams.get('package'))
-  const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: false })
+  const picker = usePackagePicker({ requestedId: searchParams.get('package'), onlyWithResume: false })
   const { list, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
   const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [tone, setTone] = useState<CoverLetterTone>('professional')
 
   const [generating, setGenerating] = useState(false)
+  useApplicationLock(generating)
   const [genError, setGenError] = useState<string | null>(null)
 
   // Local edits (edit-in-place textarea per letter) — never persisted.
@@ -205,7 +206,7 @@ function CoverLetterScreen() {
       eyebrow={stageEyebrow('apply')}
       title="Cover Letter"
       subtitle={isRaw ? 'Introduce your experience using your saved profile. No job description needed.' : 'A letter for your target Gulf job, in your preferred tone.'}
-      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
+      uses={isRaw ? ['General CV', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
 
       {/* Centered generation form (720px, §C) */}
@@ -273,7 +274,7 @@ function CoverLetterScreen() {
             {generating ? (
               <ProcessingInline
                 steps={[
-                  isRaw ? 'Reading your saved Career Profile Resume' : 'Reading the saved CV for this job',
+                  isRaw ? 'Reading your saved General CV' : 'Reading the saved CV for this job',
                   'Drawing on your Career Profile',
                   `Writing in the ${tone} tone`,
                   'Checking every line against your profile',

@@ -1,8 +1,14 @@
 import { buildResumeDocument } from '@/lib/resumeDocument'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
-export const CAREER_RESUME_NAME = 'My Career Profile Resume'
-export const CAREER_RESUME_BADGE = 'Raw Career Profile Data'
+export const CAREER_RESUME_NAME = 'My General CV'
+export const CAREER_RESUME_BADGE = 'From your saved profile'
+
+/** Preserve user-renamed CVs; translate only the historical default label. */
+export function careerResumeLabel(pkg: { name?: string | null }): string {
+  const name = pkg.name?.trim()
+  return name && name !== 'My Career Profile Resume' ? name : CAREER_RESUME_NAME
+}
 
 /** Source identity survives renaming; never infer it from empty AI content. */
 export function isCareerProfileResume(pkg: { tier?: string | null }): boolean {

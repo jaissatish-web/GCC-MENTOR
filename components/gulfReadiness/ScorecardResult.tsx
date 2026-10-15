@@ -218,7 +218,7 @@ export function ScorecardResult({
             action plan, and what to fix first. Your result is already saved in this browser and comes with you.
           </p>
           <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/signup" className={buttonVariants({ variant: 'purchase' })}>
+            <Link href="/signup?from=readiness" className={buttonVariants({ variant: 'purchase' })}>
               Create my free account &amp; unlock the full report
             </Link>
           </div>

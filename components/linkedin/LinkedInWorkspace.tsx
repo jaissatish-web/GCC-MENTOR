@@ -456,10 +456,10 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                         YOUR PERSONALIZED CONTENT
                       </p>
                       <h2 className="mt-2 type-section text-ink">
-                        Your content is ready to copy
+                        {stale ? 'Your profile changed — refresh this draft' : 'Your content is ready to copy'}
                       </h2>
                       <p className="mt-2 max-w-xl text-ink-soft">
-                        Review → Copy → Paste on {platformName} → Save there. Mark it
+                        {stale ? 'Prepare a fresh version before updating your recruiter profile.' : <>Review → Copy → Paste on {platformName} → Save there.</>} Mark it
                         complete only after you’ve made the change.
                       </p>
                     </div>
@@ -541,7 +541,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           setError('')
                         }}
                       >
-                        Prepare another version
+                        {stale ? 'Refresh from my latest profile' : 'Prepare another version'}
                       </button>
                     </div>
                     {dirty && (
@@ -789,7 +789,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       <p className="mt-4 text-xs leading-6 text-ink-muted">Review any salary, work authorization and availability questions yourself. GCC Mentor does not infer answers or submit these fields.</p>
                       {taskControls('preferences')}
                     </section>
-                    <section className={card}><h2 className="type-section text-ink">Upload your current CV</h2><p className="mt-3 text-sm leading-6 text-ink-soft">Choose the appropriate saved CV, check its content and download it from My CVs. Upload it to NaukriGulf yourself, then check that the attachment opens correctly.</p><Link href="/dashboard/library" className={`${secondary} mt-4`}>Open My CVs</Link>{taskControls('resume')}</section>
+                    <section className={card}><h2 className="type-section text-ink">Upload your current CV</h2><p className="mt-3 text-sm leading-6 text-ink-soft">Choose the appropriate saved CV, check its content and download it from My applications & CVs. Upload it to NaukriGulf yourself, then check that the attachment opens correctly.</p><Link href="/dashboard/library" className={`${secondary} mt-4`}>Open My applications & CVs</Link>{taskControls('resume')}</section>
                   </>}
                   <section className={card}>
                     <h2 className="type-section text-ink">

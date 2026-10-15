@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { GoalChooser, useApplicationWorkspace } from '@/components/journey/ApplicationWorkspace'
 import { DocumentTextIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline'
 import { HowItWorks } from '@/components/journey/HowItWorks'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
@@ -21,6 +22,7 @@ import type { CareerProfileFull } from '@/types/careerProfile'
 
 /** Overall scores, saved totals and progress; individual resumes live in the Library. */
 export default function DashboardPage() {
+  const workspace = useApplicationWorkspace()
   const router = useRouter()
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
@@ -129,12 +131,12 @@ export default function DashboardPage() {
   // application", with no route back to the one they had already started. The
   // rules moved to lib/nextAction.ts, which reads only what these same two
   // fetches already returned.
-  const nextAction = dashboardNextAction(computeNextAction(profile, packages, score, missing.length, hasPendingDraft))
+  const nextAction = workspace?.nextAction ?? dashboardNextAction(computeNextAction(profile, packages, score, missing.length, hasPendingDraft))
 
   const ready = profileLoaded && packagesLoaded && !loadError
   // The map follows progress; the teal panel follows the next action. They
   // differ only when a CV reading is waiting, which is a to-do, not a step.
-  const snap = ready ? stageSnapshot(profile ? score : null, packages) : null
+  const snap = workspace?.snapshot ?? (ready ? stageSnapshot(profile ? score : null, packages) : null)
   const current = snap?.current ?? null
   const states = snap?.states ?? stageStates('profile', { profileDone: false, cvDone: false, applyDone: false })
   const currentStage = current ? stageById(current) : null
@@ -155,6 +157,8 @@ export default function DashboardPage() {
         <div className="self-start"><HowItWorks /></div>
       </header>
 
+      {ready ? <GoalChooser /> : null}
+
       {/* Lead with the existing next action; the compact map supports it. */}
       <section aria-label="Your progress and next step" className="workspace-panel overflow-hidden">
         <div className="workspace-next ui-card flex flex-col gap-5 overflow-hidden sm:flex-row sm:items-center sm:justify-between">
@@ -167,8 +171,8 @@ export default function DashboardPage() {
                   : draftWaiting
                     ? 'Waiting for your decision'
                     : currentStage
-                    ? `Step ${currentStage.n} · ${currentStage.name}`
-                    : 'All three steps done'}
+                    ? 'Suggested next action'
+                    : 'Choose your next goal'}
             </span>
             <h2 className="type-section text-white">
               {loadError
@@ -186,7 +190,7 @@ export default function DashboardPage() {
                   ? 'Checking your profile and saved applications.'
                   : firstRun
                     ? 'Upload, paste or enter your details.'
-                    : nextAction.state === 'no_target_job' ? 'Choose a job to tailor your CV.' : 'Continue where you left off.'}
+                    : nextAction.state === 'no_target_job' ? 'Choose a job to tailor your CV.' : nextAction.body}
             </p>
           </div>
           {loadError ? (

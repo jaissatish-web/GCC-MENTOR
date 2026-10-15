@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { careerResumeLabel, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { UserCircleIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { CTA, NAMES } from '@/lib/serviceLabels'
@@ -60,11 +60,11 @@ export function PreparationJourney({
   const here: Step = current === 'report' ? 'mock' : current
 
   return (
-    <section aria-label={isRaw ? 'Career Profile Resume' : NAMES.targetJob} className={bare ? '' : 'rounded-card border border-line bg-white p-4 shadow-m-1'}>
+    <section aria-label={isRaw ? 'General CV' : NAMES.targetJob} className={bare ? '' : 'rounded-card border border-line bg-white p-4 shadow-m-1'}>
       <div className={cn('flex items-start justify-between gap-3', bare && 'sr-only')}>
         <div className="min-w-0">
-          <p className="type-caption font-semibold uppercase tracking-[0.1em] text-ink-muted">{isRaw ? 'Career Profile Resume' : NAMES.targetJob}</p>
-          <p className="mt-0.5 break-words font-display type-card leading-tight text-ink">{pkg.name || pkg.target_job_title}</p>
+          <p className="type-caption font-semibold uppercase tracking-[0.1em] text-ink-muted">{isRaw ? 'General CV' : NAMES.targetJob}</p>
+          <p className="mt-0.5 break-words font-display type-card leading-tight text-ink">{isRaw ? careerResumeLabel(pkg) : pkg.name || pkg.target_job_title}</p>
           <p className="mt-1 flex flex-wrap items-center gap-x-2 type-helper text-ink-soft">
             {isRaw ? 'Based only on your saved profile · No job description' : [pkg.target_company, country].filter(Boolean).join(' · ')}
             {typeof before === 'number' && typeof after === 'number' ? (
