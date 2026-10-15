@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { BriefcaseBusiness, FileText, Mic, UserRound } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import type { PackageListPage, PackageSummary } from '@/lib/packageSummary'
 import { fetchCareerProfileResumeSummary } from '@/lib/useCareerProfileResume'
@@ -111,7 +112,7 @@ export function ApplicationContextBar() {
   if (!workspace) return null
   if (workspace.error) return <div className="border-b border-line px-4 py-2 text-sm" role="status">Application context could not be loaded. <button onClick={workspace.refresh} className="min-h-11 px-2 font-semibold text-teal underline">Try again</button></div>
   if (!workspace.ready || !workspace.rows.length) return null
-  return <section aria-label="Current preparation" className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-white px-4 py-3 sm:px-6">
+  return <section aria-label="Current preparation" className="ui-context-bar flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-white px-4 py-3 sm:px-6">
     <label className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-sm font-semibold text-ink">
       Preparing
       <select aria-label="Current application" disabled={workspace.locked} value={workspace.selected?.id ?? ''} onChange={e => { const id = e.target.value; workspace.select(id); if (['/cover-letter', '/interview-qa', '/mock-interview'].includes(pathname ?? '')) router.replace(`${pathname}?package=${encodeURIComponent(id)}`, { scroll: false }) }} className="min-h-11 min-w-0 max-w-full flex-1 rounded-ctl border border-line bg-white px-3 py-2 font-normal sm:max-w-md">
@@ -131,5 +132,7 @@ export function GoalChooser() {
     ['interview', 'Practise an interview', 'Type or record answers. A job description is optional.', '/mock-interview'],
     ['professional', 'Improve my recruiter profile', 'Prepare content to copy to LinkedIn or NaukriGulf.', '/linkedin-optimization'],
   ] as const
-  return <details open={!workspace?.hasProfile} className="rounded-card border border-line bg-white p-4"><summary id="journey-goal" className="min-h-11 cursor-pointer content-center font-semibold text-ink">{workspace?.goal ? `Your goal: ${goals.find(g => g[0] === workspace.goal)?.[1]} — change goal` : 'Choose your preparation goal'}</summary><p className="mt-2 text-sm text-ink-soft">Choose a goal. You can change it anytime; you do not need every service.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{goals.map(([id, title, body, target]) => <Link key={id} href={workspace?.hasProfile ? workspace.href(target) : '/profile?import=upload'} onClick={() => workspace?.setGoal(id)} className="rounded-card border border-line bg-white p-4 hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><h3 className="font-semibold text-ink">{title}</h3><p className="mt-1 text-sm leading-6 text-ink-soft">{body}</p>{!workspace?.hasProfile ? <p className="mt-2 text-sm font-semibold text-teal">First, add your CV →</p> : null}</Link>)}</div></details>
+  const icons = { application: BriefcaseBusiness, cv: FileText, interview: Mic, professional: UserRound }
+  const tones = { application: 'tailor', cv: 'library', interview: 'mock', professional: 'linkedin' }
+  return <details open={!workspace?.hasProfile} className="rounded-card border border-line bg-white p-4"><summary id="journey-goal" className="min-h-11 cursor-pointer content-center font-semibold text-ink">{workspace?.goal ? `Your goal: ${goals.find(g => g[0] === workspace.goal)?.[1]} — change goal` : 'Choose your preparation goal'}</summary><p className="mt-2 text-sm text-ink-soft">Choose a goal. You can change it anytime; you do not need every service.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{goals.map(([id, title, body, target]) => { const Icon = icons[id]; return <Link data-ui-service={tones[id]} aria-current={workspace?.goal === id ? 'true' : undefined} key={id} href={workspace?.hasProfile ? workspace.href(target) : '/profile?import=upload'} onClick={() => workspace?.setGoal(id)} className="ui-goal-card ui-service-card rounded-card border border-line bg-white p-4 hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><span className="ui-service-icon flex size-9 shrink-0 items-center justify-center rounded-ctl"><Icon className="size-5" aria-hidden="true" /></span><div className="min-w-0"><h3 className="font-semibold text-ink">{title}</h3><p className="mt-1 text-sm leading-6 text-ink-soft">{body}</p>{!workspace?.hasProfile ? <p className="mt-2 text-sm font-semibold text-teal">First, add your CV →</p> : null}</div></Link>})}</div></details>
 }

@@ -5,10 +5,10 @@ import { cn, PACKAGE_STATUSES } from '@/lib/utils'
 import { coveragePercent, type DashboardOverview } from '@/lib/dashboardOverview'
 
 const SERVICES = [
-  { key: 'resume_count', label: 'Resumes', href: '/dashboard/library', cta: 'Open resumes', icon: BriefcaseIcon, color: 'bg-teal-soft/60 text-teal' },
-  { key: 'cover_letter_count', label: 'Cover letters', href: '/cover-letter', cta: 'Open cover letters', icon: EnvelopeIcon, color: 'bg-teal-soft/60 text-teal' },
-  { key: 'qa_set_count', label: 'Q&A sets', href: '/interview-qa', cta: 'Open interview Q&A', icon: QuestionMarkCircleIcon, color: 'bg-teal-soft/60 text-teal' },
-  { key: 'mock_interview_count', label: 'Mock interviews', href: '/mock-interview', cta: 'Open mock interviews', icon: ChatBubbleLeftRightIcon, color: 'bg-teal-soft/60 text-teal' },
+  { key: 'resume_count', tone: 'library', label: 'Resumes', href: '/dashboard/library', cta: 'Open resumes', icon: BriefcaseIcon, color: 'bg-teal-soft/60 text-teal' },
+  { key: 'cover_letter_count', tone: 'letter', label: 'Cover letters', href: '/cover-letter', cta: 'Open cover letters', icon: EnvelopeIcon, color: 'bg-teal-soft/60 text-teal' },
+  { key: 'qa_set_count', tone: 'qa', label: 'Q&A sets', href: '/interview-qa', cta: 'Open interview Q&A', icon: QuestionMarkCircleIcon, color: 'bg-teal-soft/60 text-teal' },
+  { key: 'mock_interview_count', tone: 'mock', label: 'Mock interviews', href: '/mock-interview', cta: 'Open mock interviews', icon: ChatBubbleLeftRightIcon, color: 'bg-teal-soft/60 text-teal' },
 ] as const
 
 export function ActivityOverview({ overview, loading, error, onRetry }: {
@@ -22,7 +22,7 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 id="activity-heading" className="type-section text-ink">Your preparation</h2>
-          <p className="mt-1 type-helper text-ink-muted">CVs, letters and interview practice for your Gulf applications.</p>
+          <p className="mt-1 type-helper text-ink-muted">Your saved CVs, letters and interview practice.</p>
         </div>
         <Link href="/dashboard/library" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>Applications & CVs →</Link>
       </div>
@@ -36,8 +36,8 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
         {SERVICES.map((service) => {
           const Icon = service.icon
           return (
-            <Link key={service.key} href={service.href} className="flex min-w-0 flex-col gap-2 rounded-card border border-line bg-white p-4 shadow-m-1 transition-colors hover:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:p-5">
-              <span aria-hidden="true" className={cn('flex size-8 items-center justify-center rounded-xl', service.color)}><Icon className="size-5" /></span>
+            <Link key={service.key} data-ui-service={service.tone} href={service.href} className="ui-service-card flex min-w-0 flex-col gap-2 rounded-card border border-line bg-white p-4 shadow-m-1 transition-colors hover:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:p-5">
+              <span aria-hidden="true" className={cn('ui-service-icon flex size-9 items-center justify-center rounded-ctl')}><Icon className="size-5" /></span>
               <span className="type-label font-semibold text-ink">{service.label}</span>
               <span className={cn('font-display type-stat text-ink', loading && 'animate-pulse')}>
                 {overview && !error ? overview[service.key].toLocaleString('en-IN') : '—'}
@@ -47,7 +47,7 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
                   ? `${overview.profile_resume_count} Career Profile · ${overview.optimized_resume_count} optimized`
                   : service.key === 'mock_interview_count' && overview && !error
                     ? `${overview.mock_completed_count} completed · ${overview.mock_in_progress_count} in progress`
-                    : service.key === 'qa_set_count' ? 'Saved question-and-answer sets' : service.key === 'cover_letter_count' ? 'Saved letters in every tone' : 'Your profile and tailored CVs'}
+                    : service.key === 'mock_interview_count' ? 'Saved interview practice' : service.key === 'qa_set_count' ? 'Saved Q&A sets' : service.key === 'cover_letter_count' ? 'Saved letters' : 'Your profile and tailored CVs'}
               </span>
               <span className="mt-auto type-caption font-medium text-teal">{service.cta} <span aria-hidden="true">→</span></span>
             </Link>

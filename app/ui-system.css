@@ -297,6 +297,36 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 .app-type .workspace-next { background:var(--ui-hero-gradient); }
 .app-type .field { background:var(--ui-surface); border-color:var(--ui-field-border); border-radius:var(--ui-control-radius); }
 .app-type .field:hover:not(:disabled) { border-color:var(--ui-brand); }
+/* Service identity follows the same palette in navigation, cards and guides.
+   Labels and icons carry the meaning; colour is a supporting cue. */
+[data-ui-service] { --service-ink:var(--ui-brand); --service-soft:var(--ui-brand-soft); }
+[data-ui-service="profile"] { --service-ink:var(--ui-nav-profile-ink); --service-soft:var(--ui-nav-profile-bg); }
+[data-ui-service="library"] { --service-ink:var(--ui-nav-library-ink); --service-soft:var(--ui-nav-library-bg); }
+[data-ui-service="templates"] { --service-ink:var(--ui-nav-templates-ink); --service-soft:var(--ui-nav-templates-bg); }
+[data-ui-service="tailor"] { --service-ink:var(--ui-nav-tailor-ink); --service-soft:var(--ui-nav-tailor-bg); }
+[data-ui-service="letter"] { --service-ink:var(--ui-nav-letter-ink); --service-soft:var(--ui-nav-letter-bg); }
+[data-ui-service="qa"] { --service-ink:var(--ui-nav-qa-ink); --service-soft:var(--ui-nav-qa-bg); }
+[data-ui-service="mock"] { --service-ink:var(--ui-nav-mock-ink); --service-soft:var(--ui-nav-mock-bg); }
+[data-ui-service="linkedin"] { --service-ink:var(--ui-nav-linkedin-ink); --service-soft:var(--ui-nav-linkedin-bg); }
+[data-ui-service="naukrigulf"] { --service-ink:var(--ui-nav-naukrigulf-ink); --service-soft:var(--ui-nav-naukrigulf-bg); }
+.ui-service-icon { color:var(--service-ink,var(--ui-brand)); background:var(--service-soft,var(--ui-brand-soft)); }
+.app-type .ui-service-card { border-top:3px solid var(--service-ink,var(--ui-brand)); background:var(--ui-surface); }
+.ui-service-card:hover { box-shadow:var(--ui-card-hover-shadow); }
+.app-type main[data-ui-service] > .ui-surface { border-top:3px solid var(--service-ink,var(--ui-brand)); }
+.app-type select.field { background-color:rgb(var(--ui-brand-soft-rgb) / .35); }
+.app-type :is(button,a,input,select,textarea,summary):focus-visible { outline:2px solid var(--ui-brand); outline-offset:3px; }
+.app-type .ui-goal-card { display:flex; align-items:flex-start; gap:12px; }
+.ui-goal-card[aria-current="true"] { border-color:var(--service-ink); background:var(--service-soft); }
+.ui-context-bar { background:var(--ui-surface); }
+@media(max-width:639px) {
+  .app-type { --ui-page-gutter:14px; --ui-page-top:20px; --ui-page-gap:18px; }
+  .app-type .workspace-heading { padding-bottom:12px; }
+  .app-type .type-title { text-wrap:balance; }
+  .app-type .ui-context-bar { gap:4px; padding:8px 14px; }
+  .app-type .ui-context-bar > label { width:100%; flex-basis:100%; font-size:var(--ui-helper-size); }
+  .app-type .ui-context-bar > a { min-height:44px; font-size:var(--ui-caption-size); }
+  .app-type .ui-goal-card { padding:14px; }
+}
 .app-type .workspace-navigation { background:var(--ui-surface); }
 .editor-mobile-toolbar { position:sticky; top:56px; z-index:20; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); }
 @media(min-width:1024px) { .editor-mobile-toolbar { display:none; } }

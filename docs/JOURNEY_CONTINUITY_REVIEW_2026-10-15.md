@@ -37,3 +37,15 @@ Preview generation is blocked until the preview has its required server-side con
 ## CEO assessment
 
 The changes address confusion about where to start, which CV a tool uses, what to do next and whether unfinished work was saved. The next commercial evidence should be first successful preparation, completion time, service failure rate, interview completion, repeat use and a short post-task ease rating from real GCC users across professions. This release does not establish user satisfaction or a number-one market ranking; those require measured user outcomes and market evidence.
+
+## Visual refinement — same review branch
+
+The career guide now uses a plain light header, a short title and compact service labels. On phones, guide cards stack vertically and the overview uses two columns. The guide remains scrollable, keyboard dismissible and supports reduced motion; its links still open the existing services.
+
+Service colours reuse the navigation tokens: violet for the profile, blue for saved CVs, green for tailoring, rose for letters, indigo for Q&A, plum for mock practice, blue for LinkedIn and orange for NaukriGulf. They appear in labelled icons and restrained card edges. Primary action buttons retain the brand green. Do not use these service colours to indicate success, errors or completion. Keep document/template styling isolated.
+
+Dashboard preparation cards have shorter supporting copy and distinct icons. Goal cards show their service icon and selected state. Shared service headings identify the tool without adding a large promotional card. Select fields have a light tint; focus outlines and 44px primary tap targets remain visible. Mobile spacing is scoped to the application rather than the landing page or CV exports.
+
+The nine service text/background token pairs were checked mathematically: contrast ranges from 4.52:1 to 6.41:1. This is a palette check, not full accessibility certification. Type checking, lint and all 65 regression checks passed after the visual changes. Browser verification uses synthetic component data where appropriate; it does not certify AI generation or user satisfaction.
+
+Narrow-screen browser review used the real guide, shared header, card, select and dashboard activity components inside 390px and 320px frames. The guide had matching client/scroll widths (372/372 and 302/302), with vertical scrolling and no horizontal overflow. The service directory opened successfully. At 320px, the two view labels wrapped; they were shortened to Steps and Services afterward. Synthetic activity fixtures avoid private user data. This checks responsive components rather than a physical phone, full mobile navigation or every service result state.
