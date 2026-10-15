@@ -261,3 +261,9 @@
  .page .final{padding-block:40px}.page .final .primary{width:100%}
 }
 @media(max-width:359px){.cvProduct{flex-direction:column}.cvProduct ul{grid-template-columns:1fr 1fr;max-width:none}.page .demoJobs{grid-template-columns:1fr}.page .demoJobs button{min-height:64px}.page .feedbackBranches{grid-template-columns:1fr}.page .branchLines{display:none}.page .reportNode{flex-direction:row;flex-wrap:wrap;margin-bottom:16px}.page .reportNode>div{width:32px;height:40px}}
+
+/* Fit the original landscape CV photograph without a tall empty image slot. */
+.page .cvProduct{flex-direction:column;gap:14px;min-height:350px}
+.page .resumePhoto{width:100%;max-width:360px;height:240px}
+.page .cvProduct ul{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;max-width:none;width:100%}
+@media(max-width:767px){.page .cvProduct{min-height:0;padding:16px}.page .resumePhoto{max-width:320px;height:210px}.page .cvProduct ul{gap:12px}.page .cvProduct li{font-size:13px}}
