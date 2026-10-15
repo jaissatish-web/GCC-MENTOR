@@ -1,3 +1,4 @@
+import { employmentStatusContext } from '@/lib/employmentStatus'
 import { categoryFact } from '@/lib/profileCategories'
 /**
  * Cover letter prompt builder (TASK-065).
@@ -294,6 +295,7 @@ export function buildCoverLetterPrompt(
   const isRaw = source === 'career_profile'
   const system = [
     COVER_LETTER_PERSONA,
+    employmentStatusContext(profile),
     GROUNDING_INSTRUCTION,
     LETTER_FORMAT_NOTE,
     isRaw ? NATURAL_VOICE.replace('Every body paragraph links one or two facts from the SAVED CV to something the JOB DESCRIPTION asks for, in the job description\'s own words.', 'Every body paragraph highlights one or two relevant facts from the saved Career Profile Resume. There is no job description to match.') : NATURAL_VOICE,

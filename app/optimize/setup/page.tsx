@@ -96,11 +96,11 @@ const LEVELS: ReadonlyArray<{
     tag: 'Recommended',
     changes: [
       'Everything in Easy, rewritten to lead with what this job needs',
-      'Adds points for the job’s must-have duties that are typical of your field',
+      'Suggests relevant duties separately for your confirmation',
       'Never adds certificates, dates, companies or personal details',
     ],
     explain:
-      'Everything in Easy, plus points for the job’s must-have duties that someone doing your job almost certainly does. Certificates, education, employers, dates and personal details are never added or changed.',
+      'Everything in Easy, plus separate suggestions for relevant duties. Suggestions enter your CV only after you confirm them. Certificates, education, employers, dates and personal details are never added or changed.',
   },
   {
     value: 'high',
@@ -109,7 +109,7 @@ const LEVELS: ReadonlyArray<{
     tag: 'Strongest',
     changes: [
       'Every activity rewritten in the job’s own language',
-      'Adds points for every duty of the job that is typical of your field',
+      'Offers additional duties for your review; none is assumed',
       'Asks which of the job’s tools and skills you really have, and adds them',
     ],
     explain:
@@ -448,11 +448,11 @@ function SetupScreen() {
                     <span className="rounded-full bg-white px-2 py-0.5 type-caption font-semibold text-ink-soft">{l.tag}</span>
                   </span>
                   <span className="type-helper font-semibold text-teal">
-                    {check ? `ATS score up to ${check.expected[l.value]}` : checkState === 'loading' ? 'Working out your score…' : l.aim}
+                    {check ? `Estimated ATS match ${check.expected[l.value]}` : checkState === 'loading' ? 'Working out your score…' : l.aim}
                   </span>
                   {l.value === 'high' && check?.highIfConfirmed && check.highIfConfirmed > check.expected.high ? (
                     <span className="-mt-1 type-caption font-semibold text-gold-ink">
-                      up to {check.highIfConfirmed} if you have the skills this job lists
+                      estimated {check.highIfConfirmed} if you confirm the required skills
                     </span>
                   ) : null}
                   <ul className="flex flex-col gap-1.5">
@@ -511,9 +511,9 @@ function SetupScreen() {
             <p className="type-label font-semibold text-ink">{firstTime ? 'Your first optimization — how it works' : 'Before you optimize'}</p>
             <ul className="flex flex-col gap-1.5 type-helper leading-snug text-ink-soft">
               <li>• <strong className="text-ink">Easy</strong> rewords only what your profile says.</li>
-              <li>• <strong className="text-ink">Moderate</strong> and <strong className="text-ink">High</strong> also add points for the job’s duties that someone doing your job almost certainly does.</li>
+              <li>• <strong className="text-ink">Moderate</strong> and <strong className="text-ink">High</strong> offer separate suggestions for duties you may have performed. Select only what is true.</li>
               <li>• Your certificates, education, employers, job titles, dates and personal details are never added or changed.</li>
-              <li>• This first time you will see every added point in yellow and can remove any. After that, you optimize and download in one step.</li>
+              <li>• Every application shows unverified suggestions separately in yellow. None is selected or added to your CV until you confirm it.</li>
             </ul>
             <label className="flex cursor-pointer items-start gap-2.5 rounded-ctl border border-line bg-canvas p-3 type-helper text-ink">
               <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-teal" />

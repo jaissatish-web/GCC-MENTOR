@@ -1,3 +1,4 @@
+import { employmentStatusContext } from '@/lib/employmentStatus'
 import { categoryFact } from '@/lib/profileCategories'
 import { PROFILE_ONLY_SERVICE_RULE } from '@/lib/careerProfileServiceContext'
 import type { ResumeDocument } from '@/lib/resumeDocument'
@@ -123,6 +124,7 @@ export function buildMockInterviewStartPrompt(
   return {
     persona: PERSONA,
     instructions: [
+      employmentStatusContext(profile),
       `Create a text mock interview plan with exactly ${config.questionCount} questions.`,
       modeInstruction(config.mode),
       `Difficulty: ${config.difficulty}. Make the questions realistic for a Gulf interview and specific to the ${isRaw ? 'Career Profile Resume' : 'optimized resume'}.`,

@@ -1,3 +1,4 @@
+import { outputLanguageIssue } from '@/lib/professionalProfiles/outputLanguage'
 import { outputShape } from '@/lib/naukrigulf/model'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
@@ -133,6 +134,7 @@ export async function POST(req: NextRequest) {
       },
       validateShape: (output) =>
         outputShape(output, profile, setup.experienceIds) ??
+        outputLanguageIssue(output, setup.language) ??
         ([...setup.omitTerms, profile.phone, profile.email]
           .filter(Boolean)
           .some((term) =>

@@ -28,8 +28,8 @@ import type { ProfileSkill } from '@/types/careerProfile'
  *   blue    a keyword from the job description
  *   yellow  a suggested line or skill the profile does not state (Moderate/High)
  *
- * Everything is editable in place. Yellow items start selected, so the level's
- * target score is visible at once, and the live ATS score updates with every
+ * Everything is editable in place. Yellow items start unselected, so unverified claims never inflate the
+ * displayed score, and the live ATS score updates with every
  * change (same deterministic scorer as the server). Saving requires the user to
  * confirm the yellow items they kept are true. One PATCH saves it all into the
  * optimized result: the edited document, then kept suggestions confirmed (with
@@ -95,6 +95,17 @@ function PreviewInner({ packageId }: { packageId: string }) {
   /** Added lines that went into the CV automatically (2nd CV onwards) that the user removed here. */
   const [removedAuto, setRemovedAuto] = useState<string[]>([])
   const didInit = useRef(false)
+  const saveBarRef = useRef<HTMLDivElement>(null)
+  const [saveBarHeight, setSaveBarHeight] = useState(176)
+  useEffect(() => {
+    const el = saveBarRef.current
+    if (!el) return
+    const measure = () => setSaveBarHeight(el.getBoundingClientRect().height)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [pkg])
 
   useEffect(() => {
     if (didInit.current) return
@@ -113,7 +124,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
         setRoles(Object.fromEntries(doc.experience.map((x) => [x.entry.id, [...x.bullets]])))
         const report = readMatchReport(p.match_report)
         const pending = (report?.suggestions ?? []).filter((s) => s.status === 'pending')
-        setDrafts(Object.fromEntries(pending.map((s) => [s.id, { keep: true, text: s.text }])))
+        setDrafts(Object.fromEntries(pending.map((s) => [s.id, { keep: false, text: s.text }])))
       })
       .catch(() => setError('Could not load this CV. Check your connection and try again.'))
   }, [packageId, router])
@@ -183,8 +194,8 @@ function PreviewInner({ packageId }: { packageId: string }) {
   const summarySource = (oc.summary?.source_profile_summary ?? '').trim()
   const bySkillName = new Set(doc.skills.map((s) => s.name.toLowerCase()))
   const skillSuggestions = pending.filter((s) => s.block === 'skills')
-  // Optimizer v3: the user agreed once on the level screen — no tick here.
-  const needsConfirm = kept.length > 0 && report?.engine !== 'v3'
+  // Every application requires explicit confirmation of selected new claims.
+  const needsConfirm = kept.length > 0
 
   const save = async () => {
     if (needsConfirm && !confirmed) {
@@ -230,7 +241,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
     setDrafts((d) => ({ ...d, [id]: { ...(d[id] ?? { keep: true, text: '' }), ...patch } }))
 
   return (
-    <main className="min-h-dvh bg-canvas pb-44 font-redesign-sans">
+    <main className="min-h-dvh bg-canvas font-redesign-sans" style={{ paddingBottom: saveBarHeight + 24 }}>
       <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-4 py-6 sm:px-6">
         {/* Header */}
         <div className="flex flex-col gap-1">
@@ -248,7 +259,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
           <span className="rounded-[4px] bg-ok-soft px-2 py-1 text-ink">Green · reworded from your profile</span>
           <span className="rounded-[4px] bg-[#DCEAF7] px-2 py-1 font-semibold text-sec-status">Blue · job description keyword</span>
           <span className="rounded-[4px] border border-gold/60 bg-gold-soft px-2 py-1 text-ink">
-            {report?.engine === 'v3' ? 'Yellow · added for this job, typical of your field — remove anything not true' : 'Yellow · suggested, not in your profile — keep only if true'}
+            Yellow · unverified suggestion — select only if true for you
           </span>
         </div>
 
@@ -410,10 +421,10 @@ function PreviewInner({ packageId }: { packageId: string }) {
       </div>
 
       {/* Sticky score + save */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-white/95 shadow-m-2 backdrop-blur">
+      <div ref={saveBarRef} className="fixed inset-x-0 bottom-0 z-20 max-h-[45dvh] overflow-y-auto border-t border-line bg-white/95 shadow-m-2 backdrop-blur" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="mx-auto flex w-full max-w-[900px] flex-col gap-2 px-4 py-3 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-ok">{NAMES.atsScore}</span>
               {before !== null ? <span className="font-mono text-[18px] text-ink-muted">{before}</span> : null}
               {before !== null && liveScore !== null ? <span aria-hidden="true" className="text-ink-muted">→</span> : null}
@@ -424,7 +435,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                 </span>
               ) : report?.engine === 'v3' && liveScore !== null ? (
                 <span className="rounded-full bg-canvas px-2 py-0.5 text-[12px] font-semibold text-ink-muted">
-                  Best for your profile: {Math.max(report.max_total, liveScore)}
+                  Estimated match potential: {Math.max(report.max_total, liveScore)}
                 </span>
               ) : null}
             </div>

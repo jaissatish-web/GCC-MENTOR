@@ -85,19 +85,7 @@ export function PreparationJourney({
       </div>
 
       {isRaw && !bare ? <p className="mb-2 flex items-center gap-1.5 type-caption font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE} · Profile-based preparation</p> : null}
-      {bare && typeof before === 'number' && typeof after === 'number' ? (
-        <p className="type-helper text-ink-soft">
-          ATS <span className="font-mono text-ink-muted">{before}</span> → <span className="font-mono font-semibold text-teal">{after}</span>
-          {here !== 'resume' ? (
-            <>
-              {' · '}
-              <Link href={`/package/${id}`} className="font-semibold text-teal underline-offset-4 hover:underline">
-                {isRaw ? 'See your resume' : CTA.viewOptimizedCv}
-              </Link>
-            </>
-          ) : null}
-        </p>
-      ) : null}
+      {full && !isRaw ? <p className="mt-2 type-caption text-ink-muted">Saved application CV · {new Date(full.created_at).toLocaleDateString()}{country ? ` · ${country}` : ''}</p> : null}
       <ol aria-label={isRaw ? 'Career Profile preparation' : "This job's pack"} className={cn('grid grid-cols-4 gap-1.5', bare ? 'mt-2' : 'mt-3')}>
         {steps.map((step) => {
           const isHere = here === step.key
@@ -110,7 +98,7 @@ export function PreparationJourney({
             </>
           )
           const cls = cn(
-            'flex min-h-10 items-center justify-center gap-1.5 rounded-ctl border px-1 type-helper font-semibold',
+            'flex min-h-11 items-center justify-center gap-1.5 rounded-ctl border px-1 type-helper font-semibold',
             isHere ? 'border-teal bg-teal-soft text-teal' : step.ready ? 'border-ok/30 bg-ok-soft text-ok' : 'border-line text-ink-muted',
           )
           return (

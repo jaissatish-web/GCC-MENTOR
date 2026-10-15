@@ -12,6 +12,8 @@
  * companies, titles, dates or personal details — they are not in the output.
  */
 import { generate } from '@/lib/ai/provider'
+import { reviewCvClaims } from './claimReview'
+import { positiveStatements } from './claimChecks'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
 import { validateGrounding } from '@/lib/ai/validateGrounding'
 import { FAST_HOSTS } from '@/lib/resumeParse/pipeline'
@@ -70,7 +72,7 @@ function quoteIn(haystack: string, quote: string | null): boolean {
   if (!quote) return false
   const n = (s: string) => s.toLowerCase().replace(/[^a-z0-9%]+/g, ' ').trim()
   const q = n(quote)
-  return q.length >= 3 && n(haystack).includes(q)
+  return q.length >= 3 && n(positiveStatements(haystack)).includes(q)
 }
 
 function locationText(p: CareerProfileFull, loc: string | null): string {
@@ -83,8 +85,8 @@ function locationText(p: CareerProfileFull, loc: string | null): string {
 /** Where a term literally appears in the profile, if anywhere. */
 function literalLocations(p: CareerProfileFull, term: string): string[] {
   const out: string[] = []
-  if (containsTermRaw(profileWide(p), term)) out.push('summary')
-  for (const e of p.work_experience ?? []) if (containsTermRaw(entrySourceText(e), term)) out.push(e.id)
+  if (containsTermRaw(positiveStatements(profileWide(p)), term)) out.push('summary')
+  for (const e of p.work_experience ?? []) if (containsTermRaw(positiveStatements(entrySourceText(e)), term)) out.push(e.id)
   return out
 }
 
@@ -522,12 +524,22 @@ export async function writeV3(profile: CareerProfileFull, targetTitle: string, j
   const destuffed = trimStuffedTails(jobs, finalText, names, allTerms, (id) => entrySourceText(profile.work_experience.find((e) => e.id === id)!))
   if (destuffed.cut) caught.push(`stuffed_tail_cut x${destuffed.cut}`)
 
+  // Review the FINAL rewritten text, after new-point normalization and filler trimming.
+  // Suggestions stay separate and pending; they can never justify claims in the base CV.
+  const unsupported = await reviewCvClaims(profile, finalText, destuffed.jobs.map(j => ({ id: j.id, bullets: j.bullets.filter(b => !b.isNew).map(b => b.text) })), route)
+  for (const owner of unsupported) caught.push(`unsupported_claim@${owner === 'summary' ? 'summary' : 'job'}`)
+  const reviewedJobs = destuffed.jobs.map(j => unsupported.has(j.id) ? {
+    ...j,
+    keptOriginal: true,
+    bullets: [...(profile.work_experience.find(e => e.id === j.id)?.highlights ?? []).map(text => ({ text, isNew: false })), ...j.bullets.filter(b => b.isNew)],
+  } : j)
+  const reviewedSummaryKept = summaryKeptOriginal || unsupported.has('summary')
   return {
     level,
-    summary: finalText,
-    summaryKeptOriginal,
-    summaryAdded: summaryKeptOriginal ? [] : addable.map((r) => r.term).filter((t) => containsTermRaw(finalSummary, t) && !containsTermRaw(wholeProfile, t)),
-    jobs: destuffed.jobs,
+    summary: reviewedSummaryKept ? profile.professional_summary ?? '' : finalText,
+    summaryKeptOriginal: reviewedSummaryKept,
+    summaryAdded: reviewedSummaryKept ? [] : addable.map((r) => r.term).filter((t) => containsTermRaw(finalSummary, t) && !containsTermRaw(wholeProfile, t)),
+    jobs: reviewedJobs,
     skillsOrder,
     ms: Date.now() - t0,
     inputTokens: res.inputTokens,

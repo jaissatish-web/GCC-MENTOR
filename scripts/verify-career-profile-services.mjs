@@ -24,7 +24,15 @@ assert.equal(careerProfileServiceContext({ ...profile, target_job_title: null, w
 
 // Compare optimized prompts to the shipped implementation, including default args.
 // Category context added 2026-10-11 to cover letters and mock interviews.
-// Exclude the date-dependent Gulf experience sentence.
+// Exclude the date-dependent Gulf sentence and the approved employment-status context only.
+const { employmentStatusContext } = require('../lib/employmentStatus.ts')
+const employmentContext = employmentStatusContext(profile)
+function withoutEmploymentStatus(value) {
+  if (typeof value === 'string') return value.replace(employmentContext + '\n\n', '').replace(employmentContext + '\n', '')
+  if (Array.isArray(value)) return value.map(withoutEmploymentStatus)
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k,v]) => [k, withoutEmploymentStatus(v)]))
+  return value
+}
 for (const [file, fn, args] of [
   ['buildCoverLetterPrompt', 'buildCoverLetterPrompt', [profile, { target_job_title: 'Engineer', target_company: 'Acme', target_country: 'saudi_arabia', target_industry: 'engineering' }, 'A real advert', 'professional', fixture.document, { totalYears: 12, gaps: ['missing tool'] }]],
   ['buildInterviewQaPrompt', 'buildInterviewQaParts', [profile, context.resume, { target_job_title: 'Engineer', target_company: 'Acme', target_country: 'saudi_arabia', target_industry: 'engineering' }, 'A real advert', 'Real facts']],
@@ -36,7 +44,9 @@ for (const [file, fn, args] of [
     buildInterviewQaParts: 'ddec5f83039e0cb0093e556aca309e601686467ff6ff62ed665b4045fc88784c',
     buildMockInterviewStartPrompt: '2b347fd0bc3ec50cdea825c6af8f59d71e9cc7521bad34280e865bcd014ed610',
   }
-  const hash = createHash('sha256').update(JSON.stringify(require(path)[fn](...args)).replace(/Gulf \(GCC\) experience: [^\\]+/g,'GULF FACT LINE')).digest('hex')
+  const output = require(path)[fn](...args)
+  assert.ok(JSON.stringify(output).includes('EMPLOYMENT STATUS'), `${fn}: explicit employment-status context`)
+  const hash = createHash('sha256').update(JSON.stringify(withoutEmploymentStatus(output)).replace(/Gulf \(GCC\) experience: [^\\]+/g,'GULF FACT LINE')).digest('hex')
   assert.equal(hash, expected[fn], `${fn}: optimized prompt regression baseline`)
 }
 const mock = (path, exports) => { const id = require.resolve(path); require.cache[id] = { id, filename: id, loaded: true, exports } }

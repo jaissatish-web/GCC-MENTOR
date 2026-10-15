@@ -1,0 +1,3302 @@
+[
+  {
+    "profession": "Instrumentation Engineer",
+    "profile": {
+      "id": "qa-01",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 01",
+      "phone": "+12025550142",
+      "email": "qa01@example.com",
+      "current_location": "Saudi Arabia",
+      "professional_summary": "Instrumentation Engineer with 3 years of experience. No documented cost savings. No SCE registration.",
+      "target_job_title": "Instrumentation Commissioning Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-01-job1",
+          "profile_id": "qa-01",
+          "company": "Synthetic Services 01",
+          "role": "Instrumentation Engineer",
+          "location": "Saudi Arabia",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Performed loop checks and transmitter calibration",
+            "Supported cause-and-effect testing with vendor engineers"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-01-s0",
+          "profile_id": "qa-01",
+          "name": "Honeywell DCS",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-01-s1",
+          "profile_id": "qa-01",
+          "name": "Triconex SIS",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-01-s2",
+          "profile_id": "qa-01",
+          "name": "loop checking",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-01-edu",
+          "profile_id": "qa-01",
+          "degree": "B.Tech Electronics",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Instrumentation Engineer",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Mechanical Engineer",
+    "profile": {
+      "id": "qa-02",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 02",
+      "phone": "+12025550142",
+      "email": "qa02@example.com",
+      "current_location": "United Arab Emirates",
+      "professional_summary": "Mechanical Engineer with 5 years of experience. No documented cost savings. No vibration analyst certification.",
+      "target_job_title": "Mechanical Maintenance Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-02-job1",
+          "profile_id": "qa-02",
+          "company": "Synthetic Services 02",
+          "role": "Mechanical Engineer",
+          "location": "United Arab Emirates",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Performed preventive maintenance on pumps",
+            "Supported alignment and maintenance work orders"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-02-s0",
+          "profile_id": "qa-02",
+          "name": "pumps",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-02-s1",
+          "profile_id": "qa-02",
+          "name": "alignment",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-02-s2",
+          "profile_id": "qa-02",
+          "name": "SAP PM",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-02-edu",
+          "profile_id": "qa-02",
+          "degree": "B.Tech Mechanical",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Mechanical Engineer",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Electrical Engineer",
+    "profile": {
+      "id": "qa-03",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 03",
+      "phone": "+12025550142",
+      "email": "qa03@example.com",
+      "current_location": "Qatar",
+      "professional_summary": "Electrical Engineer with 8 years of experience. No documented cost savings. No DEWA approval.",
+      "target_job_title": "Electrical Commissioning Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-03-job1",
+          "profile_id": "qa-03",
+          "company": "Synthetic Services 03",
+          "role": "Electrical Engineer",
+          "location": "Qatar",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Witnessed switchgear functional tests",
+            "Recorded insulation resistance test results"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-03-s0",
+          "profile_id": "qa-03",
+          "name": "LV switchgear",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-03-s1",
+          "profile_id": "qa-03",
+          "name": "insulation resistance",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-03-s2",
+          "profile_id": "qa-03",
+          "name": "MCC",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-03-edu",
+          "profile_id": "qa-03",
+          "degree": "B.Tech Electrical",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Electrical Engineer",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Civil Engineer",
+    "profile": {
+      "id": "qa-04",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 04",
+      "phone": "+12025550142",
+      "email": "qa04@example.com",
+      "current_location": "Oman",
+      "professional_summary": "Civil Engineer with 12 years of experience. No documented cost savings. No municipality registration.",
+      "target_job_title": "Civil Site Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-04-job1",
+          "profile_id": "qa-04",
+          "company": "Synthetic Services 04",
+          "role": "Civil Engineer",
+          "location": "Oman",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Inspected rebar before concrete pours",
+            "Tracked site quantities and inspection requests"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-04-s0",
+          "profile_id": "qa-04",
+          "name": "concrete",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-04-s1",
+          "profile_id": "qa-04",
+          "name": "rebar",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-04-s2",
+          "profile_id": "qa-04",
+          "name": "AutoCAD",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-04-edu",
+          "profile_id": "qa-04",
+          "degree": "B.Tech Civil",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Civil Engineer",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Piping Engineer",
+    "profile": {
+      "id": "qa-05",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 05",
+      "phone": "+12025550142",
+      "email": "qa05@example.com",
+      "current_location": "Kuwait",
+      "professional_summary": "Piping Engineer with 3 years of experience. No documented cost savings. No Aramco approval.",
+      "target_job_title": "Piping Field Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-05-job1",
+          "profile_id": "qa-05",
+          "company": "Synthetic Services 05",
+          "role": "Piping Engineer",
+          "location": "Kuwait",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Reviewed piping isometrics",
+            "Supported hydrotest packs and reinstatement checks"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-05-s0",
+          "profile_id": "qa-05",
+          "name": "isometrics",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-05-s1",
+          "profile_id": "qa-05",
+          "name": "hydrotesting",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-05-s2",
+          "profile_id": "qa-05",
+          "name": "ASME B31.3",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-05-edu",
+          "profile_id": "qa-05",
+          "degree": "B.Tech Mechanical",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Piping Engineer",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Process Engineer",
+    "profile": {
+      "id": "qa-06",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 06",
+      "phone": "+12025550142",
+      "email": "qa06@example.com",
+      "current_location": "Bahrain",
+      "professional_summary": "Process Engineer with 5 years of experience. No documented cost savings. No HAZOP leader certification.",
+      "target_job_title": "Process Operations Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-06-job1",
+          "profile_id": "qa-06",
+          "company": "Synthetic Services 06",
+          "role": "Process Engineer",
+          "location": "Bahrain",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Reviewed process trends and operating limits",
+            "Supported start-up procedure reviews"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-06-s0",
+          "profile_id": "qa-06",
+          "name": "PFD",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-06-s1",
+          "profile_id": "qa-06",
+          "name": "P&ID",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-06-s2",
+          "profile_id": "qa-06",
+          "name": "process monitoring",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-06-edu",
+          "profile_id": "qa-06",
+          "degree": "B.Tech Chemical",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Process Engineer",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "HVAC Engineer",
+    "profile": {
+      "id": "qa-07",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 07",
+      "phone": "+12025550142",
+      "email": "qa07@example.com",
+      "current_location": "Saudi Arabia",
+      "professional_summary": "HVAC Engineer with 8 years of experience. No documented cost savings. No Revit certification.",
+      "target_job_title": "HVAC Site Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-07-job1",
+          "profile_id": "qa-07",
+          "company": "Synthetic Services 07",
+          "role": "HVAC Engineer",
+          "location": "Saudi Arabia",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Checked chilled-water installation",
+            "Witnessed AHU pre-commissioning checks"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-07-s0",
+          "profile_id": "qa-07",
+          "name": "chilled water",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-07-s1",
+          "profile_id": "qa-07",
+          "name": "AHU",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-07-s2",
+          "profile_id": "qa-07",
+          "name": "HVAC commissioning",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-07-edu",
+          "profile_id": "qa-07",
+          "degree": "B.Tech Mechanical",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "HVAC Engineer",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Welding Inspector",
+    "profile": {
+      "id": "qa-08",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 08",
+      "phone": "+12025550142",
+      "email": "qa08@example.com",
+      "current_location": "United Arab Emirates",
+      "professional_summary": "Welding Inspector with 12 years of experience. No documented cost savings. No CSWIP certification.",
+      "target_job_title": "Welding QA/QC Inspector",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-08-job1",
+          "profile_id": "qa-08",
+          "company": "Synthetic Services 08",
+          "role": "Welding Inspector",
+          "location": "United Arab Emirates",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Checked weld preparation against WPS",
+            "Recorded visual inspection results"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-08-s0",
+          "profile_id": "qa-08",
+          "name": "WPS",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-08-s1",
+          "profile_id": "qa-08",
+          "name": "weld visual inspection",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-08-s2",
+          "profile_id": "qa-08",
+          "name": "weld maps",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-08-edu",
+          "profile_id": "qa-08",
+          "degree": "Diploma Mechanical",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Welding Inspector",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "QA/QC Engineer",
+    "profile": {
+      "id": "qa-09",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 09",
+      "phone": "+12025550142",
+      "email": "qa09@example.com",
+      "current_location": "Qatar",
+      "professional_summary": "QA/QC Engineer with 3 years of experience. No documented cost savings. No ISO 9001 lead auditor.",
+      "target_job_title": "Quality Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-09-job1",
+          "profile_id": "qa-09",
+          "company": "Synthetic Services 09",
+          "role": "QA/QC Engineer",
+          "location": "Qatar",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Tracked inspection requests against ITP",
+            "Recorded nonconformities for review"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-09-s0",
+          "profile_id": "qa-09",
+          "name": "ITP",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-09-s1",
+          "profile_id": "qa-09",
+          "name": "NCR",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-09-s2",
+          "profile_id": "qa-09",
+          "name": "inspection requests",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-09-edu",
+          "profile_id": "qa-09",
+          "degree": "B.Tech Engineering",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "QA/QC Engineer",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "HSE Officer",
+    "profile": {
+      "id": "qa-10",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 10",
+      "phone": "+12025550142",
+      "email": "qa10@example.com",
+      "current_location": "Oman",
+      "professional_summary": "HSE Officer with 5 years of experience. No documented cost savings. No NEBOSH IGC.",
+      "target_job_title": "Site HSE Officer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-10-job1",
+          "profile_id": "qa-10",
+          "company": "Synthetic Services 10",
+          "role": "HSE Officer",
+          "location": "Oman",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Conducted toolbox talks",
+            "Checked permit conditions and reported hazards"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-10-s0",
+          "profile_id": "qa-10",
+          "name": "toolbox talks",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-10-s1",
+          "profile_id": "qa-10",
+          "name": "PTW",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-10-s2",
+          "profile_id": "qa-10",
+          "name": "hazard reporting",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-10-edu",
+          "profile_id": "qa-10",
+          "degree": "B.Sc Safety",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "HSE Officer",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Planning Engineer",
+    "profile": {
+      "id": "qa-11",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 11",
+      "phone": "+12025550142",
+      "email": "qa11@example.com",
+      "current_location": "Kuwait",
+      "professional_summary": "Planning Engineer with 8 years of experience. No documented cost savings. No PMP certification.",
+      "target_job_title": "Project Planning Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-11-job1",
+          "profile_id": "qa-11",
+          "company": "Synthetic Services 11",
+          "role": "Planning Engineer",
+          "location": "Kuwait",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Updated construction schedules",
+            "Prepared weekly progress reports"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-11-s0",
+          "profile_id": "qa-11",
+          "name": "Primavera P6",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-11-s1",
+          "profile_id": "qa-11",
+          "name": "lookahead planning",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-11-s2",
+          "profile_id": "qa-11",
+          "name": "progress tracking",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-11-edu",
+          "profile_id": "qa-11",
+          "degree": "B.Tech Engineering",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Planning Engineer",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Quantity Surveyor",
+    "profile": {
+      "id": "qa-12",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 12",
+      "phone": "+12025550142",
+      "email": "qa12@example.com",
+      "current_location": "Bahrain",
+      "professional_summary": "Quantity Surveyor with 12 years of experience. No documented cost savings. No RICS chartership.",
+      "target_job_title": "Project Quantity Surveyor",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-12-job1",
+          "profile_id": "qa-12",
+          "company": "Synthetic Services 12",
+          "role": "Quantity Surveyor",
+          "location": "Bahrain",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Measured completed work quantities",
+            "Prepared interim valuation support"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-12-s0",
+          "profile_id": "qa-12",
+          "name": "BOQ",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-12-s1",
+          "profile_id": "qa-12",
+          "name": "quantity takeoff",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-12-s2",
+          "profile_id": "qa-12",
+          "name": "valuations",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-12-edu",
+          "profile_id": "qa-12",
+          "degree": "B.Sc Quantity Surveying",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Quantity Surveyor",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Contracts Administrator",
+    "profile": {
+      "id": "qa-13",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 13",
+      "phone": "+12025550142",
+      "email": "qa13@example.com",
+      "current_location": "Saudi Arabia",
+      "professional_summary": "Contracts Administrator with 3 years of experience. No documented cost savings. No MRICS membership.",
+      "target_job_title": "Contracts Specialist",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-13-job1",
+          "profile_id": "qa-13",
+          "company": "Synthetic Services 13",
+          "role": "Contracts Administrator",
+          "location": "Saudi Arabia",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Maintained variation logs",
+            "Compiled contract correspondence for review"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-13-s0",
+          "profile_id": "qa-13",
+          "name": "variation logs",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-13-s1",
+          "profile_id": "qa-13",
+          "name": "contract correspondence",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-13-s2",
+          "profile_id": "qa-13",
+          "name": "claims records",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-13-edu",
+          "profile_id": "qa-13",
+          "degree": "B.Sc Construction",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Contracts Administrator",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Project Coordinator",
+    "profile": {
+      "id": "qa-14",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 14",
+      "phone": "+12025550142",
+      "email": "qa14@example.com",
+      "current_location": "United Arab Emirates",
+      "professional_summary": "Project Coordinator with 5 years of experience. No documented cost savings. No PMP certification.",
+      "target_job_title": "Project Coordinator",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-14-job1",
+          "profile_id": "qa-14",
+          "company": "Synthetic Services 14",
+          "role": "Project Coordinator",
+          "location": "United Arab Emirates",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Tracked project actions and deadlines",
+            "Prepared meeting minutes and status updates"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-14-s0",
+          "profile_id": "qa-14",
+          "name": "action logs",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-14-s1",
+          "profile_id": "qa-14",
+          "name": "document tracking",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-14-s2",
+          "profile_id": "qa-14",
+          "name": "meeting minutes",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-14-edu",
+          "profile_id": "qa-14",
+          "degree": "Bachelors Business",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Project Coordinator",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Construction Supervisor",
+    "profile": {
+      "id": "qa-15",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 15",
+      "phone": "+12025550142",
+      "email": "qa15@example.com",
+      "current_location": "Qatar",
+      "professional_summary": "Construction Supervisor with 8 years of experience. No documented cost savings. No IOSH certification.",
+      "target_job_title": "Construction Supervisor",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-15-job1",
+          "profile_id": "qa-15",
+          "company": "Synthetic Services 15",
+          "role": "Construction Supervisor",
+          "location": "Qatar",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Coordinated daily site activities",
+            "Escalated material and access constraints"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-15-s0",
+          "profile_id": "qa-15",
+          "name": "work permits",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-15-s1",
+          "profile_id": "qa-15",
+          "name": "crew coordination",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-15-s2",
+          "profile_id": "qa-15",
+          "name": "site inspections",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-15-edu",
+          "profile_id": "qa-15",
+          "degree": "Diploma Construction",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Construction Supervisor",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Document Controller",
+    "profile": {
+      "id": "qa-16",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 16",
+      "phone": "+12025550142",
+      "email": "qa16@example.com",
+      "current_location": "Oman",
+      "professional_summary": "Document Controller with 12 years of experience. No documented cost savings. No SharePoint administrator certification.",
+      "target_job_title": "Project Document Controller",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-16-job1",
+          "profile_id": "qa-16",
+          "company": "Synthetic Services 16",
+          "role": "Document Controller",
+          "location": "Oman",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Registered drawings and transmittals",
+            "Checked document revisions before distribution"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-16-s0",
+          "profile_id": "qa-16",
+          "name": "Aconex",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-16-s1",
+          "profile_id": "qa-16",
+          "name": "transmittals",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-16-s2",
+          "profile_id": "qa-16",
+          "name": "revision control",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-16-edu",
+          "profile_id": "qa-16",
+          "degree": "Bachelors Administration",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Document Controller",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Instrument Technician",
+    "profile": {
+      "id": "qa-17",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 17",
+      "phone": "+12025550142",
+      "email": "qa17@example.com",
+      "current_location": "Kuwait",
+      "professional_summary": "Instrument Technician with 3 years of experience. No documented cost savings. No Aramco approval.",
+      "target_job_title": "Instrument Maintenance Technician",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-17-job1",
+          "profile_id": "qa-17",
+          "company": "Synthetic Services 17",
+          "role": "Instrument Technician",
+          "location": "Kuwait",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Calibrated pressure and level instruments",
+            "Assisted control-valve stroke testing"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-17-s0",
+          "profile_id": "qa-17",
+          "name": "HART",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-17-s1",
+          "profile_id": "qa-17",
+          "name": "calibration",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-17-s2",
+          "profile_id": "qa-17",
+          "name": "control valves",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-17-edu",
+          "profile_id": "qa-17",
+          "degree": "Diploma Instrumentation",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Instrument Technician",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Electrical Technician",
+    "profile": {
+      "id": "qa-18",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 18",
+      "phone": "+12025550142",
+      "email": "qa18@example.com",
+      "current_location": "Bahrain",
+      "professional_summary": "Electrical Technician with 5 years of experience. No documented cost savings. No HV switching authorization.",
+      "target_job_title": "Electrical Maintenance Technician",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-18-job1",
+          "profile_id": "qa-18",
+          "company": "Synthetic Services 18",
+          "role": "Electrical Technician",
+          "location": "Bahrain",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Tested motor circuits under supervision",
+            "Recorded cable continuity checks"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-18-s0",
+          "profile_id": "qa-18",
+          "name": "motors",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-18-s1",
+          "profile_id": "qa-18",
+          "name": "cable termination",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-18-s2",
+          "profile_id": "qa-18",
+          "name": "multimeter",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-18-edu",
+          "profile_id": "qa-18",
+          "degree": "Diploma Electrical",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Electrical Technician",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Mechanical Technician",
+    "profile": {
+      "id": "qa-19",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 19",
+      "phone": "+12025550142",
+      "email": "qa19@example.com",
+      "current_location": "Saudi Arabia",
+      "professional_summary": "Mechanical Technician with 8 years of experience. No documented cost savings. No OEM specialist certification.",
+      "target_job_title": "Mechanical Maintenance Technician",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-19-job1",
+          "profile_id": "qa-19",
+          "company": "Synthetic Services 19",
+          "role": "Mechanical Technician",
+          "location": "Saudi Arabia",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Replaced pump seals under supervision",
+            "Recorded bearing inspection results"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-19-s0",
+          "profile_id": "qa-19",
+          "name": "seals",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-19-s1",
+          "profile_id": "qa-19",
+          "name": "bearings",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-19-s2",
+          "profile_id": "qa-19",
+          "name": "alignment",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-19-edu",
+          "profile_id": "qa-19",
+          "degree": "Diploma Mechanical",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Mechanical Technician",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "NDT Technician",
+    "profile": {
+      "id": "qa-20",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 20",
+      "phone": "+12025550142",
+      "email": "qa20@example.com",
+      "current_location": "United Arab Emirates",
+      "professional_summary": "NDT Technician with 12 years of experience. No documented cost savings. No ASNT Level II.",
+      "target_job_title": "NDT Technician",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-20-job1",
+          "profile_id": "qa-20",
+          "company": "Synthetic Services 20",
+          "role": "NDT Technician",
+          "location": "United Arab Emirates",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Assisted ultrasonic inspections",
+            "Recorded dye-penetrant test observations"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-20-s0",
+          "profile_id": "qa-20",
+          "name": "ultrasonic testing",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-20-s1",
+          "profile_id": "qa-20",
+          "name": "dye penetrant",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-20-s2",
+          "profile_id": "qa-20",
+          "name": "inspection records",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-20-edu",
+          "profile_id": "qa-20",
+          "degree": "Diploma Mechanical",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "NDT Technician",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Registered Nurse",
+    "profile": {
+      "id": "qa-21",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 21",
+      "phone": "+12025550142",
+      "email": "qa21@example.com",
+      "current_location": "Qatar",
+      "professional_summary": "Registered Nurse with 3 years of experience. No documented cost savings. No DHA eligibility.",
+      "target_job_title": "Medical Surgical Nurse",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-21-job1",
+          "profile_id": "qa-21",
+          "company": "Synthetic Services 21",
+          "role": "Registered Nurse",
+          "location": "Qatar",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Recorded patient observations",
+            "Provided ward nursing care and shift handover"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-21-s0",
+          "profile_id": "qa-21",
+          "name": "patient observations",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-21-s1",
+          "profile_id": "qa-21",
+          "name": "medication records",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-21-s2",
+          "profile_id": "qa-21",
+          "name": "handover",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-21-edu",
+          "profile_id": "qa-21",
+          "degree": "B.Sc Nursing",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Registered Nurse",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Pharmacist",
+    "profile": {
+      "id": "qa-22",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 22",
+      "phone": "+12025550142",
+      "email": "qa22@example.com",
+      "current_location": "Oman",
+      "professional_summary": "Pharmacist with 5 years of experience. No documented cost savings. No DOH licence.",
+      "target_job_title": "Community Pharmacist",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-22-job1",
+          "profile_id": "qa-22",
+          "company": "Synthetic Services 22",
+          "role": "Pharmacist",
+          "location": "Oman",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Dispensed prescriptions under local procedures",
+            "Maintained pharmacy stock records"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-22-s0",
+          "profile_id": "qa-22",
+          "name": "dispensing",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-22-s1",
+          "profile_id": "qa-22",
+          "name": "inventory",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-22-s2",
+          "profile_id": "qa-22",
+          "name": "patient counselling",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-22-edu",
+          "profile_id": "qa-22",
+          "degree": "B.Pharm",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Pharmacist",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Laboratory Technologist",
+    "profile": {
+      "id": "qa-23",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 23",
+      "phone": "+12025550142",
+      "email": "qa23@example.com",
+      "current_location": "Kuwait",
+      "professional_summary": "Laboratory Technologist with 8 years of experience. No documented cost savings. No SCFHS registration.",
+      "target_job_title": "Medical Laboratory Technologist",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-23-job1",
+          "profile_id": "qa-23",
+          "company": "Synthetic Services 23",
+          "role": "Laboratory Technologist",
+          "location": "Kuwait",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Processed laboratory specimens",
+            "Recorded analyzer quality-control results"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-23-s0",
+          "profile_id": "qa-23",
+          "name": "sample processing",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-23-s1",
+          "profile_id": "qa-23",
+          "name": "QC logs",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-23-s2",
+          "profile_id": "qa-23",
+          "name": "analyzers",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-23-edu",
+          "profile_id": "qa-23",
+          "degree": "B.Sc Laboratory Technology",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Laboratory Technologist",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Physiotherapist",
+    "profile": {
+      "id": "qa-24",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 24",
+      "phone": "+12025550142",
+      "email": "qa24@example.com",
+      "current_location": "Bahrain",
+      "professional_summary": "Physiotherapist with 12 years of experience. No documented cost savings. No DHA licence.",
+      "target_job_title": "Musculoskeletal Physiotherapist",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-24-job1",
+          "profile_id": "qa-24",
+          "company": "Synthetic Services 24",
+          "role": "Physiotherapist",
+          "location": "Bahrain",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Recorded functional assessments",
+            "Delivered prescribed rehabilitation exercises"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-24-s0",
+          "profile_id": "qa-24",
+          "name": "exercise therapy",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-24-s1",
+          "profile_id": "qa-24",
+          "name": "assessment notes",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-24-s2",
+          "profile_id": "qa-24",
+          "name": "rehabilitation",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-24-edu",
+          "profile_id": "qa-24",
+          "degree": "Bachelor Physiotherapy",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Physiotherapist",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "General Physician",
+    "profile": {
+      "id": "qa-25",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 25",
+      "phone": "+12025550142",
+      "email": "qa25@example.com",
+      "current_location": "Saudi Arabia",
+      "professional_summary": "General Physician with 3 years of experience. No documented cost savings. No current UAE practice licence.",
+      "target_job_title": "General Practitioner",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-25-job1",
+          "profile_id": "qa-25",
+          "company": "Synthetic Services 25",
+          "role": "General Physician",
+          "location": "Saudi Arabia",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Performed outpatient assessments",
+            "Maintained clinical documentation and referrals"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-25-s0",
+          "profile_id": "qa-25",
+          "name": "outpatient assessment",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-25-s1",
+          "profile_id": "qa-25",
+          "name": "clinical records",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-25-s2",
+          "profile_id": "qa-25",
+          "name": "referral",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-25-edu",
+          "profile_id": "qa-25",
+          "degree": "MBBS",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "General Physician",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Software Developer",
+    "profile": {
+      "id": "qa-26",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 26",
+      "phone": "+12025550142",
+      "email": "qa26@example.com",
+      "current_location": "United Arab Emirates",
+      "professional_summary": "Software Developer with 5 years of experience. No documented cost savings. No AWS certification.",
+      "target_job_title": "Full Stack Developer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-26-job1",
+          "profile_id": "qa-26",
+          "company": "Synthetic Services 26",
+          "role": "Software Developer",
+          "location": "United Arab Emirates",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Implemented web forms and API endpoints",
+            "Reviewed pull requests and fixed defects"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-26-s0",
+          "profile_id": "qa-26",
+          "name": "TypeScript",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-26-s1",
+          "profile_id": "qa-26",
+          "name": "React",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-26-s2",
+          "profile_id": "qa-26",
+          "name": "PostgreSQL",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-26-edu",
+          "profile_id": "qa-26",
+          "degree": "B.Tech Computer Science",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Software Developer",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "IT Support Engineer",
+    "profile": {
+      "id": "qa-27",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 27",
+      "phone": "+12025550142",
+      "email": "qa27@example.com",
+      "current_location": "Qatar",
+      "professional_summary": "IT Support Engineer with 8 years of experience. No documented cost savings. No Microsoft administrator certification.",
+      "target_job_title": "IT Support Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-27-job1",
+          "profile_id": "qa-27",
+          "company": "Synthetic Services 27",
+          "role": "IT Support Engineer",
+          "location": "Qatar",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Resolved end-user support tickets",
+            "Assisted workstation provisioning"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-27-s0",
+          "profile_id": "qa-27",
+          "name": "Windows",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-27-s1",
+          "profile_id": "qa-27",
+          "name": "Microsoft 365",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-27-s2",
+          "profile_id": "qa-27",
+          "name": "ticketing",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-27-edu",
+          "profile_id": "qa-27",
+          "degree": "B.Sc IT",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "IT Support Engineer",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Network Engineer",
+    "profile": {
+      "id": "qa-28",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 28",
+      "phone": "+12025550142",
+      "email": "qa28@example.com",
+      "current_location": "Oman",
+      "professional_summary": "Network Engineer with 12 years of experience. No documented cost savings. No CCNP certification.",
+      "target_job_title": "Network Support Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-28-job1",
+          "profile_id": "qa-28",
+          "company": "Synthetic Services 28",
+          "role": "Network Engineer",
+          "location": "Oman",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Configured VLAN changes under approval",
+            "Investigated connectivity incidents"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-28-s0",
+          "profile_id": "qa-28",
+          "name": "Cisco",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-28-s1",
+          "profile_id": "qa-28",
+          "name": "VLAN",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-28-s2",
+          "profile_id": "qa-28",
+          "name": "routing",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-28-edu",
+          "profile_id": "qa-28",
+          "degree": "B.Tech Telecom",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Network Engineer",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Cybersecurity Analyst",
+    "profile": {
+      "id": "qa-29",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 29",
+      "phone": "+12025550142",
+      "email": "qa29@example.com",
+      "current_location": "Kuwait",
+      "professional_summary": "Cybersecurity Analyst with 3 years of experience. No documented cost savings. No CISSP certification.",
+      "target_job_title": "SOC Analyst",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-29-job1",
+          "profile_id": "qa-29",
+          "company": "Synthetic Services 29",
+          "role": "Cybersecurity Analyst",
+          "location": "Kuwait",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Triaged security alerts",
+            "Documented incident investigation timelines"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-29-s0",
+          "profile_id": "qa-29",
+          "name": "SIEM",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-29-s1",
+          "profile_id": "qa-29",
+          "name": "alert triage",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-29-s2",
+          "profile_id": "qa-29",
+          "name": "incident tickets",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-29-edu",
+          "profile_id": "qa-29",
+          "degree": "B.Sc Cybersecurity",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Cybersecurity Analyst",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Data Analyst",
+    "profile": {
+      "id": "qa-30",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 30",
+      "phone": "+12025550142",
+      "email": "qa30@example.com",
+      "current_location": "Bahrain",
+      "professional_summary": "Data Analyst with 5 years of experience. No documented cost savings. No Python production experience.",
+      "target_job_title": "Business Data Analyst",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-30-job1",
+          "profile_id": "qa-30",
+          "company": "Synthetic Services 30",
+          "role": "Data Analyst",
+          "location": "Bahrain",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Cleaned reporting datasets",
+            "Built operational dashboards"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-30-s0",
+          "profile_id": "qa-30",
+          "name": "SQL",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-30-s1",
+          "profile_id": "qa-30",
+          "name": "Power BI",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-30-s2",
+          "profile_id": "qa-30",
+          "name": "Excel",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-30-edu",
+          "profile_id": "qa-30",
+          "degree": "B.Sc Statistics",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Data Analyst",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Cloud Engineer",
+    "profile": {
+      "id": "qa-31",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 31",
+      "phone": "+12025550142",
+      "email": "qa31@example.com",
+      "current_location": "Saudi Arabia",
+      "professional_summary": "Cloud Engineer with 8 years of experience. No documented cost savings. No Kubernetes certification.",
+      "target_job_title": "Cloud Operations Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-31-job1",
+          "profile_id": "qa-31",
+          "company": "Synthetic Services 31",
+          "role": "Cloud Engineer",
+          "location": "Saudi Arabia",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Monitored cloud workloads",
+            "Supported Linux patching and backups"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-31-s0",
+          "profile_id": "qa-31",
+          "name": "AWS",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-31-s1",
+          "profile_id": "qa-31",
+          "name": "Linux",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-31-s2",
+          "profile_id": "qa-31",
+          "name": "monitoring",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-31-edu",
+          "profile_id": "qa-31",
+          "degree": "B.Tech Computer Science",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Cloud Engineer",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "QA Software Tester",
+    "profile": {
+      "id": "qa-32",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 32",
+      "phone": "+12025550142",
+      "email": "qa32@example.com",
+      "current_location": "United Arab Emirates",
+      "professional_summary": "QA Software Tester with 12 years of experience. No documented cost savings. No Selenium production experience.",
+      "target_job_title": "Software QA Engineer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-32-job1",
+          "profile_id": "qa-32",
+          "company": "Synthetic Services 32",
+          "role": "QA Software Tester",
+          "location": "United Arab Emirates",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Executed regression test cases",
+            "Reported reproducible API defects"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-32-s0",
+          "profile_id": "qa-32",
+          "name": "test cases",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-32-s1",
+          "profile_id": "qa-32",
+          "name": "API testing",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-32-s2",
+          "profile_id": "qa-32",
+          "name": "Jira",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-32-edu",
+          "profile_id": "qa-32",
+          "degree": "B.Sc Computer Science",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "QA Software Tester",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Accountant",
+    "profile": {
+      "id": "qa-33",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 33",
+      "phone": "+12025550142",
+      "email": "qa33@example.com",
+      "current_location": "Qatar",
+      "professional_summary": "Accountant with 3 years of experience. No documented cost savings. No ACCA qualification.",
+      "target_job_title": "General Accountant",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-33-job1",
+          "profile_id": "qa-33",
+          "company": "Synthetic Services 33",
+          "role": "Accountant",
+          "location": "Qatar",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Reconciled supplier accounts",
+            "Prepared month-end schedules"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-33-s0",
+          "profile_id": "qa-33",
+          "name": "reconciliation",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-33-s1",
+          "profile_id": "qa-33",
+          "name": "AP",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-33-s2",
+          "profile_id": "qa-33",
+          "name": "Excel",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-33-edu",
+          "profile_id": "qa-33",
+          "degree": "B.Com",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Accountant",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Financial Analyst",
+    "profile": {
+      "id": "qa-34",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 34",
+      "phone": "+12025550142",
+      "email": "qa34@example.com",
+      "current_location": "Oman",
+      "professional_summary": "Financial Analyst with 5 years of experience. No documented cost savings. No CFA charter.",
+      "target_job_title": "FP&A Analyst",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-34-job1",
+          "profile_id": "qa-34",
+          "company": "Synthetic Services 34",
+          "role": "Financial Analyst",
+          "location": "Oman",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Prepared budget variance reports",
+            "Updated forecast models"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-34-s0",
+          "profile_id": "qa-34",
+          "name": "budget variance",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-34-s1",
+          "profile_id": "qa-34",
+          "name": "forecasting",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-34-s2",
+          "profile_id": "qa-34",
+          "name": "Excel",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-34-edu",
+          "profile_id": "qa-34",
+          "degree": "Bachelors Finance",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Financial Analyst",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Payroll Officer",
+    "profile": {
+      "id": "qa-35",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 35",
+      "phone": "+12025550142",
+      "email": "qa35@example.com",
+      "current_location": "Kuwait",
+      "professional_summary": "Payroll Officer with 8 years of experience. No documented cost savings. No SAP payroll experience.",
+      "target_job_title": "Payroll Specialist",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-35-job1",
+          "profile_id": "qa-35",
+          "company": "Synthetic Services 35",
+          "role": "Payroll Officer",
+          "location": "Kuwait",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Reconciled attendance inputs",
+            "Prepared payroll variance reports"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-35-s0",
+          "profile_id": "qa-35",
+          "name": "payroll",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-35-s1",
+          "profile_id": "qa-35",
+          "name": "attendance",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-35-s2",
+          "profile_id": "qa-35",
+          "name": "reconciliation",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-35-edu",
+          "profile_id": "qa-35",
+          "degree": "B.Com",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Payroll Officer",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Internal Auditor",
+    "profile": {
+      "id": "qa-36",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 36",
+      "phone": "+12025550142",
+      "email": "qa36@example.com",
+      "current_location": "Bahrain",
+      "professional_summary": "Internal Auditor with 12 years of experience. No documented cost savings. No CIA certification.",
+      "target_job_title": "Internal Audit Associate",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-36-job1",
+          "profile_id": "qa-36",
+          "company": "Synthetic Services 36",
+          "role": "Internal Auditor",
+          "location": "Bahrain",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Tested internal controls against audit plans",
+            "Prepared audit working papers"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-36-s0",
+          "profile_id": "qa-36",
+          "name": "audit testing",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-36-s1",
+          "profile_id": "qa-36",
+          "name": "working papers",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-36-s2",
+          "profile_id": "qa-36",
+          "name": "controls",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-36-edu",
+          "profile_id": "qa-36",
+          "degree": "Bachelors Accounting",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Internal Auditor",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "HR Generalist",
+    "profile": {
+      "id": "qa-37",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 37",
+      "phone": "+12025550142",
+      "email": "qa37@example.com",
+      "current_location": "Saudi Arabia",
+      "professional_summary": "HR Generalist with 3 years of experience. No documented cost savings. No CIPD qualification.",
+      "target_job_title": "HR Officer",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-37-job1",
+          "profile_id": "qa-37",
+          "company": "Synthetic Services 37",
+          "role": "HR Generalist",
+          "location": "Saudi Arabia",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Coordinated employee onboarding",
+            "Maintained HRIS records and employee files"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-37-s0",
+          "profile_id": "qa-37",
+          "name": "onboarding",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-37-s1",
+          "profile_id": "qa-37",
+          "name": "employee files",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-37-s2",
+          "profile_id": "qa-37",
+          "name": "HRIS",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-37-edu",
+          "profile_id": "qa-37",
+          "degree": "MBA HR",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "HR Generalist",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Recruiter",
+    "profile": {
+      "id": "qa-38",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 38",
+      "phone": "+12025550142",
+      "email": "qa38@example.com",
+      "current_location": "United Arab Emirates",
+      "professional_summary": "Recruiter with 5 years of experience. No documented cost savings. No Arabic fluency.",
+      "target_job_title": "Talent Acquisition Specialist",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-38-job1",
+          "profile_id": "qa-38",
+          "company": "Synthetic Services 38",
+          "role": "Recruiter",
+          "location": "United Arab Emirates",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Screened applicants against role criteria",
+            "Coordinated interviews and ATS records"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-38-s0",
+          "profile_id": "qa-38",
+          "name": "screening",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-38-s1",
+          "profile_id": "qa-38",
+          "name": "scheduling",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-38-s2",
+          "profile_id": "qa-38",
+          "name": "ATS",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-38-edu",
+          "profile_id": "qa-38",
+          "degree": "Bachelors Business",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Recruiter",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Procurement Officer",
+    "profile": {
+      "id": "qa-39",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 39",
+      "phone": "+12025550142",
+      "email": "qa39@example.com",
+      "current_location": "Qatar",
+      "professional_summary": "Procurement Officer with 8 years of experience. No documented cost savings. No CIPS qualification.",
+      "target_job_title": "Procurement Specialist",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-39-job1",
+          "profile_id": "qa-39",
+          "company": "Synthetic Services 39",
+          "role": "Procurement Officer",
+          "location": "Qatar",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Issued RFQs and comparison sheets",
+            "Tracked purchase orders and deliveries"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-39-s0",
+          "profile_id": "qa-39",
+          "name": "RFQ",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-39-s1",
+          "profile_id": "qa-39",
+          "name": "purchase orders",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-39-s2",
+          "profile_id": "qa-39",
+          "name": "supplier comparison",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-39-edu",
+          "profile_id": "qa-39",
+          "degree": "Bachelors Supply Chain",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Procurement Officer",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Supply Chain Coordinator",
+    "profile": {
+      "id": "qa-40",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 40",
+      "phone": "+12025550142",
+      "email": "qa40@example.com",
+      "current_location": "Oman",
+      "professional_summary": "Supply Chain Coordinator with 12 years of experience. No documented cost savings. No SAP MM experience.",
+      "target_job_title": "Supply Chain Analyst",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-40-job1",
+          "profile_id": "qa-40",
+          "company": "Synthetic Services 40",
+          "role": "Supply Chain Coordinator",
+          "location": "Oman",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Tracked supplier lead times",
+            "Maintained stock and purchase reports"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-40-s0",
+          "profile_id": "qa-40",
+          "name": "inventory",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-40-s1",
+          "profile_id": "qa-40",
+          "name": "lead times",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-40-s2",
+          "profile_id": "qa-40",
+          "name": "purchase tracking",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-40-edu",
+          "profile_id": "qa-40",
+          "degree": "Bachelors Logistics",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Supply Chain Coordinator",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Logistics Coordinator",
+    "profile": {
+      "id": "qa-41",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 41",
+      "phone": "+12025550142",
+      "email": "qa41@example.com",
+      "current_location": "Kuwait",
+      "professional_summary": "Logistics Coordinator with 3 years of experience. No documented cost savings. No customs broker licence.",
+      "target_job_title": "Logistics Coordinator",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-41-job1",
+          "profile_id": "qa-41",
+          "company": "Synthetic Services 41",
+          "role": "Logistics Coordinator",
+          "location": "Kuwait",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Checked shipping documentation",
+            "Tracked delivery milestones with forwarders"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-41-s0",
+          "profile_id": "qa-41",
+          "name": "shipping documents",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-41-s1",
+          "profile_id": "qa-41",
+          "name": "freight tracking",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-41-s2",
+          "profile_id": "qa-41",
+          "name": "delivery planning",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-41-edu",
+          "profile_id": "qa-41",
+          "degree": "Bachelors Logistics",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Logistics Coordinator",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Warehouse Supervisor",
+    "profile": {
+      "id": "qa-42",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 42",
+      "phone": "+12025550142",
+      "email": "qa42@example.com",
+      "current_location": "Bahrain",
+      "professional_summary": "Warehouse Supervisor with 5 years of experience. No documented cost savings. No forklift operator licence.",
+      "target_job_title": "Warehouse Supervisor",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-42-job1",
+          "profile_id": "qa-42",
+          "company": "Synthetic Services 42",
+          "role": "Warehouse Supervisor",
+          "location": "Bahrain",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Coordinated goods receipt checks",
+            "Investigated stock-count discrepancies"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-42-s0",
+          "profile_id": "qa-42",
+          "name": "stock counts",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-42-s1",
+          "profile_id": "qa-42",
+          "name": "WMS",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-42-s2",
+          "profile_id": "qa-42",
+          "name": "goods receipt",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-42-edu",
+          "profile_id": "qa-42",
+          "degree": "Diploma Logistics",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Warehouse Supervisor",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Sales Executive",
+    "profile": {
+      "id": "qa-43",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 43",
+      "phone": "+12025550142",
+      "email": "qa43@example.com",
+      "current_location": "Saudi Arabia",
+      "professional_summary": "Sales Executive with 8 years of experience. No documented cost savings. No Saudi driving licence.",
+      "target_job_title": "B2B Sales Executive",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-43-job1",
+          "profile_id": "qa-43",
+          "company": "Synthetic Services 43",
+          "role": "Sales Executive",
+          "location": "Saudi Arabia",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Prepared customer quotations",
+            "Maintained CRM follow-up records"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-43-s0",
+          "profile_id": "qa-43",
+          "name": "CRM",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-43-s1",
+          "profile_id": "qa-43",
+          "name": "quotations",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-43-s2",
+          "profile_id": "qa-43",
+          "name": "customer follow-up",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-43-edu",
+          "profile_id": "qa-43",
+          "degree": "Bachelors Business",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Sales Executive",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Digital Marketer",
+    "profile": {
+      "id": "qa-44",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 44",
+      "phone": "+12025550142",
+      "email": "qa44@example.com",
+      "current_location": "United Arab Emirates",
+      "professional_summary": "Digital Marketer with 12 years of experience. No documented cost savings. No documented ROAS improvement.",
+      "target_job_title": "Digital Marketing Executive",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-44-job1",
+          "profile_id": "qa-44",
+          "company": "Synthetic Services 44",
+          "role": "Digital Marketer",
+          "location": "United Arab Emirates",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Prepared campaign performance reports",
+            "Updated search advertising assets"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-44-s0",
+          "profile_id": "qa-44",
+          "name": "Google Ads",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-44-s1",
+          "profile_id": "qa-44",
+          "name": "campaign reporting",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-44-s2",
+          "profile_id": "qa-44",
+          "name": "SEO",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-44-edu",
+          "profile_id": "qa-44",
+          "degree": "Bachelors Marketing",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Digital Marketer",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Customer Service Agent",
+    "profile": {
+      "id": "qa-45",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 45",
+      "phone": "+12025550142",
+      "email": "qa45@example.com",
+      "current_location": "Qatar",
+      "professional_summary": "Customer Service Agent with 3 years of experience. No documented cost savings. No Arabic fluency.",
+      "target_job_title": "Customer Support Specialist",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-45-job1",
+          "profile_id": "qa-45",
+          "company": "Synthetic Services 45",
+          "role": "Customer Service Agent",
+          "location": "Qatar",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Handled customer tickets",
+            "Recorded complaint escalation and follow-up"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-45-s0",
+          "profile_id": "qa-45",
+          "name": "CRM",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-45-s1",
+          "profile_id": "qa-45",
+          "name": "tickets",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-45-s2",
+          "profile_id": "qa-45",
+          "name": "complaint handling",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-45-edu",
+          "profile_id": "qa-45",
+          "degree": "Bachelors Arts",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Customer Service Agent",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Hotel Front Office Agent",
+    "profile": {
+      "id": "qa-46",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 46",
+      "phone": "+12025550142",
+      "email": "qa46@example.com",
+      "current_location": "Oman",
+      "professional_summary": "Hotel Front Office Agent with 5 years of experience. No documented cost savings. No documented team leadership.",
+      "target_job_title": "Front Office Supervisor",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-46-job1",
+          "profile_id": "qa-46",
+          "company": "Synthetic Services 46",
+          "role": "Hotel Front Office Agent",
+          "location": "Oman",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Processed guest check-ins",
+            "Coordinated guest service requests"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-46-s0",
+          "profile_id": "qa-46",
+          "name": "Opera PMS",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-46-s1",
+          "profile_id": "qa-46",
+          "name": "check-in",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-46-s2",
+          "profile_id": "qa-46",
+          "name": "guest requests",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-46-edu",
+          "profile_id": "qa-46",
+          "degree": "Diploma Hospitality",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Hotel Front Office Agent",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Restaurant Supervisor",
+    "profile": {
+      "id": "qa-47",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 47",
+      "phone": "+12025550142",
+      "email": "qa47@example.com",
+      "current_location": "Kuwait",
+      "professional_summary": "Restaurant Supervisor with 8 years of experience. No documented cost savings. No food safety certification.",
+      "target_job_title": "Restaurant Supervisor",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-47-job1",
+          "profile_id": "qa-47",
+          "company": "Synthetic Services 47",
+          "role": "Restaurant Supervisor",
+          "location": "Kuwait",
+          "start_date": "2018-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Coordinated service shifts",
+            "Checked POS closing and service readiness"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-47-s0",
+          "profile_id": "qa-47",
+          "name": "shift coordination",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-47-s1",
+          "profile_id": "qa-47",
+          "name": "POS",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-47-s2",
+          "profile_id": "qa-47",
+          "name": "service checks",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-47-edu",
+          "profile_id": "qa-47",
+          "degree": "Diploma Hospitality",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Restaurant Supervisor",
+          "start_year": 2014,
+          "end_year": 2018,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Chef",
+    "profile": {
+      "id": "qa-48",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 48",
+      "phone": "+12025550142",
+      "email": "qa48@example.com",
+      "current_location": "Bahrain",
+      "professional_summary": "Chef with 12 years of experience. No documented cost savings. No HACCP certification.",
+      "target_job_title": "Chef de Partie",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-48-job1",
+          "profile_id": "qa-48",
+          "company": "Synthetic Services 48",
+          "role": "Chef",
+          "location": "Bahrain",
+          "start_date": "2014-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Prepared dishes to recipe specifications",
+            "Recorded stock rotation and kitchen checks"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-48-s0",
+          "profile_id": "qa-48",
+          "name": "food preparation",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-48-s1",
+          "profile_id": "qa-48",
+          "name": "portion control",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-48-s2",
+          "profile_id": "qa-48",
+          "name": "stock rotation",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-48-edu",
+          "profile_id": "qa-48",
+          "degree": "Diploma Culinary Arts",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Chef",
+          "start_year": 2010,
+          "end_year": 2014,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Teacher",
+    "profile": {
+      "id": "qa-49",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 49",
+      "phone": "+12025550142",
+      "email": "qa49@example.com",
+      "current_location": "Saudi Arabia",
+      "professional_summary": "Teacher with 3 years of experience. No documented cost savings. No teaching licence.",
+      "target_job_title": "Secondary Mathematics Teacher",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-49-job1",
+          "profile_id": "qa-49",
+          "company": "Synthetic Services 49",
+          "role": "Teacher",
+          "location": "Saudi Arabia",
+          "start_date": "2023-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Prepared mathematics lesson plans",
+            "Marked assessments and tracked student progress"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-49-s0",
+          "profile_id": "qa-49",
+          "name": "lesson planning",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-49-s1",
+          "profile_id": "qa-49",
+          "name": "assessment",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-49-s2",
+          "profile_id": "qa-49",
+          "name": "classroom management",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-49-edu",
+          "profile_id": "qa-49",
+          "degree": "B.Ed Mathematics",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Teacher",
+          "start_year": 2019,
+          "end_year": 2023,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  },
+  {
+    "profession": "Facilities Coordinator",
+    "profile": {
+      "id": "qa-50",
+      "user_id": "synthetic-qa",
+      "full_name": "QA Candidate 50",
+      "phone": "+12025550142",
+      "email": "qa50@example.com",
+      "current_location": "United Arab Emirates",
+      "professional_summary": "Facilities Coordinator with 5 years of experience. No documented cost savings. No CAFM administrator certification.",
+      "target_job_title": "Facilities Coordinator",
+      "field_visibility": {},
+      "work_experience": [
+        {
+          "id": "qa-50-job1",
+          "profile_id": "qa-50",
+          "company": "Synthetic Services 50",
+          "role": "Facilities Coordinator",
+          "location": "United Arab Emirates",
+          "start_date": "2021-01-01",
+          "end_date": "2026-01-01",
+          "description": "Supported assigned work; did not lead a team. No documented cost savings.",
+          "highlights": [
+            "Logged facilities work orders",
+            "Coordinated contractor access and follow-up"
+          ],
+          "sort_order": 0,
+          "gcc_country": null
+        }
+      ],
+      "skills": [
+        {
+          "id": "qa-50-s0",
+          "profile_id": "qa-50",
+          "name": "work orders",
+          "sort_order": 0
+        },
+        {
+          "id": "qa-50-s1",
+          "profile_id": "qa-50",
+          "name": "contractor access",
+          "sort_order": 1
+        },
+        {
+          "id": "qa-50-s2",
+          "profile_id": "qa-50",
+          "name": "maintenance tracking",
+          "sort_order": 2
+        }
+      ],
+      "certifications": [],
+      "education": [
+        {
+          "id": "qa-50-edu",
+          "profile_id": "qa-50",
+          "degree": "Diploma Facilities",
+          "institution": "Synthetic Training Institute",
+          "field_of_study": "Facilities Coordinator",
+          "start_year": 2017,
+          "end_year": 2021,
+          "sort_order": 0
+        }
+      ],
+      "additional_information": []
+    }
+  }
+]
