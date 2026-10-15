@@ -64,7 +64,7 @@ export function MatchResult({
             <BandPill value={after.total} />
             {gain > 0 ? <span className="font-mono text-[13px] font-semibold text-teal">+{gain} points</span> : null}
             <span className="text-[12px] leading-snug text-ink-muted">
-              Honest max for your profile: <strong className="text-ink">{Math.max(report.max_total, after.total)}</strong>
+              Estimated match potential: <strong className="text-ink">{Math.max(report.max_total, after.total)}</strong>
             </span>
           </div>
         </div>

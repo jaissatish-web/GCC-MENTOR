@@ -68,11 +68,11 @@ export function writerSystem(targetTitle: string, level: OptimizationLevel): str
       : `
 NEW POINTS
 - "new": true ONLY for a point written for a list-B requirement. Everything built from the candidate's own facts is "new": false, however much you reword it.
-- A list-B requirement that naturally belongs to one of the candidate's own bullets may be added to that bullet instead ("Led testing and commissioning of AHUs and pumps, including troubleshooting") — that bullet stays "new": false.
-- Put each one in the job given in list B. At most ${maxNewPoints(level)} new points per job.${level === 'high' ? "\n- HIGH: every requirement in list B must appear in the CV, as a new point or inside one of the candidate's own bullets." : ''}
+- Every list-B duty is an unverified standalone suggestion marked "new": true. Never merge it into a rewrite or the summary. The user must confirm it separately.
+- Put each one in the job given in list B. At most ${maxNewPoints(level)} new points per job.${level === 'high' ? "\n- HIGH: offer every relevant list-B requirement as a separate unverified suggestion, never inside a rewritten fact." : ''}
 - Write it as a responsibility or skill in the job description's words.
 - Never put a number, percentage or amount in a new point.
-- Points marked "-> summary" (soft skills) go into the summary as a short phrase. The summary may also name up to 2 other list-B strengths.`
+- Do not add list-B strengths to the summary. Draft them as separate suggestions only.`
   return `ROLE
 You are a senior recruiter and CV specialist for ${t} roles in the Gulf job market. You know what hiring managers and ATS systems in this field look for — the skills, terms and results that get a ${t} shortlisted.
 
@@ -104,7 +104,7 @@ HOW A SPECIALIST WRITES
   RIGHT: "Handled AP/AR processing for multiple projects."
   WRONG: "Supervised HVAC and fire-fighting works for a metro station, ensuring commissioning and handover."
   RIGHT: "Supervised HVAC and fire-fighting works for a metro station through commissioning and handover."
-- Summary, 3–4 lines: open with the candidate's OWN current title or field + years of experience (never call them the target job title — they have not held it), then their strongest proven strengths for this job, then their best real numbers.
+- Summary, 3–4 lines: open with the candidate's OWN current title or field + years of experience (never call them the target job title — they have not held it), then their supported strengths for this job, then their real numbers. Preserve the original involvement level: supported/conducted never becomes led/managed. Never invent savings, results, expertise, industries or current employment. Preserve all negation.
 
 LEVEL
 ${LEVEL_TEXT[level]}${newPoints}`

@@ -25,7 +25,6 @@ export function useCurrentStage(): StageSnapshot | null {
   const [snap, setSnap] = useState<StageSnapshot | null>(cache)
 
   useEffect(() => {
-    if (cache && pathname !== '/dashboard') return
     let alive = true
     Promise.all([
       fetch('/api/profile', { cache: 'no-store' }).then((r) => (r.status === 404 ? null : r.ok ? r.json() : Promise.reject())),

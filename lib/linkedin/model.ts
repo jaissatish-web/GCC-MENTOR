@@ -117,6 +117,7 @@ export function candidateFacts(
         company: mask(entry.company),
         start: entry.start_date,
         end: entry.end_date,
+        employmentStatus: entry.end_date ? 'ended — use past tense' : 'current role (no end date in profile)',
         location: mask(entry.location),
         description: mask(entry.description),
         highlights: (entry.highlights ?? []).map(mask),

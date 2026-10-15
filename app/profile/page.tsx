@@ -1687,11 +1687,14 @@ function ProfileScreen() {
 
   // ---- Phone / WhatsApp: split for editing, joined for storage --------------
   // The DB columns stay single strings (lib/phone.ts explains why), so the
-  // split is derived from the stored value rather than held as extra state —
-  // that keeps one source of truth and means an extracted or previously-saved
-  // number round-trips without a migration.
-  const phoneParts = useMemo(() => splitPhone(editor?.phone), [editor?.phone])
-  const whatsappParts = useMemo(() => splitPhone(editor?.whatsapp), [editor?.whatsapp])
+  // number is derived from storage. The selected dial code also has draft state
+  // so choosing a code before entering a number survives an empty stored value.
+  const [phoneDraftDial, setPhoneDraftDial] = useState('')
+  const [whatsappDraftDial, setWhatsappDraftDial] = useState('')
+  const storedPhoneParts = useMemo(() => splitPhone(editor?.phone), [editor?.phone])
+  const storedWhatsappParts = useMemo(() => splitPhone(editor?.whatsapp), [editor?.whatsapp])
+  const phoneParts = { ...storedPhoneParts, dial: storedPhoneParts.dial || (!storedPhoneParts.number ? phoneDraftDial : '') }
+  const whatsappParts = { ...storedWhatsappParts, dial: storedWhatsappParts.dial || (!storedWhatsappParts.number ? whatsappDraftDial : '') }
 
   const categoryCopy = CATEGORY_COPY[readiness.category]
   const itemsLeft = readiness.missing.length
@@ -2460,7 +2463,7 @@ function ProfileScreen() {
               helper="Pick your country code, then the number without it."
               dial={phoneParts.dial}
               number={phoneParts.number}
-              onDialChange={(v) => setPhone(v, phoneParts.number)}
+              onDialChange={(v) => { setPhoneDraftDial(v); setPhone(v, phoneParts.number) }}
               onNumberChange={(v) => setPhone(phoneParts.dial, v)}
             />
             <PhoneField
@@ -2469,7 +2472,7 @@ function ProfileScreen() {
               helper="Leave blank if it is the same as your phone number."
               dial={whatsappParts.dial}
               number={whatsappParts.number}
-              onDialChange={(v) => setWhatsapp(v, whatsappParts.number)}
+              onDialChange={(v) => { setWhatsappDraftDial(v); setWhatsapp(v, whatsappParts.number) }}
               onNumberChange={(v) => setWhatsapp(whatsappParts.dial, v)}
             />
             <TextField

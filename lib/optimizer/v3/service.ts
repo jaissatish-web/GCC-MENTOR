@@ -10,9 +10,8 @@
  *   buildV3()        the CV, in the exact shapes the existing screens read
  *                    (OptimizedContent, skills_order, ResumeDocument, MatchReport)
  *
- * Added points: with the one-time agreement and a previous optimization
- * (`autoApply`) they go straight into the CV; otherwise they are pending
- * suggestions the review page shows in yellow. Certificates and licences are
+ * Added points always remain pending suggestions until explicitly confirmed
+ * for this application. Previous consent never verifies a new duty. Certificates and licences are
  * never written — `ask_certifications` offers them to the user instead.
  */
 import { buildResumeDocument, drivingLicenceLine, type ResumeDocument } from '@/lib/resumeDocument'
@@ -34,7 +33,7 @@ const ASKABLE = new Set(['certification', 'licence'])
 const ASK_SKILL = new Set(['tool', 'standard', 'skill', 'equipment'])
 
 // job_analyses.input_hash must be exactly 64 characters, so the v3 key is hashed again.
-export const v3Hash = (title: string, industry: string | null, jd: string | null) => sha256('v3:' + analysisInputHash(title, industry, jd))
+export const v3Hash = (title: string, industry: string | null, jd: string | null) => sha256('v3-confirmed-claims:' + analysisInputHash(title, industry, jd))
 const modeOf = (jd: string | null) => (jd && jd.trim() ? 'job_description' : 'target_title_only') as 'job_description' | 'target_title_only'
 
 /** The profile's version without its certificates: a certificate added on the level screen keeps the analysis. */
@@ -268,16 +267,16 @@ export async function buildV3(opts: {
         block: e.id,
         requirement: addable.find((r) => containsTermRaw(b.text, r.term))?.term ?? '',
         text: b.text,
-        status: opts.autoApply ? 'confirmed' : 'pending',
+        status: 'pending',
       })
     })
     if (job.keptOriginal) kept.push({ block: e.id, reason: 'grounding' })
     const rewritten = job.keptOriginal ? source : job.bullets.filter((b) => !b.isNew).map((b) => b.text)
-    const generated = opts.autoApply ? (job.keptOriginal ? [...source, ...newPts.map((b) => b.text)] : job.bullets.map((b) => b.text)) : rewritten
+    const generated = rewritten
     blocks.push({
       profile_experience_id: e.id,
-      was_optimized: !job.keptOriginal || (opts.autoApply && newPts.length > 0),
-      generated_bullets: job.keptOriginal && !(opts.autoApply && newPts.length) ? null : generated,
+      was_optimized: !job.keptOriginal,
+      generated_bullets: job.keptOriginal ? null : generated,
       source_bullets: source,
       claims: [],
     })
@@ -331,7 +330,7 @@ export async function buildV3(opts: {
     target_band: reachableTargetBand(level, check.expected[level]),
     field_match: { match: a.fieldMatch, job_field: a.jobField, candidate_field: a.candidateField },
     ask_certifications: check.askCertifications,
-    ...(opts.autoApply && suggestions.length ? { auto_applied: true } : {}),
+
     ...(opts.typicalAdvert && jd ? { advert_source: 'typical' as const, typical_advert: jd } : {}),
     added_terms: [
       ...new Set([
@@ -346,6 +345,6 @@ export async function buildV3(opts: {
     skillsOrder: finalOrder,
     documentSnapshot,
     report,
-    stats: { ms: w.ms, caught: w.caught.length, keptOriginal: kept.length, newPoints: suggestions.length, autoApplied: opts.autoApply },
+    stats: { ms: w.ms, caught: w.caught.length, keptOriginal: kept.length, newPoints: suggestions.length, autoApplied: false },
   }
 }

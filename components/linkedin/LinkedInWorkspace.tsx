@@ -576,7 +576,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                             />
                             Option {index + 1}
                           </label>
-                          <textarea
+                          <textarea dir="auto"
                             aria-label={`${config.headline} option ${index + 1}`}
                             className={`${input} mt-3`}
                             rows={2}
@@ -612,7 +612,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     <p className="mt-2 text-sm leading-6 text-ink-soft">
                       {platform === 'linkedin' ? 'Use the pencil beside About on your profile. If it’s missing, add it through Add profile section.' : 'Open the profile summary field in NaukriGulf and paste your reviewed content.'}
                     </p>
-                    <textarea
+                    <textarea dir="auto"
                       aria-label={`${config.summary} content`}
                       className={`${input} mt-4 leading-7`}
                       rows={10}
@@ -641,11 +641,10 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           EXPERIENCE
                         </p>
                         <h2 className="mt-2 type-section text-ink">
-                          {mask(role?.role)} · {mask(role?.company)}
+                          {role ? <>{mask(role.role)} · {mask(role.company)}</> : 'Saved role — source no longer available'}
                         </h2>
                         <p className="mt-2 w-fit rounded-ctl bg-teal-soft px-3 py-2 text-sm font-semibold text-ink">
-                          Employment dates: {role?.start_date?.slice(0, 7)} –{' '}
-                          {role?.end_date?.slice(0, 7) ?? 'Present'} · Titles,
+                          Employment dates: {role ? `${role.start_date?.slice(0, 7) ?? 'Not provided'} – ${role.end_date?.slice(0, 7) ?? 'Present'}` : 'Unavailable — review Career Profile and prepare a fresh version'} · Titles,
                           employers and dates come from Career Profile.
                         </p>
                         <p className="mt-3 text-sm leading-6 text-ink-soft">
@@ -653,7 +652,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           paste only the description below. Check the fixed job
                           fields against Career Profile.
                         </p>
-                        <textarea
+                        <textarea dir="auto"
                           aria-label={`Experience ${entry.id}`}
                           className={`${input} mt-4 leading-7`}
                           rows={7}
@@ -958,7 +957,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                               label={`Paste your ${platformName} profile`}
                               help={`Include ${config.summary} and ${config.experience}. 100–30,000 characters. Do not paste passwords or identity documents.`}
                             >
-                              <textarea
+                              <textarea dir="auto"
                                 className={input}
                                 rows={8}
                                 maxLength={30000}
@@ -1250,7 +1249,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           label="Target job descriptions (optional)"
                           help="Audience context only. We won’t claim skills or achievements from an advert."
                         >
-                          <textarea
+                          <textarea dir="auto"
                             className={input}
                             rows={5}
                             maxLength={12000}
@@ -1264,7 +1263,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           label="Anything your advisor should know? (optional)"
                           help="Give wording preferences or priorities. Add new career facts to Career Profile before generating."
                         >
-                          <textarea
+                          <textarea dir="auto"
                             className={input}
                             rows={4}
                             maxLength={1500}
@@ -1278,7 +1277,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           label="Names or terms to keep private (optional)"
                           help="One exact term per line, up to 20. For example, a confidential client name. Contact details, identity numbers, birth dates and visa data are excluded by default."
                         >
-                          <textarea
+                          <textarea dir="auto"
                             className={input}
                             rows={3}
                             maxLength={1600}

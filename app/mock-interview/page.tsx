@@ -109,6 +109,7 @@ function MockInterviewScreen() {
     void fetch('/api/mock-interview/voice-capabilities').then(r => r.json()).then(p => { if (!cancelled) setVoiceReady(p.enabled === true) }).catch(() => { if (!cancelled) setVoiceReady(false) })
     return () => { cancelled = true }
   }, [])
+  const [inputMode, setInputMode] = useState<'text' | 'voice'>('text')
   const [mode, setMode] = useState<MockInterviewMode>('mixed')
   const [difficulty, setDifficulty] = useState<MockInterviewDifficulty>('standard')
   const [questionCount, setQuestionCount] = useState(10)
@@ -163,7 +164,7 @@ function MockInterviewScreen() {
       const res = await fetch(`/api/packages/${encodeURIComponent(packageId)}/mock-interview/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, difficulty, questionCount, inputMode: 'voice', interviewerId }),
+        body: JSON.stringify({ mode, difficulty, questionCount, inputMode, interviewerId }),
       })
       const payload = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -171,7 +172,7 @@ function MockInterviewScreen() {
         return
       }
       applyRun(packageId, payload.run as MockInterviewRun)
-      router.replace(`/mock-interview?package=${encodeURIComponent(packageId)}&run=${encodeURIComponent(payload.run.id)}&room=1`, { scroll: false })
+      router.replace(`/mock-interview?package=${encodeURIComponent(packageId)}&run=${encodeURIComponent(payload.run.id)}${inputMode === 'voice' ? '&room=1' : ''}`, { scroll: false })
     } catch {
       setOpError('Could not reach the server. Check your connection and try again — nothing was used.')
     } finally {
@@ -329,6 +330,14 @@ function MockInterviewScreen() {
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-teal [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Mic size={18} aria-hidden="true" />Start a new practice</span><ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary>
               <div className="mt-4 flex flex-col gap-5">
             <label className="flex flex-col gap-1.5">
+              <span className="field-label">Answer format</span>
+              <select value={inputMode} onChange={e => setInputMode(e.target.value as 'text' | 'voice')} className="field">
+                <option value="text">Type my answers</option>
+                <option value="voice">Record my voice</option>
+              </select>
+              <span className="field-hint">Typed practice reviews your written answers. Voice practice requires a microphone and reviews recorded answers.</span>
+            </label>
+            <label className="flex flex-col gap-1.5">
               <span className="field-label">Interview type</span>
               <select value={mode} onChange={(e) => setMode(e.target.value as MockInterviewMode)} className="field">
                 {MODES.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -351,9 +360,9 @@ function MockInterviewScreen() {
               </label>
             </div>
 
-            <InterviewerPicker value={interviewerId} onChange={setInterviewerId} disabled={busy !== null} />
+            {inputMode === 'voice' ? <InterviewerPicker value={interviewerId} onChange={setInterviewerId} disabled={busy !== null} /> : null}
 
-            {voiceReady === false ? <p className="rounded-ctl bg-canvas p-3 text-sm text-ink-muted">Recorded interviews are being prepared. Your previous interview reports remain available.</p> : null}
+            {inputMode === 'voice' && voiceReady === false ? <p className="rounded-ctl bg-canvas p-3 text-sm text-ink-muted">Recorded interviews are being prepared. Your previous interview reports remain available.</p> : null}
             {opError ? <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">{opError}</p> : null}
             {detailError ? (
               <div className="flex flex-col items-start gap-2">
@@ -382,7 +391,7 @@ function MockInterviewScreen() {
                     ? `Selected interview: ${run.status === 'completed' ? 'completed' : 'in progress'} · ${answeredCount}/${run.question_count} answered`
                     : 'No mock interview yet for this package.'}
               </p>
-              <Button type="button" variant="primary" onClick={() => void start()} disabled={!selectedId || busy !== null || !detail || voiceReady !== true} busy={busy === 'start'} busyLabel="Starting…">
+              <Button type="button" variant="primary" onClick={() => void start()} disabled={!selectedId || busy !== null || !detail || (inputMode === 'voice' && voiceReady !== true)} busy={busy === 'start'} busyLabel="Starting…">
                 {CTA.startMockInterview}
               </Button>
             </div>
@@ -493,7 +502,7 @@ function MockInterviewScreen() {
       ) : null}
 
       <p className="mt-6 text-center type-caption text-ink-muted">
-        Recorded voice practice in English. Feedback supports preparation; it does not predict hiring decisions.
+        Typed and recorded voice practice in English. Feedback supports preparation; it does not predict hiring decisions.
       </p>
     </PageShell>
   )

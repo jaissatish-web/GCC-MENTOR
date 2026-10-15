@@ -124,7 +124,7 @@ export function Sidebar() {
   }))
   const markFor = (stage: StageId | undefined, index: number): 'next' | 'locked' | null => {
     if (!stage || !states) return null
-    if (states[stage] === 'locked') return 'locked'
+    if (states[stage] === 'locked') return null
     if (states[stage] === 'current' && index === 0) return 'next'
     return null
   }

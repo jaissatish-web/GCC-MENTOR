@@ -84,7 +84,7 @@ function TemplatesInner() {
       icon={RectangleStackIcon}
       eyebrow="Gulf CV designs"
       title="Gulf templates"
-      subtitle={`${AVAILABLE_TEMPLATE_COUNT} designs. Any profession. All six Gulf countries.`}
+      subtitle={`${AVAILABLE_TEMPLATE_COUNT} designs. Any profession. All six Gulf countries. Gallery thumbnails show sample content; Preview my resume uses your selected CV.`}
     >
       {/* The action bar sticks so the choice made at the bottom of a long
           gallery is still actionable without scrolling back. top-16, not

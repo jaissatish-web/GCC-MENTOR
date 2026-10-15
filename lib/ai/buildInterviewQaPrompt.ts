@@ -1,3 +1,4 @@
+import { employmentStatusContext } from '@/lib/employmentStatus'
 import { categoryFact } from '@/lib/profileCategories'
 import { PROFILE_ONLY_SERVICE_RULE } from '@/lib/careerProfileServiceContext'
 import type { CareerProfileFull, TargetCountry } from '@/types/careerProfile'
@@ -295,6 +296,7 @@ export function buildInterviewQaParts(
     gulf_fit: 'two gulf_readiness questions based on the candidate’s recorded Gulf exposure or honest adaptation plans, and three company_role questions about suitability for work in their evidenced field. No assumed company, vacancy or missing job requirements.',
   }
   const shared = [
+    employmentStatusContext(profile),
     '## CAREER PROFILE',
     renderProfile(profile),
     isRaw ? '## CAREER PROFILE RESUME' : '## OPTIMIZED RESUME',

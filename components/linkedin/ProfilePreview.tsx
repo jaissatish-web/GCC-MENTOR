@@ -86,11 +86,10 @@ export function ProfilePreview({
               )
               return (
                 <article key={entry.id} className="py-4 first:pt-3 last:pb-0">
-                  <h3 className="font-medium text-ink">{text(role?.role)}</h3>
+                  <h3 className="font-medium text-ink">{role ? text(role.role) : 'Saved role — source no longer available'}</h3>
                   <p className="mt-1 text-ink-soft">{text(role?.company)}</p>
                   <p className="mt-1 text-sm text-ink-muted">
-                    {role?.start_date?.slice(0, 7) ?? 'Date not provided'} –{' '}
-                    {role?.end_date?.slice(0, 7) ?? 'Present'}
+                    {role ? `${role.start_date?.slice(0, 7) ?? 'Date not provided'} – ${role.end_date?.slice(0, 7) ?? 'Present'}` : 'Dates unavailable — prepare a fresh version'}
                   </p>
                   <p className="mt-3 whitespace-pre-wrap break-words leading-normal text-ink-soft">
                     {entry.description}

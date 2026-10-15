@@ -154,7 +154,7 @@ export function ResultsOverview({
               <p className="text-[12.5px] text-ink-soft">
                 {pending > 0
                   ? `Up to ${report.projected_with_suggestions ?? report.after.total} if you confirm the ${pending} suggested line${pending === 1 ? '' : 's'} below.`
-                  : `Highest possible with your current profile: ${Math.max(report.max_total, report.after.total)}.`}
+                  : `Estimated match potential with your current profile: ${Math.max(report.max_total, report.after.total)}.`}
               </p>
               {/* Optimizer v3: say plainly when the job is outside the user's field. */}
               {report.field_match && report.field_match.match !== 'same' ? (
