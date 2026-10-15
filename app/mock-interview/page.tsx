@@ -2,7 +2,7 @@
 
 import { CallOrb, JOINING_LINES } from '@/components/mock-interview/CallOrb'
 import { useApplicationLock } from '@/components/journey/ApplicationWorkspace'
-import { CAREER_RESUME_NAME, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { careerResumeLabel, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -88,7 +88,7 @@ function writeDraft(key: string, value: string): void {
 }
 
 function packageTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
-  if (isCareerProfileResume(pkg)) return `${CAREER_RESUME_NAME} · ${CAREER_RESUME_BADGE}`
+  if (isCareerProfileResume(pkg)) return `${careerResumeLabel(pkg)} · ${CAREER_RESUME_BADGE}`
   return [pkg.target_job_title, pkg.target_company].filter(Boolean).join(' · ')
 }
 
@@ -289,7 +289,7 @@ function MockInterviewScreen() {
       eyebrow={stageEyebrow('apply')}
       title="Mock Interview"
       subtitle={isRaw ? 'Practise from your saved profile and get feedback. No job description needed.' : 'Prepare for your Gulf interview. Practise, then review your feedback.'}
-      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
+      uses={isRaw ? ['General CV', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">
         {total === 0 ? (
@@ -387,7 +387,7 @@ function MockInterviewScreen() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="type-helper text-ink-muted">
                 {detailLoading && !detail
-                  ? (isRaw ? 'Loading your Career Profile Resume…' : 'Loading this job…')
+                  ? (isRaw ? 'Loading your General CV…' : 'Loading this job…')
                   : run
                     ? 'Your existing interview stays saved in history. Starting another creates a separate attempt.'
                     : 'No mock interview yet for this package.'}

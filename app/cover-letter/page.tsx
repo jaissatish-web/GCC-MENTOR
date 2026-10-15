@@ -1,7 +1,7 @@
 'use client'
 
 import { useApplicationLock } from '@/components/journey/ApplicationWorkspace'
-import { CAREER_RESUME_NAME, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { careerResumeLabel, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
@@ -43,7 +43,7 @@ import { StageGate } from '@/components/journey/StageGate'
  */
 
 function letterTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
-  if (isCareerProfileResume(pkg)) return `${CAREER_RESUME_NAME} · ${CAREER_RESUME_BADGE}`
+  if (isCareerProfileResume(pkg)) return `${careerResumeLabel(pkg)} · ${CAREER_RESUME_BADGE}`
   // The employer only when there is one.
   const bits = [pkg.target_job_title, pkg.target_company].filter(Boolean)
   return bits.join(' · ')
@@ -206,7 +206,7 @@ function CoverLetterScreen() {
       eyebrow={stageEyebrow('apply')}
       title="Cover Letter"
       subtitle={isRaw ? 'Introduce your experience using your saved profile. No job description needed.' : 'A letter for your target Gulf job, in your preferred tone.'}
-      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
+      uses={isRaw ? ['General CV', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
 
       {/* Centered generation form (720px, §C) */}
@@ -274,7 +274,7 @@ function CoverLetterScreen() {
             {generating ? (
               <ProcessingInline
                 steps={[
-                  isRaw ? 'Reading your saved Career Profile Resume' : 'Reading the saved CV for this job',
+                  isRaw ? 'Reading your saved General CV' : 'Reading the saved CV for this job',
                   'Drawing on your Career Profile',
                   `Writing in the ${tone} tone`,
                   'Checking every line against your profile',

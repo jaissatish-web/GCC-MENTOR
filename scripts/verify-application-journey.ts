@@ -1,6 +1,7 @@
 import './resolve-paths'
 import assert from 'node:assert/strict'
 import { applicationHref, journeyNextAction, selectApplication, validGoal } from '../lib/applicationJourney'
+import { careerResumeLabel } from '../lib/careerProfileResume'
 import type { PackageSummary } from '../lib/packageSummary'
 
 const cv = (id: string, extra: Partial<PackageSummary> = {}): PackageSummary => ({
@@ -11,6 +12,8 @@ const cv = (id: string, extra: Partial<PackageSummary> = {}): PackageSummary => 
   application_notes: null, has_resume: true, cover_letter_count: 0, qa_question_count: 0,
   mock_completed_run_id: null, mock_in_progress: false, ...extra,
 })
+assert.equal(careerResumeLabel({ name: 'My Career Profile Resume' }), 'My General CV')
+assert.equal(careerResumeLabel({ name: 'My own CV name' }), 'My own CV name')
 const general = cv('general-id', { tier: 'free', has_resume: false })
 const first = cv('application-a', { cover_letter_count: 1, qa_question_count: 25 })
 const second = cv('application-b')

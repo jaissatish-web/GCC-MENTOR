@@ -1,7 +1,7 @@
 'use client'
 
 import { useApplicationLock } from '@/components/journey/ApplicationWorkspace'
-import { CAREER_RESUME_NAME, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { careerResumeLabel, CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -47,7 +47,7 @@ const CATEGORY_ORDER: InterviewQuestionCategory[] = [
 ]
 
 function packageTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
-  if (isCareerProfileResume(pkg)) return `${CAREER_RESUME_NAME} · ${CAREER_RESUME_BADGE}`
+  if (isCareerProfileResume(pkg)) return `${careerResumeLabel(pkg)} · ${CAREER_RESUME_BADGE}`
   return [pkg.target_job_title, pkg.target_company].filter(Boolean).join(' · ')
 }
 
@@ -170,7 +170,7 @@ function InterviewQaScreen() {
       eyebrow={stageEyebrow('apply')}
       title="Interview Q&A"
       subtitle={isRaw ? 'Practise up to 25 questions from your profile. No job description needed.' : 'Practise for your target Gulf job, using your own experience.'}
-      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
+      uses={isRaw ? ['General CV', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">
         {total === 0 ? (
@@ -220,7 +220,7 @@ function InterviewQaScreen() {
             {generating ? (
               <ProcessingInline
                 steps={[
-                  isRaw ? 'Reading your saved Career Profile Resume' : 'Reading the optimized resume',
+                  isRaw ? 'Reading your saved General CV' : 'Reading the optimized resume',
                   isRaw ? 'Preparing for your professional field' : 'Studying the target role and job description',
                   'Writing Gulf-focused practice answers',
                   'Checking every number against your CV and profile',

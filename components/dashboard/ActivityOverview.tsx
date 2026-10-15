@@ -24,7 +24,7 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
           <h2 id="activity-heading" className="type-section text-ink">Your preparation</h2>
           <p className="mt-1 type-helper text-ink-muted">CVs, letters and interview practice for your Gulf applications.</p>
         </div>
-        <Link href="/dashboard/library" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>My CVs →</Link>
+        <Link href="/dashboard/library" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>Applications & CVs →</Link>
       </div>
       {error ? (
         <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-alert/30 bg-alert-soft p-4">
@@ -104,7 +104,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
           <h3 className="type-card text-ink">Application status</h3>
           <Link href="/dashboard/library" className="type-helper font-semibold text-teal">Manage in My applications & CVs →</Link>
         </div>
-        <p className="mt-1 type-helper text-ink-muted">{overview.target_job_count} target jobs. Career Profile Resume is separate from applications.</p>
+        <p className="mt-1 type-helper text-ink-muted">{overview.target_job_count} target jobs. General CV is separate from applications.</p>
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {PACKAGE_STATUSES.map((stage) => <div key={stage.value} className="min-w-0 rounded-ctl bg-canvas p-3"><dt className="type-caption leading-snug text-ink-muted">{stage.label}</dt><dd className="mt-1 text-xl font-semibold text-ink">{overview.stages[stage.value]}</dd></div>)}
         </dl>

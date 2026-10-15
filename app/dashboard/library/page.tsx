@@ -1,5 +1,5 @@
 'use client'
-import { CAREER_RESUME_BADGE, CAREER_RESUME_NAME, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { CAREER_RESUME_BADGE, CAREER_RESUME_NAME, careerResumeLabel, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { useCareerProfileResume } from '@/lib/useCareerProfileResume'
 
 import Link from 'next/link'
@@ -215,7 +215,7 @@ function ApplicationCard({
     { label: 'Q&A', done: qaIsReady, href: `/interview-qa?package=${id}` },
     { label: 'Mock', done: mockIsDone, href: `/mock-interview?package=${id}` },
   ]
-  const displayName = (pkg.name ?? '').trim() || pkg.target_job_title
+  const displayName = isRaw ? careerResumeLabel(pkg) : (pkg.name ?? '').trim() || pkg.target_job_title
 
   return (
     <article className="ui-surface flex min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-3.5 shadow-m-1 transition-shadow hover:shadow-m-2 sm:gap-4 sm:p-5">
@@ -637,8 +637,8 @@ export default function TargetJobsPage() {
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-2">
-        {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 type-helper text-ink-soft">Opening your Career Profile Resume…</div> : null}
-        {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="type-helper text-alert">Could not open your Career Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
+        {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 type-helper text-ink-soft">Opening your General CV…</div> : null}
+        {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="type-helper text-alert">Could not open your General CV.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
         {resumeList.map((pkg) => (
           <ApplicationCard
             key={pkg.id}
