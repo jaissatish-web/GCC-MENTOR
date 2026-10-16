@@ -2041,6 +2041,8 @@ function ProfileScreen() {
   ) : null
   const importReviewBlock = importReview ? (
     <ImportReviewCard
+      key={`${uid}:${importReview.id}`}
+      canConfirm={!isDirty && !saveError}
       review={importReview}
       attention={importAttention(importReview, editor)}
       busy={submitting}

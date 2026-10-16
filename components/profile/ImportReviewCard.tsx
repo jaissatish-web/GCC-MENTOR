@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
-import { CheckCircleIcon, DocumentMagnifyingGlassIcon, PencilSquareIcon, ShieldCheckIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/outline'
+import { useEffect, useRef, useState } from 'react'
+import { CheckCircleIcon, DocumentMagnifyingGlassIcon, PencilSquareIcon, ShieldCheckIcon, ArrowUturnLeftIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
 import type { ImportChange, ImportReview } from '@/lib/resumeParse/importReview'
 import type { ImportAttention } from '@/lib/resumeParse/importAttention'
 import { cn } from '@/lib/utils'
 
-export function ImportReviewCard({ review, attention, currentValue, onChange, onEdit, onRemove, busy = false }: {
+export function ImportReviewCard({ review, attention, currentValue, onChange, onEdit, onRemove, busy = false, canConfirm = true }: {
   review: ImportReview
   attention: ImportAttention[]
   currentValue: (change: ImportChange) => string | null
@@ -15,8 +15,33 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
   onEdit: (field: string) => void
   onRemove: () => Promise<void>
   busy?: boolean
+  canConfirm?: boolean
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
+  const [expanded, setExpanded] = useState(false)
+  const [reviewed, setReviewed] = useState(false)
+  const [storageError, setStorageError] = useState(false)
+  // Presentation preferences only: never store source text or career details.
+  const storageKey = `gcc-import-review-ui:v1:${review.id}`
+  const initializedKey = useRef<string | null>(null)
+  useEffect(() => {
+    if (initializedKey.current === storageKey) return
+    initializedKey.current = storageKey
+    try {
+      const state = localStorage.getItem(storageKey)
+      setReviewed(state === 'reviewed')
+      setExpanded(state === null)
+      localStorage.setItem(storageKey, state === 'reviewed' ? 'reviewed' : 'seen')
+    } catch { setExpanded(true) }
+  }, [storageKey])
+  const confirmReview = () => {
+    if (busy || !canConfirm) return
+    try { localStorage.setItem(storageKey, 'reviewed') }
+    catch { setStorageError(true); return }
+    setStorageError(false)
+    setReviewed(true)
+    setExpanded(false)
+  }
   const [tab, setTab] = useState<'changes' | 'source'>('changes')
   const [removing, setRemoving] = useState(false)
   const [error, setError] = useState('')
@@ -27,13 +52,18 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
   const incompleteWording = review.wordingStatus === 'unavailable' || !!(review.wordingCoverage && review.wordingCoverage.checked < review.wordingCoverage.total)
   const sentencePreview = completed.find(c => (c.kind === 'spelling' || c.kind === 'wording') && c.before && c.after)
   return (
-    <section aria-labelledby="import-review-heading" className="mx-3 mt-4 overflow-hidden rounded-card border border-rose-200 bg-white sm:mx-5">
+    <section aria-labelledby="import-review-heading" className={cn('mx-3 mt-4 overflow-hidden rounded-card border bg-white sm:mx-5', reviewed ? 'border-line' : 'border-rose-200')}>
+      <h2 id="import-review-heading"><button type="button" aria-expanded={expanded} aria-controls="import-review-content" onClick={() => setExpanded(value => !value)} className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-3 text-left type-helper text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal sm:px-5">
+        <span>Resume import · <span className={reviewed ? 'text-teal' : 'text-rose-800'}>{reviewed ? 'Reviewed by you ✓' : 'Review pending'}</span></span>
+        {expanded ? <MinusIcon className="size-5 shrink-0" aria-hidden="true" /> : <PlusIcon className="size-5 shrink-0" aria-hidden="true" />}
+      </button></h2>
+      <div id="import-review-content" hidden={!expanded}>
       <div className="ui-panel-padding bg-gradient-to-br from-rose-50 via-white to-white p-4 sm:p-5">
         <div className="flex items-start gap-3">
           <span className="flex size-11 shrink-0 items-center justify-center rounded-ctl bg-teal text-white"><DocumentMagnifyingGlassIcon className="size-6" aria-hidden="true" /></span>
           <div className="min-w-0 flex-1">
             <p className="type-caption font-semibold text-teal">YOUR RESUME IMPORT REVIEW</p>
-            <h2 id="import-review-heading" className="mt-1 type-section text-ink">See what changed in your resume</h2>
+            <h3 className="mt-1 type-section text-ink">See what changed in your resume</h3>
             <p className="mt-1.5 type-helper text-ink-soft">{roles} role{roles === 1 ? '' : 's'}, {review.imported.skills} skills and {review.imported.qualifications} qualification{review.imported.qualifications === 1 ? '' : 's'} imported. See what changed and keep control of your profile.</p>
           </div>
         </div>
@@ -111,6 +141,13 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
         <p className="mt-4 flex items-start gap-2 type-caption text-ink-muted"><ShieldCheckIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />Suggestions need your approval. Your uploaded file is unchanged. Press Save after applying, restoring or editing profile details.</p>
         <details className="mt-4 border-t border-line pt-3"><summary className="cursor-pointer type-caption text-ink-muted">Remove this saved comparison</summary><p className="mt-2 type-helper text-ink-soft">Removes the original text and this change history. Your Career Profile stays available.</p><button type="button" disabled={removing} className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' mt-2 text-alert'} onClick={async () => { setRemoving(true); setError(''); try { await onRemove() } catch { setError('Could not remove the comparison. Please try again.') } finally { setRemoving(false) } }}>{removing ? 'Removing…' : 'Remove comparison'}</button>{error && <p role="alert" className="mt-2 type-helper text-alert">{error}</p>}</details>
       </div>}
+      <div className="border-t border-line p-4 sm:p-5">
+        <p className="mb-3 type-helper text-ink-soft">{reviewed ? 'You confirmed this review. You can still inspect the comparison or edit your profile.' : 'Review your details and apply or leave suggestions as you choose. Save any profile changes before confirming.'}</p>
+        {!reviewed && <button type="button" disabled={busy || !canConfirm} onClick={confirmReview} className={buttonVariants({ variant: 'primary', size: 'sm' })}>I have reviewed my imported details</button>}
+        {!reviewed && !canConfirm && <p className="mt-2 type-caption text-ink-muted">Save your profile changes first, then confirm this review.</p>}
+        {storageError && <p role="alert" className="mt-2 type-helper text-alert">Could not remember your review in this browser. Please try again.</p>}
+      </div>
+      </div>
     </section>
   )
 }

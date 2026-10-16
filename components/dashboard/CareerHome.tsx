@@ -4,9 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRightIcon, ChevronRightIcon, Cog6ToothIcon, DocumentTextIcon, EnvelopeIcon, PencilSquareIcon, ChatBubbleLeftRightIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
-import { totalExperienceYears, gccExperience } from '@/lib/experienceYears'
-import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
-import { profileHeadline } from '@/lib/resumeHeadline'
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
+import type { PackageSummary } from '@/lib/packageSummary'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
 import type { DashboardOverview } from '@/lib/dashboardOverview'
@@ -39,34 +38,40 @@ export function HomeScores({ profile, score, missing, gulf, loading, error }: {
   </section>
 }
 
-export function HomeProfile({ profile, loading, error }: { profile: CareerProfileFull | null; loading: boolean; error: boolean }) {
+export function HomeProfile({ profile, loading, error, packages, workLoading, workError, missingLabels }: {
+  profile: CareerProfileFull | null; loading: boolean; error: boolean
+  packages: PackageSummary[]; workLoading: boolean; workError: boolean; missingLabels: string[]
+}) {
   if (loading) return <section aria-label="Loading your profile" aria-busy="true" className={styles.profile}><div className="h-48 animate-pulse rounded-ctl bg-canvas motion-reduce:animate-none" /></section>
   if (!profile || error) return <section aria-labelledby="home-profile-heading" className={styles.profile}>
     <h2 id="home-profile-heading" className="type-section text-ink">Your Career Profile</h2>
     <p className="mt-2 type-body text-ink-soft">{error ? 'Your profile could not be loaded.' : 'Add your CV to start.'}</p>
     {error ? <button type="button" className={styles.action} onClick={() => window.location.reload()}>Try again <ArrowRightIcon aria-hidden="true" className="size-4" /></button> : <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1"><Link className={styles.action} href="/profile?import=upload">Upload CV</Link><Link className={styles.action} href="/profile?import=paste">Paste CV</Link><Link className={styles.action} href="/profile?view=details">Enter details</Link></div>}
   </section>
-  const years = totalExperienceYears(profile)
-  const gcc = gccExperience(profile.work_experience, location => gccCountryFromLocation(location)?.country ?? null)
   const initials = (profile.full_name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(n => n[0]).join('') || 'Me'
-  const headline = profileHeadline(profile.additional_information)?.value?.trim()
+  const role = profile.work_experience.find(job => !job.end_date)?.role || profile.work_experience[0]?.role
+  const job = packages.filter(item => !isCareerProfileResume(item)).sort((a, b) => (b.updated_at || b.created_at).localeCompare(a.updated_at || a.created_at))[0]
+  const jobHref = job ? `/package/${encodeURIComponent(job.id)}` : '/optimize'
   const facts = [
-    { label: 'Experience', value: years === null ? 'Add experience' : `${years} ${years === 1 ? 'year' : 'years'}`, section: 'sec_work_experience' },
-    { label: 'Target role', value: profile.target_job_title || 'Add role', section: 'sec_status' },
-    { label: 'GCC experience', value: gcc.roles ? `${gcc.years} ${gcc.years === 1 ? 'year' : 'years'} · ${gcc.countries.length} ${gcc.countries.length === 1 ? 'country' : 'countries'}` : 'Add Gulf experience', section: 'sec_work_experience' },
-    { label: 'Location', value: profile.current_location || 'Add location', section: 'sec_identity' },
+    { label: 'Profile next step', value: missingLabels.length ? `${missingLabels[0]} · ${missingLabels.length} left` : 'All required details added', href: '/profile?view=completeness' },
+    { label: 'Recent target job', value: workLoading ? 'Loading…' : workError ? 'Temporarily unavailable' : job ? job.target_job_title : 'Add your target job', href: jobHref },
   ]
+  const preparation = job ? [
+    { label: 'CV', ready: job.has_resume, href: jobHref },
+    { label: 'Cover letter', ready: job.cover_letter_count > 0, href: `/cover-letter?package=${encodeURIComponent(job.id)}` },
+    { label: 'Interview Q&A', ready: job.qa_question_count > 0, href: `/interview-qa?package=${encodeURIComponent(job.id)}` },
+  ] : []
   return <section aria-label="Your Career Profile" className={styles.profile}>
     <div className={styles.identity}>
       <Link href="/profile?view=details" aria-label="Edit your Career Profile" className={styles.avatar}>
         {/* The existing photo is optional; initials are the normal empty-photo state. */}
         {profile.photo_url ? <Image src={profile.photo_url} alt="" width={52} height={52} unoptimized className="h-full w-full object-cover" /> : <span aria-hidden="true">{initials}</span>}
       </Link>
-      <div className="min-w-0 flex-1"><h2 className="break-words type-card text-ink">{profile.full_name || 'Your Career Profile'}</h2><p className="mt-1 break-words type-helper text-ink-muted">{headline || 'Your Career Profile'}</p></div>
+      <div className="min-w-0 flex-1"><h2 className="break-words type-card text-ink">{profile.full_name || 'Your Career Profile'}</h2><p className="mt-1 break-words type-helper text-ink-muted">{role || 'Your Career Profile'}</p></div>
       <Link href="/profile?view=details" className={styles.action}><PencilSquareIcon aria-hidden="true" className="size-4" /> Edit</Link>
     </div>
-    <div className={styles.facts}>{facts.map(f => <Link key={f.label} href={`/profile?open=${f.section}`} className={styles.factLink}><span className="type-helper text-ink-muted">{f.label}</span><span>{f.value}</span></Link>)}</div>
-    <div className={styles.summary}><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0 text-teal" /><p className="min-w-0 flex-1 type-helper text-ink-muted">{profile.work_experience.length} {profile.work_experience.length === 1 ? 'role' : 'roles'} · {profile.education.length} {profile.education.length === 1 ? 'qualification' : 'qualifications'} · {profile.skills.length} skills</p><Link href="/profile?view=details" className={styles.action}>View all details <ArrowRightIcon aria-hidden="true" className="size-3.5" /></Link></div>
+    <div className={styles.facts}>{facts.map(f => <Link key={f.label} href={f.href} className={styles.factLink}><span className="type-helper text-ink-muted">{f.label}</span><span>{f.value}</span></Link>)}</div>
+    {!workLoading && !workError && job && <div className={styles.preparation} aria-label="Preparation for your recent target job">{preparation.map(item => <Link key={item.label} href={item.href}><span>{item.label}</span><span className={item.ready ? styles.ready : styles.pending}>{item.ready ? 'Ready' : 'To prepare'}</span></Link>)}</div>}
     <div aria-label="Profile actions" className={styles.footer}><CareerProfileResumeButton showHint={false} /><Link href="/profile?view=settings" className={styles.action}><Cog6ToothIcon aria-hidden="true" className="size-4" /> Profile settings</Link></div>
 
   </section>

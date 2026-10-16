@@ -55,11 +55,18 @@ require.cache[previewButton] = { id: previewButton, filename: previewButton, loa
 const { HomeProfile, HomeScores, HomeSavedWork } = require('../components/dashboard/CareerHome')
 const candidate = { full_name: 'Quality Candidate', photo_url: null, additional_information: [], target_job_title: null, current_location: null,
  work_experience: [{start_date:'2020-01',end_date:'2021-12',location:'Riyadh',role:'Engineer'}], education: [], skills: [{name:'Testing'}] }
-const profileHtml = renderToStaticMarkup(React.createElement(HomeProfile,{profile:candidate,loading:false,error:false}))
-assert.ok(profileHtml.includes('Quality Candidate') && profileHtml.includes('2 years'))
-assert.ok(profileHtml.includes('Add role') && profileHtml.includes('Add location'))
+const profileHtml = renderToStaticMarkup(React.createElement(HomeProfile,{profile:candidate,loading:false,error:false,packages:[],workLoading:false,workError:false,missingLabels:['Target role']}))
+assert.ok(profileHtml.includes('Quality Candidate') && profileHtml.includes('Profile next step'))
+assert.ok(profileHtml.includes('Target role · 1 left') && profileHtml.includes('Add your target job'))
 assert.ok(!profileHtml.includes('15 years'),'Never hardcode the design mock data')
-for(const href of ['/profile?view=details','/profile?view=settings','/profile?open=sec_status','/profile?open=sec_identity']) assert.ok(profileHtml.includes(`href="${href}"`))
+for(const href of ['/profile?view=details','/profile?view=settings','/profile?view=completeness','/optimize']) assert.ok(profileHtml.includes(`href="${href}"`))
+const targetJob = { id:'target-1', tier:'standard', target_job_title:'Lead Engineer', created_at:'2026-10-16', has_resume:true, cover_letter_count:0, qa_question_count:25 }
+const preparationHtml = renderToStaticMarkup(React.createElement(HomeProfile,{profile:candidate,loading:false,error:false,packages:[{...targetJob,id:'raw-profile',tier:'free'},targetJob],workLoading:false,workError:false,missingLabels:[]}))
+assert.ok(preparationHtml.includes('Lead Engineer') && preparationHtml.includes('All required details added'))
+assert.ok(preparationHtml.includes('/cover-letter?package=target-1') && !preparationHtml.includes('package=raw-profile'))
+assert.ok(preparationHtml.includes('To prepare') && preparationHtml.includes('Ready'))
+const failedPreparation = renderToStaticMarkup(React.createElement(HomeProfile,{profile:candidate,loading:false,error:false,packages:[targetJob],workLoading:false,workError:true,missingLabels:[]}))
+assert.ok(failedPreparation.includes('Temporarily unavailable') && !failedPreparation.includes('>Ready<'))
 const newProfile = renderToStaticMarkup(React.createElement(HomeProfile,{profile:null,loading:false,error:false}))
 for(const href of ['/profile?import=upload','/profile?import=paste','/profile?view=details']) assert.ok(newProfile.includes(`href="${href}"`))
 const unavailable = renderToStaticMarkup(React.createElement(HomeScores,{profile:null,score:0,missing:0,gulf:null,loading:false,error:true}))

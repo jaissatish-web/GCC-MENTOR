@@ -147,7 +147,7 @@ export default function DashboardPage() {
       </header>
 
       <HomeScores profile={profile} score={score} missing={missing.length} gulf={gulf} loading={!profileLoaded} error={profileError} />
-      <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} />
+      <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} packages={packages} workLoading={!packagesLoaded} workError={loadError} missingLabels={missing.map(item => item.label)} />
 
       <section aria-label="Your next step" className="workspace-panel overflow-hidden">
         <div className={homeStyles.nextStep}>
