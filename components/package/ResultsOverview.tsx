@@ -6,15 +6,15 @@ import { AtsFileCheck } from '@/components/package/AtsFileCheck'
 import Link from 'next/link'
 import { InterviewProgress } from '@/components/mock-interview/InterviewProgress'
 import { interviewProgress } from '@/lib/interviewProgress'
-import { FileText, Mail, MessagesSquare, Mic, PenLine, Target, TrendingUp, type LucideIcon } from 'lucide-react'
+import { FileText, PenLine, Target, TrendingUp, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { buttonVariants } from '@/components/ui/Button'
 import { readMatchReport } from '@/components/optimizer/MatchResult'
 import { cn, PERSONA_INDUSTRIES } from '@/lib/utils'
-import { CTA, NAMES, USES } from '@/lib/serviceLabels'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import type { MatchReport } from '@/lib/optimizer/types'
 import type { ResumeDocument } from '@/lib/resumeDocument'
-import type { Package, PackageServiceEventType } from '@/types/package'
+import type { Package } from '@/types/package'
 
 /**
  * THE RESULTS WORKSPACE (founder request 2026-09-17): after optimizing, every
@@ -25,7 +25,7 @@ import type { Package, PackageServiceEventType } from '@/types/package'
  *   green   ATS score       how much better does it match? (before → after)
  *   purple  Summary         what does the top of my CV say now?
  *   gold    What changed    which parts were rewritten?
- *   tiles   Next steps      cover letter · interview Q&A · mock interview
+ * Service counts and links are rendered by the parent workspace.
  *
  * A CV saved without a score (its job analysis failed) gets a "Calculate ATS
  * score" button here (POST /api/packages/[id]/ats-score), which also fills an
@@ -83,23 +83,7 @@ export function ResultsOverview({
   const typical = !(pkg.job_description ?? '').trim() && report?.advert_source === 'typical' ? (report.typical_advert ?? '').trim() : ''
   const description = (pkg.job_description ?? '').trim() || typical
 
-  const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
-  const qaReady = Boolean(pkg.interview_questions?.questions?.length)
   const practiceProgress = interviewProgress(pkg.mock_interview_runs ?? [])
-  const mockReady = Boolean(pkg.mock_interview_runs?.some((r) => r.status === 'completed'))
-
-  // HOW OFTEN EACH SERVICE WAS USED FOR THIS CV (founder request 2026-09-17).
-  // Counted from the package's own service history (migration 048/050), which
-  // records one event per generation — so a regenerated Q&A set counts twice
-  // even though only the newest set is stored.
-  const used = (type: PackageServiceEventType) => {
-    const rows = (pkg.service_events ?? []).filter((e) => e.type === type)
-    return { count: rows.length, last: rows.map((e) => e.at).sort().at(-1) ?? null }
-  }
-  const letterUse = used('cover_letter_generated')
-  const qaUse = used('qa_generated')
-  const mockUse = used('mock_interview_started')
-  const mockDone = used('mock_interview_completed')
 
   return (
     <section aria-label="Your results" className="flex flex-col gap-3">
@@ -248,57 +232,9 @@ export function ResultsOverview({
       {/* ATS FILE CHECK — the downloaded PDF read back like an ATS (2026-10-02) */}
       <AtsFileCheck packageId={pkg.id} />
 
-      {/* NEXT STEPS — one coloured tile per service */}
-      <div className="grid gap-3 sm:grid-cols-3">
-        <ServiceTile
-          icon={Mail}
-          title={NAMES.coverLetter}
-          body={USES.coverLetter}
-          done={letterReady}
-          used={Math.max(letterUse.count, Array.isArray(pkg.cover_letters) ? pkg.cover_letters.length : 0)}
-          lastAt={letterUse.last ?? (pkg.cover_letters ?? []).map((l) => l.generated_at).sort().at(-1) ?? null}
-          href={`/cover-letter?package=${id}`}
-          cta={CTA.writeCoverLetter}
-          tone="border-sec-summary/30 bg-white"
-          accent="text-sec-summary"
-        />
-        <ServiceTile
-          icon={MessagesSquare}
-          title={NAMES.interviewQa}
-          body={USES.interviewQa}
-          done={qaReady}
-          used={Math.max(qaUse.count, qaReady ? 1 : 0)}
-          lastAt={qaUse.last ?? pkg.interview_questions?.generated_at ?? null}
-          href={`/interview-qa?package=${id}`}
-          cta={CTA.prepareInterviewQa}
-          tone="border-sec-status/30 bg-white"
-          accent="text-sec-status"
-        />
-        <ServiceTile
-          icon={Mic}
-          title={NAMES.mockInterview}
-          body={USES.mockInterview}
-          done={mockReady}
-          used={Math.max(mockUse.count, pkg.mock_interview_runs?.length ?? 0)}
-          lastAt={mockUse.last ?? mockDone.last}
-          extra={mockDone.count > 0 ? `${mockDone.count} report${mockDone.count === 1 ? '' : 's'} saved` : null}
-          href={`/mock-interview?package=${id}`}
-          cta={CTA.startMockInterview}
-          tone="border-sec-experience/30 bg-white"
-          accent="text-sec-experience"
-        />
-      </div>
       {practiceProgress && <InterviewProgress progress={practiceProgress} packageId={pkg.id} compact />}
     </section>
   )
-}
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-function formatDay(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  return `${d.getDate()} ${MONTHS[d.getMonth()] ?? ''}`
 }
 
 function CardLabel({ children, tone, icon: Icon }: { children: React.ReactNode; tone: string; icon: LucideIcon }) {
@@ -338,70 +274,5 @@ function Change({ ok, children }: { ok: boolean; children: React.ReactNode }) {
       </span>
       <span>{children}</span>
     </li>
-  )
-}
-
-function ServiceTile({
-  icon: Icon,
-  title,
-  body,
-  done,
-  used,
-  lastAt,
-  extra,
-  href,
-  cta,
-  tone,
-  accent,
-}: {
-  icon: LucideIcon
-  title: string
-  body: string
-  done: boolean
-  /** How many times this service ran for THIS CV. */
-  used: number
-  lastAt: string | null
-  extra?: string | null
-  href: string
-  cta: string
-  tone: string
-  accent: string
-}) {
-  return (
-    <article className={cn('flex flex-col gap-2 rounded-card border p-4 shadow-m-1', tone)}>
-      <div className="flex items-center justify-between gap-2">
-        <p className={cn('flex items-center gap-2 text-[14px] font-bold', accent)}>
-          <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-canvas" aria-hidden="true">
-            <Icon className="size-4" strokeWidth={2.1} />
-          </span>
-          {title}
-        </p>
-        <span
-          className={cn(
-            'rounded-full px-2 py-0.5 text-[11.5px] font-semibold',
-            done ? 'bg-ok-soft text-ok' : 'border border-dashed border-line-strong text-ink-muted',
-          )}
-        >
-          {done ? 'Ready' : 'To do'}
-        </span>
-      </div>
-      <p className="flex-1 text-[12.5px] leading-relaxed text-ink-soft">{body}</p>
-      <p className="rounded-ctl bg-canvas px-2.5 py-1.5 text-[12px] text-ink-soft">
-        {used > 0 ? (
-          <>
-            <strong className="text-ink">
-              Used {used} time{used === 1 ? '' : 's'}
-            </strong>
-            {extra ? <> · {extra}</> : null}
-            {lastAt ? <> · last {formatDay(lastAt)}</> : null}
-          </>
-        ) : (
-          'Not used yet for this CV'
-        )}
-      </p>
-      <Link href={href} className={cn(buttonVariants({ variant: done ? 'secondary' : 'primary', size: 'sm' }), 'self-start')}>
-        {done ? `Open ${title}` : cta}
-      </Link>
-    </article>
   )
 }

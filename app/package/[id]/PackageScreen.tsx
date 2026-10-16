@@ -46,6 +46,7 @@ import { buttonVariants } from '@/components/ui/Button'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
 import { ResultsOverview } from '@/components/package/ResultsOverview'
+import { WorkspaceServiceCards } from '@/components/package/WorkspaceServiceCards'
 import { CTA, NAMES, USES } from '@/lib/serviceLabels'
 import { StageSelect } from '@/components/package/StageSelect'
 import { MatchResult, readMatchReport } from '@/components/optimizer/MatchResult'
@@ -404,6 +405,7 @@ function PackageScreenInner({ id }: { id: string }) {
                   ...prev,
                   cover_letters: fresh.cover_letters,
                   interview_questions: fresh.interview_questions,
+                  interview_question_sets: fresh.interview_question_sets,
                   mock_interview_runs: fresh.mock_interview_runs,
                   ats_score_card: fresh.ats_score_card,
                   match_report: fresh.match_report,
@@ -811,6 +813,8 @@ function PackageScreenInner({ id }: { id: string }) {
 
         </>
         ) : null}
+        {tab === 'overview' || isRaw ? <WorkspaceServiceCards pkg={pkg} /> : null}
+
         {tab === 'improve' ? (
         <>
         {/* Before -> after match score (docs/17_OPTIMIZER_ENGINE.md §5). Only

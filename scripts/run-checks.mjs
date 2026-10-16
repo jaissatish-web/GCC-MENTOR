@@ -50,6 +50,7 @@ const TS_CHECKS = [
   'verify-resume-order.ts',
   'verify-ats-file-check.ts',
   'verify-service-outputs.ts',
+  'verify-workspace-service-counts.ts',
   'verify-landing-anchors.ts',
   'verify-runtask.ts',
   'verify-safe-redirect.ts',
