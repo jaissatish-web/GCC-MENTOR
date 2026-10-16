@@ -615,3 +615,35 @@ body .type-helper:not(:where([data-document-preview], [data-document-preview] *,
 body .type-caption:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-regular); }
 body .type-label:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-label); }
 body .type-button:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-heading); }
+
+/* Resume Library: clear card boundaries on phones and larger screens. */
+.app-type .library-resume-card {
+  border: 1.5px solid #b8cac5;
+  border-top: 3px solid var(--ui-brand);
+  border-radius: 16px;
+  padding: 16px;
+  background: var(--ui-surface);
+  box-shadow: 0 4px 16px rgb(15 76 67 / 0.06);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.app-type .library-resume-card-heading {
+  border-bottom: 1px solid var(--ui-line);
+  padding-bottom: 12px;
+}
+.app-type .library-resume-card:focus-within {
+  border-color: var(--ui-brand);
+  box-shadow: 0 0 0 3px rgb(15 76 67 / 0.08), 0 4px 16px rgb(15 76 67 / 0.06);
+}
+@media (hover: hover) {
+  .app-type .library-resume-card:hover {
+    border-color: #7d9f95;
+    border-top-color: var(--ui-brand);
+    box-shadow: 0 8px 24px rgb(15 76 67 / 0.09);
+  }
+}
+@media (min-width: 640px) {
+  .app-type .library-resume-card { padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-type .library-resume-card { transition: none; }
+}

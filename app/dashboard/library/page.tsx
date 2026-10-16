@@ -239,9 +239,9 @@ function ApplicationCard({
   const displayName = (pkg.name ?? '').trim() || pkg.target_job_title
 
   return (
-    <article className="ui-surface flex min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-3.5 shadow-m-1 transition-shadow hover:shadow-m-2 sm:gap-4 sm:p-5">
+    <article className="ui-surface library-resume-card flex min-w-0 flex-col gap-3 bg-white sm:gap-4">
       {/* Who and where — the title opens this job's workspace. */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+      <div className="library-resume-card-heading flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0 flex-1">
           {isRaw ? <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE}</span> : null}
           <Link
@@ -657,7 +657,7 @@ export default function TargetJobsPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-5 xl:grid-cols-2 xl:gap-6">
         {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 type-helper text-ink-soft">Opening your Career Profile Resume…</div> : null}
         {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="type-helper text-alert">Could not open your Career Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
         {resumeList.map((pkg) => (
