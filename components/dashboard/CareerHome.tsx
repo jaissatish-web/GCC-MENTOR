@@ -69,7 +69,7 @@ export function HomeSavedWork({ overview, loading, error, onRetry }: { overview:
     { label: 'Interview Q&A', href: '/interview-qa', count: overview?.qa_set_count, Icon: QuestionMarkCircleIcon, tone: 'ui-nav-qa' },
     { label: 'Mock interviews', href: '/mock-interview', count: overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon, tone: 'ui-nav-mock' },
   ]
-  return <section aria-labelledby="saved-work-heading"><div className="mb-2 flex items-center justify-between gap-3"><h2 id="saved-work-heading" className="type-section text-ink">Saved work</h2><Link href="/dashboard/library" className={styles.action}>View all <ArrowRightIcon aria-hidden="true" className="size-3.5" /></Link></div>
+  return <section aria-labelledby="saved-work-heading"><div className="mb-2 flex items-center justify-between gap-3"><h2 id="saved-work-heading" className="type-section text-ink">Saved work</h2></div>
     {error ? <div role="alert" className="mb-3 rounded-ctl bg-alert-soft p-3 type-helper text-alert">Saved totals could not be loaded. <button type="button" onClick={onRetry} className="min-h-11 underline">Try again</button></div> : null}
     <div aria-busy={loading} className={styles.saved}>{rows.map(({ label, href, count, Icon, tone }) => <Link href={href} key={href} className={styles.savedRow}><span aria-hidden="true" className={`${tone} flex size-8 shrink-0 items-center justify-center rounded-lg`}><Icon className="size-4" /></span><span className="min-w-0 flex-1 type-body text-ink">{label}</span><span className="type-helper tabular-nums text-ink-muted">{!loading && !error && count !== undefined ? count : '—'}</span><ChevronRightIcon aria-hidden="true" className="size-4 shrink-0 text-ink-muted" /></Link>)}</div>
   </section>
