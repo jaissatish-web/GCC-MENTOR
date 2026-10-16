@@ -78,12 +78,7 @@ function templateNameFor(id?: string | null): string {
   return getTemplate(id).name
 }
 
-/**
- * The job's own name, edited where it is read. Falls back to
- * `target_job_title` for display, and saves an EMPTY name when the text is left
- * equal to that title — so "never renamed" is still stored as NULL. Saves on
- * blur or Enter only when the value changed; Escape restores it.
- */
+/** Resume names are edited explicitly from each Library card. */
 function NameField({
   value,
   fallback,
@@ -91,37 +86,63 @@ function NameField({
 }: {
   value: string
   fallback: string
-  onSave: (next: string) => void
+  onSave: (next: string) => Promise<boolean>
 }) {
   const shown = value || fallback
   const [draft, setDraft] = useState(shown)
-  useEffect(() => setDraft(value || fallback), [value, fallback])
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
-  const commit = (raw: string) => {
-    const next = raw.trim()
-    if (next === shown.trim()) return
-    onSave(next === fallback.trim() ? '' : next)
+  useEffect(() => { if (editing) inputRef.current?.focus() }, [editing])
+
+  const close = () => {
+    setEditing(false)
+    window.requestAnimationFrame(() => buttonRef.current?.focus())
+  }
+  const save = async () => {
+    if (saving) return
+    const next = draft.trim()
+    if (next === shown.trim()) { close(); return }
+    setSaving(true)
+    try {
+      if (await onSave(next === fallback.trim() ? '' : next)) close()
+    } finally {
+      setSaving(false)
+    }
   }
 
-  return (
-    <input
-      type="text"
-      value={draft}
-      placeholder={fallback}
-      maxLength={120}
-      aria-label="Job name"
-      onChange={(e) => setDraft(e.target.value)}
-      onBlur={(e) => commit(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') e.currentTarget.blur()
-        if (e.key === 'Escape') {
-          setDraft(shown)
-          e.currentTarget.blur()
-        }
-      }}
-      // 44px tall — the one control on the card with no visible edge until touched.
-      className="min-h-11 w-full rounded-ctl border border-transparent bg-transparent px-1.5 py-2 font-display type-card text-ink hover:border-line focus:border-teal focus:bg-white focus-visible:outline-none"
-    />
+  return editing ? (
+    <form className="flex flex-col gap-2 rounded-ctl border border-line bg-canvas p-3" aria-label={`Rename ${shown}`} onSubmit={(e) => { e.preventDefault(); void save() }}>
+      <label className="flex flex-col gap-1 type-helper font-semibold text-ink">
+        Resume name
+        <input
+          ref={inputRef}
+          type="text"
+          value={draft}
+          placeholder={fallback}
+          maxLength={120}
+          disabled={saving}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Escape' && !saving) { e.preventDefault(); close() } }}
+          className="field w-full"
+        />
+      </label>
+      <div className="flex flex-wrap gap-2">
+        <button type="submit" disabled={saving} className={buttonVariants({ variant: 'primary', size: 'sm' })}>{saving ? 'Saving…' : 'Save name'}</button>
+        <button type="button" disabled={saving} onClick={close} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>Cancel</button>
+      </div>
+    </form>
+  ) : (
+    <button
+      ref={buttonRef}
+      type="button"
+      onClick={() => { setDraft(shown); setEditing(true) }}
+      className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'self-start')}
+    >
+      Edit resume name
+    </button>
   )
 }
 
@@ -160,7 +181,7 @@ function ApplicationCard({
   pkg: PackageSummary
   usage: ServiceUsageCounts | undefined
   confirmingDelete: boolean
-  onRename: (next: string) => void
+  onRename: (next: string) => Promise<boolean>
   onStage: (next: PackageStatus) => void
   onDelete: () => void
 }) {
@@ -283,12 +304,10 @@ function ApplicationCard({
         </button>
       </div>
 
+      <NameField value={pkg.name ?? ''} fallback={pkg.target_job_title} onSave={onRename} />
+
       {detailsOpen ? (
         <div className="flex flex-col gap-3 border-t border-line pt-3">
-          <label className="flex flex-col gap-1">
-            <span className="type-caption font-semibold text-ink-muted">Name in your library (to tell versions apart)</span>
-            <NameField value={pkg.name ?? ''} fallback={pkg.target_job_title} onSave={onRename} />
-          </label>
           <ServiceUsageLine
             counts={
               usage
@@ -477,12 +496,15 @@ export default function TargetJobsPage() {
           const body = await res.json().catch(() => ({}))
           setItems((list) => (list ? list.map((p) => (p.id === id ? { ...p, name: prevName } : p)) : list))
           if (raw) setCareerProfileResume((prev) => prev ? { ...prev, name: prevName } : prev)
-          setOpError((body?.error as string) ?? 'Could not rename this job.')
+          setOpError((body?.error as string) ?? 'Could not rename this resume.')
+          return false
         }
+        return true
       } catch {
         setItems((list) => (list ? list.map((p) => (p.id === id ? { ...p, name: prevName } : p)) : list))
         if (raw) setCareerProfileResume((prev) => prev ? { ...prev, name: prevName } : prev)
-        setOpError('Network error. Could not rename this job.')
+        setOpError('Network error. Could not rename this resume.')
+        return false
       }
     },
     [items, careerProfileResume, setCareerProfileResume]

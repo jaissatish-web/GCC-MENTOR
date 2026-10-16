@@ -99,7 +99,7 @@ try {
           if (failSave) return json(500, { error: 'Save failed. Please try again.' })
           pkg.template_id = update.templateId
           pkg.style_overrides = update.styleOverrides
-          pkg.name = update.name || null
+          if (Object.hasOwn(update, 'name')) pkg.name = update.name || null
         }
         return json(200, { package: pkg })
       }
@@ -109,7 +109,8 @@ try {
   })
   const load = async (query = '?tab=design') => {
     await page.goto(`https://preview.test/${query}`, { waitUntil: 'networkidle0' })
-    await page.waitForSelector('[aria-label="Resume name"]')
+    await page.waitForSelector('[aria-label="Resume templates"]')
+    assert.equal(await page.$('[aria-label="Resume name"]'), null, 'Rename is available only in the library')
   }
   const click = async (label) => {
     const buttons = await page.$$('button')
@@ -126,12 +127,6 @@ try {
       return shouldBlock ? links.length === 0 && buttons.length === 1 && buttons[0].disabled : links.length === 1 && buttons.length === 0
     }, {}, expected)
   }
-  const rename = async (name) => {
-    await page.$eval('[aria-label="Resume name"]', (element, value) => {
-      Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(element, value)
-      element.dispatchEvent(new Event('input', { bubbles: true }))
-    }, name)
-  }
   for (const raw of [true, false]) {
     reset(raw); await load(); await blocked(false)
     const snapshot = JSON.stringify(pkg.document_snapshot)
@@ -145,7 +140,6 @@ try {
     await click('Helvetica'); await page.click('button[aria-label="Navy"]'); await click('Dark')
     await blocked(true)
     assert.equal(writes.length, 0, 'Changing style does not save silently')
-    await rename('My Master Engineering CV')
     await page.click('[aria-label^="Gulf Classic —"]'); await blocked(true)
     assert.equal(writes.length, 0, 'Changing template does not save silently')
     failSave = true
@@ -156,16 +150,17 @@ try {
     await click('Save changes')
     await page.waitForFunction(() => [...document.querySelectorAll('button')].some((e) => e.textContent.trim() === 'Saving…' && e.disabled))
     await blocked(true)
-    await rename('Changed during save')
+    await click('Compact')
     assert.equal(writes.length, 2)
     releaseSave(); pendingSave = false
     await page.waitForFunction(() => document.body.textContent.includes('Save changes to enable PDF download.'))
     await blocked(true)
-    assert.equal(pkg.name, 'My Master Engineering CV', 'First save captures the clicked draft')
+    assert.equal(pkg.style_overrides.size, 'large', 'First save captures the clicked draft')
     await click('Save changes'); await blocked(false)
-    assert.equal(pkg.name, 'Changed during save')
+    assert.equal(pkg.name, 'My resume', 'Saving design never renames a resume')
+    assert.ok(writes.every(update => !Object.hasOwn(update, 'name')), 'Workspace never writes the library name')
     assert.equal(pkg.template_id, 'ats_classic')
-    assert.equal(writes.at(-1).styleOverrides.size, 'large')
+    assert.equal(writes.at(-1).styleOverrides.size, 'compact')
     assert.equal(writes.at(-1).styleOverrides.accent, 'navy')
     assert.equal(writes.at(-1).styleOverrides.font, 'sans')
     assert.equal(writes.at(-1).styleOverrides.ink, 'dark')
@@ -245,7 +240,7 @@ try {
       await page.click('[aria-controls="photo-settings-panel"]')
       await page.screenshot({ path: `artifacts/preview-settings/settings-${width}.png`, fullPage: false })
     }
-    await rename('My Master Engineering CV'); await blocked(true)
+    await page.click('[aria-label^="Gulf Classic —"]'); await blocked(true)
     if (css) assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `No overflow at ${width}px`)
     await click('Save changes'); await blocked(false)
   }

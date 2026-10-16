@@ -224,7 +224,6 @@ function PackageScreenInner({ id }: { id: string }) {
   const [styleOpen, setStyleOpen] = useState(false)
   const [photoOpen, setPhotoOpen] = useState(false)
   const [styleMsg, setStyleMsg] = useState<string | null>(null)
-  const [nameDraft, setNameDraft] = useState('')
   const [stageState, setStageState] = useState<string | null>(null)
   const [trackerDraft, setTrackerDraft] = useState({
     job_url: '',
@@ -244,7 +243,6 @@ function PackageScreenInner({ id }: { id: string }) {
     if (!pkg || saveInFlight.current) return
     const templateId = draftTemplate ?? getTemplate(pkg.template_id).id
     const style = draftStyle
-    const name = nameDraft.trim()
     saveInFlight.current = true
     setStyleBusy(true)
     setStyleMsg(null)
@@ -255,7 +253,6 @@ function PackageScreenInner({ id }: { id: string }) {
         body: JSON.stringify({
           templateId,
           styleOverrides: Object.keys(style).length === 0 ? null : style,
-          name,
         }),
       })
       if (!res.ok) {
@@ -265,7 +262,7 @@ function PackageScreenInner({ id }: { id: string }) {
       }
       // Do not replace drafts: edits made during this request remain unsaved.
       setSavedStyle(style)
-      setPkg((prev) => prev ? { ...prev, template_id: templateId, style_overrides: style, name: name || null } : prev)
+      setPkg((prev) => prev ? { ...prev, template_id: templateId, style_overrides: style } : prev)
       setStyleMsg('Changes saved.')
       if (requestedTemplate) router.replace(`/package/${encodeURIComponent(id)}?tab=design`)
     } catch {
@@ -274,7 +271,7 @@ function PackageScreenInner({ id }: { id: string }) {
       saveInFlight.current = false
       setStyleBusy(false)
     }
-  }, [id, pkg, draftTemplate, draftStyle, nameDraft, requestedTemplate, router])
+  }, [id, pkg, draftTemplate, draftStyle, requestedTemplate, router])
 
   /**
    * Move this job along its pipeline, from the job's own page.
@@ -365,7 +362,6 @@ function PackageScreenInner({ id }: { id: string }) {
         // never its own — see lib/resumeKind.ts.
         setPkg(p)
         if (isCareerProfileResume(p)) setTab('design')
-        setNameDraft(((p as { name?: string | null }).name ?? '') as string)
         setTrackerDraft({
           job_url: p.job_url ?? '',
           application_deadline: p.application_deadline ?? '',
@@ -471,12 +467,11 @@ function PackageScreenInner({ id }: { id: string }) {
   const documentWithLivePhoto = profile ? resolvePackageResumeDocument({ ...pkg, document_snapshot: pkg.document_snapshot as ResumeDocument | null }, profile) : (pkg.document_snapshot as ResumeDocument | null) ?? null
   const activeTemplateId = draftTemplate ?? savedTemplateId
   const isTrying = activeTemplateId !== savedTemplateId
-  const changesDirty = styleDirty || isTrying || nameDraft.trim() !== (pkg.name ?? '').trim()
+  const changesDirty = styleDirty || isTrying
   const downloadBlocked = changesDirty || styleBusy || photoBusy
   const undoChanges = () => {
     setDraftTemplate(savedTemplateId)
     setDraftStyle(savedStyle)
-    setNameDraft(pkg.name ?? '')
     setStyleMsg(null)
     if (requestedTemplate) router.replace(`/package/${encodeURIComponent(id)}?tab=design`)
   }
@@ -606,7 +601,7 @@ function PackageScreenInner({ id }: { id: string }) {
           This was five stacked rows — back arrow, "Unlocked & saved to Library"
           badge, title, name field, then the action toolbar below — each one full
           width with empty space to its right, which spent well over 200px of
-          vertical room to say very little. Title, rename and actions now share a
+          vertical room to say very little. Title and actions now share a
           single wrapping row across that width, so the document gets the height
           back.
 
@@ -636,35 +631,6 @@ function PackageScreenInner({ id }: { id: string }) {
               .join(' · ')}
           </p>
         </div>
-
-        {/* Rename, in place. A user with three attempts at the same role sees
-            three identical rows in the Library otherwise — the target job
-            title is not something they can change. Saves on blur or Enter;
-            clearing it falls back to the job title rather than storing blank. */}
-        <label className={`${isRaw ? 'flex' : 'hidden lg:flex'} flex-1 flex-wrap items-center gap-2 type-caption text-ink-muted lg:max-w-[420px]`}>
-          <span className={isRaw ? '' : 'sr-only lg:not-sr-only'}>Name in your library</span>
-          {/* A textarea that sizes to its text (field-sizing: content), so a
-              long job title wraps instead of being clipped mid-word on a phone
-              ("…Enginee", 2026-09-18). Enter still saves; it never adds a line.
-              Browsers without field-sizing keep a one-line box, as before. */}
-          <textarea
-            aria-label="Resume name"
-            value={nameDraft}
-            maxLength={120}
-            rows={1}
-            placeholder={pkg.target_job_title}
-            onChange={(e) => setNameDraft(e.target.value.replace(/\n/g, ' '))}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                e.currentTarget.blur()
-              }
-            }}
-            style={{ fieldSizing: 'content' } as React.CSSProperties}
-            // The shared field, at 44px. It was 34px with a 1.21:1 edge.
-            className="resume-name-field field min-w-[180px] flex-1 resize-none py-2.5 leading-snug"
-          />
-        </label>
 
         {/* The document's actions, pushed to the right of the same row.
             The stage control joins them rather than getting a band of its own:
