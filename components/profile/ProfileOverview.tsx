@@ -557,12 +557,14 @@ export function ViewHeader({
   description,
   onBack,
   action,
+  backLabel = 'Profile overview',
 }: {
   eyebrow: string
   title: string
   description: string
   onBack: () => void
   action?: React.ReactNode
+  backLabel?: string
 }) {
   return (
     <header className="workspace-heading workspace-profile-heading flex flex-col gap-2">
@@ -572,7 +574,7 @@ export function ViewHeader({
         className="workspace-heading-link inline-flex min-h-11 items-center gap-1.5 self-start rounded-ctl type-helper font-semibold focus-visible:outline-none"
       >
         <ArrowLeftIcon className="size-4" aria-hidden="true" />
-        Profile overview
+        {backLabel}
       </button>
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">

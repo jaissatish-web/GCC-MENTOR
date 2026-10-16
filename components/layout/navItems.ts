@@ -4,7 +4,6 @@ import {
   QuestionMarkCircleIcon,
   BriefcaseIcon,
   RectangleStackIcon,
-  UserCircleIcon,
   DocumentTextIcon,
   EnvelopeIcon,
   Cog6ToothIcon,
@@ -81,7 +80,6 @@ export interface NavItem {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Home', href: '/dashboard', iconClass: 'ui-nav-home', icon: Squares2X2Icon, exact: true, shortLabel: 'Home' },
-  { label: 'Career Profile', href: '/profile', iconClass: 'ui-nav-profile', icon: UserCircleIcon, needsProfile: true, shortLabel: 'Profile' },
   // "Profile Strength" (/gcc-readiness) sat here from 2026-09-09 to 2026-09-11.
   // It left when Career Profile and Profile Strength became one page (founder
   // decision): both scores and what raises each now live on /profile, and
@@ -89,7 +87,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.
-  { label: 'My CVs', href: '/dashboard/library', iconClass: 'ui-nav-library', icon: BriefcaseIcon, shortLabel: 'My CVs' },
+  { label: 'My applications & CVs', href: '/dashboard/library', iconClass: 'ui-nav-library', icon: BriefcaseIcon, shortLabel: 'Saved' },
   { label: 'Resume Templates', href: '/templates', iconClass: 'ui-nav-templates', icon: RectangleStackIcon, shortLabel: 'Templates' },
   { label: 'Cover Letter', href: '/cover-letter', iconClass: 'ui-nav-letter', icon: EnvelopeIcon },
   { label: 'Tailor for a job', href: '/optimize', iconClass: 'ui-nav-tailor', icon: DocumentTextIcon, shortLabel: 'Tailor' },
@@ -106,7 +104,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
  */
 export const MOBILE_PRIMARY_HREFS: readonly string[] = [
   '/dashboard',
-  '/profile',
   '/dashboard/library',
 ]
 
@@ -125,6 +122,8 @@ export function navHref(item: NavItem): string {
 }
 
 export function isNavItemActive(item: NavItem, pathname: string): boolean {
+  // Profile editing is a detail of Home, rather than a second overview.
+  if (item.href === '/dashboard' && pathname.startsWith('/profile')) return true
   if (item.exact) return pathname === item.href
   return pathname === item.href || pathname.startsWith(`${item.href}/`)
 }
@@ -144,7 +143,6 @@ export interface NavGroup {
 
 export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'home', label: null, hrefs: ['/dashboard'] },
-  { key: 'profile', label: null, hrefs: ['/profile'], stage: 'profile' },
   { key: 'files', label: null, hrefs: ['/dashboard/library'] },
   { key: 'cv', label: 'Build your CV', hrefs: ['/optimize', '/templates', '/cover-letter'], stage: 'cv' },
   { key: 'apply', label: 'Job preparation', hrefs: ['/interview-qa', '/mock-interview'], stage: 'apply' },

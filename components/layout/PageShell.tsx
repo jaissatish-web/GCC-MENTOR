@@ -40,6 +40,7 @@ export function PageShell({
   actions,
   width = 'default',
   eyebrow,
+  icon: Icon,
   uses,
   children,
   className,
@@ -69,12 +70,13 @@ export function PageShell({
     // That is precisely the drift this component exists to prevent, and a page
     // cannot own its own font if the frame is meant to make pages feel like one
     // product.
-    <main className={cn('ui-page page-gutter mx-auto flex w-full flex-col pb-12 font-redesign-sans', WIDTH[width], className)}>
+    <main data-ui-service={serviceTone(title)} className={cn('ui-page page-gutter mx-auto flex w-full flex-col pb-12 font-redesign-sans', WIDTH[width], className)}>
       <header className="workspace-heading flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="grid min-w-0 grid-cols-1 gap-y-1.5">
           <div className="flex min-w-0 flex-col gap-1.5">
             {eyebrow ? <GulfContext>{eyebrow}</GulfContext> : null}
             <h1 className="type-title text-ink">
+              {Icon ? <span className="ui-service-icon mr-2 inline-flex size-9 items-center justify-center rounded-ctl align-middle"><Icon className="size-5" aria-hidden="true" /></span> : null}
               {title}
             </h1>
           </div>
@@ -93,4 +95,17 @@ export function PageShell({
       {children}
     </main>
   )
+}
+
+function serviceTone(title: string) {
+  const text = title.toLowerCase()
+  if (text.includes('linkedin')) return 'linkedin'
+  if (text.includes('naukri')) return 'naukrigulf'
+  if (text.includes('cover')) return 'letter'
+  if (text.includes('mock')) return 'mock'
+  if (text.includes('q&a')) return 'qa'
+  if (text.includes('template')) return 'templates'
+  if (text.includes('profile')) return 'profile'
+  if (text.includes('application') || text.includes('library')) return 'library'
+  return 'tailor'
 }

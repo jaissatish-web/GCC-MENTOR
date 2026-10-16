@@ -34,8 +34,8 @@
   /* Semantic palette: RGB triplets allow shared opacity utilities. */
   --ui-canvas-rgb: 248 250 249;
   --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 20 24 28;
-  --ui-ink-soft-rgb: 65 75 85;
+  --ui-ink-rgb: 35 51 49;
+  --ui-ink-soft-rgb: 76 91 87;
   --ui-ink-muted-rgb: 97 107 118;
   --ui-brand-rgb: 15 76 67;
   --ui-brand-hover-rgb: 18 105 92;
@@ -66,7 +66,7 @@
   --ui-control-radius: 10px;
   --ui-hero-radius: 16px;
   --ui-control-height: 44px;
-  --ui-field-border: #89978f;
+  --ui-field-border: #a4b2ac;
   --ui-page-width: 980px;
   --ui-wide-width: 1120px;
   --ui-form-width: 760px;
@@ -282,7 +282,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
   overflow-wrap:anywhere;
 }
 .app-type .workspace-heading .workspace-heading-icon { display:none; }
-.app-type .workspace-heading > .grid { grid-template-columns:minmax(0,1fr); }
+
 .app-type .workspace-heading p:is(.type-body,.type-helper) { font-size:14px; line-height:1.6; }
 .app-type .workspace-heading :is(.workspace-heading-link,.journey-guide-trigger) {
   color:var(--ui-brand);
@@ -297,6 +297,44 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 .app-type .workspace-next { background:var(--ui-hero-gradient); }
 .app-type .field { background:var(--ui-surface); border-color:var(--ui-field-border); border-radius:var(--ui-control-radius); }
 .app-type .field:hover:not(:disabled) { border-color:var(--ui-brand); }
+/* Daily-use app typography: one scale for Home, Profile, forms and reports.
+   Keep inputs at 16px; CV/document previews retain their explicit exclusions. */
+.app-type { font-size:var(--ui-body-size); line-height:var(--ui-body-line); }
+.app-type :is(.uppercase,[class*="tracking-wider"],[class*="tracking-wide"]):not(:where([data-document-preview] *,#resume-render *,.actual-template-orbit-face *)) { letter-spacing:.025em; }
+.app-type .workspace-heading h1 { font-weight:var(--ui-weight-title); }
+.app-type .workspace-next { background:var(--ui-hero-gradient); }
+.app-type .ui-goal-card h3 { font-size:var(--ui-body-size); font-weight:var(--ui-weight-label); line-height:1.45; }
+.app-type .ui-service-icon { opacity:.9; }
+/* Service identity follows the same palette in navigation, cards and guides.
+   Labels and icons carry the meaning; colour is a supporting cue. */
+[data-ui-service] { --service-ink:var(--ui-brand); --service-soft:var(--ui-brand-soft); }
+[data-ui-service="profile"] { --service-ink:var(--ui-nav-profile-ink); --service-soft:var(--ui-nav-profile-bg); }
+[data-ui-service="library"] { --service-ink:var(--ui-nav-library-ink); --service-soft:var(--ui-nav-library-bg); }
+[data-ui-service="templates"] { --service-ink:var(--ui-nav-templates-ink); --service-soft:var(--ui-nav-templates-bg); }
+[data-ui-service="tailor"] { --service-ink:var(--ui-nav-tailor-ink); --service-soft:var(--ui-nav-tailor-bg); }
+[data-ui-service="letter"] { --service-ink:var(--ui-nav-letter-ink); --service-soft:var(--ui-nav-letter-bg); }
+[data-ui-service="qa"] { --service-ink:var(--ui-nav-qa-ink); --service-soft:var(--ui-nav-qa-bg); }
+[data-ui-service="mock"] { --service-ink:var(--ui-nav-mock-ink); --service-soft:var(--ui-nav-mock-bg); }
+[data-ui-service="linkedin"] { --service-ink:var(--ui-nav-linkedin-ink); --service-soft:var(--ui-nav-linkedin-bg); }
+[data-ui-service="naukrigulf"] { --service-ink:var(--ui-nav-naukrigulf-ink); --service-soft:var(--ui-nav-naukrigulf-bg); }
+.ui-service-icon { color:var(--service-ink,var(--ui-brand)); background:var(--service-soft,var(--ui-brand-soft)); }
+.app-type .ui-service-card { border-top:1px solid var(--ui-line); background:var(--ui-surface); }
+.ui-service-card:hover { box-shadow:var(--ui-card-hover-shadow); }
+.app-type main[data-ui-service] > .ui-surface { border-top:1px solid var(--ui-line); }
+.app-type select.field { background-color:rgb(var(--ui-brand-soft-rgb) / .35); }
+.app-type :is(button,a,input,select,textarea,summary):focus-visible { outline:2px solid var(--ui-brand); outline-offset:3px; }
+.app-type .ui-goal-card { display:flex; align-items:flex-start; gap:12px; }
+.ui-goal-card[aria-current="true"] { border-color:var(--service-ink); background:var(--service-soft); }
+.ui-context-bar { background:var(--ui-surface); }
+@media(max-width:639px) {
+  .app-type { --ui-page-gutter:14px; --ui-page-top:20px; --ui-page-gap:18px; }
+  .app-type .workspace-heading { padding-bottom:12px; }
+  .app-type .type-title { text-wrap:balance; }
+  .app-type .ui-context-bar { gap:4px; padding:8px 14px; }
+  .app-type .ui-context-bar > label { width:100%; flex-basis:100%; font-size:var(--ui-helper-size); }
+  .app-type .ui-context-bar > a { min-height:44px; font-size:var(--ui-caption-size); }
+  .app-type .ui-goal-card { padding:14px; }
+}
 .app-type .workspace-navigation { background:var(--ui-surface); }
 .editor-mobile-toolbar { position:sticky; top:56px; z-index:20; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); }
 @media(min-width:1024px) { .editor-mobile-toolbar { display:none; } }
@@ -577,9 +615,3 @@ body .type-helper:not(:where([data-document-preview], [data-document-preview] *,
 body .type-caption:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-regular); }
 body .type-label:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-label); }
 body .type-button:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-heading); }
-
-/* Shared everyday reading scale; document preview typography stays independent. */
-.app-type { font-size:var(--ui-body-size); line-height:var(--ui-body-line); }
-.app-type :is(.uppercase,[class*="tracking-wider"],[class*="tracking-wide"]):not(:where([data-document-preview] *,#resume-render *,.actual-template-orbit-face *)) { letter-spacing:.025em; }
-.app-type .workspace-heading h1 { font-weight:var(--ui-weight-title); }
-.app-type .ui-goal-card h3 { font-size:var(--ui-body-size); font-weight:var(--ui-weight-label); line-height:1.45; }

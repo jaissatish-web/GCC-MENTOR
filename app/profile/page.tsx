@@ -114,7 +114,8 @@ function viewFromParams(params: { get: (key: string) => string | null }): Profil
   if (improve === 'gulf') return 'readiness'
   if (improve === 'strength') return 'completeness'
   if (params.get('open')) return 'details'
-  return 'overview'
+  // Home owns the overview. The import flow keeps its review/replace screen.
+  return params.get('import') ? 'overview' : 'details'
 }
 
 /**
@@ -994,30 +995,12 @@ function ProfileScreen() {
   // ---- Moving between the screens (see PROFILE_VIEWS) -----------------------
   // pushState, not router.push: Next syncs useSearchParams with the native
   // history API without a server round trip, and the editor stays mounted.
-  // `viewDepth` counts the screens opened since the overview, so "Profile
-  // overview" can step back through history (one screen deep) instead of
-  // stacking a new entry the browser's Back would then have to undo.
-  const viewDepth = useRef(0)
   const showView = useCallback(
     (next: ProfileView) => {
-      if (next === view) return
-      viewDepth.current = next === 'overview' ? 0 : viewDepth.current + 1
-      window.history.pushState(null, '', next === 'overview' ? '/profile' : `/profile?view=${next}`)
+      if (next !== view) window.history.pushState(null, '', `/profile?view=${next}`)
     },
     [view],
   )
-  const backToOverview = useCallback(() => {
-    if (viewDepth.current === 1) {
-      viewDepth.current = 0
-      window.history.back()
-      return
-    }
-    viewDepth.current = 0
-    window.history.pushState(null, '', '/profile')
-  }, [])
-  useEffect(() => {
-    if (view === 'overview') viewDepth.current = 0
-  }, [view])
 
   const [editor, setEditor] = useState<EditorData | null>(null)
   // Jobs that just received ticked typical duties keep the card for its "press Save" note.
@@ -1464,7 +1447,7 @@ function ProfileScreen() {
       const sectionId = target.sectionId ?? (target.field ? sectionOfField(target.field) : undefined)
       if (sectionId) setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
       setPendingFocus({ field: target.field, sectionId })
-      showView(target.field === 'photo' ? 'overview' : 'details')
+      showView('details')
     },
     [sectionOfField, showView],
   )
@@ -1481,7 +1464,7 @@ function ProfileScreen() {
   useEffect(() => {
     if (!pendingFocus) return
     // Wait until the screen holding the field is the one showing.
-    if (view !== (pendingFocus.field === 'photo' ? 'overview' : 'details')) return
+    if (view !== 'details') return
     const byId = (id: string) => document.getElementById(id)
     // PhoneField ids its number input `f_<key>_number` (its dial code is `_dial`).
     const input = pendingFocus.field ? (byId(`f_${pendingFocus.field}`) ?? byId(`f_${pendingFocus.field}_number`)) : null
@@ -2034,6 +2017,8 @@ function ProfileScreen() {
       .map(row => row.key ? row : { ...row, key: uid() }),
   }))
   const saveState: 'saved' | 'dirty' | 'saving' | 'error' = submitting ? 'saving' : saveError ? 'error' : isDirty ? 'dirty' : 'saved'
+  // Returning to Home must not discard edits. Reuse the existing save/validation path.
+  const returnHome = () => { if (submitting) return; if (isDirty) void onSubmit('exit'); else router.push('/dashboard') }
   const saveButton = (
     <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>
       Save
@@ -2050,8 +2035,8 @@ function ProfileScreen() {
       state={saveState}
       message={saveError}
       onSave={() => void onSubmit('stay')}
-      onFinish={view === 'overview' ? () => router.push('/dashboard') : backToOverview}
-      finishLabel={view === 'overview' ? 'Done' : 'Back to profile'}
+      onFinish={returnHome}
+      finishLabel={isDirty ? 'Save & Home' : 'Home'}
     />
   ) : null
   const importReviewBlock = importReview ? (
@@ -2091,7 +2076,8 @@ function ProfileScreen() {
           eyebrow="Completeness"
           title="Profile completeness"
           description="Complete the missing details."
-          onBack={backToOverview}
+          onBack={returnHome}
+          backLabel={isDirty ? 'Save & Home' : 'Home'}
         />
         <CompletenessView
           score={readiness.score}
@@ -2115,7 +2101,8 @@ function ProfileScreen() {
           eyebrow="Gulf Readiness"
           title="Gulf Readiness"
           description="Your score and next improvements."
-          onBack={backToOverview}
+          onBack={returnHome}
+          backLabel={isDirty ? 'Save & Home' : 'Home'}
         />
         <GulfReadinessView
           gulf={gulfReadiness}
@@ -2141,7 +2128,8 @@ function ProfileScreen() {
           eyebrow="Settings"
           title="Profile settings"
           description="Choose what appears on your CV."
-          onBack={backToOverview}
+          onBack={returnHome}
+          backLabel={isDirty ? 'Save & Home' : 'Home'}
           action={saveButton}
         />
         {visibilityFilled ? (
@@ -2302,10 +2290,11 @@ function ProfileScreen() {
         eyebrow="Full profile"
         title="Your full profile"
         description="Review and edit your details."
-        onBack={backToOverview}
+        onBack={returnHome}
+        backLabel={isDirty ? 'Save & Home' : 'Home'}
         action={saveButton}
       />
-      <div className="page-gutter py-3"><CareerProfileResumeButton /></div>
+      <div className="page-gutter flex flex-wrap items-center gap-4 py-3"><div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} /></div><CareerProfileResumeButton /><Button variant="secondary" size="sm" onClick={() => showView('overview')}>Update from CV</Button><Button variant="secondary" size="sm" busy={submitting} onClick={() => void onSubmit('confirm')}>Tailor for a job</Button></div>
       {importReviewBlock}
       {parseNotesBlock}
       {loadErrorBlock}
