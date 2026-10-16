@@ -2,18 +2,16 @@
 
 import Link from 'next/link'
 import { GoalChooser, useApplicationWorkspace } from '@/components/journey/ApplicationWorkspace'
-import { DocumentTextIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline'
+import { DocumentTextIcon, ArrowUpRightIcon, Cog6ToothIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { HowItWorks } from '@/components/journey/HowItWorks'
-import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
-import { useRouter } from 'next/navigation'
+import { HomeProfile, HomeScores, HomeSavedWork } from '@/components/dashboard/CareerHome'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { StageRail } from '@/components/journey/JourneyStepper'
-import { stageById, stageSnapshot, stageStates } from '@/components/journey/stages'
-import { ScoreCards } from '@/components/profile/ProfileOverview'
+import { stageSnapshot, stageStates } from '@/components/journey/stages'
 import { displayFirstName } from '@/lib/utils'
 import { type PackageListPage, type PackageSummary } from '@/lib/packageSummary'
 import { InterviewProgressOverview } from '@/components/dashboard/InterviewProgressOverview'
-import { ActivityOverview, OverallProgress } from '@/components/dashboard/ActivityOverview'
+import { OverallProgress } from '@/components/dashboard/ActivityOverview'
 import { dashboardNextAction, type DashboardOverview } from '@/lib/dashboardOverview'
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
@@ -23,9 +21,9 @@ import type { CareerProfileFull } from '@/types/careerProfile'
 /** Overall scores, saved totals and progress; individual resumes live in the Library. */
 export default function DashboardPage() {
   const workspace = useApplicationWorkspace()
-  const router = useRouter()
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
+  const [profileError, setProfileError] = useState(false)
   const [packages, setPackages] = useState<PackageSummary[]>([])
   const [packagesLoaded, setPackagesLoaded] = useState(false)
   // A CV reading kept on the server until the user decides (migration 047).
@@ -59,6 +57,7 @@ export default function DashboardPage() {
       .then((res) => { if (res.status === 404) return null; if (!res.ok) throw new Error('Unable to load profile'); return res.json() })
       .then((data) => data && setProfile(data as CareerProfileFull))
       .catch(() => {
+        setProfileError(true)
         setLoadError(true)
       })
       // Loaded flag so the "create your profile" nudge shows only after we KNOW
@@ -137,164 +136,44 @@ export default function DashboardPage() {
   // The map follows progress; the teal panel follows the next action. They
   // differ only when a CV reading is waiting, which is a to-do, not a step.
   const snap = workspace?.snapshot ?? (ready ? stageSnapshot(profile ? score : null, packages) : null)
-  const current = snap?.current ?? null
   const states = snap?.states ?? stageStates('profile', { profileDone: false, cvDone: false, applyDone: false })
-  const currentStage = current ? stageById(current) : null
   const draftWaiting = nextAction.state === 'draft_waiting'
   const firstRun = ready && nextAction.state === 'no_profile'
 
   return (
-    <div className="ui-page ui-page-wide page-gutter mx-auto flex w-full flex-col pb-10 font-redesign-sans">
-      <header className="workspace-heading flex flex-col gap-2">
-        <h1 className="type-title text-ink">
-          {firstName ? `Good ${greeting()}, ${firstName}` : profileLoaded ? 'Welcome to GCC MENTOR' : `Good ${greeting()}`}
-        </h1>
-        <p className="type-body text-ink-soft">
-          {firstRun
-            ? 'Create your CV or prepare for a job.'
-            : 'Your Gulf CVs and job preparation, in one place.'}
-        </p>
-        <div className="self-start"><HowItWorks /></div>
+    <div className="ui-page page-gutter mx-auto flex w-full max-w-[900px] flex-col pb-10 font-redesign-sans">
+      <header className="flex items-start justify-between gap-4">
+        <div className="min-w-0"><h1 className="type-title text-ink">Your career, at a glance</h1><p className="mt-1 type-body text-ink-muted">{firstName ? `Good ${greeting()}, ${firstName}` : 'Your Gulf career workspace'}</p></div>
+        <Link href="/settings" aria-label="Account settings" className="flex size-11 shrink-0 items-center justify-center rounded-ctl text-ink-soft hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><Cog6ToothIcon className="size-5" aria-hidden="true" /></Link>
       </header>
 
+      <HomeScores profile={profile} score={score} missing={missing.length} gulf={gulf} loading={!profileLoaded} error={profileError} />
+      <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} />
+
+      <section aria-label="Your next step" className="workspace-panel overflow-hidden">
+        <div className="flex flex-col gap-3 bg-teal p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="flex min-w-0 flex-col gap-1">
+            <span className="type-caption font-medium uppercase tracking-wide text-gold-soft">{draftWaiting ? 'Review your import' : 'Next step'}</span>
+            <h2 className="type-section text-white">{loadError ? 'Your saved work could not be loaded' : !ready ? 'Loading your next step…' : firstRun ? 'Create your Career Profile' : nextAction.title}</h2>
+            <p className="max-w-[55ch] type-helper text-white/85">{loadError ? 'Please try again.' : !ready ? 'Checking saved progress.' : firstRun ? 'Upload your CV or enter your details.' : nextAction.state === 'no_target_job' ? 'Tailor your CV to a vacancy.' : nextAction.body}</p>
+          </div>
+          {loadError ? <button type="button" onClick={() => window.location.reload()} className={GOLD_CTA}>Try again</button> : ready && !firstRun ? <Link href={nextAction.href} className={GOLD_CTA}>{nextAction.cta} <ArrowUpRightIcon className="ml-2 size-4" aria-hidden="true" /></Link> : null}
+        </div>
+      </section>
+
+      <HomeSavedWork overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
+
+      {ready && packages.length > 0 ? <details className="group workspace-panel"><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink">Recent CVs <ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="divide-y divide-line border-t border-line">{packages.slice(0,3).map(item => <Link key={item.id} href={`/package/${encodeURIComponent(item.id)}`} className="flex min-h-16 items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal"><DocumentTextIcon className="size-5 shrink-0 text-teal" aria-hidden="true" /><span className="min-w-0 flex-1"><span className="block break-words type-label text-ink">{item.name || item.target_job_title}</span><span className="block type-caption text-ink-muted">{[item.target_company,item.target_country?.replaceAll('_',' ')].filter(Boolean).join(' · ') || 'Gulf application'}</span></span><ArrowUpRightIcon className="size-4 shrink-0 text-teal" aria-hidden="true" /></Link>)}</div></details> : null}
+
       {ready ? <GoalChooser /> : null}
-
-      {/* Lead with the existing next action; the compact map supports it. */}
-      <section aria-label="Your progress and next step" className="workspace-panel overflow-hidden">
-        <div className="workspace-next ui-card flex flex-col gap-5 overflow-hidden sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-teal-soft">
-              {loadError
-                ? 'Something went wrong'
-                : !ready
-                  ? 'Your next step'
-                  : draftWaiting
-                    ? 'Waiting for your decision'
-                    : currentStage
-                    ? 'Suggested next action'
-                    : 'Choose your next goal'}
-            </span>
-            <h2 className="type-section text-white">
-              {loadError
-                ? 'Your saved work could not be loaded'
-                : !ready
-                  ? 'Loading your next step…'
-                  : firstRun
-                    ? 'Start with your CV'
-                    : nextAction.title}
-            </h2>
-            <p className="max-w-[60ch] type-body text-teal-soft">
-              {loadError
-                ? 'Please try again to see your latest profile and application progress.'
-                : !ready
-                  ? 'Checking your profile and saved applications.'
-                  : firstRun
-                    ? 'Upload, paste or enter your details.'
-                    : nextAction.state === 'no_target_job' ? 'Choose a job to tailor your CV.' : nextAction.body}
-            </p>
-          </div>
-          {loadError ? (
-            <button type="button" onClick={() => window.location.reload()} className="min-h-11 shrink-0 rounded-ctl bg-white px-5 py-3 text-sm font-semibold text-teal">
-              Try again
-            </button>
-          ) : !ready ? null : firstRun ? (
-            <div className="flex shrink-0 flex-col gap-2 sm:w-[250px]">
-              <Link href="/profile?import=upload" className={GOLD_CTA}>
-                Upload my CV
-              </Link>
-              <div className="grid grid-cols-2 gap-2">
-                <Link href="/profile?import=paste" className={GHOST_CTA}>
-                  Paste text
-                </Link>
-                <Link href="/profile" className={GHOST_CTA}>
-                  Type it in
-                </Link>
-              </div>
-              <span className="text-center text-[12px] text-teal-soft/80">PDF or Word file</span>
-            </div>
-          ) : (
-            <Link href={nextAction.href} className={GOLD_CTA}>
-              {nextAction.cta}
-            </Link>
-          )}
-        </div>
-        <details className="group border-t border-line">
-          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-6 type-label text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
-            Your application journey <span aria-hidden="true" className="text-lg group-open:rotate-45">+</span>
-          </summary>
-          <div className="px-2 pb-5 sm:px-8">
-            {ready ? <StageRail states={states} className="mx-auto max-w-[720px]" /> : <div className="h-20 animate-pulse rounded-ctl bg-canvas" />}
-          </div>
-        </details>
-      </section>
-
-      {ready && profile ? (
-        <section aria-label="Choose your CV" className="workspace-panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal-soft/60 text-teal"><DocumentTextIcon className="size-6" aria-hidden="true" /></span>
-            <div><h2 className="type-card text-ink">Your profile CV</h2><p className="mt-1 type-helper text-ink-muted">Your saved experience, in any template.</p></div>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <CareerProfileResumeButton showHint={false} />
-            <Link href="/optimize/target" className="inline-flex min-h-11 items-center type-label text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">Another job <ArrowUpRightIcon className="ml-1 size-4" aria-hidden="true" /></Link>
-          </div>
-        </section>
-      ) : null}
-
-      {ready && packages.length > 0 ? (
-        <section aria-labelledby="recent-cvs-heading" className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3"><h2 id="recent-cvs-heading" className="type-section text-ink">Recent CVs</h2><Link href="/dashboard/library" className="inline-flex min-h-11 items-center type-label text-teal hover:underline">View all →</Link></div>
-          <div className="workspace-panel divide-y divide-line">
-            {packages.slice(0, 3).map((item) => <Link key={item.id} href={`/package/${encodeURIComponent(item.id)}`} className="flex min-h-20 items-center gap-3 rounded-card px-5 py-4 transition-colors hover:bg-teal-soft/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-              <DocumentTextIcon className="size-5 shrink-0 text-teal" aria-hidden="true" />
-              <span className="min-w-0 flex-1"><span className="block type-label font-semibold text-ink">{item.name || item.target_job_title}</span><span className="mt-1 block type-helper text-ink-muted">{[item.target_company, item.target_country?.replaceAll('_', ' ')].filter(Boolean).join(' · ') || 'Gulf application'}</span></span>
-              <ArrowUpRightIcon className="size-4 shrink-0 text-teal" aria-hidden="true" />
-            </Link>)}
-          </div>
-        </section>
-      ) : null}
-
-      <section aria-labelledby="scores-heading" className="flex flex-col gap-3">
-        <h2 id="scores-heading" className="type-section text-ink">Your profile scores</h2>
-        {!profileLoaded ? <div aria-label="Loading profile scores" className="grid grid-cols-2 gap-3"><div className="h-52 animate-pulse rounded-card bg-canvas" /><div className="h-52 animate-pulse rounded-card bg-canvas" /></div> : profile ? (
-          <ScoreCards
-            className="m-0"
-            completeness={{ score, itemsLeft: missing.length, detail: missing.length === 0 ? 'Every section is complete' : `Add: ${missing.slice(0, 2).map((m) => m.label.toLowerCase()).join(', ')}${missing.length > 2 ? '…' : ''}` }}
-            gulf={gulf}
-            onOpenCompleteness={() => router.push('/profile?view=completeness')}
-            onOpenReadiness={() => router.push('/profile?view=readiness')}
-          />
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            <Link href="/profile" className="flex flex-col gap-2 rounded-card border border-line bg-white p-5"><span className="type-card text-teal">Profile complete</span><span className="type-body text-ink">{loadError ? 'Unavailable' : 'Not started'}</span><span className="type-helper text-ink-muted">Add your CV or enter your experience.</span><span className="type-helper font-semibold text-teal">Open Career Profile →</span></Link>
-            <Link href="/profile?view=readiness" className="flex flex-col gap-2 rounded-card border border-line bg-white p-5"><span className="type-card text-teal">Gulf Readiness</span><span className="type-body text-ink">{loadError ? 'Unavailable' : 'Add your profile'}</span><span className="type-helper text-ink-muted">Your saved profile is used to calculate this score.</span><span className="type-helper font-semibold text-teal">See readiness →</span></Link>
-          </div>
-        )}
-      </section>
-
-      <ActivityOverview overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
-
-      <details className="group rounded-card border border-line bg-white shadow-m-1">
-        <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
-          <span><span className="block type-card text-ink">Your progress reports</span><span className="mt-1 block type-helper text-ink-muted">Application progress and interview feedback</span></span>
-          <span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-full bg-teal-soft text-xl text-teal group-open:rotate-45">+</span>
-        </summary>
-        <div className="flex flex-col gap-6 border-t border-line p-4 sm:p-6">
-          {overview && !overviewError ? <OverallProgress overview={overview} /> : null}
-          {overviewLoading ? <p role="status" className="type-helper text-ink-muted">Loading your progress…</p> : overviewError ? <p className="type-helper text-ink-muted">Reload your activity totals above to see application progress.</p> : null}
-          <InterviewProgressOverview />
-        </div>
-      </details>
-
+      <details className="group workspace-panel"><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink">Journey & progress <ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="flex flex-col gap-6 border-t border-line p-4 sm:p-5">{ready ? <StageRail states={states} /> : null}{overview && !overviewError ? <OverallProgress overview={overview} /> : null}<InterviewProgressOverview /></div></details>
+      <div className="self-start"><HowItWorks /></div>
     </div>
   )
 }
 
 const GOLD_CTA =
   'inline-flex min-h-12 shrink-0 items-center justify-center rounded-ctl bg-gold px-6 type-button text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal'
-const GHOST_CTA =
-  'inline-flex min-h-11 items-center justify-center rounded-ctl border border-white/35 px-3 text-[13.5px] font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white'
-
 function greeting(): string {
   const hour = new Date().getHours()
   if (hour < 12) return 'morning'

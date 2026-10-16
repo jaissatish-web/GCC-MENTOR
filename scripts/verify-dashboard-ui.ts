@@ -46,3 +46,26 @@ assert.ok(!displayAction.title.includes('PRIVATE'))
 assert.equal(displayAction.href, rawAction.href)
 assert.equal(displayAction.cta, rawAction.cta)
 console.log('PASS: real overview rendering, mobile grid, count/error/loading states, progress semantics, consistent navigation and preserved CTA destination')
+
+// Combined Home: real facts, useful deep links, and unavailable values never look like zeros.
+const cssExtension = require.extensions['.css']
+require.extensions['.css'] = (module: NodeModule) => { module.exports = {} }
+const previewButton = require.resolve('../components/resume/CareerProfileResumeButton')
+require.cache[previewButton] = { id: previewButton, filename: previewButton, loaded: true, exports: { CareerProfileResumeButton: () => React.createElement('button',null,'Preview CV') } } as NodeModule
+const { HomeProfile, HomeScores, HomeSavedWork } = require('../components/dashboard/CareerHome')
+const candidate = { full_name: 'Quality Candidate', photo_url: null, additional_information: [], target_job_title: null, current_location: null,
+ work_experience: [{start_date:'2020-01',end_date:'2021-12',location:'Riyadh',role:'Engineer'}], education: [], skills: [{name:'Testing'}] }
+const profileHtml = renderToStaticMarkup(React.createElement(HomeProfile,{profile:candidate,loading:false,error:false}))
+assert.ok(profileHtml.includes('Quality Candidate') && profileHtml.includes('2 years'))
+assert.ok(profileHtml.includes('Add role') && profileHtml.includes('Add location'))
+assert.ok(!profileHtml.includes('15 years'),'Never hardcode the design mock data')
+for(const href of ['/profile?view=details','/profile?view=settings','/profile?open=sec_status','/profile?open=sec_identity','/profile?import=upload']) assert.ok(profileHtml.includes(`href="${href}"`))
+const unavailable = renderToStaticMarkup(React.createElement(HomeScores,{profile:null,score:0,missing:0,gulf:null,loading:false,error:true}))
+assert.ok(unavailable.includes('Unavailable') && !unavailable.includes('0 percent'))
+const saved = renderToStaticMarkup(React.createElement(HomeSavedWork,{overview:stats,loading:false,error:false,onRetry:()=>{}}))
+assert.ok(saved.includes('>7<') && saved.includes('/interview-qa') && saved.includes('/mock-interview'))
+const failedSaved = renderToStaticMarkup(React.createElement(HomeSavedWork,{overview:stats,loading:false,error:true,onRetry:()=>{}}))
+assert.ok(!failedSaved.includes('>7<') && failedSaved.includes('role="alert"'))
+assert.ok(!NAV_ITEMS.some(item=>item.href==='/profile'),'Home owns the profile overview')
+if(cssExtension) require.extensions['.css']=cssExtension; else delete require.extensions['.css']
+console.log('PASS: combined dashboard facts, deep links, unknown scores, stale-count protection and single Home navigation')

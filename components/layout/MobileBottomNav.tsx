@@ -53,6 +53,7 @@ export function MobileBottomNav() {
         )
       })}
 
+      <ServicesMenu placement="bottom" toolsOnly />
       <ServicesMenu placement="bottom" />
     </nav>
   )

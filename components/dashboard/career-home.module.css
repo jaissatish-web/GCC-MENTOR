@@ -1,0 +1,25 @@
+.scores,.profile,.saved{background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-card-radius);min-width:0}
+.scores{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:14px 10px}
+.score{display:flex;align-items:center;gap:10px;min-width:0;min-height:76px;padding:0 8px;border-radius:6px}
+.score+.score{border-left:1px solid var(--ui-line);border-radius:0}
+.scoreCopy{display:flex;min-width:0;flex-direction:column;gap:4px}
+.scoreCopy>span:last-child{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-height:28px}
+.profile{padding:18px}
+.identity{display:flex;align-items:center;gap:12px}
+.avatar{display:flex;align-items:center;justify-content:center;width:52px;height:52px;flex-shrink:0;border-radius:50%;background:var(--ui-brand-soft);color:var(--ui-brand);overflow:hidden;font-size:18px;font-weight:500}
+.action{display:inline-flex;align-items:center;justify-content:flex-start;gap:7px;min-height:44px;color:var(--ui-brand);font-size:var(--ui-label-size);font-weight:500;line-height:1.45;border-radius:6px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 20px;margin:22px 0 18px}
+.facts>div{min-width:0}
+.facts>div:nth-child(even){padding-left:18px;border-left:1px solid var(--ui-line)}
+.factLink{display:flex;align-items:flex-start;min-height:44px;padding-top:4px;overflow-wrap:anywhere;color:var(--ui-brand);font-size:var(--ui-body-size);line-height:1.5;border-radius:4px}
+.summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--ui-line);border-bottom:1px solid var(--ui-line);padding:9px 0}
+.footer{display:flex;align-items:center;justify-content:space-around;gap:10px;flex-wrap:wrap;padding-top:8px}
+.more{border-top:1px solid var(--ui-line);margin-top:8px;padding-top:4px}
+.more summary{display:flex;align-items:center;cursor:pointer;min-height:44px;list-style:revert}
+.saved{overflow:hidden}
+.savedRow{display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 16px}
+.savedRow+.savedRow{border-top:1px solid var(--ui-line)}
+.savedRow:hover,.score:hover{background:var(--ui-canvas)}
+.profile a:focus-visible,.score:focus-visible,.savedRow:focus-visible,.more summary:focus-visible{outline:2px solid var(--ui-brand);outline-offset:3px}
+@media(max-width:359px){.scores{padding:12px 6px}.score{flex-direction:column;align-items:flex-start;gap:4px;padding:0 8px}.profile{padding:14px}.identity{gap:8px}.avatar{width:44px;height:44px}.summary .action{margin-left:30px}.facts{gap:12px}.facts>div:nth-child(even){padding-left:12px}}
+@media(min-width:768px){.scores{padding:16px 22px}.score{gap:16px}.profile{padding:24px}.facts{gap:24px 32px}.summary{flex-wrap:nowrap}}

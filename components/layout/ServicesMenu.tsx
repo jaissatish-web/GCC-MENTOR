@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowRightStartOnRectangleIcon, Bars3Icon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
+import { ArrowRightStartOnRectangleIcon, Bars3Icon, EllipsisHorizontalIcon, Squares2X2Icon } from '@heroicons/react/24/outline'
 import { SideSheet } from '@/components/ui/SideSheet'
 import { signOut } from '@/app/auth/actions'
 import { useApplicationWorkspace } from '@/components/journey/ApplicationWorkspace'
@@ -152,7 +152,7 @@ function SignOutRow() {
   )
 }
 
-export function ServicesMenu({ placement = 'header' }: { placement?: 'header' | 'bottom' }) {
+export function ServicesMenu({ placement = 'header', toolsOnly = false }: { placement?: 'header' | 'bottom'; toolsOnly?: boolean }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname() ?? ''
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -179,7 +179,7 @@ export function ServicesMenu({ placement = 'header' }: { placement?: 'header' | 
         ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
-        aria-label={bottom ? 'More services' : 'All services'}
+        aria-label={toolsOnly ? 'Preparation tools' : bottom ? 'More services' : 'All services'}
         aria-expanded={open}
         aria-haspopup="dialog"
         className={cn(
@@ -188,11 +188,11 @@ export function ServicesMenu({ placement = 'header' }: { placement?: 'header' | 
           bottom && (moreActive || open ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted'),
         )}
       >
-        {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-lg bg-teal-soft text-teal"><EllipsisHorizontalIcon className="size-5" /></span><span>More</span></> : <Bars3Icon className="size-5 text-teal" />}
+        {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-lg bg-teal-soft text-teal">{toolsOnly ? <Squares2X2Icon className="size-5" /> : <EllipsisHorizontalIcon className="size-5" />}</span><span>{toolsOnly ? 'Tools' : 'More'}</span></> : <Bars3Icon className="size-5 text-teal" />}
       </button>
 
-      <SideSheet open={open} onClose={close} title="All services" returnFocusTo={triggerRef}>
-        {GROUPS.map((group) => {
+      <SideSheet open={open} onClose={close} title={toolsOnly ? 'Preparation tools' : 'All services'} returnFocusTo={triggerRef}>
+        {GROUPS.filter(group => !toolsOnly || ['cv', 'apply', 'professional'].includes(group.label)).map((group) => {
           const rows = group.hrefs.map(itemFor).filter(Boolean) as NavItem[]
           if (rows.length === 0 && !group.withSignOut) return null
           return (
