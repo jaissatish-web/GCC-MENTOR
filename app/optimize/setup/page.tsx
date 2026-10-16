@@ -25,8 +25,8 @@ import { CTA, NAMES } from '@/lib/serviceLabels'
  * OPTIMIZER v3 (2026-10-02, founder decision) supersedes the note below: the
  * screen now CHECKS THE JOB on arrival (POST /api/optimize/check — one cached
  * analysis the build reuses) and shows the field match, the honest best score
- * per level and certificates to ask about; Moderate is the default; the first
- * time, the user agrees once before Moderate/High.
+ * per level and certificates to ask about. The check must finish before the
+ * user explicitly chooses a level; the first time, they agree before Moderate/High.
  *
  * REBUILT 2026-09-17 (founder decision): NO SCORE BEFORE OPTIMIZING.
  * This screen used to call POST /api/optimize/analyze on arrival and show a
@@ -74,7 +74,7 @@ const LEVELS: ReadonlyArray<{
   changes: readonly string[]
   explain: string
 }> = [
-  // Optimizer v3 (2026-10-02, founder decisions): Moderate is the default;
+  // Optimizer v3: Moderate is recommended; the user chooses a level explicitly;
   // added points are duties typical of the candidate's OWN field — never
   // certificates, education, employers, titles, dates or personal details.
   {
@@ -142,6 +142,8 @@ function SetupScreen() {
   const [summaryOn, setSummaryOn] = useState(true)
   const [expOn, setExpOn] = useState<Record<string, boolean>>({})
   const [level, setLevel] = useState<OptimizationLevel>('moderate')
+  const [levelSelected, setLevelSelected] = useState(false)
+  const [skillsPending, setSkillsPending] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -210,14 +212,14 @@ function SetupScreen() {
 
   // CHECK THIS JOB (optimizer v3, 2026-10-02). One analysis, cached and reused
   // by the build — so it runs while the user reads the levels and the build
-  // then only writes. Never blocks optimizing: a failed check just shows less.
+  // then only writes. Optimization waits for a successful check and a level choice.
   // checkRun goes up when the user adds a certificate here: the check runs again
   // (no model call — lib/optimizer/v3/service.ts regroups the cached analysis)
-  // and the scores update in place, without the loading card.
+  // and optimization stays disabled until the updated scores are ready.
   useEffect(() => {
     if (!draft || !profileId || lastCheck.current === checkRun) return
     lastCheck.current = checkRun
-    if (checkRun === 0) setCheckState('loading')
+    setCheckState('loading')
     fetch('/api/optimize/check', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -229,13 +231,14 @@ function SetupScreen() {
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data) => {
+        if (!data.check?.expected) throw new Error('Missing job check')
         setCheck(data.check as JobCheck)
         setFirstTime(!!data.firstTime)
         setConsented(!!data.consented)
         setCheckState('done')
       })
       .catch(() => {
-        if (checkRun === 0) setCheckState('error')
+        setCheckState('error')
       })
   }, [draft, profileId, checkRun])
 
@@ -260,9 +263,10 @@ function SetupScreen() {
   }, [draft, hasJobDescription, summaryOn, experiences, expOn])
 
   // Moderate and High add points: the first time, the user agrees once.
-  const needsAgreement = level !== 'easy' && !consented
+  const checkReady = checkState === 'done' && check !== null
+  const needsAgreement = levelSelected && level !== 'easy' && !consented
   const onSubmit = useCallback(async () => {
-    if (!draft || !profileId || submitting || nothingSelected || (needsAgreement && !agreed)) return
+    if (!draft || !profileId || !checkReady || !levelSelected || skillsPending || submitting || nothingSelected || (needsAgreement && !agreed)) return
     setError(null)
     setSubmitting(true)
     try {
@@ -318,7 +322,7 @@ function SetupScreen() {
       setError('Network error. Please check your connection and try again.')
       setSubmitting(false)
     }
-  }, [draft, profileId, submitting, nothingSelected, hasJobDescription, summaryOn, selectedIds, level, router, buildSteps, needsAgreement, agreed])
+  }, [draft, profileId, checkReady, levelSelected, skillsPending, submitting, nothingSelected, hasJobDescription, summaryOn, selectedIds, level, router, buildSteps, needsAgreement, agreed])
 
   if (!draft) {
     return (
@@ -410,93 +414,104 @@ function SetupScreen() {
         {/* 1b. Job check — field match, honest scores, certificates to ask about */}
         <JobCheckCard state={checkState} check={check} title={draft.target_job_title} onPasteAdvert={() => router.push('/optimize/target')} onCertificateAdded={() => setCheckRun((n) => n + 1)} />
 
+        {checkState === 'error' ? (
+          <Alert variant="danger">
+            <p>ATS compatibility checking could not finish. Retry the check before choosing your optimization level.</p>
+            <Button variant="secondary" className="mt-3" onClick={() => { setCheckState('loading'); setCheckRun((n) => n + 1) }}>
+              Retry ATS check
+            </Button>
+          </Alert>
+        ) : null}
+
         {/* 2. The level */}
-        <Card tone="light" className="flex flex-col gap-3 p-5">
-          <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">{NAMES.level}</p>
-          {/* Full cards, stacked on a phone: three 100px buttons could only say
-              "Easy · Aims for 60–75", and what each level DOES sat in a box
-              below that changed as you tapped. Now every level says what it
-              changes before it is chosen. */}
-          <div role="radiogroup" aria-label={NAMES.level} className="grid gap-2.5 sm:grid-cols-3">
-            {LEVELS.map((l) => {
-              const selected = level === l.value
-              return (
-                <button
-                  key={l.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => setLevel(l.value)}
-                  className={cn(
-                    'flex flex-col gap-2 rounded-card border-2 p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
-                    selected ? 'border-teal bg-teal-soft/60' : 'border-line bg-white hover:border-teal/40',
-                  )}
-                >
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-2">
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          'flex size-5 items-center justify-center rounded-full border-2',
-                          selected ? 'border-teal' : 'border-line-strong',
-                        )}
-                      >
-                        {selected ? <span className="size-2.5 rounded-full bg-teal" /> : null}
+        <Card tone="light" className="p-5">
+          <fieldset disabled={!checkReady || submitting} aria-describedby="optimization-status" className="flex min-w-0 flex-col gap-3 disabled:opacity-60">
+            <legend className="mb-3 type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">{NAMES.level}</legend>
+            {/* Full cards, stacked on a phone: three 100px buttons could only say
+                "Easy · Aims for 60–75", and what each level DOES sat in a box
+                below that changed as you tapped. Now every level says what it
+                changes before it is chosen. */}
+            <div role="radiogroup" aria-label={NAMES.level} className="grid gap-2.5 sm:grid-cols-3">
+              {LEVELS.map((l) => {
+                const selected = levelSelected && level === l.value
+                return (
+                  <button
+                    key={l.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => { setLevel(l.value); setLevelSelected(true) }}
+                    className={cn(
+                      'flex flex-col gap-2 rounded-card border-2 p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
+                      selected ? 'border-teal bg-teal-soft/60' : 'border-line bg-white hover:border-teal/40',
+                    )}
+                  >
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-2">
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            'flex size-5 items-center justify-center rounded-full border-2',
+                            selected ? 'border-teal' : 'border-line-strong',
+                          )}
+                        >
+                          {selected ? <span className="size-2.5 rounded-full bg-teal" /> : null}
+                        </span>
+                        <span className="text-[16px] font-semibold text-ink">{l.label}</span>
                       </span>
-                      <span className="text-[16px] font-semibold text-ink">{l.label}</span>
+                      <span className="rounded-full bg-white px-2 py-0.5 type-caption font-semibold text-ink-soft">{l.tag}</span>
                     </span>
-                    <span className="rounded-full bg-white px-2 py-0.5 type-caption font-semibold text-ink-soft">{l.tag}</span>
-                  </span>
-                  <span className="type-helper font-semibold text-teal">
-                    {check ? `Estimated ATS match ${check.expected[l.value]}` : checkState === 'loading' ? 'Working out your score…' : l.aim}
-                  </span>
-                  {l.value === 'high' && check?.highIfConfirmed && check.highIfConfirmed > check.expected.high ? (
-                    <span className="-mt-1 type-caption font-semibold text-gold-ink">
-                      estimated {check.highIfConfirmed} if you confirm the required skills
+                    <span className="type-helper font-semibold text-teal">
+                      {check ? `Estimated ATS match ${check.expected[l.value]}` : checkState === 'loading' ? 'Working out your score…' : l.aim}
                     </span>
-                  ) : null}
-                  <ul className="flex flex-col gap-1.5">
-                    {l.changes.map((c) => (
-                      <li key={c} className="flex gap-1.5 type-helper leading-snug text-ink-soft">
-                        <span aria-hidden="true" className="mt-[7px] size-1 shrink-0 rounded-full bg-ink-muted" />
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                </button>
-              )
-            })}
-          </div>
-          <Alert variant={level === 'easy' ? 'info' : 'warning'}>{levelInfo.explain}</Alert>
-
-          {/* HIGH's tick-list (founder, 2026-10-02): the job's tools, standards and
-              skills the profile does not show — the user ticks what is true, it
-              goes on the Career Profile, and High can then use it. */}
-          {level === 'high' && check?.askSkills?.length ? (
-            <HighSkillsChecklist items={check.askSkills} upTo={check.highIfConfirmed ?? check.expected.high} onAdded={() => setCheckRun((n) => n + 1)} />
-          ) : null}
-
-          {/* Parts to rewrite — all by default, adjustable. */}
-          <details className="group rounded-ctl border border-line bg-canvas px-3 py-2">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 type-helper font-semibold text-ink">
-              <span>Choose which parts to rewrite</span>
-              <span className="type-caption font-normal text-ink-muted">
-                {allSelected ? 'All selected' : nothingSelected ? 'None selected' : 'Some selected'}
-              </span>
-            </summary>
-            <div className="flex flex-col gap-2 pb-2 pt-1">
-              <PartToggle label="Professional summary" on={summaryOn} onToggle={() => setSummaryOn((v) => !v)} />
-              {experiences.map((e) => (
-                <PartToggle
-                  key={e.id}
-                  label={e.label || 'Work experience'}
-                  on={!!expOn[e.id]}
-                  onToggle={() => setExpOn((prev) => ({ ...prev, [e.id]: !prev[e.id] }))}
-                />
-              ))}
-              <p className="type-caption text-ink-muted">Skills are put in order of relevance, never reworded.</p>
+                    {l.value === 'high' && check?.highIfConfirmed && check.highIfConfirmed > check.expected.high ? (
+                      <span className="-mt-1 type-caption font-semibold text-gold-ink">
+                        estimated {check.highIfConfirmed} if you confirm the required skills
+                      </span>
+                    ) : null}
+                    <ul className="flex flex-col gap-1.5">
+                      {l.changes.map((c) => (
+                        <li key={c} className="flex gap-1.5 type-helper leading-snug text-ink-soft">
+                          <span aria-hidden="true" className="mt-[7px] size-1 shrink-0 rounded-full bg-ink-muted" />
+                          {c}
+                        </li>
+                      ))}
+                    </ul>
+                  </button>
+                )
+              })}
             </div>
-          </details>
+            {levelSelected ? <Alert variant={level === 'easy' ? 'info' : 'warning'}>{levelInfo.explain}</Alert> : null}
+
+            {/* HIGH's tick-list (founder, 2026-10-02): the job's tools, standards and
+                skills the profile does not show — the user ticks what is true, it
+                goes on the Career Profile, and High can then use it. */}
+            {levelSelected && level === 'high' && check?.askSkills?.length ? (
+              <HighSkillsChecklist items={check.askSkills} upTo={check.highIfConfirmed ?? check.expected.high} onPendingChange={setSkillsPending} onAdded={() => setCheckRun((n) => n + 1)} />
+            ) : null}
+
+            {/* Parts to rewrite — all by default, adjustable. */}
+            <details className="group rounded-ctl border border-line bg-canvas px-3 py-2">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 type-helper font-semibold text-ink">
+                <span>Choose which parts to rewrite</span>
+                <span className="type-caption font-normal text-ink-muted">
+                  {allSelected ? 'All selected' : nothingSelected ? 'None selected' : 'Some selected'}
+                </span>
+              </summary>
+              <div className="flex flex-col gap-2 pb-2 pt-1">
+                <PartToggle label="Professional summary" on={summaryOn} onToggle={() => setSummaryOn((v) => !v)} />
+                {experiences.map((e) => (
+                  <PartToggle
+                    key={e.id}
+                    label={e.label || 'Work experience'}
+                    on={!!expOn[e.id]}
+                    onToggle={() => setExpOn((prev) => ({ ...prev, [e.id]: !prev[e.id] }))}
+                  />
+                ))}
+                <p className="type-caption text-ink-muted">Skills are put in order of relevance, never reworded.</p>
+              </div>
+            </details>
+          </fieldset>
         </Card>
 
         {/* 3. What you get */}
@@ -527,10 +542,17 @@ function SetupScreen() {
           <p className="text-center type-caption text-ink-muted">Select the summary or at least one role to rewrite.</p>
         ) : null}
 
+        <p id="optimization-status" role="status" className="text-center type-helper text-ink-soft">
+          {!checkReady
+            ? checkState === 'error' ? 'Retry ATS checking to continue.' : 'Checking ATS compatibility — optimization unlocks when your results are ready.'
+            : !levelSelected ? 'Review your ATS results, then choose Easy, Moderate or High and confirm any relevant suggestions.'
+            : skillsPending ? 'Save your selected skills before optimizing your CV.'
+            : 'Review your selected level and suggestions, then optimize your CV when you are ready.'}
+        </p>
         <Button
           variant="purchase"
           className="w-full"
-          disabled={submitting || !profileId || nothingSelected || (needsAgreement && !agreed)}
+          disabled={!checkReady || !levelSelected || skillsPending || submitting || !profileId || nothingSelected || (needsAgreement && !agreed)}
           onClick={onSubmit}
         >
           {CTA.optimizeCv}
@@ -761,12 +783,17 @@ function CertAsk({ cert, onAdded }: { cert: { term: string; importance: 'must' |
  * (POST /api/profile/skills) and the job check runs again (no model call), so
  * the scores update at once. Nothing is added without a tick.
  */
-function HighSkillsChecklist({ items, upTo, onAdded }: { items: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>; upTo: number; onAdded: () => void }) {
+function HighSkillsChecklist({ items, upTo, onAdded, onPendingChange }: { items: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>; upTo: number; onAdded: () => void; onPendingChange: (pending: boolean) => void }) {
   const [ticked, setTicked] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [added, setAdded] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const open = items.filter((i) => !added.includes(i.term))
+
+  useEffect(() => {
+    onPendingChange(saving || ticked.length > 0)
+    return () => onPendingChange(false)
+  }, [saving, ticked.length, onPendingChange])
 
   const save = async () => {
     setSaving(true)

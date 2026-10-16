@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, use } from 'react';
 import { useRouter } from 'next/navigation'
+import { FlowHeader } from '@/components/optimizer/FlowHeader'
 import { Button } from '@/components/ui/Button'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { GENERATE_NOTES } from '@/lib/processingNotes'
@@ -124,8 +125,8 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
 
   if (error) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
-        <div className="w-full max-w-[480px] rounded-card border border-line bg-white p-8 text-center">
+      <main className="mx-auto w-full max-w-[760px] px-3 py-6 sm:px-8 lg:py-10 font-redesign-sans">
+        <div className="mx-auto w-full max-w-[480px] rounded-card border border-line bg-white p-8 text-center">
           <h1 className="font-display text-[26px] leading-tight text-ink">We couldn&apos;t build it</h1>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">{error}</p>
           {/* Was "Your payment is safe … without paying twice" — there is no
@@ -152,35 +153,38 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
   // of the pipeline it is in (named, paced by the timer above, holding on the
   // last one), and how long it has really taken. See components/ui/Processing.
   return (
-    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-ink px-6 py-12 font-redesign-sans">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_28%,rgba(201,150,46,0.16),transparent_70%)]"
-      />
-      <div className="relative flex w-full max-w-[440px] flex-col items-center gap-7">
-        <ProcessingOrbit tone="dark" size={184} />
-        <div className="text-center">
-          <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">Step 2 of 3 · Tailored CV</p>
-          <h1 className="font-display text-[28px] leading-tight text-white">Optimizing your CV</h1>
-          <p className="mt-2 text-[13.5px] leading-relaxed text-white/70">
-            Every line is checked against your Career Profile before you see it.
+    <main className="mx-auto w-full max-w-[760px] space-y-5 px-3 py-6 font-redesign-sans sm:px-8 lg:py-10">
+      <FlowHeader step={3} title="Building your optimized CV" subtitle="Follow your optimization below. You can scroll to see each step while it runs." />
+      <section aria-label="CV optimization progress" className="relative rounded-card border border-line bg-ink px-4 py-8 sm:px-8">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_28%,rgba(201,150,46,0.16),transparent_70%)]"
+        />
+        <div className="relative mx-auto flex w-full min-w-0 max-w-[440px] flex-col items-center gap-7">
+          <ProcessingOrbit tone="dark" size={184} />
+          <div className="text-center">
+            <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">Step 3 of 3 · Tailored CV</p>
+            <h1 className="font-display text-[28px] leading-tight text-white">Optimizing your CV</h1>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-white/70">
+              Every line is checked against your Career Profile before you see it.
+            </p>
+          </div>
+          <ProcessingSteps
+            tone="dark"
+            steps={steps}
+            activeIndex={Math.max(0, activeIndex)}
+            notes={GENERATE_NOTES}
+          />
+          {/* Optimizer v3 (2026-10-02): the job is read once on the level screen and
+              reused here, so the build is one writing call — about 15–25 seconds. */}
+          <p className="text-center text-[12.5px] leading-relaxed text-white/60">
+            This usually takes under 30 seconds. Keep this page open — it moves on by itself.
+            <span className="mt-1 block font-mono text-[12px] tabular-nums text-white/45">
+              {Math.floor(elapsedMs / 60000)}:{String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0')} elapsed
+            </span>
           </p>
         </div>
-        <ProcessingSteps
-          tone="dark"
-          steps={steps}
-          activeIndex={Math.max(0, activeIndex)}
-          notes={GENERATE_NOTES}
-        />
-        {/* Optimizer v3 (2026-10-02): the job is read once on the level screen and
-            reused here, so the build is one writing call — about 15–25 seconds. */}
-        <p className="text-center text-[12.5px] leading-relaxed text-white/60">
-          This usually takes under 30 seconds. Keep this page open — it moves on by itself.
-          <span className="mt-1 block font-mono text-[12px] tabular-nums text-white/45">
-            {Math.floor(elapsedMs / 60000)}:{String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0')} elapsed
-          </span>
-        </p>
-      </div>
+      </section>
     </main>
   )
 }
