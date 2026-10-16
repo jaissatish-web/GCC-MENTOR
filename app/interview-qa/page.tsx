@@ -4,7 +4,7 @@ import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileR
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+import { QuestionMarkCircleIcon, ChevronDownIcon, ClipboardDocumentIcon, ChatBubbleLeftRightIcon, LightBulbIcon, DocumentTextIcon, ArrowUturnRightIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
 import { NextStep } from '@/components/journey/NextStep'
@@ -165,13 +165,15 @@ function InterviewQaScreen() {
 
   return (
     <PageShell
+      className="interview-qa-page"
+      width="document"
       icon={QuestionMarkCircleIcon}
       eyebrow={stageEyebrow('apply')}
       title="Interview Q&A"
       subtitle={isRaw ? 'Practise up to 25 questions from your profile. No job description needed.' : 'Practise for your target Gulf job, using your own experience.'}
       uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
     >
-      <Card tone="light" className="p-4 sm:p-6">
+      <Card tone="light" className="qa-setup-panel">
         {total === 0 ? (
           <StageGate what="Interview Q&A" />
         ) : list.length === 0 ? (
@@ -235,9 +237,10 @@ function InterviewQaScreen() {
                   <>{questionSet ? <span>Saved {new Date(questionSet.generated_at).toLocaleString()}</span> : null}</>
                 ) : null}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="qa-primary-actions flex flex-wrap gap-2">
                 {questionSet ? (
                   <Button type="button" variant="secondary" onClick={() => void copyAll()}>
+                    <ClipboardDocumentIcon aria-hidden="true" className="size-4 shrink-0" />
                     {copied ? 'Copied' : 'Copy all'}
                   </Button>
                 ) : null}
@@ -318,8 +321,9 @@ function InterviewQaScreen() {
           {/* Practice first, answer second (2026-10-03): all 24 answers open made
               the page 22 phone screens long and gave the answer away before the
               candidate had tried. */}
-          <div className="flex flex-col gap-3 rounded-ctl border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="qa-practice-guide flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="type-helper leading-relaxed text-ink-soft">
+              <strong className="qa-guide-title">How to practise</strong>
               Read each question and answer it out loud first, then tap <strong>Show sample answer</strong> to compare.{' '}
               <mark className="rounded bg-gold-soft px-1 text-ink">[Highlighted parts]</mark> are for your own real example.
             </p>
@@ -327,7 +331,7 @@ function InterviewQaScreen() {
               type="button"
               aria-pressed={showAll}
               onClick={() => setShowAll((v) => !v)}
-              className={buttonVariants({ variant: 'secondary', size: 'sm', className: 'min-h-11 shrink-0' })}
+              className={buttonVariants({ variant: 'secondary', size: 'sm', className: 'qa-show-all min-h-11 shrink-0' })}
             >
               {showAll ? 'Hide all answers' : 'Show all answers'}
             </button>
@@ -335,8 +339,9 @@ function InterviewQaScreen() {
 
           {grouped.map((group) => (
             <div key={group.category} className="flex flex-col gap-3">
-              <h3 className="type-caption font-semibold uppercase tracking-[0.14em] text-ink-muted">
-                {CATEGORY_LABEL[group.category]}
+              <h3 className="qa-group-heading">
+                <span>{CATEGORY_LABEL[group.category]}</span>
+                <span className="qa-group-count">{group.items.length} question{group.items.length === 1 ? '' : 's'}</span>
               </h3>
               {group.items.map((item) => (
                 <QaCard
@@ -388,7 +393,7 @@ export default function InterviewQaPage() {
 /** "[your example: ...]" in a sample answer, highlighted as the part the candidate fills in. */
 function AnswerText({ text }: { text: string }) {
   return (
-    <p className="whitespace-pre-line type-body text-ink-soft">
+    <p className="qa-answer-text whitespace-pre-line">
       {text.split(/(\[[^\]]+\])/).map((part, i) =>
         /^\[[^\]]+\]$/.test(part) ? (
           <mark key={i} className="rounded bg-gold-soft px-1 text-ink">
@@ -405,51 +410,51 @@ function AnswerText({ text }: { text: string }) {
 function QaCard({ item, number, open, onToggle }: { item: InterviewQuestionAnswer; number: number; open: boolean; onToggle: () => void }) {
   const answerId = `qa-answer-${item.id}`
   return (
-    <Card tone="light" className="p-5">
-      <div className="flex flex-col gap-3">
+    <article className="qa-question-card" aria-labelledby={`qa-question-${item.id}`}>
+      <div className="qa-question-header">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-canvas px-2.5 py-1 font-mono type-caption font-semibold text-ink-soft">
-            Q{number.toString().padStart(2, '0')}
-          </span>
-          <span className="rounded-full bg-teal-soft px-2.5 py-1 type-caption font-semibold text-teal">{item.difficulty}</span>
-          {item.tags.slice(0, 2).map((tag) => (
-            <span key={tag} className="rounded-full border border-line bg-white px-2.5 py-1 type-caption text-ink-muted">
-              {tag}
-            </span>
-          ))}
+          <span className="qa-question-number">Question {number.toString().padStart(2, '0')}</span>
+          <span className="qa-difficulty">{item.difficulty}</span>
+          {item.tags.slice(0, 2).map(tag => <span key={tag} className="qa-tag">{tag}</span>)}
         </div>
-        <h4 className="font-display type-card font-semibold leading-snug text-ink">{item.question}</h4>
-        <p className="type-helper text-ink-muted">
-          <strong className="text-ink-soft">Why they ask: </strong>
-          {item.why_asked}
-        </p>
+        <h4 id={`qa-question-${item.id}`} className="qa-question-title">{item.question}</h4>
+      </div>
+      <div className="qa-question-body">
+        <div className="qa-why-panel">
+          <h5 className="qa-panel-label"><LightBulbIcon aria-hidden="true" className="size-4 shrink-0" />Why they ask</h5>
+          <p>{item.why_asked}</p>
+        </div>
         <button
           type="button"
           aria-expanded={open}
           aria-controls={answerId}
           onClick={onToggle}
-          className="min-h-11 w-fit rounded-ctl border border-teal/40 bg-white px-4 type-helper font-semibold text-teal"
+          className="qa-answer-toggle"
         >
-          {open ? 'Hide sample answer' : 'Show sample answer'}
+          <span>{open ? 'Hide sample answer' : 'Show sample answer'}</span>
+          <ChevronDownIcon aria-hidden="true" className={cn('size-4 shrink-0', open && 'rotate-180')} />
         </button>
         {open ? (
-          <div id={answerId} className="flex flex-col gap-3">
-            <AnswerText text={item.answer} />
-            <div className="grid gap-3 border-t border-line pt-3 type-helper leading-relaxed text-ink-muted md:grid-cols-2">
-              <p>
-                <strong className="block text-ink-soft">From your CV</strong>
-                {item.resume_basis}
-              </p>
+          <div id={answerId} className="qa-answer-content">
+            <section className="qa-answer-panel" aria-label={`Sample answer for question ${number}`}>
+              <h5 className="qa-panel-label"><ChatBubbleLeftRightIcon aria-hidden="true" className="size-4 shrink-0" />Sample answer</h5>
+              <AnswerText text={item.answer} />
+            </section>
+            <div className="qa-evidence-grid">
+              <section className="qa-basis-panel">
+                <h5 className="qa-panel-label"><DocumentTextIcon aria-hidden="true" className="size-4 shrink-0" />From your CV</h5>
+                <p>{item.resume_basis}</p>
+              </section>
               {item.follow_up ? (
-                <p>
-                  <strong className="block text-ink-soft">Likely follow-up</strong>
-                  {item.follow_up}
-                </p>
+                <section className="qa-followup-panel">
+                  <h5 className="qa-panel-label"><ArrowUturnRightIcon aria-hidden="true" className="size-4 shrink-0" />Likely follow-up</h5>
+                  <p>{item.follow_up}</p>
+                </section>
               ) : null}
             </div>
           </div>
         ) : null}
       </div>
-    </Card>
+    </article>
   )
 }

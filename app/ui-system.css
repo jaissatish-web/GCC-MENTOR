@@ -647,3 +647,109 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 @media (prefers-reduced-motion: reduce) {
   .app-type .library-resume-card { transition: none; }
 }
+
+/* Interview Q&A: semantic colour panels and generous mobile reading width. */
+.app-type .interview-qa-page { --ui-page-gutter: 8px; }
+.app-type .interview-qa-page .qa-setup-panel {
+  padding: 14px;
+  border: 1.5px solid #b8cac5;
+  border-top: 3px solid var(--ui-brand);
+  border-radius: 14px;
+  background: var(--ui-surface);
+}
+.app-type .interview-qa-page .field { border-color: #8baa9f; background-color: #f3f8f5; }
+.app-type .interview-qa-page .qa-primary-actions { gap: 8px; }
+.app-type .interview-qa-page .qa-primary-actions > button { min-height: 44px; }
+.app-type .interview-qa-page .qa-practice-guide {
+  border: 1px solid #b9ccc5;
+  border-radius: 12px;
+  padding: 12px;
+  background: #edf5f2;
+}
+.app-type .interview-qa-page .qa-guide-title { display: block; margin-bottom: 4px; color: #174e43; }
+.app-type .interview-qa-page .qa-show-all { border: 1.5px solid var(--ui-brand); background: #fff; color: var(--ui-brand); }
+.app-type .interview-qa-page .qa-group-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 2px solid #b9ccc5;
+  padding: 8px 0;
+  color: var(--ui-brand);
+  font-size: 16px;
+  font-weight: 700;
+}
+.app-type .interview-qa-page .qa-group-count { font-size: 12px; font-weight: 500; color: var(--ui-muted); }
+.app-type .interview-qa-page .qa-question-card {
+  min-width: 0;
+  border: 2px solid #709c90;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgb(15 76 67 / .06);
+}
+.app-type .interview-qa-page .qa-question-header {
+  border-bottom: 1px solid #b9ccc5;
+  border-radius: 12px 12px 0 0;
+  padding: 12px;
+  background: #eaf3ef;
+}
+.app-type .interview-qa-page .qa-question-number { color: #174e43; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.app-type .interview-qa-page .qa-difficulty,
+.app-type .interview-qa-page .qa-tag { border: 1px solid #b4c9c1; border-radius: 6px; padding: 3px 7px; background: #fff; color: #37554d; font-size: 12px; line-height: 1.4; }
+.app-type .interview-qa-page .qa-difficulty { background: #d8e9e1; font-weight: 600; text-transform: capitalize; }
+.app-type .interview-qa-page .qa-question-title {
+  margin-top: 10px;
+  font-family: var(--font-inter), Arial, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #163f36;
+  overflow-wrap: anywhere;
+}
+.app-type .interview-qa-page .qa-question-body { display: flex; flex-direction: column; gap: 12px; padding: 8px; }
+.app-type .interview-qa-page .qa-panel-label { display: flex; align-items: center; gap: 6px; margin: 0 0 7px; font-size: 13px; font-weight: 700; line-height: 1.4; }
+.app-type .interview-qa-page :is(.qa-why-panel,.qa-answer-panel,.qa-basis-panel,.qa-followup-panel) { min-width: 0; border: 1px solid; border-radius: 9px; padding: 10px; }
+.app-type .interview-qa-page .qa-why-panel { border-color: #ddc78f; border-left-width: 3px; background: #fff8e8; color: #685020; }
+.app-type .interview-qa-page .qa-answer-panel { border-width: 2px; border-color: #80ad99; background: #f1f8f4; color: #174e43; }
+.app-type .interview-qa-page .qa-basis-panel { border-color: #bdcddc; background: #f1f5f9; color: #35506b; }
+.app-type .interview-qa-page .qa-followup-panel { border-color: #c8b5dd; border-left-width: 3px; background: #f7f2fb; color: #62437d; }
+.app-type .interview-qa-page :is(.qa-why-panel,.qa-basis-panel,.qa-followup-panel) > p { font-size: 14px; font-weight: 400; line-height: 1.65; color: #394b46; overflow-wrap: anywhere; }
+.app-type .interview-qa-page .qa-answer-text { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: 400; line-height: 1.75; color: #243f35; overflow-wrap: anywhere; }
+.app-type .interview-qa-page .qa-answer-text mark { background: #ffedb5; color: #493713; padding: 1px 3px; border-radius: 3px; }
+.app-type .interview-qa-page .qa-answer-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  width: 100%;
+  border: 1px solid var(--ui-brand);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--ui-brand);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.app-type .interview-qa-page .qa-answer-toggle[aria-expanded='true'] { background: #e4efeb; color: #174e43; }
+.app-type .interview-qa-page .qa-answer-toggle:focus-visible { outline: 3px solid #86b7a8; outline-offset: 3px; }
+.app-type .interview-qa-page .qa-answer-content { display: flex; flex-direction: column; gap: 12px; }
+.app-type .interview-qa-page .qa-evidence-grid { display: grid; gap: 10px; }
+@media (min-width: 640px) {
+  .app-type .interview-qa-page { --ui-page-gutter: 20px; }
+  .app-type .interview-qa-page .qa-setup-panel { padding: 20px; }
+  .app-type .interview-qa-page .qa-question-header { padding: 16px; }
+  .app-type .interview-qa-page .qa-question-title { font-size: 18px; }
+  .app-type .interview-qa-page .qa-question-body { padding: 16px; }
+  .app-type .interview-qa-page .qa-answer-toggle { width: fit-content; min-width: 210px; }
+}
+@media (min-width: 768px) {
+  .app-type .interview-qa-page .qa-evidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 639px) {
+  .app-type .interview-qa-page .qa-primary-actions { width: 100%; }
+  .app-type .interview-qa-page .qa-primary-actions > button { flex: 1 1 100%; width: 100%; white-space: normal; }
+  .app-type .interview-qa-page .qa-show-all { width: 100%; white-space: normal; }
+}
