@@ -2019,7 +2019,7 @@ function ProfileScreen() {
   }))
   const saveState: 'saved' | 'dirty' | 'saving' | 'error' = submitting ? 'saving' : saveError ? 'error' : isDirty ? 'dirty' : 'saved'
   // Returning to Home must not discard edits. Reuse the existing save/validation path.
-  const returnHome = () => { if (isDirty) void onSubmit('exit'); else router.push('/dashboard') }
+  const returnHome = () => { if (submitting) return; if (isDirty) void onSubmit('exit'); else router.push('/dashboard') }
   const saveButton = (
     <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>
       Save
@@ -2295,7 +2295,7 @@ function ProfileScreen() {
         backLabel={isDirty ? 'Save & Home' : 'Home'}
         action={saveButton}
       />
-      <div className="page-gutter flex flex-wrap items-center gap-4 py-3"><div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} /></div><CareerProfileResumeButton /><Button variant="secondary" size="sm" busy={submitting} onClick={() => void onSubmit('confirm')}>Tailor for a job</Button></div>
+      <div className="page-gutter flex flex-wrap items-center gap-4 py-3"><div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} /></div><CareerProfileResumeButton /><Button variant="secondary" size="sm" onClick={() => showView('overview')}>Update from CV</Button><Button variant="secondary" size="sm" busy={submitting} onClick={() => void onSubmit('confirm')}>Tailor for a job</Button></div>
       {importReviewBlock}
       {parseNotesBlock}
       {loadErrorBlock}

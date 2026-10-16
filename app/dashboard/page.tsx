@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { GoalChooser, useApplicationWorkspace } from '@/components/journey/ApplicationWorkspace'
+import { ApplicationContextBar, GoalChooser, useApplicationWorkspace } from '@/components/journey/ApplicationWorkspace'
 import { DocumentTextIcon, ArrowUpRightIcon, Cog6ToothIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { HowItWorks } from '@/components/journey/HowItWorks'
 import { HomeProfile, HomeScores, HomeSavedWork } from '@/components/dashboard/CareerHome'
@@ -16,6 +16,7 @@ import { dashboardNextAction, type DashboardOverview } from '@/lib/dashboardOver
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
 import { answersFromReadinessCategory, scoreProfileReadiness, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
+import homeStyles from '@/components/dashboard/career-home.module.css'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
 /** Overall scores, saved totals and progress; individual resumes live in the Library. */
@@ -151,13 +152,13 @@ export default function DashboardPage() {
       <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} />
 
       <section aria-label="Your next step" className="workspace-panel overflow-hidden">
-        <div className="flex flex-col gap-3 bg-teal p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-          <div className="flex min-w-0 flex-col gap-1">
+        <div className={homeStyles.nextStep}>
+          <div className={homeStyles.nextCopy}>
             <span className="type-caption font-medium uppercase tracking-wide text-gold-soft">{draftWaiting ? 'Review your import' : 'Next step'}</span>
-            <h2 className="type-section text-white">{loadError ? 'Your saved work could not be loaded' : !ready ? 'Loading your next step…' : firstRun ? 'Create your Career Profile' : nextAction.title}</h2>
+            <h2 className="type-section text-white">{loadError ? 'Your saved work could not be loaded' : !ready ? 'Loading your next step…' : firstRun ? 'Create your Career Profile' : nextAction.state === 'no_target_job' ? 'Add your target job' : nextAction.title}</h2>
             <p className="max-w-[55ch] type-helper text-white/85">{loadError ? 'Please try again.' : !ready ? 'Checking saved progress.' : firstRun ? 'Upload your CV or enter your details.' : nextAction.state === 'no_target_job' ? 'Tailor your CV to a vacancy.' : nextAction.body}</p>
           </div>
-          {loadError ? <button type="button" onClick={() => window.location.reload()} className={GOLD_CTA}>Try again</button> : ready && !firstRun ? <Link href={nextAction.href} className={GOLD_CTA}>{nextAction.cta} <ArrowUpRightIcon className="ml-2 size-4" aria-hidden="true" /></Link> : null}
+          {loadError ? <button type="button" onClick={() => window.location.reload()} className={GOLD_CTA}>Try again</button> : ready && !firstRun ? <Link href={nextAction.href} className={GOLD_CTA}>{nextAction.state === 'no_target_job' ? 'Add job' : nextAction.cta} <ArrowUpRightIcon className="ml-2 size-4" aria-hidden="true" /></Link> : null}
         </div>
       </section>
 
@@ -165,6 +166,7 @@ export default function DashboardPage() {
 
       {ready && packages.length > 0 ? <details className="group workspace-panel"><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink">Recent CVs <ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="divide-y divide-line border-t border-line">{packages.slice(0,3).map(item => <Link key={item.id} href={`/package/${encodeURIComponent(item.id)}`} className="flex min-h-16 items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal"><DocumentTextIcon className="size-5 shrink-0 text-teal" aria-hidden="true" /><span className="min-w-0 flex-1"><span className="block break-words type-label text-ink">{item.name || item.target_job_title}</span><span className="block type-caption text-ink-muted">{[item.target_company,item.target_country?.replaceAll('_',' ')].filter(Boolean).join(' · ') || 'Gulf application'}</span></span><ArrowUpRightIcon className="size-4 shrink-0 text-teal" aria-hidden="true" /></Link>)}</div></details> : null}
 
+      <details className="workspace-panel"><summary className="flex min-h-14 cursor-pointer items-center px-4 type-label text-ink">Current application</summary><ApplicationContextBar onHome /></details>
       {ready ? <GoalChooser /> : null}
       <details className="group workspace-panel"><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink">Journey & progress <ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="flex flex-col gap-6 border-t border-line p-4 sm:p-5">{ready ? <StageRail states={states} /> : null}{overview && !overviewError ? <OverallProgress overview={overview} /> : null}<InterviewProgressOverview /></div></details>
       <div className="self-start"><HowItWorks /></div>

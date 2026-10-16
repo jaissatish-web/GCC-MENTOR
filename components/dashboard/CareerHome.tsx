@@ -19,11 +19,11 @@ export function HomeScores({ profile, score, missing, gulf, loading, error }: {
   const available = !loading && !error && Boolean(profile)
   return <section aria-label="Your readiness scores" aria-busy={loading} className={styles.scores}>
     <Link href="/profile?view=completeness" className={styles.score}>
-      <ScoreRing value={available ? score : null} size={60} label="Profile complete" />
-      <span className={styles.scoreCopy}><span className="type-helper text-ink-soft">Profile complete</span><span className="type-helper text-teal">{loading ? 'Loading…' : error ? 'Unavailable' : !profile ? 'Get started' : missing ? `${missing} items left` : 'All details added'} <ArrowRightIcon aria-hidden="true" className="size-3.5" /></span></span>
+      <ScoreRing value={available ? score : null} size={52} label="Profile complete" />
+      <span className={styles.scoreCopy}><span className="type-helper text-ink-soft">Profile complete</span><span className="type-helper text-teal">{loading ? 'Loading…' : error ? 'Unavailable' : !profile ? 'Get started' : missing ? `${missing} left` : 'All details added'} <ArrowRightIcon aria-hidden="true" className="size-3.5" /></span></span>
     </Link>
     <Link href="/profile?view=readiness" className={styles.score}>
-      <ScoreRing value={available && gulf ? gulf.finalScore : null} size={60} suffix="/100" label="Gulf readiness" />
+      <ScoreRing value={available && gulf ? gulf.finalScore : null} size={52} suffix="/100" label="Gulf readiness" />
       <span className={styles.scoreCopy}><span className="type-helper text-ink-soft">Gulf readiness</span><span className="type-helper text-teal">{loading ? 'Loading…' : error ? 'Unavailable' : profile ? 'Review' : 'Add profile'} <ArrowRightIcon aria-hidden="true" className="size-3.5" /></span></span>
     </Link>
   </section>
@@ -55,10 +55,10 @@ export function HomeProfile({ profile, loading, error }: { profile: CareerProfil
       <div className="min-w-0 flex-1"><h2 className="break-words type-card text-ink">{profile.full_name || 'Your Career Profile'}</h2><p className="mt-1 break-words type-helper text-ink-muted">{headline || 'Your Career Profile'}</p></div>
       <Link href="/profile?view=details" className={styles.action}><PencilSquareIcon aria-hidden="true" className="size-4" /> Edit</Link>
     </div>
-    <dl className={styles.facts}>{facts.map(f => <div key={f.label}><dt className="type-helper text-ink-muted">{f.label}</dt><dd><Link href={`/profile?open=${f.section}`} className={styles.factLink}>{f.value}</Link></dd></div>)}</dl>
-    <div className={styles.summary}><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0 text-teal" /><p className="min-w-0 flex-1 type-helper text-ink-muted">{profile.work_experience.length} roles · {profile.education.length} {profile.education.length === 1 ? 'qualification' : 'qualifications'} · {profile.skills.length} skills</p><Link href="/profile?view=details" className={styles.action}>View all details <ArrowRightIcon aria-hidden="true" className="size-3.5" /></Link></div>
+    <div className={styles.facts}>{facts.map(f => <Link key={f.label} href={`/profile?open=${f.section}`} className={styles.factLink}><span className="type-helper text-ink-muted">{f.label}</span><span>{f.value}</span></Link>)}</div>
+    <div className={styles.summary}><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0 text-teal" /><p className="min-w-0 flex-1 type-helper text-ink-muted">{profile.work_experience.length} {profile.work_experience.length === 1 ? 'role' : 'roles'} · {profile.education.length} {profile.education.length === 1 ? 'qualification' : 'qualifications'} · {profile.skills.length} skills</p><Link href="/profile?view=details" className={styles.action}>View all details <ArrowRightIcon aria-hidden="true" className="size-3.5" /></Link></div>
     <div aria-label="Profile actions" className={styles.footer}><CareerProfileResumeButton showHint={false} /><Link href="/profile?view=settings" className={styles.action}><Cog6ToothIcon aria-hidden="true" className="size-4" /> Profile settings</Link></div>
-    <details className={styles.more}><summary className="type-helper text-teal">More profile options</summary><div className="flex flex-wrap gap-x-5 gap-y-1"><Link className={styles.action} href="/profile?open=sec_certifications">Certifications</Link><Link className={styles.action} href="/profile?import=upload">Update from CV</Link><Link className={styles.action} href="/profile?view=details">Review imported details</Link></div></details>
+
   </section>
 }
 

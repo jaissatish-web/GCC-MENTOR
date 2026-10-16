@@ -167,7 +167,8 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
   const itemFor = (href: string) => NAV_ITEMS.find((i) => i.href === href)
   const workspace = useApplicationWorkspace()
   const bottom = placement === 'bottom'
-  const moreActive = bottom && NAV_ITEMS.some(item => !MOBILE_PRIMARY_ITEMS.includes(item) && isNavItemActive(item, pathname))
+  const toolHrefs = GROUPS.filter(g => ['cv', 'apply', 'professional'].includes(g.label)).flatMap(g => g.hrefs)
+  const moreActive = bottom && NAV_ITEMS.some(item => !MOBILE_PRIMARY_ITEMS.includes(item) && (toolsOnly ? toolHrefs.includes(item.href) : !toolHrefs.includes(item.href)) && isNavItemActive(item, pathname))
   const markFor = (item: NavItem): 'next' | null => {
     const target = workspace?.nextAction?.href.split('?')[0]
     return target && (target === navHref(item) || (item.href === '/optimize' && target.startsWith('/optimize/'))) ? 'next' : null
@@ -188,7 +189,7 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
           bottom && (moreActive || open ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted'),
         )}
       >
-        {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-lg bg-teal-soft text-teal">{toolsOnly ? <Squares2X2Icon className="size-5" /> : <EllipsisHorizontalIcon className="size-5" />}</span><span>{toolsOnly ? 'Tools' : 'More'}</span></> : <Bars3Icon className="size-5 text-teal" />}
+        {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center">{toolsOnly ? <Squares2X2Icon className="size-5" /> : <EllipsisHorizontalIcon className="size-5" />}</span><span>{toolsOnly ? 'Tools' : 'More'}</span></> : <Bars3Icon className="size-5 text-teal" />}
       </button>
 
       <SideSheet open={open} onClose={close} title={toolsOnly ? 'Preparation tools' : 'All services'} returnFocusTo={triggerRef}>

@@ -105,11 +105,11 @@ export function ApplicationWorkspace({ children }: { children: React.ReactNode }
   return <Context.Provider value={value}>{children}</Context.Provider>
 }
 
-export function ApplicationContextBar() {
+export function ApplicationContextBar({ onHome = false }: { onHome?: boolean }) {
   const router = useRouter()
   const pathname = usePathname()
   const workspace = useApplicationWorkspace()
-  if (!workspace) return null
+  if (!workspace || ((pathname === '/dashboard') !== onHome)) return null
   if (workspace.error) return <div className="border-b border-line px-4 py-2 text-sm" role="status">Application context could not be loaded. <button onClick={workspace.refresh} className="min-h-11 px-2 font-semibold text-teal underline">Try again</button></div>
   if (!workspace.ready || !workspace.rows.length) return null
   return <section aria-label="Current preparation" className="ui-context-bar flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-white px-4 py-3 sm:px-6">
