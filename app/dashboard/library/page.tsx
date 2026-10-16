@@ -304,10 +304,9 @@ function ApplicationCard({
         </button>
       </div>
 
-      <NameField value={pkg.name ?? ''} fallback={pkg.target_job_title} onSave={onRename} />
-
       {detailsOpen ? (
         <div className="flex flex-col gap-3 border-t border-line pt-3">
+          <NameField value={pkg.name ?? ''} fallback={pkg.target_job_title} onSave={onRename} />
           <ServiceUsageLine
             counts={
               usage
