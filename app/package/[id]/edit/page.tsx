@@ -5,8 +5,9 @@ import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import { useRouter } from 'next/navigation'
+import { ArrowUpIcon, ArrowDownIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, use } from 'react'
-import { AppShell } from '@/components/layout/AppShell'
+import styles from './editor.module.css'
 import { buttonVariants } from '@/components/ui/Button'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { getTemplate } from '@/lib/templates'
@@ -62,8 +63,8 @@ const removeBtn =
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-card border border-line bg-white p-5">
-      <h2 className="text-[13px] font-bold text-ink">{title}</h2>
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>{title}</h2>
       {hint ? <p className="mt-1 text-[12px] text-ink-muted">{hint}</p> : null}
       <div className="mt-3 flex flex-col gap-2.5">{children}</div>
     </section>
@@ -104,7 +105,7 @@ function RowList({
             <textarea
               value={value}
               onChange={(e) => onChange(items.map((x, j) => (j === i ? e.target.value : x)))}
-              rows={Math.max(2, Math.ceil(value.length / 48))}
+              rows={Math.max(2, Math.ceil(value.length / 58))}
               aria-label={`${itemLabel} ${i + 1}`}
               className="field min-w-0 flex-1 p-2.5"
             />
@@ -118,13 +119,13 @@ function RowList({
           )}
           <span className={cn('flex shrink-0 gap-1.5', multiline && 'justify-end')}>
             <button type="button" className={smallBtn} disabled={i === 0} onClick={() => onChange(move(items, i, i - 1))} aria-label={`Move ${itemLabel} ${i + 1} up`}>
-              ↑
+              <ArrowUpIcon className="size-[18px]" aria-hidden="true" />
             </button>
             <button type="button" className={smallBtn} disabled={i === items.length - 1} onClick={() => onChange(move(items, i, i + 1))} aria-label={`Move ${itemLabel} ${i + 1} down`}>
-              ↓
+              <ArrowDownIcon className="size-[18px]" aria-hidden="true" />
             </button>
             <button type="button" className={removeBtn} onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label={`Remove ${itemLabel} ${i + 1}`}>
-              ✕
+              <XMarkIcon className="size-[18px]" aria-hidden="true" />
             </button>
           </span>
         </div>
@@ -247,10 +248,10 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   const freeKinds = (Object.keys(CONTACT_KIND_LABELS) as ResumeContactItem['kind'][]).filter((k) => !usedKinds.has(k))
 
   return (
-    <main className="mx-auto w-full max-w-[1400px] px-3 py-6 font-redesign-sans sm:px-8">
+    <main className={cn(styles.editor, 'mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 lg:px-6')}>
       <div className="flex flex-col gap-3 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="font-display text-[24px] leading-tight text-ink">Edit your resume</h1>
+          <h1 className="text-[22px] font-bold leading-tight text-ink">Edit your resume</h1>
           <p className="text-[13px] text-ink-muted">
             Change any part of this resume. Changes apply to <strong className="text-ink">this resume only</strong> — your
             Career Profile stays as it is. Nothing is saved until you press Save.
@@ -287,7 +288,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
       ) : null}
 
       <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
+        <div className={cn(styles.form, 'flex min-w-0 flex-1 flex-col gap-6')}>
           {/* ---- Header ---- */}
           <Section title="Name, headline and contact">
             <div className="grid gap-2.5 sm:grid-cols-2">
@@ -309,7 +310,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                       />
                     </label>
                     <button type="button" className={removeBtn} onClick={() => setContact(contactItems.filter((_, j) => j !== i))} aria-label={`Remove ${CONTACT_KIND_LABELS[c.kind]}`}>
-                      ✕
+                      <XMarkIcon className="size-[18px]" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
@@ -346,7 +347,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
             <textarea
               value={draft.summary}
               onChange={(e) => update((d) => ({ ...d, summary: e.target.value }))}
-              rows={Math.max(6, Math.ceil(draft.summary.length / 60))}
+              rows={Math.max(4, Math.ceil(draft.summary.length / 70))}
               aria-label="Professional summary"
               className="field"
             />
@@ -358,15 +359,15 @@ function EditResumeInner({ packageId }: { packageId: string }) {
               const setItem = (fn: (x: typeof item) => typeof item) =>
                 update((d) => ({ ...d, experience: d.experience.map((x, j) => (j === i ? fn(x) : x)) }))
               return (
-                <div key={item.entry.id} className="flex flex-col gap-2.5 rounded-ctl border border-line bg-canvas/40 p-3.5">
+                <div key={item.entry.id} className="flex min-w-0 flex-col gap-2.5 border-t border-line py-3 first:border-t-0 first:pt-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[12px] font-bold uppercase tracking-wider text-ink-muted">Role {i + 1}</span>
+                    <span className="text-[13px] font-bold text-teal">Role {i + 1}</span>
                     <span className="flex gap-1">
                       <button type="button" className={smallBtn} disabled={i === 0} onClick={() => update((d) => ({ ...d, experience: move(d.experience, i, i - 1) }))} aria-label={`Move role ${i + 1} up`}>
-                        ↑
+                        <ArrowUpIcon className="size-[18px]" aria-hidden="true" />
                       </button>
                       <button type="button" className={smallBtn} disabled={i === draft.experience.length - 1} onClick={() => update((d) => ({ ...d, experience: move(d.experience, i, i + 1) }))} aria-label={`Move role ${i + 1} down`}>
-                        ↓
+                        <ArrowDownIcon className="size-[18px]" aria-hidden="true" />
                       </button>
                       <button
                         type="button"
@@ -376,7 +377,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                         }}
                         aria-label={`Remove role ${i + 1}`}
                       >
-                        ✕
+                        <XMarkIcon className="size-[18px]" aria-hidden="true" />
                       </button>
                     </span>
                   </div>
@@ -389,7 +390,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                     Project or role context (optional)
                     <textarea value={item.entry.description ?? ''} maxLength={10000} rows={3} className="field font-normal" onChange={e => setItem(x => ({ ...x, entry: { ...x.entry, description: e.target.value || null } }))} />
                   </label>
-                  <div className="text-[12px] font-semibold text-ink-soft">Activities</div>
+                  <div className="text-[13px] font-semibold text-teal">Activities</div>
                   <RowList items={item.bullets} onChange={(next) => setItem((x) => ({ ...x, bullets: next }))} addLabel="Add an activity" multiline itemLabel="Activity" />
                 </div>
               )
@@ -461,7 +462,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
                   <TextField label="Years" placeholder="2012—2016" value={ed.years} onChange={(v) => update((d) => ({ ...d, education: d.education.map((x, j) => (j === i ? { ...x, years: v } : x)) }))} />
                 </div>
                 <button type="button" className={removeBtn} onClick={() => update((d) => ({ ...d, education: d.education.filter((_, j) => j !== i) }))} aria-label={`Remove education ${i + 1}`}>
-                  ✕
+                  <XMarkIcon className="size-[18px]" aria-hidden="true" />
                 </button>
               </div>
             ))}
@@ -493,7 +494,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
 
         {/* ---- Live preview ---- */}
         <aside className="shrink-0 lg:sticky lg:top-4 lg:w-[420px]">
-          <div className="rounded-card border border-line bg-white p-4">
+          <div className="border-t border-line pt-4 lg:border-t-0 lg:border-l lg:pl-5">
             <h2 className="text-[12px] font-bold uppercase tracking-wider text-ink-soft">Live preview</h2>
             <p className="mt-1 text-[12px] text-ink-muted">Exactly what your PDF will contain once you save.</p>
             <ResumeDocumentView className="mt-3 w-full rounded-[3px]">
@@ -518,10 +519,8 @@ export default function EditResumePage(props: { params: Promise<{ id: string }> 
   // No sidebar here on purpose: this screen holds an easy-to-lose edit. "Back to
   // resume" is the one way out, and it warns when there is unsaved work.
   return (
-    <AppShell hideNav>
-      <Suspense>
-        <EditResumeInner packageId={params.id} />
-      </Suspense>
-    </AppShell>
+    <Suspense>
+      <EditResumeInner packageId={params.id} />
+    </Suspense>
   )
 }

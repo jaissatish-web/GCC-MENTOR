@@ -1,0 +1,63 @@
+/* Compact editor UI only. The resume template and exports keep their own type. */
+.editor {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.section {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.sectionTitle {
+  margin: 0;
+  border-bottom: 1px solid var(--ui-line);
+  padding-bottom: 8px;
+  color: var(--ui-brand);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.form label {
+  color: var(--ui-ink-soft, #414b55);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.editor .form :global(.field) {
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 6px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.editor .form textarea:global(.field) {
+  min-height: 4.5rem;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  padding-inline: 4px;
+  background: transparent;
+}
+
+.editor .form textarea:global(.field):focus {
+  background: var(--ui-surface, #fff);
+}
+
+/* Keep touch targets generous even as the surrounding form gets denser. */
+.form button[aria-label] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Avoid focus zoom on iOS while retaining the compact desktop/Android type. */
+@supports (-webkit-touch-callout: none) {
+  .editor .form :global(.field) {
+    font-size: 16px;
+  }
+}
