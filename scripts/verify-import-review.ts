@@ -53,3 +53,21 @@ assert.equal(restoredAttention[0].change?.id, change.id, 'restored spelling is a
 assert.ok(!importAttention(review, { ...completeEditor, work_experience: [] }).some(item => item.field.startsWith('work_experience')), 'freshers need no invented job history')
 assert.equal(importAttention(review, { ...completeEditor, email: '', phone: '', full_name: '', professional_summary: '', skills: [] }).length, 3, 'shortlist is limited to three real issues')
 console.log('PASS import review: factual safeguards, privacy masking, audit evidence, restore, stale edits and duplicate protection')
+
+// Preserve user control while presenting routine cleanup without error styling.
+const React = require('react')
+;(globalThis as unknown as { React: unknown }).React = React
+const { renderToStaticMarkup } = require('react-dom/server')
+const { ImportReviewCard } = require('../components/profile/ImportReviewCard')
+const props = { review, attention: pendingCorrection, currentValue: (c: import('../lib/resumeParse/importReview').ImportChange) => currentImportValue(completeEditor, c), onChange: () => {}, onEdit: () => {}, onRemove: async () => {} }
+const markup = renderToStaticMarkup(React.createElement(ImportReviewCard, props))
+assert.ok(markup.includes('Import cleanups') && markup.includes('Wording suggestions') && markup.includes('Details to verify'))
+assert.ok(markup.includes('Confirm review') && !markup.includes('Close review'), 'Collapsing must not sound like confirming review')
+assert.ok(!markup.includes('rose-'), 'Routine import presentation must not imply an error')
+assert.ok(markup.includes('Original resume text') && markup.includes('Restore original') && markup.includes('Review / edit profile'), 'Keep original text, restore and manual editing available')
+assert.ok(!markup.includes('x1234567'), 'Private identity numbers must stay masked in the UI')
+const blockedMarkup = renderToStaticMarkup(React.createElement(ImportReviewCard, {...props, canConfirm:false}))
+assert.ok(/<button[^>]*disabled=""[^>]*>Confirm review/.test(blockedMarkup), 'Unsaved edits must still prevent confirmation')
+const editedMarkup = renderToStaticMarkup(React.createElement(ImportReviewCard, {...props, currentValue:()=> 'My later manual edit'}))
+assert.ok(editedMarkup.includes('This field has since been edited.') && !editedMarkup.includes('>Restore original<'), 'Do not offer a restore that would overwrite a later manual edit')
+console.log('PASS import review UI: distinct categories/actions, neutral cleanups, save-before-confirm, stale edit and masking protections')
