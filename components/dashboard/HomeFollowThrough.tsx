@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRightIcon, CalendarDaysIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, CalendarDaysIcon, ClockIcon, CheckCircleIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
 import { cvReady, type PackageSummary } from '@/lib/packageSummary'
 import type { NextAction } from '@/lib/nextAction'
@@ -56,8 +56,11 @@ export function HomeUpcomingDates({ packages, loading, error, onRetry, now }: {
   packages: PackageSummary[]; loading: boolean; error: boolean; onRetry: () => void; now?: Date
 }) {
   const reminders = homeReminders(packages, now)
-  return <section className={styles.datesPanel} aria-labelledby="home-dates-heading" aria-busy={loading}>
-    <div className={styles.datesHeading}><CalendarDaysIcon aria-hidden="true" className="size-5 shrink-0 text-teal" /><h2 id="home-dates-heading">Deadlines & interview reminders</h2></div>
+  const first = reminders[0]
+  const summary = loading ? 'Checking your saved dates…' : error ? 'Tracker dates could not be loaded' : first ? `${reminders.length} reminder${reminders.length === 1 ? '' : 's'} · ${first.kind === 'interview' ? 'Interview' : 'Deadline'}: ${reminderTiming(first)}` : 'No upcoming dates · Add dates in your tracker'
+  return <details id="home-reminders" className={styles.datesPanel} aria-labelledby="home-dates-heading" aria-busy={loading}>
+    <summary className={styles.datesSummary}><h2 id="home-dates-heading"><CalendarDaysIcon aria-hidden="true" className="size-5 shrink-0" /><span>Deadlines & interview reminders<small>{summary}</small></span><ChevronDownIcon aria-hidden="true" className={styles.disclosureChevron} /></h2></summary>
+    <div id="home-reminder-list" className={styles.datesBody}>
     <p className={styles.datesIntro}>Upcoming dates and deadlines missed in the past 7 days, from your trackers. Interview times use your device’s time zone.</p>
     {loading ? <p role="status">Checking your saved dates…</p> : error ? <div role="alert"><p>Tracker dates could not be loaded.</p><button type="button" className={styles.action} onClick={onRetry}>Try again</button></div> : reminders.length ? <>
       <ul className={styles.dateList}>{reminders.slice(0, 6).map(item => <li key={item.id}>
@@ -71,7 +74,8 @@ export function HomeUpcomingDates({ packages, loading, error, onRetry, now }: {
       {reminders.length > 6 ? <p className={styles.datesIntro}>Showing the next 6 of {reminders.length} saved dates.</p> : null}
     </> : <p className={styles.emptyDates}>No upcoming dates saved. Add application deadlines and interview dates in each workspace’s Tracker tab to see them here.</p>}
     <Link href="/dashboard/library" className={styles.action}>Open Resume Library <ArrowRightIcon aria-hidden="true" className="size-4" /></Link>
-  </section>
+    </div>
+  </details>
 }
 
 /** Surface near-term dates before the long profile card, with details further down Home. */
@@ -80,7 +84,10 @@ export function HomeDateNotice({ packages, ready, now }: { packages: PackageSumm
   const dates = homeReminders(packages, now).filter(item => item.days <= 7)
   const first = dates[0]
   if (!first) return null
-  return <a href="#home-dates-heading" className={styles.dateNotice}>
+  return <a href="#home-reminder-list" className={styles.dateNotice} onClick={() => {
+    const panel = document.getElementById('home-reminders')
+    if (panel instanceof HTMLDetailsElement) panel.open = true
+  }}>
     <CalendarDaysIcon aria-hidden="true" className="size-5 shrink-0" />
     <span><strong>{first.kind === 'interview' ? 'Interview' : 'Application deadline'} · {reminderTiming(first)}</strong><span>{first.pkg.target_job_title}{dates.length > 1 ? ` · ${dates.length - 1} more date${dates.length > 2 ? 's' : ''}` : ''}</span><span className={styles.noticeCta}>View reminders</span></span>
     <ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" />

@@ -94,9 +94,11 @@ const firstHtml = renderToStaticMarkup(React.createElement(HomeNextStep,{action:
 assert.ok(firstHtml.includes('Start here') && firstHtml.includes('href="/profile?import=upload"'))
 const dateProps={packages:[followJob],loading:false,error:false,onRetry:()=>{},now:new Date(2026,9,17,10)}
 const datesHtml=renderToStaticMarkup(React.createElement(HomeUpcomingDates,dateProps))
+assert.ok(datesHtml.includes('<details id="home-reminders"') && datesHtml.includes('<summary') && !datesHtml.includes(' open=""'), 'Reminders are a native, initially collapsed disclosure')
+assert.ok(datesHtml.includes('1 reminder') && datesHtml.includes('id="home-reminder-list"'))
 assert.ok(datesHtml.includes('Tomorrow') && datesHtml.includes('href="/package/active-job?tab=tracker"'))
 const noticeHtml=renderToStaticMarkup(React.createElement(HomeDateNotice,{packages:[followJob],ready:true,now:dateProps.now}))
-assert.ok(noticeHtml.includes('Application deadline') && noticeHtml.includes('Tomorrow') && noticeHtml.includes('href="#home-dates-heading"'))
+assert.ok(noticeHtml.includes('Application deadline') && noticeHtml.includes('Tomorrow') && noticeHtml.includes('href="#home-reminder-list"'))
 assert.equal(renderToStaticMarkup(React.createElement(HomeDateNotice,{packages:[followJob],ready:false,now:dateProps.now})), '')
 const failedDates=renderToStaticMarkup(React.createElement(HomeUpcomingDates,{...dateProps,error:true}))
 assert.ok(failedDates.includes('role="alert"') && !failedDates.includes('Tomorrow') && !failedDates.includes('No upcoming dates'))

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { DocumentTextIcon, ArrowUpRightIcon, Cog6ToothIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
+import { DocumentTextIcon, ArrowUpRightIcon, Cog6ToothIcon, ChevronDownIcon, MapIcon } from '@heroicons/react/24/outline'
 import { HowItWorks } from '@/components/journey/HowItWorks'
 import { HomeProfile, HomeSavedWork } from '@/components/dashboard/CareerHome'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -153,13 +153,14 @@ export default function DashboardPage() {
       <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} />
 
       <HomeNextStep action={nextAction} packages={packages} ready={ready} error={loadError} onRetry={() => window.location.reload()} />
-      <HomeUpcomingDates packages={packages} now={clock} loading={!packagesLoaded} error={packagesError} onRetry={() => window.location.reload()} />
 
       <HomeSavedWork overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
 
-      {ready && packages.length > 0 ? <details className="group workspace-panel"><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink">Recent resumes <ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="divide-y divide-line border-t border-line">{packages.slice(0,3).map(item => <Link key={item.id} href={`/package/${encodeURIComponent(item.id)}`} className="flex min-h-16 items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal"><DocumentTextIcon className="size-5 shrink-0 text-teal" aria-hidden="true" /><span className="min-w-0 flex-1"><span className="block break-words type-label text-ink">{item.name || item.target_job_title}</span><span className="block type-caption text-ink-muted">{[item.target_company,item.target_country?.replaceAll('_',' ')].filter(Boolean).join(' · ') || 'Gulf application'}</span></span><ArrowUpRightIcon className="size-4 shrink-0 text-teal" aria-hidden="true" /></Link>)}</div></details> : null}
+      {ready && packages.length > 0 ? <details className={`group ${homeStyles.disclosureCard}`}><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink"><span className="flex min-w-0 items-center gap-2"><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0 text-teal" />Recent resumes</span><ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="divide-y divide-line border-t border-line">{packages.slice(0,3).map(item => <Link key={item.id} href={`/package/${encodeURIComponent(item.id)}`} className="flex min-h-16 items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal"><DocumentTextIcon className="size-5 shrink-0 text-teal" aria-hidden="true" /><span className="min-w-0 flex-1"><span className="block break-words type-label text-ink">{item.name || item.target_job_title}</span><span className="block type-caption text-ink-muted">{[item.target_company,item.target_country?.replaceAll('_',' ')].filter(Boolean).join(' · ') || 'Gulf application'}</span></span><ArrowUpRightIcon className="size-4 shrink-0 text-teal" aria-hidden="true" /></Link>)}</div></details> : null}
 
-      <details className="group workspace-panel"><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink">Journey & progress <ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="flex flex-col gap-6 border-t border-line p-4 sm:p-5">{ready ? <StageRail states={states} /> : null}{overview && !overviewError ? <OverallProgress overview={overview} /> : null}<InterviewProgressOverview /></div></details>
+      <HomeUpcomingDates packages={packages} now={clock} loading={!packagesLoaded} error={packagesError} onRetry={() => window.location.reload()} />
+
+      <details className={`group ${homeStyles.disclosureCard}`}><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink"><span className="flex min-w-0 items-center gap-2"><MapIcon aria-hidden="true" className="size-5 shrink-0 text-teal" />Journey & progress</span><ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="flex flex-col gap-6 border-t border-line p-4 sm:p-5">{ready ? <StageRail states={states} /> : null}{overview && !overviewError ? <OverallProgress overview={overview} /> : null}<InterviewProgressOverview /></div></details>
       <div className="self-start"><HowItWorks /></div>
     </div>
   )
