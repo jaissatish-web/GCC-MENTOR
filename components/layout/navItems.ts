@@ -87,7 +87,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.
-  { label: 'Resume Library', href: '/dashboard/library', iconClass: 'ui-nav-library', icon: BriefcaseIcon, shortLabel: 'Saved' },
+  { label: 'Resume Library', href: '/dashboard/library', iconClass: 'ui-nav-library', icon: BriefcaseIcon, shortLabel: 'Resumes' },
   { label: 'Resume Templates', href: '/templates', iconClass: 'ui-nav-templates', icon: RectangleStackIcon, shortLabel: 'Templates' },
   { label: 'Cover Letter', href: '/cover-letter', iconClass: 'ui-nav-letter', icon: EnvelopeIcon },
   { label: 'Optimize Resume', href: '/optimize', iconClass: 'ui-nav-tailor', icon: DocumentTextIcon, shortLabel: 'Optimize' },

@@ -20,7 +20,7 @@ export const PROFESSIONS: readonly Profession[] = [
 ]
 export const OUTPUTS = [
  {id:'match',label:'ATS job match',short:'See relevant matches and gaps',href:'/optimize/target'},
- {id:'cv',label:'Optimized resume',short:'A separate CV for this job',href:'/optimize/target'},
+ {id:'cv',label:'Optimized resume',short:'A separate resume for this job',href:'/optimize/target'},
  {id:'letter',label:'Cover letter',short:'Explain your fit for this role',href:'/cover-letter'},
  {id:'qa',label:'Interview Q&A',short:'Prepare relevant examples',href:'/interview-qa'},
  {id:'mock',label:'Mock interview',short:'Practise for this application',href:'/mock-interview'},

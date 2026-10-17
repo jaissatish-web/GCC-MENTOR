@@ -38,6 +38,7 @@ export function MobileBottomNav() {
           <Link
             key={item.label}
             href={navHref(item)}
+            aria-label={item.label}
             aria-current={active ? 'page' : undefined}
             className={cn(
               // flex-1, not a 64px minimum: five 64px slots plus the bar's

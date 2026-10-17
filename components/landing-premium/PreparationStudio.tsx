@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, BookOpen, Check, FileText, Mic, Pause, Play, UserRound } from 'lucide-react'
 import { PROFESSIONS } from '@/app/preparation-pack/catalog'
 import s from './premium.module.css'
+import { WrappedSelect } from '@/components/ui/WrappedSelect'
 const previews = [
  { title: 'ATS resume', route: '/optimize/target', icon: FileText },
  { title: 'Cover letter', route: '/cover-letter', icon: FileText },
@@ -60,7 +61,7 @@ export function PreparationStudio() {
   return () => window.clearInterval(timer)
  }, [playing])
  return <div ref={root} className={s.studio} id="preparation-demo" onPointerDownCapture={() => { manualUntil.current = Date.now() + 12000 }}>
-  <div className={s.studioBar}><label>Choose your profession<select value={profession} onChange={event => { setProfession(Number(event.target.value)); setJob(0) }}>{PROFESSIONS.map((item, i) => <option key={item.name} value={i}>{item.name}</option>)}</select></label><button type="button" className={s.rotationControl} aria-pressed={!playing} onClick={() => setPlaying(value => !value)}>{playing ? <Pause size={15}/> : <Play size={15}/>} {playing ? 'Pause preview' : 'Play preview'}</button></div>
+  <div className={s.studioBar}><WrappedSelect label="Choose your profession" options={PROFESSIONS.map(item => item.name)} value={profession} onChange={value => { setProfession(value); setJob(0) }}/><button type="button" className={s.rotationControl} aria-pressed={!playing} onClick={() => setPlaying(value => !value)}>{playing ? <Pause size={15}/> : <Play size={15}/>} {playing ? 'Pause preview' : 'Play preview'}</button></div>
   <div className={s.demoJobs} role="group" aria-label="Job focus">{p.paths.map((path, i) => <button key={path} type="button" aria-pressed={job === i} onClick={() => setJob(i)}><span>{rolesByPath[profession][i]}</span><b>{path}</b>{job === i ? <Check size={16}/> : <ArrowRight size={16}/>}</button>)}</div>
   <div className={`${s.tabs} ${s.photoTabs}`} role="tablist" aria-label="Preparation output">{previews.map((item, i) => <button key={item.title} ref={element => { refs.current[i] = element }} type="button" role="tab" id={`prep-tab-${i}`} aria-selected={tab === i} aria-controls="prep-output" tabIndex={tab === i ? 0 : -1} onClick={() => setTab(i)} onKeyDown={event => {
    const next = event.key === 'ArrowRight' ? (i + 1) % previews.length : event.key === 'ArrowLeft' ? (i + previews.length - 1) % previews.length : event.key === 'Home' ? 0 : event.key === 'End' ? previews.length - 1 : null

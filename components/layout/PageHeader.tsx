@@ -34,7 +34,7 @@ export function PageHeader({
       <div className="flex min-w-0 flex-col gap-1">
         {/* Same scale as PageShell (2026-09-23), so Settings reads as the same
             product as every other page. */}
-        <h1 className="type-title text-ink">
+        <h1 className="type-title break-words text-ink [overflow-wrap:anywhere]">
           {title}
         </h1>
         {description ? (
@@ -43,7 +43,7 @@ export function PageHeader({
           </p>
         ) : null}
       </div>
-      {actions ? <div className="flex shrink-0 flex-wrap gap-2.5">{actions}</div> : null}
+      {actions ? <div className="flex min-w-0 max-w-full flex-wrap gap-2.5 sm:max-w-[50%]">{actions}</div> : null}
     </div>
   )
 }
@@ -115,7 +115,7 @@ export function SectionCard({
             <p className="max-w-[70ch] type-helper text-ink-muted">{helper}</p>
           ) : null}
         </div>
-        {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
+        {actions ? <div className="flex min-w-0 max-w-full flex-wrap gap-2 sm:max-w-[50%]">{actions}</div> : null}
       </div>
       <div className="mt-5">{children}</div>
     </section>

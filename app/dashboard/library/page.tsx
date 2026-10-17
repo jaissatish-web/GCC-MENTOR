@@ -1,11 +1,12 @@
 'use client'
+import { formatTrackerDate } from '@/lib/trackerDates'
 import { CAREER_RESUME_BADGE, CAREER_RESUME_NAME, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { useCareerProfileResume } from '@/lib/useCareerProfileResume'
 
 import Link from 'next/link'
 import * as Dialog from '@radix-ui/react-dialog'
 import { buttonVariants } from '@/components/ui/Button'
-import { CTA } from '@/lib/serviceLabels'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import { Alert } from '@/components/ui/Alert'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { PageShell } from '@/components/layout/PageShell'
@@ -54,13 +55,6 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
  */
 
 const PAGE_SIZE = 20
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-function formatDay(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  return `${d.getDate()} ${MONTHS[d.getMonth()] ?? ''}`
-}
 
 function levelLabel(level: string): string {
   return level.charAt(0).toUpperCase() + level.slice(1)
@@ -215,8 +209,8 @@ function ApplicationCard({
     }
   }
   const trackerItems = [
-    pkg.application_deadline ? `Deadline ${formatDay(pkg.application_deadline)}` : null,
-    pkg.interview_date ? `Interview ${formatDay(pkg.interview_date)}` : null,
+    pkg.application_deadline ? `Deadline ${formatTrackerDate(pkg.application_deadline)}` : null,
+    pkg.interview_date ? `Interview ${formatTrackerDate(pkg.interview_date, true)}` : null,
     pkg.job_url ? 'Job link saved' : null,
   ].filter(Boolean) as string[]
   const id = encodeURIComponent(pkg.id)
@@ -232,10 +226,10 @@ function ApplicationCard({
           ? { label: CTA.startMockInterview, href: `/mock-interview?package=${id}` }
           : null
   const steps = [
-    { label: 'CV', done: cvReady, href: `/package/${id}` },
-    { label: 'Letter', done: letterPresent, href: `/cover-letter?package=${id}` },
-    { label: 'Q&A', done: qaIsReady, href: `/interview-qa?package=${id}` },
-    { label: 'Mock', done: mockIsDone, href: `/mock-interview?package=${id}` },
+    { label: NAMES.resume, done: cvReady, href: `/package/${id}` },
+    { label: NAMES.coverLetter, done: letterPresent, href: `/cover-letter?package=${id}` },
+    { label: NAMES.interviewQa, done: qaIsReady, href: `/interview-qa?package=${id}` },
+    { label: NAMES.mockInterview, done: mockIsDone, href: `/mock-interview?package=${id}` },
   ]
   const displayName = (pkg.name ?? '').trim() || pkg.target_job_title
 
@@ -257,15 +251,15 @@ function ApplicationCard({
           </div>
           {/* What tells two jobs with the same title apart. */}
           <p className="mt-1 type-caption text-ink-muted">
-            {isRaw ? 'No AI optimization' : `${levelLabel(pkg.optimization_level)} optimization`} · added {formatDay(pkg.created_at)}
-            {pkg.updated_at && pkg.updated_at.slice(0, 10) !== pkg.created_at.slice(0, 10) ? ` · updated ${formatDay(pkg.updated_at)}` : ''}
+            {isRaw ? 'No AI optimization' : `${levelLabel(pkg.optimization_level)} optimization`} · added {formatTrackerDate(pkg.created_at)}
+            {pkg.updated_at && pkg.updated_at.slice(0, 10) !== pkg.created_at.slice(0, 10) ? ` · updated ${formatTrackerDate(pkg.updated_at)}` : ''}
           </p>
         </div>
         {!isRaw ? <StageSelect value={pkg.status} onChange={onStage} className="self-start" /> : null}
       </div>
 
       {/* Preparation for this job: four steps, each one tap away. */}
-      <ol aria-label={`Preparation: ${readyCount} of ${totalCount} ready`} className="mt-auto grid grid-cols-4 gap-1.5">
+      <ol aria-label={`Preparation: ${readyCount} of ${totalCount} ready`} className="mt-auto grid grid-cols-2 gap-1.5 sm:grid-cols-4">
         {steps.map((st) => (
           <li key={st.label} className="min-w-0">
             <Link
@@ -276,7 +270,7 @@ function ApplicationCard({
               )}
             >
               <span aria-hidden="true">{st.done ? '✓' : '○'}</span>
-              <span className="truncate">{st.label}</span>
+              <span className="min-w-0 whitespace-normal break-words text-center">{st.label}</span>
               <span className="sr-only">{st.done ? 'ready' : 'not yet'}</span>
             </Link>
           </li>

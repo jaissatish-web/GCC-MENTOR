@@ -1,5 +1,6 @@
 'use client'
 
+import { NAMES } from '@/lib/serviceLabels'
 import { useState } from 'react'
 import {
   ArrowRightIcon,
@@ -19,7 +20,7 @@ import { SectionChip, type SectionTag } from '@/components/profile/CompletenessV
 import type { DimensionKey, GulfReadinessResult, MustHave, Recommendation } from '@/lib/gulfReadiness/types'
 
 /**
- * GULF READINESS — the screen behind the overview's Gulf Readiness card
+ * GULF READINESS — the screen behind the overview's GCC Readiness card
  * (founder brief 2026-10-04: "a separate window in which he can optimize what
  * is required, in a very good, block format").
  *
@@ -114,7 +115,7 @@ export function GulfReadinessView({
   if (!gulf) {
     return (
       <div className="px-3 sm:px-5 py-6">
-        <QuietNote>Working out your Gulf Readiness…</QuietNote>
+        <QuietNote>Working out your GCC Readiness…</QuietNote>
       </div>
     )
   }
@@ -150,7 +151,7 @@ export function GulfReadinessView({
         className={cn('flex flex-col gap-4 rounded-card-lg border border-line bg-gradient-to-br via-white to-white p-4 shadow-m-1 sm:p-6', tone.card)}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-          <ScoreRing value={gulf.finalScore} size={132} tone={tone.ring} suffix="/100" label="Gulf Readiness" className="self-center" />
+          <ScoreRing value={gulf.finalScore} size={132} tone={tone.ring} suffix="/100" label={NAMES.gccReadiness} className="self-center" />
           <div className="flex min-w-0 flex-1 flex-col gap-2" role="status" aria-live="polite">
             <span className="self-start rounded-full bg-white px-2.5 py-0.5 text-[12px] font-bold uppercase tracking-wide text-ink-soft shadow-m-1">
               {gulf.scenarioLabel}

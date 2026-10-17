@@ -61,3 +61,40 @@
     font-size: 16px;
   }
 }
+
+/* One compact sticky control surface, including on narrow phones. */
+.navigation {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ui-line);
+  background: var(--ui-surface, #fff);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.actions button { flex: 1; }
+
+.section, .preview {
+  scroll-margin-top: calc(var(--editor-navigation-height, 180px) + 16px);
+}
+
+.preview {
+  top: calc(var(--editor-navigation-height, 110px) + 16px);
+}
+
+@media (min-width: 640px) {
+  .actions { width: auto; }
+  .actions button { flex: initial; }
+}

@@ -1,5 +1,6 @@
 'use client'
 
+import { NAMES } from '@/lib/serviceLabels'
 import { useEffect, useState } from 'react'
 import {
   AdjustmentsHorizontalIcon,
@@ -33,13 +34,13 @@ import type { VisibilityGroupSummary } from '@/components/profile/CvVisibilitySe
  * THE CAREER PROFILE OVERVIEW (founder brief 2026-10-04).
  *
  * "The profile page looks very messy — segregate it." The page used to stack
- * an explainer, a facts grid, a section list, the whole Gulf Readiness plan and
+ * an explainer, a facts grid, a section list, the whole GCC Readiness plan and
  * a nine-section form on one screen. Now the overview is a set of cards, each
  * one thing, and each opens its own screen:
  *
  *   header            photo + Profile complete ring (unchanged)
  *   ProfileExplainer  what this page is, in plain words
- *   ScoreCards        Profile complete · Gulf Readiness — ring, number, one line
+ *   ScoreCards        Profile complete · GCC Readiness — ring, number, one line
  *   SettingsCard      what appears on the CV, group by group
  *   CareerSnapshot    current role, years, GCC years, location, target, visa · notice
  *
@@ -297,13 +298,13 @@ export function ScoreCards({
         onClick={onOpenReadiness}
         className={CARD_BUTTON}
       >
-        <span className="max-w-full break-words type-label font-medium text-ink-soft">Gulf Readiness</span>
+        <span className="max-w-full break-words type-label font-medium text-ink-soft">{NAMES.gccReadiness}</span>
         <span className="type-stat text-teal">{gulf ? gulf.finalScore : '—'}<span className="ml-1 type-label text-ink-muted">/100</span></span>
         <span className={cn('max-w-full break-words rounded-full px-2.5 py-0.5 type-helper font-semibold leading-snug', tone?.chip ?? 'bg-canvas text-ink-muted')}>
           {/* The verdict alone ("Almost ready"). Its full label adds the reason
               ("— 2 paperwork steps to check"), which the line below already
               counts — shown twice, the chip wrapped to three lines on a phone
-              (audit 2026-10-04, D5). The Gulf Readiness screen keeps the full label. */}
+              (audit 2026-10-04, D5). The GCC Readiness screen keeps the full label. */}
           {gulf ? gulf.verdict.label.split(' — ')[0] : 'Working it out…'}
         </span>
         <span className="type-caption leading-snug text-ink-soft">
@@ -619,7 +620,7 @@ export function SaveBar({
   onFinish: () => void
   /**
    * What the button does once everything is saved. On the overview it leaves
-   * for the dashboard; on a screen the overview opened (Gulf Readiness,
+   * for the dashboard; on a screen the overview opened (GCC Readiness,
    * completeness, full profile, settings) it goes back to the profile —
    * founder request 2026-10-04: after fixing a score, people want to see
    * their profile, not leave it.

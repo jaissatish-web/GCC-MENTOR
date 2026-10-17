@@ -47,12 +47,12 @@ export function PreparationJourney({
   const country = GULF_COUNTRIES.find((c) => c.value === pkg.target_country && c.value !== 'generic_gulf')?.label
 
   const steps: Array<{ key: Step; label: string; ready: boolean; href: string }> = [
-    { key: 'resume', label: 'Resume', ready: cvReady, href: `/package/${id}` },
-    { key: 'letter', label: 'Letter', ready: letterCount(pkg) > 0, href: `/cover-letter?package=${id}` },
-    { key: 'qa', label: 'Q&A', ready: qaReady(pkg), href: `/interview-qa?package=${id}` },
+    { key: 'resume', label: NAMES.resume, ready: cvReady, href: `/package/${id}` },
+    { key: 'letter', label: NAMES.coverLetter, ready: letterCount(pkg) > 0, href: `/cover-letter?package=${id}` },
+    { key: 'qa', label: NAMES.interviewQa, ready: qaReady(pkg), href: `/interview-qa?package=${id}` },
     {
       key: 'mock',
-      label: 'Mock',
+      label: NAMES.mockInterview,
       ready: Boolean(reportRunId),
       href: reportRunId ? `/mock-interview?package=${id}&run=${encodeURIComponent(reportRunId)}#interview-report` : `/mock-interview?package=${id}`,
     },
@@ -86,7 +86,7 @@ export function PreparationJourney({
 
       {isRaw && !bare ? <p className="mb-2 flex items-center gap-1.5 type-caption font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE} · Profile-based preparation</p> : null}
       {full && !isRaw ? <p className="mt-2 type-caption text-ink-muted">Saved application resume · {new Date(full.created_at).toLocaleDateString()}{country ? ` · ${country}` : ''}</p> : null}
-      <ol aria-label={isRaw ? 'Career Profile preparation' : "This job's pack"} className={cn('grid grid-cols-4 gap-1.5', bare ? 'mt-2' : 'mt-3')}>
+      <ol aria-label={isRaw ? 'Career Profile preparation' : "This job's pack"} className={cn('grid grid-cols-2 gap-1.5 sm:grid-cols-4', bare ? 'mt-2' : 'mt-3')}>
         {steps.map((step) => {
           const isHere = here === step.key
           const locked = step.key !== 'resume' && !cvReady
@@ -98,7 +98,7 @@ export function PreparationJourney({
             </>
           )
           const cls = cn(
-            'flex min-h-11 items-center justify-center gap-1.5 rounded-ctl border px-1 type-helper font-semibold',
+            'flex min-h-11 min-w-0 items-center justify-center gap-1.5 whitespace-normal break-words rounded-ctl text-center border px-1 type-helper font-semibold',
             isHere ? 'border-teal bg-teal-soft text-teal' : step.ready ? 'border-ok/30 bg-ok-soft text-ok' : 'border-line text-ink-muted',
           )
           return (

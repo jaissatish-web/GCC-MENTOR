@@ -75,7 +75,7 @@ export function PageShell({
         <div className="grid min-w-0 grid-cols-1 gap-y-1.5">
           <div className="flex min-w-0 flex-col gap-1.5">
             {eyebrow ? <GulfContext>{eyebrow}</GulfContext> : null}
-            <h1 className="type-title text-ink">
+            <h1 className="type-title break-words text-ink [overflow-wrap:anywhere]">
               {Icon ? <span className="ui-service-icon mr-2 inline-flex size-9 items-center justify-center rounded-ctl align-middle"><Icon className="size-5" aria-hidden="true" /></span> : null}
               {title}
             </h1>
@@ -88,7 +88,7 @@ export function PageShell({
           {uses && uses.length > 0 ? <span className="sr-only">Uses your {uses.join(' · ')}</span> : null}
         </div>
         {actions ? (
-          <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">{actions}</div>
+          <div className="flex min-w-0 max-w-full flex-col gap-2 sm:max-w-[50%] sm:flex-row sm:flex-wrap sm:items-center">{actions}</div>
         ) : null}
       </header>
 

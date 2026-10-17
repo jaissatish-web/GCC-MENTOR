@@ -48,17 +48,11 @@ import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } fr
 import { TargetJobOverview } from '@/components/package/TargetJobOverview'
 import { ResultsOverview } from '@/components/package/ResultsOverview'
 import { WorkspaceServiceCards } from '@/components/package/WorkspaceServiceCards'
+import { formatTrackerDate } from '@/lib/trackerDates'
 import { CTA, NAMES, USES } from '@/lib/serviceLabels'
 import { StageSelect } from '@/components/package/StageSelect'
 import { MatchResult, readMatchReport } from '@/components/optimizer/MatchResult'
 import { SuggestionsPanel } from '@/components/optimizer/SuggestionsPanel'
-
-const TIMELINE_FORMAT = new Intl.DateTimeFormat('en-IN', {
-  day: 'numeric',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-})
 
 function toDateTimeInput(value: string | null | undefined): string {
   if (!value) return ''
@@ -67,12 +61,6 @@ function toDateTimeInput(value: string | null | undefined): string {
   const offset = date.getTimezoneOffset()
   const local = new Date(date.getTime() - offset * 60_000)
   return local.toISOString().slice(0, 16)
-}
-
-function formatTimelineDate(value: string): string {
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  return TIMELINE_FORMAT.format(date)
 }
 
 function hasEvent(events: PackageServiceEvent[], type: PackageServiceEvent['type']): boolean {
@@ -227,6 +215,8 @@ function PackageScreenInner({ id }: { id: string }) {
   const [photoOpen, setPhotoOpen] = useState(false)
   const [styleMsg, setStyleMsg] = useState<string | null>(null)
   const [stageState, setStageState] = useState<string | null>(null)
+  const [trackerTimeZone, setTrackerTimeZone] = useState('your device time zone')
+  useEffect(() => { setTrackerTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone) }, [])
   const [trackerDraft, setTrackerDraft] = useState({
     job_url: '',
     application_deadline: '',
@@ -945,6 +935,7 @@ function PackageScreenInner({ id }: { id: string }) {
               <label className="flex flex-col gap-1.5 type-caption font-semibold text-ink-soft">
                 Application deadline
                 <input
+                  aria-describedby="tracker-deadline-hint"
                   type="date"
                   value={trackerDraft.application_deadline}
                   onChange={(e) =>
@@ -952,15 +943,18 @@ function PackageScreenInner({ id }: { id: string }) {
                   }
                   className="field font-normal"
                 />
+                <span id="tracker-deadline-hint" className="type-helper font-normal text-ink-muted">Use the employer’s calendar date. This date does not change with your time zone.</span>
               </label>
               <label className="flex flex-col gap-1.5 type-caption font-semibold text-ink-soft">
-                Interview date
+                Interview date and time
                 <input
+                  aria-describedby="tracker-interview-hint"
                   type="datetime-local"
                   value={trackerDraft.interview_date}
                   onChange={(e) => setTrackerDraft((draft) => ({ ...draft, interview_date: e.target.value }))}
                   className="field font-normal"
                 />
+                <span id="tracker-interview-hint" className="type-helper font-normal text-ink-muted">Enter the time in {trackerTimeZone}. Saved times display in the time zone of the device you use.</span>
               </label>
               <label className="flex flex-col gap-1.5 type-caption font-semibold text-ink-soft sm:row-span-2">
                 Notes
@@ -971,7 +965,7 @@ function PackageScreenInner({ id }: { id: string }) {
                   }
                   rows={4}
                   maxLength={3000}
-                  placeholder="Recruiter name, salary range, visa notes, portal password reminder..."
+                  placeholder="Recruiter name, salary range, visa notes, interview instructions..."
                   className="field min-h-[112px] resize-y font-normal"
                 />
               </label>
@@ -1007,7 +1001,7 @@ function PackageScreenInner({ id }: { id: string }) {
                     <span className="mt-1.5 size-2.5 rounded-full bg-teal ring-4 ring-teal-soft" />
                     <div>
                       <p className="type-helper font-semibold leading-snug text-ink">{event.label}</p>
-                      <p className="mt-0.5 type-caption text-ink-muted">{formatTimelineDate(event.at)}</p>
+                      <p className="mt-0.5 type-caption text-ink-muted">{formatTrackerDate(event.at, true)}</p>
                     </div>
                   </div>
                 ))

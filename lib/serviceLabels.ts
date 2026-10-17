@@ -11,6 +11,10 @@
  */
 
 export const NAMES = {
+  careerProfile: 'Career Profile',
+  resume: 'Resume',
+  gccReadiness: 'GCC Readiness',
+  resumeTemplates: 'Resume Templates',
   targetJob: 'Job You’re Applying For',
   jobTitle: 'Job Title You’re Applying For',
   jobDescription: 'Job description',

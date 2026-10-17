@@ -61,10 +61,10 @@ const smallBtn =
 const removeBtn =
   'flex size-9 shrink-0 items-center justify-center rounded-ctl text-[13px] font-semibold text-ink-muted transition-colors hover:bg-alert-soft hover:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert'
 
-function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+function Section({ id, title, hint, children }: { id: string; title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>{title}</h2>
+    <section id={id} data-resume-editor-section className={styles.section} aria-labelledby={`${id}-title`}>
+      <h2 id={`${id}-title`} tabIndex={-1} className={styles.sectionTitle}>{title}</h2>
       {hint ? <p className="mt-1 text-[12px] text-ink-muted">{hint}</p> : null}
       <div className="mt-3 flex flex-col gap-2.5">{children}</div>
     </section>
@@ -147,6 +147,64 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   const [saveBusy, setSaveBusy] = useState(false)
   const [justSaved, setJustSaved] = useState<string | null>(null)
   const didInit = useRef(false)
+  const navigation = useRef<HTMLDivElement>(null)
+  const editor = useRef<HTMLElement>(null)
+  const [activeSection, setActiveSection] = useState('resume-contact')
+  const additionalGroups = useMemo(() => resumeCategoryGroups(draft?.additional ?? []), [draft?.additional])
+  const sections = useMemo(() => [
+    { id: 'resume-contact', label: 'Name and contact' },
+    { id: 'resume-summary', label: 'Professional summary' },
+    { id: 'resume-experience', label: 'Work experience' },
+    { id: 'resume-skills', label: 'Skills' },
+    { id: 'resume-certifications', label: 'Certifications' },
+    { id: 'resume-education', label: 'Education' },
+    ...(additionalGroups.length ? additionalGroups.map(group => ({ id: `resume-custom-${encodeURIComponent(group.id)}`, label: group.name })) : [{ id: 'resume-additional', label: 'Additional information' }]),
+    { id: 'resume-preview', label: 'Live preview' },
+  ], [additionalGroups])
+  const sectionKey = sections.map(section => section.id).join('|')
+  const loaded = Boolean(pkg && draft)
+
+  // Measure the real toolbar height so zoom, wrapping and errors cannot hide headings.
+  useEffect(() => {
+    if (!loaded || !navigation.current) return
+    const bar = navigation.current
+    let frame = 0
+    const track = () => {
+      frame = 0
+      const targets = Array.from(editor.current?.querySelectorAll<HTMLElement>('[data-resume-editor-section]') ?? [])
+      let current = targets[0]?.id
+      const boundary = bar.getBoundingClientRect().bottom + 24
+      for (const target of targets) {
+        if (target.id === 'resume-preview' && window.matchMedia('(min-width: 1024px)').matches) continue
+        if (target.getBoundingClientRect().top <= boundary) current = target.id
+      }
+      if (current) setActiveSection(current)
+    }
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(track) }
+    const measure = () => {
+      editor.current?.style.setProperty('--editor-navigation-height', `${bar.offsetHeight}px`)
+      schedule()
+    }
+    const observer = new ResizeObserver(measure)
+    observer.observe(bar)
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', measure)
+    measure()
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', measure)
+      cancelAnimationFrame(frame)
+    }
+  }, [loaded, sectionKey])
+
+  const jumpToSection = (id: string) => {
+    const target = document.getElementById(id)
+    if (!target) return
+    setActiveSection(id)
+    target.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true })
+    target.scrollIntoView({ block: 'start', behavior: 'instant' })
+  }
 
   useEffect(() => {
     if (didInit.current) return
@@ -248,7 +306,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   const freeKinds = (Object.keys(CONTACT_KIND_LABELS) as ResumeContactItem['kind'][]).filter((k) => !usedKinds.has(k))
 
   return (
-    <main className={cn(styles.editor, 'mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 lg:px-6')}>
+    <main ref={editor} className={cn(styles.editor, 'mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 lg:px-6')}>
       <div className="flex flex-col gap-3 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="text-[22px] font-bold leading-tight text-ink">Edit your resume</h1>
@@ -257,40 +315,34 @@ function EditResumeInner({ packageId }: { packageId: string }) {
             Career Profile stays as it is. Nothing is saved until you press Save.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {dirty ? <span className="text-[12px] font-semibold text-teal">Unsaved changes</span> : null}
-          {justSaved && !dirty ? <span className="text-[12px] font-semibold text-teal">{justSaved}</span> : null}
-          <button
-            type="button"
-            onClick={() => void save()}
-            disabled={saveBusy || !dirty}
-            className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'disabled:cursor-not-allowed disabled:opacity-50')}
-          >
-            {saveBusy ? 'Saving…' : 'Save changes'}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (dirty && !window.confirm('You have unsaved changes. Leave without saving?')) return
-              backToResume()
-            }}
-            className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-          >
-            Back to resume
-          </button>
-        </div>
       </div>
 
-      {error ? (
-        <p role="alert" className="mt-4 rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 text-[13px] text-alert">
-          {error}
-        </p>
-      ) : null}
+      <div ref={navigation} className={styles.navigation}>
+        <nav aria-label="Resume sections" className="min-w-0 flex-1">
+          <label htmlFor="resume-section-selector" className="mb-1 block text-[12px] font-semibold text-teal">Jump to section</label>
+          <select id="resume-section-selector" value={activeSection} onChange={event => jumpToSection(event.target.value)} className="field min-h-11 w-full min-w-0 text-[16px]">
+            {sections.map((section, index) => <option key={section.id} value={section.id}>{index + 1}. {section.label}</option>)}
+          </select>
+        </nav>
+        <div className={styles.actions}>
+          <p role="status" aria-live="polite" className="w-full text-[12px] font-semibold text-teal">
+            {saveBusy ? 'Saving changes…' : dirty ? 'Unsaved changes' : justSaved ?? 'No unsaved changes'}
+          </p>
+          <button type="button" onClick={() => void save()} disabled={saveBusy || !dirty} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-h-11 disabled:cursor-not-allowed disabled:opacity-50')}>
+            {saveBusy ? 'Saving…' : 'Save changes'}
+          </button>
+          <button type="button" onClick={() => {
+            if (dirty && !window.confirm('You have unsaved changes. Leave without saving?')) return
+            backToResume()
+          }} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-h-11')}>Back to resume</button>
+        </div>
+        {error ? <p role="alert" className="basis-full rounded-ctl bg-alert-soft px-3 py-2 text-[13px] text-alert">{error}</p> : null}
+      </div>
 
       <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className={cn(styles.form, 'flex min-w-0 flex-1 flex-col gap-6')}>
           {/* ---- Header ---- */}
-          <Section title="Name, headline and contact">
+          <Section id="resume-contact" title="Name, headline and contact">
             <div className="grid gap-2.5 sm:grid-cols-2">
               <TextField label="Name" value={draft.header.displayName} onChange={(v) => update((d) => ({ ...d, header: { ...d.header, displayName: v } }))} />
               <TextField label="Headline (job title)" value={draft.header.targetJobTitle} onChange={(v) => update((d) => ({ ...d, header: { ...d.header, targetJobTitle: v } }))} />
@@ -343,7 +395,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </Section>
 
           {/* ---- Summary ---- */}
-          <Section title="Professional summary" hint="The opening paragraph of your resume.">
+          <Section id="resume-summary" title="Professional summary" hint="The opening paragraph of your resume.">
             <textarea
               value={draft.summary}
               onChange={(e) => update((d) => ({ ...d, summary: e.target.value }))}
@@ -354,7 +406,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </Section>
 
           {/* ---- Experience ---- */}
-          <Section title="Work experience" hint="Job title, company, dates and activities for each role, in the order shown on the resume.">
+          <Section id="resume-experience" title="Work experience" hint="Job title, company, dates and activities for each role, in the order shown on the resume.">
             {draft.experience.map((item, i) => {
               const setItem = (fn: (x: typeof item) => typeof item) =>
                 update((d) => ({ ...d, experience: d.experience.map((x, j) => (j === i ? fn(x) : x)) }))
@@ -418,7 +470,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </Section>
 
           {/* ---- Skills ---- */}
-          <Section title="Skills" hint="Add, remove or reorder. The first skills are the ones a recruiter reads first.">
+          <Section id="resume-skills" title="Skills" hint="Add, remove or reorder. The first skills are the ones a recruiter reads first.">
             <RowList
               items={draft.skills.map((s) => s.name)}
               itemLabel="Skill"
@@ -436,7 +488,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </Section>
 
           {/* ---- Certifications ---- */}
-          <Section title="Certifications">
+          <Section id="resume-certifications" title="Certifications">
             <RowList
               items={draft.certifications.map((c) => c.display)}
               itemLabel="Certification"
@@ -454,7 +506,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </Section>
 
           {/* ---- Education ---- */}
-          <Section title="Education">
+          <Section id="resume-education" title="Education">
             {draft.education.map((ed, i) => (
               <div key={ed.entry.id} className="flex items-end gap-1.5">
                 <div className="grid min-w-0 flex-1 gap-2.5 sm:grid-cols-[1fr_140px]">
@@ -481,21 +533,21 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </Section>
 
           {/* Named custom sections retain their entry identity and metadata. */}
-          {resumeCategoryGroups(draft.additional).map(group => <Section key={group.id} title={group.name} hint="Edit this resume’s items. Category position and visibility are set in Career Profile.">
+          {additionalGroups.map(group => <Section id={`resume-custom-${encodeURIComponent(group.id)}`} key={group.id} title={group.name} hint="Edit this resume’s items. Category position and visibility are set in Career Profile.">
             <RowList items={group.items.map(a => a.display)} itemLabel="Item" addLabel="Add an item"
               onChange={lines => update(d => ({ ...d, additional: [
                 ...d.additional.filter(a => (a.entry.category_id || a.entry.category_name || '__legacy') !== group.id),
                 ...lines.map((display,i) => ({ entry: (group.items[i]?.entry ?? { ...group.items[0]?.entry, id: tempId('info') }) as ResumeDocument['additional'][number]['entry'], display })),
               ] }))} />
           </Section>)}
-          {draft.additional.length === 0 ? <Section title="Additional information" hint="Add an item, or create named categories in Career Profile."><button type="button" className={removeBtn} onClick={() => update(d => ({ ...d, additional: [{ entry: { id: tempId('info') } as ResumeDocument['additional'][number]['entry'], display: '' }] }))}>Add an item</button></Section> : null}
+          {draft.additional.length === 0 ? <Section id="resume-additional" title="Additional information" hint="Add an item, or create named categories in Career Profile."><button type="button" className={removeBtn} onClick={() => update(d => ({ ...d, additional: [{ entry: { id: tempId('info') } as ResumeDocument['additional'][number]['entry'], display: '' }] }))}>Add an item</button></Section> : null}
 
         </div>
 
         {/* ---- Live preview ---- */}
-        <aside className="shrink-0 lg:sticky lg:top-4 lg:w-[420px]">
+        <aside id="resume-preview" data-resume-editor-section aria-labelledby="resume-preview-title" className={cn(styles.preview, "min-w-0 shrink-0 lg:sticky lg:w-[420px]")}>
           <div className="border-t border-line pt-4 lg:border-t-0 lg:border-l lg:pl-5">
-            <h2 className="text-[12px] font-bold uppercase tracking-wider text-ink-soft">Live preview</h2>
+            <h2 id="resume-preview-title" tabIndex={-1} className="text-[12px] font-bold uppercase tracking-wider text-ink-soft">Live preview</h2>
             <p className="mt-1 text-[12px] text-ink-muted">Exactly what your PDF will contain once you save.</p>
             <ResumeDocumentView className="mt-3 w-full rounded-[3px]">
               <Template

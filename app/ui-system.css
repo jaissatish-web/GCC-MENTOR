@@ -283,7 +283,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 }
 .app-type .workspace-heading .workspace-heading-icon { display:none; }
 
-.app-type .workspace-heading p:is(.type-body,.type-helper) { font-size:14px; line-height:1.6; }
+.app-type .workspace-heading p:is(.type-body,.type-helper) { font-size:.875rem; line-height:1.6; }
 .app-type .workspace-heading :is(.workspace-heading-link,.journey-guide-trigger) {
   color:var(--ui-brand);
   border:1px solid var(--ui-line);
@@ -752,4 +752,18 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   .app-type .interview-qa-page .qa-primary-actions { width: 100%; }
   .app-type .interview-qa-page .qa-primary-actions > button { flex: 1 1 100%; width: 100%; white-space: normal; }
   .app-type .interview-qa-page .qa-show-all { width: 100%; white-space: normal; }
+}
+
+/* Keep form controls and page actions inside narrow mobile content columns. */
+.app-type .workspace-heading > * { min-width: 0; }
+.app-type .field { min-width: 0; max-width: 100%; }
+.app-type input:is([type="date"], [type="datetime-local"], [type="month"]).field {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 639px) {
+  .app-type .workspace-heading .ui-button { width: 100%; }
+  .app-type .field { font-size: 1rem; }
 }

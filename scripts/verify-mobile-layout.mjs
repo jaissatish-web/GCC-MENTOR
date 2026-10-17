@@ -17,13 +17,17 @@ const rendered = spawnSync(process.execPath, ['-r', 'sucrase/register', '-e', `
   const {SectionCard} = require('./components/layout/PageHeader');
   const {FileText} = require('lucide-react');
   const {Button} = require('./components/ui/Button');
+  const {WrappedSelect} = require('./components/ui/WrappedSelect');
   const {ScoreCards} = require('./components/profile/ProfileOverview');
   console.log(renderToStaticMarkup(React.createElement(PageShell, {
-    title: 'Cover letter', subtitle: 'A clear letter based on your resume and target role.', icon: FileText
+    title: 'Cover letter', subtitle: 'A clear letter based on your resume and target role.', icon: FileText,
+    actions: React.createElement(Button, {size: 'sm'}, 'Optimize Resume for This Job')
   }, React.createElement(SectionCard, null,
     React.createElement('h2', {className: 'type-section'}, 'Choose your approach'),
     React.createElement('p', {className: 'type-body'}, 'Review your information before continuing.'),
     React.createElement('input', {className: 'field w-full', 'aria-label': 'Target role'}),
+    React.createElement(WrappedSelect, {label:'Choose your profession', options:['Instrumentation & automation','Process, production & operations'], value:1, onChange:()=>{}}),
+    React.createElement('input', {type: 'datetime-local', className: 'field w-full', 'aria-label': 'Interview date and time'}),
     React.createElement(Button, {size: 'sm'}, 'Continue')
   ), React.createElement(ScoreCards, {
     completeness: {score: 64, itemsLeft: 3, detail: '5 of 8 sections complete'},
@@ -77,16 +81,26 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${(width >= 640 ? 28 : 24) * scale}px`)
-      assert.equal(result.weight, '700')
+      assert.equal(result.titleSize, `${(width >= 640 ? 24 : 22) * scale}px`)
+      assert.equal(result.weight, '600')
       assert.equal(result.inputSize, `${16 * scale}px`)
-      assert.equal(result.bodySize, `${16 * scale}px`)
+      assert.equal(result.bodySize, `${14 * scale}px`)
       assert.ok(result.buttonHeight >= 44)
+      await page.$eval('details', element => { element.open = true })
+      const choices = await page.evaluate(() => ({
+        width: document.documentElement.scrollWidth,
+        clipped: [...document.querySelectorAll('details button span, details summary span')].some(element => element.scrollWidth > element.clientWidth + 1),
+        touch: [...document.querySelectorAll('details button, details summary')].every(element => element.getBoundingClientRect().height >= 44),
+      }))
+      assert.ok(choices.width <= width + 1, `Profession choices overflow at ${width}`)
+      assert.ok(!choices.clipped, `Profession labels clipped at ${width}`)
+      assert.ok(choices.touch, `Profession choices need 44px touch targets at ${width}`)
+      if (width === 390 && !enlarged) await page.screenshot({ path: 'artifacts/typography/shared-ui-390.png', fullPage: true })
       if (width < 640) assert.equal(result.subtitleX, result.iconX, 'Phone subtitle must use the full header width')
       else assert.equal(result.subtitleX, result.titleX, 'Larger screens align subtitle with title')
     }
   }
-  // Role tokens change semantic UI while deliberate utilities and documents stay independent.
+  // Approved UI utilities follow role tokens; resume documents stay independent.
   await page.setViewport({width: 390, height: 844})
   await page.setContent(`<html><head><style>${css}</style></head><body class="app-type"><main>
     <h1 class="type-title">Page title</h1>
@@ -121,7 +135,7 @@ try {
       captionSize: style('.caption-example').fontSize}
   })
   assert.deepEqual(configured, {title:'27px', section:'19px', body:'18px', family:'Arial',
-    radius:'9px', padding:'21px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'20px', utilityWeight:'700', captionSize:'13px'})
+    radius:'9px', padding:'12px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'19px', utilityWeight:'600', captionSize:'14px'})
   // Real public landing markup, production CSS and bundled Inter, without API calls.
   const publicMarkup = landing.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*>/gi, '')
@@ -129,8 +143,8 @@ try {
   for (const width of [360, 390, 430, 1280, 1366, 1440]) {
     for (const enlarged of [false, true]) {
       await page.setViewport({ width, height: width < 640 ? 844 : 900 })
-      await page.setContent(publicMarkup)
-      await page.addStyleTag({ content: css })
+      const bodyMarkup = publicMarkup.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? publicMarkup
+      await page.setContent(`<html><head><style>${css}</style></head><body class="${fontClass}">${bodyMarkup}</body></html>`)
       await page.evaluate(enlarged => {
         document.documentElement.classList.remove('js-reveal')
         document.documentElement.style.fontSize = enlarged ? '32px' : '16px'
@@ -144,15 +158,16 @@ try {
           clipped: hero.scrollWidth > hero.clientWidth + 1,
           sectionSize: parseFloat(getComputedStyle(document.querySelector('h2')).fontSize) }
       })
+      if (metrics.scroll > width + 1) await page.screenshot({path:'artifacts/typography/landing-overflow.png',fullPage:false})
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
-      assert.equal(metrics.weight, '700')
+      assert.equal(metrics.weight, '600')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       assert.ok(metrics.size > metrics.sectionSize, 'Hero must be larger than a section heading')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
     }
   }
-  console.log('PASS: production landing and shared UI at phone/laptop widths, enlarged text, distinct type roles, preserved utilities/documents, bundled Inter and 44px controls.')
+  console.log('PASS: production landing and shared UI at phone/laptop widths, enlarged text, distinct type roles, preserved document typography, bundled Inter and 44px controls.')
 } finally {
   await browser.close()
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { NAMES } from '@/lib/serviceLabels'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { loadHomeInterview, unfinishedInterviewWorkspace, type HomeInterview } from '@/lib/homeInterview'
@@ -49,10 +50,10 @@ export function HomeNextStep({ action, packages, ready, error, onRetry }: {
     ? `${savedInterview.saved} of ${savedInterview.total} answers saved. Continue where you left off.`
     : 'Your saved interview is ready to continue.'
   const steps = workspace ? [
-    { label: 'Resume', done: cvReady(workspace) },
-    { label: 'Cover letter', done: workspace.cover_letter_count > 0 },
-    { label: 'Q&A', done: workspace.qa_question_count > 0 },
-    { label: 'Mock interview', done: Boolean(workspace.mock_completed_run_id), inProgress: workspace.mock_in_progress },
+    { label: NAMES.resume, done: cvReady(workspace) },
+    { label: NAMES.coverLetter, done: workspace.cover_letter_count > 0 },
+    { label: NAMES.interviewQa, done: workspace.qa_question_count > 0 },
+    { label: NAMES.mockInterview, done: Boolean(workspace.mock_completed_run_id), inProgress: workspace.mock_in_progress },
   ] : []
   return <section aria-label="Your next step" className={styles.followThrough} aria-busy={!ready && !error}>
     <span className={styles.nextEyebrow}>Your next step</span>

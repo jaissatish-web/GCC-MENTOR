@@ -363,3 +363,11 @@
   .page :is(.heading h2,.navy h2,.final h2,.templatesCopy .heading h2) { font-size:22px; font-weight:500; line-height:1.35; }
   .page .heading p { font-size:15px; line-height:1.6; }
 }
+
+/* Long profession names wrap in the disclosure instead of disappearing in a select. */
+.page .studioBar > div { flex: 1; min-width: 0; max-width: 100%; }
+.page .studioBar summary { white-space: normal; overflow-wrap: anywhere; }
+.page .studioBar .rotationControl { flex-shrink: 0; }
+.page .demoJobs button > span { white-space: normal; overflow-wrap: anywhere; line-height: 1.5; }
+.page .pictureCaption > span { min-width: 0; overflow-wrap: anywhere; }
+.page .pictureCaption .primary { max-width: 100%; white-space: normal; text-align: center; }
