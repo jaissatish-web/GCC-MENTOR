@@ -149,6 +149,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   const didInit = useRef(false)
   const navigation = useRef<HTMLDivElement>(null)
   const editor = useRef<HTMLElement>(null)
+  const jumpScroll = useRef<number | null>(null)
   const [activeSection, setActiveSection] = useState('resume-contact')
   const additionalGroups = useMemo(() => resumeCategoryGroups(draft?.additional ?? []), [draft?.additional])
   const sections = useMemo(() => [
@@ -171,6 +172,10 @@ function EditResumeInner({ packageId }: { packageId: string }) {
     let frame = 0
     const track = () => {
       frame = 0
+      // Keep the chosen section when the browser clamps a jump near the page end
+      // or applies the site's scroll padding. Resume tracking on the next scroll.
+      if (jumpScroll.current !== null && Math.abs(window.scrollY - jumpScroll.current) < 2) return
+      jumpScroll.current = null
       const targets = Array.from(editor.current?.querySelectorAll<HTMLElement>('[data-resume-editor-section]') ?? [])
       let current = targets[0]?.id
       const boundary = bar.getBoundingClientRect().bottom + 24
@@ -204,6 +209,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
     setActiveSection(id)
     target.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true })
     target.scrollIntoView({ block: 'start', behavior: 'instant' })
+    jumpScroll.current = window.scrollY
   }
 
   useEffect(() => {
