@@ -3,12 +3,13 @@ import { CAREER_RESUME_BADGE, CAREER_RESUME_NAME, isCareerProfileResume } from '
 import { useCareerProfileResume } from '@/lib/useCareerProfileResume'
 
 import Link from 'next/link'
+import * as Dialog from '@radix-ui/react-dialog'
 import { buttonVariants } from '@/components/ui/Button'
 import { CTA } from '@/lib/serviceLabels'
 import { Alert } from '@/components/ui/Alert'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { PageShell } from '@/components/layout/PageShell'
-import { BriefcaseIcon, UserCircleIcon } from '@heroicons/react/24/outline'
+import { BriefcaseIcon, UserCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn, GULF_COUNTRIES, PACKAGE_STATUSES } from '@/lib/utils'
 import { StageSelect } from '@/components/package/StageSelect'
@@ -239,6 +240,7 @@ function ApplicationCard({
   const displayName = (pkg.name ?? '').trim() || pkg.target_job_title
 
   return (
+    <Dialog.Root open={detailsOpen} onOpenChange={setDetailsOpen}>
     <article className="ui-surface library-resume-card flex min-w-0 flex-col gap-3 bg-white sm:gap-4">
       {/* Who and where — the title opens this job's workspace. */}
       <div className="library-resume-card-heading flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
@@ -263,7 +265,7 @@ function ApplicationCard({
       </div>
 
       {/* Preparation for this job: four steps, each one tap away. */}
-      <ol aria-label={`Preparation: ${readyCount} of ${totalCount} ready`} className="grid grid-cols-4 gap-1.5">
+      <ol aria-label={`Preparation: ${readyCount} of ${totalCount} ready`} className="mt-auto grid grid-cols-4 gap-1.5">
         {steps.map((st) => (
           <li key={st.label} className="min-w-0">
             <Link
@@ -281,31 +283,39 @@ function ApplicationCard({
         ))}
       </ol>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
         {next ? (
-          <Link href={next.href} className={cn(buttonVariants({ variant: 'progress', size: 'sm' }), 'w-full sm:w-auto')}>
+          <Link href={next.href} className={cn(buttonVariants({ variant: 'progress', size: 'sm' }), 'col-span-2 min-h-11 w-full whitespace-normal break-words text-center')}>
             Next: {next.label}
           </Link>
         ) : (
-          <span className="w-full rounded-ctl bg-ok-soft px-3 py-2.5 text-center type-helper font-semibold text-ok sm:w-auto sm:text-left">
+          <span className="col-span-2 flex min-h-11 items-center justify-center rounded-ctl bg-ok-soft px-3 py-2.5 text-center type-helper font-semibold text-ok">
             {isRaw ? 'Your career preparation is ready' : 'Ready to apply — every step done'}
           </span>
         )}
-        <Link href={`/package/${id}`} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'flex-1 sm:flex-none')}>
+        <Link href={`/package/${id}`} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-h-11 min-w-0 w-full whitespace-normal text-center')}>
           Open workspace
         </Link>
-        <button
+        <Dialog.Trigger asChild><button
           type="button"
-          aria-expanded={detailsOpen}
-          onClick={() => setDetailsOpen((v) => !v)}
-          className="min-h-11 px-2 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:ml-auto"
+          className="min-h-11 rounded-ctl border border-line px-4 type-helper font-semibold text-teal underline-offset-2 hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
-          {detailsOpen ? 'Hide details' : 'Details'}
-        </button>
+          Details
+        </button></Dialog.Trigger>
       </div>
 
       {detailsOpen ? (
-        <div className="flex flex-col gap-3 border-t border-line pt-3">
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/40" />
+          <Dialog.Content className="app-type fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-50 flex max-h-[85dvh] min-w-0 flex-col overflow-hidden rounded-card border border-line bg-white shadow-m-drawer focus:outline-none sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:bottom-auto sm:w-[calc(100%_-_2rem)] sm:max-w-xl sm:-translate-x-1/2 sm:-translate-y-1/2">
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-line p-4 sm:p-5">
+              <div className="min-w-0">
+                <Dialog.Title className="type-card font-semibold text-ink">Resume details</Dialog.Title>
+                <Dialog.Description className="mt-1 break-words type-helper text-ink-soft">{displayName}</Dialog.Description>
+              </div>
+              <Dialog.Close asChild><button type="button" aria-label="Close resume details" className="flex size-11 shrink-0 items-center justify-center rounded-ctl border border-line text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><XMarkIcon aria-hidden="true" className="size-5" /></button></Dialog.Close>
+            </div>
+        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain break-words p-4 sm:p-5">
           <NameField value={pkg.name ?? ''} fallback={pkg.target_job_title} onSave={onRename} />
           <ServiceUsageLine
             counts={
@@ -357,15 +367,18 @@ function ApplicationCard({
               type="button"
               onClick={onDelete}
               aria-pressed={confirmingDelete}
-              className={cn(buttonVariants({ variant: confirmingDelete ? 'danger-solid' : 'danger', size: 'sm' }))}
+              className={cn(buttonVariants({ variant: confirmingDelete ? 'danger-solid' : 'danger', size: 'sm' }), 'max-w-full whitespace-normal text-left')}
             >
               {confirmingDelete ? 'Confirm: delete this job and its documents' : 'Delete'}
             </button> : null}
           </div>
           <p className="type-caption text-ink-muted">{templateNameFor(pkg.template_id)} template</p>
         </div>
+          </Dialog.Content>
+        </Dialog.Portal>
       ) : null}
     </article>
+    </Dialog.Root>
   )
 }
 
