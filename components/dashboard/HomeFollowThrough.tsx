@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { loadHomeInterview, unfinishedInterviewWorkspace, type HomeInterview } from '@/lib/homeInterview'
 import { ArrowRightIcon, CalendarDaysIcon, ClockIcon, CheckCircleIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
 import { cvReady, type PackageSummary } from '@/lib/packageSummary'
@@ -24,12 +26,28 @@ const GUIDANCE: Record<NextAction['state'], { label: string; title: string; body
 export function HomeNextStep({ action, packages, ready, error, onRetry }: {
   action: NextAction; packages: PackageSummary[]; ready: boolean; error: boolean; onRetry: () => void
 }) {
-  // A previous completed report must not hide a newer unfinished interview.
-  const ongoing = action.state === 'add_next_job' ? [...packages].filter(pkg => pkg.mock_in_progress).sort((a, b) => (b.updated_at || b.created_at).localeCompare(a.updated_at || a.created_at))[0] : null
-  if (ongoing) action = { ...action, state: 'job_needs_mock', href: `/mock-interview?package=${encodeURIComponent(ongoing.id)}`, cta: 'Continue interview' }
+  const suggestedAction = action
+  const suggestedWorkspace = nextActionWorkspace(suggestedAction, packages)
+  const ongoing = !['no_profile', 'draft_waiting'].includes(action.state) ? unfinishedInterviewWorkspace(packages) : null
+  const ongoingId = ready && !error ? ongoing?.id : undefined
+  const [interview, setInterview] = useState<HomeInterview | null>(null)
+  useEffect(() => {
+    if (!ongoingId) return
+    const controller = new AbortController()
+    void loadHomeInterview(ongoingId, fetch, controller.signal)
+      .then(value => { if (!controller.signal.aborted) setInterview(value) })
+      .catch(() => { if (!controller.signal.aborted) setInterview(null) })
+    return () => controller.abort()
+  }, [ongoingId, ongoing?.updated_at])
+  const savedInterview = interview?.packageId === ongoingId ? interview : null
+  if (ongoing) action = { ...action, state: 'job_needs_mock', href: savedInterview?.href ?? `/mock-interview?package=${encodeURIComponent(ongoing.id)}`, cta: 'Continue interview' }
   const copy = GUIDANCE[action.state]
-  const workspace = nextActionWorkspace(action, packages)
-  const resumeInterview = action.state === 'job_needs_mock' && workspace?.mock_in_progress
+  const workspace = ongoing ?? nextActionWorkspace(action, packages)
+  const resumeInterview = Boolean(ongoing)
+  const secondary = resumeInterview && ['job_needs_letter', 'job_needs_qa', 'job_not_generated', 'job_unpaid'].includes(suggestedAction.state)
+  const progress = savedInterview?.saved != null
+    ? `${savedInterview.saved} of ${savedInterview.total} answers saved. Continue where you left off.`
+    : 'Your saved interview is ready to continue.'
   const steps = workspace ? [
     { label: 'Resume', done: cvReady(workspace) },
     { label: 'Cover letter', done: workspace.cover_letter_count > 0 },
@@ -38,16 +56,20 @@ export function HomeNextStep({ action, packages, ready, error, onRetry }: {
   ] : []
   return <section aria-label="Your next step" className={styles.followThrough} aria-busy={!ready && !error}>
     <span className={styles.nextEyebrow}>Your next step</span>
-    <h2>{error ? 'Your saved progress could not be loaded' : !ready ? 'Checking your saved progress…' : resumeInterview ? 'Pick up where you left off' : copy.title}</h2>
+    <h2>{error ? 'Your saved progress could not be loaded' : !ready ? 'Checking your saved progress…' : resumeInterview ? 'Continue your interview' : copy.title}</h2>
     {ready && !error && workspace ? <div className={styles.resumeContext}>
       <p className={styles.workspaceName}>{[workspace.target_job_title, workspace.target_company].filter(Boolean).join(' · ')}</p>
       {workspace.name && workspace.name !== workspace.target_job_title ? <p className={styles.workspaceLabel}>{workspace.name}</p> : null}
     </div> : null}
-    <p className={styles.nextDescription}>{resumeInterview ? <ClockIcon aria-hidden="true" className="size-4 shrink-0" /> : null}<span>{error ? 'Try again to see where to continue.' : !ready ? 'Finding the next action from your saved profile and workspaces.' : resumeInterview ? 'Mock interview in progress' : copy.body}</span></p>
+    <p className={styles.nextDescription}>{resumeInterview ? <ClockIcon aria-hidden="true" className="size-4 shrink-0" /> : null}<span>{error ? 'Try again to see where to continue.' : !ready ? 'Finding the next action from your saved profile and workspaces.' : resumeInterview ? progress : copy.body}</span></p>
     <div className={styles.continueActions}>
       {error ? <button type="button" className={buttonVariants({ variant: 'primary' })} onClick={onRetry}>Try again</button> : ready ? <Link href={action.href} className={buttonVariants({ variant: 'primary' })}>{action.state === 'no_profile' ? 'Create Career Profile' : resumeInterview ? 'Continue interview' : action.cta}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link> : null}
       {ready && !error && workspace ? <Link href={`/package/${encodeURIComponent(workspace.id)}`} className={styles.contextLink}>Open workspace <ArrowRightIcon aria-hidden="true" className="size-4" /></Link> : null}
     </div>
+    {ready && !error && secondary ? <div className={styles.secondarySuggestion}>
+      <span>Next suggested step{suggestedWorkspace && suggestedWorkspace.id !== workspace?.id ? ` · ${suggestedWorkspace.target_job_title}` : ''}</span>
+      <Link href={suggestedAction.href} className={styles.contextLink}>{suggestedAction.cta}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
+    </div> : null}
     {ready && !error && workspace ? <ul aria-label="Saved preparation status" className={styles.preparationStatus}>{steps.map(step => <li key={step.label}>{step.done && !step.inProgress ? <CheckCircleIcon aria-hidden="true" className="size-4 shrink-0" /> : <ClockIcon aria-hidden="true" className="size-4 shrink-0" />}<span>{step.label}: {step.inProgress ? 'In progress' : step.done ? 'Ready' : 'To prepare'}</span></li>)}</ul> : ready && !error ? <p className={styles.nextContext}>{copy.label}</p> : null}
   </section>
 }

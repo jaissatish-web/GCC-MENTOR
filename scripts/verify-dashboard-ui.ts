@@ -87,10 +87,14 @@ const {HomeNextStep,HomeUpcomingDates,HomeDateNotice} = require('../components/d
 const followJob = {id:'active-job',name:'My saved job',target_job_title:'Lead Engineer',target_company:'Example EPC',status:'saved',has_resume:true,cover_letter_count:1,qa_question_count:25,mock_in_progress:true,mock_completed_run_id:null,application_deadline:'2026-10-18',interview_date:null}
 const followAction = {state:'job_needs_mock',href:'/mock-interview?package=active-job',title:'Practice',body:'Practice',cta:'Start mock interview'}
 const continueHtml = renderToStaticMarkup(React.createElement(HomeNextStep,{action:followAction,packages:[followJob],ready:true,error:false,onRetry:()=>{}}))
-assert.ok(continueHtml.includes('Pick up where you left off') && continueHtml.includes('My saved job'))
+assert.ok(continueHtml.includes('Continue your interview') && continueHtml.includes('My saved job'))
 assert.ok(continueHtml.includes('Mock interview: In progress') && continueHtml.includes('href="/mock-interview?package=active-job"'))
 const returningPractice = renderToStaticMarkup(React.createElement(HomeNextStep,{action:{...followAction,state:'add_next_job'},packages:[{...followJob,created_at:'2026-10-01',updated_at:'2026-10-17',mock_completed_run_id:'earlier-report'}],ready:true,error:false,onRetry:()=>{}}))
-assert.ok(returningPractice.includes('Pick up where you left off') && returningPractice.includes('Mock interview: In progress'), 'An earlier report cannot conceal a newer unfinished attempt')
+assert.ok(returningPractice.includes('Continue your interview') && returningPractice.includes('Mock interview: In progress'), 'An earlier report cannot conceal a newer unfinished attempt')
+const missingLetter = renderToStaticMarkup(React.createElement(HomeNextStep,{action:{...followAction,state:'job_needs_letter',href:'/cover-letter?package=active-job',cta:'Write cover letter'},packages:[{...followJob,cover_letter_count:0}],ready:true,error:false,onRetry:()=>{}}))
+assert.ok(missingLetter.includes('Continue your interview') && missingLetter.includes('Next suggested step') && missingLetter.includes('href="/cover-letter?package=active-job"'),'Unfinished interview is primary even with a missing cover letter, which remains a secondary action')
+const otherJob = renderToStaticMarkup(React.createElement(HomeNextStep,{action:{...followAction,state:'job_needs_qa',href:'/interview-qa?package=other-job',cta:'Prepare answers'},packages:[{...followJob,updated_at:'2026-10-17'},{...followJob,id:'other-job',target_job_title:'Other role',mock_in_progress:false}],ready:true,error:false,onRetry:()=>{}}))
+assert.ok(otherJob.includes('Next suggested step · Other role') && otherJob.includes('href="/mock-interview?package=active-job"'),'Secondary actions for a different workspace must identify that job')
 const firstHtml = renderToStaticMarkup(React.createElement(HomeNextStep,{action:computeNextAction(null,[],0),packages:[],ready:true,error:false,onRetry:()=>{}}))
 assert.ok(firstHtml.includes('Start here') && firstHtml.includes('href="/profile?import=upload"'))
 const dateProps={packages:[followJob],loading:false,error:false,onRetry:()=>{},now:new Date(2026,9,17,10)}
