@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { DocumentTextIcon, ArrowUpRightIcon, Cog6ToothIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { HowItWorks } from '@/components/journey/HowItWorks'
-import { HomeProfile, HomeScores, HomeSavedWork } from '@/components/dashboard/CareerHome'
+import { HomeProfile, HomeSavedWork } from '@/components/dashboard/CareerHome'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { StageRail } from '@/components/journey/JourneyStepper'
 import { stageSnapshot, stageStates } from '@/components/journey/stages'
@@ -146,8 +146,7 @@ export default function DashboardPage() {
         <Link href="/settings" aria-label="Account settings" className="flex size-11 shrink-0 items-center justify-center rounded-ctl text-ink-soft hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><Cog6ToothIcon className="size-5" aria-hidden="true" /></Link>
       </header>
 
-      <HomeScores profile={profile} score={score} missing={missing.length} gulf={gulf} loading={!profileLoaded} error={profileError} />
-      <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} packages={packages} workLoading={!packagesLoaded} workError={loadError} missingLabels={missing.map(item => item.label)} />
+      <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} />
 
       <section aria-label="Your next step" className="workspace-panel overflow-hidden">
         <div className={homeStyles.nextStep}>
