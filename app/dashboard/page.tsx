@@ -8,7 +8,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { StageRail } from '@/components/journey/JourneyStepper'
 import { stageSnapshot, stageStates } from '@/components/journey/stages'
 import { displayFirstName } from '@/lib/utils'
-import { type PackageListPage, type PackageSummary } from '@/lib/packageSummary'
+import { type PackageSummary } from '@/lib/packageSummary'
+import { fetchHomePackages } from '@/lib/homeFollowThrough'
+import { HomeNextStep, HomeUpcomingDates, HomeDateNotice } from '@/components/dashboard/HomeFollowThrough'
 import { InterviewProgressOverview } from '@/components/dashboard/InterviewProgressOverview'
 import { OverallProgress } from '@/components/dashboard/ActivityOverview'
 import { dashboardNextAction, type DashboardOverview } from '@/lib/dashboardOverview'
@@ -20,11 +22,19 @@ import type { CareerProfileFull } from '@/types/careerProfile'
 
 /** Overall scores, saved totals and progress; individual resumes live in the Library. */
 export default function DashboardPage() {
+  const [clock, setClock] = useState(() => new Date())
+  useEffect(() => {
+    const update = () => setClock(new Date())
+    const timer = window.setInterval(update, 60_000)
+    window.addEventListener('focus', update)
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', update) }
+  }, [])
   const [profile, setProfile] = useState<CareerProfileFull | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [profileError, setProfileError] = useState(false)
   const [packages, setPackages] = useState<PackageSummary[]>([])
   const [packagesLoaded, setPackagesLoaded] = useState(false)
+  const [packagesError, setPackagesError] = useState(false)
   // A CV reading kept on the server until the user decides (migration 047).
   // When there is one, it is the next step above everything else.
   const [hasPendingDraft, setHasPendingDraft] = useState(false)
@@ -63,14 +73,9 @@ export default function DashboardPage() {
       // there is no profile — never a flash before the fetch resolves.
       .finally(() => setProfileLoaded(true))
     // Summaries choose the next destination; all-account totals use the aggregate RPC.
-    fetch('/api/packages?view=summary&limit=50', { cache: 'no-store' })
-      .then((res) => { if (!res.ok) throw new Error('Unable to load packages'); return res.json() as Promise<PackageListPage> })
-      .then((data) => {
-        if (Array.isArray(data?.packages)) setPackages(data.packages)
-      })
-      .catch(() => {
-        setLoadError(true)
-      })
+    fetchHomePackages()
+      .then(setPackages)
+      .catch(() => { setPackagesError(true); setLoadError(true) })
       .finally(() => setPackagesLoaded(true))
     // A CV reading waiting for a decision (migration 047). Best-effort: if it
     // cannot be read, the dashboard simply shows its usual next step.
@@ -136,8 +141,6 @@ export default function DashboardPage() {
   // differ only when a CV reading is waiting, which is a to-do, not a step.
   const snap = (ready ? stageSnapshot(profile ? score : null, packages) : null)
   const states = snap?.states ?? stageStates('profile', { profileDone: false, cvDone: false, applyDone: false })
-  const draftWaiting = nextAction.state === 'draft_waiting'
-  const firstRun = ready && nextAction.state === 'no_profile'
 
   return (
     <div className={`ui-page page-gutter mx-auto flex w-full max-w-[900px] flex-col pb-10 font-redesign-sans ${homeStyles.page}`}>
@@ -146,18 +149,11 @@ export default function DashboardPage() {
         <Link href="/settings" aria-label="Account settings" className="flex size-11 shrink-0 items-center justify-center rounded-ctl text-ink-soft hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><Cog6ToothIcon className="size-5" aria-hidden="true" /></Link>
       </header>
 
+      <HomeDateNotice packages={packages} ready={packagesLoaded && !packagesError} now={clock} />
       <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} />
 
-      <section aria-label="Your next step" className="workspace-panel overflow-hidden">
-        <div className={homeStyles.nextStep}>
-          <div className={homeStyles.nextCopy}>
-            <span className="type-caption font-medium uppercase tracking-wide text-gold-soft">{draftWaiting ? 'Review your import' : 'Next step'}</span>
-            <h2 className="type-section text-white">{loadError ? 'Your saved work could not be loaded' : !ready ? 'Loading your next step…' : firstRun ? 'Create your Career Profile' : nextAction.state === 'no_target_job' ? 'Add Job Details' : nextAction.title}</h2>
-            <p className="max-w-[55ch] type-helper text-white/85">{loadError ? 'Please try again.' : !ready ? 'Checking saved progress.' : firstRun ? 'Upload your resume or enter your details.' : nextAction.state === 'no_target_job' ? 'Optimize your resume for a job you want to apply for.' : nextAction.body}</p>
-          </div>
-          {loadError ? <button type="button" onClick={() => window.location.reload()} className={GOLD_CTA}>Try again</button> : ready && !firstRun ? <Link href={nextAction.href} className={GOLD_CTA}>{nextAction.state === 'no_target_job' ? 'Add job' : nextAction.cta} <ArrowUpRightIcon className="ml-2 size-4" aria-hidden="true" /></Link> : null}
-        </div>
-      </section>
+      <HomeNextStep action={nextAction} packages={packages} ready={ready} error={loadError} onRetry={() => window.location.reload()} />
+      <HomeUpcomingDates packages={packages} now={clock} loading={!packagesLoaded} error={packagesError} onRetry={() => window.location.reload()} />
 
       <HomeSavedWork overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
 
@@ -169,8 +165,6 @@ export default function DashboardPage() {
   )
 }
 
-const GOLD_CTA =
-  'inline-flex min-h-12 shrink-0 items-center justify-center rounded-ctl bg-gold px-6 type-button text-ink transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal'
 function greeting(): string {
   const hour = new Date().getHours()
   if (hour < 12) return 'morning'

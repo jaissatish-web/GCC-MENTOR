@@ -64,13 +64,11 @@ export function HomeProfile({ profile, loading, error, missingLabels = [], score
   const initials = (profile.full_name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(n => n[0]).join('') || 'Me'
   const profileScore = score ?? profile.readiness_score ?? 0
   return <section aria-labelledby="home-profile-heading" className={styles.profile}>
-    {heading}
-    <div className={styles.identity}>
+    <div className={styles.foundationIdentity}>
       <Link href="/profile?view=details" aria-label="Edit your Career Profile" className={styles.avatar}>
-        {profile.photo_url ? <Image src={profile.photo_url} alt="" width={52} height={52} unoptimized className="h-full w-full object-cover" /> : <span aria-hidden="true">{initials}</span>}
+        {profile.photo_url ? <Image src={profile.photo_url} alt="" width={96} height={96} unoptimized className="h-full w-full object-cover" /> : <span aria-hidden="true">{initials}</span>}
       </Link>
-      <span className="min-w-0 flex-1 break-words type-label text-ink">{profile.full_name || 'Your saved profile'}</span>
-      <Link href="/profile?view=details" className={styles.action}><PencilSquareIcon aria-hidden="true" className="size-4" /> Edit</Link>
+      <div className="min-w-0 flex-1">{heading}<div className={styles.identityText}><span>{profile.full_name || 'Your saved profile'}</span><Link href="/profile?view=details" className={styles.action}><PencilSquareIcon aria-hidden="true" className="size-4" /> Edit</Link></div></div>
     </div>
     <HomeScores profile={profile} score={profileScore} missing={missingLabels.length} gulf={gulf} loading={false} error={false} />
     <div className={styles.profileNext}>

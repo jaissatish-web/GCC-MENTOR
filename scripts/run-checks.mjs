@@ -30,6 +30,7 @@ const TS_CHECKS = [
   'verify-linkedin.ts',
   'verify-professional-profiles.ts',
   'verify-dashboard-ui.ts',
+  'verify-home-followthrough.ts',
   'verify-career-profile-resume.ts',
   'verify-next-action.ts',
   'verify-stages.ts',
