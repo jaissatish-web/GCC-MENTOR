@@ -1,8 +1,10 @@
 'use client'
 
+import { WorkExperienceItem } from '@/components/profile/WorkExperienceItem'
+import { sortedWorkRoles } from '@/lib/profileWorkNavigation'
 import { ImportReviewCard } from '@/components/profile/ImportReviewCard'
 import type { ImportReview } from '@/lib/resumeParse/importReview'
-import { applyImportChange, currentImportValue } from '@/lib/resumeParse/reviewEditor'
+import { applyImportChange, currentImportValue, importJobIndex } from '@/lib/resumeParse/reviewEditor'
 import { importAttention } from '@/lib/resumeParse/importAttention'
 import { organizeCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
 import { CategoryEditor } from '@/components/profile/CategoryEditor'
@@ -1297,6 +1299,7 @@ function ProfileScreen() {
   // Populated only after the user actually tries to save — a field is never
   // shown as an error before they have had a chance to fill it.
   const [invalidFields, setInvalidFields] = useState<Set<string>>(new Set())
+  const [expandedWorkKey, setExpandedWorkKey] = useState<string | null>(null)
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
   const didAutoOpen = useRef(false)
 
@@ -1694,13 +1697,17 @@ function ProfileScreen() {
   // has to be obvious from where the user actually is — the bottom of the list
   // they just finished — not only from a control in the section header.
   const addWork = useCallback(() => {
+    const key = uid()
+    setExpandedWorkKey(key)
+    setOpenSections(prev => ({ ...prev, sec_work_experience: true }))
+    setPendingFocus({ sectionId: 'sec_work_experience', field: `work_role_${key}` })
     setEditor((e) =>
       e
         ? {
             ...e,
             work_experience: [
               ...e.work_experience,
-              { key: uid(), company: '', role: '', start_date: '', end_date: '', location: '', description: '', highlights: '', gcc_country: '' },
+              { key, company: '', role: '', start_date: '', end_date: '', location: '', description: '', highlights: '', gcc_country: '' },
             ],
           }
         : e
@@ -2048,7 +2055,12 @@ function ProfileScreen() {
       busy={submitting}
       currentValue={change => currentImportValue(editor, change)}
       onChange={(change, value) => setEditor(e => e ? applyImportChange(e, change, value, uid) : e)}
-      onEdit={field => goToProfilePart({ sectionId: field.startsWith('work_experience') ? 'sec_work_experience' : field === 'professional_summary' ? 'sec_summary' : field === 'skills' ? 'sec_skills' : field.startsWith('education') ? 'sec_education' : field.startsWith('certifications') ? 'sec_certifications' : field.startsWith('additional') ? 'sec_additional' : sectionOfField(field) ?? 'sec_identity', field: field.includes('.') ? undefined : field })}
+      onEdit={(field, change) => {
+        const workIndex = change ? importJobIndex(editor, change) : Number(field.match(/^work_experience\.(\d+)/)?.[1] ?? -1)
+        const work = workIndex >= 0 ? editor.work_experience[workIndex] : undefined
+        if (work) setExpandedWorkKey(work.key)
+        goToProfilePart({ sectionId: field.startsWith('work_experience') ? 'sec_work_experience' : field === 'professional_summary' ? 'sec_summary' : field === 'skills' ? 'sec_skills' : field.startsWith('education') ? 'sec_education' : field.startsWith('certifications') ? 'sec_certifications' : field.startsWith('additional') ? 'sec_additional' : sectionOfField(field) ?? 'sec_identity', field: work ? `work_role_${work.key}` : field.includes('.') ? undefined : field })
+      }}
       onRemove={async () => {
         const response = await fetch('/api/profile/import-review', { method: 'DELETE' })
         if (!response.ok) throw new Error('remove failed')
@@ -2730,7 +2742,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_work_experience')}
           title="Work experience"
-          helper="Most recent first. Responsibilities, measurable results, and the standards you worked to."
+          helper="Newest roles first. Open one role to review or edit its details."
           badge={editor.work_experience.length ? `${editor.work_experience.length} found` : undefined}
           action={
               <button
@@ -2743,8 +2755,8 @@ function ProfileScreen() {
             }
         >
           <div className="flex flex-col gap-4">
-            {editor.work_experience.map((w, i) => (
-              <div key={w.key} className="ui-mobile-flat flex flex-col gap-3 rounded-ctl border border-line bg-white p-3.5 shadow-m-1">
+            {sortedWorkRoles(editor.work_experience).map((w, i) => (
+              <WorkExperienceItem key={w.key} role={w} number={i + 1} open={expandedWorkKey === w.key} onToggle={() => setExpandedWorkKey(key => key === w.key ? null : w.key)}>
                 <div className="flex items-center justify-between">
                   <span className="type-helper font-semibold text-sec-experience">
                     {w.role.trim() || `Role ${i + 1}`}
@@ -2766,7 +2778,7 @@ function ProfileScreen() {
                     Remove
                   </button>
                 </div>
-                <Input tone="light" label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
+                <Input id={`f_work_role_${w.key}`} tone="light" label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
                 <Input tone="light" label="Company" placeholder="e.g. Bechtel" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   <DateField id={`f_work_start_${w.key}`} label="Start" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
@@ -2821,7 +2833,7 @@ function ProfileScreen() {
                   />
                   <span className="field-hint">One result per line. Numbers get noticed.</span>
                 </label>
-              </div>
+              </WorkExperienceItem>
             ))}
             <AddRowButton label="Add another role" onClick={addWork} />
           </div>

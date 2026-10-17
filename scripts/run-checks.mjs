@@ -44,6 +44,7 @@ const TS_CHECKS = [
   'verify-profile-categories.ts',
   'verify-resume-parse.ts',
   'verify-import-review.ts',
+  'verify-profile-review-navigation.ts',
   'verify-client-import.ts',
   'verify-loose-duties.ts',
   'verify-match-terms.ts',

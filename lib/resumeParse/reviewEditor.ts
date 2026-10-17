@@ -5,7 +5,7 @@ interface ReviewEditor {
   work_experience: Array<{ company: string; role: string; start_date: string; description: string; highlights: string }>
   skills: Array<{ key: string; name: string }>
 }
-function jobIndex(editor: ReviewEditor, change: ImportChange): number {
+export function importJobIndex(editor: ReviewEditor, change: ImportChange): number {
   if (!change.job) return -1
   const anchor = change.job
   const matches = editor.work_experience.map((job, i) => ({ job, i })).filter(({ job }) => job.company === anchor.company && job.role === anchor.role && (!anchor.start_date || job.start_date.startsWith(anchor.start_date)))
@@ -18,7 +18,7 @@ export function currentImportValue(editor: ReviewEditor, change: ImportChange): 
     return editor.skills.filter(s => key(s.name) === key(change.after)).length === 1 ? change.after : null
   }
   if (!change.restorable) return null
-  const i = jobIndex(editor, change)
+  const i = importJobIndex(editor, change)
   if (i < 0) return null
   const job = editor.work_experience[i]
   if (change.field.endsWith('.description')) return job.description
@@ -33,7 +33,7 @@ export function applyImportChange<T extends ReviewEditor>(editor: T, change: Imp
   if (value !== change.before && value !== change.after) return editor
   if (change.kind === 'duplicate') return { ...editor, skills: [...editor.skills, { key: makeKey(), name: change.before }] }
   if (change.field === 'professional_summary') return { ...editor, professional_summary: value }
-  const i = jobIndex(editor, change)
+  const i = importJobIndex(editor, change)
   if (i < 0) return editor
   return { ...editor, work_experience: editor.work_experience.map((job, index) => index !== i ? job : {
     ...job,

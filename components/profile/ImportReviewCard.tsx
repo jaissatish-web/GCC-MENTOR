@@ -1,5 +1,6 @@
 'use client'
 
+import { ImportComparison as Comparison } from '@/components/profile/ImportComparison'
 import { useEffect, useRef, useState } from 'react'
 import { DocumentMagnifyingGlassIcon, ShieldCheckIcon, ArrowUturnLeftIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
@@ -12,7 +13,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
   attention: ImportAttention[]
   currentValue: (change: ImportChange) => string | null
   onChange: (change: ImportChange, value: string) => void
-  onEdit: (field: string) => void
+  onEdit: (field: string, change?: ImportChange) => void
   onRemove: () => Promise<void>
   busy?: boolean
   canConfirm?: boolean
@@ -41,11 +42,22 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
     setReviewed(true)
     setExpanded(false)
   }
+  const [choices, setChoices] = useState<Record<string, 'before' | 'after'>>({})
+  const choose = (change: ImportChange, side: 'before' | 'after') => {
+    if (busy) return
+    setChoices(previous => ({ ...previous, [change.id]: side }))
+    setReviewed(false)
+    try { localStorage.setItem(storageKey, 'seen') } catch { /* confirmation will report storage errors */ }
+    onChange(change, side === 'before' ? change.before : change.after)
+  }
   const [tab, setTab] = useState<'changes' | 'source'>('changes')
   const [removing, setRemoving] = useState(false)
   const [error, setError] = useState('')
   const completed = review.changes.filter(c => !c.suggested && c.kind !== 'check')
   const suggestions = review.changes.filter(c => c.suggested)
+  const alreadyInProfile = suggestions.filter(change => currentValue(change) === change.after).length
+  const originalWording = suggestions.filter(change => currentValue(change) === change.before).length
+  const manualReview = suggestions.length - alreadyInProfile - originalWording
   const checks = review.changes.filter(c => c.kind === 'check')
   const roles = review.imported.roles
   const incompleteWording = review.wordingStatus === 'unavailable' || !!(review.wordingCoverage && review.wordingCoverage.checked < review.wordingCoverage.total)
@@ -69,12 +81,17 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
         <div className="flex items-start gap-3">
           <span className="flex size-11 shrink-0 items-center justify-center rounded-ctl bg-teal text-white"><DocumentMagnifyingGlassIcon className="size-6" aria-hidden="true" /></span>
           <div className="min-w-0 flex-1">
-            <h3 className="type-card font-semibold text-ink">Review your imported details</h3>
-            <p className="mt-1.5 type-helper text-ink-soft">{roles} role{roles === 1 ? '' : 's'}, {review.imported.skills} skills and {review.imported.qualifications} qualification{review.imported.qualifications === 1 ? '' : 's'} imported. Review the changes below, then confirm when you are ready.</p>
+            <h3 className="type-label font-semibold text-ink">{roles} role{roles === 1 ? '' : 's'} · {review.imported.skills} skills · {review.imported.qualifications} qualification{review.imported.qualifications === 1 ? '' : 's'} imported</h3>
+            <p className="mt-1 type-helper text-ink-soft">Compare the wording below. Suggestions are optional.</p>
           </div>
         </div>
       </div>
       <div className="border-t border-line p-4 sm:p-5">
+        <ol aria-label="Import review steps" className="grid grid-cols-2 gap-2 sm:grid-cols-4">{['Review changes', 'Choose wording', 'Save profile', 'Confirm review'].map((label, i) => <li key={label} className="flex min-w-0 items-center gap-2 rounded-ctl border border-line bg-canvas p-2"><span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-teal-soft type-caption font-semibold text-teal">{i + 1}</span><span className="type-helper text-ink">{label}</span></li>)}</ol>
+        {suggestions.length > 0 ? <div aria-label="Wording review summary" className="mt-3 flex flex-wrap gap-2">{[{ count: alreadyInProfile, label: 'Already in profile' }, { count: originalWording, label: 'Original wording' }, { count: manualReview, label: 'Review manually' }].filter(item => item.count > 0).map(item => <div key={item.label} className="flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1.5"><span className="type-helper font-semibold text-teal">{item.count}</span><span className="type-helper text-ink-soft">{item.label}</span></div>)}</div> : null}
+        <p role="status" aria-live="polite" className="mt-3 type-helper font-medium text-teal">{busy ? 'Saving your profile…' : !canConfirm ? 'Profile changes are not saved yet. Save your profile before confirming.' : 'Your profile is saved. Review the comparisons, then confirm when ready.'}</p>
+      </div>
+      {profileAttention.length > 0 ? <div className="border-t border-line p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="type-label font-semibold text-ink">{profileAttention.length ? 'Profile details to complete' : checks.length || incompleteWording ? 'Verify your imported details' : 'Review information'}</h3>
           {profileAttention.length > 0 && <span className="rounded-full bg-gold-soft px-2.5 py-1 type-caption font-bold text-gold-ink">{profileAttention.length} next step{profileAttention.length === 1 ? '' : 's'}</span>}
@@ -92,15 +109,14 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
             </div>
             {item.change && <Comparison change={item.change} applied={false} compact />}
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => onEdit(item.field)}>Edit manually</button>
+              <button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => onEdit(item.field, item.change)}>Edit manually</button>
               {item.change && <button type="button" disabled={busy} className={buttonVariants({ variant: 'primary', size: 'sm' })} onClick={() => onChange(item.change!, item.change!.after)}>Apply correction · Free</button>}
             </div>
           </li>)}
         </ol>
         {profileAttention.some(item => item.change) && <p className="mt-3 type-caption text-ink-muted">Review the wording, then press Save after applying or editing.</p>}
-      </div>
+      </div> : null}
       <div id="import-review-details" className="ui-panel-padding border-t border-line p-4 sm:p-5">
-        <p className="mb-3 type-caption text-ink-muted">Changes recorded during your latest import. Later profile edits are preserved.</p>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Import review views">
           <button type="button" aria-pressed={tab === 'changes'} className={buttonVariants({ variant: tab === 'changes' ? 'primary' : 'ghost', size: 'sm' })} onClick={() => setTab('changes')}>Imported details</button>
           <button type="button" aria-pressed={tab === 'source'} className={buttonVariants({ variant: tab === 'source' ? 'primary' : 'ghost', size: 'sm' })} onClick={() => setTab('source')}>Original resume text</button>
@@ -110,8 +126,9 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
           <pre className="mt-3 max-h-[28rem] overflow-auto whitespace-pre-wrap break-words rounded-ctl border border-line bg-canvas p-3 font-sans type-helper text-ink-soft">{review.sourceText}</pre>
         </div> : <div className="mt-4 space-y-3">
           {review.wordingStatus === 'unavailable' && <p className="pb-4 type-helper text-ink-soft">The additional wording check could not finish. Your resume was imported; no AI wording suggestions are shown.</p>}
-          {review.wordingStatus === 'checked' && review.wordingCoverage && review.wordingCoverage.checked < review.wordingCoverage.total && <p className="pb-4 type-helper text-ink-soft">Grammar suggestions covered {review.wordingCoverage.checked} of {review.wordingCoverage.total} summary and responsibility entries. You can review all imported details in your Career Profile.</p>}
+          {review.wordingStatus === 'checked' && review.wordingCoverage && review.wordingCoverage.checked < review.wordingCoverage.total && <p className="pb-4 type-helper text-ink-soft">Wording check: {review.wordingCoverage.checked} of {review.wordingCoverage.total} entries. Check the remaining entries against your original resume.</p>}
           {!review.changes.length && <p className="py-4 type-helper text-ink-soft">No cleanup changes or review notes were recorded. You can still compare the original text and edit any profile section.</p>}
+          <p className="type-caption text-ink-soft">Crossed-out words show removed text. Underlined words show new text. Career facts stay yours to verify.</p>
           {groups.filter(group => group.items.length > 0).map(group => <details key={group.id} open={group.id !== 'cleanups'} className="group rounded-ctl border border-line">
             <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-ctl px-3 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
               <span className="min-w-0"><span className="type-label font-semibold text-ink">{group.title} <span className="ml-1 rounded-full bg-teal-soft px-2 py-0.5 type-caption text-teal">{group.items.length}</span></span><span className="mt-1 block type-helper text-ink-soft">{group.hint}</span></span>
@@ -126,15 +143,18 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
             return <article key={change.id} className="py-4 first:pt-0">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="type-label text-ink">{change.label}</h3>
-                <span className={cn('type-caption font-semibold', change.kind === 'check' || change.suggested && !applied || change.kind === 'spelling' && original ? 'text-gold-ink' : 'text-teal')}>{change.kind === 'check' ? 'Needs your review' : change.suggested ? (applied ? 'Applied in your profile' : 'Suggestion · not applied') : change.kind === 'spelling' && original ? 'Original restored' : 'Import cleanup'}</span>
+                <span className="rounded-full bg-teal-soft px-2 py-1 type-caption font-medium text-teal">{change.kind === 'check' ? 'Needs your review' : change.suggested ? choices[change.id] === 'after' && applied ? canConfirm ? 'Chosen wording · profile saved' : 'Selected · save profile' : choices[change.id] === 'before' && original ? canConfirm ? 'Original wording kept' : 'Original selected · save profile' : applied ? 'Already in profile' : original ? 'Awaiting your choice' : 'Review manually' : 'Import cleanup'}</span>
               </div>
               {(change.before || change.after) && <Comparison change={change} applied={applied} />}
               <p className="mt-2 type-helper text-ink-soft">{change.reason}</p>
               {change.restorable && current !== null && !original && !applied && change.kind !== 'duplicate' && <p className="mt-2 type-caption text-ink-muted">This field has since been edited. Review it in your profile.</p>}
               <div className="mt-3 flex flex-wrap gap-2">
-                {canToggle && <button type="button" disabled={busy} className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => onChange(change, applied ? change.before : change.after)}>{applied && <ArrowUturnLeftIcon className="size-4" aria-hidden="true" />}{applied ? 'Restore original' : change.suggested ? 'Apply correction' : 'Keep correction'}</button>}
+                {canToggle && change.suggested ? <>
+                  <button type="button" disabled={busy} aria-pressed={choices[change.id] === 'after' && applied} className={buttonVariants({ variant: 'primary', size: 'sm' })} onClick={() => choose(change, 'after')}>Use suggestion</button>
+                  <button type="button" disabled={busy} aria-pressed={choices[change.id] === 'before' && original} className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => choose(change, 'before')}>Keep original</button>
+                </> : canToggle ? <button type="button" disabled={busy} className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => onChange(change, applied ? change.before : change.after)}>{applied && <ArrowUturnLeftIcon className="size-4" aria-hidden="true" />}{applied ? 'Restore original' : 'Keep correction'}</button> : null}
                 {change.kind === 'duplicate' && current === change.after && <button type="button" disabled={busy} className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => onChange(change, change.before)}>Restore repeated entry</button>}
-                <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => onEdit(change.field)}>Review / edit profile</button>
+                <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => onEdit(change.field, change)}>Review / edit profile</button>
               </div>
             </article>
           })}
@@ -153,18 +173,4 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
       </div>
     </section>
   )
-}
-
-function Comparison({ change, applied, compact = false }: { change: ImportChange; applied: boolean; compact?: boolean }) {
-  const display = (value: string) => compact && value.length > 420 ? value.slice(0, 420) + '…' : value
-  return <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
-    <div className="min-w-0 rounded-ctl border border-line bg-canvas p-3">
-      <p className="type-caption font-semibold text-ink-soft">{change.kind === 'duplicate' || change.label === 'Unverified first-reading entry' || change.kind === 'format' ? 'Before · first reading' : 'Before · original wording'}</p>
-      <p className="mt-1 whitespace-pre-wrap break-words type-helper text-ink">{display(change.before) || 'Not present'}</p>
-    </div>
-    <div className={cn('min-w-0 rounded-ctl border p-3', change.kind === 'check' ? 'border-gold/40 bg-gold-soft/40' : change.kind === 'format' || change.kind === 'duplicate' || change.kind === 'privacy' ? 'border-line bg-white' : 'border-teal/30 bg-teal-soft/40')}>
-      <p className={cn('type-caption font-bold', change.kind === 'check' ? 'text-gold-ink' : 'text-teal')}>{change.kind === 'check' ? 'Import decision · verify' : change.suggested ? applied ? 'After · applied in your profile' : 'Suggested correction · not applied' : change.kind === 'format' ? 'Imported value · formatted' : change.kind === 'duplicate' ? 'Imported value · consolidated' : change.kind === 'privacy' ? 'Import privacy handling' : 'After · corrected during import'}</p>
-      <p className="mt-1 whitespace-pre-wrap break-words type-helper text-ink">{display(change.after) || 'Not included'}</p>
-    </div>
-  </div>
 }
