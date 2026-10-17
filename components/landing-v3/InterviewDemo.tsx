@@ -14,7 +14,7 @@ const reviews = [
   ['Speaking & delivery', 'Steady delivery', 'Keep a steady pace. Pause between the problem, action and result. Keep the wording clear and direct.'],
   ['Grammar', 'Correction needed', '“Then we find” → “Then we found.” Use past tense consistently for a past event.'],
   ['Technical detail', 'Evidence missing', 'The cause, checks and result are not explained. There is not enough technical detail to judge correctness.'],
-  ['Resume & job fit', 'Connect your experience', 'Use an example supported by your optimized CV and explain how it relates to the target role.'],
+  ['Resume & job fit', 'Connect your experience', 'Use an example supported by your optimized resume and explain how it relates to the target role.'],
   ['Answer correctness', 'Partly demonstrated', 'Reviewing records and involving the team are relevant steps. Explain how you verified the corrective action.'],
 ] as const
 export function InterviewDemo({ compact = false }: { compact?: boolean }) {

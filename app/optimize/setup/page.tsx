@@ -100,7 +100,7 @@ const LEVELS: ReadonlyArray<{
       'Never adds certificates, dates, companies or personal details',
     ],
     explain:
-      'Everything in Easy, plus separate suggestions for relevant duties. Suggestions enter your CV only after you confirm them. Certificates, education, employers, dates and personal details are never added or changed.',
+      'Everything in Easy, plus separate suggestions for relevant duties. Suggestions enter your resume only after you confirm them. Certificates, education, employers, dates and personal details are never added or changed.',
   },
   {
     value: 'high',
@@ -252,13 +252,13 @@ function SetupScreen() {
     if (!draft) return []
     const list: string[] = [
       hasJobDescription ? 'Reading the job description' : `Working out what ${draft.target_job_title} roles ask for`,
-      'Scoring your current CV (before)',
+      'Scoring your current resume (before)',
     ]
     if (summaryOn) list.push('Rewriting your summary')
     for (const e of experiences) if (expOn[e.id]) list.push(e.hasDuties ? `Rewriting your activities at ${e.company || 'this role'}` : `Checking what fits this job at ${e.company || 'this role'}`)
     list.push('Ordering skills by relevance')
     list.push('Checking every line against your Career Profile')
-    list.push('Scoring your optimized CV (after)')
+    list.push('Scoring your optimized resume (after)')
     return Array.from(new Set(list))
   }, [draft, hasJobDescription, summaryOn, experiences, expOn])
 
@@ -343,12 +343,12 @@ function SetupScreen() {
         <div className="relative mx-auto flex w-full max-w-[460px] flex-1 flex-col items-center justify-center gap-6 px-6 py-12">
           <ProcessingOrbit tone="dark" size={168} />
           <h1 className="text-center font-display text-[30px] leading-tight text-white">
-            Saving your target job
+            Saving your job details
             <span className="block text-gold">{draft.target_job_title}</span>
           </h1>
           <ProcessingSteps
             tone="dark"
-            steps={['Saving your target job', 'Starting the optimization']}
+            steps={['Saving your job details', 'Starting the optimization']}
             activeIndex={0}
             notes={setupNotes(hasJobDescription)}
           />
@@ -365,7 +365,7 @@ function SetupScreen() {
         <FlowHeader
           step={2}
           onBack={() => router.push('/optimize/target')}
-          backLabel="Back to target job"
+          backLabel="Back to Job Details"
           title={`Choose your ${NAMES.level.toLowerCase()}`}
           subtitle="Choose the amount of rewriting. Your career facts stay the same."
         />
@@ -516,7 +516,7 @@ function SetupScreen() {
 
         {/* 3. What you get */}
         <div className="rounded-card border border-teal/30 bg-teal-soft/50 px-4 py-3 type-helper leading-relaxed text-ink-soft">
-          <strong className="text-ink">You will see:</strong> your {NAMES.atsScore} before and after for this target job,
+          <strong className="text-ink">You will see:</strong> your {NAMES.atsScore} before and after for this job,
           and your {NAMES.optimizedCv.toLowerCase()}, saved in your {NAMES.library}.
         </div>
 
@@ -528,11 +528,11 @@ function SetupScreen() {
               <li>• <strong className="text-ink">Easy</strong> rewords only what your profile says.</li>
               <li>• <strong className="text-ink">Moderate</strong> and <strong className="text-ink">High</strong> offer separate suggestions for duties you may have performed. Select only what is true.</li>
               <li>• Your certificates, education, employers, job titles, dates and personal details are never added or changed.</li>
-              <li>• Every application shows unverified suggestions separately in yellow. None is selected or added to your CV until you confirm it.</li>
+              <li>• Every application shows unverified suggestions separately in yellow. None is selected or added to your resume until you confirm it.</li>
             </ul>
             <label className="flex cursor-pointer items-start gap-2.5 rounded-ctl border border-line bg-canvas p-3 type-helper text-ink">
               <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-teal" />
-              <span>I understand, and I will only send CVs that are true about me — I can talk about every line in an interview.</span>
+              <span>I understand, and I will only send resumes that are true about me — I can talk about every line in an interview.</span>
             </label>
           </Card>
         ) : null}
@@ -546,8 +546,8 @@ function SetupScreen() {
           {!checkReady
             ? checkState === 'error' ? 'Retry ATS checking to continue.' : 'Checking ATS compatibility — optimization unlocks when your results are ready.'
             : !levelSelected ? 'Review your ATS results, then choose Easy, Moderate or High and confirm any relevant suggestions.'
-            : skillsPending ? 'Save your selected skills before optimizing your CV.'
-            : 'Review your selected level and suggestions, then optimize your CV when you are ready.'}
+            : skillsPending ? 'Save your selected skills before optimizing your resume.'
+            : 'Review your selected level and suggestions, then optimize your resume when you are ready.'}
         </p>
         <Button
           variant="purchase"
@@ -592,7 +592,7 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className={cn('type-label font-semibold', tone.title)}>{tone.label}</p>
         <p className="type-helper text-ink-muted">
-          Your CV today: <strong className="font-mono text-ink">{check.before}</strong>
+          Your resume today: <strong className="font-mono text-ink">{check.before}</strong>
         </p>
       </div>
       <p className="type-helper leading-relaxed text-ink-soft">
@@ -600,7 +600,7 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
           ? `Your experience (${check.candidateField}) matches this ${check.jobField} role.`
           : check.fieldMatch === 'related'
             ? `Your experience (${check.candidateField}) shares part of the work of this ${check.jobField} role. Requirements outside your field stay unmet, so the score has a ceiling.`
-            : `This job is ${check.jobField}; your experience is ${check.candidateField}. Even after optimization your CV will score low for it (up to ${check.expected.high}) — jobs in your own field will score much higher. You can still go ahead.`}
+            : `This job is ${check.jobField}; your experience is ${check.candidateField}. Even after optimization your resume will score low for it (up to ${check.expected.high}) — jobs in your own field will score much higher. You can still go ahead.`}
       </p>
       {/* No advert (2026-10-02): matched against the typical Gulf advert for the
           title — shown, so the user sees exactly what the score is based on. */}
@@ -608,7 +608,7 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
         <div className="flex flex-col gap-2 rounded-ctl border border-gold/40 bg-gold-soft/60 p-3">
           <p className="type-helper font-semibold text-ink">No job advert pasted — matched against typical {title} requirements in the Gulf</p>
           <p className="type-helper leading-snug text-ink-soft">
-            Your CV is written for what most Gulf adverts for this title ask. A real advert uses its own words, and the ATS
+            Your resume is written for what most Gulf adverts for this title ask. A real advert uses its own words, and the ATS
             looks for those exact words — so if you have the advert (even a WhatsApp message), paste it for a much stronger match.
           </p>
           <div className="flex flex-wrap items-center gap-3">
@@ -651,7 +651,7 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
           {added.length ? (
             <p className="flex items-start gap-1.5 type-helper font-semibold text-ok">
               <CheckIcon aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={2.5} />
-              Added to your Career Profile: {added.join(', ')}. Your scores above include it, and your CV will list it.
+              Added to your Career Profile: {added.join(', ')}. Your scores above include it, and your resume will list it.
             </p>
           ) : null}
         </div>
@@ -821,7 +821,7 @@ function HighSkillsChecklist({ items, upTo, onAdded, onPendingChange }: { items:
         <p className="type-label font-semibold text-ink">This job also asks for these — tick the ones you really have</p>
         <p className="type-helper leading-snug text-ink-soft">
           They are not on your Career Profile yet, so we cannot write them for you. Tick only what you really use or know — an
-          interviewer may ask about any of them. Each one goes on your profile’s Skills and into this CV. High can reach up to {upTo}.
+          interviewer may ask about any of them. Each one goes on your profile’s Skills and into this resume. High can reach up to {upTo}.
         </p>
       </div>
       {open.length ? (

@@ -124,7 +124,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
         {/* Order summary */}
         <div className="flex flex-col gap-3 rounded-card border border-line bg-white p-4.5">
           <div className="flex items-baseline justify-between">
-            <span className="text-[13px] font-semibold text-ink">Optimized Gulf CV</span>
+            <span className="text-[13px] font-semibold text-ink">Optimized Gulf resume</span>
             <span className="font-mono text-[15px] text-ink">₹499</span>
           </div>
           <p className="text-[12px] text-ink-muted">

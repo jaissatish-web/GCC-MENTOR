@@ -335,15 +335,15 @@ function ApplicationCard({
               onClick={toggleTarget}
               className="min-h-11 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
-              {targetOpen ? 'Hide target job' : `${CTA.viewTargetJob} and ATS score`}
+              {targetOpen ? 'Hide Job Details' : `${CTA.viewTargetJob} and ATS score`}
             </button>
             {targetOpen ? (
               detail ? (
                 <TargetJobCard pkg={detail} className="mt-1 shadow-none" />
               ) : detailState === 'error' ? (
-                <p className="type-helper text-alert">Could not load this target job. Try again.</p>
+                <p className="type-helper text-alert">Could not load this job. Try again.</p>
               ) : (
-                <p className="type-helper text-ink-muted" role="status">Loading target job…</p>
+                <p className="type-helper text-ink-muted" role="status">Loading job details…</p>
               )
             ) : null}
           </div> : <p className="type-helper text-ink-soft">Cover letters, Q&A and mock interviews use your latest saved Career Profile. No vacancy or employer is assumed.</p>}
@@ -570,8 +570,8 @@ export default function TargetJobsPage() {
     <PageShell
       width="document"
       icon={BriefcaseIcon}
-      title="My CVs"
-      subtitle="Your CVs and applications for Gulf jobs."
+      title="Resume Library"
+      subtitle="Your resumes and applications for Gulf jobs."
       actions={
         total > 0 ? (
           <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'shrink-0')}>
@@ -658,8 +658,8 @@ export default function TargetJobsPage() {
       ) : null}
 
       <div className="grid gap-5 xl:grid-cols-2 xl:gap-6">
-        {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 type-helper text-ink-soft">Opening your Career Profile Resume…</div> : null}
-        {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="type-helper text-alert">Could not open your Career Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
+        {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 type-helper text-ink-soft">Opening your Profile Resume…</div> : null}
+        {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="type-helper text-alert">Could not open your Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
         {resumeList.map((pkg) => (
           <ApplicationCard
             key={pkg.id}

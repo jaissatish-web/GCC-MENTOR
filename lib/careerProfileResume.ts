@@ -1,8 +1,8 @@
 import { buildResumeDocument } from '@/lib/resumeDocument'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
-export const CAREER_RESUME_NAME = 'My Career Profile Resume'
-export const CAREER_RESUME_BADGE = 'Raw Career Profile Data'
+export const CAREER_RESUME_NAME = 'My Profile Resume'
+export const CAREER_RESUME_BADGE = 'Profile Resume · Not optimized'
 
 /** Source identity survives renaming; never infer it from empty AI content. */
 export function isCareerProfileResume(pkg: { tier?: string | null }): boolean {

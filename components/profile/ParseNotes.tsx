@@ -70,9 +70,9 @@ export function ParseNotes({
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
           <p className="text-[13px] font-semibold text-ink">
-            We read your CV. Please check {notes.length === 1 ? 'this one thing' : `these ${notes.length} things`}:
+            We read your resume. Please check {notes.length === 1 ? 'this one thing' : `these ${notes.length} things`}:
           </p>
-          <p className="text-[12px] text-ink-soft">Everything else was found in your CV as written.</p>
+          <p className="text-[12px] text-ink-soft">Everything else was found in your resume as written.</p>
         </div>
         <button
           type="button"

@@ -31,7 +31,7 @@ export default function NotFound() {
       <p className="font-display text-[64px] font-bold leading-none tracking-[-0.03em] text-teal">404</p>
       <h1 className="mt-3 font-display text-[24px] font-bold text-ink">This page isn&rsquo;t here</h1>
       <p className="mt-2 max-w-[42ch] text-[14px] leading-relaxed text-ink-soft">
-        The link may be old or mistyped. Your profile and target jobs are safe — pick up from one
+        The link may be old or mistyped. Your profile and job workspaces are safe — pick up from one
         of these.
       </p>
 

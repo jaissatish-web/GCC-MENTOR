@@ -36,7 +36,7 @@ export function ResumeDesignLab() {
     <main className="min-h-dvh bg-canvas px-3 py-5 text-ink sm:px-6 sm:py-8">
       <div className="mx-auto max-w-[1280px]">
         <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
-          <div><p className="type-caption font-semibold uppercase tracking-wider text-teal">GCC Mentor · Resume review</p><h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">A clear CV. Your information. Your choices.</h1><p className="mt-2 max-w-2xl type-helper text-ink-soft">Compare the new designs with invented samples from 20 professions. Adjust the headline and visible sections to inspect the layout.</p></div>
+          <div><p className="type-caption font-semibold uppercase tracking-wider text-teal">GCC Mentor · Resume review</p><h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">A clear resume. Your information. Your choices.</h1><p className="mt-2 max-w-2xl type-helper text-ink-soft">Compare the new designs with invented samples from 20 professions. Adjust the headline and visible sections to inspect the layout.</p></div>
           <span className="rounded-full border border-teal/20 bg-teal-soft px-3 py-1.5 type-caption font-semibold text-teal">Synthetic sample · Nothing is saved</span>
         </header>
         <div className="grid items-start gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">

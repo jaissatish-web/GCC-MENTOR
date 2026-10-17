@@ -343,7 +343,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </Section>
 
           {/* ---- Summary ---- */}
-          <Section title="Professional summary" hint="The opening paragraph of your CV.">
+          <Section title="Professional summary" hint="The opening paragraph of your resume.">
             <textarea
               value={draft.summary}
               onChange={(e) => update((d) => ({ ...d, summary: e.target.value }))}
@@ -354,7 +354,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </Section>
 
           {/* ---- Experience ---- */}
-          <Section title="Work experience" hint="Job title, company, dates and activities for each role, in the order shown on the CV.">
+          <Section title="Work experience" hint="Job title, company, dates and activities for each role, in the order shown on the resume.">
             {draft.experience.map((item, i) => {
               const setItem = (fn: (x: typeof item) => typeof item) =>
                 update((d) => ({ ...d, experience: d.experience.map((x, j) => (j === i ? fn(x) : x)) }))

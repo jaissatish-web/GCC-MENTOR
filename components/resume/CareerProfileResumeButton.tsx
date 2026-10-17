@@ -24,7 +24,7 @@ export function CareerProfileResumeButton({ showHint = true }: { showHint?: bool
     }
   }
   return <div className="flex flex-col items-start gap-1">
-    <Button variant="secondary" size="sm" busy={busy} busyLabel="Opening…" onClick={() => void open()}><UserCircleIcon className="size-4" aria-hidden="true" />Preview CV</Button>
+    <Button variant="secondary" size="sm" busy={busy} busyLabel="Opening…" onClick={() => void open()}><UserCircleIcon className="size-4" aria-hidden="true" />Preview Profile Resume</Button>
     {showHint ? <span className="type-caption text-ink-muted">Save changes before previewing.</span> : null}
     {error ? <p role="alert" className="type-helper text-alert">{error}</p> : null}
   </div>

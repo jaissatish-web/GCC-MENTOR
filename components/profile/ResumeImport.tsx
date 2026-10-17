@@ -188,7 +188,7 @@ export function ResumeImport({
             <p className="text-[12.5px] leading-relaxed text-ink-soft">
               {exhausted
                 ? limitReachedText
-                : 'Got a newer CV? Recreate your profile from it — nothing changes until you choose what to keep.'}
+                : 'Got a newer resume? Recreate your profile from it — nothing changes until you choose what to keep.'}
             </p>
             {quota && !exhausted ? (
               <p className="text-[12px] font-semibold text-ink-muted">
@@ -227,12 +227,12 @@ export function ResumeImport({
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <h2 className="text-[14.5px] font-bold text-ink">
-            {recreating ? 'Recreate your profile' : 'Fill this in from your CV'}
+            {recreating ? 'Recreate your profile' : 'Fill this in from your resume'}
           </h2>
           <p className="text-[12.5px] leading-relaxed text-ink-soft">
             {recreating
-              ? 'Upload or paste a newer CV, or edit the form yourself. Nothing changes until you choose what to keep.'
-              : 'Upload or paste your CV and we fill the form in for you.'}
+              ? 'Upload or paste a newer resume, or edit the form yourself. Nothing changes until you choose what to keep.'
+              : 'Upload or paste your resume and we fill the form in for you.'}
           </p>
           {recreating && quota && !exhausted ? (
             <p className="text-[12px] font-semibold text-ink-muted">
@@ -297,7 +297,7 @@ export function ResumeImport({
               className={cn(buttonVariants({ variant: 'progress', size: 'sm' }), 'w-full justify-center')}
             >
               <DocumentArrowUpIcon aria-hidden="true" className="size-4" />
-              {recreating ? 'Upload a newer CV' : 'Upload CV'}
+              {recreating ? 'Upload a newer resume' : 'Upload resume'}
             </button>
             <button
               type="button"
@@ -392,7 +392,7 @@ export function ResumeImport({
       {error ? (
         <div role="alert" className="mt-3 rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-2.5 text-[12px] text-alert">
           <p>{error}</p>
-          {checkSaved ? <button type="button" onClick={() => window.location.assign('/profile')} className="mt-2 inline-block font-semibold underline">Refresh and check saved CV</button> : null}
+          {checkSaved ? <button type="button" onClick={() => window.location.assign('/profile')} className="mt-2 inline-block font-semibold underline">Refresh and check saved resume</button> : null}
         </div>
       ) : null}
     </div>

@@ -42,10 +42,10 @@ export function MatchResult({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">
-            {estimate ? `${NAMES.atsScore} · estimate (no job description)` : `${NAMES.atsScore} for this target job`}
+            {estimate ? `${NAMES.atsScore} · estimate (no job description)` : `${NAMES.atsScore} for this job`}
           </p>
           <h2 className="font-display text-[18px] leading-tight text-ink">
-            {gain > 0 ? `Your ATS score went from ${report.before.total} to ${after.total}` : 'Your CV, sharpened for this job'}
+            {gain > 0 ? `Your ATS score went from ${report.before.total} to ${after.total}` : 'Your resume, sharpened for this job'}
           </h2>
         </div>
         {report.after_edited ? (
@@ -75,7 +75,7 @@ export function MatchResult({
 
       {report.why_fits && report.why_fits.length > 0 ? (
         <div className="flex flex-col gap-1.5">
-          <p className="text-[12.5px] font-semibold text-ink">Why this CV fits {report.target.job_title}</p>
+          <p className="text-[12.5px] font-semibold text-ink">Why this resume fits {report.target.job_title}</p>
           <ul className="flex flex-col gap-1">
             {report.why_fits.map((w) => (
               <li key={w.term} className="text-[12.5px] leading-relaxed text-ink-soft">

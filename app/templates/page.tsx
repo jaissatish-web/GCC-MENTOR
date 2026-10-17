@@ -82,9 +82,9 @@ function TemplatesInner() {
     <PageShell
       width="wide"
       icon={RectangleStackIcon}
-      eyebrow="Gulf CV designs"
+      eyebrow="Gulf resume designs"
       title="Gulf templates"
-      subtitle={`${AVAILABLE_TEMPLATE_COUNT} designs. Any profession. All six Gulf countries. Gallery thumbnails show sample content; Preview my resume uses your selected CV.`}
+      subtitle={`${AVAILABLE_TEMPLATE_COUNT} designs. Any profession. All six Gulf countries. Gallery thumbnails show sample content; Preview my resume uses your selected resume.`}
     >
       {/* The action bar sticks so the choice made at the bottom of a long
           gallery is still actionable without scrolling back. top-16, not

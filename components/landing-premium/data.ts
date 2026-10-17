@@ -10,19 +10,19 @@ export const profiles: DemoProfile[] = [...PROFESSION_EXAMPLES,
 ]
 export const services = [
  ['GCC Readiness','Understand your preparation gaps.','/gulf-readiness-score','readiness'],
- ['ATS Job Match','Compare your CV with a target JD.','/optimize/target','match'],
+ ['ATS Job Match','Compare your resume with a job description.','/optimize/target','match'],
  ['Resume Optimization','Present your real experience for the role.','/optimize/target','cv'],
  ['Cover Letter','Introduce your relevance to this job.','/cover-letter','letter'],
  ['Interview Q&A','Prepare role-specific answer structures.','/interview-qa','qa'],
  ['Mock Interview','Practise and review your next step.','/mock-interview','interview'],
- ['Resume Templates','Choose from 50+ real CV designs.','/templates','templates'],
+ ['Resume Templates','Choose from 50+ real resume designs.','/templates','templates'],
  ['Saved Reports','Revisit applications and preparation.','/dashboard/library','reports'],
 ] as const
 export const problems = [
  ['Late applications','The shortlist may already be moving.','Reuse your Career Profile to prepare for an active vacancy. Applying early can help; selection still depends on employer criteria.'],
- ['One generic CV','Your relevant experience is hard to spot.','Match your CV to each job description, with terminology supported by your actual work.'],
+ ['One generic resume','Your relevant experience is hard to spot.','Match your resume to each job description, with terminology supported by your actual work.'],
  ['ATS filtering','Required skills may not be clear.','Use ATS Job Match to identify relevant gaps and improve structure. A match score does not guarantee shortlisting.'],
- ['Weak cover letter','Your introduction does not explain the fit.','Prepare a letter that connects the same profile and CV to the target vacancy.'],
+ ['Weak cover letter','Your introduction does not explain the fit.','Prepare a letter that connects the same profile and resume to the target vacancy.'],
  ['Unfamiliar Gulf requirements','You are unsure what to prepare.','Use GCC readiness and destination guidance to review your preparation gaps. Confirm employer-specific requirements.'],
  ['Interview nerves','Your experience is difficult to explain.','Practise role-specific questions and review transcript-based feedback on your answer clarity and structure.'],
  ['What, how and when to speak','Answers may be incomplete or too long.','Study suggested structures, explain your own action and verified result, and practise being concise.'],

@@ -4,7 +4,7 @@ import type { PackageSummary } from '@/lib/packageSummary'
 
 export async function fetchCareerProfileResumeSummary(): Promise<PackageSummary | null> {
   const response = await fetch('/api/packages/career-profile', { method: 'POST' })
-  if (!response.ok) throw new Error('Could not open Career Profile Resume')
+  if (!response.ok) throw new Error('Could not open Profile Resume')
   const data = await response.json()
   return data.summary ?? null
 }

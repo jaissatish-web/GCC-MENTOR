@@ -1523,7 +1523,7 @@ function ProfileScreen() {
           if (roles.some((w) => !filled(w.role) || !filled(w.company) || !filled(w.start_date)))
             return { status: 'attention', hint: 'A job is missing its title, company or start date.' }
           if (roles.some((w) => !filled(w.description) && !filled(w.highlights)))
-            return { status: 'attention', hint: 'Add what you did in each job — CVs are written from these lines.' }
+            return { status: 'attention', hint: 'Add what you did in each job — resumes are written from these lines.' }
           return { status: 'complete', hint: `${roles.length} job${roles.length === 1 ? '' : 's'} with dates and activities.` }
         }
         case 'sec_education': {
@@ -1911,7 +1911,7 @@ function ProfileScreen() {
           You already have a profile
         </h1>
         <p className="mt-3 type-label leading-relaxed text-ink-soft">
-          We read your CV. What would you like to do with it?
+          We read your resume. What would you like to do with it?
         </p>
 
         <button
@@ -1934,7 +1934,7 @@ function ProfileScreen() {
             <strong className="text-ink">
               {addedTotal} new {addedTotal === 1 ? 'entry' : 'entries'}
             </strong>{' '}
-            from the CV
+            from the resume
             {merged.filledFields.length > 0
               ? `, and fills ${merged.filledFields.length} empty ${merged.filledFields.length === 1 ? 'field' : 'fields'}`
               : ''}
@@ -1953,7 +1953,7 @@ function ProfileScreen() {
         >
           <span className="type-label font-semibold text-ink">Replace my profile</span>
           <span className="mt-1.5 block type-helper leading-relaxed text-ink-soft">
-            Starts fresh from this CV only.
+            Starts fresh from this resume only.
           </span>
           {lostEntries > 0 || losses.fields.length > 0 ? (
             <span className="mt-3 block rounded-ctl border border-alert/40 bg-alert-soft px-3 py-2.5 type-caption leading-relaxed text-alert">
@@ -1964,13 +1964,13 @@ function ProfileScreen() {
                 </strong>
               ) : null}
               {lostEntries > 0 && losses.fields.length > 0 ? ', and clears ' : null}
-              {losses.fields.length > 0 ? <strong>{losses.fields.join(', ')}</strong> : null} — a CV
+              {losses.fields.length > 0 ? <strong>{losses.fields.join(', ')}</strong> : null} — a resume
               does not contain {losses.fields.length > 0 ? 'those' : 'them'}.
             </span>
           ) : null}
           {replaceMissing.length > 0 ? (
             <span className="mt-2 block type-caption leading-relaxed text-ink-soft">
-              This CV has no <strong className="text-ink">{replaceMissing.join(', ')}</strong> — you&apos;ll
+              This resume has no <strong className="text-ink">{replaceMissing.join(', ')}</strong> — you&apos;ll
               add {replaceMissing.length === 1 ? 'it' : 'them'} before the new profile is saved.
             </span>
           ) : null}
@@ -1985,14 +1985,14 @@ function ProfileScreen() {
         >
           <span className="type-label font-semibold text-ink">Keep my profile as it is</span>
           <span className="mt-1 block type-helper leading-relaxed text-ink-soft">
-            Discards this CV reading. Nothing in your profile changes.
+            Discards this resume reading. Nothing in your profile changes.
           </span>
         </button>
 
         {/* Was "Nothing is saved either way until you press Save on the next
             screen." Both halves are now the other way round (2026-09-11). */}
         <p className="mt-6 text-center type-caption leading-relaxed text-ink-muted">
-          Whichever you choose is saved straight away. Until you choose, this CV reading is kept for
+          Whichever you choose is saved straight away. Until you choose, this resume reading is kept for
           you — you can close this page and come back to it.
         </p>
       </main>
@@ -2129,7 +2129,7 @@ function ProfileScreen() {
         <ViewHeader
           eyebrow="Settings"
           title="Profile settings"
-          description="Choose what appears on your CV."
+          description="Choose what appears on your resume."
           onBack={returnHome}
           backLabel={isDirty ? 'Save & Home' : 'Home'}
           action={saveButton}
@@ -2210,7 +2210,7 @@ function ProfileScreen() {
         {hasSavedProfile && editor.full_name.trim() ? (
           <div className="mx-3 sm:mx-5 mt-4 flex flex-col gap-3 rounded-card border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-0.5">
-              <p className="type-label font-semibold text-ink">Preview your CV</p>
+              <p className="type-label font-semibold text-ink">Preview your resume</p>
               <p className="type-helper leading-relaxed text-ink-soft">
                 Your saved experience. Your choice of Gulf template.
               </p>
@@ -2225,7 +2225,7 @@ function ProfileScreen() {
               busyLabel="Saving…"
               onClick={() => void onSubmit('confirm')}
             >
-              Tailor for a job
+              Optimize Resume
             </Button>
             </div>
           </div>
@@ -2247,7 +2247,7 @@ function ProfileScreen() {
               </div>
             </section>
             <details className="group mx-3 mt-5 rounded-card border border-line bg-white sm:mx-5">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 type-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">Profile insights & CV visibility<span aria-hidden="true" className="text-lg text-teal group-open:rotate-45">+</span></summary>
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 type-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">Profile insights & resume visibility<span aria-hidden="true" className="text-lg text-teal group-open:rotate-45">+</span></summary>
               <div className="border-t border-line pb-4">
                 <ScoreCards completeness={{ score: readiness.score, itemsLeft, detail: `${doneCount} of ${keyCount} key sections done` }} gulf={gulfReadiness} onOpenCompleteness={() => showView('completeness')} onOpenReadiness={() => showView('readiness')} />
                 <SettingsCard shown={vis.shown} total={vis.total} groups={vis.groups} onOpen={() => showView('settings')} />
@@ -2296,7 +2296,7 @@ function ProfileScreen() {
         backLabel={isDirty ? 'Save & Home' : 'Home'}
         action={saveButton}
       />
-      <div className="page-gutter flex flex-wrap items-center gap-4 py-3"><div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} /></div><CareerProfileResumeButton /><Button variant="secondary" size="sm" onClick={() => showView('overview')}>Update from CV</Button><Button variant="secondary" size="sm" busy={submitting} onClick={() => void onSubmit('confirm')}>Tailor for a job</Button></div>
+      <div className="page-gutter flex flex-wrap items-center gap-4 py-3"><div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} /></div><CareerProfileResumeButton /><Button variant="secondary" size="sm" onClick={() => showView('overview')}>Update from resume</Button><Button variant="secondary" size="sm" busy={submitting} onClick={() => void onSubmit('confirm')}>Optimize Resume</Button></div>
       {importReviewBlock}
       {parseNotesBlock}
       {loadErrorBlock}
@@ -2334,12 +2334,12 @@ function ProfileScreen() {
           <div className="grid gap-4">
             <Input tone="light"
               id="f_target_job_title"
-              label="Target job title"
+              label="Job Title You’re Applying For"
               placeholder="e.g. Senior Piping Engineer"
-              hint="The role you want next. Every CV you build is aimed at it."
+              hint="The role you want next. Every resume you build is aimed at it."
               value={editor.target_job_title}
               onChange={(e) => setField({ target_job_title: e.target.value })}
-              error={invalidFields.has('target_job_title') ? 'Target job title is required.' : undefined}
+              error={invalidFields.has('target_job_title') ? 'Job Title You’re Applying For is required.' : undefined}
             />
             <Input tone="light"
               id="f_target_industry"
@@ -2401,14 +2401,14 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_identity')}
           title="Identity & contact"
-          helper="Passport, visa and contact details are private to your account, and our team’s access is logged. You choose what appears on your CV."
+          helper="Passport, visa and contact details are private to your account, and our team’s access is logged. You choose what appears on your resume."
           action={
             <button
               type="button"
               onClick={() => showView('settings')}
               className="-mx-1 inline-flex min-h-11 items-center px-1 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
-              What appears on your CV →
+              What appears on your resume →
             </button>
           }
         >
@@ -2507,7 +2507,7 @@ function ProfileScreen() {
               id="f_date_of_birth"
               label="Date of birth"
               precision="day"
-              helper="Many Gulf employers require this on the CV itself."
+              helper="Many Gulf employers require this on the resume itself."
               value={editor.date_of_birth}
               onChange={(e) => setField({ date_of_birth: e.target.value })}
             />
@@ -2556,11 +2556,11 @@ function ProfileScreen() {
                 value={editor.visa_transferable === null ? '' : editor.visa_transferable ? 'yes' : 'no'}
                 onChange={(e) => setField({ visa_transferable: e.target.value === '' ? null : e.target.value === 'yes' })}
               >
-                <option value="">Not answered — not shown on my CV</option>
+                <option value="">Not answered — not shown on my resume</option>
                 <option value="yes">Yes, it can be transferred</option>
                 <option value="no">No</option>
               </select>
-              <p className="mt-1 type-caption leading-snug text-ink-soft">Your Iqama or work visa moving to a new employer without you leaving the country. Shown on your CV only if you answer.</p>
+              <p className="mt-1 type-caption leading-snug text-ink-soft">Your Iqama or work visa moving to a new employer without you leaving the country. Shown on your resume only if you answer.</p>
             </div>
             {/* GULF PAPERWORK (Gulf Readiness v2, 2026-10-01, migration 060).
                 Optional and private: they drive the readiness verdict and the
@@ -2569,7 +2569,7 @@ function ProfileScreen() {
             <div className="mt-2 flex flex-col gap-0.5 sm:col-span-2">
               <p className="type-helper font-semibold text-ink">Gulf paperwork</p>
               <p className="type-caption leading-snug text-ink-soft">
-                Optional and private — never shown on your CV. Your Gulf Readiness uses it to tell you what is left before an employer can hire you.
+                Optional and private — never shown on your resume. Your Gulf Readiness uses it to tell you what is left before an employer can hire you.
               </p>
             </div>
             <div className="flex flex-col gap-1.5">
@@ -2642,7 +2642,7 @@ function ProfileScreen() {
                 <ConfirmToggle
                   id="f_photo_checklist_confirmed"
                   label="My photo is professional"
-                  hint={`${PHOTO_CHECKLIST.join(' · ')}. Most Gulf employers expect a professional photo on the CV.`}
+                  hint={`${PHOTO_CHECKLIST.join(' · ')}. Most Gulf employers expect a professional photo on the resume.`}
                   checked={editor.photo_checklist_confirmed}
                   onChange={(v) => setField({ photo_checklist_confirmed: v })}
                 />
@@ -2660,7 +2660,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_license')}
           title="Driving license"
-          helper="Site and field roles ask for this outright. Leaving it blank filters CVs out."
+          helper="Site and field roles ask for this outright. Leaving it blank filters resumes out."
         >
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="f_has_driving_license">Do you have a driving license?</FieldLabel>
@@ -2721,7 +2721,7 @@ function ProfileScreen() {
             placeholder="A short summary of who you are and what you bring."
           />
           <p className="field-hint">
-            This stays yours — the AI never writes into it. When you build a CV for a job, you see
+            This stays yours — the AI never writes into it. When you build a resume for a job, you see
             your words and the new ones side by side.
           </p>
         </CardSection>

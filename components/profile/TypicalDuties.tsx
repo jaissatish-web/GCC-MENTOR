@@ -51,7 +51,7 @@ export function TypicalDuties({ role, onAdd }: { role: string; onAdd: (lines: st
   return (
     <div className="flex flex-col gap-3 rounded-ctl border border-gold/50 bg-gold-soft px-3.5 py-3">
       <p className="text-[13px] leading-relaxed text-ink">
-        <strong>No duties listed for this job.</strong> Recruiters skip jobs without them, and your tailored CV is written from these
+        <strong>No duties listed for this job.</strong> Recruiters skip jobs without them, and your optimized resume is written from these
         lines. See the typical duties of a {role} and tick only what you really did.
       </p>
       {error ? (

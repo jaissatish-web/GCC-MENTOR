@@ -85,7 +85,7 @@ function buildServiceTimeline(pkg: Package): PackageServiceEvent[] {
     events.push({ id: `${type}-${at}`, type, at, label })
   }
 
-  if (pkg.optimized_content) addDerived('cv_generated', pkg.updated_at ?? pkg.created_at, 'Optimized CV generated')
+  if (pkg.optimized_content) addDerived('cv_generated', pkg.updated_at ?? pkg.created_at, 'Optimized Resume generated')
   const lastLetter = Array.isArray(pkg.cover_letters) ? pkg.cover_letters.at(-1) : null
   addDerived('cover_letter_generated', lastLetter?.generated_at, 'Cover letter generated')
   addDerived('qa_generated', pkg.interview_questions?.generated_at, 'Interview Q&A generated')
@@ -148,7 +148,7 @@ function WorkspaceTabs({
   const items: Array<{ key: WorkspaceTab; label: string; short: string; badge?: number }> = [
     { key: 'overview', label: 'Overview', short: 'Overview' },
     { key: 'improve', label: 'Improve score', short: 'Improve', badge: improveCount || undefined },
-    { key: 'design', label: 'CV design', short: 'Design' },
+    { key: 'design', label: 'Resume design', short: 'Design' },
     { key: 'tracker', label: 'Tracker', short: 'Tracker' },
   ]
   return (
@@ -437,7 +437,7 @@ function PackageScreenInner({ id }: { id: string }) {
     // While checking is_paid we show nothing but a loader — never content.
     return (
       <div className="flex min-h-dvh items-center justify-center bg-canvas">
-        <PageSkeleton label="Loading your CV" />
+        <PageSkeleton label="Loading your resume" />
       </div>
     )
   }
@@ -538,8 +538,8 @@ function PackageScreenInner({ id }: { id: string }) {
   const readyCount = Number(cvReady) + Number(letterReady) + Number(qaReady) + Number(mockReady)
   const nextJourneyStep = !cvReady
     ? {
-        title: 'Optimize the CV for this target job',
-        body: 'Start with the CV. The cover letter, interview Q&A and mock interview all use this optimized CV and target job.',
+        title: 'Optimize the resume for this job',
+        body: 'Start with the resume. The cover letter, interview Q&A and mock interview all use this optimized resume and the job description.',
         cta: CTA.optimizeCv,
         href: pkg.is_paid ? `/optimize/generate/${encodeURIComponent(id)}` : `/optimize/pay/${encodeURIComponent(id)}`,
       }
@@ -566,7 +566,7 @@ function PackageScreenInner({ id }: { id: string }) {
             }
           : {
               title: 'Application package complete',
-              body: 'CV, cover letter, Q&A and mock report are ready. Track the recruiter response here.',
+              body: 'Resume, cover letter, Q&A and mock report are ready. Track the recruiter response here.',
               cta: CTA.addTargetJob,
               href: '/optimize/target',
             }
@@ -618,7 +618,7 @@ function PackageScreenInner({ id }: { id: string }) {
             it is titled with the job. Never call a free resume "optimized" — it
             has not been through the model (docs/RULES.md). */}
         <div className="flex min-w-0 flex-col gap-0.5 lg:shrink-0">
-          <GulfContext>{isRaw ? 'Gulf CV · Career Profile' : 'Gulf application workspace'}</GulfContext>
+          <GulfContext>{isRaw ? 'Gulf resume · Career Profile' : 'Gulf application workspace'}</GulfContext>
           {isRaw ? <span className="self-start rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold text-teal">{CAREER_RESUME_BADGE}</span> : null}
           <h1 className="break-words font-display type-title leading-tight text-ink lg:type-section">
             {pkg.name || pkg.target_job_title}
@@ -627,7 +627,7 @@ function PackageScreenInner({ id }: { id: string }) {
             {[
               pkg.target_company,
               countryName,
-              isRaw ? 'Latest saved profile · No AI optimization' : isFree ? 'CV not optimized yet' : `${pkg.optimization_level.charAt(0).toUpperCase()}${pkg.optimization_level.slice(1)} optimized CV`,
+              isRaw ? 'Latest saved profile · No AI optimization' : isFree ? 'Resume not optimized yet' : `${pkg.optimization_level.charAt(0).toUpperCase()}${pkg.optimization_level.slice(1)} optimized resume`,
             ]
               .filter(Boolean)
               .join(' · ')}
@@ -741,9 +741,9 @@ function PackageScreenInner({ id }: { id: string }) {
       {pkg.optimized_content === null && (pkg as { tier?: string | null }).tier !== 'free' ? (
         <div className="mx-5 mb-3 flex flex-col gap-3 rounded-card border border-gold/40 bg-gold-soft/40 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-0.5">
-            <p className="type-label font-semibold text-ink">The CV for this job isn&apos;t optimized yet</p>
+            <p className="type-label font-semibold text-ink">The resume for this job isn&apos;t optimized yet</p>
             <p className="type-helper leading-relaxed text-ink-soft">
-              What you see below is your Career Profile laid out as a CV. Optimize it to get the version
+              What you see below is your Career Profile laid out as a resume. Optimize it to get the version
               written for {pkg.target_job_title}.
             </p>
           </div>
@@ -767,7 +767,7 @@ function PackageScreenInner({ id }: { id: string }) {
           job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-3 pb-8 sm:px-5 lg:gap-3">
         {isRaw ? (
-          <div className="flex flex-col gap-3"><p className="type-helper text-ink-soft">Edit content in your Career Profile. Save your CV design here. <Link href="/profile?view=settings" className="font-semibold text-teal underline">Choose visible fields</Link></p><PreparationJourney pkg={pkg} current="resume" bare /></div>
+          <div className="flex flex-col gap-3"><p className="type-helper text-ink-soft">Edit content in your Career Profile. Save your resume design here. <Link href="/profile?view=settings" className="font-semibold text-teal underline">Choose visible fields</Link></p><PreparationJourney pkg={pkg} current="resume" bare /></div>
         ) : <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} />}
         {/* RESULTS FIRST, AS COLOURED CARDS (founder request 2026-09-17): target
             job, ATS score before → after, summary, what changed, next steps.
@@ -824,7 +824,7 @@ function PackageScreenInner({ id }: { id: string }) {
           if (!report?.after)
             return (
               <p className="rounded-card border border-line bg-white px-4 py-5 type-label text-ink-soft">
-                There is no ATS score for this job yet. It appears here once the CV has been optimized against the job.
+                There is no ATS score for this job yet. It appears here once the resume has been optimized against the job.
               </p>
             )
           const roleNames: Record<string, string> = {}
@@ -895,7 +895,7 @@ function PackageScreenInner({ id }: { id: string }) {
               </h2>
             </div>
             <p className="type-helper text-ink-soft">
-              {[pkg.target_company, countryName].filter(Boolean).join(' · ') || 'Target job'}
+              {[pkg.target_company, countryName].filter(Boolean).join(' · ') || 'Job You’re Applying For'}
             </p>
           </div>
           <div className="mt-3 flex flex-col gap-3 rounded-ctl border border-teal/30 bg-teal-soft/50 p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1059,8 +1059,8 @@ function PackageScreenInner({ id }: { id: string }) {
         {!isFree && !showOverview && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
           <div className="flex flex-col gap-2 rounded-card border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="type-helper text-ink-soft">
-              <strong className="text-ink">Next for this job:</strong> a cover letter, written from your optimized CV
-              and this target job.
+              <strong className="text-ink">Next for this job:</strong> a cover letter, written from your optimized resume
+              and this job.
             </p>
             <Link
               href={`/cover-letter?package=${encodeURIComponent(id)}`}
@@ -1075,7 +1075,7 @@ function PackageScreenInner({ id }: { id: string }) {
           <div className="flex flex-col gap-2 rounded-card border border-teal/30 bg-teal-soft/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="type-helper text-ink-soft">
               <strong className="text-ink">Interview prep:</strong> up to 25 practice answers from this
-              optimized CV and target job.
+              optimized resume and the job description.
             </p>
             <Link
               href={`/interview-qa?package=${encodeURIComponent(id)}`}
@@ -1089,7 +1089,7 @@ function PackageScreenInner({ id }: { id: string }) {
         {!isFree && !showOverview && cvReady && qaReady && !mockReady ? (
           <div className="flex flex-col gap-2 rounded-card border border-gold/40 bg-gold-soft/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="type-helper text-ink-soft">
-              <strong className="text-ink">Practice next:</strong> run a text mock interview for this CV and save the final report.
+              <strong className="text-ink">Practice next:</strong> run a text mock interview for this resume and save the final report.
             </p>
             <Link
               href={`/mock-interview?package=${encodeURIComponent(id)}`}
@@ -1104,7 +1104,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
         {tab === 'design' ? (
         <>
-        <div className="editor-action-dock fixed inset-x-3 z-20 rounded-card border border-line bg-white/95 p-3 shadow-m-3 backdrop-blur-md md:left-[76px] lg:hidden" aria-label="Save and download CV">
+        <div className="editor-action-dock fixed inset-x-3 z-20 rounded-card border border-line bg-white/95 p-3 shadow-m-3 backdrop-blur-md md:left-[76px] lg:hidden" aria-label="Save and download resume">
           <div className="flex gap-2">
             {changesDirty || styleBusy ? <button type="button" disabled={styleBusy || photoBusy} onClick={() => void saveChanges()} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{styleBusy ? 'Saving…' : 'Save changes'}</button> : null}
             {downloadBlocked ? <button type="button" disabled aria-describedby="resume-save-status" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</button> : <a href={pdfUrl} onClick={() => setDownloaded(true)} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</a>}
@@ -1141,7 +1141,7 @@ function PackageScreenInner({ id }: { id: string }) {
               <div className="min-w-0">
                 <h2 className="hidden type-card text-ink lg:block">Template settings</h2>
                 <p className="mt-1 hidden type-helper text-ink-muted lg:block">
-                  Choose the look of your Gulf CV.
+                  Choose the look of your Gulf resume.
                 </p>
                 {/* ---- Text style (TASK-152) --------------------------------
                     Above the template list, because it applies to whichever
@@ -1370,7 +1370,7 @@ function PackageScreenInner({ id }: { id: string }) {
                     </button>
                     <div id="photo-settings-panel" hidden={!photoOpen}>
                     <div className="mt-2 rounded-ctl border border-teal/20 bg-teal-soft p-3">
-                      <p className="text-sm font-semibold text-teal">Make your Gulf CV feel personal</p>
+                      <p className="text-sm font-semibold text-teal">Make your Gulf resume feel personal</p>
                       <p className="mt-1 text-sm leading-relaxed text-ink-soft">
                         Photo optional. Follow the employer’s instructions.
                       </p>

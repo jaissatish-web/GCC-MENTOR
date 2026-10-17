@@ -64,7 +64,7 @@ const OG_IMAGE =
 
 const TITLE = 'GCC MENTOR — Gulf Career Platform'
 const DESCRIPTION =
-  'Score your CV against Gulf hiring standards free, then rebuild it in Gulf format for the exact role you are targeting — using only facts you already have. Built by a 15+ year Gulf E&I Superintendent.'
+  'Score your resume against Gulf hiring standards free, then rebuild it in Gulf format for the exact role you are targeting — using only facts you already have. Built by a 15+ year Gulf E&I Superintendent.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     'Saudi Arabia jobs',
     'UAE jobs',
     'ATS resume',
-    'Gulf CV format',
+    'Gulf resume format',
     'resume optimization',
     'Gulf career',
   ],

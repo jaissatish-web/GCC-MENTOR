@@ -33,7 +33,7 @@ export function useServiceUsage(): { usage: ServiceUsageResponse | null; failed:
 // Heroicons, the product's one icon set (2026-09-23) — these were emoji,
 // which render differently on every phone and read as a different product.
 const ITEMS: ReadonlyArray<{ key: keyof ServiceUsageCounts; label: string; icon: React.ComponentType<{ className?: string }> }> = [
-  { key: 'cv', label: 'CVs optimized', icon: DocumentTextIcon },
+  { key: 'cv', label: 'Resumes optimized', icon: DocumentTextIcon },
   { key: 'cover_letter', label: 'Cover letters', icon: EnvelopeIcon },
   { key: 'qa', label: 'Interview Q&A sets', icon: QuestionMarkCircleIcon },
   { key: 'mock_started', label: 'Mock interviews', icon: ChatBubbleLeftRightIcon },
@@ -49,7 +49,7 @@ export function ServiceUsageTotals({ usage, className }: { usage: ServiceUsageRe
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Services you have used</span>
         <span className="text-[12px] font-medium text-ink-muted">
-          {usage.packages} saved CV{usage.packages === 1 ? '' : 's'}
+          {usage.packages} saved resume{usage.packages === 1 ? '' : 's'}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -63,10 +63,10 @@ export function ServiceUsageTotals({ usage, className }: { usage: ServiceUsageRe
         ))}
       </div>
       {!any ? (
-        <p className="text-[12px] text-ink-muted">Nothing used yet. Your counts appear here as you optimize CVs and prepare for interviews.</p>
+        <p className="text-[12px] text-ink-muted">Nothing used yet. Your counts appear here as you optimize resumes and prepare for interviews.</p>
       ) : (
         <p className="text-[12px] text-ink-muted">
-          Counted per generation, across all your saved CVs
+          Counted per generation, across all your saved resumes
           {totals.mock_completed > 0 ? ` · ${totals.mock_completed} mock interview report${totals.mock_completed === 1 ? '' : 's'} saved` : ''}
           {totals.pdf > 0 ? ` · ${totals.pdf} PDF download${totals.pdf === 1 ? '' : 's'}` : ''}.
         </p>
@@ -82,7 +82,7 @@ export function ServiceUsageLine({ counts }: { counts: ServiceUsageCounts | unde
   return (
     <p className="text-[12px] text-ink-muted">
       {used === 0 ? (
-        'No services used for this CV yet'
+        'No services used for this resume yet'
       ) : (
         <>
           <strong className="text-ink">Used {used} time{used === 1 ? '' : 's'}:</strong>{' '}

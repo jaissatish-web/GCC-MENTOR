@@ -163,10 +163,10 @@ export function ResultsOverview({
             </>
           ) : (
             <>
-              <p className="text-[14px] font-semibold text-ink">Not calculated yet for this CV</p>
+              <p className="text-[14px] font-semibold text-ink">Not calculated yet for this resume</p>
               <p className="text-[12.5px] leading-relaxed text-ink-soft">
-                Reading the job took too long when this CV was built. Calculate it now: we read the job again and score
-                your CV before and after. Your CV text stays the same{summary ? '' : ', except that an empty summary is filled from your profile facts'}.
+                Reading the job took too long when this resume was built. Calculate it now: we read the job again and score
+                your resume before and after. Your resume text stays the same{summary ? '' : ', except that an empty summary is filled from your profile facts'}.
               </p>
               <button
                 type="button"
@@ -176,7 +176,7 @@ export function ResultsOverview({
               >
                 {scoring ? 'Reading the job and scoring…' : 'Calculate ATS score'}
               </button>
-              {scoring ? <ProcessingInline steps={['Reading the job description', 'Scoring your CV before', 'Scoring your optimized CV']} stepMs={3500} notes={RESCORE_NOTES} /> : null}
+              {scoring ? <ProcessingInline steps={['Reading the job description', 'Scoring your resume before', 'Scoring your optimized resume']} stepMs={3500} notes={RESCORE_NOTES} /> : null}
               {scoreError ? <p className="text-[12.5px] text-alert">{scoreError}</p> : null}
             </>
           )}
@@ -196,7 +196,7 @@ export function ResultsOverview({
             <p className="text-[14px] leading-relaxed text-ink">{summary}</p>
           ) : (
             <p className="text-[13px] leading-relaxed text-ink-soft">
-              This CV has no summary yet. Use <strong>Calculate ATS score</strong> above to fill it from your profile
+              This resume has no summary yet. Use <strong>Calculate ATS score</strong> above to fill it from your profile
               facts, or write your own with {CTA.editCv}.
             </p>
           )}

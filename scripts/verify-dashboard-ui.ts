@@ -57,7 +57,7 @@ const candidate = { full_name: 'Quality Candidate', photo_url: null, additional_
  work_experience: [{start_date:'2020-01',end_date:'2021-12',location:'Riyadh',role:'Engineer'}], education: [], skills: [{name:'Testing'}] }
 const profileHtml = renderToStaticMarkup(React.createElement(HomeProfile,{profile:candidate,loading:false,error:false,packages:[],workLoading:false,workError:false,missingLabels:['Target role']}))
 assert.ok(profileHtml.includes('Quality Candidate') && profileHtml.includes('Profile next step'))
-assert.ok(profileHtml.includes('Target role · 1 left') && profileHtml.includes('Add your target job'))
+assert.ok(profileHtml.includes('Target role · 1 left') && profileHtml.includes('Add Job Details'))
 assert.ok(!profileHtml.includes('15 years'),'Never hardcode the design mock data')
 for(const href of ['/profile?view=details','/profile?view=settings','/profile?view=completeness','/optimize']) assert.ok(profileHtml.includes(`href="${href}"`))
 const targetJob = { id:'target-1', tier:'standard', target_job_title:'Lead Engineer', created_at:'2026-10-16', has_resume:true, cover_letter_count:0, qa_question_count:25 }

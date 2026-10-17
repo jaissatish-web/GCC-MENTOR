@@ -228,11 +228,11 @@ function ExtractingScreen() {
             !
           </div>
           <h1 className="mt-6 font-display text-[27px] leading-tight text-ink">
-            Your CV import needs attention
+            Your resume import needs attention
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">{serverMessage}</p>
           <div className="mt-8 flex flex-col gap-3">
-            {checkSaved ? <button type="button" onClick={() => window.location.assign('/profile')} className="font-semibold text-teal underline">Check saved CV reading</button> : null}
+            {checkSaved ? <button type="button" onClick={() => window.location.assign('/profile')} className="font-semibold text-teal underline">Check saved resume reading</button> : null}
             <Button
               variant="primary"
               className="w-full"

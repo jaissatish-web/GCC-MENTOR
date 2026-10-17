@@ -8,7 +8,7 @@ import { PremiumLanding } from '@/components/landing-premium/PremiumLanding'
  */
 const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
 const DESCRIPTION =
-  'One profile for job-specific CVs, cover letters and voice interview practice. Prepare for Gulf opportunities. Start with your free GCC readiness assessment.'
+  'One profile for job-specific resumes, cover letters and voice interview practice. Prepare for Gulf opportunities. Start with your free GCC readiness assessment.'
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },

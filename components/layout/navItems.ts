@@ -87,10 +87,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.
-  { label: 'My applications & CVs', href: '/dashboard/library', iconClass: 'ui-nav-library', icon: BriefcaseIcon, shortLabel: 'Saved' },
+  { label: 'Resume Library', href: '/dashboard/library', iconClass: 'ui-nav-library', icon: BriefcaseIcon, shortLabel: 'Saved' },
   { label: 'Resume Templates', href: '/templates', iconClass: 'ui-nav-templates', icon: RectangleStackIcon, shortLabel: 'Templates' },
   { label: 'Cover Letter', href: '/cover-letter', iconClass: 'ui-nav-letter', icon: EnvelopeIcon },
-  { label: 'Tailor for a job', href: '/optimize', iconClass: 'ui-nav-tailor', icon: DocumentTextIcon, shortLabel: 'Tailor' },
+  { label: 'Optimize Resume', href: '/optimize', iconClass: 'ui-nav-tailor', icon: DocumentTextIcon, shortLabel: 'Optimize' },
   { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'ui-nav-qa', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
   { label: 'Mock Interview', href: '/mock-interview', iconClass: 'ui-nav-mock', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
   { label: 'NaukriGulf Optimization', href: '/naukrigulf-optimization', iconClass: 'ui-nav-naukrigulf', icon: IdentificationIcon },
@@ -144,7 +144,7 @@ export interface NavGroup {
 export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'home', label: null, hrefs: ['/dashboard'] },
   { key: 'files', label: null, hrefs: ['/dashboard/library'] },
-  { key: 'cv', label: 'Build your CV', hrefs: ['/optimize', '/templates', '/cover-letter'], stage: 'cv' },
+  { key: 'cv', label: 'Build your resume', hrefs: ['/optimize', '/templates', '/cover-letter'], stage: 'cv' },
   { key: 'apply', label: 'Job preparation', hrefs: ['/interview-qa', '/mock-interview'], stage: 'apply' },
   { key: 'professional', label: 'Profile optimization', hrefs: [ '/linkedin-optimization', '/naukrigulf-optimization'] },
   { key: 'account', label: 'Account', hrefs: ['/settings'] },

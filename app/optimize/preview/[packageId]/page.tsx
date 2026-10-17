@@ -114,7 +114,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         const p = data?.package as Package | undefined
-        if (!p) return setError('Could not find this CV.')
+        if (!p) return setError('Could not find this resume.')
         if (!p.optimized_content) return router.replace(`/optimize/generate/${encodeURIComponent(packageId)}`)
         const doc = p.document_snapshot as ResumeDocument | null
         if (!doc) return router.replace(`/package/${encodeURIComponent(packageId)}/edit`)
@@ -126,7 +126,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
         const pending = (report?.suggestions ?? []).filter((s) => s.status === 'pending')
         setDrafts(Object.fromEntries(pending.map((s) => [s.id, { keep: false, text: s.text }])))
       })
-      .catch(() => setError('Could not load this CV. Check your connection and try again.'))
+      .catch(() => setError('Could not load this resume. Check your connection and try again.'))
   }, [packageId, router])
 
   const report: MatchReport | null = pkg ? readMatchReport(pkg.match_report) : null
@@ -184,7 +184,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
   if (!pkg || !doc || !oc || !edited) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-canvas">
-        <p className="font-mono text-sm text-ink-muted">Loading your optimized CV…</p>
+        <p className="font-mono text-sm text-ink-muted">Loading your optimized resume…</p>
       </main>
     )
   }
@@ -226,12 +226,12 @@ function PreviewInner({ packageId }: { packageId: string }) {
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setSaveError((body?.error as string) ?? 'Could not save your CV. Please try again.')
+        setSaveError((body?.error as string) ?? 'Could not save your resume. Please try again.')
         return
       }
       router.push(`/package/${encodeURIComponent(packageId)}`)
     } catch {
-      setSaveError('Network error. Could not save your CV.')
+      setSaveError('Network error. Could not save your resume.')
     } finally {
       setSaving(false)
     }
@@ -246,7 +246,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
         {/* Header */}
         <div className="flex flex-col gap-1">
           <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-ink-muted">Review · edit · save</p>
-          <h1 className="font-display text-[27px] leading-tight text-ink">Your optimized CV</h1>
+          <h1 className="font-display text-[27px] leading-tight text-ink">Your optimized resume</h1>
           <p className="text-[13px] text-ink-soft">
             For <strong className="text-ink">{pkg.target_job_title}</strong>
             {pkg.target_company ? ` · ${pkg.target_company}` : ''} · {pkg.optimization_level.charAt(0).toUpperCase() + pkg.optimization_level.slice(1)} optimization.
@@ -360,7 +360,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                   <span className="text-[12px] text-ink-muted">{item.range}</span>
                 </div>
                 {block && !(block.source_bullets ?? []).some((x) => x.trim()) ? (
-                  <p className="text-[12px] text-ink-muted">No duties in your Career Profile for this job yet. Add what you did there for a stronger, true CV.</p>
+                  <p className="text-[12px] text-ink-muted">No duties in your Career Profile for this job yet. Add what you did there for a stronger, true resume.</p>
                 ) : block && !block.was_optimized ? (
                   <p className="text-[12px] text-ink-muted">Kept in your own words (the rewrite could not be proven from your profile).</p>
                 ) : null}
@@ -440,7 +440,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
               ) : null}
             </div>
             <button type="button" onClick={() => void save()} disabled={saving} className={buttonVariants({ variant: 'primary' })}>
-              {saving ? 'Saving…' : 'Save optimized CV'}
+              {saving ? 'Saving…' : 'Save optimized resume'}
             </button>
           </div>
           {needsConfirm ? (
@@ -515,7 +515,7 @@ function SuggestedLine({ s, draft, onChange, re }: { s: Suggestion; draft: Draft
         </p>
       )}
       <span className="text-[12px] text-ink-muted">
-        {keep ? `Suggested for the job requirement “${s.requirement}”. Keep it only if you really did this.` : 'Removed — this line will not be on your CV.'}
+        {keep ? `Suggested for the job requirement “${s.requirement}”. Keep it only if you really did this.` : 'Removed — this line will not be on your resume.'}
       </span>
       {/* Keep / Remove as two plain 44px buttons (launch audit: an unlabelled
           checkbox was the only way to remove a line, and easy to miss). */}

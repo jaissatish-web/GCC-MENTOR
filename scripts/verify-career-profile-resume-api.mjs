@@ -39,7 +39,7 @@ profile = { id: 'profile', user_id: 'other' }
 assert.equal((await (await POST()).json()).needs_profile, true)
 profile.user_id = 'owner'
 const created = (await (await POST()).json()).package
-assert.equal(created.name, 'My Career Profile Resume')
+assert.equal(created.name, 'My Profile Resume')
 assert.equal(created.tier, 'free')
 assert.equal(rows[0].optimized_content, null)
 assert.equal(rows[0].document_snapshot, null)

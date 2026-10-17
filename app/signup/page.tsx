@@ -28,7 +28,7 @@ export default async function SignupPage(props: { searchParams: Promise<{ redire
   return (
     <AuthShell
       panelTitle="One career profile. Every Gulf application, prepared properly."
-      panelBody="Upload your CV once. Get an ATS-ready CV, cover letter and interview practice for each job you target."
+      panelBody="Upload your resume once. Get an ATS-ready resume, cover letter and interview practice for each job you target."
       aside={{ prompt: 'Already have an account?', label: 'Sign in', href: loginHref }}
     >
       <AuthCard title="Create your account" subtitle="Free to start. No card needed.">

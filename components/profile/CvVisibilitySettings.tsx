@@ -34,9 +34,9 @@ import type { FieldVisibility } from '@/types/careerProfile'
 type Group = 'personal' | 'passport' | 'contact' | 'extra'
 
 export const VISIBILITY_FIELDS: ReadonlyArray<{ key: keyof FieldVisibility; label: string; hint: string; group: Group }> = [
-  { key: 'photo', label: 'Photo', hint: 'Expected on most Gulf CVs — passport-style.', group: 'personal' },
-  { key: 'full_name', label: 'Full name', hint: 'Always expected on a CV.', group: 'personal' },
-  { key: 'nationality', label: 'Nationality', hint: 'Standard on Gulf CVs.', group: 'personal' },
+  { key: 'photo', label: 'Photo', hint: 'Expected on most Gulf resumes — passport-style.', group: 'personal' },
+  { key: 'full_name', label: 'Full name', hint: 'Always expected on a resume.', group: 'personal' },
+  { key: 'nationality', label: 'Nationality', hint: 'Standard on Gulf resumes.', group: 'personal' },
   { key: 'date_of_birth', label: 'Date of birth', hint: 'Some employers ask for it; safe to hide if unsure.', group: 'personal' },
   { key: 'passport_type', label: 'Passport type (ECR / Non-ECR)', hint: 'Affects Gulf hiring for Indian nationals.', group: 'passport' },
   { key: 'passport_validity', label: 'Passport validity date', hint: 'Visa processing needs a valid passport.', group: 'passport' },
@@ -103,10 +103,10 @@ export function CvVisibilitySettings({
     <div className="flex flex-col gap-4 px-5 py-4">
       <div className="ui-section flex flex-col gap-1.5">
         <p className="type-label font-semibold text-ink">
-          {shown} of {total} details are shown on your CV
+          {shown} of {total} details are shown on your resume
         </p>
         <p className="type-helper leading-relaxed text-ink-soft">
-          Turn a detail off to leave it out of the CVs you make from now on. Hiding never deletes it, and CVs you
+          Turn a detail off to leave it out of the resumes you make from now on. Hiding never deletes it, and resumes you
           already made keep the settings they were made with.
         </p>
       </div>
@@ -137,10 +137,10 @@ export function CvVisibilitySettings({
                         )}
                       >
                         {!filled[key] ? null : on ? <EyeIcon className="size-3.5" aria-hidden="true" /> : <EyeSlashIcon className="size-3.5" aria-hidden="true" />}
-                        {!filled[key] ? 'Not in your profile yet — nothing to show' : on ? 'On your CV' : 'Hidden from your CV'}
+                        {!filled[key] ? 'Not in your profile yet — nothing to show' : on ? 'On your resume' : 'Hidden from your resume'}
                       </span>
                     </div>
-                    <Toggle checked={on} onCheckedChange={(v) => onChange(key, v)} aria-label={`Show ${label} on my CV`} />
+                    <Toggle checked={on} onCheckedChange={(v) => onChange(key, v)} aria-label={`Show ${label} on my resume`} />
                   </li>
                 )
               })}

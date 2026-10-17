@@ -39,11 +39,11 @@ import { GulfFlag, isGulfFlagCountry } from '@/components/ui/GulfFlag'
 // separate link here.
 const LIVE_SERVICES = [
   { label: 'Career Profile', href: '/profile' },
-  { label: 'Resume Optimizer', href: '/optimize/target' },
+  { label: 'Optimize Resume', href: '/optimize/target' },
   { label: 'Cover Letter', href: '/cover-letter' },
   { label: 'Interview Q&A', href: '/interview-qa' },
   { label: 'Mock Interview', href: '/mock-interview' },
-  { label: 'CV Templates', href: '/templates' },
+  { label: 'Resume Templates', href: '/templates' },
   { label: 'My Resumes', href: '/dashboard/library' },
 ]
 
@@ -140,7 +140,7 @@ export async function AppFooter({ variant = 'full' }: { variant?: 'full' | 'comp
       'footer_about',
       [
         '**Built by engineers who understand Gulf careers.**',
-        '15+ years of Middle East EPC & PMC experience — helping professionals present the right experience, skills and achievements clearly for Gulf employers, so their CV has a better chance of getting noticed and shortlisted.',
+        '15+ years of Middle East EPC & PMC experience — helping professionals present the right experience, skills and achievements clearly for Gulf employers, so their resume has a better chance of getting noticed and shortlisted.',
         '**Your experience. Better positioning. Better opportunities.**',
       ].join('\n\n'),
     ),

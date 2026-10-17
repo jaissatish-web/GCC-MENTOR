@@ -142,7 +142,7 @@ function groupsFor(profile: ReadinessInput, key: CategoryKey): FieldGroup[] {
     ['phone', 'Phone', scalarFilled('phone')],
     ['email', 'Email', scalarFilled('email')],
     ['current_location', 'Current location', scalarFilled('current_location')],
-    ['target_job_title', 'Target job title', scalarFilled('target_job_title')],
+    ['target_job_title', 'Job Title You’re Applying For', scalarFilled('target_job_title')],
     ['target_country', 'Target country', scalarFilled('target_country')],
     ['target_industry', 'Target industry', scalarFilled('target_industry')],
     ['target_company', 'Target company', scalarFilled('target_company')],

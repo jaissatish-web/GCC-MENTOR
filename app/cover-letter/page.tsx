@@ -204,8 +204,8 @@ function CoverLetterScreen() {
       icon={EnvelopeIcon}
       eyebrow={stageEyebrow('apply')}
       title="Cover Letter"
-      subtitle={isRaw ? 'Introduce your experience using your saved profile. No job description needed.' : 'A letter for your target Gulf job, in your preferred tone.'}
-      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
+      subtitle={isRaw ? 'Introduce your experience using your saved profile. No job description needed.' : 'A letter for the Gulf job you are applying for, in your preferred tone.'}
+      uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
 
       {/* Centered generation form (720px, §C) */}
@@ -273,7 +273,7 @@ function CoverLetterScreen() {
             {generating ? (
               <ProcessingInline
                 steps={[
-                  isRaw ? 'Reading your saved Career Profile Resume' : 'Reading the saved CV for this job',
+                  isRaw ? 'Reading your saved Profile Resume' : 'Reading the saved resume for this job',
                   'Drawing on your Career Profile',
                   `Writing in the ${tone} tone`,
                   'Checking every line against your profile',
@@ -383,7 +383,7 @@ function CoverLetterScreen() {
         <NextStep
           className="mt-6"
           title="Prepare for the interview"
-          body={isRaw ? 'Prepare for interviews in your field with answers drawn from your saved Career Profile.' : 'Get likely questions for this job with answers drawn from the same CV, so what you say matches what you sent.'}
+          body={isRaw ? 'Prepare for interviews in your field with answers drawn from your saved Career Profile.' : 'Get likely questions for this job with answers drawn from the same resume, so what you say matches what you sent.'}
           href={`/interview-qa?package=${encodeURIComponent(selectedId)}`}
           cta={CTA.prepareInterviewQa}
           secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: isRaw ? 'See your resume' : CTA.viewOptimizedCv }}
@@ -392,7 +392,7 @@ function CoverLetterScreen() {
 
       {/* Grounding notice */}
       <p className="mt-6 text-center type-caption text-ink-muted">
-        {isRaw ? 'Written only from your saved Career Profile. No job description or AI resume optimization is used.' : "Written from this job's saved CV (once built) and your Career Profile — nothing that is in neither."}
+        {isRaw ? 'Written only from your saved Career Profile. No job description or AI resume optimization is used.' : "Written from this job's saved resume (once built) and your Career Profile — nothing that is in neither."}
       </p>
     </PageShell>
   )

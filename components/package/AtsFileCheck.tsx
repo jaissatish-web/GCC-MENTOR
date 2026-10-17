@@ -57,7 +57,7 @@ export function AtsFileCheck({ packageId }: { packageId: string }) {
       {state === 'idle' || state === 'error' ? (
         <>
           <p className="text-[13.5px] leading-relaxed text-ink-soft">
-            Your CV looks right on screen — but an ATS only sees the text it can pull out of your PDF. We read the file you
+            Your resume looks right on screen — but an ATS only sees the text it can pull out of your PDF. We read the file you
             download the way an ATS does and check your name, contact details, headings, jobs, dates and keywords.
           </p>
           {error ? <p className="text-[12.5px] text-alert">{error}</p> : null}

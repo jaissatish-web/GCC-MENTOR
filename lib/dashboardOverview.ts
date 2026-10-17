@@ -22,7 +22,7 @@ export interface DashboardOverview {
 
 /** Keep the selected destination, but leave individual job names in the Library. */
 export function dashboardNextAction(action: NextAction): NextAction {
-  if (action.state === 'add_next_job') return { ...action, body: 'Each new target job reuses your saved Career Profile. Open your Resume Library to see all applications.' }
+  if (action.state === 'add_next_job') return { ...action, body: 'Each new job you are applying for reuses your saved Career Profile. Open your Resume Library to see all applications.' }
   const titles: Partial<Record<NextAction['state'], string>> = {
     job_unpaid: 'Continue your unfinished resume',
     job_not_generated: 'Finish your resume optimization',

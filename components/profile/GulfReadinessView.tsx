@@ -139,7 +139,7 @@ export function GulfReadinessView({
   const stages = [
     { label: 'Paperwork', state: mustHaves.length === 0 ? 'Nothing to check' : paperworkDone ? 'Done' : `${paperworkLeft} to do`, done: paperworkDone || mustHaves.length === 0 },
     { label: 'Profile', state: profileRecs.length === 0 ? 'Done' : `${profileRecs.length} fix${profileRecs.length === 1 ? '' : 'es'}`, done: profileRecs.length === 0 },
-    { label: 'Apply', state: 'One CV per job', done: false },
+    { label: 'Apply', state: 'One resume per job', done: false },
   ]
 
   return (
@@ -311,13 +311,13 @@ export function GulfReadinessView({
 
       {/* 3 · APPLY */}
       <section className="flex flex-col gap-3">
-        <StageTitle n={3} icon={PaperAirplaneIcon} title="Apply" sub="One tailored CV per job — built only from your profile." done={false} />
+        <StageTitle n={3} icon={PaperAirplaneIcon} title="Apply" sub="One optimized resume per job — built only from your profile." done={false} />
         <div className="flex flex-col gap-3 rounded-card border border-teal/25 bg-teal-soft/60 p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[13px] leading-relaxed text-ink-soft">
-            {applyRecs[0]?.why ?? 'Tell us the role and we tailor your CV to it — using only what is in this profile.'}
+            {applyRecs[0]?.why ?? 'Tell us the role and we tailor your resume to it — using only what is in this profile.'}
           </p>
           <Button variant="progress" size="sm" className="shrink-0" busy={applyBusy} busyLabel="Saving…" onClick={onApply}>
-            Build a CV for a job
+            Build a resume for a job
           </Button>
         </div>
       </section>

@@ -11,10 +11,10 @@
  */
 
 export const NAMES = {
-  targetJob: 'Target job',
-  jobTitle: 'Job title',
+  targetJob: 'Job You’re Applying For',
+  jobTitle: 'Job Title You’re Applying For',
   jobDescription: 'Job description',
-  optimizedCv: 'Optimized CV',
+  optimizedCv: 'Optimized Resume',
   atsScore: 'ATS score',
   level: 'Optimization level',
   coverLetter: 'Cover letter',
@@ -24,23 +24,23 @@ export const NAMES = {
 } as const
 
 export const CTA = {
-  addTargetJob: 'Add target job',
+  addTargetJob: 'Add Job Details',
   chooseLevel: 'Next: choose level',
-  optimizeCv: 'Optimize CV',
-  viewOptimizedCv: 'View optimized CV',
-  editCv: 'Edit CV',
+  optimizeCv: 'Optimize Resume for This Job',
+  viewOptimizedCv: 'View Optimized Resume',
+  editCv: 'Edit Resume',
   downloadPdf: 'Download PDF',
   seeChanges: 'Review and edit changes',
   writeCoverLetter: 'Write cover letter',
   prepareInterviewQa: 'Prepare interview Q&A',
   startMockInterview: 'Start mock interview',
-  viewTargetJob: 'View target job',
+  viewTargetJob: 'View Job Details',
 } as const
 
 /** What each service reads, said the same way on every screen. */
 export const USES = {
-  coverLetter: 'Written from your optimized CV and this target job.',
-  interviewQa: 'Questions and answers from your optimized CV and this target job.',
-  mockInterview: 'Interview questions from your optimized CV and this target job.',
-  optimizedCv: 'Written for this target job, only from facts in your Career Profile.',
+  coverLetter: 'Written from your optimized resume and this job.',
+  interviewQa: 'Questions and answers from your optimized resume and this job.',
+  mockInterview: 'Interview questions from your optimized resume and this job.',
+  optimizedCv: 'Written for this job, only from facts in your Career Profile.',
 } as const

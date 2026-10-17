@@ -22,9 +22,9 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 id="activity-heading" className="type-section text-ink">Your preparation</h2>
-          <p className="mt-1 type-helper text-ink-muted">CVs, letters and interview practice for your Gulf applications.</p>
+          <p className="mt-1 type-helper text-ink-muted">Resumes, letters and interview practice for your Gulf applications.</p>
         </div>
-        <Link href="/dashboard/library" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>My CVs →</Link>
+        <Link href="/dashboard/library" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>Resume Library →</Link>
       </div>
       {error ? (
         <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-alert/30 bg-alert-soft p-4">
@@ -47,7 +47,7 @@ export function ActivityOverview({ overview, loading, error, onRetry }: {
                   ? `${overview.profile_resume_count} Career Profile · ${overview.optimized_resume_count} optimized`
                   : service.key === 'mock_interview_count' && overview && !error
                     ? `${overview.mock_completed_count} completed · ${overview.mock_in_progress_count} in progress`
-                    : service.key === 'qa_set_count' ? 'Saved question-and-answer sets' : service.key === 'cover_letter_count' ? 'Saved letters in every tone' : 'Your profile and tailored CVs'}
+                    : service.key === 'qa_set_count' ? 'Saved question-and-answer sets' : service.key === 'cover_letter_count' ? 'Saved letters in every tone' : 'Your profile and optimized resumes'}
               </span>
               <span className="mt-auto type-caption font-medium text-teal">{service.cta} <span aria-hidden="true">→</span></span>
             </Link>
@@ -85,7 +85,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
               </Link>
             ))}
           </div>
-          {overview.draft_resume_count > 0 ? <Link href="/dashboard/library" className="mt-5 block type-helper font-semibold text-teal">{overview.draft_resume_count} tailored resume{overview.draft_resume_count === 1 ? '' : 's'} still to build →</Link> : null}
+          {overview.draft_resume_count > 0 ? <Link href="/dashboard/library" className="mt-5 block type-helper font-semibold text-teal">{overview.draft_resume_count} resume{overview.draft_resume_count === 1 ? '' : 's'} awaiting optimization →</Link> : null}
         </div>
         <div className="flex flex-col rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-6">
           <h3 className="type-card text-ink">Interview practice</h3>
@@ -104,7 +104,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
           <h3 className="type-card text-ink">Application status</h3>
           <Link href="/dashboard/library" className="type-helper font-semibold text-teal">Manage in Resume Library →</Link>
         </div>
-        <p className="mt-1 type-helper text-ink-muted">{overview.target_job_count} target jobs. Career Profile Resume is separate from applications.</p>
+        <p className="mt-1 type-helper text-ink-muted">{overview.target_job_count} job workspaces. Profile Resume is separate from applications.</p>
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {PACKAGE_STATUSES.map((stage) => <div key={stage.value} className="min-w-0 rounded-ctl bg-canvas p-3"><dt className="type-caption leading-snug text-ink-muted">{stage.label}</dt><dd className="mt-1 text-xl font-semibold text-ink">{overview.stages[stage.value]}</dd></div>)}
         </dl>

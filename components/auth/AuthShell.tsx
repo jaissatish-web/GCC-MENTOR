@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { FileCheck2, Globe2, ShieldCheck } from 'lucide-react'
 
 const POINTS = [
-  { icon: FileCheck2, title: 'ATS-ready for every job', body: 'A CV and cover letter tailored to each vacancy.' },
+  { icon: FileCheck2, title: 'ATS-ready for every job', body: 'A resume and cover letter tailored to each vacancy.' },
   { icon: ShieldCheck, title: 'Never invents experience', body: 'Written only from your own Career Profile.' },
   { icon: Globe2, title: 'All six GCC countries', body: 'Saudi Arabia, UAE, Qatar, Oman, Kuwait, Bahrain.' },
 ] as const

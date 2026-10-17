@@ -134,10 +134,10 @@ export function computeNextAction(
   if (hasPendingDraft) {
     return {
       state: 'draft_waiting',
-      title: 'Your CV reading is waiting',
+      title: 'Your resume reading is waiting',
       body: profile
-        ? 'We read your CV and kept the result. Choose whether to add it to your profile or replace it.'
-        : 'We read your CV and kept the result. Check it and save your profile.',
+        ? 'We read your resume and kept the result. Choose whether to add it to your profile or replace it.'
+        : 'We read your resume and kept the result. Check it and save your profile.',
       cta: 'Review it',
       href: '/profile',
     }
@@ -151,8 +151,8 @@ export function computeNextAction(
     return {
       state: 'no_profile',
       title: 'Create your first resume',
-      body: 'Upload your CV, paste the text, or type it in. We read it and build your profile from it.',
-      cta: 'Add your CV',
+      body: 'Upload your resume, paste the text, or type it in. We read it and build your profile from it.',
+      cta: 'Add your resume',
       href: '/profile?import=upload',
     }
   }
@@ -174,7 +174,7 @@ export function computeNextAction(
     return {
       state: 'no_target_job',
       title: 'Add the job you are applying for',
-      body: 'Give us the role and we build a CV against it. Everything you do for that job stays with it.',
+      body: 'Give us the role and we build a resume against it. Everything you do for that job stays with it.',
       cta: CTA.addTargetJob,
       href: '/optimize/target',
     }
@@ -193,8 +193,8 @@ export function computeNextAction(
       state: 'job_unpaid',
       // Not "Unlock": there is no checkout, and a heading that implies a
       // payment the user cannot make is a promise the product cannot keep.
-      title: `Finish the CV for ${jobLabel(unpaid)}`,
-      body: 'You set this job up but its CV is not built yet. Pick up where you left off.',
+      title: `Finish the resume for ${jobLabel(unpaid)}`,
+      body: 'You set this job up but its resume is not built yet. Pick up where you left off.',
       cta: 'Continue',
       href: `/optimize/pay/${unpaid.id}`,
     }
@@ -207,7 +207,7 @@ export function computeNextAction(
   if (ungenerated) {
     return {
       state: 'job_not_generated',
-      title: `Optimize the CV for ${jobLabel(ungenerated)}`,
+      title: `Optimize the resume for ${jobLabel(ungenerated)}`,
       // No duration (2026-09-11): "takes about a minute" was a local number
       // production runs past. See lib/processingNotes.ts.
       body: 'This job is unlocked and ready to build.',
@@ -234,7 +234,7 @@ export function computeNextAction(
     return {
       state: 'job_needs_qa',
       title: `Prepare interview Q&A for ${jobLabel(needsQa)}`,
-      body: 'Generate answers from the final CV and role before the recruiter call arrives.',
+      body: 'Generate answers from the final resume and role before the recruiter call arrives.',
       cta: CTA.prepareInterviewQa,
       href: `/interview-qa?package=${encodeURIComponent(needsQa.id)}`,
     }
@@ -247,7 +247,7 @@ export function computeNextAction(
     return {
       state: 'job_needs_mock',
       title: `Practice the interview for ${jobLabel(needsMock)}`,
-      body: 'Run a mock interview for this CV and save the report so the next practice is sharper.',
+      body: 'Run a mock interview for this resume and save the report so the next practice is sharper.',
       cta: CTA.startMockInterview,
       href: `/mock-interview?package=${encodeURIComponent(needsMock.id)}`,
     }
@@ -255,7 +255,7 @@ export function computeNextAction(
 
   return {
     state: 'add_next_job',
-    title: 'Add your next target job',
+    title: 'Optimize a Resume for Another Job',
     body: `${packages.length} job${packages.length === 1 ? '' : 's'} set up so far. Each new one reuses the profile you have already built.`,
     cta: CTA.addTargetJob,
     href: '/optimize/target',

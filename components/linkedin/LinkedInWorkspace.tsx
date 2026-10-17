@@ -553,7 +553,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                   <section className={card}>
                     <h2 className="type-section text-ink">{config.headline}</h2>
                     <p className="mt-2 text-sm leading-6 text-ink-soft">
-                      {platform === 'linkedin' ? 'Open your profile, select the pencil in your introduction, and replace the Headline field. Choose one option below.' : 'Open your NaukriGulf profile and replace the CV headline with one reviewed option below.'}
+                      {platform === 'linkedin' ? 'Open your profile, select the pencil in your introduction, and replace the Headline field. Choose one option below.' : 'Open your NaukriGulf profile and replace the resume headline with one reviewed option below.'}
                     </p>
                     <div className="mt-5 space-y-4">
                       {draft.output.headlines.map((headline, index) => (
@@ -789,7 +789,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       <p className="mt-4 text-xs leading-6 text-ink-muted">Review any salary, work authorization and availability questions yourself. GCC Mentor does not infer answers or submit these fields.</p>
                       {taskControls('preferences')}
                     </section>
-                    <section className={card}><h2 className="type-section text-ink">Upload your current CV</h2><p className="mt-3 text-sm leading-6 text-ink-soft">Choose the appropriate saved CV, check its content and download it from My CVs. Upload it to NaukriGulf yourself, then check that the attachment opens correctly.</p><Link href="/dashboard/library" className={`${secondary} mt-4`}>Open My CVs</Link>{taskControls('resume')}</section>
+                    <section className={card}><h2 className="type-section text-ink">Upload your current resume</h2><p className="mt-3 text-sm leading-6 text-ink-soft">Choose the appropriate saved resume, check its content and download it from Resume Library. Upload it to NaukriGulf yourself, then check that the attachment opens correctly.</p><Link href="/dashboard/library" className={`${secondary} mt-4`}>Open Resume Library</Link>{taskControls('resume')}</section>
                   </>}
                   <section className={card}>
                     <h2 className="type-section text-ink">
@@ -968,7 +968,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           )}
                           <p className="text-sm text-ink-muted">
                             This path is for an existing {platformName} profile. If
-                            you have an ordinary CV or need a first profile,
+                            you have an ordinary resume or need a first profile,
                             choose Use Career Profile.
                           </p>
                           <button
@@ -1246,7 +1246,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       )}
                       <div className="mt-6 space-y-5">
                         <Field
-                          label="Target job descriptions (optional)"
+                          label="Job descriptions (optional)"
                           help="Audience context only. We won’t claim skills or achievements from an advert."
                         >
                           <textarea dir="auto"

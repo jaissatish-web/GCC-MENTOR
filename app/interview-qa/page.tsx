@@ -170,8 +170,8 @@ function InterviewQaScreen() {
       icon={QuestionMarkCircleIcon}
       eyebrow={stageEyebrow('apply')}
       title="Interview Q&A"
-      subtitle={isRaw ? 'Practise up to 25 questions from your profile. No job description needed.' : 'Practise for your target Gulf job, using your own experience.'}
-      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
+      subtitle={isRaw ? 'Practise up to 25 questions from your profile. No job description needed.' : 'Practise for the Gulf job you are applying for, using your own experience.'}
+      uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
       <Card tone="light" className="qa-setup-panel">
         {total === 0 ? (
@@ -182,7 +182,7 @@ function InterviewQaScreen() {
             icon={QuestionMarkCircleIcon}
             className="border-0 bg-transparent"
             title="Build an optimized resume first"
-            body="The questions and answers are based on the final CV for a target job, so build that CV before preparing interview answers."
+            body="The questions and answers are based on the final resume for the job you are applying for, so build that resume before preparing interview answers."
             action={
               <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'type-label')}>
                 {CTA.optimizeCv}
@@ -221,10 +221,10 @@ function InterviewQaScreen() {
             {generating ? (
               <ProcessingInline
                 steps={[
-                  isRaw ? 'Reading your saved Career Profile Resume' : 'Reading the optimized resume',
+                  isRaw ? 'Reading your saved Profile Resume' : 'Reading the optimized resume',
                   isRaw ? 'Preparing for your professional field' : 'Studying the target role and job description',
                   'Writing Gulf-focused practice answers',
-                  'Checking every number against your CV and profile',
+                  'Checking every number against your resume and profile',
                 ]}
                 stepMs={5500}
                 notes={QA_NOTES}
@@ -376,7 +376,7 @@ function InterviewQaScreen() {
       ) : null}
 
       <p className="mt-6 text-center type-caption text-ink-muted">
-        {isRaw ? 'Answers use only your saved Career Profile. Unsupported numbers are removed before you see them.' : "Answers are written from this job's saved CV and your Career Profile. Any answer stating a number that is in neither is removed before you see it."}
+        {isRaw ? 'Answers use only your saved Career Profile. Unsupported numbers are removed before you see them.' : "Answers are written from this job's saved resume and your Career Profile. Any answer stating a number that is in neither is removed before you see it."}
       </p>
     </PageShell>
   )
@@ -442,7 +442,7 @@ function QaCard({ item, number, open, onToggle }: { item: InterviewQuestionAnswe
             </section>
             <div className="qa-evidence-grid">
               <section className="qa-basis-panel">
-                <h5 className="qa-panel-label"><DocumentTextIcon aria-hidden="true" className="size-4 shrink-0" />From your CV</h5>
+                <h5 className="qa-panel-label"><DocumentTextIcon aria-hidden="true" className="size-4 shrink-0" />From your resume</h5>
                 <p>{item.resume_basis}</p>
               </section>
               {item.follow_up ? (

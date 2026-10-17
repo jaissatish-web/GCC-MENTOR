@@ -172,11 +172,11 @@ export function PhotoUpload({
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[13px] font-bold text-ink">Photo</span>
             <span className="rounded-[5px] bg-teal-soft px-1.5 py-0.5 text-[12px] font-semibold uppercase tracking-wider text-teal">
-              Gulf CV photo tip
+              Gulf resume photo tip
             </span>
           </div>
           <p className="text-[12px] leading-snug text-ink-muted">
-            Passport-style, plain background. Used on your CV wherever the template has a photo
+            Passport-style, plain background. Used on your resume wherever the template has a photo
             slot. JPG, PNG or WebP, up to 5MB.
           </p>
 

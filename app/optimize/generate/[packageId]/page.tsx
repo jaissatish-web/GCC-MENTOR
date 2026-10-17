@@ -30,7 +30,7 @@ import { OPTIMIZATION_BUILD_STEPS_KEY } from '@/lib/onboardingDraft'
 /** Shown when setup's own list is not available — a refresh in a new tab, an old link. */
 const STEPS = [
   'Reading your Career Profile',
-  'Applying Gulf CV format',
+  'Applying Gulf resume format',
   'Rewriting for your target role',
   'Checking every line against your profile',
 ]
@@ -83,7 +83,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
         setError(
           (body?.error as string) ??
             (res.status === 504
-              ? 'Building your CV took too long and was stopped. Your job is saved — please try again.'
+              ? 'Building your resume took too long and was stopped. Your job is saved — please try again.'
               : 'Could not build your resume. Please try again.'),
         )
         return
@@ -154,8 +154,8 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
   // last one), and how long it has really taken. See components/ui/Processing.
   return (
     <main className="mx-auto w-full max-w-[760px] space-y-5 px-3 py-6 font-redesign-sans sm:px-8 lg:py-10">
-      <FlowHeader step={3} title="Building your optimized CV" subtitle="Follow your optimization below. You can scroll to see each step while it runs." />
-      <section aria-label="CV optimization progress" className="relative rounded-card border border-line bg-ink px-4 py-8 sm:px-8">
+      <FlowHeader step={3} title="Building your optimized resume" subtitle="Follow your optimization below. You can scroll to see each step while it runs." />
+      <section aria-label="resume optimization progress" className="relative rounded-card border border-line bg-ink px-4 py-8 sm:px-8">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_28%,rgba(201,150,46,0.16),transparent_70%)]"
@@ -163,8 +163,8 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
         <div className="relative mx-auto flex w-full min-w-0 max-w-[440px] flex-col items-center gap-7">
           <ProcessingOrbit tone="dark" size={184} />
           <div className="text-center">
-            <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">Step 3 of 3 · Tailored CV</p>
-            <h1 className="font-display text-[28px] leading-tight text-white">Optimizing your CV</h1>
+            <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">Step 3 of 3 · Optimized Resume</p>
+            <h1 className="font-display text-[28px] leading-tight text-white">Optimizing your resume</h1>
             <p className="mt-2 text-[13.5px] leading-relaxed text-white/70">
               Every line is checked against your Career Profile before you see it.
             </p>

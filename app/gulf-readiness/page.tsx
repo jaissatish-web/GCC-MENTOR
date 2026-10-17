@@ -138,7 +138,7 @@ function NextStep({ score }: { score: Score }) {
 
         <h2 className="mt-3 type-marketing-title">
           {ready
-            ? 'Your CV clears the Gulf basics. Now aim it at a specific role.'
+            ? 'Your resume clears the Gulf basics. Now aim it at a specific role.'
             : gain > 0
               ? `${gain} points are sitting on the table.`
               : 'Create your free account to keep this report.'}
@@ -146,8 +146,8 @@ function NextStep({ score }: { score: Score }) {
 
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-white/80">
           {ready
-            ? 'A strong general CV still loses to a targeted one. Create your free account to build your Career Profile once, then generate a version tuned to each Gulf role you apply for.'
-            : 'Gulf recruiters filter on the exact fields below before a human ever reads your CV. Create your free account and we will walk you through fixing each one.'}
+            ? 'A strong general resume still loses to a targeted one. Create your free account to build your Career Profile once, then generate a version tuned to each Gulf role you apply for.'
+            : 'Gulf recruiters filter on the exact fields below before a human ever reads your resume. Create your free account and we will walk you through fixing each one.'}
         </p>
 
         {/* The specific, checkable promise — what fixing the gaps is worth. */}
@@ -198,7 +198,7 @@ function NextStep({ score }: { score: Score }) {
           have to be uploaded again.
         */}
         <p className="mt-4 text-center text-xs text-ink-muted">
-          Free. We keep this scan for 7 days — sign up within that time and you never upload your CV twice.
+          Free. We keep this scan for 7 days — sign up within that time and you never upload your resume twice.
         </p>
       </div>
     </section>
@@ -233,13 +233,13 @@ export default function GulfReadinessPage() {
         .catch(err => setError(err instanceof Error ? err.message : 'Your scan could not be found.'))
     }, [])
 
-  if (error) return <main className="min-h-dvh bg-canvas px-3 sm:px-5 py-20 text-center"><h1 className="type-title">Your scan is unavailable</h1><p className="mx-auto mt-4 max-w-lg text-ink-soft">{error}</p><Link href="/ats-scan" className="mt-8 inline-flex rounded-ctl bg-teal px-6 py-3 font-bold text-white">Scan my CV again</Link></main>
-  if (!score) return <main className="flex min-h-dvh items-center justify-center bg-canvas"><p className="font-mono text-sm text-ink-500">Preparing your CV scan…</p></main>
+  if (error) return <main className="min-h-dvh bg-canvas px-3 sm:px-5 py-20 text-center"><h1 className="type-title">Your scan is unavailable</h1><p className="mx-auto mt-4 max-w-lg text-ink-soft">{error}</p><Link href="/ats-scan" className="mt-8 inline-flex rounded-ctl bg-teal px-6 py-3 font-bold text-white">Scan my resume again</Link></main>
+  if (!score) return <main className="flex min-h-dvh items-center justify-center bg-canvas"><p className="font-mono text-sm text-ink-500">Preparing your resume scan…</p></main>
 
   const overallTone = score.overall_score >= 75 ? 'green' : score.overall_score >= 55 ? 'gold' : 'terra'
   return <main className="min-h-dvh bg-canvas text-ink"><header className="border-b border-line bg-canvas/95"><div className="mx-auto flex h-[72px] max-w-[1100px] items-center justify-between px-3 sm:px-8"><Link href="/" className="flex items-center gap-2.5"><span className="font-display flex h-9 w-9 items-center justify-center rounded-ctl bg-teal text-lg text-white">G</span><span className="font-bold tracking-wide">GCC MENTOR</span></Link><Link href="/login" className="text-sm font-semibold text-ink-muted">Log in</Link></div></header>
-    <div className="mx-auto max-w-[1100px] px-3 py-12 sm:px-8 lg:py-16"><div className="mx-auto max-w-4xl text-center"><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your free CV scan</p><h1 className="mt-4 type-hero">Here is what is holding your CV back.</h1><p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-ink-soft">{score.summary}</p></div>
-      <section className={`mx-auto mt-10 max-w-4xl rounded-card border-2 ${overallTone === 'green' ? 'border-teal bg-teal-soft' : overallTone === 'gold' ? 'border-teal bg-teal-soft' : 'border-alert bg-alert-soft'} p-7 sm:p-10`}><div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left"><div className="flex size-32 shrink-0 flex-col items-center justify-center rounded-full border-8 border-white/70 bg-white shadow-sm"><span className="font-mono text-5xl font-bold">{score.overall_score}</span><span className="text-xs text-ink-500">out of 100</span></div><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-500">Overall CV score</p><h2 className="mt-2 type-section">{score.overall_score >= 75 ? 'Strong foundation' : score.overall_score >= 55 ? 'Good foundation, but needs work' : 'Needs attention before you apply'}</h2><p className="mt-2 text-sm leading-relaxed text-ink-soft">This score is based only on what your submitted resume actually contains. It is a diagnostic, not a promise of employment.</p></div></div></section>
+    <div className="mx-auto max-w-[1100px] px-3 py-12 sm:px-8 lg:py-16"><div className="mx-auto max-w-4xl text-center"><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your free resume scan</p><h1 className="mt-4 type-hero">Here is what is holding your resume back.</h1><p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-ink-soft">{score.summary}</p></div>
+      <section className={`mx-auto mt-10 max-w-4xl rounded-card border-2 ${overallTone === 'green' ? 'border-teal bg-teal-soft' : overallTone === 'gold' ? 'border-teal bg-teal-soft' : 'border-alert bg-alert-soft'} p-7 sm:p-10`}><div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left"><div className="flex size-32 shrink-0 flex-col items-center justify-center rounded-full border-8 border-white/70 bg-white shadow-sm"><span className="font-mono text-5xl font-bold">{score.overall_score}</span><span className="text-xs text-ink-500">out of 100</span></div><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-500">Overall resume score</p><h2 className="mt-2 type-section">{score.overall_score >= 75 ? 'Strong foundation' : score.overall_score >= 55 ? 'Good foundation, but needs work' : 'Needs attention before you apply'}</h2><p className="mt-2 text-sm leading-relaxed text-ink-soft">This score is based only on what your submitted resume actually contains. It is a diagnostic, not a promise of employment.</p></div></div></section>
       <section className="mx-auto mt-8 grid max-w-4xl gap-4 md:grid-cols-3"><ScoreCard label="Structure" value={score.category_scores.structure} tone="green" /><ScoreCard label="Clarity & impact" value={score.category_scores.clarity_and_impact} tone="gold" /><ScoreCard label="Gulf readiness" value={score.category_scores.gulf_readiness} tone="terra" /></section>
       {score.signals ? (
         <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">

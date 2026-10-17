@@ -99,25 +99,25 @@ export const VERDICT_TONE: Record<GulfReadinessResult['verdict']['key'], { ring:
 const HOW_IT_WORKS = [
   {
     icon: DocumentMagnifyingGlassIcon,
-    title: 'We read your CV',
+    title: 'We read your resume',
     body: 'Your jobs, skills and education are filled in for you.',
     badge: 'bg-blue-soft text-blue',
   },
   {
     icon: PencilSquareIcon,
     title: 'You check it',
-    body: 'Fix anything we read wrong, and add what a CV cannot show — visa, notice period, licence.',
+    body: 'Fix anything we read wrong, and add what a resume cannot show — visa, notice period, licence.',
     badge: 'bg-gold-soft text-gold-ink',
   },
   {
     icon: SparklesIcon,
     title: 'We write from it',
-    body: 'Every CV, cover letter and interview answer is written from these facts.',
+    body: 'Every resume, cover letter and interview answer is written from these facts.',
     badge: 'bg-ok-soft text-ok',
   },
 ] as const
 
-const USED_BY = ['Resume Optimizer', 'Job match', 'Cover letter', 'Interview Q&A', 'Mock interview'] as const
+const USED_BY = ['Optimize Resume', 'Job match', 'Cover letter', 'Interview Q&A', 'Mock interview'] as const
 
 /**
  * "This is the source GCC Mentor writes from" — said in plain words, on the
@@ -501,7 +501,7 @@ export function SettingsCard({
             Profile settings
           </h2>
           <p className="type-helper leading-snug text-ink-soft">
-            What your CV shows — <span className="font-semibold text-ink">{shown} of {total} details on</span>
+            What your resume shows — <span className="font-semibold text-ink">{shown} of {total} details on</span>
           </p>
         </div>
         {/* The whole card is the target; this is its one focusable control. */}
@@ -530,7 +530,7 @@ export function SettingsCard({
               </span>
               <span className={cn('inline-flex items-center gap-1 type-caption font-semibold', all ? 'text-ok' : 'text-ink-soft')}>
                 {all ? <EyeIcon className="size-3.5" aria-hidden="true" /> : <EyeSlashIcon className="size-3.5" aria-hidden="true" />}
-                {all ? `All ${g.total} on CV` : `${g.shown} of ${g.total} on CV`}
+                {all ? `All ${g.total} on resume` : `${g.shown} of ${g.total} on resume`}
               </span>
               {g.hidden.length > 0 ? (
                 <span className="type-caption leading-snug text-ink-muted">Hidden: {g.hidden.join(', ')}</span>

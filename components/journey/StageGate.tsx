@@ -31,12 +31,12 @@ export function StageGate({ what }: { /** e.g. "Your cover letter" */ what: stri
       <div className="flex max-w-[48ch] flex-col gap-2">
         <h2 className="font-display type-section font-semibold leading-snug text-ink">{what} comes in step 3</h2>
         <p className="type-helper leading-relaxed text-ink-soft">
-          It is written for one target job, from the CV we tailor for that job.{' '}
+          It is written for one job you are applying for, from the resume we tailor for that job.{' '}
           {onProfile ? 'Start with step 1: your profile.' : 'First, add the job you want in step 2.'}
         </p>
       </div>
       <Link href={onProfile ? '/profile?import=upload' : target.href} className={cn(buttonVariants({ variant: 'primary' }), 'type-helper')}>
-        {onProfile ? 'Start step 1: add your CV' : 'Go to step 2: add a target job'}
+        {onProfile ? 'Start step 1: add your resume' : 'Go to step 2: add job details'}
       </Link>
     </div>
   )

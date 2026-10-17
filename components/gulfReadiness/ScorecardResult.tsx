@@ -114,7 +114,7 @@ export function ScorecardResult({
             ))}
           </ul>
           {source === 'resume' && result.mustHaves.some((m) => m.status === 'unknown') ? (
-            <p className="mt-3 text-[12px] text-ink-muted">A CV cannot show these. Your free Career Profile asks, then tells you exactly what is left.</p>
+            <p className="mt-3 text-[12px] text-ink-muted">A resume cannot show these. Your free Career Profile asks, then tells you exactly what is left.</p>
           ) : null}
         </section>
       ) : null}
@@ -179,7 +179,7 @@ export function ScorecardResult({
                 </li>
               ))
             ) : (
-              <li className="text-[13px] text-ink-muted">No major gaps stood out — a tailored, optimised resume is your next step.</li>
+              <li className="text-[13px] text-ink-muted">No major gaps stood out — a optimized resume is your next step.</li>
             )}
           </ul>
         </section>

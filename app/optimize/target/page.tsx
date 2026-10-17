@@ -209,11 +209,11 @@ function TargetScreen() {
       <main className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5 py-10 font-redesign-sans">
         <Card tone="light" className="flex w-full max-w-[520px] flex-col gap-3 p-6 sm:p-8">
           <p className="type-caption font-semibold uppercase tracking-[0.14em] text-ink-muted">
-            Before your first CV
+            Before your first resume
           </p>
           <h1 className="type-title text-ink">First, your Career Profile</h1>
           <p className="type-body text-ink-soft">
-            Upload your CV to build your profile. We use your saved experience to tailor each application.
+            Upload your resume to build your profile. We use your saved experience to tailor each application.
           </p>
           <div className="mt-3 flex flex-col gap-2.5">
             <Link href="/profile?import=upload" className={buttonVariants({ variant: 'primary' })}>
@@ -236,10 +236,10 @@ function TargetScreen() {
       <FlowHeader
         step={1}
         onBack={() => router.back()}
-        title="Add your target Gulf job"
+        title="Add Job Details"
         subtitle={
           <>
-            Paste the job description to prepare your CV, letter and interview practice.
+            Paste the job description to prepare your resume, letter and interview practice.
           </>
         }
       />
@@ -282,11 +282,11 @@ function TargetScreen() {
                 "Phase 2" our roadmap. And say what replacing really removes —
                 setup deletes the whole old row, letters and stage included. */}
             <p className="type-caption leading-snug text-teal">
-              You already have a CV for &ldquo;{similar.title}&rdquo;. Replace it with a new one, or keep
+              You already have a resume for &ldquo;{similar.title}&rdquo;. Replace it with a new one, or keep
               both?
             </p>
             <p className="mt-0.5 type-caption text-ink-muted">
-              Replacing removes the old one — its CV, cover letters and stage — once the new one is created.
+              Replacing removes the old one — its resume, cover letters and stage — once the new one is created.
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               <button
@@ -315,7 +315,7 @@ function TargetScreen() {
 
         {similar && replacingId ? (
           <div className="rounded-card border border-teal/30 bg-teal-soft px-3.5 py-3 type-caption leading-snug text-teal">
-            Your existing &ldquo;{similar.title}&rdquo; CV will be replaced once the new one is created.{' '}
+            Your existing &ldquo;{similar.title}&rdquo; resume will be replaced once the new one is created.{' '}
             <button
               type="button"
               onClick={() => {
@@ -347,7 +347,7 @@ function TargetScreen() {
               Paste the job advert for the most accurate ATS score
             </div>
             <p className="type-caption leading-snug text-ink-muted">
-              We match your CV to its exact requirements. Without it, we work from the job title and the score is an estimate.
+              We match your resume to its exact requirements. Without it, we work from the job title and the score is an estimate.
             </p>
             <textarea
               id="f_job_description"

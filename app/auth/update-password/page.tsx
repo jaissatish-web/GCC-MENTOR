@@ -66,7 +66,7 @@ export default function UpdatePasswordPage() {
   return (
     <AuthShell
       panelTitle="Set a new password and pick up where you left off."
-      panelBody="Your Career Profile, CVs and interview practice are exactly as you left them."
+      panelBody="Your Career Profile, resumes and interview practice are exactly as you left them."
       aside={{ prompt: 'Need help?', label: 'Sign in', href: '/login' }}
     >
       <AuthCard title="Set a new password" subtitle="Choose a password you haven’t used on other sites.">

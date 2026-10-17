@@ -461,8 +461,8 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
             {focused ? (
               <>
                 <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">{focused.country} · preparation guidance</div>
-                <div className="mt-1 text-[15px] font-semibold text-ink">{focused.role}</div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft">Match the role’s skills. Prepare your CV, qualification records and availability details. Confirm documentation requests with the employer.</p>
-                <div className="type-caption text-ink-muted">CV, cover letter and interview prep made for {focused.country} jobs.</div>
+                <div className="mt-1 text-[15px] font-semibold text-ink">{focused.role}</div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft">Match the role’s skills. Prepare your resume, qualification records and availability details. Confirm documentation requests with the employer.</p>
+                <div className="type-caption text-ink-muted">Resume, cover letter and interview prep made for {focused.country} jobs.</div>
               </>
             ) : arrival && arrivalTo ? (
               <>

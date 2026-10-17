@@ -172,7 +172,7 @@ const RESUME_CANNOT_SUPPLY: Array<[string, string]> = [
   // warning could never fire (fixed 2026-09-11).
   ['has_driving_license', 'Driving licence'],
   ['driving_license_country', 'Driving licence country'],
-  ['target_job_title', 'Target job title'],
+  ['target_job_title', 'Job Title You’re Applying For'],
   ['target_country', 'Target country'],
   ['target_industry', 'Target industry'],
   ['target_company', 'Target company'],

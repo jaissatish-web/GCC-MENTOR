@@ -45,8 +45,8 @@ export function HomeProfile({ profile, loading, error, packages, workLoading, wo
   if (loading) return <section aria-label="Loading your profile" aria-busy="true" className={styles.profile}><div className="h-48 animate-pulse rounded-ctl bg-canvas motion-reduce:animate-none" /></section>
   if (!profile || error) return <section aria-labelledby="home-profile-heading" className={styles.profile}>
     <h2 id="home-profile-heading" className="type-section text-ink">Your Career Profile</h2>
-    <p className="mt-2 type-body text-ink-soft">{error ? 'Your profile could not be loaded.' : 'Add your CV to start.'}</p>
-    {error ? <button type="button" className={styles.action} onClick={() => window.location.reload()}>Try again <ArrowRightIcon aria-hidden="true" className="size-4" /></button> : <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1"><Link className={styles.action} href="/profile?import=upload">Upload CV</Link><Link className={styles.action} href="/profile?import=paste">Paste CV</Link><Link className={styles.action} href="/profile?view=details">Enter details</Link></div>}
+    <p className="mt-2 type-body text-ink-soft">{error ? 'Your profile could not be loaded.' : 'Add your resume to start.'}</p>
+    {error ? <button type="button" className={styles.action} onClick={() => window.location.reload()}>Try again <ArrowRightIcon aria-hidden="true" className="size-4" /></button> : <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1"><Link className={styles.action} href="/profile?import=upload">Upload resume</Link><Link className={styles.action} href="/profile?import=paste">Paste resume</Link><Link className={styles.action} href="/profile?view=details">Enter details</Link></div>}
   </section>
   const initials = (profile.full_name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(n => n[0]).join('') || 'Me'
   const role = profile.work_experience.find(job => !job.end_date)?.role || profile.work_experience[0]?.role
@@ -54,7 +54,7 @@ export function HomeProfile({ profile, loading, error, packages, workLoading, wo
   const jobHref = job ? `/package/${encodeURIComponent(job.id)}` : '/optimize'
   const facts = [
     { label: 'Profile next step', value: missingLabels.length ? `${missingLabels[0]} · ${missingLabels.length} left` : 'All required details added', href: '/profile?view=completeness' },
-    { label: 'Recent target job', value: workLoading ? 'Loading…' : workError ? 'Temporarily unavailable' : job ? job.target_job_title : 'Add your target job', href: jobHref },
+    { label: 'Recent Job Workspace', value: workLoading ? 'Loading…' : workError ? 'Temporarily unavailable' : job ? job.target_job_title : 'Add Job Details', href: jobHref },
   ]
   const preparation = job ? [
     { label: 'CV', ready: job.has_resume, href: jobHref },
@@ -71,7 +71,7 @@ export function HomeProfile({ profile, loading, error, packages, workLoading, wo
       <Link href="/profile?view=details" className={styles.action}><PencilSquareIcon aria-hidden="true" className="size-4" /> Edit</Link>
     </div>
     <div className={styles.facts}>{facts.map(f => <Link key={f.label} href={f.href} className={styles.factLink}><span className="type-helper text-ink-muted">{f.label}</span><span>{f.value}</span></Link>)}</div>
-    {!workLoading && !workError && job && <div className={styles.preparation} aria-label="Preparation for your recent target job">{preparation.map(item => <Link key={item.label} href={item.href}><span>{item.label}</span><span className={item.ready ? styles.ready : styles.pending}>{item.ready ? 'Ready' : 'To prepare'}</span></Link>)}</div>}
+    {!workLoading && !workError && job && <div className={styles.preparation} aria-label="Preparation for your recent job workspace">{preparation.map(item => <Link key={item.label} href={item.href}><span>{item.label}</span><span className={item.ready ? styles.ready : styles.pending}>{item.ready ? 'Ready' : 'To prepare'}</span></Link>)}</div>}
     <div aria-label="Profile actions" className={styles.footer}><CareerProfileResumeButton showHint={false} /><Link href="/profile?view=settings" className={styles.action}><Cog6ToothIcon aria-hidden="true" className="size-4" /> Profile settings</Link></div>
 
   </section>
@@ -79,7 +79,7 @@ export function HomeProfile({ profile, loading, error, packages, workLoading, wo
 
 export function HomeSavedWork({ overview, loading, error, onRetry }: { overview: DashboardOverview | null; loading: boolean; error: boolean; onRetry: () => void }) {
   const rows = [
-    { label: 'CVs', href: '/dashboard/library', count: overview?.resume_count, Icon: DocumentTextIcon, tone: 'ui-nav-library' },
+    { label: 'resumes', href: '/dashboard/library', count: overview?.resume_count, Icon: DocumentTextIcon, tone: 'ui-nav-library' },
     { label: 'Cover letters', href: '/cover-letter', count: overview?.cover_letter_count, Icon: EnvelopeIcon, tone: 'ui-nav-letter' },
     { label: 'Interview Q&A', href: '/interview-qa', count: overview?.qa_set_count, Icon: QuestionMarkCircleIcon, tone: 'ui-nav-qa' },
     { label: 'Mock interviews', href: '/mock-interview', count: overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon, tone: 'ui-nav-mock' },

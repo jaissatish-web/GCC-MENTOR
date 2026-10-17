@@ -82,7 +82,7 @@ export function CompletenessView({
           <p className="type-helper leading-relaxed text-ink-soft">
             {missing.length === 0
               ? 'Nothing is missing. Keep it up to date as your career moves.'
-              : `${missing.length} item${missing.length === 1 ? '' : 's'} left. Each one makes every CV built from this profile stronger.`}{' '}
+              : `${missing.length} item${missing.length === 1 ? '' : 's'} left. Each one makes every resume built from this profile stronger.`}{' '}
             Profiles like yours — <span className="font-semibold text-teal">{categoryCopy.highlight}</span> — {categoryCopy.rest}
           </p>
           {/* The nine parts as one bar: a graph of where the profile stands. */}
@@ -173,7 +173,7 @@ export function CompletenessView({
           <p className="type-helper text-ink-muted">Each one opens the exact box to fill in.</p>
         </div>
         {missing.length === 0 ? (
-          <QuietNote>Nothing is missing from your score. Optional parts can still make your CV richer.</QuietNote>
+          <QuietNote>Nothing is missing from your score. Optional parts can still make your resume richer.</QuietNote>
         ) : (
           <ul className="flex flex-col gap-2">
             {missing.map((m) => (

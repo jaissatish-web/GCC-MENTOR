@@ -29,7 +29,7 @@ export default async function LoginPage(props: {
   return (
     <AuthShell
       panelTitle="Welcome back. Your next Gulf application is waiting."
-      panelBody="Your Career Profile, tailored CVs, cover letters and interview practice — all in one place."
+      panelBody="Your Career Profile, optimized resumes, cover letters and interview practice — all in one place."
       aside={{ prompt: 'New to GCC MENTOR?', label: 'Create account', href: carry ? `/signup?redirectTo=${encodeURIComponent(carry)}` : '/signup' }}
     >
       <AuthCard title="Sign in" subtitle="Welcome back. Sign in to continue your applications.">

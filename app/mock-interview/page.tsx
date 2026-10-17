@@ -288,7 +288,7 @@ function MockInterviewScreen() {
       eyebrow={stageEyebrow('apply')}
       title="Mock Interview"
       subtitle={isRaw ? 'Practise from your saved profile and get feedback. No job description needed.' : 'Prepare for your Gulf interview. Practise, then review your feedback.'}
-      uses={isRaw ? ['Career Profile Resume', 'Saved Career Profile'] : ['Optimized CV', 'Target job', 'Career Profile']}
+      uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">
         {total === 0 ? (
@@ -299,7 +299,7 @@ function MockInterviewScreen() {
             icon={ChatBubbleLeftRightIcon}
             className="border-0 bg-transparent"
             title="Build an optimized resume first"
-            body="The mock interview uses the final CV and job description, so create that package first."
+            body="The mock interview uses the final resume and job description, so create that package first."
             action={<Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>{CTA.optimizeCv}</Link>}
           />
         ) : (
@@ -386,7 +386,7 @@ function MockInterviewScreen() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="type-helper text-ink-muted">
                 {detailLoading && !detail
-                  ? (isRaw ? 'Loading your Career Profile Resume…' : 'Loading this job…')
+                  ? (isRaw ? 'Loading your Profile Resume…' : 'Loading this job…')
                   : run
                     ? `Selected interview: ${run.status === 'completed' ? 'completed' : 'in progress'} · ${answeredCount}/${run.question_count} answered`
                     : 'No mock interview yet for this package.'}
@@ -494,7 +494,7 @@ function MockInterviewScreen() {
         <NextStep
           className="mt-6"
           title={isRaw ? 'Keep preparing in your field' : 'Apply, then keep track'}
-          body={isRaw ? 'Your profile-based practice is saved in your Resume Library. Return any time to review or practise again.' : 'Your CV, letter and preparation for this job are ready. When you apply, set its stage in your Resume Library so you always know where each application stands.'}
+          body={isRaw ? 'Your profile-based practice is saved in your Resume Library. Return any time to review or practise again.' : 'Your resume, letter and preparation for this job are ready. When you apply, set its stage in your Resume Library so you always know where each application stands.'}
           href="/dashboard/library"
           cta="Open my Resume Library"
           secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: isRaw ? 'See your resume' : CTA.viewOptimizedCv }}

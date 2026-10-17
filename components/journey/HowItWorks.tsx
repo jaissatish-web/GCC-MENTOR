@@ -65,23 +65,23 @@ function JourneyTree() {
   return <div className={s.tree}>
     <Stage number={1}>Save your career details</Stage>
     <section data-ui-service="profile" className={s.node} aria-label="Career Profile and Gulf Readiness">
-      <div className="flex flex-wrap gap-1.5">{[{ label: 'Upload CV', href: '/profile?import=upload' }, { label: 'Paste text', href: '/profile?import=paste' }, { label: 'Enter details', href: '/profile?view=details' }].map(item => <Dialog.Close asChild key={item.label}><Link href={item.href} className="flex min-h-11 items-center rounded-ctl bg-teal-soft px-2.5 type-caption font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">{item.label}</Link></Dialog.Close>)}</div>
+      <div className="flex flex-wrap gap-1.5">{[{ label: 'Upload resume', href: '/profile?import=upload' }, { label: 'Paste text', href: '/profile?import=paste' }, { label: 'Enter details', href: '/profile?view=details' }].map(item => <Dialog.Close asChild key={item.label}><Link href={item.href} className="flex min-h-11 items-center rounded-ctl bg-teal-soft px-2.5 type-caption font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">{item.label}</Link></Dialog.Close>)}</div>
       <div className="mt-3 flex items-center gap-2"><UserRound className="size-5 text-teal" aria-hidden="true" /><h4 className="type-card text-teal">Career Profile</h4></div>
-      <p className="mt-1 type-helper text-ink-soft">Upload, paste or enter your CV. Check the details, then save.</p>
+      <p className="mt-1 type-helper text-ink-soft">Upload, paste or enter your resume. Check the details, then save.</p>
       <div className="mt-3 border-t border-teal/15 pt-3"><div className="flex items-center gap-2"><ShieldCheck className="size-5 text-teal" aria-hidden="true" /><h4 className="type-label text-teal">Gulf Readiness</h4></div><p className="mt-1 type-helper text-ink-soft">See what is complete and what to improve.</p><GuideLink href="/profile?view=readiness">Check readiness</GuideLink></div>
     </section>
     <Connector />
-    <Stage number={2}>Choose your CV</Stage>
+    <Stage number={2}>Choose your resume</Stage>
     <div className={s.branch}>
-      <section data-ui-service="library" className={s.node} aria-label="Career Profile CV path"><FileText className="size-6 text-teal" aria-hidden="true" /><h4 className="mt-2 type-card text-teal">General CV</h4><p className="mt-2 type-helper text-ink-soft">Format your saved details. Your wording stays yours.</p><details className={s.details}><summary>How it works <ChevronDown className="size-3" aria-hidden="true" /></summary><ol className="space-y-2 type-helper text-ink-soft"><li>1. Save your Career Profile.</li><li>2. Choose Preview CV.</li><li>3. Edit the design and download.</li></ol></details><GuideLink href="/profile">Open profile</GuideLink></section>
-      <section data-ui-service="tailor" className={s.node} aria-label="Job-tailored CV path"><BriefcaseBusiness className="size-6 text-gold-ink" aria-hidden="true" /><h4 className="mt-2 type-card text-gold-ink">Job-tailored CV</h4><p className="mt-2 type-helper text-ink-soft">Match a vacancy using your real skills and experience.</p><details className={s.details}><summary>How it works <ChevronDown className="size-3" aria-hidden="true" /></summary><ol className="space-y-2 type-helper text-ink-soft"><li>1. Add the job description.</li><li>2. Review job-match findings.</li><li>3. Review the tailored CV.</li></ol></details><GuideLink href="/optimize/target">Tailor my CV</GuideLink></section>
+      <section data-ui-service="library" className={s.node} aria-label="Profile Resume path"><FileText className="size-6 text-teal" aria-hidden="true" /><h4 className="mt-2 type-card text-teal">Profile Resume</h4><p className="mt-2 type-helper text-ink-soft">Format your saved details. Your wording stays yours.</p><details className={s.details}><summary>How it works <ChevronDown className="size-3" aria-hidden="true" /></summary><ol className="space-y-2 type-helper text-ink-soft"><li>1. Save your Career Profile.</li><li>2. Choose Preview Profile Resume.</li><li>3. Edit the design and download.</li></ol></details><GuideLink href="/profile">Open profile</GuideLink></section>
+      <section data-ui-service="tailor" className={s.node} aria-label="Optimized Resume path"><BriefcaseBusiness className="size-6 text-gold-ink" aria-hidden="true" /><h4 className="mt-2 type-card text-gold-ink">Optimized Resume</h4><p className="mt-2 type-helper text-ink-soft">Match a vacancy using your real skills and experience.</p><details className={s.details}><summary>How it works <ChevronDown className="size-3" aria-hidden="true" /></summary><ol className="space-y-2 type-helper text-ink-soft"><li>1. Add the job description.</li><li>2. Review job-match findings.</li><li>3. Review the optimized resume.</li></ol></details><GuideLink href="/optimize/target">Optimize My Resume</GuideLink></section>
     </div>
     <Connector />
-    <section data-ui-service="templates" className={s.node} aria-label="Shared CV outputs and storage">
-      <h4 className="type-card text-teal">Your CV, ready to use</h4>
+    <section data-ui-service="templates" className={s.node} aria-label="Shared resume outputs and storage">
+      <h4 className="type-card text-teal">Your resume, ready to use</h4>
       <ol className="mt-3 grid gap-2 sm:grid-cols-3">{results.map(({ label, icon: Icon }) => <li key={label} className="flex items-center gap-2 type-helper text-ink-soft"><Icon className="size-4 shrink-0 text-teal" aria-hidden="true" />{label}</li>)}</ol>
-      <div className="mt-2 flex flex-wrap gap-x-5"><GuideLink href="/templates">Browse templates</GuideLink><GuideLink href="/dashboard/library">Open saved applications & CVs</GuideLink></div>
-      <p className="type-caption text-ink-muted">Use either CV for letters and interview practice.</p>
+      <div className="mt-2 flex flex-wrap gap-x-5"><GuideLink href="/templates">Browse templates</GuideLink><GuideLink href="/dashboard/library">Open Resume Library</GuideLink></div>
+      <p className="type-caption text-ink-muted">Use either resume for letters and interview practice.</p>
     </section>
     <Connector />
     <Stage number={3}>Prepare to apply</Stage>
@@ -97,7 +97,7 @@ function JourneyTree() {
       <section data-ui-service="mock" className={s.node}><Mic className="size-6 text-gold-ink" aria-hidden="true" /><h4 className="mt-2 type-card text-gold-ink">Mock Interview</h4><p className="mt-2 type-helper text-ink-soft">Practise your answers, request feedback and work on improvements.</p><GuideLink href="/mock-interview">Start practising</GuideLink></section>
     </div>
     <Connector />
-    <section className="border-t border-line pt-3"><h4 className="type-label text-teal">Return to your next step</h4><p className="mt-1 type-helper text-ink-soft">Home shows your progress. My applications & CVs keeps your saved preparation together. Settings gives you account and data controls.</p><div className="flex flex-wrap gap-x-5"><GuideLink href="/dashboard">Home</GuideLink><GuideLink href="/dashboard/library">My applications & CVs</GuideLink><GuideLink href="/settings">Settings</GuideLink></div></section>
+    <section className="border-t border-line pt-3"><h4 className="type-label text-teal">Return to your next step</h4><p className="mt-1 type-helper text-ink-soft">Home shows your progress. Resume Library keeps your saved preparation together. Settings gives you account and data controls.</p><div className="flex flex-wrap gap-x-5"><GuideLink href="/dashboard">Home</GuideLink><GuideLink href="/dashboard/library">Resume Library</GuideLink><GuideLink href="/settings">Settings</GuideLink></div></section>
     <p className="mt-3 type-caption text-ink-muted">Choose the services you need for each application. Review the requirements and any applicable plan limits on the service page.</p>
   </div>
 }
@@ -105,7 +105,7 @@ function CompactService({ href, icon: Icon, title, body }: { href: string; icon:
   return <div data-ui-service={href.includes("linkedin") ? "linkedin" : href.includes("naukrigulf") ? "naukrigulf" : "letter"} className={s.serviceRow}><span className={s.serviceIcon}><Icon className="size-5" aria-hidden="true" /></span><div className="min-w-0"><h4 className="type-label text-ink">{title}</h4><p className="mt-1 type-helper text-ink-soft">{body}</p><GuideLink href={href}>Open service</GuideLink></div></div>
 }
 function ServiceDirectory() {
-  const headings: Record<string, string> = { home: 'Your starting point', profile: 'Your career foundation', files: 'Your saved work', cv: 'Build your CV & application', apply: 'Interview preparation', professional: 'Recruiter profiles', account: 'Your account' }
+  const headings: Record<string, string> = { home: 'Your starting point', profile: 'Your career foundation', files: 'Your saved work', cv: 'Build your resume & application', apply: 'Interview preparation', professional: 'Recruiter profiles', account: 'Your account' }
   return <div className="space-y-5">
     <div><h3 className="type-card text-teal">Every destination, explained</h3><p className="mt-1 type-helper text-ink-soft">Follow the links here or use the app menu. Expand any service to see its inputs and outputs.</p></div>
     {NAV_GROUPS.map(group => <section key={group.key} className="border-l-2 border-teal/20 pl-3"><h4 className="type-caption font-semibold uppercase tracking-wide text-teal">{headings[group.key] ?? group.label ?? group.key}</h4>{group.hrefs.map(href => {
@@ -115,6 +115,6 @@ function ServiceDirectory() {
       const Icon = item.icon
       return <div key={href} className={s.serviceRow}><span className={cn(item.iconClass, 'flex size-9 shrink-0 items-center justify-center rounded-ctl')}><Icon className="size-5" aria-hidden="true" /></span><div className="min-w-0 flex-1"><GuideLink href={navHref(item)}>{item.label}</GuideLink><p className="type-helper text-ink-soft">{detail?.purpose}</p>{detail && <details className={s.details}><summary>Inputs & results <ChevronDown className="size-3 shrink-0" aria-hidden="true" /></summary><dl className="space-y-2 rounded-ctl bg-white p-3 type-helper"><div><dt className="font-semibold text-teal">What you get</dt><dd className="mt-1 text-ink-soft">{detail.outputs}</dd></div><div><dt className="font-semibold text-teal">What it uses</dt><dd className="mt-1 text-ink-soft">{detail.uses}</dd></div></dl></details>}</div></div>
     })}</section>)}
-    <section className={s.node}><div className="flex items-center gap-2"><ShieldCheck className="size-5 text-teal" aria-hidden="true" /><h4 className="type-label text-teal">Gulf Readiness is inside Career Profile</h4></div><p className="mt-1 type-helper text-ink-soft">Review your score and missing details without creating another CV.</p><GuideLink href="/profile?view=readiness">Open Gulf Readiness</GuideLink></section>
+    <section className={s.node}><div className="flex items-center gap-2"><ShieldCheck className="size-5 text-teal" aria-hidden="true" /><h4 className="type-label text-teal">Gulf Readiness is inside Career Profile</h4></div><p className="mt-1 type-helper text-ink-soft">Review your score and missing details without creating another resume.</p><GuideLink href="/profile?view=readiness">Open Gulf Readiness</GuideLink></section>
   </div>
 }

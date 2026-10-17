@@ -56,7 +56,7 @@ export function SuggestionsPanel({
       </div>
       <p className="text-[12.5px] leading-relaxed text-ink-soft">
         Your profile doesn&apos;t mention these yet. <strong className="text-ink">Add a line only if it is true for you</strong> — edit it
-        into your own words if needed. Recruiters may ask about anything on your CV.
+        into your own words if needed. Recruiters may ask about anything on your resume.
       </p>
 
       <ul className="flex flex-col gap-2">
