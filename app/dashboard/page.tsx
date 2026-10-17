@@ -144,15 +144,16 @@ export default function DashboardPage() {
 
   return (
     <div className={`ui-page page-gutter mx-auto flex w-full max-w-[900px] flex-col pb-10 font-redesign-sans ${homeStyles.page}`}>
-      <header className="flex items-start justify-between gap-4">
-        <div className="min-w-0"><h1 className="type-title text-ink">Your career, at a glance</h1><p className="mt-1 type-body text-ink-muted">{firstName ? `Good ${greeting()}, ${firstName}` : 'Your Gulf career workspace'}</p></div>
+      <header className={homeStyles.pageHeading}>
+        <div className="min-w-0"><h1>Home</h1><p>{firstName ? `Good ${greeting()}, ${firstName}` : 'Your Gulf career workspace'}</p></div>
         <Link href="/settings" aria-label="Account settings" className="flex size-11 shrink-0 items-center justify-center rounded-ctl text-ink-soft hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><Cog6ToothIcon className="size-5" aria-hidden="true" /></Link>
       </header>
 
-      <HomeDateNotice packages={packages} ready={packagesLoaded && !packagesError} now={clock} />
       <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} />
+      <HomeDateNotice packages={packages} ready={packagesLoaded && !packagesError} now={clock} />
 
-      <HomeNextStep action={nextAction} packages={packages} ready={ready} error={loadError} onRetry={() => window.location.reload()} />
+      {/* The empty profile already provides Step 1 and its create action. */}
+      {!ready || nextAction.state !== 'no_profile' ? <HomeNextStep action={nextAction} packages={packages} ready={ready} error={loadError} onRetry={() => window.location.reload()} /> : null}
 
       <HomeSavedWork overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
 

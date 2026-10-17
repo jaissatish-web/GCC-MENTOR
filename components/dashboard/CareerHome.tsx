@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRightIcon, ChevronRightIcon, Cog6ToothIcon, DocumentTextIcon, EnvelopeIcon, PencilSquareIcon, UserCircleIcon, RectangleStackIcon, ChatBubbleLeftRightIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+import { useState } from 'react'
+import { ArrowRightIcon, ChevronDownIcon, ChevronRightIcon, Cog6ToothIcon, DocumentTextIcon, EnvelopeIcon, InformationCircleIcon, PencilSquareIcon, UserCircleIcon, RectangleStackIcon, ChatBubbleLeftRightIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
@@ -28,11 +29,11 @@ export function HomeScores({ profile, score, missing, gulf, loading, error }: {
   return <section aria-label="Your readiness scores" aria-busy={loading} className={styles.scores}>
     <Link href="/profile?view=completeness" className={styles.score}>
       <ReadinessStat value={available ? score : null} label="Profile completeness" percent />
-      <span className={styles.scoreCopy}><span className="type-helper text-ink-soft">Profile completeness</span><span className="type-helper text-teal">{loading ? 'Loading…' : error ? 'Unavailable' : !profile ? 'Get started' : missing ? `${missing} left` : 'Complete'} <ArrowRightIcon aria-hidden="true" className="size-3.5" /></span></span>
+      <span className={styles.scoreCopy}>Profile completeness<span className="sr-only"> · {loading ? 'Loading…' : error ? 'Unavailable' : !profile ? 'Get started' : missing ? `${missing} left` : 'Complete'}</span></span>
     </Link>
     <Link href="/profile?view=readiness" className={styles.score}>
       <ReadinessStat value={available && gulf ? gulf.finalScore : null} label="Gulf readiness" />
-      <span className={styles.scoreCopy}><span className="type-helper text-ink-soft">Gulf readiness</span><span className="type-helper text-teal">{loading ? 'Loading…' : error ? 'Unavailable' : profile ? 'Review' : 'Add profile'} <ArrowRightIcon aria-hidden="true" className="size-3.5" /></span></span>
+      <span className={styles.scoreCopy}>Gulf readiness<span className="sr-only"> · {loading ? 'Loading…' : error ? 'Unavailable' : profile ? 'Review' : 'Add profile'}</span></span>
     </Link>
   </section>
 }
@@ -53,11 +54,13 @@ export function HomeProfile({ profile, loading, error, missingLabels = [], score
   profile: CareerProfileFull | null; loading: boolean; error: boolean; missingLabels?: string[]
   score?: number; gulf?: GulfReadinessResult | null
 }) {
+  const [showDetails, setShowDetails] = useState(false)
   if (loading) return <section aria-label="Loading your Career Profile" aria-busy="true" className={styles.profile}><div className="h-48 animate-pulse rounded-ctl bg-canvas motion-reduce:animate-none" /></section>
-  const heading = <div className={styles.foundationHeading}><span className={styles.eyebrow}>Your reusable foundation</span><h2 id="home-profile-heading">Career Profile</h2><p>Complete once. Reuse for every job.</p></div>
+  const heading = <div className={styles.foundationHeading}><h2 id="home-profile-heading">Career Profile</h2><p>Your foundation for every job.</p></div>
   if (!profile || error) return <section aria-labelledby="home-profile-heading" className={styles.profile}>
+    {!error ? <p className={styles.startLabel}>Start here · Step 1</p> : null}
     {heading}
-    <p className="mt-3 type-body text-ink-soft">{error ? 'Your profile could not be loaded. Your saved work has not been changed.' : 'Start with your resume or enter your career details. This profile becomes the source for every new job-specific resume.'}</p>
+    <p className={styles.intro}>{error ? 'Your profile could not be loaded. Your saved work has not been changed.' : 'Start with your resume or enter your career details. This profile becomes the source for every new job-specific resume.'}</p>
     {error ? <button type="button" className={styles.action} onClick={() => window.location.reload()}>Try again <ArrowRightIcon aria-hidden="true" className="size-4" /></button> : <div className={styles.foundationActions}><Link className={buttonVariants({ variant: 'primary' })} href="/profile?import=upload">Create Career Profile</Link><div className="flex flex-wrap gap-x-5"><Link className={styles.action} href="/profile?import=paste">Paste resume</Link><Link className={styles.action} href="/profile?view=details">Enter details</Link></div></div>}
     <ProfileWorkflow />
   </section>
@@ -68,31 +71,36 @@ export function HomeProfile({ profile, loading, error, missingLabels = [], score
       <Link href="/profile?view=details" aria-label="Edit your Career Profile" className={styles.avatar}>
         {profile.photo_url ? <Image src={profile.photo_url} alt="" width={96} height={96} unoptimized className="h-full w-full object-cover" /> : <span aria-hidden="true">{initials}</span>}
       </Link>
-      <div className="min-w-0 flex-1">{heading}<div className={styles.identityText}><span>{profile.full_name || 'Your saved profile'}</span><Link href="/profile?view=details" className={styles.action}><PencilSquareIcon aria-hidden="true" className="size-4" /> Edit</Link></div></div>
+      <div className={styles.identityCopy}>{heading}<div className={styles.identityText}>{profile.full_name || 'Your saved profile'}</div></div>
+      <Link href="/profile?view=details" className={styles.editLink}><PencilSquareIcon aria-hidden="true" className="size-4" /><span>Edit</span></Link>
     </div>
     <HomeScores profile={profile} score={profileScore} missing={missingLabels.length} gulf={gulf} loading={false} error={false} />
-    <div className={styles.profileNext}>
-      <p>{missingLabels.length ? <><strong>Next to add:</strong> {missingLabels.slice(0, 2).join(', ')}{missingLabels.length > 2 ? ` + ${missingLabels.length - 2} more` : ''}. More complete details give every new resume a stronger starting point.</> : <>Your profile is saved and ready to reuse. Keep it current as your experience changes.</>}</p>
-      <div className={styles.foundationActions}>
-        <Link href="/profile?view=completeness" className={buttonVariants({ variant: missingLabels.length ? 'primary' : 'secondary' })}>{missingLabels.length ? 'Complete Career Profile' : 'Review Career Profile'}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
-        <Link href="/optimize/target" className={styles.action}>Optimize Resume for a Job <ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
-      </div>
+    <div className={styles.profileControls}>
+      <Link href="/profile?view=completeness" className={styles.action} aria-label={missingLabels.length ? `Complete Career Profile · ${missingLabels.length} ${missingLabels.length === 1 ? 'item' : 'items'} left` : 'Review Career Profile'}><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0" />{missingLabels.length ? 'Complete profile' : 'Review profile'}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
+      <button type="button" className={styles.profileToggle} aria-expanded={showDetails} aria-controls="home-profile-details" onClick={() => setShowDetails(value => !value)}><InformationCircleIcon aria-hidden="true" className="size-4 shrink-0" /><span>How your profile is used</span><ChevronDownIcon aria-hidden="true" className={`${styles.disclosureChevron} ${showDetails ? styles.rotated : ''}`} /></button>
     </div>
-    <ProfileWorkflow />
-    <p className={styles.profileNote}>Your profile stays saved for future jobs. Updating it does not rewrite previously saved optimized resumes.</p>
-    <div aria-label="Profile actions" className={styles.footer}><CareerProfileResumeButton showHint={false} /><Link href="/profile?view=settings" className={styles.action}><Cog6ToothIcon aria-hidden="true" className="size-4" /> Profile settings</Link></div>
+    <div id="home-profile-details" className={styles.profileDetails} hidden={!showDetails}>
+      <p className={styles.profileNote}>Update once. Reuse for every new job.</p>
+      <div className={styles.profileNext}>
+      <p>{missingLabels.length ? <><strong>Next to add:</strong> {missingLabels.slice(0, 2).join(', ')}{missingLabels.length > 2 ? ` + ${missingLabels.length - 2} more` : ''}. More complete details give every new resume a stronger starting point.</> : <>Your profile is saved and ready to reuse. Keep it current as your experience changes.</>}</p>
+      </div>
+      <Link href="/optimize/target" className={styles.action}>Optimize Resume for a Job <ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
+      <ProfileWorkflow />
+      <p className={styles.profileNote}>Your profile stays saved for future jobs. Updating it does not rewrite previously saved optimized resumes.</p>
+      <div aria-label="Profile actions" className={styles.footer}><CareerProfileResumeButton showHint={false} /><Link href="/profile?view=settings" className={styles.action}><Cog6ToothIcon aria-hidden="true" className="size-4" /> Profile settings</Link></div>
+    </div>
   </section>
 }
 
 export function HomeSavedWork({ overview, loading, error, onRetry }: { overview: DashboardOverview | null; loading: boolean; error: boolean; onRetry: () => void }) {
   const rows = [
-    { label: 'Resumes', href: '/dashboard/library', count: overview?.resume_count, Icon: DocumentTextIcon, tone: 'ui-nav-library' },
-    { label: 'Cover letters', href: '/cover-letter', count: overview?.cover_letter_count, Icon: EnvelopeIcon, tone: 'ui-nav-letter' },
-    { label: 'Interview Q&A', href: '/interview-qa', count: overview?.qa_set_count, Icon: QuestionMarkCircleIcon, tone: 'ui-nav-qa' },
-    { label: 'Mock interviews', href: '/mock-interview', count: overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon, tone: 'ui-nav-mock' },
+    { label: 'Resumes', href: '/dashboard/library', count: overview?.resume_count, Icon: DocumentTextIcon },
+    { label: 'Cover letters', href: '/cover-letter', count: overview?.cover_letter_count, Icon: EnvelopeIcon },
+    { label: 'Interview Q&A', href: '/interview-qa', count: overview?.qa_set_count, Icon: QuestionMarkCircleIcon },
+    { label: 'Mock interviews', href: '/mock-interview', count: overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon },
   ]
-  return <section aria-labelledby="saved-work-heading" className={styles.savedPanel}><div className="mb-2 flex items-center justify-between gap-3"><h2 id="saved-work-heading" className="type-section text-ink">Saved work</h2></div>
+  return <section aria-labelledby="saved-work-heading" className={styles.savedPanel}><div className={styles.savedHeading}><h2 id="saved-work-heading">Your saved work</h2><Link href="/dashboard/library" aria-label="View your Resume Library" className={styles.action}><ChevronRightIcon aria-hidden="true" className="size-5" /></Link></div>
     {error ? <div role="alert" className="mb-3 rounded-ctl bg-alert-soft p-3 type-helper text-alert">Saved totals could not be loaded. <button type="button" onClick={onRetry} className="min-h-11 underline">Try again</button></div> : null}
-    <div aria-busy={loading} className={styles.saved}>{rows.map(({ label, href, count, Icon, tone }) => <Link href={href} key={href} className={styles.savedRow}><span aria-hidden="true" className={`${tone} flex size-8 shrink-0 items-center justify-center rounded-lg`}><Icon className="size-4" /></span><span className="min-w-0 flex-1 type-body text-ink">{label}</span><span className="type-helper tabular-nums text-ink-muted">{!loading && !error && count !== undefined ? count : '—'}</span><ChevronRightIcon aria-hidden="true" className="size-4 shrink-0 text-ink-muted" /></Link>)}</div>
+    <div aria-busy={loading} className={styles.saved}>{rows.map(({ label, href, count, Icon }) => <Link href={href} key={href} className={styles.savedRow}><span aria-hidden="true" className={styles.savedIcon}><Icon className="size-5" /></span><span className={styles.savedLabel}>{label}</span><span className={styles.savedCount}>{!loading && !error && count !== undefined ? count : '—'}</span><ChevronRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>)}</div>
   </section>
 }

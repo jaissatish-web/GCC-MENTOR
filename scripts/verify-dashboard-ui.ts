@@ -56,7 +56,7 @@ const { HomeProfile, HomeScores, HomeSavedWork } = require('../components/dashbo
 const candidate = { full_name: 'Quality Candidate', photo_url: null, additional_information: [], target_job_title: null, current_location: null,
  work_experience: [{start_date:'2020-01',end_date:'2021-12',location:'Riyadh',role:'Engineer'}], education: [], skills: [{name:'Testing'}] }
 const profileHtml = renderToStaticMarkup(React.createElement(HomeProfile,{profile:candidate,loading:false,error:false,score:64,gulf:{finalScore:55},missingLabels:['Work experience','Skills','Education']}))
-assert.ok(profileHtml.includes('Quality Candidate') && profileHtml.includes('Your reusable foundation'))
+assert.ok(profileHtml.includes('Quality Candidate') && profileHtml.includes('Your foundation for every job.'))
 assert.ok(profileHtml.includes('Work experience, Skills + 1 more') && profileHtml.includes('Complete Career Profile'))
 assert.ok(profileHtml.includes('aria-label="Profile completeness: 64 out of 100"'))
 assert.ok(profileHtml.includes('aria-label="Gulf readiness: 55 out of 100"'))
@@ -64,6 +64,7 @@ assert.ok(!profileHtml.includes('15 years'),'Never hardcode the design mock data
 for(const href of ['/profile?view=details','/profile?view=settings','/profile?view=completeness','/optimize/target']) assert.ok(profileHtml.includes(`href="${href}"`))
 assert.ok(profileHtml.includes('From one profile to each job workspace') && profileHtml.includes('cover letter, Q&amp;A and mock interview'))
 assert.ok(profileHtml.includes('does not rewrite previously saved optimized resumes'))
+assert.ok(profileHtml.includes('aria-controls="home-profile-details"') && profileHtml.includes('aria-expanded="false"') && profileHtml.includes('id="home-profile-details"') && profileHtml.includes(' hidden=""'), 'Returning users get a compact profile with an accessible explanation toggle')
 const completeProfile = renderToStaticMarkup(React.createElement(HomeProfile,{profile:candidate,loading:false,error:false,score:100,gulf:{finalScore:55},missingLabels:[]}))
 assert.ok(completeProfile.includes('aria-label="Profile completeness: 100 out of 100"') && completeProfile.includes('Review Career Profile'))
 assert.ok(completeProfile.includes('href="/optimize/target"') && profileHtml.includes('href="/optimize/target"'), 'Completion is encouragement, never a new optimization gate')
@@ -86,10 +87,10 @@ const {HomeNextStep,HomeUpcomingDates,HomeDateNotice} = require('../components/d
 const followJob = {id:'active-job',name:'My saved job',target_job_title:'Lead Engineer',target_company:'Example EPC',status:'saved',has_resume:true,cover_letter_count:1,qa_question_count:25,mock_in_progress:true,mock_completed_run_id:null,application_deadline:'2026-10-18',interview_date:null}
 const followAction = {state:'job_needs_mock',href:'/mock-interview?package=active-job',title:'Practice',body:'Practice',cta:'Start mock interview'}
 const continueHtml = renderToStaticMarkup(React.createElement(HomeNextStep,{action:followAction,packages:[followJob],ready:true,error:false,onRetry:()=>{}}))
-assert.ok(continueHtml.includes('Continue your unfinished interview') && continueHtml.includes('My saved job'))
+assert.ok(continueHtml.includes('Pick up where you left off') && continueHtml.includes('My saved job'))
 assert.ok(continueHtml.includes('Mock interview: In progress') && continueHtml.includes('href="/mock-interview?package=active-job"'))
 const returningPractice = renderToStaticMarkup(React.createElement(HomeNextStep,{action:{...followAction,state:'add_next_job'},packages:[{...followJob,created_at:'2026-10-01',updated_at:'2026-10-17',mock_completed_run_id:'earlier-report'}],ready:true,error:false,onRetry:()=>{}}))
-assert.ok(returningPractice.includes('Continue your unfinished interview') && returningPractice.includes('Mock interview: In progress'), 'An earlier report cannot conceal a newer unfinished attempt')
+assert.ok(returningPractice.includes('Pick up where you left off') && returningPractice.includes('Mock interview: In progress'), 'An earlier report cannot conceal a newer unfinished attempt')
 const firstHtml = renderToStaticMarkup(React.createElement(HomeNextStep,{action:computeNextAction(null,[],0),packages:[],ready:true,error:false,onRetry:()=>{}}))
 assert.ok(firstHtml.includes('Start here') && firstHtml.includes('href="/profile?import=upload"'))
 const dateProps={packages:[followJob],loading:false,error:false,onRetry:()=>{},now:new Date(2026,9,17,10)}

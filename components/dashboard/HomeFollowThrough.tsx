@@ -37,18 +37,18 @@ export function HomeNextStep({ action, packages, ready, error, onRetry }: {
     { label: 'Mock interview', done: Boolean(workspace.mock_completed_run_id), inProgress: workspace.mock_in_progress },
   ] : []
   return <section aria-label="Your next step" className={styles.followThrough} aria-busy={!ready && !error}>
-    <span className={styles.nextEyebrow}>{error || !ready ? 'Your next step' : copy.label}</span>
-    <h2>{error ? 'Your saved progress could not be loaded' : !ready ? 'Checking your saved progress…' : resumeInterview ? 'Continue your unfinished interview' : copy.title}</h2>
-    <p>{error ? 'Try again to see where to continue.' : !ready ? 'Finding the next action from your saved profile and workspaces.' : resumeInterview ? 'An interview is already in progress in this workspace. Reopen it and continue your saved attempt.' : copy.body}</p>
+    <span className={styles.nextEyebrow}>Your next step</span>
+    <h2>{error ? 'Your saved progress could not be loaded' : !ready ? 'Checking your saved progress…' : resumeInterview ? 'Pick up where you left off' : copy.title}</h2>
     {ready && !error && workspace ? <div className={styles.resumeContext}>
-      <span className={styles.nextEyebrow}>Saved workspace</span><p className={styles.workspaceName}>{workspace.name || workspace.target_job_title}</p>
-      <p>{[workspace.target_job_title, workspace.target_company].filter(Boolean).join(' · ')}</p>
-      <ul aria-label="Saved preparation status" className={styles.preparationStatus}>{steps.map(step => <li key={step.label}>{step.done && !step.inProgress ? <CheckCircleIcon aria-hidden="true" className="size-4 shrink-0" /> : <ClockIcon aria-hidden="true" className="size-4 shrink-0" />}<span>{step.label}: {step.inProgress ? 'In progress' : step.done ? 'Ready' : 'To prepare'}</span></li>)}</ul>
+      <p className={styles.workspaceName}>{[workspace.target_job_title, workspace.target_company].filter(Boolean).join(' · ')}</p>
+      {workspace.name && workspace.name !== workspace.target_job_title ? <p className={styles.workspaceLabel}>{workspace.name}</p> : null}
     </div> : null}
+    <p className={styles.nextDescription}>{resumeInterview ? <ClockIcon aria-hidden="true" className="size-4 shrink-0" /> : null}<span>{error ? 'Try again to see where to continue.' : !ready ? 'Finding the next action from your saved profile and workspaces.' : resumeInterview ? 'Mock interview in progress' : copy.body}</span></p>
     <div className={styles.continueActions}>
-      {error ? <button type="button" className={buttonVariants({ variant: 'secondary' })} onClick={onRetry}>Try again</button> : ready ? <Link href={action.href} className={buttonVariants({ variant: 'secondary' })}>{action.state === 'no_profile' ? 'Create Career Profile' : resumeInterview ? 'Continue interview' : action.cta}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link> : null}
-      {ready && !error && workspace ? <Link href={`/package/${encodeURIComponent(workspace.id)}`} className={styles.contextLink}>Open workspace</Link> : null}
+      {error ? <button type="button" className={buttonVariants({ variant: 'primary' })} onClick={onRetry}>Try again</button> : ready ? <Link href={action.href} className={buttonVariants({ variant: 'primary' })}>{action.state === 'no_profile' ? 'Create Career Profile' : resumeInterview ? 'Continue interview' : action.cta}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link> : null}
+      {ready && !error && workspace ? <Link href={`/package/${encodeURIComponent(workspace.id)}`} className={styles.contextLink}>Open workspace <ArrowRightIcon aria-hidden="true" className="size-4" /></Link> : null}
     </div>
+    {ready && !error && workspace ? <ul aria-label="Saved preparation status" className={styles.preparationStatus}>{steps.map(step => <li key={step.label}>{step.done && !step.inProgress ? <CheckCircleIcon aria-hidden="true" className="size-4 shrink-0" /> : <ClockIcon aria-hidden="true" className="size-4 shrink-0" />}<span>{step.label}: {step.inProgress ? 'In progress' : step.done ? 'Ready' : 'To prepare'}</span></li>)}</ul> : ready && !error ? <p className={styles.nextContext}>{copy.label}</p> : null}
   </section>
 }
 
@@ -78,7 +78,7 @@ export function HomeUpcomingDates({ packages, loading, error, onRetry, now }: {
   </details>
 }
 
-/** Surface near-term dates before the long profile card, with details further down Home. */
+/** Surface near-term dates below Career Profile, with full details further down Home. */
 export function HomeDateNotice({ packages, ready, now }: { packages: PackageSummary[]; ready: boolean; now?: Date }) {
   if (!ready) return null
   const dates = homeReminders(packages, now).filter(item => item.days <= 7)
@@ -88,8 +88,8 @@ export function HomeDateNotice({ packages, ready, now }: { packages: PackageSumm
     const panel = document.getElementById('home-reminders')
     if (panel instanceof HTMLDetailsElement) panel.open = true
   }}>
-    <CalendarDaysIcon aria-hidden="true" className="size-5 shrink-0" />
-    <span><strong>{first.kind === 'interview' ? 'Interview' : 'Application deadline'} · {reminderTiming(first)}</strong><span>{first.pkg.target_job_title}{dates.length > 1 ? ` · ${dates.length - 1} more date${dates.length > 2 ? 's' : ''}` : ''}</span><span className={styles.noticeCta}>View reminders</span></span>
+    <span className={styles.noticeIcon}><CalendarDaysIcon aria-hidden="true" className="size-5 shrink-0" /></span>
+    <span><strong>{first.kind === 'interview' ? 'Interview' : 'Application deadline'} · {reminderTiming(first)}</strong><span>{first.pkg.target_job_title}{dates.length > 1 ? ` · ${dates.length - 1} more date${dates.length > 2 ? 's' : ''}` : ''}</span><span className="sr-only">View reminders</span></span>
     <ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" />
   </a>
 }
