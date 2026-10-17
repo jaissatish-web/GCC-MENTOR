@@ -127,6 +127,16 @@ function MockInterviewScreen() {
   const currentDraftKey = selectedId && run && currentQuestion ? draftKey(selectedId, run.id, currentQuestion.id) : null
   const answerDraft = currentDraftKey ? drafts[currentDraftKey] ?? '' : ''
 
+  const shownRun = useRef<string | null>(null)
+  useEffect(() => {
+    if (!requestedRunId || !run || run.status !== 'in_progress' || run.input_mode === 'voice' || shownRun.current === run.id) return
+    const panel = document.getElementById('interview-report')
+    if (!panel) return
+    shownRun.current = run.id
+    panel.scrollIntoView({ block: 'start' })
+    panel.querySelector<HTMLTextAreaElement>('textarea')?.focus({ preventScroll: true })
+  }, [requestedRunId, run])
+
   // Load a saved draft the first time its question is shown.
   useEffect(() => {
     if (!currentDraftKey || currentDraftKey in drafts) return
@@ -260,10 +270,10 @@ function MockInterviewScreen() {
     )
   }
 
-  if (searchParams.get('room') === '1' && selectedId && run?.input_mode === 'voice') {
+  if ((searchParams.get('room') === '1' || (requestedRunId && run?.status !== 'completed')) && selectedId && run?.input_mode === 'voice') {
     return <div className="fixed inset-0 z-[60] flex flex-col overflow-hidden bg-[#f5f7f5] font-redesign-sans">
       <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-line bg-white px-4 sm:h-16 sm:px-7">
-        <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}`} className="shrink-0 text-sm font-semibold text-teal hover:underline">← Exit room</Link>
+        <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}`} className="shrink-0 text-sm font-semibold text-teal hover:underline">← Exit room</Link>
         <span className="min-w-0 truncate text-right text-xs font-semibold text-ink sm:text-sm">{run.target_job_title}</span>
       </header>
       {run.status === 'completed' ? <div className="mx-auto w-full max-w-[1100px] flex-1 overflow-y-auto px-3 py-4 sm:p-6">
@@ -401,20 +411,15 @@ function MockInterviewScreen() {
         )}
       </Card>
 
-      {requestedRunId && detail && !run && !detailLoading ? <p role="alert" className="text-ink-muted">This interview is no longer available for the selected resume. Choose a saved attempt below.</p> : null}
-      {detail && selectedId && (detail.mock_interview_runs?.length ?? 0) > 0 ? <section className="space-y-4" aria-label="Saved mock interviews">
-        <div><h2 className="type-section">Your interview history</h2><p className="mt-1 text-sm text-ink-muted">All saved attempts for this resume. Open any interview to view its questions and report.</p></div>
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {orderedAttempts(detail.mock_interview_runs ?? []).map((attempt, index) => <li key={attempt.id}>
-            <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(attempt.id)}${attempt.input_mode === 'voice' && attempt.status !== 'completed' ? '&room=1' : ''}`} className="group ui-card flex h-full min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-4 transition-colors hover:border-teal hover:bg-teal-soft/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-              <div className="flex items-center justify-between gap-3"><span className="grid size-10 place-items-center rounded-xl bg-teal-soft text-teal">{index + 1}</span><span className="flex items-center gap-1 rounded-full bg-canvas px-2 py-1 text-xs text-ink-muted">{attempt.status === 'completed' ? <CheckCircle2 size={13} aria-hidden="true" /> : <Mic size={13} aria-hidden="true" />}{attempt.status === 'completed' ? 'Reviewed' : 'In progress'}</span></div>
-              <h3 className="type-card">Mock interview {index + 1}</h3><p className="text-sm text-ink-muted">{new Date(attempt.generated_at).toLocaleDateString()} · {attempt.mode.replaceAll('_', ' ')} · {attempt.difficulty}</p>
-              <span className="mt-auto flex items-center justify-between border-t border-line pt-3 text-sm text-teal"><span>{attempt.status === 'completed' ? 'Explore result' : 'Continue practice'}</span><ChevronRight size={17} aria-hidden="true" /></span>
-            </Link>
-          </li>)}
-        </ul>
-        {progress && <InterviewProgress packageId={selectedId} progress={progress} onPractice={() => { if (practiceSetup.current) { practiceSetup.current.open = true; practiceSetup.current.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' }); practiceSetup.current.querySelector('select')?.focus({ preventScroll: true }) } }} />}
-      </section> : null}
+      {selectedId && run?.status === 'in_progress' ? (
+        <Card tone="light" className="flex flex-col gap-3 border-teal/40 bg-teal-soft/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h2 className="type-card font-semibold text-ink">Your interview is ready to continue</h2>
+            <p className="mt-1 type-helper text-ink-soft">{run.input_mode === 'voice' ? 'Reopen your saved questions and recordings.' : `${answeredCount} of ${run.question_count} answers saved. Continue from your next unanswered question.`}</p>
+          </div>
+          <Link className={buttonVariants({ variant: 'primary', className: 'shrink-0' })} href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}${run.input_mode === 'voice' ? '&room=1' : '#interview-report'}`}>Continue interview</Link>
+        </Card>
+      ) : null}
 
       {run && run.status !== 'completed' && run.input_mode !== 'voice' ? (
         <section id="interview-report" className="mt-6 scroll-mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">
@@ -489,6 +494,21 @@ function MockInterviewScreen() {
           </aside>
         </section>
       ) : null}
+
+      {requestedRunId && detail && !run && !detailLoading ? <p role="alert" className="text-ink-muted">This interview is no longer available for the selected resume. Choose a saved attempt below.</p> : null}
+      {detail && selectedId && (detail.mock_interview_runs?.length ?? 0) > 0 ? <section className="space-y-4" aria-label="Saved mock interviews">
+        <div><h2 className="type-section">Your interview history</h2><p className="mt-1 text-sm text-ink-muted">All saved attempts for this resume. Open any interview to view its questions and report.</p></div>
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {orderedAttempts(detail.mock_interview_runs ?? []).map((attempt, index) => <li key={attempt.id}>
+            <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(attempt.id)}${attempt.status !== 'completed' ? (attempt.input_mode === 'voice' ? '&room=1' : '#interview-report') : ''}`} className="group ui-card flex h-full min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-4 transition-colors hover:border-teal hover:bg-teal-soft/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+              <div className="flex items-center justify-between gap-3"><span className="grid size-10 place-items-center rounded-xl bg-teal-soft text-teal">{index + 1}</span><span className="flex items-center gap-1 rounded-full bg-canvas px-2 py-1 text-xs text-ink-muted">{attempt.status === 'completed' ? <CheckCircle2 size={13} aria-hidden="true" /> : <Mic size={13} aria-hidden="true" />}{attempt.status === 'completed' ? 'Reviewed' : 'In progress'}</span></div>
+              <h3 className="type-card">Mock interview {index + 1}</h3><p className="text-sm text-ink-muted">{new Date(attempt.generated_at).toLocaleDateString()} · {attempt.mode.replaceAll('_', ' ')} · {attempt.difficulty}</p>
+              <span className="mt-auto flex items-center justify-between border-t border-line pt-3 text-sm text-teal"><span>{attempt.status === 'completed' ? 'Explore result' : 'Continue practice'}</span><ChevronRight size={17} aria-hidden="true" /></span>
+            </Link>
+          </li>)}
+        </ul>
+        {progress && <InterviewProgress packageId={selectedId} progress={progress} onPractice={() => { if (practiceSetup.current) { practiceSetup.current.open = true; practiceSetup.current.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' }); practiceSetup.current.querySelector('select')?.focus({ preventScroll: true }) } }} />}
+      </section> : null}
 
       {selectedId && run?.status === 'completed' ? (
         <NextStep

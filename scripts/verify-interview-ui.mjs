@@ -31,6 +31,7 @@ assert.ok(process.env.CHROME_PATH, 'Set CHROME_PATH')
 const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH, headless: true, pipe: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-zygote', '--single-process'] })
 try {
   const page = await browser.newPage(), errors = [], writes = []
+  let voiceRecording = false
   page.on('pageerror', e => errors.push(e.message))
   await page.setRequestInterception(true)
   page.on('request', async r => {
@@ -42,6 +43,7 @@ try {
       if (u.pathname === '/fixture.js') return r.respond({ status: 200, contentType: 'application/javascript', body: readFileSync(dir + '/fixture.js') })
       if (u.pathname.startsWith('/interviewers/')) return r.respond({ status: 200, contentType: 'image/webp', body: readFileSync(root + '/public' + u.pathname) })
       if (r.method() !== 'GET' && u.pathname.includes('/mock-interview/')) writes.push(u.pathname)
+      if (u.pathname.endsWith('/voice') && voiceRecording) return json({status:'recording',answers:[{question_id:'q-0',saved_at:'2026-10-16T07:00:00Z'}]})
       if (u.pathname.endsWith('/voice')) return json({status:'completed',answers:runs[0].questions.map(q=>({question_id:q.id,saved_at:'2026-10-01',transcript:'Saved answer',feedback:{score:7,feedback:'Saved feedback',better_answer:'Use a specific example.',follow_up:'What did you learn?',grammar:[]}}))})
       if (u.pathname === '/api/packages/career-profile') return json({ package: null, summary: null })
       if (u.pathname === '/api/packages') return json({ packages: [pkg, otherPkg], total: 2, next_cursor: null })
@@ -126,6 +128,28 @@ try {
   await page.goto('https://interview.test/mock-interview?package=resume-a&run=deleted', { waitUntil: 'networkidle0' })
   assert.ok(await page.$eval('[role="alert"]', el => el.textContent.includes('no longer available')))
   assert.equal(await page.$$eval('#interview-report', els => els.length), 0, 'Missing run must not open a different report')
+  // Return the next day to a partially answered interview, including URLs
+  // saved before voice practice required a room query flag.
+  const typed = {...runs[0], id:'resume-typed', status:'in_progress', input_mode:'text', final_report:null,
+    questions:runs[0].questions.slice(0,2).map((q,i)=>({...q,answer:i===0?'Previously saved answer':null})), question_count:2}
+  pkg.mock_interview_runs.push(typed)
+  await page.goto('https://interview.test/mock-interview?package=resume-a', {waitUntil:'networkidle0'})
+  await page.click('a[href="/mock-interview?package=resume-a&run=resume-typed#interview-report"]')
+  await page.waitForSelector('#interview-report textarea')
+  assert.ok(await page.$eval('#interview-report',el=>el.textContent.includes('Question 2')))
+  assert.ok(await page.$eval('#interview-report textarea',el=>el.getBoundingClientRect().top<innerHeight))
+  await page.type('#interview-report textarea','My unfinished draft')
+  await page.reload({waitUntil:'networkidle0'})
+  assert.equal(await page.$eval('#interview-report textarea',el=>el.value),'My unfinished draft')
+  otherPkg.mock_interview_runs=[{...typed,id:'resume-voice',input_mode:'voice',interviewer_id:'british-woman'}]
+  voiceRecording=true
+  await page.goto('https://interview.test/mock-interview?package=resume-b&run=resume-voice', {waitUntil:'networkidle0'})
+  await page.waitForSelector('[aria-label="Recorded voice interview"]')
+  assert.ok(await page.$eval('[aria-label="Recorded voice interview"]',el=>el.textContent.includes('Question 2 of 2')))
+  await page.click('a[href="/mock-interview?package=resume-b"]')
+  await page.waitForSelector('[aria-label="Saved mock interviews"]')
+  await page.click('a[href="/mock-interview?package=resume-b&run=resume-voice&room=1"]')
+  await page.waitForSelector('[aria-label="Recorded voice interview"]')
   assert.deepEqual(writes, [], "Browsing results never starts AI review")
   assert.deepEqual(errors, [])
   console.log('PASS: card hub, 12-point interactive charts, eight result categories, question explorer and answer tabs, original saved text, dashboard and resume overview, skill-to-chart controls, next-practice setup, reduced motion, six widths, six uncropped hosts, no AI writes/overflow/runtime errors')
