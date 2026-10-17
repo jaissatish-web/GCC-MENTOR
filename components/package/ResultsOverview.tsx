@@ -1,16 +1,17 @@
 'use client'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { RESCORE_NOTES } from '@/lib/processingNotes'
+import { TargetJobOverview } from '@/components/package/TargetJobOverview'
 import { AtsFileCheck } from '@/components/package/AtsFileCheck'
 
 import Link from 'next/link'
 import { InterviewProgress } from '@/components/mock-interview/InterviewProgress'
 import { interviewProgress } from '@/lib/interviewProgress'
-import { FileText, PenLine, Target, TrendingUp, type LucideIcon } from 'lucide-react'
+import { FileText, PenLine, TrendingUp, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { buttonVariants } from '@/components/ui/Button'
 import { readMatchReport } from '@/components/optimizer/MatchResult'
-import { cn, PERSONA_INDUSTRIES } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { CTA, NAMES } from '@/lib/serviceLabels'
 import type { MatchReport } from '@/lib/optimizer/types'
 import type { ResumeDocument } from '@/lib/resumeDocument'
@@ -44,7 +45,6 @@ export function ResultsOverview({
   const report = readMatchReport(pkg.match_report)
   const [scoring, setScoring] = useState(false)
   const [scoreError, setScoreError] = useState<string | null>(null)
-  const [showJd, setShowJd] = useState(false)
 
   const calculate = async () => {
     setScoring(true)
@@ -77,44 +77,12 @@ export function ResultsOverview({
   const skillsOrdered = pkg.optimized_content?.skills_reordered === true ? 1 : 0
   const confirmed = (report?.suggestions ?? []).filter((s) => s.status === 'confirmed').length
   const pending = (report?.suggestions ?? []).filter((s) => s.status === 'pending').length
-  const level = pkg.optimization_level.charAt(0).toUpperCase() + pkg.optimization_level.slice(1)
-  const industry = PERSONA_INDUSTRIES.find((i) => i.value === pkg.target_industry)?.label ?? null
-  // No advert pasted: the typical Gulf advert for the title it was matched against (2026-10-02).
-  const typical = !(pkg.job_description ?? '').trim() && report?.advert_source === 'typical' ? (report.typical_advert ?? '').trim() : ''
-  const description = (pkg.job_description ?? '').trim() || typical
-
   const practiceProgress = interviewProgress(pkg.mock_interview_runs ?? [])
 
   return (
     <section aria-label="Your results" className="flex flex-col gap-3">
       <div className="grid gap-3 md:grid-cols-2">
-        {/* TARGET JOB — teal */}
-        <article className="flex flex-col gap-2 rounded-card border border-teal/40 bg-teal-soft p-4">
-          <CardLabel tone="text-teal" icon={Target}>{NAMES.targetJob}</CardLabel>
-          <p className="break-words font-display text-[20px] leading-tight text-ink">{pkg.target_job_title}</p>
-          <p className="text-[12.5px] text-ink-soft">
-            {[pkg.target_company, industry, `${level} optimization`].filter(Boolean).join(' · ')}
-          </p>
-          {description ? (
-            <>
-              <button
-                type="button"
-                aria-expanded={showJd}
-                onClick={() => setShowJd((v) => !v)}
-                className="min-h-11 self-start text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-              >
-                {typical ? (showJd ? 'Hide typical requirements' : 'Matched against typical Gulf requirements for this title — show') : showJd ? 'Hide job description' : 'Show job description'}
-              </button>
-              {showJd ? (
-                <div className="max-h-64 overflow-y-auto whitespace-pre-wrap rounded-ctl border border-teal/20 bg-white p-3 text-[13px] leading-relaxed text-ink-soft">
-                  {description}
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <p className="text-[12.5px] text-ink-muted">No job description saved — based on the job title.</p>
-          )}
-        </article>
+        <TargetJobOverview pkg={pkg} />
 
         {/* ATS SCORE — green */}
         <article className="flex flex-col gap-2 rounded-card border border-ok/40 bg-ok-soft p-4">

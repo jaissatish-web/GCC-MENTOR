@@ -45,6 +45,7 @@ import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/Button'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
+import { TargetJobOverview } from '@/components/package/TargetJobOverview'
 import { ResultsOverview } from '@/components/package/ResultsOverview'
 import { WorkspaceServiceCards } from '@/components/package/WorkspaceServiceCards'
 import { CTA, NAMES, USES } from '@/lib/serviceLabels'
@@ -613,10 +614,8 @@ function PackageScreenInner({ id }: { id: string }) {
           package never reaches this screen, it is redirected — so it was telling
           them something that is always true. */}
       <div className="flex flex-col gap-3 px-3 pb-3 sm:px-5 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
-        {/* THE JOB, NOT THE DOCUMENT (2026-09-23): this page is the workspace for
-            one target job — its CV, letter, interview preparation and stage — so
-            it is titled with the job. Never call a free resume "optimized" — it
-            has not been through the model (docs/RULES.md). */}
+        {/* Career Profile is the unoptimized source; job workspaces show the
+            chosen optimization level even when legacy generated fields differ. */}
         <div className="flex min-w-0 flex-col gap-0.5 lg:shrink-0">
           <GulfContext>{isRaw ? 'Gulf resume · Career Profile' : 'Gulf application workspace'}</GulfContext>
           {isRaw ? <span className="self-start rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold text-teal">{CAREER_RESUME_BADGE}</span> : null}
@@ -627,7 +626,7 @@ function PackageScreenInner({ id }: { id: string }) {
             {[
               pkg.target_company,
               countryName,
-              isRaw ? 'Latest saved profile · No AI optimization' : isFree ? 'Resume not optimized yet' : `${pkg.optimization_level.charAt(0).toUpperCase()}${pkg.optimization_level.slice(1)} optimized resume`,
+              isRaw ? 'Latest saved profile · Not optimized' : `Optimized Resume · ${pkg.optimization_level.charAt(0).toUpperCase()}${pkg.optimization_level.slice(1)} optimization`,
             ]
               .filter(Boolean)
               .join(' · ')}
@@ -774,6 +773,7 @@ function PackageScreenInner({ id }: { id: string }) {
             components/package/ResultsOverview.tsx. */}
         {tab === 'overview' ? (
         <>
+        {!isRaw && !showOverview ? <TargetJobOverview pkg={pkg} /> : null}
         {showOverview ? (
           <ResultsOverview
             pkg={pkg}
