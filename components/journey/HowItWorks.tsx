@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import * as Dialog from '@radix-ui/react-dialog'
-import { ArrowRight, FileText, UserRound, X, ShieldCheck, Mail, Mic, Pause, Play, Network, ChevronDown } from 'lucide-react'
+import { ArrowRight, X, ShieldCheck, Pause, Play, Network, ChevronDown } from 'lucide-react'
 import { NAV_ITEMS, NAV_GROUPS, navHref } from '@/components/layout/navItems'
 import { GUIDE_SERVICES } from './guide'
 import { cn } from '@/lib/utils'
@@ -14,40 +14,36 @@ import { JourneyDiagram, JourneySimulation } from './JourneyExperience'
 export function HowItWorks({ className = '' }: { className?: string }) {
   const [view, setView] = useState<'journey' | 'simulation' | 'services'>('journey')
   const [paused, setPaused] = useState(false)
-  return (
-    <Dialog.Root>
-      <Dialog.Trigger className={`journey-guide-trigger inline-flex min-h-11 items-center justify-center gap-2 rounded-ctl px-4 type-button text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${className}`}>
-        How it works <Network className="size-4" aria-hidden="true" />
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Overlay className={cn(s.overlay, 'fixed inset-0 z-[70]')} />
-        <Dialog.Content className={cn(s.dialog, paused && s.paused, 'fixed left-1/2 top-1/2 z-[71] flex max-h-[94dvh] w-[calc(100%_-_16px)] max-w-[1120px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-card font-redesign-sans text-ink focus:outline-none')}>
-          <header className={cn(s.hero, 'shrink-0 px-4 pb-4 pt-4 sm:px-6 sm:pt-5')}>
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className={cn(s.eyebrow, 'type-caption font-semibold tracking-wide')}>YOUR PREPARATION GUIDE</p>
-                <Dialog.Title className={cn(s.heroTitle, 'mt-1.5 type-section')}>One profile. A journey for every job.</Dialog.Title>
-                <Dialog.Description className={cn(s.heroDescription, 'mt-2 type-helper')}>Explore the journey, then try a sample user’s saved jobs and preparation.</Dialog.Description>
-              </div>
-              <Dialog.Close aria-label="Close guide" className={cn(s.close, 'flex size-11 shrink-0 items-center justify-center rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white')}><X className="size-5" aria-hidden="true" /></Dialog.Close>
-            </div>
-            <div className={s.route} aria-label="Journey overview">
-              {[{ label: 'Profile', icon: UserRound, tone: 'profile' }, { label: 'CV', icon: FileText, tone: 'tailor' }, { label: 'Apply', icon: Mail, tone: 'letter' }, { label: 'Practise', icon: Mic, tone: 'mock' }].map(({ label, icon: Icon, tone }) => <div key={label} data-ui-service={tone} className={s.routeStop}><span className={s.routeIcon}><Icon className="size-4" aria-hidden="true" /></span><span>{label}</span></div>)}
+  return <Dialog.Root>
+    <Dialog.Trigger className={`journey-guide-trigger inline-flex min-h-11 items-center justify-center gap-2 rounded-ctl px-4 type-button text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${className}`}>
+      How it works <Network className="size-4" aria-hidden="true" />
+    </Dialog.Trigger>
+    <Dialog.Portal>
+      <Dialog.Overlay className={cn(s.overlay, 'fixed inset-0 z-[70]')} />
+      <Dialog.Content className={cn(s.dialog, s.experience, paused && s.paused, 'font-redesign-sans focus:outline-none')}>
+        <div className={s.chrome}>
+          <span className={s.guideBrand}><span>G</span> GCC <strong>MENTOR</strong><small>How it works</small></span>
+          <div className={s.chromeActions}>
+            <button type="button" aria-pressed={paused} aria-label={paused ? 'Resume guide animation' : 'Pause guide animation'} onClick={() => setPaused(v => !v)} className={s.chromeButton}>{paused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</button>
+            <Dialog.Close aria-label="Close guide" className={s.chromeButton}><X size={21} aria-hidden="true" /></Dialog.Close>
+          </div>
+        </div>
+        <div className={s.guideScroll}>
+          <header className={s.editorialHero}>
+            <span className={s.heroKicker}><Network size={14} aria-hidden="true" /> YOUR GULF CAREER, CONNECTED</span>
+            <Dialog.Title className={s.editorialTitle}>One profile.<br className={s.mobileBreak} /> <em>Multiple possibilities.</em></Dialog.Title>
+            <Dialog.Description className={s.editorialDescription}>Follow the branches. Select a job and explore your preparation.</Dialog.Description>
+            <div className={s.viewSwitch} role="group" aria-label="Choose guide view">
+              {([{key:'journey',label:'Journey diagram'}, {key:'simulation',label:'Simulation'}, {key:'services',label:'All services'}] as const).map(item => <button key={item.key} type="button" aria-pressed={view === item.key} onClick={() => setView(item.key)} className={cn(s.viewButton, view === item.key && s.viewSelected)}>{item.label}</button>)}
             </div>
           </header>
-          <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-line bg-white px-3 py-1.5 sm:px-5" role="group" aria-label="Choose guide view">
-            <button type="button" aria-pressed={view === 'journey'} onClick={() => setView('journey')} className={cn('min-h-11 rounded-ctl px-3 type-helper font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal', view === 'journey' ? 'bg-teal-soft text-teal' : 'text-ink-soft')}>Journey diagram</button>
-            <button type="button" aria-pressed={view === 'simulation'} onClick={() => setView('simulation')} className={cn('min-h-11 rounded-ctl px-3 type-helper font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal', view === 'simulation' ? 'bg-teal-soft text-teal' : 'text-ink-soft')}>Interactive simulation</button>
-            <button type="button" aria-pressed={view === 'services'} onClick={() => setView('services')} className={cn('min-h-11 rounded-ctl px-3 type-helper font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal', view === 'services' ? 'bg-teal-soft text-teal' : 'text-ink-soft')}>Services</button>
-            <button type="button" aria-pressed={paused} aria-label={paused ? 'Resume guide animation' : 'Pause guide animation'} onClick={() => setPaused(v => !v)} className="ml-auto flex min-h-11 items-center gap-1 rounded-ctl px-2 type-caption text-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">{paused ? <Play className="size-4" aria-hidden="true" /> : <Pause className="size-4" aria-hidden="true" />}<span>{paused ? 'Play' : 'Pause'}</span></button>
-          </div>
-          <div className="min-h-0 overflow-y-auto overscroll-contain px-3 py-4 sm:px-6 sm:py-5">
+          <div className={s.guideBody}>
             {view === 'journey' ? <JourneyDiagram /> : view === 'simulation' ? <JourneySimulation /> : <ServiceDirectory />}
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
-  )
+        </div>
+      </Dialog.Content>
+    </Dialog.Portal>
+  </Dialog.Root>
 }
 
 function GuideLink({ href, children }: { href: string; children: React.ReactNode }) {

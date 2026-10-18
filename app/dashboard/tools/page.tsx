@@ -42,7 +42,8 @@ export default function ToolsPage() {
               <Link
                 key={service.href}
                 href={navHref(item)}
-                className="group flex min-w-0 flex-col rounded-card border border-line bg-white p-5 shadow-sm transition duration-200 hover:border-teal/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 motion-reduce:transition-none"
+                data-ui-service={service.href === '/optimize' ? 'tailor' : service.href === '/templates' ? 'templates' : service.href === '/cover-letter' ? 'letter' : service.href === '/interview-qa' ? 'qa' : service.href === '/mock-interview' ? 'mock' : service.href.includes('linkedin') ? 'linkedin' : 'naukrigulf'}
+                className="service-feature-card group flex min-w-0 flex-col rounded-card border border-line bg-white p-5 shadow-sm transition duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 motion-reduce:transition-none"
               >
                 <span aria-hidden="true" className={`mb-4 flex size-11 items-center justify-center rounded-ctl ${item.iconClass}`}><Icon className="size-6" /></span>
                 <h3 className="type-body font-semibold text-ink">{item.label}</h3>

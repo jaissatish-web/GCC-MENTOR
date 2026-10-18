@@ -5,9 +5,9 @@
   --ui-mono-font: var(--font-plex-mono), monospace;
   --ui-weight-regular: 400;
   --ui-weight-label: 500;
-  --ui-weight-heading: 500;
-  --ui-weight-title: 600;
-  --ui-title-size: 1.375rem;
+  --ui-weight-heading: 600;
+  --ui-weight-title: 650;
+  --ui-title-size: 1.5rem;
   --ui-section-size: 1.125rem;
   --ui-card-title-size: 1rem;
   --ui-body-size: 0.9375rem;
@@ -32,16 +32,16 @@
   --ui-card-radius: 12px;
   --ui-card-shadow: none;
   /* Semantic palette: RGB triplets allow shared opacity utilities. */
-  --ui-canvas-rgb: 248 250 249;
+  --ui-canvas-rgb: 247 249 252;
   --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 35 51 49;
-  --ui-ink-soft-rgb: 76 91 87;
+  --ui-ink-rgb: 20 36 61;
+  --ui-ink-soft-rgb: 82 99 121;
   --ui-ink-muted-rgb: 97 107 118;
-  --ui-brand-rgb: 15 76 67;
+  --ui-brand-rgb: 15 89 75;
   --ui-brand-hover-rgb: 18 105 92;
-  --ui-brand-soft-rgb: 228 238 235;
-  --ui-line-rgb: 225 231 228;
-  --ui-line-strong-rgb: 192 203 197;
+  --ui-brand-soft-rgb: 232 244 238;
+  --ui-line-rgb: 225 231 239;
+  --ui-line-strong-rgb: 195 206 219;
   --ui-accent-rgb: 201 150 46;
   --ui-accent-ink-rgb: 138 97 20;
   --ui-accent-soft-rgb: 247 239 221;
@@ -82,7 +82,7 @@
   --ui-header-gap: 8px;
   --ui-list-gap: 12px;
   --ui-card-hover-shadow: 0 3px 12px rgb(20 24 28 / .05);
-  --ui-nav-profile-bg: #ede9fe; --ui-nav-profile-ink: #6d28d9;
+  --ui-nav-profile-bg: #fbefd4; --ui-nav-profile-ink: #88611d;
   --ui-nav-library-bg: #e0f2fe; --ui-nav-library-ink: #0369a1;
   --ui-nav-templates-bg: #fef3c7; --ui-nav-templates-ink: #92400e;
   --ui-nav-tailor-bg: #d1fae5; --ui-nav-tailor-ink: #047857;
@@ -767,3 +767,10 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   .app-type .workspace-heading .ui-button { width: 100%; }
   .app-type .field { font-size: 1rem; }
 }
+
+/* Emerald remains the action colour; service accents guide recognition. */
+.app-type .workspace-heading .gulf-context { color:var(--service-ink,var(--ui-brand)); }
+.app-type .service-feature-card { border-top:3px solid var(--service-ink,var(--ui-brand)); }
+.app-type .service-feature-card:hover { border-color:var(--service-ink,var(--ui-brand)); }
+.app-type .service-feature-card > span:last-child { color:var(--service-ink,var(--ui-brand)); }
+.app-type .service-feature-card h3.type-body { font-size:1rem; font-weight:600; line-height:1.45; }
