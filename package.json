@@ -16,7 +16,8 @@
     "check": "npm run typecheck && npm run lint && npm test",
     "test:mobile": "node scripts/verify-mobile-layout.mjs",
     "test:readable-ui": "node scripts/verify-readable-ui.mjs",
-    "test:interview": "node scripts/verify-interview-ui.mjs"
+    "test:interview": "node scripts/verify-interview-ui.mjs",
+    "test:preparation": "node scripts/verify-preparation-experience.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

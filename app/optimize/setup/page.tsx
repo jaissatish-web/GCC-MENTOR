@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { CheckIcon } from '@heroicons/react/24/outline'
-import { ProcessingInline, ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
-import { CHECK_NOTES, setupNotes } from '@/lib/processingNotes'
+import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
+import { setupNotes } from '@/lib/processingNotes'
 import { Card } from '@/components/ui/Card'
 import { FlowHeader } from '@/components/optimizer/FlowHeader'
 import { cn } from '@/lib/utils'
@@ -574,11 +574,10 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
   if (state === 'idle' || state === 'error') return null
   if (state === 'loading' || !check) {
     return (
-      <ProcessingInline
-        steps={['Reading the job description', 'Matching it to your Career Profile', 'Working out your best score per level', 'Finding certificates the job asks for']}
-        stepMs={2800}
-        notes={CHECK_NOTES}
-      />
+      <Card tone="light" className="flex flex-col gap-4 p-4 sm:p-6">
+        <div className="flex items-center gap-4"><ProcessingOrbit size={64} /><div className="min-w-0"><h2 className="type-label font-semibold text-ink">Checking your job match</h2><p role="status" className="mt-1 type-helper text-ink-soft">Comparing the role with your Career Profile. Your level options unlock when results arrive.</p></div></div>
+        <p className="type-caption leading-relaxed text-ink-soft">This check reviews role fit, requirements and preparation options. Keep this page open.</p>
+      </Card>
     )
   }
   const tone =

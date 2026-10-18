@@ -8,6 +8,7 @@ import { QuestionMarkCircleIcon, ChevronDownIcon, ClipboardDocumentIcon, ChatBub
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
 import { NextStep } from '@/components/journey/NextStep'
+import { SavedWorkHeading, ServiceOptions } from '@/components/service/SavedWork'
 import { Card } from '@/components/ui/Card'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -212,50 +213,6 @@ function InterviewQaScreen() {
             </label>
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current="qa" /> : null}
 
-            {genError ? (
-              <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
-                {genError}
-              </p>
-            ) : null}
-
-            {generating ? (
-              <ProcessingInline
-                steps={[
-                  isRaw ? 'Reading your saved Profile Resume' : 'Reading the optimized resume',
-                  isRaw ? 'Preparing for your professional field' : 'Studying the target role and job description',
-                  'Writing Gulf-focused practice answers',
-                  'Checking every number against your resume and profile',
-                ]}
-                stepMs={5500}
-                notes={QA_NOTES}
-              />
-            ) : null}
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-col gap-1 type-helper text-ink-soft">
-                {selectedSummary ? (
-                  <>{questionSet ? <span>Saved {new Date(questionSet.generated_at).toLocaleString()}</span> : null}</>
-                ) : null}
-              </div>
-              <div className="qa-primary-actions flex flex-wrap gap-2">
-                {questionSet ? (
-                  <Button type="button" variant="secondary" onClick={() => void copyAll()}>
-                    <ClipboardDocumentIcon aria-hidden="true" className="size-4 shrink-0" />
-                    {copied ? 'Copied' : 'Copy all'}
-                  </Button>
-                ) : null}
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => void generate()}
-                  disabled={!selectedId || generating || detailLoading}
-                  busy={generating}
-                  busyLabel="Generating…"
-                >
-                  {questionSet ? 'Prepare new interview Q&A' : CTA.prepareInterviewQa}
-                </Button>
-              </div>
-            </div>
             {sets.length > 1 ? (
               <label className="flex flex-col gap-2">
                 <span className="field-label">
@@ -304,19 +261,13 @@ function InterviewQaScreen() {
       ) : null}
 
       {questionSet ? (
-        <section className="mt-6 flex flex-col gap-5">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="font-display type-section font-semibold text-ink">Practice set</h2>
-              <p className="break-words type-helper text-ink-muted">
-                {questionSet.question_count} questions for {questionSet.target_job_title}
-                {questionSet.target_company ? ` · ${questionSet.target_company}` : ''}
-              </p>
-            </div>
-            <span className="w-fit rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold uppercase tracking-[0.08em] text-teal">
-              Saved in this resume package
-            </span>
-          </div>
+        <section aria-label="Saved interview Q&A" className="mt-6 flex flex-col gap-5">
+          <SavedWorkHeading title="Your saved interview Q&A" count={sets.length}>
+            {questionSet.question_count} {questionSet.question_count === 1 ? 'question' : 'questions'} for {questionSet.target_job_title}{questionSet.target_company ? ` · ${questionSet.target_company}` : ''}. Start with a question, then reveal its sample answer.
+          </SavedWorkHeading>
+          <Button type="button" variant="secondary" className="w-fit" onClick={() => void copyAll()}>
+            <ClipboardDocumentIcon aria-hidden="true" className="size-4 shrink-0" />{copied ? 'Copied' : 'Copy all'}
+          </Button>
 
           {/* Practice first, answer second (2026-10-03): all 24 answers open made
               the page 22 phone screens long and gave the answer away before the
@@ -362,6 +313,52 @@ function InterviewQaScreen() {
             </div>
           ))}
         </section>
+      ) : null}
+
+      {selectedSummary && !detailError && !detailLoading ? (
+        <ServiceOptions key={selectedId} title={questionSet ? 'Prepare another Q&A set' : 'Prepare your first Q&A set'}
+          description="Create a fresh set from this resume. Your saved sets remain available above."
+          hasSaved={Boolean(questionSet)} busy={generating} hasError={Boolean(genError)}>
+            {genError ? (
+              <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
+                {genError}
+              </p>
+            ) : null}
+
+            {generating ? (
+              <ProcessingInline
+                steps={[
+                  isRaw ? 'Reading your saved Profile Resume' : 'Reading the optimized resume',
+                  isRaw ? 'Preparing for your professional field' : 'Studying the target role and job description',
+                  'Writing Gulf-focused practice answers',
+                  'Checking every number against your resume and profile',
+                ]}
+                stepMs={5500}
+                notes={QA_NOTES}
+              />
+            ) : null}
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-1 type-helper text-ink-soft">
+                {selectedSummary ? (
+                  <>{questionSet ? <span>Saved {new Date(questionSet.generated_at).toLocaleString()}</span> : null}</>
+                ) : null}
+              </div>
+              <div className="qa-primary-actions flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => void generate()}
+                  disabled={!selectedId || generating || detailLoading}
+                  busy={generating}
+                  busyLabel="Generating…"
+                >
+                  {questionSet ? 'Prepare new interview Q&A' : CTA.prepareInterviewQa}
+                </Button>
+              </div>
+            </div>
+
+        </ServiceOptions>
       ) : null}
 
       {selectedId && questionSet ? (

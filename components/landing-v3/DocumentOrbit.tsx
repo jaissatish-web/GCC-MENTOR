@@ -112,7 +112,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
       const f = focus.current[i]
       const sc = (0.55 + 0.35 * d) * lay.k * (1 - f) + (compactRef.current ? 1.1 : 1.45) * f
       el.style.transform = `translate(-50%, -50%) translate(${(rx * Math.cos(th) * (1 - f)).toFixed(1)}px, ${(lay.ry * sn * (1 - f) - (compactRef.current ? 14 : 28) * f).toFixed(1)}px) scale(${sc.toFixed(3)})`
-      el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 40 : 10 + d * 30) * (1 - f) + 50 * f))
+      el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 40 : 10 + d * 30) * (1 - f) + 200 * f))
       el.style.opacity = (0.55 + 0.45 * Math.max(d, f)).toFixed(2)
       el.dataset.front = sn > 0 ? '1' : '0'
     }
@@ -252,13 +252,22 @@ export function DocumentOrbit({ className }: { className?: string }) {
       className={cn('relative isolate w-full overflow-hidden', className)}
       role="region"
       onKeyDown={(event) => {
+        if (zoomed) return
         if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
           event.preventDefault()
+          pause()
           bringToFront(selRef.current + (event.key === 'ArrowLeft' ? -1 : 1))
         }
       }}
       aria-roledescription="carousel"
       aria-label="Resume template collection"
+      onFocusCapture={() => pause()}
+      onBlurCapture={(event) => {
+        if (!zoomed && !event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          playingRef.current = !reduced.current
+          kick.current()
+        }
+      }}
     >
       <div
         className="relative"
@@ -279,8 +288,8 @@ export function DocumentOrbit({ className }: { className?: string }) {
             bringToFront(selRef.current + (dx < 0 ? 1 : -1))
           }
         }}
-        onPointerUp={() => { gesture.current = null; playingRef.current = !reduced.current; kick.current() }}
-        onPointerCancel={() => { gesture.current = null; playingRef.current = !reduced.current; kick.current() }}
+        onPointerUp={() => { gesture.current = null; playingRef.current = !reduced.current && !boxRef.current?.contains(document.activeElement); kick.current() }}
+        onPointerCancel={() => { gesture.current = null; playingRef.current = !reduced.current && !boxRef.current?.contains(document.activeElement); kick.current() }}
         onClickCapture={(event) => {
           if (suppressClick.current) { event.preventDefault(); event.stopPropagation(); suppressClick.current = false }
         }}
@@ -334,7 +343,15 @@ export function DocumentOrbit({ className }: { className?: string }) {
 
       </div>
 
-      {zoomed ? <FullSize item={zoomed} onClose={() => { setZoomed(null); playingRef.current = !reduced.current; kick.current() }} /> : null}
+      <div className="relative z-[210] flex flex-wrap items-center justify-center gap-2 px-2 pb-3">
+        <button type="button" aria-label="Previous template" onClick={() => { pause(); bringToFront(selRef.current - 1) }} className="flex size-11 items-center justify-center rounded-full border border-line bg-white text-lg text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">←</button>
+        <button type="button" onClick={() => openPreview(ITEMS[sel])} className="min-h-11 min-w-0 max-w-[calc(100%-104px)] rounded-ctl border border-teal/25 bg-white px-3 py-2 text-sm font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+          Preview {itemName(ITEMS[sel])}
+        </button>
+        <button type="button" aria-label="Next template" onClick={() => { pause(); bringToFront(selRef.current + 1) }} className="flex size-11 items-center justify-center rounded-full border border-line bg-white text-lg text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">→</button>
+      </div>
+
+      {zoomed ? <FullSize item={zoomed} onClose={() => { setZoomed(null); playingRef.current = !reduced.current && !boxRef.current?.contains(document.activeElement); kick.current() }} /> : null}
     </div>
   )
 }

@@ -22,8 +22,10 @@ writeFileSync(dir + '/navigation.js', `export function useSearchParams(){return 
 writeFileSync(dir + '/link.js', `import React from 'react';export default function Link({prefetch,replace,scroll,...p}){return React.createElement('a',p)}`)
 writeFileSync(dir + '/image.js', `import React from 'react';export default function Image({fill,priority,sizes,...p}){return React.createElement('img',{...p,style:fill?{position:'absolute',height:'100%',width:'100%',inset:0,...p.style}:p.style})}`)
 writeFileSync(dir + '/loader.cjs', `module.exports=s=>require(${JSON.stringify(require.resolve('sucrase'))}).transform(s,{transforms:['typescript','jsx'],jsxRuntime:'automatic',production:true}).code`)
+// Exercise current CSS-module screens in the isolated fixture as well.
+writeFileSync(dir + '/css-loader.cjs', `module.exports=source=>{const classes=Object.fromEntries([...source.matchAll(new RegExp('[.]([A-Za-z_][A-Za-z0-9_-]*)','g'))].map(m=>[m[1],m[1]]));return 'const style=document.createElement("style");style.textContent='+JSON.stringify(source)+';document.head.appendChild(style);export default '+JSON.stringify(classes)}`)
 const webpack = require('next/dist/compiled/webpack/webpack'); webpack.init()
-await new Promise((yes, no) => webpack.webpack({ mode: 'development', devtool: false, entry: dir + '/entry.mjs', output: { path: dir, filename: 'fixture.js' }, resolve: { extensions: ['.tsx', '.ts', '.js', '.mjs'], alias: { '@': root, 'next/navigation': dir + '/navigation.js', 'next/link': dir + '/link.js', 'next/image': dir + '/image.js' }, modules: [root + '/node_modules', 'node_modules'] }, module: { rules: [{ test: /\.tsx?$/, exclude: /node_modules/, use: dir + '/loader.cjs' }] } }, (e, s) => e || s.hasErrors() ? no(e || Error(s.toString({ errors: true }))) : yes()))
+await new Promise((yes, no) => webpack.webpack({ mode: 'development', devtool: false, entry: dir + '/entry.mjs', output: { path: dir, filename: 'fixture.js' }, resolve: { extensions: ['.tsx', '.ts', '.js', '.mjs'], alias: { '@': root, 'next/navigation': dir + '/navigation.js', 'next/link': dir + '/link.js', 'next/image': dir + '/image.js' }, modules: [root + '/node_modules', 'node_modules'] }, module: { rules: [{test:/\.module\.css$/,use:dir+'/css-loader.cjs'}, { test: /\.tsx?$/, exclude: /node_modules/, use: dir + '/loader.cjs' }] } }, (e, s) => e || s.hasErrors() ? no(e || Error(s.toString({ errors: true }))) : yes()))
 const landing = readFileSync('.next/server/app/index.html', 'utf8')
 const bodyClass = landing.match(/<body class="([^"]+)"/)[1]
 const css = [...new Set([...landing.matchAll(/href="(\/_next\/static\/css\/[^"]+\.css)"/g)].map(m => m[1]))].map(p => readFileSync(p.replace('/_next/', '.next/'), 'utf8')).join('\n')
@@ -137,6 +139,7 @@ try {
   await page.click('a[href="/mock-interview?package=resume-a&run=resume-typed#interview-report"]')
   await page.waitForSelector('#interview-report textarea')
   assert.ok(await page.$eval('#interview-report',el=>el.textContent.includes('Question 2')))
+  await page.waitForFunction(()=>document.querySelector('#interview-report textarea')?.getBoundingClientRect().top<innerHeight)
   assert.ok(await page.$eval('#interview-report textarea',el=>el.getBoundingClientRect().top<innerHeight))
   await page.type('#interview-report textarea','My unfinished draft')
   await page.reload({waitUntil:'networkidle0'})

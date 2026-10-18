@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState, use } from 'react';
 import { useRouter } from 'next/navigation'
 import { FlowHeader } from '@/components/optimizer/FlowHeader'
 import { Button } from '@/components/ui/Button'
-import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
-import { GENERATE_NOTES } from '@/lib/processingNotes'
+import { OptimizationProgress } from '@/components/optimizer/OptimizationProgress'
+import { Alert } from '@/components/ui/Alert'
 import { OPTIMIZATION_BUILD_STEPS_KEY } from '@/lib/onboardingDraft'
 
 /**
@@ -37,8 +37,6 @@ const STEPS = [
 
 const FINAL_STEP = 'Checking every line against your profile'
 
-/** The whole list is paced across this, then holds on its last step (optimizer v3: ~15–25s). */
-const PACE_MS = 24000
 
 export default function GeneratePage(props: { params: Promise<{ packageId: string }> }) {
   const params = use(props.params);
@@ -47,32 +45,36 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
   // The steps the user actually chose on setup — their summary, each employer's
   // bullets — handed over through OPTIMIZATION_BUILD_STEPS_KEY (2026-09-12).
   const [steps, setSteps] = useState<readonly string[]>(STEPS)
-  const [elapsedMs, setElapsedMs] = useState(0)
+  const [phase, setPhase] = useState<'analysis' | 'build' | 'opening'>('analysis')
+  const [analysisReady, setAnalysisReady] = useState<boolean | null>(null)
+  const running = useRef(false)
   const [error, setError] = useState<string | null>(null)
   const started = useRef(false)
 
   const run = useCallback(async () => {
+    if (running.current) return
+    running.current = true
     setError(null)
-    const start = Date.now()
-    setElapsedMs(0)
-    const timer = window.setInterval(() => setElapsedMs(Date.now() - start), 500)
+    setPhase('analysis')
+    setAnalysisReady(null)
     try {
       // 1. Read the job and match it to the profile, in its own request so the
       //    slow analysis has its own time budget (2026-09-17). Never fatal: the
       //    build still runs if this fails.
-      await fetch('/api/optimize', {
+      const analysis = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ packageId, analyzeOnly: true }),
       }).catch(() => null)
-      // 2. Write the CV and score it.
+      setAnalysisReady(Boolean(analysis?.ok))
+      setPhase('build')
+      // 2. Write the resume and score it.
       const res = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ packageId }),
       })
       const body = await res.json().catch(() => ({}))
-      window.clearInterval(timer)
 
       if (!res.ok) {
         // The 402 branch is gone with the paywall. A 429 is the one remaining
@@ -97,10 +99,12 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
       // optimization seen on the review page, the added points are already in
       // the CV — straight to the result and its Download. Otherwise the review
       // page first, with the added points in yellow.
+      setPhase('opening')
       router.replace(body?.autoApplied ? `/package/${encodeURIComponent(packageId)}` : `/optimize/preview/${encodeURIComponent(packageId)}`)
     } catch {
-      window.clearInterval(timer)
       setError('Network error. Please check your connection and try again.')
+    } finally {
+      running.current = false
     }
   }, [packageId, router])
 
@@ -121,26 +125,24 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
     void run()
   }, [run, packageId])
 
-  const activeIndex = Math.min(steps.length - 1, Math.floor(elapsedMs / (PACE_MS / steps.length)))
-
   if (error) {
     return (
       <main className="mx-auto w-full max-w-[760px] px-3 py-6 sm:px-8 lg:py-10 font-redesign-sans">
         <div className="mx-auto w-full max-w-[480px] rounded-card border border-line bg-white p-8 text-center">
           <h1 className="font-display text-[26px] leading-tight text-ink">We couldn&apos;t build it</h1>
-          <p className="mt-3 text-sm leading-relaxed text-ink-soft">{error}</p>
+          <Alert variant="danger" className="mt-4 text-left" title="Optimization interrupted">{error}</Alert>
           {/* Was "Your payment is safe … without paying twice" — there is no
               payment step while the locks are off, so it reassured the user
               about something that never happened. What is true: the job is kept. */}
           <p className="mt-3 text-[12px] text-ink-muted">
-            Nothing is lost — this job stays in your Resume Library and can be built again from there.
+            Your saved job details remain in your Resume Library. You can retry from here or return to your saved work.
           </p>
           <div className="mt-7 flex flex-col gap-3">
             <Button variant="primary" className="w-full" onClick={() => void run()}>
               Try again
             </Button>
-            <Button variant="secondary" className="w-full" onClick={() => router.push('/dashboard')}>
-              Back to dashboard
+            <Button variant="secondary" className="w-full" onClick={() => router.push('/dashboard/library')}>
+              Open Resume Library
             </Button>
           </div>
         </div>
@@ -148,43 +150,10 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
     )
   }
 
-  // The model call takes up to a minute and reports no progress of its own, so
-  // what is shown is only what is true: it is running (the orbit), which stage
-  // of the pipeline it is in (named, paced by the timer above, holding on the
-  // last one), and how long it has really taken. See components/ui/Processing.
   return (
     <main className="mx-auto w-full max-w-[760px] space-y-5 px-3 py-6 font-redesign-sans sm:px-8 lg:py-10">
-      <FlowHeader step={3} title="Building your optimized resume" subtitle="Follow your optimization below. You can scroll to see each step while it runs." />
-      <section aria-label="resume optimization progress" className="relative rounded-card border border-line bg-ink px-4 py-8 sm:px-8">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_28%,rgba(201,150,46,0.16),transparent_70%)]"
-        />
-        <div className="relative mx-auto flex w-full min-w-0 max-w-[440px] flex-col items-center gap-7">
-          <ProcessingOrbit tone="dark" size={184} />
-          <div className="text-center">
-            <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">Step 3 of 3 · Optimized Resume</p>
-            <h1 className="font-display text-[28px] leading-tight text-white">Optimizing your resume</h1>
-            <p className="mt-2 text-[13.5px] leading-relaxed text-white/70">
-              Every line is checked against your Career Profile before you see it.
-            </p>
-          </div>
-          <ProcessingSteps
-            tone="dark"
-            steps={steps}
-            activeIndex={Math.max(0, activeIndex)}
-            notes={GENERATE_NOTES}
-          />
-          {/* Optimizer v3 (2026-10-02): the job is read once on the level screen and
-              reused here, so the build is one writing call — about 15–25 seconds. */}
-          <p className="text-center text-[12.5px] leading-relaxed text-white/60">
-            This usually takes under 30 seconds. Keep this page open — it moves on by itself.
-            <span className="mt-1 block font-mono text-[12px] tabular-nums text-white/45">
-              {Math.floor(elapsedMs / 60000)}:{String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0')} elapsed
-            </span>
-          </p>
-        </div>
-      </section>
+      <FlowHeader step={3} title="Building your optimized resume" subtitle="Your saved job details and Career Profile guide this preparation." />
+      <OptimizationProgress phase={phase} analysisReady={analysisReady} steps={steps} />
     </main>
   )
 }
