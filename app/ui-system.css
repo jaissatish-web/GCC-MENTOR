@@ -796,3 +796,31 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   .app-type .service-feature-card { padding:20px; }
 }
 @media(prefers-reduced-motion:reduce) { .app-type .service-feature-card { transition:none; } }
+
+/* Library foundation and compact service counts use shape and text as well as colour. */
+.app-type .library-resume-card[data-resume-kind="career-profile"] {
+  border-color: #d4b76f;
+  border-top-color: rgb(var(--ui-accent-ink-rgb));
+}
+.app-type .library-resume-card[data-resume-kind="career-profile"]:is(:hover,:focus-within) {
+  border-color: rgb(var(--ui-accent-ink-rgb));
+  box-shadow: 0 0 0 3px rgb(var(--ui-accent-rgb) / .1);
+}
+.app-type .library-service-row { height:100%; min-height:64px; }
+.app-type .library-service-count {
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  width:32px; height:32px; border-radius:50%; background:#fff;
+  border:1px solid currentColor; font-size:14px; font-weight:600;
+  font-variant-numeric:tabular-nums; line-height:1;
+}
+.app-type .tool-tile-box {
+  display:flex; flex:none; min-width:0; height:128px; flex-direction:column;
+  justify-content:space-between; align-items:flex-start; gap:12px; padding:14px;
+  border:1px solid color-mix(in srgb,var(--service-ink) 22%,white);
+  border-radius:16px; background:var(--service-soft); color:var(--ui-ink);
+  transition:box-shadow 160ms ease,border-color 160ms ease;
+}
+.app-type .tool-tile-title { font-size:16px; font-weight:600; line-height:1.4; overflow-wrap:break-word; }
+.app-type .tool-tile:hover .tool-tile-box { border-color:var(--service-ink); box-shadow:0 4px 16px rgb(var(--ui-ink-rgb) / .07); }
+.app-type .template-preview-action { border-color:var(--ui-brand); background:#fff; color:var(--ui-brand); }
+@media (prefers-reduced-motion:reduce) { .app-type .tool-tile-box { transition:none; } }

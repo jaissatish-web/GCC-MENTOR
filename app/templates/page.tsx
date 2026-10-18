@@ -9,13 +9,10 @@ import { buttonVariants } from '@/components/ui/Button'
 import { PageShell } from '@/components/layout/PageShell'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { getTemplate, DEFAULT_TEMPLATE_ID, TEMPLATES, type TemplateId } from '@/lib/templates'
-import { resumeLabel } from '@/lib/utils'
+import { cn, resumeLabel } from '@/lib/utils'
 import { CTA } from '@/lib/serviceLabels'
 import { SAMPLE_RESUME_DOCUMENT } from '@/lib/sampleResume'
 import type { PackageSummary } from '@/lib/packageSummary'
-
-// One source for the count (audit M10): the registry, not copy.
-const AVAILABLE_TEMPLATE_COUNT = Object.values(TEMPLATES).filter((t) => t.available).length
 
 /**
  * Resume Templates — browse the designs, then open one of your resumes in it.
@@ -83,9 +80,7 @@ function TemplatesInner() {
     <PageShell
       width="wide"
       icon={RectangleStackIcon}
-      eyebrow="Gulf resume designs"
       title="Gulf templates"
-      subtitle={`${AVAILABLE_TEMPLATE_COUNT} designs. Any profession. All six Gulf countries. Gallery thumbnails show sample content; Preview my resume uses your selected resume.`}
     >
       {/* The action bar sticks so the choice made at the bottom of a long
           gallery is still actionable without scrolling back. top-16, not
@@ -116,13 +111,13 @@ function TemplatesInner() {
                   </option>
                 ))}
               </select>
-              <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto">
+              <div className="grid w-full min-w-0 grid-cols-2 items-stretch gap-2 sm:flex sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setPreviewOpen(true)}
-                  className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+                  className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'template-preview-action flex-1 border-teal bg-white text-teal sm:w-48 sm:flex-none')}
                 >
-                  View selected design full size
+                  Template preview
                 </button>
                 <button
                   type="button"
@@ -132,7 +127,7 @@ function TemplatesInner() {
                     )
                   }
                   disabled={!selectedId}
-                  className={buttonVariants({ variant: 'primary', size: 'sm' })}
+                  className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'flex-1 sm:w-48 sm:flex-none')}
                 >
                   Preview my resume
                 </button>
@@ -151,9 +146,9 @@ function TemplatesInner() {
             <button
               type="button"
               onClick={() => setPreviewOpen(true)}
-              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+              className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'template-preview-action flex-1 border-teal bg-white text-teal sm:w-48 sm:flex-none')}
             >
-              View selected design full size
+              Template preview
             </button>
           ) : null}
         </div>
@@ -172,6 +167,7 @@ function TemplatesInner() {
         previewOpen={previewOpen}
         onPreviewOpenChange={setPreviewOpen}
         showPreviewButton={false}
+        showIntroduction={false}
       />
 
       <p className="text-center type-helper text-ink-muted">

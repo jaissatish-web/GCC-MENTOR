@@ -1,6 +1,6 @@
 'use client'
 import { formatTrackerDate } from '@/lib/trackerDates'
-import { CAREER_RESUME_BADGE, CAREER_RESUME_NAME, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { useCareerProfileResume } from '@/lib/useCareerProfileResume'
 
 import Link from 'next/link'
@@ -12,12 +12,11 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { PageShell } from '@/components/layout/PageShell'
 import { BriefcaseIcon, UserCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn, GULF_COUNTRIES, PACKAGE_STATUSES } from '@/lib/utils'
+import { cn, GULF_COUNTRIES } from '@/lib/utils'
 import { StageSelect } from '@/components/package/StageSelect'
 import { getTemplate } from '@/lib/templates'
 import {
   cvReady as isCvReady,
-  emptyStageCounts,
   letterCount,
   mockDone,
   qaReady,
@@ -37,14 +36,8 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
  * founder decision. The row is the JOB — role, employer, country, stage — and
  * the CV and letters are things that job has.
  *
- * PAGED AND SEARCHED ON THE SERVER (audit M08, 2026-09-15). This screen used to
- * download every job with every CV snapshot, letter, Q&A set and interview
- * transcript, then filter in the browser — heavier with every job saved, and on
- * a phone that is the whole problem. It now asks for one page of lightweight
- * summaries (GET /api/packages?view=summary, migration 055). Search and the
- * stage filter run in the database, so a search finds an older job that is not
- * on the page yet; "Load more" reaches the rest. The stage strip's counts come
- * from the server and cover every job.
+ * Lightweight summaries are paged on the server. Search and stage filters
+ * are intentionally absent; the Career Profile resume is always first.
  *
  * SAVED IS NOT APPLIED (audit M07). A new job starts as "Saved · not applied";
  * the user moves it on. Preparation progress (CV, letter, Q&A, mock) is shown
@@ -226,20 +219,20 @@ function ApplicationCard({
           ? { label: CTA.startMockInterview, href: `/mock-interview?package=${id}` }
           : null
   const steps = [
-    { label: NAMES.resume, done: cvReady, href: `/package/${id}` },
-    { label: NAMES.coverLetter, done: letterPresent, href: `/cover-letter?package=${id}` },
-    { label: NAMES.interviewQa, done: qaIsReady, href: `/interview-qa?package=${id}` },
-    { label: NAMES.mockInterview, done: mockIsDone, href: `/mock-interview?package=${id}` },
+    { label: NAMES.resume, count: null, done: cvReady, href: `/package/${id}` },
+    { label: NAMES.coverLetter, count: Math.max(usage?.cover_letter ?? 0, letterCount(pkg)), done: letterPresent, href: `/cover-letter?package=${id}` },
+    { label: NAMES.interviewQa, count: usage ? Math.max(usage.qa, qaIsReady ? 1 : 0) : qaIsReady ? null : 0, done: qaIsReady, href: `/interview-qa?package=${id}` },
+    { label: NAMES.mockInterview, count: usage ? Math.max(usage.mock_started, mockIsDone ? 1 : 0) : mockIsDone ? null : 0, done: mockIsDone, href: `/mock-interview?package=${id}` },
   ]
   const displayName = (pkg.name ?? '').trim() || pkg.target_job_title
 
   return (
     <Dialog.Root open={detailsOpen} onOpenChange={setDetailsOpen}>
-    <article className="ui-surface library-resume-card flex min-w-0 flex-col gap-3 bg-white sm:gap-4">
+    <article data-resume-kind={isRaw ? 'career-profile' : 'optimized'} className="ui-surface library-resume-card flex min-w-0 flex-col gap-3 bg-white sm:gap-4">
       {/* Who and where — the title opens this job's workspace. */}
       <div className="library-resume-card-heading flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0 flex-1">
-          {isRaw ? <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE}</span> : null}
+          {isRaw ? <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold-soft px-3 py-1 type-caption font-semibold text-gold-ink"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE}</span> : null}
           <Link
             href={`/package/${id}`}
             className="block break-words rounded-ctl type-card text-ink underline-offset-4 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
@@ -259,18 +252,20 @@ function ApplicationCard({
       </div>
 
       {/* Preparation for this job: four steps, each one tap away. */}
-      <ol aria-label={`Preparation: ${readyCount} of ${totalCount} ready`} className="mt-auto grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+      <ol aria-label={`Preparation: ${readyCount} of ${totalCount} ready`} className="mt-auto grid grid-cols-1 gap-1.5 min-[360px]:grid-cols-2">
         {steps.map((st) => (
           <li key={st.label} className="min-w-0">
             <Link
               href={st.href}
               className={cn(
-                'flex min-h-11 items-center justify-center gap-1 rounded-ctl border px-1 py-1.5 text-center type-caption font-semibold leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:flex-col sm:gap-0.5',
+                'library-service-row flex min-h-12 items-center justify-between gap-2 rounded-ctl border px-3 py-2 type-helper font-semibold leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
                 st.done ? 'border-ok/30 bg-ok-soft text-ok' : 'border-dashed border-line-strong bg-canvas text-ink-muted hover:border-teal/50',
               )}
             >
-              <span aria-hidden="true">{st.done ? '✓' : '○'}</span>
-              <span className="min-w-0 whitespace-normal break-words text-center">{st.label}</span>
+              {st.label === NAMES.resume ? <span className="flex min-w-0 flex-1 items-center justify-center gap-2"><span aria-hidden="true">{st.done ? '✓' : '○'}</span>{st.label}</span> : <>
+                <span className="min-w-0 break-words">{st.label}</span>
+                <span className="library-service-count" aria-label={st.count === null ? 'Count unavailable' : `${st.count} used`}>{st.count ?? '—'}</span>
+              </>}
               <span className="sr-only">{st.done ? 'ready' : 'not yet'}</span>
             </Link>
           </li>
@@ -382,33 +377,21 @@ export default function TargetJobsPage() {
   const { resume: careerProfileResume, setResume: setCareerProfileResume } = careerResume
   const [items, setItems] = useState<PackageSummary[] | null>(null)
   const [cursor, setCursor] = useState<PackageListPage['next_cursor']>(null)
-  const [counts, setCounts] = useState<Record<PackageStatus, number>>(emptyStageCounts())
   const [total, setTotal] = useState(0)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [opError, setOpError] = useState<string | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null)
-  const [stageFilter, setStageFilter] = useState<PackageStatus | null>(null)
-  const [query, setQuery] = useState('')
-  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [loadingMore, setLoadingMore] = useState(false)
   const [searching, setSearching] = useState(false)
   const [reloadKey, setReloadKey] = useState(0)
   const requestSeq = useRef(0)
 
-  useEffect(() => {
-    const t = window.setTimeout(() => setDebouncedQuery(query.trim()), 300)
-    return () => window.clearTimeout(t)
-  }, [query])
-
-  // First page (and counts) whenever the search or stage changes. A reply that
-  // arrives after a newer request has started is dropped.
+  // Lightweight paged summaries; the base resume is pinned separately.
   useEffect(() => {
     const seq = ++requestSeq.current
     setSearching(true)
     setLoadError(null)
     const qs = new URLSearchParams({ view: 'summary', limit: String(PAGE_SIZE), counts: '1' })
-    if (debouncedQuery) qs.set('q', debouncedQuery)
-    if (stageFilter) qs.set('stage', stageFilter)
     fetch(`/api/packages?${qs.toString()}`, { cache: 'no-store' })
       .then((res) => {
         if (res.ok) return res.json() as Promise<PackageListPage>
@@ -418,7 +401,6 @@ export default function TargetJobsPage() {
         if (seq !== requestSeq.current) return
         setItems(data.packages ?? [])
         setCursor(data.next_cursor)
-        if (data.counts) setCounts(data.counts)
         if (typeof data.total === 'number') setTotal(data.total)
       })
       .catch(() => {
@@ -427,7 +409,7 @@ export default function TargetJobsPage() {
       .finally(() => {
         if (seq === requestSeq.current) setSearching(false)
       })
-  }, [debouncedQuery, stageFilter, reloadKey])
+  }, [reloadKey])
 
   async function loadMore() {
     if (!cursor || loadingMore) return
@@ -435,8 +417,6 @@ export default function TargetJobsPage() {
     setLoadingMore(true)
     setOpError(null)
     const qs = new URLSearchParams({ view: 'summary', limit: String(PAGE_SIZE), before: cursor.before, before_id: cursor.before_id })
-    if (debouncedQuery) qs.set('q', debouncedQuery)
-    if (stageFilter) qs.set('stage', stageFilter)
     try {
       const res = await fetch(`/api/packages?${qs.toString()}`, { cache: 'no-store' })
       if (!res.ok) throw new Error(String(res.status))
@@ -462,7 +442,6 @@ export default function TargetJobsPage() {
       if (!prev || prev.status === next) return
       const apply = (from: PackageStatus, to: PackageStatus) => {
         setItems((list) => (list ? list.map((p) => (p.id === id ? { ...p, status: to } : p)) : list))
-        setCounts((c) => ({ ...c, [from]: Math.max(0, c[from] - 1), [to]: c[to] + 1 }))
       }
       // Optimistic update, then reconcile on failure.
       apply(prev.status, next)
@@ -527,8 +506,6 @@ export default function TargetJobsPage() {
         return
       }
       setItems((list) => {
-        const gone = list?.find((p) => p.id === id)
-        if (gone) setCounts((c) => ({ ...c, [gone.status]: Math.max(0, c[gone.status] - 1) }))
         return list ? list.filter((p) => p.id !== id) : list
       })
       setTotal((t) => Math.max(0, t - 1))
@@ -566,10 +543,11 @@ export default function TargetJobsPage() {
   }
 
   const list = items ?? []
-  const filtering = Boolean(debouncedQuery) || stageFilter !== null
   const raw = careerResume.resume
-  const rawMatches = raw && !stageFilter && (!debouncedQuery || `${raw.name || CAREER_RESUME_NAME} Career Profile ${CAREER_RESUME_BADGE}`.toLowerCase().includes(debouncedQuery.toLowerCase()))
-  const resumeList = [...(rawMatches ? [raw] : []), ...list]
+  const resumeList = [
+    ...(raw ? [raw] : list.filter(isCareerProfileResume)),
+    ...list.filter((resume) => !isCareerProfileResume(resume)),
+  ]
 
   return (
     // The shared page frame (2026-09-23): the Library was the one list screen
@@ -589,54 +567,12 @@ export default function TargetJobsPage() {
     >
 
 
-      {/* ONE TOOLBAR (2026-09-24 simplification): search and stage side by
-          side. It was a search card, a four-tile usage block and a ten-column
-          stage strip — three panels before the first job on a phone. */}
-      {total > 0 || raw ? (
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <label className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <span className="sr-only">Search your jobs</span>
-            <input
-              id="library-search"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search role, company, country or name"
-              className="field w-full"
-              maxLength={100}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5 sm:w-[240px]">
-            <span className="sr-only">Filter by stage</span>
-            <select
-              value={stageFilter ?? ''}
-              onChange={(e) => setStageFilter(e.target.value ? (e.target.value as PackageStatus) : null)}
-              className="field"
-            >
-              <option value="">All stages ({total})</option>
-              {PACKAGE_STATUSES.map((st) => (
-                <option key={st.value} value={st.value}>
-                  {st.label} ({counts[st.value as PackageStatus] ?? 0})
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      ) : null}
-      {total > 0 ? (
-        <p className="-mt-2 type-helper text-ink-muted" role="status" aria-live="polite">
-          {searching
-            ? 'Searching all your jobs…'
-            : filtering
-              ? `${list.length}${cursor ? '+' : ''} matching ${list.length === 1 && !cursor ? 'job' : 'jobs'} of ${total}.`
-              : `${total} ${total === 1 ? 'job' : 'jobs'}.`}
-        </p>
-      ) : null}
+      {searching ? <p role="status" className="type-helper text-ink-muted">Loading your resumes…</p> : null}
 
       {opError ? <Alert variant="danger">{opError}</Alert> : null}
       {loadError && items !== null ? <Alert variant="danger">{loadError}</Alert> : null}
 
-      {total === 0 && !raw && careerResume.state === 'missing' && !filtering ? (
+      {total === 0 && !raw && careerResume.state === 'missing' ? (
         <EmptyState
           icon={BriefcaseIcon}
           title="Save your Career Profile to see your resume"
@@ -647,21 +583,6 @@ export default function TargetJobsPage() {
             </Link>
           }
         />
-      ) : null}
-
-      {(total > 0 || raw) && resumeList.length === 0 && !searching ? (
-        <div className="rounded-card border border-line bg-white px-5 py-8 text-center">
-          <p className="type-label text-ink-soft">
-            No jobs match these filters.{' '}
-            <button
-              type="button"
-              onClick={() => { setStageFilter(null); setQuery('') }}
-              className="font-semibold text-teal underline underline-offset-2"
-            >
-              Show all
-            </button>
-          </p>
-        </div>
       ) : null}
 
       <div className="grid gap-5 xl:grid-cols-2 xl:gap-6">

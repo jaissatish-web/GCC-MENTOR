@@ -13,7 +13,6 @@ import {
   SwatchIcon,
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { getTemplate, type TemplateId } from '@/lib/templates'
@@ -47,6 +46,7 @@ import type { CareerProfileFull } from '@/types/careerProfile'
 import type { OptimizedContent, Package, PackageServiceEvent, PackageStatus } from '@/types/package'
 import { TargetJobOverview } from '@/components/package/TargetJobOverview'
 import { ResultsOverview } from '@/components/package/ResultsOverview'
+import { ProfileResumeOverview } from '@/components/package/ProfileResumeOverview'
 import { WorkspaceServiceCards } from '@/components/package/WorkspaceServiceCards'
 import { formatTrackerDate } from '@/lib/trackerDates'
 import { CTA, NAMES, USES } from '@/lib/serviceLabels'
@@ -129,19 +129,21 @@ function WorkspaceTabs({
   tab,
   onChange,
   improveCount,
+  baseResume = false,
 }: {
   tab: WorkspaceTab
   onChange: (t: WorkspaceTab) => void
   improveCount: number
+  baseResume?: boolean
 }) {
   const items: Array<{ key: WorkspaceTab; label: string; short: string; badge?: number }> = [
     { key: 'overview', label: 'Overview', short: 'Overview' },
-    { key: 'improve', label: 'Improve score', short: 'Improve', badge: improveCount || undefined },
+    { key: 'improve', label: baseResume ? 'Improve resume' : 'Improve score', short: 'Improve', badge: improveCount || undefined },
     { key: 'design', label: 'Resume design', short: 'Design' },
     { key: 'tracker', label: 'Tracker', short: 'Tracker' },
   ]
   return (
-    <div role="tablist" aria-label="Job workspace" className="grid grid-cols-4 gap-1 rounded-card border border-line bg-white p-1 shadow-m-1">
+    <div role="tablist" aria-label="Resume workspace" className="grid grid-cols-4 gap-1 rounded-card border border-line bg-white p-1 shadow-m-1">
       {items.map((it) => {
         const active = tab === it.key
         const Icon = TAB_ICONS[it.key]
@@ -353,7 +355,6 @@ function PackageScreenInner({ id }: { id: string }) {
         // when the lock returns it must make the same decision as the PDF route,
         // never its own — see lib/resumeKind.ts.
         setPkg(p)
-        if (isCareerProfileResume(p)) setTab('design')
         setTrackerDraft({
           job_url: p.job_url ?? '',
           application_deadline: p.application_deadline ?? '',
@@ -520,7 +521,7 @@ function PackageScreenInner({ id }: { id: string }) {
   // shipping a download that disagrees with the preview is worse than not
   // shipping one. Re-link it once the generator mirrors the template.
   const cvReady = pkg.optimized_content != null
-  const showOverview = !isFree && cvReady
+  const showOverview = !isRaw && !isFree && cvReady
   const improveCount = (readMatchReport(pkg.match_report)?.suggestions ?? []).filter((sg) => sg.status === 'pending').length
   const letterReady = Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0
   const qaReady = Boolean(pkg.interview_questions?.questions?.length)
@@ -755,14 +756,13 @@ function PackageScreenInner({ id }: { id: string }) {
           package journey plus transient notices, so the page explains what this
           job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-3 pb-8 sm:px-5 lg:gap-3">
-        {isRaw ? (
-          <div className="flex flex-col gap-3"><p className="type-helper text-ink-soft">Edit content in your Career Profile. Save your resume design here. <Link href="/profile?view=settings" className="font-semibold text-teal underline">Choose visible fields</Link></p><PreparationJourney pkg={pkg} current="resume" bare /></div>
-        ) : <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} />}
+        <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} baseResume={isRaw} />
         {/* RESULTS FIRST, AS COLOURED CARDS (founder request 2026-09-17): target
             job, ATS score before → after, summary, what changed, next steps.
             components/package/ResultsOverview.tsx. */}
         {tab === 'overview' ? (
         <>
+        {isRaw ? <ProfileResumeOverview /> : null}
         {!isRaw && !showOverview ? <TargetJobOverview pkg={pkg} /> : null}
         {showOverview ? (
           <ResultsOverview
@@ -803,9 +803,10 @@ function PackageScreenInner({ id }: { id: string }) {
 
         </>
         ) : null}
-        {tab === 'overview' || isRaw ? <WorkspaceServiceCards pkg={pkg} /> : null}
+        {tab === 'overview' ? <WorkspaceServiceCards pkg={pkg} /> : null}
 
-        {tab === 'improve' ? (
+        {tab === 'improve' && isRaw ? <ProfileResumeOverview improving /> : null}
+        {tab === 'improve' && !isRaw ? (
         <>
         {/* Before -> after match score (docs/17_OPTIMIZER_ENGINE.md §5). Only
             on packages built by the optimizer engine; older ones have none. */}
@@ -821,16 +822,12 @@ function PackageScreenInner({ id }: { id: string }) {
           for (const w of profile?.work_experience ?? []) roleNames[w.id] = `your role at ${w.company}`
           return (
             <>
-              <details className="group rounded-card border border-line bg-white shadow-m-1">
-                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 type-label font-semibold text-ink">
-                  <span>{NAMES.atsScore} details: score parts, why it fits, what is missing</span>
-                  <span className="type-helper text-teal group-open:hidden">Show</span>
-                  <span className="hidden type-helper text-teal group-open:inline">Hide</span>
-                </summary>
+              <section aria-label="ATS score details" className="rounded-card border border-line bg-white shadow-m-1">
+                <h2 className="px-4 py-3 type-card font-semibold text-ink">{NAMES.atsScore} details</h2>
                 <div className="px-1 pb-1">
                   <MatchResult report={report} packageId={id} roleNames={roleNames} />
                 </div>
-              </details>
+              </section>
               <SuggestionsPanel
                 report={report}
                 roleNames={roleNames}
@@ -873,7 +870,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
         {tab === 'overview' ? (
         <>
-        {!showOverview ? (
+        {!isRaw && !showOverview ? (
         <section className="rounded-card border border-line bg-white p-3 shadow-m-1 sm:p-4">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -908,7 +905,8 @@ function PackageScreenInner({ id }: { id: string }) {
         </>
         ) : null}
 
-        {tab === 'tracker' ? (
+        {tab === 'tracker' && isRaw ? <div className="rounded-card border border-line bg-white p-5 type-body text-ink-soft">This is your base resume. Track applications inside each job-specific resume’s workspace.</div> : null}
+        {tab === 'tracker' && !isRaw ? (
         <>
         <section className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
           <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
@@ -1050,7 +1048,7 @@ function PackageScreenInner({ id }: { id: string }) {
         {tab === 'overview' ? (
         <>
         {/* The next things this job needs, from the job's own page. */}
-        {!isFree && !showOverview && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
+        {!isRaw && !isFree && !showOverview && !(Array.isArray(pkg.cover_letters) && pkg.cover_letters.length > 0) ? (
           <div className="flex flex-col gap-2 rounded-card border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="type-helper text-ink-soft">
               <strong className="text-ink">Next for this job:</strong> a cover letter, written from your optimized resume
@@ -1065,7 +1063,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         ) : null}
 
-        {!isFree && !showOverview && cvReady && !qaReady ? (
+        {!isRaw && !isFree && !showOverview && cvReady && !qaReady ? (
           <div className="flex flex-col gap-2 rounded-card border border-teal/30 bg-teal-soft/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="type-helper text-ink-soft">
               <strong className="text-ink">Interview prep:</strong> up to 25 practice answers from this
@@ -1080,7 +1078,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
         ) : null}
 
-        {!isFree && !showOverview && cvReady && qaReady && !mockReady ? (
+        {!isRaw && !isFree && !showOverview && cvReady && qaReady && !mockReady ? (
           <div className="flex flex-col gap-2 rounded-card border border-gold/40 bg-gold-soft/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="type-helper text-ink-soft">
               <strong className="text-ink">Practice next:</strong> run a text mock interview for this resume and save the final report.

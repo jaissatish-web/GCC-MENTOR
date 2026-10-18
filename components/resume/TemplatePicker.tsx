@@ -118,6 +118,7 @@ export function TemplatePicker({
   previewOpen,
   onPreviewOpenChange,
   showPreviewButton = true,
+  showIntroduction = true,
 }: {
   document: ResumeDocument
   current: TemplateId
@@ -127,6 +128,7 @@ export function TemplatePicker({
   previewOpen?: boolean
   onPreviewOpenChange?: (open: boolean) => void
   showPreviewButton?: boolean
+  showIntroduction?: boolean
 }) {
   const [hovered, setHovered] = useState<TemplateId | null>(null)
   const [purpose, setPurpose] = useState<TemplatePurpose>('all')
@@ -181,7 +183,7 @@ export function TemplatePicker({
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <p className="type-helper text-ink-muted">Your content stays the same. Choose a design for how you will apply.</p>
+      {showIntroduction ? <p className="type-helper text-ink-muted">Your content stays the same. Choose a design for how you will apply.</p> : null}
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filter resume designs">
         {([['recommended', 'Recommended'], ['all', 'All designs'], ['ats', 'ATS · Single column'], ['photo', 'Optional photo'], ['senior', 'Senior & executive'], ['entry', 'Early career']] as const).map(([value, label]) => (
           <button type="button" key={value} aria-pressed={purpose === value} onClick={() => setPurpose(value)} className={cn('min-h-11 rounded-ctl border px-3 type-caption font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal', purpose === value ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink-soft')}>{label}</button>
