@@ -14,6 +14,10 @@
 .connector { position:relative; height:30px; width:2px; margin:0 auto; background:rgb(var(--ui-brand-rgb) / .2); overflow:hidden; }
 .connector::after { content:''; position:absolute; left:0; top:-10px; width:2px; height:10px; border-radius:2px; background:rgb(var(--ui-accent-ink-rgb)); animation:travel 2.8s ease-in-out infinite; }
 .tree { position:relative; }
+.jobBranches { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.jobButton { min-width:0; min-height:64px; padding:12px; text-align:left; overflow-wrap:anywhere; border:1px solid var(--ui-line); border-radius:var(--ui-control-radius); background:var(--ui-surface); color:var(--ui-brand); font-size:var(--ui-helper-size); }
+.jobButton:hover,.selectedJob { background:var(--ui-brand-soft); border-color:var(--ui-brand); }
+.jobButton:focus-visible { outline:2px solid var(--ui-brand); outline-offset:3px; }
 .node { position:relative; min-width:0; border:1px solid rgb(var(--ui-brand-rgb) / .2); border-radius:var(--ui-card-radius); padding:12px; background:var(--ui-surface); border-top:1px solid var(--ui-line); }
  .node :global(.text-teal),.node :global(.text-gold-ink) { color:var(--service-ink,var(--ui-brand)); }
 .node h4 { line-height:1.4; }
@@ -41,6 +45,7 @@
   .route { grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-top:12px; }
   .routeStop { justify-content:flex-start; padding:6px 10px; }
   .branch { grid-template-columns:minmax(0,1fr); padding-top:0; gap:12px; }
+  .jobBranches { grid-template-columns:minmax(0,1fr); }
   .branch::before { display:none; }
   .connector { height:20px; }
   .heroTitle { max-width:24ch; }

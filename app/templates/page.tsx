@@ -42,6 +42,7 @@ function TemplatesInner() {
   const [packages, setPackages] = useState<Array<Pick<PackageSummary, 'id' | 'name' | 'template_id' | 'target_job_title'>> | null>(null)
   const [selectedId, setSelectedId] = useState<string>('')
   const [templateId, setTemplateId] = useState<TemplateId>(DEFAULT_TEMPLATE_ID)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const didInit = useRef(false)
 
@@ -95,47 +96,67 @@ function TemplatesInner() {
           Selected: <strong className="text-ink">{templateName}</strong>
         </p>
 
-        {packages === null ? (
-          <span className="text-[12px] text-ink-muted">Loading your resumes…</span>
-        ) : hasResumes ? (
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <label className="sr-only" htmlFor="resume-select">
-              Resume to preview
-            </label>
-            <select
-              id="resume-select"
-              value={selectedId}
-              onChange={(e) => setSelectedId(e.target.value)}
-              className="field w-full min-w-0 max-w-full sm:w-auto sm:max-w-[320px]"
-            >
-              {packages.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {resumeLabel(p)}
-                </option>
-              ))}
-            </select>
+        <div className="flex min-w-0 flex-col gap-2 sm:items-end">
+          {packages === null ? (
+            <span className="text-[12px] text-ink-muted">Loading your resumes…</span>
+          ) : hasResumes ? (
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <label className="sr-only" htmlFor="resume-select">
+                Resume to preview
+              </label>
+              <select
+                id="resume-select"
+                value={selectedId}
+                onChange={(e) => setSelectedId(e.target.value)}
+                className="field w-full min-w-0 max-w-full sm:w-auto sm:max-w-[320px]"
+              >
+                {packages.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {resumeLabel(p)}
+                  </option>
+                ))}
+              </select>
+              <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setPreviewOpen(true)}
+                  className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+                >
+                  View selected design full size
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      `/package/${encodeURIComponent(selectedId)}?template=${encodeURIComponent(templateId)}`,
+                    )
+                  }
+                  disabled={!selectedId}
+                  className={buttonVariants({ variant: 'primary', size: 'sm' })}
+                >
+                  Preview my resume
+                </button>
+              </div>
+            </div>
+          ) : (
+            <span className="text-[13px] text-ink-soft">
+              To see these with your own details,{' '}
+              <Link href="/optimize/target" className="font-semibold text-teal underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
+                {CTA.addTargetJob.toLowerCase()}
+              </Link>{' '}
+              first.
+            </span>
+          )}
+          {!hasResumes ? (
             <button
               type="button"
-              onClick={() =>
-                router.push(
-                  `/package/${encodeURIComponent(selectedId)}?template=${encodeURIComponent(templateId)}`,
-                )
-              }
-              disabled={!selectedId}
-              className={buttonVariants({ variant: 'primary', size: 'sm' })}
+              onClick={() => setPreviewOpen(true)}
+              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
             >
-              Preview my resume
+              View selected design full size
             </button>
-          </div>
-        ) : (
-          <span className="text-[13px] text-ink-soft">
-            To see these with your own details,{' '}
-            <Link href="/optimize/target" className="font-semibold text-teal underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
-              {CTA.addTargetJob.toLowerCase()}
-            </Link>{' '}
-            first.
-          </span>
-        )}
+          ) : null}
+        </div>
       </div>
 
       {error ? (
@@ -148,6 +169,9 @@ function TemplatesInner() {
         document={SAMPLE_RESUME_DOCUMENT}
         current={templateId}
         onSelect={(id) => setTemplateId(id)}
+        previewOpen={previewOpen}
+        onPreviewOpenChange={setPreviewOpen}
+        showPreviewButton={false}
       />
 
       <p className="text-center text-[12px] text-ink-muted">
