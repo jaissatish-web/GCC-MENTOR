@@ -185,13 +185,13 @@ export function ResumeImport({
           </span>
           <div className="flex min-w-0 flex-col gap-0.5">
             <h2 className="text-[14.5px] font-bold text-ink">Your profile is already created</h2>
-            <p className="text-[12.5px] leading-relaxed text-ink-soft">
+            <p className="type-helper leading-relaxed text-ink-soft">
               {exhausted
                 ? limitReachedText
                 : 'Got a newer resume? Recreate your profile from it — nothing changes until you choose what to keep.'}
             </p>
             {quota && !exhausted ? (
-              <p className="text-[12px] font-semibold text-ink-muted">
+              <p className="type-helper font-semibold text-ink-muted">
                 {quota.remaining} of {quota.limit} recreation{quota.limit === 1 ? '' : 's'} left this month
               </p>
             ) : null}
@@ -229,13 +229,13 @@ export function ResumeImport({
           <h2 className="text-[14.5px] font-bold text-ink">
             {recreating ? 'Recreate your profile' : 'Fill this in from your resume'}
           </h2>
-          <p className="text-[12.5px] leading-relaxed text-ink-soft">
+          <p className="type-helper leading-relaxed text-ink-soft">
             {recreating
               ? 'Upload or paste a newer resume, or edit the form yourself. Nothing changes until you choose what to keep.'
               : 'Upload or paste your resume and we fill the form in for you.'}
           </p>
           {recreating && quota && !exhausted ? (
-            <p className="text-[12px] font-semibold text-ink-muted">
+            <p className="type-helper font-semibold text-ink-muted">
               {quota.remaining} of {quota.limit} recreation{quota.limit === 1 ? '' : 's'} left this month
             </p>
           ) : null}
@@ -267,7 +267,7 @@ export function ResumeImport({
         // None left this month (e.g. arrived by a deep link): say when they
         // come back, and leave the one way in that costs nothing.
         <div className="mt-3.5 flex flex-col gap-2.5">
-          <p className="rounded-ctl border border-line bg-white px-3.5 py-3 text-[12.5px] leading-relaxed text-ink-soft">
+          <p className="rounded-ctl border border-line bg-white px-3.5 py-3 type-helper leading-relaxed text-ink-soft">
             {limitReachedText}
           </p>
           <button
@@ -356,7 +356,7 @@ export function ResumeImport({
                   chooseFile(selected)
                 }}
               />
-              <p className="text-[13px] text-ink-soft">Drop your resume here, or</p>
+              <p className="type-helper text-ink-soft">Drop your resume here, or</p>
               <button
                 type="button"
                 onClick={() => fileInput.current?.click()}
@@ -364,7 +364,7 @@ export function ResumeImport({
               >
                 Choose a file
               </button>
-              <p className="mt-2 text-[12px] text-ink-muted">PDF up to 4MB · Word (.docx) up to 2MB</p>
+              <p className="mt-2 type-helper text-ink-muted">PDF up to 4MB · Word (.docx) up to 2MB</p>
             </div>
           ) : null}
 

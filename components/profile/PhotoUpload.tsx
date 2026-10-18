@@ -145,7 +145,7 @@ export function PhotoUpload({
         ) : null}
 
         {error ? (
-          <p role="alert" className="max-w-[120px] text-center text-[12px] font-medium text-alert">
+          <p role="alert" className="max-w-[120px] text-center type-helper font-medium text-alert">
             {error}
           </p>
         ) : null}
@@ -175,7 +175,7 @@ export function PhotoUpload({
               Gulf resume photo tip
             </span>
           </div>
-          <p className="text-[12px] leading-snug text-ink-muted">
+          <p className="type-helper leading-snug text-ink-muted">
             Passport-style, plain background. Used on your resume wherever the template has a photo
             slot. JPG, PNG or WebP, up to 5MB.
           </p>
@@ -220,7 +220,7 @@ export function PhotoUpload({
       </div>
 
       {error ? (
-        <p role="alert" className="text-[12px] font-medium text-alert">
+        <p role="alert" className="type-helper font-medium text-alert">
           {error}
         </p>
       ) : null}

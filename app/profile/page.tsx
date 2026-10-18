@@ -2085,7 +2085,7 @@ function ProfileScreen() {
   // ---- Completeness ---------------------------------------------------------
   if (view === 'completeness') {
     return (
-      <main className={MAIN_CLASS}>
+      <main data-ui-service="profile" className={MAIN_CLASS}>
         <ViewHeader
           eyebrow="Completeness"
           title="Profile completeness"
@@ -2110,7 +2110,7 @@ function ProfileScreen() {
   // ---- Gulf Readiness -------------------------------------------------------
   if (view === 'readiness') {
     return (
-      <main className={MAIN_CLASS}>
+      <main data-ui-service="profile" className={MAIN_CLASS}>
         <ViewHeader
           eyebrow="Gulf Readiness"
           title="Gulf Readiness"
@@ -2137,7 +2137,7 @@ function ProfileScreen() {
   // ---- Profile settings (what appears on the CV) ----------------------------
   if (view === 'settings') {
     return (
-      <main className={MAIN_CLASS}>
+      <main data-ui-service="profile" className={MAIN_CLASS}>
         <ViewHeader
           eyebrow="Settings"
           title="Profile settings"
@@ -2159,7 +2159,7 @@ function ProfileScreen() {
   if (view === 'overview') {
     const vis = visibilitySummary(editor.field_visibility)
     return (
-      <main className={MAIN_CLASS}>
+      <main data-ui-service="profile" className={MAIN_CLASS}>
         <header className="workspace-heading page-gutter flex flex-col gap-4 pb-5 pt-6 sm:pt-8">
           <GulfContext />
           <div className="flex items-center gap-4">
@@ -2299,7 +2299,7 @@ function ProfileScreen() {
 
   // ---- The full profile (view === 'details') --------------------------------
   return (
-    <main className={MAIN_CLASS}>
+    <main data-ui-service="profile" className={MAIN_CLASS}>
       <ViewHeader
         eyebrow="Full profile"
         title="Your full profile"

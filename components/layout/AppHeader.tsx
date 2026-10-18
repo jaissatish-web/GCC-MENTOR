@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { UserCircleIcon } from '@heroicons/react/24/outline'
 import { ServicesMenu } from './ServicesMenu'
 
 /**
@@ -35,7 +36,7 @@ export function AppHeader() {
     // was a second logo and a second menu above each page. Below 1024px it is
     // still the way home and the founder's "three-bar" to every service.
     <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur-md lg:hidden">
-      <div className={`mx-auto flex ${home ? 'h-12' : 'h-14'} max-w-[1400px] items-center gap-3 px-4 sm:px-6`}>
+      <div className={`mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-4 sm:px-6`}>
         {/* The whole lockup is one target, not just the mark — a one-character
             square is a precise tap, and this is the most-used escape hatch in
             the product. */}
@@ -50,9 +51,10 @@ export function AppHeader() {
           >
             G
           </span>
-          <span className="flex flex-col"><span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink">GCC MENTOR</span>{home ? null : <span className="text-[12px] leading-4 text-ink-muted">Your Gulf career workspace</span>}</span>
+          <span className="flex flex-col"><span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink">GCC <span className="text-teal">MENTOR</span></span>{home ? null : <span className="text-[12px] leading-4 text-ink-muted">Your Gulf career workspace</span>}</span>
         </Link>
 
+        <Link href="/settings" aria-label="Account settings" className="ml-auto flex size-11 items-center justify-center rounded-ctl text-ink-soft hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal md:hidden"><UserCircleIcon aria-hidden="true" className="size-6" /></Link>
         <div className="ml-auto hidden md:block"><ServicesMenu /></div>
       </div>
     </header>

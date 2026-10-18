@@ -361,7 +361,7 @@ function SetupScreen() {
 
   return (
     <main className="flex min-h-dvh flex-col font-redesign-sans">
-      <div className="mx-auto flex w-full max-w-[760px] flex-1 flex-col gap-5 px-3 py-6 sm:px-8 lg:py-10">
+      <div className="mx-auto flex w-full max-w-[760px] flex-1 flex-col gap-6 px-4 py-6 sm:px-8 lg:py-10">
         <FlowHeader
           step={2}
           onBack={() => router.push('/optimize/target')}

@@ -82,3 +82,45 @@
 @media(prefers-reduced-motion:reduce){.disclosureChevron{transition:none}}
 
 .secondarySuggestion{display:flex;flex-wrap:wrap;align-items:center;gap:0 12px;margin-top:12px;padding-top:10px;border-top:1px solid var(--home-border,#d3e1dc)}.secondarySuggestion>span{font-size:13px;line-height:1.5;color:var(--ui-muted);overflow-wrap:anywhere}
+
+/* Home rollout: the same hierarchy and service cards as the approved board. */
+.page.page{--home-border:var(--ui-line);--home-soft:#edf6f2;gap:24px;font-size:16px}
+.pageHeading{align-items:flex-start;padding-block:4px 0}
+.pageHeading h1{font-size:26px;font-weight:700;line-height:1.25}
+.pageHeading p{font-size:16px;margin-top:8px;max-width:48ch;line-height:1.6}
+.profile,.followThrough,.savedPanel,.datesPanel,.disclosureCard{border-radius:16px;box-shadow:var(--ui-card-shadow)}
+.profile,.followThrough,.savedPanel{padding:20px}
+.foundationHeading h2,.savedHeading h2{font-size:20px}
+.foundationHeading p,.identityText,.profileNote,.workflow p{font-size:14px}
+.intro,.profileNext>p,.nextDescription,.workspaceName{font-size:16px;line-height:1.65}
+.nextEyebrow,.startLabel{font-size:12px;letter-spacing:.06em}
+.followThrough>h2{font-size:22px;line-height:1.35;margin-top:8px}
+.continueActions>a:first-child,.continueActions>button{min-height:48px}
+.savedHeading{margin-bottom:12px}
+.saved{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.savedRow{position:relative;display:grid;grid-template-columns:1fr auto;align-content:start;gap:12px 4px;min-width:0;min-height:146px;padding:16px;border:1px solid var(--ui-line);border-radius:12px;color:var(--service-ink);background:white}
+.savedRow+.savedRow{border-top:1px solid var(--ui-line)}
+.savedRow:hover{border-color:var(--service-ink);background:var(--service-soft)}
+.savedIcon{width:40px;height:40px;border-radius:12px;background:var(--service-soft);color:var(--service-ink)}
+.savedLabel{grid-column:1/-1;font-size:16px;font-weight:600;line-height:1.45}
+.savedCount{grid-column:2;grid-row:1;align-self:center;color:var(--service-ink);font-size:18px;font-weight:600}
+.savedRow>svg:last-child{position:absolute;right:14px;bottom:16px;width:14px;height:14px}
+.savedRow .savedLabel{padding-right:14px}
+.disclosureCard>summary,.datesSummary h2{font-size:16px}
+.profileControls>.action,.profileToggle{font-size:14px}
+@media(min-width:640px){.page.page{gap:24px}.pageHeading h1{font-size:32px}.profile,.followThrough,.savedPanel{padding:24px}.foundationHeading h2,.savedHeading h2{font-size:24px}.saved{grid-template-columns:repeat(4,minmax(0,1fr))}.savedRow{min-height:156px}.followThrough>h2{font-size:24px}}
+@media(max-width:359px){.profile,.followThrough,.savedPanel{padding:16px}.saved{gap:8px}.savedRow{padding:12px}.savedLabel{font-size:14px}}
+
+.preparationDetails{margin-top:12px;border-top:1px solid var(--home-border)}
+.preparationDetails>summary{display:flex;align-items:center;justify-content:space-between;min-height:44px;gap:12px;list-style:none;cursor:pointer;font-size:14px;color:var(--ui-brand)}
+.preparationDetails>summary::-webkit-details-marker{display:none}
+.preparationDetails[open]>summary>svg{transform:rotate(180deg)}
+.workspaceName:is(a){display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;color:var(--ui-brand);font-weight:600}
+
+/* Keep the next task and service grid visible early in the mobile flow. */
+.nextEyebrow{font-size:14px;letter-spacing:0;text-transform:none;font-weight:600}
+.resumeContext h2{margin:0;font-size:22px;line-height:1.35;letter-spacing:-.02em}
+.resumeContext .workspaceName{font-size:22px;line-height:1.35;color:var(--ui-ink)}
+.savedPanel{border:0;background:transparent;box-shadow:none;padding:0}
+.savedRow{min-height:132px}
+@media(min-width:640px){.resumeContext h2,.resumeContext .workspaceName{font-size:24px}.savedPanel{padding:0}.savedRow{min-height:144px}}

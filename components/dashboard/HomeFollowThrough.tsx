@@ -56,22 +56,21 @@ export function HomeNextStep({ action, packages, ready, error, onRetry }: {
     { label: NAMES.mockInterview, done: Boolean(workspace.mock_completed_run_id), inProgress: workspace.mock_in_progress },
   ] : []
   return <section aria-label="Your next step" className={styles.followThrough} aria-busy={!ready && !error}>
-    <span className={styles.nextEyebrow}>Your next step</span>
-    <h2>{error ? 'Your saved progress could not be loaded' : !ready ? 'Checking your saved progress…' : resumeInterview ? 'Continue your interview' : copy.title}</h2>
+    <span className={styles.nextEyebrow}>{ready && !error && workspace ? resumeInterview ? 'Continue your interview' : 'Continue your preparation' : 'Your next step'}</span>
+    {!ready || error || !workspace ? <h2>{error ? 'Your saved progress could not be loaded' : !ready ? 'Checking your saved progress…' : resumeInterview ? 'Continue your interview' : copy.title}</h2> : null}
     {ready && !error && workspace ? <div className={styles.resumeContext}>
-      <p className={styles.workspaceName}>{[workspace.target_job_title, workspace.target_company].filter(Boolean).join(' · ')}</p>
+      <h2><Link href={`/package/${encodeURIComponent(workspace.id)}`} aria-label={`Open workspace · ${workspace.target_job_title}`} className={styles.workspaceName}>{[workspace.target_job_title, workspace.target_company].filter(Boolean).join(' · ')}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link></h2>
       {workspace.name && workspace.name !== workspace.target_job_title ? <p className={styles.workspaceLabel}>{workspace.name}</p> : null}
     </div> : null}
-    <p className={styles.nextDescription}>{resumeInterview ? <ClockIcon aria-hidden="true" className="size-4 shrink-0" /> : null}<span>{error ? 'Try again to see where to continue.' : !ready ? 'Finding the next action from your saved profile and workspaces.' : resumeInterview ? progress : copy.body}</span></p>
+    {!ready || error || !workspace ? <p className={styles.nextDescription}>{error ? 'Try again to see where to continue.' : !ready ? 'Finding the next action from your saved profile and workspaces.' : copy.body}</p> : null}
     <div className={styles.continueActions}>
       {error ? <button type="button" className={buttonVariants({ variant: 'primary' })} onClick={onRetry}>Try again</button> : ready ? <Link href={action.href} className={buttonVariants({ variant: 'primary' })}>{action.state === 'no_profile' ? 'Create Career Profile' : resumeInterview ? 'Continue interview' : action.cta}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link> : null}
-      {ready && !error && workspace ? <Link href={`/package/${encodeURIComponent(workspace.id)}`} className={styles.contextLink}>Open workspace <ArrowRightIcon aria-hidden="true" className="size-4" /></Link> : null}
     </div>
     {ready && !error && secondary ? <div className={styles.secondarySuggestion}>
       <span>Next suggested step{suggestedWorkspace && suggestedWorkspace.id !== workspace?.id ? ` · ${suggestedWorkspace.target_job_title}` : ''}</span>
       <Link href={suggestedAction.href} className={styles.contextLink}>{suggestedAction.cta}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
     </div> : null}
-    {ready && !error && workspace ? <ul aria-label="Saved preparation status" className={styles.preparationStatus}>{steps.map(step => <li key={step.label}>{step.done && !step.inProgress ? <CheckCircleIcon aria-hidden="true" className="size-4 shrink-0" /> : <ClockIcon aria-hidden="true" className="size-4 shrink-0" />}<span>{step.label}: {step.inProgress ? 'In progress' : step.done ? 'Ready' : 'To prepare'}</span></li>)}</ul> : ready && !error ? <p className={styles.nextContext}>{copy.label}</p> : null}
+    {ready && !error && workspace ? <details className={styles.preparationDetails}><summary>Preparation details<ChevronDownIcon aria-hidden="true" className={styles.disclosureChevron} /></summary><p className={styles.nextDescription}>{resumeInterview ? progress : `${copy.title} ${copy.body}`}</p><ul aria-label="Saved preparation status" className={styles.preparationStatus}>{steps.map(step => <li key={step.label}>{step.done && !step.inProgress ? <CheckCircleIcon aria-hidden="true" className="size-4 shrink-0" /> : <ClockIcon aria-hidden="true" className="size-4 shrink-0" />}<span>{step.label}: {step.inProgress ? 'In progress' : step.done ? 'Ready' : 'To prepare'}</span></li>)}</ul></details> : ready && !error ? <p className={styles.nextContext}>{copy.label}</p> : null}
   </section>
 }
 

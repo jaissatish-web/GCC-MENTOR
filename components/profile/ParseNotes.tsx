@@ -69,10 +69,10 @@ export function ParseNotes({
     <div className="mx-5 mt-4 rounded-ctl border border-gold-line bg-gold-bg px-4 py-3" role="status">
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[13px] font-semibold text-ink">
+          <p className="type-helper font-semibold text-ink">
             We read your resume. Please check {notes.length === 1 ? 'this one thing' : `these ${notes.length} things`}:
           </p>
-          <p className="text-[12px] text-ink-soft">Everything else was found in your resume as written.</p>
+          <p className="type-helper text-ink-soft">Everything else was found in your resume as written.</p>
         </div>
         <button
           type="button"

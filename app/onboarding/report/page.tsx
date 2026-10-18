@@ -78,9 +78,9 @@ export default function OnboardingReportPage() {
 
       <div className="mx-auto max-w-[820px] px-3 py-12 sm:px-8 lg:py-16">
         <div className="mb-6 text-center">
-          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your full Gulf readiness report</p>
+          <p className="type-helper font-bold uppercase tracking-[0.2em] text-teal">Your full Gulf readiness report</p>
           <h1 className="mt-3 type-title">Unlocked — here&rsquo;s everything we found</h1>
-          <p className="mx-auto mt-3 max-w-md text-[14px] leading-relaxed text-ink-soft">
+          <p className="mx-auto mt-3 max-w-md type-body leading-relaxed text-ink-soft">
             Every dimension, and your ranked action plan. Next we build your Career Profile so you can act on it.
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function OnboardingReportPage() {
 
         <div className="mt-8 rounded-card border border-teal/40 bg-gold-soft/40 p-6 text-center sm:p-8">
           <h2 className="font-display text-2xl text-ink">Now let&rsquo;s build your Career Profile</h2>
-          <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-ink-soft">
+          <p className="mx-auto mt-2 max-w-md type-helper leading-relaxed text-ink-soft">
             We already have your resume. We read it once, free — then you check and correct everything.
           </p>
           <div className="mt-5">

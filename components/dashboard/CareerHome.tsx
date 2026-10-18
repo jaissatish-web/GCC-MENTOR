@@ -94,13 +94,13 @@ export function HomeProfile({ profile, loading, error, missingLabels = [], score
 
 export function HomeSavedWork({ overview, loading, error, onRetry }: { overview: DashboardOverview | null; loading: boolean; error: boolean; onRetry: () => void }) {
   const rows = [
-    { label: 'Resumes', href: '/dashboard/library', count: overview?.resume_count, Icon: DocumentTextIcon },
-    { label: 'Cover letters', href: '/cover-letter', count: overview?.cover_letter_count, Icon: EnvelopeIcon },
-    { label: 'Interview Q&A', href: '/interview-qa', count: overview?.qa_set_count, Icon: QuestionMarkCircleIcon },
-    { label: 'Mock interviews', href: '/mock-interview', count: overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon },
+    { label: 'Resumes', href: '/dashboard/library', tone: 'tailor', count: overview?.resume_count, Icon: DocumentTextIcon },
+    { label: 'Cover letters', href: '/cover-letter', tone: 'letter', count: overview?.cover_letter_count, Icon: EnvelopeIcon },
+    { label: 'Interview Q&A', href: '/interview-qa', tone: 'qa', count: overview?.qa_set_count, Icon: QuestionMarkCircleIcon },
+    { label: 'Mock interviews', href: '/mock-interview', tone: 'mock', count: overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon },
   ]
   return <section aria-labelledby="saved-work-heading" className={styles.savedPanel}><div className={styles.savedHeading}><h2 id="saved-work-heading">Your saved work</h2><Link href="/dashboard/library" aria-label="View your Resume Library" className={styles.action}><ChevronRightIcon aria-hidden="true" className="size-5" /></Link></div>
     {error ? <div role="alert" className="mb-3 rounded-ctl bg-alert-soft p-3 type-helper text-alert">Saved totals could not be loaded. <button type="button" onClick={onRetry} className="min-h-11 underline">Try again</button></div> : null}
-    <div aria-busy={loading} className={styles.saved}>{rows.map(({ label, href, count, Icon }) => <Link href={href} key={href} className={styles.savedRow}><span aria-hidden="true" className={styles.savedIcon}><Icon className="size-5" /></span><span className={styles.savedLabel}>{label}</span><span className={styles.savedCount}>{!loading && !error && count !== undefined ? count : '—'}</span><ChevronRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>)}</div>
+    <div aria-busy={loading} className={styles.saved}>{rows.map(({ label, href, count, Icon, tone }) => <Link href={href} key={href} data-ui-service={tone} className={styles.savedRow}><span aria-hidden="true" className={styles.savedIcon}><Icon className="size-5" /></span><span className={styles.savedLabel}>{label}</span><span className={styles.savedCount}>{!loading && !error && count !== undefined ? count : '—'}</span><ChevronRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>)}</div>
   </section>
 }

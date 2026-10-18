@@ -41,7 +41,7 @@ export function MatchResult({
     <section className="flex flex-col gap-4 rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+          <p className="type-helper font-bold uppercase tracking-[0.12em] text-ink-muted">
             {estimate ? `${NAMES.atsScore} · estimate (no job description)` : `${NAMES.atsScore} for this job`}
           </p>
           <h2 className="font-display text-[18px] leading-tight text-ink">
@@ -75,7 +75,7 @@ export function MatchResult({
 
       {report.why_fits && report.why_fits.length > 0 ? (
         <div className="flex flex-col gap-1.5">
-          <p className="text-[12.5px] font-semibold text-ink">Why this resume fits {report.target.job_title}</p>
+          <p className="type-helper font-semibold text-ink">Why this resume fits {report.target.job_title}</p>
           <ul className="flex flex-col gap-1">
             {report.why_fits.map((w) => (
               <li key={w.term} className="text-[12.5px] leading-relaxed text-ink-soft">
@@ -91,7 +91,7 @@ export function MatchResult({
           failed the proof checks, and a part the writing service never
           answered for. The second used to be explained as the first. */}
       {kept.some((k) => k.reason !== 'no_output') ? (
-        <p className="rounded-ctl border border-line bg-canvas px-3 py-2 text-[12px] leading-relaxed text-ink-soft">
+        <p className="rounded-ctl border border-line bg-canvas px-3 py-2 type-helper leading-relaxed text-ink-soft">
           <strong className="text-ink">Kept your own wording:</strong>{' '}
           {kept
             .filter((k) => k.reason !== 'no_output')
@@ -101,7 +101,7 @@ export function MatchResult({
         </p>
       ) : null}
       {kept.some((k) => k.reason === 'no_output') ? (
-        <p className="rounded-ctl border border-gold/50 bg-gold-soft px-3 py-2 text-[12px] leading-relaxed text-gold-ink">
+        <p className="rounded-ctl border border-gold/50 bg-gold-soft px-3 py-2 type-helper leading-relaxed text-gold-ink">
           <strong>Not rewritten this time:</strong>{' '}
           {kept
             .filter((k) => k.reason === 'no_output')
@@ -121,7 +121,7 @@ export function MatchResult({
           </summary>
           <div className="mt-2 flex flex-col gap-1.5">
             <KeywordChips items={report.gaps.slice(0, 12)} tone="gap" />
-            <p className="text-[12px] leading-relaxed text-ink-soft">
+            <p className="type-helper leading-relaxed text-ink-soft">
               If you have genuinely done any of these, add them to your{' '}
               <Link href="/profile" className="font-semibold text-teal underline-offset-2 hover:underline">
                 Career Profile

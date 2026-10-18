@@ -1,6 +1,6 @@
 # GCC Mentor — emerald-led service palette
 
-This visual direction keeps emerald as the primary action colour while using stable service accents for recognition. Implemented in the shared UI tokens and the guide/Tools pilot. Existing product routes, account access, scoring, AI prompts and document generation remain unchanged. A platform-wide page-by-page layout redesign is a separate rollout.
+This visual direction keeps emerald as the primary action colour while using stable service accents for recognition. Applied through the shared application shell, headings, forms, cards, service pages, authentication, Home and landing surfaces. Product routes, account access, scoring, AI prompts and document generation remain unchanged.
 
 | Role | Colour | Use |
 | --- | --- | --- |
@@ -12,12 +12,14 @@ This visual direction keeps emerald as the primary action colour while using sta
 | Amber | #92400E with #FEF3C7 | Resume templates |
 | Coral | #BE123C with #FFE4E6 | Cover letters |
 | Indigo | #4338CA with #E0E7FF | Interview Q&A |
-| Violet | #A21CAF with #FAE8FF | Mock interviews |
+| Violet | #7E22CE with #F3E8FF | Mock interviews |
 | Blue | #0A66C2 with #DBEAFE | LinkedIn |
 | Orange | #C2410C with #FFEDD5 | NaukriGulf |
 | Chart blue / gold | #3069AB / #9E701E | Answer structure / technical coverage |
 
-Typography uses the existing Inter/system stack. Main UI body text is 15px; inputs remain 16px. Shared titles use a stronger 650 weight and headings 600. The guide uses 29px mobile and 34px desktop display titles, readable 13–14px descriptions and compact captions for secondary labels. Resume/document typography remains owned by the document renderer.
+Typography uses Inter throughout the product. Mobile/desktop title sizes are 26/32px at weight 700, sections 20/24px at 600, card headings 16/18px at 600, body and inputs 16px, labels/buttons/helpers 14px and compact captions 12px. Marketing display headings use their own responsive scale. Resume/document typography remains owned by the document renderer.
+
+Spacing follows the 4/8px scale. Mobile gutters are 16px, page sections 24px apart, working cards have 12–16px corners and primary controls are at least 48px tall. Navigation and secondary actions have 44px minimum touch targets. Colour is paired with icons and text; fields retain visible labels and keyboard focus rings. Main content scrolls normally, with compact navigation rather than large fixed banners.
 
 Service colours belong on icons, tabs, thin borders, small highlights and progress-series keys. Main reading surfaces stay white. Actions keep the same emerald identity across tools.
 

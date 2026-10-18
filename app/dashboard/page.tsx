@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { DocumentTextIcon, ArrowUpRightIcon, Cog6ToothIcon, ChevronDownIcon, MapIcon } from '@heroicons/react/24/outline'
+import { DocumentTextIcon, ArrowUpRightIcon, ChevronDownIcon, MapIcon } from '@heroicons/react/24/outline'
 import { HowItWorks } from '@/components/journey/HowItWorks'
 import { HomeProfile, HomeSavedWork } from '@/components/dashboard/CareerHome'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -145,17 +145,18 @@ export default function DashboardPage() {
   return (
     <div className={`ui-page page-gutter mx-auto flex w-full max-w-[900px] flex-col pb-10 font-redesign-sans ${homeStyles.page}`}>
       <header className={homeStyles.pageHeading}>
-        <div className="min-w-0"><h1>Home</h1><p>{firstName ? `Good ${greeting()}, ${firstName}` : 'Your Gulf career workspace'}</p></div>
-        <Link href="/settings" aria-label="Account settings" className="flex size-11 shrink-0 items-center justify-center rounded-ctl text-ink-soft hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><Cog6ToothIcon className="size-5" aria-hidden="true" /></Link>
+        <div className="min-w-0"><p className="sr-only">{firstName ? `Good ${greeting()}, ${firstName}` : 'Your Gulf career workspace'}</p><h1>Your next move starts here.</h1><p>One profile. A plan for every opening.</p></div>
       </header>
 
-      <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} />
+      {!profile ? <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} /> : null}
       <HomeDateNotice packages={packages} ready={packagesLoaded && !packagesError} now={clock} />
 
       {/* The empty profile already provides Step 1 and its create action. */}
       {!ready || nextAction.state !== 'no_profile' ? <HomeNextStep action={nextAction} packages={packages} ready={ready} error={loadError} onRetry={() => window.location.reload()} /> : null}
 
       <HomeSavedWork overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
+
+      {profile ? <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} /> : null}
 
       {ready && packages.length > 0 ? <details className={`group ${homeStyles.disclosureCard}`}><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink"><span className="flex min-w-0 items-center gap-2"><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0 text-teal" />Recent resumes</span><ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="divide-y divide-line border-t border-line">{packages.slice(0,3).map(item => <Link key={item.id} href={`/package/${encodeURIComponent(item.id)}`} className="flex min-h-16 items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal"><DocumentTextIcon className="size-5 shrink-0 text-teal" aria-hidden="true" /><span className="min-w-0 flex-1"><span className="block break-words type-label text-ink">{item.name || item.target_job_title}</span><span className="block type-caption text-ink-muted">{[item.target_company,item.target_country?.replaceAll('_',' ')].filter(Boolean).join(' · ') || 'Gulf application'}</span></span><ArrowUpRightIcon className="size-4 shrink-0 text-teal" aria-hidden="true" /></Link>)}</div></details> : null}
 

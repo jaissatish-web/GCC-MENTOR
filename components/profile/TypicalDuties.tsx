@@ -42,7 +42,7 @@ export function TypicalDuties({ role, onAdd }: { role: string; onAdd: (lines: st
 
   if (state === 'added') {
     return (
-      <p role="status" className="rounded-ctl border border-teal/30 bg-teal-soft px-3.5 py-3 text-[13px] text-teal">
+      <p role="status" className="rounded-ctl border border-teal/30 bg-teal-soft px-3.5 py-3 type-helper text-teal">
         Added to this job below. Change any wording you like, then press <strong>Save</strong> to keep them.
       </p>
     )
@@ -50,12 +50,12 @@ export function TypicalDuties({ role, onAdd }: { role: string; onAdd: (lines: st
 
   return (
     <div className="flex flex-col gap-3 rounded-ctl border border-gold/50 bg-gold-soft px-3.5 py-3">
-      <p className="text-[13px] leading-relaxed text-ink">
+      <p className="type-helper leading-relaxed text-ink">
         <strong>No duties listed for this job.</strong> Recruiters skip jobs without them, and your optimized resume is written from these
         lines. See the typical duties of a {role} and tick only what you really did.
       </p>
       {error ? (
-        <p role="alert" className="text-[12.5px] text-alert">
+        <p role="alert" className="type-helper text-alert">
           {error}
         </p>
       ) : null}

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Linkedin, BriefcaseBusiness } from 'lucide-react'
 import { PageShell } from '@/components/layout/PageShell'
 import { PROFESSIONAL_PLATFORMS, type ProfessionalPlatform } from '@/lib/professionalProfiles/config'
 
@@ -31,15 +31,15 @@ export function ProfileIntroduction({ platform }: { platform: ProfessionalPlatfo
   const copy = content[platform]
   const other = PROFESSIONAL_PLATFORMS[platform === 'linkedin' ? 'naukrigulf' : 'linkedin']
   const cta = <Link href={`${config.home}/workspace`} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-ctl bg-teal px-5 py-3 text-sm font-semibold text-white hover:bg-teal-dark">Get my {config.name} content<ArrowRight size={18} /></Link>
-  return <PageShell title={`${config.name} Optimization`} subtitle={copy.description} width="wide" actions={cta}>
-    <section aria-labelledby="profile-outputs" className="rounded-card border border-line bg-white p-5">
+  return <PageShell icon={platform === 'linkedin' ? Linkedin : BriefcaseBusiness} eyebrow="Built from your Career Profile" title={`${config.name} Optimization`} subtitle={copy.description} width="wide" actions={cta}>
+    <section aria-labelledby="profile-outputs" className="ui-surface rounded-card border border-line bg-white p-5">
       <h2 id="profile-outputs" className="type-section text-ink">What you get — and where it goes</h2>
       <ul className="mt-4 grid gap-4 sm:grid-cols-2">
-        {copy.outputs.map(([title, detail]) => <li key={title}><h3 className="font-semibold text-ink">{title}</h3><p className="mt-1 text-sm leading-6 text-ink-soft">{detail}</p></li>)}
+        {copy.outputs.map(([title, detail]) => <li key={title}><h3 className="font-semibold text-ink">{title}</h3><p className="mt-1 type-body leading-relaxed text-ink-soft">{detail}</p></li>)}
       </ul>
       <p className="mt-4 border-t border-line pt-4 text-sm leading-6 text-ink-muted">Use your saved Career Profile, choose your target roles, then review and copy each section. Your employer, job title and dates must match your experience. Start a new draft or continue your saved result.</p>
     </section>
-    <details className="rounded-card border border-line bg-white p-5">
+    <details className="ui-surface rounded-card border border-line bg-white p-5">
       <summary className="min-h-11 cursor-pointer content-center font-semibold text-ink">Profile update guidance</summary>
       <div className="mt-3 space-y-4 text-sm leading-6 text-ink-soft">
         {copy.tips.map(([title, detail]) => <p key={title}><strong className="text-ink">{title}.</strong> {detail}</p>)}

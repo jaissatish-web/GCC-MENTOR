@@ -21,8 +21,8 @@ export function ServiceOptions({ title, description, hasSaved, busy, hasError = 
 }) {
   return <details open={!hasSaved || busy || hasError} className="group mt-6 rounded-card border border-line bg-white">
     <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 rounded-card p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:p-5 [&::-webkit-details-marker]:hidden">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-ctl bg-gold-soft text-gold-ink"><PlusIcon className="size-5" aria-hidden="true" /></span>
-      <span className="min-w-0 flex-1"><span className="block type-label font-semibold text-ink">{title}</span><span className="mt-1 block type-caption leading-relaxed text-ink-soft">{description}</span></span>
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-ctl ui-service-icon"><PlusIcon className="size-5" aria-hidden="true" /></span>
+      <span className="min-w-0 flex-1"><span className="block type-label font-semibold text-ink">{title}</span><span className="mt-1 block type-helper leading-relaxed text-ink-soft">{description}</span></span>
       <ChevronDownIcon className="size-5 shrink-0 text-teal transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
     </summary>
     <div className="flex flex-col gap-4 border-t border-line p-4 sm:p-5">{children}</div>

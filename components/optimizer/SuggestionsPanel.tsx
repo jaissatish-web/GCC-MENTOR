@@ -44,17 +44,17 @@ export function SuggestionsPanel({
     <section className="flex flex-col gap-3 rounded-card border border-gold/50 bg-gold-soft/40 p-4 sm:p-5">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-gold-ink">Boost your ATS score</p>
+          <p className="type-helper font-bold uppercase tracking-[0.12em] text-gold-ink">Boost your ATS score</p>
           <h2 className="font-display text-[18px] leading-tight text-ink">
             {pending.length} suggested line{pending.length === 1 ? '' : 's'} for what this job asks
           </h2>
         </div>
-        <p className="text-[13px] text-ink">
+        <p className="type-helper text-ink">
           ATS score now <strong>{after}</strong> → up to <strong className="text-teal">{projected}</strong>
           {band ? <span className="text-ink-muted"> · level aim {band[0]}–{band[1]}</span> : null}
         </p>
       </div>
-      <p className="text-[12.5px] leading-relaxed text-ink-soft">
+      <p className="type-helper leading-relaxed text-ink-soft">
         Your profile doesn&apos;t mention these yet. <strong className="text-ink">Add a line only if it is true for you</strong> — edit it
         into your own words if needed. Recruiters may ask about anything on your resume.
       </p>
@@ -72,7 +72,7 @@ export function SuggestionsPanel({
               {isEditing ? (
                 <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} className="field p-2.5 text-[13px]" aria-label="Edit suggested line" />
               ) : (
-                <p className="text-[13px] leading-relaxed text-ink">{s.text}</p>
+                <p className="type-helper leading-relaxed text-ink">{s.text}</p>
               )}
               <div className="flex flex-wrap gap-2">
                 {isEditing ? (

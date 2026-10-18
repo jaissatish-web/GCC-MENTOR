@@ -82,7 +82,7 @@ function StageTitle({
           <Icon className="size-4 text-teal" aria-hidden="true" />
           {title}
         </h2>
-        <p className="text-[12.5px] leading-snug text-ink-muted">{sub}</p>
+        <p className="type-helper leading-snug text-ink-muted">{sub}</p>
       </div>
     </div>
   )
@@ -159,8 +159,8 @@ export function GulfReadinessView({
             <h2 id="verdict-h" className={cn('font-display text-[23px] font-semibold leading-tight', tone.text)}>
               {gulf.verdict.label}
             </h2>
-            <p className="text-[13.5px] leading-relaxed text-ink-soft">{gulf.verdict.message}</p>
-            <p className="text-[12px] leading-snug text-ink-muted">
+            <p className="type-helper leading-relaxed text-ink-soft">{gulf.verdict.message}</p>
+            <p className="type-helper leading-snug text-ink-muted">
               How ready you are for GCC jobs — different from how complete your profile is.
             </p>
           </div>
@@ -180,7 +180,7 @@ export function GulfReadinessView({
           ))}
         </ol>
         {gulf.lowResumeSignal ? (
-          <p className="rounded-ctl border border-line bg-white/70 px-3.5 py-2.5 text-[12px] leading-relaxed text-ink-muted">
+          <p className="rounded-ctl border border-line bg-white/70 px-3.5 py-2.5 type-helper leading-relaxed text-ink-muted">
             Your Career Profile is still thin, so parts of this score are a rough estimate. It gets more accurate as you add your work history, skills and education.
           </p>
         ) : null}
@@ -201,7 +201,7 @@ export function GulfReadinessView({
         {/* Finished items fold into one line (D4): a full card each for
             "Sorted — nothing to do here" pushed the open items down. */}
         {doneMustHaves.length > 0 ? (
-          <p className="flex items-start gap-2 rounded-ctl border border-ok/25 bg-ok-soft/60 px-3.5 py-2.5 text-[13px] leading-snug text-ink-soft">
+          <p className="flex items-start gap-2 rounded-ctl border border-ok/25 bg-ok-soft/60 px-3.5 py-2.5 type-helper leading-snug text-ink-soft">
             <CheckCircleIcon className="mt-0.5 size-4 shrink-0 text-ok" aria-hidden="true" />
             <span>
               <span className="font-bold text-ok">Done:</span> {doneMustHaves.map((m) => m.label).join(' · ')}
@@ -219,7 +219,7 @@ export function GulfReadinessView({
                     <span className="text-[14px] font-bold text-ink">{m.label}</span>
                     <span className={cn('rounded-full px-2.5 py-0.5 text-[12px] font-bold', meta.chip)}>{meta.text}</span>
                   </div>
-                  <p className="text-[12.5px] leading-relaxed text-ink-soft">{m.why}</p>
+                  <p className="type-helper leading-relaxed text-ink-soft">{m.why}</p>
                   {open ? (
                     <ol className="ml-5 list-decimal space-y-1 text-[12.5px] leading-relaxed text-ink-soft">
                       {m.steps.map((s, i) => (
@@ -314,7 +314,7 @@ export function GulfReadinessView({
       <section className="flex flex-col gap-3">
         <StageTitle n={3} icon={PaperAirplaneIcon} title="Apply" sub="One optimized resume per job — built only from your profile." done={false} />
         <div className="flex flex-col gap-3 rounded-card border border-teal/25 bg-teal-soft/60 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[13px] leading-relaxed text-ink-soft">
+          <p className="type-helper leading-relaxed text-ink-soft">
             {applyRecs[0]?.why ?? 'Tell us the role and we tailor your resume to it — using only what is in this profile.'}
           </p>
           <Button variant="progress" size="sm" className="shrink-0" busy={applyBusy} busyLabel="Saving…" onClick={onApply}>
@@ -425,7 +425,7 @@ export function GulfReadinessView({
         </div>
       </div>
 
-      <p className="flex items-start gap-2 text-[12px] leading-relaxed text-ink-muted">
+      <p className="flex items-start gap-2 type-helper leading-relaxed text-ink-muted">
         <DocumentTextIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
         Worked out from your profile with fixed rules — no AI guess, the same answer every time. It moves as you edit.
       </p>

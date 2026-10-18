@@ -214,7 +214,7 @@ export default function OnboardingPage() {
           <h1 className="font-display text-[28px] leading-tight text-ink sm:text-[32px]">
             Let&apos;s build your Career Profile
           </h1>
-          <p className="text-[14px] leading-relaxed text-ink-soft">
+          <p className="type-body leading-relaxed text-ink-soft">
             Built once, reused for every application. All three routes end up in the same place.
           </p>
         </div>
@@ -249,7 +249,7 @@ export default function OnboardingPage() {
         <div className="mt-auto flex flex-col gap-3 pt-8">
           <div className="flex items-start gap-2.5 rounded-card border border-line bg-canvas px-3.5 py-3">
             <span className="text-[13px] text-teal">⌾</span>
-            <p className="text-[12px] leading-snug text-ink-soft">
+            <p className="type-helper leading-snug text-ink-soft">
               Used only to build your profile. Passport, visa and contact fields are private to your account.
             </p>
           </div>

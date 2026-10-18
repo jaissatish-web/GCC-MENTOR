@@ -34,12 +34,12 @@ export function AuthShell({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-canvas font-redesign-sans text-ink">
+    <div className="app-type flex min-h-dvh flex-col bg-canvas font-redesign-sans text-ink">
       <header className="border-b border-line/80 bg-canvas/90">
         <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between gap-3 px-4 sm:px-6">
           <Link href="/" className="flex shrink-0 items-center gap-2 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">
             <span className="grid size-9 place-items-center rounded-ctl bg-teal text-[16px] font-bold text-white">G</span>
-            <span className="text-[15px] font-bold tracking-[-0.01em] text-ink max-[359px]:sr-only sm:text-[16px]">GCC MENTOR</span>
+            <span className="text-[15px] font-bold tracking-[-0.01em] text-ink max-[359px]:sr-only sm:text-[16px]">GCC <span className="text-teal">MENTOR</span></span>
           </Link>
           {aside ? (
             <p className="flex items-center gap-1 text-[13.5px] text-ink-muted">
@@ -108,7 +108,7 @@ export function AuthCard({ title, subtitle, children }: { title: string; subtitl
   return (
     <section className="ui-surface rounded-card border border-line bg-white p-4 sm:rounded-[22px] sm:p-8">
       <h1 className="type-title text-ink">{title}</h1>
-      {subtitle ? <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{subtitle}</p> : null}
+      {subtitle ? <p className="mt-2 type-body leading-relaxed text-ink-soft">{subtitle}</p> : null}
       <div className="mt-6">{children}</div>
     </section>
   )
