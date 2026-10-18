@@ -17,7 +17,8 @@
     "test:mobile": "node scripts/verify-mobile-layout.mjs",
     "test:readable-ui": "node scripts/verify-readable-ui.mjs",
     "test:interview": "node scripts/verify-interview-ui.mjs",
-    "test:preparation": "node scripts/verify-preparation-experience.mjs"
+    "test:preparation": "node scripts/verify-preparation-experience.mjs",
+    "test:readiness-input": "node scripts/verify-readiness-input-ui.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
