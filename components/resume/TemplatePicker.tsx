@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { getTemplate, TEMPLATE_FIELDS, type TemplateField, type TemplateId } from '@/lib/templates'
+import { getTemplate, type TemplateId } from '@/lib/templates'
 import { templateCatalog, type TemplatePurpose } from '@/lib/templateCatalog'
 import { DocumentReader } from '@/components/resume/ResumeDocumentView'
 import { cn } from '@/lib/utils'
@@ -124,10 +124,8 @@ export function TemplatePicker({
 }) {
   const [hovered, setHovered] = useState<TemplateId | null>(null)
   const [purpose, setPurpose] = useState<TemplatePurpose>('all')
-  const [field, setField] = useState<TemplateField | ''>('')
-  const [search, setSearch] = useState('')
   const [previewing, setPreviewing] = useState(false)
-  const templates = templateCatalog({ purpose, field, search })
+  const templates = templateCatalog({ purpose })
   const PreviewTemplate = getTemplate(current).component
   // Card width has to be known in JS (the preview is scaled to it), so the
   // phone layout is chosen by a media query rather than by CSS alone.
@@ -181,15 +179,11 @@ export function TemplatePicker({
           <button type="button" key={value} aria-pressed={purpose === value} onClick={() => setPurpose(value)} className={cn('min-h-11 rounded-ctl border px-3 type-caption font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal', purpose === value ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink-soft')}>{label}</button>
         ))}
       </div>
-      <div className="grid gap-2 sm:grid-cols-2">
-        <label className="min-w-0 type-caption font-semibold text-ink-soft">Search designs<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, style or profession" className="field mt-1 w-full" /></label>
-        <label className="min-w-0 type-caption font-semibold text-ink-soft">Profession<select value={field} onChange={e => setField(e.target.value as TemplateField | '')} className="field mt-1 w-full"><option value="">All professions</option>{TEMPLATE_FIELDS.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}</select></label>
-      </div>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="type-caption text-ink-muted" role="status">{templates.length} designs</p>
         <button type="button" className="min-h-11 rounded-ctl border border-teal/30 bg-white px-3 type-caption font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal" onClick={() => setPreviewing(true)}>View selected design full size</button>
       </div>
-      {templates.length === 0 ? <div className="rounded-card border border-line bg-white p-4 type-helper text-ink-soft">No matching designs.<button type="button" className="ml-2 min-h-11 font-semibold text-teal" onClick={() => { setPurpose('all'); setField(''); setSearch('') }}>Clear filters</button></div> : null}
+      {templates.length === 0 ? <div className="rounded-card border border-line bg-white p-4 type-helper text-ink-soft">No matching designs.<button type="button" className="ml-2 min-h-11 font-semibold text-teal" onClick={() => setPurpose('all')}>Clear filters</button></div> : null}
       <div ref={wrapRef} role="group" aria-label="Resume templates" className={wrap}>
         {templates.map((t) => {
           const Template = getTemplate(t.id).component
