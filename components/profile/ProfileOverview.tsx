@@ -230,7 +230,7 @@ export function ProfileExplainer() {
           <span>If we ever suggest something new, you see it first. It is kept only if you confirm it is true.</span>
         </p>
 
-        <p className="flex flex-wrap items-center gap-1.5 type-caption">
+        <p className="flex flex-wrap items-center gap-1.5 type-helper">
           <span className="font-semibold text-white/80">Used by:</span>
           {USED_BY.map((u) => (
             <span key={u} className="rounded-full bg-white/15 px-2 py-0.5 font-semibold text-white">

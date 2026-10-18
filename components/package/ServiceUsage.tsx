@@ -63,9 +63,9 @@ export function ServiceUsageTotals({ usage, className }: { usage: ServiceUsageRe
         ))}
       </div>
       {!any ? (
-        <p className="text-[12px] text-ink-muted">Nothing used yet. Your counts appear here as you optimize resumes and prepare for interviews.</p>
+        <p className="type-helper text-ink-muted">Nothing used yet. Your counts appear here as you optimize resumes and prepare for interviews.</p>
       ) : (
-        <p className="text-[12px] text-ink-muted">
+        <p className="type-helper text-ink-muted">
           Counted per generation, across all your saved resumes
           {totals.mock_completed > 0 ? ` · ${totals.mock_completed} mock interview report${totals.mock_completed === 1 ? '' : 's'} saved` : ''}
           {totals.pdf > 0 ? ` · ${totals.pdf} PDF download${totals.pdf === 1 ? '' : 's'}` : ''}.
@@ -80,7 +80,7 @@ export function ServiceUsageLine({ counts }: { counts: ServiceUsageCounts | unde
   if (!counts) return null
   const used = counts.cover_letter + counts.qa + counts.mock_started
   return (
-    <p className="text-[12px] text-ink-muted">
+    <p className="type-helper text-ink-muted">
       {used === 0 ? (
         'No services used for this resume yet'
       ) : (

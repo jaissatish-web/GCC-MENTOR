@@ -127,7 +127,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
             <span className="text-[13px] font-semibold text-ink">Optimized Gulf resume</span>
             <span className="font-mono text-[15px] text-ink">₹499</span>
           </div>
-          <p className="text-[12px] text-ink-muted">
+          <p className="type-helper text-ink-muted">
             {pkg.target_job_title}
             {pkg.target_company ? ` · ${pkg.target_company}` : ''}
           </p>
@@ -147,7 +147,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
               <span className="text-teal">✓</span> Saved to your Library forever
             </div>
           </div>
-          <p className="text-[12px] text-ink-muted">No subscription. No auto-renewal. Taxes included.</p>
+          <p className="type-helper text-ink-muted">No subscription. No auto-renewal. Taxes included.</p>
         </div>
 
         {/* Promo code — the actual unlock path while Razorpay is blocked */}
@@ -165,7 +165,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
               type="button"
               disabled={!code.trim() || redeeming}
               onClick={() => redeem()}
-              className="min-h-11 rounded-ctl bg-teal px-4 text-[13px] font-bold text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
+              className="min-h-11 rounded-ctl bg-teal px-4 type-button font-bold text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2"
             >
               {redeeming ? 'Checking…' : 'Unlock'}
             </button>
@@ -179,12 +179,12 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
             <span className="text-[12px] font-bold text-ink">Card · UPI · Netbanking · Wallet</span>
             <NotLive>Not live</NotLive>
           </div>
-          <p className="text-[12px] text-ink-soft">
+          <p className="type-helper text-ink-soft">
             Not switched on yet. We never see or store your card details.
           </p>
         </div>
 
-        <p className="mt-1 text-center text-[12px] text-ink-muted">
+        <p className="mt-1 text-center type-helper text-ink-muted">
           Something went wrong with your order? Email the founder directly — replies within a day.
         </p>
       </Card>

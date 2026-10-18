@@ -376,7 +376,7 @@ function SetupScreen() {
         <Card tone="light" className="flex flex-col gap-2 p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">{NAMES.targetJob}</p>
+              <p className="type-helper font-semibold uppercase tracking-[0.12em] text-ink-muted">{NAMES.targetJob}</p>
               <p className="mt-0.5 break-words font-display type-section leading-tight text-ink">{draft.target_job_title}</p>
               <p className="mt-1 type-helper text-ink-soft">
                 {hasJobDescription
@@ -508,7 +508,7 @@ function SetupScreen() {
                     onToggle={() => setExpOn((prev) => ({ ...prev, [e.id]: !prev[e.id] }))}
                   />
                 ))}
-                <p className="type-caption text-ink-muted">Skills are put in order of relevance, never reworded.</p>
+                <p className="type-helper text-ink-muted">Skills are put in order of relevance, never reworded.</p>
               </div>
             </details>
           </fieldset>
@@ -539,7 +539,7 @@ function SetupScreen() {
 
         {error ? <Alert variant="danger">{error}</Alert> : null}
         {nothingSelected ? (
-          <p className="text-center type-caption text-ink-muted">Select the summary or at least one role to rewrite.</p>
+          <p className="text-center type-helper text-ink-muted">Select the summary or at least one role to rewrite.</p>
         ) : null}
 
         <p id="optimization-status" role="status" className="text-center type-helper text-ink-soft">
@@ -576,7 +576,7 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
     return (
       <Card tone="light" className="flex flex-col gap-4 p-4 sm:p-6">
         <div className="flex items-center gap-4"><ProcessingOrbit size={64} /><div className="min-w-0"><h2 className="type-label font-semibold text-ink">Checking your job match</h2><p role="status" className="mt-1 type-helper text-ink-soft">Comparing the role with your Career Profile. Your level options unlock when results arrive.</p></div></div>
-        <p className="type-caption leading-relaxed text-ink-soft">This check reviews role fit, requirements and preparation options. Keep this page open.</p>
+        <p className="type-helper leading-relaxed text-ink-soft">This check reviews role fit, requirements and preparation options. Keep this page open.</p>
       </Card>
     )
   }
@@ -630,7 +630,7 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
           {check.askCertifications.length ? (
             <>
               <p className="type-helper font-semibold text-ink">This job asks for certificates your profile does not show</p>
-              <p className="type-caption leading-snug text-ink-muted">
+              <p className="type-helper leading-snug text-ink-muted">
                 We never add certificates for you. If you really hold one, tell us here — it goes on your Career Profile and raises your score.
               </p>
               <ul className="flex flex-col divide-y divide-line">

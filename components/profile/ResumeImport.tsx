@@ -244,7 +244,7 @@ export function ResumeImport({
           <button
             type="button"
             onClick={collapse}
-            className="-mr-1 -mt-1 inline-flex min-h-11 shrink-0 items-center px-2 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="-mr-1 -mt-1 inline-flex min-h-11 shrink-0 items-center px-2 type-button font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             Cancel
           </button>

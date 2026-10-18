@@ -81,11 +81,11 @@ export function SuggestionsPanel({
                       type="button"
                       disabled={busy !== null || text.trim().length < 3}
                       onClick={() => void run(s.id, [{ id: s.id, action: 'confirm', text: text.trim() }])}
-                      className="min-h-9 rounded-ctl bg-teal px-3 text-[12.5px] font-semibold text-white disabled:opacity-50"
+                      className="min-h-9 rounded-ctl bg-teal px-3 type-button font-semibold text-white disabled:opacity-50"
                     >
                       {busy === s.id ? 'Adding…' : 'Add my version'}
                     </button>
-                    <button type="button" onClick={() => setEditing(null)} className="min-h-9 rounded-ctl border border-line-strong bg-white px-3 text-[12.5px] font-semibold text-ink">
+                    <button type="button" onClick={() => setEditing(null)} className="min-h-9 rounded-ctl border border-line-strong bg-white px-3 type-button font-semibold text-ink">
                       Cancel
                     </button>
                   </>
@@ -95,7 +95,7 @@ export function SuggestionsPanel({
                       type="button"
                       disabled={busy !== null}
                       onClick={() => void run(s.id, [{ id: s.id, action: 'confirm' }])}
-                      className="min-h-9 rounded-ctl bg-teal px-3 text-[12.5px] font-semibold text-white disabled:opacity-50"
+                      className="min-h-9 rounded-ctl bg-teal px-3 type-button font-semibold text-white disabled:opacity-50"
                     >
                       {busy === s.id ? 'Adding…' : '✓ I did this — add'}
                     </button>
@@ -106,7 +106,7 @@ export function SuggestionsPanel({
                         setEditing(s.id)
                         setText(s.text)
                       }}
-                      className="min-h-9 rounded-ctl border border-line-strong bg-white px-3 text-[12.5px] font-semibold text-ink disabled:opacity-50"
+                      className="min-h-9 rounded-ctl border border-line-strong bg-white px-3 type-button font-semibold text-ink disabled:opacity-50"
                     >
                       ✎ Edit
                     </button>

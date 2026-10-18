@@ -260,7 +260,7 @@ function ExtractingScreen() {
 
         <div className="text-center">
           <h1 className="font-display text-[27px] leading-tight text-ink">Reading your resume</h1>
-          <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
+          <p className="mt-2 type-helper leading-relaxed text-ink-soft">
             Finding your roles, dates, skills and certifications.
           </p>
         </div>
@@ -270,7 +270,7 @@ function ExtractingScreen() {
         {/* Was "— nothing is saved until you confirm". Not true for a
             first-time profile, which is auto-saved straight after this
             (2026-08-18). What IS true in every case is below. */}
-        <p className="text-center text-[12px] leading-relaxed text-ink-muted">
+        <p className="text-center type-helper leading-relaxed text-ink-muted">
           You&apos;ll review and correct everything on the next screen.
         </p>
       </div>

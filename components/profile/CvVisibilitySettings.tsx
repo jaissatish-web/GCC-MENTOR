@@ -149,7 +149,7 @@ export function CvVisibilitySettings({
         )
       })}
 
-      <p className="flex items-start gap-2.5 rounded-ctl border border-line bg-white px-3.5 py-3 type-caption leading-snug text-ink-soft">
+      <p className="flex items-start gap-2.5 rounded-ctl border border-line bg-white px-3.5 py-3 type-helper leading-snug text-ink-soft">
         <LockClosedIcon className="mt-0.5 size-4 shrink-0 text-teal" aria-hidden="true" />
         <span>
           Passport and visa details are private to your account, and any access by our team is logged. We never ask for

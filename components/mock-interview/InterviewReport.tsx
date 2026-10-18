@@ -109,8 +109,8 @@ function ShareMenu({ run }: { run: MockInterviewRun }) {
       <button type="button" onClick={() => openSocial('telegram')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Telegram</button>
       <button type="button" onClick={() => void copyLink()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Copy private report link</button>
       <button type="button" onClick={() => void download()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Download PNG card</button>
-      <p className="px-3 py-2 type-caption leading-relaxed text-ink-muted">Instagram is available through “Share card to any app” on supported phones.</p>
-      {message ? <p role="status" className="rounded-ctl bg-canvas px-3 py-2 type-caption leading-relaxed text-ink-muted">{message}</p> : null}
+      <p className="px-3 py-2 type-helper leading-relaxed text-ink-muted">Instagram is available through “Share card to any app” on supported phones.</p>
+      {message ? <p role="status" className="rounded-ctl bg-canvas px-3 py-2 type-helper leading-relaxed text-ink-muted">{message}</p> : null}
     </div>
   </details>
 }
@@ -120,7 +120,7 @@ function ListSection({ title, intro, items, tone = 'neutral', ordered = false }:
   const accent = tone === 'positive' ? 'bg-ok' : tone === 'warning' ? 'bg-gold' : 'bg-teal'
   const List = ordered ? 'ol' : 'ul'
   return <section className="rounded-card border border-line bg-white p-4 shadow-m-1 sm:p-5">
-    <div className="flex items-center gap-3"><span className={`h-8 w-1 rounded-full ${accent}`} /><div><h3 className="font-display type-card font-semibold text-ink">{title}</h3>{intro ? <p className="mt-0.5 type-caption text-ink-muted">{intro}</p> : null}</div></div>
+    <div className="flex items-center gap-3"><span className={`h-8 w-1 rounded-full ${accent}`} /><div><h3 className="font-display type-card font-semibold text-ink">{title}</h3>{intro ? <p className="mt-0.5 type-helper text-ink-muted">{intro}</p> : null}</div></div>
     <List className="mt-4 space-y-3">
       {items.map((item, index) => <li key={`${index}-${item}`} className="flex gap-3 type-helper leading-relaxed text-ink-soft"><span className="mt-0.5 font-mono type-caption font-semibold text-teal">{ordered ? String(index + 1).padStart(2, '0') : '•'}</span><span>{item}</span></li>)}
     </List>

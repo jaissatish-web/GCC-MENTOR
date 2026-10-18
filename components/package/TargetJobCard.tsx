@@ -50,9 +50,9 @@ export function TargetJobCard({
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-ink-muted">{NAMES.targetJob}</p>
+          <p className="type-helper font-bold uppercase tracking-[0.12em] text-ink-muted">{NAMES.targetJob}</p>
           <p className="mt-0.5 break-words font-display text-[18px] leading-tight text-ink">{pkg.target_job_title}</p>
-          <p className="mt-1 text-[12.5px] text-ink-soft">{facts.join(' · ')}</p>
+          <p className="mt-1 type-helper text-ink-soft">{facts.join(' · ')}</p>
         </div>
         {typeof before === 'number' && typeof after === 'number' ? (
           <div className="flex shrink-0 items-center gap-2 rounded-ctl border border-line bg-canvas px-3 py-2">
@@ -77,7 +77,7 @@ export function TargetJobCard({
               type="button"
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
-              className="min-h-11 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              className="min-h-11 type-button font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               {open ? `Hide ${NAMES.jobDescription.toLowerCase()}` : `Show ${NAMES.jobDescription.toLowerCase()}`}
             </button>
@@ -88,13 +88,13 @@ export function TargetJobCard({
             ) : null}
           </div>
         ) : (
-          <p className="mt-3 text-[12.5px] text-ink-muted">
+          <p className="mt-3 type-helper text-ink-muted">
             No {NAMES.jobDescription.toLowerCase()} was saved. Everything is based on the {NAMES.jobTitle.toLowerCase()}.
           </p>
         )
       ) : null}
 
-      {note ? <p className="mt-3 border-t border-line pt-3 text-[12.5px] text-ink-soft">{note}</p> : null}
+      {note ? <p className="mt-3 border-t border-line pt-3 type-helper text-ink-soft">{note}</p> : null}
     </section>
   )
 }

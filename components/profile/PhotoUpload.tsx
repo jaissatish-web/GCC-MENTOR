@@ -138,7 +138,7 @@ export function PhotoUpload({
             type="button"
             onClick={() => void remove()}
             disabled={busy}
-            className="text-[12px] font-semibold text-ink-muted underline underline-offset-2 hover:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert disabled:opacity-60"
+            className="type-button font-semibold text-ink-muted underline underline-offset-2 hover:text-alert focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert disabled:opacity-60"
           >
             Remove
           </button>

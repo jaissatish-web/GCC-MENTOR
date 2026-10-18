@@ -64,7 +64,7 @@ export function TypicalDuties({ role, onAdd }: { role: string; onAdd: (lines: st
           type="button"
           onClick={() => void load()}
           disabled={state === 'loading'}
-          className="min-h-11 w-fit rounded-ctl border border-teal/40 bg-white px-4 text-[13.5px] font-semibold text-teal disabled:opacity-60"
+          className="min-h-11 w-fit rounded-ctl border border-teal/40 bg-white px-4 type-button font-semibold text-teal disabled:opacity-60"
         >
           {state === 'loading' ? 'Loading typical duties…' : 'Suggest typical duties'}
         </button>
@@ -105,7 +105,7 @@ export function TypicalDuties({ role, onAdd }: { role: string; onAdd: (lines: st
                 onAdd(duties.filter((_, i) => ticked.has(i)))
                 setState('added')
               }}
-              className="min-h-11 rounded-ctl bg-teal px-4 text-[13.5px] font-semibold text-white disabled:opacity-50"
+              className="min-h-11 rounded-ctl bg-teal px-4 type-button font-semibold text-white disabled:opacity-50"
             >
               {ticked.size === 0 ? 'Tick what you did' : `Add ${ticked.size} dut${ticked.size === 1 ? 'y' : 'ies'} to this job`}
             </button>

@@ -877,7 +877,7 @@ function PackageScreenInner({ id }: { id: string }) {
         <section className="rounded-card border border-line bg-white p-3 shadow-m-1 sm:p-4">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">
+              <p className="type-helper font-semibold uppercase tracking-[0.12em] text-ink-muted">
                 Next steps for this job
               </p>
               <h2 className="font-display type-card leading-tight text-ink">
@@ -890,7 +890,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
           <div className="mt-3 flex flex-col gap-3 rounded-ctl border border-teal/30 bg-teal-soft/50 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="type-caption font-semibold uppercase tracking-[0.12em] text-teal">
+              <p className="type-helper font-semibold uppercase tracking-[0.12em] text-teal">
                 Next step · {readyCount}/4 ready
               </p>
               <p className="mt-1 type-label font-semibold text-ink">{nextJourneyStep.title}</p>
@@ -914,12 +914,12 @@ function PackageScreenInner({ id }: { id: string }) {
           <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">
+                <p className="type-helper font-semibold uppercase tracking-[0.12em] text-ink-muted">
                   Application tracker
                 </p>
                 <h2 className="font-display type-card leading-tight text-ink">Recruiter follow-up details</h2>
               </div>
-              {trackerState ? <p className="type-caption font-semibold text-teal">{trackerState}</p> : null}
+              {trackerState ? <p className="type-helper font-semibold text-teal">{trackerState}</p> : null}
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <label className="flex flex-col gap-1.5 type-caption font-semibold text-ink-soft">
@@ -992,7 +992,7 @@ function PackageScreenInner({ id }: { id: string }) {
           </div>
 
           <div className="rounded-card border border-line bg-white p-4 shadow-m-1">
-            <p className="type-caption font-semibold uppercase tracking-[0.12em] text-ink-muted">Service history</p>
+            <p className="type-helper font-semibold uppercase tracking-[0.12em] text-ink-muted">Service history</p>
             <h2 className="mt-1 font-display type-card leading-tight text-ink">Package timeline</h2>
             <div className="mt-4 flex flex-col gap-3">
               {serviceTimeline.length > 0 ? (
@@ -1001,7 +1001,7 @@ function PackageScreenInner({ id }: { id: string }) {
                     <span className="mt-1.5 size-2.5 rounded-full bg-teal ring-4 ring-teal-soft" />
                     <div>
                       <p className="type-helper font-semibold leading-snug text-ink">{event.label}</p>
-                      <p className="mt-0.5 type-caption text-ink-muted">{formatTrackerDate(event.at, true)}</p>
+                      <p className="mt-0.5 type-helper text-ink-muted">{formatTrackerDate(event.at, true)}</p>
                     </div>
                   </div>
                 ))
@@ -1103,7 +1103,7 @@ function PackageScreenInner({ id }: { id: string }) {
             {changesDirty || styleBusy ? <button type="button" disabled={styleBusy || photoBusy} onClick={() => void saveChanges()} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{styleBusy ? 'Saving…' : 'Save changes'}</button> : null}
             {downloadBlocked ? <button type="button" disabled aria-describedby="resume-save-status" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</button> : <a href={pdfUrl} onClick={() => setDownloaded(true)} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</a>}
           </div>
-          {downloadBlocked || styleMsg ? <p role="status" className="mt-2 type-caption text-ink-muted">{styleBusy ? 'Saving changes…' : photoBusy ? 'Saving your photo…' : changesDirty ? styleMsg && styleMsg !== 'Changes saved.' ? styleMsg : 'Save changes to enable PDF download.' : styleMsg}</p> : null}
+          {downloadBlocked || styleMsg ? <p role="status" className="mt-2 type-helper text-ink-muted">{styleBusy ? 'Saving changes…' : photoBusy ? 'Saving your photo…' : changesDirty ? styleMsg && styleMsg !== 'Changes saved.' ? styleMsg : 'Save changes to enable PDF download.' : styleMsg}</p> : null}
         </div>
         {/* TEMPLATES LEFT, DOCUMENT CENTRED (TASK-146, founder-directed).
             The templates used to hide behind a "Change template" toggle that
@@ -1324,7 +1324,7 @@ function PackageScreenInner({ id }: { id: string }) {
                               ) : null}
                             </>
                           ) : (
-                            <p className="mt-3 type-caption leading-relaxed text-ink-muted">
+                            <p className="mt-3 type-helper leading-relaxed text-ink-muted">
                               {getTemplate(activeTemplateId).name} has no shaded boxes or coloured header, so
                               highlight, border and header choices apply to the other designs.
                             </p>
@@ -1337,7 +1337,7 @@ function PackageScreenInner({ id }: { id: string }) {
                         // maximum ATS compatibility. A styling control — the photo
                         // especially — would work against the one thing this
                         // template sells, so it stays fixed on purpose.
-                        <p className="mt-2 type-caption leading-relaxed text-ink-muted">
+                        <p className="mt-2 type-helper leading-relaxed text-ink-muted">
                           <strong className="text-ink-soft">{getTemplate(activeTemplateId).name}</strong>{' '}
                           uses a fixed text-only design. Choose another template for custom fonts,
                           colours or photos.
@@ -1480,7 +1480,7 @@ function PackageScreenInner({ id }: { id: string }) {
 
                 {styleable ? (
                   styleDirty ? (
-                    <p className="mt-3 type-caption text-ink-muted">
+                    <p className="mt-3 type-helper text-ink-muted">
                       Unsaved — use <strong className="text-ink-soft">Save changes</strong> at the top.
                     </p>
                   ) : hasStyle ? (
@@ -1561,7 +1561,7 @@ function PackageScreenInner({ id }: { id: string }) {
                     styleOverrides={draftStyle}
                   />
                 </ResumeDocumentView>
-                <p className="mt-4 text-center type-caption text-ink-muted">
+                <p className="mt-4 text-center type-helper text-ink-muted">
                   A4 · {getTemplate(activeTemplateId).name} · {downloadBlocked ? 'save changes before downloading your' : 'this is exactly what downloads as your'}
                   PDF.
                 </p>

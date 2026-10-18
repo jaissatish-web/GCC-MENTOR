@@ -14,7 +14,7 @@ export function OptimizationProgress({ phase, analysisReady, steps }: {
   return <section aria-label="Resume optimization progress" className="rounded-card border border-line bg-white p-4 sm:p-7">
     <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:gap-5 sm:text-left">
       <ProcessingOrbit size={96} />
-      <div className="min-w-0"><p className="type-caption font-semibold uppercase tracking-wider text-teal">Your experience. Clearly presented.</p><h2 className="mt-1 font-display type-section text-ink">Preparing your optimized resume</h2><p className="mt-2 type-helper leading-relaxed text-ink-soft">Keep this page open. Your result opens here when it is ready.</p></div>
+      <div className="min-w-0"><p className="type-helper font-semibold uppercase tracking-wider text-teal">Your experience. Clearly presented.</p><h2 className="mt-1 font-display type-section text-ink">Preparing your optimized resume</h2><p className="mt-2 type-helper leading-relaxed text-ink-soft">Keep this page open. Your result opens here when it is ready.</p></div>
     </div>
     <p role="status" aria-live="polite" className="mt-5 rounded-ctl bg-teal-soft px-4 py-3 type-label font-semibold text-teal">{labels[active]}…</p>
     <ol className="mt-4 flex flex-col gap-3" aria-label="Optimization stages">
@@ -30,6 +30,6 @@ export function OptimizationProgress({ phase, analysisReady, steps }: {
       <summary className="min-h-11 cursor-pointer py-3 type-helper font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">Included in this optimization</summary>
       <ul className="mb-3 list-disc space-y-2 pl-5 type-helper leading-relaxed text-ink-soft">{steps.map(step => <li key={step}>{step}</li>)}</ul>
     </details>
-    <p className="mt-4 type-caption leading-relaxed text-ink-soft">Preparation time varies. Progress changes when a stage finishes.</p>
+    <p className="mt-4 type-helper leading-relaxed text-ink-soft">Preparation time varies. Progress changes when a stage finishes.</p>
   </section>
 }

@@ -50,17 +50,17 @@ export function AtsFileCheck({ packageId }: { packageId: string }) {
 
   return (
     <article className="flex flex-col gap-3 rounded-card border border-teal/25 bg-white p-4 shadow-m-1">
-      <p className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.12em] text-teal">
+      <p className="flex items-center gap-1.5 type-helper font-bold uppercase tracking-[0.12em] text-teal">
         <ScanText className="size-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
         ATS file check
       </p>
       {state === 'idle' || state === 'error' ? (
         <>
-          <p className="text-[13.5px] leading-relaxed text-ink-soft">
+          <p className="type-helper leading-relaxed text-ink-soft">
             Your resume looks right on screen — but an ATS only sees the text it can pull out of your PDF. We read the file you
             download the way an ATS does and check your name, contact details, headings, jobs, dates and keywords.
           </p>
-          {error ? <p className="text-[12.5px] text-alert">{error}</p> : null}
+          {error ? <p className="type-helper text-alert">{error}</p> : null}
           <button type="button" onClick={() => void run()} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'self-start')}>
             Check my PDF
           </button>
@@ -71,7 +71,7 @@ export function AtsFileCheck({ packageId }: { packageId: string }) {
         <>
           <div className={cn('flex flex-col gap-0.5 rounded-ctl border px-3.5 py-3', banner.box)}>
             <p className={cn('text-[15px] font-bold', banner.text)}>{banner.title}</p>
-            <p className="text-[12.5px] text-ink-soft">
+            <p className="type-helper text-ink-soft">
               {report.passed} of {report.total} checks passed{design ? ` · design: ${design}` : ''} · {report.pages} page{report.pages === 1 ? '' : 's'}
             </p>
           </div>
@@ -92,7 +92,7 @@ export function AtsFileCheck({ packageId }: { packageId: string }) {
               </li>
             ))}
           </ul>
-          <button type="button" onClick={() => void run()} className="inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-teal underline-offset-2 hover:underline">
+          <button type="button" onClick={() => void run()} className="inline-flex min-h-11 items-center self-start type-button font-semibold text-teal underline-offset-2 hover:underline">
             Changed the design or the text? Check again
           </button>
         </>

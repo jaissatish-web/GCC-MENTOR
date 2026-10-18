@@ -245,9 +245,9 @@ function PreviewInner({ packageId }: { packageId: string }) {
       <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-4 py-6 sm:px-6">
         {/* Header */}
         <div className="flex flex-col gap-1">
-          <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-ink-muted">Review · edit · save</p>
+          <p className="font-mono type-helper uppercase tracking-[0.14em] text-ink-muted">Review · edit · save</p>
           <h1 className="font-display text-[27px] leading-tight text-ink">Your optimized resume</h1>
-          <p className="text-[13px] text-ink-soft">
+          <p className="type-helper text-ink-soft">
             For <strong className="text-ink">{pkg.target_job_title}</strong>
             {pkg.target_company ? ` · ${pkg.target_company}` : ''} · {pkg.optimization_level.charAt(0).toUpperCase() + pkg.optimization_level.slice(1)} optimization.
             Tap any text to edit it. Nothing is saved until you press Save.
@@ -274,7 +274,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                   <Colored text={summary} source={summarySource} re={keywordRe} added={addedTerms} />
                 </p>
               ) : (
-                <p className="text-[13px] text-ink-muted">No summary yet — click to write one.</p>
+                <p className="type-helper text-ink-muted">No summary yet — click to write one.</p>
               )}
             </ClickToEdit>
           )}
@@ -287,7 +287,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
 
         {/* SKILLS */}
         <Section title="Skills" tone="border-sec-skills/40" accent="text-sec-skills" icon={Puzzle}>
-          <p className="text-[12.5px] text-ink-muted">Ordered by relevance to this job. Tap × to remove a skill.</p>
+          <p className="type-helper text-ink-muted">Ordered by relevance to this job. Tap × to remove a skill.</p>
           <div className="flex flex-wrap gap-2">
             {skills.map((k) => {
               const isKeyword = !!keywordRe && new RegExp(keywordRe.source, 'i').test(k.name)
@@ -314,7 +314,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
           </div>
           {skillSuggestions.length > 0 ? (
             <div className="flex flex-col gap-2 rounded-ctl border border-gold/50 bg-gold-soft/60 p-3">
-              <p className="text-[12.5px] font-semibold text-ink">The job asks for these skills. Keep the ones you really have:</p>
+              <p className="type-helper font-semibold text-ink">The job asks for these skills. Keep the ones you really have:</p>
               <div className="flex flex-wrap gap-2">
                 {skillSuggestions
                   .filter((s) => !bySkillName.has(s.text.toLowerCase()))
@@ -344,7 +344,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
 
         {/* WORK EXPERIENCE */}
         <Section title="Work experience" tone="border-sec-experience/40" accent="text-sec-experience" icon={BriefcaseBusiness}>
-          <p className="text-[12.5px] text-ink-muted">Employers, job titles and dates stay exactly as in your profile.</p>
+          <p className="type-helper text-ink-muted">Employers, job titles and dates stay exactly as in your profile.</p>
           {doc.experience.map((item) => {
             const id = item.entry.id
             const block = oc.experience_blocks.find((b) => b.profile_experience_id === id)
@@ -360,9 +360,9 @@ function PreviewInner({ packageId }: { packageId: string }) {
                   <span className="text-[12px] text-ink-muted">{item.range}</span>
                 </div>
                 {block && !(block.source_bullets ?? []).some((x) => x.trim()) ? (
-                  <p className="text-[12px] text-ink-muted">No duties in your Career Profile for this job yet. Add what you did there for a stronger, true resume.</p>
+                  <p className="type-helper text-ink-muted">No duties in your Career Profile for this job yet. Add what you did there for a stronger, true resume.</p>
                 ) : block && !block.was_optimized ? (
-                  <p className="text-[12px] text-ink-muted">Kept in your own words (the rewrite could not be proven from your profile).</p>
+                  <p className="type-helper text-ink-muted">Kept in your own words (the rewrite could not be proven from your profile).</p>
                 ) : null}
                 {editing === id ? (
                   <EditBox
@@ -412,7 +412,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
           })}
         </Section>
 
-        <p className="text-center text-[12.5px] text-ink-muted">
+        <p className="text-center type-helper text-ink-muted">
           Want to change something else (name, education, certificates)?{' '}
           <Link href={`/package/${encodeURIComponent(packageId)}/edit`} className="font-semibold text-teal underline-offset-2 hover:underline">
             Open the full editor
@@ -451,7 +451,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
               </span>
             </label>
           ) : null}
-          {saveError ? <p className="text-[12.5px] text-alert">{saveError}</p> : null}
+          {saveError ? <p className="type-helper text-alert">{saveError}</p> : null}
         </div>
       </div>
     </main>
@@ -536,7 +536,7 @@ function SuggestedLine({ s, draft, onChange, re }: { s: Suggestion; draft: Draft
         >
           {!keep ? '✕ Removed' : 'Remove'}
         </button>
-        <button type="button" onClick={() => setEdit((v) => !v)} className="ml-auto min-h-11 px-2 text-[13px] font-semibold text-teal underline-offset-2 hover:underline">
+        <button type="button" onClick={() => setEdit((v) => !v)} className="ml-auto min-h-11 px-2 type-button font-semibold text-teal underline-offset-2 hover:underline">
           {edit ? 'Done' : 'Edit wording'}
         </button>
       </div>

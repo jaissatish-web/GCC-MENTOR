@@ -281,7 +281,7 @@ function CoverLetterScreen() {
                     </span>
                   ) : null}
                 </div>
-                <p className="type-caption text-ink-muted">
+                <p className="type-helper text-ink-muted">
                   Generated {new Date(letter.generated_at).toLocaleString()}
                   {letter.edited_at ? ` · your edits saved ${new Date(letter.edited_at).toLocaleString()}` : ''}
                 </p>
@@ -402,7 +402,7 @@ function CoverLetterScreen() {
       ) : null}
 
       {/* Grounding notice */}
-      <p className="mt-6 text-center type-caption text-ink-muted">
+      <p className="mt-6 text-center type-helper text-ink-muted">
         {isRaw ? 'Written only from your saved Career Profile. No job description or AI resume optimization is used.' : "Written from this job's saved resume (once built) and your Career Profile — nothing that is in neither."}
       </p>
     </PageShell>

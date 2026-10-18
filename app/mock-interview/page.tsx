@@ -463,7 +463,7 @@ function MockInterviewScreen() {
                   ) : null}
                 </div>
                 {answeredCount > 0 && unanswered > 0 ? (
-                  <p className="type-caption leading-relaxed text-ink-muted">
+                  <p className="type-helper leading-relaxed text-ink-muted">
                     Finishing now reviews your {answeredCount} answered {answeredCount === 1 ? 'question' : 'questions'} only; the other {unanswered} are skipped. A finished report is final — start a new interview to practise again.
                   </p>
                 ) : null}
@@ -521,7 +521,7 @@ function MockInterviewScreen() {
         />
       ) : null}
 
-      <p className="mt-6 text-center type-caption text-ink-muted">
+      <p className="mt-6 text-center type-helper text-ink-muted">
         Typed and recorded voice practice in English. Feedback supports preparation; it does not predict hiring decisions.
       </p>
     </PageShell>

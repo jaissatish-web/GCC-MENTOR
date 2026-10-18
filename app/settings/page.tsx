@@ -205,7 +205,7 @@ export default async function SettingsPage({
                   }
                 />
               </div>
-              <p className="mt-4 type-caption leading-relaxed text-ink-muted">
+              <p className="mt-4 type-helper leading-relaxed text-ink-muted">
                 You cannot change your sign-in email here yet. Deleting your data does not delete your login.
               </p>
             </SectionCard>
@@ -295,7 +295,7 @@ export default async function SettingsPage({
                 <EmptyState>You have not unlocked any paid resumes yet.</EmptyState>
               )}
 
-              <p className="mt-5 rounded-ctl border border-alert/30 bg-alert-soft/40 px-4 py-3 type-caption leading-relaxed text-ink-soft">
+              <p className="mt-5 rounded-ctl border border-alert/30 bg-alert-soft/40 px-4 py-3 type-helper leading-relaxed text-ink-soft">
                 <NotLiveText>Card payment is not switched on yet</NotLiveText>, so there is nothing to show here. Access is granted directly or by redeeming a code.
               </p>
             </SectionCard>

@@ -1998,7 +1998,7 @@ function ProfileScreen() {
 
         {/* Was "Nothing is saved either way until you press Save on the next
             screen." Both halves are now the other way round (2026-09-11). */}
-        <p className="mt-6 text-center type-caption leading-relaxed text-ink-muted">
+        <p className="mt-6 text-center type-helper leading-relaxed text-ink-muted">
           Whichever you choose is saved straight away. Until you choose, this resume reading is kept for
           you — you can close this page and come back to it.
         </p>
@@ -2191,7 +2191,7 @@ function ProfileScreen() {
         {claimedScan ? (
           <div className="mx-3 sm:mx-5 mt-4 flex items-start justify-between gap-3 rounded-ctl border border-teal/40 bg-white px-4 py-3">
             <div className="flex flex-col gap-1">
-              <p className="type-caption font-semibold uppercase tracking-[0.14em] text-teal">
+              <p className="type-helper font-semibold uppercase tracking-[0.14em] text-teal">
                 Welcome back
               </p>
               <p className="type-helper font-medium text-ink">
@@ -2572,7 +2572,7 @@ function ProfileScreen() {
                 <option value="yes">Yes, it can be transferred</option>
                 <option value="no">No</option>
               </select>
-              <p className="mt-1 type-caption leading-snug text-ink-soft">Your Iqama or work visa moving to a new employer without you leaving the country. Shown on your resume only if you answer.</p>
+              <p className="mt-1 type-helper leading-snug text-ink-soft">Your Iqama or work visa moving to a new employer without you leaving the country. Shown on your resume only if you answer.</p>
             </div>
             {/* GULF PAPERWORK (Gulf Readiness v2, 2026-10-01, migration 060).
                 Optional and private: they drive the readiness verdict and the
@@ -2580,7 +2580,7 @@ function ProfileScreen() {
                 "not checked" in the verdict, never a failure. */}
             <div className="mt-2 flex flex-col gap-0.5 sm:col-span-2">
               <p className="type-helper font-semibold text-ink">Gulf paperwork</p>
-              <p className="type-caption leading-snug text-ink-soft">
+              <p className="type-helper leading-snug text-ink-soft">
                 Optional and private — never shown on your resume. Your Gulf Readiness uses it to tell you what is left before an employer can hire you.
               </p>
             </div>
@@ -2598,7 +2598,7 @@ function ProfileScreen() {
                 <option value="not_started">Not started</option>
                 <option value="not_needed">Not needed for my job</option>
               </select>
-              <p className="type-caption leading-snug text-ink-muted">Skilled Gulf work permits need your degree attested (home country, then the embassy).</p>
+              <p className="type-helper leading-snug text-ink-muted">Skilled Gulf work permits need your degree attested (home country, then the embassy).</p>
             </div>
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor="f_professional_licence">Professional licence</FieldLabel>
@@ -2614,7 +2614,7 @@ function ProfileScreen() {
                 <option value="not_started">Not started</option>
                 <option value="not_needed">Not needed for my job</option>
               </select>
-              <p className="type-caption leading-snug text-ink-muted">For regulated jobs — nurses, doctors, pharmacists (DHA, DOH, SCFHS…), engineers in Saudi (SCE).</p>
+              <p className="type-helper leading-snug text-ink-muted">For regulated jobs — nurses, doctors, pharmacists (DHA, DOH, SCFHS…), engineers in Saudi (SCE).</p>
             </div>
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor="f_saudi_verification">Saudi professional verification</FieldLabel>
@@ -2630,7 +2630,7 @@ function ProfileScreen() {
                 <option value="not_started">Not started</option>
                 <option value="not_needed">Not applying to Saudi</option>
               </select>
-              <p className="type-caption leading-snug text-ink-muted">Needed for most Saudi work visas: QVP for qualifications, SVP skills test for trades.</p>
+              <p className="type-helper leading-snug text-ink-muted">Needed for most Saudi work visas: QVP for qualifications, SVP skills test for trades.</p>
             </div>
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor="f_arabic_level">Arabic</FieldLabel>
@@ -2647,7 +2647,7 @@ function ProfileScreen() {
                 <option value="fluent">Fluent</option>
                 <option value="native">Native</option>
               </select>
-              <p className="type-caption leading-snug text-ink-muted">A plus for many Gulf roles — basic counts too.</p>
+              <p className="type-helper leading-snug text-ink-muted">A plus for many Gulf roles — basic counts too.</p>
             </div>
             {editor.photo_url ? (
               <div className="sm:col-span-2">
@@ -2850,7 +2850,7 @@ function ProfileScreen() {
               Employment gaps &mdash; just for your awareness
             </span>
             {employmentGaps.map((g, i) => (
-              <p key={i} className="type-caption leading-snug text-ink-muted">
+              <p key={i} className="type-helper leading-snug text-ink-muted">
                 We noticed a {g.gapMonths}-month gap between {g.precedingCompany || 'a previous role'} and{' '}
                 {g.followingCompany || 'your next role'}. This isn&rsquo;t scored &mdash; just something to be aware of.
               </p>

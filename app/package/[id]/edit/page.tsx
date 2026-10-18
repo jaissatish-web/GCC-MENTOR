@@ -65,7 +65,7 @@ function Section({ id, title, hint, children }: { id: string; title: string; hin
   return (
     <section id={id} data-resume-editor-section className={styles.section} aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`} tabIndex={-1} className={styles.sectionTitle}>{title}</h2>
-      {hint ? <p className="mt-1 text-[12px] text-ink-muted">{hint}</p> : null}
+      {hint ? <p className="mt-1 type-helper text-ink-muted">{hint}</p> : null}
       <div className="mt-3 flex flex-col gap-2.5">{children}</div>
     </section>
   )
@@ -316,7 +316,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
       <div className="flex flex-col gap-3 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="text-[22px] font-bold leading-tight text-ink">Edit your resume</h1>
-          <p className="text-[13px] text-ink-muted">
+          <p className="type-helper text-ink-muted">
             Change any part of this resume. Changes apply to <strong className="text-ink">this resume only</strong> — your
             Career Profile stays as it is. Nothing is saved until you press Save.
           </p>
@@ -331,7 +331,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
           </select>
         </nav>
         <div className={styles.actions}>
-          <p role="status" aria-live="polite" className="w-full text-[12px] font-semibold text-teal">
+          <p role="status" aria-live="polite" className="w-full type-helper font-semibold text-teal">
             {saveBusy ? 'Saving changes…' : dirty ? 'Unsaved changes' : justSaved ?? 'No unsaved changes'}
           </p>
           <button type="button" onClick={() => void save()} disabled={saveBusy || !dirty} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-h-11 disabled:cursor-not-allowed disabled:opacity-50')}>
@@ -342,7 +342,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
             backToResume()
           }} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-h-11')}>Back to resume</button>
         </div>
-        {error ? <p role="alert" className="basis-full rounded-ctl bg-alert-soft px-3 py-2 text-[13px] text-alert">{error}</p> : null}
+        {error ? <p role="alert" className="basis-full rounded-ctl bg-alert-soft px-3 py-2 type-helper text-alert">{error}</p> : null}
       </div>
 
       <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
@@ -554,7 +554,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
         <aside id="resume-preview" data-resume-editor-section aria-labelledby="resume-preview-title" className={cn(styles.preview, "min-w-0 shrink-0 lg:sticky lg:w-[420px]")}>
           <div className="border-t border-line pt-4 lg:border-t-0 lg:border-l lg:pl-5">
             <h2 id="resume-preview-title" tabIndex={-1} className="text-[12px] font-bold uppercase tracking-wider text-ink-soft">Live preview</h2>
-            <p className="mt-1 text-[12px] text-ink-muted">Exactly what your PDF will contain once you save.</p>
+            <p className="mt-1 type-helper text-ink-muted">Exactly what your PDF will contain once you save.</p>
             <ResumeDocumentView className="mt-3 w-full rounded-[3px]">
               <Template
                 document={draft}

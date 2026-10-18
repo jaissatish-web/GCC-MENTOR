@@ -78,7 +78,7 @@ export function MatchResult({
           <p className="type-helper font-semibold text-ink">Why this resume fits {report.target.job_title}</p>
           <ul className="flex flex-col gap-1">
             {report.why_fits.map((w) => (
-              <li key={w.term} className="text-[12.5px] leading-relaxed text-ink-soft">
+              <li key={w.term} className="type-helper leading-relaxed text-ink-soft">
                 <span className="font-semibold text-teal">✓ {w.term}</span>
                 {w.where.length > 0 ? <> — shown in {w.where.slice(0, 2).map(place).join(' and ')}</> : null}
               </li>
@@ -114,7 +114,7 @@ export function MatchResult({
 
       {report.gaps && report.gaps.length > 0 ? (
         <details className="group rounded-ctl border border-gold/40 bg-gold-soft/40 p-3">
-          <summary className="cursor-pointer list-none text-[12.5px] font-semibold text-ink">
+          <summary className="cursor-pointer list-none type-helper font-semibold text-ink">
             Want a higher score? {report.gaps.length} {estimate ? 'common requirement' : 'job requirement'}
             {report.gaps.length === 1 ? '' : 's'} aren&apos;t in your profile yet{' '}
             <span className="text-teal group-open:hidden">Show</span>
@@ -133,7 +133,7 @@ export function MatchResult({
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[11.5px] text-ink-muted">Measures match to these requirements — not a prediction of being hired.</p>
+        <p className="type-helper text-ink-muted">Measures match to these requirements — not a prediction of being hired.</p>
         <Link
           href={`/optimize/preview/${encodeURIComponent(packageId)}`}
           className="text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline"

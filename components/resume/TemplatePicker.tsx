@@ -188,8 +188,8 @@ export function TemplatePicker({
         ))}
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="type-caption text-ink-muted" role="status">{templates.length} designs</p>
-        {showPreviewButton ? <button type="button" className="min-h-11 rounded-ctl border border-teal/30 bg-white px-3 type-caption font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal" onClick={() => setPreviewing(true)}>View selected design full size</button> : null}
+        <p className="type-helper text-ink-muted" role="status">{templates.length} designs</p>
+        {showPreviewButton ? <button type="button" className="min-h-11 rounded-ctl border border-teal/30 bg-white px-3 type-button font-semibold text-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal" onClick={() => setPreviewing(true)}>View selected design full size</button> : null}
       </div>
       {templates.length === 0 ? <div className="rounded-card border border-line bg-white p-4 type-helper text-ink-soft">No matching designs.<button type="button" className="ml-2 min-h-11 font-semibold text-teal" onClick={() => setPurpose('all')}>Clear filters</button></div> : null}
       <div ref={wrapRef} role="group" aria-label="Resume templates" className={wrap}>

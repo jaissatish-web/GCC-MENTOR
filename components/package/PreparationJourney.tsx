@@ -63,7 +63,7 @@ export function PreparationJourney({
     <section aria-label={isRaw ? 'Profile Resume' : NAMES.targetJob} className={bare ? '' : 'rounded-card border border-line bg-white p-4 shadow-m-1'}>
       <div className={cn('flex items-start justify-between gap-3', bare && 'sr-only')}>
         <div className="min-w-0">
-          <p className="type-caption font-semibold uppercase tracking-[0.1em] text-ink-muted">{isRaw ? 'Profile Resume' : NAMES.targetJob}</p>
+          <p className="type-helper font-semibold uppercase tracking-[0.1em] text-ink-muted">{isRaw ? 'Profile Resume' : NAMES.targetJob}</p>
           <p className="mt-0.5 break-words font-display type-card leading-tight text-ink">{pkg.name || pkg.target_job_title}</p>
           <p className="mt-1 flex flex-wrap items-center gap-x-2 type-helper text-ink-soft">
             {isRaw ? 'Based only on your saved profile · No job description' : [pkg.target_company, country].filter(Boolean).join(' · ')}
@@ -84,8 +84,8 @@ export function PreparationJourney({
         ) : null}
       </div>
 
-      {isRaw && !bare ? <p className="mb-2 flex items-center gap-1.5 type-caption font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE} · Profile-based preparation</p> : null}
-      {full && !isRaw ? <p className="mt-2 type-caption text-ink-muted">Saved application resume · {new Date(full.created_at).toLocaleDateString()}{country ? ` · ${country}` : ''}</p> : null}
+      {isRaw && !bare ? <p className="mb-2 flex items-center gap-1.5 type-helper font-semibold text-teal"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE} · Profile-based preparation</p> : null}
+      {full && !isRaw ? <p className="mt-2 type-helper text-ink-muted">Saved application resume · {new Date(full.created_at).toLocaleDateString()}{country ? ` · ${country}` : ''}</p> : null}
       <ol aria-label={isRaw ? 'Career Profile preparation' : "This job's pack"} className={cn('grid grid-cols-2 gap-1.5 sm:grid-cols-4', bare ? 'mt-2' : 'mt-3')}>
         {steps.map((step) => {
           const isHere = here === step.key

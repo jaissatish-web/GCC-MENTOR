@@ -1,54 +1,45 @@
-# GCC Mentor full brand rollout — 18 October 2026
+# UI refinement — 18 October 2026
 
 final result: passed
 
-## Visual target and scope
+## Scope and source truth
 
-The approved emerald-led brand board is the reference, not a specification for changing service behaviour. Source: `generated_images/exec-cea834fa-d540-49e7-9712-63d0a0babad7.png` in the task workspace (1536×1024). The comparison image below includes that source and the rendered mobile implementation in one view.
+The user's latest direction is to retain the original website and change typography, colours, design and UI only. The baseline is main commit c18c6bbba65a96fde83413b4ceab889e16be6b45. No generated alternative flow is implemented. Source visual benchmark: `/workspace/scratch/gcc-audit-04-mobile-guide.jpg` (390 × 844 pixels), the existing How It Works experience. The benchmark is for styling rather than identical content or screen composition.
 
-The existing Next.js application retains its routes, authentication, data models, AI prompts, readiness calculations, exports, resume fonts, rotating template collection and globe. Shared tokens and components propagate the brand across service pages. Home, authentication, profile/import guidance, optimizer and public landing surfaces receive targeted changes. This is visual and navigation QA; it is not a new live AI-service or authentication integration test.
+## Browser evidence
 
-## Evidence
+- `/workspace/scratch/gcc-ui-target-refined.jpg`: original job form at 390px and 850px iframe widths in a 1348 × 930 browser capture.
+- `/workspace/scratch/gcc-ui-target-320.jpg`: same original form at 320px; 303px content width including the browser's iframe scrollbar, with scrollWidth equal to clientWidth. Original title input enables the original Next action. Visible keyboard focus retained.
+- `/workspace/scratch/gcc-ui-qa-final.jpg`: original Q&A question, revealed answer and explanatory panels at 390px and 850px.
+- `/workspace/scratch/gcc-ui-home-refined.jpg`: original returning-user Home at 390px and 850px. Mobile clientWidth and scrollWidth both 373px.
+- `/workspace/scratch/gcc-ui-style-comparison-final.jpg`: benchmark plus mobile content crops from the job form and expanded Q&A in one combined comparison input. Each crop is displayed at approximately 386px wide; browser density is 1. This is a comparison of the visual system across different page states, not a pixel-identical clone.
 
-- `design-qa/brand-rollout/brand-comparison-final.jpg`: approved board beside the final mobile Home. Source board scaled to 1152×768; actual 385×834 content crop scaled to 355×768. The board is illustrative; dynamic job status, saved counts and existing navigation icons are intentional product adaptations.
-- `design-qa/brand-rollout/home-final.jpg`: 390px mobile iframe and 850px tablet iframe in the same browser capture, 1× pixels. The native scrollbar takes 17px, giving a measured 373px mobile content viewport and no horizontal overflow.
-- `design-qa/brand-rollout/landing.jpg`: full desktop landing hero and GCC destination band.
-- `design-qa/brand-rollout/tools-320.jpg`: seven service cards, premium/free categories and one More menu at a 320px iframe width (303px content, no horizontal overflow).
-- Additional local captures cover the resume target form, Interview Q&A, LinkedIn introduction, AuthShell and full-size orbit preview. Synthetic account data is used throughout the isolated preview. The auth capture checks the shared shell and controls, not a real sign-in submission.
+The combined view makes paragraph text, controls, card edges and page spacing readable, so a further zoomed crop was unnecessary. Screens use fictional fixtures with actual production components. The 850px preview exercises the tablet sidebar breakpoint, not a full-width desktop viewport. The production build separately covers all routes.
 
-## Iteration and fixes
+## Findings and refinements
 
-The first comparison was blocked by a continuation card whose supporting copy and status rows pushed the service grid too far down the phone viewport (P1). The initial saved-card wrapper also consumed useful horizontal space (P2). The final implementation leads with the job and primary action; supporting instructions and status remain accessible in a native disclosure. Saved cards now use the full content width. The returning user's profile follows the task and saved work; a new user's profile creation remains first. Final recapture shows all four saved-work cards within the mobile viewport, with ordinary page scrolling and compact navigation.
+The earlier audit found important explanatory text and actions using 11.5–13px caption styles. These roles now use 14px supporting text and 15px actions. Short badges and counts retain caption styling. Shared desktop title and section sizes are 30px and 22px; mobile remains 26px and 20px, with 16px body text and inputs. No content has been removed to achieve the layout.
 
-A preview-only adapter for Next dynamic imports initially failed to load the document orbit. The adapter was corrected; no production orbit implementation was changed. The actual orbit subsequently rendered ten designs and opened the full-size document dialog. This infrastructure fix is separate from the visual iteration.
+Q&A previously used heavy green borders and Arial answer text. It now uses subtle indigo section backgrounds, navy reading text, neutral white fields, lighter borders and Inter answers at 16px / 28px. Semantic gold and violet explanation panels remain distinct. The final expanded-answer capture shows comfortable wrapping and unchanged answer-reveal controls.
 
-## Required fidelity surfaces
+The revised mobile card padding is 16px. Home supporting text is 14px and primary continuation controls are 48px tall. The final captures show no new overlap or horizontal clipping in the inspected states. No actionable P0/P1/P2 issue remains in this styling scope.
 
-| Surface | Result |
+## Fidelity surfaces
+
+| Surface | Review |
 | --- | --- |
-| Typography | Inter verified in the browser; 26/32px application titles, 20/24px sections, 16px body and inputs, 14px controls/helpers. Document typography remains isolated. |
-| Spacing | 16px mobile gutters, 24px page rhythm, 12–16px card corners. Main action height measured at 48px. Small navigation targets remain at least 44px. |
-| Colours | Emerald actions, navy reading text, pale neutral canvas, white surfaces; coral letters, indigo Q&A, violet mock, blue LinkedIn, orange NaukriGulf and amber templates. Icons and labels carry meaning alongside colour. |
-| Assets | Existing hero photograph, rotating real resume documents and globe retained. No placeholder or replacement artwork introduced. |
-| Content | Existing service instructions and states retained. The optimizer has exactly two visible text inputs: job title and description. Home uses real state-derived destinations in production. |
+| Typography | Inter verified through browser computed styles. Intentional body/helper/action hierarchy; document renderers excluded. |
+| Spacing | Existing page and control positions retained. Mobile padding adjusted through shared tokens; 320px form fit verified. |
+| Colours | Emerald actions, navy body text, white cards, neutral canvas, service accents; Q&A reading surfaces softened. |
+| Assets | Existing assets and icon system unchanged; no new placeholder art. |
+| Copy | All labels, instructions, links and inputs retained. The job form still has only title and description inputs. |
 
-## Interaction checks
+## Flow preservation and checks
 
-- Home preparation details open and close; saved status becomes visible when expanded.
-- Mobile More opens the service drawer and closes with its close button; only one More trigger appears on mobile Tools.
-- Target form accepts title and description and enables Next when a title is present. No generation request was submitted in this preview check.
-- Q&A renders the saved resume selector and service setup with its indigo identity.
-- LinkedIn renders its blue identity, readable outputs and responsive action.
-- How It Works opens and switches to Simulation; separate CV/service/session selectors remain available, including multiple Q&A sets and mock sessions.
-- Landing template orbit renders and opens the full-size document preview.
-- Inputs retain visible labels; focus, error/loading states and document isolation remain in shared components. No new app console errors after repairing the preview-only import adapter; browser-extension metadata messages are excluded.
+A TypeScript AST comparison of all 34 changed TSX files, ignoring only JSX className/style attributes, passes. Every other AST node is identical to the baseline, including element order, controls, copy, hrefs, event handlers, conditionals and service logic. Other source changes are limited to two CSS files. No API, data model, renderer, prompt, export or calculation code changed.
 
-## Code validation
+Browser checks: original title input enables Next; Q&A answer reveal works at mobile and tablet widths; selected resume and saved-work context remain visible. No generation requests were submitted. Console inspection returned only browser-extension metadata errors, with no application error in the inspected states.
 
-- 69/69 existing deterministic and disposable-database checks passed.
-- Dashboard checks passed again after the final Home layout refinement.
-- TypeScript and repository lint passed.
-- Production Next.js build passed; the final cached build is also checked before publishing.
-- `git diff --check` passed.
+TypeScript, lint, production build and the repository's deterministic/disposable-database suite are release gates. Full paid-service execution and every possible populated screen are outside the styling verification scope.
 
-No remaining P0/P1/P2 findings in the reviewed visual scope. Detailed live service execution is outside this styling release and is not claimed as re-tested.
+Validation completed: TypeScript and lint passed; 68/69 checks passed in the full suite. The remaining universal-theme check found an undefined supporting-text colour variable; it was corrected to the existing RGB token and rerun successfully. The final browser capture verifies rgb(82, 99, 121) at 14px. All 69 checks therefore pass against the current scope across the full run and targeted rerun. The production build passed before the final CSS correction. Subsequent workspace builds compiled and generated all pages but encountered ENOTEMPTY during generated-folder cleanup. An isolated build of the same tracked source, including the final correction, completed successfully with exit 0 in `/tmp/gcc-ui-build-9sc6zssv`; no production build configuration was changed.

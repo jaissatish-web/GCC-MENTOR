@@ -232,14 +232,14 @@ export function GulfReadinessView({
                       type="button"
                       aria-expanded={open}
                       onClick={() => setOpenSteps((s) => ({ ...s, [m.key]: !open }))}
-                      className="-mx-1 inline-flex min-h-11 items-center px-1 text-[12.5px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                      className="-mx-1 inline-flex min-h-11 items-center px-1 type-button font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                     >
                       {open ? 'Hide the steps' : 'How to do it'}
                     </button>
                     <button
                       type="button"
                       onClick={() => onFix(m.field)}
-                      className="-mx-1 inline-flex min-h-11 items-center px-1 text-[12.5px] font-bold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                      className="-mx-1 inline-flex min-h-11 items-center px-1 type-button font-bold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                     >
                       {m.status === 'unknown' ? 'Answer in your profile →' : 'Update your status →'}
                     </button>
@@ -301,7 +301,7 @@ export function GulfReadinessView({
                 type="button"
                 aria-expanded={allProfile}
                 onClick={() => setAllProfile((v) => !v)}
-                className="-mx-1 inline-flex min-h-11 items-center self-start px-1 text-[13px] font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                className="-mx-1 inline-flex min-h-11 items-center self-start px-1 type-button font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
               >
                 {allProfile ? 'Show fewer' : `Show all ${profileRecs.length}`}
               </button>
@@ -390,7 +390,7 @@ export function GulfReadinessView({
             <ul className="mt-3 flex flex-col gap-2">
               {gulf.strengths.length ? (
                 gulf.strengths.map((s, i) => (
-                  <li key={i} className="flex gap-2 text-[13px] leading-snug text-ink-soft">
+                  <li key={i} className="flex gap-2 type-helper leading-snug text-ink-soft">
                     <span aria-hidden="true" className="text-ok">
                       ✓
                     </span>
@@ -398,7 +398,7 @@ export function GulfReadinessView({
                   </li>
                 ))
               ) : (
-                <li className="text-[13px] text-ink-muted">Nothing clear yet — the fixes above are where to start.</li>
+                <li className="type-helper text-ink-muted">Nothing clear yet — the fixes above are where to start.</li>
               )}
             </ul>
           </section>
@@ -410,7 +410,7 @@ export function GulfReadinessView({
             <ul className="mt-3 flex flex-col gap-2">
               {gulf.weaknesses.length ? (
                 gulf.weaknesses.map((w, i) => (
-                  <li key={i} className="flex gap-2 text-[13px] leading-snug text-ink-soft">
+                  <li key={i} className="flex gap-2 type-helper leading-snug text-ink-soft">
                     <span aria-hidden="true" className="text-alert">
                       !
                     </span>
@@ -418,7 +418,7 @@ export function GulfReadinessView({
                   </li>
                 ))
               ) : (
-                <li className="text-[13px] text-ink-muted">No major gaps stood out.</li>
+                <li className="type-helper text-ink-muted">No major gaps stood out.</li>
               )}
             </ul>
           </section>

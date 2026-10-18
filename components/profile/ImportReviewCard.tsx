@@ -104,7 +104,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
               <div className="min-w-0 flex-1">
                 <p className="type-label font-semibold text-ink">{item.title}</p>
                 <p className="mt-1 type-helper text-ink-soft">{item.reason}</p>
-                <p className="mt-1 type-caption font-semibold text-gold-ink">{item.priority === 'urgent' ? 'Important to complete' : item.priority === 'correction' ? 'Correction available' : 'Recommended improvement'}</p>
+                <p className="mt-1 type-helper font-semibold text-gold-ink">{item.priority === 'urgent' ? 'Important to complete' : item.priority === 'correction' ? 'Correction available' : 'Recommended improvement'}</p>
               </div>
             </div>
             {item.change && <Comparison change={item.change} applied={false} compact />}
@@ -114,7 +114,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
             </div>
           </li>)}
         </ol>
-        {profileAttention.some(item => item.change) && <p className="mt-3 type-caption text-ink-muted">Review the wording, then press Save after applying or editing.</p>}
+        {profileAttention.some(item => item.change) && <p className="mt-3 type-helper text-ink-muted">Review the wording, then press Save after applying or editing.</p>}
       </div> : null}
       <div id="import-review-details" className="ui-panel-padding border-t border-line p-4 sm:p-5">
         <div className="flex flex-wrap gap-2" role="group" aria-label="Import review views">
@@ -128,7 +128,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
           {review.wordingStatus === 'unavailable' && <p className="pb-4 type-helper text-ink-soft">The additional wording check could not finish. Your resume was imported; no AI wording suggestions are shown.</p>}
           {review.wordingStatus === 'checked' && review.wordingCoverage && review.wordingCoverage.checked < review.wordingCoverage.total && <p className="pb-4 type-helper text-ink-soft">Wording check: {review.wordingCoverage.checked} of {review.wordingCoverage.total} entries. Check the remaining entries against your original resume.</p>}
           {!review.changes.length && <p className="py-4 type-helper text-ink-soft">No cleanup changes or review notes were recorded. You can still compare the original text and edit any profile section.</p>}
-          <p className="type-caption text-ink-soft">Crossed-out words show removed text. Underlined words show new text. Career facts stay yours to verify.</p>
+          <p className="type-helper text-ink-soft">Crossed-out words show removed text. Underlined words show new text. Career facts stay yours to verify.</p>
           {groups.filter(group => group.items.length > 0).map(group => <details key={group.id} open={group.id !== 'cleanups'} className="group rounded-ctl border border-line">
             <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-ctl px-3 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
               <span className="min-w-0"><span className="type-label font-semibold text-ink">{group.title} <span className="ml-1 rounded-full bg-teal-soft px-2 py-0.5 type-caption text-teal">{group.items.length}</span></span><span className="mt-1 block type-helper text-ink-soft">{group.hint}</span></span>
@@ -147,7 +147,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
               </div>
               {(change.before || change.after) && <Comparison change={change} applied={applied} />}
               <p className="mt-2 type-helper text-ink-soft">{change.reason}</p>
-              {change.restorable && current !== null && !original && !applied && change.kind !== 'duplicate' && <p className="mt-2 type-caption text-ink-muted">This field has since been edited. Review it in your profile.</p>}
+              {change.restorable && current !== null && !original && !applied && change.kind !== 'duplicate' && <p className="mt-2 type-helper text-ink-muted">This field has since been edited. Review it in your profile.</p>}
               <div className="mt-3 flex flex-wrap gap-2">
                 {canToggle && change.suggested ? <>
                   <button type="button" disabled={busy} aria-pressed={choices[change.id] === 'after' && applied} className={buttonVariants({ variant: 'primary', size: 'sm' })} onClick={() => choose(change, 'after')}>Use suggestion</button>
@@ -161,13 +161,13 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
             </div>
           </details>)}
         </div>}
-        <p className="mt-4 flex items-start gap-2 type-caption text-ink-muted"><ShieldCheckIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />Suggestions need your approval. Your uploaded file is unchanged. Press Save after applying, restoring or editing profile details.</p>
+        <p className="mt-4 flex items-start gap-2 type-helper text-ink-muted"><ShieldCheckIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />Suggestions need your approval. Your uploaded file is unchanged. Press Save after applying, restoring or editing profile details.</p>
         <details className="mt-4 border-t border-line pt-3"><summary className="flex min-h-11 cursor-pointer items-center type-helper text-ink-muted">Remove this saved comparison</summary><p className="mt-2 type-helper text-ink-soft">Removes the original text and this change history. Your Career Profile stays available.</p><button type="button" disabled={removing} className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' mt-2 text-alert'} onClick={async () => { setRemoving(true); setError(''); try { await onRemove() } catch { setError('Could not remove the comparison. Please try again.') } finally { setRemoving(false) } }}>{removing ? 'Removing…' : 'Remove comparison'}</button>{error && <p role="alert" className="mt-2 type-helper text-alert">{error}</p>}</details>
       </div>
       <div className="border-t border-line bg-teal-soft/30 p-4 sm:p-5">
         <p className="mb-3 type-helper text-ink-soft">{reviewed ? 'You confirmed this review. You can still inspect the comparison or edit your profile.' : 'Review your imported details and choose which suggestions to keep. Save any profile edits, then confirm this review. Confirming does not apply suggestions or save profile changes.'}</p>
         {!reviewed && <button type="button" disabled={busy || !canConfirm} onClick={confirmReview} className={buttonVariants({ variant: 'primary', size: 'sm' })}>Confirm review</button>}
-        {!reviewed && !canConfirm && <p className="mt-2 type-caption text-ink-muted">Save your profile changes first, then confirm this review.</p>}
+        {!reviewed && !canConfirm && <p className="mt-2 type-helper text-ink-muted">Save your profile changes first, then confirm this review.</p>}
         {storageError && <p role="alert" className="mt-2 type-helper text-alert">Could not remember your review in this browser. Please try again.</p>}
       </div>
       </div>

@@ -236,7 +236,7 @@ function InterviewQaScreen() {
               </label>
             ) : null}
             {questionSet ? (
-              <p className="type-caption leading-relaxed text-ink-muted">
+              <p className="type-helper leading-relaxed text-ink-muted">
                 A new set is saved alongside your earlier ones. The {SAVED_PER_PACKAGE} newest are kept for each {isRaw ? 'resume' : 'job'}.
               </p>
             ) : null}
@@ -372,7 +372,7 @@ function InterviewQaScreen() {
         />
       ) : null}
 
-      <p className="mt-6 text-center type-caption text-ink-muted">
+      <p className="mt-6 text-center type-helper text-ink-muted">
         {isRaw ? 'Answers use only your saved Career Profile. Unsupported numbers are removed before you see them.' : "Answers are written from this job's saved resume and your Career Profile. Any answer stating a number that is in neither is removed before you see it."}
       </p>
     </PageShell>

@@ -134,7 +134,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
           {/* Was "Your payment is safe … without paying twice" — there is no
               payment step while the locks are off, so it reassured the user
               about something that never happened. What is true: the job is kept. */}
-          <p className="mt-3 text-[12px] text-ink-muted">
+          <p className="mt-3 type-helper text-ink-muted">
             Your saved job details remain in your Resume Library. You can retry from here or return to your saved work.
           </p>
           <div className="mt-7 flex flex-col gap-3">

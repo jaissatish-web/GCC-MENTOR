@@ -103,14 +103,14 @@ export function ResultsOverview({
                 ) : null}
               </div>
               <ScoreBar before={report.before.total} after={report.after.total} />
-              <p className="text-[12.5px] text-ink-soft">
+              <p className="type-helper text-ink-soft">
                 {pending > 0
                   ? `Up to ${report.projected_with_suggestions ?? report.after.total} if you confirm the ${pending} suggested line${pending === 1 ? '' : 's'} below.`
                   : `Estimated match potential with your current profile: ${Math.max(report.max_total, report.after.total)}.`}
               </p>
               {/* Optimizer v3: say plainly when the job is outside the user's field. */}
               {report.field_match && report.field_match.match !== 'same' ? (
-                <p className="text-[12.5px] leading-snug text-ink-soft">
+                <p className="type-helper leading-snug text-ink-soft">
                   {report.field_match.match === 'different'
                     ? `This job (${report.field_match.job_field}) is outside your field (${report.field_match.candidate_field}), so the score stays low. Jobs in your field score much higher.`
                     : `This job is partly your field: requirements outside ${report.field_match.candidate_field} stay unmet.`}
@@ -118,7 +118,7 @@ export function ResultsOverview({
               ) : null}
               {/* Certificates are never added for the user — offered instead. */}
               {report.ask_certifications?.length ? (
-                <p className="text-[12.5px] leading-snug text-ink-soft">
+                <p className="type-helper leading-snug text-ink-soft">
                   The job also asks for{' '}
                   <strong className="text-ink">{report.ask_certifications.slice(0, 3).map((c) => c.term).join(', ')}</strong>.
                   {' '}If you hold one,{' '}
@@ -132,7 +132,7 @@ export function ResultsOverview({
           ) : (
             <>
               <p className="text-[14px] font-semibold text-ink">Not calculated yet for this resume</p>
-              <p className="text-[12.5px] leading-relaxed text-ink-soft">
+              <p className="type-helper leading-relaxed text-ink-soft">
                 Reading the job took too long when this resume was built. Calculate it now: we read the job again and score
                 your resume before and after. Your resume text stays the same{summary ? '' : ', except that an empty summary is filled from your profile facts'}.
               </p>
@@ -145,7 +145,7 @@ export function ResultsOverview({
                 {scoring ? 'Reading the job and scoring…' : 'Calculate ATS score'}
               </button>
               {scoring ? <ProcessingInline steps={['Reading the job description', 'Scoring your resume before', 'Scoring your optimized resume']} stepMs={3500} notes={RESCORE_NOTES} /> : null}
-              {scoreError ? <p className="text-[12.5px] text-alert">{scoreError}</p> : null}
+              {scoreError ? <p className="type-helper text-alert">{scoreError}</p> : null}
             </>
           )}
         </article>
@@ -163,7 +163,7 @@ export function ResultsOverview({
           {summary ? (
             <p className="text-[14px] leading-relaxed text-ink">{summary}</p>
           ) : (
-            <p className="text-[13px] leading-relaxed text-ink-soft">
+            <p className="type-helper leading-relaxed text-ink-soft">
               This resume has no summary yet. Use <strong>Calculate ATS score</strong> above to fill it from your profile
               facts, or write your own with {CTA.editCv}.
             </p>
@@ -186,8 +186,8 @@ export function ResultsOverview({
               never silent: say how many and link to where they can be removed. */}
           {confirmed > 0 && report?.auto_applied ? (
             <div className="flex flex-col gap-1 rounded-ctl border border-gold/50 bg-white p-3">
-              <p className="text-[13px] font-semibold text-ink">{confirmed} line{confirmed === 1 ? '' : 's'} added for this job, typical of your field</p>
-              <p className="text-[12.5px] text-ink-soft">Keep only what is true for you, you may be asked about any line in an interview.</p>
+              <p className="type-helper font-semibold text-ink">{confirmed} line{confirmed === 1 ? '' : 's'} added for this job, typical of your field</p>
+              <p className="type-helper text-ink-soft">Keep only what is true for you, you may be asked about any line in an interview.</p>
               <Link href={`/optimize/preview/${id}`} className="inline-flex min-h-11 items-center self-start text-[13px] font-semibold text-gold-ink underline-offset-2 hover:underline">See and remove →</Link>
             </div>
           ) : null}

@@ -124,3 +124,8 @@
 .savedPanel{border:0;background:transparent;box-shadow:none;padding:0}
 .savedRow{min-height:132px}
 @media(min-width:640px){.resumeContext h2,.resumeContext .workspaceName{font-size:24px}.savedPanel{padding:0}.savedRow{min-height:144px}}
+
+/* Readable supporting copy without changing the dashboard structure. */
+.workspaceLabel,.preparationStatus li,.nextContext,.datesIntro,.datesSummary small,.trackerNote,.company,.dateNotice>span>span{font-size:14px;line-height:1.6}
+.continueActions>a:first-child,.continueActions>button{font-size:15px;min-height:48px}
+@media(min-width:640px){.pageHeading h1{font-size:30px}.foundationHeading h2,.savedHeading h2{font-size:22px}}

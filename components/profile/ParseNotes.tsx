@@ -91,7 +91,7 @@ export function ParseNotes({
               <button
                 type="button"
                 onClick={() => onGo(target)}
-                className="text-left text-[13px] font-medium text-gold-text underline underline-offset-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                className="text-left type-button font-medium text-gold-text underline underline-offset-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
               >
                 {label}
               </button>
