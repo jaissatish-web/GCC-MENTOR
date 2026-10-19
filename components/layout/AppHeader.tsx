@@ -29,9 +29,7 @@ import { ServicesMenu } from './ServicesMenu'
  * Sticky, because the way back should not require scrolling to the top first.
  */
 export function AppHeader() {
-  const pathname = usePathname()
-  const home = pathname === '/dashboard'
-  if (pathname?.startsWith('/package/')) return null
+  const home = usePathname() === '/dashboard'
   return (
     // PHONES AND TABLETS ONLY (2026-09-24 simplification). On a laptop the
     // sidebar already carries the wordmark and every destination, so this bar
@@ -57,7 +55,7 @@ export function AppHeader() {
         </Link>
 
         <Link href="/settings" aria-label="Account settings" className="ml-auto flex size-11 items-center justify-center rounded-ctl text-ink-soft hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal md:hidden"><UserCircleIcon aria-hidden="true" className="size-6" /></Link>
-        <div className="ml-auto"><ServicesMenu /></div>
+        <div className="ml-auto hidden md:block"><ServicesMenu /></div>
       </div>
     </header>
   )

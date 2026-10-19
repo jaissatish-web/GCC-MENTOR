@@ -62,6 +62,3 @@ tmp-*.mjs
 # These are 250KB HTML dumps, not project source.
 z*.html
 dh.md
-
-# Local read-only design QA bundle
-.desk-qa/

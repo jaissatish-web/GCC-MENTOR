@@ -436,16 +436,3 @@
 .painDisclosure[open]{padding-bottom:16px}
 .page .painDisclosure>.painPoints{margin:0 16px}
 .painDisclosure:not([open]) .painPoints>li{animation:none}
-
-/* Opportunity Desk: one palette and one content rhythm across the full landing. */
-.page{--brand:#10574b;--deep:#102c29;--paper:#f7f9f8;--ink:#102c29;--muted:#61716e;--line:#e0e8e5;--gold:#ac843d;background:#fff}
-.page .section{padding-block:40px}.page .kicker{text-transform:none;font-weight:var(--ui-weight-label);color:var(--muted)}
-.page .heading{margin-bottom:24px}.page .heading h2{--ui-section-size:1.375rem;--ui-title-size:1.375rem;margin-top:8px;max-width:35ch}.page .heading p{max-width:60ch}
-.page .primary,.page .outline{border-radius:8px;box-shadow:none}.page .navy{background:#f3f7f5;color:var(--ink)}
-.page .navy :is(h2,h3){color:var(--ink)}.page .navy p{color:var(--muted)}.page .navy .kicker{color:var(--brand)}.page .founder{border-color:var(--line)}.page .monogram{background:#e3eee8;color:var(--brand)}.page .founder a{color:var(--brand)}
-.page .services{gap:0;border-top:1px solid var(--line)}.page .services a{border:0;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;padding:20px 12px;min-height:144px;background:transparent}.page .services a:hover{background:#f0f6f3;box-shadow:none}.page .services a>svg:first-child{width:34px;height:34px;padding:7px;color:var(--brand);background:#eaf2ed;border-radius:8px}.page .services h3{margin-top:10px}.page .services p{font-size:var(--ui-helper-size)}
-.page .destinationList{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:900px;margin-inline:auto}.page .destinationItem{gap:7px;min-height:48px;padding:8px;justify-content:center;border-radius:8px}.page .destinationFlag{width:24px;height:18px;flex:none}.page .destinationName{font-size:var(--ui-caption-size);text-align:center;line-height:var(--ui-body-line)}
-.page .painSection{padding-block:16px 6px}.page .journeySection{padding-block:6px 20px}.page .painDisclosure{border-radius:9px}.page .painDisclosure>.painHeading{min-height:64px;padding:14px}.page .painDisclosure .painHeading h2{--ui-section-size:1rem}.page .expandMark{border-radius:8px}
-.page .accessGrid article{border-radius:9px;box-shadow:none;padding:20px}.page .faq details{border-radius:0;border-width:0 0 1px;padding-inline:0}.page .final{background:#f0f6f3;color:var(--ink);padding-block:44px}.page .final h2{color:var(--ink)}.page .final p,.page .final small{color:var(--muted)}
-@media(max-width:374px){.page .destinationFlag{display:none}}
-@media(min-width:768px){.page .section{padding-block:64px}.page .painSection{padding-block:24px 8px}.page .journeySection{padding-block:8px 32px}.page .services a{padding:24px}.page .destinationList{grid-template-columns:repeat(6,minmax(0,1fr));max-width:none}}

@@ -17,8 +17,6 @@ export const services = [
  ['Mock Interview','Practise and review your next step.','/mock-interview','interview'],
  ['Resume Templates','Choose from 50+ real resume designs.','/templates','templates'],
  ['Saved Reports','Revisit applications and preparation.','/dashboard/library','reports'],
- ['LinkedIn Optimization','Present your professional story from your profile.','/linkedin-optimization','linkedin'],
- ['NaukriGulf Optimization','Prepare your profile for Gulf recruiter visibility.','/naukrigulf-optimization','naukrigulf'],
 ] as const
 export const problems = [
  ['Late applications','The shortlist may already be moving.','Reuse your Career Profile to prepare for an active vacancy. Applying early can help; selection still depends on employer criteria.'],

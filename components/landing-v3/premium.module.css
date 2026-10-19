@@ -169,7 +169,7 @@
  .navInner{min-height:64px;gap:12px;padding-block:8px}
  .system .brand{min-width:0;flex-shrink:1;gap:8px}
  .brandMark{flex:none;width:34px;height:38px}
- .brand>span:last-child{min-width:0;line-height:var(--ui-heading-line)}
+ .brand>span:last-child{min-width:0;line-height:1.25}
  .brand small{display:none}
  .navActions{flex:none;gap:4px}
 }

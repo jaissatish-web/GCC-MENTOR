@@ -74,7 +74,7 @@ export function HomeProfile({ profile, loading, error, missingLabels = [], score
       <div className={styles.identityCopy}>{heading}<div className={styles.identityText}>{profile.full_name || 'Your saved profile'}</div></div>
       <Link href="/profile?view=details" className={styles.editLink}><PencilSquareIcon aria-hidden="true" className="size-4" /><span>Edit</span></Link>
     </div>
-    <details className={styles.foundationMore}><summary>Gulf readiness & profile details<ChevronDownIcon aria-hidden="true" className="size-4"/></summary><HomeScores profile={profile} score={profileScore} missing={missingLabels.length} gulf={gulf} loading={false} error={false} />
+    <HomeScores profile={profile} score={profileScore} missing={missingLabels.length} gulf={gulf} loading={false} error={false} />
     <div className={styles.profileControls}>
       <Link href="/profile?view=completeness" className={styles.action} aria-label={missingLabels.length ? `Complete Career Profile · ${missingLabels.length} ${missingLabels.length === 1 ? 'item' : 'items'} left` : 'Review Career Profile'}><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0" />{missingLabels.length ? 'Complete profile' : 'Review profile'}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
       <button type="button" className={styles.profileToggle} aria-expanded={showDetails} aria-controls="home-profile-details" onClick={() => setShowDetails(value => !value)}><InformationCircleIcon aria-hidden="true" className="size-4 shrink-0" /><span>How your profile is used</span><ChevronDownIcon aria-hidden="true" className={`${styles.disclosureChevron} ${showDetails ? styles.rotated : ''}`} /></button>
@@ -88,7 +88,7 @@ export function HomeProfile({ profile, loading, error, missingLabels = [], score
       <ProfileWorkflow />
       <p className={styles.profileNote}>Your profile stays saved for future jobs. Updating it does not rewrite previously saved optimized resumes.</p>
       <div aria-label="Profile actions" className={styles.footer}><CareerProfileResumeButton showHint={false} /><Link href="/profile?view=settings" className={styles.action}><Cog6ToothIcon aria-hidden="true" className="size-4" /> Profile settings</Link></div>
-    </div><div className={styles.profileLinks}><Link href="/linkedin-optimization">LinkedIn guidance</Link><Link href="/naukrigulf-optimization">NaukriGulf guidance</Link></div></details>
+    </div>
   </section>
 }
 
