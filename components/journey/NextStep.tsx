@@ -41,7 +41,7 @@ export function NextStep({
       <div className="flex min-w-0 flex-col gap-1">
         <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-teal">What happens next</span>
         <p className="font-display text-[18px] font-semibold leading-snug text-ink">{title}</p>
-        <p className="max-w-[60ch] text-[13.5px] leading-relaxed text-ink-soft">{body}</p>
+        <p className="max-w-[60ch] text-[13.5px] leading-relaxed text-ink-soft type-helper">{body}</p>
       </div>
       <div className="flex shrink-0 flex-col gap-2 sm:items-end">
         <Link href={href} className={cn(buttonVariants({ variant: 'progress' }), 'w-full sm:w-auto')}>

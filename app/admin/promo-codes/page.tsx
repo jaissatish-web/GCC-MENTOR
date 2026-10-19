@@ -48,7 +48,7 @@ export default async function PromoCodesPage(
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">
           Promo codes
         </h2>
-        <p className="text-[12px] text-ink-muted">
+        <p className="text-[12px] text-ink-muted type-caption">
           Unlocks a package&apos;s paid deliverable without Razorpay — for beta testers while
           KYC stays blocked. A user enters a code on the payment screen. Reusable up to the
           redemption limit you set (blank = unlimited).
@@ -158,7 +158,7 @@ export default async function PromoCodesPage(
             ))}
           </div>
         ) : (
-          <p className="text-[12px] text-ink-muted">No promo codes created yet.</p>
+          <p className="text-[12px] text-ink-muted type-caption">No promo codes created yet.</p>
         )}
       </Card>
     </PageShell>

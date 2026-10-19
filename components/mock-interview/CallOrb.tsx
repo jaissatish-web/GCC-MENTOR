@@ -55,7 +55,7 @@ export function CallOrb({
       </div>
       <div className="flex max-w-md flex-col gap-2">
         <h3 className="font-display text-[22px] font-semibold leading-snug text-ink sm:text-[26px]">{title}</h3>
-        <p key={i} className="min-h-[3rem] type-body leading-relaxed text-ink-soft motion-safe:animate-[orb-fade_0.6s_ease-out]">
+        <p key={i} className="min-h-[3rem] type-description leading-relaxed text-ink-soft motion-safe:animate-[orb-fade_0.6s_ease-out]">
           {lines[i]}
         </p>
         {detail ? <p className="type-helper font-semibold text-teal">{detail}</p> : null}

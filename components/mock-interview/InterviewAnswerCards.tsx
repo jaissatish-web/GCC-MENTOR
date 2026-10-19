@@ -18,7 +18,7 @@ export function InterviewAnswerCards({ run, renderAnswer }: { run: MockInterview
     </div>}
   </section>
   return <section className="space-y-3" aria-label="Question cards">
-    <p className="text-sm text-ink-muted">Choose one question to explore your answer and feedback.</p>
+    <p className="text-sm text-ink-muted type-helper">Choose one question to explore your answer and feedback.</p>
     <div className="grid gap-3 sm:grid-cols-2">{run.questions.map((q, index) => <button key={q.id} type="button" onClick={() => setSelectedId(q.id)} className="group min-w-0 rounded-xl border border-line bg-white p-4 text-left transition-colors hover:border-teal hover:bg-teal-soft/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
       <span className="flex items-center justify-between gap-2"><span className="flex items-center gap-2 text-sm text-teal"><MessageSquare size={17} aria-hidden="true" />Question {index + 1}</span><span className="rounded-full bg-canvas px-2 py-1 text-xs text-ink-muted">{typeof q.score === 'number' ? `${q.score}/10` : q.answer ? 'Answered' : 'Skipped'}</span></span>
       <span className="mt-3 block line-clamp-3 type-body text-ink">{q.question}</span><span className="mt-4 flex items-center justify-between text-sm text-teal">Explore answer<ChevronRight size={17} aria-hidden="true" /></span>

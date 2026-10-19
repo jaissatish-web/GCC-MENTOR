@@ -107,6 +107,8 @@ run('verify-voice-db.mjs', [join('scripts', 'verify-voice-db.mjs')])
 run('verify-interview-history-db.mjs', [join('scripts', 'verify-interview-history-db.mjs')])
 run('verify-interview-progress-api.mjs', [join('scripts', 'verify-interview-progress-api.mjs')])
 
+run('verify-typography-source.mjs', [join(root, 'scripts', 'verify-typography-source.mjs')])
+
 const failed = results.filter((r) => !r.ok)
 console.log(`\n${results.length - failed.length}/${results.length} checks passed`)
 process.exit(failed.length === 0 ? 0 : 1)

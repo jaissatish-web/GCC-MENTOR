@@ -131,7 +131,7 @@ export function ResultsOverview({
             </>
           ) : (
             <>
-              <p className="text-[14px] font-semibold text-ink">Not calculated yet for this resume</p>
+              <p className="text-[14px] font-semibold text-ink type-helper">Not calculated yet for this resume</p>
               <p className="type-helper leading-relaxed text-ink-soft">
                 Reading the job took too long when this resume was built. Calculate it now: we read the job again and score
                 your resume before and after. Your resume text stays the same{summary ? '' : ', except that an empty summary is filled from your profile facts'}.
@@ -161,7 +161,7 @@ export function ResultsOverview({
             </Link>
           </div>
           {summary ? (
-            <p className="text-[14px] leading-relaxed text-ink">{summary}</p>
+            <p className="text-[14px] leading-relaxed text-ink type-helper">{summary}</p>
           ) : (
             <p className="type-helper leading-relaxed text-ink-soft">
               This resume has no summary yet. Use <strong>Calculate ATS score</strong> above to fill it from your profile

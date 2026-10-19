@@ -66,7 +66,7 @@ export function AuthHashHandler() {
   if (!working) return null
 
   return (
-    <p className="mb-4 rounded-ctl border border-line bg-canvas px-4 py-3 text-center text-[13px] font-medium text-ink-soft">
+    <p className="mb-4 rounded-ctl border border-line bg-canvas px-4 py-3 text-center text-[13px] font-medium text-ink-soft type-helper">
       Signing you in…
     </p>
   )

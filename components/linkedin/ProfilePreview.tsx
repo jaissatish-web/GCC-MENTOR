@@ -30,7 +30,7 @@ export function ProfilePreview({
       data-testid={`${platform}-preview`}
       dir={draft.setup?.language === 'Arabic' ? 'rtl' : 'ltr'}
     >
-      <p className="linkedin-preview-notice px-4 py-3 text-sm text-ink-muted">
+      <p className="linkedin-preview-notice px-4 py-3 text-sm text-ink-muted type-helper">
         Illustrative preview of your content. {platformName}’s actual layout may
         differ. This does not update your {platformName} account.
       </p>
@@ -58,10 +58,10 @@ export function ProfilePreview({
             </div>
           )}
           <h2 className="linkedin-profile-name text-ink">{text(profile.full_name)}</h2>
-          <p className="linkedin-profile-headline mt-1 whitespace-pre-wrap break-words text-ink">
+          <p className="linkedin-profile-headline type-longform mt-1 whitespace-pre-wrap break-words text-ink">
             {output.headlines[draft.selected_headline]}
           </p>
-          <p className="mt-3 text-sm text-ink-muted">
+          <p className="mt-3 text-sm text-ink-muted type-helper">
             {text(profile.current_location) || 'Your professional profile'}
           </p>
           {platform === 'linkedin' && <div className="mt-3 flex flex-wrap gap-2" aria-hidden="true">
@@ -72,7 +72,7 @@ export function ProfilePreview({
       </section>
       <section className={card}>
         <h2 className="type-section text-ink">{config.summary}</h2>
-        <p className="mt-3 whitespace-pre-wrap break-words leading-normal text-ink-soft">
+        <p className="mt-3 whitespace-pre-wrap break-words leading-normal text-ink-soft type-longform">
           {output.about}
         </p>
       </section>
@@ -87,11 +87,11 @@ export function ProfilePreview({
               return (
                 <article key={entry.id} className="py-4 first:pt-3 last:pb-0">
                   <h3 className="font-medium text-ink">{role ? text(role.role) : 'Saved role — source no longer available'}</h3>
-                  <p className="mt-1 text-ink-soft">{text(role?.company)}</p>
-                  <p className="mt-1 text-sm text-ink-muted">
+                  <p className="mt-1 text-ink-soft type-description">{text(role?.company)}</p>
+                  <p className="mt-1 text-sm text-ink-muted type-helper">
                     {role ? `${role.start_date?.slice(0, 7) ?? 'Date not provided'} – ${role.end_date?.slice(0, 7) ?? 'Present'}` : 'Dates unavailable — prepare a fresh version'}
                   </p>
-                  <p className="mt-3 whitespace-pre-wrap break-words leading-normal text-ink-soft">
+                  <p className="mt-3 whitespace-pre-wrap break-words leading-normal text-ink-soft type-longform">
                     {entry.description}
                   </p>
                 </article>
@@ -108,7 +108,7 @@ export function ProfilePreview({
               <h3 className="font-medium text-ink">
                 {text(entry.institution)}
               </h3>
-              <p className="text-ink-soft">
+              <p className="text-ink-soft type-description">
                 {[text(entry.degree), text(entry.field_of_study)]
                   .filter(Boolean)
                   .join(' · ')}
@@ -123,7 +123,7 @@ export function ProfilePreview({
           {profile.certifications.map((entry) => (
             <article key={entry.id} className="mt-4">
               <h3 className="font-medium text-ink">{text(entry.name)}</h3>
-              <p className="text-ink-soft">{text(entry.issuer)}</p>
+              <p className="text-ink-soft type-description">{text(entry.issuer)}</p>
             </article>
           ))}
         </section>

@@ -291,7 +291,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
   if (error && !pkg) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5">
-        <p className="text-sm text-alert">{error}</p>
+        <p className="text-sm text-alert type-helper">{error}</p>
       </main>
     )
   }

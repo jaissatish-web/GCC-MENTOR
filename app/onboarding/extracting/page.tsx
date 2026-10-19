@@ -159,7 +159,7 @@ function ExtractingScreen() {
   if (path === 'claimed' && stage === 'collect') {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
-        <p className="text-sm text-ink-soft">Picking up your scan…</p>
+        <p className="text-sm text-ink-soft type-helper">Picking up your scan…</p>
       </main>
     )
   }
@@ -230,7 +230,7 @@ function ExtractingScreen() {
           <h1 className="mt-6 font-display text-[27px] leading-tight text-ink">
             Your resume import needs attention
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-ink-soft">{serverMessage}</p>
+          <p className="mt-3 text-sm leading-relaxed text-ink-soft type-helper">{serverMessage}</p>
           <div className="mt-8 flex flex-col gap-3">
             {checkSaved ? <button type="button" onClick={() => window.location.assign('/profile')} className="font-semibold text-teal underline">Check saved resume reading</button> : null}
             <Button

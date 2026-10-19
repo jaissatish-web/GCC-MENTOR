@@ -82,7 +82,7 @@ export default async function AdminServicesPage({
                   <input name="message" maxLength={300} placeholder="e.g. Back in an hour — nothing was used." className={FIELD} />
                 </label>
               ) : group.pausedMessage ? (
-                <p className="text-[12px] text-ink-muted">Users see: &ldquo;{group.pausedMessage}&rdquo;</p>
+                <p className="text-[12px] text-ink-muted type-caption">Users see: &ldquo;{group.pausedMessage}&rdquo;</p>
               ) : null}
               <Button type="submit" size="sm" variant={group.enabled ? 'danger' : 'primary'} busyLabel="Saving…" className="w-fit">
                 {group.enabled ? 'Pause this service' : 'Resume this service'}
@@ -128,13 +128,13 @@ export default async function AdminServicesPage({
 
       <section className="flex flex-col gap-3 border border-line bg-white p-4 sm:p-5">
         <h2 className="font-display text-[17px] font-semibold text-ink">Data clean-up</h2>
-        <p className="text-[13px] leading-relaxed text-ink-soft">
+        <p className="text-[13px] leading-relaxed text-ink-soft type-helper">
           Deletes signed-out CV scans once their seven days are up, and old operational counters. Runs every night
           when the <code className="font-mono text-[12px]">CRON_SECRET</code> setting is configured on Vercel. Counts
           only — no CV content is read or logged.
         </p>
         {lastRun ? (
-          <p className="text-[13px] text-ink-soft">
+          <p className="text-[13px] text-ink-soft type-helper">
             Last run {new Date(lastRun.started_at).toLocaleString()} ({lastRun.trigger}) —{' '}
             {lastRun.ok === false
               ? `failed: ${lastRun.error ?? 'unknown error'}`
@@ -143,7 +143,7 @@ export default async function AdminServicesPage({
                 : 'still running or interrupted'}
           </p>
         ) : (
-          <p className="text-[13px] text-ink-muted">No clean-up has run yet.</p>
+          <p className="text-[13px] text-ink-muted type-helper">No clean-up has run yet.</p>
         )}
         <form action={runRetentionNowAction}>
           <Button type="submit" size="sm" variant="secondary" busyLabel="Running…">
@@ -155,7 +155,7 @@ export default async function AdminServicesPage({
       <section className="flex flex-col gap-2 border border-line bg-white p-4 sm:p-5">
         <h2 className="font-display text-[17px] font-semibold text-ink">Recent changes</h2>
         {changes.length === 0 ? (
-          <p className="text-[13px] text-ink-muted">No changes yet.</p>
+          <p className="text-[13px] text-ink-muted type-helper">No changes yet.</p>
         ) : (
           <ul className="flex flex-col gap-1.5 text-[12.5px] text-ink-soft">
             {changes.map((c) => (

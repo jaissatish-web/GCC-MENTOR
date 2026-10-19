@@ -7,7 +7,7 @@ The visual reference is **Add Job Details**. `app/typography.css` owns every app
 | Page heading | 26px | 30px | 700 | h1 / type-title |
 | Section heading | 20px | 22px | 600 | h2 / type-section |
 | Subheading | 16px | 18px | 600 | h3–h6 / type-card |
-| Paragraph, list, normal copy | 16px | 16px | 400 | p, li, dd / type-body |
+| Paragraph, list, normal copy | 15px | 16px | 400 | p, li, dd / type-body |
 | Input and textarea | 16px | 16px | 400 | input, textarea, select |
 | Field label | 14px | 14px | 500 | label, legend, dt / type-label |
 | Supporting text | 14px | 14px | 400 | type-helper |
@@ -34,3 +34,19 @@ Resume output is protected by `[data-document-preview]`, `#resume-render` and `.
 Brand text has a shared text measure so it wraps at readable sizes, including enlarged text. Long application words can reflow without shrinking the font.
 
 This system changes text properties only. It does not set card padding, card dimensions, colours, borders, page widths, image dimensions or layout spacing.
+
+## Mobile hierarchy refinement
+
+The first pass normalized fonts but used body-size text for many card descriptions and field hints. The refined system separates purpose explicitly:
+
+| Role | Phone | Tablet / desktop |
+|---|---:|---:|
+| Main body | 15px | 16px |
+| Card description (`type-description`) | 14px | 15px |
+| Page introduction (`type-lead`) | 16px | 16px |
+| Copyable result (`type-longform`) | 16px | 16px |
+| Form control | 16px | 16px |
+
+Page, section and card headings remain 26/20/16px on phones and 30/22/18px on larger screens. Labels and supporting text stay 14px; captions stay 12px. Input size is independent of body size to prevent phone zoom and preserve readability. Social metadata uses supporting text; generated summary and experience text uses the long-form role.
+
+Paragraphs describing an adjacent card heading use `type-description`; instructions and status hints use `type-helper`; small metadata uses `type-caption`. Do not reduce all text uniformly or use `type-description` for generated content. These roles change text only and do not alter service behavior, cards, colours, widths or spacing.

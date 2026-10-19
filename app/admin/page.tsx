@@ -114,34 +114,34 @@ export default async function AdminDashboardPage() {
           { href: '/admin/ai-provider', title: 'Manage service AI', body: 'Choose the provider and model used by each service.' },
           { href: '/admin/prompts', title: 'Review service instructions', body: 'Review the instructions that guide resumes, letters and interview preparation.' },
           { href: '/admin/users', title: 'Help a user', body: 'Find a user and inspect their account with the existing access controls.' },
-        ].map((item) => <Link key={item.href} href={item.href} className="rounded-card border border-line bg-white p-4 transition-colors hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><h2 className="text-sm font-semibold text-teal">{item.title}</h2><p className="mt-2 text-sm leading-relaxed text-ink-soft">{item.body}</p></Link>)}
+        ].map((item) => <Link key={item.href} href={item.href} className="rounded-card border border-line bg-white p-4 transition-colors hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><h2 className="text-sm font-semibold text-teal">{item.title}</h2><p className="mt-2 text-sm leading-relaxed text-ink-soft type-helper">{item.body}</p></Link>)}
       </section>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Card className={aiReady ? 'p-4' : 'border-alert/40 bg-alert-soft p-4'}>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">AI Status</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted type-caption">AI Status</p>
           <p className={aiReady ? 'mt-2 font-display text-[24px] font-semibold text-teal' : 'mt-2 font-display text-[24px] font-semibold text-alert'}>
             {aiReady ? 'Ready' : 'Check'}
           </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft type-caption">
             {allProviderConfigs.length} service config{allProviderConfigs.length === 1 ? '' : 's'}
           </p>
         </Card>
         <Card className={liveLegal ? 'p-4' : 'border-alert/40 bg-alert-soft p-4'}>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">Legal</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted type-caption">Legal</p>
           <p className={liveLegal ? 'mt-2 font-display text-[24px] font-semibold text-teal' : 'mt-2 font-display text-[24px] font-semibold text-alert'}>
             {legalLive}/3
           </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">Privacy, terms, refund</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft type-caption">Privacy, terms, refund</p>
         </Card>
         <Card className="p-4">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">Unlocks</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted type-caption">Unlocks</p>
           <p className="mt-2 font-display text-[24px] font-semibold text-teal">{activePromoCodes}</p>
-          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">Active promo codes</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft type-caption">Active promo codes</p>
         </Card>
         <Card className="p-4">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted">Packages</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-ink-muted type-caption">Packages</p>
           <p className="mt-2 font-display text-[24px] font-semibold text-teal">{activePackages}</p>
-          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">Active service bundles</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-soft type-caption">Active service bundles</p>
         </Card>
       </section>
 
@@ -150,7 +150,7 @@ export default async function AdminDashboardPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="font-display text-[18px] font-semibold text-ink">Launch checklist</h2>
-              <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
+              <p className="mt-1 text-[13px] leading-relaxed text-ink-soft type-helper">
                 Configuration indicators only. Confirm generation, downloads and paid access with a real test account before launch.
               </p>
             </div>
@@ -178,7 +178,7 @@ export default async function AdminDashboardPage() {
 
         <Card className="p-5">
           <h2 className="font-display text-[18px] font-semibold text-ink">Service availability</h2>
-          <p className="mt-1 text-[13px] leading-relaxed text-ink-soft">
+          <p className="mt-1 text-[13px] leading-relaxed text-ink-soft type-helper">
             Resume, cover letter, Interview Q&A and Mock Interview settings are available below.
           </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">

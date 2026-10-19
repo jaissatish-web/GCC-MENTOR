@@ -420,7 +420,7 @@ function PackageScreenInner({ id }: { id: string }) {
   if (error) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-canvas px-3 sm:px-5">
-        <p className="text-sm text-alert">{error}</p>
+        <p className="text-sm text-alert type-helper">{error}</p>
       </div>
     )
   }
@@ -1362,8 +1362,8 @@ function PackageScreenInner({ id }: { id: string }) {
                     </button>
                     <div id="photo-settings-panel" hidden={!photoOpen}>
                     <div className="mt-2 rounded-ctl border border-teal/20 bg-teal-soft p-3">
-                      <p className="text-sm font-semibold text-teal">Make your Gulf resume feel personal</p>
-                      <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+                      <p className="text-sm font-semibold text-teal type-helper">Make your Gulf resume feel personal</p>
+                      <p className="mt-1 text-sm leading-relaxed text-ink-soft type-helper">
                         Photo optional. Follow the employer’s instructions.
                       </p>
                     </div>
@@ -1374,10 +1374,10 @@ function PackageScreenInner({ id }: { id: string }) {
                         onBusyChange={setPhotoBusy}
                         onChange={(photoUrl) => setProfile((current) => current ? { ...current, photo_url: photoUrl } : current)}
                       />
-                      <p className="mt-2 text-sm text-ink-muted">Uploads save immediately to Career Profile. Show photo is a setting for this resume only.</p>
+                      <p className="mt-2 text-sm text-ink-muted type-helper">Uploads save immediately to Career Profile. Show photo is a setting for this resume only.</p>
                     </div>
                     {!allowsPhoto ? (
-                      <p className="mt-2 text-sm text-ink-muted">{getTemplate(activeTemplateId).name} does not show photos. Choose a photo-supported template to include yours.</p>
+                      <p className="mt-2 text-sm text-ink-muted type-helper">{getTemplate(activeTemplateId).name} does not show photos. Choose a photo-supported template to include yours.</p>
                     ) : null}
                     {allowsPhoto ? (
                       <div className="mt-2">

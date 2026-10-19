@@ -42,7 +42,7 @@ export function AuthShell({
             <span className="text-[15px] font-bold tracking-[-0.01em] text-ink max-[359px]:sr-only sm:text-[16px]">GCC <span className="text-teal">MENTOR</span></span>
           </Link>
           {aside ? (
-            <p className="flex items-center gap-1 text-[13.5px] text-ink-muted">
+            <p className="flex items-center gap-1 text-[13.5px] text-ink-muted type-helper">
               <span className="hidden sm:inline">{aside.prompt}</span>
               <Link
                 href={aside.href}
@@ -59,7 +59,7 @@ export function AuthShell({
         {/* Brand panel — desktop only */}
         <aside className="relative hidden overflow-hidden rounded-[28px] bg-teal p-10 text-white lg:flex lg:min-h-[560px] lg:flex-col">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_85%_0%,rgba(201,150,46,0.28),transparent_70%)]" aria-hidden="true" />
-          <p className="relative text-[12px] font-semibold uppercase tracking-[0.1em] text-gold-soft">Built by a 15-year Gulf EPC &amp; PMC professional</p>
+          <p className="relative text-[12px] font-semibold uppercase tracking-[0.1em] text-gold-soft type-caption">Built by a 15-year Gulf EPC &amp; PMC professional</p>
           <p className="relative mt-4 text-[34px] font-bold leading-[1.12] tracking-[-0.03em]">{panelTitle}</p>
           <p className="relative mt-3 max-w-[420px] text-[16px] leading-relaxed text-white/80">{panelBody}</p>
           <ul className="relative mt-auto space-y-3 pt-10">
@@ -108,7 +108,7 @@ export function AuthCard({ title, subtitle, children }: { title: string; subtitl
   return (
     <section className="ui-surface rounded-card border border-line bg-white p-4 sm:rounded-[22px] sm:p-8">
       <h1 className="type-title text-ink">{title}</h1>
-      {subtitle ? <p className="mt-2 type-body leading-relaxed text-ink-soft">{subtitle}</p> : null}
+      {subtitle ? <p className="mt-2 type-lead leading-relaxed text-ink-soft">{subtitle}</p> : null}
       <div className="mt-6">{children}</div>
     </section>
   )

@@ -63,7 +63,7 @@ const Question = ({
   onBack: () => void
 }) => (
   <div className="text-center">
-    <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">{eyebrow}</p>
+    <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">{eyebrow}</p>
     <h1 className="mt-3 type-title text-ink">{title}</h1>
     <div className="mx-auto mt-8 flex max-w-md flex-col gap-3">
       {options.map((o) => (
@@ -145,7 +145,7 @@ export default function GulfReadinessScorePage() {
     return (
       <Shell>
         <div className="text-center">
-          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Free Gulf readiness score</p>
+          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Free Gulf readiness score</p>
           <h1 className="mt-3 type-title text-ink">How Gulf-ready is your career?</h1>
           <p className="mt-3 type-body text-ink-soft">
             Two questions and your resume. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
@@ -166,13 +166,13 @@ export default function GulfReadinessScorePage() {
           {pasteMode ? (
             <div id="resume-paste" className="mt-5">
               <label htmlFor="readiness-resume-text" className="field-label">Paste your resume text</label>
-              <p id="resume-text-hint" className="mt-1 text-sm leading-relaxed text-ink-soft">Include your experience, skills and education. Use 50–20,000 characters.</p>
+              <p id="resume-text-hint" className="mt-1 text-sm leading-relaxed text-ink-soft type-helper">Include your experience, skills and education. Use 50–20,000 characters.</p>
               <textarea id="readiness-resume-text" value={resumeText}
                 onChange={(event) => { setResumeText(event.target.value); if (error) setError(null) }}
                 maxLength={MAX_TEXT} rows={8} placeholder="Paste your resume here…"
                 aria-invalid={Boolean(error)} aria-describedby={`resume-text-hint resume-text-count${error ? ' resume-input-error' : ''}`}
                 style={{ height: 240, minHeight: 200, maxHeight: 320 }} className="field mt-3 w-full resize-y overflow-y-auto p-3.5 font-normal" />
-              <p id="resume-text-count" className="mt-1 text-right text-xs text-ink-muted">{resumeText.length.toLocaleString()} / {MAX_TEXT.toLocaleString()} characters</p>
+              <p id="resume-text-count" className="mt-1 text-right text-xs text-ink-muted type-caption">{resumeText.length.toLocaleString()} / {MAX_TEXT.toLocaleString()} characters</p>
             </div>
           ) : (
             <div id="resume-upload" className="mt-5">
@@ -185,16 +185,16 @@ export default function GulfReadinessScorePage() {
                   onChange={(event: ChangeEvent<HTMLInputElement>) => { chooseFile(event.target.files?.[0] ?? null); event.target.value = '' }} />
                 {file ? <CheckCircleIcon className="mx-auto size-8 text-teal" aria-hidden="true" /> : <ArrowUpTrayIcon className="mx-auto size-8 text-teal" aria-hidden="true" />}
                 <h2 className="mt-3 break-words font-display type-card text-ink">{file ? file.name : 'Choose your resume'}</h2>
-                <p id="resume-upload-hint" className="mt-2 text-sm text-ink-soft">PDF or Word (.docx) · Maximum 4MB</p>
+                <p id="resume-upload-hint" className="mt-2 text-sm text-ink-soft type-helper">PDF or Word (.docx) · Maximum 4MB</p>
                 <button type="button" onClick={() => fileInput.current?.click()} className={buttonVariants({ variant: 'secondary', size: 'sm' }) + ' mt-4'}>{file ? 'Change file' : 'Choose a file'}</button>
-                <p className="mt-3 text-xs text-ink-muted">You can also drag and drop your file here.</p>
+                <p className="mt-3 text-xs text-ink-muted type-caption">You can also drag and drop your file here.</p>
               </div>
             </div>
           )}
           </div>
-          {error ? <p id="resume-input-error" role="alert" className="mt-3 rounded-ctl border border-alert bg-alert-soft px-4 py-3 text-sm text-alert">{error}</p> : null}
+          {error ? <p id="resume-input-error" role="alert" className="mt-3 rounded-ctl border border-alert bg-alert-soft px-4 py-3 text-sm text-alert type-helper">{error}</p> : null}
           <button type="button" onClick={startQuestions} className={buttonVariants({ variant: 'primary' }) + ' mt-4 w-full'}>Continue</button>
-          <p className="mt-4 text-center text-xs leading-relaxed text-ink-muted">Your anonymous resume check isn’t saved to our servers.</p>
+          <p className="mt-4 text-center text-xs leading-relaxed text-ink-muted type-caption">Your anonymous resume check isn’t saved to our servers.</p>
         </div>
       </Shell>
     )
@@ -254,7 +254,7 @@ export default function GulfReadinessScorePage() {
         <div className="flex flex-col items-center gap-6 py-12 text-center">
           <ProcessingOrbit size={168} />
           <div>
-            <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Building your scorecard</p>
+            <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Building your scorecard</p>
             <h1 className="mt-3 type-title">Scoring your Gulf readiness</h1>
           </div>
           <div className="w-full max-w-sm text-left">
@@ -269,7 +269,7 @@ export default function GulfReadinessScorePage() {
   return (
     <Shell wide>
       <div className="mb-6 text-center">
-        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal">Your Gulf readiness</p>
+        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Your Gulf readiness</p>
         <h1 className="mt-3 type-title">Here&rsquo;s where your career stands</h1>
       </div>
       {result ? <ScorecardResult result={result} locked /> : null}

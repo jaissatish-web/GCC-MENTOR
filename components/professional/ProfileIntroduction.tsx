@@ -17,7 +17,7 @@ export function ProfileIntroduction({ platform }: { platform: ProfessionalPlatfo
         <div className="professional-hero-copy">
           <span className="professional-kicker type-label">YOUR EXPERIENCE. CLEARLY PRESENTED.</span>
           <h2 id="professional-promise" className="mt-3 type-title text-ink">{copy.headline}</h2>
-          <p className="mt-4 type-body text-ink-soft">{copy.description}</p>
+          <p className="mt-4 type-lead text-ink-soft">{copy.description}</p>
           <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 type-helper font-medium text-teal">
             {['Built from your facts', 'Editable before you copy'].map(label => <span key={label} className="inline-flex items-center gap-1.5"><CheckCircleIcon aria-hidden="true" className="size-5" />{label}</span>)}
           </div>
@@ -34,7 +34,7 @@ export function ProfileIntroduction({ platform }: { platform: ProfessionalPlatfo
         <h2 id="profile-importance" className="mt-2 type-section text-ink">Make it easier to understand your fit.</h2>
         <p className="mt-3 max-w-[75ch] type-body text-ink-soft">{copy.reason}</p>
         <div className="mt-5 grid gap-3 md:grid-cols-3">
-          {copy.outcomes.map(([title, description], i) => { const Icon = icons[i]; return <article key={title} className="professional-panel"><Icon aria-hidden="true" className="mb-3 size-6 text-teal" /><h3 className="type-card text-ink">{title}</h3><p className="mt-2 type-body text-ink-soft">{description}</p></article> })}
+          {copy.outcomes.map(([title, description], i) => { const Icon = icons[i]; return <article key={title} className="professional-panel"><Icon aria-hidden="true" className="mb-3 size-6 text-teal" /><h3 className="type-card text-ink">{title}</h3><p className="mt-2 type-description text-ink-soft">{description}</p></article> })}
         </div>
       </section>
 
@@ -42,7 +42,7 @@ export function ProfileIntroduction({ platform }: { platform: ProfessionalPlatfo
         <p className="type-label font-semibold text-teal">YOUR PERSONALIZED PREPARATION PACK</p>
         <h2 id="profile-output-heading" className="mt-2 type-section text-ink">What you get — and where it goes</h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {copy.outputs.map(([title, description, destination], i) => { const Icon = icons[i]; return <article key={title} className="professional-output-card professional-panel"><span className="professional-output-icon"><Icon aria-hidden="true" className="size-6" /></span><div><h3 className="type-card text-ink">{title}</h3><p className="mt-1 type-body text-ink-soft">{description}</p><p className="mt-3 type-helper font-medium text-teal">Paste into: {destination}</p></div></article> })}
+          {copy.outputs.map(([title, description, destination], i) => { const Icon = icons[i]; return <article key={title} className="professional-output-card professional-panel"><span className="professional-output-icon"><Icon aria-hidden="true" className="size-6" /></span><div><h3 className="type-card text-ink">{title}</h3><p className="mt-1 type-description text-ink-soft">{description}</p><p className="mt-3 type-helper font-medium text-teal">Paste into: {destination}</p></div></article> })}
         </div>
       </section>
 

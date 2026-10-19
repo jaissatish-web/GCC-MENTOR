@@ -69,7 +69,7 @@ export default async function UsersPage(
 
         {q ? (
           results.length === 0 ? (
-            <p className="text-sm text-ink-muted">No matches for &ldquo;{q}&rdquo;.</p>
+            <p className="text-sm text-ink-muted type-helper">No matches for &ldquo;{q}&rdquo;.</p>
           ) : (
             <div className="flex flex-col gap-2">
               {results.map((r) => (
@@ -100,7 +100,7 @@ export default async function UsersPage(
             </div>
           )
         ) : (
-          <p className="text-sm text-ink-muted">
+          <p className="text-sm text-ink-muted type-helper">
             Search for a user to view their packages or override their rate limit.
           </p>
         )}
@@ -114,7 +114,7 @@ export default async function UsersPage(
               Packages — read-only (docs/ADMIN.md §2.2)
             </h2>
             {selectedPackages.length === 0 ? (
-              <p className="text-sm text-ink-muted">No packages for this user.</p>
+              <p className="text-sm text-ink-muted type-helper">No packages for this user.</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {selectedPackages.map((p) => (
@@ -143,7 +143,7 @@ export default async function UsersPage(
             <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">
               Grant a free optimization (docs/ADMIN.md §2.3)
             </h2>
-            <p className="text-[12px] text-ink-muted">
+            <p className="text-[12px] text-ink-muted type-caption">
               The fix for &ldquo;I paid but something broke&rdquo;. One grant = one free
               optimization; it is applied automatically the next time this user optimizes.
               Every grant is logged with your admin ID, the reason, and the timestamp.
@@ -178,7 +178,7 @@ export default async function UsersPage(
                 ))}
               </div>
             ) : (
-              <p className="text-[12px] text-ink-muted">No credits granted to this user yet.</p>
+              <p className="text-[12px] text-ink-muted type-caption">No credits granted to this user yet.</p>
             )}
           </Card>
 

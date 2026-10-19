@@ -84,7 +84,7 @@ try {
       assert.equal(result.titleSize, `${(width >= 640 ? 30 : 26) * scale}px`)
       assert.equal(result.weight, '700')
       assert.equal(result.inputSize, `${16 * scale}px`)
-      assert.equal(result.bodySize, `${16 * scale}px`)
+      assert.equal(result.bodySize, `${(width<640?15:16) * scale}px`)
       assert.ok(result.buttonHeight >= 44)
       await page.$eval('details', element => { element.open = true })
       const choices = await page.evaluate(() => ({

@@ -75,7 +75,7 @@ function AboutBlock({ text }: { text: string }) {
   return (
     <>
       {paragraphs.map((para, i) => (
-        <p key={i} className="max-w-[40ch] text-[13px] leading-relaxed text-ink-soft">
+        <p key={i} className="max-w-[40ch] text-[13px] leading-relaxed text-ink-soft type-helper">
           {para.split(/(\*\*[^*]+\*\*)/g).map((part, j) =>
             part.startsWith('**') && part.endsWith('**') && part.length > 4 ? (
               <strong key={j} className="font-semibold text-ink">
@@ -231,7 +231,7 @@ export async function AppFooter({ variant = 'full' }: { variant?: 'full' | 'comp
       <div className="border-t border-line">
         <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-2 px-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <p className="text-[12px] text-ink-muted">© {year} GCC MENTOR</p>
+            <p className="text-[12px] text-ink-muted type-caption">© {year} GCC MENTOR</p>
             {/* Only what is actually written. An empty list renders nothing —
                 the footer never advertises a policy that does not exist. */}
             {legalPages.map((p) => (
@@ -247,7 +247,7 @@ export async function AppFooter({ variant = 'full' }: { variant?: 'full' | 'comp
           {/* Said plainly rather than hidden. A user deciding whether to trust
               this is better served by knowing there is no card checkout than by
               discovering it at the moment they try to pay. */}
-          <p className="text-[12px] leading-relaxed text-ink-muted">
+          <p className="text-[12px] leading-relaxed text-ink-muted type-caption">
             <NotLiveText>Card checkout is not live yet</NotLiveText> — a purchase is
             arranged directly with us.
           </p>

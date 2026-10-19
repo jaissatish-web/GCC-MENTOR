@@ -83,14 +83,14 @@ export function ScorecardResult({
             <h2 className="font-display text-2xl text-ink">{result.verdict?.label ?? result.band.label}</h2>
             {/* The band's scenario-aware message when the verdict agrees with it;
                 otherwise the verdict's own, so the words never contradict. */}
-            <p className="text-[14px] leading-relaxed text-ink-soft">
+            <p className="text-[14px] leading-relaxed text-ink-soft type-helper">
               {!result.verdict || result.verdict.key === 'ready' ? result.band.message : result.verdict.message}
             </p>
           </div>
         </div>
 
         {result.lowResumeSignal ? (
-          <p className="mt-5 rounded-ctl border border-line bg-canvas/60 px-3.5 py-2.5 text-[12px] text-ink-muted">
+          <p className="mt-5 rounded-ctl border border-line bg-canvas/60 px-3.5 py-2.5 text-[12px] text-ink-muted type-caption">
             {source === 'profile'
               ? 'Your Career Profile is still thin, so parts of this score are a rough estimate. It gets more accurate as you add your work history, skills and education.'
               : 'Some of your resume could not be read clearly, so parts of this score are a rough estimate. Pasting your resume text or uploading a cleaner export gives a more accurate result.'}
@@ -114,7 +114,7 @@ export function ScorecardResult({
             ))}
           </ul>
           {source === 'resume' && result.mustHaves.some((m) => m.status === 'unknown') ? (
-            <p className="mt-3 text-[12px] text-ink-muted">A resume cannot show these. Your free Career Profile asks, then tells you exactly what is left.</p>
+            <p className="mt-3 text-[12px] text-ink-muted type-caption">A resume cannot show these. Your free Career Profile asks, then tells you exactly what is left.</p>
           ) : null}
         </section>
       ) : null}
@@ -198,11 +198,11 @@ export function ScorecardResult({
                   {r.gain ? `+${r.gain} pts · ` : ''}{r.impact} impact · {r.difficulty} effort
                 </span>
               </div>
-              <p className="mt-1.5 text-[13px] text-ink-soft">{r.why}</p>
+              <p className="mt-1.5 text-[13px] text-ink-soft type-helper">{r.why}</p>
             </div>
           ))}
           {locked && result.recommendations.length > 1 ? (
-            <p className="text-[12px] text-ink-muted">
+            <p className="text-[12px] text-ink-muted type-caption">
               {result.recommendations.length - 1} more ranked {result.recommendations.length - 1 === 1 ? 'improvement is' : 'improvements are'} in your full report.
             </p>
           ) : null}
@@ -213,7 +213,7 @@ export function ScorecardResult({
       {locked ? (
         <section className="rounded-card border border-teal/40 bg-gold-soft/40 p-6 text-center sm:p-8">
           <h3 className="font-display text-2xl text-ink">See your complete Gulf Readiness report</h3>
-          <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-ink-soft">
+          <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-ink-soft type-helper">
             Create a free account to unlock the full breakdown — every dimension explained, your complete ranked
             action plan, and what to fix first. Your result is already saved in this browser and comes with you.
           </p>
@@ -222,7 +222,7 @@ export function ScorecardResult({
               Create my free account &amp; unlock the full report
             </Link>
           </div>
-          <p className="mt-3 text-[12px] text-ink-muted">
+          <p className="mt-3 text-[12px] text-ink-muted type-caption">
             Free account. We don&rsquo;t create a saved profile from this check unless you sign up.
           </p>
         </section>

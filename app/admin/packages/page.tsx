@@ -33,7 +33,7 @@ export default async function PackagesPage(
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">
           Service packages
         </h2>
-        <p className="text-[12px] text-ink-muted">
+        <p className="text-[12px] text-ink-muted type-caption">
           Create and manage bundles of services (e.g. &ldquo;Pro = 3 optimizations + 2 cover letters&rdquo;).
           Service keys must exactly match what the code checks for&mdash;currently known values:
           <code className="mx-1 rounded bg-canvas px-1.5 py-0.5 font-mono text-[12px]">resume_optimization</code>
@@ -62,7 +62,7 @@ export default async function PackagesPage(
           </div>
           <div className="flex flex-col gap-2">
             <div className="text-[12px] font-semibold uppercase tracking-wide text-ink-muted">Quota line items</div>
-            <p className="text-[12px] text-ink-muted">The service package is only available for purchase from here.</p>
+            <p className="text-[12px] text-ink-muted type-caption">The service package is only available for purchase from here.</p>
             <ServicePackageItemsFields />
           </div>
           <Button type="submit" variant="primary" className="self-start">
@@ -112,7 +112,7 @@ export default async function PackagesPage(
             ))}
           </div>
         ) : (
-          <p className="text-[12px] text-ink-muted">No service packages created yet.</p>
+          <p className="text-[12px] text-ink-muted type-caption">No service packages created yet.</p>
         )}
       </Card>
     </PageShell>

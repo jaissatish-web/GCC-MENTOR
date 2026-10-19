@@ -122,15 +122,15 @@ function ServiceForm({ config, keyName, submitLabel }: { config: AiProviderConfi
           <Input name="fallbackModel" label="Fallback model ID" defaultValue={config?.fallbackModel ?? ''} placeholder="e.g. gpt-5.4" className="min-w-[220px] flex-1" />
           <Input name="fallbackApiKey" type="password" label="Fallback API key" placeholder={config?.fallbackApiKey ? 'Blank keeps current key' : 'Enter fallback key'} className="min-w-[220px] flex-1" />
         </div>
-        <p className="text-[12px] text-ink-muted">Tried only if the primary call genuinely fails. When disabled, fallback fields are ignored and cleared on save.</p>
+        <p className="text-[12px] text-ink-muted type-caption">Tried only if the primary call genuinely fails. When disabled, fallback fields are ignored and cleared on save.</p>
         {/* Stated because it is otherwise silent: a partly-filled fallback does
             nothing at all, with no error anywhere. Setting only a model is the
             natural reading of "same provider, cheaper model" and is inert. */}
-        <p className="text-[12px] font-semibold text-alert">
+        <p className="text-[12px] font-semibold text-alert type-caption">
           All three are required. A fallback with only a model, or without its own key, is
           ignored at run time — with no error.
         </p>
-        <p className="text-[12px] text-ink-muted">
+        <p className="text-[12px] text-ink-muted type-caption">
           If both the primary and this fallback fail, the <strong>Default AI</strong> configuration
           is tried last. It is skipped when it names the same provider and model that already
           failed.
@@ -174,22 +174,22 @@ export default async function AiProviderPage(
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Card tone="light" className="p-4">
-          <p className="text-[12px] text-ink-muted">AI services</p>
+          <p className="text-[12px] text-ink-muted type-caption">AI services</p>
           <p className="mt-1 text-xl font-bold text-ink">{SERVICES.length}</p>
         </Card>
         <Card tone="light" className="p-4">
-          <p className="text-[12px] text-ink-muted">Configured</p>
+          <p className="text-[12px] text-ink-muted type-caption">Configured</p>
           <p className="mt-1 text-xl font-bold text-teal">{SERVICES.filter((s) => byKey.has(s.key)).length}</p>
         </Card>
         <Card tone="light" className="p-4">
-          <p className="text-[12px] text-ink-muted">Default AI</p>
-          <p className="mt-1 text-sm font-bold text-ink">{defaultConfig ? 'Configured' : 'Not configured'}</p>
+          <p className="text-[12px] text-ink-muted type-caption">Default AI</p>
+          <p className="mt-1 text-sm font-bold text-ink type-helper">{defaultConfig ? 'Configured' : 'Not configured'}</p>
         </Card>
       </div>
 
       <div>
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Services</h2>
-        <p className="mt-1 text-[12px] text-ink-muted">
+        <p className="mt-1 text-[12px] text-ink-muted type-caption">
           Each service can run on its own provider, model and API key, with an optional fallback on a
           different provider. Leave a service unconfigured and it falls back to Default.
         </p>
@@ -225,7 +225,7 @@ export default async function AiProviderPage(
                   <span className="text-[12px] text-alert">Not configured — falls back to Default</span>
                 )}
               </div>
-              <p className="text-[12px] text-ink-muted">{service.description}</p>
+              <p className="text-[12px] text-ink-muted type-caption">{service.description}</p>
               <ServiceForm config={config} keyName={service.key} submitLabel={`Save ${service.name}`} />
             </Card>
           )
@@ -235,7 +235,7 @@ export default async function AiProviderPage(
       <Card tone="light" className="flex flex-col gap-4 p-5">
         <div>
           <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Default</h2>
-          <p className="mt-1 text-[12px] text-ink-muted">
+          <p className="mt-1 text-[12px] text-ink-muted type-caption">
             Used by any service above with nothing saved, and by internal steps like job-description parsing.
           </p>
         </div>
@@ -245,14 +245,14 @@ export default async function AiProviderPage(
       <Card tone="light" className="flex flex-col gap-4 p-5">
         <div>
           <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Other overrides</h2>
-          <p className="mt-1 text-[12px] text-ink-muted">
+          <p className="mt-1 text-[12px] text-ink-muted type-caption">
             Advanced — internal AI sub-steps (e.g. job-description parsing) that aren&apos;t one of the named
             services above.
           </p>
         </div>
 
         {otherConfigs.length === 0 ? (
-          <p className="text-[12px] text-ink-muted">No other overrides configured.</p>
+          <p className="text-[12px] text-ink-muted type-caption">No other overrides configured.</p>
         ) : (
           <div className="flex flex-col gap-2">
             {otherConfigs.map((cfg) => (

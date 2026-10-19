@@ -14,13 +14,13 @@ export function ProfileVisibilityGuide({ platform }: { platform: ProfessionalPla
       <details className="professional-panel" open>
         <summary className="professional-summary type-card text-ink">Profile update guidance<ChevronDownIcon aria-hidden="true" className="professional-disclosure-icon size-5 shrink-0" /></summary>
         <div className="professional-guidance-list">
-          {copy.tips.map(([title, detail]) => <div key={title} className="flex gap-3"><CheckCircleIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-teal" /><div><h3 className="type-card text-ink">{title}</h3><p className="mt-1 type-body text-ink-soft">{detail}</p></div></div>)}
+          {copy.tips.map(([title, detail]) => <div key={title} className="flex gap-3"><CheckCircleIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-teal" /><div><h3 className="type-card text-ink">{title}</h3><p className="mt-1 type-description text-ink-soft">{detail}</p></div></div>)}
         </div>
       </details>
       <details className="professional-panel">
         <summary className="professional-summary type-card text-ink">Your routine for the weeks ahead<ChevronDownIcon aria-hidden="true" className="professional-disclosure-icon size-5 shrink-0" /></summary>
         <div className="professional-guidance-list">
-          {copy.future.map(([title, detail]) => <div key={title}><h3 className="type-card text-ink">{title}</h3><p className="mt-1 type-body text-ink-soft">{detail}</p></div>)}
+          {copy.future.map(([title, detail]) => <div key={title}><h3 className="type-card text-ink">{title}</h3><p className="mt-1 type-description text-ink-soft">{detail}</p></div>)}
         </div>
       </details>
       <div className="flex flex-wrap gap-x-5 gap-y-1">

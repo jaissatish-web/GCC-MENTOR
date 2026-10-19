@@ -419,7 +419,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                   ? 'You’ll review the extracted details before they are used.'
                   : 'Your confirmed facts, discipline and goals guide the writing. We check the result before saving it.'}
               </p>
-              {busy === 'generate' && <p className="text-sm text-ink-muted">{elapsedSeconds}s elapsed · Writing → fact-check → save. Keep this page open; your saved draft stays available if this attempt fails.</p>}
+              {busy === 'generate' && <p className="text-sm text-ink-muted type-helper">{elapsedSeconds}s elapsed · Writing → fact-check → save. Keep this page open; your saved draft stays available if this attempt fails.</p>}
             </section>
           )}
           {!busy || busy === 'save' ? (
@@ -440,7 +440,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     </span>
                   </div>
                   {stale && (
-                    <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink">
+                    <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink type-helper">
                       This saved content predates your latest Career Profile
                       changes. Review it before copying or prepare a fresh
                       version.
@@ -457,7 +457,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     className={`${card} flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between`}
                   >
                     <div>
-                      <p className="text-sm font-semibold text-teal">
+                      <p className="text-sm font-semibold text-teal type-helper">
                         YOUR PERSONALIZED CONTENT
                       </p>
                       <h2 className="mt-2 type-section text-ink">
@@ -478,7 +478,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     </button>
                   </section>
                   {stale && (
-                    <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink">
+                    <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink type-helper">
                       Career Profile has changed since this content was
                       generated. Review the saved version and generate a fresh
                       version to use your latest facts.
@@ -542,7 +542,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       </button>
                     </div>
                     {dirty && (
-                      <p className="mt-2 text-sm text-ink-muted">
+                      <p className="mt-2 text-sm text-ink-muted type-helper">
                         Save your edits and checklist before leaving this page.
                       </p>
                     )}
@@ -554,7 +554,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     <p className="profile-step-label">STEP 1 · YOUR FIRST IMPRESSION</p>
                     <h2 className="mt-2 type-section text-ink">{config.headline}</h2>
                     <p className="mt-2 type-body text-ink-soft">Choose one headline that best represents your experience and target direction. You can refine its wording before copying.</p>
-                    <p className="mt-2 text-sm leading-6 text-ink-soft">
+                    <p className="mt-2 text-sm leading-6 text-ink-soft type-helper">
                       {platform === 'linkedin' ? 'Open your profile, select the pencil in your introduction, and replace the Headline field. Choose one option below.' : 'Open your NaukriGulf profile and replace the resume headline with one reviewed option below.'}
                     </p>
                     <div className="mt-5 space-y-4">
@@ -608,7 +608,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     <p className="profile-step-label">STEP 2 · YOUR PROFESSIONAL STORY</p>
                     <h2 className="mt-2 type-section text-ink">{config.summary}</h2>
                     <p className="mt-2 type-body text-ink-soft">Introduce your strengths, experience and career direction in your own voice. Check every claim, then edit anything you would say differently.</p>
-                    <p className="mt-2 text-sm leading-6 text-ink-soft">
+                    <p className="mt-2 text-sm leading-6 text-ink-soft type-helper">
                       {platform === 'linkedin' ? 'Use the pencil beside About on your profile. If it’s missing, add it through Add profile section.' : 'Open the profile summary field in NaukriGulf and paste your reviewed content.'}
                     </p>
                     <EditableProfileText
@@ -635,11 +635,11 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                         <h2 className="mt-2 type-section text-ink">
                           {role ? <>{mask(role.role)} · {mask(role.company)}</> : 'Saved role — source no longer available'}
                         </h2>
-                        <p className="mt-2 w-fit rounded-ctl bg-teal-soft px-3 py-2 text-sm font-semibold text-ink">
+                        <p className="mt-2 w-fit rounded-ctl bg-teal-soft px-3 py-2 text-sm font-semibold text-ink type-helper">
                           Employment dates: {role ? `${role.start_date?.slice(0, 7) ?? 'Not provided'} – ${role.end_date?.slice(0, 7) ?? 'Present'}` : 'Unavailable — review Career Profile and prepare a fresh version'} · Titles,
                           employers and dates come from Career Profile.
                         </p>
-                        <p className="mt-3 text-sm leading-6 text-ink-soft">
+                        <p className="mt-3 text-sm leading-6 text-ink-soft type-helper">
                           Edit this role in {platformName}’s {config.experience} section and
                           paste only the description below. Check the fixed job
                           fields against Career Profile.
@@ -677,7 +677,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       <h2 className="type-section text-ink">
                         Skills to emphasize
                       </h2>
-                      <p className="mt-2 text-sm leading-6 text-ink-soft">
+                      <p className="mt-2 text-sm leading-6 text-ink-soft type-helper">
                         Add these saved skills individually in {platformName}’s {config.skills}
                         section. Put the most relevant first.
                       </p>
@@ -699,7 +699,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                   {!!profile.education.length && (
                     <section className={card}>
                       <h2 className="type-section text-ink">Education</h2>
-                      <p className="mt-2 text-sm text-ink-soft">
+                      <p className="mt-2 text-sm text-ink-soft type-helper">
                         Add or edit each qualification in Education. Copy the
                         values into the matching fields.
                       </p>
@@ -739,7 +739,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       <h2 className="type-section text-ink">
                         Licences & certifications
                       </h2>
-                      <p className="mt-2 text-sm text-ink-soft">
+                      <p className="mt-2 text-sm text-ink-soft type-helper">
                         Use Add profile section → Recommended → Add licences &
                         certifications. Enter only the credentials you hold.
                       </p>
@@ -770,14 +770,14 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                   {platform === 'naukrigulf' && <>
                     <section className={card}>
                       <h2 className="type-section text-ink">Job preferences & availability</h2>
-                      <p className="mt-2 text-sm leading-6 text-ink-soft">Confirm these in NaukriGulf. Preferred roles and locations are your chosen direction; they do not change your current career facts.</p>
+                      <p className="mt-2 text-sm leading-6 text-ink-soft type-helper">Confirm these in NaukriGulf. Preferred roles and locations are your chosen direction; they do not change your current career facts.</p>
                       <dl className="mt-4 grid gap-4 sm:grid-cols-2">{[
                         ['Preferred roles', draft.setup?.targetRoles], ['Preferred industry', draft.setup?.industries], ['Preferred locations', draft.setup?.countries], ['Current location', profile.current_location], ['Notice period', profile.notice_period], ['Visa status', profile.visa_status],
                       ].map(([label, value]) => <div key={label}><dt className="text-sm text-ink-muted">{label}</dt><dd className="mt-1 break-words text-sm font-medium text-ink">{mask(value) || 'Confirm on NaukriGulf'}</dd></div>)}</dl>
-                      <p className="mt-4 text-xs leading-6 text-ink-muted">Review any salary, work authorization and availability questions yourself. GCC Mentor does not infer answers or submit these fields.</p>
+                      <p className="mt-4 text-xs leading-6 text-ink-muted type-caption">Review any salary, work authorization and availability questions yourself. GCC Mentor does not infer answers or submit these fields.</p>
                       {taskControls('preferences')}
                     </section>
-                    <section className={card}><h2 className="type-section text-ink">Upload your current resume</h2><p className="mt-3 text-sm leading-6 text-ink-soft">Choose the appropriate saved resume, check its content and download it from Resume Library. Upload it to NaukriGulf yourself, then check that the attachment opens correctly.</p><Link href="/dashboard/library" className={`${secondary} mt-4`}>Open Resume Library</Link>{taskControls('resume')}</section>
+                    <section className={card}><h2 className="type-section text-ink">Upload your current resume</h2><p className="mt-3 text-sm leading-6 text-ink-soft type-helper">Choose the appropriate saved resume, check its content and download it from Resume Library. Upload it to NaukriGulf yourself, then check that the attachment opens correctly.</p><Link href="/dashboard/library" className={`${secondary} mt-4`}>Open Resume Library</Link>{taskControls('resume')}</section>
                   </>}
                   <section className={card}>
                     <h2 className="type-section text-ink">
@@ -800,14 +800,14 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     <p className="mt-3 leading-7 text-ink-soft">
                       {platform === 'linkedin' ? 'Use a clear professional photo and a relevant banner. Review your profile’s visibility and contact settings. Add genuine work samples to Featured only when you have permission to share them.' : 'Use a clear recent photo if you choose to add one. Review your profile’s visibility and contact settings inside NaukriGulf. Check that all required portal fields are complete.'}
                     </p>
-                    <p className="mt-3 text-sm text-ink-muted">
+                    <p className="mt-3 text-sm text-ink-muted type-helper">
                       You control what appears on {platformName}. No account password
                       or direct account access is needed.
                     </p>
                     {taskControls('presentation')}
                   </section>
                   <ProfileVisibilityGuide platform={platform} />
-                  <p className="text-sm text-ink-muted">
+                  <p className="text-sm text-ink-muted type-helper">
                     Career facts need correcting?{' '}
                     <Link
                       href="/profile"
@@ -920,7 +920,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                               </option>
                             </select>
                           </Field>
-                          <p className="mt-4 text-sm text-ink-soft">
+                          <p className="mt-4 text-sm text-ink-soft type-helper">
                             Using {profile.full_name}’s saved Career Profile. No
                             upload is required.
                           </p>
@@ -940,7 +940,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                                   }
                                 />
                               </Field>
-                              {platform === 'linkedin' ? <><p className="text-sm leading-6 text-ink-muted">On desktop LinkedIn: Me → View profile → More or Resources → Save to PDF. This option may not appear for every member and isn’t available in the mobile app. On your phone, paste your profile text or use Career Profile.</p><a className="text-sm text-teal underline" href="https://www.linkedin.com/help/linkedin/answer/a541960" target="_blank" rel="noreferrer">LinkedIn’s download instructions</a></> : <p className="text-sm leading-6 text-ink-muted">Upload a PDF or DOCX containing your current NaukriGulf career content, or paste text from your own profile. This is optional comparison material. You can continue directly with Career Profile.</p>}
+                              {platform === 'linkedin' ? <><p className="text-sm leading-6 text-ink-muted type-helper">On desktop LinkedIn: Me → View profile → More or Resources → Save to PDF. This option may not appear for every member and isn’t available in the mobile app. On your phone, paste your profile text or use Career Profile.</p><a className="text-sm text-teal underline" href="https://www.linkedin.com/help/linkedin/answer/a541960" target="_blank" rel="noreferrer">LinkedIn’s download instructions</a></> : <p className="text-sm leading-6 text-ink-muted type-helper">Upload a PDF or DOCX containing your current NaukriGulf career content, or paste text from your own profile. This is optional comparison material. You can continue directly with Career Profile.</p>}
                             </>
                           ) : (
                             <Field
@@ -956,7 +956,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                               />
                             </Field>
                           )}
-                          <p className="text-sm text-ink-muted">
+                          <p className="text-sm text-ink-muted type-helper">
                             This path is for an existing {platformName} profile. If
                             you have an ordinary resume or need a first profile,
                             choose Use Career Profile.
@@ -972,24 +972,24 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                               <h3 className="font-semibold text-ink">
                                 Review extracted information
                               </h3>
-                              <p className="text-sm text-ink-soft">
+                              <p className="text-sm text-ink-soft type-helper">
                                 {draft.imported.fullName ||
                                   'Name not identified'}{' '}
                                 · {draft.imported.experience.length} roles found
                               </p>
-                              <p className="whitespace-pre-wrap text-sm leading-6 text-ink-soft">
+                              <p className="whitespace-pre-wrap text-sm leading-6 text-ink-soft type-helper">
                                 {draft.imported.summary ||
                                   `No ${config.summary} section was identified.`}
                               </p>
                               {draft.imported.experience.map((entry, i) => (
-                                <p key={i} className="text-sm text-ink-soft">
+                                <p key={i} className="text-sm text-ink-soft type-helper">
                                   {entry.role} · {entry.company} ·{' '}
                                   {entry.start?.slice(0, 7) ?? 'Unknown start'}{' '}
                                   – {entry.end?.slice(0, 7) ?? 'Present'}
                                 </p>
                               ))}
                               {draft.imported.warnings.map((warning, i) => (
-                                <p key={i} className="text-sm text-amber-800">
+                                <p key={i} className="text-sm text-amber-800 type-helper">
                                   {warning}
                                 </p>
                               ))}
@@ -1014,10 +1014,10 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                                   <h4 className="text-sm font-semibold text-ink">
                                     {conflict.label}
                                   </h4>
-                                  <p className="mt-2 break-words text-sm text-ink-soft">
+                                  <p className="mt-2 break-words text-sm text-ink-soft type-helper">
                                     Career Profile: {conflict.profileValue}
                                   </p>
-                                  <p className="mt-1 break-words text-sm text-ink-soft">
+                                  <p className="mt-1 break-words text-sm text-ink-soft type-helper">
                                     Imported: {conflict.importedValue}
                                   </p>
                                   <label className="mt-3 flex items-start gap-3 text-sm text-ink">
@@ -1043,7 +1043,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                                   </label>
                                 </div>
                               ))}
-                              <p className="text-sm text-ink-muted">
+                              <p className="text-sm text-ink-muted type-helper">
                                 If the imported detail is correct,{' '}
                                 <Link
                                   className="text-teal underline"
@@ -1197,7 +1197,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           <legend className="text-sm font-semibold text-ink">
                             Experience to include (up to 12 roles)
                           </legend>
-                          <p className="mt-2 text-sm text-ink-muted">
+                          <p className="mt-2 text-sm text-ink-muted type-helper">
                             All selected roles receive their own description.
                             Choose those most relevant to your direction.
                           </p>
@@ -1329,14 +1329,14 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           </div>
                         ))}
                       </dl>
-                      <p className="mt-6 rounded-ctl bg-teal-soft p-4 text-sm leading-6 text-ink">
+                      <p className="mt-6 rounded-ctl bg-teal-soft p-4 text-sm leading-6 text-ink type-helper">
                         Your advisor will prepare {config.headline.toLowerCase()} options, {config.summary}, experience
                         descriptions, saved skills and tailored advice. We
                         fact-check the writing before saving it. You’ll make the
                         changes on {platformName} yourself.
                       </p>
                       {draft?.output && (
-                        <p className="mt-4 text-sm text-amber-800">
+                        <p className="mt-4 text-sm text-amber-800 type-helper">
                           Generating a new version replaces this draft’s saved
                           content and resets its checklist only when generation
                           succeeds.

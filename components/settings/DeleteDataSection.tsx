@@ -35,7 +35,7 @@ export function DeleteDataSection() {
   return (
     <Card tone="light" className="border border-alert/40 p-6">
       <h2 className="text-lg font-bold text-ink">Delete my data</h2>
-      <p className="mt-2 text-sm text-ink-soft">
+      <p className="mt-2 text-sm text-ink-soft type-helper">
         Permanently deletes your Career Profile, work history, skills, certifications, education, saved resume import comparisons,
         and every saved package in your Library. This is a real deletion, not a hide — it cannot
         be undone. Your login stays active; you would start onboarding fresh.
@@ -52,7 +52,7 @@ export function DeleteDataSection() {
         </Button>
       ) : (
         <div className="mt-4 flex flex-col gap-3 rounded-ctl border border-alert/30 bg-alert/5 p-4">
-          <p className="text-sm font-semibold text-alert">
+          <p className="text-sm font-semibold text-alert type-helper">
             This cannot be undone. Type {CONFIRM_PHRASE} to confirm.
           </p>
           <Input
@@ -66,7 +66,7 @@ export function DeleteDataSection() {
           {state?.error ? (
             <p
               role="alert"
-              className="rounded-ctl border border-alert/40 bg-alert-soft px-3 py-2 text-xs text-alert"
+              className="rounded-ctl border border-alert/40 bg-alert-soft px-3 py-2 text-xs text-alert type-caption"
             >
               {state.error}
             </p>

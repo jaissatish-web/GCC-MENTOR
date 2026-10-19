@@ -23,7 +23,7 @@ export function InterviewProgressOverview() {
   return <section className="space-y-4" aria-label="Your interview practice">
     <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="type-section">Your interview practice</h2><Link href="/mock-interview" className="inline-flex min-h-11 items-center text-teal hover:underline">All interviews →</Link></div>
     {loading ? <p role="status" className="text-ink-muted">Loading interview progress…</p> : error ? <div className="ui-section"><p role="alert">Could not load your interview progress.</p><button className="mt-2 min-h-11 text-teal hover:underline" onClick={() => void load()}>Try again</button></div> : data?.progress.length ? <>
-      <p className="text-sm text-ink-muted">{data.attempts} saved interviews · Each resume has its own practice history.</p>
+      <p className="text-sm text-ink-muted type-helper">{data.attempts} saved interviews · Each resume has its own practice history.</p>
       <div className="grid gap-4 lg:grid-cols-2">{data.progress.slice(0, 2).map(item => <InterviewProgress key={item.packageId} {...item} compact />)}</div>
     </> : <div className="ui-section"><p>{data?.attempts ? 'Complete your saved interview review to establish a progress baseline.' : 'Complete your first mock interview to start tracking your progress.'}</p><Link className="mt-3 inline-flex min-h-11 items-center text-teal hover:underline" href="/mock-interview">Practise an interview →</Link></div>}
   </section>

@@ -62,17 +62,17 @@ export default async function PromptsPage(
       {/* What this screen can and cannot change. Stated, not just enforced. */}
       <Card className="flex flex-col gap-2 p-5">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">What you control here</h2>
-        <p className="text-[12px] text-ink-soft">
+        <p className="text-[12px] text-ink-soft type-caption">
           <strong>You can change:</strong> the persona, the tone, the task instructions, what to
           emphasise, and any examples. This is where output quality lives.
         </p>
-        <p className="text-[12px] text-ink-soft">
+        <p className="text-[12px] text-ink-soft type-caption">
           <strong>You cannot change, from here or anywhere:</strong> the grounding rule and the
           output format. The grounding rule is what stops the AI inventing facts a user never
           gave us — editing it would switch off the product&rsquo;s one promise with nothing to
           catch it. The output format is what the code reads the answer back through.
         </p>
-        <p className="text-[12px] text-ink-muted">
+        <p className="text-[12px] text-ink-muted type-caption">
           A prompt with no published version runs on the text built into the code. Publishing
           replaces it for everyone immediately; rolling back is one click on any earlier version.
         </p>
@@ -122,7 +122,7 @@ export default async function PromptsPage(
             <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">
               {selected.label} — new draft
             </h2>
-            <p className="text-[12px] text-ink-muted">{selected.active ? `Pre-filled with v${selected.active.version}, the version that is live now. Saving creates a new draft; nothing changes for users until you publish it.` : 'This prompt has no stored version yet, so it is running on the text built into the code. Saving creates your first draft.'}</p>
+            <p className="text-[12px] text-ink-muted type-caption">{selected.active ? `Pre-filled with v${selected.active.version}, the version that is live now. Saving creates a new draft; nothing changes for users until you publish it.` : 'This prompt has no stored version yet, so it is running on the text built into the code. Saving creates your first draft.'}</p>
             <form action={savePromptDraftAction} className="flex flex-col gap-3">
               <input type="hidden" name="promptKey" value={selected.key} />
               <Textarea name="body" rows={14} defaultValue={activeBody} className="font-mono text-[13px]" />
@@ -144,7 +144,7 @@ export default async function PromptsPage(
           <Card className="flex flex-col gap-3 p-5">
             <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Versions</h2>
             {versions.length === 0 ? (
-              <p className="text-[12px] text-ink-muted">No versions yet.</p>
+              <p className="text-[12px] text-ink-muted type-caption">No versions yet.</p>
             ) : (
               <div className="flex flex-col divide-y divide-line">
                 {versions.map((v) => (

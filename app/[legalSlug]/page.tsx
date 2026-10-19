@@ -112,7 +112,7 @@ export default async function LegalPage({
           <h1 className="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[30px]">
             {page.title}
           </h1>
-          <p className="text-[13px] text-ink-muted">Last updated {updated}</p>
+          <p className="text-[13px] text-ink-muted type-helper">Last updated {updated}</p>
         </div>
         <div className="h-px w-full bg-line" />
         <article className="flex flex-col gap-4">{renderBody(page.body)}</article>

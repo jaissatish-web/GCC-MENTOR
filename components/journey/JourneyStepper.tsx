@@ -115,8 +115,8 @@ export function StageExplainer({ states }: { states: Record<StageId, StageState>
                   <span className="text-[15px] font-semibold leading-tight text-ink">{s.name}</span>
                 </span>
               </span>
-              <p className="text-[13.5px] leading-relaxed text-ink-soft">{s.outcome}</p>
-              <p className="mt-auto inline-flex items-center gap-1.5 pt-1 text-[12.5px] font-medium text-teal">
+              <p className="text-[13.5px] leading-relaxed text-ink-soft type-helper">{s.outcome}</p>
+              <p className="mt-auto inline-flex items-center gap-1.5 pt-1 text-[12.5px] font-medium text-teal type-caption">
                 {i === 0 ? 'You give:' : ''} {s.from}
               </p>
               {i < STAGES.length - 1 ? (

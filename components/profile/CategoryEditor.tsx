@@ -66,7 +66,7 @@ export function CategoryEditor<T extends CategoryEditorEntry>({ value, onChange 
     </details>)}
     <div className="space-y-3 rounded-card border border-dashed border-teal/40 bg-teal-soft/30 p-4">
       <label className="block space-y-1"><span className="field-label">New category name</span><input className="field" maxLength={80} placeholder="e.g. Projects, Languages, Professional Memberships" value={newName} onChange={e=>{setNewName(e.target.value);setError('')}} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addCategory()}}} /></label>
-      {error ? <p role="alert" className="text-sm text-alert">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-alert type-helper">{error}</p> : null}
       <button type="button" className={control+' flex items-center gap-2'} onClick={addCategory}><Plus size={16} />Add category</button>
     </div>
     <p className="field-hint">Use Save profile to keep these changes. Hidden categories stay in your profile. Don’t enter passport numbers, ID numbers or sensitive document details.</p>

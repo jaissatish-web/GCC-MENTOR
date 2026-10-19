@@ -27,7 +27,7 @@ export default async function AccessLogPage() {
           PII access log — most recent
         </h2>
         {recentAccessLog.length === 0 ? (
-          <p className="text-sm text-ink-muted">No access recorded yet.</p>
+          <p className="text-sm text-ink-muted type-helper">No access recorded yet.</p>
         ) : (
           <>
             {/* Mobile: stacked card-per-row, labeled rows (§D / Library fallback) */}

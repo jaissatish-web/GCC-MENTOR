@@ -224,7 +224,7 @@ export function PhotoUpload({
           {error}
         </p>
       ) : null}
-      {saved ? <p role="status" className="text-sm text-teal">Photo saved to Career Profile.</p> : null}
+      {saved ? <p role="status" className="text-sm text-teal type-helper">Photo saved to Career Profile.</p> : null}
     </div>
   )
 }

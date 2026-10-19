@@ -184,7 +184,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
   if (!pkg || !doc || !oc || !edited) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-canvas">
-        <p className="font-mono text-sm text-ink-muted">Loading your optimized resume…</p>
+        <p className="font-mono text-sm text-ink-muted type-helper">Loading your optimized resume…</p>
       </main>
     )
   }
@@ -270,7 +270,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
           ) : (
             <ClickToEdit onEdit={() => setEditing('summary')}>
               {summary.trim() ? (
-                <p className="text-[14.5px] leading-relaxed text-ink">
+                <p className="text-[14.5px] leading-relaxed text-ink type-helper">
                   <Colored text={summary} source={summarySource} re={keywordRe} added={addedTerms} />
                 </p>
               ) : (
@@ -354,7 +354,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
             return (
               <div key={id} className="flex flex-col gap-2 border-t border-line pt-3 first:border-t-0 first:pt-0">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="text-[14.5px] font-bold text-ink">
+                  <p className="text-[14.5px] font-bold text-ink type-helper">
                     {item.entry.role} <span className="font-normal text-ink-soft">· {item.companyLine}</span>
                   </p>
                   <span className="text-[12px] text-ink-muted">{item.range}</span>

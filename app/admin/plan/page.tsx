@@ -29,7 +29,7 @@ export default async function AdminPlanPage() {
 
   return (
     <PageShell title="Free plan">
-      <p className="mt-2 max-w-[68ch] text-[14px] leading-relaxed text-ink-soft">
+      <p className="mt-2 max-w-[68ch] text-[14px] leading-relaxed text-ink-soft type-helper">
         What a user gets without paying. Changes take effect immediately — no deploy.
         Rows marked <strong className="text-alert">costs money</strong> spend real tokens on every
         use, so switching one on for free users will show up on your AI bill.
@@ -41,14 +41,14 @@ export default async function AdminPlanPage() {
           here is the whole difference between this and /admin/prompts, which looked
           like a working control while editing a row nothing read. This banner comes
           out in the same commit that wires the first gate. */}
-      <p className="mt-5 rounded-ctl border border-teal/50 bg-canvas px-4 py-3 text-[13px] leading-relaxed text-ink-soft">
+      <p className="mt-5 rounded-ctl border border-teal/50 bg-canvas px-4 py-3 text-[13px] leading-relaxed text-ink-soft type-helper">
         <strong className="text-teal">Plan restrictions are not enforced yet.</strong> Your choices here are saved.
         Career Profile Resume is available in Resume Library with all templates and PDF.
         These controls will take effect when commercial entitlement gates are enabled.
       </p>
 
       {rows.length === 0 ? (
-        <p className="mt-6 rounded-ctl border border-alert/30 bg-alert-soft px-4 py-3 text-[13px] text-alert">
+        <p className="mt-6 rounded-ctl border border-alert/30 bg-alert-soft px-4 py-3 text-[13px] text-alert type-helper">
           Could not read the plan table. Free users are currently limited to the costless features
           only, which is the safe fallback.
         </p>
@@ -81,7 +81,7 @@ export default async function AdminPlanPage() {
                     )}
                   </div>
                   {row.description ? (
-                    <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">{row.description}</p>
+                    <p className="mt-1 text-[13px] leading-relaxed text-ink-muted type-helper">{row.description}</p>
                   ) : null}
                 </div>
 
@@ -134,7 +134,7 @@ export default async function AdminPlanPage() {
                         </label>
                       ))}
                     </div>
-                    <p className="mt-1.5 text-[12px] text-ink-muted">
+                    <p className="mt-1.5 text-[12px] text-ink-muted type-caption">
                       Pick photo-free designs to keep photos as a paid feature — no extra rule needed.
                     </p>
                   </fieldset>

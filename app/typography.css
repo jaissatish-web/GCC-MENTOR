@@ -9,11 +9,13 @@
   --ui-title-size: 1.625rem;
   --ui-section-size: 1.25rem;
   --ui-card-title-size: 1rem;
-  --ui-body-size: 1rem;
+  --ui-body-size: 0.9375rem;
+  --ui-description-size: 0.875rem;
+  --ui-reading-size: 1rem;
   --ui-label-size: 0.875rem;
   --ui-helper-size: 0.875rem;
   --ui-caption-size: 0.75rem;
-  --ui-input-size: var(--ui-body-size);
+  --ui-input-size: 1rem;
   --ui-button-size: 0.9375rem;
   --ui-stat-size: 1.5rem;
   --ui-body-line: 1.55;
@@ -29,10 +31,10 @@
   --ui-hero-size: var(--ui-title-size);
   --ui-hero-line: var(--ui-heading-line);
   --ui-marketing-size: var(--ui-section-size);
-  --ui-lead-size: var(--ui-body-size);
+  --ui-lead-size: 1rem;
   --ui-lead-line: var(--ui-body-line);
   --ui-profile-font: var(--ui-font);
-  --ui-profile-body-size: var(--ui-body-size);
+  --ui-profile-body-size: var(--ui-reading-size);
   --ui-profile-section-size: var(--ui-section-size);
   --ui-profile-name-size: var(--ui-section-size);
 }
@@ -41,6 +43,8 @@
     --ui-title-size: 1.875rem;
     --ui-section-size: 1.375rem;
     --ui-card-title-size: 1.125rem;
+    --ui-body-size: 1rem;
+    --ui-description-size: 0.9375rem;
     --ui-stat-size: 1.75rem;
   }
 }
@@ -115,7 +119,7 @@ body :is(.type-caption,p.type-caption,span.type-caption):not(:where([data-docume
 body :is(.type-button,p.type-button,span.type-button):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-button-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-label-line) !important; }
 body :is(.type-hero,p.type-hero,span.type-hero):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-title-size) !important; font-weight: var(--ui-weight-title) !important; line-height: var(--ui-heading-line) !important; }
 body :is(.type-marketing-title,p.type-marketing-title,span.type-marketing-title):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-section-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
-body :is(.type-lead,p.type-lead,span.type-lead):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-body-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
+body :is(.type-lead,p.type-lead,span.type-lead):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-lead-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
 body :is(.type-stat,p.type-stat,span.type-stat):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-stat-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
 body :is(h1,h1[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-title-size) !important; font-weight: var(--ui-weight-title) !important; line-height: var(--ui-heading-line) !important; letter-spacing: var(--ui-heading-tracking) !important; }
 body :is(h2,h2[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-section-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; letter-spacing: var(--ui-heading-tracking) !important; }
@@ -126,7 +130,7 @@ body :is(h6,h6[class]):not(:where([data-document-preview], [data-document-previe
 body h1 :is(span,span[class],em,em[class],strong,strong[class],a,a[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: inherit !important; font-weight: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; }
 body nav :is(a,a[class],button,button[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-label-size) !important; font-weight: var(--ui-weight-label) !important; line-height: var(--ui-label-line) !important; }
 body :is(.linkedin-profile-action,.linkedin-preview-notice):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-helper-size) !important; line-height: var(--ui-label-line) !important; }
-body :is(.linkedin-profile-headline,.profile-copy-text,.cover-letter-email-body):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-body-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
+body :is(.linkedin-profile-headline,.profile-copy-text,.cover-letter-email-body):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-reading-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
 body svg text:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-caption-size) !important; font-weight: var(--ui-weight-regular) !important; }
 
 /* Keep brand text readable by wrapping at enlarged text sizes. */
@@ -148,3 +152,8 @@ body a[class*="_navCta__"] {
   white-space: normal;
   overflow-wrap: anywhere;
 }
+
+/* Text roles describe purpose, independently of the surrounding card or colour. */
+body :is(.type-description,p.type-description,span.type-description):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-description-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
+body :is(.type-longform,p.type-longform,span.type-longform):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-reading-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
+body :is(.cover-letter-email-body,.profile-copy-text,.qa-answer-text) :is(p,li,div,span):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-reading-size) !important; line-height: var(--ui-body-line) !important; }

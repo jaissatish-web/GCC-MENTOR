@@ -38,7 +38,7 @@ export function PageHeader({
           {title}
         </h1>
         {description ? (
-          <p className="max-w-[70ch] type-body text-ink-soft">
+          <p className="max-w-[70ch] type-lead text-ink-soft">
             {description}
           </p>
         ) : null}

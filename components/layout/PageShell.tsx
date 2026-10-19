@@ -81,7 +81,7 @@ export function PageShell({
             </h1>
           </div>
           {subtitle ? (
-            <p className="max-w-[65ch] type-body text-ink-soft">
+            <p className="max-w-[65ch] type-lead text-ink-soft">
               {subtitle}
             </p>
           ) : null}

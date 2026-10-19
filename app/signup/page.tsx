@@ -33,7 +33,7 @@ export default async function SignupPage(props: { searchParams: Promise<{ redire
     >
       <AuthCard title="Create your account" subtitle="Free to start. No card needed.">
         <AuthForm mode="signup" action={signup} resend={resendConfirmation} redirectTo={carry} />
-        <p className="mt-5 text-center text-[14px] text-ink-muted">
+        <p className="mt-5 text-center text-[14px] text-ink-muted type-helper">
           Already have an account?{' '}
           <Link href={loginHref} className="inline-flex min-h-11 items-center px-1 font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
             Sign in

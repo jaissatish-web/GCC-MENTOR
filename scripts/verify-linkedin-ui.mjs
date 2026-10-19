@@ -348,7 +348,7 @@ try {
       cardWidth: el.querySelector('section').getBoundingClientRect().width,
     }))
     assert.equal(preview.body, '16px')
-    assert.equal(preview.metadata, '16px')
+    assert.equal(preview.metadata, '14px')
     assert.ok(preview.family.includes('Inter'))
     assert.equal(preview.weight, '400')
     assert.equal(preview.name, width < 640 ? '20px' : '22px')

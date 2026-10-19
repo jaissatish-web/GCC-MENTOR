@@ -372,7 +372,7 @@ function MockInterviewScreen() {
 
             {inputMode === 'voice' ? <InterviewerPicker value={interviewerId} onChange={setInterviewerId} disabled={busy !== null} /> : null}
 
-            {inputMode === 'voice' && voiceReady === false ? <p className="rounded-ctl bg-canvas p-3 text-sm text-ink-muted">Recorded interviews are being prepared. Your previous interview reports remain available.</p> : null}
+            {inputMode === 'voice' && voiceReady === false ? <p className="rounded-ctl bg-canvas p-3 text-sm text-ink-muted type-helper">Recorded interviews are being prepared. Your previous interview reports remain available.</p> : null}
             {opError ? <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">{opError}</p> : null}
             {detailError ? (
               <div className="flex flex-col items-start gap-2">
@@ -497,12 +497,12 @@ function MockInterviewScreen() {
 
       {requestedRunId && detail && !run && !detailLoading ? <p role="alert" className="text-ink-muted">This interview is no longer available for the selected resume. Choose a saved attempt below.</p> : null}
       {detail && selectedId && (detail.mock_interview_runs?.length ?? 0) > 0 ? <section className="space-y-4" aria-label="Saved mock interviews">
-        <div><h2 className="type-section">Your interview history</h2><p className="mt-1 text-sm text-ink-muted">All saved attempts for this resume. Open any interview to view its questions and report.</p></div>
+        <div><h2 className="type-section">Your interview history</h2><p className="mt-1 text-sm text-ink-muted type-helper">All saved attempts for this resume. Open any interview to view its questions and report.</p></div>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {orderedAttempts(detail.mock_interview_runs ?? []).map((attempt, index) => <li key={attempt.id}>
             <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(attempt.id)}${attempt.status !== 'completed' ? (attempt.input_mode === 'voice' ? '&room=1' : '#interview-report') : ''}`} className="group ui-card flex h-full min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-4 transition-colors hover:border-teal hover:bg-teal-soft/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
               <div className="flex items-center justify-between gap-3"><span className="grid size-10 place-items-center rounded-xl bg-teal-soft text-teal">{index + 1}</span><span className="flex items-center gap-1 rounded-full bg-canvas px-2 py-1 text-xs text-ink-muted">{attempt.status === 'completed' ? <CheckCircle2 size={13} aria-hidden="true" /> : <Mic size={13} aria-hidden="true" />}{attempt.status === 'completed' ? 'Reviewed' : 'In progress'}</span></div>
-              <h3 className="type-card">Mock interview {index + 1}</h3><p className="text-sm text-ink-muted">{new Date(attempt.generated_at).toLocaleDateString()} · {attempt.mode.replaceAll('_', ' ')} · {attempt.difficulty}</p>
+              <h3 className="type-card">Mock interview {index + 1}</h3><p className="text-sm text-ink-muted type-helper">{new Date(attempt.generated_at).toLocaleDateString()} · {attempt.mode.replaceAll('_', ' ')} · {attempt.difficulty}</p>
               <span className="mt-auto flex items-center justify-between border-t border-line pt-3 text-sm text-teal"><span>{attempt.status === 'completed' ? 'Explore result' : 'Continue practice'}</span><ChevronRight size={17} aria-hidden="true" /></span>
             </Link>
           </li>)}
