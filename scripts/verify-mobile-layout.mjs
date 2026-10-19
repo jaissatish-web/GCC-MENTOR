@@ -81,10 +81,10 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${(width >= 640 ? 24 : 22) * scale}px`)
-      assert.equal(result.weight, '600')
+      assert.equal(result.titleSize, `${(width >= 640 ? 30 : 26) * scale}px`)
+      assert.equal(result.weight, '700')
       assert.equal(result.inputSize, `${16 * scale}px`)
-      assert.equal(result.bodySize, `${14 * scale}px`)
+      assert.equal(result.bodySize, `${16 * scale}px`)
       assert.ok(result.buttonHeight >= 44)
       await page.$eval('details', element => { element.open = true })
       const choices = await page.evaluate(() => ({
@@ -135,7 +135,7 @@ try {
       captionSize: style('.caption-example').fontSize}
   })
   assert.deepEqual(configured, {title:'27px', section:'19px', body:'18px', family:'Arial',
-    radius:'9px', padding:'12px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'19px', utilityWeight:'600', captionSize:'14px'})
+    radius:'9px', padding:'12px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'14px'})
   // Real public landing markup, production CSS and bundled Inter, without API calls.
   const publicMarkup = landing.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*>/gi, '')
@@ -156,12 +156,12 @@ try {
         return { scroll: document.documentElement.scrollWidth, size: parseFloat(heading.fontSize),
           weight: heading.fontWeight, font: heading.fontFamily,
           clipped: hero.scrollWidth > hero.clientWidth + 1,
-          sectionSize: parseFloat(getComputedStyle(document.querySelector('h2')).fontSize) }
+          sectionSize: parseFloat(getComputedStyle(document.querySelector('h2')).fontSize),overflow: [...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1 && el.getBoundingClientRect().width>0).slice(0,16).map(el=>({tag:el.tagName,text:el.textContent.slice(0,55),class:el.getAttribute('class'),right:el.getBoundingClientRect().right})) }
       })
       if (metrics.scroll > width + 1) await page.screenshot({path:'artifacts/typography/landing-overflow.png',fullPage:false})
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
-      assert.equal(metrics.weight, '600')
+      assert.equal(metrics.weight, '700')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       assert.ok(metrics.size > metrics.sectionSize, 'Hero must be larger than a section heading')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })

@@ -228,7 +228,7 @@ export function ProcessingOrbit({
         />
         <span
           className="relative flex size-full items-center justify-center font-display font-bold text-white"
-          style={{ fontSize: Math.max(10, Math.round(size * 0.11)) }}
+          style={{ fontSize: 'var(--ui-caption-size)' }}
         >
           {glyph}
         </span>

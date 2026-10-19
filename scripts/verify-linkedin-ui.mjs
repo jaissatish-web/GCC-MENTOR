@@ -347,11 +347,11 @@ try {
       cardX: el.querySelector('section').getBoundingClientRect().x,
       cardWidth: el.querySelector('section').getBoundingClientRect().width,
     }))
-    assert.equal(preview.body, '14px')
-    assert.equal(preview.metadata, '14px')
-    assert.ok(preview.family.includes('Arial'))
+    assert.equal(preview.body, '16px')
+    assert.equal(preview.metadata, '16px')
+    assert.ok(preview.family.includes('Inter'))
     assert.equal(preview.weight, '400')
-    assert.equal(preview.name, '20px')
+    assert.equal(preview.name, width < 640 ? '20px' : '22px')
     if (width < 640) {
       assert.equal(preview.cardX, 0, 'Phone profile card reaches the screen edge')
       assert.equal(preview.cardWidth, width)

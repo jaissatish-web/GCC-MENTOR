@@ -13,7 +13,7 @@ for (const item of NAV_ITEMS) {
 }
 assert.equal(navHref(NAV_ITEMS.find(item => item.href === '/optimize')!), '/optimize/target')
 const declared = new Set<string>()
-parse(readFileSync('app/ui-system.css', 'utf8')).walkDecls(decl => { if (decl.prop.startsWith('--ui-')) declared.add(decl.prop) })
+parse(readFileSync('app/ui-system.css', 'utf8') + readFileSync('app/typography.css', 'utf8')).walkDecls(decl => { if (decl.prop.startsWith('--ui-')) declared.add(decl.prop) })
 const css = parse(readFileSync('components/journey/how-it-works.module.css', 'utf8'))
 css.walkDecls(decl => { for (const match of decl.value.matchAll(/var\((--ui-[\w-]+)/g)) assert.ok(declared.has(match[1]), `Missing brand token ${match[1]}`) })
 assert.ok(css.toString().includes('prefers-reduced-motion:reduce'))

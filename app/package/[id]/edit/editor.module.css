@@ -1,6 +1,6 @@
 /* Compact editor UI only. The resume template and exports keep their own type. */
 .editor {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--ui-font);
 }
 
 .section {
@@ -15,26 +15,26 @@
   border-bottom: 1px solid var(--ui-line);
   padding-bottom: 8px;
   color: var(--ui-brand);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.35;
+  font-size: var(--ui-card-title-size);
+  font-weight: var(--ui-weight-title);
+  line-height: var(--ui-body-line);
 }
 
 .form label {
   color: var(--ui-ink-soft, #414b55);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.45;
+  font-size: var(--ui-caption-size);
+  font-weight: var(--ui-weight-heading);
+  line-height: var(--ui-body-line);
 }
 
 .editor .form :global(.field) {
   min-width: 0;
   padding: 9px 10px;
   border-radius: 6px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.55;
+  font-family: var(--ui-font);
+  font-size: var(--ui-body-size);
+  font-weight: var(--ui-weight-regular);
+  line-height: var(--ui-body-line);
 }
 
 .editor .form textarea:global(.field) {
@@ -58,7 +58,7 @@
 /* Avoid focus zoom on iOS while retaining the compact desktop/Android type. */
 @supports (-webkit-touch-callout: none) {
   .editor .form :global(.field) {
-    font-size: 16px;
+    font-size: var(--ui-body-size);
   }
 }
 

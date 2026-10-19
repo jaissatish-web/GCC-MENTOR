@@ -18,7 +18,8 @@
     "test:readable-ui": "node scripts/verify-readable-ui.mjs",
     "test:interview": "node scripts/verify-interview-ui.mjs",
     "test:preparation": "node scripts/verify-preparation-experience.mjs",
-    "test:readiness-input": "node scripts/verify-readiness-input-ui.mjs"
+    "test:readiness-input": "node scripts/verify-readiness-input-ui.mjs",
+    "test:typography": "node scripts/verify-typography-ui.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

@@ -1,5 +1,6 @@
 @import "./ui-system.css";
 @import "./professional-profiles.css";
+@import "./typography.css";
 
 @tailwind base;
 @tailwind components;
@@ -349,10 +350,10 @@
    familiar reading scale, separate from SaaS marketing and resume documents. */
 .linkedin-workspace .linkedin-profile-preview {
   color: #191919;
-  font-family: var(--ui-profile-font);
+  font-family: var(--ui-font);
 }
 .linkedin-workspace .linkedin-profile-preview :is(h2, h3, p, span) {
-  font-family: var(--ui-profile-font);
+  font-family: var(--ui-font);
 }
 .linkedin-workspace .linkedin-profile-preview .linkedin-profile-card {
   padding: var(--ui-profile-padding);
@@ -363,18 +364,18 @@
 .linkedin-workspace .linkedin-profile-preview p {
   font-size: var(--ui-profile-body-size);
   font-weight: var(--ui-weight-regular);
-  line-height: 1.5;
+  line-height: var(--ui-body-line);
 }
 .linkedin-workspace .linkedin-profile-preview h2 {
   font-size: var(--ui-profile-section-size);
   font-weight: var(--ui-weight-heading);
-  line-height: 1.35;
-  letter-spacing: normal;
+  line-height: var(--ui-body-line);
+  letter-spacing: var(--ui-tracking);
 }
 .linkedin-workspace .linkedin-profile-preview h3 {
   font-size: var(--ui-profile-body-size);
   font-weight: var(--ui-weight-heading);
-  line-height: 1.5;
+  line-height: var(--ui-body-line);
 }
 .linkedin-workspace .linkedin-profile-preview .linkedin-profile-name {
   font-size: var(--ui-profile-name-size);
@@ -409,7 +410,7 @@
   }
 }
 
-/* Shared interview journey: decorative motion only; typography stays in ui-system.css. */
+/* Shared interview journey: decorative motion only; typography stays in typography.css. */
 .practice-skill { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
 @media (hover: hover) { .practice-skill:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 90, 85, .08); } }
 .practice-skill-bar, .practice-score-ring { transition: width 450ms ease, stroke-dasharray 450ms ease; }

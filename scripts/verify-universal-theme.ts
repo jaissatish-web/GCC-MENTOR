@@ -11,10 +11,11 @@ import { Button } from '../components/ui/Button'
 import { NAV_ITEMS } from '../components/layout/navItems'
 ;(globalThis as unknown as {React: unknown}).React = React
 const theme = parse(readFileSync('app/ui-system.css', 'utf8'))
+const typography = parse(readFileSync('app/typography.css', 'utf8'))
 const declared = new Set<string>()
 const unresolved: string[] = []
-theme.walkDecls(d => { if(d.prop.startsWith('--ui-')) declared.add(d.prop) })
-for(const source of ['app/ui-system.css','components/landing-v3/launch.module.css']) {
+for (const sheet of [theme, typography]) sheet.walkDecls(d => { if(d.prop.startsWith('--ui-')) declared.add(d.prop) })
+for(const source of ['app/ui-system.css','app/typography.css','components/landing-v3/launch.module.css']) {
   const sheet=parse(readFileSync(source,'utf8'))
   sheet.walkDecls(d=>{for(const match of d.value.matchAll(/var\((--ui-[\w-]+)/g)) { if(!declared.has(match[1])) unresolved.push(`${match[1]} in ${source}`) }})
 }

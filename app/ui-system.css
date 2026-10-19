@@ -1,32 +1,6 @@
 /* SINGLE UI CONFIGURATION. Edit tokens here; do not add page-specific type scales.
    Code-owned only: no public settings, database storage or user preference UI. */
 :root {
-  --ui-font: var(--font-inter, Inter), ui-sans-serif, system-ui, sans-serif;
-  --ui-mono-font: var(--font-plex-mono), monospace;
-  --ui-weight-regular: 400;
-  --ui-weight-label: 500;
-  --ui-weight-heading: 600;
-  --ui-weight-title: 700;
-  --ui-title-size: 1.625rem;
-  --ui-section-size: 1.25rem;
-  --ui-card-title-size: 1rem;
-  --ui-body-size: 1rem;
-  --ui-label-size: 0.875rem;
-  --ui-helper-size: 0.875rem;
-  --ui-caption-size: 0.75rem;
-  --ui-demo-caption-size: 0.6875rem;
-  --ui-input-size: 1rem;
-  --ui-button-size: 0.9375rem;
-  --ui-hero-size: 2rem;
-  --ui-hero-line: 1.18;
-  --ui-marketing-size: 1.5rem;
-  --ui-lead-size: 1rem;
-  --ui-stat-size: 1.5rem;
-  --ui-body-line: 1.55;
-  --ui-lead-line: 1.65;
-  --ui-heading-line: 1.35;
-  --ui-label-line: 1.4;
-  --ui-heading-tracking: -0.015em;
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
   --ui-card-radius: 12px;
@@ -93,24 +67,11 @@
   --ui-nav-linkedin-bg: #dbeafe; --ui-nav-linkedin-ink: #0a66c2;
   --ui-nav-settings-bg: #f1f5f9; --ui-nav-settings-ink: #475569;
   /* Deliberate document-example exception; still configured in this one file. */
-  --ui-profile-font: Arial, Helvetica, sans-serif;
-  --ui-profile-body-size: 0.875rem;
-  --ui-profile-section-size: 1.125rem;
-  --ui-profile-name-size: 1.25rem;
   --ui-profile-padding: 16px;
   --ui-profile-radius: 8px;
 }
 @media (min-width: 640px) {
   :root {
-    --ui-title-size: 1.875rem;
-    --ui-section-size: 1.375rem;
-    --ui-card-title-size: 1.125rem;
-    --ui-body-size: 1rem;
-    --ui-button-size: 0.9375rem;
-    --ui-hero-size: 2.375rem;
-    --ui-marketing-size: 1.875rem;
-    --ui-lead-size: 1.0625rem;
-    --ui-stat-size: 1.75rem;
     --ui-page-gutter: 24px;
     --ui-page-gap: 24px;
     --ui-page-top: 28px;
@@ -121,21 +82,12 @@
 }
 @media (min-width: 1024px) {
   :root {
-    --ui-body-size: 1rem;
-    --ui-title-size: 1.875rem;
-    --ui-section-size: 1.375rem;
-    --ui-card-title-size: 1.125rem;
-    --ui-hero-size: clamp(2.75rem, 3.6vw, 3.25rem);
-    --ui-marketing-size: 2rem;
-    --ui-lead-size: 1.125rem;
-    --ui-stat-size: 1.75rem;
   }
 }
-@media (max-width: 359px) { :root { --ui-hero-size: 1.875rem; } }
+@media (max-width: 359px) { :root { } }
 
-/* Element defaults have lower specificity than authored utilities. Explicit
-   type-* roles supply the shared scale; text-sm/text-xl and bold utilities
-   retain their meanings. Document and LinkedIn examples remain isolated. */
+/* Base role consumers. app/typography.css owns the scale and enforces semantic
+   roles over legacy utility and module overrides. Resume documents are isolated. */
 body :is(h1, h2, h3, h4, h5, h6):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-weight: var(--ui-weight-title);
   line-height: var(--ui-heading-line);
@@ -158,7 +110,7 @@ body :is(label, legend, dt):not(:where([data-document-preview], [data-document-p
   font-weight: var(--ui-weight-label);
   line-height: var(--ui-label-line);
 }
-body :is(button, input, textarea, select):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-family: inherit; }
+body :is(button, input, textarea, select):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-family: var(--ui-font); }
 body :is(input, textarea, select, .field):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-input-size);
   font-weight: var(--ui-weight-regular);
@@ -215,7 +167,7 @@ body .type-hero:not(:where([data-document-preview], [data-document-preview] *, #
 body .type-marketing-title:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-marketing-size);
   font-weight: var(--ui-weight-title);
-  line-height: 1.2;
+  line-height: var(--ui-body-line);
   letter-spacing: var(--ui-heading-tracking);
   text-wrap: balance;
 }
@@ -227,7 +179,7 @@ body .type-lead:not(:where([data-document-preview], [data-document-preview] *, #
 }
 body .type-stat:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-stat-size);
-  line-height: 1.1;
+  line-height: var(--ui-body-line);
   font-weight: var(--ui-weight-heading);
   font-variant-numeric: tabular-nums lining-nums;
 }
@@ -263,7 +215,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 
 /* Gulf workspace identity. These classes style application chrome only.
    Document fonts, template copy and export layouts remain isolated. */
-.gulf-context { display:flex; align-items:center; gap:8px; color:var(--ui-brand); font-size:var(--ui-label-size); font-weight:500; line-height:1.4; }
+.gulf-context { display:flex; align-items:center; gap:8px; color:var(--ui-brand); font-size:var(--ui-label-size); font-weight:var(--ui-weight-label); line-height:var(--ui-body-line); }
 .workspace-heading { border-bottom:1px solid var(--ui-line); padding-bottom:var(--ui-section-gap); }
 .workspace-next { position:relative; isolation:isolate; background:var(--ui-brand); }
 .workspace-next::after { content:none; }
@@ -283,7 +235,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 }
 .app-type .workspace-heading .workspace-heading-icon { display:none; }
 
-.app-type .workspace-heading p:is(.type-body,.type-helper) { font-size:var(--ui-body-size); line-height:1.6; }
+.app-type .workspace-heading p:is(.type-body,.type-helper) { font-size:var(--ui-body-size); line-height:var(--ui-body-line); }
 .app-type .workspace-heading :is(.workspace-heading-link,.journey-guide-trigger) {
   color:var(--ui-brand);
   border:1px solid var(--ui-line);
@@ -300,10 +252,10 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 /* Daily-use app typography: one scale for Home, Profile, forms and reports.
    Keep inputs at 16px; CV/document previews retain their explicit exclusions. */
 .app-type { font-size:var(--ui-body-size); line-height:var(--ui-body-line); }
-.app-type :is(.uppercase,[class*="tracking-wider"],[class*="tracking-wide"]):not(:where([data-document-preview] *,#resume-render *,.actual-template-orbit-face *)) { letter-spacing:.025em; }
+.app-type :is(.uppercase,[class*="tracking-wider"],[class*="tracking-wide"]):not(:where([data-document-preview] *,#resume-render *,.actual-template-orbit-face *)) { letter-spacing:var(--ui-tracking); }
 .app-type .workspace-heading h1 { font-weight:var(--ui-weight-title); }
 .app-type .workspace-next { background:var(--ui-hero-gradient); }
-.app-type .ui-goal-card h3 { font-size:var(--ui-body-size); font-weight:var(--ui-weight-label); line-height:1.45; }
+.app-type .ui-goal-card h3 { font-size:var(--ui-body-size); font-weight:var(--ui-weight-label); line-height:var(--ui-body-line); }
 .app-type .ui-service-icon { opacity:.9; }
 /* Service identity follows the same palette in navigation, cards and guides.
    Labels and icons carry the meaning; colour is a supporting cue. */
@@ -600,7 +552,7 @@ body .text-\[28px\]:not(:where([data-document-preview], [data-document-preview] 
 body .text-\[30px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-stat-size); }
 body .text-\[32px\]:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-hero-size); }
 body .rounded-ctl:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-radius:var(--ui-control-radius); }
-body .font-mono:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-family:var(--ui-mono-font); }
+body .font-mono:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-family:var(--ui-font); }
 
 /* Authored utilities inherit the configured emphasis and font family. */
 body .font-normal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { font-weight:var(--ui-weight-regular); }
@@ -678,10 +630,10 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   border-bottom: 1px solid var(--ui-line);
   padding: 8px 0;
   color: var(--ui-brand);
-  font-size: 16px;
-  font-weight: 700;
+  font-size: var(--ui-body-size);
+  font-weight: var(--ui-weight-title);
 }
-.app-type .interview-qa-page .qa-group-count { font-size: 12px; font-weight: 500; color: var(--ui-muted); }
+.app-type .interview-qa-page .qa-group-count { font-size: var(--ui-caption-size); font-weight: var(--ui-weight-label); color: var(--ui-muted); }
 .app-type .interview-qa-page .qa-question-card {
   min-width: 0;
   border: 1px solid #dce1ee;
@@ -695,28 +647,28 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   padding: 12px;
   background: #f5f6fd;
 }
-.app-type .interview-qa-page .qa-question-number { color: var(--ui-ink); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.app-type .interview-qa-page .qa-question-number { color: var(--ui-ink); font-size: var(--ui-caption-size); font-weight: var(--ui-weight-title); letter-spacing: var(--ui-tracking); text-transform: uppercase; }
 .app-type .interview-qa-page .qa-difficulty,
-.app-type .interview-qa-page .qa-tag { border: 1px solid #b4c9c1; border-radius: 6px; padding: 3px 7px; background: #fff; color: #37554d; font-size: 12px; line-height: 1.4; }
-.app-type .interview-qa-page .qa-difficulty { background: #d8e9e1; font-weight: 600; text-transform: capitalize; }
+.app-type .interview-qa-page .qa-tag { border: 1px solid #b4c9c1; border-radius: 6px; padding: 3px 7px; background: #fff; color: #37554d; font-size: var(--ui-caption-size); line-height: var(--ui-body-line); }
+.app-type .interview-qa-page .qa-difficulty { background: #d8e9e1; font-weight: var(--ui-weight-heading); text-transform: capitalize; }
 .app-type .interview-qa-page .qa-question-title {
   margin-top: 10px;
   font-family: var(--ui-font);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.45;
+  font-size: var(--ui-card-title-size);
+  font-weight: var(--ui-weight-title);
+  line-height: var(--ui-body-line);
   color: var(--ui-ink);
   overflow-wrap: anywhere;
 }
 .app-type .interview-qa-page .qa-question-body { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
-.app-type .interview-qa-page .qa-panel-label { display: flex; align-items: center; gap: 6px; margin: 0 0 7px; font-size: 14px; font-weight: 700; line-height: 1.4; }
+.app-type .interview-qa-page .qa-panel-label { display: flex; align-items: center; gap: 6px; margin: 0 0 7px; font-size: var(--ui-helper-size); font-weight: var(--ui-weight-title); line-height: var(--ui-body-line); }
 .app-type .interview-qa-page :is(.qa-why-panel,.qa-answer-panel,.qa-basis-panel,.qa-followup-panel) { min-width: 0; border: 1px solid; border-radius: 10px; padding: 12px; }
 .app-type .interview-qa-page .qa-why-panel { border-color: #ddc78f; border-left-width: 3px; background: #fff8e8; color: #685020; }
 .app-type .interview-qa-page .qa-answer-panel { border-width: 1px; border-color: #d7e6df; background: #f7fbf9; color: var(--ui-ink); }
 .app-type .interview-qa-page .qa-basis-panel { border-color: #bdcddc; background: #f1f5f9; color: #35506b; }
 .app-type .interview-qa-page .qa-followup-panel { border-color: #c8b5dd; border-left-width: 3px; background: #f7f2fb; color: #62437d; }
-.app-type .interview-qa-page :is(.qa-why-panel,.qa-basis-panel,.qa-followup-panel) > p { font-size: 14px; font-weight: 400; line-height: 1.65; color: rgb(var(--ui-ink-soft-rgb)); overflow-wrap: anywhere; }
-.app-type .interview-qa-page .qa-answer-text { margin: 0; font-family: var(--ui-font); font-size: 16px; font-weight: 400; line-height: 1.75; color: var(--ui-ink); overflow-wrap: anywhere; }
+.app-type .interview-qa-page :is(.qa-why-panel,.qa-basis-panel,.qa-followup-panel) > p { font-size: var(--ui-helper-size); font-weight: var(--ui-weight-regular); line-height: var(--ui-body-line); color: rgb(var(--ui-ink-soft-rgb)); overflow-wrap: anywhere; }
+.app-type .interview-qa-page .qa-answer-text { margin: 0; font-family: var(--ui-font); font-size: var(--ui-body-size); font-weight: var(--ui-weight-regular); line-height: var(--ui-body-line); color: var(--ui-ink); overflow-wrap: anywhere; }
 .app-type .interview-qa-page .qa-answer-text mark { background: #ffedb5; color: #493713; padding: 1px 3px; border-radius: 3px; }
 .app-type .interview-qa-page .qa-answer-toggle {
   display: inline-flex;
@@ -730,9 +682,9 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   padding: 10px 12px;
   background: var(--ui-brand);
   color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.4;
+  font-size: var(--ui-helper-size);
+  font-weight: var(--ui-weight-heading);
+  line-height: var(--ui-body-line);
 }
 .app-type .interview-qa-page .qa-answer-toggle[aria-expanded='true'] { background: #e4efeb; color: var(--ui-ink); }
 .app-type .interview-qa-page .qa-answer-toggle:focus-visible { outline: 3px solid #86b7a8; outline-offset: 3px; }
@@ -741,7 +693,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 @media (min-width: 640px) {
   .app-type .interview-qa-page .qa-setup-panel { padding: 20px; }
   .app-type .interview-qa-page .qa-question-header { padding: 16px; }
-  .app-type .interview-qa-page .qa-question-title { font-size: 18px; }
+  .app-type .interview-qa-page .qa-question-title { font-size: var(--ui-card-title-size); }
   .app-type .interview-qa-page .qa-question-body { padding: 16px; }
   .app-type .interview-qa-page .qa-answer-toggle { width: fit-content; min-width: 210px; }
 }
@@ -765,7 +717,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 }
 @media (max-width: 639px) {
   .app-type .workspace-heading .ui-button { width: 100%; }
-  .app-type .field { font-size: 1rem; }
+  .app-type .field { font-size: var(--ui-body-size); }
 }
 
 /* Emerald remains the action colour; service accents guide recognition. */
@@ -773,7 +725,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type .service-feature-card { border-top:3px solid var(--service-ink,var(--ui-brand)); }
 .app-type .service-feature-card:hover { border-color:var(--service-ink,var(--ui-brand)); }
 .app-type .service-feature-card > span:last-child { color:var(--service-ink,var(--ui-brand)); }
-.app-type .service-feature-card h3.type-body { font-size:1rem; font-weight:600; line-height:1.45; }
+.app-type .service-feature-card h3.type-body { font-size:var(--ui-body-size); font-weight:var(--ui-weight-heading); line-height:var(--ui-body-line); }
 
 /* Approved full-site brand: service cues support a calm, readable workspace. */
 .app-type .workspace-heading { padding-bottom:24px; gap:16px; }
@@ -782,13 +734,13 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type .ui-surface { box-shadow:var(--ui-card-shadow); }
 .app-type .service-feature-card { border-top-width:1px; border-radius:16px; padding:24px; }
 .app-type .service-feature-card:hover { border-color:var(--service-ink); box-shadow:0 8px 24px rgb(20 36 61 / .07); }
-.app-type .service-feature-card h3.type-body { font-size:18px; }
-.app-type .service-feature-card p { line-height:1.65; }
-.app-type .ui-button { font-weight:600; }
+.app-type .service-feature-card h3.type-body { font-size:var(--ui-card-title-size); }
+.app-type .service-feature-card p { line-height:var(--ui-body-line); }
+.app-type .ui-button { font-weight:var(--ui-weight-heading); }
 .app-type .field:focus { border-color:var(--ui-brand); box-shadow:0 0 0 3px rgb(var(--ui-brand-rgb) / .1); }
 .app-type :is(input,textarea,select):disabled { cursor:not-allowed; }
 .app-type .workspace-flow-steps { gap:12px; }
-.app-type .workspace-flow-steps li[aria-current="step"] { font-weight:600; }
+.app-type .workspace-flow-steps li[aria-current="step"] { font-weight:var(--ui-weight-heading); }
 @media(max-width:639px) {
   .app-type .workspace-heading { padding-bottom:20px; }
   .app-type .workspace-heading h1 .ui-service-icon { width:36px; height:36px; border-radius:10px; }
@@ -809,8 +761,8 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type .library-service-count {
   display:flex; align-items:center; justify-content:center; flex-shrink:0;
   width:32px; height:32px; border-radius:50%; background:#fff;
-  border:1px solid currentColor; font-size:14px; font-weight:600;
-  font-variant-numeric:tabular-nums; line-height:1;
+  border:1px solid currentColor; font-size:var(--ui-helper-size); font-weight:var(--ui-weight-heading);
+  font-variant-numeric:tabular-nums; line-height:var(--ui-body-line);
 }
 .app-type .tool-tile-box {
   display:flex; flex:none; min-width:0; height:128px; flex-direction:column;
@@ -819,7 +771,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   border-radius:16px; background:var(--service-soft); color:var(--ui-ink);
   transition:box-shadow 160ms ease,border-color 160ms ease;
 }
-.app-type .tool-tile-title { font-size:16px; font-weight:600; line-height:1.4; overflow-wrap:break-word; }
+.app-type .tool-tile-title { font-size:var(--ui-body-size); font-weight:var(--ui-weight-heading); line-height:var(--ui-body-line); overflow-wrap:break-word; }
 .app-type .tool-tile:hover .tool-tile-box { border-color:var(--service-ink); box-shadow:0 4px 16px rgb(var(--ui-ink-rgb) / .07); }
 .app-type .template-preview-action { border-color:var(--ui-brand); background:#fff; color:var(--ui-brand); }
 @media (prefers-reduced-motion:reduce) { .app-type .tool-tile-box { transition:none; } }
@@ -830,7 +782,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .cover-letter-email-fields > div { display:grid; grid-template-columns:60px minmax(0,1fr); gap:8px; padding-block:4px; }
 .cover-letter-email-fields dt { color:var(--ui-muted); font-size:var(--ui-helper-size); }
 .cover-letter-email-fields dd { margin:0; color:var(--ui-ink); font-size:var(--ui-helper-size); }
-.cover-letter-email-body, .cover-letter-email-editor { padding:20px; color:var(--ui-ink); font-family:Arial,Helvetica,sans-serif; font-size:16px; line-height:1.65; }
+.cover-letter-email-body, .cover-letter-email-editor { padding:20px; color:var(--ui-ink); font-family:var(--ui-font); font-size:var(--ui-body-size); line-height:var(--ui-body-line); }
 .cover-letter-email-body p { margin:0 0 1em; white-space:pre-wrap; }
 .cover-letter-email-body p:last-child { margin-bottom:0; }
 .cover-letter-email-editor { display:block; width:100%; min-height:360px; border:0; border-radius:0 0 12px 12px; resize:vertical; background:white; field-sizing:content; }
