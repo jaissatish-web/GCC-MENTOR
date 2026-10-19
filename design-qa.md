@@ -33,12 +33,12 @@ No actionable P0/P1/P2 issues remain in the final comparison. This is the select
 - Workspace: Overview, Documents and Practice switch correctly; CV view and download controls remain available; practice links carry the existing package identifier; application tracker date input remains accessible.
 - Navigation: Home / Library / Tools / Profile preserve distinct existing destinations. The source board's separate Jobs and Library items would duplicate the current product routes, so the existing useful destinations are retained. Full services remain in the header menu.
 - Browser results: 12 route/viewport checks passed; zero runtime errors and zero API writes in the read-only fixture. Evidence: `artifacts/opportunity-desk/results.json`.
-- Production typecheck, lint and build passed. Repository regression checks are recorded in the pull request after completion.
+- Production typecheck, lint and build passed. All 70 repository regression checks passed. New CSS uses shared typography weight and line-height tokens; the same guard exposed an existing literal line-height in the older landing component, which was replaced by the existing heading token.
 - Scope: no API, database schema, auth implementation, AI pipeline, service entitlement, pricing, resume-template or document-generation code changed. Presentation, navigation and frontend display only.
 
 **Open questions / test limits**
 
-Live signed-in account operations and paid generation were not exercised. The fixture blocks writes. Public deployment verification is recorded in the pull request separately; no main merge or production promotion is authorized.
+Live signed-in account operations and paid generation were not exercised. The fixture blocks writes. Public deployment verification: https://gcc-mentor-upmi4iay6-satishs-projects-c02c354b.vercel.app/ (preview UI commit c65bb4c). Cloud-browser screenshot: `artifacts/opportunity-desk/deployed-landing.jpg`, 1348 × 926 CSS pixels at browser density 1. Both landing disclosures expanded/collapsed, the journey showed LinkedIn/NaukriGulf routes, and the primary readiness CTA opened the actual readiness screen. No application console errors were observed; browser-extension metadata errors were excluded. No main merge or production promotion is authorized.
 
 **Implementation checklist**
 
