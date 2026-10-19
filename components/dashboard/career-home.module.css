@@ -144,13 +144,13 @@
 .foundationMore[open]>summary svg{transform:rotate(180deg)}
 .profileLinks{display:flex;flex-wrap:wrap;gap:4px 20px;margin-top:8px}.profileLinks a{display:inline-flex;align-items:center;min-height:44px;font-size:var(--ui-helper-size);color:var(--ui-brand)}
 .followThrough{padding:20px 16px;border-color:#dfebe5;border-radius:9px;background:#eff7f4;box-shadow:none}
-.nextEyebrow{text-transform:none;font-size:var(--ui-helper-size);font-weight:600}
-.resumeContext{margin-top:12px}.workspaceName{font-size:var(--ui-card-title-size)!important;font-weight:600;color:var(--ui-ink)}
+.nextEyebrow{text-transform:none;font-size:var(--ui-helper-size);font-weight:var(--ui-weight-heading)}
+.resumeContext{margin-top:12px}.workspaceName{font-size:var(--ui-card-title-size)!important;font-weight:var(--ui-weight-heading);color:var(--ui-ink)}
 .nextHint{margin-top:8px;color:var(--ui-muted);font-size:var(--ui-helper-size)}
 .preparationDetails{border-color:#dce8e1}.savedPanel{border:0;border-radius:0;box-shadow:none;padding:16px}
 .disclosureCard,.datesPanel{border-radius:9px;box-shadow:none}.disclosureCard{background:#fff}.page :global(.text-gold-ink){color:var(--ui-brand)}
 @media(min-width:768px){.page.page{padding-top:36px;gap:26px}.continueActions>a:first-child{width:auto;min-width:250px}.followThrough{padding:24px}}
 
-.followThrough .resumeContext{margin-top:6px}.followThrough .resumeContext h2{line-height:1.4}.followThrough .workspaceName{min-height:32px}.followThrough .preparationDetails>summary{min-height:38px}.continueActions>a:first-child{display:flex;align-items:center;justify-content:center;gap:8px;flex-direction:row}.continueActions>a:first-child svg{flex:none}
+.followThrough .resumeContext{margin-top:6px}.followThrough .resumeContext h2{line-height:var(--ui-body-line)}.followThrough .workspaceName{min-height:32px}.followThrough .preparationDetails>summary{min-height:38px}.continueActions>a:first-child{display:flex;align-items:center;justify-content:center;gap:8px;flex-direction:row}.continueActions>a:first-child svg{flex:none}
 
 .followThrough{padding:16px}.followThrough .nextEyebrow{display:none}.followThrough .continueActions{margin-top:12px}.followThrough .preparationDetails>summary{min-height:32px}
