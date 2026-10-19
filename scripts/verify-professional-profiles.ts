@@ -45,7 +45,9 @@ for(const platform of ['linkedin','naukrigulf'] as const) {
   const config=PROFESSIONAL_PLATFORMS[platform]
   const intro=renderToStaticMarkup(React.createElement(ProfileIntroduction,{platform}))
   assert.ok(intro.includes(`${config.home}/workspace`))
-  assert.ok(!intro.includes('profile-hero-v1.webp'))
+  assert.ok(decodeURIComponent(intro).includes(`/professional/${platform}-confidence-v1.webp`))
+  assert.ok(intro.includes('WHY THIS MATTERS') && intro.includes('WE PREPARE'))
+  assert.ok(intro.includes(`Optimize my ${config.name}`))
   assert.ok(intro.includes('Profile update guidance') && intro.includes('<details'))
   assert.ok(intro.includes('https://'))
   assert.ok(intro.includes('What you get') && intro.includes('where it goes'))

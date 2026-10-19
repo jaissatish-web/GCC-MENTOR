@@ -1,4 +1,5 @@
 @import "./ui-system.css";
+@import "./professional-profiles.css";
 
 @tailwind base;
 @tailwind components;

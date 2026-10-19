@@ -1,60 +1,49 @@
-# Combined Library, workspace, Tools and Templates update
+# LinkedIn and NaukriGulf profile preparation redesign
 
 final result: passed
 
-## Scope and visual reference
+## Source and scope
 
-Implement the founder's recorded batch against main commit 8e10f014e8be59041f1cba45b3025b1c55281548. Preserve the existing brand, service routes, resume data, calculations and generation behaviour. The existing optimized workspace is the visual target for the base-resume workspace.
+The founder requested the font, field formatting and visual style of Add Job Details on both professional-profile journeys, with separate happy-candidate hero imagery, benefits, responsibilities, practical visibility advice, a clear optimisation CTA, and valuable editable results. This is a style adaptation within the existing product, not a pixel clone of the job form. Main baseline: b57daa28adf568e7a82f347041aa0b3bc5a5a5f3.
 
-Source captures:
-- `/workspace/scratch/gcc-batch-workspace-reference.jpg`: production optimized overview, 1348 × 926 pixels, desktop, density 1.
-- `/workspace/scratch/gcc-batch-library-before.jpg`: original production Library.
+Source visual truth: `design-qa/profiles/add-job-reference-desktop.jpg`, production `/optimize/target`.
+Rendered implementation: `design-qa/profiles/naukrigulf-fields-desktop.jpg`, actual NaukriGulf workspace components in the local cloud-browser preview with synthetic fixtures.
+Full-view comparison input: `design-qa/profiles/reference-comparison.jpg`.
+Both screenshot images measure 1348 × 926 pixels. Browser CSS viewport reported 1363 × 936; captures use the browser's consistent content crop. No density scaling was applied to the comparison; each original is placed beside the other at 1:1. The reference includes the real authenticated navigation; the isolated component preview intentionally excludes server-authenticated shell components. Compare typography, fields, cards, palette and progress treatment, rather than different content column widths.
 
-Rendered evidence:
-- `/workspace/scratch/gcc-batch-base-desktop.jpg`: base overview, 1363 × 936 pixels, density 1. The browser's viewport changed slightly between captures. Full comparison scales each capture to an approximately 790px-wide panel; focused comparison normalizes content widths from 1050/1075px to 1050px. These are different resume states by design, not an identical-content clone.
-- `/workspace/scratch/gcc-batch-workspace-comparison.jpg`: full reference and implementation in one comparison input.
-- `/workspace/scratch/gcc-batch-workspace-focused.jpg`: shared four-tab frame and two-column overview panels at readable size.
-- `/workspace/scratch/gcc-batch-library-after.jpg`: actual Library components at 390px and 850px iframe widths with fictional data.
-- `/workspace/scratch/gcc-batch-library-320.jpg`: narrow Library; 303px content width with its scrollbar, no horizontal overflow.
-- `/workspace/scratch/gcc-batch-tools-final.jpg`: final Tools at 320px and 850px iframe widths. Every mobile service box measures 129.5 × 128px; all labels remain within their boxes.
-- `/workspace/scratch/gcc-batch-templates-final.jpg`: Templates at 320px and 850px. At 320px, both actions measure 131.5 × 64px; Template preview has white fill and rgb(15, 89, 75) border.
-- `/workspace/scratch/gcc-batch-base-overview.jpg`: base workspace at 390px/850px.
-- `/workspace/scratch/gcc-batch-improve-direct.jpg`: optimized Improve report immediately visible at 390px/850px.
-- `/workspace/scratch/gcc-batch-base-design.jpg`: existing base-resume design editor and rendered document, full desktop.
+Focused evidence: `design-qa/profiles/linkedin-copy-mobile-focused.jpg` and computed typography measurements from both reference and implementation. Mobile renders use actual components and production CSS at 390 × 900 CSS px, density 1; mobile evidence files show consecutive upper regions of full-page test screenshots without scale changes.
 
-Review captures use actual application components and synthetic fixture data. No user resume content was copied into the fixture preview.
+## Review and comparison history
 
-## Findings and iteration
+- [P2, fixed] Initial local preview did not serve image assets or fonts through its static preview host. Embedded the actual generated images and production font files in the temporary preview only. Both actual production image files also load in the isolated HTTP fixtures. Re-captured the complete NaukriGulf hero in `design-qa/profiles/naukrigulf-intro-desktop.jpg`. Production uses Next Image against committed public assets.
+- [P2, fixed] Initial generated-results summary, saved-time panel and progress panel pushed all copy-ready content below the desktop fold. Removed duplicate metadata, kept successful generation as an accessible live announcement, and compacted progress/actions. Post-fix evidence: `design-qa/profiles/linkedin-results-desktop.jpg` and `design-qa/profiles/naukrigulf-results-mobile.jpg`. The first result is now reached sooner; section anchors provide direct access to later sections.
+- Final comparison found no actionable P0/P1/P2 issues. Wider desktop workspace columns intentionally accommodate readable content and multiple fields; phone content keeps the shared 12px page gutters and 12px panel padding.
 
-[P2, fixed] The initial Tools revision still had long descriptions and a count badge that forced the category heading to wrap at 320px. The initial boxes measured 144px high. Evidence: `/workspace/scratch/gcc-batch-tools-320.jpg`. Shortened subtitles, removed the extra badge and made all boxes 128px high. Re-captured and compared together in `/workspace/scratch/gcc-batch-tools-comparison.jpg`; labels and subtitles remain readable without overflow.
+## Required fidelity surfaces
 
-[P2, fixed] Removing the Templates page subtitle left a separate introductory paragraph inside the shared picker. Added an optional showIntroduction prop, disabled only on this page. Browser verification confirms zero matching introduction paragraphs; the workspace picker keeps its existing hint.
+- Fonts/typography: exact Inter family and existing global roles. Reference and implementation h1: 30px / 700 / 40.5px line-height; inputs: 16px / 400 / 24.8px; labels: 14px / 500 / 19.6px. Mobile title is the existing shared 26px role. Existing social-profile illustrative previews retain their separate Arial document scale.
+- Spacing/layout: shared card, field, button and control tokens; compact three-step preparation bars; responsive two-column hero/outputs on desktop, stacked on phones. No horizontal overflow at 320, 390, 768 and 1440px across introductions, setup, results and previews. Copy surfaces preserve paragraphs and wrap long text.
+- Colours/tokens: existing emerald action palette, white cards, canvas background and visible grey field borders. Quiet blue/emerald visual for LinkedIn and amber/emerald visual for NaukriGulf. Selection uses both radio control and border/background, rather than colour alone.
+- Images/assets: separate 1200 × 800 WEBP photos, 58,030 and 68,538 bytes respectively. Sharp, undistorted crop with faces visible; editorial career illustrations, no testimonial attribution or invented performance numbers. Heroicons supply standard interface icons.
+- Copy/content: explains why a clear profile matters, exact deliverables/paste destinations, what GCC Mentor prepares and what users publish themselves. Platform-specific tips and future routines have official guidance links. No guaranteed recruiter ranking, visibility percentage, interviews or hiring claims. Headline, summary and selected role descriptions have distinct editing controls, character counts and exact copy values; fixed career facts remain grounded in Career Profile.
 
-Final full and focused comparisons show consistent brand typography, card rhythm and the same four-tab workspace frame. Differences in base-resume content are intentional: original-details guidance replaces job-specific target and ATS claims. No actionable P0/P1/P2 findings remain in the reviewed scope.
+## Browser interactions and validation
 
-## Requested results
+Cloud browser at local preview: introduction CTA → source → direction → review → synthetic generation → results, section navigation, edit About, return to readable preview, save, cross-platform navigation and future-tip accordion. Local preview uses synthetic Career Profile fixtures and no production AI, credentials or live account mutations. App console reviewed: no application errors; browser-extension metadata warnings were outside the app.
 
-- Removed Library search and All stages filter; retained per-job application-stage controls and pagination.
-- Base resume is first, with amber border and badge; optimized cards share emerald borders. A duplicate base summary cannot appear twice.
-- Resume readiness indicator retained. Other services show a label and compact numeric count circle in equal rows. Numbers come from existing usage data and saved-output fallbacks; unknown Q&A/mock counts show a dash rather than a false zero if usage is unavailable. No quota or retention logic changed.
-- Base workspace defaults to Overview and uses the same tabs as optimized workspaces. Overview and Improve explain original details and the availability of cover letters, Q&A and mock interviews. Grammar corrections point to Career Profile editing; no automatic grammar processing is falsely claimed.
-- Base design and template query routes remain available. Its Tracker explains that application tracking belongs to job-specific resumes.
-- Optimized Improve displays the existing ATS report directly, retaining suggestion handling and score calculations.
-- Tools has only Premium services and Free services sections, seven coloured service boxes and short subtitles below. Free services remain a coming-later section.
-- Templates retains its title, filters, real rendered designs, resume selector and sticky toolbar. Both preview actions have equal dimensions; Template preview opens the existing full-size sample-document dialog.
+Production build, TypeScript and ESLint pass. Main verification suite: 68 checks passed on the first run; the remaining introduction assertion needed URL-decoding for Next Image's encoded URL and passed when rerun, yielding 69 checks passed. Both actual-component browser suites pass at 320/390/768/1440px, including hero image loading, CTA destination, source/setup/generation, result/preview overflow, edit/preview/copy of the exact revised text, save/retry, pending-save disabling, checklist persistence, optional import/conflict gates and missing-profile routing.
 
-## Fidelity and accessibility surfaces
+UI test evidence is generated from fixture content, not the user's personal profile. These tests validate presentation and preserve the existing service contracts; the production LLM was not called during this design pass.
 
-| Surface | Review |
-| --- | --- |
-| Typography | Existing Inter hierarchy retained; 16px main reading text, 14px supporting text, 16px Tools names and 14px tab labels/counts. Documents keep their own rendering styles. |
-| Spacing/layout | Symmetrical Library service rows; four shared workspace tabs; aligned overview panels; equal Tools boxes; equal preview controls. At very narrow widths, Library service rows become one column for readability. |
-| Colours | Emerald actions and optimized borders, amber base identity, navy reading text, white surfaces and existing per-service colour tokens. Text/badges identify base vs optimized alongside colour. |
-| Assets | Existing Heroicons and actual resume templates retained. No new raster assets or placeholders. |
-| Copy/content | Requested introductions removed. Base text does not imply job optimization or an invented ATS score. Service links keep the selected resume ID. |
+## Assets and supplied image-generation direction
 
-Browser interaction checks: Library Details opens/closes; base Overview/Improve tabs work; direct base Design query renders the existing document; optimized Improve immediately shows score content; Template preview opens the full-size original-document dialog and closes; both buttons remain visible and equal sized at 320px. Browser console review showed extension metadata errors only, no application errors in the inspected states. Paid generation was not run as part of these UI checks.
+Built-in ImageGen was used for both project assets. No CLI/API fallback.
 
-## Validation
+- `public/professional/linkedin-confidence-v1.webp`: 3:2 editorial professional photo, confident happy South Asian mid-career woman at a laptop, bright modern workspace, natural lighting, warm ivory with subtle blue/emerald accents; no text, logos, badge, readable screens, metrics or testimonial framing.
+- `public/professional/naukrigulf-confidence-v1.webp`: 3:2 editorial photo, confident happy South Asian mid-career man holding a phone beside a laptop, bright Gulf office and soft city skyline, warm ivory with amber/emerald accents; no text, logos, badge, readable screens, metrics or testimonial framing.
 
-69/69 existing deterministic and disposable-database checks passed. TypeScript, lint and universal-theme checks passed again after the final UI polish. Final production build of the current tracked and new source completed with exit 0 in an isolated temporary directory, avoiding the previously observed workspace generated-folder cleanup issue. git diff --check passed. No API, database, AI prompt, scoring or export implementation changed.
+## Follow-up polish
+
+No blocking findings. Consider a future independently scoped research pass for platform form-label changes. This redesign preserves existing generation, storage, revision/conflict handling, validation and account controls.
+
+Previous batch report retained at `design-qa/archive-2026-10-18-batch.md`.

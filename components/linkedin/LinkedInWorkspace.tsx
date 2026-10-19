@@ -22,14 +22,16 @@ import {
 import { PROFESSIONAL_PLATFORMS, type ProfessionalPlatform } from '@/lib/professionalProfiles/config'
 import { checklistKeys as naukrigulfChecklistKeys } from '@/lib/naukrigulf/model'
 import { ProfilePreview } from './ProfilePreview'
+import { EditableProfileText } from '@/components/professional/EditableProfileText'
+import { ProfileVisibilityGuide } from '@/components/professional/ProfileVisibilityGuide'
 
 const primary =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-ctl bg-teal px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-dark disabled:cursor-not-allowed disabled:opacity-50'
+  'professional-primary'
 const secondary =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-ctl border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-canvas disabled:opacity-50'
+  'professional-secondary'
 const input =
-  'w-full min-w-0 rounded-ctl border border-line bg-white px-3 py-2.5 text-base text-ink focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/20'
-const card = 'ui-surface min-w-0 rounded-card border border-line bg-white p-4 sm:p-7'
+  'field'
+const card = 'professional-panel min-w-0'
 
 async function responseJson(response: Response) {
   const body = await response.json().catch(() => ({
@@ -49,10 +51,10 @@ function Field({
 }) {
   return (
     <label className="block min-w-0 space-y-2">
-      <span className="block text-sm font-semibold text-ink">{label}</span>
+      <span className="field-label block">{label}</span>
       {children}
       {help && (
-        <span className="block text-sm leading-6 text-ink-muted">{help}</span>
+        <span className="field-hint block">{help}</span>
       )}
     </label>
   )
@@ -79,6 +81,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
   const [busy, setBusy] = useState<'import' | 'generate' | 'save' | null>(null)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [copiedText, setCopiedText] = useState<string | null>(null)
   const [missingProfile, setMissingProfile] = useState(false)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   useEffect(() => {
@@ -283,6 +286,8 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
   async function copy(text: string) {
     try {
       await navigator.clipboard.writeText(text)
+      setCopiedText(text)
+      window.setTimeout(() => setCopiedText((current) => current === text ? null : current), 2500)
       setNotice(`Copied. Paste it on ${platformName}, then mark the section complete.`)
     } catch {
       setError(
@@ -299,7 +304,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
             type="button"
             onClick={() => void copy(text)}
           >
-            Copy {key === 'headline' ? config.headline : key === 'about' ? config.summary : key.startsWith('experience:') ? 'job description' : 'text'}
+            {copiedText === text ? 'Copied — ready to paste' : `Copy ${key === 'headline' ? config.headline : key === 'about' ? config.summary : key.startsWith('experience:') ? 'job description' : 'text'}`}
           </button>
         )}
         <label className="flex min-h-11 items-center gap-2 text-sm text-ink">
@@ -345,10 +350,10 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
   return (
     <PageShell
       title={`${platformName} Optimization`}
-      subtitle="Turn your career facts into a clear professional story for the Middle East."
+      subtitle={view === 'setup' ? 'Choose your source, confirm your direction and prepare your profile content.' : 'Your professional story, with a clear next step for every section.'}
       icon={IdentificationIcon}
       width="wide"
-      className="linkedin-workspace"
+      className="linkedin-workspace professional-workspace"
       uses={['Career Profile', 'career goals']}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -369,7 +374,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
       {notice && (
         <p
           role="status"
-          className="rounded-ctl bg-teal-soft p-4 text-sm text-ink"
+          className={notice === 'Your content has been prepared, fact-checked and saved.' ? 'sr-only' : 'rounded-ctl bg-teal-soft p-4 text-sm text-ink'}
         >
           {notice}
         </p>
@@ -458,10 +463,8 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       <h2 className="mt-2 type-section text-ink">
                         Your content is ready to copy
                       </h2>
-                      <p className="mt-2 max-w-xl text-ink-soft">
-                        Review → Copy → Paste on {platformName} → Save there. Mark it
-                        complete only after you’ve made the change.
-                      </p>
+                      <p className="mt-2 max-w-xl text-ink-soft">Review your headline options, professional story and selected roles. Edit the wording before copying.</p>
+                      <ol className="profile-result-process mt-4" aria-label="How to use your prepared content">{['Review & edit', 'Copy your text', `Paste on ${platformName}`, 'Save there & mark updated'].map((label, index) => <li key={label}><span className="professional-step-number">{index + 1}</span><span>{label}</span></li>)}</ol>
                     </div>
                     <button
                       className={primary}
@@ -474,10 +477,6 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       Preview your optimized profile
                     </button>
                   </section>
-                  <div className="flex flex-wrap gap-3 rounded-card border border-line bg-teal-soft/40 p-4 text-sm text-ink">
-                    <span><strong>Last saved here: </strong><time dateTime={draft.updated_at}>{new Date(draft.updated_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</time></span>
-                    <span>Job dates come from Career Profile. Copy descriptions; check dates separately.</span>
-                  </div>
                   {stale && (
                     <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink">
                       Career Profile has changed since this content was
@@ -485,7 +484,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       version to use your latest facts.
                     </p>
                   )}
-                  <section className={card}>
+                  <section className={`${card} profile-progress-card`}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="font-semibold text-ink">
                         Your {platformName} update progress
@@ -507,11 +506,9 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                         style={{ width: `${percent}%` }}
                       />
                     </div>
-                    <p className="mt-3 text-sm text-ink-muted">
-                      Based on sections you confirm as updated. This is a
-                      checklist, not a hiring score.
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-3">
+                    <p className="mt-2 type-helper text-ink-muted">Sections you confirm as updated · Your checklist, not a hiring score.</p>
+                    <p className="mt-1 type-caption text-ink-muted">Last saved: <time dateTime={draft.updated_at}>{new Date(draft.updated_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</time></p>
+                    <div className="profile-save-actions mt-3 flex flex-wrap gap-3">
                       <button
                         className={primary}
                         disabled={!dirty || !!busy}
@@ -550,8 +547,13 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       </p>
                     )}
                   </section>
-                  <section className={card}>
-                    <h2 className="type-section text-ink">{config.headline}</h2>
+                  <nav aria-label="Your profile update sections" className="profile-section-nav">
+                    {[['profile-headline', '1. Headline'], ['profile-summary', `2. ${config.summary}`], ['profile-experience', `3. ${config.experience}`], ['profile-skills', '4. Skills'], ['profile-final-check', 'Final checks']].filter(([id]) => id !== 'profile-experience' || draft.output!.experience.length > 0).filter(([id]) => id !== 'profile-skills' || draft.output!.skills.length > 0).map(([id, label]) => <a key={id} href={`#${id}`} className="professional-secondary">{label}</a>)}
+                  </nav>
+                  <section id="profile-headline" className={`${card} profile-result-step`}>
+                    <p className="profile-step-label">STEP 1 · YOUR FIRST IMPRESSION</p>
+                    <h2 className="mt-2 type-section text-ink">{config.headline}</h2>
+                    <p className="mt-2 type-body text-ink-soft">Choose one headline that best represents your experience and target direction. You can refine its wording before copying.</p>
                     <p className="mt-2 text-sm leading-6 text-ink-soft">
                       {platform === 'linkedin' ? 'Open your profile, select the pencil in your introduction, and replace the Headline field. Choose one option below.' : 'Open your NaukriGulf profile and replace the resume headline with one reviewed option below.'}
                     </p>
@@ -559,7 +561,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       {draft.output.headlines.map((headline, index) => (
                         <div
                           key={index}
-                          className="rounded-ctl border border-line p-4"
+                          className={`profile-headline-option ${draft.selected_headline === index ? 'is-selected' : ''}`}
                         >
                           <label className="flex items-center gap-2 text-sm font-semibold text-ink">
                             <input
@@ -576,9 +578,8 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                             />
                             Option {index + 1}
                           </label>
-                          <textarea dir="auto"
-                            aria-label={`${config.headline} option ${index + 1}`}
-                            className={`${input} mt-3`}
+                          <EditableProfileText
+                            label={`${config.headline} option ${index + 1}`}
                             rows={2}
                             maxLength={limits.headline}
                             value={headline}
@@ -595,10 +596,6 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                               }))
                             }
                           />
-                          <p className="mt-1 text-xs text-ink-muted">
-                            {Array.from(headline).length}/
-                            {limits.headline} characters
-                          </p>
                         </div>
                       ))}
                     </div>
@@ -607,14 +604,15 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       draft.output.headlines[draft.selected_headline],
                     )}
                   </section>
-                  <section className={card}>
-                    <h2 className="type-section text-ink">{config.summary}</h2>
+                  <section id="profile-summary" className={`${card} profile-result-step`}>
+                    <p className="profile-step-label">STEP 2 · YOUR PROFESSIONAL STORY</p>
+                    <h2 className="mt-2 type-section text-ink">{config.summary}</h2>
+                    <p className="mt-2 type-body text-ink-soft">Introduce your strengths, experience and career direction in your own voice. Check every claim, then edit anything you would say differently.</p>
                     <p className="mt-2 text-sm leading-6 text-ink-soft">
                       {platform === 'linkedin' ? 'Use the pencil beside About on your profile. If it’s missing, add it through Add profile section.' : 'Open the profile summary field in NaukriGulf and paste your reviewed content.'}
                     </p>
-                    <textarea dir="auto"
-                      aria-label={`${config.summary} content`}
-                      className={`${input} mt-4 leading-7`}
+                    <EditableProfileText
+                      label={`${config.summary} content`}
                       rows={10}
                       value={draft.output.about}
                       maxLength={limits.about}
@@ -625,21 +623,15 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                         }))
                       }
                     />
-                    <p className="mt-1 text-xs text-ink-muted">
-                      {Array.from(draft.output.about).length}/
-                      {limits.about} characters
-                    </p>
                     {taskControls('about', draft.output.about)}
                   </section>
-                  {draft.output.experience.map((entry) => {
+                  {draft.output.experience.map((entry, index) => {
                     const role = profile.work_experience.find(
                       (item) => item.id === entry.id,
                     )
                     return (
-                      <section key={entry.id} className={card}>
-                        <p className="text-sm font-semibold text-teal">
-                          EXPERIENCE
-                        </p>
+                      <section key={entry.id} id={index === 0 ? 'profile-experience' : undefined} className={`${card} profile-result-step`}>
+                        <p className="profile-step-label">STEP 3 · {config.experience.toUpperCase()} · ROLE {index + 1}</p>
                         <h2 className="mt-2 type-section text-ink">
                           {role ? <>{mask(role.role)} · {mask(role.company)}</> : 'Saved role — source no longer available'}
                         </h2>
@@ -652,10 +644,9 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           paste only the description below. Check the fixed job
                           fields against Career Profile.
                         </p>
-                        <textarea dir="auto"
-                          aria-label={`Experience ${entry.id}`}
-                          className={`${input} mt-4 leading-7`}
-                          rows={7}
+                        <EditableProfileText
+                          label={`Experience ${entry.id}`}
+                              rows={7}
                           maxLength={limits.experience}
                           value={entry.description}
                           onChange={(e) =>
@@ -673,10 +664,6 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                             }))
                           }
                         />
-                        <p className="mt-1 text-xs text-ink-muted">
-                          {Array.from(entry.description).length}/
-                          {limits.experience} characters
-                        </p>
                         {taskControls(
                           `experience:${entry.id}`,
                           entry.description,
@@ -685,7 +672,8 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     )
                   })}
                   {!!draft.output.skills.length && (
-                    <section className={card}>
+                    <section id="profile-skills" className={`${card} profile-result-step`}>
+                      <p className="profile-step-label mb-2">STEP 4 · RELEVANT KEYWORDS</p>
                       <h2 className="type-section text-ink">
                         Skills to emphasize
                       </h2>
@@ -701,7 +689,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                             onClick={() => void copy(skill)}
                             aria-label={`Copy skill ${skill}`}
                           >
-                            {skill}
+                            {copiedText === skill ? `${skill} · Copied` : skill}
                           </button>
                         ))}
                       </div>
@@ -804,7 +792,8 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       ))}
                     </ul>
                   </section>
-                  <section className={card}>
+                  <section id="profile-final-check" className={`${card} profile-result-step`}>
+                    <p className="profile-step-label mb-2">FINAL CHECK · BEFORE YOU FINISH</p>
                     <h2 className="type-section text-ink">
                       Finish the presentation
                     </h2>
@@ -817,6 +806,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     </p>
                     {taskControls('presentation')}
                   </section>
+                  <ProfileVisibilityGuide platform={platform} />
                   <p className="text-sm text-ink-muted">
                     Career facts need correcting?{' '}
                     <Link
@@ -832,7 +822,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                 <>
                   <nav
                     aria-label="Preparation steps"
-                    className="flex flex-wrap gap-3 text-sm"
+                    className="profile-preparation-steps"
                   >
                     {[
                       'Choose your source',
@@ -842,7 +832,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       <span
                         key={label}
                         aria-current={stage === index ? 'step' : undefined}
-                        className={`rounded-full px-4 py-2 ${stage === index ? 'bg-teal text-white' : 'bg-white text-ink-muted'}`}
+                        className={`profile-preparation-step ${stage === index ? 'is-current' : stage > index ? 'is-done' : ''}`}
                       >
                         {index + 1}. {label}
                       </span>

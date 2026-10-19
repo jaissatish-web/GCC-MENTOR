@@ -65,7 +65,7 @@ try {
   }
   writeFileSync(
     join(scratch, 'entry.mjs'),
-    `import React from 'react';import{createRoot}from'react-dom/client';import{LinkedInWorkspace}from${JSON.stringify(join(root, 'components/linkedin/LinkedInWorkspace.tsx'))};createRoot(document.getElementById('root')).render(React.createElement(LinkedInWorkspace,{platform:'naukrigulf'}));`,
+    `import React from 'react';import{createRoot}from'react-dom/client';import{LinkedInWorkspace}from${JSON.stringify(join(root, 'components/linkedin/LinkedInWorkspace.tsx'))};import{ProfileIntroduction}from${JSON.stringify(join(root, 'components/professional/ProfileIntroduction.tsx'))};createRoot(document.getElementById('root')).render(React.createElement(location.pathname === '/guide' ? ProfileIntroduction : LinkedInWorkspace,{platform:'naukrigulf'}));`,
   )
   writeFileSync(
     join(scratch, 'link.js'),
@@ -134,6 +134,9 @@ try {
   const page = await browser.newPage(),
     errors = []
   page.on('pageerror', (error) => errors.push(error.message))
+  await page.evaluateOnNewDocument(() => {
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: async (text) => { window.__copiedProfileText = text } }, configurable: true })
+  })
   let draft = null,
     missing = false,
     failSave = false,
@@ -158,6 +161,7 @@ try {
   page.on('request', async (request) => {
     try {
       const url = new URL(request.url())
+      if (url.pathname.startsWith('/professional/')) return request.respond({status:200,contentType:'image/webp',body:readFileSync(join(root,'public',url.pathname))})
       if (url.origin !== 'https://preview.test') return request.abort()
       const json = (status, body) =>
         request.respond({
@@ -165,7 +169,7 @@ try {
           contentType: 'application/json',
           body: JSON.stringify(body),
         })
-      if (url.pathname === '/')
+      if (url.pathname === '/' || url.pathname === '/guide')
         return request.respond({
           status: 200,
           contentType: 'text/html',
@@ -288,6 +292,15 @@ try {
       'horizontal overflow',
     )
   for (const width of [320, 390, 768, 1440]) {
+    await page.setViewport({ width, height: 900 })
+    await page.goto('https://preview.test/guide')
+    await page.waitForSelector('.professional-hero-image')
+    await page.$eval('.professional-hero-image', image => image.decode())
+    await fits()
+    assert.ok(await page.$eval('.professional-hero-image', image => image.naturalWidth > 0))
+    assert.ok(await page.$('a[href="/naukrigulf-optimization/workspace"]'))
+    if (process.env.NAUKRIGULF_SCREENSHOT_DIR) await page.screenshot({path:join(process.env.NAUKRIGULF_SCREENSHOT_DIR, `naukrigulf-intro-${width}.png`),fullPage:true})
+
     draft = null
     missing = false
     await page.setViewport({ width, height: 900 })
@@ -295,10 +308,10 @@ try {
     await ready()
     await page.evaluate(() => document.fonts.ready)
     await fits()
-    if (process.env.LINKEDIN_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.LINKEDIN_SCREENSHOT_DIR, `linkedin-setup-${width}.png`), fullPage: true })
+    if (process.env.NAUKRIGULF_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.NAUKRIGULF_SCREENSHOT_DIR, `naukrigulf-setup-${width}.png`), fullPage: true })
     assert.ok(await page.$('h1'))
     if (width < 640) {
-      assert.equal(await page.$eval('h1', el => getComputedStyle(el).fontSize), '22px')
+      assert.equal(await page.$eval('h1', el => getComputedStyle(el).fontSize), '26px')
       assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontWeight), '600')
     }
     await click('Continue')
@@ -313,15 +326,15 @@ try {
     await roleField.type('Staff Nurse')
     await click('Review setup')
     await click('Optimize NaukriGulf')
-    await page.waitForSelector('textarea[aria-label="Profile summary content"]')
+    await page.waitForSelector('.profile-copy-text')
     await fits()
     assert.equal(generateRequests.at(-1).setup.targetRoles, 'Staff Nurse')
     if (width < 640) {
-      assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontSize), '16px')
-      assert.equal(await page.$eval('textarea', el => getComputedStyle(el).fontSize), '16px')
+      assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontSize), '20px')
+      assert.equal(await page.$eval('.profile-copy-text', el => getComputedStyle(el).fontSize), '16px')
     }
     assert.equal(await disabled('Changes saved'), true)
-    if (process.env.LINKEDIN_SCREENSHOT_DIR) await page.screenshot({path: join(process.env.LINKEDIN_SCREENSHOT_DIR, `linkedin-results-${width}.png`), fullPage: true})
+    if (process.env.NAUKRIGULF_SCREENSHOT_DIR) await page.screenshot({path: join(process.env.NAUKRIGULF_SCREENSHOT_DIR, `naukrigulf-results-${width}.png`), fullPage: true})
     await click('Preview your optimized profile')
     await page.waitForSelector('[data-testid="naukrigulf-preview"]')
     await fits()
@@ -348,11 +361,11 @@ try {
         document.body.textContent.includes('Illustrative preview'),
       ),
     )
-    if (process.env.LINKEDIN_SCREENSHOT_DIR)
+    if (process.env.NAUKRIGULF_SCREENSHOT_DIR)
       await page.screenshot({
         path: join(
-          process.env.LINKEDIN_SCREENSHOT_DIR,
-          `linkedin-preview-${width}.png`,
+          process.env.NAUKRIGULF_SCREENSHOT_DIR,
+          `naukrigulf-preview-${width}.png`,
         ),
         fullPage: true,
       })
@@ -362,6 +375,7 @@ try {
   draft.completed = ['about']
   await page.reload()
   await ready()
+  await page.click('button[aria-label="Edit Profile summary content"]')
   const about = await page.$('textarea[aria-label="Profile summary content"]')
   await about.focus()
   await page.keyboard.down('Control')
@@ -382,6 +396,12 @@ try {
     'My revised professional story.',
   )
   assert.equal(writes.at(-1).completed.includes('about'), false)
+  await page.click('button[aria-label="Preview Profile summary content"]')
+  assert.ok(await page.$eval('#profile-summary .profile-copy-text', el => el.textContent.includes('My revised professional story.')))
+  await click('Copy Profile summary')
+  assert.ok(await page.$eval('#profile-summary', el => el.textContent.includes('Copied — ready to paste')))
+  assert.equal(await page.evaluate(() => window.__copiedProfileText), 'My revised professional story.')
+  await page.click('button[aria-label="Edit Profile summary content"]')
   failSave = false
   await click('Save changes')
   await page.waitForFunction(() =>
