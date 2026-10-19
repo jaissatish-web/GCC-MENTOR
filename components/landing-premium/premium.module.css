@@ -406,3 +406,18 @@
 .page .faq details{border-radius:12px}
 @media(min-width:900px){.page .section{padding-block:72px}.page .hero{padding-top:48px}.page .heroGrid{gap:48px}}
 @media(max-width:639px){.page .hero{padding-top:28px}.page .heroCopy h1{font-size:var(--ui-stat-size)}.page .heroVisual{border-radius:16px;min-height:380px}.page .heading h2{font-size:var(--ui-stat-size)}.page .heroBenefits{font-size:var(--ui-helper-size)}.page .services a{padding:20px}.page .section{padding-block:40px}}
+
+/* Recognisable pain points lead directly into the preparation journey. */
+.page .painSection{background:linear-gradient(180deg,#fff8f7,#fff);padding-block:32px;border-bottom:1px solid #f4e3e1}
+.painHeading{text-align:center;max-width:700px;margin-inline:auto}
+.page .painHeading h2{color:#8f2424;font-size:var(--ui-section-size);font-weight:var(--ui-weight-heading);line-height:var(--ui-heading-line);text-wrap:balance}
+.page .painPoints{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;list-style:none;padding:0;max-width:900px;margin:22px auto 0}
+.page .painPoints>li{display:flex;align-items:center;gap:10px;min-width:0;min-height:48px;padding:11px 14px;border:1px solid #f2d7d4;border-radius:10px;color:#a52a2a;background:#fffafa;font-size:var(--ui-body-size);font-weight:var(--ui-weight-label);line-height:var(--ui-body-line);animation:painSpotlight 8s ease-in-out infinite}
+.painPoints svg{flex:none;color:#b52d2d}
+.painPoints span{min-width:0;overflow-wrap:anywhere}
+.page .painNext{display:flex;width:fit-content;min-height:44px;justify-content:center;align-items:center;gap:8px;margin:18px auto 0;color:var(--ui-brand);font-size:var(--ui-button-size);font-weight:var(--ui-weight-heading)}
+.painNext svg{animation:painNudge 2.4s ease-in-out infinite}
+@keyframes painSpotlight{0%,12%{background:#ffe9e6;border-color:#d9766d;box-shadow:0 2px 12px #a52a2a12}22%,100%{background:#fffafa;border-color:#f2d7d4;box-shadow:0 0 0 transparent}}
+@keyframes painNudge{0%,65%,100%{transform:translateY(0)}35%{transform:translateY(3px)}}
+@media(min-width:640px){.page .painPoints{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.page .painSection{padding-block:40px}}
+@media(prefers-reduced-motion:reduce){.page .painPoints>li,.painNext svg{animation:none}}
