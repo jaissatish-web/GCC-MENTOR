@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { ArrowRight, BadgeCheck, BriefcaseBusiness, Check, CheckCircle2, ChevronDown, ClipboardList, FileText, FileUp, Keyboard, LayoutTemplate, Mail, MessageSquareText, Repeat2, Sparkles, Target, UserRound } from 'lucide-react'
 import { JOBS } from './journeyExamples'
 import { cn } from '@/lib/utils'
@@ -28,9 +29,9 @@ export function JourneyDiagram() {
     <div className={s.foundation}>
     <div className={s.profileJunction}>
       <section className={cn(s.flowCard, s.profileCard)} data-ui-service="profile"><div className={s.nodeHeading}><span className={s.iconTile}><UserRound aria-hidden="true" /></span><div><span className={s.stepLabel}>STEP 02</span><h3>Career Profile</h3><p>Your confirmed experience. One trusted starting point.</p></div><CheckCircle2 aria-hidden="true" className={s.profileCheck} size={20} /></div></section>
-      <div className={s.profileBranches} aria-label="Profile optimization branches">
-        <div className={s.socialCard} data-ui-service="linkedin"><span className={s.iconTile}><UserRound aria-hidden="true" /></span><div><h4>LinkedIn Optimization</h4><p>Your professional story, ready for recruiters.</p></div><ArrowRight aria-hidden="true" size={16} /></div>
-        <div className={s.socialCard} data-ui-service="naukrigulf"><span className={s.iconTile}><BriefcaseBusiness aria-hidden="true" /></span><div><h4>NaukriGulf Optimization</h4><p>Present your experience for Gulf opportunities.</p></div><ArrowRight aria-hidden="true" size={16} /></div>
+      <div className={s.profileBranches} role="group" aria-label="LinkedIn and NaukriGulf use your Career Profile">
+        <Link href="/linkedin-optimization" className={s.socialCard} data-ui-service="linkedin"><span className={s.iconTile}><UserRound aria-hidden="true" /></span><div><h4>LinkedIn Optimization</h4><p>From your Career Profile to your professional story.</p></div><ArrowRight aria-hidden="true" size={16} /></Link>
+        <Link href="/naukrigulf-optimization" className={s.socialCard} data-ui-service="naukrigulf"><span className={s.iconTile}><BriefcaseBusiness aria-hidden="true" /></span><div><h4>NaukriGulf Optimization</h4><p>From your Career Profile to Gulf recruiter visibility.</p></div><ArrowRight aria-hidden="true" size={16} /></Link>
       </div>
     </div>
     <div className={s.flowLine} aria-hidden="true" />
