@@ -91,12 +91,22 @@ try{
     return{actual:location.pathname,headings,fields,overflow:document.documentElement.scrollWidth>innerWidth+1,overflowNodes:[...document.querySelectorAll('main *')].filter(e=>visible(e)&&e.getBoundingClientRect().right>innerWidth+1).slice(0,5).map(e=>({tag:e.tagName,class:e.getAttribute('class')}))}
    })
    assert.equal(data.overflow,false,`Overflow ${path}/${width}: ${JSON.stringify(data.overflowNodes)}`)
-   for(const h of data.headings){const size=h.tag==='H1'?(width<640?26:30):h.tag==='H2'?(width<640?20:22):(width<640?16:18);assert.equal(h.size,size+'px',`${path}/${width} ${h.tag}`);assert.equal(h.weight,h.tag==='H1'?'700':'600',path)}
+   for(const h of data.headings){const size=['H1','H2'].includes(h.tag)?(width<640?20:22):(width<640?16:18);assert.equal(h.size,size+'px',`${path}/${width} ${h.tag}`);assert.equal(h.weight,'600',path)}
    for(const f of data.fields)assert.equal(f,'16px',`Input readability ${path}/${width}`)
    if(!data.headings.length)console.log(await page.evaluate(()=>document.body.innerText.slice(0,1200)))
    assert.ok(data.headings.length,`No meaningful rendered page ${path}/${width}`)
    results.push({path,width,actual:data.actual,headings:data.headings.length,fields:data.fields.length,pass:true})
    if(width===390)await page.screenshot({path:'artifacts/page-typography/'+path.replace(/[^a-z0-9]+/gi,'_')+'-390.png',fullPage:true})
+   if(path==='/dashboard'){
+    await page.evaluate(()=>{const trigger=[...document.querySelectorAll('.journey-guide-trigger')].find(e=>e.getBoundingClientRect().width>0);if(!trigger)throw new Error('How it works trigger missing');trigger.click()})
+    await page.waitForSelector('[role="dialog"]',{visible:true})
+    const reference=await page.evaluate(()=>{const dialog=document.querySelector('[role="dialog"]');const style=q=>getComputedStyle(dialog.querySelector(q));return{title:style('h2').fontSize,weight:style('h2').fontWeight,paragraph:style('p').fontSize,card:style('h3').fontSize,overflow:document.documentElement.scrollWidth>innerWidth+1}})
+    assert.equal(reference.title,data.headings.find(h=>h.tag==='H1').size,'Website title matches popup title')
+    assert.equal(reference.weight,'600');assert.equal(reference.paragraph,width<640?'15px':'16px');assert.equal(reference.card,width<640?'16px':'18px');assert.equal(reference.overflow,false)
+    await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>Number.isFinite(a.effect?.getComputedTiming().iterations)).map(a=>a.finished.catch(()=>{}))))
+    if(width===390)await page.screenshot({path:'artifacts/page-typography/how-it-works-390.png',fullPage:true})
+    await page.evaluate(()=>document.querySelector('[aria-label="Close guide"]').click())
+   }
   }
   console.log('PASS typography and reflow: '+path)
  }

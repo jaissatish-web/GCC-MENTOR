@@ -1,4 +1,4 @@
-/* UNIVERSAL TYPOGRAPHY — Add Job Details is the reference.
+/* UNIVERSAL TYPOGRAPHY — How it works popup is the reference.
    Change text settings here only. Document output is isolated below. */
 :root {
   --ui-font: var(--font-inter, Inter), ui-sans-serif, system-ui, sans-serif;
@@ -6,12 +6,13 @@
   --ui-weight-label: 500;
   --ui-weight-heading: 600;
   --ui-weight-title: 700;
-  --ui-title-size: 1.625rem;
+  --ui-title-size: var(--ui-section-size);
   --ui-section-size: 1.25rem;
   --ui-card-title-size: 1rem;
   --ui-body-size: 0.9375rem;
-  --ui-description-size: 0.875rem;
-  --ui-reading-size: 1rem;
+  /* Popup paragraphs are the reference for all explanatory and reading copy. */
+  --ui-description-size: var(--ui-body-size);
+  --ui-reading-size: var(--ui-body-size);
   --ui-label-size: 0.875rem;
   --ui-helper-size: 0.875rem;
   --ui-caption-size: 0.75rem;
@@ -31,7 +32,7 @@
   --ui-hero-size: var(--ui-title-size);
   --ui-hero-line: var(--ui-heading-line);
   --ui-marketing-size: var(--ui-section-size);
-  --ui-lead-size: 1rem;
+  --ui-lead-size: var(--ui-body-size);
   --ui-lead-line: var(--ui-body-line);
   --ui-profile-font: var(--ui-font);
   --ui-profile-body-size: var(--ui-reading-size);
@@ -40,11 +41,9 @@
 }
 @media (min-width: 640px) {
   :root {
-    --ui-title-size: 1.875rem;
     --ui-section-size: 1.375rem;
     --ui-card-title-size: 1.125rem;
     --ui-body-size: 1rem;
-    --ui-description-size: 0.9375rem;
     --ui-stat-size: 1.75rem;
   }
 }
@@ -109,7 +108,7 @@ body :is(input,input[class],textarea,textarea[class],select,select[class]):not(:
 body :is(button, [role="button"], .ui-button, .professional-primary, .professional-secondary):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-button-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-label-line) !important; }
 body :is(strong,b):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-weight: var(--ui-weight-heading) !important; }
 body small:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-caption-size) !important; line-height: var(--ui-label-line) !important; }
-body :is(.type-title,p.type-title,span.type-title):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-title-size) !important; font-weight: var(--ui-weight-title) !important; line-height: var(--ui-heading-line) !important; }
+body :is(.type-title,p.type-title,span.type-title):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-title-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
 body :is(.type-section,p.type-section,span.type-section):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-section-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
 body :is(.type-card,p.type-card,span.type-card):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-card-title-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
 body :is(.type-body,p.type-body,span.type-body):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-body-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
@@ -117,18 +116,18 @@ body :is(.type-label,p.type-label,span.type-label):not(:where([data-document-pre
 body :is(.type-helper,p.type-helper,span.type-helper):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-helper-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
 body :is(.type-caption,p.type-caption,span.type-caption):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-caption-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-label-line) !important; }
 body :is(.type-button,p.type-button,span.type-button):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-button-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-label-line) !important; }
-body :is(.type-hero,p.type-hero,span.type-hero):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-title-size) !important; font-weight: var(--ui-weight-title) !important; line-height: var(--ui-heading-line) !important; }
+body :is(.type-hero,p.type-hero,span.type-hero):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-title-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
 body :is(.type-marketing-title,p.type-marketing-title,span.type-marketing-title):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-section-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
 body :is(.type-lead,p.type-lead,span.type-lead):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-lead-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
 body :is(.type-stat,p.type-stat,span.type-stat):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-stat-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
-body :is(h1,h1[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-title-size) !important; font-weight: var(--ui-weight-title) !important; line-height: var(--ui-heading-line) !important; letter-spacing: var(--ui-heading-tracking) !important; }
+body :is(h1,h1[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-title-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; letter-spacing: var(--ui-heading-tracking) !important; }
 body :is(h2,h2[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-section-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; letter-spacing: var(--ui-heading-tracking) !important; }
 body :is(h3,h3[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-card-title-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; letter-spacing: var(--ui-heading-tracking) !important; }
 body :is(h4,h4[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-card-title-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; letter-spacing: var(--ui-heading-tracking) !important; }
 body :is(h5,h5[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-card-title-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; letter-spacing: var(--ui-heading-tracking) !important; }
 body :is(h6,h6[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-card-title-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; letter-spacing: var(--ui-heading-tracking) !important; }
 body h1 :is(span,span[class],em,em[class],strong,strong[class],a,a[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: inherit !important; font-weight: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; }
-body nav :is(a,a[class],button,button[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-label-size) !important; font-weight: var(--ui-weight-label) !important; line-height: var(--ui-label-line) !important; }
+body nav :is(a,a[class],button,button[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-button-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-label-line) !important; }
 body :is(.linkedin-profile-action,.linkedin-preview-notice):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-helper-size) !important; line-height: var(--ui-label-line) !important; }
 body :is(.linkedin-profile-headline,.profile-copy-text,.cover-letter-email-body):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-reading-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
 body svg text:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-caption-size) !important; font-weight: var(--ui-weight-regular) !important; }

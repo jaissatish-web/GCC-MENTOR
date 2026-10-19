@@ -81,8 +81,8 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${(width >= 640 ? 30 : 26) * scale}px`)
-      assert.equal(result.weight, '700')
+      assert.equal(result.titleSize, `${(width >= 640 ? 22 : 20) * scale}px`)
+      assert.equal(result.weight, '600')
       assert.equal(result.inputSize, `${16 * scale}px`)
       assert.equal(result.bodySize, `${(width<640?15:16) * scale}px`)
       assert.ok(result.buttonHeight >= 44)
@@ -161,9 +161,9 @@ try {
       if (metrics.scroll > width + 1) await page.screenshot({path:'artifacts/typography/landing-overflow.png',fullPage:false})
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
-      assert.equal(metrics.weight, '700')
+      assert.equal(metrics.weight, '600')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
-      assert.ok(metrics.size > metrics.sectionSize, 'Hero must be larger than a section heading')
+      assert.equal(metrics.size, metrics.sectionSize, 'Hero and section titles share the popup heading scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
     }
   }

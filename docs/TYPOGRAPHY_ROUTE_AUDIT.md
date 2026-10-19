@@ -1,5 +1,14 @@
 # Typography audit and mobile refinement — 19 October 2026
 
+## Latest reference: How it works popup
+
+The user selected the popup as the application-wide reference after the earlier Add Job Details pass below. The current scale is 20px page/section headings, 16px card headings and 15px paragraphs on phones; 22/18/16px on larger screens. Titles use weight 600. Descriptions, introductions and copyable results now alias the paragraph token. Navigation actions match popup buttons at 15px/600. Labels/helpers remain 14px, captions 12px and inputs 16px. Template/document boundaries are unchanged. See `TYPOGRAPHY_SYSTEM.md` for the current rules; the earlier refinement notes below are historical.
+
+Browser checks now compare the actual How it works popup title directly with the dashboard title at all four viewport widths.
+
+## Earlier refinement record
+
+
 ## Verdict and changes
 
 The original normalization used the same body size for card descriptions, making mobile text compete with headings. The refined system uses 15px normal body, 14px card descriptions, 16px page introductions, 16px fields and 16px copyable results on phones. Labels/supporting copy stay 14px and captions 12px. Headings remain 26/20/16px on phones and 30/22/18px on larger screens.

@@ -1,10 +1,10 @@
 # Universal application typography
 
-The visual reference is **Add Job Details**. `app/typography.css` owns every application font, size, weight, line-height and letter-spacing setting. Change that file to update the application; do not introduce local scales in page CSS or inline styles.
+The visual reference is **How it works popup**. `app/typography.css` owns every application font, size, weight, line-height and letter-spacing setting. Change that file to update the application; do not introduce local scales in page CSS or inline styles.
 
 | Text role | Phone | Tablet/desktop | Weight | Class / element |
 |---|---:|---:|---:|---|
-| Page heading | 26px | 30px | 700 | h1 / type-title |
+| Page heading | 20px | 22px | 600 | h1 / type-title |
 | Section heading | 20px | 22px | 600 | h2 / type-section |
 | Subheading | 16px | 18px | 600 | h3–h6 / type-card |
 | Paragraph, list, normal copy | 15px | 16px | 400 | p, li, dd / type-body |
@@ -35,18 +35,18 @@ Brand text has a shared text measure so it wraps at readable sizes, including en
 
 This system changes text properties only. It does not set card padding, card dimensions, colours, borders, page widths, image dimensions or layout spacing.
 
-## Mobile hierarchy refinement
+## Shared popup hierarchy
 
-The first pass normalized fonts but used body-size text for many card descriptions and field hints. The refined system separates purpose explicitly:
+The How it works popup is the visual reference for the entire application. Page titles now use its section-heading scale and weight. Descriptions, introductions and copyable results resolve to the same paragraph token, rather than separate competing sizes.
 
 | Role | Phone | Tablet / desktop |
 |---|---:|---:|
-| Main body | 15px | 16px |
-| Card description (`type-description`) | 14px | 15px |
-| Page introduction (`type-lead`) | 16px | 16px |
-| Copyable result (`type-longform`) | 16px | 16px |
+| Page / section heading | 20px | 22px |
+| Card heading | 16px | 18px |
+| Paragraph / description / introduction / copyable result | 15px | 16px |
+| Button / navigation action | 15px | 15px |
+| Label / supporting text | 14px | 14px |
+| Caption | 12px | 12px |
 | Form control | 16px | 16px |
 
-Page, section and card headings remain 26/20/16px on phones and 30/22/18px on larger screens. Labels and supporting text stay 14px; captions stay 12px. Input size is independent of body size to prevent phone zoom and preserve readability. Social metadata uses supporting text; generated summary and experience text uses the long-form role.
-
-Paragraphs describing an adjacent card heading use `type-description`; instructions and status hints use `type-helper`; small metadata uses `type-caption`. Do not reduce all text uniformly or use `type-description` for generated content. These roles change text only and do not alter service behavior, cards, colours, widths or spacing.
+All these roles remain controlled in `app/typography.css`. The title, description, reading and introduction tokens are aliases, so changing the shared section or body token updates every corresponding role together. Input size stays independent to prevent phone zoom. Resume template fonts, sizes, weights and export layouts remain isolated by the document boundaries above.
