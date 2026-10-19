@@ -1,10 +1,13 @@
 'use client'
+import desk from '@/components/opportunity-desk/desk.module.css'
+import { DeskWorkspace } from '@/components/opportunity-desk/DeskWorkspace'
 import { GulfContext } from '@/components/layout/GulfContext'
 import { EditorSettingsPanel } from '@/components/resume/EditorSettingsPanel'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import {
   ArrowTrendingUpIcon,
+  ArrowLeftIcon,
   ChevronDownIcon,
   ClipboardDocumentListIcon,
   MinusIcon,
@@ -108,7 +111,7 @@ function buildServiceTimeline(pkg: Package): PackageServiceEvent[] {
  * saved — next one takes a minute."
  */
 
-type WorkspaceTab = 'overview' | 'improve' | 'design' | 'tracker'
+type WorkspaceTab = 'overview' | 'improve' | 'design' | 'tracker' | 'practice'
 
 /**
  * The workspace's four views, as a segmented control (founder 2026-10-04).
@@ -118,66 +121,12 @@ type WorkspaceTab = 'overview' | 'improve' | 'design' | 'tracker'
  * an icon; the open one is filled teal. Same four views, same `?tab=` links.
  * On a phone the icon sits above a short word so all four fit one 350px row.
  */
-const TAB_ICONS: Record<WorkspaceTab, React.ComponentType<{ className?: string }>> = {
-  overview: Squares2X2Icon,
-  improve: ArrowTrendingUpIcon,
-  design: SwatchIcon,
-  tracker: ClipboardDocumentListIcon,
+function WorkspaceTabs({tab,onChange}:{tab:WorkspaceTab;onChange:(t:WorkspaceTab)=>void;improveCount:number;baseResume?:boolean}) {
+  const primary: Array<{key:WorkspaceTab;label:string}>=[{key:'overview',label:'Overview'},{key:'design',label:'Documents'},{key:'practice',label:'Practice'}]
+  return <nav className={desk.tabs} aria-label="Resume workspace">{primary.map(item=><button key={item.key} type="button" aria-pressed={tab===item.key} onClick={()=>onChange(item.key)}>{item.label}</button>)}</nav>
 }
-
-function WorkspaceTabs({
-  tab,
-  onChange,
-  improveCount,
-  baseResume = false,
-}: {
-  tab: WorkspaceTab
-  onChange: (t: WorkspaceTab) => void
-  improveCount: number
-  baseResume?: boolean
-}) {
-  const items: Array<{ key: WorkspaceTab; label: string; short: string; badge?: number }> = [
-    { key: 'overview', label: 'Overview', short: 'Overview' },
-    { key: 'improve', label: baseResume ? 'Improve resume' : 'Improve score', short: 'Improve', badge: improveCount || undefined },
-    { key: 'design', label: 'Resume design', short: 'Design' },
-    { key: 'tracker', label: 'Tracker', short: 'Tracker' },
-  ]
-  return (
-    <div role="tablist" aria-label="Resume workspace" className="grid grid-cols-4 gap-1 rounded-card border border-line bg-white p-1 shadow-m-1">
-      {items.map((it) => {
-        const active = tab === it.key
-        const Icon = TAB_ICONS[it.key]
-        return (
-          <button
-            key={it.key}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            onClick={() => onChange(it.key)}
-            className={cn(
-              'relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-ctl px-1 py-1.5 type-helper font-semibold leading-tight transition-colors sm:min-h-11 sm:flex-row sm:gap-2 sm:px-3 sm:type-label',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1',
-              active ? 'bg-teal text-white shadow-m-1' : 'text-ink-soft hover:bg-teal-soft hover:text-teal',
-            )}
-          >
-            <Icon className="size-5 shrink-0" aria-hidden="true" />
-            <span className="sm:hidden">{it.short}</span>
-            <span className="hidden sm:inline">{it.label}</span>
-            {it.badge ? (
-              <span
-                className={cn(
-                  'absolute right-1 top-1 min-w-5 rounded-full px-1.5 text-center type-caption font-semibold leading-5 sm:static sm:leading-normal sm:py-0.5',
-                  active ? 'bg-white text-teal' : 'bg-gold-soft text-gold-ink',
-                )}
-              >
-                {it.badge}
-              </span>
-            ) : null}
-          </button>
-        )
-      })}
-    </div>
-  )
+function WorkspaceMoreActions({tab,onChange,improveCount,baseResume}:{tab:WorkspaceTab;onChange:(t:WorkspaceTab)=>void;improveCount:number;baseResume:boolean}) {
+ return <div className={desk.secondaryTabs}><button type="button" aria-pressed={tab==='improve'} onClick={()=>onChange('improve')}><ArrowTrendingUpIcon aria-hidden="true"/>{baseResume?'Improve resume':'Improve match'}{improveCount?` (${improveCount})`:''}</button><button type="button" aria-pressed={tab==='tracker'} onClick={()=>onChange('tracker')}><ClipboardDocumentListIcon aria-hidden="true"/>Application tracker</button></div>
 }
 
 function PackageScreenInner({ id }: { id: string }) {
@@ -188,7 +137,7 @@ function PackageScreenInner({ id }: { id: string }) {
   // a phone. A link from the template gallery (?template=) opens on Design.
   const [tab, setTab] = useState<WorkspaceTab>(() => {
     const asked = searchParams.get('tab')
-    if (asked === 'overview' || asked === 'improve' || asked === 'design' || asked === 'tracker') return asked
+    if (asked === 'overview' || asked === 'improve' || asked === 'design' || asked === 'tracker' || asked === 'practice') return asked
     return requestedTemplate ? 'design' : 'overview'
   })
   const [pkg, setPkg] = useState<Package | null>(null)
@@ -563,78 +512,7 @@ function PackageScreenInner({ id }: { id: string }) {
               href: '/optimize/target',
             }
 
-  return (
-    // 1400px, widened from 1240 in TASK-146 to pay for the 260px template rail
-    // while leaving the document column well clear of the template's own 794px
-    // page. The rule this shell exists to protect, unchanged since TASK-129:
-    // the A4 sheet must render at true size, never scaled down to make room
-    // for chrome around it.
-    /**
-     * THREE INDEPENDENT SCROLL PANES ON DESKTOP (TASK-153, founder-directed).
-     *
-     * Before this the whole page scrolled as one, so dragging the scrollbar to
-     * read the bottom of the resume also dragged the app nav and the template
-     * rail off the top. On a laptop that is the wrong model for a document
-     * editor: the tools should hold still while the document moves.
-     *
-     * So at `lg` the page is exactly one viewport tall and does not scroll at
-     * all (`h-dvh overflow-hidden`). The header and toolbar are fixed rows, and
-     * the two columns below each get their own `overflow-y-auto`. The nav rail
-     * is pinned separately in Sidebar.tsx.
-     *
-     * `min-h-0` on every flex child in that chain is load-bearing: a flex item
-     * defaults to `min-height: auto`, which refuses to shrink below its content,
-     * and without it the columns grow to their full content height and the page
-     * scrolls again — the exact bug this is fixing, silently reintroduced.
-     *
-     * Below `lg` nothing changes: a phone keeps one natural page scroll, because
-     * nested scroll areas on a touch screen are how you lose the user.
-     */
-    <main className={cn("mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-canvas font-redesign-sans", tab === 'design' && 'pb-40 lg:pb-0')}>
-      {/* ONE HEADER ROW (TASK-160, founder-directed).
-          This was five stacked rows — back arrow, "Unlocked & saved to Library"
-          badge, title, name field, then the action toolbar below — each one full
-          width with empty space to its right, which spent well over 200px of
-          vertical room to say very little. Title and actions now share a
-          single wrapping row across that width, so the document gets the height
-          back.
-
-          The arrow and the badge are gone outright, at the founder's call. The
-          arrow duplicated the browser's own Back and the sidebar; the badge
-          announced a state the user cannot be in any other way — an unpaid
-          package never reaches this screen, it is redirected — so it was telling
-          them something that is always true. */}
-      <div className="flex flex-col gap-3 px-3 pb-3 sm:px-5 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
-        {/* Career Profile is the unoptimized source; job workspaces show the
-            chosen optimization level even when legacy generated fields differ. */}
-        <div className="flex min-w-0 flex-col gap-0.5 lg:shrink-0">
-          <GulfContext>{isRaw ? 'Gulf resume · Career Profile' : 'Gulf application workspace'}</GulfContext>
-          {isRaw ? <span className="self-start rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold text-teal">{CAREER_RESUME_BADGE}</span> : null}
-          <h1 className="break-words font-display type-title leading-tight text-ink lg:type-section">
-            {pkg.name || pkg.target_job_title}
-          </h1>
-          <p className="type-helper text-ink-soft">
-            {[
-              pkg.target_company,
-              countryName,
-              isRaw ? 'Latest saved profile · Not optimized' : `Optimized Resume · ${pkg.optimization_level.charAt(0).toUpperCase()}${pkg.optimization_level.slice(1)} optimization`,
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-        </div>
-
-        {/* The document's actions, pushed to the right of the same row.
-            The stage control joins them rather than getting a band of its own:
-            TASK-160 collapsed five stacked rows into this one specifically to
-            give the A4 sheet its vertical room back, and a new full-width
-            header would spend exactly what that bought. */}
-        {/* ON A PHONE (founder 2026-10-04): stage and Download PDF take a full
-            row each, then Edit CV and Review changes share one — and a label
-            may wrap INSIDE its button. Buttons never wrap by default, so "Review
-            and edit changes" ran out past its half-width cell. From `sm` up the
-            row is unchanged. */}
-        <div className="grid grid-cols-2 items-stretch gap-2 sm:flex sm:flex-wrap sm:items-center lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
+  const resumeActions = (<details className={desk.actionDisclosure} open={tab === 'design' || undefined}><summary>Resume actions<ChevronDownIcon className="size-4" aria-hidden="true"/></summary><div className="grid grid-cols-2 items-stretch gap-2 sm:flex sm:flex-wrap sm:items-center lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
           {!isRaw ? <StageSelect className="col-span-2 w-full sm:w-auto" value={pkg.status} onChange={(next) => void saveStage(next)} /> : null}
           {stageState ? <span className="col-span-2 type-caption text-alert">{stageState}</span> : null}
           {downloadBlocked ? (
@@ -718,7 +596,80 @@ function PackageScreenInner({ id }: { id: string }) {
                 : styleMsg}
             </span>
           ) : null}
+        </div></details>)
+
+  return (
+    // 1400px, widened from 1240 in TASK-146 to pay for the 260px template rail
+    // while leaving the document column well clear of the template's own 794px
+    // page. The rule this shell exists to protect, unchanged since TASK-129:
+    // the A4 sheet must render at true size, never scaled down to make room
+    // for chrome around it.
+    /**
+     * THREE INDEPENDENT SCROLL PANES ON DESKTOP (TASK-153, founder-directed).
+     *
+     * Before this the whole page scrolled as one, so dragging the scrollbar to
+     * read the bottom of the resume also dragged the app nav and the template
+     * rail off the top. On a laptop that is the wrong model for a document
+     * editor: the tools should hold still while the document moves.
+     *
+     * So at `lg` the page is exactly one viewport tall and does not scroll at
+     * all (`h-dvh overflow-hidden`). The header and toolbar are fixed rows, and
+     * the two columns below each get their own `overflow-y-auto`. The nav rail
+     * is pinned separately in Sidebar.tsx.
+     *
+     * `min-h-0` on every flex child in that chain is load-bearing: a flex item
+     * defaults to `min-height: auto`, which refuses to shrink below its content,
+     * and without it the columns grow to their full content height and the page
+     * scrolls again — the exact bug this is fixing, silently reintroduced.
+     *
+     * Below `lg` nothing changes: a phone keeps one natural page scroll, because
+     * nested scroll areas on a touch screen are how you lose the user.
+     */
+    <main className={cn("mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-canvas font-redesign-sans", desk.workspace, tab === 'design' && desk.documentMode, tab === 'design' && 'pb-40 lg:pb-0')}>
+      {/* ONE HEADER ROW (TASK-160, founder-directed).
+          This was five stacked rows — back arrow, "Unlocked & saved to Library"
+          badge, title, name field, then the action toolbar below — each one full
+          width with empty space to its right, which spent well over 200px of
+          vertical room to say very little. Title and actions now share a
+          single wrapping row across that width, so the document gets the height
+          back.
+
+          The arrow and the badge are gone outright, at the founder's call. The
+          arrow duplicated the browser's own Back and the sidebar; the badge
+          announced a state the user cannot be in any other way — an unpaid
+          package never reaches this screen, it is redirected — so it was telling
+          them something that is always true. */}
+      <div className="flex flex-col gap-3 px-3 pb-3 sm:px-5 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
+        {/* Career Profile is the unoptimized source; job workspaces show the
+            chosen optimization level even when legacy generated fields differ. */}
+        <div className="flex min-w-0 flex-col gap-0.5 lg:shrink-0">
+          {isRaw ? <GulfContext>Gulf resume · Career Profile</GulfContext> : <Link href="/dashboard/library" className={desk.back}><ArrowLeftIcon aria-hidden="true"/>Your jobs</Link>}
+          {isRaw ? <span className="self-start rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold text-teal">{CAREER_RESUME_BADGE}</span> : null}
+          <h1 className="break-words font-display type-title leading-tight text-ink lg:type-section">
+            {pkg.name || pkg.target_job_title}
+          </h1>
+          <p className="type-helper text-ink-soft">
+            {[
+              pkg.target_company,
+              countryName,
+              isRaw ? 'Latest saved profile · Not optimized' : 'Your experience, prepared for this role.',
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
         </div>
+
+        {/* The document's actions, pushed to the right of the same row.
+            The stage control joins them rather than getting a band of its own:
+            TASK-160 collapsed five stacked rows into this one specifically to
+            give the A4 sheet its vertical room back, and a new full-width
+            header would spend exactly what that bought. */}
+        {/* ON A PHONE (founder 2026-10-04): stage and Download PDF take a full
+            row each, then Edit CV and Review changes share one — and a label
+            may wrap INSIDE its button. Buttons never wrap by default, so "Review
+            and edit changes" ran out past its half-width cell. From `sm` up the
+            row is unchanged. */}
+        {tab === 'design' ? resumeActions : null}
       </div>
 
       {/* NOT BUILT YET (2026-09-11). Founder report: a job whose CV build had
@@ -757,15 +708,18 @@ function PackageScreenInner({ id }: { id: string }) {
           job can become without adding backend state. */}
       <div className="flex w-full flex-col gap-4 px-3 pb-8 sm:px-5 lg:gap-3">
         <WorkspaceTabs tab={tab} onChange={setTab} improveCount={improveCount} baseResume={isRaw} />
+        {tab !== 'overview' ? <WorkspaceMoreActions tab={tab} onChange={setTab} improveCount={improveCount} baseResume={isRaw}/> : null}
+        {tab !== 'overview' && tab !== 'design' ? resumeActions : null}
         {/* RESULTS FIRST, AS COLOURED CARDS (founder request 2026-09-17): target
             job, ATS score before → after, summary, what changed, next steps.
             components/package/ResultsOverview.tsx. */}
         {tab === 'overview' ? (
         <>
+        {!isRaw ? <DeskWorkspace pkg={pkg} next={nextJourneyStep} cvReady={cvReady} letterReady={letterReady} qaReady={qaReady} mockReady={mockReady} onViewResume={()=>setTab('design')}/> : null}
         {isRaw ? <ProfileResumeOverview /> : null}
         {!isRaw && !showOverview ? <TargetJobOverview pkg={pkg} /> : null}
         {showOverview ? (
-          <ResultsOverview
+          <details className={desk.resultsDisclosure}><summary>ATS match & resume details<ChevronDownIcon className="size-4" aria-hidden="true"/></summary><div><ResultsOverview
             pkg={pkg}
             document={previewDocument}
             onScored={(body) =>
@@ -798,12 +752,14 @@ function PackageScreenInner({ id }: { id: string }) {
                   : prev,
               )
             }
-          />
+          /></div></details>
         ) : null}
 
         </>
         ) : null}
-        {tab === 'overview' ? <WorkspaceServiceCards pkg={pkg} /> : null}
+        {tab === 'overview' ? <div className={desk.workspaceActions}><WorkspaceMoreActions tab={tab} onChange={setTab} improveCount={improveCount} baseResume={isRaw}/>{resumeActions}</div> : null}
+        {tab === 'overview' && isRaw ? <WorkspaceServiceCards pkg={pkg}/> : null}
+        {tab === 'practice' ? <WorkspaceServiceCards pkg={pkg} practiceOnly/> : null}
 
         {tab === 'improve' && isRaw ? <ProfileResumeOverview improving /> : null}
         {tab === 'improve' && !isRaw ? (

@@ -1,3 +1,4 @@
+import desk from '@/components/opportunity-desk/desk.module.css'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 import { AppHeader } from '@/components/layout/AppHeader'
@@ -33,7 +34,7 @@ export function AppShell({
 }) {
   return (
     // `app-type`: the phone reading sizes in app/globals.css (2026-10-04).
-    <div className="app-type flex min-h-screen bg-canvas">
+    <div className={`app-type flex min-h-screen bg-canvas ${desk.shell}`}>
       {hideNav ? null : (
         <div className="dark-scope contents">
           <Sidebar />

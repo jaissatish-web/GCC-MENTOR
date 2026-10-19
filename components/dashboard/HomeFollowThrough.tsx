@@ -63,6 +63,7 @@ export function HomeNextStep({ action, packages, ready, error, onRetry }: {
       {workspace.name && workspace.name !== workspace.target_job_title ? <p className={styles.workspaceLabel}>{workspace.name}</p> : null}
     </div> : null}
     {!ready || error || !workspace ? <p className={styles.nextDescription}>{error ? 'Try again to see where to continue.' : !ready ? 'Finding the next action from your saved profile and workspaces.' : copy.body}</p> : null}
+    {ready && !error && workspace ? <p className={styles.nextHint}>{resumeInterview ? progress : copy.title}</p> : null}
     <div className={styles.continueActions}>
       {error ? <button type="button" className={buttonVariants({ variant: 'primary' })} onClick={onRetry}>Try again</button> : ready ? <Link href={action.href} className={buttonVariants({ variant: 'primary' })}>{action.state === 'no_profile' ? 'Create Career Profile' : resumeInterview ? 'Continue interview' : action.cta}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link> : null}
     </div>

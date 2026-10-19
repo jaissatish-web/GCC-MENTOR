@@ -4,8 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { MOBILE_PRIMARY_ITEMS, isNavItemActive, navHref } from './navItems'
-import { ServicesMenu } from './ServicesMenu'
-import { Squares2X2Icon } from '@heroicons/react/24/outline'
+import { Squares2X2Icon, UserCircleIcon } from '@heroicons/react/24/outline'
 
 /**
  * Mobile bottom nav — DESIGN_SYSTEM.md §8.3.
@@ -34,7 +33,7 @@ export function MobileBottomNav() {
     >
       {MOBILE_PRIMARY_ITEMS.map((item) => {
         const Icon = item.icon
-        const active = isNavItemActive(item, pathname ?? '')
+        const active = item.href === '/dashboard' && pathname?.startsWith('/profile') ? false : item.href === '/dashboard/library' && pathname?.startsWith('/package/') ? true : isNavItemActive(item, pathname ?? '')
         return (
           <Link
             key={item.label}
@@ -50,7 +49,7 @@ export function MobileBottomNav() {
             )}
           >
             <span aria-hidden="true" className={'flex size-7 items-center justify-center'}><Icon className="size-[18px]" /></span>
-            {item.shortLabel ?? item.label}
+            {item.href === '/dashboard/library' ? 'Library' : item.shortLabel ?? item.label}
           </Link>
         )
       })}
@@ -67,7 +66,7 @@ export function MobileBottomNav() {
         <span aria-hidden="true" className="flex size-7 items-center justify-center"><Squares2X2Icon className="size-[18px]" /></span>
         Tools
       </Link>
-      <ServicesMenu placement="bottom" />
+      <Link href="/profile" aria-label="Career Profile" aria-current={pathname?.startsWith('/profile')?'page':undefined} className={cn('flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-ctl px-0.5 text-center type-caption',pathname?.startsWith('/profile')?'bg-teal-soft text-teal':'text-ink-muted')}><span className="flex size-7 items-center justify-center"><UserCircleIcon className="size-[18px]" aria-hidden="true"/></span>Profile</Link>
     </nav>
   )
 }
