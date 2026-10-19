@@ -21,6 +21,7 @@ import type { CoverLetter, CoverLetterTone } from '@/types/package'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 import { stageEyebrow } from '@/components/journey/stages'
 import { StageGate } from '@/components/journey/StageGate'
+import { CoverLetterEmail } from '@/components/service/CoverLetterEmail'
 
 /**
  * Cover Letter — new route (TASK-093, PAGE_SPECS §C / TASK-066 frontend).
@@ -268,7 +269,7 @@ function CoverLetterScreen() {
                 <span className="min-w-0 break-words">{index === 0 ? 'Latest letter' : `Letter ${letters.length - index}`} · {letter.target_job_title}</span>
                 <span className="shrink-0 text-teal group-open:hidden">Open</span><span className="hidden shrink-0 text-teal group-open:inline">Close</span>
               </summary>
-              <div className="flex flex-col gap-3 border-t border-line p-4 sm:p-6">
+              <div className="cover-letter-result flex min-w-0 flex-col gap-3 border-t border-line p-3 sm:p-6">
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="break-words type-helper font-semibold text-ink">
@@ -286,12 +287,11 @@ function CoverLetterScreen() {
                   {letter.edited_at ? ` · your edits saved ${new Date(letter.edited_at).toLocaleString()}` : ''}
                 </p>
               </div>
-              <textarea
-                value={edits[letter.id] ?? letter.full_text}
-                onChange={(e) => setEdits((prev) => ({ ...prev, [letter.id]: e.target.value }))}
-                rows={Math.min(20, (edits[letter.id] ?? letter.full_text).split('\n').length)}
-                aria-label="Cover letter text (editable)"
-                className="field p-4"
+              <CoverLetterEmail
+                text={edits[letter.id] ?? letter.full_text}
+                jobTitle={letter.target_job_title}
+                company={letter.target_company}
+                onChange={(text) => setEdits((prev) => ({ ...prev, [letter.id]: text }))}
               />
               <div className="flex flex-wrap items-center gap-2">
                 <Button
