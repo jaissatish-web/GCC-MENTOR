@@ -336,3 +336,25 @@
 .chartTechnical { color:#9e701e; }
 .practiceLoop { margin-top:14px; padding:14px; border-radius:11px; border:1px solid #e6deef; background:#f7f3fb; }
 .practiceLoop p:first-child { color:#785498; }
+
+/* Both recruiter profiles branch directly from the Career Profile foundation. */
+.foundation .profileBranches { position:relative; padding-top:18px; margin-top:0; }
+.foundation .profileBranches::before { content:''; position:absolute; top:8px; left:25%; right:25%; height:10px; border:1px solid #c9b57f; border-bottom:0; border-radius:5px 5px 0 0; }
+.foundation .profileBranches::after { content:''; display:block; position:absolute; width:1px; height:9px; left:50%; right:auto; top:0; background:#c9b57f; }
+.socialCard { min-width:0; min-height:60px; text-decoration:none; }
+.socialCard > div { min-width:0; overflow-wrap:anywhere; }
+.socialCard:hover { border-color:var(--service-ink,#0f7665); }
+.socialCard:focus-visible { outline:2px solid var(--service-ink,#0f7665); outline-offset:3px; }
+/* Keep the popup's layout and central typography when used in the landing page. */
+.embedded { max-width:1100px; margin-inline:auto; }
+.embedded .editorialHero { padding:0 0 24px; }
+.embedded .editorialTitle { margin-top:12px; }
+.embedded .editorialDescription { margin:12px auto 0; }
+.embedded .flowCard { margin-inline:auto; }
+.embedded .nodeHeading p { margin-top:4px; }
+.embedded .socialCard p { margin-top:4px; }
+.embedded .journeyFootnote,.embedded .profileResumeNote { margin:14px auto 0; }
+.motionControl { display:inline-flex; min-height:44px; align-items:center; justify-content:center; gap:7px; margin-top:12px; padding:8px 12px; border:1px solid #dce5e6; border-radius:10px; color:#0f594b; background:#fff; }
+.journeyAction { display:flex; justify-content:center; margin-top:16px; }
+.journeyAction a { display:inline-flex; min-height:48px; align-items:center; gap:10px; padding:12px 18px; border-radius:10px; background:var(--ui-brand); color:white; font-weight:var(--ui-weight-label); }
+@media(max-width:374px) { .foundation .profileBranches { grid-template-columns:1fr; padding-left:12px; border-left:1px solid #c9b57f; padding-top:0; margin-top:12px; } .foundation .profileBranches::before,.foundation .profileBranches::after { display:none; } .foundation .socialCard::before { content:''; position:absolute; width:12px; height:1px; right:100%; top:50%; background:#c9b57f; } }
