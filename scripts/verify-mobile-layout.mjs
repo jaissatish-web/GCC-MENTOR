@@ -156,7 +156,7 @@ try {
         return { scroll: document.documentElement.scrollWidth, size: parseFloat(heading.fontSize),
           weight: heading.fontWeight, font: heading.fontFamily,
           clipped: hero.scrollWidth > hero.clientWidth + 1,
-          sectionSize: parseFloat(getComputedStyle(document.querySelector('h2')).fontSize),overflow: [...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1 && el.getBoundingClientRect().width>0).slice(0,16).map(el=>({tag:el.tagName,text:el.textContent.slice(0,55),class:el.getAttribute('class'),right:el.getBoundingClientRect().right})) }
+          sectionSize: parseFloat(getComputedStyle(document.querySelector('#templates-title')).fontSize),overflow: [...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1 && el.getBoundingClientRect().width>0).slice(0,16).map(el=>({tag:el.tagName,text:el.textContent.slice(0,55),class:el.getAttribute('class'),right:el.getBoundingClientRect().right})) }
       })
       if (metrics.scroll > width + 1) await page.screenshot({path:'artifacts/typography/landing-overflow.png',fullPage:false})
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
@@ -165,6 +165,16 @@ try {
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       assert.equal(metrics.size, metrics.sectionSize, 'Hero and section titles share the popup heading scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
+      for (const selector of ['#challenges details', '#how-it-works']) {
+        assert.equal(await page.$eval(selector, el => el.open), false, 'Landing disclosures start collapsed')
+        await page.click(`${selector} > summary`)
+        assert.equal(await page.$eval(selector, el => el.open), true, 'Summary expands content')
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Expanded disclosure overflow at ${width}`)
+        if (width === 390 && !enlarged) await page.screenshot({path: `artifacts/typography/disclosure-${selector.includes('challenges') ? 'problems' : 'journey'}-390.png`, fullPage:true})
+        await page.click(`${selector} > summary`)
+        assert.equal(await page.$eval(selector, el => el.open), false, 'Summary collapses content again')
+      }
+
     }
   }
   console.log('PASS: production landing and shared UI at phone/laptop widths, enlarged text, distinct type roles, preserved document typography, bundled Inter and 44px controls.')
