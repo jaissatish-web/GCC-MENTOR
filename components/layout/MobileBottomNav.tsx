@@ -33,7 +33,9 @@ export function MobileBottomNav() {
     >
       {MOBILE_PRIMARY_ITEMS.map((item) => {
         const Icon = item.icon
-        const active = isNavItemActive(item, pathname ?? '')
+        const active = item.href === '/dashboard' && pathname?.startsWith('/profile')
+          ? false
+          : isNavItemActive(item, pathname ?? '')
         return (
           <Link
             key={item.label}
