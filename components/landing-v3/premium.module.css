@@ -162,3 +162,14 @@
 @media(min-width:960px) { .orbitCompanion { padding-top:40px!important; } }
 
 @media(max-width:400px){.navInner{gap:8px}.navActions{gap:4px}.system .brand{gap:8px;font-size:var(--ui-body-size)}.brand small{font-size:var(--ui-caption-size)}.system .signIn{padding-inline:5px}}
+
+/* Keep the sticky mobile brand to one compact navigation row. */
+@media(max-width:767px){
+ .system .header{background:var(--ui-surface);--ui-brand-caption-measure:none}
+ .navInner{min-height:64px;gap:12px;padding-block:8px}
+ .system .brand{min-width:0;flex-shrink:1;gap:8px}
+ .brandMark{flex:none;width:34px;height:38px}
+ .brand>span:last-child{min-width:0;line-height:1.25}
+ .brand small{display:none}
+ .navActions{flex:none;gap:4px}
+}

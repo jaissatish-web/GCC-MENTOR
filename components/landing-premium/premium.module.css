@@ -422,14 +422,17 @@
 @media(min-width:640px){.page .painPoints{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.page .painSection{padding-block:40px}}
 @media(prefers-reduced-motion:reduce){.page .painPoints>li,.painNext svg{animation:none}}
 
-/* Independent display settings for the two landing disclosures. */
-.page{--landing-disclosure-font:Georgia,"Times New Roman",serif;--landing-disclosure-size:clamp(1.375rem,2.3vw,1.75rem)}
-.painDisclosure{max-width:1000px;margin-inline:auto}
-.painDisclosure>.painHeading{display:flex;align-items:center;justify-content:space-between;gap:18px;max-width:none;min-height:64px;cursor:pointer;list-style:none;text-align:left}
+/* Compact, matching accordions use the established application typography. */
+.page .painSection{padding-block:20px 8px;border-bottom:0;background:var(--ui-canvas)}
+.page .journeySection{padding-block:8px 24px;background:var(--ui-canvas)}
+.painDisclosure{max-width:1000px;margin-inline:auto;border:1px solid var(--ui-line);border-radius:14px;background:var(--ui-surface);overflow:hidden}
+.painDisclosure>.painHeading{display:flex;align-items:center;justify-content:space-between;gap:14px;max-width:none;min-height:80px;padding:16px;cursor:pointer;list-style:none;text-align:left}
 .painDisclosure>.painHeading::-webkit-details-marker{display:none}
-.painDisclosure .painHeading h2{--ui-font:var(--landing-disclosure-font);--ui-section-size:var(--landing-disclosure-size);--ui-weight-heading:600;flex:1}
-.expandMark{position:relative;display:block;width:44px;height:44px;flex:none;border:1px solid #d6aaa5;border-radius:50%;color:#a52a2a;background:var(--ui-surface)}
-.expandMark::before,.expandMark::after{content:'';position:absolute;left:13px;right:13px;top:20px;height:2px;background:currentColor}
+.painDisclosure .painHeading h2{--ui-section-size:var(--ui-card-title-size);flex:1;min-width:0;color:#a52a2a;line-height:var(--ui-heading-line)}
+.expandMark{position:relative;display:block;width:32px;height:32px;flex:none;border-radius:9px;color:#a52a2a;background:#fff1ef}
+.expandMark::before,.expandMark::after{content:'';position:absolute;left:10px;right:10px;top:15px;height:2px;background:currentColor}
 .expandMark::after{transform:rotate(90deg)}
 .painDisclosure[open]>.painHeading .expandMark::after{transform:rotate(0)}
+.painDisclosure[open]{padding-bottom:16px}
+.page .painDisclosure>.painPoints{margin:0 16px}
 .painDisclosure:not([open]) .painPoints>li{animation:none}

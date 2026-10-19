@@ -359,12 +359,15 @@
 .journeyAction a { display:inline-flex; min-height:48px; align-items:center; gap:10px; padding:12px 18px; border-radius:10px; background:var(--ui-brand); color:white; font-weight:var(--ui-weight-label); }
 @media(max-width:374px) { .foundation .profileBranches { grid-template-columns:1fr; padding-left:12px; border-left:1px solid #c9b57f; padding-top:0; margin-top:12px; } .foundation .profileBranches::before,.foundation .profileBranches::after { display:none; } .foundation .socialCard::before { content:''; position:absolute; width:12px; height:1px; right:100%; top:50%; background:#c9b57f; } }
 
-/* Embedded journey is a native disclosure, closed on the first visit. */
-.journeySummary{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:64px;cursor:pointer;list-style:none}
+/* Match the compact problem accordion directly above the embedded journey. */
+.embedded{max-width:1000px;border:1px solid var(--ui-line);border-radius:14px;background:var(--ui-surface);overflow:hidden}
+.journeySummary{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:80px;padding:16px;cursor:pointer;list-style:none}
 .journeySummary::-webkit-details-marker{display:none}
-.embedded .journeySummary .editorialTitle{--ui-font:var(--landing-disclosure-font,Georgia,serif);--ui-section-size:var(--landing-disclosure-size,1.5rem);--ui-weight-heading:600;margin:0;flex:1;text-align:left}
-.expandMark{position:relative;display:block;width:44px;height:44px;flex:none;border:1px solid var(--ui-line);border-radius:50%;color:var(--ui-brand);background:var(--ui-surface)}
-.expandMark::before,.expandMark::after{content:'';position:absolute;left:13px;right:13px;top:20px;height:2px;background:currentColor}
+.embedded .journeySummary .editorialTitle{--ui-section-size:var(--ui-card-title-size);margin:0;flex:1;min-width:0;text-align:left}
+.expandMark{position:relative;display:block;width:32px;height:32px;flex:none;border-radius:9px;color:var(--ui-brand);background:var(--ui-brand-soft)}
+.expandMark::before,.expandMark::after{content:'';position:absolute;left:10px;right:10px;top:15px;height:2px;background:currentColor}
 .expandMark::after{transform:rotate(90deg)}
 .embedded[open]>.journeySummary .expandMark::after{transform:rotate(0)}
-.embedded[open]>.editorialHero{padding-top:20px}
+.embedded[open]>.editorialHero{padding:8px 16px 20px}
+.embedded[open]>.journeyCanvas{margin-inline:16px}
+.embedded>.journeyAction{margin:16px}
