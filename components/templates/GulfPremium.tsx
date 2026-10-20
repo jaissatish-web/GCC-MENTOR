@@ -1,7 +1,7 @@
 import { resumeCategoryGroups, type CategoryPosition } from '@/lib/profileCategories'
 import type { CareerProfileFull, FieldVisibility } from '@/types/careerProfile'
 import type { OptimizedContent } from '@/types/package'
-import { T, PAGE, SIZE, KEEP_WITH_NEXT, NO_SPLIT } from './tokens'
+import { T, PAGE, PHOTO, SIZE, KEEP_WITH_NEXT, NO_SPLIT } from './tokens'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import {
   FONT_OPTIONS,
@@ -75,6 +75,8 @@ export interface GulfPremiumProps {
    * they always did.
    */
   document?: ResumeDocument | null
+  /** Static showcase typography fit. Never supplied for user resumes or exports. */
+  showcaseScale?: number
   /**
    * The user's own font / size / accent / photo choices (TASK-152, migration
    * 037; photo visibility 2026-08-19).
@@ -176,6 +178,7 @@ export default function GulfPremium({
   fieldVisibility,
   document,
   styleOverrides,
+  showcaseScale = 1,
 }: GulfPremiumProps) {
   const {
     header,
@@ -194,7 +197,7 @@ export default function GulfPremium({
   const sansFont = fontStack ?? T.sans
   const monoFont = fontStack ?? T.mono
 
-  const sizeMult = styleOverrides?.size ? SIZE_OPTIONS[styleOverrides.size].scale : 1
+  const sizeMult = (styleOverrides?.size ? SIZE_OPTIONS[styleOverrides.size].scale : 1) * showcaseScale
   const sz = (px: string) => scalePx(px, sizeMult)
 
   const accentHex = styleOverrides?.accent ? ACCENT_OPTIONS[styleOverrides.accent].hex : null
@@ -252,8 +255,8 @@ export default function GulfPremium({
           {photoVisible ? (
             <div
               style={{
-                width: `${Math.round(78 * photoScale)}px`,
-                height: `${Math.round(96 * photoScale)}px`,
+                width: `${Math.round(PHOTO.width * photoScale)}px`,
+                height: `${Math.round(PHOTO.height * photoScale)}px`,
                 flex: 'none',
                 borderRadius: '4px',
                 overflow: 'hidden',
@@ -268,7 +271,7 @@ export default function GulfPremium({
               <img
                 src={header.photoUrl ?? ''}
                 alt={header.displayName ? `${header.displayName}, profile photo` : 'Profile photo'}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center top' }}
               />
             </div>
           ) : null}

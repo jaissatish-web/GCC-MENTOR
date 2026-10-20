@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { getTemplate, type TemplateId } from '@/lib/templates'
 import { templateCatalog, type TemplatePurpose } from '@/lib/templateCatalog'
+import { SampleResumePreview } from './SampleResumePreview'
 import { DocumentReader } from '@/components/resume/ResumeDocumentView'
 import { cn } from '@/lib/utils'
 import type { ResumeDocument } from '@/lib/resumeDocument'
@@ -111,7 +112,7 @@ function LazyPreview({ height, children }: { height: number; children: React.Rea
 
 export function TemplatePicker({
   document,
-  previewDocuments,
+  showcase = false,
   current,
   onSelect,
   busyId,
@@ -122,8 +123,8 @@ export function TemplatePicker({
   showIntroduction = true,
 }: {
   document: ResumeDocument
-  /** Optional fictional content sized for each gallery design. User resumes omit this. */
-  previewDocuments?: Partial<Record<TemplateId, ResumeDocument>>
+  /** Use the shared fictional example; real resume pickers keep their document. */
+  showcase?: boolean
   current: TemplateId
   onSelect: (id: TemplateId) => void
   busyId?: TemplateId | null
@@ -228,15 +229,15 @@ export function TemplatePicker({
                   className="absolute left-0 top-0 block origin-top-left"
                   style={{ width: PAGE_W, zoom: SCALE, textRendering: 'geometricPrecision' }}
                 >
-                  <Template
+                  {showcase ? <SampleResumePreview templateId={t.id} /> : <Template
                     {...({
-                      document: previewDocuments?.[t.id] ?? document,
+                      document,
                       profile: undefined,
                       optimizedContent: undefined,
                       skillsOrder: [],
                       fieldVisibility: null,
                     } as unknown as GulfPremiumProps)}
-                  />
+                  />}
                 </span>
                 {hovered === t.id && !isCurrent ? (
                   <span className="absolute inset-0 bg-teal/10" />
@@ -272,7 +273,7 @@ export function TemplatePicker({
           )
         })}
       </div>
-      {previewing ? <DocumentReader title={getTemplate(current).name} onClose={() => setPreviewing(false)}><PreviewTemplate {...({ document: previewDocuments?.[current] ?? document, profile: undefined, optimizedContent: undefined } as unknown as GulfPremiumProps)} /></DocumentReader> : null}
+      {previewing ? <DocumentReader title={getTemplate(current).name} onClose={() => setPreviewing(false)}>{showcase ? <SampleResumePreview templateId={current} /> : <PreviewTemplate {...({ document, profile: undefined, optimizedContent: undefined } as unknown as GulfPremiumProps)} />}</DocumentReader> : null}
     </div>
   )
 }

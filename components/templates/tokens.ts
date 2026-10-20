@@ -50,6 +50,9 @@ export const PAGE = {
   padding: '38px 46px',
 } as const
 
+/** Consistent readable portraits; side columns may use a larger bounded frame. */
+export const PHOTO = { width: 104, height: 130, railWidth: 128, portraitRatio: 1.25 } as const
+
 /**
  * How a job meets a page break (2026-10-04). A job may run on to the next page:
  * only its title, employer and first point are kept together, and no single

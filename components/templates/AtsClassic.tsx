@@ -44,7 +44,7 @@ const INK = '#111111'
 const MUTED = '#444444'
 const RULE = '#999999'
 
-const h2Style: React.CSSProperties = {
+const baseH2Style: React.CSSProperties = {
   fontFamily: FONT,
   fontSize: '12.5pt',
   fontWeight: 700,
@@ -59,7 +59,7 @@ const h2Style: React.CSSProperties = {
   breakAfter: 'avoid',
 }
 
-const bodyStyle: React.CSSProperties = {
+const baseBodyStyle: React.CSSProperties = {
   fontFamily: FONT,
   fontSize: '10.5pt',
   lineHeight: 1.45,
@@ -77,7 +77,10 @@ export default function AtsClassic({
   skillsOrder,
   fieldVisibility,
   document,
+  showcaseScale = 1,
 }: GulfPremiumProps) {
+  const bodyStyle = { ...baseBodyStyle, fontSize: `${10.5 * showcaseScale}pt` }
+  const h2Style = { ...baseH2Style, fontSize: `${12.5 * showcaseScale}pt`, margin: `${16 * showcaseScale}px 0 ${6 * showcaseScale}px` }
   const doc =
     document ?? buildResumeDocument({ profile, optimizedContent, skillsOrder, fieldVisibility })
 
