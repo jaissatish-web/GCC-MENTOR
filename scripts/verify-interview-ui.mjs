@@ -41,7 +41,7 @@ try {
       const u = new URL(r.url()), json = (body, status = 200) => r.respond({ status, contentType: 'application/json', body: JSON.stringify(body) })
       if (u.origin !== 'https://interview.test') return r.abort()
       if (u.pathname.startsWith('/_next/static/media/')) return r.respond({status:200,contentType:'font/woff2',body:readFileSync(root+u.pathname.replace('/_next/','/.next/'))})
-      if (!u.pathname.startsWith('/api/') && !u.pathname.startsWith('/interviewers/') && u.pathname !== '/fixture.js') return r.respond({ status: 200, contentType: 'text/html', body: `<html><head><meta charset="utf-8"><style>${css}</style></head><body class="${bodyClass}"><div id="root"></div><script src="/fixture.js"></script></body></html>` })
+      if (!u.pathname.startsWith('/api/') && !u.pathname.startsWith('/interviewers/') && u.pathname !== '/fixture.js') return r.respond({ status: 200, contentType: 'text/html', body: `<html><head><meta charset="utf-8"><style>${css}</style></head><body class="${bodyClass} app-type"><div id="root"></div><script src="/fixture.js"></script></body></html>` })
       if (u.pathname === '/fixture.js') return r.respond({ status: 200, contentType: 'application/javascript', body: readFileSync(dir + '/fixture.js') })
       if (u.pathname.startsWith('/interviewers/')) return r.respond({ status: 200, contentType: 'image/webp', body: readFileSync(root + '/public' + u.pathname) })
       if (r.method() !== 'GET' && u.pathname.includes('/mock-interview/')) writes.push(u.pathname)
@@ -66,7 +66,10 @@ try {
     assert.equal(await page.$$eval('[aria-label="Saved mock interviews"] > ul > li', els => els.length), 12)
     assert.equal(await page.$$eval('#interview-report', els => els.length), 0, 'Hub contains no individual report')
     assert.equal(await page.$$eval('[aria-label="Explore interview scores"] button', els => els.length), 12)
+    await page.$$eval('summary', els => els.find(el => el.textContent.includes('Explore all practice scores')).click())
+    await page.waitForSelector('[aria-label="Explore Technical knowledge"]', { visible: true })
     await page.click('[aria-label="Explore Technical knowledge"]')
+    await page.waitForFunction(() => document.querySelector('[aria-label="Compare score area"]')?.value === 'technical_score')
     assert.equal(await page.$eval('[aria-label="Compare score area"]',el=>el.value),'technical_score')
     await page.$$eval('button',els=>els.find(el=>el.textContent.includes('Choose my next practice')).click())
     assert.ok(await page.$eval('details.group',el=>el.open))
@@ -88,7 +91,7 @@ try {
     })
     assert.ok(layout.scroll <= width + 1, JSON.stringify({width,layout}))
     assert.equal(layout.text, runs[1].final_report.priority_focus)
-    if(width<640){assert.ok(layout.x<=40,JSON.stringify(layout));assert.equal(layout.size,'16px');assert.equal(layout.weight,'400')}
+    if(width<640){assert.ok(layout.x<=40,JSON.stringify(layout));assert.equal(layout.size,'15px');assert.equal(layout.weight,'400')}
     if(process.env.INTERVIEW_SCREENSHOT && width===390) await page.screenshot({path:process.env.INTERVIEW_SCREENSHOT,fullPage:true})
     await page.$$eval('button', els=>els.find(el=>el.textContent==='Back to result cards').click())
     await page.$$eval('[aria-label="Result cards"] button', els=>els.find(el=>el.textContent.includes('Your answers')).click())

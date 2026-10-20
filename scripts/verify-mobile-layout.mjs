@@ -81,10 +81,10 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${(width >= 640 ? 22 : 20) * scale}px`)
+      assert.equal(result.titleSize, `${(width < 768 ? 24 : 22) * scale}px`)
       assert.equal(result.weight, '600')
       assert.equal(result.inputSize, `${16 * scale}px`)
-      assert.equal(result.bodySize, `${(width<640?15:16) * scale}px`)
+      assert.equal(result.bodySize, `${(width<768?15:16) * scale}px`)
       assert.ok(result.buttonHeight >= 44)
       await page.$eval('details', element => { element.open = true })
       const choices = await page.evaluate(() => ({
@@ -96,7 +96,7 @@ try {
       assert.ok(!choices.clipped, `Profession labels clipped at ${width}`)
       assert.ok(choices.touch, `Profession choices need 44px touch targets at ${width}`)
       if (width === 390 && !enlarged) await page.screenshot({ path: 'artifacts/typography/shared-ui-390.png', fullPage: true })
-      if (width < 640) assert.equal(result.subtitleX, result.iconX, 'Phone subtitle must use the full header width')
+      if (width < 768) assert.equal(result.subtitleX, result.titleX, 'Phone subtitle aligns with the title after removing the decorative heading icon')
       else assert.equal(result.subtitleX, result.titleX, 'Larger screens align subtitle with title')
     }
   }
@@ -135,7 +135,7 @@ try {
       captionSize: style('.caption-example').fontSize}
   })
   assert.deepEqual(configured, {title:'27px', section:'19px', body:'18px', family:'Arial',
-    radius:'9px', padding:'12px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'14px'})
+    radius:'9px', padding:'16px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'13px'})
   // Real public landing markup, production CSS and bundled Inter, without API calls.
   const publicMarkup = landing.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*>/gi, '')
@@ -163,7 +163,8 @@ try {
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
       assert.equal(metrics.weight, '600')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
-      assert.equal(metrics.size, metrics.sectionSize, 'Hero and section titles share the popup heading scale')
+      assert.equal(metrics.size, (width < 768 ? 24 : 22) * (enlarged ? 2 : 1), 'Hero uses the approved title scale')
+      assert.equal(metrics.sectionSize, (width < 768 ? 18 : 22) * (enlarged ? 2 : 1), 'Section uses the approved section scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
       for (const selector of ['#challenges details', '#how-it-works']) {
         assert.equal(await page.$eval(selector, el => el.open), false, 'Landing disclosures start collapsed')

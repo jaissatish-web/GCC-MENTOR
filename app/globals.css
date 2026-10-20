@@ -1,6 +1,7 @@
 @import "./ui-system.css";
 @import "./professional-profiles.css";
 @import "./typography.css";
+@import "./mobile-design.css";
 
 @tailwind base;
 @tailwind components;

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { ArrowRightIcon, ChevronDownIcon, ChevronRightIcon, Cog6ToothIcon, DocumentTextIcon, EnvelopeIcon, InformationCircleIcon, PencilSquareIcon, UserCircleIcon, RectangleStackIcon, ChatBubbleLeftRightIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, ChevronDownIcon, ChevronRightIcon, Cog6ToothIcon, DocumentTextIcon, EnvelopeIcon, InformationCircleIcon, PencilSquareIcon, UserCircleIcon, RectangleStackIcon, ChatBubbleLeftRightIcon, MicrophoneIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
@@ -99,8 +99,18 @@ export function HomeSavedWork({ overview, loading, error, onRetry }: { overview:
     { label: 'Interview Q&A', href: '/interview-qa', tone: 'qa', count: overview?.qa_set_count, Icon: QuestionMarkCircleIcon },
     { label: 'Mock interviews', href: '/mock-interview', tone: 'mock', count: overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon },
   ]
-  return <section aria-labelledby="saved-work-heading" className={styles.savedPanel}><div className={styles.savedHeading}><h2 id="saved-work-heading">Your saved work</h2><Link href="/dashboard/library" aria-label="View your Resume Library" className={styles.action}><ChevronRightIcon aria-hidden="true" className="size-5" /></Link></div>
+  return <section aria-labelledby="saved-work-heading" className={styles.savedPanel}><div className={styles.savedHeading}><h2 id="saved-work-heading"><span className="md:hidden">Your preparation</span><span className="hidden md:inline">Your saved work</span></h2><Link href="/dashboard/library" aria-label="View your Resume Library" className={styles.action}><ChevronRightIcon aria-hidden="true" className="size-5" /></Link></div>
     {error ? <div role="alert" className="mb-3 rounded-ctl bg-alert-soft p-3 type-helper text-alert">Saved totals could not be loaded. <button type="button" onClick={onRetry} className="min-h-11 underline">Try again</button></div> : null}
-    <div aria-busy={loading} className={styles.saved}>{rows.map(({ label, href, count, Icon, tone }) => <Link href={href} key={href} data-ui-service={tone} className={styles.savedRow}><span aria-hidden="true" className={styles.savedIcon}><Icon className="size-5" /></span><span className={styles.savedLabel}>{label}</span><span className={styles.savedCount}>{!loading && !error && count !== undefined ? count : '—'}</span><ChevronRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>)}</div>
+    <div aria-busy={loading} className={styles.saved}>{rows.map(({ label, href, count, Icon, tone }) => <Link href={href} key={href} data-ui-service={tone} className={styles.savedRow}><span aria-hidden="true" className={styles.savedIcon}><Icon className="size-5" /></span><span className={styles.savedLabel}>{label}<span className={styles.mobileSavedMeta}>{loading ? 'Loading…' : error ? 'Unavailable' : count === undefined ? '—' : count === 0 ? 'Not started' : `${count} saved`}</span></span><span className={styles.savedCount}>{!loading && !error && count !== undefined ? count : '—'}</span><ChevronRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>)}</div>
+  </section>
+}
+
+/** The overview includes profile-resume interviews excluded from target-job summaries.
+ * Link to the existing picker without creating a profile resume or guessing an attempt. */
+export function HomeSavedPractice({ count }: { count: number }) {
+  return <section className={styles.mobileContinueLink} aria-label="Continue your saved practice">
+    <h2>Continue your practice</h2>
+    <div className={styles.continueIdentity}><span className={styles.practiceIcon}><MicrophoneIcon className="size-6" aria-hidden="true" /></span><div><h3>Mock interview</h3><p>{count} {count === 1 ? 'interview' : 'interviews'} in progress</p></div></div>
+    <Link href="/mock-interview" className={buttonVariants({ variant: 'secondary' })}>Open saved interviews<ArrowRightIcon className="size-4" aria-hidden="true" /></Link>
   </section>
 }

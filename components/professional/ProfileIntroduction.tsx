@@ -13,6 +13,7 @@ export function ProfileIntroduction({ platform }: { platform: ProfessionalPlatfo
   const icons = [IdentificationIcon, UserCircleIcon, BriefcaseIcon, SparklesIcon]
   return (
     <PageShell icon={platform === 'linkedin' ? IdentificationIcon : BriefcaseIcon} eyebrow="Your next Gulf career move" title={`${config.name} Optimization`} width="wide" className="professional-introduction" uses={['Career Profile', 'career goals']}>
+      <Link href={`${config.home}/workspace`} className="professional-primary professional-mobile-start">Open my {config.name} workspace<ArrowRightIcon aria-hidden="true" className="size-5" /></Link>
       <section className={`professional-hero professional-hero-${platform}`} aria-labelledby="professional-promise">
         <div className="professional-hero-copy">
           <span className="professional-kicker type-label">YOUR EXPERIENCE. CLEARLY PRESENTED.</span>

@@ -148,10 +148,11 @@ export function GulfReadinessView({
       {/* THE ANSWER */}
       <section
         aria-labelledby="verdict-h"
-        className={cn('flex flex-col gap-4 rounded-card-lg border border-line bg-gradient-to-br via-white to-white p-4 shadow-m-1 sm:p-6', tone.card)}
+        className={cn('gulf-readiness-verdict flex flex-col gap-4 rounded-card-lg border border-line bg-gradient-to-br via-white to-white p-4 shadow-m-1 sm:p-6', tone.card)}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-          <ScoreRing value={gulf.finalScore} size={132} tone={tone.ring} suffix="/100" label={NAMES.gccReadiness} className="self-center" />
+          <div className="hidden md:block"><ScoreRing value={gulf.finalScore} size={132} tone={tone.ring} suffix="/100" label={NAMES.gccReadiness} className="self-center" /></div>
+          <div className="mobile-readiness-summary md:hidden"><p className="type-label text-ink-muted">Gulf readiness</p><p className="mt-2 type-stat text-ink">{gulf.finalScore}<span className="ml-1 type-label text-ink-muted">/100</span></p><div className="mt-3 h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-label={NAMES.gccReadiness} aria-valuemin={0} aria-valuemax={100} aria-valuenow={gulf.finalScore}><div className="h-full rounded-full bg-teal" style={{ width: `${gulf.finalScore}%` }} /></div></div>
           <div className="flex min-w-0 flex-1 flex-col gap-2" role="status" aria-live="polite">
             <span className="self-start rounded-full bg-white px-2.5 py-0.5 text-[12px] font-bold uppercase tracking-wide text-ink-soft shadow-m-1">
               {gulf.scenarioLabel}

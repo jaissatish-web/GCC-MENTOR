@@ -34,7 +34,7 @@ export function AuthShell({
   children: React.ReactNode
 }) {
   return (
-    <div className="app-type flex min-h-dvh flex-col bg-canvas font-redesign-sans text-ink">
+    <div className="auth-shell app-type flex min-h-dvh flex-col bg-canvas font-redesign-sans text-ink">
       <header className="border-b border-line/80 bg-canvas/90">
         <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between gap-3 px-4 sm:px-6">
           <Link href="/" className="flex shrink-0 items-center gap-2 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">
