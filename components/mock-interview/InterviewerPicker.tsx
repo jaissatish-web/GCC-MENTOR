@@ -4,7 +4,7 @@ import { Check } from 'lucide-react'
 import { INTERVIEWERS, type InterviewerId } from '@/lib/voice/interviewers'
 
 export function InterviewerPicker({ value, onChange, disabled }: { value: InterviewerId; onChange: (id: InterviewerId) => void; disabled?: boolean }) {
-  return <fieldset disabled={disabled} className="space-y-3">
+  return <fieldset disabled={disabled} className="interviewer-selection space-y-3">
     <legend className="type-card">Choose your interviewer <span className="type-helper font-normal text-ink-muted">· {INTERVIEWERS.length} available</span></legend>
     <p className="type-helper text-ink-muted">Choose any host below. Questions are in English; portraits do not speak.</p>
     <div className="grid grid-cols-2 gap-3 min-[480px]:grid-cols-3 lg:grid-cols-6">

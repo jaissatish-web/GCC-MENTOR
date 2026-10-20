@@ -1,69 +1,52 @@
-# Interview visual refresh — design QA
+# GCC Mentor mobile redesign — design QA
 
-final result: passed
+final result: passed for the checked local screens and isolated workflows; live authenticated end-to-end verification remains blocked by unavailable account access in this release session.
 
-## Scope and source truth
+## Reference and scope
 
-Presentation changes only, on `design/interview-visual-refresh`.
-The approved report/coaching image is `/workspace/scratch/e8f962cdbeb8/generated_images/exec-c4ab81bd-f0f9-4752-9e85-848ac714a4e9.png` (1254 × 1254).
-The approved selector/comparison source is `/workspace/interview-workspace-refined.html`.
-These are design directions adapted to the existing application, not a request to copy their large display typography. The user explicitly requested the site's existing theme and central typography.
+Owner-approved option two, plus the eight workflow boards in GCC_Mentor_Mobile_Design_Approval.html, dated 20 October 2026. The owner subsequently explicitly authorized implementation into main. Development branch: `ui/mobile-option-two`; PR: #17.
 
-## Browser evidence
+The specification overrides incidental generated gradients, repeated tool-page greetings and illustrative control states. All report values, supported input options and conditional actions come from existing application fields and handlers. No measured 95% pixel-match claim is made: fixture data, content length and supported states differ from the generated reference.
 
-Actual React components were compiled with production Tailwind, ui-system.css and typography.css into an isolated preview. Navigation/image shims and synthetic API responses prevent production account access or AI usage. The production routes were not given a demo or authentication bypass.
+## Visual evidence
 
-Cloud browser: `http://terminal.local:4173/`.
-Desktop viewport: 1348 × 926 CSS px, 1× captures. Phone/tablet checks used real embedded viewports at 320, 390 and 768 CSS px, with their own media queries, not scaled desktop screenshots. The iframe scrollbar consumes 15px of the available inner layout.
+`docs/mobile-redesign/dashboard-comparison.webp` places the prior build, approved direction and implemented dashboard together at a normalized 390px width. The prior build and implementation use local fictional API fixtures; the reference uses the approved design's illustrative account state. The implementation intentionally shows the fixture's actual 80% completeness and 2/100 readiness rather than copying the reference's 93/90 values.
 
-Screenshots:
-- `docs/interview-visual-refresh/interview-report-desktop-final.jpg`
-- `docs/interview-visual-refresh/interview-report-mobile-final.jpg`
-- `docs/interview-visual-refresh/interview-progress-desktop-final.jpg`
-- `docs/interview-visual-refresh/interview-setup-desktop-final.jpg`
-- `docs/interview-visual-refresh/report-source-comparison.jpg`
+Dashboard viewport captures are saved at 360, 390 and 430px. Additional full-page captures cover Career Profile, original/optimized library framing, tools, job details, interview setup, readiness and an intentionally long-content interview report. `page-check-results.json` records the 114 checked route/width combinations. These screenshots are test evidence, not authenticated production screenshots. Existing private audit screenshots are not included.
 
-The last file puts the approved report and rendered implementation together for comparison. The reference's 531px-wide report panel and the implementation's 735px-wide content region were normalized to 531px width for visual inspection. This is a responsive application adaptation: central typography is intentionally retained, not a claim of pixel-identical composition. Focused score bars, coaching callout, portrait grid and mode selection were also inspected at native browser size.
+## Findings resolved
 
-## Findings and iteration
+- Dashboard: moved real readiness scores above the next action; replaced nested saved-work cards with grouped rows; matched the approved next-action copy and quieter spacing. Loading and failed totals remain unavailable, not false zeroes.
+- Interview continuation: the existing job-summary endpoint excludes original Profile Resumes. An overview-count-based link opens the existing interview picker when those saved interviews are present. It does not guess an attempt ID or answer count, create a resume, or change the summary API.
+- Original resumes: distinct gold source marker; optimized resumes retain a teal marker. All resume actions remain available.
+- Interview/report: existing answer methods, six portraits, setup gates and saved report fields remain. Mobile report surfaces and rows use the shared tokens. Long summaries and feedback remain fully readable.
+- Professional profiles: workspace action appears near the top; stale results are warned before copy-ready framing. The preview's full-width margins now follow the central gutter instead of a hard-coded 12px offset.
+- QA harness: interactive chart checks now open the existing collapsed disclosure before clicking. Typography assertions were updated from outdated 26/20/16 values to the approved 24/18/15 roles; functional assertions remain.
 
-- P2: The original report and progress used dark score rings and several unrelated area colours, which differed from the approved clean report. Replaced these with white surfaces, shared green score bars and gold coaching highlights. Post-change browser evidence confirms all four score areas remain visible.
-- P2: A full grid of report categories plus the score summary made the initial view unnecessarily long. Moved the existing eight categories behind “Explore all report sections”; Overview, Answers and Practice plan remain directly available. All saved report content is retained.
-- P2: The existing progress breakdown duplicated the new paired comparison. Kept the existing interactive timeline behind “Explore all practice scores”. All dimensions of the paired comparison remain visible together.
-- Preview-only issue: portrait files initially lived outside the isolated preview root. Copied the existing six public assets into that preview; all six then loaded at natural resolution. No production asset URLs changed.
+## Verification
 
-No actionable P0/P1/P2 findings remain in the checked states.
+| Check | Result |
+| --- | --- |
+| Production Next.js build, lint and TypeScript | Passed |
+| Full deterministic/API/disposable-database regression suite | 71/71 passed |
+| Built-page typography and horizontal reflow | 114 route/width combinations passed; 320, 360, 390, 430, 768, 1440px |
+| Shared mobile/public UI | Passed, including enlarged text and document typography isolation |
+| Mock interviews/reports/progress | Passed: 12 attempts, score area and earlier/later controls, all eight result sections, saved answers, answer tabs, continuation, six hosts, reduced motion, six widths; no AI writes or runtime errors |
+| Preparation workflows | Passed: saved/first-use states, question-led voice room, signup privacy, retries/timeouts, report routing and template preview/rotation |
+| LinkedIn setup/results/preview | Passed: 320/390/768/1440px, edit/save/retry, copy, checklist persistence, conflicts, empty profile |
+| NaukriGulf setup/results/preview | Passed: same isolated workflow checks |
+| Central typography/source consistency | Passed: 49 route files, 180 UI components, 12 stylesheets; document/template boundaries preserved |
+| Protected-source diff | No API, auth action, lib, types, Supabase, resume renderer/export or template source changes |
+| Hosted preview | Vercel READY; public page opened successfully in cloud browser |
 
-## Required fidelity surfaces
+The final change after the broad page checks adjusts only professional-profile preview width/margins; both professional-profile suites were rerun successfully against that final build.
 
-- Typography: reused type-section, type-card, type-stat, type-label, type-helper and type-caption. No new font family or scale was introduced; app/typography.css is unchanged. Mobile section heading measured 20px. The isolated preview uses the shared font fallback; production continues to obtain Inter from its unchanged layout.
-- Spacing/layout: existing PageShell, fields and application cards retained. New comparisons reflow from two columns to one; interviewer portraits use two columns on small phones, three on intermediate widths and six on wide screens. Checked no horizontal overflow at 320, 390, 768 and desktop.
-- Colours/tokens: existing teal, teal-soft, gold-ink, gold-soft, ink and line utilities. Gold denotes the earlier chart series; green the later series, with explicit labels and numeric values. Negative changes use a signed minus and gold tone, never a positive claim.
-- Images: all six supplied WebP portraits loaded. object-fit: contain preserves the complete source; no generated replacement or crop. Mic/chat emoji are the user's explicit label request. UI icons reuse existing Lucide assets.
-- Copy/data: actual report text, answer text and scores are preserved. “Review my answers” opens the existing answer explorer; it does not promise automatic weakest-answer selection. Dates/roles come from the saved run. Preview example content is not bundled into product components.
+## Limits and intentional differences
 
-## Interactions checked
+Live authentication, real account writes, AI/provider execution, credits/payment behavior, physical microphone permissions/audio capture and real-device Safari/Android keyboards were not exercised. Local fixtures simulate API replies; database checks use disposable local data. No production credentials, schema, environment variables or user records were changed.
 
-- Switch between voice and typed modes, preserving the original default and capability gate.
-- Choose a host, including Mariam; only the chosen host has aria-pressed=true.
-- All six images loaded without clipping at 320px.
-- All four paired score rows visible at 320, 390 and 768px.
-- Compare interviews 2→3 (+9), 1→3 (+19), 1→2 (+10); selectors and values update.
-- Lower-score fixture shows 72→60 and -12 points.
-- First-result fixture shows a baseline message and no misleading comparison selectors.
-- Report → Answers → Question 1, saved text and stronger-answer content; keyboard activation and heading focus work.
-- Practice plan navigation and expanded category grid containing all eight existing report categories.
-- Voice report: original transcript, Coach feedback, grammar notes and Stronger answer tabs; stronger-answer surface uses the same green tint, and no horizontal overflow at 390px.
-- Existing score-area selector and timeline focus still work (Technical knowledge, interview 1: 66/100).
-- No application console errors or warnings observed. Browser-extension metadata errors were excluded.
+Settings/account authentication controls retain their existing implementation and inherit the shared mobile controls; no authenticated settings session was available for live visual or destructive-action testing. Completed reports and optimized resumes unavailable in the real audit account were checked through existing typed fixtures, not represented as real saved user results.
 
-## Validation and boundaries
+Desktop layout remains in place. The existing public animations, globe, template orbit and service links remain. Public photographic overlays retain the contrast needed for readable captions. Resume document internals remain independent of app typography and surfaces.
 
-Passed TypeScript and ESLint, mock-report contract, interview-progress tests, progress API tests and disposable interview-history database tests.
-A byte comparison confirms the setup page's entire pre-render block is unchanged, including state defaults, draft handling, capability checks and start/answer/finish handlers. There are no changes under app/api, lib, types or supabase. The new attempt selectors affect presentation only and consume the existing model's comparable flag.
-
-Live signed-in end-to-end recording/AI generation was not exercised: this is an isolated visual check, and no service logic was changed. Browser capture of the complete long phone page timed out; native viewport captures and DOM layout measurements were used instead.
-
-## Follow-up polish
-
-No blocking follow-ups. The global typography, preserved existing navigation and saved-data constraints intentionally take priority over the concept image's larger decorative score treatment.
+Release integration and final production deployment status are recorded in the PR and handoff after the owner-authorized merge. The earlier interview-only QA report remains available in Git history at commit 20c53a4.

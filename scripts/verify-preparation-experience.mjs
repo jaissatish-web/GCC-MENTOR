@@ -73,7 +73,7 @@ try{
   await goto('signup');assert.equal(await page.$eval('a[href="/#privacy"]',e=>e.target),'_blank')
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Signup overflow at ${width}`)
   await goto('password');await page.waitForSelector('input[name=confirm]')
-  assert.equal(await page.$eval('h1',e=>getComputedStyle(e).fontSize),width<640?'26px':'30px')
+  assert.equal(await page.$eval('h1',e=>getComputedStyle(e).fontSize),width<768?'24px':'22px')
   for(const size of await page.$$eval('input',es=>es.map(e=>getComputedStyle(e).fontSize)))assert.equal(size,'16px')
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Password overflow at ${width}`)
   if(width===390)await page.screenshot({path:'artifacts/preparation-experience/password-390.png',fullPage:true})

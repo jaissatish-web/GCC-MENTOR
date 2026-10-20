@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { MOBILE_PRIMARY_ITEMS, isNavItemActive, navHref } from './navItems'
-import { Squares2X2Icon, UserCircleIcon } from '@heroicons/react/24/outline'
+import { MOBILE_PRIMARY_ITEMS, NAV_ITEMS, isNavItemActive, navHref } from './navItems'
+import { HomeIcon, DocumentTextIcon, Squares2X2Icon, UserCircleIcon } from '@heroicons/react/24/outline'
 
 /**
  * Mobile bottom nav — DESIGN_SYSTEM.md §8.3.
@@ -19,10 +19,12 @@ import { Squares2X2Icon, UserCircleIcon } from '@heroicons/react/24/outline'
  */
 export function MobileBottomNav() {
   const pathname = usePathname()
+  const toolsActive = pathname === '/dashboard/tools' || NAV_ITEMS.some(item => !['/dashboard', '/dashboard/library', '/settings'].includes(item.href) && isNavItemActive(item, pathname ?? ''))
 
   return (
     <nav
       aria-label="Primary"
+      data-mobile-navigation
       // BLUEPRINT (2026-09-08). Was a dark navy bar with a GOLD active state,
       // which fought the oxide signal the moment the dashboard changed — two
       // accents on one screen, and neither reading as "the important one".
@@ -32,7 +34,7 @@ export function MobileBottomNav() {
       className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-line bg-white/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
     >
       {MOBILE_PRIMARY_ITEMS.map((item) => {
-        const Icon = item.icon
+        const Icon = item.href === '/dashboard' ? HomeIcon : DocumentTextIcon
         const active = item.href === '/dashboard' && pathname?.startsWith('/profile')
           ? false
           : isNavItemActive(item, pathname ?? '')
@@ -59,10 +61,10 @@ export function MobileBottomNav() {
       <Link
         href="/dashboard/tools"
         aria-label="Tools"
-        aria-current={pathname === '/dashboard/tools' ? 'page' : undefined}
+        aria-current={toolsActive ? 'page' : undefined}
         className={cn(
           'flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-ctl px-0.5 text-center text-[12px] leading-tight font-redesign-sans transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
-          pathname === '/dashboard/tools' ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted',
+          toolsActive ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted',
         )}
       >
         <span aria-hidden="true" className="flex size-7 items-center justify-center"><Squares2X2Icon className="size-[18px]" /></span>

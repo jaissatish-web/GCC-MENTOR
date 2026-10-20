@@ -453,6 +453,13 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                   className="min-w-0 space-y-5"
                   disabled={busy === 'save'}
                 >
+                  {stale && (
+                    <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink type-helper">
+                      Career Profile has changed since this content was
+                      generated. Review the saved version and generate a fresh
+                      version to use your latest facts.
+                    </p>
+                  )}
                   <section
                     className={`${card} flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between`}
                   >
@@ -461,7 +468,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                         YOUR PERSONALIZED CONTENT
                       </p>
                       <h2 className="mt-2 type-section text-ink">
-                        Your content is ready to copy
+                        {stale ? 'Review your saved content' : 'Your content is ready to copy'}
                       </h2>
                       <p className="mt-2 max-w-xl text-ink-soft">Review your headline options, professional story and selected roles. Edit the wording before copying.</p>
                       <ol className="profile-result-process mt-4" aria-label="How to use your prepared content">{['Review & edit', 'Copy your text', `Paste on ${platformName}`, 'Save there & mark updated'].map((label, index) => <li key={label}><span className="professional-step-number">{index + 1}</span><span>{label}</span></li>)}</ol>
@@ -477,13 +484,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       Preview your optimized profile
                     </button>
                   </section>
-                  {stale && (
-                    <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink type-helper">
-                      Career Profile has changed since this content was
-                      generated. Review the saved version and generate a fresh
-                      version to use your latest facts.
-                    </p>
-                  )}
+
                   <section className={`${card} profile-progress-card`}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="font-semibold text-ink">

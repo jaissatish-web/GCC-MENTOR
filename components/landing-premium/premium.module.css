@@ -436,3 +436,39 @@
 .painDisclosure[open]{padding-bottom:16px}
 .page .painDisclosure>.painPoints{margin:0 16px}
 .painDisclosure:not([open]) .painPoints>li{animation:none}
+
+/* Approved mobile palette and quiet surfaces; desktop and live demos retain their layouts. */
+@media(max-width:767px){
+ .page{--brand:var(--ui-brand);--deep:var(--ui-ink);--gold:rgb(var(--ui-accent-rgb));--brand-soft:var(--ui-brand-soft);--paper:var(--ui-canvas);--ink:var(--ui-ink);--muted:var(--ui-muted);--line:var(--ui-line);--lp-gutter:20px}
+ .wrap{width:calc(100% - 40px)}
+ .hero{padding-top:24px;background:white}
+ .page .heroCopy h1{line-height:var(--ui-heading-line);margin:12px 0;font-weight:var(--ui-weight-heading)}
+ .heroGrid{gap:24px}.heroActions{margin-top:24px}
+ .page .primary,.outline{border-radius:12px;box-shadow:none}
+ .heroVisual{min-height:240px;border-radius:12px;box-shadow:none}
+ .heroVisualText strong{font-size:var(--ui-section-size)}
+ .heroBenefits{gap:12px 8px;font-weight:var(--ui-weight-label)}
+ .section{padding-block:32px}
+ .page .heading h2{font-size:var(--ui-section-size)}
+ .studio,.serviceCard,.profileCard{border-radius:12px;box-shadow:none}
+}
+@media(max-width:360px){.wrap{width:calc(100% - 32px)}}
+
+@media(max-width:767px){.painDisclosure .painHeading h2{--ui-section-size:var(--ui-mobile-section-size)}}
+@media(max-width:767px){
+ .page .navy,.page .final,.page .feedbackMap,.page .studioBar { background:var(--paper); color:var(--ink); background-image:none; box-shadow:none; border-color:var(--line); }
+ .page .navy :is(h2,h3),.page .final h2 { color:var(--ink); }
+ .page .navy p,.page .final p,.page .final small,.page .mapHeader>small,.page .reportNode small,.page .mapFootnote { color:var(--muted); }
+ .page .navy .kicker,.page .final .kicker,.page .founder>div>span,.page .founder a,.page .mapHeader>span,.page .reportNode>span { color:var(--brand); }
+ .page .founder { border-color:var(--line); }
+ .page .final .primary { background:var(--brand); border-color:var(--brand); color:white; }
+ .page .feedbackMap { padding:16px; border-radius:12px; background:white; }
+ .page .mapHeader { border-color:var(--line); }
+ .page .metricNodes>button { background:white; border-color:var(--line); color:var(--ink); }
+ .page .metricNodes>button small { color:var(--muted); }
+ .page .metricNodes>button[aria-pressed=true] { background:var(--brand-soft); border-color:var(--brand); box-shadow:none; }
+ .page .reportNode>div { background:var(--brand-soft); color:var(--brand); box-shadow:none; }
+ .page .compareStrip { color:var(--ink); border-color:var(--line); background:var(--brand-soft); }
+ .page .compareStrip small { color:var(--muted); }
+ .page .studioBar small { color:var(--muted); }
+}

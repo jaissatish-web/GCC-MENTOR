@@ -4,7 +4,7 @@ import { NAMES } from '@/lib/serviceLabels'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { loadHomeInterview, unfinishedInterviewWorkspace, type HomeInterview } from '@/lib/homeInterview'
-import { ArrowRightIcon, CalendarDaysIcon, ClockIcon, CheckCircleIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, CalendarDaysIcon, ClockIcon, MicrophoneIcon, CheckCircleIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
 import { cvReady, type PackageSummary } from '@/lib/packageSummary'
 import type { NextAction } from '@/lib/nextAction'
@@ -43,6 +43,7 @@ export function HomeNextStep({ action, packages, ready, error, onRetry }: {
   const savedInterview = interview?.packageId === ongoingId ? interview : null
   if (ongoing) action = { ...action, state: 'job_needs_mock', href: savedInterview?.href ?? `/mock-interview?package=${encodeURIComponent(ongoing.id)}`, cta: 'Continue interview' }
   const copy = GUIDANCE[action.state]
+  const mobileCopy = action.state === 'no_target_job' ? { title: 'Match your next opportunity', body: 'Add a job to prepare a tailored resume.' } : copy
   const workspace = ongoing ?? nextActionWorkspace(action, packages)
   const resumeInterview = Boolean(ongoing)
   const secondary = resumeInterview && ['job_needs_letter', 'job_needs_qa', 'job_not_generated', 'job_unpaid'].includes(suggestedAction.state)
@@ -55,14 +56,28 @@ export function HomeNextStep({ action, packages, ready, error, onRetry }: {
     { label: NAMES.interviewQa, done: workspace.qa_question_count > 0 },
     { label: NAMES.mockInterview, done: Boolean(workspace.mock_completed_run_id), inProgress: workspace.mock_in_progress },
   ] : []
-  return <section aria-label="Your next step" className={styles.followThrough} aria-busy={!ready && !error}>
+  return <>
+    {ready && !error && ongoing ? <div className={styles.mobileFollowThrough}>
+      {suggestedAction.state !== 'job_needs_mock' ? <section className={styles.mobileNext} aria-label="Recommended next step">
+        <span className={styles.nextEyebrow}>Your next step</span><h2>{GUIDANCE[suggestedAction.state].title}</h2>
+        <p className={styles.nextDescription}>{GUIDANCE[suggestedAction.state].body}</p>
+        <Link href={suggestedAction.href} className={buttonVariants({ variant: 'primary' })}>{suggestedAction.cta}<ArrowRightIcon aria-hidden="true" className="size-4" /></Link>
+      </section> : null}
+      <section className={styles.mobileContinue} aria-label="Continue your practice">
+        <h2>Continue your practice</h2>
+        <div className={styles.continueIdentity}><span className={styles.practiceIcon}><MicrophoneIcon className="size-6" aria-hidden="true" /></span><div><h3>{workspace?.target_job_title || 'Mock interview'}</h3><p>{savedInterview?.saved != null ? `${savedInterview.saved} of ${savedInterview.total} answers saved · In progress` : 'Saved interview · In progress'}</p></div></div>
+        <Link href={action.href} className={buttonVariants({ variant: 'secondary' })}>Continue interview<ArrowRightIcon aria-hidden="true" className="size-4" /></Link>
+        <details className={styles.preparationDetails}><summary>Preparation details<ChevronDownIcon className="size-4" aria-hidden="true" /></summary><ul className={styles.preparationStatus}>{steps.map(step => <li key={step.label}><CheckCircleIcon className="size-4 shrink-0" aria-hidden="true" />{step.label}: {step.inProgress ? 'In progress' : step.done ? 'Ready' : 'To prepare'}</li>)}</ul>{workspace ? <Link href={`/package/${encodeURIComponent(workspace.id)}`} className={styles.action}>Open job workspace<ArrowRightIcon className="size-4" aria-hidden="true" /></Link> : null}</details>
+      </section>
+    </div> : null}
+    <section aria-label="Your next step" className={`${styles.followThrough} ${ready && !error && ongoing ? styles.desktopFollowThrough : ''}`} aria-busy={!ready && !error}>
     <span className={styles.nextEyebrow}>{ready && !error && workspace ? resumeInterview ? 'Continue your interview' : 'Continue your preparation' : 'Your next step'}</span>
-    {!ready || error || !workspace ? <h2>{error ? 'Your saved progress could not be loaded' : !ready ? 'Checking your saved progress…' : resumeInterview ? 'Continue your interview' : copy.title}</h2> : null}
+    {!ready || error || !workspace ? <h2>{error ? 'Your saved progress could not be loaded' : !ready ? 'Checking your saved progress…' : resumeInterview ? 'Continue your interview' : <><span className="md:hidden">{mobileCopy.title}</span><span className="hidden md:inline">{copy.title}</span></>}</h2> : null}
     {ready && !error && workspace ? <div className={styles.resumeContext}>
       <h2><Link href={`/package/${encodeURIComponent(workspace.id)}`} aria-label={`Open workspace · ${workspace.target_job_title}`} className={styles.workspaceName}>{[workspace.target_job_title, workspace.target_company].filter(Boolean).join(' · ')}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link></h2>
       {workspace.name && workspace.name !== workspace.target_job_title ? <p className={styles.workspaceLabel}>{workspace.name}</p> : null}
     </div> : null}
-    {!ready || error || !workspace ? <p className={styles.nextDescription}>{error ? 'Try again to see where to continue.' : !ready ? 'Finding the next action from your saved profile and workspaces.' : copy.body}</p> : null}
+    {!ready || error || !workspace ? <p className={styles.nextDescription}>{error ? 'Try again to see where to continue.' : !ready ? 'Finding the next action from your saved profile and workspaces.' : <><span className="md:hidden">{mobileCopy.body}</span><span className="hidden md:inline">{copy.body}</span></>}</p> : null}
     <div className={styles.continueActions}>
       {error ? <button type="button" className={buttonVariants({ variant: 'primary' })} onClick={onRetry}>Try again</button> : ready ? <Link href={action.href} className={buttonVariants({ variant: 'primary' })}>{action.state === 'no_profile' ? 'Create Career Profile' : resumeInterview ? 'Continue interview' : action.cta}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link> : null}
     </div>
@@ -71,7 +86,7 @@ export function HomeNextStep({ action, packages, ready, error, onRetry }: {
       <Link href={suggestedAction.href} className={styles.contextLink}>{suggestedAction.cta}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
     </div> : null}
     {ready && !error && workspace ? <details className={styles.preparationDetails}><summary>Preparation details<ChevronDownIcon aria-hidden="true" className={styles.disclosureChevron} /></summary><p className={styles.nextDescription}>{resumeInterview ? progress : `${copy.title} ${copy.body}`}</p><ul aria-label="Saved preparation status" className={styles.preparationStatus}>{steps.map(step => <li key={step.label}>{step.done && !step.inProgress ? <CheckCircleIcon aria-hidden="true" className="size-4 shrink-0" /> : <ClockIcon aria-hidden="true" className="size-4 shrink-0" />}<span>{step.label}: {step.inProgress ? 'In progress' : step.done ? 'Ready' : 'To prepare'}</span></li>)}</ul></details> : ready && !error ? <p className={styles.nextContext}>{copy.label}</p> : null}
-  </section>
+  </section></>
 }
 
 export function HomeUpcomingDates({ packages, loading, error, onRetry, now }: {

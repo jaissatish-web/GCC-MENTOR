@@ -30,9 +30,9 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
     try {
       const state = localStorage.getItem(storageKey)
       setReviewed(state === 'reviewed')
-      setExpanded(state === null)
+      setExpanded(window.matchMedia('(min-width: 768px)').matches && state === null)
       localStorage.setItem(storageKey, state === 'reviewed' ? 'reviewed' : 'seen')
-    } catch { setReviewed(false); setExpanded(true) }
+    } catch { setReviewed(false); setExpanded(window.matchMedia('(min-width: 768px)').matches) }
   }, [storageKey])
   const confirmReview = () => {
     if (busy || !canConfirm) return

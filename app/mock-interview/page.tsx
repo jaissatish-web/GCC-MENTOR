@@ -14,7 +14,7 @@ import { Button, buttonVariants } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
-import { ArrowLeft, ChevronRight, Mic, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Mic, MessageSquare, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CTA } from '@/lib/serviceLabels'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
@@ -296,7 +296,8 @@ function MockInterviewScreen() {
     <PageShell
       icon={ChatBubbleLeftRightIcon}
       eyebrow={stageEyebrow('apply')}
-      title="Your next interview starts here."
+      title="Prepare your mock interview"
+      className="mock-interview-page"
       subtitle={isRaw ? 'Practise from your saved profile and leave with a clear improvement plan.' : 'Practise your answers. Leave with a clear improvement plan.'}
       uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
@@ -341,8 +342,8 @@ function MockInterviewScreen() {
               <div className="mt-4 flex flex-col gap-5">
             <fieldset className="space-y-3">
               <legend className="type-card">How would you like to practise?</legend>
-              <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
-                {([{ value: 'voice', label: '🎙️ Mock interview', body: 'Speak your answers' }, { value: 'text', label: '💬 Type answers', body: 'Write at your own pace' }] as const).map(option => <button key={option.value} type="button" aria-pressed={inputMode === option.value} onClick={() => setInputMode(option.value)} className={cn('min-h-14 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2', inputMode === option.value ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink hover:border-teal/60')}><span className="block type-label">{option.label}</span><span className="mt-1 block type-helper text-ink-muted">{option.body}</span></button>)}
+              <div className="interview-answer-methods grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
+                {([{ value: 'voice', label: 'Voice interview', body: 'Speak your answers' }, { value: 'text', label: 'Type answers', body: 'Write at your own pace' }] as const).map(option => <button key={option.value} type="button" aria-pressed={inputMode === option.value} onClick={() => setInputMode(option.value)} className={cn('min-h-14 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2', inputMode === option.value ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink hover:border-teal/60')}><span className="interview-method-icon" aria-hidden="true">{option.value === 'voice' ? <Mic size={24} /> : <MessageSquare size={24} />}</span><span className="block type-label">{option.label}</span><span className="mt-1 block type-helper text-ink-muted">{option.body}</span></button>)}
               </div>
               <p className="field-hint">Voice practice uses your microphone. Your answers are saved for review; this is not a live video call.</p>
             </fieldset>
@@ -396,7 +397,7 @@ function MockInterviewScreen() {
                 {detailLoading && !detail
                   ? (isRaw ? 'Loading your Profile Resume…' : 'Loading this job…')
                   : run
-                    ? `Selected interview: ${run.status === 'completed' ? 'completed' : 'in progress'} · ${answeredCount}/${run.question_count} answered`
+                    ? 'Your saved interview remains in your history below.'
                     : 'No mock interview yet for this package.'}
               </p>
               <Button type="button" variant="primary" onClick={() => void start()} disabled={!selectedId || busy !== null || !detail || (inputMode === 'voice' && voiceReady !== true)} busy={busy === 'start'} busyLabel="Starting…">
@@ -494,7 +495,7 @@ function MockInterviewScreen() {
       ) : null}
 
       {requestedRunId && detail && !run && !detailLoading ? <p role="alert" className="text-ink-muted">This interview is no longer available for the selected resume. Choose a saved attempt below.</p> : null}
-      {detail && selectedId && (detail.mock_interview_runs?.length ?? 0) > 0 ? <section className="space-y-4" aria-label="Saved mock interviews">
+      {detail && selectedId && (detail.mock_interview_runs?.length ?? 0) > 0 ? <section className="interview-history space-y-4" aria-label="Saved mock interviews">
         <div><h2 className="type-section">Your interview history</h2><p className="mt-1 text-sm text-ink-muted type-helper">All saved attempts for this resume. Open any interview to view its questions and report.</p></div>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {orderedAttempts(detail.mock_interview_runs ?? []).map((attempt, index) => <li key={attempt.id}>

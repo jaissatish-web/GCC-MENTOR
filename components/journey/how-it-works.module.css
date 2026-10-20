@@ -371,3 +371,5 @@
 .embedded[open]>.editorialHero{padding:8px 16px 20px}
 .embedded[open]>.journeyCanvas{margin-inline:16px}
 .embedded>.journeyAction{margin:16px}
+
+@media(max-width:767px){.embedded .journeySummary .editorialTitle{--ui-section-size:var(--ui-mobile-section-size)}}
