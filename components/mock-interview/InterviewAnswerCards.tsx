@@ -12,9 +12,10 @@ export function InterviewAnswerCards({ run, renderAnswer }: { run: MockInterview
   useEffect(() => { if (selectedId) heading.current?.focus() }, [selectedId])
   if (question) return <section className="space-y-4" aria-label="Answer detail">
     <button type="button" className="inline-flex min-h-11 items-center gap-2 text-teal hover:underline" onClick={() => setSelectedId(null)}><ArrowLeft size={17} aria-hidden="true" />All question cards</button>
+    <div><p className="type-helper text-ink-muted">Question {run.questions.indexOf(question) + 1} of {run.questions.length}</p><h2 className="mt-2 type-section">Make this answer stronger</h2></div>
     <h3 ref={heading} tabIndex={-1} className="type-card outline-none">{question.question}</h3>
     {renderAnswer ? renderAnswer(question) : <div className="space-y-4">
-      {[{ title: 'Your answer', body: question.answer || 'This question was not answered.' }, { title: 'What worked · What to improve', body: question.feedback }, { title: 'A stronger answer to practise', body: question.better_answer }, { title: 'Try this follow-up', body: question.follow_up }].filter(block => block.body).map(block => <article key={block.title} className="ui-card rounded-card border border-line bg-white p-4"><h4 className="type-card">{block.title}</h4><p className="mt-3 whitespace-pre-wrap text-ink-soft">{block.body}</p></article>)}
+      {[{ title: 'Your answer', body: question.answer || 'This question was not answered.' }, { title: 'What worked · What to improve', body: question.feedback }, { title: 'A stronger answer to practise', body: question.better_answer }, { title: 'Try this follow-up', body: question.follow_up }].filter(block => block.body).map(block => <article key={block.title} className={`rounded-card p-4 sm:p-5 ${block.title === 'A stronger answer to practise' ? 'bg-teal-soft/60' : block.title === 'What worked · What to improve' ? 'border-y border-line bg-white' : 'bg-canvas'}`}><h4 className="type-card">{block.title}</h4><p className="mt-3 whitespace-pre-wrap text-ink-soft">{block.body}</p></article>)}
     </div>}
   </section>
   return <section className="space-y-3" aria-label="Question cards">

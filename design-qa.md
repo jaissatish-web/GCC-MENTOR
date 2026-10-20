@@ -1,49 +1,69 @@
-# LinkedIn and NaukriGulf profile preparation redesign
+# Interview visual refresh — design QA
 
 final result: passed
 
-## Source and scope
+## Scope and source truth
 
-The founder requested the font, field formatting and visual style of Add Job Details on both professional-profile journeys, with separate happy-candidate hero imagery, benefits, responsibilities, practical visibility advice, a clear optimisation CTA, and valuable editable results. This is a style adaptation within the existing product, not a pixel clone of the job form. Main baseline: b57daa28adf568e7a82f347041aa0b3bc5a5a5f3.
+Presentation changes only, on `design/interview-visual-refresh`.
+The approved report/coaching image is `/workspace/scratch/e8f962cdbeb8/generated_images/exec-c4ab81bd-f0f9-4752-9e85-848ac714a4e9.png` (1254 × 1254).
+The approved selector/comparison source is `/workspace/interview-workspace-refined.html`.
+These are design directions adapted to the existing application, not a request to copy their large display typography. The user explicitly requested the site's existing theme and central typography.
 
-Source visual truth: `design-qa/profiles/add-job-reference-desktop.jpg`, production `/optimize/target`.
-Rendered implementation: `design-qa/profiles/naukrigulf-fields-desktop.jpg`, actual NaukriGulf workspace components in the local cloud-browser preview with synthetic fixtures.
-Full-view comparison input: `design-qa/profiles/reference-comparison.jpg`.
-Both screenshot images measure 1348 × 926 pixels. Browser CSS viewport reported 1363 × 936; captures use the browser's consistent content crop. No density scaling was applied to the comparison; each original is placed beside the other at 1:1. The reference includes the real authenticated navigation; the isolated component preview intentionally excludes server-authenticated shell components. Compare typography, fields, cards, palette and progress treatment, rather than different content column widths.
+## Browser evidence
 
-Focused evidence: `design-qa/profiles/linkedin-copy-mobile-focused.jpg` and computed typography measurements from both reference and implementation. Mobile renders use actual components and production CSS at 390 × 900 CSS px, density 1; mobile evidence files show consecutive upper regions of full-page test screenshots without scale changes.
+Actual React components were compiled with production Tailwind, ui-system.css and typography.css into an isolated preview. Navigation/image shims and synthetic API responses prevent production account access or AI usage. The production routes were not given a demo or authentication bypass.
 
-## Review and comparison history
+Cloud browser: `http://terminal.local:4173/`.
+Desktop viewport: 1348 × 926 CSS px, 1× captures. Phone/tablet checks used real embedded viewports at 320, 390 and 768 CSS px, with their own media queries, not scaled desktop screenshots. The iframe scrollbar consumes 15px of the available inner layout.
 
-- [P2, fixed] Initial local preview did not serve image assets or fonts through its static preview host. Embedded the actual generated images and production font files in the temporary preview only. Both actual production image files also load in the isolated HTTP fixtures. Re-captured the complete NaukriGulf hero in `design-qa/profiles/naukrigulf-intro-desktop.jpg`. Production uses Next Image against committed public assets.
-- [P2, fixed] Initial generated-results summary, saved-time panel and progress panel pushed all copy-ready content below the desktop fold. Removed duplicate metadata, kept successful generation as an accessible live announcement, and compacted progress/actions. Post-fix evidence: `design-qa/profiles/linkedin-results-desktop.jpg` and `design-qa/profiles/naukrigulf-results-mobile.jpg`. The first result is now reached sooner; section anchors provide direct access to later sections.
-- Final comparison found no actionable P0/P1/P2 issues. Wider desktop workspace columns intentionally accommodate readable content and multiple fields; phone content keeps the shared 12px page gutters and 12px panel padding.
+Screenshots:
+- `docs/interview-visual-refresh/interview-report-desktop-final.jpg`
+- `docs/interview-visual-refresh/interview-report-mobile-final.jpg`
+- `docs/interview-visual-refresh/interview-progress-desktop-final.jpg`
+- `docs/interview-visual-refresh/interview-setup-desktop-final.jpg`
+- `docs/interview-visual-refresh/report-source-comparison.jpg`
+
+The last file puts the approved report and rendered implementation together for comparison. The reference's 531px-wide report panel and the implementation's 735px-wide content region were normalized to 531px width for visual inspection. This is a responsive application adaptation: central typography is intentionally retained, not a claim of pixel-identical composition. Focused score bars, coaching callout, portrait grid and mode selection were also inspected at native browser size.
+
+## Findings and iteration
+
+- P2: The original report and progress used dark score rings and several unrelated area colours, which differed from the approved clean report. Replaced these with white surfaces, shared green score bars and gold coaching highlights. Post-change browser evidence confirms all four score areas remain visible.
+- P2: A full grid of report categories plus the score summary made the initial view unnecessarily long. Moved the existing eight categories behind “Explore all report sections”; Overview, Answers and Practice plan remain directly available. All saved report content is retained.
+- P2: The existing progress breakdown duplicated the new paired comparison. Kept the existing interactive timeline behind “Explore all practice scores”. All dimensions of the paired comparison remain visible together.
+- Preview-only issue: portrait files initially lived outside the isolated preview root. Copied the existing six public assets into that preview; all six then loaded at natural resolution. No production asset URLs changed.
+
+No actionable P0/P1/P2 findings remain in the checked states.
 
 ## Required fidelity surfaces
 
-- Fonts/typography: exact Inter family and existing global roles. Reference and implementation h1: 30px / 700 / 40.5px line-height; inputs: 16px / 400 / 24.8px; labels: 14px / 500 / 19.6px. Mobile title is the existing shared 26px role. Existing social-profile illustrative previews retain their separate Arial document scale.
-- Spacing/layout: shared card, field, button and control tokens; compact three-step preparation bars; responsive two-column hero/outputs on desktop, stacked on phones. No horizontal overflow at 320, 390, 768 and 1440px across introductions, setup, results and previews. Copy surfaces preserve paragraphs and wrap long text.
-- Colours/tokens: existing emerald action palette, white cards, canvas background and visible grey field borders. Quiet blue/emerald visual for LinkedIn and amber/emerald visual for NaukriGulf. Selection uses both radio control and border/background, rather than colour alone.
-- Images/assets: separate 1200 × 800 WEBP photos, 58,030 and 68,538 bytes respectively. Sharp, undistorted crop with faces visible; editorial career illustrations, no testimonial attribution or invented performance numbers. Heroicons supply standard interface icons.
-- Copy/content: explains why a clear profile matters, exact deliverables/paste destinations, what GCC Mentor prepares and what users publish themselves. Platform-specific tips and future routines have official guidance links. No guaranteed recruiter ranking, visibility percentage, interviews or hiring claims. Headline, summary and selected role descriptions have distinct editing controls, character counts and exact copy values; fixed career facts remain grounded in Career Profile.
+- Typography: reused type-section, type-card, type-stat, type-label, type-helper and type-caption. No new font family or scale was introduced; app/typography.css is unchanged. Mobile section heading measured 20px. The isolated preview uses the shared font fallback; production continues to obtain Inter from its unchanged layout.
+- Spacing/layout: existing PageShell, fields and application cards retained. New comparisons reflow from two columns to one; interviewer portraits use two columns on small phones, three on intermediate widths and six on wide screens. Checked no horizontal overflow at 320, 390, 768 and desktop.
+- Colours/tokens: existing teal, teal-soft, gold-ink, gold-soft, ink and line utilities. Gold denotes the earlier chart series; green the later series, with explicit labels and numeric values. Negative changes use a signed minus and gold tone, never a positive claim.
+- Images: all six supplied WebP portraits loaded. object-fit: contain preserves the complete source; no generated replacement or crop. Mic/chat emoji are the user's explicit label request. UI icons reuse existing Lucide assets.
+- Copy/data: actual report text, answer text and scores are preserved. “Review my answers” opens the existing answer explorer; it does not promise automatic weakest-answer selection. Dates/roles come from the saved run. Preview example content is not bundled into product components.
 
-## Browser interactions and validation
+## Interactions checked
 
-Cloud browser at local preview: introduction CTA → source → direction → review → synthetic generation → results, section navigation, edit About, return to readable preview, save, cross-platform navigation and future-tip accordion. Local preview uses synthetic Career Profile fixtures and no production AI, credentials or live account mutations. App console reviewed: no application errors; browser-extension metadata warnings were outside the app.
+- Switch between voice and typed modes, preserving the original default and capability gate.
+- Choose a host, including Mariam; only the chosen host has aria-pressed=true.
+- All six images loaded without clipping at 320px.
+- All four paired score rows visible at 320, 390 and 768px.
+- Compare interviews 2→3 (+9), 1→3 (+19), 1→2 (+10); selectors and values update.
+- Lower-score fixture shows 72→60 and -12 points.
+- First-result fixture shows a baseline message and no misleading comparison selectors.
+- Report → Answers → Question 1, saved text and stronger-answer content; keyboard activation and heading focus work.
+- Practice plan navigation and expanded category grid containing all eight existing report categories.
+- Voice report: original transcript, Coach feedback, grammar notes and Stronger answer tabs; stronger-answer surface uses the same green tint, and no horizontal overflow at 390px.
+- Existing score-area selector and timeline focus still work (Technical knowledge, interview 1: 66/100).
+- No application console errors or warnings observed. Browser-extension metadata errors were excluded.
 
-Production build, TypeScript and ESLint pass. Main verification suite: 68 checks passed on the first run; the remaining introduction assertion needed URL-decoding for Next Image's encoded URL and passed when rerun, yielding 69 checks passed. Both actual-component browser suites pass at 320/390/768/1440px, including hero image loading, CTA destination, source/setup/generation, result/preview overflow, edit/preview/copy of the exact revised text, save/retry, pending-save disabling, checklist persistence, optional import/conflict gates and missing-profile routing.
+## Validation and boundaries
 
-UI test evidence is generated from fixture content, not the user's personal profile. These tests validate presentation and preserve the existing service contracts; the production LLM was not called during this design pass.
+Passed TypeScript and ESLint, mock-report contract, interview-progress tests, progress API tests and disposable interview-history database tests.
+A byte comparison confirms the setup page's entire pre-render block is unchanged, including state defaults, draft handling, capability checks and start/answer/finish handlers. There are no changes under app/api, lib, types or supabase. The new attempt selectors affect presentation only and consume the existing model's comparable flag.
 
-## Assets and supplied image-generation direction
-
-Built-in ImageGen was used for both project assets. No CLI/API fallback.
-
-- `public/professional/linkedin-confidence-v1.webp`: 3:2 editorial professional photo, confident happy South Asian mid-career woman at a laptop, bright modern workspace, natural lighting, warm ivory with subtle blue/emerald accents; no text, logos, badge, readable screens, metrics or testimonial framing.
-- `public/professional/naukrigulf-confidence-v1.webp`: 3:2 editorial photo, confident happy South Asian mid-career man holding a phone beside a laptop, bright Gulf office and soft city skyline, warm ivory with amber/emerald accents; no text, logos, badge, readable screens, metrics or testimonial framing.
+Live signed-in end-to-end recording/AI generation was not exercised: this is an isolated visual check, and no service logic was changed. Browser capture of the complete long phone page timed out; native viewport captures and DOM layout measurements were used instead.
 
 ## Follow-up polish
 
-No blocking findings. Consider a future independently scoped research pass for platform form-label changes. This redesign preserves existing generation, storage, revision/conflict handling, validation and account controls.
-
-Previous batch report retained at `design-qa/archive-2026-10-18-batch.md`.
+No blocking follow-ups. The global typography, preserved existing navigation and saved-data constraints intentionally take priority over the concept image's larger decorative score treatment.

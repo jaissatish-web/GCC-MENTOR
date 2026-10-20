@@ -9,7 +9,7 @@ import type { MockInterviewFinalReport, MockInterviewRun } from '@/types/package
 type ScoreKey = 'technical' | 'role_fit' | 'gulf_readiness' | 'answer_structure'
 
 const SCORE_ROWS: Array<{ key: ScoreKey; label: string; field: keyof MockInterviewFinalReport }> = [
-  { key: 'technical', label: 'Technical command', field: 'technical_score' },
+  { key: 'technical', label: 'Technical knowledge', field: 'technical_score' },
   { key: 'role_fit', label: 'Role fit', field: 'role_fit_score' },
   { key: 'gulf_readiness', label: 'Gulf readiness', field: 'gulf_readiness_score' },
   { key: 'answer_structure', label: 'Answer structure', field: 'answer_structure_score' },
@@ -98,11 +98,11 @@ function ShareMenu({ run }: { run: MockInterviewRun }) {
     setMessage('Report link copied. The recipient must sign in to view the private report.')
   }
   return <details className="relative">
-    <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-ctl border border-[#D6B36A]/60 bg-white/10 px-4 type-helper font-semibold text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F0D9A4] [&::-webkit-details-marker]:hidden">
+    <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-ctl border border-teal/30 bg-white px-4 type-helper font-semibold text-teal transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
       <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></svg>
       Share result
     </summary>
-    <div className="absolute right-0 z-20 mt-2 w-[260px] rounded-card border border-line bg-white p-2 text-ink shadow-m-3">
+    <div className="absolute left-0 z-20 mt-2 w-[min(260px,calc(100vw-4rem))] sm:left-auto sm:right-0 rounded-card border border-line bg-white p-2 text-ink shadow-m-3">
       <button type="button" onClick={() => void shareAnywhere()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Share card to any app</button>
       <button type="button" onClick={() => openSocial('whatsapp')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">WhatsApp</button>
       <button type="button" onClick={() => openSocial('facebook')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Facebook</button>
@@ -139,26 +139,31 @@ export function InterviewReport({ run, answers }: { run: MockInterviewRun; answe
   const completed = new Date(run.completed_at ?? run.generated_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
   const sections = [
     { id: 'assessment', title: 'Your assessment', intro: 'Where you stand and your first priority', icon: FileCheck2, color: 'bg-teal-soft text-teal' },
-    { id: 'scores', title: 'Score breakdown', intro: 'Understand all four skill areas', icon: BarChart3, color: 'bg-blue-soft text-blue' },
-    { id: 'answers', title: 'Your answers', intro: `${run.questions.length} question cards · explore one at a time`, icon: MessageSquare, color: 'bg-violet-50 text-violet-700' },
+    { id: 'scores', title: 'Score breakdown', intro: 'Understand all four skill areas', icon: BarChart3, color: 'bg-teal-soft text-teal' },
+    { id: 'answers', title: 'Your answers', intro: `${run.questions.length} question cards · explore one at a time`, icon: MessageSquare, color: 'bg-teal-soft text-teal' },
     { id: 'strengths', title: 'Your strengths', intro: `${report.strengths.length} signals to build on`, icon: Sparkles, color: 'bg-teal-soft text-teal' },
     { id: 'gaps', title: 'Improve these areas', intro: `${report.weak_points.length} opportunities to practise`, icon: Target, color: 'bg-gold-soft text-gold-text' },
     { id: 'plan', title: 'Your practice plan', intro: 'Small actions for the next interview', icon: Lightbulb, color: 'bg-gold-soft text-gold-text' },
     { id: 'care', title: 'Answers to handle carefully', intro: `${report.risky_answers.length} points to check before an interview`, icon: ShieldCheck, color: 'bg-alert-soft text-alert' },
-    { id: 'practice', title: 'Next challenge', intro: `${report.next_practice_questions.length} questions to rehearse`, icon: MessagesSquare, color: 'bg-cyan-50 text-cyan-800' },
+    { id: 'practice', title: 'Next challenge', intro: `${report.next_practice_questions.length} questions to rehearse`, icon: MessagesSquare, color: 'bg-teal-soft text-teal' },
   ] as const
   const active = sections.find(section => section.id === view)
   const summary = report.executive_summary || `${status.label}. Focus next on ${report.weak_points[0] || 'specific evidence and clear examples'}.`
   return <section id="interview-report" className="space-y-4" aria-label="Interview result explorer">
-    <div className="ui-card rounded-card border border-teal/20 bg-[#0C302F] p-4 text-white sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-[#B8D5CF] type-caption">YOUR PRACTICE RESULT</p><h2 className="mt-1 type-section">{status.label}</h2><p className="mt-2 text-sm text-[#DCE8E5] type-helper">{run.mode.replaceAll('_', ' ')} · {run.difficulty} · {completed}</p></div><ShareMenu run={run} /></div>
-      <div className="mt-5 flex flex-wrap items-center gap-4"><div className="relative grid size-20 shrink-0 place-items-center"><svg viewBox="0 0 80 80" className="absolute inset-0 size-full -rotate-90" aria-hidden="true"><circle cx="40" cy="40" r="34" fill="none" stroke="#335A56" strokeWidth="6" /><circle cx="40" cy="40" r="34" fill="none" stroke="#D6B36A" strokeWidth="6" strokeDasharray={`${report.overall_score * 2.136} 213.6`} strokeLinecap="round" /></svg><span className="text-2xl font-semibold">{report.overall_score}</span></div><div className="min-w-0 flex-[1_1_180px]"><p>Overall score · {report.overall_score}/100</p><p className="mt-1 text-sm text-[#B8D5CF] type-helper">{status.note}. Open a card to explore your feedback.</p></div></div>
+    <div className="rounded-card border border-line bg-white p-4 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="type-caption text-teal">YOUR PRACTICE RESULT</p><h2 className="mt-2 type-section text-ink">Your interview report</h2><p className="mt-2 type-card text-ink">{run.target_job_title}</p><p className="mt-1 type-helper text-ink-muted">{run.mode.replaceAll('_', ' ')} · {run.difficulty} · {completed}</p></div><ShareMenu run={run} /></div>
+      {view === 'overview' && <>
+      <div className="mt-5 border-t border-line pt-5"><p className="type-helper text-ink-muted">Practice score</p><p className="mt-2 flex flex-wrap items-baseline gap-2"><strong className="type-stat text-teal">{report.overall_score}</strong><span className="type-helper text-ink-muted">/100 · {status.label}</span></p><div className="mt-3 h-2.5 overflow-hidden rounded-full bg-teal-soft" aria-hidden="true"><div className="h-full rounded-full bg-teal" style={{ width: `${report.overall_score}%` }} /></div><p className="mt-4 whitespace-pre-wrap text-ink-soft">{summary}</p></div>
+        <dl className="mt-5 divide-y divide-line border-t border-line">{SCORE_ROWS.map(row => <div key={row.key} className="py-4"><div className="flex items-baseline justify-between gap-3"><dt className="type-label text-ink">{row.label}</dt><dd className="type-label tabular-nums text-teal">{Number(report[row.field])}<span className="sr-only"> out of 100</span></dd></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-teal-soft" aria-hidden="true"><div className="h-full rounded-full bg-teal" style={{ width: `${Number(report[row.field])}%` }} /></div></div>)}</dl>
+        <div className="mt-3 flex items-start gap-3 rounded-xl bg-gold-soft p-4"><Lightbulb size={22} className="shrink-0 text-gold-ink" aria-hidden="true" /><div><h3 className="type-helper text-gold-ink">Work on this first</h3><p className="mt-1 whitespace-pre-wrap text-ink">{report.priority_focus || report.improvement_plan[0] || 'Build one clear situation–action–result example.'}</p></div></div>
+        <button type="button" onClick={() => setView('answers')} className="mt-4 flex min-h-12 w-full items-center justify-between gap-3 rounded-ctl bg-teal px-4 py-3 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">Review my answers<ChevronRight size={18} aria-hidden="true" /></button>
+      </>}
     </div>
-    {view === 'overview' ? <div className="space-y-3"><h3 className="type-card">Choose what to explore</h3><div className="grid grid-cols-2 gap-3 lg:grid-cols-3" aria-label="Result cards">
+    {view === 'overview' ? <details className="group rounded-xl border border-line bg-white p-4"><summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 type-label text-teal [&::-webkit-details-marker]:hidden">Explore all report sections<ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary><div className="mt-4"><div className="grid gap-3 min-[360px]:grid-cols-2 lg:grid-cols-3" aria-label="Result cards">
       {sections.map(section => <button key={section.id} type="button" onClick={() => setView(section.id)} className="group ui-card min-w-0 rounded-card border border-line bg-white p-4 text-left transition-colors hover:border-teal hover:bg-teal-soft/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
         <span className={`grid size-11 place-items-center rounded-xl ${section.color}`}><section.icon size={22} aria-hidden="true" /></span><span className="mt-4 block type-card">{section.title}</span><span className="mt-2 block type-helper text-ink-muted">{section.intro}</span><span className="mt-4 flex items-center justify-between text-sm text-teal">Explore<ChevronRight size={17} aria-hidden="true" /></span>
       </button>)}
-    </div></div> : <div className="space-y-4">
+    </div></div></details> : <div className="space-y-4">
       <button type="button" onClick={() => setView('overview')} className="inline-flex min-h-11 items-center gap-2 text-teal hover:underline"><ArrowLeft size={17} aria-hidden="true" />Back to result cards</button>
       <h2 ref={heading} tabIndex={-1} className="type-section outline-none">{active?.title}</h2>
       {view === 'assessment' && <div className="ui-card rounded-card border border-line bg-white p-4"><h3 className="type-card">Where you stand now</h3><p className="mt-3 whitespace-pre-wrap type-lead font-normal leading-relaxed text-ink-soft">{summary}</p><div className="mt-4 border-t border-line pt-4"><h3 className="type-card text-gold-text">Work on this first</h3><p className="mt-3 whitespace-pre-wrap type-lead font-normal leading-relaxed text-ink-soft">{report.priority_focus || report.improvement_plan[0] || 'Build one clear situation–action–result example.'}</p></div></div>}
@@ -170,6 +175,7 @@ export function InterviewReport({ run, answers }: { run: MockInterviewRun; answe
       {view === 'practice' && (report.next_practice_questions.length ? <CoachingCards items={report.next_practice_questions} title="Questions to practise next" /> : <p>No follow-up questions were saved for this attempt.</p>)}
       {view === 'answers' && (answers ?? <InterviewAnswerCards run={run} />)}
     </div>}
+    <nav aria-label="Report sections" className="grid grid-cols-3 gap-1 rounded-xl border border-line bg-white p-2">{([{ id: 'overview', label: 'Overview', icon: BarChart3 }, { id: 'answers', label: 'Answers', icon: MessageSquare }, { id: 'plan', label: 'Practice plan', icon: Lightbulb }] as const).map(item => <button key={item.id} type="button" aria-pressed={view === item.id} onClick={() => setView(item.id)} className={`flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 type-helper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${view === item.id ? 'bg-teal-soft text-teal' : 'text-ink-muted hover:bg-canvas'}`}><item.icon size={18} aria-hidden="true" />{item.label}</button>)}</nav>
     <p className="text-xs text-ink-muted type-caption">AI-guided practice feedback, not an employer assessment or hiring prediction. All content comes from this saved interview.</p>
   </section>
 }
