@@ -1,3 +1,17 @@
+# GCC Mentor desktop and services drawer — design QA
+
+final result: passed for the checked visual and isolated interactive flows. Production release and live backend end-to-end certification are outside this verification.
+
+The current release review is [docs/desktop-redesign/README.md](docs/desktop-redesign/README.md). The owner's new direction is to reproduce the approved mobile language on desktop and restore the three-dot services/account drawer. Actual production desktop was inspected first in the signed-in browser. Actual React components and built pages were then captured locally with fictional fixtures.
+
+The mobile/desktop pair was composed and opened together in `docs/desktop-redesign/responsive-comparison.webp`. This is explicitly a responsive adaptation: same real component system and shared roles, with a wider grid and sidebar rather than stretched phone geometry. Desktop profile and the expanded interview progress comparison were also opened and inspected. Existing resume document styles remain isolated.
+
+Build, lint, TypeScript, all 71 existing checks, the shared/public responsive suite, 114 built page/width checks, interview, preparation, LinkedIn, NaukriGulf and the new drawer navigation suite passed. Empty/error scores remain unavailable. No horizontal overflow, fixture account writes or client exceptions were observed. Snapshot data and timing differ from the approved illustrative image; no numeric pixel-fidelity claim is made.
+
+The branch is `ui/desktop-services-refresh`. Production/main have not been changed for this update. Vercel preview configuration and untested live services are described in the linked release review.
+
+---
+
 # GCC Mentor mobile redesign — design QA
 
 final result: passed for the checked local screens and isolated workflows; live authenticated end-to-end verification remains blocked by unavailable account access in this release session.

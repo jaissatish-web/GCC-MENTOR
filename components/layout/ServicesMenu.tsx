@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowRightStartOnRectangleIcon, Bars3Icon, EllipsisHorizontalIcon, Squares2X2Icon } from '@heroicons/react/24/outline'
+import { ArrowRightStartOnRectangleIcon, UserCircleIcon, TrashIcon, EllipsisHorizontalIcon, Squares2X2Icon } from '@heroicons/react/24/outline'
 import { SideSheet } from '@/components/ui/SideSheet'
 import { signOut } from '@/app/auth/actions'
 import { cn } from '@/lib/utils'
@@ -155,7 +155,7 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
   const [open, setOpen] = useState(false)
   const pathname = usePathname() ?? ''
   const triggerRef = useRef<HTMLButtonElement | null>(null)
-  const close = useCallback(() => setOpen(false), [])
+  const close = useCallback(() => { setOpen(false); triggerRef.current?.focus() }, [])
 
   // A route change closes it. Without this, tapping a row on a slow connection
   // leaves the sheet sitting over the page it just navigated to.
@@ -191,7 +191,7 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
           bottom && (moreActive || open ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted'),
         )}
       >
-        {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-lg bg-teal-soft text-teal">{toolsOnly ? <Squares2X2Icon className="size-5" /> : <EllipsisHorizontalIcon className="size-5" />}</span><span>{toolsOnly ? 'Tools' : 'More'}</span></> : <Bars3Icon className="size-5 text-teal" />}
+        {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-lg bg-teal-soft text-teal">{toolsOnly ? <Squares2X2Icon className="size-5" /> : <EllipsisHorizontalIcon className="size-5" />}</span><span>{toolsOnly ? 'Tools' : 'More'}</span></> : <EllipsisHorizontalIcon aria-hidden="true" className="size-6 text-teal" />}
       </button>
 
       <SideSheet open={open} onClose={close} title={toolsOnly ? 'Preparation tools' : 'All services'} returnFocusTo={triggerRef}>
@@ -201,11 +201,12 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
           return (
             <div key={group.label} className="flex flex-col gap-1">
               {group.heading ? <h2 className="px-3 pt-2 type-caption font-semibold text-teal">{group.heading}</h2> : null}
+              {group.label === 'account' ? <Link href="/profile" onClick={close} className="services-account-link"><UserCircleIcon aria-hidden="true" className="size-5" /><span>Career Profile</span></Link> : null}
               {rows.map((item, i) => (
                 <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(item.href === '/cover-letter' ? 'apply' : group.stage, item.href === '/cover-letter' ? 0 : item.href === '/interview-qa' ? 1 : item.href === '/mock-interview' ? 2 : i)} />
               ))}
               {/* Sign out remains an action after the service destinations. */}
-              {group.withSignOut ? <SignOutRow /> : null}
+              {group.withSignOut ? <><Link href="/settings?tab=delete" onClick={close} className="services-account-link services-delete-link"><TrashIcon aria-hidden="true" className="size-5" /><span>Delete my data</span></Link><SignOutRow /></> : null}
             </div>
           )
         })}

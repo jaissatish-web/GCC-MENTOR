@@ -36,7 +36,7 @@ function SignOutButton() {
       <button
         type="submit"
         disabled={pending}
-        className="flex min-h-10 w-full items-center gap-3 rounded-ctl px-3 type-helper font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-60"
+        className="flex min-h-11 w-full items-center gap-3 rounded-ctl px-3 type-helper font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-60"
       >
         <ArrowRightStartOnRectangleIcon className="size-5 text-ink-muted" />
         {pending ? 'Signing out…' : 'Sign out'}
