@@ -1,7 +1,7 @@
 import { resumeCategoryGroups, type CategoryPosition } from '@/lib/profileCategories'
 import type { GulfPremiumProps } from './GulfPremium'
 import { buildResumeDocument, type ResumeDocument, type ResumeContactItem } from '@/lib/resumeDocument'
-import { KEEP_WITH_NEXT, NO_SPLIT, PAGE } from './tokens'
+import { KEEP_WITH_NEXT, NO_SPLIT, PAGE, PHOTO } from './tokens'
 import { applyStyleOverrides } from '@/lib/resumeStyle'
 
 /**
@@ -761,9 +761,11 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
           src={header.photoUrl as string}
           alt=""
           style={{
-            width: `${Math.round(72 * photoScale)}px`,
-            height: `${Math.round(90 * photoScale)}px`,
-            objectFit: 'cover',
+            width: `${Math.round(PHOTO.width * photoScale)}px`,
+            height: `${Math.round((theme.photoShape === 'circle' ? PHOTO.width : PHOTO.height) * photoScale)}px`,
+            objectFit: 'contain',
+            objectPosition: 'center top',
+            backgroundColor: '#FFFFFF',
             borderRadius: photoRadius,
             flexShrink: 0,
             ...ringStyle,
@@ -841,9 +843,11 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
           src={header.photoUrl as string}
           alt=""
           style={{
-            width: `${Math.round((theme.photoShape === 'circle' ? 88 : 80) * photoScale)}px`,
-            height: `${Math.round((theme.photoShape === 'circle' ? 88 : 100) * photoScale)}px`,
-            objectFit: 'cover',
+            width: `${Math.round(PHOTO.width * photoScale)}px`,
+            height: `${Math.round((theme.photoShape === 'circle' ? PHOTO.width : PHOTO.height) * photoScale)}px`,
+            objectFit: 'contain',
+            objectPosition: 'center top',
+            backgroundColor: '#FFFFFF',
             borderRadius: photoRadius,
             flexShrink: 0,
             ...ringStyle,
@@ -1089,9 +1093,11 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
           src={header.photoUrl as string}
           alt=""
           style={{
-            width: `${Math.round(76 * photoScale)}px`,
-            height: `${Math.round((theme.photoShape === 'circle' ? 76 : 94) * photoScale)}px`,
-            objectFit: 'cover',
+            width: `${Math.round(PHOTO.width * photoScale)}px`,
+            height: `${Math.round((theme.photoShape === 'circle' ? PHOTO.width : PHOTO.height) * photoScale)}px`,
+            objectFit: 'contain',
+            objectPosition: 'center top',
+            backgroundColor: '#FFFFFF',
             borderRadius: photoRadius,
             flexShrink: 0,
             border: theme.photoRing ? `3px solid ${theme.bandStripe ?? 'rgba(255,255,255,0.95)'}` : '2px solid rgba(255,255,255,0.85)',
@@ -1242,24 +1248,16 @@ export function renderTemplate(theme: TemplateTheme, props: GulfPremiumProps): R
               src={header.photoUrl as string}
               alt=""
               style={{
-                // A rect photo in the rail spans the rail's width, so only its
-                // height responds to the slider; a circle scales both.
-                // Capped to the rail's own content width (238px rail minus 22px
-                // padding each side). Without the cap the widened slider range
-                // (TASK-159) pushed a 2.4x circle to 269px inside a 194px column
-                // and it bled over the rail edge.
-                width:
-                  theme.photoShape === 'circle'
-                    ? `${Math.min(railContentW, Math.round(112 * photoScale))}px`
-                    : '100%',
-                height:
-                  theme.photoShape === 'circle'
-                    ? `${Math.min(railContentW, Math.round(112 * photoScale))}px`
-                    : `${Math.round(132 * photoScale)}px`,
-                objectFit: 'cover',
+                // Bound both dimensions to the column; preserve the portrait
+                // aspect ratio instead of cropping a wide rail-sized image.
+                width: `${Math.min(railContentW, Math.round(PHOTO.railWidth * photoScale))}px`,
+                height: `${Math.round(Math.min(railContentW, PHOTO.railWidth * photoScale) * (theme.photoShape === 'circle' ? 1 : PHOTO.portraitRatio))}px`,
+                objectFit: 'contain',
+                objectPosition: 'center top',
+                backgroundColor: '#FFFFFF',
                 borderRadius: photoRadius,
                 display: 'block',
-                margin: theme.photoShape === 'circle' ? '0 auto 16px' : '0 0 16px',
+                margin: '0 auto 16px',
                 border: theme.photoRing
                   ? `4px solid ${softRail ? theme.accent : 'rgba(255,255,255,0.95)'}`
                   : softRail
@@ -1405,8 +1403,17 @@ export function makeTemplate(theme: TemplateTheme) {
   // theme per render (TASK-152). `applyStyleOverrides` is pure: the module-level
   // theme object is shared by every request and must never be mutated, or one
   // user's colour choice would leak into the next person's PDF.
-  const Component = (props: GulfPremiumProps) =>
-    renderTemplate(applyStyleOverrides(theme, props.styleOverrides), props)
+  const Component = (props: GulfPremiumProps) => {
+    const styled = applyStyleOverrides(theme, props.styleOverrides)
+    const scale = props.showcaseScale ?? 1
+    const fitted = scale === 1 ? styled : {
+      ...styled,
+      bodySize: styled.bodySize * scale,
+      headingSize: styled.headingSize * scale,
+      density: styled.density * scale,
+    }
+    return renderTemplate(fitted, props)
+  }
   Component.displayName = 'ResumeTemplate'
   return Component
 }

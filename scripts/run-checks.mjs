@@ -26,6 +26,7 @@ const TS_CHECKS = [
   'verify-tracker-dates.ts',
   'verify-quality-remediation.ts',
   'verify-template-catalog.ts',
+  'verify-template-showcase.ts',
   'verify-resume-quality.ts',
   'verify-universal-theme.ts',
   'verify-linkedin.ts',

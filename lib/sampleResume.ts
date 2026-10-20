@@ -143,89 +143,69 @@ const FULL_SAMPLE_DOCUMENT: ResumeDocument = buildResumeDocument({
   fieldVisibility: null,
 })
 
-// Only fictional gallery content varies: spacious and compact designs need
-// different amounts of copy to showcase one A4 page at their existing sizes.
-// These variants never enter a user's profile, resume or download.
-const ORIGINAL_SUMMARY = 'Senior Mechanical Engineer with 15 years across oil & gas, EPC and construction projects in Saudi Arabia and the UAE. Led multidiscipline teams through commissioning and handover on refinery and petrochemical scopes.'
-const BASE_BULLETS = [2, 2, 1, 1]
-const EXTRA_BULLETS_AT = [[3, 8], [4, 9], [5, 10], [6, 11]]
-
-const SAMPLE_RESUME_VARIANTS: ResumeDocument[] = Array.from({ length: 15 }, (_, index) => {
-  const level = index - 1
-  return {
-    ...FULL_SAMPLE_DOCUMENT,
-    summary: level < 0
-      ? 'Senior Mechanical Engineer with 15 years in GCC oil & gas, EPC and construction. Leads multidiscipline commissioning and handover for refinery and petrochemical projects.'
-      : level < 2 ? ORIGINAL_SUMMARY : FULL_SAMPLE_DOCUMENT.summary,
-    skills: FULL_SAMPLE_DOCUMENT.skills.slice(0, level < 1 ? 8 : undefined),
-    additional: FULL_SAMPLE_DOCUMENT.additional.slice(0, level < 0 ? 0 : level < 7 ? 1 : level < 12 ? 2 : level < 13 ? 3 : 4),
-    experience: FULL_SAMPLE_DOCUMENT.experience.map((item, i) => ({
-      ...item,
-      bullets: item.bullets.slice(0, BASE_BULLETS[i] + EXTRA_BULLETS_AT[i].filter((at) => level >= at).length),
-    })),
-  }
-})
-
-export const SAMPLE_RESUME_DOCUMENT = SAMPLE_RESUME_VARIANTS[14]
-
-// Content amounts checked against the existing A4 layouts, including the
-// gallery thumbnail and full-size preview. No template style overrides.
-const SAMPLE_VARIANT_BY_TEMPLATE: Record<string, number> = {
-  ats_professional: 2,
-  gcc_professional: 1,
-  senior_professional: 3,
-  gulf_premium: 14,
-  ats_classic: 2,
-  gcc_engineering: 7,
-  executive_gcc: 2,
-  modern_professional: 4,
-  senior_compact: 9,
-  gulf_minimal: 4,
-  corporate_band: 4,
-  technical_sidebar: 9,
-  graduate_entry: 2,
-  portrait_right: 4,
-  consultant_right: 5,
-  heritage_left: 4,
-  project_twocol: 9,
-  creative_gcc: 8,
-  desert_steel: 4,
-  pipeline_pro: 9,
-  blueprint_engineer: 8,
-  power_grid: 2,
-  offshore_navy: 6,
-  commissioning_lead: 2,
-  field_technician: 4,
-  workshop_pro: 6,
-  maintenance_master: 9,
-  skilled_trades: 2,
-  site_supervisor: 4,
-  hard_hat_pro: 7,
-  qs_precision: 9,
-  hse_shield: 5,
-  project_director: 3,
-  ledger_classic: 3,
-  riyadh_banker: 5,
-  audit_clarity: 9,
-  cfo_signature: 0,
-  marina_creative: 8,
-  spotlight_sales: 5,
-  brand_story: 3,
-  clinical_care: 3,
-  medical_pearl: 1,
-  care_compass: 8,
-  lab_precision: 6,
-  oasis_hospitality: 2,
-  retail_star: 4,
-  tech_horizon: 9,
-  data_clarity: 5,
-  office_elegance: 2,
-  people_partner: 8,
-  logistics_route: 5,
-  scholar_classic: 2,
-  falcon_executive: 0,
+// One identical fictional CV for every design and every showcase surface.
+// Copy is never trimmed or changed when the selected template changes.
+export const SAMPLE_RESUME_DOCUMENT: ResumeDocument = {
+  ...FULL_SAMPLE_DOCUMENT,
+  experience: FULL_SAMPLE_DOCUMENT.experience.map((item, i) => ({
+    ...item, bullets: item.bullets.slice(0, i < 2 ? 3 : 2),
+  })),
+  additional: FULL_SAMPLE_DOCUMENT.additional.slice(0, 2),
 }
 
-export const SAMPLE_TEMPLATE_DOCUMENTS: Record<string, ResumeDocument> = Object.fromEntries(
-  Object.entries(SAMPLE_VARIANT_BY_TEMPLATE).map(([id, variant]) => [id, SAMPLE_RESUME_VARIANTS[variant]]),
-)
+// Presentation-only fitting of this fixed sample; never used for user resumes.
+export const SAMPLE_TEMPLATE_SCALES: Record<string, number> = {
+  ats_professional: 0.85,
+  gcc_professional: 0.83,
+  senior_professional: 0.92,
+  gulf_premium: 1.18,
+  ats_classic: 0.85,
+  gcc_engineering: 0.96,
+  executive_gcc: 0.84,
+  modern_professional: 0.9,
+  senior_compact: 1.01,
+  gulf_minimal: 0.89,
+  corporate_band: 0.91,
+  technical_sidebar: 1.07,
+  graduate_entry: 0.84,
+  portrait_right: 0.92,
+  consultant_right: 0.92,
+  heritage_left: 0.91,
+  project_twocol: 1.07,
+  creative_gcc: 1.04,
+  desert_steel: 0.87,
+  pipeline_pro: 1.04,
+  blueprint_engineer: 1.02,
+  power_grid: 0.86,
+  offshore_navy: 0.92,
+  commissioning_lead: 0.84,
+  field_technician: 0.86,
+  workshop_pro: 0.92,
+  maintenance_master: 1.04,
+  skilled_trades: 0.83,
+  site_supervisor: 0.87,
+  hard_hat_pro: 0.94,
+  qs_precision: 1.05,
+  hse_shield: 0.91,
+  project_director: 0.89,
+  ledger_classic: 0.88,
+  riyadh_banker: 0.92,
+  audit_clarity: 1.03,
+  cfo_signature: 0.77,
+  marina_creative: 1.01,
+  spotlight_sales: 0.9,
+  brand_story: 0.86,
+  clinical_care: 0.87,
+  medical_pearl: 0.81,
+  care_compass: 1,
+  lab_precision: 0.92,
+  oasis_hospitality: 0.82,
+  retail_star: 0.89,
+  tech_horizon: 1.04,
+  data_clarity: 0.91,
+  office_elegance: 0.83,
+  people_partner: 1,
+  logistics_route: 0.9,
+  scholar_classic: 0.87,
+  falcon_executive: 0.83,
+}

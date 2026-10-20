@@ -4,25 +4,24 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { DocumentReader } from '@/components/resume/ResumeDocumentView'
 import { getTemplate, type TemplateId } from '@/lib/templates'
-import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
-import { PERSONAS } from './personas'
-import { SAMPLE_CVS } from './sampleCvs'
+import { SampleResumePreview } from '@/components/resume/SampleResumePreview'
+import { SAMPLE_RESUME_DOCUMENT } from '@/lib/sampleResume'
 
-// A curated view of the real collection: distinct layouts, colours and careers.
+// A curated view of the real collection: distinct layouts and colours with one shared candidate.
 // Each real document mounts once. The selected card itself moves into the
 // ellipse; no disconnected, duplicated center renderer is mounted.
-type Item = { id: TemplateId; who: string }
+type Item = { id: TemplateId }
 const ITEMS: Item[] = [
-  { id: 'gulf_premium', who: 'engineering' },
-  { id: 'creative_gcc', who: 'hr' },
-  { id: 'clinical_care', who: 'healthcare' },
-  { id: 'ledger_classic', who: 'finance' },
-  { id: 'project_twocol', who: 'construction' },
-  { id: 'tech_horizon', who: 'it' },
-  { id: 'falcon_executive', who: 'hr' },
-  { id: 'blueprint_engineer', who: 'engineering' },
-  { id: 'medical_pearl', who: 'healthcare' },
-  { id: 'ats_classic', who: 'finance' },
+  { id: 'gulf_premium' },
+  { id: 'creative_gcc' },
+  { id: 'clinical_care' },
+  { id: 'ledger_classic' },
+  { id: 'project_twocol' },
+  { id: 'tech_horizon' },
+  { id: 'falcon_executive' },
+  { id: 'blueprint_engineer' },
+  { id: 'medical_pearl' },
+  { id: 'ats_classic' },
 ]
 const N = ITEMS.length
 const STEP = (Math.PI * 2) / N
@@ -33,10 +32,8 @@ const LAYOUTS = {
   wide: { k: 1.07, ry: 100, box: 480, track: 230, trackW: 1000, trackH: 380, innerW: 700, innerH: 240 },
   compact: { k: 0.65, ry: 62, box: 350, track: 170, trackW: 340, trackH: 230, innerW: 240, innerH: 160 },
 } as const
-const persona = (key: string) => PERSONAS.find((p) => p.key === key)!
 const ItemRender = memo(function ItemRender({ item }: { item: Item }) {
-  const Template = getTemplate(item.id).component
-  return <Template {...({ document: SAMPLE_CVS[item.who], profile: undefined, optimizedContent: undefined, skillsOrder: [], fieldVisibility: null, styleOverrides: { size: 'large' } } as unknown as GulfPremiumProps)} />
+  return <SampleResumePreview templateId={item.id} />
 })
 function itemName(item: Item) { return getTemplate(item.id).name }
 // Measure the actual template, including longer examples, and contain the
@@ -304,7 +301,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
 
       {ITEMS.map((item, i) => {
         const on = i === sel
-        const p = persona(item.who)
+        const sample = SAMPLE_RESUME_DOCUMENT.header
         return (
           <button
             key={item.id}
@@ -314,7 +311,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             }}
             onClick={() => openPreview(item)}
             data-orbit-centre={on ? 'true' : undefined}
-            aria-label={`Open ${itemName(item)} — ${p.name}, ${p.role}`}
+            aria-label={`Open ${itemName(item)} — ${sample.displayName}, ${sample.targetJobTitle}`}
             aria-pressed={on}
             className={cn(
               'absolute left-1/2 w-[170px] rounded-[12px] border-2 bg-white p-1.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
@@ -326,7 +323,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             <FittedPage item={item} width={154} height={218} />
             <span className="flex flex-col px-1 pb-[3px] pt-[7px]">
               <span className="text-[11.5px] font-extrabold leading-tight text-ink">{itemName(item)}</span>
-              <span className="truncate text-[11px] font-bold uppercase text-ink-muted">{p.sector}</span>
+              <span className="truncate text-[11px] font-bold uppercase text-ink-muted">{getTemplate(item.id).allowsPhoto ? 'Optional photo' : 'ATS · No photo'}</span>
             </span>
           </button>
         )
@@ -341,7 +338,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
 
 /** The landing and saved-resume previews share the same native text reader. */
 function FullSize({ item, onClose }: { item: Item; onClose: () => void }) {
-  const p = persona(item.who)
-  return <DocumentReader title={itemName(item)} caption={`${p.name} · ${p.role}`} onClose={onClose}><div className="actual-template-orbit-face"><ItemRender item={item} /></div></DocumentReader>
+  const sample = SAMPLE_RESUME_DOCUMENT.header
+  return <DocumentReader title={itemName(item)} caption={`${sample.displayName} · ${sample.targetJobTitle}`} onClose={onClose}><div className="actual-template-orbit-face"><ItemRender item={item} /></div></DocumentReader>
 }
 
