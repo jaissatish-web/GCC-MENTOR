@@ -311,7 +311,7 @@ try {
     if (process.env.NAUKRIGULF_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.NAUKRIGULF_SCREENSHOT_DIR, `naukrigulf-setup-${width}.png`), fullPage: true })
     assert.ok(await page.$('h1'))
     if (width < 640) {
-      assert.equal(await page.$eval('h1', el => getComputedStyle(el).fontSize), '26px')
+      assert.equal(await page.$eval('h1', el => getComputedStyle(el).fontSize), '24px')
       assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontWeight), '600')
     }
     await click('Continue')
@@ -330,8 +330,8 @@ try {
     await fits()
     assert.equal(generateRequests.at(-1).setup.targetRoles, 'Staff Nurse')
     if (width < 640) {
-      assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontSize), '20px')
-      assert.equal(await page.$eval('.profile-copy-text', el => getComputedStyle(el).fontSize), '16px')
+      assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontSize), '18px')
+      assert.equal(await page.$eval('.profile-copy-text', el => getComputedStyle(el).fontSize), '15px')
     }
     assert.equal(await disabled('Changes saved'), true)
     if (process.env.NAUKRIGULF_SCREENSHOT_DIR) await page.screenshot({path: join(process.env.NAUKRIGULF_SCREENSHOT_DIR, `naukrigulf-results-${width}.png`), fullPage: true})
@@ -347,11 +347,11 @@ try {
       cardX: el.querySelector('section').getBoundingClientRect().x,
       cardWidth: el.querySelector('section').getBoundingClientRect().width,
     }))
-    assert.equal(preview.body, '16px')
-    assert.equal(preview.metadata, '14px')
+    assert.equal(preview.body, width < 768 ? '15px' : '16px')
+    assert.equal(preview.metadata, width < 768 ? '13px' : '14px')
     assert.ok(preview.family.includes('Inter'))
     assert.equal(preview.weight, '400')
-    assert.equal(preview.name, width < 640 ? '20px' : '22px')
+    assert.equal(preview.name, width < 768 ? '18px' : '22px')
     if (width < 640) {
       assert.equal(preview.cardX, 0, 'Phone profile card reaches the screen edge')
       assert.equal(preview.cardWidth, width)

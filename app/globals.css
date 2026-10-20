@@ -398,8 +398,8 @@
 }
 @media (max-width: 639px) {
   .linkedin-workspace .linkedin-profile-preview {
-    width: calc(100% + 24px);
-    margin-inline: -12px;
+    width: calc(100% + var(--ui-page-gutter) + var(--ui-page-gutter));
+    margin-inline: calc(0px - var(--ui-page-gutter));
     background: #f3f2ef;
   }
   .linkedin-workspace .linkedin-profile-preview .linkedin-profile-card {
