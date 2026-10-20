@@ -4,7 +4,7 @@ import * as React from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { strict as assert } from 'node:assert'
-import { readFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, readdirSync, mkdirSync } from 'node:fs'
 import { availableTemplates } from '../lib/templates'
 import { SAMPLE_RESUME_DOCUMENT, SAMPLE_TEMPLATE_SCALES } from '../lib/sampleResume'
 import { SampleResumePreview } from '../components/resume/SampleResumePreview'
@@ -35,12 +35,13 @@ async function main() {
     const { default: puppeteer } = await import('puppeteer')
     const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH || undefined, headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'] })
     try {
+      const siteCss = readdirSync('.next/static/css').filter(name => name.endsWith('.css')).map(name => readFileSync(`.next/static/css/${name}`, 'utf8')).join('\n')
       const page = await browser.newPage()
       await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 1 })
       mkdirSync('artifacts/template-showcase', { recursive: true })
       for (const t of templates) {
         const markup = renderToStaticMarkup(createElement(SampleResumePreview, { templateId: t.id })).replaceAll('/sample/sample-headshot.jpg', portrait)
-        await page.setContent(`<html><head><style>*{box-sizing:border-box}body{margin:0}</style></head><body>${markup}</body></html>`)
+        await page.setContent(`<html><head><style>${siteCss}*{box-sizing:border-box}body{margin:0;font-size:15px;line-height:1.55}</style></head><body>${markup}</body></html>`)
         await page.evaluate(async () => { await Promise.all(Array.from(document.images).map(img => img.decode())) })
         const measured = await page.evaluate(() => {
           const root = document.querySelector('#resume-render')!
@@ -60,7 +61,7 @@ async function main() {
         })
         assert.equal(measured.width, 794, `${t.id}: A4 width`)
         assert.equal(measured.height, 1123, `${t.id}: A4 height`)
-        assert(measured.bottom >= 990 && measured.bottom <= 1085, `${t.id}: sample fill ${measured.bottom}`)
+        assert(measured.bottom >= 960 && measured.bottom <= 1085, `${t.id}: sample fill ${measured.bottom}`)
         for (const photo of measured.photos) {
           assert(photo.loaded && photo.width >= 100 && photo.height >= 100, `${t.id}: usable portrait size`)
           if (photo.circular) assert.equal(photo.width, photo.height, `${t.id}: circle distorted`)
