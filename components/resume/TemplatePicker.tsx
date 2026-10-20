@@ -111,6 +111,7 @@ function LazyPreview({ height, children }: { height: number; children: React.Rea
 
 export function TemplatePicker({
   document,
+  previewDocuments,
   current,
   onSelect,
   busyId,
@@ -121,6 +122,8 @@ export function TemplatePicker({
   showIntroduction = true,
 }: {
   document: ResumeDocument
+  /** Optional fictional content sized for each gallery design. User resumes omit this. */
+  previewDocuments?: Partial<Record<TemplateId, ResumeDocument>>
   current: TemplateId
   onSelect: (id: TemplateId) => void
   busyId?: TemplateId | null
@@ -227,7 +230,7 @@ export function TemplatePicker({
                 >
                   <Template
                     {...({
-                      document,
+                      document: previewDocuments?.[t.id] ?? document,
                       profile: undefined,
                       optimizedContent: undefined,
                       skillsOrder: [],
@@ -269,7 +272,7 @@ export function TemplatePicker({
           )
         })}
       </div>
-      {previewing ? <DocumentReader title={getTemplate(current).name} onClose={() => setPreviewing(false)}><PreviewTemplate {...({ document, profile: undefined, optimizedContent: undefined } as unknown as GulfPremiumProps)} /></DocumentReader> : null}
+      {previewing ? <DocumentReader title={getTemplate(current).name} onClose={() => setPreviewing(false)}><PreviewTemplate {...({ document: previewDocuments?.[current] ?? document, profile: undefined, optimizedContent: undefined } as unknown as GulfPremiumProps)} /></DocumentReader> : null}
     </div>
   )
 }

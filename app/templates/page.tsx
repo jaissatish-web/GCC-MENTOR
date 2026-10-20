@@ -11,7 +11,7 @@ import { TemplatePicker } from '@/components/resume/TemplatePicker'
 import { getTemplate, DEFAULT_TEMPLATE_ID, TEMPLATES, type TemplateId } from '@/lib/templates'
 import { cn, resumeLabel } from '@/lib/utils'
 import { CTA } from '@/lib/serviceLabels'
-import { SAMPLE_RESUME_DOCUMENT } from '@/lib/sampleResume'
+import { SAMPLE_RESUME_DOCUMENT, SAMPLE_TEMPLATE_DOCUMENTS } from '@/lib/sampleResume'
 import type { PackageSummary } from '@/lib/packageSummary'
 
 /**
@@ -162,6 +162,7 @@ function TemplatesInner() {
 
       <TemplatePicker
         document={SAMPLE_RESUME_DOCUMENT}
+        previewDocuments={SAMPLE_TEMPLATE_DOCUMENTS}
         current={templateId}
         onSelect={(id) => setTemplateId(id)}
         previewOpen={previewOpen}
