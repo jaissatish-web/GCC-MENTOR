@@ -296,8 +296,8 @@ function MockInterviewScreen() {
     <PageShell
       icon={ChatBubbleLeftRightIcon}
       eyebrow={stageEyebrow('apply')}
-      title="Mock Interview"
-      subtitle={isRaw ? 'Practise from your saved profile and get feedback. No job description needed.' : 'Prepare for your Gulf interview. Practise, then review your feedback.'}
+      title="Your next interview starts here."
+      subtitle={isRaw ? 'Practise from your saved profile and leave with a clear improvement plan.' : 'Practise your answers. Leave with a clear improvement plan.'}
       uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">
@@ -339,14 +339,14 @@ function MockInterviewScreen() {
             <details ref={practiceSetup} className="group" open={(detail?.mock_interview_runs?.length ?? 0) === 0 || Boolean(opError || detailError || busy)}>
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-teal [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Mic size={18} aria-hidden="true" />Start a new practice</span><ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary>
               <div className="mt-4 flex flex-col gap-5">
-            <label className="flex flex-col gap-1.5">
-              <span className="field-label">Answer format</span>
-              <select value={inputMode} onChange={e => setInputMode(e.target.value as 'text' | 'voice')} className="field">
-                <option value="text">Type my answers</option>
-                <option value="voice">Record my voice</option>
-              </select>
-              <span className="field-hint">Typed practice reviews your written answers. Voice practice requires a microphone and reviews recorded answers.</span>
-            </label>
+            <fieldset className="space-y-3">
+              <legend className="type-card">How would you like to practise?</legend>
+              <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
+                {([{ value: 'voice', label: '🎙️ Mock interview', body: 'Speak your answers' }, { value: 'text', label: '💬 Type answers', body: 'Write at your own pace' }] as const).map(option => <button key={option.value} type="button" aria-pressed={inputMode === option.value} onClick={() => setInputMode(option.value)} className={cn('min-h-14 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2', inputMode === option.value ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink hover:border-teal/60')}><span className="block type-label">{option.label}</span><span className="mt-1 block type-helper text-ink-muted">{option.body}</span></button>)}
+              </div>
+              <p className="field-hint">Voice practice uses your microphone. Your answers are saved for review; this is not a live video call.</p>
+            </fieldset>
+            {inputMode === 'voice' ? <InterviewerPicker value={interviewerId} onChange={setInterviewerId} disabled={busy !== null} /> : null}
             <label className="flex flex-col gap-1.5">
               <span className="field-label">Interview type</span>
               <select value={mode} onChange={(e) => setMode(e.target.value as MockInterviewMode)} className="field">
@@ -369,8 +369,6 @@ function MockInterviewScreen() {
                 </select>
               </label>
             </div>
-
-            {inputMode === 'voice' ? <InterviewerPicker value={interviewerId} onChange={setInterviewerId} disabled={busy !== null} /> : null}
 
             {inputMode === 'voice' && voiceReady === false ? <p className="rounded-ctl bg-canvas p-3 text-sm text-ink-muted type-helper">Recorded interviews are being prepared. Your previous interview reports remain available.</p> : null}
             {opError ? <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">{opError}</p> : null}
