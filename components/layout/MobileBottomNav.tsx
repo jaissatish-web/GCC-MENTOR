@@ -4,13 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { MOBILE_PRIMARY_ITEMS, isNavItemActive, navHref } from './navItems'
-import { ServicesMenu } from './ServicesMenu'
-import { Squares2X2Icon } from '@heroicons/react/24/outline'
+import { Squares2X2Icon, UserCircleIcon } from '@heroicons/react/24/outline'
 
 /**
  * Mobile bottom nav — DESIGN_SYSTEM.md §8.3.
  *
- * Home, Resumes, the Tools page and the shared "More" drawer. Items live in ./navItems
+ * Home, Resumes, the Tools page and Career Profile. Items live in ./navItems
  * (MOBILE_PRIMARY_HREFS) rather than re-listed here, so the bar can never
  * disagree with the sidebar about labels, icons, order or routes — it had
  * already drifted once, still showing "Library" after the rail was renamed.
@@ -34,7 +33,9 @@ export function MobileBottomNav() {
     >
       {MOBILE_PRIMARY_ITEMS.map((item) => {
         const Icon = item.icon
-        const active = isNavItemActive(item, pathname ?? '')
+        const active = item.href === '/dashboard' && pathname?.startsWith('/profile')
+          ? false
+          : isNavItemActive(item, pathname ?? '')
         return (
           <Link
             key={item.label}
@@ -67,7 +68,18 @@ export function MobileBottomNav() {
         <span aria-hidden="true" className="flex size-7 items-center justify-center"><Squares2X2Icon className="size-[18px]" /></span>
         Tools
       </Link>
-      <ServicesMenu placement="bottom" />
+      <Link
+        href="/profile"
+        aria-label="Career Profile"
+        aria-current={pathname?.startsWith('/profile') ? 'page' : undefined}
+        className={cn(
+          'flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-ctl px-0.5 text-center text-[12px] leading-tight font-redesign-sans transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
+          pathname?.startsWith('/profile') ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted',
+        )}
+      >
+        <span aria-hidden="true" className="flex size-7 items-center justify-center"><UserCircleIcon className="size-[18px]" /></span>
+        Profile
+      </Link>
     </nav>
   )
 }
