@@ -1,5 +1,7 @@
 'use client'
 
+import { ImportReviewDashboard } from './ImportReviewDashboard'
+import type { ReviewCheck } from '@/lib/resumeParse/reviewChecks'
 import { ImportComparison as Comparison } from '@/components/profile/ImportComparison'
 import { useEffect, useRef, useState } from 'react'
 import { DocumentMagnifyingGlassIcon, ShieldCheckIcon, ArrowUturnLeftIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
@@ -8,7 +10,8 @@ import type { ImportChange, ImportReview } from '@/lib/resumeParse/importReview'
 import type { ImportAttention } from '@/lib/resumeParse/importAttention'
 import { cn } from '@/lib/utils'
 
-export function ImportReviewCard({ review, attention, currentValue, onChange, onEdit, onRemove, busy = false, canConfirm = true }: {
+export function ImportReviewCard({ review, currentValue, onChange, onEdit, onRemove, busy = false, canConfirm = true, checks: liveChecks = [] }: {
+  checks?: ReviewCheck[]
   review: ImportReview
   attention: ImportAttention[]
   currentValue: (change: ImportChange) => string | null
@@ -19,6 +22,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
   canConfirm?: boolean
 }) {
   const [expanded, setExpanded] = useState(false)
+  const [pendingChecks, setPendingChecks] = useState(liveChecks.length ? -1 : 0)
   const [reviewed, setReviewed] = useState(false)
   const [storageError, setStorageError] = useState(false)
   // Presentation preferences only: never store source text or career details.
@@ -30,18 +34,28 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
     try {
       const state = localStorage.getItem(storageKey)
       setReviewed(state === 'reviewed')
-      setExpanded(window.matchMedia('(min-width: 768px)').matches && state === null)
+      setExpanded(state === null)
       localStorage.setItem(storageKey, state === 'reviewed' ? 'reviewed' : 'seen')
-    } catch { setReviewed(false); setExpanded(window.matchMedia('(min-width: 768px)').matches) }
+    } catch { setReviewed(false); setExpanded(true) }
   }, [storageKey])
   const confirmReview = () => {
-    if (busy || !canConfirm) return
+    if (busy || !canConfirm || pendingChecks !== 0) return
     try { localStorage.setItem(storageKey, 'reviewed') }
     catch { setStorageError(true); return }
     setStorageError(false)
     setReviewed(true)
     setExpanded(false)
   }
+  const invalidateReview = () => {
+    setReviewed(false)
+    try { localStorage.setItem(storageKey, 'seen') } catch { /* Confirmation reports storage failures. */ }
+  }
+  useEffect(() => {
+    if (!canConfirm || pendingChecks > 0) {
+      setReviewed(false)
+      try { localStorage.setItem(storageKey, 'seen') } catch { /* Confirmation reports storage failures. */ }
+    }
+  }, [canConfirm, pendingChecks, storageKey])
   const [choices, setChoices] = useState<Record<string, 'before' | 'after'>>({})
   const choose = (change: ImportChange, side: 'before' | 'after') => {
     if (busy) return
@@ -55,13 +69,8 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
   const [error, setError] = useState('')
   const completed = review.changes.filter(c => !c.suggested && c.kind !== 'check')
   const suggestions = review.changes.filter(c => c.suggested)
-  const alreadyInProfile = suggestions.filter(change => currentValue(change) === change.after).length
-  const originalWording = suggestions.filter(change => currentValue(change) === change.before).length
-  const manualReview = suggestions.length - alreadyInProfile - originalWording
   const checks = review.changes.filter(c => c.kind === 'check')
   const roles = review.imported.roles
-  const incompleteWording = review.wordingStatus === 'unavailable' || !!(review.wordingCoverage && review.wordingCoverage.checked < review.wordingCoverage.total)
-  const profileAttention = attention.filter(item => !item.change?.suggested)
   const groups = [
     { id: 'suggestions', title: 'Wording suggestions', hint: 'Optional changes. Review the meaning before applying.', items: suggestions },
     { id: 'checks', title: 'Details to verify', hint: 'Compare these notes with your original resume.', items: checks },
@@ -72,7 +81,7 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
       <h2 id="import-review-heading"><button type="button" aria-expanded={expanded} aria-controls="import-review-content" onClick={() => setExpanded(value => !value)} className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal sm:px-5">
         <span className="min-w-0">
           <span className="flex flex-wrap items-center gap-2 type-label font-semibold text-ink">Resume import review <span className={cn('rounded-full px-2 py-1 type-caption font-medium', reviewed ? 'bg-teal-soft text-teal' : 'bg-gold-soft text-gold-ink')}>{reviewed ? 'Reviewed by you' : 'Review pending'}</span></span>
-          <span className="mt-1 block type-helper font-normal text-ink-soft">{completed.length} cleanups · {suggestions.length} wording suggestions · {checks.length} verification notes</span>
+          <span className="mt-1 block type-helper font-normal text-ink-soft">{liveChecks.length ? pendingChecks < 0 ? 'Checking your saved review…' : `${pendingChecks} details to review · ${suggestions.length} optional suggestions` : `${completed.length} cleanups · ${suggestions.length} wording suggestions · ${checks.length} verification notes`}</span>
         </span>
         <span className="flex shrink-0 items-center gap-1 type-helper font-semibold text-teal"><span>{expanded ? 'Collapse' : 'Review details'}</span><ChevronDownIcon className={cn('size-4 transition-transform', expanded && 'rotate-180')} aria-hidden="true" /></span>
       </button></h2>
@@ -81,41 +90,13 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
         <div className="flex items-start gap-3">
           <span className="flex size-11 shrink-0 items-center justify-center rounded-ctl bg-teal text-white"><DocumentMagnifyingGlassIcon className="size-6" aria-hidden="true" /></span>
           <div className="min-w-0 flex-1">
-            <h3 className="type-label font-semibold text-ink">{roles} role{roles === 1 ? '' : 's'} · {review.imported.skills} skills · {review.imported.qualifications} qualification{review.imported.qualifications === 1 ? '' : 's'} imported</h3>
+            <h3 className="type-label font-semibold text-ink">{roles} role{roles === 1 ? '' : 's'} · {review.imported.skills} skill{review.imported.skills === 1 ? '' : 's'} · {review.imported.qualifications} qualification{review.imported.qualifications === 1 ? '' : 's'} imported</h3>
             <p className="mt-1 type-helper text-ink-soft">Compare the wording below. Suggestions are optional.</p>
           </div>
         </div>
       </div>
-      <div className="border-t border-line p-4 sm:p-5">
-        <ol aria-label="Import review steps" className="grid grid-cols-2 gap-2 sm:grid-cols-4">{['Review changes', 'Choose wording', 'Save profile', 'Confirm review'].map((label, i) => <li key={label} className="flex min-w-0 items-center gap-2 rounded-ctl border border-line bg-canvas p-2"><span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-teal-soft type-caption font-semibold text-teal">{i + 1}</span><span className="type-helper text-ink">{label}</span></li>)}</ol>
-        {suggestions.length > 0 ? <div aria-label="Wording review summary" className="mt-3 flex flex-wrap gap-2">{[{ count: alreadyInProfile, label: 'Already in profile' }, { count: originalWording, label: 'Original wording' }, { count: manualReview, label: 'Review manually' }].filter(item => item.count > 0).map(item => <div key={item.label} className="flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1.5"><span className="type-helper font-semibold text-teal">{item.count}</span><span className="type-helper text-ink-soft">{item.label}</span></div>)}</div> : null}
-        <p role="status" aria-live="polite" className="mt-3 type-helper font-medium text-teal">{busy ? 'Saving your profile…' : !canConfirm ? 'Profile changes are not saved yet. Save your profile before confirming.' : 'Your profile is saved. Review the comparisons, then confirm when ready.'}</p>
-      </div>
-      {profileAttention.length > 0 ? <div className="border-t border-line p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="type-label font-semibold text-ink">{profileAttention.length ? 'Profile details to complete' : checks.length || incompleteWording ? 'Verify your imported details' : 'Review information'}</h3>
-          {profileAttention.length > 0 && <span className="rounded-full bg-gold-soft px-2.5 py-1 type-caption font-bold text-gold-ink">{profileAttention.length} next step{profileAttention.length === 1 ? '' : 's'}</span>}
-        </div>
-        <p className="mt-1 type-helper text-ink-soft">{profileAttention.length ? 'Check these profile details before applying for jobs. Wording suggestions are listed separately below.' : checks.length ? `Check ${checks.length} import verification note${checks.length === 1 ? '' : 's'} against your original resume.` : incompleteWording ? 'The wording check did not cover every entry. Review your imported sentences against the original text.' : 'You can still review the imported details against your original resume.'}</p>
-        <ol className="mt-3 space-y-3">
-          {profileAttention.map((item, index) => <li key={item.id} className="rounded-ctl border border-gold/40 bg-gold-soft/50 p-3">
-            <div className="flex items-start gap-2.5">
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gold-ink type-caption font-bold text-white">{index + 1}</span>
-              <div className="min-w-0 flex-1">
-                <p className="type-label font-semibold text-ink">{item.title}</p>
-                <p className="mt-1 type-helper text-ink-soft">{item.reason}</p>
-                <p className="mt-1 type-helper font-semibold text-gold-ink">{item.priority === 'urgent' ? 'Important to complete' : item.priority === 'correction' ? 'Correction available' : 'Recommended improvement'}</p>
-              </div>
-            </div>
-            {item.change && <Comparison change={item.change} applied={false} compact />}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => onEdit(item.field, item.change)}>Edit manually</button>
-              {item.change && <button type="button" disabled={busy} className={buttonVariants({ variant: 'primary', size: 'sm' })} onClick={() => onChange(item.change!, item.change!.after)}>Apply correction · Free</button>}
-            </div>
-          </li>)}
-        </ol>
-        {profileAttention.some(item => item.change) && <p className="mt-3 type-helper text-ink-muted">Review the wording, then press Save after applying or editing.</p>}
-      </div> : null}
+      {liveChecks.length > 0 && <ImportReviewDashboard reviewId={review.id} checks={liveChecks} busy={busy} saved={canConfirm} onEdit={onEdit} onChoose={choose} onPendingChange={invalidateReview} onStatusChange={setPendingChecks} />}
+      <details className="border-t border-line"><summary className="flex min-h-11 cursor-pointer items-center px-4 py-3 type-label font-semibold text-teal sm:px-5">Original text & detailed import history</summary>
       <div id="import-review-details" className="ui-panel-padding border-t border-line p-4 sm:p-5">
         <div className="flex flex-wrap gap-2" role="group" aria-label="Import review views">
           <button type="button" aria-pressed={tab === 'changes'} className={buttonVariants({ variant: tab === 'changes' ? 'primary' : 'ghost', size: 'sm' })} onClick={() => setTab('changes')}>Imported details</button>
@@ -164,9 +145,11 @@ export function ImportReviewCard({ review, attention, currentValue, onChange, on
         <p className="mt-4 flex items-start gap-2 type-helper text-ink-muted"><ShieldCheckIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />Suggestions need your approval. Your uploaded file is unchanged. Press Save after applying, restoring or editing profile details.</p>
         <details className="mt-4 border-t border-line pt-3"><summary className="flex min-h-11 cursor-pointer items-center type-helper text-ink-muted">Remove this saved comparison</summary><p className="mt-2 type-helper text-ink-soft">Removes the original text and this change history. Your Career Profile stays available.</p><button type="button" disabled={removing} className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' mt-2 text-alert'} onClick={async () => { setRemoving(true); setError(''); try { await onRemove() } catch { setError('Could not remove the comparison. Please try again.') } finally { setRemoving(false) } }}>{removing ? 'Removing…' : 'Remove comparison'}</button>{error && <p role="alert" className="mt-2 type-helper text-alert">{error}</p>}</details>
       </div>
+      </details>
       <div className="border-t border-line bg-teal-soft/30 p-4 sm:p-5">
         <p className="mb-3 type-helper text-ink-soft">{reviewed ? 'You confirmed this review. You can still inspect the comparison or edit your profile.' : 'Review your imported details and choose which suggestions to keep. Save any profile edits, then confirm this review. Confirming does not apply suggestions or save profile changes.'}</p>
-        {!reviewed && <button type="button" disabled={busy || !canConfirm} onClick={confirmReview} className={buttonVariants({ variant: 'primary', size: 'sm' })}>Confirm review</button>}
+        {!reviewed && <button type="button" disabled={busy || !canConfirm || pendingChecks !== 0} onClick={confirmReview} className={buttonVariants({ variant: 'primary', size: 'sm' })}>Confirm review</button>}
+        {!reviewed && pendingChecks > 0 && <p className="mt-2 type-helper text-alert">Review {pendingChecks} flagged detail{pendingChecks === 1 ? '' : 's'} above before confirming.</p>}
         {!reviewed && !canConfirm && <p className="mt-2 type-helper text-ink-muted">Save your profile changes first, then confirm this review.</p>}
         {storageError && <p role="alert" className="mt-2 type-helper text-alert">Could not remember your review in this browser. Please try again.</p>}
       </div>

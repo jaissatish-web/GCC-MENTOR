@@ -2,6 +2,7 @@
 
 import { WorkExperienceItem } from '@/components/profile/WorkExperienceItem'
 import { sortedWorkRoles } from '@/lib/profileWorkNavigation'
+import { resumeReviewChecks } from '@/lib/resumeParse/reviewChecks'
 import { ImportReviewCard } from '@/components/profile/ImportReviewCard'
 import type { ImportReview } from '@/lib/resumeParse/importReview'
 import { applyImportChange, currentImportValue, importJobIndex } from '@/lib/resumeParse/reviewEditor'
@@ -2051,6 +2052,7 @@ function ProfileScreen() {
       key={`${uid}:${importReview.id}`}
       canConfirm={!isDirty && !saveError}
       review={importReview}
+      checks={resumeReviewChecks(importReview, editor, change => currentImportValue(editor, change))}
       attention={importAttention(importReview, editor)}
       busy={submitting}
       currentValue={change => currentImportValue(editor, change)}
@@ -2059,7 +2061,7 @@ function ProfileScreen() {
         const workIndex = change ? importJobIndex(editor, change) : Number(field.match(/^work_experience\.(\d+)/)?.[1] ?? -1)
         const work = workIndex >= 0 ? editor.work_experience[workIndex] : undefined
         if (work) setExpandedWorkKey(work.key)
-        goToProfilePart({ sectionId: field.startsWith('work_experience') ? 'sec_work_experience' : field === 'professional_summary' ? 'sec_summary' : field === 'skills' ? 'sec_skills' : field.startsWith('education') ? 'sec_education' : field.startsWith('certifications') ? 'sec_certifications' : field.startsWith('additional') ? 'sec_additional' : sectionOfField(field) ?? 'sec_identity', field: work ? `work_role_${work.key}` : field.includes('.') ? undefined : field })
+        goToProfilePart({ sectionId: field.startsWith('work_experience') ? 'sec_work_experience' : field === 'professional_summary' ? 'sec_summary' : field === 'skills' ? 'sec_skills' : field.startsWith('education') ? 'sec_education' : field.startsWith('certifications') ? 'sec_certifications' : field.startsWith('additional') ? 'sec_additional' : sectionOfField(field) ?? 'sec_identity', field: work ? `${field.endsWith('.start_date') || field.endsWith('.date_order') ? 'work_start' : field.endsWith('.end_date') ? 'work_end' : 'work_role'}_${work.key}` : field.includes('.') ? undefined : field })
       }}
       onRemove={async () => {
         const response = await fetch('/api/profile/import-review', { method: 'DELETE' })
