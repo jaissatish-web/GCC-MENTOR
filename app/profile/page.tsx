@@ -2147,7 +2147,7 @@ function ProfileScreen() {
       <main data-ui-service="profile" className={MAIN_CLASS}>
         <header className="workspace-heading page-gutter flex flex-col gap-4 pb-5 pt-6 sm:pt-8">
           <GulfContext />
-          <div className="flex items-center gap-4">
+          <div className="grid grid-cols-[68px_minmax(0,1fr)] items-center gap-4 sm:grid-cols-[68px_minmax(0,1fr)_auto]">
             <div id="f_photo" tabIndex={-1} className="shrink-0 rounded-card focus:outline-none">
               <PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} />
             </div>
@@ -2155,7 +2155,9 @@ function ProfileScreen() {
               <h1 className="type-title text-ink">Career Profile</h1>
               <p className="mt-1 type-helper text-ink-soft">{editor.full_name || 'Your experience. Your next Gulf role.'}</p>
             </div>
-            <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>Save</Button>
+            <div className="col-span-2 sm:col-span-1">
+              <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>Save</Button>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <span role="progressbar" aria-label="Profile complete" aria-valuemin={0} aria-valuemax={100} aria-valuenow={readiness.score} className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-line"><span className="block h-full rounded-full bg-teal" style={{ width: `${readiness.score}%` }} /></span>
