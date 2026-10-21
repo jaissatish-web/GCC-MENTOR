@@ -29,11 +29,11 @@ export function HomeScores({ profile, score, missing, gulf, loading, error }: {
   return <section aria-label="Your readiness scores" aria-busy={loading} className={styles.scores}>
     <Link href="/profile?view=completeness" className={styles.score}>
       <ReadinessStat value={available ? score : null} label="Profile completeness" percent />
-      <span className={styles.scoreCopy}>Profile completeness<span className="sr-only"> · {loading ? 'Loading…' : error ? 'Unavailable' : !profile ? 'Get started' : missing ? `${missing} left` : 'Complete'}</span></span>
+      <span className={styles.scoreCopy}>Profile completeness{available && missing > 0 && <span className="mt-1 block type-caption font-medium text-gold-ink">Update needed · {missing} details</span>}<span className="sr-only"> · {loading ? 'Loading…' : error ? 'Unavailable' : !profile ? 'Get started' : missing ? `${missing} left` : 'Complete'}</span></span>
     </Link>
     <Link href="/profile?view=readiness" className={styles.score}>
       <ReadinessStat value={available && gulf ? gulf.finalScore : null} label="Gulf readiness" />
-      <span className={styles.scoreCopy}>Gulf readiness<span className="sr-only"> · {loading ? 'Loading…' : error ? 'Unavailable' : profile ? 'Review' : 'Add profile'}</span></span>
+      <span className={styles.scoreCopy}>Gulf readiness{available && gulf && gulf.mustHaves?.some(item => item.status !== 'ok') && <span className="mt-1 block type-caption font-medium text-gold-ink">Review missing requirements</span>}<span className="sr-only"> · {loading ? 'Loading…' : error ? 'Unavailable' : profile ? 'Review' : 'Add profile'}</span></span>
     </Link>
   </section>
 }

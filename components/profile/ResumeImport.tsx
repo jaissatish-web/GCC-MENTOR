@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { EXTRACTION_NOTES } from '@/lib/processingNotes'
 import type { CareerProfileDraft } from '@/types/careerProfile'
+import type { ImportReview } from '@/lib/resumeParse/importReview'
 import type { ParseWarning } from '@/lib/resumeParse/check'
 import { uploadResumeFile, requestResumeImport, IMPORT_DISPLAY_FAILED } from '@/lib/resumeParse/clientImport'
 
@@ -67,7 +68,7 @@ export function ResumeImport({
   /** A saved profile already exists — show "Recreate my profile" instead. */
   collapsible?: boolean
   /** `notes`: the reader's "please check" list (lib/resumeParse), when it sent one. */
-  onDraft: (draft: CareerProfileDraft, notes?: ParseWarning[]) => void
+  onDraft: (draft: CareerProfileDraft, notes?: ParseWarning[], review?: ImportReview) => void
   onFillManually: () => void
 }) {
   const fileInput = useRef<HTMLInputElement>(null)
@@ -134,7 +135,7 @@ export function ResumeImport({
         return
       }
       try {
-        onDraft(result.draft, result.warnings)
+        onDraft(result.draft, result.warnings, result.review)
         setMode('idle')
         setText('')
       } catch {

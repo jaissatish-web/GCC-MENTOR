@@ -1,3 +1,4 @@
+import { profileTextPresent, validProfileEmail, validProfilePhone } from './profileFieldValidity'
 import type { ReadinessCategory } from '@/types/careerProfile'
 
 /**
@@ -100,14 +101,27 @@ interface FieldGroup {
 function scalarFilled(field: keyof ReadinessInput): FilledCheck {
   return (p) => {
     const v = p[field]
-    return typeof v === 'string' ? v.trim() !== '' : v !== null && v !== undefined
+    if (field === 'email') return validProfileEmail(v)
+    if (field === 'phone') return validProfilePhone(v)
+    return typeof v === 'string' ? profileTextPresent(v) : v !== null && v !== undefined
   }
 }
 
 function listFilled(field: keyof ReadinessInput): FilledCheck {
   return (p) => {
     const v = p[field]
-    return Array.isArray(v) && v.length > 0
+    if (!Array.isArray(v) || !v.length) return false
+    if (field === 'work_experience') return v.every(entry => {
+      if (!entry || typeof entry !== 'object') return false
+      const row = entry as Record<string, unknown>
+      if (typeof row.start_date !== 'string' || !Number.isFinite(Date.parse(row.start_date))) return false
+      if (row.end_date && (typeof row.end_date !== 'string' || !Number.isFinite(Date.parse(row.end_date)) || Date.parse(row.end_date) < Date.parse(row.start_date))) return false
+      if ('company' in row && (!profileTextPresent(row.company) || !profileTextPresent(row.role))) return false
+      if ('description' in row || 'highlights' in row) return profileTextPresent(row.description) || (Array.isArray(row.highlights) ? row.highlights.some(profileTextPresent) : profileTextPresent(row.highlights))
+      return true
+    })
+    const nameField = field === 'education' ? 'degree' : 'name'
+    return v.some(entry => typeof entry === 'string' ? profileTextPresent(entry) : entry && typeof entry === 'object' && profileTextPresent((entry as Record<string, unknown>)[nameField]))
   }
 }
 
@@ -247,7 +261,7 @@ export interface ReadinessInput {
   visa_transferable?: unknown
   notice_period?: unknown
   passport_validity_date?: unknown
-  work_experience?: Array<{ start_date: string; end_date?: string | null }>
+  work_experience?: Array<{ start_date: string; end_date?: string | null; company?: string; role?: string; description?: string | null; highlights?: string | string[] | null }>
   education?: unknown[]
   certifications?: unknown[]
   skills?: unknown[]

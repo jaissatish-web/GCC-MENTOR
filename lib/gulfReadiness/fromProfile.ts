@@ -1,3 +1,4 @@
+import { profileTextPresent, validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import type { FunnelAnswers, GulfFacts, GulfReadinessResult, PhotoState } from '@/lib/gulfReadiness/types'
 import type { ArabicLevel, CareerProfileFull, PaperworkStatus, ReadinessCategory } from '@/types/careerProfile'
 import { calculateGulfReadiness } from '@/lib/gulfReadiness/engine'
@@ -129,19 +130,19 @@ function line(...parts: (string | null | undefined)[]): string {
 export function profileToScoringText(p: ProfileScoringInput): string {
   const out: string[] = []
 
-  if (p.professional_summary?.trim()) {
+  if (profileTextPresent(p.professional_summary)) {
     out.push('PROFESSIONAL SUMMARY')
     out.push(p.professional_summary.trim())
   }
 
   out.push('CONTACT')
-  out.push(line(p.email ?? undefined, p.phone ?? undefined))
+  out.push(line(validProfileEmail(p.email) ? p.email : undefined, validProfilePhone(p.phone) ? p.phone : undefined))
 
   const personal = [
-    p.nationality?.trim() ? `Nationality: ${p.nationality.trim()}` : null,
-    p.current_location?.trim() ? `Location: ${p.current_location.trim()}` : null,
-    p.visa_status?.trim() ? `Visa status: ${p.visa_status.trim()}` : null,
-    p.notice_period?.trim() ? `Notice period: ${p.notice_period.trim()}` : null,
+    profileTextPresent(p.nationality) ? `Nationality: ${p.nationality.trim()}` : null,
+    profileTextPresent(p.current_location) ? `Location: ${p.current_location.trim()}` : null,
+    profileTextPresent(p.visa_status) ? `Visa status: ${p.visa_status.trim()}` : null,
+    profileTextPresent(p.notice_period) ? `Notice period: ${p.notice_period.trim()}` : null,
   ].filter((x): x is string => !!x)
   if (personal.length) {
     out.push('PERSONAL DETAILS')
@@ -158,13 +159,13 @@ export function profileToScoringText(p: ProfileScoringInput): string {
     }
   }
 
-  const skills = (p.skills ?? []).map((s) => s?.name).filter(Boolean)
+  const skills = (p.skills ?? []).map((s) => s?.name).filter(profileTextPresent)
   if (skills.length) {
     out.push('SKILLS')
     out.push(skills.join(', '))
   }
 
-  const certs = (p.certifications ?? []).filter((c) => c?.name)
+  const certs = (p.certifications ?? []).filter((c) => profileTextPresent(c?.name))
   if (certs.length) {
     out.push('CERTIFICATIONS')
     for (const c of certs) out.push(line('certification', c.name, c.issuer))
@@ -209,18 +210,18 @@ export function factsFromProfile(p: ProfileScoringInput): GulfFacts {
     photo: photoStateOf(p),
     passportValidityDate: p.passport_validity_date ?? null,
     passportType: p.passport_type ?? null,
-    visaStatus: p.visa_status ?? null,
+    visaStatus: profileTextPresent(p.visa_status) ? p.visa_status : null,
     visaTransferable: p.visa_transferable ?? null,
-    noticePeriod: p.notice_period ?? null,
+    noticePeriod: profileTextPresent(p.notice_period) ? p.notice_period : null,
     hasDrivingLicence: p.has_driving_license ?? null,
-    drivingLicenceCountry: p.driving_license_country ?? null,
-    whatsapp: p.whatsapp ?? null,
+    drivingLicenceCountry: profileTextPresent(p.driving_license_country) ? p.driving_license_country : null,
+    whatsapp: profileTextPresent(p.whatsapp) ? p.whatsapp : null,
     arabicLevel: p.arabic_level ?? null,
     degreeAttestation: p.degree_attestation ?? null,
     professionalLicence: p.professional_licence ?? null,
     saudiVerification: p.saudi_verification ?? null,
     targetCountry: p.target_country ?? null,
-    targetJobTitle: p.target_job_title ?? null,
+    targetJobTitle: profileTextPresent(p.target_job_title) ? p.target_job_title : null,
   }
 }
 
