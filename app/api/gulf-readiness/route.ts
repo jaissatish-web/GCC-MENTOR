@@ -39,15 +39,18 @@ function parseAnswers(raw: unknown): FunnelAnswers | null {
   } catch {
     return null
   }
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return null
+  const targetCountry = typeof o.targetCountry === 'string' && ['Saudi Arabia', 'United Arab Emirates', 'Qatar', 'Kuwait', 'Oman', 'Bahrain'].includes(o.targetCountry) ? o.targetCountry : undefined
+  const targetJobTitle = typeof o.targetJobTitle === 'string' ? o.targetJobTitle.trim().slice(0, 120) : undefined
   if (typeof o.hasGulfExperience !== 'boolean') return null
   // Validate the branch that matters and ignore the other, so a malformed combo
   // cannot select a scenario by accident.
   if (o.hasGulfExperience) {
     if (typeof o.currentlyInGulf !== 'boolean') return null
-    return { hasGulfExperience: true, currentlyInGulf: o.currentlyInGulf }
+    return { targetCountry, targetJobTitle, hasGulfExperience: true, currentlyInGulf: o.currentlyInGulf }
   }
   if (typeof o.hasProfessionalExperience !== 'boolean') return null
-  return { hasGulfExperience: false, hasProfessionalExperience: o.hasProfessionalExperience }
+  return { targetCountry, targetJobTitle, hasGulfExperience: false, hasProfessionalExperience: o.hasProfessionalExperience }
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

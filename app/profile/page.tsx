@@ -1102,7 +1102,18 @@ function ProfileScreen() {
           .then((data) => {
             const saved = data as CareerProfileFull | null
             if (!hasSavedProfileContent(saved)) {
-              setEditor(fromDraft(capturedDraft))
+              const initial = fromDraft(capturedDraft)
+              // Reuse explicit guest choices only for a new profile. Never overwrite
+              // an existing profile or change historical job titles.
+              try {
+                const choices = JSON.parse(window.sessionStorage.getItem('gulf_readiness_answers') ?? 'null')
+                if (choices && typeof choices === 'object') {
+                  const countries: Record<string, string> = { 'Saudi Arabia': 'saudi_arabia', 'United Arab Emirates': 'uae', Qatar: 'qatar', Kuwait: 'kuwait', Oman: 'oman', Bahrain: 'bahrain' }
+                  if (typeof choices.targetCountry === 'string') initial.target_country = countries[choices.targetCountry] ?? ''
+                  if (typeof choices.targetJobTitle === 'string') initial.target_job_title = choices.targetJobTitle.trim().slice(0, 120)
+                }
+              } catch { /* The draft remains usable if the handoff is unavailable. */ }
+              setEditor(initial)
               // Keep first-time extracted data separate until review confirmation.
               setReviewingImport(true)
               setLoaded(true)

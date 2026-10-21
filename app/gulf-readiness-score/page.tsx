@@ -20,7 +20,7 @@ import { SCAN_NOTES } from '@/lib/processingNotes'
  * /api/gulf-readiness). The result is held in this browser for the signup handoff.
  */
 
-type Step = 'upload' | 'q1' | 'q2yes' | 'q2no' | 'analyzing' | 'result'
+type Step = 'upload' | 'q1' | 'q2yes' | 'q2no' | 'target' | 'analyzing' | 'result'
 
 const MAX_TEXT = 20000
 const MIN_TEXT = 50
@@ -86,6 +86,10 @@ const Question = ({
 export default function GulfReadinessScorePage() {
   const fileInput = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<Step>('upload')
+  const [answers, setAnswers] = useState<FunnelAnswers>({ hasGulfExperience: false })
+  const [targetCountry, setTargetCountry] = useState('')
+  const [targetJobTitle, setTargetJobTitle] = useState('')
+  const chooseSituation = (next: FunnelAnswers) => { setAnswers(next); setStep('target') }
   const [file, setFile] = useState<File | null>(null)
   const [pasteMode, setPasteMode] = useState(false)
   const [resumeText, setResumeText] = useState('')
@@ -148,7 +152,7 @@ export default function GulfReadinessScorePage() {
           <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Free Gulf readiness score</p>
           <h1 className="mt-3 type-title text-ink">How Gulf-ready is your career?</h1>
           <p className="mt-3 type-body text-ink-soft">
-            Two questions and your resume. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
+            Four short questions and your resume. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
           </p>
         </div>
 
@@ -194,6 +198,7 @@ export default function GulfReadinessScorePage() {
           </div>
           {error ? <p id="resume-input-error" role="alert" className="mt-3 rounded-ctl border border-alert bg-alert-soft px-4 py-3 text-sm text-alert type-helper">{error}</p> : null}
           <button type="button" onClick={startQuestions} className={buttonVariants({ variant: 'primary' }) + ' mt-4 w-full'}>Continue</button>
+          <p className="mt-4 text-center text-sm"><Link href="/signup" className="text-teal underline">No resume? Create your free Career Profile</Link></p>
           <p className="mt-4 text-center text-xs leading-relaxed text-ink-muted type-caption">Your anonymous resume check isn’t saved to our servers.</p>
         </div>
       </Shell>
@@ -204,7 +209,7 @@ export default function GulfReadinessScorePage() {
     return (
       <Shell>
         <Question error={error} onBack={() => { setStep('upload'); setError(null) }}
-          eyebrow="Question 1 of 2"
+          eyebrow="Question 1 of 4"
           title="Have you worked in the Gulf / Middle East?"
           options={[
             { label: 'Yes, I have Gulf / Middle East experience', onClick: () => { setStep('q2yes') } },
@@ -219,11 +224,11 @@ export default function GulfReadinessScorePage() {
     return (
       <Shell>
         <Question error={error} onBack={() => { setStep('upload'); setError(null) }}
-          eyebrow="Question 2 of 2"
+          eyebrow="Question 2 of 4"
           title="Where are you based right now?"
           options={[
-            { label: 'I’m currently in the Gulf / Middle East', onClick: () => runScore({ hasGulfExperience: true, currentlyInGulf: true }) },
-            { label: 'I’ve returned / I’m now outside the Gulf', onClick: () => runScore({ hasGulfExperience: true, currentlyInGulf: false }) },
+            { label: 'I’m currently in the Gulf / Middle East', onClick: () => chooseSituation({ hasGulfExperience: true, currentlyInGulf: true }) },
+            { label: 'I’ve returned / I’m now outside the Gulf', onClick: () => chooseSituation({ hasGulfExperience: true, currentlyInGulf: false }) },
           ]}
         />
       </Shell>
@@ -234,15 +239,35 @@ export default function GulfReadinessScorePage() {
     return (
       <Shell>
         <Question error={error} onBack={() => { setStep('upload'); setError(null) }}
-          eyebrow="Question 2 of 2"
+          eyebrow="Question 2 of 4"
           title="Do you have professional work experience?"
           options={[
-            { label: 'Yes, I have professional experience', onClick: () => runScore({ hasGulfExperience: false, hasProfessionalExperience: true }) },
-            { label: 'No, I’m a fresher / recent graduate', onClick: () => runScore({ hasGulfExperience: false, hasProfessionalExperience: false }) },
+            { label: 'Yes, I have professional experience', onClick: () => chooseSituation({ hasGulfExperience: false, hasProfessionalExperience: true }) },
+            { label: 'No, I’m a fresher / recent graduate', onClick: () => chooseSituation({ hasGulfExperience: false, hasProfessionalExperience: false }) },
           ]}
         />
       </Shell>
     )
+  }
+
+  if (step === 'target') {
+    return <Shell>
+      <p className="text-xs font-bold uppercase tracking-wider text-teal">Questions 3–4 of 4</p>
+      <h1 className="mt-3 type-title">Where would you like to go next?</h1>
+      <p className="mt-3 text-ink-soft">Choose a direction. You can refine it after reviewing your profile.</p>
+      <form className="mt-6 space-y-5 rounded-card border border-line bg-white p-6" onSubmit={(event) => { event.preventDefault(); void runScore({ ...answers, targetCountry, targetJobTitle }) }}>
+        <div><label htmlFor="target-country" className="field-label">Target Gulf country</label>
+          <select id="target-country" className="field mt-2 w-full" value={targetCountry} onChange={event => setTargetCountry(event.target.value)}>
+            <option value="">Not sure yet — help me explore</option>
+            {['Saudi Arabia', 'United Arab Emirates', 'Qatar', 'Kuwait', 'Oman', 'Bahrain'].map(country => <option key={country}>{country}</option>)}
+          </select></div>
+        <div><label htmlFor="target-role" className="field-label">Role you want to apply for</label>
+          <input id="target-role" className="field mt-2 w-full" maxLength={120} value={targetJobTitle} onChange={event => setTargetJobTitle(event.target.value)} placeholder="For example, accountant or electrical technician" />
+          <p className="mt-2 text-sm text-ink-muted">Use your latest title, or a role you want to move into. Leave blank if you need guidance.</p></div>
+        <button className={buttonVariants({ variant: 'primary' }) + ' w-full'} type="submit">See my free readiness result</button>
+        <button type="button" className="min-h-11 text-teal" onClick={() => setStep('q1')}>Back to questions</button>
+      </form>
+    </Shell>
   }
 
   if (step === 'analyzing') {

@@ -38,7 +38,7 @@ import type { DimensionKey, GulfReadinessResult, MustHave, Recommendation } from
  * Every "fix" opens the exact field or section in the full profile.
  */
 
-const PROFILE_PREVIEW = 4
+const PROFILE_PREVIEW = 3
 
 const MUST_HAVE_META: Record<MustHave['status'], { text: string; chip: string; rule: string }> = {
   ok: { text: 'Done', chip: 'bg-ok-soft text-ok', rule: 'border-l-ok' },
@@ -162,10 +162,16 @@ export function GulfReadinessView({
             </h2>
             <p className="type-helper leading-relaxed text-ink-soft">{gulf.verdict.message}</p>
             <p className="type-helper leading-snug text-ink-muted">
-              How ready you are for GCC jobs — different from how complete your profile is.
+              Application preparation based on your profile. Job-specific fit and joining eligibility need separate checks.
             </p>
           </div>
         </div>
+        {gulf.assessment ? <div className="rounded-ctl border border-line bg-white/80 p-4">
+          <p className="text-sm font-semibold text-teal">Provisional assessment · rules {gulf.assessment.version}</p>
+          <p className="mt-1 text-sm text-ink-soft">{gulf.assessment.targetJobTitle || 'Choose a target role'} · {gulf.assessment.targetCountry || 'Exploring Gulf countries'}</p>
+          <p className="mt-2 text-sm text-ink-soft">This updates from your edited profile. It may differ from your first resume scan because the available information has changed.</p>
+          {gulf.assessment.reasons.length ? <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">{gulf.assessment.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul> : null}
+        </div> : null}
         {/* Where the user is on the path: three joined stages. */}
         <ol className="grid grid-cols-3 gap-1.5" aria-label="Your path">
           {stages.map((s, i) => (
@@ -193,11 +199,11 @@ export function GulfReadinessView({
           n={1}
           icon={ClipboardDocumentCheckIcon}
           title="Paperwork"
-          sub="What an employer needs before they can hire you. It decides the verdict above."
+          sub="Review your joining route separately. Requirements depend on your target country, occupation and employer."
           done={paperworkDone}
         />
         {mustHaves.length === 0 ? (
-          <QuietNote>No paperwork applies to you here.</QuietNote>
+          <QuietNote>No paperwork items were identified by this assessment. This is not a confirmation of eligibility.</QuietNote>
         ) : null}
         {/* Finished items fold into one line (D4): a full card each for
             "Sorted — nothing to do here" pushed the open items down. */}
@@ -262,7 +268,7 @@ export function GulfReadinessView({
           done={profileRecs.length === 0}
         />
         {profileRecs.length === 0 ? (
-          <QuietNote>Nothing left to fix in your profile.</QuietNote>
+          <QuietNote>No further profile actions were identified by these checks.</QuietNote>
         ) : (
           <>
             <ul className="grid gap-2.5 sm:grid-cols-2">
@@ -375,6 +381,12 @@ export function GulfReadinessView({
                   >
                     <div className={cn('h-full rounded-full transition-[width] duration-700 motion-reduce:transition-none', barTone(pct))} style={{ width: `${pct}%` }} />
                   </div>
+                  <details className="mt-2 rounded-ctl bg-canvas p-3">
+                    <summary className="cursor-pointer text-sm font-semibold text-teal">Evidence and information to review</summary>
+                    <p className="mt-2 text-xs font-bold uppercase text-ink-muted">Detected in your profile</p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-ink-soft">{d.evidence.length ? d.evidence.map(item => <li key={item}>{item}</li>) : <li>No clear evidence detected. Confirm this in your profile.</li>}</ul>
+                    {d.gaps.length ? <><p className="mt-3 text-xs font-bold uppercase text-ink-muted">Review or improve</p><ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-ink-soft">{d.gaps.map(item => <li key={item}>{item}</li>)}</ul></> : null}
+                  </details>
                 </li>
               )
             })}
@@ -428,7 +440,7 @@ export function GulfReadinessView({
 
       <p className="flex items-start gap-2 type-helper leading-relaxed text-ink-muted">
         <DocumentTextIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        Worked out from your profile with fixed rules — no AI guess, the same answer every time. It moves as you edit.
+        Calculated with fixed rules from your current profile. Text detection can miss details; review the evidence. Changing your information or the assessment rules can change the score.
       </p>
     </div>
   )

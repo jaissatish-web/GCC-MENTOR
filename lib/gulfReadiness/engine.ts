@@ -17,7 +17,6 @@ import {
   SCENARIO_WEIGHTS,
   PHOTO_POINTS,
   SITUATION_POINTS,
-  VERDICT_COPY,
   bandKeyFor,
 } from '@/lib/gulfReadiness/config'
 import { detectGulfEssentials, essentialsRatio, type EssentialItem } from '@/lib/gulfReadiness/essentials'
@@ -72,7 +71,7 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
   // --- the five resume dimensions, each a detector × its weight ---------------
   // The work_experience slot is scored on projects/internships for a fresher and
   // on employment for everyone else. Same slot, scenario-appropriate evidence.
-  const facts = input.facts ?? {}
+  const facts = { targetCountry: input.answers.targetCountry, targetJobTitle: input.answers.targetJobTitle, ...input.facts }
   const essentials = detectGulfEssentials(text, facts, scenario === 'currently_in_gulf')
   const detectors: Record<Exclude<DimensionKey, 'gulf_market_position'>, DetectorOutput> = {
     work_experience: scenario === 'fresher' ? detectProjects(text) : detectWorkExperience(text),
@@ -157,7 +156,15 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
     return CONFIDENCE_RANK[d.confidence] < CONFIDENCE_RANK[lowest] ? d.confidence : lowest
   }, 'high')
 
+  const reasons = [
+    ...(!facts.targetCountry ? ['Choose a target country to make the guidance more specific.'] : []),
+    ...(!facts.targetJobTitle ? ['Confirm your target role so you can assess the relevant requirements.'] : []),
+    ...(lowResumeSignal ? ['Some career information could not be read reliably.'] : []),
+    ...(confidence === 'low' && !lowResumeSignal ? ['Some sections need your confirmation.'] : []),
+  ]
   return {
+    assessment: { version: '3.0', provisional: true, reasons,
+      targetCountry: facts.targetCountry || null, targetJobTitle: facts.targetJobTitle || null },
     scenario,
     scenarioLabel: SCENARIO_LABELS[scenario],
     finalScore,
@@ -181,12 +188,12 @@ export function calculateGulfReadiness(input: GulfReadinessInput): GulfReadiness
 function essentialsDetector(items: EssentialItem[]): DetectorOutput {
   const LABEL: Record<EssentialItem['key'], string> = {
     photo: 'A professional photo',
-    notice: 'A short notice period',
+    notice: 'Your stated availability',
     visa_or_passport: 'Your visa or passport position',
-    whatsapp: 'A WhatsApp number',
+    whatsapp: 'Contact information',
     arabic: 'Arabic',
     driving_licence: 'A Gulf driving licence',
-    nationality_location: 'Nationality and location stated',
+    nationality_location: 'Current location stated',
   }
   const full = items.filter((i) => i.applicable && i.earned >= i.max).map((i) => LABEL[i.key])
   return {
@@ -218,7 +225,6 @@ function addEssentialSteps(recs: Recommendation[], items: EssentialItem[]): void
       // Quick, concrete, worth real points: above the generic steps, below paperwork.
       priority: 20 + gain * 2 + (i.key === 'arabic' ? -8 : 0),
       stage: 'profile',
-      gain,
       // A shown-but-unconfirmed photo is fixed at the checklist, not the upload.
       field: i.key === 'photo' && i.earned === PHOTO_POINTS.shown ? 'photo_checklist_confirmed' : ESSENTIAL_FIELD[i.key],
     })
@@ -262,23 +268,16 @@ function addPaperworkSteps(recs: Recommendation[], mustHaves: MustHave[]): void 
 }
 
 /**
- * Ready / almost / not ready — from the score AND the must-haves. A blocker
- * outranks any score; a must-have not yet answered keeps a high score at
- * "almost" (we have not checked it), never at "not ready".
+ * Application preparation from the score. Paperwork counts remain available
+ * for a separate joining checklist, never a claim that someone cannot apply.
  */
 export function verdictFor(score: number, mustHaves: MustHave[]): Verdict {
   const blockers = mustHaves.filter((m) => m.status === 'missing').length
   const pending = mustHaves.filter((m) => m.status === 'in_progress' || m.status === 'unknown').length
-  const key: Verdict['key'] = blockers > 0 || score < 50 ? 'not_ready' : pending > 0 || score < 75 ? 'almost' : 'ready'
-  const copy = VERDICT_COPY[key]
-  // The label names the REAL reason, so a low CV score is never presented as a
-  // paperwork problem, and an unchecked item never as a blocker.
-  const steps = (n: number) => `${n} paperwork step${n === 1 ? '' : 's'}`
-  const label =
-    key === 'ready' ? copy.label
-    : key === 'not_ready' ? (blockers > 0 ? `${copy.label} — ${steps(blockers)} to sort out` : `${copy.label} — strengthen your CV first`)
-    : pending > 0 ? `${copy.label} — ${steps(pending)} to check` : `${copy.label} — a few profile fixes left`
-  return { key, label, message: copy.message, blockers, pending }
+  const key: Verdict['key'] = score < 50 ? 'not_ready' : score < 75 ? 'almost' : 'ready'
+  const label = key === 'ready' ? 'Strong application foundation' : key === 'almost' ? 'A useful foundation to build on' : 'Let’s strengthen your application'
+  const message = 'This is an initial assessment of the information available, not a hiring prediction. Review the evidence and confirm unclear details. Joining paperwork is checked separately.'
+  return { key, label, message, blockers, pending }
 }
 
 function situationEvidence(scenario: Scenario): string {
@@ -390,7 +389,7 @@ function addNextSteps(
 
   // Declared "no Gulf experience", but the CV clearly shows Gulf work.
   if ((scenario === 'experienced' || scenario === 'fresher') && gulf.corroborated && gulf.kinds >= 2) {
-    push('gulf_market_position', 'Your CV shows Gulf work — answer "Yes" to Gulf experience', 'You are being scored as a candidate without Gulf experience, which undersells you.', 9)
+    push('gulf_market_position', 'Confirm the Gulf references in your CV', 'We found Gulf references. Confirm whether these describe employment, clients or contact details before changing your experience answer.', 9)
   }
   if (lowSignal) return
 
@@ -403,7 +402,7 @@ function addNextSteps(
   recs.push({
     dimension: 'resume_quality',
     title: 'Tailor your CV to each job description',
-    why: 'A strong general CV still gets filtered when it does not use the words of the specific job. Match each application to its job description.',
+    why: 'Compare your experience with the actual job description and use accurate, relevant examples. Never add skills you do not have.',
     impact: 'medium',
     difficulty: 'low',
     priority: 3,

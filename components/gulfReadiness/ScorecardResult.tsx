@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { buttonVariants } from '@/components/ui/Button'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
 
@@ -29,7 +30,7 @@ function ScoreRing({ score, colour }: { score: number; colour: string }) {
   const c = 2 * Math.PI * r
   const dash = (score / 100) * c
   return (
-    <svg viewBox="0 0 120 120" className="h-36 w-36 -rotate-90">
+    <svg aria-hidden="true" viewBox="0 0 120 120" className="h-36 w-36 -rotate-90">
       <circle cx="60" cy="60" r={r} fill="none" strokeWidth="10" className="stroke-line" />
       <circle
         cx="60"
@@ -37,6 +38,7 @@ function ScoreRing({ score, colour }: { score: number; colour: string }) {
         r={r}
         fill="none"
         strokeWidth="10"
+        stroke="currentColor"
         strokeLinecap="round"
         strokeDasharray={`${dash} ${c}`}
         className={`${colour} transition-[stroke-dasharray] duration-1000 ease-out`}
@@ -61,6 +63,8 @@ export function ScorecardResult({
   source?: 'resume' | 'profile'
 }) {
   const colour = bandColour(result.band.key)
+  const [showAll, setShowAll] = useState(false)
+  const visibleRecommendations = locked ? result.recommendations.slice(0, 1) : showAll ? result.recommendations : result.recommendations.slice(0, 3)
 
   return (
     <div className="flex flex-col gap-6">
@@ -84,10 +88,18 @@ export function ScorecardResult({
             {/* The band's scenario-aware message when the verdict agrees with it;
                 otherwise the verdict's own, so the words never contradict. */}
             <p className="text-[14px] leading-relaxed text-ink-soft type-helper">
-              {!result.verdict || result.verdict.key === 'ready' ? result.band.message : result.verdict.message}
+              {result.verdict?.message ?? result.band.message}
             </p>
           </div>
         </div>
+
+        {result.assessment ? <div className="mt-5 rounded-ctl border border-line bg-canvas p-4">
+          <p className="text-sm font-semibold text-ink">Provisional score · initial assessment</p>
+          <p className="mt-1 text-sm text-ink-soft">{result.assessment.targetJobTitle || 'Role not chosen'} · {result.assessment.targetCountry || 'Exploring Gulf countries'}</p>
+          <p className="mt-2 text-sm text-ink-soft">Based on career information detected, not a verified match to a vacancy or a prediction of salary. Confirming information can change the score.</p>
+          {result.assessment.reasons.length ? <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">{result.assessment.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul> : null}
+          <p className="mt-2 text-xs text-ink-muted">Assessment rules {result.assessment.version}. Creating an account does not change this result.</p>
+        </div> : null}
 
         {result.lowResumeSignal ? (
           <p className="mt-5 rounded-ctl border border-line bg-canvas/60 px-3.5 py-2.5 text-[12px] text-ink-muted type-caption">
@@ -102,7 +114,8 @@ export function ScorecardResult({
           scan most of it is "not checked yet": the Career Profile asks. */}
       {result.mustHaves?.length ? (
         <section className="rounded-card border border-line bg-white p-6 sm:p-8">
-          <h3 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Paperwork employers check</h3>
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Joining preparation · separate from your score</h3>
+          <p className="mt-2 text-sm text-ink-soft">Items to review for your route. Exact requirements depend on the country, occupation and employer; these are not verified eligibility decisions.</p>
           <ul className="mt-4 flex flex-col gap-2.5">
             {result.mustHaves.map((m) => (
               <li key={m.key} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
@@ -114,7 +127,7 @@ export function ScorecardResult({
             ))}
           </ul>
           {source === 'resume' && result.mustHaves.some((m) => m.status === 'unknown') ? (
-            <p className="mt-3 text-[12px] text-ink-muted type-caption">A resume cannot show these. Your free Career Profile asks, then tells you exactly what is left.</p>
+            <p className="mt-3 text-[12px] text-ink-muted type-caption">We could not confirm these from this scan. Review them in your free Career Profile; unknown does not mean you fail.</p>
           ) : null}
         </section>
       ) : null}
@@ -144,6 +157,12 @@ export function ScorecardResult({
                     style={{ width: `${pct}%` }}
                   />
                 </div>
+                {!locked ? <details className="mt-2 rounded-ctl bg-canvas/50 p-3">
+                  <summary className="cursor-pointer text-sm font-semibold text-teal">Why this score?</summary>
+                  <p className="mt-3 text-xs font-bold uppercase text-ink-muted">What we detected</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-ink-soft">{d.evidence.length ? d.evidence.map(item => <li key={item}>{item}</li>) : <li>No clear evidence detected. This does not mean you lack the qualification or skill.</li>}</ul>
+                  {d.gaps.length ? <><p className="mt-3 text-xs font-bold uppercase text-ink-muted">Review or clarify</p><ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-ink-soft">{d.gaps.map(item => <li key={item}>{item}</li>)}</ul></> : null}
+                </details> : null}
               </div>
             )
           })}
@@ -156,7 +175,7 @@ export function ScorecardResult({
           <h3 className="text-[13px] font-bold uppercase tracking-wide text-teal">Working in your favour</h3>
           <ul className="mt-3 flex flex-col gap-2.5">
             {result.strengths.length ? (
-              result.strengths.map((s, i) => (
+              (locked ? result.strengths.slice(0, 2) : result.strengths).map((s, i) => (
                 <li key={i} className="flex gap-2 text-[13px] text-ink-soft">
                   <span className="text-teal">✓</span>
                   {s}
@@ -169,17 +188,17 @@ export function ScorecardResult({
         </section>
 
         <section className="rounded-card border border-line bg-white p-6">
-          <h3 className="text-[13px] font-bold uppercase tracking-wide text-alert">Holding your score back</h3>
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-alert">Information to strengthen</h3>
           <ul className="mt-3 flex flex-col gap-2.5">
             {result.weaknesses.length ? (
-              result.weaknesses.map((w, i) => (
+              (locked ? result.weaknesses.slice(0, 1) : result.weaknesses).map((w, i) => (
                 <li key={i} className="flex gap-2 text-[13px] text-ink-soft">
                   <span className="text-alert">!</span>
                   {w}
                 </li>
               ))
             ) : (
-              <li className="text-[13px] text-ink-muted">No major gaps stood out — a optimized resume is your next step.</li>
+              <li className="text-[13px] text-ink-muted">No major gaps stood out in this scan. Compare your profile with your target job next.</li>
             )}
           </ul>
         </section>
@@ -187,20 +206,23 @@ export function ScorecardResult({
 
       {/* Recommendations — first one always visible; the ranked rest gated */}
       <section className="rounded-card border border-line bg-white p-6 sm:p-8">
-        <h3 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">If you fix one thing, start here</h3>
+        <h3 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">Your next useful steps</h3>
         <div className="mt-4 flex flex-col gap-3">
-          {(locked ? result.recommendations.slice(0, 1) : result.recommendations).map((r, i) => (
+          {visibleRecommendations.map((r, i) => (
             <div key={i} className="rounded-card border border-line bg-canvas/50 p-4">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-mono text-[12px] text-ink-muted">#{i + 1}</span>
                 <span className="text-[14px] font-semibold text-ink">{r.title}</span>
                 <span className="rounded-full bg-white px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide text-ink-muted">
-                  {r.gain ? `+${r.gain} pts · ` : ''}{r.impact} impact · {r.difficulty} effort
+                  {r.stage === 'paperwork' ? 'Prepare for joining' : r.stage === 'apply' ? 'Prepare your application' : 'Improve your profile'}
                 </span>
               </div>
               <p className="mt-1.5 text-[13px] text-ink-soft type-helper">{r.why}</p>
+              {!locked && r.steps?.length ? <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-ink-soft">{r.steps.map(item => <li key={item}>{item}</li>)}</ol> : null}
+              {!locked && source === 'profile' ? <Link href="/profile?view=details" className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-teal">Review my Career Profile</Link> : null}
             </div>
           ))}
+          {!locked && result.recommendations.length > 3 ? <button type="button" aria-expanded={showAll} onClick={() => setShowAll(!showAll)} className="min-h-11 text-left text-sm font-semibold text-teal">{showAll ? 'Show top three steps' : `Show all ${result.recommendations.length} steps`}</button> : null}
           {locked && result.recommendations.length > 1 ? (
             <p className="text-[12px] text-ink-muted type-caption">
               {result.recommendations.length - 1} more ranked {result.recommendations.length - 1 === 1 ? 'improvement is' : 'improvements are'} in your full report.
@@ -215,7 +237,7 @@ export function ScorecardResult({
           <h3 className="font-display text-2xl text-ink">See your complete Gulf Readiness report</h3>
           <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-ink-soft type-helper">
             Create a free account to unlock the full breakdown — every dimension explained, your complete ranked
-            action plan, and what to fix first. Your result is already saved in this browser and comes with you.
+            action plan, and what to fix first. Continue in this tab to carry your result into signup. If browser storage is unavailable, you may need to repeat the check.
           </p>
           <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href="/signup" className={buttonVariants({ variant: 'purchase' })}>

@@ -28,7 +28,7 @@ const SCE_TEXT = /\bsaudi council of engineers\b|\bsce\b/
 export type Profession = 'health' | 'engineer' | 'other'
 
 export function professionOf(text: string, facts: GulfFacts): Profession {
-  const t = `${normalise(text)} ${(facts.targetJobTitle ?? '').toLowerCase()}`
+  const t = facts.targetJobTitle?.trim() ? normalise(facts.targetJobTitle) : normalise(text)
   if (HEALTH.test(t)) return 'health'
   if (ENGINEER.test(t)) return 'engineer'
   return 'other'
@@ -53,7 +53,8 @@ function daysUntil(dateStr: string, today: Date): number | null {
 export function evaluateMustHaves(text: string, facts: GulfFacts, today: Date): MustHave[] {
   const t = normalise(text)
   const out: MustHave[] = []
-  const target = facts.targetCountry ?? null
+  const country = facts.targetCountry?.toLowerCase().replace(/ /g, '_')
+  const target = country === 'united_arab_emirates' ? 'uae' : country ?? null
   const profession = professionOf(text, facts)
 
   // 1. Passport — for everyone.
@@ -94,7 +95,7 @@ export function evaluateMustHaves(text: string, facts: GulfFacts, today: Date): 
   // 4. Professional licence — regulated jobs only (health anywhere; engineers for Saudi).
   if (profession === 'health' || (profession === 'engineer' && target === 'saudi_arabia')) {
     let s = fromStatus(facts.professionalLicence)
-    if (s === 'unknown' && (profession === 'health' ? HEALTH_LICENCE_TEXT.test(t) : SCE_TEXT.test(t))) s = 'ok'
+    // A regulator name, exam or DataFlow mention is not proof of an active licence.
     if (s !== 'na') {
       if (profession === 'health') {
         const regulator = (target && HEALTH_REGULATORS[target]) || 'the health regulator of your target country'

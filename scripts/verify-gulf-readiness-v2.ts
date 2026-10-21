@@ -3,7 +3,8 @@
  *
  *   node_modules/.bin/sucrase-node scripts/verify-gulf-readiness-v2.ts
  *
- * Pins the founder-approved rules:
+ * Historical fixtures retained; v3 assertions enforce optional extras and separate joining checks.
+ * Original v2 rules (superseded below):
  *   - photo: 0 none · 2 hidden · 4 shown · 6 shown + checklist confirmed; unknown
  *     (pasted text) is left out, never counted as missing
  *   - notice period scored by how soon, not whether it is mentioned
@@ -65,10 +66,10 @@ const hidden = score({ ...base, photo_url: 'p.jpg', photo_visible: false })
 const shown = score({ ...base, photo_url: 'p.jpg', photo_visible: true })
 const confirmed = score({ ...base, photo_url: 'p.jpg', photo_visible: true, photo_checklist_confirmed: true })
 const e = (r: ReturnType<typeof score>) => essentialsOf(r).score
-check('essentials: none < hidden < shown < confirmed', e(none) < e(hidden) && e(hidden) < e(shown) && e(shown) < e(confirmed), [e(none), e(hidden), e(shown), e(confirmed)])
-check('a confirmed professional photo is worth 6 points over none', e(confirmed) - e(none) === 6, e(confirmed) - e(none))
-check('no photo → "Add a professional photo" worth +6', none.recommendations.some((r) => r.title === 'Add a professional photo' && r.gain === 6))
-check('shown but unconfirmed → asked to confirm the checklist', shown.recommendations.some((r) => r.title === 'Confirm your photo is professional'))
+check('optional photo states have equal scores', e(none) === e(hidden) && e(hidden) === e(shown) && e(shown) === e(confirmed))
+check('photo confirmation never adds points', e(confirmed) === e(none))
+check('missing photo creates no requirement', !none.recommendations.some(r => /photo/i.test(r.title)))
+check('unconfirmed photo creates no requirement', !shown.recommendations.some(r => /photo/i.test(r.title)))
 check('confirmed photo → no photo step', !confirmed.recommendations.some((r) => /photo/i.test(r.title)))
 const pasted = calculateGulfReadiness({ answers: IN_GULF, resumeText: 'x '.repeat(10), facts: { photo: 'unknown' } })
 check('anonymous pasted text: photo left out, never told it is missing', !pasted.recommendations.some((r) => /photo/i.test(r.title)))
@@ -77,7 +78,7 @@ console.log('2. notice period')
 check('notice: "Immediate" = 0, "1 month" = 30, "90 days" = 90, "3 months" = 90', noticeDays('Immediate') === 0 && noticeDays('1 month') === 30 && noticeDays('90 days') === 90 && noticeDays('3 months') === 90)
 const fast = e(score({ ...base, notice_period: 'Immediate' }))
 const slow = e(score({ ...base, notice_period: '3 months' }))
-check('immediate joiner scores higher than 3 months notice', fast > slow, [fast, slow])
+check('actual availability earns equal credit regardless of notice length', fast === slow)
 
 console.log('3. must-haves')
 const keys = (r: ReturnType<typeof score>) => r.mustHaves.map((m) => m.key).sort().join(',')
@@ -98,16 +99,16 @@ check('attestation "not needed" is dropped', !notNeeded.mustHaves.some((m) => m.
 
 console.log('4. verdict')
 check('everything in place → Ready to apply', confirmed.verdict.key === 'ready', [confirmed.finalScore, confirmed.verdict])
-check('expired passport → Not ready yet, whatever the score', expired.verdict.key === 'not_ready' && expired.finalScore >= 75, [expired.finalScore, expired.verdict.key])
+check('joining paperwork does not override application assessment', expired.verdict.key === confirmed.verdict.key && expired.verdict.blockers > 0)
 const unanswered = score({ ...base, degree_attestation: null, photo_url: 'p.jpg', photo_checklist_confirmed: true })
-check('attestation not answered → Almost ready (not checked), not "not ready"', unanswered.verdict.key === 'almost' && unanswered.verdict.pending === 1, unanswered.verdict)
+check('unknown paperwork stays pending without overriding application assessment', unanswered.verdict.key === confirmed.verdict.key && unanswered.verdict.pending === 1)
 check('paperwork steps lead the path', unanswered.recommendations[0]?.stage === 'paperwork', unanswered.recommendations[0])
 check('the path always ends with an apply step', confirmed.recommendations.some((r) => r.stage === 'apply'))
 
-check('a blocker is named as paperwork to sort out', /to sort out/.test(expired.verdict.label), expired.verdict.label)
-check('an unanswered item is named as paperwork to check', /to check/.test(unanswered.verdict.label), unanswered.verdict.label)
+check('headline does not claim paperwork eligibility', !/to sort out/.test(expired.verdict.label))
+check('unknown paperwork is not called a failure', !/not ready/i.test(unanswered.verdict.label))
 const thin = calculateGulfReadiness({ answers: IN_GULF, resumeText: 'Ravi Kumar\nSite engineer\nB.E. Mechanical, Anna University\n' + 'worked on projects '.repeat(40), today: TODAY })
-check('a low CV score is never presented as a paperwork problem', thin.verdict.key === 'not_ready' && /strengthen your CV/.test(thin.verdict.label), thin.verdict.label)
+check('thin evidence is provisional', thin.assessment?.provisional === true)
 const bhm = score({ ...base, education: [{ degree: 'BHM', field_of_study: 'Hotel Management', institution: 'IHM Mumbai' }], degree_attestation: null })
 check('a hospitality degree (BHM) needs attestation too', bhm.mustHaves.some((m) => m.key === 'degree_attestation'))
 const mention = e(score({ ...confirmedProfile(), arabic_level: null, additional_information: [{ label: 'Languages', value: 'English, Arabic' }] }))
@@ -120,6 +121,14 @@ const b = score({ ...confirmedProfile(), nationality: 'Filipino' })
 const c = score({ ...confirmedProfile(), nationality: 'British' })
 check('which nationality never changes the score', a.finalScore === b.finalScore && b.finalScore === c.finalScore, [a.finalScore, b.finalScore, c.finalScore])
 function confirmedProfile(): ProfileScoringInput { return { ...base, photo_url: 'p.jpg', photo_checklist_confirmed: true } }
+
+check('Arabic is not a universal score penalty', e(score({ ...base, arabic_level: 'none' })) === e(score({ ...base, arabic_level: 'native' })))
+check('driving licence is not a universal score penalty', e(score({ ...base, has_driving_license: false })) === e(score({ ...base, has_driving_license: true })))
+const undecided = calculateGulfReadiness({ answers: ABROAD, resumeText: 'x '.repeat(10), today: TODAY })
+check('undecided country remains explicit', undecided.assessment?.targetCountry === null && undecided.assessment.reasons.some(r => /country/.test(r)))
+const targeted = calculateGulfReadiness({ answers: { ...ABROAD, targetCountry: 'Qatar', targetJobTitle: 'Accountant' }, resumeText: 'x '.repeat(10), today: TODAY })
+check('target survives result snapshot', targeted.assessment?.targetCountry === 'Qatar' && targeted.assessment.targetJobTitle === 'Accountant')
+check('same snapshot survives signup serialization', JSON.stringify(targeted) === JSON.stringify(JSON.parse(JSON.stringify(targeted))))
 
 console.log('6. abroad')
 const abroad = score({ ...base, current_location: 'Mumbai, India', visa_status: null }, ABROAD)
