@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import {PreparationReport} from './PreparationReport'
 import { useState } from 'react'
 import { buttonVariants } from '@/components/ui/Button'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
@@ -66,6 +67,7 @@ export function ScorecardResult({
   const [showAll, setShowAll] = useState(false)
   const visibleRecommendations = locked ? result.recommendations.slice(0, 1) : showAll ? result.recommendations : result.recommendations.slice(0, 3)
 
+  if (result.preparation) return <PreparationReport result={result} locked={locked} />
   return (
     <div className="flex flex-col gap-6">
       {/* Hero */}

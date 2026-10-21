@@ -35,7 +35,7 @@ export const GULF_COUNTRIES = [
   { value: 'oman',         label: 'Oman',         flag: '🇴🇲' },
   { value: 'kuwait',       label: 'Kuwait',       flag: '🇰🇼' },
   { value: 'bahrain',      label: 'Bahrain',      flag: '🇧🇭' },
-  { value: 'generic_gulf', label: 'Generic Gulf', flag: '' },
+  { value: 'generic_gulf', label: 'Open to all six Gulf countries', flag: '' },
 ] as const
 
 export type GulfCountry = (typeof GULF_COUNTRIES)[number]['value']

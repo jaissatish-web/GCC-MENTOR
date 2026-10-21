@@ -2,6 +2,7 @@
 
 import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import { rebaseImportField } from '@/lib/resumeParse/reviewPlan'
+import { INTAKE_KEY, contextFromProfile } from '@/lib/careerIntake/shared'
 import { ResumeReviewPage } from '@/components/profile/ResumeReviewPage'
 import { WorkExperienceItem } from '@/components/profile/WorkExperienceItem'
 import { sortedWorkRoles } from '@/lib/profileWorkNavigation'
@@ -52,7 +53,7 @@ import { mergeDraftIntoProfile, describeReplaceLosses } from '@/lib/profileMerge
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import { isHeadlineEntry, profileHeadline, setProfileHeadline } from '@/lib/resumeHeadline'
 import { calculateReadiness, fieldPointsFor, type ReadinessResult } from '@/lib/readiness'
-import { answersFromReadinessCategory, scoreProfileReadiness } from '@/lib/gulfReadiness/fromProfile'
+import { scoreCareerPreparation as scoreProfileReadiness, answersFromReadinessCategory } from '@/lib/gulfReadiness/fromProfile'
 import { toDateInputValue, toMonthInputValue } from '@/lib/partialDates'
 import { splitPhone, joinPhone } from '@/lib/phone'
 import { TextField, TextAreaField, SelectField, DateField, PhoneField } from '@/components/ui/FormField'
@@ -1106,11 +1107,14 @@ function ProfileScreen() {
               // Reuse explicit guest choices only for a new profile. Never overwrite
               // an existing profile or change historical job titles.
               try {
-                const choices = JSON.parse(window.sessionStorage.getItem('gulf_readiness_answers') ?? 'null')
+                const intake=JSON.parse(window.sessionStorage.getItem(INTAKE_KEY)??'null')
+                const choices = intake?.context ?? JSON.parse(window.sessionStorage.getItem('gulf_readiness_answers') ?? 'null')
                 if (choices && typeof choices === 'object') {
                   const countries: Record<string, string> = { 'Saudi Arabia': 'saudi_arabia', 'United Arab Emirates': 'uae', Qatar: 'qatar', Kuwait: 'kuwait', Oman: 'oman', Bahrain: 'bahrain' }
-                  if (typeof choices.targetCountry === 'string') initial.target_country = countries[choices.targetCountry] ?? ''
-                  if (typeof choices.targetJobTitle === 'string') initial.target_job_title = choices.targetJobTitle.trim().slice(0, 120)
+                  if (typeof choices.targetCountry === 'string') initial.target_country = countries[choices.targetCountry] ?? choices.targetCountry
+                  const profession=choices.profession??choices.targetJobTitle
+                  if (typeof profession === 'string') initial.target_job_title = profession.trim().slice(0,120)
+                  if(typeof choices.currentlyInGulf==='boolean')initial.currently_in_gulf=choices.currentlyInGulf
                 }
               } catch { /* The draft remains usable if the handoff is unavailable. */ }
               setEditor(initial)
@@ -1260,6 +1264,10 @@ function ProfileScreen() {
     if (!editor) return { score: 0, category: 'fresher', missing: [] }
     return calculateReadiness({
       currently_in_gulf: editor.currently_in_gulf,
+      career_stage:contextFromProfile(editor).careerStage,
+      has_gulf_experience: contextFromProfile(editor).hasGulfExperience,
+      no_formal_qualification: contextFromProfile(editor).noFormalQualification,
+      professional_summary: editor.professional_summary,
       full_name: editor.full_name,
       phone: editor.phone,
       email: editor.email,
@@ -1286,7 +1294,8 @@ function ProfileScreen() {
   // reconcile with the ring above them instead of being a second, drifting
   // source of truth.
   const sectionPoints = useMemo(() => {
-    const perField = fieldPointsFor(readiness.category)
+    if (!editor) return {}
+    const perField = fieldPointsFor(readiness.category, { ...editor, career_stage: contextFromProfile(editor).careerStage, currently_in_gulf: editor.currently_in_gulf ?? false })
     const missingFields = new Set(readiness.missing.map((m) => m.field))
     const out: Record<string, { earned: number; total: number }> = {}
     for (const [sectionId, fields] of Object.entries(SECTION_FIELDS)) {
@@ -1300,7 +1309,7 @@ function ProfileScreen() {
       out[sectionId] = { earned, total }
     }
     return out
-  }, [readiness.category, readiness.missing])
+  }, [readiness.category, readiness.missing, editor])
 
   const pointsFor = useCallback(
     (sectionId: string) => sectionPoints[sectionId] ?? { earned: 0, total: 0 },
@@ -1359,6 +1368,8 @@ function ProfileScreen() {
     const d = deferredEditor
     return scoreProfileReadiness(
       {
+        currently_in_gulf: d.currently_in_gulf,
+        date_of_birth: d.date_of_birth,
         professional_summary: d.professional_summary,
         phone: d.phone,
         email: d.email,
@@ -1693,6 +1704,7 @@ function ProfileScreen() {
   // so choosing a code before entering a number survives an empty stored value.
   const [phoneDraftDial, setPhoneDraftDial] = useState('')
   const [whatsappDraftDial, setWhatsappDraftDial] = useState('')
+  const [editWhatsapp,setEditWhatsapp]=useState(false)
   const storedPhoneParts = useMemo(() => splitPhone(editor?.phone), [editor?.phone])
   const storedWhatsappParts = useMemo(() => splitPhone(editor?.whatsapp), [editor?.whatsapp])
   const phoneParts = { ...storedPhoneParts, dial: storedPhoneParts.dial || (!storedPhoneParts.number ? phoneDraftDial : '') }
@@ -1857,6 +1869,7 @@ function ProfileScreen() {
           await fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
         }
         if (destination === 'review') {
+          try { sessionStorage.removeItem(INTAKE_KEY); sessionStorage.removeItem('gulf_readiness_answers') } catch { /* Storage may be unavailable. */ }
           setReviewingImport(false)
           setParseNotes([])
           setSubmitting(false)
@@ -2466,7 +2479,7 @@ function ProfileScreen() {
               onDialChange={(v) => { setPhoneDraftDial(v); setPhone(v, phoneParts.number) }}
               onNumberChange={(v) => setPhone(phoneParts.dial, v)}
             />
-            <PhoneField
+            <div><p className="field-label">WhatsApp · optional</p>{!editWhatsapp?<div className="mt-2 flex flex-wrap items-center gap-2"><p className="text-sm text-ink-soft">{editor.whatsapp ? editor.whatsapp.replace(/\D/g,'')===editor.phone.replace(/\D/g,'')?'Same as your phone number':editor.whatsapp:'Not added'}</p>{editor.phone&&!editor.whatsapp?<button type="button" className={buttonVariants({variant:'secondary',size:'sm'})} onClick={()=>setField({whatsapp:editor.phone})}>Use my phone number</button>:null}<button type="button" className={buttonVariants({variant:'ghost',size:'sm'})} onClick={()=>setEditWhatsapp(true)}>{editor.whatsapp?'Edit':'Add a different number'}</button></div>:<>            <PhoneField
               id="f_whatsapp"
               label="WhatsApp"
               helper="Leave blank if it is the same as your phone number."
@@ -2474,7 +2487,7 @@ function ProfileScreen() {
               number={whatsappParts.number}
               onDialChange={(v) => { setWhatsappDraftDial(v); setWhatsapp(v, whatsappParts.number) }}
               onNumberChange={(v) => setWhatsapp(whatsappParts.dial, v)}
-            />
+            /><button type="button" className="min-h-11 text-sm text-teal" onClick={()=>setEditWhatsapp(false)}>Done</button></>}</div>
             <TextField
               id="f_email"
               label="Email"

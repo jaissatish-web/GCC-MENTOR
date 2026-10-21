@@ -166,12 +166,13 @@ export interface ScoreBand {
 /** The complete result. Anonymous shows a subset of it; signup unblurs the rest. */
 export interface GulfReadinessResult {
   assessment?: {
-    version: '3.0'
+    version: '3.0' | '4.0'
     provisional: boolean
     reasons: string[]
     targetCountry: string | null
     targetJobTitle: string | null
   }
+  preparation?: import('./preparation').PreparationCheck[]
   scenario: Scenario
   scenarioLabel: string
   finalScore: number

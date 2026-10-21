@@ -1,31 +1,27 @@
 'use client'
 
 import Link from 'next/link'
+import {IntakeQuestions} from '@/components/gulfReadiness/IntakeQuestions'
+import {applyIntakeAnswers,intakeProfileReadiness,INTAKE_KEY,type CareerIntake} from '@/lib/careerIntake/shared'
+import {calculatePreparation} from '@/lib/gulfReadiness/preparation'
 import { ArrowUpTrayIcon, ClipboardDocumentIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
-import { useRef, useState, type ChangeEvent, type DragEvent } from 'react'
+import { useRef, useState, useEffect, type ChangeEvent, type DragEvent } from 'react'
 import { buttonVariants } from '@/components/ui/Button'
 import { ScorecardResult } from '@/components/gulfReadiness/ScorecardResult'
-import { saveHandoff } from '@/lib/gulfReadiness/handoff'
+import { saveHandoff,clearHandoff } from '@/lib/gulfReadiness/handoff'
 import type { FunnelAnswers, GulfReadinessResult } from '@/lib/gulfReadiness/types'
-import { Alert } from '@/components/ui/Alert'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { SCAN_NOTES } from '@/lib/processingNotes'
 
-/**
- * The free anonymous Gulf Readiness Scorecard — upload, three short questions, a
- * real score. One self-contained flow so it feels like a single tool opening from
- * the landing CTA, not a hop across pages.
- *
- * The score is arithmetic and the endpoint persists nothing (lib/gulfReadiness,
- * /api/gulf-readiness). The result is held in this browser for the signup handoff.
+/** One resume extraction feeds both scorecards and the signup draft.
+ * Guest facts remain in this tab until the user signs in and confirms them.
  */
-
-type Step = 'upload' | 'q1' | 'q2yes' | 'q2no' | 'target' | 'analyzing' | 'result'
+type Step = 'upload' | 'intake' | 'analyzing' | 'result'
 
 const MAX_TEXT = 20000
 const MIN_TEXT = 50
 
-const ANALYZE_STEPS = ['Reading your resume', 'Checking your career signals', 'Scoring your Gulf readiness']
+const ANALYZE_STEPS = ['Reading your resume', 'Organising your career history', 'Finding details to confirm']
 
 const Shell = ({ children, wide }: { children: React.ReactNode; wide?: boolean }) => (
   <main className="min-h-dvh bg-canvas text-ink">
@@ -49,47 +45,22 @@ const Shell = ({ children, wide }: { children: React.ReactNode; wide?: boolean }
   </main>
 )
 
-const Question = ({
-  eyebrow,
-  title,
-  options,
-  error,
-  onBack,
-}: {
-  eyebrow: string
-  title: string
-  options: { label: string; onClick: () => void }[]
-  error: string | null
-  onBack: () => void
-}) => (
-  <div className="text-center">
-    <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">{eyebrow}</p>
-    <h1 className="mt-3 type-title text-ink">{title}</h1>
-    <div className="mx-auto mt-8 flex max-w-md flex-col gap-3">
-      {options.map((o) => (
-        <button
-          key={o.label}
-          type="button"
-          onClick={o.onClick}
-          className="rounded-card border border-line-strong bg-white px-5 py-4 text-left text-[14px] font-semibold text-ink transition-colors hover:border-teal hover:bg-gold-soft/30"
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-    <button type="button" onClick={onBack} className="mt-4 min-h-11 px-3 text-sm font-semibold text-teal underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">Back to resume</button>
-    {error ? <Alert variant="danger" className="mt-5">{error}</Alert> : null}
-  </div>
-)
-
-
 export default function GulfReadinessScorePage() {
   const fileInput = useRef<HTMLInputElement>(null)
+  const intakeBusy = useRef(false)
+  const [intake,setIntake]=useState<CareerIntake|null>(null)
+  const keepIntake=(value:CareerIntake)=>{setIntake(value);try{sessionStorage.setItem(INTAKE_KEY,JSON.stringify(value))}catch{/* Browser-only draft persistence is unavailable. */}}
+  useEffect(()=>{
+    try{
+      const stored=JSON.parse(sessionStorage.getItem(INTAKE_KEY)??'null')
+      if(stored?.version===1&&['work_experience','education','skills','additional_information'].every(key=>Array.isArray(stored.draft?.[key]))&&stored.context&&typeof stored.resumeText==='string'){
+        setIntake(stored)
+        const handoff=JSON.parse(sessionStorage.getItem('gulf_readiness_handoff')??'null')
+        if(handoff?.result?.preparation){setResult(handoff.result);setStep('result')}else setStep('intake')
+      }
+    }catch{/* Start normally when a draft is unavailable or malformed. */}
+  },[])
   const [step, setStep] = useState<Step>('upload')
-  const [answers, setAnswers] = useState<FunnelAnswers>({ hasGulfExperience: false })
-  const [targetCountry, setTargetCountry] = useState('')
-  const [targetJobTitle, setTargetJobTitle] = useState('')
-  const chooseSituation = (next: FunnelAnswers) => { setAnswers(next); setStep('target') }
   const [file, setFile] = useState<File | null>(null)
   const [pasteMode, setPasteMode] = useState(false)
   const [resumeText, setResumeText] = useState('')
@@ -102,46 +73,39 @@ export default function GulfReadinessScorePage() {
     if (!next) return
     const lower = next.name.toLowerCase()
     if (!/\.(pdf|docx)$/.test(lower)) { setFile(null); return setError('Choose a PDF or Word (.docx) file.') }
-    if (next.size > 4 * 1024 * 1024) { setFile(null); return setError('Your resume must be 4MB or smaller. Choose a smaller file or paste its text.') }
+    const maxMb = lower.endsWith('.docx') ? 2 : 4
+    if (next.size > maxMb * 1024 * 1024) { setFile(null); return setError(`Your ${maxMb === 2 ? 'Word' : 'PDF'} resume must be ${maxMb}MB or smaller. Choose a smaller file or paste its text.`) }
     setFile(next)
     setPasteMode(false)
   }
 
-  const startQuestions = () => {
+  const startQuestions = async () => {
+    if(intakeBusy.current)return
     setError(null)
     if (!pasteMode && !file) return setError('Choose a PDF or Word (.docx) resume to continue.')
     if (pasteMode && resumeText.trim().length < MIN_TEXT) return setError('Paste at least 50 characters of resume text to continue.')
     if (pasteMode && resumeText.length > MAX_TEXT) return setError('Pasted resume text must be 20,000 characters or fewer.')
-    setStep('q1')
+    intakeBusy.current=true;setStep('analyzing')
+    const body=new FormData()
+    if(!pasteMode&&file)body.append('file',file);else body.append('resume_text',resumeText.trim())
+    try{
+      const response=await fetch('/api/career-intake',{method:'POST',body})
+      const payload=await response.json()
+      if(!response.ok||!payload.intake)throw new Error(payload.error||'We could not read your resume. Please retry.')
+      clearHandoff();setResult(null);keepIntake(payload.intake);setStep('intake')
+    }catch(e){setError(e instanceof Error?e.message:'Could not read the resume.');setStep('upload')}
+    finally{intakeBusy.current=false}
   }
-
-  const runScore = async (answers: FunnelAnswers) => {
-    setStep('analyzing')
-    setError(null)
-    const body = new FormData()
-    if (!pasteMode && file) body.append('file', file)
-    else body.append('resume_text', resumeText.trim())
-    body.append('answers', JSON.stringify(answers))
-
-    try {
-      const res = await fetch('/api/gulf-readiness', { method: 'POST', body })
-      const payload = (await res.json()) as {
-        success?: boolean
-        result?: GulfReadinessResult
-        resumeText?: string
-        error?: string
-      }
-      if (!res.ok || !payload.success || !payload.result) {
-        throw new Error(payload.error ?? 'We could not score your resume. Please try again.')
-      }
-      saveHandoff({ answers, result: payload.result, resumeText: payload.resumeText ?? resumeText })
-      setResult(payload.result)
-      setStep('result')
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong. Please try again.')
-      // Keep the selected input and its draft so the visitor can correct it.
-      setStep('upload')
-    }
+  const finishIntake=()=>{
+    if(!intake)return
+    const draft=applyIntakeAnswers(intake.draft,intake.context)
+    const updated={...intake,draft}
+    const c=intake.context
+    const computed=calculatePreparation({...draft,education:draft.education,skills:draft.skills,work_experience:draft.work_experience.map(w=>({...w,highlights:w.highlights??[]}))},c)
+    const answers:FunnelAnswers={hasGulfExperience:c.hasGulfExperience===true,currentlyInGulf:c.currentlyInGulf===true,hasProfessionalExperience:c.careerStage==='experienced',targetCountry:c.targetCountry,targetJobTitle:c.profession}
+    try{sessionStorage.setItem(INTAKE_KEY,JSON.stringify(updated))}catch{/* Result remains visible; handoff warns that storage may be unavailable. */}
+    saveHandoff({answers,result:computed,resumeText:intake.resumeText})
+    setIntake(updated);setResult(computed);setStep('result')
   }
 
   // ---- steps ----------------------------------------------------------------
@@ -152,7 +116,7 @@ export default function GulfReadinessScorePage() {
           <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Free Gulf readiness score</p>
           <h1 className="mt-3 type-title text-ink">How Gulf-ready is your career?</h1>
           <p className="mt-3 type-body text-ink-soft">
-            Four short questions and your resume. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
+            Upload once. We read your resume, then ask only for unclear or missing details. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
           </p>
         </div>
 
@@ -189,7 +153,7 @@ export default function GulfReadinessScorePage() {
                   onChange={(event: ChangeEvent<HTMLInputElement>) => { chooseFile(event.target.files?.[0] ?? null); event.target.value = '' }} />
                 {file ? <CheckCircleIcon className="mx-auto size-8 text-teal" aria-hidden="true" /> : <ArrowUpTrayIcon className="mx-auto size-8 text-teal" aria-hidden="true" />}
                 <h2 className="mt-3 break-words font-display type-card text-ink">{file ? file.name : 'Choose your resume'}</h2>
-                <p id="resume-upload-hint" className="mt-2 text-sm text-ink-soft type-helper">PDF or Word (.docx) · Maximum 4MB</p>
+                <p id="resume-upload-hint" className="mt-2 text-sm text-ink-soft type-helper">PDF up to 4MB · Word (.docx) up to 2MB</p>
                 <button type="button" onClick={() => fileInput.current?.click()} className={buttonVariants({ variant: 'secondary', size: 'sm' }) + ' mt-4'}>{file ? 'Change file' : 'Choose a file'}</button>
                 <p className="mt-3 text-xs text-ink-muted type-caption">You can also drag and drop your file here.</p>
               </div>
@@ -199,76 +163,13 @@ export default function GulfReadinessScorePage() {
           {error ? <p id="resume-input-error" role="alert" className="mt-3 rounded-ctl border border-alert bg-alert-soft px-4 py-3 text-sm text-alert type-helper">{error}</p> : null}
           <button type="button" onClick={startQuestions} className={buttonVariants({ variant: 'primary' }) + ' mt-4 w-full'}>Continue</button>
           <p className="mt-4 text-center text-sm"><Link href="/signup" className="text-teal underline">No resume? Create your free Career Profile</Link></p>
-          <p className="mt-4 text-center text-xs leading-relaxed text-ink-muted type-caption">Your anonymous resume check isn’t saved to our servers.</p>
+          <p className="mt-4 text-center text-xs leading-relaxed text-ink-muted type-caption">Your resume is processed to extract career details. Before signup, the draft stays in this browser tab; no Career Profile is saved. Each attempted reading uses one daily scan.</p>
         </div>
       </Shell>
     )
   }
 
-  if (step === 'q1') {
-    return (
-      <Shell>
-        <Question error={error} onBack={() => { setStep('upload'); setError(null) }}
-          eyebrow="Question 1 of 4"
-          title="Have you worked in the Gulf / Middle East?"
-          options={[
-            { label: 'Yes, I have Gulf / Middle East experience', onClick: () => { setStep('q2yes') } },
-            { label: 'No, I haven’t worked in the Gulf yet', onClick: () => { setStep('q2no') } },
-          ]}
-        />
-      </Shell>
-    )
-  }
-
-  if (step === 'q2yes') {
-    return (
-      <Shell>
-        <Question error={error} onBack={() => { setStep('upload'); setError(null) }}
-          eyebrow="Question 2 of 4"
-          title="Where are you based right now?"
-          options={[
-            { label: 'I’m currently in the Gulf / Middle East', onClick: () => chooseSituation({ hasGulfExperience: true, currentlyInGulf: true }) },
-            { label: 'I’ve returned / I’m now outside the Gulf', onClick: () => chooseSituation({ hasGulfExperience: true, currentlyInGulf: false }) },
-          ]}
-        />
-      </Shell>
-    )
-  }
-
-  if (step === 'q2no') {
-    return (
-      <Shell>
-        <Question error={error} onBack={() => { setStep('upload'); setError(null) }}
-          eyebrow="Question 2 of 4"
-          title="Do you have professional work experience?"
-          options={[
-            { label: 'Yes, I have professional experience', onClick: () => chooseSituation({ hasGulfExperience: false, hasProfessionalExperience: true }) },
-            { label: 'No, I’m a fresher / recent graduate', onClick: () => chooseSituation({ hasGulfExperience: false, hasProfessionalExperience: false }) },
-          ]}
-        />
-      </Shell>
-    )
-  }
-
-  if (step === 'target') {
-    return <Shell>
-      <p className="text-xs font-bold uppercase tracking-wider text-teal">Questions 3–4 of 4</p>
-      <h1 className="mt-3 type-title">Where would you like to go next?</h1>
-      <p className="mt-3 text-ink-soft">Choose a direction. You can refine it after reviewing your profile.</p>
-      <form className="mt-6 space-y-5 rounded-card border border-line bg-white p-6" onSubmit={(event) => { event.preventDefault(); void runScore({ ...answers, targetCountry, targetJobTitle }) }}>
-        <div><label htmlFor="target-country" className="field-label">Target Gulf country</label>
-          <select id="target-country" className="field mt-2 w-full" value={targetCountry} onChange={event => setTargetCountry(event.target.value)}>
-            <option value="">Not sure yet — help me explore</option>
-            {['Saudi Arabia', 'United Arab Emirates', 'Qatar', 'Kuwait', 'Oman', 'Bahrain'].map(country => <option key={country}>{country}</option>)}
-          </select></div>
-        <div><label htmlFor="target-role" className="field-label">Role you want to apply for</label>
-          <input id="target-role" className="field mt-2 w-full" maxLength={120} value={targetJobTitle} onChange={event => setTargetJobTitle(event.target.value)} placeholder="For example, accountant or electrical technician" />
-          <p className="mt-2 text-sm text-ink-muted">Use your latest title, or a role you want to move into. Leave blank if you need guidance.</p></div>
-        <button className={buttonVariants({ variant: 'primary' }) + ' w-full'} type="submit">See my free readiness result</button>
-        <button type="button" className="min-h-11 text-teal" onClick={() => setStep('q1')}>Back to questions</button>
-      </form>
-    </Shell>
-  }
+  if(step==='intake'&&intake)return <Shell><IntakeQuestions intake={intake} onChange={keepIntake} onFinish={finishIntake} onBack={()=>setStep('upload')}/></Shell>
 
   if (step === 'analyzing') {
     return (
@@ -280,7 +181,7 @@ export default function GulfReadinessScorePage() {
           <ProcessingOrbit size={168} />
           <div>
             <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Building your scorecard</p>
-            <h1 className="mt-3 type-title">Scoring your Gulf readiness</h1>
+            <h1 className="mt-3 type-title">Reading your career details</h1>
           </div>
           <div className="w-full max-w-sm text-left">
             <ProcessingSteps steps={ANALYZE_STEPS} stepMs={1600} notes={SCAN_NOTES} />
@@ -297,6 +198,7 @@ export default function GulfReadinessScorePage() {
         <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Your Gulf readiness</p>
         <h1 className="mt-3 type-title">Here&rsquo;s where your career stands</h1>
       </div>
+      {intake ? <section className="mb-5 rounded-card border border-line bg-white p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-sm font-semibold text-teal">Profile Readiness · initial career draft</p><p className="mt-2 text-sm text-ink-soft">{intake.draft.work_experience.length} {intake.draft.work_experience.length===1?'role':'roles'} · {intake.draft.skills.length} {intake.draft.skills.length===1?'skill':'skills'} · {intake.draft.education.length} {intake.draft.education.length===1?'qualification':'qualifications'}</p></div><span className="font-mono text-3xl font-bold text-teal">{intakeProfileReadiness(intake.draft,intake.context).score}<span className="text-sm text-ink-muted">%</span></span></div><p className="mt-3 text-sm text-ink-soft">Your extracted details need your review before this becomes your saved Career Profile.</p><p className="mt-2 text-sm text-ink-muted">{intakeProfileReadiness(intake.draft,intake.context).missing.length} career sections or details to complete. Full details unlock with your free account.</p><button type="button" className="mt-2 min-h-11 text-sm font-semibold text-teal" onClick={()=>{clearHandoff();setStep('intake')}}>Edit my preparation answers</button></section> : null}
       {result ? <ScorecardResult result={result} locked /> : null}
     </Shell>
   )

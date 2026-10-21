@@ -1,4 +1,4 @@
-import type { ImportChange, ImportReview } from './importReview'
+import {currentRoleFingerprint,type ImportChange,type ImportReview} from './importReview'
 import { profileTextPresent, validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import { parseCvDate } from './dates'
 
@@ -75,6 +75,9 @@ export function resumeReviewChecks(review: ImportReview, editor: ReviewCheckEdit
     add(`${p}.company`, `${label} · employer`, usable(job.company), 'The employer is missing or unreadable. Confirm the actual company name.')
     add(`${p}.role`, `${label} · job title`, usable(job.role), 'The job title is missing or unreadable. Confirm your actual role.')
     add(`${p}.start_date`, `${label} · start date`, validDate(job.start_date), 'The start date is missing or invalid. Enter the actual date; do not estimate it.')
+    if(!job.end_date&&usable(job.company)&&usable(job.role)&&validDate(job.start_date)&&!review.currentRoles?.includes(currentRoleFingerprint(job))){
+      checks.push({id:`field:${p}.current_status`,category:'employment',field:`${p}.current_status`,title:`${label} · current or ended`,value:currentRoleFingerprint(job),reason:'Confirm that this is your current role, or add its end date.',status:'attention',confirmable:true})
+    }
     // A blank end date is supported by the existing profile as a current role.
     if (job.end_date) {
       add(`${p}.end_date`, `${label} · end date`, validDate(job.end_date, true), 'The end date could not be read as a date. Confirm it, or mark the role as current.')

@@ -39,6 +39,7 @@ const TS_CHECKS = [
   'verify-journey-guide.ts',
   'verify-journey-experience.ts',
   'verify-profile-readiness.ts',
+  'verify-career-intake.ts',
   'verify-gcc-experience.ts',
   'verify-gulf-readiness.ts',
   'verify-gulf-readiness-v2.ts',
@@ -101,6 +102,7 @@ run('verify-naukrigulf-db.mjs', [join(root, 'scripts', 'verify-naukrigulf-db.mjs
 run('verify-linkedin-db.mjs', [join(root, 'scripts', 'verify-linkedin-db.mjs')])
 run('verify-profile-photo-api.mjs', [join(root, 'scripts', 'verify-profile-photo-api.mjs')])
 run('verify-career-profile-resume-api.mjs', [join('scripts', 'verify-career-profile-resume-api.mjs')])
+run('verify-career-intake-api.mjs', [join('scripts', 'verify-career-intake-api.mjs')])
 run('verify-import-review-api.mjs', [join('scripts', 'verify-import-review-api.mjs')])
 run('verify-import-review-db.mjs', [join('scripts', 'verify-import-review-db.mjs')])
 run('verify-db-security.mjs', [join('scripts', 'verify-db-security.mjs')])

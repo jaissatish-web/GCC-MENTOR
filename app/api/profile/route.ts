@@ -1,3 +1,4 @@
+import {contextFromProfile} from '@/lib/careerIntake/shared'
 import { validateCategoryEntries } from '@/lib/profileCategories'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
@@ -446,6 +447,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     ? (body.certifications as unknown[])
     : []
   readinessInput.skills = Array.isArray(body.skills) ? (body.skills as unknown[]) : []
+  const context=contextFromProfile({ ...profileRow, additional_information:Array.isArray(body.additional_information)?body.additional_information:[], work_experience:readinessInput.work_experience } as Parameters<typeof contextFromProfile>[0])
+  readinessInput.career_stage=context.careerStage
+  readinessInput.has_gulf_experience=context.hasGulfExperience
+  readinessInput.no_formal_qualification=context.noFormalQualification
   const readiness = calculateReadiness(readinessInput)
   profileRow.readiness_category = readiness.category
   profileRow.readiness_score = readiness.score

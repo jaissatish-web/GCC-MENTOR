@@ -7,6 +7,7 @@ import { ImportComparison } from './ImportComparison'
 import { REVIEW_CATEGORIES, type ReviewCategory, type ReviewCheck } from '@/lib/resumeParse/reviewChecks'
 import { redactImportText } from '@/lib/resumeParse/importReview'
 import type { ImportChange } from '@/lib/resumeParse/importReview'
+import {confirmationDigest} from '@/lib/resumeParse/reviewConfirmations'
 import { cn } from '@/lib/utils'
 
 export function ImportReviewDashboard({ checks, reviewId, busy, saved, onEdit, onChoose, onPendingChange, onStatusChange }: {
@@ -98,9 +99,4 @@ export function ImportReviewDashboard({ checks, reviewId, busy, saved, onEdit, o
     {rememberError && <p role="status" className="mt-3 type-helper text-ink-soft">Verified for this visit. Your browser could not remember this confirmation; you may need to verify it again when you return.</p>}
     {!saved && <p className="mt-3 type-helper text-gold-ink">These checks reflect your current edits. Save your profile to keep corrections.</p>}
   </div>
-}
-
-async function confirmationDigest(scope: string, id: string, value: string): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify([scope, id, value])))
-  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')
 }
