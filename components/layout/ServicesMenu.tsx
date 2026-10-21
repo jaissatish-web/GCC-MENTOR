@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowRightStartOnRectangleIcon, UserCircleIcon, TrashIcon, EllipsisHorizontalIcon, Squares2X2Icon } from '@heroicons/react/24/outline'
+import { ArrowRightStartOnRectangleIcon, UserCircleIcon, TrashIcon, Bars3Icon, EllipsisHorizontalIcon, Squares2X2Icon } from '@heroicons/react/24/outline'
 import { SideSheet } from '@/components/ui/SideSheet'
 import { signOut } from '@/app/auth/actions'
 import { cn } from '@/lib/utils'
@@ -191,7 +191,7 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
           bottom && (moreActive || open ? 'bg-teal-soft font-semibold text-teal' : 'font-medium text-ink-muted'),
         )}
       >
-        {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-lg bg-teal-soft text-teal">{toolsOnly ? <Squares2X2Icon className="size-5" /> : <EllipsisHorizontalIcon className="size-5" />}</span><span>{toolsOnly ? 'Tools' : 'More'}</span></> : <EllipsisHorizontalIcon aria-hidden="true" className="size-6 text-teal" />}
+        {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-lg bg-teal-soft text-teal">{toolsOnly ? <Squares2X2Icon className="size-5" /> : <EllipsisHorizontalIcon className="size-5" />}</span><span>{toolsOnly ? 'Tools' : 'More'}</span></> : <Bars3Icon aria-hidden="true" className="size-6 text-teal" />}
       </button>
 
       <SideSheet open={open} onClose={close} title={toolsOnly ? 'Preparation tools' : 'All services'} returnFocusTo={triggerRef}>
