@@ -1,12 +1,11 @@
 'use client'
 
+import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
+import { rebaseImportField } from '@/lib/resumeParse/reviewPlan'
+import { ResumeReviewPage } from '@/components/profile/ResumeReviewPage'
 import { WorkExperienceItem } from '@/components/profile/WorkExperienceItem'
 import { sortedWorkRoles } from '@/lib/profileWorkNavigation'
-import { resumeReviewChecks } from '@/lib/resumeParse/reviewChecks'
-import { ImportReviewCard } from '@/components/profile/ImportReviewCard'
 import type { ImportReview } from '@/lib/resumeParse/importReview'
-import { applyImportChange, currentImportValue, importJobIndex } from '@/lib/resumeParse/reviewEditor'
-import { importAttention } from '@/lib/resumeParse/importAttention'
 import { organizeCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
 import { CategoryEditor } from '@/components/profile/CategoryEditor'
 import { GulfContext } from '@/components/layout/GulfContext'
@@ -603,6 +602,8 @@ function requiredMissing(e: EditorData): Array<{ key: keyof EditorData; label: s
   for (const [k, label] of REQUIRED_LABELS) {
     if (typeof e[k] === 'string' && String(e[k]).trim() === '') missing.push({ key: k, label })
   }
+  if (e.email.trim() && !validProfileEmail(e.email)) missing.push({ key: 'email', label: 'Valid email address' })
+  if (e.phone.trim() && !validProfilePhone(e.phone)) missing.push({ key: 'phone', label: 'Valid phone number' })
   return missing
 }
 
@@ -1010,9 +1011,8 @@ function ProfileScreen() {
   const [dutiesAdded, setDutiesAdded] = useState<ReadonlySet<string>>(() => new Set())
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
-  // Set true when a freshly-extracted draft loads into the editor, so it is
-  // auto-saved (founder decision 2026-08-18). Consumed once by the effect below.
-  const [autoSaveOnLoad, setAutoSaveOnLoad] = useState(false)
+  // Newly extracted data stays in a dedicated review until explicit confirmation.
+  const [reviewingImport, setReviewingImport] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   // Computed employment gaps from GET /api/profile (TASK-067). Read-only,
@@ -1098,15 +1098,13 @@ function ProfileScreen() {
         // changed — first-time upload goes straight into the editor.
         const capturedDraft = draft
         fetch('/api/profile', { cache: 'no-store' })
-          .then((res) => (res.status === 200 ? res.json() : null))
+          .then((res) => { if (res.status === 404) return null; if (!res.ok) throw new Error('Profile lookup failed'); return res.json() })
           .then((data) => {
             const saved = data as CareerProfileFull | null
             if (!hasSavedProfileContent(saved)) {
               setEditor(fromDraft(capturedDraft))
-              // First-time extracted profile — auto-save it (no existing data to
-              // overwrite, so this is safe; the "you already have a profile"
-              // choice screen still guards the returning-user case below).
-              setAutoSaveOnLoad(true)
+              // Keep first-time extracted data separate until review confirmation.
+              setReviewingImport(true)
               setLoaded(true)
               return
             }
@@ -1121,6 +1119,8 @@ function ProfileScreen() {
             // Offering only the draft would be the dangerous default, so fail
             // toward the choice screen with replace unavailable.
             setEditor(fromDraft(capturedDraft))
+            setReviewingImport(true)
+            setLoadError('We could not check your existing profile. Reload before confirming to protect saved details.')
             setLoaded(true)
           })
         return
@@ -1130,12 +1130,12 @@ function ProfileScreen() {
     // No draft handoff → load the saved profile (returning user) AND any CV
     // reading still waiting for a decision (2026-09-11, migration 047). A 404
     // profile means start-from-scratch with nothing saved → empty editor.
-    const pendingRequest: Promise<{ draft: CareerProfileDraft; report?: { warnings?: ParseWarning[] } | null } | null> = fetch(
+    const pendingRequest: Promise<{ draft: CareerProfileDraft; report?: { warnings?: ParseWarning[]; review?: ImportReview } | null } | null> = fetch(
       '/api/profile/pending-draft',
       { cache: 'no-store' },
     )
       .then((res) => (res.ok ? res.json() : null))
-      .then((body) => (body?.pending ?? null) as { draft: CareerProfileDraft; report?: { warnings?: ParseWarning[] } | null } | null)
+      .then((body) => (body?.pending ?? null) as { draft: CareerProfileDraft; report?: { warnings?: ParseWarning[]; review?: ImportReview } | null } | null)
       .catch(() => null)
     fetch('/api/profile', { cache: 'no-store' })
       .then((res) => {
@@ -1148,11 +1148,12 @@ function ProfileScreen() {
         // A PAID READING, KEPT FOR THEM (2026-09-11). Reopen the decision
         // exactly as if the CV had just been read: against a saved profile,
         // the keep-or-replace choice; with none, straight into the editor and
-        // auto-saved. It survives a refresh, a closed browser, a new device.
+        // reviewed before creation. The original reading survives a refresh or a new device.
         const pending = await pendingRequest
         if (pending) {
           resolvesPendingRef.current = true
           setParseNotes(Array.isArray(pending.report?.warnings) ? pending.report.warnings : [])
+          if (pending.report?.review?.version === 1) { reviewRequest.current++; setImportReview(pending.report.review) }
           if (hasSavedProfileContent(saved)) {
             setPendingDraft({ draft: pending.draft, existing: saved as CareerProfileFull })
             setHasSavedProfile(true)
@@ -1161,7 +1162,7 @@ function ProfileScreen() {
             return
           }
           setEditor(fromDraft(pending.draft))
-          setAutoSaveOnLoad(true)
+          setReviewingImport(true)
           setLoaded(true)
           return
         }
@@ -1189,7 +1190,7 @@ function ProfileScreen() {
    *
    * When it does, the import panel collapses to "Recreate my profile" rather
    * than asking a user who already uploaded a CV to create their profile again.
-   * Set by the load above and by the first successful auto-save. Uses the same
+   * Set by the load above and by the first explicitly confirmed save. Uses the same
    * test as the add-or-replace screen (hasSavedProfileContent), so the two can
    * never disagree about whether a profile exists. Declared after the load
    * effect that sets it — safe, because an effect runs after render.
@@ -1208,25 +1209,29 @@ function ProfileScreen() {
   // Ingest a draft produced inline by the ResumeImport panel — the same decision
   // the mount effect makes for a sessionStorage handoff: against a profile that
   // already has content, go through the add-or-replace choice; otherwise load it
-  // straight in and let the auto-save fire. Compared against the SAVED profile
+  // into the dedicated review without saving. Compared against the SAVED profile
   // (a fresh GET), never the possibly-unsaved editor, matching that contract.
-  const ingestDraft = useCallback((draft: CareerProfileDraft, notes?: ParseWarning[]) => {
+  const ingestDraft = useCallback((draft: CareerProfileDraft, notes?: ParseWarning[], incomingReview?: ImportReview) => {
     setParseNotes(notes ?? [])
-    refreshImportReview()
+    if (incomingReview) { reviewRequest.current++; setImportReview(incomingReview) } else refreshImportReview()
+    setSaveError(null)
+    setLoadError(null)
     // The ?import= deep link has done its job once a reading arrives. Left in
     // the URL, the import panel reopened in paste mode after the user chose
     // Add or Replace — an empty box asking for another CV (seen live
     // 2026-09-12) instead of folding to "Your profile is already created".
     if (importParam) router.replace('/profile', { scroll: false })
     fetch('/api/profile', { cache: 'no-store' })
-      .then((res) => (res.status === 200 ? res.json() : null))
+      .then((res) => { if (res.status === 404) return null; if (!res.ok) throw new Error('Profile lookup failed'); return res.json() })
       .then((data) => {
         const saved = data as CareerProfileFull | null
         if (!hasSavedProfileContent(saved)) {
           setEditor(fromDraft(draft))
-          setAutoSaveOnLoad(true)
+          setReviewingImport(true)
           return
         }
+        savedVersionRef.current = versionOf(saved)
+        setHasSavedProfile(true)
         setPendingDraft({ draft, existing: saved as CareerProfileFull })
       })
       .catch(() => {
@@ -1234,6 +1239,8 @@ function ProfileScreen() {
         // that assumption is what silently wipes data. Show the draft in the
         // editor (replace unavailable), never auto-save over unknown state.
         setEditor(fromDraft(draft))
+        setReviewingImport(true)
+        setLoadError('We could not check your existing profile. Reload before confirming to protect saved details.')
       })
   }, [importParam, router, refreshImportReview])
 
@@ -1254,10 +1261,7 @@ function ProfileScreen() {
       visa_transferable: editor.visa_transferable,
       notice_period: editor.notice_period,
       passport_validity_date: editor.passport_validity_date,
-      work_experience: editor.work_experience.map((w) => ({
-        start_date: w.start_date,
-        end_date: w.end_date || null,
-      })),
+      work_experience: editor.work_experience,
       education: editor.education,
       certifications: editor.certifications,
       skills: editor.skills,
@@ -1505,7 +1509,7 @@ function ProfileScreen() {
             ? { status: 'complete', hint: 'Your target role is set.' }
             : { status: 'attention', hint: 'Add the job title you are aiming for.' }
         case 'sec_identity': {
-          if (!filled(e.full_name) || !filled(e.phone) || !filled(e.email))
+          if (!filled(e.full_name) || !validProfilePhone(e.phone) || !validProfileEmail(e.email))
             return { status: 'missing', hint: 'Add your name, phone and email.' }
           if (!filled(e.current_location) || !filled(e.visa_status) || !filled(e.notice_period))
             return { status: 'attention', hint: 'Add your location, visa status and notice period — Gulf recruiters ask first.' }
@@ -1601,10 +1605,10 @@ function ProfileScreen() {
     // changes" before anything was typed.
     // Only a genuinely EMPTY form — an unsaved CV reading must still read as unsaved.
     const blankForm = !hasSavedProfile && currentBody === JSON.stringify(buildPutBody(emptyEditor()))
-    if (savedBaseline === null && loaded && (hasSavedProfile || blankForm) && !pendingDraft && !autoSaveOnLoad && currentBody) {
+    if (savedBaseline === null && loaded && (hasSavedProfile || blankForm) && !pendingDraft && !reviewingImport && currentBody) {
       setSavedBaseline(currentBody)
     }
-  }, [savedBaseline, loaded, hasSavedProfile, pendingDraft, autoSaveOnLoad, currentBody])
+  }, [savedBaseline, loaded, hasSavedProfile, pendingDraft, reviewingImport, currentBody])
   const isDirty = currentBody !== null && currentBody !== savedBaseline
 
   /** Everything a CardSection needs, so each call site stays one line of props. */
@@ -1766,8 +1770,8 @@ function ProfileScreen() {
   )
 
   const onSubmit = useCallback(
-    async (destination: 'exit' | 'confirm' | 'stay') => {
-      if (!editor) return
+    async (destination: 'exit' | 'confirm' | 'stay' | 'review') => {
+      if (!editor || submitting || (reviewingImport && destination !== 'review')) return
       setSaveError(null)
 
       const missing = requiredMissing(editor)
@@ -1800,7 +1804,7 @@ function ProfileScreen() {
         // PhoneField's `_number` id — a missing phone once scrolled to nothing
         // (seen live 2026-09-12 on "Replace" with a CV that has no phone).
         setPendingFocus({ field: String(missing[0].key) })
-        showView('details')
+        if (destination !== 'review') showView('details')
         return
       }
       setInvalidFields(new Set())
@@ -1824,9 +1828,7 @@ function ProfileScreen() {
           setSubmitting(false)
           return
         }
-        // 'stay' is the auto-save after extraction: persist and remain on the
-        // page so the user reviews and edits, without a navigation they did not
-        // ask for.
+        // Persist only after an explicit Save or review confirmation.
         // The next save is checked against the version just written.
         const savedBody = (await res.json().catch(() => null)) as { updated_at?: string | null } | null
         if (savedBody?.updated_at) savedVersionRef.current = savedBody.updated_at
@@ -1843,6 +1845,14 @@ function ProfileScreen() {
           resolvesPendingRef.current = false
           await fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
         }
+        if (destination === 'review') {
+          setReviewingImport(false)
+          setParseNotes([])
+          setSubmitting(false)
+          showView('overview')
+          window.scrollTo({ top: 0 })
+          return
+        }
         if (destination === 'stay') {
           setSubmitting(false)
           return
@@ -1853,39 +1863,21 @@ function ProfileScreen() {
         setSubmitting(false)
       }
     },
-    [editor, router, showView]
+    [editor, router, showView, submitting, reviewingImport]
   )
 
-  // AUTO-SAVE AFTER EXTRACTION (founder decision 2026-08-18). When a resume was
-  // just extracted into the editor, persist it immediately — the user should not
-  // have to press Save, and an unsaved extraction that is lost on navigation was a
-  // real defect. Fires once, only for a freshly-extracted first-time profile, and
-  // only when the required fields (name, phone, email) are present; if they are
-  // not, it stays a draft the user completes by hand. Best-effort by design.
   useEffect(() => {
-    if (!autoSaveOnLoad || !editor || !loaded) return
-    setAutoSaveOnLoad(false)
-    if (requiredMissing(editor).length === 0) void onSubmit('stay')
-  }, [autoSaveOnLoad, editor, loaded, onSubmit])
+    if (!reviewingImport) return
+    const protectReview = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = '' }
+    window.addEventListener('beforeunload', protectReview)
+    return () => window.removeEventListener('beforeunload', protectReview)
+  }, [reviewingImport])
 
-  // A CV reading has been loaded — into the choice screen, or into the editor
-  // for auto-save — so this page now owns resolving the server copy
-  // (migration 047). One watcher, instead of a flag at every load path.
+  // An extraction is a pending draft, never a Career Profile. Only the
+  // explicit review confirmation below calls the existing profile save API.
   useEffect(() => {
-    if (pendingDraft || autoSaveOnLoad) resolvesPendingRef.current = true
-  }, [pendingDraft, autoSaveOnLoad])
-
-  // THE CHOICE IS SAVED STRAIGHT AWAY (founder request 2026-09-11). Unlike the
-  // first-time auto-save above, this is not gated on the required fields: the
-  // user has chosen, so if the result cannot be saved — Replace with a CV that
-  // has no phone number — onSubmit names the missing field and opens it, and
-  // the reading stays kept on the server until the profile is saved.
-  const [saveChoice, setSaveChoice] = useState(false)
-  useEffect(() => {
-    if (!saveChoice || !editor) return
-    setSaveChoice(false)
-    void onSubmit('stay')
-  }, [saveChoice, editor, onSubmit])
+    if (pendingDraft || reviewingImport) resolvesPendingRef.current = true
+  }, [pendingDraft, reviewingImport])
 
   // "Keep my profile as it is": the reading is discarded on the user's word,
   // and nothing in the saved profile changes.
@@ -1925,9 +1917,15 @@ function ProfileScreen() {
         <button
           type="button"
           onClick={() => {
+            if (importReview) {
+              reviewRequest.current++
+              setImportReview({ ...importReview, changes: importReview.changes.map(change => ({ ...change, field: rebaseImportField(change.field, pendingDraft.draft, merged.profile) })) })
+            }
+            setParseNotes(notes => notes.map(note => ({ ...note, field: rebaseImportField(note.field, pendingDraft.draft, merged.profile) })))
+            setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))))
             setEditor(fromFull(merged.profile))
             setPendingDraft(null)
-            setSaveChoice(true)
+            setReviewingImport(true)
           }}
           className="mt-6 rounded-card border-2 border-teal bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
@@ -1953,9 +1951,10 @@ function ProfileScreen() {
         <button
           type="button"
           onClick={() => {
+            setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))))
             setEditor(fromDraft(pendingDraft.draft))
             setPendingDraft(null)
-            setSaveChoice(true)
+            setReviewingImport(true)
           }}
           className="mt-3 rounded-card border border-line bg-white p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-alert"
         >
@@ -2000,8 +1999,7 @@ function ProfileScreen() {
         {/* Was "Nothing is saved either way until you press Save on the next
             screen." Both halves are now the other way round (2026-09-11). */}
         <p className="mt-6 text-center type-helper leading-relaxed text-ink-muted">
-          Whichever you choose is saved straight away. Until you choose, this resume reading is kept for
-          you — you can close this page and come back to it.
+          Next, review and correct your details on one page. Your saved profile changes only after you confirm that review.
         </p>
       </main>
     )
@@ -2013,6 +2011,16 @@ function ProfileScreen() {
         <PageSkeleton label="Loading your Career Profile" />
       </main>
     )
+  }
+
+  if (reviewingImport) {
+    const review = importReview ?? {
+      version: 1 as const, id: 'pending-import', createdAt: '', sourceText: '',
+      imported: { roles: editor.work_experience.length, skills: editor.skills.length, qualifications: editor.education.length, certificates: editor.certifications.length },
+      wordingStatus: 'not_needed' as const,
+      changes: parseNotes.map((note, i) => ({ id: `pending-note-${i}`, field: note.field, label: 'Please verify', kind: 'check' as const, before: '', after: '', reason: note.message })),
+    }
+    return <ResumeReviewPage value={editor} review={review} existing={hasSavedProfile} busy={submitting} error={loadError ?? saveError} cannotConfirm={!!loadError} score={readiness.score} missing={readiness.missing} onChange={next => setEditor(next)} onConfirm={() => { if (!loadError) void onSubmit('review') }} />
   }
 
   const hasProfile = Boolean(hasSavedProfile || editor.full_name.trim())
@@ -2047,31 +2055,6 @@ function ProfileScreen() {
       finishLabel={isDirty ? 'Save & Home' : 'Home'}
     />
   ) : null
-  const importReviewBlock = importReview ? (
-    <ImportReviewCard
-      key={`${uid}:${importReview.id}`}
-      canConfirm={!isDirty && !saveError}
-      review={importReview}
-      checks={resumeReviewChecks(importReview, editor, change => currentImportValue(editor, change))}
-      attention={importAttention(importReview, editor)}
-      busy={submitting}
-      currentValue={change => currentImportValue(editor, change)}
-      onChange={(change, value) => setEditor(e => e ? applyImportChange(e, change, value, uid) : e)}
-      onEdit={(field, change) => {
-        const workIndex = change ? importJobIndex(editor, change) : Number(field.match(/^work_experience\.(\d+)/)?.[1] ?? -1)
-        const work = workIndex >= 0 ? editor.work_experience[workIndex] : undefined
-        if (work) setExpandedWorkKey(work.key)
-        goToProfilePart({ sectionId: field.startsWith('work_experience') ? 'sec_work_experience' : field === 'professional_summary' ? 'sec_summary' : field === 'skills' ? 'sec_skills' : field.startsWith('education') ? 'sec_education' : field.startsWith('certifications') ? 'sec_certifications' : field.startsWith('additional') ? 'sec_additional' : sectionOfField(field) ?? 'sec_identity', field: work ? `${field.endsWith('.start_date') || field.endsWith('.date_order') ? 'work_start' : field.endsWith('.end_date') ? 'work_end' : 'work_role'}_${work.key}` : field.includes('.') ? undefined : field })
-      }}
-      onRemove={async () => {
-        const response = await fetch('/api/profile/import-review', { method: 'DELETE' })
-        if (!response.ok) throw new Error('remove failed')
-        reviewRequest.current++
-        setImportReview(null)
-      }}
-    />
-  ) : null
-
   const parseNotesBlock = importReview ? null : (
     <ParseNotes
       notes={parseNotes}
@@ -2181,9 +2164,9 @@ function ProfileScreen() {
         </header>
 
         {/* The CV reader's "please check these" — first, while it is fresh. */}
-        {importReviewBlock}
         {parseNotesBlock}
         {loadErrorBlock}
+        {readiness.missing.length > 0 && <div className="mx-3 mt-4 flex flex-col gap-3 rounded-card bg-gold-soft p-4 sm:mx-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="type-label font-semibold text-gold-ink">Update needed · {readiness.missing.length} details</p><p className="mt-1 type-helper text-ink-soft">Your profile completeness reflects missing information. Open either readiness result to see what to update.</p></div><button type="button" className={buttonVariants({variant:'secondary',size:'sm'})} onClick={()=>goToProfilePart({field:readiness.missing[0].field})}>Update {readiness.missing[0].label}</button></div>}
 
         {/* WELCOME BACK — one-time claimed anonymous scan result (TASK-070).
             Dismissible and non-blocking; the editor is fully usable underneath.
@@ -2311,7 +2294,6 @@ function ProfileScreen() {
         action={saveButton}
       />
       <div className="page-gutter flex flex-wrap items-center gap-4 py-3"><div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} /></div><CareerProfileResumeButton /><Button variant="secondary" size="sm" onClick={() => showView('overview')}>Update from resume</Button><Button variant="secondary" size="sm" busy={submitting} onClick={() => void onSubmit('confirm')}>Optimize Resume</Button></div>
-      {importReviewBlock}
       {parseNotesBlock}
       {loadErrorBlock}
 

@@ -1,4 +1,5 @@
 import type { CareerProfileDraft } from '@/types/careerProfile'
+import type { ImportReview } from './importReview'
 import type { ParseWarning } from './check'
 
 export class ResumeFileReadError extends Error {}
@@ -31,7 +32,7 @@ interface RecreationQuota {
 }
 
 type ImportResult =
-  | { ok: true; draft: CareerProfileDraft; warnings?: ParseWarning[] }
+  | { ok: true; draft: CareerProfileDraft; warnings?: ParseWarning[]; review?: ImportReview }
   | { ok: false; error: string; checkSaved: boolean; recreation?: RecreationQuota }
 
 export const IMPORT_DISPLAY_FAILED = 'Your CV was read, but we could not open the profile editor. Check for a saved CV reading before uploading again.'
@@ -47,10 +48,10 @@ export async function requestResumeImport(call: () => Promise<Response>): Promis
   }
   // A connection can also drop while receiving the JSON, after extraction finished.
   const body = await res.json().catch(() => null) as {
-    draft?: CareerProfileDraft; report?: { warnings?: ParseWarning[] }
+    draft?: CareerProfileDraft; report?: { warnings?: ParseWarning[]; review?: ImportReview }
     error?: string; code?: string; recreation?: RecreationQuota
   } | null
-  if (res.ok && body?.draft) return { ok: true, draft: body.draft, warnings: body.report?.warnings }
+  if (res.ok && body?.draft) return { ok: true, draft: body.draft, warnings: body.report?.warnings, review: body.report?.review }
   if (res.status === 401) return { ok: false, error: "Your sign-in could not be confirmed. Please sign in again, then choose your resume. It wasn't processed.", checkSaved: false }
   const fallback = res.status === 413
     ? 'This file is too large. PDFs can be up to 4MB and Word (.docx) files up to 2MB.'

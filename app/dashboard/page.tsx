@@ -107,16 +107,13 @@ export default function DashboardPage() {
         visa_transferable: profile.visa_transferable,
         notice_period: profile.notice_period,
         passport_validity_date: profile.passport_validity_date,
-        work_experience: profile.work_experience.map((w) => ({
-          start_date: w.start_date,
-          end_date: w.end_date || null,
-        })),
+        work_experience: profile.work_experience,
         education: profile.education,
         certifications: profile.certifications,
         skills: profile.skills,
       })
     : null
-  const score = profile?.readiness_score ?? readiness?.score ?? 0
+  const score = readiness?.score ?? profile?.readiness_score ?? 0
   const missing = readiness?.missing ?? []
   // Gulf Readiness (the arithmetic market score, distinct from Profile Strength
   // above) now lives on the dashboard too — founder decision 2026-08-18. It needs

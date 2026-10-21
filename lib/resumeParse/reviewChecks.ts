@@ -1,4 +1,5 @@
 import type { ImportChange, ImportReview } from './importReview'
+import { profileTextPresent, validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import { parseCvDate } from './dates'
 
 export interface ReviewCheckEditor {
@@ -45,17 +46,16 @@ function fieldValue(editor: ReviewCheckEditor, path: string): string {
     value = (value as Record<string, unknown>)[key]
   }
   if (typeof value === 'string') return value.trim()
-  return value === undefined || value === null ? '' : JSON.stringify(value)
+  return value === undefined || value === null || Array.isArray(value) && !value.length ? '' : JSON.stringify(value)
 }
 /** Presence/format checks, never an ATS score or proof of factual accuracy. */
 export function resumeReviewChecks(review: ImportReview, editor: ReviewCheckEditor, currentValue: (change: ImportChange) => string | null): ReviewCheck[] {
   const checks: ReviewCheck[] = []
   const add = (field: string, title: string, valid: boolean, reason: string, value = fieldValue(editor, field)) => checks.push({ id: `field:${field}`, field, category: reviewCategory(field), title, value, reason: valid ? 'Present and passes the basic format check. Please verify that the detail is accurate.' : reason, status: valid ? 'passed' : 'attention' })
-  const usable = (s: string) => !!s.trim() && !/^(n\/?a|unknown|not found|null|undefined|[-?]+)$/i.test(s.trim()) && !s.includes('\uFFFD')
+  const usable = profileTextPresent
   add('full_name', 'Your name', usable(editor.full_name), 'Your name is missing or unreadable. Enter it exactly as you want recruiters to see it.')
-  add('email', 'Contact email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editor.email.trim()), 'Enter a valid email address and compare it with your original resume. We could not confirm a usable email.')
-  const digits = editor.phone.replace(/\D/g, '')
-  add('phone', 'Contact number', /^[+\d\s().-]+$/.test(editor.phone.trim()) && digits.length >= 7 && digits.length <= 15, 'Enter a reachable phone number, including your country code. This value is missing or has an unexpected format.')
+  add('email', 'Contact email', validProfileEmail(editor.email), 'Enter a valid email address and compare it with your original resume. We could not confirm a usable email.')
+  add('phone', 'Contact number', validProfilePhone(editor.phone), 'Enter a reachable phone number, including your country code. This value is missing or has an unexpected format.')
   const validDate = (s: string, present = false) => { const result = parseCvDate(s); if (result.kind !== 'date') return present && result.kind === 'present'; if (/^\d{4}-\d{2}-\d{2}$/.test(result.value)) { const date = new Date(`${result.value}T00:00:00Z`); return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === result.value } return true }
   if (editor.linkedin_url?.trim()) {
     let valid = false
@@ -65,7 +65,9 @@ export function resumeReviewChecks(review: ImportReview, editor: ReviewCheckEdit
   for (const [field, label] of [['date_of_birth', 'Date of birth'], ['passport_validity_date', 'Passport validity date']] as const) {
     if (editor[field]?.trim()) add(field, label, validDate(editor[field]!), 'This date has an unexpected format. Confirm the actual date from your source document.')
   }
+  editor.skills.forEach((skill, i) => add(`skills.${i}.name`, `Skill ${i + 1}`, usable(skill.name), 'Enter this skill, or remove the empty entry.'))
   editor.certifications?.forEach((cert, i) => {
+    add(`certifications.${i}.name`, `Certificate ${i + 1} · name`, usable(cert.name), 'Enter the certificate name, or remove this entry.')
     for (const field of ['issue_date', 'expiry_date'] as const) if (cert[field]) add(`certifications.${i}.${field}`, `Certificate ${i + 1} · ${field === 'issue_date' ? 'issue' : 'expiry'} date`, validDate(cert[field]), 'This certificate date has an unexpected format. Confirm the actual date.')
   })
   editor.work_experience.forEach((job, i) => {
