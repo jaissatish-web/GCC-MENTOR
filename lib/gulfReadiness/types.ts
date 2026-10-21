@@ -28,11 +28,13 @@ export type Scenario = 'currently_in_gulf' | 'returner' | 'experienced' | 'fresh
 /**
  * The funnel answers — the source of truth for the scenario.
  *
- * No country, no year counts (founder decision). Gulf experience yes/no, then one
+ * Country and role are optional explicit choices. Gulf experience yes/no, then one
  * follow-up: where you are now (if yes) or whether you have professional
  * experience (if no).
  */
 export interface FunnelAnswers {
+  targetCountry?: string
+  targetJobTitle?: string
   hasGulfExperience: boolean
   /** Only meaningful when hasGulfExperience is true. */
   currentlyInGulf?: boolean
@@ -163,6 +165,13 @@ export interface ScoreBand {
 
 /** The complete result. Anonymous shows a subset of it; signup unblurs the rest. */
 export interface GulfReadinessResult {
+  assessment?: {
+    version: '3.0'
+    provisional: boolean
+    reasons: string[]
+    targetCountry: string | null
+    targetJobTitle: string | null
+  }
   scenario: Scenario
   scenarioLabel: string
   finalScore: number
@@ -175,7 +184,7 @@ export interface GulfReadinessResult {
   confidence: Confidence
   /** True when the resume text was too thin to read reliably. */
   lowResumeSignal: boolean
-  /** v2: the headline — ready / almost / not ready — from the score AND the must-haves. */
+  /** Application preparation headline; joining checks are separate. */
   verdict: Verdict
   /** v2: the visa and job must-haves that apply to this person. */
   mustHaves: MustHave[]

@@ -284,6 +284,7 @@ export function ScoreCards({
       <button type="button" onClick={onOpenCompleteness} className={CARD_BUTTON}>
         <span className="max-w-full break-words type-label font-medium text-ink-soft">Profile complete</span>
         <span className="type-stat text-teal">{completeness.score}<span className="ml-1 type-label text-ink-muted">%</span></span>
+        <span className="h-2 w-full overflow-hidden rounded-full bg-line" aria-hidden="true"><span className="block h-full rounded-full bg-teal" style={{ width: `${completeness.score}%` }} /></span>
         <span className="type-label font-semibold leading-snug text-ink">
           {completeness.itemsLeft === 0
             ? 'Nothing left to add'
@@ -300,6 +301,8 @@ export function ScoreCards({
       >
         <span className="max-w-full break-words type-label font-medium text-ink-soft">{NAMES.gccReadiness}</span>
         <span className="type-stat text-teal">{gulf ? gulf.finalScore : '—'}<span className="ml-1 type-label text-ink-muted">/100</span></span>
+        <span className="h-2 w-full overflow-hidden rounded-full bg-line" aria-hidden="true"><span className="block h-full rounded-full bg-teal" style={{ width: `${gulf?.finalScore ?? 0}%` }} /></span>
+        {gulf?.assessment ? <span className="text-xs text-ink-muted">Provisional · review evidence</span> : null}
         <span className={cn('max-w-full break-words rounded-full px-2.5 py-0.5 type-helper font-semibold leading-snug', tone?.chip ?? 'bg-canvas text-ink-muted')}>
           {/* The verdict alone ("Almost ready"). Its full label adds the reason
               ("— 2 paperwork steps to check"), which the line below already

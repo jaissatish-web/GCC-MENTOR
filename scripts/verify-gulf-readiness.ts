@@ -186,7 +186,7 @@ check(`removing every Gulf signal lowers the score (${strong.finalScore} -> ${st
 check('a strong CV still gets at least 3 next steps', strong.recommendations.length >= 3)
 check('bare "engineering" is not read as a degree', calculateGulfReadiness({ answers: inGulfAnswers, resumeText: 'Site engineering supervisor on large projects. '.repeat(30) }).dimensions.find((d) => d.key === 'education')!.score === 0)
 const declaredNo = calculateGulfReadiness({ answers: { hasGulfExperience: false, hasProfessionalExperience: true }, resumeText: STRONG_GULF_CV })
-check('a CV showing Gulf work but answered "no" is told to answer yes', declaredNo.recommendations.some((r) => /answer "Yes"/.test(r.title)))
+check('Gulf references prompt clarification rather than an assumed employment history', declaredNo.recommendations.some((r) => /Confirm the Gulf references/.test(r.title)))
 
 console.log(failures === 0 ? '\nAll assertions passed.\n' : `\n${failures} assertion(s) FAILED.\n`)
 process.exit(failures === 0 ? 0 : 1)

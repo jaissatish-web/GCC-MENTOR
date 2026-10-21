@@ -1,4 +1,4 @@
-import { ESSENTIAL_POINTS, PHOTO_POINTS } from '@/lib/gulfReadiness/config'
+import { ESSENTIAL_POINTS } from '@/lib/gulfReadiness/config'
 import { normalise } from '@/lib/gulfReadiness/evidence'
 import type { GulfFacts } from '@/lib/gulfReadiness/types'
 
@@ -46,26 +46,8 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
   const P = ESSENTIAL_POINTS
   const items: EssentialItem[] = []
 
-  // Photo — the one essential plain text cannot show.
-  const photo = facts.photo ?? 'unknown'
-  if (photo === 'unknown') {
-    items.push({ key: 'photo', earned: 0, max: P.photo, applicable: false })
-  } else {
-    items.push({
-      key: 'photo',
-      earned: PHOTO_POINTS[photo],
-      max: P.photo,
-      applicable: true,
-      gap:
-        photo === 'none'
-          ? { title: 'Add a professional photo', why: 'A professional headshot is expected on Gulf CVs — leaving it out reads as unfamiliarity with the market.' }
-          : photo === 'hidden'
-            ? { title: 'Show your photo on your CV', why: 'Your photo is uploaded but hidden from your CV. Gulf recruiters expect to see it.' }
-            : photo === 'shown'
-              ? { title: 'Confirm your photo is professional', why: 'Check it against the four-point checklist: plain light background, formal clothes, head and shoulders, recent.' }
-              : undefined,
-    })
-  }
+  // Optional presentation and role-specific extras do not lower a universal score.
+  items.push({ key: 'photo', earned: 0, max: P.photo, applicable: false })
 
   // Notice period — sooner is better.
   const noticeRaw =
@@ -73,14 +55,14 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
     text.match(/notice period[^\n]{0,30}|available immediately|immediate(?:ly)? (?:available|joining|joiner)|can join[^\n]{0,20}/)?.[0] ||
     null
   const days = noticeDays(noticeRaw)
-  const noticeEarned = !noticeRaw ? 0 : days === null ? 2 : days <= 30 ? 3 : days <= 60 ? 2 : days <= 90 ? 1 : 0.5
+  const noticeEarned = noticeRaw ? P.notice : 0
   items.push({
     key: 'notice',
     earned: noticeEarned,
     max: P.notice,
     applicable: true,
     gap: !noticeRaw
-      ? { title: 'State your notice period', why: 'Gulf recruiters filter on how soon you can join — "Immediate" or "30 days" moves you up the list.' }
+      ? { title: 'State your notice period', why: 'State your actual availability so an employer can plan. A longer notice period does not lower your score.' }
       : noticeEarned < P.notice
         ? { title: 'Shorten or negotiate your notice period', why: `A ${days ? `${days}-day` : 'long'} notice period loses ground to candidates who can join within 30 days — say if you can negotiate or buy it out.` }
         : undefined,
@@ -92,14 +74,14 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
     const strong =
       facts.visaTransferable === true ||
       /transferable|residen|golden|iqama|employment visa|work visa|green visa|family|husband|spouse|cancel/.test(visa)
-    const earned = !visa ? 0 : strong ? 3 : 2
+    const earned = visa ? P.visa_or_passport : 0
     items.push({
       key: 'visa_or_passport',
       earned,
       max: P.visa_or_passport,
       applicable: true,
       gap: !visa
-        ? { title: 'State your visa status', why: 'Gulf employers check first whether they can hire you without a new visa — say what you hold and whether it is transferable.' }
+        ? { title: 'State your visa status', why: 'State your current status so the employer can check the appropriate hiring route. A visa label alone does not confirm work permission.' }
         : earned < P.visa_or_passport
           ? { title: 'Explain your visa position', why: 'On a visit visa the employer must sponsor a new work visa — say you are ready to convert and can join quickly.' }
           : undefined,
@@ -118,13 +100,13 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
   }
 
   // WhatsApp — how Gulf recruiters actually reach candidates.
-  const hasWhatsApp = !!facts.whatsapp?.trim() || /whats\s?app/.test(text)
+  const hasWhatsApp = !!facts.whatsapp?.trim() || /whats\s?app|[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+\d[\d ()-]{7,}/.test(text)
   items.push({
     key: 'whatsapp',
     earned: hasWhatsApp ? P.whatsapp : 0,
     max: P.whatsapp,
     applicable: true,
-    gap: hasWhatsApp ? undefined : { title: 'Add your WhatsApp number', why: 'Gulf recruiters contact candidates mostly on WhatsApp — add the number with its country code.' },
+    gap: hasWhatsApp ? undefined : { title: 'Confirm a way to contact you', why: 'Provide a valid email address or a phone number with country code. WhatsApp is optional.' },
   })
 
   // Arabic.
@@ -140,7 +122,7 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
     key: 'arabic',
     earned: arabicEarned,
     max: P.arabic,
-    applicable: true,
+    applicable: false,
     gap:
       arabicEarned >= P.arabic
         ? undefined
@@ -160,7 +142,7 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
     key: 'driving_licence',
     earned: licenceEarned,
     max: P.driving_licence,
-    applicable: true,
+    applicable: false,
     gap:
       licenceEarned === P.driving_licence || facts.hasDrivingLicence === false
         ? undefined
@@ -172,7 +154,7 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
   // Nationality and location — stated, never judged.
   const nat = /\bnationality\b/.test(text)
   const loc = /\b(location|based in|currently (in|at|based)|address)\b/.test(text)
-  const nlEarned = (nat ? 1 : 0) + (loc ? 1 : 0)
+  const nlEarned = loc ? P.nationality_location : 0
   items.push({
     key: 'nationality_location',
     earned: nlEarned,
@@ -181,7 +163,7 @@ export function detectGulfEssentials(raw: string, facts: GulfFacts, inGulf: bool
     gap:
       nlEarned === P.nationality_location
         ? undefined
-        : { title: 'State your nationality and current location', why: 'Gulf recruiters read these first to know which visa route applies to you.' },
+        : { title: 'Confirm your current location', why: 'Your location helps plan interviews and relocation. Nationality is not scored.' },
   })
   return items
 }
