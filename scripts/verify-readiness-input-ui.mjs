@@ -79,7 +79,7 @@ try{
  }
  await start();await upload('wrong.txt');assert.ok(await page.$eval('#resume-input-error',e=>e.textContent.includes('Choose a PDF')))
  await upload('large.pdf');assert.ok(await page.$eval('#resume-input-error',e=>e.textContent.includes('4MB')))
- await upload('bad.pdf');await click('Continue');await page.waitForSelector('#resume-input-error');assert.ok(await page.$eval('#resume-input-error',e=>e.textContent.includes('valid PDF')));assert.ok(await page.$('#resume-upload'))
+ await upload('bad.pdf');await click('Continue');await page.waitForSelector('#resume-input-error');assert.ok(await page.$eval('#resume-input-error',e=>e.textContent.includes('could not read')));assert.ok(await page.$('#resume-upload'))
  await click('Paste text');await page.type('textarea',resume);failNext=true;await click('Continue');await page.waitForSelector('#resume-input-error');assert.equal(await page.$eval('textarea',e=>e.value),resume,'Failed request preserves text');await questions();await result()
  assert.deepEqual(errors,[]);console.log('PASS PDF/DOCX/paste end-to-end; active-only input, draft preservation, focus, inline validation, invalid/oversized files, parser failure and retry. One structured extraction feeds the two scorecards. The AI provider uses a synthetic response.')
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));rmSync(dir,{recursive:true,force:true})}
