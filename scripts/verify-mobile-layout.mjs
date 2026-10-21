@@ -81,7 +81,7 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${(width < 768 ? 24 : 22) * scale}px`)
+      assert.equal(result.titleSize, `${24 * scale}px`)
       assert.equal(result.weight, '600')
       assert.equal(result.inputSize, `${16 * scale}px`)
       assert.equal(result.bodySize, `${(width<768?15:16) * scale}px`)
@@ -163,8 +163,8 @@ try {
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
       assert.equal(metrics.weight, '600')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
-      assert.equal(metrics.size, (width < 768 ? 24 : 22) * (enlarged ? 2 : 1), 'Hero uses the approved title scale')
-      assert.equal(metrics.sectionSize, (width < 768 ? 18 : 22) * (enlarged ? 2 : 1), 'Section uses the approved section scale')
+      assert.equal(metrics.size, 24 * (enlarged ? 2 : 1), 'Hero uses the approved title scale')
+      assert.equal(metrics.sectionSize, 18 * (enlarged ? 2 : 1), 'Section uses the approved section scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
       for (const selector of ['#challenges details', '#how-it-works']) {
         assert.equal(await page.$eval(selector, el => el.open), false, 'Landing disclosures start collapsed')

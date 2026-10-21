@@ -132,7 +132,7 @@
 
 /* Option two: a continuous mobile workspace with grouped rows. */
 .mobileGreeting,.mobileScores,.mobileFollowThrough{display:none}
-@media(max-width:767px){
+@media(min-width:0px){
   .page.page{gap:24px;background:white;--home-border:var(--ui-line);--home-soft:var(--ui-brand-soft)}
   .pageHeading{padding:0}.pageHeading h1{margin-top:8px}.pageHeading p{margin-top:8px}
   .mobileGreeting{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--ui-muted);font-size:var(--ui-helper-size)}
@@ -175,7 +175,7 @@
 }
 
 .mobileContinueLink{display:none}
-@media(max-width:767px){
+@media(min-width:0px){
  .mobileContinueLink{display:block;padding-bottom:20px;border-bottom:1px solid var(--ui-line)}
  .mobileContinueLink>h2{position:relative;padding-left:16px}
  .mobileContinueLink>h2:before{content:'';position:absolute;left:0;top:3px;width:4px;height:22px;border-radius:4px;background:rgb(var(--ui-accent-rgb))}
@@ -183,9 +183,31 @@
 }
 
 .mobileSavedMeta{display:none}
-@media(max-width:767px){
+@media(min-width:0px){
  .page.page{padding-top:16px}
  .followThrough .nextContext{display:none}
  .mobileSavedMeta{display:block;margin-top:3px;color:var(--ui-muted);font-size:var(--ui-helper-size);font-weight:var(--ui-weight-regular);line-height:var(--ui-body-line)}
  .savedCount{display:none}
+}
+
+.workspaceColumns,.taskColumn,.preparationColumn{display:flex;flex-direction:column;gap:24px;min-width:0}
+@media(min-width:768px){
+ .page.page{max-width:1180px;background:transparent;gap:28px;padding-top:32px}
+ .mobileScores{padding:24px;background:white;border:1px solid var(--ui-line);border-radius:var(--ui-card-radius)}
+ .workspaceColumns{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start}
+ .taskColumn,.preparationColumn{padding:24px;border:1px solid var(--ui-line);border-radius:var(--ui-card-radius);background:white}
+ .followThrough,.mobileNext{border:0;padding-top:0;padding-bottom:0}
+ .mobileContinue{padding-bottom:0}
+ .mobileContinueLink{padding-bottom:0;border-bottom:0}
+ .datesPanel,.disclosureCard{border:1px solid var(--ui-line);border-radius:var(--ui-card-radius);background:white}
+ .datesSummary,.disclosureCard>summary{padding:20px 24px}
+ .profileFoundation{padding-top:24px}
+ .pageHeading h1{margin-top:8px}
+}
+@media(min-width:768px) and (max-width:1023px){.workspaceColumns{grid-template-columns:1fr}}
+
+@media(min-width:768px){
+ .resumeContext .workspaceName{font-size:var(--ui-section-size)}
+ .taskColumn:empty{display:none}
+ .workspaceColumns:has(.taskColumn:empty){grid-template-columns:1fr}
 }

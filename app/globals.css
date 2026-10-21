@@ -2,6 +2,7 @@
 @import "./professional-profiles.css";
 @import "./typography.css";
 @import "./mobile-design.css";
+@import "./desktop-design.css";
 
 @tailwind base;
 @tailwind components;

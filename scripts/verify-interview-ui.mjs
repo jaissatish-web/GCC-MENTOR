@@ -59,7 +59,7 @@ try {
       return json({}, 404)
     } catch (e) { errors.push(e.message); await r.abort().catch(() => {}) }
   })
-  for (const width of [320, 360, 390, 430, 768, 1440]) {
+  for (const width of JSON.parse(process.env.INTERVIEW_WIDTHS ?? '[320,360,390,430,768,1440]')) {
     await page.setViewport({ width, height: 844 })
     await page.goto('https://interview.test/mock-interview?package=resume-a', { waitUntil: 'networkidle0' })
     await page.waitForSelector('[aria-label="Interview progress report"]')
@@ -76,12 +76,12 @@ try {
     await page.click('[aria-label="Explore interview scores"] button')
     assert.ok(await page.$eval('[aria-label="Interview progress report"] [role="status"]', el=>el.textContent.includes('Mock interview 1')))
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
-    if(process.env.INTERVIEW_SCREENSHOT && width===390) await (await page.$('[aria-label="Interview progress report"]')).screenshot({path:process.env.INTERVIEW_SCREENSHOT.replace('.png','-chart.png')})
+    if(process.env.INTERVIEW_SCREENSHOT && (width===390 || width===1440)) await (await page.$('[aria-label="Interview progress report"]')).screenshot({path:process.env.INTERVIEW_SCREENSHOT.replace('.png','-chart.png')})
     await page.click('a[href="/mock-interview?package=resume-a&run=attempt-2"]')
     await page.waitForSelector('[aria-label="Result cards"]')
     assert.equal(await page.$$eval('[aria-label="Result cards"] > button', els => els.length), 8)
     assert.equal(await page.$$eval('[aria-label="Saved mock interviews"]', els => els.length), 0)
-    if(process.env.INTERVIEW_SCREENSHOT && width===390) await page.screenshot({path:process.env.INTERVIEW_SCREENSHOT.replace('.png','-cards.png'),fullPage:true})
+    if(process.env.INTERVIEW_SCREENSHOT && (width===390 || width===1440)) await page.screenshot({path:process.env.INTERVIEW_SCREENSHOT.replace('.png','-cards.png'),fullPage:true})
     await page.$$eval('[aria-label="Result cards"] button', els=>els.find(el=>el.textContent.includes('Your assessment')).click())
     await page.waitForFunction(()=>document.body.textContent.includes('Work on this first'))
     const layout = await page.evaluate(() => {
@@ -92,7 +92,7 @@ try {
     assert.ok(layout.scroll <= width + 1, JSON.stringify({width,layout}))
     assert.equal(layout.text, runs[1].final_report.priority_focus)
     if(width<640){assert.ok(layout.x<=40,JSON.stringify(layout));assert.equal(layout.size,'15px');assert.equal(layout.weight,'400')}
-    if(process.env.INTERVIEW_SCREENSHOT && width===390) await page.screenshot({path:process.env.INTERVIEW_SCREENSHOT,fullPage:true})
+    if(process.env.INTERVIEW_SCREENSHOT && (width===390 || width===1440)) await page.screenshot({path:process.env.INTERVIEW_SCREENSHOT,fullPage:true})
     await page.$$eval('button', els=>els.find(el=>el.textContent==='Back to result cards').click())
     await page.$$eval('[aria-label="Result cards"] button', els=>els.find(el=>el.textContent.includes('Your answers')).click())
     await page.waitForSelector('[aria-label="Question cards"] button')

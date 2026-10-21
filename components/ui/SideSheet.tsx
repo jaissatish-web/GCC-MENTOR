@@ -82,11 +82,11 @@ export function SideSheet({
   if (!open || !mounted) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-50">
+    <div data-side-sheet className="app-type fixed inset-0 z-50">
       <button
         type="button"
         aria-label="Close menu"
-        onClick={onClose}
+        onClick={() => { onClose(); returnFocusTo?.current?.focus() }}
         className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]"
       />
       <div
@@ -95,20 +95,20 @@ export function SideSheet({
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className="absolute inset-y-0 right-0 flex w-[87%] max-w-[380px] flex-col bg-canvas shadow-m-drawer focus:outline-none"
+        className="absolute inset-y-0 right-0 flex min-h-0 w-[87%] max-w-[380px] flex-col bg-canvas shadow-m-drawer focus:outline-none"
       >
         <div className="flex items-center justify-between border-b border-line bg-white px-4 py-3.5">
           <span className="font-display text-[16px] font-semibold text-ink">{title}</span>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => { onClose(); returnFocusTo?.current?.focus() }}
             aria-label="Close menu"
             className="flex size-11 items-center justify-center rounded-ctl bg-canvas text-ink-soft transition-colors hover:bg-line/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
           >
             <XMarkIcon className="size-[18px]" />
           </button>
         </div>
-        <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-3.5 py-4 pb-8">{children}</div>
+        <div className="services-drawer-content flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-3.5 py-4 pb-8">{children}</div>
       </div>
     </div>,
     document.body,

@@ -2,40 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { ServicesMenu } from './ServicesMenu'
 
-/**
- * AppHeader — the top bar, on every signed-in page and every screen size.
- *
- * LOGO LEFT, THREE-BAR RIGHT. Both are founder requests: the wordmark links
- * home from anywhere (2026-09-08), and the menu opens every service from
- * anywhere (2026-09-09).
- *
- * IT IS NO LONGER MOBILE-ONLY. This used to be `lg:hidden`, on the reasoning
- * that the desktop sidebar already carried the wordmark so a second bar was
- * chrome for its own sake. That was right for a bar that only held a logo. It
- * stopped being right when the bar gained the services menu: the menu is the
- * only place the full list — including what is not built yet — appears in one
- * view, and "any time" cannot mean "unless you are on a laptop".
- *
- * THE BAR HOLDS TWO THINGS AND NOTHING ELSE. "Nothing invented" used to sit
- * between them; the founder removed it on 2026-09-09 and the call is right.
- * The promise belongs where someone is deciding whether to trust the product —
- * the footer of every signed-in page, the login screen's trust strip, and the
- * moment they hand over a CV — not repeated above every screen they have
- * already chosen to be on. Repetition is how a claim stops being read.
- *
- * Sticky, because the way back should not require scrolling to the top first.
- */
+/** Shared workspace header; every viewport can open the complete services drawer. */
 export function AppHeader() {
   const home = usePathname() === '/dashboard'
   return (
-    // PHONES AND TABLETS ONLY (2026-09-24 simplification). On a laptop the
-    // sidebar already carries the wordmark and every destination, so this bar
-    // was a second logo and a second menu above each page. Below 1024px it is
-    // still the way home and the founder's "three-bar" to every service.
-    <header data-mobile-header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur-md lg:hidden">
+    <header data-mobile-header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur-md">
       <div className={`mx-auto flex h-14 max-w-[1400px] items-center gap-3 page-gutter`}>
         {/* The whole lockup is one target, not just the mark — a one-character
             square is a precise tap, and this is the most-used escape hatch in
@@ -54,8 +27,7 @@ export function AppHeader() {
           <span className="flex flex-col"><span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink">GCC <span className="text-teal">MENTOR</span></span><span className={`mobile-brand-caption text-[12px] leading-4 text-ink-muted ${home ? 'md:hidden' : ''}`}>Your Gulf career workspace</span></span>
         </Link>
 
-        <Link href="/settings" aria-label="Account settings" className="ml-auto flex size-11 items-center justify-center rounded-ctl text-ink-soft hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal md:hidden"><Cog6ToothIcon aria-hidden="true" className="size-6" /></Link>
-        <div className="ml-auto hidden md:block"><ServicesMenu /></div>
+        <div className="ml-auto"><ServicesMenu /></div>
       </div>
     </header>
   )

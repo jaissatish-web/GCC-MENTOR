@@ -145,7 +145,7 @@ export default function DashboardPage() {
   return (
     <div className={`ui-page page-gutter mx-auto flex w-full max-w-[900px] flex-col pb-10 font-redesign-sans ${homeStyles.page}`}>
       <header className={homeStyles.pageHeading}>
-        <div className="min-w-0 w-full"><div className={homeStyles.mobileGreeting}><span>{firstName ? `Hello, ${firstName}` : 'Your Gulf career workspace'}</span><time dateTime={clock.toISOString()}>{new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(clock)}</time></div><p className="sr-only">{firstName ? `Good ${greeting()}, ${firstName}` : 'Your Gulf career workspace'}</p><h1><span className="md:hidden">Your career workspace</span><span className="hidden md:inline">Your next move starts here.</span></h1><p>One profile. A plan for every opening.</p></div>
+        <div className="min-w-0 w-full"><div className={homeStyles.mobileGreeting}><span>{firstName ? `Hello, ${firstName}` : 'Your Gulf career workspace'}</span><time dateTime={clock.toISOString()}>{new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(clock)}</time></div><p className="sr-only">{firstName ? `Good ${greeting()}, ${firstName}` : 'Your Gulf career workspace'}</p><h1>Your career workspace</h1><p>One profile. A plan for every opening.</p></div>
       </header>
 
       <div className={homeStyles.mobileScores}><HomeScores profile={profile} score={score} missing={missing.length} gulf={gulf} loading={!profileLoaded} error={profileError} /></div>
@@ -153,14 +153,18 @@ export default function DashboardPage() {
       {!profile ? <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} /> : null}
       <HomeDateNotice packages={packages} ready={packagesLoaded && !packagesError} now={clock} />
 
+      <div className={homeStyles.workspaceColumns}><div className={homeStyles.taskColumn}>
       {/* The empty profile already provides Step 1 and its create action. */}
       {!ready || nextAction.state !== 'no_profile' ? <HomeNextStep action={nextAction} packages={packages} ready={ready} error={loadError} onRetry={() => window.location.reload()} /> : null}
 
       {!overviewError && packagesLoaded && !packagesError && (overview?.mock_in_progress_count ?? 0) > 0 && !packages.some(pkg => pkg.mock_in_progress) ? <HomeSavedPractice count={overview!.mock_in_progress_count} /> : null}
 
+      </div><div className={homeStyles.preparationColumn}>
       <HomeSavedWork overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
 
       {profile ? <div className={homeStyles.profileFoundation}><HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} /></div> : null}
+
+      </div></div>
 
       {ready && packages.length > 0 ? <details className={`group ${homeStyles.disclosureCard}`}><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink"><span className="flex min-w-0 items-center gap-2"><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0 text-teal" />Recent resumes</span><ChevronDownIcon className="size-4 shrink-0 text-teal group-open:rotate-180" aria-hidden="true" /></summary><div className="divide-y divide-line border-t border-line">{packages.slice(0,3).map(item => <Link key={item.id} href={`/package/${encodeURIComponent(item.id)}`} className="flex min-h-16 items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal"><DocumentTextIcon className="size-5 shrink-0 text-teal" aria-hidden="true" /><span className="min-w-0 flex-1"><span className="block break-words type-label text-ink">{item.name || item.target_job_title}</span><span className="block type-caption text-ink-muted">{[item.target_company,item.target_country?.replaceAll('_',' ')].filter(Boolean).join(' · ') || 'Gulf application'}</span></span><ArrowUpRightIcon className="size-4 shrink-0 text-teal" aria-hidden="true" /></Link>)}</div></details> : null}
 
