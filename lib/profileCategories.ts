@@ -50,6 +50,7 @@ export function organizeCategoryEntries<T extends { label?: string; value?: stri
 }
 
 export function categoryFact(row: Pick<ProfileAdditionalInformation, 'label' | 'value'> & CategoryMetadata): string {
+  if(row.category_name==='Preparation details (private)')return ''
   if (!row.label?.trim() && !row.value?.trim()) return ''
   return [row.category_name, row.label, row.level, row.value].filter(v => typeof v === 'string' && v.trim()).join(': ')
 }

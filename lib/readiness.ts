@@ -1,20 +1,8 @@
 import { profileTextPresent, validProfileEmail, validProfilePhone } from './profileFieldValidity'
 import type { ReadinessCategory } from '@/types/careerProfile'
 
-/**
- * Readiness Score — pure functions (TASK-014).
- *
- * Implements docs/CAREER_PROFILE.md §5 exactly. No database access, no side
- * effects. Completeness only — never ATS scores or resume counts.
- *
- * DESIGN NOTE (flagged for CTO): §5 specifies weights at the FIELD-GROUP
- * level. The `missing` array must drive a UI that jumps to the incomplete
- * FIELD, so each group's weight is distributed across its own fields (equal
- * split). Groups made of a single child-table presence check (Education,
- * Certifications, Skills, Work experience detail) yield one item whose points
- * equal the whole group weight. Multi-field groups (Contact & target,
- * Visa-readiness) split their weight equally across the constituent fields.
- */
+/** Applicable career-data completeness. Immigration preparation, optional
+ * credentials and application targeting are assessed separately. */
 
 // ---- Category detection (docs/CAREER_PROFILE.md §5, order matters) ---------
 
@@ -30,7 +18,7 @@ export function deriveCategory(profile: ReadinessInput): ReadinessCategory {
   if (profile.currently_in_gulf === true) return 'currently_in_gulf'
 
   const entries = profile.work_experience ?? []
-  if (entries.length === 0) return 'fresher'
+  if (entries.length === 0) return profile.career_stage==='experienced' ? 'experienced_not_in_gulf' : 'fresher'
 
   const totalExperienceMs = entries.reduce((sum, e) => {
     const start = parseDay(e.start_date)
@@ -39,7 +27,7 @@ export function deriveCategory(profile: ReadinessInput): ReadinessCategory {
     return sum + ms
   }, 0)
   const totalYears = totalExperienceMs / (365 * 24 * 60 * 60 * 1000)
-  if (totalYears < 1) return 'fresher'
+  if (totalYears < 1 && entries.every(e => !e.company && !e.role)) return 'fresher'
 
   // Most recent job = the one with the latest end_date.
   const latestEnd = entries.reduce<number | null>((latest, e) => {
@@ -49,7 +37,7 @@ export function deriveCategory(profile: ReadinessInput): ReadinessCategory {
   if (latestEnd !== null) {
     const gapMs = Date.now() - latestEnd
     const gapMonths = gapMs / (30 * 24 * 60 * 60 * 1000)
-    if (gapMonths >= 12) return 'returner'
+    if (gapMonths >= 12 && profile.has_gulf_experience === true) return 'returner'
   }
 
   return 'experienced_not_in_gulf'
@@ -64,22 +52,6 @@ const CATEGORY_TO_KEY: Record<ReadinessCategory, CategoryKey> = {
   experienced_not_in_gulf: 'experienced',
   returner: 'returner',
   currently_in_gulf: 'currently_in_gulf',
-}
-
-/** [Contact&target, Education, Certifications, Skills, WorkExpDetail, Visa] */
-const WEIGHTS: Record<CategoryKey, readonly number[]> = {
-  fresher: [25, 30, 20, 20, 5, 0],
-  experienced: [15, 10, 20, 10, 30, 15],
-  returner: [20, 10, 20, 20, 25, 5],
-  currently_in_gulf: [15, 5, 10, 10, 20, 40],
-}
-
-// Assert every category's weights sum to 100 (docs §5).
-for (const [k, w] of Object.entries(WEIGHTS)) {
-  const sum = w.reduce((a, b) => a + b, 0)
-  if (sum !== 100) {
-    throw new Error(`Readiness weights for '${k}' sum to ${sum}, expected 100`)
-  }
 }
 
 // ---- Field groups ----------------------------------------------------------
@@ -150,31 +122,21 @@ function buildGroup(
 }
 
 function groupsFor(profile: ReadinessInput, key: CategoryKey): FieldGroup[] {
-  const w = WEIGHTS[key]
-  const contactTargetFields: Array<[string, string, FilledCheck]> = [
+  // Profile completeness is independent of immigration status, target employer,
+  // certificate ownership and paid-service usage. Existing category is retained
+  // for presentation; it no longer changes the value of career information.
+  const hasHistory = (profile.work_experience?.length ?? 0) > 0 || profile.career_stage==='experienced'
+  const contact: Array<[string, string, FilledCheck]> = [
     ['full_name', 'Full name', scalarFilled('full_name')],
-    ['phone', 'Phone', scalarFilled('phone')],
-    ['email', 'Email', scalarFilled('email')],
+    ['email', 'Contact email', scalarFilled('email')],
+    ['phone', 'Contact phone', scalarFilled('phone')],
     ['current_location', 'Current location', scalarFilled('current_location')],
-    ['target_job_title', 'Job Title You’re Applying For', scalarFilled('target_job_title')],
-    ['target_country', 'Target country', scalarFilled('target_country')],
-    ['target_industry', 'Target industry', scalarFilled('target_industry')],
-    ['target_company', 'Target company', scalarFilled('target_company')],
   ]
-  const visaFields: Array<[string, string, FilledCheck]> = [
-    ['visa_status', 'Visa status', scalarFilled('visa_status')],
-    ['visa_transferable', 'Visa transferable', scalarFilled('visa_transferable')],
-    ['notice_period', 'Notice period', scalarFilled('notice_period')],
-    ['passport_validity_date', 'Passport validity', scalarFilled('passport_validity_date')],
-  ]
-
   return [
-    buildGroup(w[0], contactTargetFields),
-    buildGroup(w[1], [['education', 'Education', listFilled('education')]]),
-    buildGroup(w[2], [['certifications', 'Certifications', listFilled('certifications')]]),
-    buildGroup(w[3], [['skills', 'Skills', listFilled('skills')]]),
-    buildGroup(w[4], [['work_experience', 'Work experience detail', listFilled('work_experience')]]),
-    buildGroup(w[5], visaFields),
+    buildGroup(25, contact),
+    buildGroup(hasHistory ? 20 : 35, [['education', 'Education or training details', p=>p.no_formal_qualification===true||listFilled('education')(p)]]),
+    buildGroup(hasHistory ? 20 : 30, [['skills', 'Skills you have used or learned', listFilled('skills')]]),
+    buildGroup(hasHistory ? 35 : 10, [[hasHistory ? 'work_experience' : 'professional_summary', hasHistory ? 'Employment details and responsibilities' : 'Your background or practical experience', hasHistory ? listFilled('work_experience') : scalarFilled('professional_summary')]]),
   ]
 }
 
@@ -192,26 +154,13 @@ export interface ReadinessResult {
   missing: MissingItem[]
 }
 
-/**
- * What each scored field is worth for a given category — the same numbers
- * calculateReadiness() awards, exposed so the profile form can show a section's
- * real point value next to its heading.
- *
- * This has to be derived rather than hard-coded in the UI, because the weights
- * are NOT fixed: Education is worth 30 to a fresher but 5 to someone already in
- * the Gulf, and Visa readiness is worth 0 to a fresher but 40 in-Gulf (see
- * WEIGHTS above). A static "+30 points" label would therefore be wrong for most
- * users. Fields absent from the returned map are genuinely unscored.
- *
- * Pure and side-effect free, like everything else in this file. The `profile`
- * argument is only needed because groupsFor() takes it; no field values affect
- * the weights themselves.
+/** Expose the same field weights used by calculateReadiness for section chips.
+ * Pass the profile because career stage and employment history select the weights.
+ * A category-only fallback supports legacy callers.
  */
-export function fieldPointsFor(category: ReadinessCategory): Record<string, number> {
+export function fieldPointsFor(category: ReadinessCategory, profile?: ReadinessInput): Record<string, number> {
   const key = CATEGORY_TO_KEY[category]
-  // groupsFor only reads `profile` to build the closures, never to pick weights,
-  // so a minimal stub is sufficient and keeps this callable without a profile.
-  const stub: ReadinessInput = { currently_in_gulf: false }
+  const stub: ReadinessInput = profile ?? { currently_in_gulf: category === 'currently_in_gulf', work_experience: category === 'fresher' ? [] : [{ start_date: '2000-01-01' }] }
   const out: Record<string, number> = {}
   for (const group of groupsFor(stub, key)) {
     for (const item of group.items) out[item.field] = item.points
@@ -249,6 +198,10 @@ function parseDay(iso: string): number {
 /** Structural input type — the subset of CareerProfileFull that readiness uses. */
 export interface ReadinessInput {
   currently_in_gulf: boolean
+  professional_summary?: unknown
+  career_stage?: 'experienced' | 'fresher' | ''
+  no_formal_qualification?: boolean
+  has_gulf_experience?: boolean | null
   full_name?: unknown
   phone?: unknown
   email?: unknown

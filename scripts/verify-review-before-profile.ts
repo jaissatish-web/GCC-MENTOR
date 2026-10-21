@@ -2,6 +2,7 @@ import './resolve-paths'
 import assert from 'node:assert/strict'
 import { importReviewPlan, rebaseImportField } from '../lib/resumeParse/reviewPlan'
 import { resumeReviewChecks, type ReviewCheckEditor } from '../lib/resumeParse/reviewChecks'
+import {currentRoleFingerprint} from '../lib/resumeParse/importReview'
 import { calculateReadiness } from '../lib/readiness'
 import { scoreProfileReadiness } from '../lib/gulfReadiness/fromProfile'
 import type { ImportReview } from '../lib/resumeParse/importReview'
@@ -32,4 +33,8 @@ const draftForMerge={work_experience:[{company:'New EPC',role:'Engineer',start_d
 const mergedForReview={work_experience:[{company:'Old EPC',role:'Engineer',start_date:'2010-01-01'},{company:'New EPC',role:'Engineer',start_date:'2020-01-01'}],education:[],certifications:[]} as unknown as import('../types/careerProfile').CareerProfileFull
 assert.equal(rebaseImportField('work_experience.0.company',draftForMerge,mergedForReview),'work_experience.1.company','notes must follow the newly merged job')
 assert.equal(rebaseImportField('work_experience.0.company',draftForMerge,{...mergedForReview,work_experience:[]}), 'work_experience','ambiguous or removed role must not point at unrelated data')
+const currentEditor={...editor,work_experience:[{company:'Example',role:'Engineer',start_date:'2020-01',end_date:'',description:'Testing',highlights:''}]}
+const currentCheck=resumeReviewChecks(review,currentEditor,()=>null).find(c=>c.field.endsWith('current_status'))!
+assert.ok(currentCheck,'missing end date needs explicit current status')
+assert.ok(!resumeReviewChecks({...review,currentRoles:[currentRoleFingerprint(currentEditor.work_experience[0])]},currentEditor,()=>null).some(c=>c.field.endsWith('current_status')),'explicit current role is reused without asking again')
 console.log('PASS explicit import review: required vs optional, uncertain facts, changed-value invalidation, valid-data profile and Gulf scoring')

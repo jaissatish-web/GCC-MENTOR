@@ -1,5 +1,5 @@
 /** Real React form -> real multipart API -> actual PDF/DOCX parsing -> readiness result.
- * The anonymous usage limiter alone is isolated; no production services or user data.
+ * The usage limiter, service switch and AI provider are isolated; actual document parsers run.
  * Run after build: CHROME_PATH=/path/to/chromium npm run test:readiness-input
  */
 import assert from 'node:assert/strict'
@@ -13,7 +13,10 @@ import puppeteer from 'puppeteer-core'
 const root=resolve('.'),dir=mkdtempSync(join(tmpdir(),'gcc-readiness-')),require=createRequire(root+'/package.json')
 require('sucrase/register');require('./scripts/resolve-paths')
 const limiter=require.resolve('./lib/anonymousRateLimit');require.cache[limiter]={id:limiter,filename:limiter,loaded:true,exports:{getClientIdentityHash:()=> 'isolated-test',getAnonymousRateLimitStatus:async()=>({allowed:true}),incrementAnonymousRateLimit:async()=>{},LIMIT_ACTION_ANON_ATS_SCAN:'ats_scan'}}
-const {POST}=require('./app/api/gulf-readiness/route'),{NextRequest}=require('next/server')
+function stub(path,exports){const id=require.resolve(path);require.cache[id]={id,filename:id,loaded:true,exports}}
+stub('./lib/ai/serviceGuard',{isServicePaused:async()=>({paused:false})})
+stub('./lib/ai/provider',{generate:async()=>({text:JSON.stringify({full_name:'Demo Candidate',email:'demo@example.com',phone:'+919000000000',current_location:'India',date_of_birth:'1990-01-01',notice_period:'30 days',work_experience:[{role:'Instrumentation Engineer',company:'Example Engineering',start_date:'2020-01-01',responsibilities:'Delivered commissioning and calibration'}],education:[{degree:'BTech'}],skills:['Calibration'],certifications:[],additional_information:[]}),inputTokens:10,outputTokens:20,truncated:false})})
+const {POST}=require('./app/api/career-intake/route'),{NextRequest}=require('next/server')
 const resume='Demo Candidate\nInstrumentation Commissioning Engineer\nEmail: demo@example.com | Phone: +91 90000 00000\nLocation: India | Nationality: Indian\nSummary: Engineer with 10 years of oil and gas commissioning experience.\nExperience: Senior Instrument Engineer, Example Engineering, 2020 - Present.\nDelivered loop checking, calibration, FAT, SAT, DCS and PLC commissioning.\nInstrument Engineer, Example Services, 2016 - 2020.\nEducation: BTech Electronics and Communication Engineering, 2015.\nCertifications: Industrial Automation. Skills: SIS, Modbus, HART.\nLanguages: English and Hindi. Available in 30 days.'
 function makePdf(text){const stream='BT /F1 10 Tf 40 790 Td 18 TL '+text.split('\n').map((l,i)=>(i?'T* ':'')+'('+l.replace(/[\\()]/g,'\\$&')+') Tj').join('\n')+' ET';const objects=['<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>','<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',`<< /Length ${Buffer.byteLength(stream)} >>\nstream\n${stream}\nendstream`];let out='%PDF-1.4\n',offsets=[0];for(let i=0;i<objects.length;i++){offsets.push(Buffer.byteLength(out));out+=`${i+1} 0 obj\n${objects[i]}\nendobj\n`}const start=Buffer.byteLength(out);out+=`xref\n0 6\n0000000000 65535 f \n`+offsets.slice(1).map(n=>String(n).padStart(10,'0')+' 00000 n \n').join('')+`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;return Buffer.from(out)}
 writeFileSync(dir+'/resume.pdf',makePdf(resume));writeFileSync(dir+'/resume.docx',await Packer.toBuffer(new Document({sections:[{children:resume.split('\n').map(text=>new Paragraph(text))}]})));writeFileSync(dir+'/bad.pdf','This is not a PDF file.');writeFileSync(dir+'/wrong.txt',resume);writeFileSync(dir+'/large.pdf',Buffer.alloc(4*1024*1024+1))
@@ -27,10 +30,10 @@ const css=[...new Set([...landing.matchAll(/href="(\/_next\/static\/css\/[^\"]+\
 const observations=[],errors=[];let failNext=false
 const server=createServer(async(req,res)=>{try{
  const u=new URL(req.url,'http://localhost')
- if(u.pathname==='/api/gulf-readiness'){
+ if(u.pathname==='/api/career-intake'){
   const chunks=[];for await(const chunk of req)chunks.push(chunk)
-  const request=new NextRequest('http://localhost/api/gulf-readiness',{method:'POST',headers:req.headers,body:Buffer.concat(chunks)})
-  const form=await request.clone().formData();const selected=form.get('file');observations.push({file:selected?.name??null,text:form.get('resume_text'),answers:JSON.parse(form.get('answers'))})
+  const request=new NextRequest('http://localhost/api/career-intake',{method:'POST',headers:req.headers,body:Buffer.concat(chunks)})
+  const form=await request.clone().formData();const selected=form.get('file');observations.push({file:selected?.name??null,text:form.get('resume_text')})
   const reply=failNext?new Response(JSON.stringify({error:'Temporary test failure. Please retry.'}),{status:503,headers:{'content-type':'application/json'}}):await POST(request);failNext=false
   const body=await reply.text();res.writeHead(reply.status,Object.fromEntries(reply.headers));res.end(body);return
  }
@@ -43,9 +46,14 @@ const browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,hea
 try{
  const page=await browser.newPage();page.on('pageerror',e=>errors.push(e.message))
  const click=text=>page.$$eval('button',(buttons,label)=>buttons.find(e=>e.textContent.trim()===label).click(),text)
- const start=async()=>{await page.goto(origin,{waitUntil:'networkidle0'});await page.waitForSelector('#resume-upload')}
- const questions=async(gulf=false)=>{await click('Continue');await page.waitForSelector('h1');await click(gulf?'Yes, I have Gulf / Middle East experience':'No, I haven’t worked in the Gulf yet');await click(gulf?'I’m currently in the Gulf / Middle East':'Yes, I have professional experience')}
- const result=async()=>{await page.waitForFunction(()=>document.querySelector('h1')?.textContent.includes('Here’s where'));const handoff=await page.evaluate(()=>Object.keys(sessionStorage).map(k=>{try{return JSON.parse(sessionStorage.getItem(k))}catch{return null}}).find(x=>x?.result&&x?.resumeText));assert.ok(handoff.resumeText.includes('commissioning'));assert.equal(typeof handoff.result.finalScore,'number');return handoff.result.finalScore}
+ const start=async()=>{await page.goto(origin,{waitUntil:'networkidle0'});await page.evaluate(()=>sessionStorage.clear());await page.reload({waitUntil:'networkidle0'});await page.waitForSelector('#resume-upload')}
+ const questions=async(gulf=false)=>{
+  await click('Continue');await page.waitForSelector('#intake-location')
+  await page.$$eval('fieldset',(fields,value)=>fields.forEach(f=>[...f.querySelectorAll('button')].find(b=>b.textContent===(value?'Yes':'No')).click()),gulf)
+  await click('Continue');await page.waitForSelector('#intake-country');await page.select('#intake-country','generic_gulf');await page.select('#intake-passport','not_available')
+  await click('See my two readiness results')
+ }
+ const result=async()=>{await page.waitForFunction(()=>document.body.textContent.includes('Edit my preparation answers'));const handoff=await page.evaluate(()=>Object.keys(sessionStorage).map(k=>{try{return JSON.parse(sessionStorage.getItem(k))}catch{return null}}).find(x=>x?.result&&x?.resumeText));assert.ok(handoff.resumeText.includes('commissioning'));assert.equal(typeof handoff.result.finalScore,'number');return handoff.result.finalScore}
  const upload=async name=>{const input=await page.$('input[type=file]');await input.uploadFile(dir+'/'+name)}
  mkdirSync('artifacts/readiness-input',{recursive:true})
  for(const width of [320,390,768,1440]){
@@ -71,7 +79,7 @@ try{
  }
  await start();await upload('wrong.txt');assert.ok(await page.$eval('#resume-input-error',e=>e.textContent.includes('Choose a PDF')))
  await upload('large.pdf');assert.ok(await page.$eval('#resume-input-error',e=>e.textContent.includes('4MB')))
- await upload('bad.pdf');await questions();await page.waitForSelector('#resume-input-error');assert.ok(await page.$eval('#resume-input-error',e=>e.textContent.includes('valid PDF')));assert.ok(await page.$('#resume-upload'))
- await click('Paste text');await page.type('textarea',resume);failNext=true;await questions();await page.waitForSelector('#resume-input-error');assert.equal(await page.$eval('textarea',e=>e.value),resume,'Failed request preserves text');await questions();await result()
- assert.deepEqual(errors,[]);console.log('PASS PDF/DOCX/paste end-to-end; active-only input, draft preservation, focus, inline validation, invalid/oversized files, parser failure and retry. Scoring engine and API are unchanged.')
+ await upload('bad.pdf');await click('Continue');await page.waitForSelector('#resume-input-error');assert.ok(await page.$eval('#resume-input-error',e=>e.textContent.includes('could not read')));assert.ok(await page.$('#resume-upload'))
+ await click('Paste text');await page.type('textarea',resume);failNext=true;await click('Continue');await page.waitForSelector('#resume-input-error');assert.equal(await page.$eval('textarea',e=>e.value),resume,'Failed request preserves text');await questions();await result()
+ assert.deepEqual(errors,[]);console.log('PASS PDF/DOCX/paste end-to-end; active-only input, draft preservation, focus, inline validation, invalid/oversized files, parser failure and retry. One structured extraction feeds the two scorecards. The AI provider uses a synthetic response.')
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));rmSync(dir,{recursive:true,force:true})}

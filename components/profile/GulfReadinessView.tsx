@@ -1,5 +1,6 @@
 'use client'
 
+import {PreparationReport} from '@/components/gulfReadiness/PreparationReport'
 import { NAMES } from '@/lib/serviceLabels'
 import { useState } from 'react'
 import {
@@ -120,6 +121,7 @@ export function GulfReadinessView({
     )
   }
 
+  if(gulf.preparation) return <div className="px-3 py-4 sm:px-5"><PreparationReport result={gulf} locked={false} onFix={onFix}/></div>
   const tone = VERDICT_TONE[gulf.verdict.key]
   const recs = gulf.recommendations
   const profileRecs = recs.filter((r) => (r.stage ?? 'profile') === 'profile')

@@ -1,3 +1,4 @@
+import {parseCvDate} from './dates'
 import type { CareerProfileDraft } from '@/types/careerProfile'
 import type { ParseWarning } from './check'
 
@@ -22,6 +23,7 @@ export interface ImportReview {
   sourceText: string
   changes: ImportChange[]
   imported: { roles: number; skills: number; qualifications: number; certificates: number }
+  currentRoles?: string[]
   wordingStatus: 'checked' | 'unavailable' | 'not_needed'
   wordingCoverage?: { checked: number; total: number }
 }
@@ -84,12 +86,20 @@ export function safeWording(before: string, after: string): boolean {
   return signature(before) === signature(after)
 }
 
+export function currentRoleFingerprint(job:{company?:string;role?:string;start_date?:string}):string {
+ const date=parseCvDate(job.start_date??'')
+ return [job.company,job.role,date.kind==='date'?date.value.slice(0,7):job.start_date].map(v=>(v??'').trim().toLowerCase()).join('|')
+}
+export function explicitCurrentRoles(raw:CareerProfileDraft):string[]{
+ return raw.work_experience.filter(job=>/^(present|current|currently|now|ongoing|till date)$/i.test(String(job.end_date??'').trim())).map(currentRoleFingerprint)
+}
+
 export function buildImportReview(raw: CareerProfileDraft, draft: CareerProfileDraft, text: string, warnings: ParseWarning[]): ImportReview {
   const review: ImportReview = {
     version: 1, id: crypto.randomUUID(), createdAt: new Date().toISOString(),
     sourceText: redactImportText(text), changes: [],
     imported: { roles: draft.work_experience.length, skills: draft.skills.length, qualifications: draft.education.length, certificates: draft.certifications.length },
-    wordingStatus: 'not_needed',
+    wordingStatus: 'not_needed',currentRoles:explicitCurrentRoles(raw),
   }
   const add = (change: Omit<ImportChange, 'id'>) => review.changes.push({ ...change, id: `${review.id}-${review.changes.length}` })
   for (const field of proseFields(draft)) {

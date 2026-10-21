@@ -1,4 +1,4 @@
-import { buildImportReview, type ImportReview } from './importReview'
+import { buildImportReview, explicitCurrentRoles, type ImportReview } from './importReview'
 import { reviewWording } from './reviewWording'
 import { generate } from '@/lib/ai/provider'
 import { attachLooseDuties } from './looseDuties'
@@ -30,6 +30,7 @@ export type ParseInput = { kind: 'pdf' | 'docx'; buffer: Buffer } | { kind: 'tex
 
 export interface ParseReport {
   version: 'v2'
+  currentRoles?: string[]
   ms: number
   attempts: number
   repaired: boolean
@@ -186,6 +187,7 @@ export async function extractProfile(
       host,
       layout: opts.layout ?? [],
       warnings,
+      currentRoles:explicitCurrentRoles(bestRaw??best.draft),
       review,
     },
   }

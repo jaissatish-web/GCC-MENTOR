@@ -1,5 +1,7 @@
 'use client'
 
+import {INTAKE_KEY,type CareerIntake,applyIntakeAnswers} from '@/lib/careerIntake/shared'
+import {CAREER_PROFILE_DRAFT_KEY,CAREER_PROFILE_PARSE_NOTES_KEY,CLAIMED_RESUME_TEXT_KEY} from '@/lib/onboardingDraft'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -33,6 +35,25 @@ export default function OnboardingReportPage() {
   const router = useRouter()
   const [result, setResult] = useState<GulfReadinessResult | null>(null)
   const [checked, setChecked] = useState(false)
+  const [opening,setOpening]=useState(false)
+  const [openError,setOpenError]=useState('')
+  const openProfile=async()=>{
+    if(opening)return
+    let intake:CareerIntake|null=null
+    try{intake=JSON.parse(sessionStorage.getItem(INTAKE_KEY)??'null')}catch{/* Old scan uses the existing extraction path. */}
+    if(!intake?.draft){router.push('/onboarding/extracting?path=claimed');return}
+    setOpening(true);setOpenError('')
+    try{
+      const res=await fetch('/api/career-intake/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...intake,draft:applyIntakeAnswers(intake.draft,intake.context)})})
+      const body=await res.json()
+      if(res.status===409){router.push('/onboarding/extracting?path=claimed');return}
+      if(!res.ok)throw new Error(body.error||'Could not open your career details.')
+      sessionStorage.removeItem(CLAIMED_RESUME_TEXT_KEY)
+      sessionStorage.setItem(CAREER_PROFILE_DRAFT_KEY,JSON.stringify(body.draft))
+      sessionStorage.setItem(CAREER_PROFILE_PARSE_NOTES_KEY,JSON.stringify(body.report?.warnings??[]))
+      router.push('/profile')
+    }catch(error){setOpenError(error instanceof Error?error.message:'Could not open the profile.');setOpening(false)}
+  }
 
   useEffect(() => {
     let parsed: GulfReadinessResult | null = null
@@ -85,17 +106,18 @@ export default function OnboardingReportPage() {
           </p>
         </div>
 
+        <section className="mb-5 rounded-card border border-teal/30 bg-white p-5"><h2 className="type-card font-semibold text-ink">Your career details are ready to review</h2><p className="mt-2 text-sm text-ink-soft">We reuse your reading and answers. Check important details, then save your Career Profile.</p><Button onClick={openProfile} busy={opening} busyLabel="Opening…" className="mt-4">Review & create my Career Profile</Button>{openError?<p role="alert" className="mt-3 text-sm text-alert">{openError}</p>:null}</section>
         <ScorecardResult result={result} locked={false} />
 
         <div className="mt-8 rounded-card border border-teal/40 bg-gold-soft/40 p-6 text-center sm:p-8">
           <h2 className="font-display text-2xl text-ink">Now let&rsquo;s build your Career Profile</h2>
           <p className="mx-auto mt-2 max-w-md type-helper leading-relaxed text-ink-soft">
-            We already have your resume. We read it once, free — then you check and correct everything.
+            We already have your resume and answers. Review and correct your details before creating your saved profile.
           </p>
           <div className="mt-5">
             <Button
               variant="purchase"
-              onClick={() => router.push('/onboarding/extracting?path=claimed')}
+              onClick={openProfile} busy={opening} busyLabel="Opening your career details…"
             >
               Build my Career Profile
             </Button>

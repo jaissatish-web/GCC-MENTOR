@@ -1,9 +1,10 @@
 import './resolve-paths'
 import assert from 'node:assert/strict'
 import { resumeReviewChecks, type ReviewCheckEditor } from '../lib/resumeParse/reviewChecks'
-import type { ImportReview } from '../lib/resumeParse/importReview'
+import { currentRoleFingerprint,type ImportReview } from '../lib/resumeParse/importReview'
 const review: ImportReview = { version: 1, id: 'test', createdAt: '', sourceText: '', changes: [], imported: { roles: 1, skills: 1, qualifications: 0, certificates: 0 }, wordingStatus: 'not_needed' }
 const editor: ReviewCheckEditor = { full_name: 'Example Person', email: 'person@example.com', phone: '+919876543210', professional_summary: 'Engineer.', skills: [{ name: 'DCS' }], work_experience: [{ company: 'Example', role: 'Engineer', start_date: '2020-01', end_date: '', description: 'Commissioned control systems.', highlights: '' }] }
+review.currentRoles=[currentRoleFingerprint(editor.work_experience[0])]
 const checks = (value = editor, r = review) => resumeReviewChecks(r, value, () => null)
 assert.equal(checks().filter(c => c.status === 'attention').length, 0, 'clean CV must not invent issues')
 const invalid = checks({ ...editor, full_name: '', email: 'bad@email', phone: 'abc123', skills: [], work_experience: [{ ...editor.work_experience[0], start_date: '2020-02-31', role: '', company: '', description: '' }] })

@@ -1,4 +1,5 @@
 'use client'
+import {contextFromProfile} from '@/lib/careerIntake/shared'
 
 import Link from 'next/link'
 import { DocumentTextIcon, ArrowUpRightIcon, ChevronDownIcon, MapIcon } from '@heroicons/react/24/outline'
@@ -16,7 +17,7 @@ import { OverallProgress } from '@/components/dashboard/ActivityOverview'
 import { dashboardNextAction, type DashboardOverview } from '@/lib/dashboardOverview'
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
-import { answersFromReadinessCategory, scoreProfileReadiness, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
+import { answersFromReadinessCategory, scoreCareerPreparation as scoreProfileReadiness, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
 import homeStyles from '@/components/dashboard/career-home.module.css'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
@@ -95,6 +96,10 @@ export default function DashboardPage() {
   const readiness = profile
     ? calculateReadiness({
         currently_in_gulf: profile.currently_in_gulf,
+        professional_summary:profile.professional_summary,
+        career_stage:contextFromProfile(profile).careerStage,
+        has_gulf_experience:contextFromProfile(profile).hasGulfExperience,
+        no_formal_qualification:contextFromProfile(profile).noFormalQualification,
         full_name: profile.full_name,
         phone: profile.phone,
         email: profile.email,

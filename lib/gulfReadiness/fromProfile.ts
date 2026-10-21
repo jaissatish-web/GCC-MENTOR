@@ -1,3 +1,5 @@
+import {calculatePreparation} from './preparation'
+import {contextFromProfile} from '@/lib/careerIntake/shared'
 import { profileTextPresent, validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import type { FunnelAnswers, GulfFacts, GulfReadinessResult, PhotoState } from '@/lib/gulfReadiness/types'
 import type { ArabicLevel, CareerProfileFull, PaperworkStatus, ReadinessCategory } from '@/types/careerProfile'
@@ -50,6 +52,8 @@ export interface ProfileScoringInput {
   degree_attestation?: PaperworkStatus | null
   professional_licence?: PaperworkStatus | null
   saudi_verification?: PaperworkStatus | null
+  currently_in_gulf?: boolean
+  date_of_birth?: string | null
   target_country?: string | null
   target_job_title?: string | null
   work_experience?: Array<{
@@ -75,6 +79,8 @@ export interface ProfileScoringInput {
  */
 export function scoringInputFromProfile(p: CareerProfileFull): ProfileScoringInput {
   return {
+    currently_in_gulf: p.currently_in_gulf,
+    date_of_birth: p.date_of_birth,
     professional_summary: p.professional_summary,
     phone: p.phone,
     email: p.email,
@@ -249,4 +255,11 @@ export function answersFromReadinessCategory(category: ReadinessCategory): Funne
     case 'fresher':
       return { hasGulfExperience: false, hasProfessionalExperience: false }
   }
+}
+
+/** Live v4 awareness. Legacy scoreProfileReadiness remains for historical reports. */
+export function scoreCareerPreparation(profile: ProfileScoringInput, _answers?: FunnelAnswers, today?: Date): GulfReadinessResult {
+ const context=contextFromProfile(profile)
+ if(!context.profession)context.profession=profile.work_experience?.[0]?.role??''
+ return calculatePreparation(profile,context,today)
 }
