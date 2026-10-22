@@ -11,11 +11,17 @@ Verification: source comparison of package versions, intake limits/handoff, scor
 
 ## BRANCH-001 — keep main only
 Inventory: 36 non-main branches; 27 are ancestors of main and nine have commits outside main history. Names, exact heads and ahead/behind counts are in `BRANCH_CLEANUP_2026-10-22.md`.
-Status: pending deletion. GitHub connector exposes no branch-delete operation. Shell push has no authenticated credential; browser GitHub is signed out. Do not claim branches were removed. Preserve unique work durably before deleting those nine branches.
+Status: all 36 original non-main branch refs removed and remote list checked. PR #24 temporary branch also removed. Nine separate heads are preserved in the inert recovery archive described in BRANCH_PURPOSES.md; an independent restore check passed. Old draft PRs #4 and #12 closed without merging. At documentation publication, only main and the required temporary PR #25 documentation branch remain. Remove that temporary branch after merge and verify main is the sole remote branch before final handoff.
 Acceptance: verified remote branch list contains only main, with recoverable unique work and no unrequested changes merged.
 
 ## BUG-001 — resume upload “failed to fetch”
 Founder-reported symptom from prior conversation. Pending reproduction and diagnosis. No fix or root cause verified here. Start with the actual failing request, response/status and current deployment; check PDF, DOCX and paste paths and preservation of the intake draft.
 
 ## Next session
-Read `AGENTS.md` and the canonical documents first. Complete branch cleanup once authenticated branch management is available, then discuss/record the next authorized feature or investigate BUG-001. Do not restart old design plans automatically.
+Read `AGENTS.md` and the canonical documents first. Finish/verify main-only cleanup, then use PLATFORM_MASTER.md as the shared discussion baseline. Discuss/record the next authorized feature or investigate BUG-001 only when the founder asks for that implementation. Do not restart old design plans automatically.
+
+## DOC-002 — understand main and classify old branches
+Founder clarified: current main is the application baseline; no application changes or experimental merges. Document the full platform concept, current source behavior and plan; inspect branch purposes and remove the rest.
+Acceptance: founder-readable PLATFORM_MASTER.md with service/score/data flows and live-verification limits; branch-purpose record; durable recovery of nine unique heads; remote cleanup verification.
+Implementation: source review delegated into bounded read-only service/control reviews and integrated by lead. Only documentation/recovery records may change.
+Checks: source references reviewed, relative links/whitespace passed, docs-only diff confirmed, backup restore recovered all nine refs. Required GitHub CI gates merge; record its result in the final handoff. No runtime/provider/production-flow certification claimed.

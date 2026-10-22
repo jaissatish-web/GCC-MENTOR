@@ -1,6 +1,6 @@
 # OPTIMIZER ENGINE — how a Career Profile becomes a CV for one job
 
-> **2026-10-22 status:** v3 is connected and is the default in app/api/optimize/route.ts; OPTIMIZER_ENGINE=v2 selects the older engine. The detailed 2026-09-17 flow below is the v2 implementation reference, not a description of every default v3 step.
+> **2026-10-22 status:** v3 is connected and is the default in app/api/optimize/route.ts; OPTIMIZER_ENGINE=v2 selects the older engine. The detailed 2026-09-17 flow below is the v2 implementation reference, not a description of every default v3 step. Cover letters, Q&A and mock interviews also support the base Profile Resume without optimization; see PLATFORM_MASTER.md.
 
 **Built 2026-09-17.** This is the service the rest of the platform depends on:
 cover letters, interview Q&A and the mock interview all start from the CV it

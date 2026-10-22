@@ -3,7 +3,7 @@
 Read these files before planning or changing anything:
 1. `docs/00_START_HERE.md`
 2. `docs/PROJECT_PLAN.md`
-3. `docs/CURRENT_STATE.md`
+3. `docs/CURRENT_STATE.md` and `docs/PLATFORM_MASTER.md`
 4. `docs/16_WORKING_AGREEMENT.md`
 5. `docs/PROGRESS.md` and the relevant domain specification.
 
@@ -17,7 +17,7 @@ The founder is Satish, a non-coder. Explain outcomes, impact and choices in plai
 - Read `docs/DOCUMENTATION_INDEX.md` before using older reports as instructions. Historical plans and test evidence do not establish current behavior or current production health.
 
 ## Scope and collaboration
-- Main is the only standing development branch. Do not create a branch unless Satish explicitly requests one. Do not force push or bypass branch protection; report a concrete block.
+- Main is the only standing development branch. A temporary branch is permitted solely when required by main protection to deliver authorized work through a pull request; remove it after merge. Other feature/preview branches need Satish’s instruction. Do not force push or bypass protection.
 - Preserve existing service logic during visual-only work. Do not change resume template/document typography as part of application typography work.
 - Mobile first, then desktop. Shared application typography is in `app/typography.css`; use the existing central design system.
 - Preserve truthful candidate facts; never invent achievements, dates, employers or qualifications. Do not store passport numbers or commit credentials.
@@ -27,3 +27,5 @@ The founder is Satish, a non-coder. Explain outcomes, impact and choices in plai
 
 ## Verification and handoff
 For code changes run checks appropriate to the affected behavior, including required repository checks. For documentation-only changes check links, claims against source and the diff; do not claim runtime tests were run. Report commit, completed work, pending work and concrete limitations. Do not claim deployed/live verification from source inspection.
+
+Current founder scope (22 October 2026): understand and document the platform as implemented on main, classify/remove old branches, and preserve unique historical work. Do not change application behavior, scoring, UI, prompts or database until a new implementation request is agreed and documented.

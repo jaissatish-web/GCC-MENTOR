@@ -20,7 +20,7 @@ Read the actual diff, including delegated work. Run appropriate repository check
 Update domain documents to actual implementation; record checks, failures, unresolved questions, commit and next action in `PROGRESS.md`. Never mark a feature complete only because a builder reports success. Distinguish source inspection, automated tests, synthetic UI checks and live production verification.
 
 ## Branches
-Main is the sole standing branch. Create another branch only if Satish requests it; respect GitHub protection if it blocks direct updates. Before deleting an old branch, compare against main and preserve unique work durably with an explicit recovery record. Do not merge experimental changes as part of cleanup.
+Main is the sole standing branch. Temporary branches are permitted when main protection requires a pull request for already-authorized work; remove them after merge. Other branches require Satish’s instruction. Respect protection. Before deleting an old branch, compare against main and preserve unique work durably with an explicit recovery record. Do not merge experimental changes as part of cleanup.
 
 ## Document authority
 Latest explicit founder decisions take precedence over old repository process notes. `PROJECT_PLAN.md` owns agreed direction; `CURRENT_STATE.md` owns the inspected baseline; `PROGRESS.md` owns active work; domain files own details; `15_DECISION_LOG.md` owns dated rationale. `DOCUMENTATION_INDEX.md` labels historical records. A source contradiction is a documentation defect to investigate, not permission to alter working logic without scope.

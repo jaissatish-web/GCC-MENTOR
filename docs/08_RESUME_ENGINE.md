@@ -1,5 +1,7 @@
 # RESUME ENGINE — templates, styling, and the frozen delivered document
 
+> **2026-10-22 source correction:** Current registry has 53 available entries, not the earlier 50. See PLATFORM_MASTER.md. Older exhaustive test counts below apply only to their named historical baseline.
+
 ---
 
 ## 1. One derivation, many renderers

@@ -4,6 +4,8 @@ Inventory dated 22 October 2026. Canonical files were established against main `
 
 Read AGENTS.md → PROJECT_PLAN.md → CURRENT_STATE.md → working agreement → PROGRESS.md first. Domain documents supply detail, with current-state notices overriding old sections. Historical files preserve why/how an earlier change was made; their dates, branch names, pending flags and test claims must not be treated as current instructions. Existing archives remain unchanged.
 
+Read [PLATFORM_MASTER.md](PLATFORM_MASTER.md) for the full founder-readable current platform and [BRANCH_PURPOSES.md](BRANCH_PURPOSES.md) for the branch review/recovery record.
+
 ## Corrected drift
 README framework version; former Claude/Hermes role split; conflicting task surfaces; v3 “lab only” claim; old readiness model versus current shared intake; typography ownership; historical live database counts; unrestricted-access claims and stale branch/release status. No production runtime or database certification was attempted.
 
@@ -107,3 +109,6 @@ README framework version; former Claude/Hermes role split; conflicting task surf
 | [docs/resume-quality/README.md](../docs/resume-quality/README.md) | Historical evidence / design / old plan; not an active instruction or current certification |
 | [reference/README.md](../reference/README.md) | Historical evidence / design / old plan; not an active instruction or current certification |
 | [supabase/migrations/README.md](../supabase/migrations/README.md) | Historical evidence / design / old plan; not an active instruction or current certification |
+
+| [docs/PLATFORM_MASTER.md](PLATFORM_MASTER.md) | Canonical explanation of current platform flow and status |
+| [docs/BRANCH_PURPOSES.md](BRANCH_PURPOSES.md) | Historical branch purpose and inert recovery archive |
