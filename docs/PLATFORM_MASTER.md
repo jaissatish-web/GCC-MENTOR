@@ -198,3 +198,6 @@ A source inspection does not establish that the live website is running the same
 5. Verify the affected journey, record results and limitations, update actual status and leave a clear next action. Never claim an untested feature is live-ready.
 
 For the present task, the agreed boundary is understanding main, reviewing/removing retired branches and updating documents. No application redesign, logic rewrite, schema change or old experimental feature is authorized by this guide.
+
+## Subsequent authorized profile update — 22 October 2026
+The founder approved the [14-block Career Profile contract](CAREER_PROFILE_BLOCKS.md). This supersedes the preceding documentation-only task boundary for PROFILE-014. Existing fields and flexible categories are reused. Detailed project/client/status facts remain descriptive category data, not new separately queryable columns. Scoring arithmetic and other services remain unchanged; a future single Gulf Profile Readiness rubric is not implemented in this task. See PROGRESS.md for actual validation and release status.

@@ -46,6 +46,7 @@ const TS_CHECKS = [
   'verify-profile-merge.ts',
   'verify-profile-data.ts',
   'verify-profile-categories.ts',
+  'verify-career-profile-blocks.ts',
   'verify-resume-parse.ts',
   'verify-import-review.ts',
   'verify-import-review-checks.ts',

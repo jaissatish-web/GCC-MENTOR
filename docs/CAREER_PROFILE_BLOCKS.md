@@ -1,6 +1,6 @@
 # Career Profile: approved 14-block structure
 
-Decision: 22 October 2026, Satish. Status: approved for implementation; not yet verified.
+Decision: 22 October 2026, Satish. Status: implemented in this change; automated local verification passed, GitHub release checks pending.
 
 ## Scope
 Organise the existing Career Profile into 14 logical blocks with repeatable optional records and custom sections. Reuse existing parent fields, child tables and category metadata; no destructive schema changes. A logical block need not be a new database table. Preserve existing category names, IDs, values, order and visibility. The detailed category editor may retain original headings within each logical block.
@@ -37,3 +37,10 @@ Copy facts without inventing details. Employment, internship and apprenticeship 
 - Run typecheck, lint, build and relevant regression checks, including category mappings, preservation and different career scenarios. Report production/database/browser verification separately.
 
 Affected areas: profile editor/components, category/block definitions, resume extraction/normalisation, targeted checks and canonical documentation.
+
+## Implementation evidence
+Shared definitions: lib/careerProfileBlocks.ts. The editor exposes all 14 logical blocks through navigation to existing core sections and an optional named-category workspace. Existing headings, IDs, category order, visibility, item moves and custom sections are retained. Supplementary education/training/tool/licence/preference categories remain reachable from their core section. WhatsApp same/different/not-used controls reuse the number field; a previously matching number follows phone edits. An empty number remains unknown/not recorded after reload, rather than a persisted not-used declaration.
+
+Extraction instructions now explicitly cover specialist facts, employment type and client/project distinction. Unassigned responsibility fallback retains source text in a separate category and warns for review. This is not a complete automated audit proving every resume fact is captured; live provider quality still requires representative resume testing. Work type, project client and study status remain descriptive information, not new independently queryable fields.
+
+Local evidence: typecheck, lint, production build; deterministic block/category/employer preservation and existing disposable-database save/RLS/rollback tests. Synthetic Chromium component interactions at 390px and 1440px confirmed add/review, focus, duplicate prevention and preservation of hidden legacy/custom categories. These component checks do not certify the full authenticated production page or its layout. No live account/database/provider call was used. GitHub CI and merge state are tracked in PROGRESS.md.

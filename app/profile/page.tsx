@@ -8,7 +8,8 @@ import { WorkExperienceItem } from '@/components/profile/WorkExperienceItem'
 import { sortedWorkRoles } from '@/lib/profileWorkNavigation'
 import type { ImportReview } from '@/lib/resumeParse/importReview'
 import { organizeCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
-import { CategoryEditor } from '@/components/profile/CategoryEditor'
+import { ProfileBlockCategories, focusProfileBlockCategory } from '@/components/profile/ProfileBlockCategories'
+import { PROFILE_BLOCKS } from '@/lib/careerProfileBlocks'
 import { GulfContext } from '@/components/layout/GulfContext'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import { PageSkeleton } from '@/components/ui/Skeleton'
@@ -942,15 +943,15 @@ const SECTION_ACCENT: Record<string, { text: string; chip: string; rule: string 
 }
 
 const FORM_SECTIONS: ReadonlyArray<{ id: string; label: string }> = [
-  { id: 'sec_status', label: 'Status & target' },
-  { id: 'sec_identity', label: 'Identity & contact' },
-  { id: 'sec_license', label: 'Driving license' },
-  { id: 'sec_summary', label: 'Professional summary' },
+  { id: 'sec_status', label: 'Gulf Preferences & Availability' },
+  { id: 'sec_identity', label: 'Personal & Contact Details' },
+  { id: 'sec_license', label: 'Professional Licences & Approvals' },
+  { id: 'sec_summary', label: 'Professional Summary / Career Objective' },
   { id: 'sec_work_experience', label: 'Work experience' },
-  { id: 'sec_education', label: 'Education' },
-  { id: 'sec_skills', label: 'Skills' },
-  { id: 'sec_certifications', label: 'Certifications' },
-  { id: 'sec_additional', label: 'Your categories' },
+  { id: 'sec_education', label: 'Education & Qualifications' },
+  { id: 'sec_skills', label: 'Skills & Tools' },
+  { id: 'sec_certifications', label: 'Certifications & Training' },
+  { id: 'sec_additional', label: 'Specialist blocks & custom sections' },
 ]
 
 // Both are the shared `.field` control (globals.css). They were hand-written
@@ -1471,12 +1472,12 @@ function ProfileScreen() {
    * switches to it — and the photo, which sits in the overview's header, to
    * the overview. The focus effect waits for that screen to be showing.
    */
-  const [pendingFocus, setPendingFocus] = useState<{ field?: string; sectionId?: string } | null>(null)
+  const [pendingFocus, setPendingFocus] = useState<{ field?: string; sectionId?: string; categoryBlock?: string } | null>(null)
   const goToProfilePart = useCallback(
-    (target: { field?: string; sectionId?: string }) => {
+    (target: { field?: string; sectionId?: string; categoryBlock?: string }) => {
       const sectionId = target.sectionId ?? (target.field ? sectionOfField(target.field) : undefined)
       if (sectionId) setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
-      setPendingFocus({ field: target.field, sectionId })
+      setPendingFocus({ field: target.field, sectionId, categoryBlock: target.categoryBlock })
       showView('details')
     },
     [sectionOfField, showView],
@@ -1495,6 +1496,11 @@ function ProfileScreen() {
     if (!pendingFocus) return
     // Wait until the screen holding the field is the one showing.
     if (view !== 'details') return
+    if (pendingFocus.categoryBlock) {
+      focusProfileBlockCategory(pendingFocus.categoryBlock)
+      setPendingFocus(null)
+      return
+    }
     const byId = (id: string) => document.getElementById(id)
     // PhoneField ids its number input `f_<key>_number` (its dial code is `_dial`).
     const input = pendingFocus.field ? (byId(`f_${pendingFocus.field}`) ?? byId(`f_${pendingFocus.field}_number`)) : null
@@ -1778,8 +1784,13 @@ function ProfileScreen() {
 
   // Phone/WhatsApp write back as one joined string — see the phoneParts note above.
   const setPhone = useCallback(
-    (dial: string, number: string) => setField({ phone: joinPhone(dial, number) }),
-    [setField]
+    (dial: string, number: string) => setEditor(current => {
+      if (!current) return current
+      const phone = joinPhone(dial, number)
+      const sameNumber = Boolean(current.phone.replace(/\D/g, '')) && current.whatsapp.replace(/\D/g, '') === current.phone.replace(/\D/g, '')
+      return { ...current, phone, whatsapp: sameNumber ? phone : current.whatsapp }
+    }),
+    []
   )
   const setWhatsapp = useCallback(
     (dial: string, number: string) => setField({ whatsapp: joinPhone(dial, number) }),
@@ -2340,12 +2351,23 @@ function ProfileScreen() {
           )}
         </p>
 
+        <nav aria-label="Career Profile blocks" className="space-y-3 rounded-card border border-line bg-white p-4">
+          <div><h2 className="font-semibold text-ink">Your 14 Career Profile blocks</h2><p className="field-hint">Open a block to review your details. Specialist blocks are optional; add only what applies to you.</p></div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {PROFILE_BLOCKS.map((block, index) => {
+              const sections: Record<string, string> = { contact: 'sec_identity', summary: 'sec_summary', experience: 'sec_work_experience', education: 'sec_education', skills: 'sec_skills', training: 'sec_certifications', licences: 'sec_license', gulf: 'sec_status' }
+              return <button key={block.id} type="button" className="min-h-11 rounded-ctl border border-line px-3 py-2 text-left type-helper font-semibold text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal" onClick={() => goToProfilePart({ sectionId: sections[block.id] ?? 'sec_additional', categoryBlock: sections[block.id] ? undefined : block.id })}>{index + 1}. {block.title}</button>
+            })}
+          </div>
+        </nav>
+
         {/* STATUS & TARGET */}
         <CardSection
           {...sectionProps('sec_status')}
-          title="Status & target"
-          helper="Steers how every resume you generate is framed."
+          title="Gulf Preferences & Availability"
+          helper="Your target roles, countries and current situation. Availability, passport and visa details are recorded in Personal & Contact Details below."
         >
+          <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => goToProfilePart({ sectionId: 'sec_additional', categoryBlock: 'gulf' })}>Add or review availability and preference details</button>
           <ConfirmToggle
             id="f_currently_in_gulf"
             label="I live and work in the Gulf now"
@@ -2422,7 +2444,7 @@ function ProfileScreen() {
             per-field "what appears on your CV" screen (was /profile/visibility). */}
         <CardSection
           {...sectionProps('sec_identity')}
-          title="Identity & contact"
+          title="Personal & Contact Details"
           helper="Passport, visa and contact details are private to your account, and our team’s access is logged. You choose what appears on your resume."
           action={
             <button
@@ -2479,15 +2501,27 @@ function ProfileScreen() {
               onDialChange={(v) => { setPhoneDraftDial(v); setPhone(v, phoneParts.number) }}
               onNumberChange={(v) => setPhone(phoneParts.dial, v)}
             />
-            <div><p className="field-label">WhatsApp · optional</p>{!editWhatsapp?<div className="mt-2 flex flex-wrap items-center gap-2"><p className="text-sm text-ink-soft">{editor.whatsapp ? editor.whatsapp.replace(/\D/g,'')===editor.phone.replace(/\D/g,'')?'Same as your phone number':editor.whatsapp:'Not added'}</p>{editor.phone&&!editor.whatsapp?<button type="button" className={buttonVariants({variant:'secondary',size:'sm'})} onClick={()=>setField({whatsapp:editor.phone})}>Use my phone number</button>:null}<button type="button" className={buttonVariants({variant:'ghost',size:'sm'})} onClick={()=>setEditWhatsapp(true)}>{editor.whatsapp?'Edit':'Add a different number'}</button></div>:<>            <PhoneField
-              id="f_whatsapp"
-              label="WhatsApp"
-              helper="Leave blank if it is the same as your phone number."
-              dial={whatsappParts.dial}
-              number={whatsappParts.number}
-              onDialChange={(v) => { setWhatsappDraftDial(v); setWhatsapp(v, whatsappParts.number) }}
-              onNumberChange={(v) => setWhatsapp(whatsappParts.dial, v)}
-            /><button type="button" className="min-h-11 text-sm text-teal" onClick={()=>setEditWhatsapp(false)}>Done</button></>}</div>
+            <div className="space-y-2">
+              <p className="field-label">WhatsApp · optional</p>
+              <p className="field-hint">{editor.whatsapp ? editor.whatsapp.replace(/\D/g, '') === editor.phone.replace(/\D/g, '') ? 'Same as your phone number' : editor.whatsapp : 'No WhatsApp number recorded'}</p>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} disabled={!editor.phone.trim()} onClick={() => { setField({ whatsapp: editor.phone }); setEditWhatsapp(false) }}>Same as phone</button>
+                <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => setEditWhatsapp(true)}>Different number</button>
+                <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => { setField({ whatsapp: '' }); setEditWhatsapp(false) }}>I don’t use WhatsApp</button>
+              </div>
+              {editWhatsapp ? <>
+                <PhoneField
+                  id="f_whatsapp"
+                  label="Different WhatsApp number"
+                  helper="Enter your WhatsApp number with its country code."
+                  dial={whatsappParts.dial}
+                  number={whatsappParts.number}
+                  onDialChange={(v) => { setWhatsappDraftDial(v); setWhatsapp(v, whatsappParts.number) }}
+                  onNumberChange={(v) => setWhatsapp(whatsappParts.dial, v)}
+                />
+                <button type="button" className="min-h-11 text-sm text-teal" onClick={() => setEditWhatsapp(false)}>Done</button>
+              </> : null}
+            </div>
             <TextField
               id="f_email"
               label="Email"
@@ -2681,10 +2715,11 @@ function ProfileScreen() {
             — deliberately no field_visibility toggle (TASK-067 scope decision). */}
         <CardSection
           {...sectionProps('sec_license')}
-          title="Driving license"
-          helper="Site and field roles ask for this outright. Leaving it blank filters resumes out."
+          title="Professional Licences & Approvals"
+          helper="Record relevant licences and approvals only. Add professional registrations and client approvals in the specialist blocks below."
         >
-          <div className="flex flex-col gap-1.5">
+          <button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => goToProfilePart({ sectionId: 'sec_additional', categoryBlock: 'licences' })}>Add or review professional registrations & approvals</button>
+          <div className="mt-4 flex flex-col gap-1.5">
             <FieldLabel htmlFor="f_has_driving_license">Do you have a driving license?</FieldLabel>
             <select
               id="f_has_driving_license"
@@ -2731,7 +2766,7 @@ function ProfileScreen() {
         {/* PROFESSIONAL SUMMARY — the user's OWN summary, source of the diff */}
         <CardSection
           {...sectionProps('sec_summary')}
-          title="Professional summary"
+          title="Professional Summary / Career Objective"
           helper="The first thing a recruiter reads. Two or three sentences — the optimizer reframes it per job, never changing your facts."
         >
           <textarea
@@ -2752,7 +2787,7 @@ function ProfileScreen() {
         <CardSection
           {...sectionProps('sec_work_experience')}
           title="Work experience"
-          helper="Newest roles first. Open one role to review or edit its details."
+          helper="Jobs, internships, apprenticeships, freelance and self-employment. Keep the actual employer separate from the client or project in your description."
           badge={editor.work_experience.length ? `${editor.work_experience.length} found` : undefined}
           action={
               <button
@@ -2789,7 +2824,7 @@ function ProfileScreen() {
                   </button>
                 </div>
                 <Input id={`f_work_role_${w.key}`} tone="light" label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
-                <Input tone="light" label="Company" placeholder="e.g. Bechtel" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
+                <Input tone="light" label="Employer / your business" placeholder="e.g. Bechtel · use Self-employed if applicable" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   <DateField id={`f_work_start_${w.key}`} label="Start" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
                   <DateField id={`f_work_end_${w.key}`} label="End" helper="Leave blank if this is your current role." value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
@@ -2823,11 +2858,11 @@ function ProfileScreen() {
                   />
                 ) : null}
                 <label className="flex flex-col gap-1.5">
-                  <span className="field-label">What you did</span>
+                  <span className="field-label">Work context & responsibilities</span>
                   <textarea
                     rows={3}
                     className={textareaClass}
-                    placeholder="e.g. Led piping design for a 3-train gas plant, coordinating with 40 contractor engineers."
+                    placeholder="Include employment type (e.g. internship or freelance), client/project where relevant, and what you actually did."
                     value={w.description}
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { description: e.target.value }) }))}
                   />
@@ -2871,7 +2906,7 @@ function ProfileScreen() {
         {/* EDUCATION */}
         <CardSection
           {...sectionProps('sec_education')}
-          title="Education"
+          title="Education & Qualifications"
           helper="Include the awarding institution — employers often verify it."
           badge={editor.education.length ? `${editor.education.length} found` : undefined}
           action={
@@ -2903,7 +2938,7 @@ function ProfileScreen() {
                 </div>
                 <Input tone="light" label="Degree" placeholder="e.g. B.Tech" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
                 <Input tone="light" label="Institution" placeholder="e.g. UPTU" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
-                <Input tone="light" label="Field of study" placeholder="e.g. Electronics & Communication" value={x.field_of_study} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { field_of_study: e.target.value }) }))} />
+                <Input tone="light" label="Field of study / study status" placeholder="e.g. Electronics · Ongoing, expected 2027" value={x.field_of_study} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { field_of_study: e.target.value }) }))} />
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   <Input tone="light" label="Start year" inputMode="numeric" placeholder="2005" value={x.start_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { start_year: e.target.value }) }))} />
                   <Input tone="light" label="End year" inputMode="numeric" placeholder="2009" value={x.end_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { end_year: e.target.value }) }))} />
@@ -2912,12 +2947,13 @@ function ProfileScreen() {
             ))}
             <AddRowButton label="Add another qualification" onClick={addEducation} />
           </div>
+          <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => goToProfilePart({ sectionId: 'sec_additional', categoryBlock: 'education' })}>Add or review additional education or study-status details</button>
         </CardSection>
 
         {/* SKILLS */}
         <CardSection
           {...sectionProps('sec_skills')}
-          title="Skills"
+          title="Skills & Tools"
           helper="Only what you actually worked with. The optimizer reorders these per job, never adds to them."
           badge={editor.skills.length ? `${editor.skills.length} found` : undefined}
           action={
@@ -2954,13 +2990,14 @@ function ProfileScreen() {
             ))}
             <AddRowButton label="Add another skill" onClick={addSkill} />
           </div>
+          <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => goToProfilePart({ sectionId: 'sec_additional', categoryBlock: 'skills' })}>Add or review software and system details</button>
         </CardSection>
 
         {/* CERTIFICATIONS */}
         <CardSection
           {...sectionProps('sec_certifications')}
-          title="Certifications"
-          helper="Safety, technical and vendor certifications. Add expiry dates where they apply."
+          title="Certifications & Training"
+          helper="Certificates, short courses and vocational training. Add the provider and dates when known; never invent an expiry."
           badge={editor.certifications.length ? `${editor.certifications.length} found` : undefined}
           action={
               <button
@@ -2997,12 +3034,13 @@ function ProfileScreen() {
                 </div>
               </div>
             ))}
-            <AddRowButton label="Add another certification" onClick={addCertification} />
+            <AddRowButton label="Add another certificate or training course" onClick={addCertification} />
           </div>
+          <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => goToProfilePart({ sectionId: 'sec_additional', categoryBlock: 'training' })}>Add or review additional training details</button>
         </CardSection>
 
-        <CardSection {...sectionProps('sec_additional')} title="Your categories" helper="Group languages, projects, memberships and other details. Add your own categories and choose where they appear on your resume.">
-          <CategoryEditor value={editor.additional_information.filter(row => !isHeadlineEntry(row))} onChange={(rows) => setEditor(e => e && ({ ...e, additional_information: [...rows, ...e.additional_information.filter(isHeadlineEntry)] }))} />
+        <CardSection {...sectionProps('sec_additional')} title="Specialist blocks & custom sections" helper="Projects, languages, awards, activities, research and professional links. Your original headings stay intact.">
+          <ProfileBlockCategories value={editor.additional_information.filter(row => !isHeadlineEntry(row) && row.category_name !== 'Preparation details (private)')} onChange={(rows) => setEditor(e => e && ({ ...e, additional_information: [...rows, ...e.additional_information.filter(row => isHeadlineEntry(row) || row.category_name === 'Preparation details (private)')] }))} />
         </CardSection>
       </div>
 

@@ -28,3 +28,5 @@ Checks: source references reviewed, relative links/whitespace passed, docs-only 
 
 ## PROFILE-014 — approved profile block implementation
 Authorization: Satish requested finalise documents first, then GitHub code. Contract: CAREER_PROFILE_BLOCKS.md. Status: approved; implementation in progress. Preserve facts, category identity/visibility and existing services/scoring. Verification planned: typecheck, lint, build, regression checks; live save remains separate evidence.
+
+PROFILE-014 implementation: 14-block navigation and optional category starters, broader extraction guidance and non-attributing loose-duty recovery implemented. Existing storage is reused; no migration. Typecheck, lint and production build passed. Focused fixtures and synthetic Chromium category interactions at 390/1440px passed. Full deterministic/disposable-DB suite and GitHub CI release status recorded below when completed. Live AI extraction and authenticated production save are not verified. Single-score arithmetic/questionnaire/templates remain out of scope.

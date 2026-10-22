@@ -1,19 +1,11 @@
 import type { CareerProfileDraft } from '@/types/careerProfile'
-import { sortExperienceNewestFirst } from '@/lib/resumeOrder'
+import { stripIdNumbers } from '@/lib/idNumbers'
 import type { ParseWarning } from './check'
 
 /**
- * Duties written ONCE for the whole CV — a "JOB RESPONSIBILITIES" or "KEY
- * ACHIEVEMENTS" block under an employment table, common in Gulf and Indian
- * "biodata" CVs — must never be lost (launch audit 2026-10-02: an
- * accountant's only numbers, "Reduced month-end closing time from 10 to 6
- * days" and "Managed accounts payable for 400+ vendors", vanished at upload).
- *
- * The prompt already asks the model to attach such a block to the most recent
- * job; this is the safety net when it does not. Lines under the heading that
- * are in no job are attached to the most recent job, in the CV's own words,
- * and the user gets a note to move them if they belong elsewhere. Nothing is
- * rewritten or invented.
+ * Retain responsibility blocks omitted by the model without guessing an employer.
+ * Explicit per-job bullets already captured by extraction remain untouched.
+ * Unassigned lines stay in their original category for candidate review.
  */
 
 const HEADING = /^\s*(?:job\s+|key\s+|main\s+|major\s+|duties\s*(?:&|and)\s*)?(responsibilities|duties|achievements|accomplishments)\s*:?\s*$/i
@@ -47,26 +39,30 @@ export function looseDutyLines(text: string): { heading: string; lines: string[]
   return found.length ? { heading: heading || 'Responsibilities', lines: found } : null
 }
 
-/**
- * Attach responsibilities lines that are in no job to the most recent job.
- * Returns the note for the profile editor, or null when nothing was missing.
- */
+/** Preserve missing responsibilities separately; the legacy function name is retained for callers. */
 export function attachLooseDuties(draft: CareerProfileDraft, text: string): ParseWarning | null {
   const block = looseDutyLines(text)
-  const jobs = draft.work_experience ?? []
-  if (!block || !jobs.length) return null
-  const have = jobs.flatMap((j) => [...(j.highlights ?? []), j.description ?? '']).map(norm).filter(Boolean)
-  const missing = block.lines.filter((l) => {
-    const n = norm(l)
+  if (!block) return null
+  const have = [
+    ...(draft.work_experience ?? []).flatMap((j) => [...(j.highlights ?? []), j.description ?? '']),
+    ...(draft.additional_information ?? []).map((a) => a.value ?? ''),
+  ].map(norm).filter(Boolean)
+  const missing = block.lines.filter((line) => {
+    const n = norm(line)
     return n && !have.some((h) => h.includes(n) || n.includes(h))
-  })
+  }).map(line => stripIdNumbers(block.heading, line)).filter(Boolean)
   if (!missing.length) return null
-  const target = sortExperienceNewestFirst(jobs.map((j, i) => ({ ...j, sort_order: j.sort_order ?? i + 1, start_date: j.start_date ?? '', end_date: j.end_date ?? null, __i: i })))[0]
-  const index = (target as unknown as { __i: number }).__i
-  jobs[index].highlights = [...(jobs[index].highlights ?? []), ...missing]
-  const company = jobs[index].company?.trim() || 'your most recent job'
+  const rows = draft.additional_information ?? (draft.additional_information = [])
+  const index = rows.length
+  rows.push({
+    label: block.heading,
+    value: missing.join('\n'),
+    category_name: block.heading,
+    show_on_resume: true,
+    sort_order: Math.max(0, ...rows.map(row => row.sort_order ?? 0)) + 1,
+  })
   return {
-    field: `work_experience.${index}.highlights`,
-    message: `We put ${missing.length} line${missing.length === 1 ? '' : 's'} from your CV's "${block.heading}" section under ${company}. Move ${missing.length === 1 ? 'it' : 'them'} if ${missing.length === 1 ? 'it belongs' : 'they belong'} to another job.`,
+    field: `additional_information.${index}.value`,
+    message: `We kept ${missing.length} line${missing.length === 1 ? '' : 's'} from your CV's "${block.heading}" section separately. Please confirm which role or project they describe.`,
   }
 }
