@@ -3238,3 +3238,6 @@ admin-controlled abuse ceiling (5 successful generations/day by default). Writes
 are validated, ownership-scoped service routes with optimistic revisions. Resume
 packages, Career Profile saves, payment/credits and existing AI prompts remain
 unchanged. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).
+
+## 2026-10-22 — 14 Career Profile blocks
+Approved by Satish: implement CAREER_PROFILE_BLOCKS.md before further scoring/questionnaire work. Reuse current storage and custom categories; optional sections must not become compulsory. Separate client/employer/project and preserve uncertain facts. Single Gulf Profile Readiness is future agreed direction, not a finalized numeric rubric.

@@ -25,3 +25,14 @@ Founder clarified: current main is the application baseline; no application chan
 Acceptance: founder-readable PLATFORM_MASTER.md with service/score/data flows and live-verification limits; branch-purpose record; durable recovery of nine unique heads; remote cleanup verification.
 Implementation: source review delegated into bounded read-only service/control reviews and integrated by lead. Only documentation/recovery records may change.
 Checks: source references reviewed, relative links/whitespace passed, docs-only diff confirmed, backup restore recovered all nine refs. Required GitHub CI gates merge; record its result in the final handoff. No runtime/provider/production-flow certification claimed.
+
+## PROFILE-014 — approved profile block implementation
+Authorization: Satish requested finalise documents first, then GitHub code. Contract: CAREER_PROFILE_BLOCKS.md. Status: approved; implementation in progress. Preserve facts, category identity/visibility and existing services/scoring. Verification planned: typecheck, lint, build, regression checks; live save remains separate evidence.
+
+PROFILE-014 implementation: 14-block navigation and optional category starters, broader extraction guidance and non-attributing loose-duty recovery implemented. Existing storage is reused; no migration. Typecheck, lint and production build passed. Focused fixtures and synthetic Chromium category interactions at 390/1440px passed. Full deterministic/disposable-DB suite and GitHub CI release status recorded below when completed. Live AI extraction and authenticated production save are not verified. Single-score arithmetic/questionnaire/templates remain out of scope.
+
+Final review correction: both optional-block and custom-category add paths now count hidden headline/private preparation records against the existing 30-category/200-entry save limits. New-category order respects hidden records, and last-item moves at the entry limit cannot create an extra placeholder. Targeted capacity regressions added. PR #26 is the authoritative live release status rather than this dated snapshot.
+
+Release verification: full suite 76/76 passed before the capacity fix. After the fix, typecheck/lint and focused block/category checks (including 318 rendering cases) passed; GitHub CI re-runs the full final source. Component interactions passed again at 390/1440px. Release URL: https://github.com/jaissatish-web/GCC-MENTOR/pull/26 . Final merge/check state is available there.
+
+Automated-review correction: recovered Achievements and Responsibilities sections now retain each original heading separately; repeated bullets are deduplicated without assigning a guessed employer. Fifteen loose-duty regressions cover multiheading/repeated-block cases. The full 76-check suite also passed after the category-capacity correction. Final GitHub CI covers this last extraction fix.

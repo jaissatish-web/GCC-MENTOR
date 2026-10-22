@@ -6,7 +6,7 @@
  */
 
 import './resolve-paths'
-import { attachLooseDuties, looseDutyLines } from '../lib/resumeParse/looseDuties'
+import { attachLooseDuties, looseDutyBlocks, looseDutyLines } from '../lib/resumeParse/looseDuties'
 import type { CareerProfileDraft } from '../types/careerProfile'
 
 let failures = 0
@@ -50,15 +50,38 @@ check('the two lines under JOB RESPONSIBILITIES are found', b?.lines.length === 
 check('the block stops at the next section (education is not a duty)', !b?.lines.some((l) => /Osmania/.test(l)))
 check('a per-job block stops at the next job header', !(looseDutyLines(perJob)?.lines ?? []).some((l) => /Junior Engineer/.test(l)))
 
-console.log('attaching what the reader left out')
+console.log('preserving what the reader left out without guessing')
 const d1 = draft([{ company: 'Arabtec Construction LLC', start: '2019-12-01', end: '2022-10-01' }, { company: 'Voltas Limited', start: '2025-02-01', end: null }])
 const note = attachLooseDuties(d1, biodata)
-check('lines go under the most recent job (Voltas), not the first listed', (d1.work_experience[1].highlights ?? []).length === 2 && !(d1.work_experience[0].highlights ?? []).length)
-check('the user gets a note naming the job', !!note && /Voltas Limited/.test(note.message) && note.field === 'work_experience.1.highlights')
+check('unassigned duties do not contaminate either job', d1.work_experience.every(job => !(job.highlights ?? []).length))
+check('unassigned duties retain their original heading and words', d1.additional_information[0]?.category_name === 'JOB RESPONSIBILITIES' && d1.additional_information[0]?.value?.includes('400+ vendors') === true)
+check('repeating the fallback never duplicates retained duties', attachLooseDuties(d1, biodata) === null && d1.additional_information.length === 1)
+check('the user gets a review note without an invented employer', !!note && /confirm which role or project/.test(note.message) && note.field === 'additional_information.0.value')
+const noJobs = draft([])
+check('duties are retained even when no employment was extracted', attachLooseDuties(noJobs, biodata) !== null && noJobs.additional_information.length === 1)
 const d2 = draft([{ company: 'Voltas Limited', start: '2025-02-01', end: null, duties: ['Reduced month-end closing time from 10 to 6 days', 'Managed accounts payable for 400+ vendors.'] }])
 check('nothing is duplicated when the reader already placed them', attachLooseDuties(d2, biodata) === null && d2.work_experience[0].highlights?.length === 2)
 const d3 = draft([{ company: 'Al Futtaim', start: '2019-01-01', end: null, duties: ['Supervised MEP installation on a 20-storey tower.', 'Coordinated shop drawing approvals with consultants.'] }, { company: 'Arabtec', start: '2016-01-01', end: '2019-01-01', duties: ['Prepared daily site progress reports for the client.'] }])
 check('a CV with duties under each job is left alone', attachLooseDuties(d3, perJob) === null)
+
+const multiple = `KEY ACHIEVEMENTS
+Reduced month-end closing time from ten to six days.
+Reduced month-end closing time from ten to six days.
+JOB RESPONSIBILITIES
+Managed accounts payable for many international vendors.
+KEY ACHIEVEMENTS
+Reduced month-end closing time from ten to six days.
+Won the annual safety excellence award.
+SKILLS
+SAP`
+const blocks = looseDutyBlocks(multiple)
+check('each detected loose block retains its own source heading', blocks.length === 3 && blocks[0].heading === 'KEY ACHIEVEMENTS' && blocks[1].heading === 'JOB RESPONSIBILITIES' && blocks[2].heading === 'KEY ACHIEVEMENTS')
+const mixed = draft([])
+attachLooseDuties(mixed, multiple)
+check('responsibilities and achievements never share an invented category heading', mixed.additional_information.length === 3 && mixed.additional_information[0].category_name === 'KEY ACHIEVEMENTS' && mixed.additional_information[1].category_name === 'JOB RESPONSIBILITIES' && mixed.additional_information[2].category_name === 'KEY ACHIEVEMENTS')
+check('duplicates within and across repeated headings retained once', mixed.additional_information.map(row => row.value).join('\n').split('Reduced month-end closing time').length === 2)
+check('new facts under a repeated heading are preserved', mixed.additional_information[2].value === 'Won the annual safety excellence award.')
+check('repeating multiheading recovery does not add any rows', attachLooseDuties(mixed, multiple) === null && mixed.additional_information.length === 3)
 
 if (failures) {
   console.log(`\n${failures} failed`)

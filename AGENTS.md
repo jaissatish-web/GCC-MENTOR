@@ -29,3 +29,5 @@ The founder is Satish, a non-coder. Explain outcomes, impact and choices in plai
 For code changes run checks appropriate to the affected behavior, including required repository checks. For documentation-only changes check links, claims against source and the diff; do not claim runtime tests were run. Report commit, completed work, pending work and concrete limitations. Do not claim deployed/live verification from source inspection.
 
 Current founder scope (22 October 2026): understand and document the platform as implemented on main, classify/remove old branches, and preserve unique historical work. Do not change application behavior, scoring, UI, prompts or database until a new implementation request is agreed and documented.
+
+Subsequent founder authorization (22 October 2026): implement PROFILE-014 according to docs/CAREER_PROFILE_BLOCKS.md, documentation first. This supersedes the preceding documentation-only boundary for that task; scoring/other services remain protected.

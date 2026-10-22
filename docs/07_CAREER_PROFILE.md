@@ -212,3 +212,6 @@ save/RLS/rollback/delete tests, typecheck, lint and production build passed.
 Migration 069 is applied; live columns, constraints, indexes, grants and owner
 policy checked. No new grant or policy. Browser interaction, authenticated
 production save/export and physical-device QA remain unverified.
+
+## Approved update — 22 October 2026
+The founder approved the [14-block contract](CAREER_PROFILE_BLOCKS.md). It supersedes the historical nine-section layout for this implementation. Existing storage is reused; specialist details remain editable category records. Implementation and verification status: see PROGRESS.md.

@@ -71,6 +71,18 @@ export function groupCategoryEntries<T extends CategoryMetadata>(rows: T[]): Cat
   return Array.from(groups.values()).sort((a,b) => a.order - b.order)
 }
 
+/** Limits apply to the complete save payload, including private/headline rows hidden by an editor. */
+export function categoryEditorCapacity(rows: readonly CategoryMetadata[], reservedEntries: readonly CategoryMetadata[] = []) {
+  const all = [...rows, ...reservedEntries]
+  const groups = groupCategoryEntries(all)
+  return {
+    canAddItem: all.length < 200,
+    canAddCategory: all.length < 200 && groups.length < 30,
+    // Orders are not unique; equal 200 remains valid and stable when a legacy list is already at its ceiling.
+    nextOrder: Math.min(200, Math.max(-1, ...groups.map(group => group.order)) + 1),
+  }
+}
+
 function headingKey(value: string): string {
   return value.toLowerCase().replace(/achivement|achievment/g, 'achievement').replace(/[^a-z0-9]/g, '').replace(/s$/, '')
 }

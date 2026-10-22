@@ -112,3 +112,6 @@ README framework version; former Claude/Hermes role split; conflicting task surf
 
 | [docs/PLATFORM_MASTER.md](PLATFORM_MASTER.md) | Canonical explanation of current platform flow and status |
 | [docs/BRANCH_PURPOSES.md](BRANCH_PURPOSES.md) | Historical branch purpose and inert recovery archive |
+
+## Current approved profile contract
+[CAREER_PROFILE_BLOCKS.md](CAREER_PROFILE_BLOCKS.md) owns the 14-block definition approved on 22 October 2026. Read it before extending extraction/editor structure; PROFILE-014 in PROGRESS.md tracks verification.

@@ -24,3 +24,6 @@ Discuss → research where useful → record the finalized requirement and accep
 
 ## Current scope
 This session changes documentation/governance and cleans branches only. It does not authorize a redesign, scoring rewrite, rebrand, payment launch, database migration or a fix for the reported upload error. Prior reports of “failed to fetch” remain pending investigation, not resolved by this cleanup.
+
+## Authorized implementation — 22 October 2026
+The founder subsequently approved [14 Career Profile blocks](CAREER_PROFILE_BLOCKS.md), documentation first then implementation. This supersedes the documentation-only scope above for PROFILE-014 only. A future single Gulf Profile Readiness replaces the planned two-card direction, but the formula is not finalized and must not be changed in PROFILE-014.

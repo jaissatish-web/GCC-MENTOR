@@ -164,8 +164,7 @@ export async function extractProfile(
     note = repairNote(best.critical)
   }
   if (!best) return { ok: false, code: 'EXTRACTION_FAILED' }
-  // Safety net: a "Job responsibilities" block the model left out goes under the
-  // most recent job, in the CV's own words, with a note (launch audit 2026-10-02).
+  // Preserve omitted responsibility blocks for review without guessing their employer.
   const loose = attachLooseDuties(best.draft, text)
   const warnings = loose ? [...best.warnings, loose] : best.warnings
   // The anonymous scanner keeps its original latency and extraction behavior.

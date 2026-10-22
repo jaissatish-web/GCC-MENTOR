@@ -2,14 +2,15 @@
 
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react'
-import { CATEGORY_POSITIONS, CATEGORY_POSITION_LABELS, groupCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
+import { CATEGORY_POSITIONS, CATEGORY_POSITION_LABELS, categoryEditorCapacity, groupCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
 
 export interface CategoryEditorEntry extends CategoryMetadata { key: string; id?: string; label: string; value: string }
 const control = 'min-h-11 rounded-ctl border border-line bg-white px-3 py-2 text-sm font-semibold text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-40'
-export function CategoryEditor<T extends CategoryEditorEntry>({ value, onChange }: { value: T[]; onChange: (rows: T[]) => void }) {
+export function CategoryEditor<T extends CategoryEditorEntry>({ value, onChange, reservedEntries = [] }: { value: T[]; onChange: (rows: T[]) => void; reservedEntries?: readonly CategoryMetadata[] }) {
   const [newName, setNewName] = useState('')
   const [error, setError] = useState('')
   const groups = groupCategoryEntries(value)
+  const capacity = categoryEditorCapacity(value, reservedEntries)
   const updateCategory = (id: string, patch: CategoryMetadata) => onChange(value.map(row => row.category_id === id ? { ...row, ...patch } : row))
   const moveCategory = (index: number, delta: number) => {
     const order = groups.map(g => g.id); const next = index + delta
@@ -20,10 +21,10 @@ export function CategoryEditor<T extends CategoryEditorEntry>({ value, onChange 
   const addCategory = () => {
     const name = newName.trim()
     if (!name) { setError('Enter a category name.'); return }
-    if (groups.some(g => g.name.toLowerCase() === name.toLowerCase())) { setError('This category already exists. Add an item inside it.'); return }
-    if (groups.length >= 30 || value.length >= 200) { setError('You have reached the category or item limit.'); return }
+    if (groupCategoryEntries([...value, ...reservedEntries]).some(g => g.name.toLowerCase() === name.toLowerCase())) { setError('This category already exists. Add an item inside it.'); return }
+    if (!capacity.canAddCategory) { setError('You have reached the category or item limit.'); return }
     const id = crypto.randomUUID()
-    const row = { key: crypto.randomUUID(), category_id: id, category_name: name, category_order: Math.max(-1, ...groups.map(g => g.order)) + 1, category_position: 'end', show_on_resume: true, label: '', value: '', level: '' } as T
+    const row = { key: crypto.randomUUID(), category_id: id, category_name: name, category_order: capacity.nextOrder, category_position: 'end', show_on_resume: true, label: '', value: '', level: '' } as T
     onChange([...value,row]);setNewName('');setError('')
   }
   const updateItem = (key: string, patch: Partial<CategoryEditorEntry>) => onChange(value.map(row => row.key === key ? { ...row,...patch } : row))
@@ -55,13 +56,13 @@ export function CategoryEditor<T extends CategoryEditorEntry>({ value, onChange 
           </div>
           <label className="block space-y-1"><span className="field-label">Details</span><textarea className="field" rows={3} maxLength={10000} value={item.value} placeholder="Describe your actual experience or qualification." onChange={e => updateItem(item.key,{value:e.target.value})} /></label>
           <div className="flex flex-wrap items-end gap-2">
-            <label className="min-w-0 flex-1 space-y-1"><span className="field-label">Move to category</span><select className="field" value={group.id} onChange={e => { const target=groups.find(g=>g.id===e.target.value); if (target) { const remaining=value.filter(row=>row.key!==item.key); const moved={...item,category_id:target.id,category_name:target.name,category_order:target.order,category_position:target.position,show_on_resume:target.visible}; if (!remaining.some(row=>row.category_id===group.id)) remaining.push({...item,key:crypto.randomUUID(),id:undefined,label:'',value:'',level:''}); onChange([...remaining,moved]) } }}>{groups.map(g=><option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
+            <label className="min-w-0 flex-1 space-y-1"><span className="field-label">Move to category</span><select className="field" value={group.id} disabled={!capacity.canAddItem && group.items.length === 1} title={!capacity.canAddItem && group.items.length === 1 ? 'Remove an unused item before moving the last item from this category.' : undefined} onChange={e => { const target=groups.find(g=>g.id===e.target.value); if (target && target.id !== group.id) { const remaining=value.filter(row=>row.key!==item.key); const moved={...item,category_id:target.id,category_name:target.name,category_order:target.order,category_position:target.position,show_on_resume:target.visible}; if (!remaining.some(row=>row.category_id===group.id)) remaining.push({...item,key:crypto.randomUUID(),id:undefined,label:'',value:'',level:''}); onChange([...remaining,moved]) } }}>{groups.map(g=><option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
             <button type="button" className={control} disabled={itemIndex===0} aria-label="Move item up" onClick={() => { const next=[...value]; const a=next.findIndex(r=>r.key===item.key);const b=next.findIndex(r=>r.key===group.items[itemIndex-1].key);[next[a],next[b]]=[next[b],next[a]];onChange(next) }}><ArrowUp size={16} /></button>
             <button type="button" className={control} disabled={itemIndex===group.items.length-1} aria-label="Move item down" onClick={() => { const next=[...value];const a=next.findIndex(r=>r.key===item.key);const b=next.findIndex(r=>r.key===group.items[itemIndex+1].key);[next[a],next[b]]=[next[b],next[a]];onChange(next) }}><ArrowDown size={16} /></button>
             <button type="button" className={control} aria-label="Remove item" onClick={()=>removeItem(item.key,group.id)}><Trash2 size={16} /></button>
           </div>
         </div>)}
-        <button type="button" className={control+' flex items-center gap-2'} disabled={value.length>=200} onClick={() => onChange([...value,{key:crypto.randomUUID(),category_id:group.id,category_name:group.name,category_order:group.order,category_position:group.position,show_on_resume:group.visible,label:'',value:'',level:''} as T])}><Plus size={16} />Add another item</button>
+        <button type="button" className={control+' flex items-center gap-2'} disabled={!capacity.canAddItem} onClick={() => onChange([...value,{key:crypto.randomUUID(),category_id:group.id,category_name:group.name,category_order:group.order,category_position:group.position,show_on_resume:group.visible,label:'',value:'',level:''} as T])}><Plus size={16} />Add another item</button>
       </div>
     </details>)}
     <div className="space-y-3 rounded-card border border-dashed border-teal/40 bg-teal-soft/30 p-4">
