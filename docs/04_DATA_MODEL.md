@@ -1,5 +1,7 @@
 # DATA MODEL — every table, and the state of the live database
 
+> **2026-10-22 status:** Live catalogue/migration/table-count statements below are dated evidence, not a current database inventory. This session did not query production. Inspect current numbered migrations and verify deployment before schema work.
+
 **Schema changes only ever happen through a numbered migration in
 `supabase/migrations/`.** Never edit schema directly against the live database.
 

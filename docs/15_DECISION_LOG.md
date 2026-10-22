@@ -1,5 +1,9 @@
 # DECISION LOG — what was decided, when, and why
 
+## 2026-10-22 — Persistent project memory and main-only workflow
+
+Founder requests a durable plan/rules/progress system so new conversations can continue without reconstructing decisions. Root AGENTS.md mandates reading the canonical documents; finalized requirements and acceptance criteria must be documented BEFORE implementation. Afterwards record actual changes, verification and the next action. Replace the old named-tool handoff with founder/lead assistant/optional bounded subagents. Main is the only standing branch; preserve unique branch work before cleanup. Do not alter application logic during this documentation session. Existing source, not stale plans, establishes implementation; live production claims require separate evidence.
+
 ## 2026-10-11 — Universal clean UI configuration
 
 Founder approves an application-wide consistency pass: app/ui-system.css owns fonts, responsive role sizes/weights/line spacing, semantic colors, page widths/gutters/rhythm and component radii/padding/shadows. Shared components and public landing consume these settings; existing utility colors bridge to variables outside document boundaries. Keep Inter, white/neutral surfaces and deep Gulf teal actions. Colored navigation accents remain centralized. Replace redundant instruction boxes with plain sections, reduce repeated header chrome and standardize layout. Preserve all data flows, messages, actions, templates and exports. Browser QA unavailable in managed environment; run build/type/lint and offline checks, report limit.

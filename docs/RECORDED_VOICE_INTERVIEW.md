@@ -1,5 +1,7 @@
 # Recorded voice interviews — test branch
 
+> **2026-10-22 status:** Recorded voice code is on main, subject to server/provider/storage configuration; the “test branch” title is historical. Runtime availability was not verified in this session.
+
 Status: implemented on main. Voice starts/reviews remain controlled by the existing server flag and provider/storage configuration. The founder authorized migration 068 on 2026-10-09 to retain all mock attempts using the existing tables. No new billing behavior.
 
 ## User journey

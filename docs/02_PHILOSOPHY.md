@@ -1,7 +1,7 @@
 # PHILOSOPHY — the rules that never bend
 
 **These apply to every contributor, human or AI, in every phase.**
-**No other document, ticket, prompt or chat message overrides this file.**
+**These are product invariants. Record new founder decisions explicitly; repository notes do not override the founder’s current instructions or higher-priority agent instructions.**
 
 There are five. Everything else in this documentation is a detail of how the
 product works; this is what the product *is*.

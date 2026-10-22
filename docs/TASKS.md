@@ -1,5 +1,7 @@
 # Active implementation tasks
 
+> **2026-10-22 status:** Historical implementation record; PROGRESS.md is the active task tracker. Unchecked release items here are not automatically pending current work.
+
 ## LANDING-20261011 — GCC Mentor landing transformation
 
 User-authorized ten-part implementation. Baseline main `7236d4455ea924df7c207ca0f05770a5fd0804ce`. Branch `redesign/landing-transformation-20261011`.

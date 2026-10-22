@@ -1,5 +1,7 @@
 # USER JOURNEYS — every route, in the order a real user meets them
 
+> **2026-10-22 status:** Current shared intake and first-profile review supersede the August funnel described below; read SHARED_CAREER_INTAKE.md and CURRENT_STATE.md. The old 45-route count is not maintained.
+
 45 routes build. This document covers the ones a user sees; the admin screens are in
 [`13_ADMIN.md`](13_ADMIN.md).
 
