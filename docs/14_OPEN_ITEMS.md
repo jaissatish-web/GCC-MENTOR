@@ -1,5 +1,7 @@
 # OPEN ITEMS — every known defect and every undecided decision
 
+> **2026-10-22 status:** Historical issue register, not the active task list. PROGRESS.md now owns active work. Older open/resolved labels need source verification before acting; they are not fresh release certification.
+
 **This is the only to-do surface.** Anything not here is either done or not agreed.
 
 Nothing is removed from this file until it is genuinely resolved, and when it is

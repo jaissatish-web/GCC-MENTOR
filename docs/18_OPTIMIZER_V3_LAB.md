@@ -1,5 +1,7 @@
 # Optimizer v3 — test lab results (2026-10-02)
 
+> **2026-10-22 status:** The “NOT wired” status below is historical and superseded: app/api/optimize/route.ts selects v3 by default, with OPTIMIZER_ENGINE=v2 rollback. Retain this as dated lab evidence, not a deployment status.
+
 **Status: tested, NOT wired into `/api/optimize`.** The founder asked to test the
 approved prompts on many kinds of CVs before deciding the next step.
 

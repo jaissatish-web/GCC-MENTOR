@@ -1,5 +1,7 @@
 # PRODUCT — what GCC MENTOR is, and what it can actually sell today
 
+> **2026-10-22 status:** Read PROJECT_PLAN.md and CURRENT_STATE.md first. Older pricing, service availability and score descriptions below are historical where they conflict with that source-based baseline.
+
 ---
 
 ## 1. In one paragraph

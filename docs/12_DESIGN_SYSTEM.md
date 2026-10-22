@@ -1,5 +1,7 @@
 # DESIGN SYSTEM — one visual language, no per-page invention
 
+> **2026-10-22 status:** Current application typography is owned by app/typography.css (TYPOGRAPHY_SYSTEM.md); brand colors by BRAND_SYSTEM.md/shared UI tokens. Historical campaign styles below are not permission to replace the current design or resume typography.
+
 `app/ui-system.css` owns the current UI configuration. The retained Tailwind
 configuration is a **protected file**; it supplies compatibility utilities.
 

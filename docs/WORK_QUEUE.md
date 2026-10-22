@@ -1,5 +1,7 @@
 # WORK QUEUE — only what is not yet done
 
+> **2026-10-22 status:** Historical queue, superseded by PROGRESS.md. Do not execute old tasks without rechecking source and founder scope. Q&A and mock interview now exist; the old “builds from zero” item is obsolete.
+
 **This file holds work, not history.** When something ships it leaves this file and the
 part-document it affects is updated instead. It never becomes a log.
 

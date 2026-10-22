@@ -1,5 +1,7 @@
 # CAREER PROFILE — the one source of truth
 
+> **2026-10-22 status:** Current first-profile intake/review is documented in SHARED_CAREER_INTAKE.md and CURRENT_STATE.md. It reuses one draft and explicitly confirms before profile creation. Historical intake details below do not supersede that flow.
+
 **Everything the product generates comes from here.** One profile per user. A
 resume, a cover letter, a score, and every future output type read this and nothing
 else. Nothing is ever re-derived from a fresh upload at generation time.

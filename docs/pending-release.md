@@ -1,5 +1,7 @@
 # Combined release — 18 October 2026
 
+> **2026-10-22 status:** Historical October 18 release preparation record; PROGRESS.md owns active release work. This filename does not establish a currently pending deployment.
+
 Satish authorized publishing all three changes together on 18 October 2026.
 
 1. Gulf Templates: move “View selected design full size” beside “Preview my resume” inside the existing sticky action bar. Keep full-size preview available while resumes load and for users without resumes. Remove the duplicate scrolling gallery action. Preserve full-size preview in other TemplatePicker consumers.

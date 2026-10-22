@@ -1,5 +1,7 @@
 # SCORING — two different scores, deliberately
 
+> **2026-10-22 status:** Current shared intake has distinct Profile Readiness and Gulf preparation scores, plus separate job-specific matching. SHARED_CAREER_INTAKE.md and CURRENT_STATE.md supersede the earlier scorecard/category weights below. Gulf preparation uses preparation.ts (assessment 4.0); Profile Readiness uses readiness.ts. The arithmetic is deterministic but resume extraction uses a configured AI provider, so the overall intake is not cost-free.
+
 The product shows two numbers. **They answer different questions and must never be
 presented as the same thing.**
 

@@ -8,15 +8,12 @@ target job — **using only facts they already provided. The AI never invents an
 
 ## 👉 Documentation starts at [`docs/00_START_HERE.md`](docs/00_START_HERE.md)
 
-Everything about the product — what it is, what it believes, how each part is built, and
-what is still open — lives in `docs/` as one file per part of the system. **Those files
-describe what is actually built and verified**, not what was once planned.
-
-If you read only three: [`01_PRODUCT.md`](docs/01_PRODUCT.md),
-[`02_PHILOSOPHY.md`](docs/02_PHILOSOPHY.md), [`14_OPEN_ITEMS.md`](docs/14_OPEN_ITEMS.md).
-
-`docs/archive/` is frozen history. **Nothing in it is current, and parts of it are
-actively wrong.** Do not follow instructions from there.
+Read [`AGENTS.md`](AGENTS.md), [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md),
+[`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) and [`docs/PROGRESS.md`](docs/PROGRESS.md)
+before working. These separate agreed direction, current implementation and active tasks.
+[`docs/DOCUMENTATION_INDEX.md`](docs/DOCUMENTATION_INDEX.md) identifies domain references
+and historical reports. Update the agreed specification **before** changing code,
+then record implementation and verification results. Older records are not fresh production certification.
 
 ---
 
@@ -36,7 +33,7 @@ Full detail: [`docs/02_PHILOSOPHY.md`](docs/02_PHILOSOPHY.md).
 
 ## Stack
 
-Next.js 14 (App Router) · TypeScript strict · Tailwind · Supabase (Postgres + Auth +
+Next.js 15.5 (App Router) · React 19 · TypeScript strict · Tailwind · Supabase (Postgres + Auth +
 Storage, row-level security on every table) · OpenRouter over plain HTTP, with the
 provider, model and key configured from the admin panel rather than the codebase ·
 headless Chromium for HTML→PDF · deployed on Vercel from `main`.
@@ -79,7 +76,6 @@ The AI provider, model and API key are **not** environment variables — they ar
 
 ## Contributing
 
-Work comes from [`docs/WORK_QUEUE.md`](docs/WORK_QUEUE.md). One job per commit. Payment,
-security and personal-data work requires review before it is approved and is **never
-self-assigned**. The full process, the definition of done, and the verification standard
-for each kind of change: [`docs/16_WORKING_AGREEMENT.md`](docs/16_WORKING_AGREEMENT.md).
+Work comes from [`docs/PROGRESS.md`](docs/PROGRESS.md). Main is the sole standing branch.
+Follow [`docs/16_WORKING_AGREEMENT.md`](docs/16_WORKING_AGREEMENT.md): documents first,
+implementation second, then review and verification. Preserve logic during visual-only tasks.
