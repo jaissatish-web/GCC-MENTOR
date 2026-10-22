@@ -25,3 +25,6 @@ Founder clarified: current main is the application baseline; no application chan
 Acceptance: founder-readable PLATFORM_MASTER.md with service/score/data flows and live-verification limits; branch-purpose record; durable recovery of nine unique heads; remote cleanup verification.
 Implementation: source review delegated into bounded read-only service/control reviews and integrated by lead. Only documentation/recovery records may change.
 Checks: source references reviewed, relative links/whitespace passed, docs-only diff confirmed, backup restore recovered all nine refs. Required GitHub CI gates merge; record its result in the final handoff. No runtime/provider/production-flow certification claimed.
+
+## PROFILE-014 — approved profile block implementation
+Authorization: Satish requested finalise documents first, then GitHub code. Contract: CAREER_PROFILE_BLOCKS.md. Status: approved; implementation in progress. Preserve facts, category identity/visibility and existing services/scoring. Verification planned: typecheck, lint, build, regression checks; live save remains separate evidence.
