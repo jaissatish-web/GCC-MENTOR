@@ -4,7 +4,7 @@ Baseline main: `81fdcf1303a5c9c39d8fe04a621e70cc6a9fbfeb`. Founder requests only
 
 36 non-main branches: 27 are ancestors of main; nine have commits outside main history (which may include equivalent changes merged another way). No automatic merging is authorized. Keep unique work durably recoverable before deleting its ref; an SHA list alone is not a durable backup of unreachable commits.
 
-Status: branch purpose reviewed in BRANCH_PURPOSES.md. Main-ancestor branches are being removed through authenticated GitHub UI. The nine separate heads are preserved in archive/branches-2026-10-22.bundle.base64, with successful independent restore verification. Removal of those heads follows publication of that recovery record; PROGRESS.md records final remote verification.
+Status: all 36 original non-main branches removed after purpose review. Nine separate heads are preserved in archive/branches-2026-10-22.bundle.base64; independent restore verification passed. Draft PRs #4/#12 closed without merging. PROGRESS.md records removal of required temporary documentation branches and final acceptance.
 
 | Branch | Head SHA | Behind main | Ahead main | Disposition |
 |---|---|---:|---:|---|

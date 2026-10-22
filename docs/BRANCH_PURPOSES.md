@@ -43,7 +43,7 @@ Original inventory: 36 non-main branches. 27 heads are already ancestors of main
 | `ui/mobile-option-two` | Approved mobile workspace design and workflow verification. | All commits reachable from main |
 | `update/landing-shared-journey` | Shared journey illustration on landing; separate commit after equivalent/related PR history, retained only as history. | 1 separate commit(s); recovery archive |
 
-## Recovery record
+All 36 original branch refs were removed after review and preservation. Draft PRs #4 and #12 were closed without merging. Main remains the application baseline. Temporary documentation PR branches are removed after their merge.\n\n## Recovery record
 `archive/branches-2026-10-22.bundle.base64` is a base64-encoded incremental Git bundle containing all nine unique heads and their objects outside main. It is inert history, not runnable platform code or an active plan.
 
 Decoded size: 576303 bytes. SHA-256: `4a882a275a6d619d8bd6d78c4017458f13010e507b2c30c432a2f0038b009d8e`.
