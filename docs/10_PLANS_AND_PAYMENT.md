@@ -1,6 +1,6 @@
 # PLANS AND PAYMENT — what is free, what is paid, and how that is enforced
 
-> **2026-10-22 status:** The unrestricted/no-quota heading below records the August phase, not a current universal access guarantee. Service guards, credits/quota controls and route-specific checks exist. Inspect current routes and deployment settings before making pricing/access claims; this session does not authorize enabling paid locks.
+> **2026-10-22 status:** The unrestricted/no-quota heading below records the August phase, not a current universal access guarantee. Service guards (pause, rate limits and concurrency) are active. Paid credit helpers exist, but no generation-route consumers were found for consumeServiceCredit/consumeOptimizationCredit; commercial credit charging must not be claimed as enforced. Inspect current routes and deployment settings before making pricing/access claims; this session does not authorize enabling paid locks.
 
 > ## ⚠ NOTHING IS ENFORCED RIGHT NOW
 >

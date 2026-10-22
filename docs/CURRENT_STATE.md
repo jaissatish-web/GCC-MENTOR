@@ -1,6 +1,6 @@
 # Current implementation baseline
 
-Source inspected: main `81fdcf1303a5c9c39d8fe04a621e70cc6a9fbfeb`, 22 October 2026. This is a source-based handoff, not a new production certification. Consult the actual code when extending a domain; older reports retain only their dated evidence.
+Source inspected: main `d5455475d1ceac6ce735850cc3926ebf3804bf90`, 22 October 2026; application code is unchanged from `81fdcf1`. This is a source-based handoff, not a new production certification. Consult the actual code when extending a domain; older reports retain only their dated evidence.
 
 | Area | Current source behavior | Evidence / detail |
 |---|---|---|
@@ -18,7 +18,7 @@ Source inspected: main `81fdcf1303a5c9c39d8fe04a621e70cc6a9fbfeb`, 22 October 20
 | Professional profiles | LinkedIn and NaukriGulf import/generation services exist; users apply outputs externally themselves | `app/api/linkedin/`, `app/api/naukrigulf/`, `19_LINKEDIN_OPTIMIZATION.md`, `20_PROFESSIONAL_PROFILES.md` |
 | Typography | `app/typography.css` is the current shared application type configuration; document boundaries preserve resume fonts | `app/globals.css`, `TYPOGRAPHY_SYSTEM.md` |
 | Brand/layout | Shared UI tokens plus mobile/desktop styles are imported. Current brand specification is emerald-led | `app/ui-system.css`, `app/mobile-design.css`, `app/desktop-design.css`, `BRAND_SYSTEM.md` |
-| Access and quotas | Auth, service guards, credit/entitlement machinery and quota controls exist. Old “all services unrestricted/no quotas” copy must not be treated as a current global guarantee | `lib/ai/serviceGuard.ts`, `lib/entitlements.ts`, individual API routes |
+| Access and quotas | Auth and abuse controls (pause, rate, concurrency) are active. Commercial credit/bundle helpers exist but their consumption helpers have no generation-route consumers in this review; do not describe paid credits as enforced. | `lib/ai/serviceGuard.ts`, `lib/entitlements.ts`, individual API routes |
 | Database | Numbered migrations are repository evidence, not proof they were applied to the live database. Old table counts/catalogue claims are dated | `supabase/migrations/`, `04_DATA_MODEL.md` |
 
 ## Known limits and next investigation
@@ -26,3 +26,5 @@ Source inspected: main `81fdcf1303a5c9c39d8fe04a621e70cc6a9fbfeb`, 22 October 20
 - New intake provider quality, production signup, email delivery and cross-device persistence still need configured live checks as stated in `SHARED_CAREER_INTAKE.md`.
 - No new source-wide functional, security, billing, database or visual certification was performed here. Earlier test reports apply only to their named commits/environments.
 - The canonical guide resolves entry-point drift. Domain details not rechecked in this session remain explicitly subject to source verification; do not claim every historical statement has been independently retested.
+
+For the founder-readable complete service flow and current limits, read [PLATFORM_MASTER.md](PLATFORM_MASTER.md).

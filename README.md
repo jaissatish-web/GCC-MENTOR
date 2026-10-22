@@ -8,6 +8,8 @@ target job — **using only facts they already provided. The AI never invents an
 
 ## 👉 Documentation starts at [`docs/00_START_HERE.md`](docs/00_START_HERE.md)
 
+For a plain-language explanation of the full current platform, read [`docs/PLATFORM_MASTER.md`](docs/PLATFORM_MASTER.md).
+
 Read [`AGENTS.md`](AGENTS.md), [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md),
 [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) and [`docs/PROGRESS.md`](docs/PROGRESS.md)
 before working. These separate agreed direction, current implementation and active tasks.

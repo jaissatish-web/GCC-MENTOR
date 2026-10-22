@@ -4,7 +4,7 @@ Updated 22 October 2026. Read these on every new or resumed session:
 
 1. [`../AGENTS.md`](../AGENTS.md) — mandatory agent workflow and scope rules.
 2. [`PROJECT_PLAN.md`](PROJECT_PLAN.md) — agreed product direction.
-3. [`CURRENT_STATE.md`](CURRENT_STATE.md) — current source-based baseline and code references.
+3. [`CURRENT_STATE.md`](CURRENT_STATE.md) and [`PLATFORM_MASTER.md`](PLATFORM_MASTER.md) — source baseline and founder-readable explanation of the full platform.
 4. [`16_WORKING_AGREEMENT.md`](16_WORKING_AGREEMENT.md) — documents first, then implementation, review and handoff.
 5. [`PROGRESS.md`](PROGRESS.md) — active tasks, verification gaps and next action.
 6. [`DOCUMENTATION_INDEX.md`](DOCUMENTATION_INDEX.md) — domain references and historical records.
