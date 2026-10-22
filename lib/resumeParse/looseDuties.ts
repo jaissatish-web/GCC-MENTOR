@@ -14,15 +14,15 @@ const NEXT_SECTION = /^\s*(education(al)?(\s+qualifications?)?|academic|qualific
 
 const norm = (s: string) => s.toLowerCase().replace(/^[\s•●▪◦*\-–—·]+/, '').replace(/[^a-z0-9+%]+/g, ' ').trim()
 
-/** The lines of each responsibilities block in the CV text, bullets stripped. */
-export function looseDutyLines(text: string): { heading: string; lines: string[] } | null {
+/** Keep each source heading with its own lines; never merge achievements into responsibilities. */
+export function looseDutyBlocks(text: string): Array<{ heading: string; lines: string[] }> {
   const rows = text.split(/\r?\n/)
-  const found: string[] = []
-  let heading = ''
+  const blocks: Array<{ heading: string; lines: string[] }> = []
   for (let i = 0; i < rows.length; i++) {
     const m = rows[i].match(HEADING)
     if (!m) continue
-    heading = heading || rows[i].trim().replace(/:$/, '')
+    const heading = rows[i].trim().replace(/:$/, '')
+    const found: string[] = []
     for (let j = i + 1; j < rows.length; j++) {
       const row = rows[j].trim()
       if (!row) continue
@@ -35,34 +35,52 @@ export function looseDutyLines(text: string): { heading: string; lines: string[]
       const line = row.replace(/^[\s•●▪◦*\-–—·]+/, '').trim()
       if (line.split(/\s+/).length >= 4) found.push(line)
     }
+    if (found.length) blocks.push({ heading, lines: found })
   }
-  return found.length ? { heading: heading || 'Responsibilities', lines: found } : null
+  return blocks
+}
+
+/** Compatibility view for callers interested in the first block only. */
+export function looseDutyLines(text: string): { heading: string; lines: string[] } | null {
+  return looseDutyBlocks(text)[0] ?? null
 }
 
 /** Preserve missing responsibilities separately; the legacy function name is retained for callers. */
 export function attachLooseDuties(draft: CareerProfileDraft, text: string): ParseWarning | null {
-  const block = looseDutyLines(text)
-  if (!block) return null
+  const blocks = looseDutyBlocks(text)
+  if (!blocks.length) return null
   const have = [
     ...(draft.work_experience ?? []).flatMap((j) => [...(j.highlights ?? []), j.description ?? '']),
     ...(draft.additional_information ?? []).map((a) => a.value ?? ''),
   ].map(norm).filter(Boolean)
-  const missing = block.lines.filter((line) => {
-    const n = norm(line)
-    return n && !have.some((h) => h.includes(n) || n.includes(h))
-  }).map(line => stripIdNumbers(block.heading, line)).filter(Boolean)
-  if (!missing.length) return null
   const rows = draft.additional_information ?? (draft.additional_information = [])
   const index = rows.length
-  rows.push({
-    label: block.heading,
-    value: missing.join('\n'),
-    category_name: block.heading,
-    show_on_resume: true,
-    sort_order: Math.max(0, ...rows.map(row => row.sort_order ?? 0)) + 1,
-  })
+  let retained = 0
+  const headings: string[] = []
+  for (const block of blocks) {
+    const missing: string[] = []
+    for (const line of block.lines) {
+      const clean = stripIdNumbers(block.heading, line)
+      const n = norm(clean)
+      if (!n || have.some(h => h.includes(n) || n.includes(h))) continue
+      missing.push(clean)
+      // Include newly retained lines so repeated headings/bullets do not duplicate facts.
+      have.push(n)
+    }
+    if (!missing.length) continue
+    rows.push({
+      label: block.heading,
+      value: missing.join('\n'),
+      category_name: block.heading,
+      show_on_resume: true,
+      sort_order: Math.max(0, ...rows.map(row => row.sort_order ?? 0)) + 1,
+    })
+    retained += missing.length
+    if (!headings.includes(block.heading)) headings.push(block.heading)
+  }
+  if (!retained) return null
   return {
     field: `additional_information.${index}.value`,
-    message: `We kept ${missing.length} line${missing.length === 1 ? '' : 's'} from your CV's "${block.heading}" section separately. Please confirm which role or project they describe.`,
+    message: `We kept ${retained} line${retained === 1 ? '' : 's'} from your CV's ${headings.map(heading => '"' + heading + '"').join(', ')} section${headings.length === 1 ? '' : 's'} separately. Please confirm which role or project they describe.`,
   }
 }

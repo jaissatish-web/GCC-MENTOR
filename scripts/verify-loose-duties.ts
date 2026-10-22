@@ -6,7 +6,7 @@
  */
 
 import './resolve-paths'
-import { attachLooseDuties, looseDutyLines } from '../lib/resumeParse/looseDuties'
+import { attachLooseDuties, looseDutyBlocks, looseDutyLines } from '../lib/resumeParse/looseDuties'
 import type { CareerProfileDraft } from '../types/careerProfile'
 
 let failures = 0
@@ -63,6 +63,25 @@ const d2 = draft([{ company: 'Voltas Limited', start: '2025-02-01', end: null, d
 check('nothing is duplicated when the reader already placed them', attachLooseDuties(d2, biodata) === null && d2.work_experience[0].highlights?.length === 2)
 const d3 = draft([{ company: 'Al Futtaim', start: '2019-01-01', end: null, duties: ['Supervised MEP installation on a 20-storey tower.', 'Coordinated shop drawing approvals with consultants.'] }, { company: 'Arabtec', start: '2016-01-01', end: '2019-01-01', duties: ['Prepared daily site progress reports for the client.'] }])
 check('a CV with duties under each job is left alone', attachLooseDuties(d3, perJob) === null)
+
+const multiple = `KEY ACHIEVEMENTS
+Reduced month-end closing time from ten to six days.
+Reduced month-end closing time from ten to six days.
+JOB RESPONSIBILITIES
+Managed accounts payable for many international vendors.
+KEY ACHIEVEMENTS
+Reduced month-end closing time from ten to six days.
+Won the annual safety excellence award.
+SKILLS
+SAP`
+const blocks = looseDutyBlocks(multiple)
+check('each detected loose block retains its own source heading', blocks.length === 3 && blocks[0].heading === 'KEY ACHIEVEMENTS' && blocks[1].heading === 'JOB RESPONSIBILITIES' && blocks[2].heading === 'KEY ACHIEVEMENTS')
+const mixed = draft([])
+attachLooseDuties(mixed, multiple)
+check('responsibilities and achievements never share an invented category heading', mixed.additional_information.length === 3 && mixed.additional_information[0].category_name === 'KEY ACHIEVEMENTS' && mixed.additional_information[1].category_name === 'JOB RESPONSIBILITIES' && mixed.additional_information[2].category_name === 'KEY ACHIEVEMENTS')
+check('duplicates within and across repeated headings retained once', mixed.additional_information.map(row => row.value).join('\n').split('Reduced month-end closing time').length === 2)
+check('new facts under a repeated heading are preserved', mixed.additional_information[2].value === 'Won the annual safety excellence award.')
+check('repeating multiheading recovery does not add any rows', attachLooseDuties(mixed, multiple) === null && mixed.additional_information.length === 3)
 
 if (failures) {
   console.log(`\n${failures} failed`)
