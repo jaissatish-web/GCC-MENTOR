@@ -3040,7 +3040,7 @@ function ProfileScreen() {
         </CardSection>
 
         <CardSection {...sectionProps('sec_additional')} title="Specialist blocks & custom sections" helper="Projects, languages, awards, activities, research and professional links. Your original headings stay intact.">
-          <ProfileBlockCategories value={editor.additional_information.filter(row => !isHeadlineEntry(row) && row.category_name !== 'Preparation details (private)')} onChange={(rows) => setEditor(e => e && ({ ...e, additional_information: [...rows, ...e.additional_information.filter(row => isHeadlineEntry(row) || row.category_name === 'Preparation details (private)')] }))} />
+          <ProfileBlockCategories reservedEntries={editor.additional_information.filter(row => isHeadlineEntry(row) || row.category_name === 'Preparation details (private)')} value={editor.additional_information.filter(row => !isHeadlineEntry(row) && row.category_name !== 'Preparation details (private)')} onChange={(rows) => setEditor(e => e && ({ ...e, additional_information: [...rows, ...e.additional_information.filter(row => isHeadlineEntry(row) || row.category_name === 'Preparation details (private)')] }))} />
         </CardSection>
       </div>
 

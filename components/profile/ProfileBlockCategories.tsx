@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CategoryEditor, type CategoryEditorEntry } from '@/components/profile/CategoryEditor'
 import { PROFILE_BLOCKS, profileBlockForCategory } from '@/lib/careerProfileBlocks'
-import { groupCategoryEntries } from '@/lib/profileCategories'
+import { categoryEditorCapacity, groupCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
 
 const button = 'min-h-11 rounded-ctl border border-line bg-white px-3 py-2 text-left text-sm font-semibold text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-40'
 
@@ -22,7 +22,7 @@ export function focusProfileBlockCategory(blockId: string): void {
 }
 
 /** Named starting points over the existing category storage. Never rewrites legacy headings. */
-export function ProfileBlockCategories<T extends CategoryEditorEntry>({ value, onChange }: { value: T[]; onChange: (rows: T[]) => void }) {
+export function ProfileBlockCategories<T extends CategoryEditorEntry>({ value, onChange, reservedEntries = [] }: { value: T[]; onChange: (rows: T[]) => void; reservedEntries?: readonly CategoryMetadata[] }) {
   const [message, setMessage] = useState('')
   const [pendingBlock, setPendingBlock] = useState<string | null>(null)
   useEffect(() => {
@@ -31,6 +31,7 @@ export function ProfileBlockCategories<T extends CategoryEditorEntry>({ value, o
     setPendingBlock(null)
   }, [pendingBlock, value])
   const groups = groupCategoryEntries(value)
+  const capacity = categoryEditorCapacity(value, reservedEntries)
   const specialistBlocks = PROFILE_BLOCKS.filter(block => block.categoryNames?.length)
   const addBlock = (id: string) => {
     const block = specialistBlocks.find(item => item.id === id)
@@ -41,13 +42,13 @@ export function ProfileBlockCategories<T extends CategoryEditorEntry>({ value, o
       focusProfileBlockCategory(id)
       return
     }
-    if (groups.length >= 30 || value.length >= 200) {
+    if (!capacity.canAddCategory) {
       setMessage('You have reached the category or item limit. You can edit an existing category below.')
       return
     }
     onChange([...value, {
       key: crypto.randomUUID(), category_id: crypto.randomUUID(), category_name: block.categoryNames[0],
-      category_order: Math.max(-1, ...groups.map(group => group.order)) + 1,
+      category_order: capacity.nextOrder,
       category_position: 'end', show_on_resume: true, label: '', value: '', level: '',
     } as T])
     setPendingBlock(id)
@@ -68,7 +69,7 @@ export function ProfileBlockCategories<T extends CategoryEditorEntry>({ value, o
     </div>
     <p role="status" aria-live="polite" className="field-hint">{message}</p>
     <div id="profile-category-editor" className="scroll-mt-4">
-      <CategoryEditor value={value} onChange={onChange} />
+      <CategoryEditor value={value} onChange={onChange} reservedEntries={reservedEntries} />
     </div>
   </div>
 }

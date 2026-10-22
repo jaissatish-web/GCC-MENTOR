@@ -3,7 +3,7 @@ import './resolve-paths'
 import { strict as assert } from 'node:assert'
 import { PROFILE_BLOCKS, profileBlockForCategory } from '../lib/careerProfileBlocks'
 import { normalizeDraft } from '../lib/ai/extractionPrompt'
-import { organizeCategoryEntries, validateCategoryEntries } from '../lib/profileCategories'
+import { categoryEditorCapacity, organizeCategoryEntries, validateCategoryEntries } from '../lib/profileCategories'
 
 assert.equal(PROFILE_BLOCKS.length, 14)
 assert.equal(new Set(PROFILE_BLOCKS.map(block => block.id)).size, 14)
@@ -39,3 +39,15 @@ const employment = normalizeDraft({ work_experience: [{ company: 'Actual Contrac
 assert.equal(employment.work_experience[0].company, 'Actual Contractor')
 assert.equal(employment.work_experience[0].description, 'Contract employment; client: Project Owner; project: Plant A')
 console.log(`PASS 14 profile blocks, ${scenarios.length} career scenarios, category preservation and employer context`)
+
+const visible = Array.from({length: 29}, (_, n) => ({category_id: String(n), category_name: `Visible ${n}`, category_order:n}))
+const reserved = [{category_id:'private', category_name:'Preparation details (private)', category_order:40}]
+assert.equal(categoryEditorCapacity(visible,reserved).canAddCategory,false,'Hidden category counts toward full 30-category save limit')
+assert.equal(categoryEditorCapacity(visible.slice(0,28),reserved).canAddCategory,true)
+assert.equal(categoryEditorCapacity(visible.slice(0,28),reserved).nextOrder,41,'New category follows hidden category order without modifying hidden metadata')
+const manyItems=Array.from({length:199},()=>({category_id:'same',category_name:'Projects'}))
+assert.equal(categoryEditorCapacity(manyItems,reserved).canAddItem,false,'Hidden entry counts toward full 200-item save limit')
+assert.equal(categoryEditorCapacity(manyItems,reserved).canAddCategory,false)
+assert.equal(categoryEditorCapacity(manyItems.slice(0,198),reserved).canAddItem,true)
+assert.equal(categoryEditorCapacity([],[{category_id:'ceiling',category_order:200}]).nextOrder,200,'Legacy order ceiling stays within save validation')
+console.log('PASS category capacity includes reserved private/headline records and preserves valid category order')
