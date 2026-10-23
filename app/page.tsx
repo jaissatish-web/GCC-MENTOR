@@ -58,6 +58,26 @@ const COUNTRIES = [
   { flag: '🇧🇭', name: 'Bahrain', reason: 'Finance hub' },
 ] as const
 
+/** Gulf job-seeker pain points — the #challenges disclosure the landing
+ *  contract (verify-mobile-layout) requires; plain language for every
+ *  profession, blue-collar included. */
+const CHALLENGES = [
+  'Applying everywhere. No interview calls.',
+  'One generic CV for every job.',
+  'Unsure if my CV matches the role.',
+  'Good openings. Late applications.',
+  'My Gulf profile gets overlooked.',
+  'Interview nerves take over.',
+  'No clear preparation plan.',
+] as const
+
+/** The three-step journey — the #how-it-works disclosure content. */
+const HOW_IT_WORKS = [
+  ['Build your Career Profile', 'One place holds your real experience, your skills and your Gulf readiness — nothing invented.'],
+  ['Prepare for an opening', 'Get a job-specific resume, a tailored cover letter and ATS feedback from the same profile.'],
+  ['Practise until ready', 'Answer interview questions in your own words, see what to improve, and walk in prepared.'],
+] as const
+
 const STATS = [
   ['9.9M+', 'Indians working in the GCC'],
   ['6', 'Gulf markets covered'],
@@ -132,6 +152,42 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+
+        {/* ── Challenges · pain-point disclosure (CI contract: #challenges details) ── */}
+        <section id="challenges" className={`${s.section} ${s.softSection}`} aria-labelledby="challenges-title">
+          <div className={s.inner}>
+            <details className={s.faqItem} open={false}>
+              <summary><span><h2 id="challenges-title" style={{ display: 'inline' }}>Not getting shortlisted? <span className={s.kickerGold}>Struggling in interviews?</span></h2></span><span className={s.faqPlus} aria-hidden="true">+</span></summary>
+              <ul className={s.countryGrid} style={{ padding: '4px 16px 18px', listStyle: 'none', margin: 0 }}>
+                {CHALLENGES.map(challenge => (
+                  <li key={challenge} className={s.countryCard} style={{ cursor: 'default', gap: 8 }}>
+                    <span className={s.countryFlag} style={{ fontSize: 'var(--ui-helper-size)' }} aria-hidden="true">!</span>
+                    <span className={s.countryReason} style={{ fontSize: 'var(--ui-helper-size)', lineHeight: 'var(--lp-tight-line)' }}>{challenge}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className={s.sectionLead} style={{ padding: '0 18px 16px' }}>Each of these has a preparation step inside GCC Mentor.</p>
+            </details>
+          </div>
+        </section>
+
+        {/* ── How it works · journey disclosure (CI contract: #how-it-works) ── */}
+        <section className={s.section} aria-label="How the preparation journey works">
+          <div className={s.inner}>
+            <details id="how-it-works" className={s.faqItem}>
+              <summary><span className={s.sectionTitle} style={{ margin: 0 }}>How the journey works <span className={s.kickerGold}>· one profile, a plan for every opening</span></span><span className={s.faqPlus} aria-hidden="true">+</span></summary>
+              <div className={s.featureGrid} style={{ padding: '4px 16px 20px' }}>
+                {HOW_IT_WORKS.map(([step, detail]) => (
+                  <div key={step} className={s.featureCard} style={{ cursor: 'default' }}>
+                    <span className={s.featureIcon}><span aria-hidden="true">→</span></span>
+                    <h3>{step}</h3>
+                    <p>{detail}</p>
+                  </div>
+                ))}
+              </div>
+            </details>
           </div>
         </section>
 
