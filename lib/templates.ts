@@ -81,6 +81,16 @@ export type TemplateId =
   | 'logistics_route'
   | 'scholar_classic'
   | 'falcon_executive'
+  | 'executive_navy'
+  | 'emerald_professional'
+  | 'royal_blue_modern'
+  | 'graphite_executive'
+  | 'teal_horizon'
+  | 'burgundy_prestige'
+  | 'industrial_pro'
+  | 'golden_executive'
+  | 'sapphire_edge'
+  | 'modern_skyline'
 
 export const DEFAULT_TEMPLATE_ID: TemplateId = 'gulf_premium'
 
@@ -767,6 +777,66 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     recommendedFor: ['C-suite', 'General managers', 'Country heads'],
     fields: ['executive'],
     category: 'executive',
+  }),
+  executive_navy: engineTemplate('executive_navy', themes.EXECUTIVE_NAVY, {
+    name: 'Executive Navy',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["executive","finance"], category: 'executive',
+  }),
+  emerald_professional: engineTemplate('emerald_professional', themes.EMERALD_PROFESSIONAL, {
+    name: 'Emerald Professional',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["admin-hr","finance","engineering"], category: 'professional',
+  }),
+  royal_blue_modern: engineTemplate('royal_blue_modern', themes.ROYAL_BLUE_MODERN, {
+    name: 'Royal Blue Modern',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["it","engineering","graduate"], category: 'professional',
+  }),
+  graphite_executive: engineTemplate('graphite_executive', themes.GRAPHITE_EXECUTIVE, {
+    name: 'Graphite Executive',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["executive","finance"], category: 'executive',
+  }),
+  teal_horizon: engineTemplate('teal_horizon', themes.TEAL_HORIZON, {
+    name: 'Teal Horizon',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["engineering","healthcare","admin-hr"], category: 'professional',
+  }),
+  burgundy_prestige: engineTemplate('burgundy_prestige', themes.BURGUNDY_PRESTIGE, {
+    name: 'Burgundy Prestige',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["executive","admin-hr"], category: 'executive',
+  }),
+  industrial_pro: engineTemplate('industrial_pro', themes.INDUSTRIAL_PRO, {
+    name: 'Industrial Pro',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["engineering","oil-gas","technician"], category: 'engineering',
+  }),
+  golden_executive: engineTemplate('golden_executive', themes.GOLDEN_EXECUTIVE, {
+    name: 'Golden Executive',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["executive","finance"], category: 'executive',
+  }),
+  sapphire_edge: engineTemplate('sapphire_edge', themes.SAPPHIRE_EDGE, {
+    name: 'Sapphire Edge',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["it","sales-marketing","engineering"], category: 'professional',
+  }),
+  modern_skyline: engineTemplate('modern_skyline', themes.MODERN_SKYLINE, {
+    name: 'Modern Skyline',
+    description: 'Premium visual resume for direct recruiter sharing and professional reference; choose an ATS-friendly layout for online applications.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: ["engineering","construction","executive"], category: 'professional',
   }),
 }
 
