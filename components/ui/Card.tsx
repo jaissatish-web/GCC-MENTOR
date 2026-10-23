@@ -12,9 +12,10 @@ const cardVariants = cva('ui-surface rounded-card border font-redesign-sans', {
   variants: {
     tone: {
       light: 'border-line bg-white',
-      dark: 'border-line bg-white',
+      // Design B: the dark card is a navy surface for navy-shelled screens.
+      dark: 'border-hairline bg-surface text-white',
       'dark-interactive':
-        'border-line bg-white transition-colors duration-200 hover:border-teal motion-reduce:transition-none',
+        'border-line bg-white transition-colors duration-200 hover:border-navy-deep motion-reduce:transition-none',
     },
   },
   defaultVariants: {

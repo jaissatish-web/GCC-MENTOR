@@ -29,7 +29,7 @@ export default function ToolsPage() {
                 key={service.href}
                 href={navHref(item)}
                 data-ui-service={service.href === '/optimize' ? 'tailor' : service.href === '/templates' ? 'templates' : service.href === '/cover-letter' ? 'letter' : service.href === '/interview-qa' ? 'qa' : service.href === '/mock-interview' ? 'mock' : service.href.includes('linkedin') ? 'linkedin' : 'naukrigulf'}
-                className="tool-tile group flex min-w-0 flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-4"
+                className="tool-tile group flex min-w-0 flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-4"
               >
                 <span className="tool-tile-box">
                   <span aria-hidden="true" className={`flex size-10 items-center justify-center rounded-xl bg-white/80 ${item.iconClass}`}><Icon className="size-6" /></span>

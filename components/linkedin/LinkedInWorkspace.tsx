@@ -25,13 +25,19 @@ import { ProfilePreview } from './ProfilePreview'
 import { EditableProfileText } from '@/components/professional/EditableProfileText'
 import { ProfileVisibilityGuide } from '@/components/professional/ProfileVisibilityGuide'
 
-const primary =
-  'professional-primary'
 const secondary =
   'professional-secondary'
 const input =
-  'field'
+  'field focus:border-[#0B1F3A] focus:shadow-[0_0_0_3px_rgba(11,31,58,0.12)] focus:outline-none'
 const card = 'professional-panel min-w-0'
+
+// Design B (navy + gold) chrome for the professional workspace. Shared by the
+// intro pages and this workspace; the LinkedIn preview panel keeps its own
+// LinkedIn-blue identity and is never touched by these classes.
+const goldFill =
+  'inline-flex min-w-0 min-h-11 items-center justify-center gap-2 rounded-ctl border border-[#C9962E] bg-[#C9962E] px-5 py-2.5 text-[#14181C] font-semibold transition-colors hover:bg-[#E8B54A] hover:text-[#7A5310] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9962E] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+const navyGhost =
+  'inline-flex min-w-0 min-h-11 items-center justify-center gap-2 rounded-ctl border border-[#0B1F3A] bg-[#0B1F3A] px-5 py-2.5 text-white font-semibold transition-colors hover:bg-[#123049] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1F3A] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
 
 async function responseJson(response: Response) {
   const body = await response.json().catch(() => ({
@@ -299,11 +305,11 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
     return (
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {text && (
-          <button
-            className={primary}
-            type="button"
-            onClick={() => void copy(text)}
-          >
+                  <button
+                    className={navyGhost}
+                    type="button"
+                    onClick={() => void copy(text)}
+                  >
             {copiedText === text ? 'Copied — ready to paste' : `Copy ${key === 'headline' ? config.headline : key === 'about' ? config.summary : key.startsWith('experience:') ? 'job description' : 'text'}`}
           </button>
         )}
@@ -312,7 +318,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
             type="checkbox"
             checked={draft?.completed.includes(key) ?? false}
             onChange={() => mark(key, 'completed')}
-            className="size-4 accent-teal"
+            className="size-4 accent-[#0B1F3A]"
           />
           Updated on {platformName}
         </label>
@@ -321,7 +327,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
             type="checkbox"
             checked={draft?.skipped.includes(key) ?? false}
             onChange={() => mark(key, 'skipped')}
-            className="size-4 accent-teal"
+            className="size-4 accent-[#0B1F3A]"
           />
           Not applicable
         </label>
@@ -358,7 +364,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href={config.home} onClick={protectUnsaved} className={secondary}>← {platformName} guide</Link>
-        <Link href={PROFESSIONAL_PLATFORMS[platform === 'linkedin' ? 'naukrigulf' : 'linkedin'].home} onClick={protectUnsaved} className="inline-flex min-h-11 items-center text-sm font-semibold text-teal">Prepare {platform === 'linkedin' ? 'NaukriGulf' : 'LinkedIn'}</Link>
+        <Link href={PROFESSIONAL_PLATFORMS[platform === 'linkedin' ? 'naukrigulf' : 'linkedin'].home} onClick={protectUnsaved} className="inline-flex min-h-11 items-center text-sm font-semibold text-[#0B1F3A] underline underline-offset-4">Prepare {platform === 'linkedin' ? 'NaukriGulf' : 'LinkedIn'}</Link>
       </div>
       {error && (
         <div
@@ -374,7 +380,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
       {notice && (
         <p
           role="status"
-          className={notice === 'Your content has been prepared, fact-checked and saved.' ? 'sr-only' : 'rounded-ctl bg-teal-soft p-4 text-sm text-ink'}
+          className={notice === 'Your content has been prepared, fact-checked and saved.' ? 'sr-only' : 'rounded-ctl bg-[#EEF2F8] p-4 text-sm text-[#0B1F3A]'}
         >
           {notice}
         </p>
@@ -392,14 +398,14 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
             Upload your resume, paste its text, or enter your details. Review
             and save those facts before preparing your {platformName} profile.
           </p>
-          <Link href="/profile" className={`${primary} mt-5`}>
+          <Link href="/profile" className={`${navyGhost} mt-5`}>
             Open Career Profile
           </Link>
         </section>
       ) : !profile ? (
-        <button className={primary} onClick={() => void load(true)}>
-          Try again
-        </button>
+        <button className={navyGhost} onClick={() => void load(true)}>
+                  Try again
+                </button>
       ) : (
         <>
           {busy && busy !== 'save' && (
@@ -464,7 +470,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     className={`${card} flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between`}
                   >
                     <div>
-                      <p className="text-sm font-semibold text-teal type-helper">
+                      <p className="text-sm font-semibold text-gold-ink type-helper">
                         YOUR PERSONALIZED CONTENT
                       </p>
                       <h2 className="mt-2 type-section text-ink">
@@ -474,12 +480,12 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       <ol className="profile-result-process mt-4" aria-label="How to use your prepared content">{['Review & edit', 'Copy your text', `Paste on ${platformName}`, 'Save there & mark updated'].map((label, index) => <li key={label}><span className="professional-step-number">{index + 1}</span><span>{label}</span></li>)}</ol>
                     </div>
                     <button
-                      className={primary}
-                      onClick={() => {
-                        setView('preview')
-                        window.scrollTo({ top: 0 })
-                      }}
-                    >
+                                          className={goldFill}
+                                          onClick={() => {
+                                            setView('preview')
+                                            window.scrollTo({ top: 0 })
+                                          }}
+                                        >
                       <EyeIcon className="size-5" />
                       Preview your optimized profile
                     </button>
@@ -490,7 +496,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       <h2 className="font-semibold text-ink">
                         Your {platformName} update progress
                       </h2>
-                      <span className="text-xl font-semibold text-teal">
+                      <span className="text-xl font-semibold text-[#0B1F3A]">
                         {percent}%
                       </span>
                     </div>
@@ -503,7 +509,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       className="mt-3 h-2 overflow-hidden rounded-full bg-canvas"
                     >
                       <div
-                        className="h-full rounded-full bg-teal"
+                                              className="h-full rounded-full bg-[#0B1F3A]"
                         style={{ width: `${percent}%` }}
                       />
                     </div>
@@ -511,10 +517,10 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     <p className="mt-1 type-caption text-ink-muted">Last saved: <time dateTime={draft.updated_at}>{new Date(draft.updated_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</time></p>
                     <div className="profile-save-actions mt-3 flex flex-wrap gap-3">
                       <button
-                        className={primary}
-                        disabled={!dirty || !!busy}
-                        onClick={() => void save()}
-                      >
+                                              className={goldFill}
+                                              disabled={!dirty || !!busy}
+                                              onClick={() => void save()}
+                                            >
                         {busy === 'save'
                           ? 'Saving…'
                           : dirty
@@ -552,7 +558,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     {[['profile-headline', '1. Headline'], ['profile-summary', `2. ${config.summary}`], ['profile-experience', `3. ${config.experience}`], ['profile-skills', '4. Skills'], ['profile-final-check', 'Final checks']].filter(([id]) => id !== 'profile-experience' || draft.output!.experience.length > 0).filter(([id]) => id !== 'profile-skills' || draft.output!.skills.length > 0).map(([id, label]) => <a key={id} href={`#${id}`} className="professional-secondary">{label}</a>)}
                   </nav>
                   <section id="profile-headline" className={`${card} profile-result-step`}>
-                    <p className="profile-step-label">STEP 1 · YOUR FIRST IMPRESSION</p>
+                    <p className="profile-step-label text-[#0B1F3A]">STEP 1 · YOUR FIRST IMPRESSION</p>
                     <h2 className="mt-2 type-section text-ink">{config.headline}</h2>
                     <p className="mt-2 type-body text-ink-soft">Choose one headline that best represents your experience and target direction. You can refine its wording before copying.</p>
                     <p className="mt-2 text-sm leading-6 text-ink-soft type-helper">
@@ -575,7 +581,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                                   selected_headline: index,
                                 }))
                               }
-                              className="accent-teal"
+                              className="accent-[#0B1F3A]"
                             />
                             Option {index + 1}
                           </label>
@@ -606,7 +612,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     )}
                   </section>
                   <section id="profile-summary" className={`${card} profile-result-step`}>
-                    <p className="profile-step-label">STEP 2 · YOUR PROFESSIONAL STORY</p>
+                    <p className="profile-step-label text-[#0B1F3A]">STEP 2 · YOUR PROFESSIONAL STORY</p>
                     <h2 className="mt-2 type-section text-ink">{config.summary}</h2>
                     <p className="mt-2 type-body text-ink-soft">Introduce your strengths, experience and career direction in your own voice. Check every claim, then edit anything you would say differently.</p>
                     <p className="mt-2 text-sm leading-6 text-ink-soft type-helper">
@@ -632,11 +638,11 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     )
                     return (
                       <section key={entry.id} id={index === 0 ? 'profile-experience' : undefined} className={`${card} profile-result-step`}>
-                        <p className="profile-step-label">STEP 3 · {config.experience.toUpperCase()} · ROLE {index + 1}</p>
+                        <p className="profile-step-label text-[#0B1F3A]">STEP 3 · {config.experience.toUpperCase()} · ROLE {index + 1}</p>
                         <h2 className="mt-2 type-section text-ink">
                           {role ? <>{mask(role.role)} · {mask(role.company)}</> : 'Saved role — source no longer available'}
                         </h2>
-                        <p className="mt-2 w-fit rounded-ctl bg-teal-soft px-3 py-2 text-sm font-semibold text-ink type-helper">
+                        <p className="mt-2 w-fit rounded-ctl bg-[#E7EEF8] px-3 py-2 text-sm font-semibold text-[#0B1F3A] type-helper">
                           Employment dates: {role ? `${role.start_date?.slice(0, 7) ?? 'Not provided'} – ${role.end_date?.slice(0, 7) ?? 'Present'}` : 'Unavailable — review Career Profile and prepare a fresh version'} · Titles,
                           employers and dates come from Career Profile.
                         </p>
@@ -674,7 +680,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                   })}
                   {!!draft.output.skills.length && (
                     <section id="profile-skills" className={`${card} profile-result-step`}>
-                      <p className="profile-step-label mb-2">STEP 4 · RELEVANT KEYWORDS</p>
+                      <p className="profile-step-label mb-2 text-[#0B1F3A]">STEP 4 · RELEVANT KEYWORDS</p>
                       <h2 className="type-section text-ink">
                         Skills to emphasize
                       </h2>
@@ -787,14 +793,14 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     <ul className="mt-4 space-y-3">
                       {draft.output.advice.map((tip, index) => (
                         <li key={index} className="flex gap-3">
-                          <CheckIcon className="mt-1 size-5 shrink-0 text-teal" />
+                          <CheckIcon className="mt-1 size-5 shrink-0 text-[#0B1F3A]" />
                           <p className="leading-7 text-ink-soft">{tip}</p>
                         </li>
                       ))}
                     </ul>
                   </section>
                   <section id="profile-final-check" className={`${card} profile-result-step`}>
-                    <p className="profile-step-label mb-2">FINAL CHECK · BEFORE YOU FINISH</p>
+                    <p className="profile-step-label mb-2 text-gold-ink">FINAL CHECK · BEFORE YOU FINISH</p>
                     <h2 className="type-section text-ink">
                       Finish the presentation
                     </h2>
@@ -812,7 +818,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     Career facts need correcting?{' '}
                     <Link
                       href="/profile"
-                      className="font-semibold text-teal underline"
+                      className="font-semibold text-[#0B1F3A] underline"
                     >
                       Update Career Profile
                     </Link>
@@ -885,9 +891,9 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                                 changeSetup('mode', 'existing')
                             }}
                             aria-pressed={setup.source === option.value}
-                            className={`min-w-0 rounded-ctl border p-4 text-left [overflow-wrap:anywhere] sm:p-5 ${setup.source === option.value ? 'border-teal bg-teal-soft' : 'border-line bg-white hover:bg-canvas'}`}
+                            className={`min-w-0 rounded-ctl border p-4 text-left [overflow-wrap:anywhere] sm:p-5 ${setup.source === option.value ? 'border-[#0B1F3A] bg-[#E7EEF8]' : 'border-line bg-white hover:bg-canvas'}`}
                           >
-                            <option.icon className="size-6 text-teal" />
+                            <option.icon className="size-6 text-[#0B1F3A]" />
                             <span className="mt-3 block font-semibold text-ink">
                               {option.label}
                             </span>
@@ -941,7 +947,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                                   }
                                 />
                               </Field>
-                              {platform === 'linkedin' ? <><p className="text-sm leading-6 text-ink-muted type-helper">On desktop LinkedIn: Me → View profile → More or Resources → Save to PDF. This option may not appear for every member and isn’t available in the mobile app. On your phone, paste your profile text or use Career Profile.</p><a className="text-sm text-teal underline" href="https://www.linkedin.com/help/linkedin/answer/a541960" target="_blank" rel="noreferrer">LinkedIn’s download instructions</a></> : <p className="text-sm leading-6 text-ink-muted type-helper">Upload a PDF or DOCX containing your current NaukriGulf career content, or paste text from your own profile. This is optional comparison material. You can continue directly with Career Profile.</p>}
+                              {platform === 'linkedin' ? <><p className="text-sm leading-6 text-ink-muted type-helper">On desktop LinkedIn: Me → View profile → More or Resources → Save to PDF. This option may not appear for every member and isn’t available in the mobile app. On your phone, paste your profile text or use Career Profile.</p><a className="text-sm text-[#0B1F3A] underline" href="https://www.linkedin.com/help/linkedin/answer/a541960" target="_blank" rel="noreferrer">LinkedIn’s download instructions</a></> : <p className="text-sm leading-6 text-ink-muted type-helper">Upload a PDF or DOCX containing your current NaukriGulf career content, or paste text from your own profile. This is optional comparison material. You can continue directly with Career Profile.</p>}
                             </>
                           ) : (
                             <Field
@@ -996,7 +1002,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                               ))}
                               <label className="flex items-start gap-3 text-sm text-ink">
                                 <input
-                                  className="mt-1 size-4 shrink-0 accent-teal"
+                                  className="mt-1 size-4 shrink-0 accent-[#0B1F3A]"
                                   type="checkbox"
                                   checked={confirmed}
                                   onChange={(e) =>
@@ -1024,7 +1030,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                                   <label className="mt-3 flex items-start gap-3 text-sm text-ink">
                                     <input
                                       type="checkbox"
-                                      className="mt-1 size-4 shrink-0 accent-teal"
+                                      className="mt-1 size-4 shrink-0 accent-[#0B1F3A]"
                                       checked={acknowledged.includes(
                                         conflict.id,
                                       )}
@@ -1047,14 +1053,14 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                               <p className="text-sm text-ink-muted type-helper">
                                 If the imported detail is correct,{' '}
                                 <Link
-                                  className="text-teal underline"
+                                  className="text-[#0B1F3A] underline"
                                   href="/profile"
                                 >
                                   correct Career Profile
                                 </Link>{' '}
                                 first, then{' '}
                                 <button
-                                  className="text-teal underline"
+                                  className="text-[#0B1F3A] underline"
                                   onClick={() => void load()}
                                 >
                                   refresh here
@@ -1068,12 +1074,12 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       )}
                       <div className="mt-6 flex flex-wrap gap-3">
                         <button
-                          className={primary}
-                          disabled={!canContinue}
-                          onClick={() => setStage(1)}
-                        >
-                          Continue
-                        </button>
+                                                  className={navyGhost}
+                                                  disabled={!canContinue}
+                                                  onClick={() => setStage(1)}
+                                                >
+                                                  Continue
+                                                </button>
                         {draft?.output && (
                           <button
                             className={secondary}
@@ -1210,7 +1216,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                               >
                                 <input
                                   type="checkbox"
-                                  className="mt-1 size-4 shrink-0 accent-teal"
+                                  className="mt-1 size-4 shrink-0 accent-[#0B1F3A]"
                                   checked={setup.experienceIds.includes(
                                     entry.id,
                                   )}
@@ -1290,12 +1296,12 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           Back
                         </button>
                         <button
-                          className={primary}
-                          disabled={!setup.targetRoles.trim() || !canContinue}
-                          onClick={() => setStage(2)}
-                        >
-                          Review setup
-                        </button>
+                                                  className={navyGhost}
+                                                  disabled={!setup.targetRoles.trim() || !canContinue}
+                                                  onClick={() => setStage(2)}
+                                                >
+                                                  Review setup
+                                                </button>
                       </div>
                     </section>
                   ) : (
@@ -1330,7 +1336,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           </div>
                         ))}
                       </dl>
-                      <p className="mt-6 rounded-ctl bg-teal-soft p-4 text-sm leading-6 text-ink type-helper">
+                      <p className="mt-6 rounded-ctl bg-[#EEF2F8] p-4 text-sm leading-6 text-[#0B1F3A] type-helper">
                         Your advisor will prepare {config.headline.toLowerCase()} options, {config.summary}, experience
                         descriptions, saved skills and tailored advice. We
                         fact-check the writing before saving it. You’ll make the
@@ -1351,12 +1357,12 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                           Back
                         </button>
                         <button
-                          className={primary}
-                          disabled={!canContinue}
-                          onClick={() => void generate()}
-                        >
-                          Optimize {platformName}
-                        </button>
+                                                  className={goldFill}
+                                                  disabled={!canContinue}
+                                                  onClick={() => void generate()}
+                                                >
+                                                  Optimize {platformName}
+                                                </button>
                       </div>
                     </section>
                   )}

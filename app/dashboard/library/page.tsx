@@ -141,7 +141,7 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
       className={cn(
         'rounded-[4px] px-2 py-1 type-caption font-semibold leading-none',
         present
-          ? 'bg-teal-soft text-teal'
+          ? 'bg-ok-soft text-ok'
           : 'border border-dashed border-line-strong bg-canvas text-ink-muted'
       )}
     >
@@ -235,7 +235,7 @@ function ApplicationCard({
           {isRaw ? <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold-soft px-3 py-1 type-caption font-semibold text-gold-ink"><UserCircleIcon className="size-4" aria-hidden="true" />{CAREER_RESUME_BADGE}</span> : null}
           <Link
             href={`/package/${id}`}
-            className="block break-words rounded-ctl type-card text-ink underline-offset-4 hover:text-teal hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="block break-words rounded-ctl type-card text-ink underline-offset-4 hover:text-navy-deep hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep"
           >
             {displayName}
           </Link>
@@ -258,8 +258,8 @@ function ApplicationCard({
             <Link
               href={st.href}
               className={cn(
-                'library-service-row flex min-h-12 items-center justify-between gap-2 rounded-ctl border px-3 py-2 type-helper font-semibold leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
-                st.done ? 'border-ok/30 bg-ok-soft text-ok' : 'border-dashed border-line-strong bg-canvas text-ink-muted hover:border-teal/50',
+                'library-service-row flex min-h-12 items-center justify-between gap-2 rounded-ctl border px-3 py-2 type-helper font-semibold leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep',
+                st.done ? 'border-ok/30 bg-ok-soft text-ok' : 'border-dashed border-line-strong bg-canvas text-ink-muted hover:border-gold/50',
               )}
             >
               {st.label === NAMES.resume ? <span className="flex min-w-0 flex-1 items-center justify-center gap-2"><span aria-hidden="true">{st.done ? '✓' : '○'}</span>{st.label}</span> : <>
@@ -287,7 +287,7 @@ function ApplicationCard({
         </Link>
         <Dialog.Trigger asChild><button
           type="button"
-          className="min-h-11 rounded-ctl border border-line px-4 type-helper font-semibold text-teal underline-offset-2 hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          className="min-h-11 rounded-ctl border border-line px-4 type-helper font-semibold text-navy-deep underline-offset-2 hover:bg-navy-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep"
         >
           Details
         </button></Dialog.Trigger>
@@ -302,7 +302,7 @@ function ApplicationCard({
                 <Dialog.Title className="type-card font-semibold text-ink">Resume details</Dialog.Title>
                 <Dialog.Description className="mt-1 break-words type-helper text-ink-soft">{displayName}</Dialog.Description>
               </div>
-              <Dialog.Close asChild><button type="button" aria-label="Close resume details" className="flex size-11 shrink-0 items-center justify-center rounded-ctl border border-line text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"><XMarkIcon aria-hidden="true" className="size-5" /></button></Dialog.Close>
+              <Dialog.Close asChild><button type="button" aria-label="Close resume details" className="flex size-11 shrink-0 items-center justify-center rounded-ctl border border-line text-navy-deep hover:bg-navy-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep"><XMarkIcon aria-hidden="true" className="size-5" /></button></Dialog.Close>
             </div>
         <div className="flex min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain break-words p-4 sm:p-5">
           <NameField value={pkg.name ?? ''} fallback={pkg.target_job_title} onSave={onRename} />
@@ -332,7 +332,7 @@ function ApplicationCard({
               type="button"
               aria-expanded={targetOpen}
               onClick={toggleTarget}
-              className="min-h-11 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+              className="min-h-11 type-helper font-semibold text-navy-deep underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep"
             >
               {targetOpen ? 'Hide Job Details' : `${CTA.viewTargetJob} and ATS score`}
             </button>

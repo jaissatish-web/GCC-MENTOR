@@ -265,9 +265,9 @@ function CoverLetterScreen() {
           </SavedWorkHeading>
           {letters.map((letter, index) => (
             <details key={letter.id} open={index === 0} className="group rounded-card border border-line bg-white">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 p-4 type-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:px-6 [&::-webkit-details-marker]:hidden">
-                <span className="min-w-0 break-words">{index === 0 ? 'Latest letter' : `Letter ${letters.length - index}`} · {letter.target_job_title}</span>
-                <span className="shrink-0 text-teal group-open:hidden">Open</span><span className="hidden shrink-0 text-teal group-open:inline">Close</span>
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 p-4 type-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1F3A] sm:px-6 [&::-webkit-details-marker]:hidden">
+                              <span className="min-w-0 break-words">{index === 0 ? 'Latest letter' : `Letter ${letters.length - index}`} · {letter.target_job_title}</span>
+                              <span className="shrink-0 text-[#0B1F3A] group-open:hidden">Open</span><span className="hidden shrink-0 text-[#0B1F3A] group-open:inline">Close</span>
               </summary>
               <div className="cover-letter-result flex min-w-0 flex-col gap-3 border-t border-line p-3 sm:p-6">
               <div className="flex flex-col gap-1">
@@ -277,7 +277,7 @@ function CoverLetterScreen() {
                     {letter.target_company ? ` · ${letter.target_company}` : ''}
                   </p>
                   {letter.tone ? (
-                    <span className="rounded-full bg-teal-soft px-2 py-0.5 type-caption font-semibold uppercase tracking-wide text-teal">
+                    <span className="rounded-full bg-[#E7EEF8] px-2 py-0.5 type-caption font-semibold uppercase tracking-wide text-[#0B1F3A]">
                       {TONE_OPTIONS.find((o) => o.value === letter.tone)?.label ?? letter.tone}
                     </span>
                   ) : null}
@@ -295,11 +295,12 @@ function CoverLetterScreen() {
               />
               <div className="flex flex-wrap items-center gap-2">
                 <Button
-                  type="button"
-                  onClick={() => void saveLetter(letter)}
-                  disabled={!isDirty(letter) || savingId === letter.id}
-                  busy={savingId === letter.id}
-                >
+                                  type="button"
+                                  onClick={() => void saveLetter(letter)}
+                                  disabled={!isDirty(letter) || savingId === letter.id}
+                                  busy={savingId === letter.id}
+                                  className="border-[#C9962E] bg-[#C9962E] text-[#14181C] hover:bg-[#E8B54A] hover:text-[#7A5310]"
+                                >
                   {savedId === letter.id ? 'Saved' : 'Save changes'}
                 </Button>
                 <Button type="button" variant="secondary" onClick={() => void downloadLetter(letter, 'pdf')} disabled={savingId === letter.id}>
@@ -336,14 +337,14 @@ function CoverLetterScreen() {
                       onClick={() => setTone(opt.value)}
                       title={opt.description}
                       className={cn(
-                        'flex min-h-11 min-w-0 flex-col items-start gap-0.5 rounded-ctl border px-3 py-2 text-left [overflow-wrap:anywhere] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
-                        // The chosen tone must look chosen from across the room.
-                        active
-                          ? 'border-2 border-teal bg-teal-soft'
-                          : 'border-field-line bg-field hover:border-teal-bright',
-                      )}
-                    >
-                      <span className={cn('type-helper font-semibold', active ? 'text-teal' : 'text-ink')}>
+                                              'flex min-h-11 min-w-0 flex-col items-start gap-0.5 rounded-ctl border px-3 py-2 text-left [overflow-wrap:anywhere] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1F3A] focus-visible:ring-offset-2',
+                                              // The chosen tone must look chosen from across the room.
+                                              active
+                                                ? 'border-2 border-[#0B1F3A] bg-[#E7EEF8]'
+                                                : 'border-field-line bg-field hover:border-[#0B1F3A]',
+                                            )}
+                                          >
+                                            <span className={cn('type-helper font-semibold', active ? 'text-[#0B1F3A]' : 'text-ink')}>
                         {opt.label}
                       </span>
                       <span className="type-caption leading-snug text-ink-muted">{opt.description}</span>
@@ -376,13 +377,14 @@ function CoverLetterScreen() {
               // Stacked on a phone: side by side, the target line was squeezed.
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                 <Button
-                  type="button"
-                  variant="primary"
-                  onClick={generate}
-                  disabled={!canGenerate}
-                  busy={generating}
-                  busyLabel="Writing…"
-                >
+                                  type="button"
+                                  variant="primary"
+                                  onClick={generate}
+                                  disabled={!canGenerate}
+                                  busy={generating}
+                                  busyLabel="Writing…"
+                                  className="border-[#C9962E] bg-[#C9962E] text-[#14181C] hover:bg-[#E8B54A] hover:text-[#7A5310]"
+                                >
                   {CTA.writeCoverLetter}
                 </Button>
               </div>

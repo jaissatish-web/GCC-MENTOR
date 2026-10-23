@@ -24,28 +24,35 @@ import { cn } from '@/lib/utils'
  * the pair adjacent so they cannot drift.
  */
 const buttonVariants = cva(
-  'ui-button inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-normal break-words rounded-ctl font-redesign-sans leading-snug text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none',
+  'ui-button inline-flex min-w-0 max-w-full select-none items-center justify-center gap-2 whitespace-normal break-words rounded-ctl font-redesign-sans leading-snug text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep focus-visible:ring-offset-2 focus-visible:ring-offset-canvas active:scale-[0.99] disabled:pointer-events-none disabled:opacity-55 motion-reduce:transition-none',
   {
     variants: {
       variant: {
-        /** Main app actions share teal. Gold remains a restrained purchase/hero accent. */
-        primary: 'bg-teal font-semibold text-white shadow-m-1 hover:bg-teal-bright',
         /**
-         * Purchase. Same gold, one step louder — this is the only place in the
-         * product a button is allowed to lift.
+         * Design B (2026-10-23): the ONE action per screen is gold fill with
+         * dark ink text — never white on gold. `ink` (#14181C) on `gold`
+         * measures 6.7:1 (WCAG AA); `gold-ink` on `gold` is only ~2.1:1 and
+         * fails — this was caught in CTO audit on 2026-10-23 and corrected.
+         */
+        primary: 'bg-gold font-semibold text-ink shadow-m-1 hover:shadow-m-2 hover:-translate-y-px',
+        /**
+         * Purchase. Same gold family, one step louder — this is the only place
+         * in the product a button is allowed to lift and deepen.
          */
         purchase:
           'bg-gold font-semibold text-ink shadow-m-2 hover:bg-gold-ink hover:text-white hover:shadow-m-3 hover:-translate-y-px',
-        /** A step forward inside a flow: the brand, not the CTA. */
-        progress: 'bg-teal font-semibold text-white shadow-m-1 hover:bg-teal-bright',
+        /** A step forward inside a flow: a gold-tinted ghost, so the primary
+         *  action on the screen stays the only solid gold. */
+        progress:
+          'border border-gold/50 bg-white font-semibold text-gold-ink hover:bg-gold-soft',
         secondary:
-          'border border-line-strong bg-white font-semibold text-ink hover:bg-canvas',
+          'border border-line-strong bg-white font-semibold text-navy-deep hover:bg-navy-tint',
         ghost:
-          'border border-transparent bg-transparent font-semibold text-teal hover:bg-teal-soft',
+          'border border-transparent bg-transparent font-semibold text-navy-deep hover:bg-navy-tint',
         danger:
           'border border-alert bg-white font-semibold text-alert hover:bg-alert-soft',
         'danger-solid': 'bg-alert font-semibold text-white hover:opacity-90',
-        disabled: 'bg-canvas font-semibold text-ink-muted',
+        disabled: 'border border-line bg-canvas font-semibold text-ink-muted',
       },
       size: {
         // 44px minimum — the touch-target floor. Anything smaller is a link.

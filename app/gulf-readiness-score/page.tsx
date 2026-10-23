@@ -28,14 +28,14 @@ const Shell = ({ children, wide }: { children: React.ReactNode; wide?: boolean }
     <header className="border-b border-line bg-canvas/95">
       <div className="page-gutter mx-auto flex min-h-[64px] max-w-[1100px] flex-wrap items-center justify-between gap-2 py-2 sm:min-h-[72px] sm:px-8">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="font-display flex h-9 w-9 items-center justify-center rounded-ctl bg-teal text-lg text-white">G</span>
+          <span className="font-display flex h-9 w-9 items-center justify-center rounded-ctl bg-navy-deep text-lg text-white">G</span>
           <span className="font-bold tracking-wide">GCC MENTOR</span>
         </Link>
-        {/* 44px tall and teal, like "Log in" everywhere else. It was a 20px
+        {/* 44px tall and navy, like "Log in" everywhere else. It was a 20px
             grey line, easy to miss for the returning user it exists for. */}
         <Link
           href="/login"
-          className="inline-flex min-h-11 items-center rounded-ctl px-2.5 text-sm font-semibold text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          className="inline-flex min-h-11 items-center rounded-ctl px-2.5 text-sm font-semibold text-navy-deep hover:bg-navy-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep"
         >
           Log in
         </Link>
@@ -113,7 +113,7 @@ export default function GulfReadinessScorePage() {
     return (
       <Shell>
         <div className="text-center">
-          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Free Gulf readiness score</p>
+          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-ink type-caption">Free Gulf readiness score</p>
           <h1 className="mt-3 type-title text-ink">How Gulf-ready is your career?</h1>
           <p className="mt-3 type-body text-ink-soft">
             Upload once. We read your resume, then ask only for unclear or missing details. You get your strengths, your gaps and what to fix first — no signup needed to see the score.
@@ -125,7 +125,7 @@ export default function GulfReadinessScorePage() {
             {[{ paste: false, label: 'Upload resume', Icon: ArrowUpTrayIcon }, { paste: true, label: 'Paste text', Icon: ClipboardDocumentIcon }].map(({ paste, label, Icon }) => <button
               key={label} type="button" aria-pressed={pasteMode === paste} aria-controls="resume-input-panel"
               onClick={() => { setPasteMode(paste); setDragging(false); setError(null) }}
-              className={`flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-ctl border px-2 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${pasteMode === paste ? 'border-teal bg-teal text-white' : 'border-transparent bg-transparent text-ink-soft hover:bg-teal-soft'}`}>
+              className={`flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-ctl border px-2 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep ${pasteMode === paste ? 'border-navy-deep bg-navy-deep text-white' : 'border-transparent bg-transparent text-ink-soft hover:bg-navy-tint'}`}>
               <Icon className="size-4 shrink-0" aria-hidden="true" /><span>{label}</span>
             </button>)}
           </div>
@@ -144,14 +144,14 @@ export default function GulfReadinessScorePage() {
             </div>
           ) : (
             <div id="resume-upload" className="mt-5">
-              <div className={`rounded-card border-2 border-dashed px-4 py-6 text-center transition-colors sm:p-7 ${dragging ? 'border-teal bg-teal-soft' : 'border-line-strong bg-canvas/40'}`}
+              <div className={`rounded-card border-2 border-dashed px-4 py-6 text-center transition-colors sm:p-7 ${dragging ? 'border-gold bg-gold-soft' : 'border-line-strong bg-canvas/40'}`}
                 onDragOver={(event: DragEvent) => { event.preventDefault(); setDragging(true) }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={(event: DragEvent) => { event.preventDefault(); setDragging(false); chooseFile(event.dataTransfer.files[0] ?? null) }}>
                 <input ref={fileInput} id="readiness-resume-file" type="file" accept=".pdf,.docx" className="sr-only" tabIndex={-1} aria-label="Upload resume file"
                   aria-describedby={`resume-upload-hint${error ? ' resume-input-error' : ''}`} aria-invalid={Boolean(error)}
                   onChange={(event: ChangeEvent<HTMLInputElement>) => { chooseFile(event.target.files?.[0] ?? null); event.target.value = '' }} />
-                {file ? <CheckCircleIcon className="mx-auto size-8 text-teal" aria-hidden="true" /> : <ArrowUpTrayIcon className="mx-auto size-8 text-teal" aria-hidden="true" />}
+                {file ? <CheckCircleIcon className="mx-auto size-8 text-ok" aria-hidden="true" /> : <ArrowUpTrayIcon className="mx-auto size-8 text-navy-deep" aria-hidden="true" />}
                 <h2 className="mt-3 break-words font-display type-card text-ink">{file ? file.name : 'Choose your resume'}</h2>
                 <p id="resume-upload-hint" className="mt-2 text-sm text-ink-soft type-helper">PDF up to 4MB · Word (.docx) up to 2MB</p>
                 <button type="button" onClick={() => fileInput.current?.click()} className={buttonVariants({ variant: 'secondary', size: 'sm' }) + ' mt-4'}>{file ? 'Change file' : 'Choose a file'}</button>
@@ -162,7 +162,7 @@ export default function GulfReadinessScorePage() {
           </div>
           {error ? <p id="resume-input-error" role="alert" className="mt-3 rounded-ctl border border-alert bg-alert-soft px-4 py-3 text-sm text-alert type-helper">{error}</p> : null}
           <button type="button" onClick={startQuestions} className={buttonVariants({ variant: 'primary' }) + ' mt-4 w-full'}>Continue</button>
-          <p className="mt-4 text-center text-sm"><Link href="/signup" className="text-teal underline">No resume? Create your free Career Profile</Link></p>
+          <p className="mt-4 text-center text-sm"><Link href="/signup" className="text-navy-deep underline">No resume? Create your free Career Profile</Link></p>
           <p className="mt-4 text-center text-xs leading-relaxed text-ink-muted type-caption">Your resume is processed to extract career details. Before signup, the draft stays in this browser tab; no Career Profile is saved. Each attempted reading uses one daily scan.</p>
         </div>
       </Shell>
@@ -180,7 +180,7 @@ export default function GulfReadinessScorePage() {
         <div className="flex flex-col items-center gap-6 py-12 text-center">
           <ProcessingOrbit size={168} />
           <div>
-            <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Building your scorecard</p>
+            <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-ink type-caption">Building your scorecard</p>
             <h1 className="mt-3 type-title">Reading your career details</h1>
           </div>
           <div className="w-full max-w-sm text-left">
@@ -195,10 +195,10 @@ export default function GulfReadinessScorePage() {
   return (
     <Shell wide>
       <div className="mb-6 text-center">
-        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Your Gulf readiness</p>
+        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-ink type-caption">Your Gulf readiness</p>
         <h1 className="mt-3 type-title">Here&rsquo;s where your career stands</h1>
       </div>
-      {intake ? <section className="mb-5 rounded-card border border-line bg-white p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-sm font-semibold text-teal">Profile Readiness · initial career draft</p><p className="mt-2 text-sm text-ink-soft">{intake.draft.work_experience.length} {intake.draft.work_experience.length===1?'role':'roles'} · {intake.draft.skills.length} {intake.draft.skills.length===1?'skill':'skills'} · {intake.draft.education.length} {intake.draft.education.length===1?'qualification':'qualifications'}</p></div><span className="font-mono text-3xl font-bold text-teal">{intakeProfileReadiness(intake.draft,intake.context).score}<span className="text-sm text-ink-muted">%</span></span></div><p className="mt-3 text-sm text-ink-soft">Your extracted details need your review before this becomes your saved Career Profile.</p><p className="mt-2 text-sm text-ink-muted">{intakeProfileReadiness(intake.draft,intake.context).missing.length} career sections or details to complete. Full details unlock with your free account.</p><button type="button" className="mt-2 min-h-11 text-sm font-semibold text-teal" onClick={()=>{clearHandoff();setStep('intake')}}>Edit my preparation answers</button></section> : null}
+      {intake ? <section className="mb-5 rounded-card border border-line bg-white p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-sm font-semibold text-navy-deep">Profile Readiness · initial career draft</p><p className="mt-2 text-sm text-ink-soft">{intake.draft.work_experience.length} {intake.draft.work_experience.length===1?'role':'roles'} · {intake.draft.skills.length} {intake.draft.skills.length===1?'skill':'skills'} · {intake.draft.education.length} {intake.draft.education.length===1?'qualification':'qualifications'}</p></div><span className="font-mono text-3xl font-bold text-navy-deep">{intakeProfileReadiness(intake.draft,intake.context).score}<span className="text-sm text-ink-muted">%</span></span></div><p className="mt-3 text-sm text-ink-soft">Your extracted details need your review before this becomes your saved Career Profile.</p><p className="mt-2 text-sm text-ink-muted">{intakeProfileReadiness(intake.draft,intake.context).missing.length} career sections or details to complete. Full details unlock with your free account.</p><button type="button" className="mt-2 min-h-11 text-sm font-semibold text-navy-deep" onClick={()=>{clearHandoff();setStep('intake')}}>Edit my preparation answers</button></section> : null}
       {result ? <ScorecardResult result={result} locked /> : null}
     </Shell>
   )

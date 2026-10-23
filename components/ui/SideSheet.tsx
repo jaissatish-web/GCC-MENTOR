@@ -103,7 +103,7 @@ export function SideSheet({
             type="button"
             onClick={() => { onClose(); returnFocusTo?.current?.focus() }}
             aria-label="Close menu"
-            className="flex size-11 items-center justify-center rounded-ctl bg-canvas text-ink-soft transition-colors hover:bg-line/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+            className="flex size-11 items-center justify-center rounded-ctl bg-canvas text-ink-soft transition-colors hover:bg-line/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-deep"
           >
             <XMarkIcon className="size-[18px]" />
           </button>

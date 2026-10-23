@@ -7,10 +7,10 @@ export function EditableProfileText({ label, value, maxLength, rows, onChange, .
   const [editing, setEditing] = useState(false)
   const id = useId()
   return (
-    <div className="profile-copy-surface mt-4">
-      <div className="profile-copy-toolbar">
-        <span className="type-label font-medium text-teal">{editing ? 'Make this sound like you' : 'Your copy-ready text'}</span>
-        <button type="button" aria-expanded={editing} aria-controls={id} aria-label={`${editing ? 'Preview' : 'Edit'} ${label}`} onClick={() => setEditing(!editing)} className="profile-edit-button type-helper">
+    <div className="profile-copy-surface mt-4" style={{ borderColor: '#D2DBE7' }}>
+      <div className="profile-copy-toolbar" style={{ background: '#F6F8FB', borderColor: '#E9EDF2' }}>
+        <span className="type-label font-medium text-[#0B1F3A]">{editing ? 'Make this sound like you' : 'Your copy-ready text'}</span>
+        <button type="button" aria-expanded={editing} aria-controls={id} aria-label={`${editing ? 'Preview' : 'Edit'} ${label}`} onClick={() => setEditing(!editing)} className="profile-edit-button type-helper" style={{ color: '#0B1F3A' }}>
           {editing ? <CheckIcon aria-hidden="true" className="size-4" /> : <PencilSquareIcon aria-hidden="true" className="size-4" />}{editing ? 'Done editing' : 'Edit text'}
         </button>
       </div>
