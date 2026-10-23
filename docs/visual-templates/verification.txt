@@ -1,0 +1,205 @@
+VISUAL-010 — 23 October 2026. Local evidence; no production credentials/data modified.
+
+Final repository checks
+PASS  verify-tracker-dates.ts (0s)
+PASS  verify-quality-remediation.ts (0s)
+PASS  verify-template-catalog.ts (0s)
+PASS  verify-template-showcase.ts (1s)
+PASS  verify-visual-templates.ts (3s)
+PASS  verify-resume-quality.ts (11s)
+PASS  verify-universal-theme.ts (0s)
+PASS  verify-linkedin.ts (0s)
+PASS  verify-professional-profiles.ts (1s)
+PASS  verify-dashboard-ui.ts (1s)
+PASS  verify-home-followthrough.ts (0s)
+PASS  verify-career-profile-resume.ts (1s)
+PASS  verify-next-action.ts (0s)
+PASS  verify-stages.ts (0s)
+PASS  verify-journey-guide.ts (0s)
+PASS  verify-journey-experience.ts (0s)
+PASS  verify-profile-readiness.ts (0s)
+PASS  verify-career-intake.ts (0s)
+PASS  verify-gcc-experience.ts (0s)
+PASS  verify-gulf-readiness.ts (0s)
+PASS  verify-gulf-readiness-v2.ts (0s)
+PASS  verify-profile-merge.ts (0s)
+PASS  verify-profile-data.ts (0s)
+PASS  verify-profile-categories.ts (1s)
+PASS  verify-career-profile-blocks.ts (0s)
+PASS  verify-resume-parse.ts (1s)
+PASS  verify-import-review.ts (0s)
+PASS  verify-import-review-checks.ts (0s)
+PASS  verify-review-before-profile.ts (0s)
+PASS  verify-profile-review-navigation.ts (0s)
+PASS  verify-client-import.ts (0s)
+PASS  verify-loose-duties.ts (0s)
+PASS  verify-match-terms.ts (0s)
+PASS  verify-optimizer-v3.ts (0s)
+PASS  verify-resume-order.ts (0s)
+PASS  verify-ats-file-check.ts (0s)
+PASS  verify-service-outputs.ts (0s)
+PASS  verify-workspace-service-counts.ts (0s)
+PASS  verify-landing-anchors.ts (0s)
+PASS  verify-runtask.ts (0s)
+PASS  verify-safe-redirect.ts (0s)
+PASS  verify-photo-rehydration.ts (0s)
+PASS  verify-optimization-grounding.ts (0s)
+PASS  verify-prose-claims.ts (0s)
+PASS  verify-id-numbers.ts (0s)
+PASS  verify-skills-order.ts (0s)
+PASS  verify-optimizer-engine.ts (1s)
+PASS  verify-resume-edits.ts (0s)
+PASS  verify-sidebar-wrapping.ts (1s)
+PASS  verify-answer-grounding.ts (0s)
+PASS  verify-deadlines.ts (1s)
+PASS  verify-voice-transcription.ts (0s)
+PASS  verify-mock-report.ts (0s)
+PASS  verify-interview-progress.ts (0s)
+PASS  verify-resume.ts (28s)
+PASS  verify-engine-templates.ts (79s)
+PASS  verify-template-quality.ts (7s)
+PASS  verify-resume-style.ts (0s)
+PASS  docx-smoke.ts (0s)
+PASS  verify-career-profile-services.mjs (1s)
+PASS  verify-resume-export-api.mjs (0s)
+PASS  verify-linkedin-api.mjs (0s)
+PASS  verify-naukrigulf-api.mjs (0s)
+PASS  verify-naukrigulf-db.mjs (3s)
+PASS  verify-linkedin-db.mjs (3s)
+PASS  verify-profile-photo-api.mjs (0s)
+PASS  verify-career-profile-resume-api.mjs (1s)
+PASS  verify-career-intake-api.mjs (0s)
+PASS  verify-import-review-api.mjs (0s)
+PASS  verify-import-review-db.mjs (3s)
+PASS  verify-db-security.mjs (9s)
+PASS  verify-dashboard-overview.mjs (5s)
+PASS  verify-profile-categories-db.mjs (4s)
+PASS  verify-voice-db.mjs (3s)
+PASS  verify-interview-history-db.mjs (3s)
+PASS  verify-interview-progress-api.mjs (0s)
+PASS  verify-typography-source.mjs (1s)
+77/77 checks passed
+
+Final lint
+✔ No ESLint warnings or errors
+
+New optimized PDFs
+  PASS  executive_navy (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  executive_navy (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  emerald_professional (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  emerald_professional (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  royal_blue_modern (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  royal_blue_modern (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  graphite_executive (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  graphite_executive (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  teal_horizon (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  teal_horizon (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  burgundy_prestige (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  burgundy_prestige (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  industrial_pro (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  industrial_pro (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  golden_executive (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  golden_executive (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  sapphire_edge (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  sapphire_edge (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  modern_skyline (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  modern_skyline (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  executive_navy (long CV) — 8 pages, at most 53pt blank at a page foot
+  PASS  emerald_professional (long CV) — 8 pages, at most 32pt blank at a page foot
+  PASS  royal_blue_modern (long CV) — 8 pages, at most 38pt blank at a page foot
+  PASS  graphite_executive (long CV) — 8 pages, at most 55pt blank at a page foot
+  PASS  teal_horizon (long CV) — 8 pages, at most 37pt blank at a page foot
+  PASS  burgundy_prestige (long CV) — 8 pages, at most 64pt blank at a page foot
+  PASS  industrial_pro (long CV) — 8 pages, at most 67pt blank at a page foot
+  PASS  golden_executive (long CV) — 8 pages, at most 26pt blank at a page foot
+  PASS  sapphire_edge (long CV) — 8 pages, at most 26pt blank at a page foot
+  PASS  modern_skyline (long CV) — 8 pages, at most 85pt blank at a page foot
+VERIFY PASS — 10 templates: with/without photo and a long CV, built by the download code and read back clean
+
+New base-profile PDFs
+  PASS  executive_navy (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  executive_navy (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  emerald_professional (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  emerald_professional (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  royal_blue_modern (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  royal_blue_modern (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  graphite_executive (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  graphite_executive (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  teal_horizon (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  teal_horizon (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  burgundy_prestige (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  burgundy_prestige (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  industrial_pro (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  industrial_pro (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  golden_executive (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  golden_executive (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  sapphire_edge (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  sapphire_edge (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  modern_skyline (photo) — 8/8 ATS checks, 1 page, photo
+  PASS  modern_skyline (no photo) — 8/8 ATS checks, 1 page, no photo
+  PASS  executive_navy (long CV) — 8 pages, at most 53pt blank at a page foot
+  PASS  emerald_professional (long CV) — 8 pages, at most 32pt blank at a page foot
+  PASS  royal_blue_modern (long CV) — 8 pages, at most 38pt blank at a page foot
+  PASS  graphite_executive (long CV) — 8 pages, at most 55pt blank at a page foot
+  PASS  teal_horizon (long CV) — 8 pages, at most 37pt blank at a page foot
+  PASS  burgundy_prestige (long CV) — 8 pages, at most 64pt blank at a page foot
+  PASS  industrial_pro (long CV) — 8 pages, at most 67pt blank at a page foot
+  PASS  golden_executive (long CV) — 8 pages, at most 26pt blank at a page foot
+  PASS  sapphire_edge (long CV) — 8 pages, at most 26pt blank at a page foot
+  PASS  modern_skyline (long CV) — 8 pages, at most 85pt blank at a page foot
+VERIFY PASS — 10 templates: with/without photo and a long CV, built by the download code and read back clean
+
+Original Tech Horizon on clean main
+  FAIL  tech_horizon (photo): fail — Your name and contact details are found: An ATS could not read your email. Recruiters cannot call you back without it.
+  FAIL  tech_horizon (no photo): fail — Your name and contact details are found: An ATS could not read your email. Recruiters cannot call you back without it.
+  FAIL  tech_horizon (long CV): fail — Your name and contact details are found: An ATS could not read your email. Recruiters cannot call you back without it.
+VERIFY FAIL — 3 problem(s)
+
+A4 gallery screenshot bounds
+PASS executive_navy: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+PASS emerald_professional: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+PASS royal_blue_modern: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+PASS graphite_executive: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+PASS teal_horizon: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+PASS burgundy_prestige: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+PASS industrial_pro: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+PASS golden_executive: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+PASS sapphire_edge: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+PASS modern_skyline: unchanged shared sample, A4 fit, horizontal text bounds; screenshot saved
+
+Responsive actual UI (synthetic APIs)
+PASS all 10 new templates at 360px: existing preview, thumbnail and save/download controls; no page overflow
+PASS all 10 new templates at 390px: existing preview, thumbnail and save/download controls; no page overflow
+PASS all 10 new templates at 430px: existing preview, thumbnail and save/download controls; no page overflow
+PASS all 10 new templates at 768px: existing preview, thumbnail and save/download controls; no page overflow
+PASS all 10 new templates at 1440px: existing preview, thumbnail and save/download controls; no page overflow
+PASS synthetic PackageScreen workflow only: fake API persistence, actual existing components; real authenticated database save and PDF HTTP download not certified by this harness.
+
+Actual PackageScreen save/reload assertions before the outdated dock-label test assertion (corrected in final harness; responsive test then passed separately):
+PASS saved/reloaded executive_navy (base)
+PASS saved/reloaded emerald_professional (base)
+PASS saved/reloaded royal_blue_modern (base)
+PASS saved/reloaded graphite_executive (base)
+PASS saved/reloaded teal_horizon (base)
+PASS saved/reloaded burgundy_prestige (base)
+PASS saved/reloaded industrial_pro (base)
+PASS saved/reloaded golden_executive (base)
+PASS saved/reloaded sapphire_edge (base)
+PASS saved/reloaded modern_skyline (base)
+PASS Career Profile: all 10 new templates selected, customized, saved, reloaded; PDF link gated/enabled; metadata-only saves; switch back
+PASS saved/reloaded executive_navy (optimized)
+PASS saved/reloaded emerald_professional (optimized)
+PASS saved/reloaded royal_blue_modern (optimized)
+PASS saved/reloaded graphite_executive (optimized)
+PASS saved/reloaded teal_horizon (optimized)
+PASS saved/reloaded burgundy_prestige (optimized)
+PASS saved/reloaded industrial_pro (optimized)
+PASS saved/reloaded golden_executive (optimized)
+PASS saved/reloaded sapphire_edge (optimized)
+PASS saved/reloaded modern_skyline (optimized)
+PASS optimized snapshot: all 10 new templates selected, customized, saved, reloaded; PDF link gated/enabled; metadata-only saves; switch back
+PASS original 53 IDs: existing selection via preview link, metadata-only save, reload and unchanged snapshots (alternating base/optimized fixtures).
+
+Vercel preview
+READY deployment dpl_HFNVdNZpMQvoukxxFLU8XpvpuUsY; target null; githubCommitSha f27412edb6cc604aec8e2789be449f68df992193; feature branch feat/premium-visual-resume-templates.
+Live GET /templates HTTP503: Supabase is not configured. See docs/INFRASTRUCTURE.md section5. No environment/auth configuration changed. No live authenticated verification claimed.
