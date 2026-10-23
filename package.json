@@ -43,7 +43,7 @@
     "docx": "^9.0.2",
     "lucide-react": "^0.447.0",
     "mammoth": "^1.13.0",
-    "next": "^15.5.27",
+    "next": "^15.5.28",
     "puppeteer-core": "25.7.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
