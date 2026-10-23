@@ -109,7 +109,7 @@ function hasSavedProfileContent(saved: CareerProfileFull | null): boolean {
  */
 type ProfileView = 'overview' | 'details' | 'completeness' | 'readiness' | 'settings'
 const PROFILE_VIEWS: readonly ProfileView[] = ['overview', 'details', 'completeness', 'readiness', 'settings']
-const MAIN_CLASS = 'mx-auto flex min-h-dvh w-full max-w-[900px] flex-col bg-canvas'
+const MAIN_CLASS = 'ui-page-default mx-auto flex min-h-dvh w-full flex-col bg-canvas'
 
 function viewFromParams(params: { get: (key: string) => string | null }): ProfileView {
   const v = params.get('view')
@@ -1941,7 +1941,7 @@ function ProfileScreen() {
     const replaceMissing = requiredMissing(fromDraft(pendingDraft.draft)).map((m) => m.label.toLowerCase())
 
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-[640px] flex-col justify-center bg-canvas px-3 sm:px-5 py-10">
+      <main className="ui-page-form page-gutter mx-auto flex min-h-dvh w-full flex-col justify-center bg-canvas py-10">
         <h1 className="type-title text-ink">
           You already have a profile
         </h1>
@@ -2042,7 +2042,7 @@ function ProfileScreen() {
 
   if (!loaded || !editor) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-[900px] items-center justify-center bg-canvas">
+      <main className="ui-page-default page-gutter mx-auto flex min-h-dvh w-full items-center justify-center bg-canvas">
         <PageSkeleton label="Loading your Career Profile" />
       </main>
     )

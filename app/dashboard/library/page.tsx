@@ -296,7 +296,7 @@ function ApplicationCard({
       {detailsOpen ? (
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/40" />
-          <Dialog.Content className="app-type fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-50 flex max-h-[85dvh] min-w-0 flex-col overflow-hidden rounded-card border border-line bg-white shadow-m-drawer focus:outline-none sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:bottom-auto sm:w-[calc(100%_-_2rem)] sm:max-w-xl sm:-translate-x-1/2 sm:-translate-y-1/2">
+          <Dialog.Content className="app-type internal-ui fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-50 flex max-h-[85dvh] min-w-0 flex-col overflow-hidden rounded-card border border-line bg-white shadow-m-drawer focus:outline-none sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:bottom-auto sm:w-[calc(100%_-_2rem)] sm:max-w-xl sm:-translate-x-1/2 sm:-translate-y-1/2">
             <div className="flex shrink-0 items-start justify-between gap-3 border-b border-line p-4 sm:p-5">
               <div className="min-w-0">
                 <Dialog.Title className="type-card font-semibold text-ink">Resume details</Dialog.Title>

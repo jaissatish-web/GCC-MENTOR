@@ -20,7 +20,7 @@ export function HowItWorks({ className = '' }: { className?: string }) {
     </Dialog.Trigger>
     <Dialog.Portal>
       <Dialog.Overlay className={cn(s.overlay, 'fixed inset-0 z-[70]')} />
-      <Dialog.Content className={cn(s.dialog, s.experience, paused && s.paused, 'font-redesign-sans focus:outline-none')}>
+      <Dialog.Content className={cn(s.dialog, s.experience, paused && s.paused, 'app-type internal-ui font-redesign-sans focus:outline-none')}>
         <div className={s.chrome}>
           <span className={s.guideBrand}><span>G</span> GCC <strong>MENTOR</strong><small>How it works</small></span>
           <div className={s.chromeActions}>

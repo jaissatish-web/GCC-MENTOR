@@ -3244,3 +3244,6 @@ Approved by Satish: implement CAREER_PROFILE_BLOCKS.md before further scoring/qu
 
 ## 23 October 2026 — VISUAL-010
 Founder authorizes ten additional premium visual resume designs only, on a dedicated feature branch pending approval. Reuse existing engine, data, customization and export paths. Use supported descriptions/recommendedFor metadata to identify direct recruiter sharing/reference and recommend ATS-friendly layouts for online portals. No main merge or production deploy. Existing template IDs/designs and sample candidate facts are protected.
+
+## 24 October 2026 — approved Clear Path rollout
+Satish authorized autonomous internal UI implementation, testing, protected merge and live verification. Preserve landing, templates/exports and backend. No separate preview publication. Contract: CLEAR_PATH_ROLLOUT.md.

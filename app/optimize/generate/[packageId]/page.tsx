@@ -127,7 +127,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
 
   if (error) {
     return (
-      <main className="mx-auto w-full max-w-[760px] px-3 py-6 sm:px-8 lg:py-10 font-redesign-sans">
+      <main className="ui-page ui-page-form page-gutter mx-auto w-full pb-10 font-redesign-sans">
         <div className="mx-auto w-full max-w-[480px] rounded-card border border-line bg-white p-8 text-center">
           <h1 className="font-display text-[26px] leading-tight text-ink">We couldn&apos;t build it</h1>
           <Alert variant="danger" className="mt-4 text-left" title="Optimization interrupted">{error}</Alert>
@@ -151,7 +151,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
   }
 
   return (
-    <main className="mx-auto w-full max-w-[760px] space-y-5 px-3 py-6 font-redesign-sans sm:px-8 lg:py-10">
+    <main className="ui-page ui-page-form page-gutter mx-auto flex w-full flex-col pb-10 font-redesign-sans">
       <FlowHeader step={3} title="Building your optimized resume" subtitle="Your saved job details and Career Profile guide this preparation." />
       <OptimizationProgress phase={phase} analysisReady={analysisReady} steps={steps} />
     </main>

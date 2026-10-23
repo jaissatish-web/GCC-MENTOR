@@ -41,7 +41,7 @@ try {
       const u = new URL(r.url()), json = (body, status = 200) => r.respond({ status, contentType: 'application/json', body: JSON.stringify(body) })
       if (u.origin !== 'https://interview.test') return r.abort()
       if (u.pathname.startsWith('/_next/static/media/')) return r.respond({status:200,contentType:'font/woff2',body:readFileSync(root+u.pathname.replace('/_next/','/.next/'))})
-      if (!u.pathname.startsWith('/api/') && !u.pathname.startsWith('/interviewers/') && u.pathname !== '/fixture.js') return r.respond({ status: 200, contentType: 'text/html', body: `<html><head><meta charset="utf-8"><style>${css}</style></head><body class="${bodyClass} app-type"><div id="root"></div><script src="/fixture.js"></script></body></html>` })
+      if (!u.pathname.startsWith('/api/') && !u.pathname.startsWith('/interviewers/') && u.pathname !== '/fixture.js') return r.respond({ status: 200, contentType: 'text/html', body: `<html><head><meta charset="utf-8"><style>${css}</style></head><body class="${bodyClass} app-type internal-ui"><div id="root"></div><script src="/fixture.js"></script></body></html>` })
       if (u.pathname === '/fixture.js') return r.respond({ status: 200, contentType: 'application/javascript', body: readFileSync(dir + '/fixture.js') })
       if (u.pathname.startsWith('/interviewers/')) return r.respond({ status: 200, contentType: 'image/webp', body: readFileSync(root + '/public' + u.pathname) })
       if (r.method() !== 'GET' && u.pathname.includes('/mock-interview/')) writes.push(u.pathname)

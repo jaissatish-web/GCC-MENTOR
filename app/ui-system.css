@@ -811,3 +811,172 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   .cover-letter-email-fields { padding-inline:12px; }
   .cover-letter-email-body, .cover-letter-email-editor { padding:16px 12px; }
 }
+
+/* Clear Path internal configuration (24 October 2026).
+   Public/root values above are the frozen landing baseline. AppShell and its
+   explicitly opted-in portals use this one configuration; documents do not. */
+.app-type.internal-ui {
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-space-5: 20px;
+  --ui-space-6: 24px;
+  --ui-space-8: 32px;
+  --ui-space-10: 40px;
+  --ui-page-gutter: var(--ui-space-5);
+  --ui-page-top: var(--ui-space-6);
+  --ui-page-gap: var(--ui-space-6);
+  --ui-section-gap: var(--ui-space-4);
+  --ui-header-gap: var(--ui-space-2);
+  --ui-list-gap: var(--ui-space-3);
+  --ui-control-gap: var(--ui-space-2);
+  --ui-card-padding: var(--ui-space-4);
+  --ui-page-width: 980px;
+  --ui-wide-width: 1160px;
+  --ui-form-width: 760px;
+  --ui-document-width: 1240px;
+  --ui-control-height: 46px;
+  --ui-control-radius: 8px;
+  --ui-card-radius: 10px;
+  --ui-card-shadow: none;
+  --ui-card-hover-shadow: 0 3px 12px rgb(20 33 43 / .05);
+  --ui-canvas-rgb: 250 250 247;
+  --ui-surface-rgb: 255 255 255;
+  --ui-ink-rgb: 20 33 43;
+  --ui-ink-soft-rgb: 82 99 107;
+  --ui-ink-muted-rgb: 98 112 120;
+  --ui-brand-rgb: 19 79 60;
+  --ui-brand-hover-rgb: 11 60 44;
+  --ui-brand-soft-rgb: 232 242 236;
+  --ui-line-rgb: 227 232 229;
+  --ui-line-strong-rgb: 169 183 174;
+  --ui-accent-rgb: 216 150 8;
+  --ui-accent-ink-rgb: 154 91 0;
+  --ui-accent-soft-rgb: 255 245 226;
+  --ui-success-rgb: 22 115 79;
+  --ui-success-soft-rgb: 232 242 236;
+  --ui-error-rgb: 181 47 53;
+  --ui-error-soft-rgb: 255 240 240;
+  --ui-info-rgb: 37 99 235;
+  --ui-info-soft-rgb: 237 243 255;
+  /* Rebind composed aliases at the internal scope, so changing an RGB token
+     also updates existing consumers of the composed color. */
+  --ui-canvas: rgb(var(--ui-canvas-rgb));
+  --ui-surface: rgb(var(--ui-surface-rgb));
+  --ui-ink: rgb(var(--ui-ink-rgb));
+  --ui-ink-soft: rgb(var(--ui-ink-soft-rgb));
+  --ui-muted: rgb(var(--ui-ink-muted-rgb));
+  --ui-brand: rgb(var(--ui-brand-rgb));
+  --ui-brand-hover: rgb(var(--ui-brand-hover-rgb));
+  --ui-brand-soft: rgb(var(--ui-brand-soft-rgb));
+  --ui-line: rgb(var(--ui-line-rgb));
+  --ui-line-strong: rgb(var(--ui-line-strong-rgb));
+  --ui-field-border: var(--ui-line-strong);
+  --ui-hero-background: var(--ui-brand);
+  --ui-hero-gradient: var(--ui-brand);
+  --ui-hero-label: var(--ui-inverse);
+  --ui-hero-radius: var(--ui-card-radius);
+  --ui-nav-profile-bg: var(--ui-brand-soft); --ui-nav-profile-ink: var(--ui-brand);
+  --ui-nav-library-bg: rgb(var(--ui-info-soft-rgb)); --ui-nav-library-ink: rgb(var(--ui-info-rgb));
+  --ui-nav-templates-bg: var(--ui-brand-soft); --ui-nav-templates-ink: var(--ui-brand);
+  --ui-nav-tailor-bg: var(--ui-brand-soft); --ui-nav-tailor-ink: var(--ui-brand);
+  --ui-nav-letter-bg: rgb(var(--ui-info-soft-rgb)); --ui-nav-letter-ink: rgb(var(--ui-info-rgb));
+  --ui-nav-qa-bg: rgb(var(--ui-info-soft-rgb)); --ui-nav-qa-ink: rgb(var(--ui-info-rgb));
+  --ui-nav-mock-bg: rgb(var(--ui-info-soft-rgb)); --ui-nav-mock-ink: rgb(var(--ui-info-rgb));
+  --ui-nav-naukrigulf-bg: var(--ui-brand-soft); --ui-nav-naukrigulf-ink: var(--ui-brand);
+  --ui-nav-linkedin-bg: rgb(var(--ui-info-soft-rgb)); --ui-nav-linkedin-ink: rgb(var(--ui-info-rgb));
+  --ui-nav-settings-bg: var(--ui-brand-soft); --ui-nav-settings-ink: var(--ui-brand);
+  background: var(--ui-canvas);
+}
+@media (max-width: 359px) {
+  .app-type.internal-ui { --ui-page-gutter: var(--ui-space-4); }
+}
+@media (min-width: 768px) {
+  .app-type.internal-ui {
+    --ui-page-gutter: var(--ui-space-8);
+    --ui-page-top: var(--ui-space-8);
+    --ui-card-padding: var(--ui-space-6);
+  }
+}
+@media (min-width: 1280px) {
+  .app-type.internal-ui {
+    --ui-page-gutter: var(--ui-space-10);
+    --ui-page-top: var(--ui-space-10);
+    --ui-page-gap: var(--ui-space-8);
+  }
+}
+
+/* Existing semantic components consume the shared configuration. Explicit
+   document boundaries protect template paint as well as typography. */
+.app-type.internal-ui :is(.ui-surface,.ui-card,.rounded-card,.rounded-card-lg,.workspace-panel,.library-resume-card):not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *,.actual-template-orbit-face,.actual-template-orbit-face *)) {
+  border-radius: var(--ui-card-radius);
+  box-shadow: var(--ui-card-shadow);
+}
+.app-type.internal-ui :is(.ui-card,.ui-surface.p-4,.ui-surface.p-5,.ui-surface.p-6,.rounded-card.p-4,.rounded-card.p-5,.rounded-card.p-6,.library-resume-card):not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *,.actual-template-orbit-face,.actual-template-orbit-face *)) {
+  padding: var(--ui-card-padding);
+}
+.app-type.internal-ui .workspace-heading {
+  gap: var(--ui-space-4);
+  padding-bottom: var(--ui-space-5);
+  border-bottom-color: var(--ui-line);
+}
+/* This header already owns page-gutter padding: do not add a second inset. */
+.app-type.internal-ui main > .workspace-heading.page-gutter { margin-inline: 0; }
+.app-type.internal-ui .workspace-profile-heading { margin-inline: var(--ui-page-gutter); }
+.app-type.internal-ui [data-mobile-header] { background:var(--ui-surface); border-color:var(--ui-line); }
+.app-type.internal-ui [data-mobile-header] > div { max-width:var(--ui-document-width); padding-inline:var(--ui-page-gutter); }
+.app-type.internal-ui .workspace-next { background:var(--ui-brand); }
+.app-type.internal-ui .ui-button:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *,.actual-template-orbit-face,.actual-template-orbit-face *)) {
+  min-height:var(--ui-control-height);
+  border-radius:var(--ui-control-radius);
+  padding-inline:var(--ui-space-4);
+  gap:var(--ui-control-gap);
+  box-shadow:none;
+}
+.app-type.internal-ui .ui-button.bg-gold { background:var(--ui-brand); color:var(--ui-inverse); }
+.app-type.internal-ui .ui-button.bg-gold:hover { background:var(--ui-brand-hover); color:var(--ui-inverse); transform:none; }
+.app-type.internal-ui .ui-button.bg-white { background:var(--ui-surface); }
+.app-type.internal-ui .ui-button:is(.text-navy-deep,.text-gold-ink) { color:var(--ui-brand); }
+.app-type.internal-ui :is(input,select,textarea).field:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *,.actual-template-orbit-face,.actual-template-orbit-face *)) {
+  min-height:var(--ui-control-height);
+  padding:var(--ui-space-3);
+  border:1px solid var(--ui-field-border);
+  border-radius:var(--ui-control-radius);
+  background:var(--ui-surface);
+  color:var(--ui-ink);
+}
+.app-type.internal-ui textarea.field { min-height:140px; }
+.app-type.internal-ui .field[aria-invalid="true"] { border-color:rgb(var(--ui-error-rgb)); }
+.app-type.internal-ui .field::placeholder { color:var(--ui-muted); opacity:1; }
+.app-type.internal-ui :is(button,a,input,select,textarea,summary):focus-visible:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *,.actual-template-orbit-face,.actual-template-orbit-face *)) {
+  outline:3px solid rgb(var(--ui-info-rgb));
+  outline-offset:3px;
+}
+.app-type.internal-ui .library-resume-card { border:1px solid var(--ui-line); }
+.app-type.internal-ui .library-resume-card[data-resume-kind="career-profile"] { border:1px solid var(--ui-brand); background:var(--ui-surface); }
+.app-type.internal-ui .library-resume-card:is(:hover,:focus-within) { border-color:var(--ui-brand); box-shadow:var(--ui-card-hover-shadow); }
+.app-type.internal-ui .interview-qa-page :is(.qa-setup-panel,.qa-question-card) { border-color:var(--ui-line); border-radius:var(--ui-card-radius); box-shadow:none; }
+.app-type.internal-ui .interview-qa-page .qa-question-header { background:var(--ui-brand-soft); border-color:var(--ui-line); }
+.app-type.internal-ui .interview-qa-page .qa-answer-panel { background:rgb(var(--ui-info-soft-rgb)); border-color:var(--ui-line); }
+.app-type.internal-ui .interview-qa-page .qa-why-panel { background:rgb(var(--ui-accent-soft-rgb)); border-color:rgb(var(--ui-accent-rgb)); }
+.app-type.internal-ui .interview-qa-page :is(.qa-question-body,.qa-question-header) { padding:var(--ui-card-padding); }
+.app-type.internal-ui .interview-score-summary { background:var(--ui-brand-soft); border-radius:var(--ui-card-radius); }
+.app-type.internal-ui .professional-introduction :is(.professional-hero,.professional-panel,.professional-cta) { border-radius:var(--ui-card-radius); box-shadow:none; }
+.app-type.internal-ui .professional-introduction .professional-hero-copy { padding:var(--ui-card-padding); }
+.app-type.internal-ui .services-drawer-content { padding-bottom:max(var(--ui-space-6),env(safe-area-inset-bottom)); }
+.app-type.internal-ui .services-drawer-content :is(a,button) { min-height:var(--ui-control-height); border-radius:var(--ui-control-radius); }
+.app-type.internal-ui .services-drawer-content a[aria-current="page"] { background:var(--ui-brand-soft); color:var(--ui-brand); }
+/* The desktop/tablet rail uses the same green anchor as the selected target.
+   These descendants are navigation chrome, never document content. */
+.app-type.internal-ui .workspace-navigation { background:var(--ui-brand); border-color:rgb(255 255 255 / .15); }
+.app-type.internal-ui .workspace-navigation :is(a,button) { color:var(--ui-inverse); border-radius:var(--ui-control-radius); }
+.app-type.internal-ui .workspace-navigation :is(a,button)[aria-current="page"] { background:rgb(255 255 255 / .14); color:var(--ui-inverse); }
+.app-type.internal-ui .workspace-navigation :is(a,button):hover { background:rgb(255 255 255 / .10); }
+.app-type.internal-ui .workspace-navigation :is(p,.type-caption) { color:rgb(255 255 255 / .82); }
+.app-type.internal-ui .workspace-navigation > a > span:last-child > span:first-child { color:var(--ui-inverse); }
+.app-type.internal-ui .workspace-navigation :is(a,button):focus-visible { outline-color:var(--ui-inverse); }
+
+/* Dashboard modules and legacy page wrappers resolve the same outer rhythm. */
+.app-type.internal-ui .ui-page-default { max-width:var(--ui-page-width); }
+.app-type.internal-ui .ui-page { padding-top:var(--ui-page-top); gap:var(--ui-page-gap); }

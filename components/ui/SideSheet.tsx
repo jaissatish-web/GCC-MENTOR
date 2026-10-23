@@ -31,6 +31,7 @@ export function SideSheet({
   onClose,
   title,
   returnFocusTo,
+  internalUI = false,
   children,
 }: {
   open: boolean
@@ -38,6 +39,8 @@ export function SideSheet({
   title: string
   /** The trigger button, so a keyboard user lands back where they started. */
   returnFocusTo?: React.RefObject<HTMLElement | null>
+  /** Opt-in app tokens; the public landing menu keeps its existing presentation. */
+  internalUI?: boolean
   children: React.ReactNode
 }) {
   const [mounted, setMounted] = useState(false)
@@ -82,7 +85,7 @@ export function SideSheet({
   if (!open || !mounted) return null
 
   return createPortal(
-    <div data-side-sheet className="app-type fixed inset-0 z-50">
+    <div data-side-sheet className={`app-type${internalUI ? ' internal-ui' : ''} fixed inset-0 z-50`}>
       <button
         type="button"
         aria-label="Close menu"

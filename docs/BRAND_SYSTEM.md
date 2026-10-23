@@ -1,3 +1,6 @@
+## Internal Clear Path configuration — 24 October 2026
+The `.app-type.internal-ui` configuration in `app/ui-system.css` is the current internal application palette/layout source. Existing public values below remain the landing baseline. Brand #134F3C, ivory canvas #FAFAF7, white surfaces, blue informational cues, semantic success/warning/error states. No name/logo rebrand. Mobile gutters20px (16px below360), tablet32px, large desktop40px; body and form widths remain task appropriate. Typography is owned only by typography.css. Internal opt-in also scopes service drawer/library/guide portals; public SideSheet defaults do not opt in. See CLEAR_PATH_ROLLOUT.md for evidence and limitations.
+
 # GCC Mentor — emerald-led service palette
 
 This visual direction keeps emerald as the primary action colour while using stable service accents for recognition. Applied through the shared application shell, headings, forms, cards, service pages, authentication, Home and landing surfaces. Product routes, account access, scoring, AI prompts and document generation remain unchanged.

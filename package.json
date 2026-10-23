@@ -21,7 +21,8 @@
     "test:preparation": "node scripts/verify-preparation-experience.mjs",
     "test:readiness-input": "node scripts/verify-readiness-input-ui.mjs",
     "test:typography": "node scripts/verify-typography-ui.mjs",
-    "test:page-typography": "node scripts/verify-page-typography.mjs"
+    "test:page-typography": "node scripts/verify-page-typography.mjs",
+    "test:clear-path": "node scripts/verify-clear-path-ui.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
