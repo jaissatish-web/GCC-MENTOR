@@ -1471,7 +1471,7 @@ export const EMERALD_PROFESSIONAL: TemplateTheme = {
   
    
   skillStyle: 'chips',
-  experienceStyle: 'standard', contactIcons: true,
+   contactIcons: true,
   sectionOrder: 'skills-first',
   labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
 }
@@ -1505,7 +1505,7 @@ export const GRAPHITE_EXECUTIVE: TemplateTheme = {
   headerBand: false,
    
   skillStyle: 'inline',
-  experienceStyle: 'standard', contactIcons: true,
+   contactIcons: true,
   
   labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
 }
@@ -1539,7 +1539,7 @@ export const BURGUNDY_PRESTIGE: TemplateTheme = {
   
    
   skillStyle: 'chips',
-  experienceStyle: 'standard', contactIcons: true,
+   contactIcons: true,
   
   labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
 }
@@ -1573,7 +1573,7 @@ export const GOLDEN_EXECUTIVE: TemplateTheme = {
   headerBand: false,
    bandStripe: '#C9A453',
   skillStyle: 'inline',
-  experienceStyle: 'standard', contactIcons: true,
+   contactIcons: true,
   
   labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
 }
