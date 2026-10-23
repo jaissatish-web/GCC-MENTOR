@@ -2,6 +2,7 @@ import GulfPremium from '@/components/templates/GulfPremium'
 import AtsClassic from '@/components/templates/AtsClassic'
 import { makeTemplate, type TemplateTheme } from '@/components/templates/engine'
 import * as themes from '@/components/templates/themes'
+import * as visual from '@/components/templates/visualThemes'
 import type { GulfPremiumProps } from '@/components/templates/GulfPremium'
 
 /**
@@ -81,6 +82,17 @@ export type TemplateId =
   | 'logistics_route'
   | 'scholar_classic'
   | 'falcon_executive'
+  // VISUAL-010 — direct application / professional reference designs.
+  | 'executive_navy'
+  | 'emerald_professional'
+  | 'royal_blue_modern'
+  | 'graphite_executive'
+  | 'teal_horizon'
+  | 'burgundy_prestige'
+  | 'industrial_pro'
+  | 'golden_executive'
+  | 'sapphire_edge'
+  | 'modern_skyline'
 
 export const DEFAULT_TEMPLATE_ID: TemplateId = 'gulf_premium'
 
@@ -140,7 +152,7 @@ export const TEMPLATE_FIELDS: ReadonlyArray<{ key: TemplateField; label: string 
 ]
 
 /** How safely a template parses in an applicant tracking system. */
-export type AtsLevel = 'maximum' | 'high'
+export type AtsLevel = 'maximum' | 'high' | 'visual'
 
 export interface TemplateEntry {
   id: TemplateId
@@ -767,6 +779,67 @@ export const TEMPLATES: Record<TemplateId, TemplateEntry> = {
     recommendedFor: ['C-suite', 'General managers', 'Country heads'],
     fields: ['executive'],
     category: 'executive',
+  }),
+  // VISUAL-010 — existing 53 entries above are unchanged.
+  executive_navy: engineTemplate('executive_navy', visual.EXECUTIVE_NAVY, {
+    name: 'Executive Navy',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'executive', atsLevel: 'visual',
+  }),
+  emerald_professional: engineTemplate('emerald_professional', visual.EMERALD_PROFESSIONAL, {
+    name: 'Emerald Professional',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'professional', atsLevel: 'visual',
+  }),
+  royal_blue_modern: engineTemplate('royal_blue_modern', visual.ROYAL_BLUE_MODERN, {
+    name: 'Royal Blue Modern',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'professional', atsLevel: 'visual',
+  }),
+  graphite_executive: engineTemplate('graphite_executive', visual.GRAPHITE_EXECUTIVE, {
+    name: 'Graphite Executive',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'executive', atsLevel: 'visual',
+  }),
+  teal_horizon: engineTemplate('teal_horizon', visual.TEAL_HORIZON, {
+    name: 'Teal Horizon',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'professional', atsLevel: 'visual',
+  }),
+  burgundy_prestige: engineTemplate('burgundy_prestige', visual.BURGUNDY_PRESTIGE, {
+    name: 'Burgundy Prestige',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'executive', atsLevel: 'visual',
+  }),
+  industrial_pro: engineTemplate('industrial_pro', visual.INDUSTRIAL_PRO, {
+    name: 'Industrial Pro',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'engineering', atsLevel: 'visual',
+  }),
+  golden_executive: engineTemplate('golden_executive', visual.GOLDEN_EXECUTIVE, {
+    name: 'Golden Executive',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'executive', atsLevel: 'visual',
+  }),
+  sapphire_edge: engineTemplate('sapphire_edge', visual.SAPPHIRE_EDGE, {
+    name: 'Sapphire Edge',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'professional', atsLevel: 'visual',
+  }),
+  modern_skyline: engineTemplate('modern_skyline', visual.MODERN_SKYLINE, {
+    name: 'Modern Skyline',
+    description: 'Modern Visual — Direct Application / Reference. Premium visual resume design recommended for direct sharing with recruiters, hiring managers, and professional contacts. For ATS-based online applications, an ATS-friendly layout is recommended.',
+    recommendedFor: ['Direct job applications', 'Recruiter sharing', 'Professional reference'],
+    fields: TEMPLATE_FIELDS.map(field => field.key), category: 'professional', atsLevel: 'visual',
   }),
 }
 

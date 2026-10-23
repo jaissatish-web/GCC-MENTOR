@@ -27,6 +27,7 @@ const TS_CHECKS = [
   'verify-quality-remediation.ts',
   'verify-template-catalog.ts',
   'verify-template-showcase.ts',
+  'verify-visual-templates.ts',
   'verify-resume-quality.ts',
   'verify-universal-theme.ts',
   'verify-linkedin.ts',
