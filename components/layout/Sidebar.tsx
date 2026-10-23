@@ -23,6 +23,12 @@ import {
  * A continuous service list with colored icons, without category headings.
  * Journey guidance remains on Dashboard; destinations retain their state marks.
  *
+ * Design B (navy + gold): the rail is a navy surface (#0B1F3A — the brand
+ * token, applied via `.app-type .workspace-navigation` in ui-system.css),
+ * with near-white primary text, muted navy secondary text and a gold-tinted
+ * active item. The nav icon chips keep their (now muted-navy) `ui-nav-*`
+ * tones.
+ *
  * Desktop (≥1024px): full 248px sidebar with labels.
  * Tablet (768–1023px): 48px icon-only bar; tap expands into a labeled
  * overlay that sits above the page content.
@@ -36,9 +42,9 @@ function SignOutButton() {
       <button
         type="submit"
         disabled={pending}
-        className="flex min-h-11 w-full items-center gap-3 rounded-ctl px-3 type-helper font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal disabled:opacity-60"
+        className="flex min-h-11 w-full items-center gap-3 rounded-ctl px-3 type-helper font-medium text-[#B9C8DA] hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold disabled:opacity-60"
       >
-        <ArrowRightStartOnRectangleIcon className="size-5 text-ink-muted" />
+        <ArrowRightStartOnRectangleIcon className="size-5 text-[#B9C8DA]" />
         {pending ? 'Signing out…' : 'Sign out'}
       </button>
     </form>
@@ -48,10 +54,11 @@ function SignOutButton() {
 function BrandMark() {
   return (
     <Link href="/dashboard" className="flex items-center gap-2.5 px-2">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal type-label font-semibold text-white shadow-redesign-sm">
+      {/* Frosted gold-on-navy mark — identity, not an action fill. */}
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-gold type-label font-semibold shadow-redesign-sm">
         G
       </div>
-      <span className="flex flex-col"><span className="type-label font-semibold text-ink">GCC <span className="text-teal">MENTOR</span></span><span className="type-caption leading-4 text-ink-muted">Your Gulf career workspace</span></span>
+      <span className="flex flex-col"><span className="type-label font-semibold text-white">GCC <span className="text-[#E8B54A]">MENTOR</span></span><span className="type-caption leading-4 text-[#6B83A0]">Your Gulf career workspace</span></span>
     </Link>
   )
 }
@@ -82,12 +89,12 @@ function NavItem({
       title={mark === 'locked' ? 'Opens after the step before it' : undefined}
       className={cn(
         'flex min-h-11 items-center gap-2.5 rounded-ctl px-2.5 py-1 type-label font-redesign-sans transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-white',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold',
         active
-          ? 'border border-teal/15 bg-teal-soft/70 font-medium text-teal'
+          ? 'bg-[rgba(232,181,74,0.14)] font-medium text-[#E8B54A]'
           : mark === 'locked'
-            ? 'border border-transparent font-medium text-ink-muted hover:bg-canvas'
-            : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
+            ? 'border border-transparent font-medium text-[#6B83A0] hover:bg-white/10'
+            : 'border border-transparent font-medium text-[#B9C8DA] hover:bg-white/10 hover:text-white'
       )}
     >
       <span aria-hidden="true" className={cn('flex size-7 shrink-0 items-center justify-center rounded-lg', item.iconClass, mark === 'locked' && !active && 'opacity-70')}>
@@ -101,7 +108,7 @@ function NavItem({
       ) : null}
       {mark === 'locked' ? (
         <>
-          <LockClosedIcon aria-hidden="true" className="size-3.5 shrink-0 text-ink-muted/70" />
+          <LockClosedIcon aria-hidden="true" className="size-3.5 shrink-0 text-[#6B83A0]" />
           <span className="sr-only">(opens after the step before it)</span>
         </>
       ) : null}
@@ -136,7 +143,7 @@ export function Sidebar() {
         {groups.map((g) => {
           return (
             <div key={g.key} className="flex flex-col gap-0.5">
-              {g.label ? <p className="px-2.5 pb-0.5 pt-2 type-caption font-medium text-ink-muted">{g.label}</p> : null}
+              {g.label ? <p className="px-2.5 pb-0.5 pt-2 type-caption font-medium text-[#6B83A0]">{g.label}</p> : null}
               {g.items.map((item, i) => (
                 <NavItem key={item.label} item={item} active={isActive(item)} mark={markFor(item.href === '/cover-letter' ? 'apply' : g.stage, item.href === '/cover-letter' ? 0 : item.href === '/interview-qa' ? 1 : item.href === '/mock-interview' ? 2 : i)} onClick={onNavigate} />
               ))}
@@ -144,11 +151,11 @@ export function Sidebar() {
           )
         })}
       </nav>
-      <div className="mt-auto flex flex-col gap-1 border-t border-line pt-4">
-        <p className="px-3 pb-2 type-caption text-ink-muted">Saudi Arabia · UAE · Qatar<br />Oman · Kuwait · Bahrain</p>
+      <div className="mt-auto flex flex-col gap-1 border-t border-white/10 pt-4">
+        <p className="px-3 pb-2 type-caption text-[#6B83A0]">Saudi Arabia · UAE · Qatar<br />Oman · Kuwait · Bahrain</p>
         <a
           href="mailto:jaissatish@gmail.com"
-          className="flex min-h-10 items-center rounded-ctl px-3 type-helper font-medium text-ink-soft hover:bg-canvas hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
+          className="flex min-h-10 items-center rounded-ctl px-3 type-helper font-medium text-[#B9C8DA] hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
         >
           Help · jaissatish@gmail.com
         </a>
@@ -160,13 +167,15 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar — ≥1024px. Pinned, and scrollable inside itself when
-          the screen is short (founder, 2026-09-17). */}
-      <aside className="hidden w-[248px] flex-none flex-col gap-6 overflow-y-auto overscroll-contain workspace-navigation border-r border-line bg-white px-4 py-6 [scrollbar-width:thin] lg:sticky lg:top-0 lg:flex lg:h-dvh">
+          the screen is short (founder, 2026-09-17). Navy via the
+          workspace-navigation token rule; hairline right edge from the same
+          rule's white/10 border. */}
+      <aside className="hidden w-[248px] flex-none flex-col gap-6 overflow-y-auto overscroll-contain workspace-navigation border-r px-4 py-6 [scrollbar-width:thin] lg:sticky lg:top-0 lg:flex lg:h-dvh">
         {navContent()}
       </aside>
 
       {/* Tablet collapsed sidebar — 768–1023px */}
-      <aside className="relative hidden w-[64px] flex-none flex-col items-center gap-5 overflow-y-auto overscroll-contain border-r border-line bg-white px-2 py-4 [scrollbar-width:none] md:flex lg:hidden">
+      <aside className="relative hidden w-[64px] flex-none flex-col items-center gap-5 overflow-y-auto overscroll-contain workspace-navigation border-r px-2 py-4 [scrollbar-width:none] md:flex lg:hidden">
         {/* No logo here (2026-09-24): on a tablet the top bar beside this rail
             already carries it, and two "G" marks side by side read as a bug. */}
         <nav className="flex flex-col items-center gap-1">
@@ -181,8 +190,8 @@ export function Sidebar() {
                 className={cn(
                   'flex h-11 w-11 items-center justify-center rounded-ctl type-label font-redesign-sans transition-colors',
                   active
-                    ? 'border border-teal/25 bg-teal/[0.09] font-semibold text-teal'
-                    : 'border border-transparent font-medium text-ink-soft hover:bg-canvas hover:text-ink'
+                    ? 'bg-[rgba(232,181,74,0.14)] font-semibold text-[#E8B54A]'
+                    : 'border border-transparent font-medium text-[#B9C8DA] hover:bg-white/10 hover:text-white'
                 )}
                 title={item.label}
               >
@@ -196,12 +205,13 @@ export function Sidebar() {
       {/* Tablet expanded overlay — the same grouped content as desktop. */}
       {tabletExpanded && (
         <div className="fixed inset-0 z-40 md:flex lg:hidden">
+          {/* bg-teal bridges to the navy brand token. */}
           <div className="absolute inset-0 bg-teal/60 backdrop-blur-sm" onClick={() => setTabletExpanded(false)} />
-          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-6 overflow-y-auto overscroll-contain workspace-navigation border-r border-line bg-white px-4 py-6 shadow-redesign-lg [scrollbar-width:thin]">
+          <aside className="relative z-10 flex w-[280px] flex-none flex-col gap-6 overflow-y-auto overscroll-contain workspace-navigation border-r px-4 py-6 shadow-redesign-lg [scrollbar-width:thin]">
             <button
               type="button"
               onClick={() => setTabletExpanded(false)}
-              className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-ctl text-ink-muted hover:text-ink"
+              className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-ctl text-[#B9C8DA] hover:text-white"
               aria-label="Close navigation"
             >
               ✕

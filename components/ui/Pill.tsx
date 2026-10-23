@@ -6,7 +6,9 @@ import { cn } from '@/lib/utils'
  * Pill — compact status / label chip.
  *
  * The seven variant names and label/children behavior are unchanged. Visuals
- * use the redesign semantic and neutral tokens from DESIGN_SYSTEM.md §8.
+ * use Design B (navy & gold, 2026-10-23): status chips sit on navy-soft or
+ * gold-soft tints instead of clashing teal, offers read as done-green, and
+ * anything that must not look actionable stays neutral.
  */
 const pillVariants = cva(
   'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-[11px] py-[6px] font-redesign-sans text-[12px] font-semibold leading-none',
@@ -17,12 +19,12 @@ const pillVariants = cva(
         applied: 'border border-line-strong bg-canvas text-ink-soft',
         rejected: 'border border-alert/40 bg-alert-soft text-alert',
         withdrawn: 'border border-line bg-canvas text-ink-soft',
-        shortlisted: 'border border-teal bg-teal-soft text-teal',
-        interview: 'border border-teal-soft bg-teal-soft text-teal',
+        shortlisted: 'border border-navy-tint bg-navy-tint text-navy-deep',
+        interview: 'border border-gold/40 bg-gold-soft text-gold-ink',
         visa_processing: 'border border-line bg-line text-ink-soft',
-        offer: 'bg-teal text-white',
+        offer: 'bg-ok text-white',
         risk: 'rounded-[7px] border border-alert bg-alert-soft text-alert',
-        grounded: 'rounded-[7px] border border-teal-soft bg-teal-soft text-teal',
+        grounded: 'rounded-[7px] border border-ok/30 bg-ok-soft text-ok',
       },
     },
     defaultVariants: {

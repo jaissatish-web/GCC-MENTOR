@@ -91,23 +91,23 @@ function useRotation(count: number, ms: number = NOTE_MS): number {
  */
 const ART = {
   light: {
-    track: 'rgba(15,76,67,0.13)',
+    track: 'rgba(11,31,56,0.14)',
     comet1: '201,150,46', // gold
-    comet2: '18,105,92', // teal bright
+    comet2: '27,56,103', // navy bright
     comet3: '201,150,46',
     particle: '#C9962E',
-    dial: 'rgba(15,76,67,0.22)',
-    halo: 'radial-gradient(circle, rgba(18,105,92,0.16) 0%, rgba(201,150,46,0.10) 38%, rgba(255,255,255,0) 70%)',
-    ripple: 'rgba(18,105,92,0.35)',
+    dial: 'rgba(11,31,56,0.22)',
+    halo: 'radial-gradient(circle, rgba(27,56,103,0.16) 0%, rgba(201,150,46,0.10) 38%, rgba(255,255,255,0) 70%)',
+    ripple: 'rgba(27,56,103,0.35)',
   },
   dark: {
     track: 'rgba(255,255,255,0.08)',
     comet1: '233,199,122', // light gold
-    comet2: '127,209,190', // mint
+    comet2: '132,166,204', // navy-sky
     comet3: '233,199,122',
     particle: '#E9C77A',
     dial: 'rgba(255,255,255,0.18)',
-    halo: 'radial-gradient(circle, rgba(127,209,190,0.22) 0%, rgba(233,199,122,0.14) 38%, rgba(0,0,0,0) 70%)',
+    halo: 'radial-gradient(circle, rgba(132,166,204,0.22) 0%, rgba(233,199,122,0.14) 38%, rgba(0,0,0,0) 70%)',
     ripple: 'rgba(233,199,122,0.45)',
   },
 } as const
@@ -218,8 +218,8 @@ export function ProcessingOrbit({
       <div
         className="absolute inset-[35%] overflow-hidden rounded-full animate-breathe motion-reduce:animate-none"
         style={{
-          background: 'radial-gradient(circle at 32% 26%, #1F8A77 0%, #0F4C43 58%, #0A332D 100%)',
-          boxShadow: tone === 'dark' ? '0 0 22px 2px rgba(233,199,122,0.35), inset 0 1px 1px rgba(255,255,255,0.35)' : '0 6px 18px -4px rgba(15,76,67,0.45), inset 0 1px 1px rgba(255,255,255,0.35)',
+          background: 'radial-gradient(circle at 32% 26%, #1E3A5C 0%, #0F2542 58%, #060F1D 100%)',
+          boxShadow: tone === 'dark' ? '0 0 22px 2px rgba(233,199,122,0.35), inset 0 1px 1px rgba(255,255,255,0.35)' : '0 6px 18px -4px rgba(11,31,56,0.45), inset 0 1px 1px rgba(255,255,255,0.35)',
         }}
       >
         <div
@@ -290,8 +290,8 @@ export function ProcessingSteps({
                 aria-hidden="true"
                 className={cn(
                   'relative flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold',
-                  state === 'done' && 'bg-teal text-white',
-                  state === 'active' && (dark ? 'border-2 border-gold' : 'border-2 border-teal'),
+                  state === 'done' && 'bg-ok text-white',
+                  state === 'active' && 'border-2 border-gold',
                   // Measured on ink: white/40 was 3.81 and failed for these 11px numbers; white/55 is 5.8.
                   state === 'todo' && (dark ? 'border border-white/25 text-white/55' : 'border border-line-strong text-ink-muted'),
                 )}
@@ -299,7 +299,7 @@ export function ProcessingSteps({
                 {state === 'done' ? (
                   <CheckIcon className="size-3.5" strokeWidth={3} />
                 ) : state === 'active' ? (
-                  <span className={cn('size-2 rounded-full animate-breathe motion-reduce:animate-none', dark ? 'bg-gold' : 'bg-teal')} />
+                  <span className={cn('size-2 rounded-full animate-breathe motion-reduce:animate-none', 'bg-gold')} />
                 ) : (
                   i + 1
                 )}
@@ -368,15 +368,15 @@ export function ProcessingInline({
 
   return (
     <div
-      className={cn('flex items-center gap-4 rounded-card border border-teal/15 px-4 py-4 shadow-m-1', className)}
-      style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #F3F7F5 55%, #FBF6EA 100%)' }}
+      className={cn('flex items-center gap-4 rounded-card border border-gold/25 px-4 py-4 shadow-m-1', className)}
+      style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #EFF2F8 55%, #FBF6EA 100%)' }}
     >
       <ProcessingOrbit size={72} glyph="" />
       <div className="flex min-w-0 flex-col gap-1">
         {steps.length > 1 ? (
           <span aria-hidden="true" className="flex gap-1">
             {steps.map((s, n) => (
-              <span key={s} className={cn('h-1 rounded-full transition-all duration-500', n < i ? 'w-3 bg-teal' : n === i ? 'w-6 bg-gold' : 'w-3 bg-line-strong')} />
+              <span key={s} className={cn('h-1 rounded-full transition-all duration-500', n < i ? 'w-3 bg-ok' : n === i ? 'w-6 bg-gold' : 'w-3 bg-line-strong')} />
             ))}
           </span>
         ) : null}

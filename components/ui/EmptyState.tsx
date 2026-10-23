@@ -55,7 +55,7 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
       <span
         aria-hidden="true"
         className={cn(
-          'flex items-center justify-center rounded-full bg-teal-soft text-teal',
+          'flex items-center justify-center rounded-full bg-navy-tint text-navy-deep',
           tone === 'page' ? 'mb-1.5 size-14' : 'mb-1 size-11',
         )}
       >

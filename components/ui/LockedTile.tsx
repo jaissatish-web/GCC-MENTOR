@@ -38,9 +38,10 @@ export function LockedTile({ title, description, note, tone = 'light', className
     <div
       className={cn(
         'flex cursor-default flex-col gap-2 rounded-card border-2 border-dashed p-4 font-redesign-sans',
-        // Red dashed, 2026-09-09: this tile IS the "not built yet" marker on
-        // the dashboard, so it carries the same colour as every other one.
-        isDark ? 'border-alert/40 bg-surface-2-dark' : 'border-alert/40 bg-alert-soft/30',
+        // Design B (2026-10-23): the "not built yet" tile is a quiet
+        // gold-tinted outline — it signals "planned", never "danger". The
+        // badge carries brand gold on navy-soft instead of clashing red.
+        isDark ? 'border-gold/30 bg-surface-2-dark' : 'border-gold/40 bg-gold-soft/40',
         className
       )}
       onClick={() => setShowNote((prev) => !prev)}
@@ -59,10 +60,11 @@ export function LockedTile({ title, description, note, tone = 'light', className
         <span
           className={cn(
             'inline-flex items-center gap-1.5 rounded-full border px-[9px] py-[3px] text-[11px] font-bold leading-none tracking-wider uppercase font-redesign-sans',
-            'border-alert/35 bg-alert-soft text-alert'
+            // Brand gold on navy-soft — a "planned" marker, not a fault.
+            'border-gold/40 bg-navy-tint text-gold-ink'
           )}
         >
-          <span aria-hidden="true" className="size-1.5 rounded-full bg-alert" />
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-gold" />
           Not built yet
         </span>
       </div>

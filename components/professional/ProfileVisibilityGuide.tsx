@@ -7,24 +7,24 @@ export function ProfileVisibilityGuide({ platform }: { platform: ProfessionalPla
   return (
     <section className="professional-guidance space-y-4" aria-label={`${PROFESSIONAL_PLATFORMS[platform].name} visibility guidance`}>
       <div>
-        <p className="type-label font-semibold text-teal">KEEP BUILDING YOUR VISIBILITY</p>
+        <p className="type-label font-semibold text-gold-ink">KEEP BUILDING YOUR VISIBILITY</p>
         <h2 className="mt-2 type-section text-ink">Small actions. A stronger professional presence.</h2>
         <p className="mt-2 type-body text-ink-soft">Good content is your starting point. Keep your profile accurate, relevant and active as your career develops.</p>
       </div>
       <details className="professional-panel" open>
-        <summary className="professional-summary type-card text-ink">Profile update guidance<ChevronDownIcon aria-hidden="true" className="professional-disclosure-icon size-5 shrink-0" /></summary>
+        <summary className="professional-summary type-card text-ink">Profile update guidance<ChevronDownIcon aria-hidden="true" className="professional-disclosure-icon size-5 shrink-0" style={{ color: '#0B1F3A' }} /></summary>
         <div className="professional-guidance-list">
-          {copy.tips.map(([title, detail]) => <div key={title} className="flex gap-3"><CheckCircleIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-teal" /><div><h3 className="type-card text-ink">{title}</h3><p className="mt-1 type-description text-ink-soft">{detail}</p></div></div>)}
+          {copy.tips.map(([title, detail]) => <div key={title} className="flex gap-3"><CheckCircleIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#0B1F3A]" /><div><h3 className="type-card text-[#0B1F3A]">{title}</h3><p className="mt-1 type-description text-ink-soft">{detail}</p></div></div>)}
         </div>
       </details>
       <details className="professional-panel">
-        <summary className="professional-summary type-card text-ink">Your routine for the weeks ahead<ChevronDownIcon aria-hidden="true" className="professional-disclosure-icon size-5 shrink-0" /></summary>
+        <summary className="professional-summary type-card text-ink">Your routine for the weeks ahead<ChevronDownIcon aria-hidden="true" className="professional-disclosure-icon size-5 shrink-0" style={{ color: '#0B1F3A' }} /></summary>
         <div className="professional-guidance-list">
-          {copy.future.map(([title, detail]) => <div key={title}><h3 className="type-card text-ink">{title}</h3><p className="mt-1 type-description text-ink-soft">{detail}</p></div>)}
+          {copy.future.map(([title, detail]) => <div key={title}><h3 className="type-card text-[#0B1F3A]">{title}</h3><p className="mt-1 type-description text-ink-soft">{detail}</p></div>)}
         </div>
       </details>
       <div className="flex flex-wrap gap-x-5 gap-y-1">
-        {copy.sources.map(([label, url]) => <a key={url} href={url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 type-helper font-medium text-teal underline underline-offset-4">{label}<ArrowTopRightOnSquareIcon aria-hidden="true" className="size-4" /></a>)}
+        {copy.sources.map(([label, url]) => <a key={url} href={url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 type-helper font-medium text-[#0B1F3A] underline underline-offset-4">{label}<ArrowTopRightOnSquareIcon aria-hidden="true" className="size-4" /></a>)}
       </div>
     </section>
   )

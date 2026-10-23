@@ -131,7 +131,7 @@
   }
   .field:focus {
     @apply border-teal bg-white;
-    box-shadow: 0 0 0 3px rgba(15, 76, 67, 0.16);
+    box-shadow: 0 0 0 3px rgba(11, 31, 58, 0.16);
   }
   .field[aria-invalid='true'] {
     @apply border-alert bg-alert-soft/40;
@@ -223,14 +223,14 @@
     z-index: 0;
     width: min(90%, 520px);
     height: min(46%, 258px);
-    border: 1px solid rgba(15, 76, 67, 0.18);
+    border: 1px solid rgba(11, 31, 58, 0.18);
     border-radius: 999px;
     background:
       radial-gradient(ellipse at 50% 82%, rgba(210, 151, 31, 0.2), transparent 34%),
-      radial-gradient(ellipse at center, rgba(237, 226, 205, 0.42), rgba(219, 236, 232, 0.24) 58%, transparent 64%);
+      radial-gradient(ellipse at center, rgba(237, 226, 205, 0.42), rgba(219, 228, 240, 0.24) 58%, transparent 64%);
     box-shadow:
-      inset 0 -22px 46px rgba(15, 76, 67, 0.08),
-      0 26px 56px rgba(15, 76, 67, 0.1);
+      inset 0 -22px 46px rgba(11, 31, 58, 0.08),
+      0 26px 56px rgba(11, 31, 58, 0.1);
     transform: translate(-50%, -50%) rotateX(15deg);
   }
 
@@ -261,14 +261,14 @@
   }
 
   .actual-template-orbit-slot.is-visual-back .actual-template-orbit-face {
-    box-shadow: 0 10px 24px rgba(15, 76, 67, 0.06);
+    box-shadow: 0 10px 24px rgba(11, 31, 58, 0.06);
   }
 
   .actual-template-orbit-slot.is-visual-front .actual-template-orbit-face,
   .actual-template-orbit-slot.is-orbit-leader .actual-template-orbit-face {
     box-shadow:
-      0 18px 34px rgba(15, 76, 67, 0.16),
-      0 34px 78px rgba(15, 76, 67, 0.16);
+      0 18px 34px rgba(11, 31, 58, 0.16),
+      0 34px 78px rgba(11, 31, 58, 0.16);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -308,7 +308,7 @@
 .range-bar::-webkit-slider-runnable-track {
   height: 12px;
   border-radius: 9999px;
-  background: linear-gradient(90deg, #12695c 0%, #c9962e var(--fill, 50%), #eae4db var(--fill, 50%));
+  background: linear-gradient(90deg, #123049 0%, #c9962e var(--fill, 50%), #eae4db var(--fill, 50%));
   box-shadow: inset 0 1px 2px rgba(20, 24, 28, 0.12);
 }
 .range-bar::-moz-range-track {
@@ -320,7 +320,7 @@
 .range-bar::-moz-range-progress {
   height: 12px;
   border-radius: 9999px;
-  background: linear-gradient(90deg, #12695c, #c9962e);
+  background: linear-gradient(90deg, #123049, #c9962e);
 }
 .range-bar::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -330,7 +330,7 @@
   margin-top: -8px;
   border-radius: 9999px;
   background: #fff;
-  border: 4px solid #0f4c43;
+  border: 4px solid #0B1F3A;
   box-shadow: 0 2px 6px rgba(20, 24, 28, 0.25);
 }
 .range-bar::-moz-range-thumb {
@@ -338,14 +338,14 @@
   height: 20px;
   border-radius: 9999px;
   background: #fff;
-  border: 4px solid #0f4c43;
+  border: 4px solid #0B1F3A;
   box-shadow: 0 2px 6px rgba(20, 24, 28, 0.25);
 }
 .range-bar:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 4px rgba(15, 76, 67, 0.3), 0 2px 6px rgba(20, 24, 28, 0.25);
+  box-shadow: 0 0 0 4px rgba(11, 31, 58, 0.3), 0 2px 6px rgba(20, 24, 28, 0.25);
 }
 .range-bar:focus-visible::-moz-range-thumb {
-  box-shadow: 0 0 0 4px rgba(15, 76, 67, 0.3);
+  box-shadow: 0 0 0 4px rgba(11, 31, 58, 0.3);
 }
 
 /* LinkedIn is a content workspace; the profile example has its own compact,
@@ -431,7 +431,7 @@
 
 /* Shared interview journey: decorative motion only; typography stays in typography.css. */
 .practice-skill { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
-@media (hover: hover) { .practice-skill:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 90, 85, .08); } }
+@media (hover: hover) { .practice-skill:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(11, 31, 58, .08); } }
 .practice-skill-bar, .practice-score-ring { transition: width 450ms ease, stroke-dasharray 450ms ease; }
 .practice-chart-line { stroke-dasharray: 1; animation: practice-chart-enter 650ms ease-out both; }
 @keyframes practice-chart-enter { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
@@ -445,3 +445,29 @@
 .professional-story-card { animation: professional-float 7s ease-in-out infinite; }
 @keyframes professional-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @media (prefers-reduced-motion: reduce) { .professional-story-card { animation: none; } }
+
+/* Design B (navy + gold): the legacy mobile/desktop sheets re-declare the
+   semantic tokens with the previous teal-era values at their breakpoints.
+   They load before everything below, so re-asserting the navy tokens here
+   (unlayered, later in the cascade) keeps one palette at every width.
+   Their type-scale overrides are left untouched. */
+:root {
+  --ui-canvas-rgb: 244 246 248;
+  --ui-ink-rgb: 20 36 61;
+  --ui-ink-soft-rgb: 82 99 121;
+  --ui-ink-muted-rgb: 97 107 118;
+  --ui-brand-rgb: 11 31 58;
+  --ui-brand-hover-rgb: 18 48 79;
+  --ui-brand-soft-rgb: 228 234 242;
+  --ui-line-rgb: 225 231 239;
+  --ui-line-strong-rgb: 195 206 219;
+  --ui-accent-rgb: 201 150 46;
+  --ui-accent-ink-rgb: 138 97 20;
+  --ui-accent-soft-rgb: 247 239 221;
+  --ui-success-rgb: 44 110 73;
+  --ui-error-rgb: 163 53 40;
+  --ui-error-soft-rgb: 248 230 226;
+}
+/* Navy rail: desktop-design.css forces `background:white` on the workspace
+   navigation at >=768px; this later override keeps the sidebar navy. */
+.app-type .workspace-navigation { background: var(--ui-brand); border-color: rgb(255 255 255 / 0.1); }

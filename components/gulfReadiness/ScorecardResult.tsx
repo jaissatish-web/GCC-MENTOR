@@ -21,9 +21,9 @@ import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
  */
 
 function bandColour(key: string): { ring: string; text: string; tint: string } {
-  if (key === 'ready') return { ring: 'text-teal', text: 'text-teal', tint: 'bg-teal-soft' }
-  if (key === 'mid') return { ring: 'text-teal', text: 'text-teal', tint: 'bg-gold-soft' }
-  return { ring: 'text-alert', text: 'text-alert', tint: 'bg-alert-soft' }
+  if (key === 'ready') return { ring: 'text-ok', text: 'text-ok', tint: 'bg-ok-soft' }
+  if (key === 'mid') return { ring: 'text-gold', text: 'text-gold-ink', tint: 'bg-gold-soft' }
+  return { ring: 'text-gold', text: 'text-gold-ink', tint: 'bg-gold-soft' }
 }
 
 function ScoreRing({ score, colour }: { score: number; colour: string }) {
@@ -122,7 +122,7 @@ export function ScorecardResult({
             {result.mustHaves.map((m) => (
               <li key={m.key} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
                 <span className="text-[13px] font-semibold text-ink">{m.label}</span>
-                <span className={`text-[12px] font-semibold ${m.status === 'ok' ? 'text-teal' : m.status === 'missing' ? 'text-alert' : 'text-ink-muted'}`}>
+                <span className={`text-[12px] font-semibold ${m.status === 'ok' ? 'text-ok' : m.status === 'missing' ? 'text-gold-ink' : 'text-ink-muted'}`}>
                   {m.status === 'ok' ? 'Done' : m.status === 'missing' ? 'To do' : m.status === 'in_progress' ? 'In progress' : 'Not checked yet'}
                 </span>
               </li>
@@ -155,7 +155,7 @@ export function ScorecardResult({
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-canvas">
                   <div
-                    className={`h-2 rounded-full ${pct >= 70 ? 'bg-teal' : pct >= 40 ? 'bg-teal' : 'bg-alert'} transition-all duration-700`}
+                    className={`h-2 rounded-full ${pct >= 70 ? 'bg-ok' : pct >= 40 ? 'bg-gold' : 'bg-gold/60'} transition-all duration-700`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
@@ -190,12 +190,12 @@ export function ScorecardResult({
         </section>
 
         <section className="rounded-card border border-line bg-white p-6">
-          <h3 className="text-[13px] font-bold uppercase tracking-wide text-alert">Information to strengthen</h3>
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-gold-ink">Information to strengthen</h3>
           <ul className="mt-3 flex flex-col gap-2.5">
             {result.weaknesses.length ? (
               (locked ? result.weaknesses.slice(0, 1) : result.weaknesses).map((w, i) => (
                 <li key={i} className="flex gap-2 text-[13px] text-ink-soft">
-                  <span className="text-alert">!</span>
+                  <span className="text-gold-ink">!</span>
                   {w}
                 </li>
               ))

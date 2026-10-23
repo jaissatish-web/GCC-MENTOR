@@ -6,14 +6,14 @@
   --ui-card-radius: 12px;
   --ui-card-shadow: none;
   /* Semantic palette: RGB triplets allow shared opacity utilities. */
-  --ui-canvas-rgb: 247 249 252;
+  --ui-canvas-rgb: 244 246 248;
   --ui-surface-rgb: 255 255 255;
   --ui-ink-rgb: 20 36 61;
   --ui-ink-soft-rgb: 82 99 121;
   --ui-ink-muted-rgb: 97 107 118;
-  --ui-brand-rgb: 15 89 75;
-  --ui-brand-hover-rgb: 18 105 92;
-  --ui-brand-soft-rgb: 232 244 238;
+  --ui-brand-rgb: 11 31 58;
+  --ui-brand-hover-rgb: 18 48 79;
+  --ui-brand-soft-rgb: 228 234 242;
   --ui-line-rgb: 225 231 239;
   --ui-line-strong-rgb: 195 206 219;
   --ui-accent-rgb: 201 150 46;
@@ -33,9 +33,9 @@
   --ui-line: rgb(var(--ui-line-rgb));
   --ui-line-strong: rgb(var(--ui-line-strong-rgb));
   --ui-inverse: #fff;
-  --ui-hero-background: #102d36;
-  --ui-hero-gradient: linear-gradient(125deg,var(--ui-brand),var(--ui-hero-background) 60%,var(--ui-brand-hover));
-  --ui-hero-label: #f1d391;
+  --ui-hero-background: #081628;
+  --ui-hero-gradient: linear-gradient(150deg,#0B1F3A 0%,#123049 60%,#1A3D63 100%);
+  --ui-hero-label: #E8B54A;
   --ui-hero-copy: rgb(255 255 255 / .85);
   --ui-control-radius: 10px;
   --ui-hero-radius: 16px;
@@ -56,16 +56,16 @@
   --ui-header-gap: 8px;
   --ui-list-gap: 12px;
   --ui-card-hover-shadow: 0 3px 12px rgb(20 24 28 / .05);
-  --ui-nav-profile-bg: #fbefd4; --ui-nav-profile-ink: #88611d;
-  --ui-nav-library-bg: #e0f2fe; --ui-nav-library-ink: #0369a1;
-  --ui-nav-templates-bg: #fef3c7; --ui-nav-templates-ink: #92400e;
-  --ui-nav-tailor-bg: #d1fae5; --ui-nav-tailor-ink: #047857;
-  --ui-nav-letter-bg: #ffe4e6; --ui-nav-letter-ink: #be123c;
-  --ui-nav-qa-bg: #e0e7ff; --ui-nav-qa-ink: #4338ca;
-  --ui-nav-mock-bg: #f3e8ff; --ui-nav-mock-ink: #7e22ce;
-  --ui-nav-naukrigulf-bg: #ffedd5; --ui-nav-naukrigulf-ink: #c2410c;
-  --ui-nav-linkedin-bg: #dbeafe; --ui-nav-linkedin-ink: #0a66c2;
-  --ui-nav-settings-bg: #f1f5f9; --ui-nav-settings-ink: #475569;
+  --ui-nav-profile-bg: #e3eaf4; --ui-nav-profile-ink: #16324f;
+  --ui-nav-library-bg: #e4edf8; --ui-nav-library-ink: #1b4e8a;
+  --ui-nav-templates-bg: #eaeff6; --ui-nav-templates-ink: #334b6e;
+  --ui-nav-tailor-bg: #e0e9f4; --ui-nav-tailor-ink: #123049;
+  --ui-nav-letter-bg: #eef2f7; --ui-nav-letter-ink: #40577a;
+  --ui-nav-qa-bg: #e7edf6; --ui-nav-qa-ink: #26415f;
+  --ui-nav-mock-bg: #eaeff6; --ui-nav-mock-ink: #334b6e;
+  --ui-nav-naukrigulf-bg: #eef2f7; --ui-nav-naukrigulf-ink: #40577a;
+  --ui-nav-linkedin-bg: #e4edf8; --ui-nav-linkedin-ink: #1b4e8a;
+  --ui-nav-settings-bg: #eef2f7; --ui-nav-settings-ink: #475569;
   /* Deliberate document-example exception; still configured in this one file. */
   --ui-profile-padding: 16px;
   --ui-profile-radius: 8px;
@@ -287,7 +287,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
   .app-type .ui-context-bar > a { min-height:44px; font-size:var(--ui-caption-size); }
   .app-type .ui-goal-card { padding:14px; }
 }
-.app-type .workspace-navigation { background:var(--ui-surface); }
+.app-type .workspace-navigation { background:var(--ui-brand); }
 .editor-mobile-toolbar { position:sticky; top:56px; z-index:20; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); }
 @media(min-width:1024px) { .editor-mobile-toolbar { display:none; } }
 .editor-settings-panel { padding:0; border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); background:var(--ui-surface); color:inherit; }
@@ -299,7 +299,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 @media(max-width:1023px) {
   .editor-settings-panel { position:fixed; inset:auto 0 0; margin:0; width:100%; max-width:100%; max-height:85dvh; overflow:hidden; border-radius:24px 24px 0 0; padding-bottom:env(safe-area-inset-bottom); }
   .editor-settings-panel[open] { display:flex; flex-direction:column; }
-  .editor-settings-panel::backdrop { background:rgba(13,35,32,.4); backdrop-filter:blur(3px); }
+  .editor-settings-panel::backdrop { background:rgba(8,22,40,.5); backdrop-filter:blur(3px); }
   .editor-settings-scroll { overflow-y:auto; overscroll-behavior:contain; min-height:0; padding:16px; }
   .editor-settings-panel[data-active-panel="templates"] [data-editor-section="text"],
   .editor-settings-panel[data-active-panel="templates"] [data-editor-section="photo"],
@@ -526,6 +526,23 @@ body .hover\:border-alert:hover:not(:where([data-document-preview], [data-docume
 body .border-alert-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { border-color:rgb(var(--ui-error-soft-rgb) / 1); }
 body .ui-surface:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { box-shadow:var(--ui-card-shadow); }
 
+/* Accent, stroke and gradient stops use the same navy token. */
+body .accent-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { accent-color: rgb(var(--ui-brand-rgb) / 1); }
+body .stroke-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { stroke: rgb(var(--ui-brand-rgb) / 1); }
+body .from-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-gradient-from: rgb(var(--ui-brand-rgb) / 1); }
+body .from-teal\/25:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-gradient-from: rgb(var(--ui-brand-rgb) / 0.25); }
+body .to-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-gradient-to: rgb(var(--ui-brand-rgb) / 1); }
+body .via-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-gradient-stops: var(--tw-gradient-from), rgb(var(--ui-brand-rgb) / 1), var(--tw-gradient-to, rgb(255 255 255 / 0)); }
+/* Ring focus colours bridge to the same navy tokens: Tailwind's own ring-teal
+   would otherwise keep the config's teal green on every focus ring. */
+body .ring-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 1); }
+body .ring-teal\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 0.3); }
+body .focus-visible\:ring-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 1); }
+body .focus\:ring-teal\/20:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 0.2); }
+body .focus\:ring-teal\/25:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 0.25); }
+body .hover\:ring-teal\/50:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 0.5); }
+body .hover\:ring-teal\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 0.6); }
+body .focus-within\:ring-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 1); }
 /* Legacy utility text follows shared roles; explicit type-* roles win. */
 body .text-xs:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-caption-size); }
 body .text-sm:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([class*="type-"])) { font-size:var(--ui-helper-size); }
@@ -571,12 +588,12 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 
 /* Resume Library: clear card boundaries on phones and larger screens. */
 .app-type .library-resume-card {
-  border: 1.5px solid #b8cac5;
+  border: 1.5px solid #aebfd4;
   border-top: 3px solid var(--ui-brand);
   border-radius: 16px;
   padding: 16px;
   background: var(--ui-surface);
-  box-shadow: 0 4px 16px rgb(15 76 67 / 0.06);
+  box-shadow: 0 4px 16px rgb(11 31 58 / 0.06);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 .app-type .library-resume-card-heading {
@@ -585,13 +602,13 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 }
 .app-type .library-resume-card:focus-within {
   border-color: var(--ui-brand);
-  box-shadow: 0 0 0 3px rgb(15 76 67 / 0.08), 0 4px 16px rgb(15 76 67 / 0.06);
+  box-shadow: 0 0 0 3px rgb(11 31 58 / 0.08), 0 4px 16px rgb(11 31 58 / 0.06);
 }
 @media (hover: hover) {
   .app-type .library-resume-card:hover {
-    border-color: #7d9f95;
+    border-color: #8ba3bd;
     border-top-color: var(--ui-brand);
-    box-shadow: 0 8px 24px rgb(15 76 67 / 0.09);
+    box-shadow: 0 8px 24px rgb(11 31 58 / 0.09);
   }
 }
 @media (min-width: 640px) {
@@ -649,8 +666,8 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 }
 .app-type .interview-qa-page .qa-question-number { color: var(--ui-ink); font-size: var(--ui-caption-size); font-weight: var(--ui-weight-title); letter-spacing: var(--ui-tracking); text-transform: uppercase; }
 .app-type .interview-qa-page .qa-difficulty,
-.app-type .interview-qa-page .qa-tag { border: 1px solid #b4c9c1; border-radius: 6px; padding: 3px 7px; background: #fff; color: #37554d; font-size: var(--ui-caption-size); line-height: var(--ui-body-line); }
-.app-type .interview-qa-page .qa-difficulty { background: #d8e9e1; font-weight: var(--ui-weight-heading); text-transform: capitalize; }
+.app-type .interview-qa-page .qa-tag { border: 1px solid #a8bad0; border-radius: 6px; padding: 3px 7px; background: #fff; color: #334b6e; font-size: var(--ui-caption-size); line-height: var(--ui-body-line); }
+.app-type .interview-qa-page .qa-difficulty { background: #dbe6f2; font-weight: var(--ui-weight-heading); text-transform: capitalize; }
 .app-type .interview-qa-page .qa-question-title {
   margin-top: 10px;
   font-family: var(--ui-font);
@@ -664,7 +681,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type .interview-qa-page .qa-panel-label { display: flex; align-items: center; gap: 6px; margin: 0 0 7px; font-size: var(--ui-helper-size); font-weight: var(--ui-weight-title); line-height: var(--ui-body-line); }
 .app-type .interview-qa-page :is(.qa-why-panel,.qa-answer-panel,.qa-basis-panel,.qa-followup-panel) { min-width: 0; border: 1px solid; border-radius: 10px; padding: 12px; }
 .app-type .interview-qa-page .qa-why-panel { border-color: #ddc78f; border-left-width: 3px; background: #fff8e8; color: #685020; }
-.app-type .interview-qa-page .qa-answer-panel { border-width: 1px; border-color: #d7e6df; background: #f7fbf9; color: var(--ui-ink); }
+.app-type .interview-qa-page .qa-answer-panel { border-width: 1px; border-color: #d5e2ef; background: #f5f8fb; color: var(--ui-ink); }
 .app-type .interview-qa-page .qa-basis-panel { border-color: #bdcddc; background: #f1f5f9; color: #35506b; }
 .app-type .interview-qa-page .qa-followup-panel { border-color: #c8b5dd; border-left-width: 3px; background: #f7f2fb; color: #62437d; }
 .app-type .interview-qa-page :is(.qa-why-panel,.qa-basis-panel,.qa-followup-panel) > p { font-size: var(--ui-helper-size); font-weight: var(--ui-weight-regular); line-height: var(--ui-body-line); color: rgb(var(--ui-ink-soft-rgb)); overflow-wrap: anywhere; }
@@ -686,8 +703,8 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   font-weight: var(--ui-weight-heading);
   line-height: var(--ui-body-line);
 }
-.app-type .interview-qa-page .qa-answer-toggle[aria-expanded='true'] { background: #e4efeb; color: var(--ui-ink); }
-.app-type .interview-qa-page .qa-answer-toggle:focus-visible { outline: 3px solid #86b7a8; outline-offset: 3px; }
+.app-type .interview-qa-page .qa-answer-toggle[aria-expanded='true'] { background: #e6edf5; color: var(--ui-ink); }
+.app-type .interview-qa-page .qa-answer-toggle:focus-visible { outline: 3px solid #7e9fc4; outline-offset: 3px; }
 .app-type .interview-qa-page .qa-answer-content { display: flex; flex-direction: column; gap: 12px; }
 .app-type .interview-qa-page .qa-evidence-grid { display: grid; gap: 10px; }
 @media (min-width: 640px) {

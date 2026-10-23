@@ -36,11 +36,11 @@ export function NotLive({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-alert/35 bg-alert-soft px-2 py-1 text-[10px] font-bold uppercase tracking-[0.09em] text-alert',
+        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-gold/40 bg-navy-tint px-2 py-1 text-[10px] font-bold uppercase tracking-[0.09em] text-gold-ink',
         className,
       )}
     >
-      <span aria-hidden="true" className="size-1.5 rounded-full bg-alert" />
+      <span aria-hidden="true" className="size-1.5 rounded-full bg-gold" />
       {children}
     </span>
   )
@@ -60,5 +60,5 @@ export function NotLiveText({
   children: React.ReactNode
   className?: string
 }) {
-  return <strong className={cn('font-semibold text-alert', className)}>{children}</strong>
+  return <strong className={cn('font-semibold text-gold-ink', className)}>{children}</strong>
 }
