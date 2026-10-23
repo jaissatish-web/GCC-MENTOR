@@ -1440,3 +1440,174 @@ export const FALCON_EXECUTIVE: TemplateTheme = {
   contactColumns: 2,
   labels: { summary: 'Executive Profile', experience: 'Leadership Experience' },
 }
+
+
+/** Premium visual design 1: Executive Navy. Uses the existing shared document and engine. */
+export const EXECUTIVE_NAVY: TemplateTheme = {
+  displayFont: GROTESK, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 23, headingSize: 10.5, density: 1.03,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#102B48', accentSoft: '#E8F5F8', headingStyle: 'bar',
+  layout: 'sidebar-filled', sidebarSide: 'left', fillPage: true,
+  uppercaseName: false, allowPhoto: true,
+  photoSide: 'left', photoShape: 'circle',
+  
+   
+  skillStyle: 'chips',
+  experienceStyle: 'timeline', contactIcons: true,
+  
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
+}
+
+/** Premium visual design 2: Emerald Professional. Uses the existing shared document and engine. */
+export const EMERALD_PROFESSIONAL: TemplateTheme = {
+  displayFont: GROTESK, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 23, headingSize: 10.5, density: 1.03,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#126A58', accentSoft: '#E9F5EF', headingStyle: 'rule',
+  layout: 'sidebar-filled', sidebarSide: 'right', fillPage: true,
+  uppercaseName: false, allowPhoto: true,
+  photoSide: 'right', photoShape: 'rounded',
+  
+   
+  skillStyle: 'chips',
+   contactIcons: true,
+  sectionOrder: 'skills-first',
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
+}
+
+/** Premium visual design 3: Royal Blue Modern. Uses the existing shared document and engine. */
+export const ROYAL_BLUE_MODERN: TemplateTheme = {
+  displayFont: GROTESK, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 23, headingSize: 10.5, density: 1.03,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#224F9C', accentSoft: '#EAF1FC', headingStyle: 'bar',
+  layout: 'single', 
+  uppercaseName: false, allowPhoto: true,
+  photoSide: 'right', photoShape: 'rect',
+  headerBand: true,
+  bandGradient: true, 
+  skillStyle: 'chips',
+  experienceStyle: 'timeline', contactIcons: true,
+  
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
+}
+
+/** Premium visual design 4: Graphite Executive. Uses the existing shared document and engine. */
+export const GRAPHITE_EXECUTIVE: TemplateTheme = {
+  displayFont: SERIF, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 23, headingSize: 10.5, density: 1.03,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#303840', accentSoft: '#F0F1F2', headingStyle: 'plain',
+  layout: 'single', 
+  uppercaseName: true, allowPhoto: true,
+  photoSide: 'left', photoShape: 'circle',
+  headerBand: false,
+   
+  skillStyle: 'inline',
+   contactIcons: true,
+  
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
+}
+
+/** Premium visual design 5: Teal Horizon. Uses the existing shared document and engine. */
+export const TEAL_HORIZON: TemplateTheme = {
+  displayFont: GROTESK, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 23, headingSize: 10.5, density: 1.03,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#0D6971', accentSoft: '#E8F5F4', headingStyle: 'marker',
+  layout: 'sidebar-filled', sidebarSide: 'left', fillPage: true,
+  uppercaseName: false, allowPhoto: true,
+  photoSide: 'left', photoShape: 'rounded',
+  
+   
+  skillStyle: 'chips',
+  experienceStyle: 'timeline', contactIcons: true,
+  
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
+}
+
+/** Premium visual design 6: Burgundy Prestige. Uses the existing shared document and engine. */
+export const BURGUNDY_PRESTIGE: TemplateTheme = {
+  displayFont: SERIF, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 23, headingSize: 10.5, density: 0.92,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#6C2945', accentSoft: '#F7EBF0', headingStyle: 'plain',
+  layout: 'sidebar-filled', sidebarSide: 'right', fillPage: true,
+  uppercaseName: false, allowPhoto: true,
+  photoSide: 'right', photoShape: 'rect',
+  
+   
+  skillStyle: 'chips',
+   contactIcons: true,
+  
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
+}
+
+/** Premium visual design 7: Industrial Pro. Uses the existing shared document and engine. */
+export const INDUSTRIAL_PRO: TemplateTheme = {
+  displayFont: GROTESK, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 23, headingSize: 10.5, density: 1.03,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#34566E', accentSoft: '#EBF1F5', headingStyle: 'side',
+  layout: 'sidebar-filled', sidebarSide: 'left', fillPage: true,
+  uppercaseName: false, allowPhoto: true,
+  photoSide: 'left', photoShape: 'circle',
+  
+   
+  skillStyle: 'list',
+  experienceStyle: 'timeline', contactIcons: true,
+  sectionOrder: 'skills-first',
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Technical Competencies' },
+}
+
+/** Premium visual design 8: Golden Executive. Uses the existing shared document and engine. */
+export const GOLDEN_EXECUTIVE: TemplateTheme = {
+  displayFont: SERIF, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 26, headingSize: 10.5, density: 1.03,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#755B28', accentSoft: '#F7F2E8', headingStyle: 'rule',
+  layout: 'single', 
+  uppercaseName: true, allowPhoto: true,
+  photoSide: 'right', photoShape: 'rounded',
+  headerBand: false,
+   bandStripe: '#C9A453',
+  skillStyle: 'inline',
+   contactIcons: true,
+  
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
+}
+
+/** Premium visual design 9: Sapphire Edge. Uses the existing shared document and engine. */
+export const SAPPHIRE_EDGE: TemplateTheme = {
+  displayFont: GROTESK, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 23, headingSize: 10.5, density: 1.03,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#2146A3', accentSoft: '#EBF0FC', headingStyle: 'marker',
+  layout: 'single', 
+  uppercaseName: false, allowPhoto: true,
+  photoSide: 'left', photoShape: 'rect',
+  headerBand: true,
+   
+  skillStyle: 'chips',
+  experienceStyle: 'timeline', contactIcons: true,
+  
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
+}
+
+/** Premium visual design 10: Modern Skyline. Uses the existing shared document and engine. */
+export const MODERN_SKYLINE: TemplateTheme = {
+  displayFont: GROTESK, bodyFont: SANS,
+  bodySize: 10.2, nameSize: 23, headingSize: 10.5, density: 1.03,
+  ink: '#17212B', muted: '#52616D', rule: '#D4DCE1',
+  accent: '#12556B', accentSoft: '#E8F3F5', headingStyle: 'bar',
+  layout: 'sidebar-filled', sidebarSide: 'right', fillPage: true,
+  uppercaseName: false, allowPhoto: true,
+  photoSide: 'right', photoShape: 'circle',
+  
+   
+  skillStyle: 'chips',
+  experienceStyle: 'timeline', contactIcons: true,
+  
+  labels: { summary: 'Professional Profile', experience: 'Professional Experience', skills: 'Core Skills' },
+}
