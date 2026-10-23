@@ -397,6 +397,23 @@
   background: #0a66c2;
   color: white;
 }
+.linkedin-workspace .linkedin-profile-preview .linkedin-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  background: #eef3f8;
+  border: 1px solid #dbe7f3;
+  border-radius: 16px;
+  color: rgba(0, 0, 0, 0.75);
+  font-size: var(--ui-profile-body-size);
+  font-weight: var(--ui-weight-regular);
+}
+.linkedin-workspace .linkedin-profile-preview .linkedin-skill-chip-top {
+  background: #0a66c2;
+  border-color: #0a66c2;
+  color: white;
+  font-weight: var(--ui-weight-heading);
+}
 @media (max-width: 639px) {
   .linkedin-workspace .linkedin-profile-preview {
     width: calc(100% + var(--ui-page-gutter) + var(--ui-page-gutter));

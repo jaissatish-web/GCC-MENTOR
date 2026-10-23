@@ -52,9 +52,9 @@ export interface LinkedInDraft {
   updated_at: string
 }
 export const FIELD_LIMITS = {
-  headline: 200,
-  about: 2400,
-  experience: 1800,
+  headline: 220,
+  about: 2600,
+  experience: 2000,
 } as const
 export const DEFAULT_SETUP: LinkedInSetup = {
   source: 'career',

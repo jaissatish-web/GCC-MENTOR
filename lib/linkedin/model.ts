@@ -254,7 +254,7 @@ export function outputShape(
   }
   if (
     !Array.isArray(value.skills) ||
-    value.skills.length > 15 ||
+    value.skills.length > 20 ||
     new Set(value.skills).size !== value.skills.length ||
     value.skills.some(
       (skill) =>

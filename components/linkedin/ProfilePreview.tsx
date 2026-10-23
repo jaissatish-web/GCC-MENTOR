@@ -24,6 +24,8 @@ export function ProfilePreview({
       'Not shared',
     )
   const card = 'linkedin-profile-card'
+  const about = output.about
+  const visibleAbout = about.length > 300 ? about.slice(0, 300) : about
   return (
     <div
       className="linkedin-profile-preview mx-auto w-full max-w-[850px] space-y-2"
@@ -36,7 +38,7 @@ export function ProfilePreview({
       </p>
       <section className="linkedin-profile-card overflow-hidden !p-0">
         <div
-          className="h-24 bg-gradient-to-r from-[#123941] via-[#1d6367] to-[#c4ddd7] sm:h-40"
+          className="h-24 bg-gradient-to-r from-[#0A66C2] via-[#4E8FC9] to-[#DDE7F5] sm:h-40"
           aria-hidden="true"
         />
         <div className="px-4 pb-4 sm:px-6 sm:pb-6">
@@ -51,7 +53,7 @@ export function ProfilePreview({
             />
           ) : (
             <div
-              className="relative -mt-10 mb-3 flex size-20 items-center justify-center rounded-full border-4 border-white bg-teal-soft text-3xl font-semibold text-teal"
+              className="relative -mt-10 mb-3 flex size-20 items-center justify-center rounded-full border-4 border-white bg-[#0A66C2] text-3xl font-semibold text-white"
               aria-label="Profile photo placeholder"
             >
               {profile.full_name?.slice(0, 1)}
@@ -64,16 +66,26 @@ export function ProfilePreview({
           <p className="mt-3 text-sm text-ink-muted type-helper">
             {text(profile.current_location) || 'Your professional profile'}
           </p>
-          {platform === 'linkedin' && <div className="mt-3 flex flex-wrap gap-2" aria-hidden="true">
-            <span className="linkedin-profile-action linkedin-profile-action-primary">Open to</span>
-            <span className="linkedin-profile-action">Add profile section</span>
-          </div>}
+          {platform === 'linkedin' && (
+            <div className="mt-3 flex flex-wrap gap-2" aria-hidden="true">
+              <span className="linkedin-profile-action linkedin-profile-action-primary">Open to</span>
+              <span className="linkedin-profile-action">Add profile section</span>
+            </div>
+          )}
         </div>
       </section>
       <section className={card}>
-        <h2 className="type-section text-ink">{config.summary}</h2>
+        <div className="flex items-baseline justify-between gap-2">
+          <h2 className="type-section text-ink">{config.summary}</h2>
+          <span className="type-caption text-ink-muted" aria-hidden="true">
+            {platform === 'linkedin' ? 'first ~300 chars show before "see more"' : `profile summary, ${config.name}`}
+          </span>
+        </div>
         <p className="mt-3 whitespace-pre-wrap break-words leading-normal text-ink-soft type-longform">
-          {output.about}
+          {visibleAbout}
+          {about.length > 300 && (
+            <span className="font-medium text-ink-muted"> …see more</span>
+          )}
         </p>
       </section>
       {output.experience.length > 0 && (
@@ -130,12 +142,17 @@ export function ProfilePreview({
       )}
       {output.skills.length > 0 && (
         <section className={card}>
-          <h2 className="type-section text-ink">{config.skills}</h2>
-          <div className="mt-3 divide-y divide-line">
-            {output.skills.map((skill) => (
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 className="type-section text-ink">{config.skills}</h2>
+            <span className="type-caption text-ink-muted" aria-hidden="true">
+              first 3 show on your profile card
+            </span>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2" aria-label={`${config.skills} in order`}>
+            {output.skills.map((skill, index) => (
               <span
                 key={skill}
-                className="block py-3 text-sm font-medium text-ink first:pt-0 last:pb-0"
+                className={`linkedin-skill-chip ${index < 3 ? 'linkedin-skill-chip-top' : ''}`}
               >
                 {skill}
               </span>
