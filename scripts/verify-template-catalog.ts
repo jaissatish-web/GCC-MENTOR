@@ -18,7 +18,15 @@ for (const field of TEMPLATE_FIELDS) {
   assert.ok(entries.length > 0, field.label)
   assert.ok(entries.every(t => t.fields.includes(field.key)))
 }
-assert.deepEqual(templateCatalog({ search: '  ATS PROFESSIONAL ' }).map(t => t.id), ['ats_professional'])
+// The new direct-sharing descriptions intentionally mention both professional
+// contacts and ATS guidance. The existing all-words search therefore matches
+// those entries too; the exact named featured design must remain first.
+assert.deepEqual(templateCatalog({ search: '  ATS PROFESSIONAL ' }).map(t => t.id), [
+  'ats_professional', 'burgundy_prestige', 'emerald_professional', 'executive_navy',
+  'golden_executive', 'graphite_executive', 'industrial_pro', 'modern_skyline',
+  'royal_blue_modern', 'sapphire_edge', 'teal_horizon',
+])
+assert.equal(templateCatalog({ search: 'Modern Visual' }).length, 10)
 assert.equal(templateCatalog({ search: 'nonexistent-template-query' }).length, 0)
 assert.equal(JSON.stringify(availableTemplates().map(t => ({ id: t.id, fields: t.fields }))), source)
 console.log('PASS: all designs retained, recommended order, combined search/profession/style filters and source identity preserved')

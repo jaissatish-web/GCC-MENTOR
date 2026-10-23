@@ -3241,3 +3241,6 @@ unchanged. See [19_LINKEDIN_OPTIMIZATION.md](19_LINKEDIN_OPTIMIZATION.md).
 
 ## 2026-10-22 — 14 Career Profile blocks
 Approved by Satish: implement CAREER_PROFILE_BLOCKS.md before further scoring/questionnaire work. Reuse current storage and custom categories; optional sections must not become compulsory. Separate client/employer/project and preserve uncertain facts. Single Gulf Profile Readiness is future agreed direction, not a finalized numeric rubric.
+
+## 23 October 2026 — VISUAL-010
+Founder authorizes ten additional premium visual resume designs only, on a dedicated feature branch pending approval. Reuse existing engine, data, customization and export paths. Use supported descriptions/recommendedFor metadata to identify direct recruiter sharing/reference and recommend ATS-friendly layouts for online portals. No main merge or production deploy. Existing template IDs/designs and sample candidate facts are protected.

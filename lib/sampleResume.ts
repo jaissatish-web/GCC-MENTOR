@@ -209,4 +209,15 @@ export const SAMPLE_TEMPLATE_SCALES: Record<string, number> = {
   logistics_route: 0.87,
   scholar_classic: 0.86,
   falcon_executive: 0.81,
+  // VISUAL-010: presentation fit only; the shared candidate document is unchanged.
+  executive_navy: 0.931,
+  emerald_professional: 0.85,
+  royal_blue_modern: 0.788,
+  graphite_executive: 0.85,
+  teal_horizon: 0.784,
+  burgundy_prestige: 0.916,
+  industrial_pro: 0.802,
+  golden_executive: 0.757,
+  sapphire_edge: 0.755,
+  modern_skyline: 0.908,
 }

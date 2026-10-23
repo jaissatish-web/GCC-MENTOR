@@ -210,5 +210,45 @@
   "senior_professional": {
     "sample": "15f8466bc40554686df785e9c437fd70ee1c464dc6bb77ad1e599a67fdaf916a",
     "full": "e75743f83405ddd565dc267064c538fa25abeffbf8f704e2a4214ef71cfa089d"
+  },
+  "executive_navy": {
+    "sample": "b52f3c58ea17d9acba1093a51f74246522a2c9a743089144860bc0047836281a",
+    "full": "ff3f7948c535f5fb87ba85599d9ecd7b1b3bbb92b62d26242a3219eb9836ad1f"
+  },
+  "emerald_professional": {
+    "sample": "e94ff71e9e759c9116154e2ae4e5a27e161e2eaad2fd10ce4a73d7362493b802",
+    "full": "c47dfeddb6d4cd8b99b384e3c5c7a6b9aa45c71cbd45d8962a52327566cad856"
+  },
+  "royal_blue_modern": {
+    "sample": "391912ebb4bb7ee60b2a486ee7686d367ab1315b7516c9aac0dd3f23f3bf1172",
+    "full": "e60719dbf4126d84cb0e483882ccbebdf45ead82cbf98c0a51df721e226fc15a"
+  },
+  "graphite_executive": {
+    "sample": "180eadfccf87a8dc9ac49903254e2941c29a3f5ea9ec88d55bf7cdffa39bb7a1",
+    "full": "d9610e26c2d77810c06b179e05ed2a6afd77b81da66c7e1baa242a6e45170afd"
+  },
+  "teal_horizon": {
+    "sample": "27f9cb890d29c63f04a55cf20f6269e03b055f0dc9bd559815d68cbf4929d2c7",
+    "full": "d6ce8a50575a272c25d74dfa542890187f2433ab75094f38bfd0bc75b91cbda6"
+  },
+  "burgundy_prestige": {
+    "sample": "a14ae4a26a3331c5aa37e7ba237ebe019fc6be6f06d4a0d736cb0bc5144c19ee",
+    "full": "68110c64efafb6b4c9508c9c39432da29b8180f51f0f80ab6f57a8270c2a6d9b"
+  },
+  "industrial_pro": {
+    "sample": "bc348ba6f0cae217b7e66715b447897a21257ff2a09cd1b504fd6c64aa65fbe7",
+    "full": "7b76a8c718568cfb44bb43d3aa824a0692872076e790fa24f238e5f96f149906"
+  },
+  "golden_executive": {
+    "sample": "c39908defe84c6f11b10b77ff4190cfd5922b8980d4fb27b6a7e82375280a0c2",
+    "full": "1fd690c66f02b8c42748babf9159d25e4370e2321720393a4c80194379dc4aa4"
+  },
+  "sapphire_edge": {
+    "sample": "641581c6f3593964a8019b008d0f546d5d8a81115e91549f1e3cceea24500c60",
+    "full": "fa090e8bf1e5a6fc7102f723e8adc1c4be6d34bbba0b779cfbb276f9436f3d9f"
+  },
+  "modern_skyline": {
+    "sample": "cf42619ef8de21ef0a9f02bf52166f5be75a293d17fa9b968bc531880d5c8ae4",
+    "full": "c57d0c7001fd98bfe78c97671c41ab613db38f774aa363bacdea17becaeb1fc9"
   }
 }
