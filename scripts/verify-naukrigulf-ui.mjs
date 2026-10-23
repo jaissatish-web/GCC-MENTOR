@@ -173,7 +173,7 @@ try {
         return request.respond({
           status: 200,
           contentType: 'text/html',
-          body: `<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body class="${bodyClass}"><div class="app-type" id="root"></div><script src="/fixture.js"></script></body></html>`,
+          body: `<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body class="${bodyClass}"><div class="app-type internal-ui" id="root"></div><script src="/fixture.js"></script></body></html>`,
         })
       if (url.pathname.startsWith('/_next/static/media/'))
         return request.respond({status: 200, contentType: 'font/woff2', body: readFileSync(url.pathname.replace('/_next/', '.next/'))})
@@ -310,8 +310,8 @@ try {
     await fits()
     if (process.env.NAUKRIGULF_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.NAUKRIGULF_SCREENSHOT_DIR, `naukrigulf-setup-${width}.png`), fullPage: true })
     assert.ok(await page.$('h1'))
+    assert.equal(await page.$eval('h1', el => getComputedStyle(el).fontSize), width>=768?'28px':'24px')
     if (width < 640) {
-      assert.equal(await page.$eval('h1', el => getComputedStyle(el).fontSize), '24px')
       assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontWeight), '600')
     }
     await click('Continue')
@@ -348,10 +348,10 @@ try {
       cardWidth: el.querySelector('section').getBoundingClientRect().width,
     }))
     assert.equal(preview.body, width < 768 ? '15px' : '16px')
-    assert.equal(preview.metadata, '13px')
+    assert.equal(preview.metadata, '14px')
     assert.ok(preview.family.includes('Inter'))
     assert.equal(preview.weight, '400')
-    assert.equal(preview.name, '18px')
+    assert.equal(preview.name, width>=768?'20px':'18px')
     if (width < 640) {
       assert.equal(preview.cardX, 0, 'Phone profile card reaches the screen edge')
       assert.equal(preview.cardWidth, width)

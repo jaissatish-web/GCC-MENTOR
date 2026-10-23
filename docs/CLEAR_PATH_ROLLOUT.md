@@ -1,6 +1,6 @@
 # Clear Path internal UI rollout — 24 October 2026
 
-Status: implemented; local verification completed as listed below, final route sweep/CI/release pending. Baseline: main b319aabff6bd7f3c47327ff09d02821990dfa3c3.
+Status: implemented and locally tested; RELEASE BLOCKED by required dependency audit. Not merged or deployed. Baseline: main b319aabff6bd7f3c47327ff09d02821990dfa3c3.
 
 Satish authorized autonomous implementation, tests, protected PR merge and live verification. No separate preview publication or further release confirmation is required.
 
@@ -37,3 +37,15 @@ Evidence: [mobile](clear-path/dashboard-390.webp), [desktop](clear-path/dashboar
 
 ## Live access and limitations
 Before release, public production landing rendered successfully. `/dashboard` redirected to `/login?redirectTo=%2Fdashboard`; no authenticated live session was available. No credentials were requested during this unattended run. Production account save/generation, live AI, voice capture/provider/storage and real export downloads are not certified. Existing voice availability and all backend behavior remain unchanged. Exact merged-commit deployment/live evidence will be recorded in the release handoff.
+
+## Final result — 24 October 2026
+PR [#31](https://github.com/jaissatish-web/GCC-MENTOR/pull/31), application commit `5678495819fabc0bc5102f4671f1015a3b0d3bab`. Final follow-up adds only QA/report updates. All uploaded blobs were independently checked against local Git blob hashes.
+
+Final route sweep:132 states passed across22 static routes at320/360/390/430/768/1440px: landing,dashboard,library,tools,profile overview/details/completeness/readiness,optimizer target/setup,cover letter,Q&A,mock selection,templates,preparation pack,LinkedIn introduction/workspace,public readiness score/readiness,forgot password,onboarding,resume design lab. This is local built code with read-only fictional replies, not authenticated production.
+NaukriGulf actual client components passed four widths with setup/results/preview, edits/save/retry, checklist persistence, import conflicts and empty profile. Its two dynamic auth-guarded page wrappers and Settings cannot be served by the static built-page harness. Settings destinations/focus were tested in the real drawer; authenticated settings rendering/save remains unverified.
+
+**Required CI [run449](https://github.com/jaissatish-web/GCC-MENTOR/actions/runs/40039541420) failed at dependency audit**, before downstream CI tests. It reports Zod<4.6.6, [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5), via chromium-bidi→puppeteer-core. Dependencies and package-lock are unchanged by this UI task. The audit recommends a Puppeteer update outside the pinned range; this touches the protected PDF/browser runtime and was not bundled into a presentation-only rollout. No audit suppression, protection bypass or forced merge was attempted. Local test success is not represented as CI success.
+
+Main remains `b319aabff6bd7f3c47327ff09d02821990dfa3c3`. Production deployment `dpl_hDxzTnL5eou1kSa7Jr4sDfHF38pH` was READY for that exact existing main commit. No deployment was found for5678495; no merged-commit live verification is claimed. Public live landing rendered; dashboard redirected to login.
+
+**Next action:** resolve the existing dependency audit in a separately scoped compatibility patch, including browser/PDF/export checks; rerun required CI, then merge31 and verify the production deployment/actual authenticated journeys. Keep the temporary PR branch while release is blocked to preserve reviewable work. No separate preview Site was published.
