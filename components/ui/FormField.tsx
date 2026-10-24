@@ -232,34 +232,37 @@ export function PhoneField({
 }) {
   return (
     <FieldShell id={`${id}_number`} label={label} helper={helper} error={error} required={required}>
-      <div className="flex gap-2">
-        <select
-          id={`${id}_dial`}
-          value={dial}
-          onChange={(e) => onDialChange(e.target.value)}
-          aria-label={`${label} country code`}
-          className={cn(
-            controlBase,
-            controlState(Boolean(error)),
-            'w-[124px] shrink-0 appearance-none px-3'
-          )}
-        >
-          <option value="">Code</option>
-          <optgroup label="Common">
-            {PRIMARY_DIAL_CODES.map((c) => (
-              <option key={c.iso} value={c.dial}>
-                {c.dial} {c.country}
-              </option>
-            ))}
-          </optgroup>
-          <optgroup label="Other">
-            {OTHER_DIAL_CODES.map((c) => (
-              <option key={c.iso} value={c.dial}>
-                {c.dial} {c.country}
-              </option>
-            ))}
-          </optgroup>
-        </select>
+      <div className="flex items-start gap-2">
+        <div className="phone-code-control">
+          <span className="phone-code-value" aria-hidden="true">{dial || 'Code'}</span>
+          <select
+            id={`${id}_dial`}
+            value={dial}
+            onChange={(e) => onDialChange(e.target.value)}
+            aria-label={`${label} country code`}
+            className={cn(
+              controlBase,
+              controlState(Boolean(error)),
+              'phone-code-select w-full appearance-none px-3'
+            )}
+          >
+            <option value="">Code</option>
+            <optgroup label="Common">
+              {PRIMARY_DIAL_CODES.map((c) => (
+                <option key={c.iso} value={c.dial}>
+                  {c.dial} {c.country}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Other">
+              {OTHER_DIAL_CODES.map((c) => (
+                <option key={c.iso} value={c.dial}>
+                  {c.dial} {c.country}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
         <input
           id={`${id}_number`}
           type="tel"

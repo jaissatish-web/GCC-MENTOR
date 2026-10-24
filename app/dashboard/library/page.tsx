@@ -117,7 +117,7 @@ function NameField({
           className="field w-full"
         />
       </label>
-      <div className="flex flex-wrap gap-2">
+      <div className="ui-action-group">
         <button type="submit" disabled={saving} className={buttonVariants({ variant: 'primary', size: 'sm' })}>{saving ? 'Saving…' : 'Save name'}</button>
         <button type="button" disabled={saving} onClick={close} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>Cancel</button>
       </div>

@@ -293,7 +293,7 @@ function CoverLetterScreen() {
                 company={letter.target_company}
                 onChange={(text) => setEdits((prev) => ({ ...prev, [letter.id]: text }))}
               />
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="ui-action-group">
                 <Button
                                   type="button"
                                   onClick={() => void saveLetter(letter)}

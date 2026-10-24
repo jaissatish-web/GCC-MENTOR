@@ -195,3 +195,7 @@ body :is(.cover-letter-email-body,.profile-copy-text,.qa-answer-text) :is(p,li,d
     --ui-body-size: 1rem;
   }
 }
+
+/* Semantic form roles outrank generic paragraph styling inside the app. */
+.app-type.internal-ui .field-label:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-label-size) !important; font-weight: var(--ui-weight-label) !important; line-height: var(--ui-label-line) !important; }
+.app-type.internal-ui .field-hint:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-helper-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }

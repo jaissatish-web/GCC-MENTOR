@@ -967,7 +967,7 @@ function PackageScreenInner({ id }: { id: string }) {
                   className="field min-h-[112px] resize-y font-normal"
                 />
               </label>
-              <div className="flex flex-wrap items-center gap-2 self-end">
+              <div className="ui-action-group self-end">
                 <button
                   type="button"
                   onClick={() => void saveTracker()}

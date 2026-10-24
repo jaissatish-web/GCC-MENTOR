@@ -837,6 +837,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   --ui-form-width: 760px;
   --ui-document-width: 1240px;
   --ui-control-height: 46px;
+  --ui-control-padding-y: 10px;
   --ui-control-radius: 8px;
   --ui-card-radius: 10px;
   --ui-card-shadow: none;
@@ -931,6 +932,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   min-height:var(--ui-control-height);
   border-radius:var(--ui-control-radius);
   padding-inline:var(--ui-space-4);
+  padding-block:var(--ui-control-padding-y);
   gap:var(--ui-control-gap);
   box-shadow:none;
 }
@@ -980,3 +982,71 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 /* Dashboard modules and legacy page wrappers resolve the same outer rhythm. */
 .app-type.internal-ui .ui-page-default { max-width:var(--ui-page-width); }
 .app-type.internal-ui .ui-page { padding-top:var(--ui-page-top); gap:var(--ui-page-gap); }
+
+.app-type.internal-ui .ui-button > svg { flex-shrink: 0; }
+
+/* CTA-ALIGN-001: action layouts and mutually exclusive choices have separate
+   roles, shared rhythm and explicit opt-in. Never target arbitrary buttons,
+   navigation or document descendants by their tag name. */
+.app-type.internal-ui .ui-action-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--ui-control-gap);
+  min-width: 0;
+}
+.app-type.internal-ui .ui-action-group > .ui-action-item { min-width: 0; }
+.app-type.internal-ui .ui-action-group > .ui-action-item > .ui-button { width: 100%; flex: 1; }
+.app-type.internal-ui .ui-action-group > .ui-button {
+  height: auto;
+  align-self: stretch;
+  justify-content: center;
+  text-align: center;
+  margin: 0;
+}
+.app-type.internal-ui .ui-choice-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ui-control-gap);
+  min-width: 0;
+}
+.app-type.internal-ui .ui-choice-group > .ui-choice-button {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  padding-block: var(--ui-space-3);
+  margin: 0;
+  border: 1px solid var(--ui-line-strong);
+  background: var(--ui-surface);
+  color: var(--ui-brand);
+}
+.app-type.internal-ui .ui-choice-group > .ui-choice-button[aria-pressed="true"] {
+  border-color: var(--ui-brand);
+  background: var(--ui-brand-soft);
+  box-shadow: inset 3px 0 0 var(--ui-brand);
+}
+.app-type.internal-ui .ui-choice-button:hover:not(:disabled) {
+  border-color: var(--ui-brand);
+  background: var(--ui-brand-soft);
+}
+/* Keep native options descriptive while showing an unclipped dial code in
+   the closed control. The overlay is decorative and cannot intercept input. */
+.phone-code-control { position: relative; flex: 0 0 96px; min-width: 0; }
+.phone-code-control .phone-code-select.field { color: transparent; }
+.app-type.internal-ui .phone-code-control .phone-code-select.field { color: transparent; }
+.phone-code-select option, .phone-code-select optgroup { color: var(--ui-ink); }
+.phone-code-value {
+  position: absolute; inset: 0 28px 0 12px;
+  display: flex; align-items: center; pointer-events: none;
+  color: var(--ui-ink); font-size: var(--ui-input-size);
+}
+@media (max-width: 639px) {
+  .app-type.internal-ui .ui-action-group { width: 100%; flex-direction: column; }
+  .app-type.internal-ui .ui-action-group > :is(.ui-button,.ui-action-item) { width: 100%; }
+}
+@media (forced-colors: active) {
+  .app-type.internal-ui .ui-choice-button[aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: -3px; }
+  .phone-code-control .phone-code-select.field { color: CanvasText; }
+  .app-type.internal-ui .phone-code-control .phone-code-select.field { color: CanvasText; }
+  .phone-code-value { display: none; }
+}

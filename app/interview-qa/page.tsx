@@ -344,7 +344,7 @@ function InterviewQaScreen() {
                   <>{questionSet ? <span>Saved {new Date(questionSet.generated_at).toLocaleString()}</span> : null}</>
                 ) : null}
               </div>
-              <div className="qa-primary-actions flex flex-wrap gap-2">
+              <div className="qa-primary-actions ui-action-group">
                 <Button
                   type="button"
                   variant="primary"

@@ -451,7 +451,7 @@ function MockInterviewScreen() {
                     {answerDraft.length.toLocaleString('en-US')} / {MOCK_ANSWER_MAX_CHARS.toLocaleString('en-US')} characters
                   </span>
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="ui-action-group">
                   <Button type="button" variant="primary" onClick={() => void submitAnswer()} disabled={!answerDraft.trim() || busy !== null} busy={busy === 'answer'} busyLabel="Reviewing…">
                     Submit answer
                   </Button>
