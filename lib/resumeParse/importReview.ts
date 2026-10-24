@@ -86,7 +86,7 @@ export function safeWording(before: string, after: string): boolean {
   return signature(before) === signature(after)
 }
 
-export function currentRoleFingerprint(job:{company?:string;role?:string;start_date?:string}):string {
+export function currentRoleFingerprint(job:{company?:string;role?:string;start_date?:string|null}):string {
  const date=parseCvDate(job.start_date??'')
  return [job.company,job.role,date.kind==='date'?date.value.slice(0,7):job.start_date].map(v=>(v??'').trim().toLowerCase()).join('|')
 }

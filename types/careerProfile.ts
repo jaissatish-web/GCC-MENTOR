@@ -148,7 +148,7 @@ export interface ProfileWorkExperience {
   profile_id: string
   company: string
   role: string
-  start_date: string // date
+  start_date: string | null // date; null = not provided
   end_date: string | null // date; null = current role
   location: string | null
   description: string | null

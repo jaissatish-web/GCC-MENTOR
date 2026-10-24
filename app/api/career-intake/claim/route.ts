@@ -10,9 +10,9 @@ import type {ParseReport} from '@/lib/resumeParse/pipeline'
 export async function POST(request:NextRequest){
  const client=await createClient();const {data:{user}}=await client.auth.getUser()
  if(!user)return NextResponse.json({error:'Please sign in.'},{status:401})
- const {data:profile,error}=await client.from('career_profiles').select('full_name').eq('user_id',user.id).maybeSingle()
+ const {data:profile,error}=await client.from('career_profiles').select('id').eq('user_id',user.id).maybeSingle()
  if(error)return NextResponse.json({error:'We could not check your saved profile. Please retry.'},{status:503})
- if(profile?.full_name?.trim())return NextResponse.json({error:'Use the existing profile import to preserve your saved information and monthly limits.',code:'EXISTING_PROFILE'},{status:409})
+ if(profile?.id)return NextResponse.json({error:'Use the existing profile import to preserve your saved information and monthly limits.',code:'EXISTING_PROFILE'},{status:409})
  const raw=await request.text().catch(()=>'');if(raw.length>300000)return NextResponse.json({error:'Reading too large.'},{status:413})
  let body;try{body=JSON.parse(raw)}catch{return NextResponse.json({error:'Invalid reading.'},{status:400})}
  if(!body||typeof body!=='object'||Array.isArray(body))return NextResponse.json({error:'Invalid reading.'},{status:400})

@@ -29,7 +29,7 @@ export interface EmploymentGap {
 }
 
 export interface WorkExperienceForGapCheck {
-  start_date: string
+  start_date: string | null
   end_date: string | null
   company: string
 }
@@ -63,7 +63,7 @@ export function detectEmploymentGaps(
 ): EmploymentGap[] {
   const intervals: WorkInterval[] = workExperience
     .map((e): WorkInterval | null => {
-      const start = new Date(e.start_date)
+      const start = new Date(e.start_date ?? '')
       const end = e.end_date ? new Date(e.end_date) : new Date()
       if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null
       return { start, end, company: e.company }

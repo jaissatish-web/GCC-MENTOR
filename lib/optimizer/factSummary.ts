@@ -62,7 +62,7 @@ function experienceYears(roles: CareerProfileFull['work_experience']): number {
   const now = Date.now()
   let earliest = Infinity
   for (const r of roles) {
-    const t = Date.parse(r.start_date)
+    const t = Date.parse(r.start_date ?? '')
     if (Number.isFinite(t) && t < earliest) earliest = t
   }
   if (!Number.isFinite(earliest) || earliest > now) return 0

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect,useState } from 'react'
+import { useEffect,useRef,useState } from 'react'
 import { CheckCircleIcon, ExclamationTriangleIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import { Button, buttonVariants } from '@/components/ui/Button'
 import { cn, GULF_COUNTRIES } from '@/lib/utils'
@@ -42,6 +42,14 @@ export function ResumeReviewPage<T extends ResumeReviewData>({ value, review, ex
 }) {
   const [verified, setVerified] = useState<Record<string, string>>({})
   const [confirmed, setConfirmed] = useState(false)
+  const [showIssues, setShowIssues] = useState(false)
+  const issueBox = useRef<HTMLElement>(null)
+  useEffect(() => {
+    if (showIssues) {
+      issueBox.current?.focus()
+      issueBox.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [showIssues])
   const [allIssues,setAllIssues]=useState(false)
   const [editWhatsapp,setEditWhatsapp]=useState(false)
   const [remembering,setRemembering]=useState(false)
@@ -73,8 +81,9 @@ export function ResumeReviewPage<T extends ResumeReviewData>({ value, review, ex
   const byField = new Map(checks.map(c => [c.field, c]))
   const knownCurrent=(job:ResumeReviewData['work_experience'][number])=>verified[`field:work_experience.${value.work_experience.indexOf(job)}.current_status`]===currentRoleFingerprint(job)||verified['current-role:'+job.key]===currentRoleFingerprint(job)||review.currentRoles?.includes(currentRoleFingerprint(job))===true
   const unconfirmedEnd=value.work_experience.filter(job=>!job.end_date&&!knownCurrent(job))
-  const ready = unconfirmedEnd.length===0 && !cannotConfirm && plan.blocking.length === 0 && confirmed
-  const update = (patch: Partial<T>) => { onChange({ ...value, ...patch }); setConfirmed(false) }
+  const ready = !cannotConfirm && confirmed
+  const hasIssues = plan.outstanding.length > 0 || unconfirmedEnd.length > 0
+  const update = (patch: Partial<T>) => { onChange({ ...value, ...patch }); setConfirmed(false); setShowIssues(false) }
   const jump = (field: string) => {
     const target = document.getElementById(`review-field-${field}`) ?? document.getElementById(`review-field-${field.replace(/\.date_order$/, field.startsWith('education') ? '.start_year' : '.start_date')}`) ?? document.getElementById(`review-section-${REVIEW_CATEGORIES.some(c=>c.id===field)?field:reviewCategory(field)}`)
     if (!target) return
@@ -103,10 +112,10 @@ export function ResumeReviewPage<T extends ResumeReviewData>({ value, review, ex
     <ol className="mb-5 grid grid-cols-3 gap-2 type-caption text-ink-muted" aria-label="Create profile steps"><li>✓ Uploaded</li><li aria-current="step" className="font-semibold text-teal">2 · Review</li><li>3 · Profile</li></ol>
     <div className="mb-5"><h1 className="type-title font-semibold text-ink">Review your details</h1><p className="mt-2 max-w-2xl type-body text-ink-soft">Check what we read, correct anything missing, then {existing ? 'update' : 'create'} your Career Profile. Your {existing ? 'saved profile has not changed' : 'profile has not been created yet'}.</p></div>
     <section className="mb-5 rounded-card border border-teal/20 bg-white p-4 sm:p-5" aria-label="Review progress">
-      <div role="status" aria-live="polite" className="flex flex-wrap items-center justify-between gap-3"><h2 className="type-section font-semibold text-ink">{plan.blocking.length ? `${plan.blocking.length} to correct or verify` : 'Ready for your final check'}</h2><span className="type-helper text-ok">{plan.passed} details read or reviewed</span></div>
+      <div role="status" aria-live="polite" className="flex flex-wrap items-center justify-between gap-3"><h2 className="type-section font-semibold text-ink">{plan.outstanding.length ? `${plan.outstanding.length} details need attention` : 'Ready for your final check'}</h2><span className="type-helper text-ok">{plan.passed} details read or reviewed</span></div>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">{REVIEW_CATEGORIES.filter(c=>c.id!=='other').map(category=>{const list=checks.filter(c=>c.category===category.id&&c.status!=='optional');const good=list.filter(c=>c.status==='passed'||c.confirmable&&verified[c.id]===c.value).length;return <button type="button" key={category.id} onClick={()=>jump(list.find(c=>c.status==='attention')?.field??category.id)} className="min-h-14 text-left"><span className="block type-helper font-semibold text-ink">{category.label}</span><span className="mt-1 block type-caption text-ink-muted">{list.length ? `${good} / ${list.length} checks` : 'Add if applicable'}</span><span className="mt-2 flex h-2 overflow-hidden rounded-full bg-canvas" aria-hidden="true"><span className="bg-ok" style={{width:list.length?`${good/list.length*100}%`:'0%'}}/><span className="bg-alert" style={{width:list.length?`${(list.length-good)/list.length*100}%`:'0%'}}/></span></button>})}</div>
-      {plan.blocking.length>0&&<div className="mt-4 flex flex-wrap gap-2">{(allIssues?plan.blocking:plan.blocking.slice(0,3)).map(check=><button type="button" key={check.id} onClick={()=>jump(check.field)} className="min-h-11 rounded-ctl bg-alert-soft px-3 py-2 text-left type-helper font-medium text-alert">! {check.title} →</button>)}</div>}
-      {plan.blocking.length>3?<button type="button" aria-expanded={allIssues} onClick={()=>setAllIssues(!allIssues)} className="mt-2 min-h-11 text-sm font-semibold text-teal">{allIssues?'Show first three':`See all ${plan.blocking.length} details`}</button>:null}
+      {plan.outstanding.length>0&&<div className="mt-4 flex flex-wrap gap-2">{(allIssues?plan.outstanding:plan.outstanding.slice(0,3)).map(check=><button type="button" key={check.id} onClick={()=>jump(check.field)} className="min-h-11 rounded-ctl bg-alert-soft px-3 py-2 text-left type-helper font-medium text-alert">! {check.title} →</button>)}</div>}
+      {plan.outstanding.length>3?<button type="button" aria-expanded={allIssues} onClick={()=>setAllIssues(!allIssues)} className="mt-2 min-h-11 text-sm font-semibold text-teal">{allIssues?'Show first three':`See all ${plan.outstanding.length} details`}</button>:null}
       <details className="mt-3 type-helper text-ink-muted"><summary className="min-h-11 cursor-pointer py-2">Why might a detail be missing?</summary><p>Formatting, missing source information or extraction errors can affect reading. Some employer ATS systems may also miss or misread these details; their results can differ. Confirm your actual information rather than guessing.</p></details>
     </section>
     <section className="mb-5 grid grid-cols-3 gap-2" aria-label="Career information captured">{[{label:'Roles',count:value.work_experience.length},{label:'Skills',count:value.skills.length},{label:'Qualifications',count:value.education.length}].map(item=><div key={item.label} className="rounded-card border border-line bg-white p-3 text-center"><p className="font-mono text-2xl font-semibold text-teal">{item.count}</p><p className="text-sm text-ink-soft">{item.label} captured</p></div>)}</section>
@@ -139,17 +148,29 @@ export function ResumeReviewPage<T extends ResumeReviewData>({ value, review, ex
         {field('visa_transferable','Is your visa transferable?',value.visa_transferable===null?'':String(value.visa_transferable),v=>update({visa_transferable:v===''?null:v==='true'} as Partial<T>),{choices:[{value:'',label:'Not answered / not applicable'},{value:'true',label:'Yes'},{value:'false',label:'No'}]})}
       </>)}
     </fieldset>
-    {plan.blocking.filter(c=>!documentField(c.field)).map(check=><div key={check.id} className="mt-4 rounded-card border border-line bg-white p-4"><p className="type-label font-semibold text-ink">{check.title}</p><p className="mt-1 type-helper text-ink-soft">{check.reason}</p>{check.confirmable&&<button type="button" className={cn(buttonVariants({variant:'secondary',size:'sm'}),'mt-3')} disabled={busy} onClick={()=>setVerified(previous=>({...previous,[check.id]:check.value}))}>{check.value?'I checked this detail':'Not in my resume / not applicable'}</button>}</div>)}
+    {plan.outstanding.filter(c=>!documentField(c.field)).map(check=><div key={check.id} className="mt-4 rounded-card border border-alert bg-alert-soft p-4"><p className="type-label font-semibold text-alert">{check.title}</p><p className="mt-1 type-helper text-alert">{check.reason}</p>{check.confirmable&&<button type="button" className={cn(buttonVariants({variant:'secondary',size:'sm'}),'mt-3')} disabled={busy} onClick={()=>setVerified(previous=>({...previous,[check.id]:check.value}))}>{check.value?'I checked this detail':'Not in my resume / not applicable'}</button>}</div>)}
     {review.sourceText&&<details className="mt-4 rounded-card border border-line bg-white p-4"><summary className="min-h-11 cursor-pointer type-label font-medium text-teal">Compare original resume text</summary><pre className="mt-3 whitespace-pre-wrap break-words font-sans type-helper text-ink-soft">{redactImportText(review.sourceText)}</pre></details>}
     <section className="mt-5 rounded-card border border-teal/30 bg-white p-4 sm:p-5" aria-label="Confirm reviewed details">
       <h2 className="type-section font-semibold text-ink">{existing?'Confirm your updated details':'Create your Career Profile'}</h2>
       <p className="mt-2 type-helper text-ink-soft">Profile completeness: {score}%. Gulf Readiness is assessed separately using your experience and application details. Missing information stays marked “Update needed” after creation.</p>
-      {(missing.length>0||plan.later.length>0)?<p className="mt-3 rounded-ctl bg-canvas p-3 text-sm text-ink-soft">Optional details can be completed later. Saving does not mark missing information as complete.</p>:null}
-      <label className="mt-4 flex min-h-11 items-start gap-3 type-label text-ink"><input type="checkbox" className="mt-1 size-4 shrink-0" disabled={busy} checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/><span>I reviewed these details and confirm they accurately describe my background.</span></label>
+      {(missing.length>0||plan.later.length>0)?<p className="mt-3 rounded-ctl bg-canvas p-3 text-sm text-ink-soft">Missing details can be completed later. Creating your profile does not mark them as complete.</p>:null}
+      <label className="mt-4 flex min-h-11 items-start gap-3 type-label text-ink"><input type="checkbox" className="mt-1 size-4 shrink-0" disabled={busy} checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/><span>I reviewed the details read from my resume. Missing information can be completed later.</span></label>
       {error&&<p role="alert" className="mt-3 type-helper text-alert">{error}</p>}{cannotConfirm&&<button type="button" className={buttonVariants({variant:'secondary',size:'sm'})} onClick={()=>window.location.reload()}>Reload to check saved profile</button>}
       {unconfirmedEnd.length>0?<button type="button" className="mt-3 min-h-11 text-sm font-semibold text-teal" onClick={()=>jump(`work_experience.${value.work_experience.findIndex(job=>job.key===unconfirmedEnd[0].key)}.end_date`)}>Confirm whether {unconfirmedEnd.length===1?'your role is':`${unconfirmedEnd.length} roles are`} current →</button>:null}
-      {plan.blocking.length>0&&<p className="mt-3 type-helper text-alert">Correct or verify {plan.blocking.length} flagged detail{plan.blocking.length===1?'':'s'} to continue.</p>}
-      <Button className="mt-4 w-full sm:w-auto" disabled={!ready} busy={busy||remembering} busyLabel="Saving your profile…" onClick={()=>void confirmAndSave()}>{existing?'Confirm & Update Career Profile':'Confirm & Create Career Profile'}<ArrowRightIcon className="size-4" aria-hidden="true"/></Button>
+      {showIssues && hasIssues && <section ref={issueBox} tabIndex={-1} role="alert" aria-labelledby="review-issues-title" className="mt-4 rounded-card border-2 border-alert bg-alert-soft p-4 text-alert focus:outline-none focus:ring-2 focus:ring-alert">
+        <h3 id="review-issues-title" className="type-section font-semibold text-alert">Important details need attention</h3>
+        <p className="mt-2 type-helper text-alert">You can create your profile now and add missing information later. These details will stay marked as needing an update.</p>
+        <ul className="mt-3 space-y-2">
+          {plan.outstanding.map(check => <li key={check.id}><button type="button" disabled={busy} className="min-h-11 text-left type-helper text-alert underline underline-offset-2" onClick={() => jump(check.field)}>{check.title} — {check.reason}</button></li>)}
+          {unconfirmedEnd.length > 0 && !plan.outstanding.some(check => check.field.endsWith('current_status')) && <li className="type-helper">Confirm whether your employment roles are current or add their end dates.</li>}
+        </ul>
+        {plan.invalid.length > 0 && <p className="mt-3 type-helper font-semibold text-alert">Some entered values have an invalid format. Correct or clear the highlighted values before saving. You can leave missing details blank.</p>}
+        <div className="ui-action-row mt-4">
+          <Button variant="secondary" disabled={busy || remembering} onClick={() => jump(plan.invalid[0]?.field ?? plan.outstanding[0]?.field ?? 'employment')}>Update now</Button>
+          <Button disabled={!ready || plan.invalid.length > 0} busy={busy || remembering} busyLabel="Saving your profile…" onClick={() => void confirmAndSave()}>{existing ? 'Skip and update profile' : 'Skip and create profile'}</Button>
+        </div>
+      </section>}
+      {!(showIssues && hasIssues) && <Button className="mt-4 w-full sm:w-auto" disabled={!ready} busy={busy||remembering} busyLabel="Saving your profile…" onClick={() => { if (hasIssues) setShowIssues(true); else void confirmAndSave() }}>{existing?'Confirm & Update Career Profile':'Confirm & Create Career Profile'}<ArrowRightIcon className="size-4" aria-hidden="true"/></Button>}
       <p className="mt-3 type-caption text-ink-muted">Your original extracted draft is kept separately until you confirm. Corrections on this page are saved to your profile only when you press the button.</p>
     </section>
   </main>

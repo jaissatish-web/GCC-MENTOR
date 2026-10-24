@@ -16,6 +16,10 @@ export function isBlockingImportCheck(check: ReviewCheck): boolean {
 export function importReviewPlan(checks: ReviewCheck[], confirmations: Record<string, string>) {
   const outstanding = checks.filter(check => check.status === 'attention' && !(check.confirmable && confirmations[check.id] === check.value))
   return {
+    outstanding,
+    // A missing fact can be deferred. A malformed supplied value must be
+    // corrected or cleared; skipping never confirms an uncertain extraction.
+    invalid: outstanding.filter(check => !check.confirmable && !!check.value.trim()),
     blocking: outstanding.filter(isBlockingImportCheck),
     later: outstanding.filter(check => !isBlockingImportCheck(check)),
     passed: checks.filter(check => check.status === 'passed' || (check.confirmable && confirmations[check.id] === check.value)).length,

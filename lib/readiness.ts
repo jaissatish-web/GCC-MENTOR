@@ -21,7 +21,8 @@ export function deriveCategory(profile: ReadinessInput): ReadinessCategory {
   if (entries.length === 0) return profile.career_stage==='experienced' ? 'experienced_not_in_gulf' : 'fresher'
 
   const totalExperienceMs = entries.reduce((sum, e) => {
-    const start = parseDay(e.start_date)
+    if (!e.start_date) return sum // Unknown dates do not imply years of experience.
+    const start = parseDay(e.start_date ?? '')
     const end = e.end_date ? parseDay(e.end_date) : Date.now()
     const ms = Math.max(0, end - start)
     return sum + ms
@@ -214,7 +215,7 @@ export interface ReadinessInput {
   visa_transferable?: unknown
   notice_period?: unknown
   passport_validity_date?: unknown
-  work_experience?: Array<{ start_date: string; end_date?: string | null; company?: string; role?: string; description?: string | null; highlights?: string | string[] | null }>
+  work_experience?: Array<{ start_date: string | null; end_date?: string | null; company?: string; role?: string; description?: string | null; highlights?: string | string[] | null }>
   education?: unknown[]
   certifications?: unknown[]
   skills?: unknown[]

@@ -81,12 +81,8 @@ function versionOf(saved: CareerProfileFull | null): string | null {
 }
 
 function hasSavedProfileContent(saved: CareerProfileFull | null): boolean {
-  return (
-    !!saved &&
-    (!!saved.full_name?.trim() ||
-      (saved.work_experience?.length ?? 0) > 0 ||
-      (saved.education?.length ?? 0) > 0)
-  )
+  // A deliberately incomplete saved profile is still an existing profile.
+  return !!saved?.id
 }
 
 /**
@@ -583,7 +579,7 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
 }
 
 // ---------------------------------------------------------------------------
-// Required-field validation (PUT 400s without these — validate client-side too
+// Supplied contact format validation (blank details can be added later; validate
 // so the user gets a readable error instead of a bare server 400).
 // ---------------------------------------------------------------------------
 
@@ -595,17 +591,9 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
 // target_job_title / target_industry are optional since migration 042 — a resume
 // does not state the job you are aiming for, so the profile can save (and
 // auto-save after extraction) without them. They are set later, per optimization.
-const REQUIRED_LABELS: Array<[keyof EditorData, string]> = [
-  ['full_name', 'Full name'],
-  ['phone', 'Phone'],
-  ['email', 'Email'],
-]
 
 function requiredMissing(e: EditorData): Array<{ key: keyof EditorData; label: string }> {
   const missing: Array<{ key: keyof EditorData; label: string }> = []
-  for (const [k, label] of REQUIRED_LABELS) {
-    if (typeof e[k] === 'string' && String(e[k]).trim() === '') missing.push({ key: k, label })
-  }
   if (e.email.trim() && !validProfileEmail(e.email)) missing.push({ key: 'email', label: 'Valid email address' })
   if (e.phone.trim() && !validProfilePhone(e.phone)) missing.push({ key: 'phone', label: 'Valid phone number' })
   return missing
