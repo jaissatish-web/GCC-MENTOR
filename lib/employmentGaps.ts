@@ -63,6 +63,9 @@ export function detectEmploymentGaps(
   workExperience: WorkExperienceForGapCheck[],
   minGapMonths: number = DEFAULT_MIN_GAP_MONTHS,
 ): EmploymentGap[] {
+  // An undated/unfinished role could cover an apparent gap between known jobs.
+  // Until that timeline is resolved, absence of employment is not established.
+  if (workExperience.some(role => !role.start_date || hasUnknownEmploymentEnd(role))) return []
   const intervals: WorkInterval[] = workExperience
     .map((e): WorkInterval | null => {
       if (hasUnknownEmploymentEnd(e)) return null

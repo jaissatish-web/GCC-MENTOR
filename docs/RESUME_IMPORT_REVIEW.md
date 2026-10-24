@@ -35,3 +35,9 @@ REVIEW-DEFER-001 release authorization — 24 October2026: Satish explicitly req
 
 
 REVIEW-DEFER-001 release corrections approved within the existing truthful-facts/quota scope: P1 requires a persisted end_date_unconfirmed boolean on work rows (default false for existing data). An unanswered current/end-date question can be skipped, but downstream documents, fact summaries, date arithmetic, readiness and professional-profile/AI input must honor unknown status rather than infer Present. Explicit current confirmation or a supplied end date clears it; the saved editor must let users resolve it later. P2 requires persisted profile identity in the shared recreation-limit check, including nameless profiles. Add focused regressions before release; do not bypass review/CI. This is not a score-weight or template visual redesign.
+
+
+REVIEW-DEFER-001 database release step — 24 October2026: live client configuration verified the production database host wfdcsdecbnsyvoluuuox.supabase.co. Migrations071 and072 applied successfully. Catalogue verification confirms start_date nullable, end_date_unconfirmed boolean NOT NULL DEFAULT false, and profile_work_experience row security remains enabled. Corrected source a56a83c is pushed; CI474 and latest code review remain in progress. Local80/80 and final build passed. No main merge/live application release claimed at this record.
+
+
+Final review correction: a Gulf role with a missing start date now marks duration unconfirmed even if its end date is supplied, so no short-duration/zero-experience claim is inferred. Employment gaps are withheld while an undated or unresolved role could cover them. Known complete timelines retain their original gap calculation. Added missing-start/possible-gap-cover regressions; focused employment tests, typecheck and lint pass. Both production migrations071/072 are applied and catalogue-verified; final application CI/main merge/deployment remain pending.

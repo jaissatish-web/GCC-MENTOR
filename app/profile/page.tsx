@@ -1622,8 +1622,8 @@ function ProfileScreen() {
     )
     const availability = [editor.visa_status, editor.notice_period ? `Notice: ${editor.notice_period}` : ''].filter((x) => x.trim()).join(' · ')
     return {
-      currentRoleUnconfirmed: Boolean(latest?.end_date_unconfirmed && !latest.end_date),
-      experienceIncomplete: work.some(w => !w.end_date && w.end_date_unconfirmed),
+      currentRoleUnconfirmed: Boolean(latest && (latest.end_date || latest.end_date_unconfirmed)),
+      experienceIncomplete: work.some(w => !w.start_date || !w.end_date && w.end_date_unconfirmed),
       currentTitle: latest ? [latest.role, latest.company].filter((x) => x.trim()).join(' · ') : null,
       years: totalExperienceYears({ work_experience: work.map((w) => ({ start_date: w.start_date, end_date: w.end_date || null, end_date_unconfirmed: w.end_date_unconfirmed })) } as never),
       gcc: { ...gcc, countries: gcc.countries.map(countryLabel) },

@@ -59,4 +59,12 @@ const editable={key:'unconfirmed',role:role.role,company:role.company,start_date
 const html=renderToStaticMarkup(React.createElement(WorkExperienceItem,{role:editable,number:1,open:false,onToggle:()=>{},children:'Details'}))
 assert.ok(html.includes('End date not provided'));assert.ok(!html.includes('Current role'));assert.ok(!html.includes('Present'))
 assert.equal(sortedWorkRoles([editable,{...editable,key:'current',end_date_unconfirmed:false}])[0].key,'current')
+const missingStartEnded={...unknown,work_experience:[{...role,start_date:null,end_date:'2022-01-01',end_date_unconfirmed:false}]}
+assert.equal(gccExperience(missingStartEnded.work_experience,()=>null).durationUnconfirmed,true,'missing start plus known end still has unknown duration')
+assert.ok(!gulfFactLine(missingStartEnded).includes('under one year'),'missing start must not invent short Gulf duration')
+const beforeGap={...role,start_date:'2018-01-01',end_date:'2020-01-01',end_date_unconfirmed:false}
+const afterGap={...role,start_date:'2023-01-01',end_date:'2024-01-01',end_date_unconfirmed:false}
+assert.ok(detectEmploymentGaps([beforeGap,afterGap]).length>0,'confirmed timelines still expose real gaps')
+assert.deepEqual(detectEmploymentGaps([beforeGap,afterGap,{...role,start_date:'2019-01-01',end_date:null,end_date_unconfirmed:true}]),[],'an uncertain role might cover the apparent gap')
+assert.deepEqual(detectEmploymentGaps([beforeGap,afterGap,{...role,start_date:null,end_date:'2023-01-01',end_date_unconfirmed:false}]),[],'an unknown start might cover the apparent gap')
 console.log('PASS unknown employment: preserved facts, honest resume/UI dates, no current-tense/derived-duration claims, incomplete readiness, scoring and service context')

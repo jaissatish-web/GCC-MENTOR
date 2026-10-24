@@ -91,7 +91,7 @@ export function gccExperience(
     const country = (w.gcc_country && w.gcc_country.trim()) || resolve(w.location ?? null)
     if (!country) continue
     roles++
-    if (hasUnknownEmploymentEnd(w)) durationUnconfirmed = true
+    if (!w.start_date || hasUnknownEmploymentEnd(w)) durationUnconfirmed = true
     if (!countries.includes(country)) countries.push(country)
     if (!w.start_date || hasUnknownEmploymentEnd(w)) continue
     const s = monthIndex(w.start_date)
