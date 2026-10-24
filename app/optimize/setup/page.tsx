@@ -762,11 +762,11 @@ function CertAsk({ cert, onAdded }: { cert: { term: string; importance: 'must' |
             </label>
           </div>
           {error ? <p className="type-helper text-alert">{error}</p> : null}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="ui-action-group">
             <button type="button" onClick={() => void save()} disabled={saving || name.trim().length < 2} className={buttonVariants({ variant: 'primary', size: 'sm' })}>
               {saving ? 'Saving…' : 'I hold this — add it to my profile'}
             </button>
-            <button type="button" onClick={() => setOpen(false)} className="min-h-9 px-2 type-helper font-semibold text-ink-muted hover:text-ink">
+            <button type="button" onClick={() => setOpen(false)} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
               Cancel
             </button>
           </div>

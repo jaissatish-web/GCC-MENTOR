@@ -866,7 +866,7 @@ function CardSection({
 
       {open ? (
         <div id={panelId} className="ui-panel-padding border-t border-line p-4 sm:p-5">
-          {action ? <div className="mb-4 flex flex-wrap gap-2">{action}</div> : null}
+          {action ? <div className="ui-action-group mb-4">{action}</div> : null}
           {children}
         </div>
       ) : null}
@@ -1711,6 +1711,8 @@ function ProfileScreen() {
   const [phoneDraftDial, setPhoneDraftDial] = useState('')
   const [whatsappDraftDial, setWhatsappDraftDial] = useState('')
   const [editWhatsapp,setEditWhatsapp]=useState(false)
+  // A local visual acknowledgement only; an empty saved number is not a declaration.
+  const [whatsappCleared, setWhatsappCleared] = useState(false)
   const storedPhoneParts = useMemo(() => splitPhone(editor?.phone), [editor?.phone])
   const storedWhatsappParts = useMemo(() => splitPhone(editor?.whatsapp), [editor?.whatsapp])
   const phoneParts = { ...storedPhoneParts, dial: storedPhoneParts.dial || (!storedPhoneParts.number ? phoneDraftDial : '') }
@@ -2249,7 +2251,7 @@ function ProfileScreen() {
                 Your saved experience. Your choice of Gulf template.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="ui-action-group">
             <CareerProfileResumeButton showHint={false} />
             <Button
               variant="progress"
@@ -2502,12 +2504,12 @@ function ProfileScreen() {
               onNumberChange={(v) => setPhone(phoneParts.dial, v)}
             />
             <div className="space-y-2">
-              <p className="field-label">WhatsApp · optional</p>
+              <p id="whatsapp-choice-label" className="field-label">WhatsApp · optional</p>
               <p className="field-hint">{editor.whatsapp ? editor.whatsapp.replace(/\D/g, '') === editor.phone.replace(/\D/g, '') ? 'Same as your phone number' : editor.whatsapp : 'No WhatsApp number recorded'}</p>
-              <div className="flex flex-wrap gap-2">
-                <button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} disabled={!editor.phone.trim()} onClick={() => { setField({ whatsapp: editor.phone }); setEditWhatsapp(false) }}>Same as phone</button>
-                <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => setEditWhatsapp(true)}>Different number</button>
-                <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => { setField({ whatsapp: '' }); setEditWhatsapp(false) }}>I don’t use WhatsApp</button>
+              <div className="ui-choice-group" role="group" aria-labelledby="whatsapp-choice-label">
+                <button type="button" className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} ui-choice-button`} aria-pressed={!editWhatsapp && Boolean(editor.whatsapp) && editor.whatsapp.replace(/\D/g, '') === editor.phone.replace(/\D/g, '')} disabled={!editor.phone.trim()} onClick={() => { setField({ whatsapp: editor.phone }); setEditWhatsapp(false); setWhatsappCleared(false) }}>Same as phone</button>
+                <button type="button" className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} ui-choice-button`} aria-pressed={editWhatsapp || Boolean(editor.whatsapp) && editor.whatsapp.replace(/\D/g, '') !== editor.phone.replace(/\D/g, '')} onClick={() => { setEditWhatsapp(true); setWhatsappCleared(false) }}>Different number</button>
+                <button type="button" className={`${buttonVariants({ variant: 'secondary', size: 'sm' })} ui-choice-button`} aria-pressed={whatsappCleared && !editWhatsapp && !editor.whatsapp} onClick={() => { setField({ whatsapp: '' }); setEditWhatsapp(false); setWhatsappCleared(true) }}>I don’t use WhatsApp</button>
               </div>
               {editWhatsapp ? <>
                 <PhoneField
@@ -2519,7 +2521,7 @@ function ProfileScreen() {
                   onDialChange={(v) => { setWhatsappDraftDial(v); setWhatsapp(v, whatsappParts.number) }}
                   onNumberChange={(v) => setWhatsapp(whatsappParts.dial, v)}
                 />
-                <button type="button" className="min-h-11 text-sm text-teal" onClick={() => setEditWhatsapp(false)}>Done</button>
+                <button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => setEditWhatsapp(false)}>Done</button>
               </> : null}
             </div>
             <TextField

@@ -59,6 +59,7 @@ jobs:
       - name: Verify scoped internal UI and document boundaries
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:clear-path
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:cta
       - name: Verify desktop and mobile services navigation
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:workspace-navigation
