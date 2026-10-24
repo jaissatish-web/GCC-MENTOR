@@ -37,3 +37,7 @@ Internal UI implementation is retained in PR31, application commit5678495; sourc
 
 ## PR31 dependency blocker follow-up — 24 October2026
 The old required audit failure is resolved in source by dependency commit26b4d48. Local production audit0; clean install/typecheck/lint/build/77 checks and198 PDF fixtures passed with bundled Chromium. Final CI and main merge/deployment remain pending; Clear Path is not yet claimed live. See05_SECURITY.md.
+
+
+## Career Studio presentation — 24 October2026
+PR33 reconstructs the founder-approved internal Home/Profile/resume/interview/report layout. Existing service APIs, storage, auth, score engines, prompts and resume formatting are protected. Locally built source and fictional mobile/desktop interactions are verified; required CI/main merge/Vercel alias status must be read from the release record. See CAREER_STUDIO.md and root design-qa.md. Do not infer live authenticated persistence from these fixtures.

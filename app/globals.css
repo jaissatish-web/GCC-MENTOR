@@ -3,6 +3,7 @@
 @import "./typography.css";
 @import "./mobile-design.css";
 @import "./desktop-design.css";
+@import "./career-studio.css";
 
 @tailwind base;
 @tailwind components;

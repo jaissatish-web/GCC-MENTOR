@@ -4,6 +4,8 @@ import { EditorSettingsPanel } from '@/components/resume/EditorSettingsPanel'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
 import {
+  ArrowUpRightIcon,
+  DocumentTextIcon,
   ArrowTrendingUpIcon,
   ChevronDownIcon,
   ClipboardDocumentListIcon,
@@ -143,10 +145,9 @@ function WorkspaceTabs({
     { key: 'tracker', label: 'Tracker', short: 'Tracker' },
   ]
   return (
-    <div role="tablist" aria-label="Resume workspace" className="grid grid-cols-4 gap-1 rounded-card border border-line bg-white p-1 shadow-m-1">
+    <div role="tablist" aria-label="Resume workspace" className="studio-workspace-tabs">
       {items.map((it) => {
         const active = tab === it.key
-        const Icon = TAB_ICONS[it.key]
         return (
           <button
             key={it.key}
@@ -155,14 +156,12 @@ function WorkspaceTabs({
             aria-selected={active}
             onClick={() => onChange(it.key)}
             className={cn(
-              'relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-ctl px-1 py-1.5 type-helper font-semibold leading-tight transition-colors sm:min-h-11 sm:flex-row sm:gap-2 sm:px-3 sm:type-label',
+              'studio-workspace-tab',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-1',
-              active ? 'bg-teal text-white shadow-m-1' : 'text-ink-soft hover:bg-teal-soft hover:text-teal',
+              active ? 'studio-workspace-tab-active' : 'text-ink-soft',
             )}
           >
-            <Icon className="size-5 shrink-0" aria-hidden="true" />
-            <span className="sm:hidden">{it.short}</span>
-            <span className="hidden sm:inline">{it.label}</span>
+            <span>{it.short}</span>
             {it.badge ? (
               <span
                 className={cn(
@@ -590,7 +589,7 @@ function PackageScreenInner({ id }: { id: string }) {
      * Below `lg` nothing changes: a phone keeps one natural page scroll, because
      * nested scroll areas on a touch screen are how you lose the user.
      */
-    <main className={cn("mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-canvas font-redesign-sans", tab === 'design' && 'pb-40 lg:pb-0')}>
+    <main className={cn("studio-resume-workspace mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-canvas font-redesign-sans", tab === 'design' && 'pb-40 lg:pb-0')}>
       {/* ONE HEADER ROW (TASK-160, founder-directed).
           This was five stacked rows — back arrow, "Unlocked & saved to Library"
           badge, title, name field, then the action toolbar below — each one full
@@ -604,7 +603,7 @@ function PackageScreenInner({ id }: { id: string }) {
           announced a state the user cannot be in any other way — an unpaid
           package never reaches this screen, it is redirected — so it was telling
           them something that is always true. */}
-      <div className="flex flex-col gap-3 px-3 pb-3 sm:px-5 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
+      <div className="studio-workspace-heading flex flex-col gap-3 px-3 pb-3 sm:px-5 pt-3 lg:shrink-0 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-4 lg:gap-y-2">
         {/* Career Profile is the unoptimized source; job workspaces show the
             chosen optimization level even when legacy generated fields differ. */}
         <div className="flex min-w-0 flex-col gap-0.5 lg:shrink-0">
@@ -634,6 +633,7 @@ function PackageScreenInner({ id }: { id: string }) {
             may wrap INSIDE its button. Buttons never wrap by default, so "Review
             and edit changes" ran out past its half-width cell. From `sm` up the
             row is unchanged. */}
+        <details className="studio-workspace-actions" open={tab === 'design'}><summary>Resume actions</summary>
         <div className="grid grid-cols-2 items-stretch gap-2 sm:flex sm:flex-wrap sm:items-center lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
           {!isRaw ? <StageSelect className="col-span-2 w-full sm:w-auto" value={pkg.status} onChange={(next) => void saveStage(next)} /> : null}
           {stageState ? <span className="col-span-2 type-caption text-alert">{stageState}</span> : null}
@@ -718,7 +718,7 @@ function PackageScreenInner({ id }: { id: string }) {
                 : styleMsg}
             </span>
           ) : null}
-        </div>
+        </div></details>
       </div>
 
       {/* NOT BUILT YET (2026-09-11). Founder report: a job whose CV build had
@@ -760,8 +760,13 @@ function PackageScreenInner({ id }: { id: string }) {
         {/* RESULTS FIRST, AS COLOURED CARDS (founder request 2026-09-17): target
             job, ATS score before → after, summary, what changed, next steps.
             components/package/ResultsOverview.tsx. */}
-        {tab === 'overview' ? (
-        <>
+        {tab === 'overview' ? <>
+          <section className="studio-document-summary">
+            {previewDocument && profile ? <div className="studio-document-thumbnail" data-document-preview><ResumeDocumentView reader={false}><Template document={documentWithLivePhoto} profile={profile} optimizedContent={(pkg.optimized_content ?? { summary: { generated: '', source_profile_summary: '' }, experience_blocks: [] }) as OptimizedContent} skillsOrder={pkg.skills_order ?? []} fieldVisibility={pkg.field_visibility_snapshot ?? null} styleOverrides={draftStyle} /></ResumeDocumentView></div> : <DocumentTextIcon className="size-10 text-teal" aria-hidden="true" />}
+            <div><h2>{previewDocument?.header.displayName || pkg.name || pkg.target_job_title}</h2><p>{isRaw ? 'Profile Resume · Not optimized' : pkg.target_job_title}</p><button type="button" className="studio-text-link" onClick={() => setTab('design')}>Preview resume<ArrowUpRightIcon aria-hidden="true" /></button></div>
+          </section>
+          <WorkspaceServiceCards pkg={pkg} />
+          <details className="studio-workspace-analysis"><summary>{isRaw ? 'About your Profile Resume' : 'Job details & match report'}</summary><div>
         {isRaw ? <ProfileResumeOverview /> : null}
         {!isRaw && !showOverview ? <TargetJobOverview pkg={pkg} /> : null}
         {showOverview ? (
@@ -801,9 +806,8 @@ function PackageScreenInner({ id }: { id: string }) {
           />
         ) : null}
 
-        </>
-        ) : null}
-        {tab === 'overview' ? <WorkspaceServiceCards pkg={pkg} /> : null}
+          </div></details>
+        </> : null}
 
         {tab === 'improve' && isRaw ? <ProfileResumeOverview improving /> : null}
         {tab === 'improve' && !isRaw ? (

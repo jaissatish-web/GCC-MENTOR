@@ -85,7 +85,7 @@ export function SideSheet({
   if (!open || !mounted) return null
 
   return createPortal(
-    <div data-side-sheet className={`app-type${internalUI ? ' internal-ui' : ''} fixed inset-0 z-50`}>
+    <div data-side-sheet className={`app-type${internalUI ? ' internal-ui career-studio' : ''} fixed inset-0 z-50`}>
       <button
         type="button"
         aria-label="Close menu"

@@ -824,7 +824,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   --ui-space-6: 24px;
   --ui-space-8: 32px;
   --ui-space-10: 40px;
-  --ui-page-gutter: var(--ui-space-5);
+  --ui-page-gutter: var(--ui-space-4);
   --ui-page-top: var(--ui-space-6);
   --ui-page-gap: var(--ui-space-6);
   --ui-section-gap: var(--ui-space-4);
@@ -832,24 +832,25 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   --ui-list-gap: var(--ui-space-3);
   --ui-control-gap: var(--ui-space-2);
   --ui-card-padding: var(--ui-space-4);
-  --ui-page-width: 980px;
+  --ui-page-width: 1180px;
+  --ui-navigation-width: 224px;
   --ui-wide-width: 1160px;
   --ui-form-width: 760px;
   --ui-document-width: 1240px;
-  --ui-control-height: 46px;
+  --ui-control-height: 48px;
   --ui-control-padding-y: 10px;
   --ui-control-radius: 8px;
-  --ui-card-radius: 10px;
+  --ui-card-radius: 8px;
   --ui-card-shadow: none;
   --ui-card-hover-shadow: 0 3px 12px rgb(20 33 43 / .05);
   --ui-canvas-rgb: 250 250 247;
   --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 20 33 43;
+  --ui-ink-rgb: 22 38 44;
   --ui-ink-soft-rgb: 82 99 107;
   --ui-ink-muted-rgb: 98 112 120;
-  --ui-brand-rgb: 19 79 60;
-  --ui-brand-hover-rgb: 11 60 44;
-  --ui-brand-soft-rgb: 232 242 236;
+  --ui-brand-rgb: 0 111 116;
+  --ui-brand-hover-rgb: 0 84 89;
+  --ui-brand-soft-rgb: 234 244 242;
   --ui-line-rgb: 227 232 229;
   --ui-line-strong-rgb: 169 183 174;
   --ui-accent-rgb: 216 150 8;
@@ -902,8 +903,8 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 }
 @media (min-width: 1280px) {
   .app-type.internal-ui {
-    --ui-page-gutter: var(--ui-space-10);
-    --ui-page-top: var(--ui-space-10);
+    --ui-page-gutter: var(--ui-space-8);
+    --ui-page-top: var(--ui-space-8);
     --ui-page-gap: var(--ui-space-8);
   }
 }

@@ -66,7 +66,7 @@ try {
   for(const width of [360,390,430,768,1024,1366,1440]){
     await page.setViewport({width,height:900})
     await page.goto('https://interview.test/dashboard',{waitUntil:'networkidle0'})
-    await page.waitForFunction(()=>document.body.textContent.includes('Engineering CV'))
+    await page.waitForFunction(()=>document.body.textContent.includes('Engineer'))
     await page.evaluate(()=>document.fonts.ready)
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Dashboard overflow ${width}`)
     const title=await page.$eval('h1',el=>({size:getComputedStyle(el).fontSize,internal:!!el.closest('.internal-ui')}))
@@ -103,8 +103,8 @@ try {
       await page.setViewport({width,height:900})
       await page.goto('https://interview.test/dashboard',{waitUntil:'networkidle0'})
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1))
-      assert.equal(await page.$$eval('[aria-label="Your readiness scores"] [role="progressbar"]',els=>els.every(el=>el.getAttribute('aria-valuenow')===null)),true,'Unavailable scores must not look like real zeroes')
-      if(scenario==='new'&&width>=768) assert.equal(await page.$eval('.taskColumn',el=>getComputedStyle(el).display),'none')
+      assert.equal(await page.$$eval('.studio-readiness progress',els=>els.every(el=>!el.hasAttribute('value') && el.getAttribute('aria-valuetext')==='Unavailable')),true,'Unavailable scores must not look like real zeroes')
+      if(scenario==='new') assert.ok(await page.$('.studio-continue a[href="/profile?import=upload"]'),'Missing profile has one clear primary creation action')
       await page.screenshot({path:`docs/desktop-redesign/dashboard-${scenario}-${width}.webp`,type:'webp',fullPage:true})
     }
   }

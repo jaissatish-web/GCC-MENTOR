@@ -3252,3 +3252,5 @@ Satish authorized autonomous internal UI implementation, testing, protected merg
 24 October 2026 — Satish explicitly requested fixing the dependency audit blocker. Compatible browser dependency updates and export regression verification are authorized; retain required checks and existing release scope.
 
 24 October 2026 — CTA-ALIGN-001: founder authorizes shared CTA sizing/alignment and consistent WhatsApp choices, visual-only; existing app logic and document styling protected.
+
+24 October 2026 — Career Studio reconstruction and release explicitly authorized by Satish (“So do it”). Approved selected visual remains unchanged. Reconstruct readable typed frontend source, preserve business/document behavior, pass visual and required checks before main merge/Vercel release.

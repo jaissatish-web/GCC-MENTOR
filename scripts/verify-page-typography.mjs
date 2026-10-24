@@ -103,7 +103,7 @@ try{
     await page.waitForSelector('[role="dialog"]',{visible:true})
     const reference=await page.evaluate(()=>{const dialog=document.querySelector('[role="dialog"]');const style=q=>getComputedStyle(dialog.querySelector(q));return{title:style('h2').fontSize,weight:style('h2').fontWeight,paragraph:style('p').fontSize,card:style('h3').fontSize,overflow:document.documentElement.scrollWidth>innerWidth+1}})
     assert.equal(reference.title,width>=768?'20px':'18px','Popup heading uses the section role')
-    assert.equal(reference.weight,'600');assert.equal(reference.paragraph,width<768?'15px':'16px');assert.equal(reference.card,'16px');assert.equal(reference.overflow,false)
+    assert.equal(reference.weight,'600');assert.equal(reference.paragraph,'16px');assert.equal(reference.card,'16px');assert.equal(reference.overflow,false)
     await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>Number.isFinite(a.effect?.getComputedTiming().iterations)).map(a=>a.finished.catch(()=>{}))))
     if(width===390)await page.screenshot({path:'artifacts/page-typography/how-it-works-390.png',fullPage:true})
     await page.evaluate(()=>document.querySelector('[aria-label="Close guide"]').click())

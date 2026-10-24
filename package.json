@@ -23,7 +23,8 @@
     "test:typography": "node scripts/verify-typography-ui.mjs",
     "test:page-typography": "node scripts/verify-page-typography.mjs",
     "test:clear-path": "node scripts/verify-clear-path-ui.mjs",
-    "test:cta": "node scripts/verify-cta-alignment.mjs"
+    "test:cta": "node scripts/verify-cta-alignment.mjs",
+    "test:studio": "node scripts/verify-career-studio.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

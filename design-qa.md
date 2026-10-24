@@ -1,66 +1,49 @@
-# GCC Mentor desktop and services drawer — design QA
+# Career Studio design QA
 
-final result: passed for the checked visual and isolated interactive flows. Production release and live backend end-to-end certification are outside this verification.
+24 October2026. Implementation: rebuilt Next.js source in PR33. No actionable P0/P1/P2 findings remain in the reviewed presentation scope.
 
-The current release review is [docs/desktop-redesign/README.md](docs/desktop-redesign/README.md). The owner's new direction is to reproduce the approved mobile language on desktop and restore the three-dot services/account drawer. Actual production desktop was inspected first in the signed-in browser. Actual React components and built pages were then captured locally with fictional fixtures.
+## Source and captured states
+Source visual truth: `design-reference/career-studio/approved-direction.png` (1254×1254 generated direction board). This is an approved concept board, not a pixel-exact device specification: its five phone panels have different aspect ratios. Comparison crops remove the board surround; all phone source crops are rescaled proportionally to390px wide, alongside actual390×844 CSSpx screenshots at deviceScaleFactor1. No stretching or device chrome is added. Home source crop252×601 becomes390×930; lower phone crops273×530 become390×757. Height differences remain visible rather than being hidden. The desktop source crop909×597 is scaled proportionally to1440px wide; actual desktop is1440×1024 at1× density. The board's stated16px body and48px controls govern actual CSS sizes; enlarged board text is not treated as reliable font metadata.
 
-The mobile/desktop pair was composed and opened together in `docs/desktop-redesign/responsive-comparison.webp`. This is explicitly a responsive adaptation: same real component system and shared roles, with a wider grid and sidebar rather than stretched phone geometry. Desktop profile and the expanded interview progress comparison were also opened and inspected. Existing resume document styles remain isolated.
+Fictional saved state: Maya Thomas, Project Engineer/UAE, one saved resume, active interview with3/10 saved answers, completed practice76 and eligible previous72. Sample mock scores/counts/dates are illustrative; real engines compute the fixture's Profile completeness and Gulf preparation100. Empty/error/pending-import/base-resume/enlarged text states are captured separately.
 
-Build, lint, TypeScript, all 71 existing checks, the shared/public responsive suite, 114 built page/width checks, interview, preparation, LinkedIn, NaukriGulf and the new drawer navigation suite passed. Empty/error scores remain unavailable. No horizontal overflow, fixture account writes or client exceptions were observed. Snapshot data and timing differ from the approved illustrative image; no numeric pixel-fidelity claim is made.
+Full-view combined comparison inputs, opened and inspected:
+- `design-reference/career-studio/compare-home.webp`
+- `design-reference/career-studio/compare-profile.webp`
+- `design-reference/career-studio/compare-resume.webp`
+- `design-reference/career-studio/compare-interview.webp`
+- `design-reference/career-studio/compare-report.webp`
+- `design-reference/career-studio/compare-desktop.webp`
 
-The branch is `ui/desktop-services-refresh`. Production/main have not been changed for this update. Vercel preview configuration and untested live services are described in the linked release review.
+Focused combined control comparison: `design-reference/career-studio/compare-controls.webp`. It checks nav text/icon alignment and primary CTA proportions. Individual full-resolution actual captures are `home-390.webp`, `profile-390.webp`, `resume-390.webp`, `interview-390.webp`, `report-390.webp`, `contact-390.webp` and their1440px counterparts in the same directory. Responsive test results: `results.json`.
 
----
+## Comparison history and resolved findings
+1. [P2] Phone Profile was too tall and descriptive text inherited button-semibold weight. Evidence:`compare-profile-before.webp`; Gulf preferences/additional sections fell below the first viewport. Fix: phone summary row padding12px, tighter identity/header rhythm, two-line descriptions with full content in the editor, central regular-weight supporting copy. Re-captured at390×844 and compared in `compare-profile.webp`; all five section headings and the additional-sections action are visible before the nav.
+2. [P2] Report supporting copy inherited-semibold weight and the next-practice action previously followed the entire explorer. Evidence:`compare-report-before.webp` (copy) and earlier source inspection (action position). Fix: regular supporting weight, compact mobile score/feedback spacing, primary Practise again inside the overview action group, paired with Review answers. Re-captured same saved state at390×844 and compared in `compare-report.webp`; both actions fit above the fold, all report sections remain available. Share label stays on one line.
+3. Integration corrections before the final comparison: removed inherited50px bottom-nav label width (Resumes now one line at320/390); set shared phone gutter16px; explicitly sized CTA SVGs18px; made unavailable progress indeterminate rather than a real zero. Current control comparison and320/390/768/1440 checks validate these.
 
-# GCC Mentor mobile redesign — design QA
+## Fidelity surfaces
+- Fonts/typography: existing bundled Inter,16px internal body/input,24px phone and28px desktop H1. Central roles supply14px labels/helpers and restrained500/600 emphasis; supporting Profile/report copy uses400. Generated source has no font metadata, so exact typeface identity is not asserted. Source/actual heading hierarchy and control wrapping were reviewed in combined images. Document font/style boundaries pass independently.
+- Spacing/layout: light224px desktop rail,80px tablet rail,56px phone header,16/32px page gutters,48px primary controls,8px radii. Home reorders readiness/context/action/saved rows on phones and uses two columns on desktop. Profile summary/focused editing, flat service rows, local tabs and focused interview remove repeated card/header layers. No horizontal page overflow at320/390/768/1440 or doubled Home text.
+- Colors/tokens: warm nearwhite, charcoal, ocean teal, amber attention and blue information, configured centrally and scoped to internal UI. Source gradients/shadows are deliberately simplified to flat controls and light dividers for clarity. Public colors and document styling retain their separate contracts.
+- Images/icons: existing candidate photos render when saved; the no-photo fixture exposes the actual upload control instead of shipping the mock portrait. Resume workspace thumbnail uses the real document/template renderer. Home has a library document icon because the existing summary API has no document snapshot; it does not fabricate a resume image. Standard existing Heroicons/Lucide replace no custom product imagery. No generated assets or example people are runtime fallbacks.
+- Copy/content: labels describe actual existing services. Distinct Profile completeness/Gulf preparation scores are preserved. No invented timestamps, per-question evidence links, mock achievements or auto-save promise. Introductory explanations remain disclosed where possible.
 
-final result: passed for the checked local screens and isolated workflows; live authenticated end-to-end verification remains blocked by unavailable account access in this release session.
+## Intentional differences from the concept
+- Four existing resume tabs (Overview/Improve/Design/Tracker) remain rather than inventing the mock's three-tab model; all existing controls and base-resume paths survive.
+- Source home timestamps, item counts, readiness labels/numbers and feedback examples are replaced by real available data. Generic improvement links are used when the account has no grounded summary feedback.
+- Report feedback links open the correct existing sections, not invented question3/5/7 associations. Comparison only appears when the unchanged eligibility model supplies a previous score.
+- Question4 means three saved answers; source's question3 label alongside three saved answers is not copied. Submit remains explicit; the mock's automatic-save caption is removed.
+- Report actions share one phone row instead of two full-width rows, keeping score/priorities/next action in the viewport. Header preserves the service menu rather than substituting a nonfunctional sample avatar.
 
-## Reference and scope
+## Browser verification
+Current compiled production pages and the real dynamic workspace component were served via a local fictional-data harness, opened in the cloud browser. These are real hydrated components, not screenshots used as UI. Cloud captures: `cloud-home.jpg`, `cloud-profile.jpg`, `cloud-report.jpg` at1363×936 surrounding a390×844 iframe; `cloud-desktop.jpg` at1363×936 directly. The desktop capture follows a successful answer submission, so saved progress is4/10 there. The wrapper and classic-scrollbar normalization are test-only. The dynamic workspace harness substitutes Next navigation/server footer/auth adapters; it does not certify published legal content or production auth.
 
-Owner-approved option two, plus the eight workflow boards in GCC_Mentor_Mobile_Design_Approval.html, dated 20 October 2026. The owner subsequently explicitly authorized implementation into main. Development branch: `ui/mobile-option-two`; PR: #17.
+Primary interactions: Home Continue practice opens the saved run; typing and Submit advances Question4→5; report Review answers opens question cards; Profile edit→back preserves the changed name and explicit Save succeeds through the versioned existing payload. Native checks also cover service links, all four viewport widths, actual WhatsApp choices, drawer keyboard/focus/account navigation without writes, empty/error/pending-import/base-resume and doubled text. Application console errors:none in native checks and the observed cloud app load. Cloud extension metadata errors were excluded by extension URL.
 
-The specification overrides incidental generated gradients, repeated tool-page greetings and illustrative control states. All report values, supported input options and conditional actions come from existing application fields and handlers. No measured 95% pixel-match claim is made: fixture data, content length and supported states differ from the generated reference.
+## Checks and limits
+Local production build (including lint/type validity) passes. Repository suite77/77 passes. Career Studio29 responsive/state checks pass with zero external calls/runtime errors. Shared UI/public-document isolation passes; mobile typography, CTA interactions, navigation and intake checks pass. Test harness accepts the existing beforeunload prompt only when leaving fictional cases; it never changes the production guard. Required CI and exact Vercel release status are separate gates recorded in PR33/release notes. Signed-in production saves, AI generation quality and microphone behavior were not certified by these fictional tests.
 
-## Visual evidence
+Implementation checklist: source checkpointed; protected-directory diff empty; comparisons opened; P2 fixes re-captured; app interactions/console checked; final required CI must pass before merge. P3 follow-up: summaries may show additional entry counts beside section titles; not needed to use any flow.
 
-`docs/mobile-redesign/dashboard-comparison.webp` places the prior build, approved direction and implemented dashboard together at a normalized 390px width. The prior build and implementation use local fictional API fixtures; the reference uses the approved design's illustrative account state. The implementation intentionally shows the fixture's actual 80% completeness and 2/100 readiness rather than copying the reference's 93/90 values.
-
-Dashboard viewport captures are saved at 360, 390 and 430px. Additional full-page captures cover Career Profile, original/optimized library framing, tools, job details, interview setup, readiness and an intentionally long-content interview report. `page-check-results.json` records the 114 checked route/width combinations. These screenshots are test evidence, not authenticated production screenshots. Existing private audit screenshots are not included.
-
-## Findings resolved
-
-- Dashboard: moved real readiness scores above the next action; replaced nested saved-work cards with grouped rows; matched the approved next-action copy and quieter spacing. Loading and failed totals remain unavailable, not false zeroes.
-- Interview continuation: the existing job-summary endpoint excludes original Profile Resumes. An overview-count-based link opens the existing interview picker when those saved interviews are present. It does not guess an attempt ID or answer count, create a resume, or change the summary API.
-- Original resumes: distinct gold source marker; optimized resumes retain a teal marker. All resume actions remain available.
-- Interview/report: existing answer methods, six portraits, setup gates and saved report fields remain. Mobile report surfaces and rows use the shared tokens. Long summaries and feedback remain fully readable.
-- Professional profiles: workspace action appears near the top; stale results are warned before copy-ready framing. The preview's full-width margins now follow the central gutter instead of a hard-coded 12px offset.
-- QA harness: interactive chart checks now open the existing collapsed disclosure before clicking. Typography assertions were updated from outdated 26/20/16 values to the approved 24/18/15 roles; functional assertions remain.
-
-## Verification
-
-| Check | Result |
-| --- | --- |
-| Production Next.js build, lint and TypeScript | Passed |
-| Full deterministic/API/disposable-database regression suite | 71/71 passed |
-| Built-page typography and horizontal reflow | 114 route/width combinations passed; 320, 360, 390, 430, 768, 1440px |
-| Shared mobile/public UI | Passed, including enlarged text and document typography isolation |
-| Mock interviews/reports/progress | Passed: 12 attempts, score area and earlier/later controls, all eight result sections, saved answers, answer tabs, continuation, six hosts, reduced motion, six widths; no AI writes or runtime errors |
-| Preparation workflows | Passed: saved/first-use states, question-led voice room, signup privacy, retries/timeouts, report routing and template preview/rotation |
-| LinkedIn setup/results/preview | Passed: 320/390/768/1440px, edit/save/retry, copy, checklist persistence, conflicts, empty profile |
-| NaukriGulf setup/results/preview | Passed: same isolated workflow checks |
-| Central typography/source consistency | Passed: 49 route files, 180 UI components, 12 stylesheets; document/template boundaries preserved |
-| Protected-source diff | No API, auth action, lib, types, Supabase, resume renderer/export or template source changes |
-| Hosted preview | Vercel READY; public page opened successfully in cloud browser |
-
-The final change after the broad page checks adjusts only professional-profile preview width/margins; both professional-profile suites were rerun successfully against that final build.
-
-## Limits and intentional differences
-
-Live authentication, real account writes, AI/provider execution, credits/payment behavior, physical microphone permissions/audio capture and real-device Safari/Android keyboards were not exercised. Local fixtures simulate API replies; database checks use disposable local data. No production credentials, schema, environment variables or user records were changed.
-
-Settings/account authentication controls retain their existing implementation and inherit the shared mobile controls; no authenticated settings session was available for live visual or destructive-action testing. Completed reports and optimized resumes unavailable in the real audit account were checked through existing typed fixtures, not represented as real saved user results.
-
-Desktop layout remains in place. The existing public animations, globe, template orbit and service links remain. Public photographic overlays retain the contrast needed for readable captions. Resume document internals remain independent of app typography and surfaces.
-
-Release integration and final production deployment status are recorded in the PR and handoff after the owner-authorized merge. The earlier interview-only QA report remains available in Git history at commit 20c53a4.
+final result: passed

@@ -277,20 +277,42 @@ function MockInterviewScreen() {
         <span className="min-w-0 truncate text-right text-xs font-semibold text-ink sm:text-sm">{run.target_job_title}</span>
       </header>
       {run.status === 'completed' ? <div className="mx-auto w-full max-w-[1100px] flex-1 overflow-y-auto px-3 py-4 sm:p-6">
-        <InterviewReport key={run.id} run={run} answers={<VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} reviewOnly />} />
+        <InterviewReport key={run.id} run={run} previousScore={progress?.metrics.find(metric => metric.key === 'overall_score')?.previous} answers={<VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} reviewOnly />} />
       </div> : <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} room />}
     </div>
   }
 
   if (requestedRunId && selectedId && run?.status === 'completed') {
     const attemptNumber = orderedAttempts(detail?.mock_interview_runs ?? []).findIndex(item => item.id === run.id) + 1
-    return <PageShell icon={ChatBubbleLeftRightIcon} eyebrow="YOUR SAVED INTERVIEW" title={`Mock interview ${attemptNumber}`} subtitle="Explore one feedback card at a time. Your saved answers and report stay unchanged.">
+    return <main className="studio-page studio-report-page">
+      <header className="studio-report-page-heading"><h1>Practice report</h1><span>Attempt {attemptNumber}</span></header>
       <Link className="inline-flex min-h-11 items-center gap-2 text-teal hover:underline" href={`/mock-interview?package=${encodeURIComponent(selectedId)}`}><ArrowLeft size={17} aria-hidden="true" />Back to interview journey</Link>
-      <InterviewReport key={run.id} run={run} answers={run.input_mode === 'voice' ? <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} reviewOnly /> : undefined} />
-    </PageShell>
+      <InterviewReport key={run.id} run={run} previousScore={progress?.metrics.find(metric => metric.key === 'overall_score')?.previous} practiceHref={`/mock-interview?package=${encodeURIComponent(selectedId)}&setup=1`} answers={run.input_mode === 'voice' ? <VoiceInterview key={`${selectedId}.${run.id}`} packageId={selectedId} run={run} onUpdated={picker.reloadDetail} reviewOnly /> : undefined} />
+    </main>
   }
 
   const unanswered = run ? run.questions.length - answeredCount : 0
+
+  // The focus room uses the existing draft and submit/finish paths. Back opens
+  // setup without an answering form; the saved attempt remains available there.
+  if (run && run.status !== 'completed' && run.input_mode !== 'voice' && selectedId && searchParams.get('setup') !== '1') {
+    return <main id="interview-report" className="studio-interview-room">
+      <header className="studio-focus-topbar"><Link className="studio-text-link" href={`/mock-interview?package=${encodeURIComponent(selectedId)}&setup=1`}><ArrowLeft size={17} aria-hidden="true" />Back to practice</Link><span>{currentQuestion ? `Question ${answeredCount + 1} of ${run.questions.length}` : 'Ready to finish'}</span></header>
+      <div className="studio-focus-body">
+        <section className="studio-focus-context"><h2>{run.target_job_title}</h2><p>{run.mode.replaceAll('_', ' ')} · {run.difficulty} · {run.questions.length} questions</p></section>
+        <progress max={run.questions.length || 1} value={answeredCount} aria-label="Saved interview answers" />
+        {opError ? <p role="alert" className="text-alert">{opError}</p> : null}
+        {currentQuestion ? <>
+          <h1>{currentQuestion.question}</h1>
+          <label className="studio-answer-field"><span className="sr-only">Your answer</span><textarea className="field" value={answerDraft} onChange={event => setAnswerDraft(event.target.value)} rows={7} maxLength={MOCK_ANSWER_MAX_CHARS} placeholder="Type your answer…" aria-describedby="answer-count" /><span id="answer-count">{answerDraft.length.toLocaleString('en-US')} / {MOCK_ANSWER_MAX_CHARS.toLocaleString('en-US')}</span></label>
+          <div className="studio-focus-actions"><Button type="button" variant="primary" onClick={() => void submitAnswer()} disabled={!answerDraft.trim() || busy !== null} busy={busy === 'answer'} busyLabel="Reviewing…">Submit answer</Button>
+            {answeredCount > 0 ? <details className="studio-finish-options"><summary>Finish this attempt early</summary><p>Finishing now reviews your {answeredCount} saved {answeredCount === 1 ? 'answer' : 'answers'} only; the other {unanswered} are skipped. A finished report is final. Your current unsent answer will not be included.</p><Button type="button" variant="secondary" onClick={() => void finish()} disabled={busy !== null} busy={busy === 'finish'} busyLabel="Finishing…">Finish and get report</Button></details> : null}
+          </div>
+        </> : <><h1>All answers saved</h1><p>Finish this attempt to receive your practice report.</p><Button type="button" variant="primary" onClick={() => void finish()} disabled={busy !== null} busy={busy === 'finish'} busyLabel="Finishing…">Finish and get report</Button></>}
+        {answeredCount > 0 ? <details className="studio-saved-answers"><summary>Saved answers · {answeredCount}</summary>{run.questions.filter(question => question.answer).map(question => <article key={question.id}><h2>{question.question}</h2><p className="whitespace-pre-wrap">{question.answer}</p>{question.feedback ? <p>{question.feedback}</p> : null}</article>)}</details> : null}
+      </div>
+    </main>
+  }
 
   return (
     <PageShell
@@ -337,7 +359,7 @@ function MockInterviewScreen() {
             </label>
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
 
-            <details ref={practiceSetup} className="group" open={(detail?.mock_interview_runs?.length ?? 0) === 0 || Boolean(opError || detailError || busy)}>
+            <details ref={practiceSetup} className="group" open={searchParams.get('setup') === '1' || (detail?.mock_interview_runs?.length ?? 0) === 0 || Boolean(opError || detailError || busy)}>
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-teal [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Mic size={18} aria-hidden="true" />Start a new practice</span><ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary>
               <div className="mt-4 flex flex-col gap-5">
             <fieldset className="space-y-3">
@@ -418,80 +440,6 @@ function MockInterviewScreen() {
           </div>
           <Link className={buttonVariants({ variant: 'primary', className: 'shrink-0' })} href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(run.id)}${run.input_mode === 'voice' ? '&room=1' : '#interview-report'}`}>Continue interview</Link>
         </Card>
-      ) : null}
-
-      {run && run.status !== 'completed' && run.input_mode !== 'voice' ? (
-        <section id="interview-report" className="mt-6 scroll-mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_330px]">
-          <div className="ui-card min-w-0 rounded-card border border-line bg-white p-4 sm:p-6">
-            <div className="flex flex-col gap-1">
-              <h2 className="font-display type-section font-semibold text-ink">
-                {currentQuestion ? `Question ${answeredCount + 1}` : 'Ready to finish'}
-              </h2>
-              <p className="type-helper text-ink-muted">{run.opening_note}</p>
-            </div>
-
-            {currentQuestion ? (
-              <div className="mt-5 flex flex-col gap-4">
-                <div className="rounded-ctl bg-canvas p-4">
-                  <span className="type-caption font-semibold uppercase tracking-[0.12em] text-teal">{currentQuestion.focus}</span>
-                  <p className="mt-2 font-display type-section font-semibold leading-snug text-ink">{currentQuestion.question}</p>
-                </div>
-                <label className="flex flex-col gap-1.5">
-                  <span className="sr-only">Your answer</span>
-                  <textarea
-                    value={answerDraft}
-                    onChange={(e) => setAnswerDraft(e.target.value)}
-                    rows={7}
-                    maxLength={MOCK_ANSWER_MAX_CHARS}
-                    className="field p-4"
-                    placeholder="Type your answer as you would say it in the interview..."
-                    aria-describedby="answer-count"
-                  />
-                  <span id="answer-count" className="self-end type-caption text-ink-muted">
-                    {answerDraft.length.toLocaleString('en-US')} / {MOCK_ANSWER_MAX_CHARS.toLocaleString('en-US')} characters
-                  </span>
-                </label>
-                <div className="ui-action-group">
-                  <Button type="button" variant="primary" onClick={() => void submitAnswer()} disabled={!answerDraft.trim() || busy !== null} busy={busy === 'answer'} busyLabel="Reviewing…">
-                    Submit answer
-                  </Button>
-                  {answeredCount > 0 ? (
-                    <Button type="button" variant="secondary" onClick={() => void finish()} disabled={busy !== null} busy={busy === 'finish'} busyLabel="Finishing…">
-                      Finish now and get report
-                    </Button>
-                  ) : null}
-                </div>
-                {answeredCount > 0 && unanswered > 0 ? (
-                  <p className="type-helper leading-relaxed text-ink-muted">
-                    Finishing now reviews your {answeredCount} answered {answeredCount === 1 ? 'question' : 'questions'} only; the other {unanswered} are skipped. A finished report is final — start a new interview to practise again.
-                  </p>
-                ) : null}
-              </div>
-            ) : (
-              <div className="mt-5 flex flex-col gap-3 rounded-ctl bg-canvas p-4">
-                <p className="type-label text-ink-soft">All questions are answered. Generate your preparation report.</p>
-                <Button type="button" variant="primary" onClick={() => void finish()} disabled={busy !== null} busy={busy === 'finish'} busyLabel="Finishing…">
-                  Finish and get report
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <aside className="flex flex-col gap-3">
-            {run.questions.map((q, index) => (
-              <Card key={q.id} tone="light" className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <span className="font-mono type-caption font-semibold text-teal">Q{index + 1}</span>
-                  <span className={cn('rounded-full px-2 py-0.5 type-caption font-semibold uppercase', q.answer ? 'bg-teal-soft text-teal' : 'bg-canvas text-ink-muted')}>
-                    {q.answer ? 'Answered' : 'Open'}
-                  </span>
-                </div>
-                <p className="mt-2 break-words type-helper font-semibold leading-snug text-ink">{q.question}</p>
-                {q.feedback ? <p className="mt-2 type-helper leading-relaxed text-ink-muted">{q.feedback}</p> : null}
-              </Card>
-            ))}
-          </aside>
-        </section>
       ) : null}
 
       {requestedRunId && detail && !run && !detailLoading ? <p role="alert" className="text-ink-muted">This interview is no longer available for the selected resume. Choose a saved attempt below.</p> : null}
