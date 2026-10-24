@@ -8,6 +8,8 @@ import {
   EnvelopeIcon,
   Cog6ToothIcon,
   IdentificationIcon,
+  UserCircleIcon,
+  HomeIcon,
 } from '@heroicons/react/24/outline'
 
 /**
@@ -95,6 +97,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Mock Interview', href: '/mock-interview', iconClass: 'ui-nav-mock', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
   { label: 'NaukriGulf Optimization', href: '/naukrigulf-optimization', iconClass: 'ui-nav-naukrigulf', icon: IdentificationIcon },
   { label: 'LinkedIn Optimization', href: '/linkedin-optimization', iconClass: 'ui-nav-linkedin', icon: IdentificationIcon },
+  { label: 'Career Profile', href: '/profile', iconClass: 'ui-nav-profile', icon: UserCircleIcon, shortLabel: 'Profile' },
   { label: 'Settings', href: '/settings', iconClass: 'ui-nav-settings', icon: Cog6ToothIcon },
 ] as const
 
@@ -122,8 +125,6 @@ export function navHref(item: NavItem): string {
 }
 
 export function isNavItemActive(item: NavItem, pathname: string): boolean {
-  // Profile editing is a detail of Home, rather than a second overview.
-  if (item.href === '/dashboard' && pathname.startsWith('/profile')) return true
   if (item.exact) return pathname === item.href
   return pathname === item.href || pathname.startsWith(`${item.href}/`)
 }
@@ -147,5 +148,19 @@ export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'cv', label: 'Build your resume', hrefs: ['/optimize', '/templates', '/cover-letter'], stage: 'cv' },
   { key: 'apply', label: 'Job preparation', hrefs: ['/interview-qa', '/mock-interview'], stage: 'apply' },
   { key: 'professional', label: 'Profile optimization', hrefs: [ '/linkedin-optimization', '/naukrigulf-optimization'] },
-  { key: 'account', label: 'Account', hrefs: ['/settings'] },
+  { key: 'account', label: 'Account', hrefs: ['/profile', '/settings'] },
 ]
+
+/** Stable workspace destinations; all other services remain in the shared menu. */
+export const WORKSPACE_PRIMARY_ITEMS = [
+  { ...NAV_ITEMS.find(item => item.href === '/dashboard')!, label: 'Home', shortLabel: 'Home', icon: HomeIcon },
+  { ...NAV_ITEMS.find(item => item.href === '/dashboard/library')!, label: 'Resume Library', shortLabel: 'Resumes', icon: DocumentTextIcon },
+  { ...NAV_ITEMS.find(item => item.href === '/mock-interview')!, label: 'Mock Interview', shortLabel: 'Practice' },
+  { ...NAV_ITEMS.find(item => item.href === '/profile')!, label: 'Career Profile', shortLabel: 'Profile' },
+] as const
+
+export function workspaceItemActive(href: string, pathname: string): boolean {
+  if (href === '/dashboard/library') return pathname.startsWith('/dashboard/library') || pathname.startsWith('/package/') || pathname.startsWith('/optimize') || pathname === '/templates' || pathname === '/cover-letter'
+  if (href === '/mock-interview') return pathname.startsWith('/mock-interview') || pathname === '/interview-qa'
+  return href === '/dashboard' ? pathname === href : pathname.startsWith(href)
+}

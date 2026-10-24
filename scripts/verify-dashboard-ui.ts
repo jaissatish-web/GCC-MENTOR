@@ -82,7 +82,7 @@ const saved = renderToStaticMarkup(React.createElement(HomeSavedWork,{overview:s
 assert.ok(saved.includes('>7<') && saved.includes('/interview-qa') && saved.includes('/mock-interview'))
 const failedSaved = renderToStaticMarkup(React.createElement(HomeSavedWork,{overview:stats,loading:false,error:true,onRetry:()=>{}}))
 assert.ok(!failedSaved.includes('>7<') && failedSaved.includes('role="alert"'))
-assert.ok(!NAV_ITEMS.some(item=>item.href==='/profile'),'Home owns the profile overview')
+assert.ok(NAV_ITEMS.some(item=>item.href==='/profile'),'Profile has a dedicated primary destination')
 const {HomeNextStep,HomeUpcomingDates,HomeDateNotice} = require('../components/dashboard/HomeFollowThrough')
 const followJob = {id:'active-job',name:'My saved job',target_job_title:'Lead Engineer',target_company:'Example EPC',status:'saved',has_resume:true,cover_letter_count:1,qa_question_count:25,mock_in_progress:true,mock_completed_run_id:null,application_deadline:'2026-10-18',interview_date:null}
 const followAction = {state:'job_needs_mock',href:'/mock-interview?package=active-job',title:'Practice',body:'Practice',cta:'Start mock interview'}

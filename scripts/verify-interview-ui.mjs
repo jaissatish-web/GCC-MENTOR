@@ -93,7 +93,7 @@ try {
     assert.equal(layout.text, runs[1].final_report.priority_focus)
     if(width<640){assert.ok(layout.x<=40,JSON.stringify(layout));assert.equal(layout.size,'15px');assert.equal(layout.weight,'400')}
     if(process.env.INTERVIEW_SCREENSHOT && (width===390 || width===1440)) await page.screenshot({path:process.env.INTERVIEW_SCREENSHOT,fullPage:true})
-    await page.$$eval('button', els=>els.find(el=>el.textContent==='Back to result cards').click())
+    await page.$$eval('button', els=>els.find(el=>el.textContent==='Back to report').click())
     await page.$$eval('[aria-label="Result cards"] button', els=>els.find(el=>el.textContent.includes('Your answers')).click())
     await page.waitForSelector('[aria-label="Question cards"] button')
     assert.equal(await page.$$eval('[aria-label="Question cards"] button',els=>els.length),5)
@@ -103,7 +103,7 @@ try {
     assert.ok(await page.$eval('[aria-label="Answer detail"]',el=>el.textContent.includes('Saved feedback')))
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1))
     await page.$$eval('button',els=>els.find(el=>el.textContent==='All question cards').click())
-    await page.$$eval('button',els=>els.find(el=>el.textContent==='Back to result cards').click())
+    await page.$$eval('button',els=>els.find(el=>el.textContent==='Back to report').click())
     await page.$$eval('[aria-label="Result cards"] button',els=>els.find(el=>el.textContent.includes('Your practice plan')).click())
     await page.click('[aria-label="Your improvement plan"] summary')
     assert.ok(await page.$eval('[aria-label="Your improvement plan"] details',el=>el.open&&el.textContent.includes('Practise a specific example.')))

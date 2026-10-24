@@ -1,24 +1,14 @@
 'use client'
 import {contextFromProfile} from '@/lib/careerIntake/shared'
 
-import Link from 'next/link'
-import { DocumentTextIcon, ArrowUpRightIcon, ChevronDownIcon, MapIcon } from '@heroicons/react/24/outline'
-import { HowItWorks } from '@/components/journey/HowItWorks'
-import { HomeProfile, HomeSavedWork, HomeScores, HomeSavedPractice } from '@/components/dashboard/CareerHome'
+import { WorkspaceHome } from '@/components/studio/WorkspaceHome'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { StageRail } from '@/components/journey/JourneyStepper'
-import { stageSnapshot, stageStates } from '@/components/journey/stages'
-import { displayFirstName } from '@/lib/utils'
 import { type PackageSummary } from '@/lib/packageSummary'
 import { fetchHomePackages } from '@/lib/homeFollowThrough'
-import { HomeNextStep, HomeUpcomingDates, HomeDateNotice } from '@/components/dashboard/HomeFollowThrough'
-import { InterviewProgressOverview } from '@/components/dashboard/InterviewProgressOverview'
-import { OverallProgress } from '@/components/dashboard/ActivityOverview'
 import { dashboardNextAction, type DashboardOverview } from '@/lib/dashboardOverview'
 import { calculateReadiness } from '@/lib/readiness'
 import { computeNextAction } from '@/lib/nextAction'
 import { answersFromReadinessCategory, scoreCareerPreparation as scoreProfileReadiness, scoringInputFromProfile } from '@/lib/gulfReadiness/fromProfile'
-import homeStyles from '@/components/dashboard/career-home.module.css'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
 /** Overall scores, saved totals and progress; individual resumes live in the Library. */
@@ -88,8 +78,6 @@ export default function DashboardPage() {
       })
   }, [loadOverview])
 
-  // No name, no "Good evening, there" — a greeting to nobody reads as a bug.
-  const firstName = profile ? displayFirstName(profile.full_name) : ''
   // Ring score: the stored readiness_score (recomputed on save) is authoritative;
   // "still needed" reuses the same field-level calc as /profile — same
   // function, same weights, nothing recomputed differently here.
@@ -139,48 +127,5 @@ export default function DashboardPage() {
   const nextAction = dashboardNextAction(computeNextAction(profile, packages, score, missing.length, hasPendingDraft))
 
   const ready = profileLoaded && packagesLoaded && !loadError
-  // The map follows progress; the teal panel follows the next action. They
-  // differ only when a CV reading is waiting, which is a to-do, not a step.
-  const snap = (ready ? stageSnapshot(profile ? score : null, packages) : null)
-  const states = snap?.states ?? stageStates('profile', { profileDone: false, cvDone: false, applyDone: false })
-
-  return (
-    <div className={`ui-page ui-page-default page-gutter mx-auto flex w-full flex-col pb-10 font-redesign-sans ${homeStyles.page}`}>
-      <header className={homeStyles.pageHeading}>
-        <div className="min-w-0 w-full"><div className={homeStyles.mobileGreeting}><span>{firstName ? `Hello, ${firstName}` : 'Your Gulf career workspace'}</span><time dateTime={clock.toISOString()}>{new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(clock)}</time></div><p className="sr-only">{firstName ? `Good ${greeting()}, ${firstName}` : 'Your Gulf career workspace'}</p><h1>Your career workspace</h1><p>One profile. A plan for every opening.</p></div>
-      </header>
-
-      <div className={homeStyles.mobileScores}><HomeScores profile={profile} score={score} missing={missing.length} gulf={gulf} loading={!profileLoaded} error={profileError} /></div>
-
-      {!profile ? <HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} /> : null}
-      <HomeDateNotice packages={packages} ready={packagesLoaded && !packagesError} now={clock} />
-
-      <div className={homeStyles.workspaceColumns}><div className={homeStyles.taskColumn}>
-      {/* The empty profile already provides Step 1 and its create action. */}
-      {!ready || nextAction.state !== 'no_profile' ? <HomeNextStep action={nextAction} packages={packages} ready={ready} error={loadError} onRetry={() => window.location.reload()} /> : null}
-
-      {!overviewError && packagesLoaded && !packagesError && (overview?.mock_in_progress_count ?? 0) > 0 && !packages.some(pkg => pkg.mock_in_progress) ? <HomeSavedPractice count={overview!.mock_in_progress_count} /> : null}
-
-      </div><div className={homeStyles.preparationColumn}>
-      <HomeSavedWork overview={overview} loading={overviewLoading} error={overviewError} onRetry={() => void loadOverview()} />
-
-      {profile ? <div className={homeStyles.profileFoundation}><HomeProfile profile={profile} loading={!profileLoaded} error={profileError} score={score} gulf={gulf} missingLabels={missing.map(item => item.label)} /></div> : null}
-
-      </div></div>
-
-      {ready && packages.length > 0 ? <details className={`group ${homeStyles.disclosureCard}`}><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink"><span className="flex min-w-0 items-center gap-2"><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0 text-navy-deep" />Recent resumes</span><ChevronDownIcon className="size-4 shrink-0 text-navy-deep group-open:rotate-180" aria-hidden="true" /></summary><div className="divide-y divide-line border-t border-line">{packages.slice(0,3).map(item => <Link key={item.id} href={`/package/${encodeURIComponent(item.id)}`} className="flex min-h-16 items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy-deep"><DocumentTextIcon className="size-5 shrink-0 text-navy-deep" aria-hidden="true" /><span className="min-w-0 flex-1"><span className="block break-words type-label text-ink">{item.name || item.target_job_title}</span><span className="block type-caption text-ink-muted">{[item.target_company,item.target_country?.replaceAll('_',' ')].filter(Boolean).join(' · ') || 'Gulf application'}</span></span><ArrowUpRightIcon className="size-4 shrink-0 text-navy-deep" aria-hidden="true" /></Link>)}</div></details> : null}
-
-      <HomeUpcomingDates packages={packages} now={clock} loading={!packagesLoaded} error={packagesError} onRetry={() => window.location.reload()} />
-
-      <details className={`group ${homeStyles.disclosureCard}`}><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 p-4 type-label text-ink"><span className="flex min-w-0 items-center gap-2"><MapIcon aria-hidden="true" className="size-5 shrink-0 text-navy-deep" />Journey & progress</span><ChevronDownIcon className="size-4 shrink-0 text-navy-deep group-open:rotate-180" aria-hidden="true" /></summary><div className="flex flex-col gap-6 border-t border-line p-4 sm:p-5">{ready ? <StageRail states={states} /> : null}{overview && !overviewError ? <OverallProgress overview={overview} /> : null}<InterviewProgressOverview /></div></details>
-      <div className="self-start"><HowItWorks /></div>
-    </div>
-  )
-}
-
-function greeting(): string {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'morning'
-  if (hour < 17) return 'afternoon'
-  return 'evening'
+  return <WorkspaceHome profile={profile} profileLoaded={profileLoaded} profileError={profileError} score={score} missing={missing.map(item => item.label)} gulf={gulf} packages={packages} packagesLoaded={packagesLoaded} packagesError={packagesError} overview={overview} overviewLoading={overviewLoading} overviewError={overviewError} nextAction={nextAction} ready={ready} error={loadError} now={clock} onRetryOverview={() => void loadOverview()} />
 }

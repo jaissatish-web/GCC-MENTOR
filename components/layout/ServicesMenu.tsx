@@ -201,7 +201,7 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
           return (
             <div key={group.label} className="flex flex-col gap-1">
               {group.heading ? <h2 className="px-3 pt-2 type-caption font-semibold text-teal">{group.heading}</h2> : null}
-              {group.label === 'account' ? <Link href="/profile" onClick={close} className="services-account-link"><UserCircleIcon aria-hidden="true" className="size-5" /><span>Career Profile</span></Link> : null}
+              {group.label === 'account' && !rows.some(item => item.href === '/profile') ? <Link href="/profile" onClick={close} className="services-account-link"><UserCircleIcon aria-hidden="true" className="size-5" /><span>Career Profile</span></Link> : null}
               {rows.map((item, i) => (
                 <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(item.href === '/cover-letter' ? 'apply' : group.stage, item.href === '/cover-letter' ? 0 : item.href === '/interview-qa' ? 1 : item.href === '/mock-interview' ? 2 : i)} />
               ))}

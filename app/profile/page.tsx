@@ -1,5 +1,7 @@
 'use client'
 
+import { ChevronRightIcon } from '@heroicons/react/24/outline'
+
 import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import { rebaseImportField } from '@/lib/resumeParse/reviewPlan'
 import { INTAKE_KEY, contextFromProfile } from '@/lib/careerIntake/shared'
@@ -107,8 +109,8 @@ function hasSavedProfileContent(saved: CareerProfileFull | null): boolean {
  * Old links keep landing: `?improve=gulf` → readiness, `?improve=strength` →
  * completeness, `?open=<section>` → details with that section open.
  */
-type ProfileView = 'overview' | 'details' | 'completeness' | 'readiness' | 'settings'
-const PROFILE_VIEWS: readonly ProfileView[] = ['overview', 'details', 'completeness', 'readiness', 'settings']
+type ProfileView = 'summary' | 'overview' | 'details' | 'completeness' | 'readiness' | 'settings'
+const PROFILE_VIEWS: readonly ProfileView[] = ['summary', 'overview', 'details', 'completeness', 'readiness', 'settings']
 const MAIN_CLASS = 'ui-page-default mx-auto flex min-h-dvh w-full flex-col bg-canvas'
 
 function viewFromParams(params: { get: (key: string) => string | null }): ProfileView {
@@ -118,8 +120,8 @@ function viewFromParams(params: { get: (key: string) => string | null }): Profil
   if (improve === 'gulf') return 'readiness'
   if (improve === 'strength') return 'completeness'
   if (params.get('open')) return 'details'
-  // Home owns the overview. The import flow keeps its review/replace screen.
-  return params.get('import') ? 'overview' : 'details'
+  // The summary is the default; import links retain explicit review/replace.
+  return params.get('import') ? 'overview' : 'summary'
 }
 
 /**
@@ -746,7 +748,11 @@ function CardSection({
   accent,
   status,
   children,
+  hidden = false,
+  focused = false,
 }: {
+  hidden?: boolean
+  focused?: boolean
   id?: string
   step: number
   title: string
@@ -763,6 +769,8 @@ function CardSection({
   accent?: { text: string; chip: string; rule: string }
   children: React.ReactNode
 }) {
+  if (hidden) return null
+  if (focused) return <section id={id} className="studio-profile-editor-section">{action ? <div className="studio-section-actions">{action}</div> : null}{children}</section>
   const panelId = `${id ?? `step-${step}`}-panel`
   const done = status ? status === 'complete' : typeof total === 'number' && total > 0 && (earned ?? 0) >= total
   return (
@@ -1327,6 +1335,7 @@ function ProfileScreen() {
   const [invalidFields, setInvalidFields] = useState<Set<string>>(new Set())
   const [expandedWorkKey, setExpandedWorkKey] = useState<string | null>(null)
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
+  const [focusedSection, setFocusedSection] = useState<string | null>(null)
   const didAutoOpen = useRef(false)
 
   // On first load, open the first step that still has points available — the
@@ -1476,6 +1485,7 @@ function ProfileScreen() {
   const goToProfilePart = useCallback(
     (target: { field?: string; sectionId?: string; categoryBlock?: string }) => {
       const sectionId = target.sectionId ?? (target.field ? sectionOfField(target.field) : undefined)
+      if (sectionId) setFocusedSection(sectionId)
       if (sectionId) setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
       setPendingFocus({ field: target.field, sectionId, categoryBlock: target.categoryBlock })
       showView('details')
@@ -1507,6 +1517,10 @@ function ProfileScreen() {
     const target = input ?? (pendingFocus.sectionId ? byId(pendingFocus.sectionId) : null)
     setPendingFocus(null)
     if (!target) return
+    // Personal/Gulf facts can live inside a collapsed disclosure. Reveal ancestors
+    // before focusing a validation or readiness target.
+    let disclosure = target.closest('details')
+    while (disclosure) { disclosure.open = true; disclosure = disclosure.parentElement?.closest('details') ?? null }
     target.scrollIntoView({ behavior: 'smooth', block: input ? 'center' : 'start' })
     if (input) input.focus({ preventScroll: true })
   }, [pendingFocus, view])
@@ -1645,6 +1659,8 @@ function ProfileScreen() {
       const idx = FORM_SECTIONS.findIndex((s) => s.id === sectionId)
       return {
         id: sectionId,
+        hidden: focusedSection !== null && focusedSection !== sectionId,
+        focused: focusedSection === sectionId,
         step: idx + 1,
         ...pointsFor(sectionId),
         open: Boolean(openSections[sectionId]),
@@ -1653,7 +1669,7 @@ function ProfileScreen() {
         status: statusOf(sectionId),
       }
     },
-    [pointsFor, openSections, toggleSection, statusOf]
+    [pointsFor, openSections, toggleSection, statusOf, focusedSection]
   )
 
   // "N of M key sections done" — ONE count for every screen that shows it (the
@@ -1839,7 +1855,9 @@ function ProfileScreen() {
         // or the settings screen goes there first. The focus effect handles
         // PhoneField's `_number` id — a missing phone once scrolled to nothing
         // (seen live 2026-09-12 on "Replace" with a CV that has no phone).
-        setPendingFocus({ field: String(missing[0].key) })
+        const firstSection = sectionOfField(String(missing[0].key)) ?? [...owning][0]
+        setFocusedSection(firstSection ?? null)
+        setPendingFocus({ field: String(missing[0].key), sectionId: firstSection })
         if (destination !== 'review') showView('details')
         return
       }
@@ -1900,7 +1918,7 @@ function ProfileScreen() {
         setSubmitting(false)
       }
     },
-    [editor, router, showView, submitting, reviewingImport]
+    [editor, router, showView, submitting, reviewingImport, sectionOfField]
   )
 
   useEffect(() => {
@@ -2112,8 +2130,8 @@ function ProfileScreen() {
           eyebrow="Completeness"
           title="Profile completeness"
           description="Complete the missing details."
-          onBack={returnHome}
-          backLabel={isDirty ? 'Save & Home' : 'Home'}
+          onBack={() => showView('summary')}
+          backLabel="Profile"
         />
         <CompletenessView
           score={readiness.score}
@@ -2137,8 +2155,8 @@ function ProfileScreen() {
           eyebrow="Gulf Readiness"
           title="Gulf Readiness"
           description="Your score and next improvements."
-          onBack={returnHome}
-          backLabel={isDirty ? 'Save & Home' : 'Home'}
+          onBack={() => showView('summary')}
+          backLabel="Profile"
         />
         <GulfReadinessView
           gulf={gulfReadiness}
@@ -2164,8 +2182,8 @@ function ProfileScreen() {
           eyebrow="Settings"
           title="Profile settings"
           description="Choose what appears on your resume."
-          onBack={returnHome}
-          backLabel={isDirty ? 'Save & Home' : 'Home'}
+          onBack={() => showView('summary')}
+          backLabel="Profile"
           action={saveButton}
         />
         {visibilityFilled ? (
@@ -2175,6 +2193,51 @@ function ProfileScreen() {
         <div className="pb-8" />
       </main>
     )
+  }
+
+  // The editor stays mounted in this component when moving between summary,
+  // one-section editing and the full editor. Only an explicit Save persists it.
+  if (view === 'summary') {
+    const country = GULF_COUNTRIES.find(item => item.value === editor.target_country)?.label ?? editor.target_country
+    const rows = [
+      { id: 'sec_identity', title: 'Contact details', lines: [editor.email, editor.phone] },
+      { id: 'sec_work_experience', title: 'Experience', lines: sortedWorkRoles(editor.work_experience).slice(0, 2).map(role => [role.role, role.company].filter(Boolean).join(' · ')) },
+      { id: 'sec_education', title: 'Education', lines: editor.education.slice(0, 2).map(item => [item.degree, item.institution].filter(Boolean).join(' · ')) },
+      { id: 'sec_skills', title: 'Skills & tools', lines: [editor.skills.map(item => item.name.trim()).filter(Boolean).slice(0, 7).join(' · ')] },
+      { id: 'sec_status', title: 'Gulf preferences', lines: [editor.target_job_title, country, editor.notice_period] },
+    ]
+    const openFullProfile = () => { setFocusedSection(null); showView('details') }
+    return <main data-ui-service="profile" className="studio-page studio-profile-summary">
+      <header className="studio-page-heading"><h1>Profile</h1><button type="button" className="studio-text-link" onClick={() => showView('settings')}>Resume visibility</button></header>
+      {parseNotesBlock}{loadErrorBlock}
+      <div className="studio-profile-layout">
+        <div>
+          <div className="studio-profile-identity">
+            <div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={next => setField({ photo_url: next ?? '' })} /></div>
+            <div><h2>{editor.full_name || 'Your profile'}</h2>{headlineValue ? <p>{headlineValue}</p> : null}{editor.current_location ? <p>{editor.current_location}</p> : null}</div>
+          </div>
+          {rows.map(row => {
+            const lines = row.lines.map(line => line.trim()).filter(Boolean)
+            return <button key={row.id} type="button" className="studio-profile-row" onClick={() => goToProfilePart({ sectionId: row.id })}>
+              <span><span className="studio-profile-row-heading"><strong>{row.title}</strong></span><span className="studio-profile-row-details">{lines.length ? lines.map((line, index) => <span key={index} className="studio-profile-row-detail">{line}</span>) : <span className="studio-profile-row-detail">{statusOf(row.id) === 'complete' ? 'Details recorded' : 'Add your details'}</span>}</span></span>
+              <span className="studio-profile-edit">Edit<ChevronRightIcon className="size-4" aria-hidden="true" /></span>
+            </button>
+          })}
+          <button type="button" className="studio-profile-additional" onClick={openFullProfile}><span><strong>All profile sections</strong><span>Summary, languages, projects, licences and more</span></span><ChevronRightIcon className="size-5" aria-hidden="true" /></button>
+          {!hasProfile ? <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onFillManually={openFullProfile} /> : null}
+        </div>
+        <aside className="studio-profile-aside">
+          <h2>Profile completeness</h2><strong className="studio-profile-score">{readiness.score}<span> /100</span></strong><progress max={100} value={readiness.score} aria-label="Profile completeness" />
+          <button type="button" className="studio-text-link" onClick={() => showView('completeness')}>{readiness.missing.length ? `Review ${readiness.missing.length} missing details` : 'Review profile details'}</button>
+          <button type="button" className="studio-text-link" onClick={() => showView('readiness')}>Gulf preparation<ChevronRightIcon className="size-4" aria-hidden="true" /></button>
+          <hr />{hasSavedProfile ? <CareerProfileResumeButton showHint={false} /> : null}
+          <button type="button" className="studio-text-link" onClick={() => showView('overview')}>Update from resume</button>
+          {hasSavedProfile ? <button type="button" className="studio-text-link" disabled={submitting} onClick={() => void onSubmit('confirm')}>Optimize Resume</button> : null}
+        </aside>
+      </div>
+      {claimedScan ? <details className="studio-profile-scan"><summary>Your last resume scan · {claimedScan.overall_score}/100</summary><p>Structure {claimedScan.category_scores.structure} · Clarity {claimedScan.category_scores.clarity_and_impact} · Gulf readiness {claimedScan.category_scores.gulf_readiness}</p><button type="button" className="studio-text-link" onClick={() => setClaimedScan(null)}>Dismiss scan result</button></details> : null}
+      {saveBar}
+    </main>
   }
 
   // ---- Overview -------------------------------------------------------------
@@ -2271,7 +2334,7 @@ function ProfileScreen() {
         {hasProfile && profileFacts ? (
           <>
             <section aria-labelledby="profile-sections-title" className="mx-3 mt-6 sm:mx-5">
-              <div className="mb-3 flex items-center justify-between gap-3"><h2 id="profile-sections-title" className="type-section text-ink">Your details</h2><button type="button" onClick={() => showView('details')} className="min-h-11 type-label text-teal hover:underline">Edit profile →</button></div>
+              <div className="mb-3 flex items-center justify-between gap-3"><h2 id="profile-sections-title" className="type-section text-ink">Your details</h2><button type="button" onClick={() => { setFocusedSection(null); showView('details') }} className="min-h-11 type-label text-teal hover:underline">Edit profile →</button></div>
               <div className="workspace-panel divide-y divide-line">
                 {sectionStatuses.map((section, index) => (
                   <button key={section.id} type="button" onClick={() => goToProfilePart({ sectionId: section.id })} className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left hover:bg-teal-soft/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal sm:px-5">
@@ -2287,7 +2350,7 @@ function ProfileScreen() {
               <div className="border-t border-line pb-4">
                 <ScoreCards completeness={{ score: readiness.score, itemsLeft, detail: `${doneCount} of ${keyCount} key sections done` }} gulf={gulfReadiness} onOpenCompleteness={() => showView('completeness')} onOpenReadiness={() => showView('readiness')} />
                 <SettingsCard shown={vis.shown} total={vis.total} groups={vis.groups} onOpen={() => showView('settings')} />
-                <CareerSnapshot facts={profileFacts} onOpen={goToProfilePart} onOpenAll={() => showView('details')} />
+                <CareerSnapshot facts={profileFacts} onOpen={goToProfilePart} onOpenAll={() => { setFocusedSection(null); showView('details') }} />
               </div>
             </details>
           </>
@@ -2313,7 +2376,7 @@ function ProfileScreen() {
           initialMode={initialImportMode}
           collapsible={hasSavedProfile}
           onDraft={ingestDraft}
-          onFillManually={() => showView('details')}
+          onFillManually={() => { setFocusedSection(null); showView('details') }}
         />
         {saveBar}
         <div className="pb-8" />
@@ -2323,16 +2386,16 @@ function ProfileScreen() {
 
   // ---- The full profile (view === 'details') --------------------------------
   return (
-    <main data-ui-service="profile" className={MAIN_CLASS}>
+    <main data-ui-service="profile" className={cn(MAIN_CLASS, focusedSection && 'studio-page studio-focused-editor')}>
       <ViewHeader
         eyebrow="Full profile"
-        title="Your full profile"
-        description="Review and edit your details."
-        onBack={returnHome}
-        backLabel={isDirty ? 'Save & Home' : 'Home'}
-        action={saveButton}
+        title={FORM_SECTIONS.find(section => section.id === focusedSection)?.label ?? 'Your full profile'}
+        description={focusedSection ? '' : 'Review and edit your details.'}
+        onBack={() => showView('summary')}
+        backLabel="Profile"
+        action={focusedSection ? undefined : saveButton}
       />
-      <div className="page-gutter flex flex-wrap items-center gap-4 py-3"><div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} /></div><CareerProfileResumeButton /><Button variant="secondary" size="sm" onClick={() => showView('overview')}>Update from resume</Button><Button variant="secondary" size="sm" busy={submitting} onClick={() => void onSubmit('confirm')}>Optimize Resume</Button></div>
+      <div className="studio-full-editor-intro page-gutter flex flex-wrap items-center gap-4 py-3"><div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} /></div><CareerProfileResumeButton /><Button variant="secondary" size="sm" onClick={() => showView('overview')}>Update from resume</Button><Button variant="secondary" size="sm" busy={submitting} onClick={() => void onSubmit('confirm')}>Optimize Resume</Button></div>
       {parseNotesBlock}
       {loadErrorBlock}
 
@@ -2340,7 +2403,7 @@ function ProfileScreen() {
       <div id="profile-editor" className="page-gutter flex scroll-mt-4 flex-col gap-2.5 py-4">
         {/* One plain sentence naming the whole job before the first step, so
             the user knows how long this is and where they are inside it. */}
-        <p className="px-1 pb-1 type-helper leading-relaxed text-ink-muted">
+        <p className="studio-full-editor-intro px-1 pb-1 type-helper leading-relaxed text-ink-muted">
           {doneCount === keyCount ? (
             <>All {keyCount} key sections are complete — review anything below.</>
           ) : (
@@ -2464,34 +2527,12 @@ function ProfileScreen() {
               label="Full name"
               required
               placeholder="e.g. Satish Kumar Jaiswal"
-              helper="Exactly as it appears on your passport — employers check it against your documents."
+              helper="Use your name as it appears on your passport."
               value={editor.full_name}
               onChange={(e) => setField({ full_name: e.target.value })}
               error={invalidFields.has('full_name') ? 'Full name is required.' : undefined}
               className="sm:col-span-2"
             />
-            <div className="sm:col-span-2">
-              <TextField
-                id="f_professional_headline"
-                label="Professional headline"
-                placeholder="e.g. Senior Mechanical Engineer · Project Delivery"
-                maxLength={200}
-                helper="Appears beneath your name. Use your own professional title; your application target and employment titles stay separate."
-                value={headlineValue}
-                onChange={e => updateHeadline(e.target.value)}
-              />
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                <label className="flex min-h-11 items-center gap-2 type-helper text-ink-soft">
-                  <input type="checkbox" checked={headlineShown} onChange={e => updateHeadline(headlineValue, e.target.checked)} className="size-4 accent-teal" />
-                  Show headline beneath my name
-                </label>
-                {!headlineValue.trim() && editor.work_experience.some(w => w.role.trim()) ? (
-                  <button type="button" className="min-h-11 type-helper font-semibold text-teal" onClick={() => updateHeadline(editor.work_experience.find(w => w.role.trim())!.role)}>
-                    Use a title from my experience
-                  </button>
-                ) : null}
-              </div>
-            </div>
             <PhoneField
               id="f_phone"
               label="Phone"
@@ -2545,6 +2586,30 @@ function ProfileScreen() {
               value={editor.current_location}
               onChange={(e) => setField({ current_location: e.target.value })}
             />
+            <details className="studio-contact-extras sm:col-span-2" open={focusedSection !== 'sec_identity'}>
+              <summary>Personal & Gulf details</summary><div className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <TextField
+                id="f_professional_headline"
+                label="Professional headline"
+                placeholder="e.g. Senior Mechanical Engineer · Project Delivery"
+                maxLength={200}
+                helper="Appears beneath your name. Use your own professional title; your application target and employment titles stay separate."
+                value={headlineValue}
+                onChange={e => updateHeadline(e.target.value)}
+              />
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                <label className="flex min-h-11 items-center gap-2 type-helper text-ink-soft">
+                  <input type="checkbox" checked={headlineShown} onChange={e => updateHeadline(headlineValue, e.target.checked)} className="size-4 accent-teal" />
+                  Show headline beneath my name
+                </label>
+                {!headlineValue.trim() && editor.work_experience.some(w => w.role.trim()) ? (
+                  <button type="button" className="min-h-11 type-helper font-semibold text-teal" onClick={() => updateHeadline(editor.work_experience.find(w => w.role.trim())!.role)}>
+                    Use a title from my experience
+                  </button>
+                ) : null}
+              </div>
+            </div>
             <Input tone="light"
               id="f_nationality"
               label="Nationality"
@@ -2706,6 +2771,8 @@ function ProfileScreen() {
                 />
               </div>
             ) : null}
+              </div>
+            </details>
           </div>
         </CardSection>
 

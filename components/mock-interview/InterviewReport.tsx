@@ -1,7 +1,9 @@
 'use client'
 
+import Link from 'next/link'
+import { buttonVariants } from '@/components/ui/Button'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ArrowLeft, ChevronRight, BarChart3, FileCheck2, Sparkles, Target, ShieldCheck, Lightbulb, MessagesSquare, MessageSquare } from 'lucide-react'
+import { ArrowLeft, ChevronRight, BarChart3, FileCheck2, Sparkles, Target, ShieldCheck, Lightbulb, MessagesSquare, MessageSquare, Share2 } from 'lucide-react'
 import { CoachingCards } from './CoachingCards'
 import { InterviewAnswerCards } from './InterviewAnswerCards'
 import type { MockInterviewFinalReport, MockInterviewRun } from '@/types/package'
@@ -99,7 +101,7 @@ function ShareMenu({ run }: { run: MockInterviewRun }) {
   }
   return <details className="relative">
     <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-ctl border border-teal/30 bg-white px-4 type-helper font-semibold text-teal transition-colors hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal [&::-webkit-details-marker]:hidden">
-      <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></svg>
+      <Share2 size={16} aria-hidden="true" />
       Share result
     </summary>
     <div className="absolute left-0 z-20 mt-2 w-[min(260px,calc(100vw-4rem))] sm:left-auto sm:right-0 rounded-card border border-line bg-white p-2 text-ink shadow-m-3">
@@ -129,7 +131,7 @@ function ListSection({ title, intro, items, tone = 'neutral', ordered = false }:
 
 type ReportView = 'overview' | 'assessment' | 'scores' | 'strengths' | 'gaps' | 'care' | 'plan' | 'practice' | 'answers'
 
-export function InterviewReport({ run, answers }: { run: MockInterviewRun; answers?: ReactNode }) {
+export function InterviewReport({ run, answers, previousScore, practiceHref }: { run: MockInterviewRun; answers?: ReactNode; previousScore?: number | null; practiceHref?: string }) {
   const [view, setView] = useState<ReportView>('overview')
   const heading = useRef<HTMLHeadingElement>(null)
   useEffect(() => { if (view !== 'overview') heading.current?.focus() }, [view])
@@ -149,14 +151,22 @@ export function InterviewReport({ run, answers }: { run: MockInterviewRun; answe
   ] as const
   const active = sections.find(section => section.id === view)
   const summary = report.executive_summary || `${status.label}. Focus next on ${report.weak_points[0] || 'specific evidence and clear examples'}.`
-  return <section id="interview-report" className="space-y-4" aria-label="Interview result explorer">
-    <div className="interview-report-overview rounded-card border border-line bg-white p-4 sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="type-caption text-teal">YOUR PRACTICE RESULT</p><h2 className="mt-2 type-section text-ink">Your interview report</h2><p className="mt-2 type-card text-ink">{run.target_job_title}</p><p className="mt-1 type-helper text-ink-muted">{run.mode.replaceAll('_', ' ')} · {run.difficulty} · {completed}</p></div><ShareMenu run={run} /></div>
+  return <section id="interview-report" className="studio-report space-y-4" aria-label="Interview result explorer">
+    <div className="interview-report-overview studio-report-overview">
+      <div className="studio-report-heading"><div><h2>{run.target_job_title}</h2><p>{run.mode.replaceAll('_', ' ')} · {run.difficulty} · {completed}</p></div><ShareMenu run={run} /></div>
       {view === 'overview' && <>
-      <div className="interview-score-summary mt-5 border-t border-line pt-5"><p className="type-helper text-ink-muted">Practice score</p><p className="mt-2 flex flex-wrap items-baseline gap-2"><strong className="type-stat text-teal">{report.overall_score}</strong><span className="type-helper text-ink-muted">/100 · {status.label}</span></p><div className="mt-3 h-2.5 overflow-hidden rounded-full bg-teal-soft" aria-hidden="true"><div className="h-full rounded-full bg-teal" style={{ width: `${report.overall_score}%` }} /></div><p className="mt-4 whitespace-pre-wrap text-ink-soft">{summary}</p></div>
-        <dl className="interview-score-breakdown mt-5 divide-y divide-line border-t border-line">{SCORE_ROWS.map(row => <div key={row.key} className="py-4"><div className="flex items-baseline justify-between gap-3"><dt className="type-label text-ink">{row.label}</dt><dd className="type-label tabular-nums text-teal">{Number(report[row.field])}<span className="sr-only"> out of 100</span></dd></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-teal-soft" aria-hidden="true"><div className="h-full rounded-full bg-teal" style={{ width: `${Number(report[row.field])}%` }} /></div></div>)}</dl>
-        <div className="mt-3 flex items-start gap-3 rounded-xl bg-gold-soft p-4"><Lightbulb size={22} className="shrink-0 text-gold-ink" aria-hidden="true" /><div><h3 className="type-helper text-gold-ink">Work on this first</h3><p className="mt-1 whitespace-pre-wrap text-ink">{report.priority_focus || report.improvement_plan[0] || 'Build one clear situation–action–result example.'}</p></div></div>
-        <button type="button" onClick={() => setView('answers')} className="mt-4 flex min-h-12 w-full items-center justify-between gap-3 rounded-ctl bg-teal px-4 py-3 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">Review my answers<ChevronRight size={18} aria-hidden="true" /></button>
+        <div className="studio-report-result"><div><p>Practice score</p><strong>{report.overall_score}<span> /100</span></strong><p>{status.label}</p></div><div><progress max={100} value={report.overall_score} aria-label="Practice score" /><button type="button" className="studio-text-link" onClick={() => setView('scores')}>View score breakdown<ChevronRight size={16} aria-hidden="true" /></button></div></div>
+        {previousScore != null ? <div className="studio-report-comparison"><p>Same saved resume &amp; settings</p><div><span>Previous</span><progress max={100} value={previousScore} aria-label="Previous comparable practice score" /><strong>{previousScore}</strong></div></div> : null}
+        <div className="studio-feedback-priorities">{[
+          { label: 'Strength', text: report.strengths[0], target: 'strengths' as const, Icon: Sparkles, tone: 'positive' },
+          { label: 'Improve next', text: report.priority_focus || report.weak_points[0], target: 'assessment' as const, Icon: Target, tone: 'attention' },
+          { label: 'Try this', text: report.improvement_plan[0] || report.next_practice_questions[0], target: report.improvement_plan.length ? 'plan' as const : 'practice' as const, Icon: Lightbulb, tone: 'info' },
+        ].filter(item => item.text).map(item => <button type="button" key={item.label} className={`studio-feedback-row studio-feedback-${item.tone}`} onClick={() => setView(item.target)}><item.Icon size={22} aria-hidden="true" /><span><strong>{item.label}</strong><span>{item.text}</span><span className="studio-feedback-action">Explore feedback<ChevronRight size={14} aria-hidden="true" /></span></span></button>)}</div>
+        <div className="studio-report-actions">
+          {practiceHref ? <Link href={practiceHref} className={buttonVariants({ variant: 'primary' })}>Practise again</Link> : null}
+          <button type="button" onClick={() => setView('answers')} className={buttonVariants({ variant: 'secondary' })}>Review answers</button>
+          <button type="button" className="studio-text-link" onClick={() => setView('assessment')}>Full assessment<ChevronRight size={16} aria-hidden="true" /></button>
+        </div>
       </>}
     </div>
     {view === 'overview' ? <details className="group rounded-xl border border-line bg-white p-4"><summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 type-label text-teal [&::-webkit-details-marker]:hidden">Explore all report sections<ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary><div className="mt-4"><div className="interview-result-cards grid gap-3 min-[360px]:grid-cols-2 lg:grid-cols-3" aria-label="Result cards">
@@ -164,7 +174,7 @@ export function InterviewReport({ run, answers }: { run: MockInterviewRun; answe
         <span className={`grid size-11 place-items-center rounded-xl ${section.color}`}><section.icon size={22} aria-hidden="true" /></span><span className="mt-4 block type-card">{section.title}</span><span className="mt-2 block type-helper text-ink-muted">{section.intro}</span><span className="mt-4 flex items-center justify-between text-sm text-teal">Explore<ChevronRight size={17} aria-hidden="true" /></span>
       </button>)}
     </div></div></details> : <div className="space-y-4">
-      <button type="button" onClick={() => setView('overview')} className="inline-flex min-h-11 items-center gap-2 text-teal hover:underline"><ArrowLeft size={17} aria-hidden="true" />Back to result cards</button>
+      <button type="button" onClick={() => setView('overview')} className="inline-flex min-h-11 items-center gap-2 text-teal hover:underline"><ArrowLeft size={17} aria-hidden="true" />Back to report</button>
       <h2 ref={heading} tabIndex={-1} className="type-section outline-none">{active?.title}</h2>
       {view === 'assessment' && <div className="ui-card rounded-card border border-line bg-white p-4"><h3 className="type-card">Where you stand now</h3><p className="mt-3 whitespace-pre-wrap type-lead font-normal leading-relaxed text-ink-soft">{summary}</p><div className="mt-4 border-t border-line pt-4"><h3 className="type-card text-gold-text">Work on this first</h3><p className="mt-3 whitespace-pre-wrap type-lead font-normal leading-relaxed text-ink-soft">{report.priority_focus || report.improvement_plan[0] || 'Build one clear situation–action–result example.'}</p></div></div>}
       {view === 'scores' && <div className="grid gap-3 sm:grid-cols-2">{SCORE_ROWS.map(row => <article key={row.key} className="ui-card rounded-card border border-line bg-white p-4"><div className="flex items-start justify-between gap-3"><h3 className="type-card">{row.label}</h3><span className="text-teal">{Number(report[row.field])}/100</span></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-teal" style={{ width: `${Number(report[row.field])}%` }} /></div><p className="mt-4 text-ink-soft">{report.score_explanations?.[row.key] || 'Use the answer feedback to build specific evidence for this area.'}</p></article>)}</div>}

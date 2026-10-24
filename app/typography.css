@@ -176,7 +176,7 @@ body :is(.cover-letter-email-body,.profile-copy-text,.qa-answer-text) :is(p,li,d
   --ui-title-size: var(--ui-h1-size);
   --ui-section-size: var(--ui-h2-size);
   --ui-card-title-size: var(--ui-h3-size);
-  --ui-body-size: .9375rem;
+  --ui-body-size: 1rem;
   --ui-helper-size: .875rem;
   --ui-label-size: .875rem;
   --ui-caption-size: .75rem;
@@ -199,3 +199,93 @@ body :is(.cover-letter-email-body,.profile-copy-text,.qa-answer-text) :is(p,li,d
 /* Semantic form roles outrank generic paragraph styling inside the app. */
 .app-type.internal-ui .field-label:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-label-size) !important; font-weight: var(--ui-weight-label) !important; line-height: var(--ui-label-line) !important; }
 .app-type.internal-ui .field-hint:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-helper-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
+
+/* Career Studio semantic roles; centralized with the application type system. */
+.app-type.internal-ui.career-studio .studio-bottom-nav a, .app-type.internal-ui.career-studio .studio-bottom-nav a span {
+  font-size: var(--ui-caption-size) !important;
+  font-weight: var(--ui-weight-label) !important;
+  line-height: var(--ui-label-line) !important;
+}
+
+.app-type.internal-ui.career-studio :is(.studio-work-count, .studio-resume-context>span>span, .studio-continue-heading p, .studio-profile-row-detail, .studio-profile-additional>span>span, .studio-service-row>span>span, .studio-row-open, .studio-text-link, .studio-improvement>span>span, .studio-gulf-link) {
+  font-size: var(--ui-helper-size) !important;
+  line-height: var(--ui-body-line) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-status-attention {
+  font-size: var(--ui-caption-size) !important;
+  font-weight: var(--ui-weight-label) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-profile-row-heading {
+  font-size: var(--ui-body-size) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-profile-edit {
+  font-size: var(--ui-helper-size) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-brand>span, .app-type.internal-ui.career-studio .studio-help {
+  font-size: var(--ui-caption-size) !important;
+  font-weight: var(--ui-weight-regular) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-section-heading h2 {
+  font-size: var(--ui-body-size) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-profile-score {
+  font-size: var(--ui-stat-size) !important;
+}
+
+.app-type.internal-ui.career-studio :is(.studio-focus-topbar>span, .studio-focus-context p, .studio-answer-field>span:last-child, .studio-report-result p, .studio-feedback-action) {
+  font-size: var(--ui-helper-size) !important;
+  line-height: var(--ui-body-line) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-report-result strong {
+  font-size: var(--ui-h1-size) !important;
+  font-weight: var(--ui-weight-heading) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-report-result strong>span {
+  font-size: var(--ui-body-size) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-focus-body h1 {
+  font-size: var(--ui-h1-size) !important;
+  line-height: var(--ui-heading-line) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-report-comparison {
+  font-size: var(--ui-helper-size) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-mobile-brand {
+  font-size: var(--ui-label-size) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-primary-nav a {
+  font-size: var(--ui-body-size) !important;
+  font-weight: var(--ui-weight-label) !important;
+}
+
+.app-type.internal-ui.career-studio :is(.studio-report-heading p, .studio-report-page-heading>span) {
+  font-size: var(--ui-helper-size) !important;
+}
+
+.app-type.internal-ui.career-studio .studio-mobile-brand {
+  font-weight: var(--ui-weight-heading);
+}
+
+.app-type.internal-ui.career-studio .studio-section-heading strong span {
+  font-weight: var(--ui-weight-regular);
+}
+
+.app-type.internal-ui.career-studio .studio-report-result strong>span {
+  font-weight: var(--ui-weight-regular);
+}
+
+/* Summary and feedback copy use reading weight; headings and actions retain their roles. */
+.app-type.internal-ui.career-studio .studio-profile-row-detail,
+.app-type.internal-ui.career-studio .studio-feedback-row > span > span:not(.studio-feedback-action) { font-weight: var(--ui-weight-regular) !important; }
