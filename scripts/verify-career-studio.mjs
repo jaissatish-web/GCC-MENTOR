@@ -22,7 +22,8 @@ try {
   // unsaved-navigation prompt when moving to the next fictional test case.
   page.on('dialog',dialog=>{if(dialog.type()==='beforeunload')void dialog.accept();else{errors.push('Unexpected dialog: '+dialog.message());void dialog.dismiss()}})
   await page.setRequestInterception(true)
-  page.on('request',r=>{if(new URL(r.url()).origin!==origin){external.push(r.url());void r.abort()}else void r.continue()})
+  // Chrome can request data: images for native date controls; these make no network call.
+  page.on('request',r=>{const url=new URL(r.url());if(url.protocol==='data:'||url.origin===origin)void r.continue();else{external.push(r.url());void r.abort()}})
   const go=async path=>{console.log('CHECK '+path);if(path.startsWith('/__scenario')){await fetch(origin+path);return}await page.goto(origin+path,{waitUntil:'domcontentloaded'});await page.waitForNetworkIdle({idleTime:150,timeout:5000}).catch(()=>{})}
   const reflow=async name=>{assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),name+' horizontal overflow');results.push(name)}
   const shot=async name=>{await page.evaluate(()=>{for(const animation of document.getAnimations()){if(Number.isFinite(animation.effect?.getComputedTiming().endTime)){try{animation.finish()}catch{}}}});await page.screenshot({path:`${shots}/${name}.png`,fullPage:false})}
