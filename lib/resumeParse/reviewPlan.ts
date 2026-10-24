@@ -1,7 +1,7 @@
 import type { ReviewCheck } from './reviewChecks'
 
-/** Database-required fields and malformed supplied values cannot be skipped.
- * Missing optional career facts can be completed later, without invented values.
+/** Essential-check grouping retained for editor disclosure and issue summaries.
+ * The explicit defer/save action uses `invalid`, not this legacy grouping.
  */
 export function isBlockingImportCheck(check: ReviewCheck): boolean {
   if (check.status !== 'attention') return false

@@ -12,7 +12,7 @@ const clean = resumeReviewChecks(review,editor,()=>null)
 assert.equal(importReviewPlan(clean,{}).blocking.length,0,'fresher can proceed without fabricated jobs, skills or qualifications')
 assert.ok(importReviewPlan(clean,{}).later.some(c=>c.field==='skills'),'optional missing skills remain outstanding')
 const bad = resumeReviewChecks(review,{...editor,email:'invalid',work_experience:[{company:'',role:'Engineer',start_date:'',description:'',highlights:''}],skills:[{name:''}],certifications:[{name:'',issue_date:'',expiry_date:''}]},()=>null)
-for(const field of ['email','work_experience.0.company','work_experience.0.start_date','skills.0.name','certifications.0.name']) assert.ok(importReviewPlan(bad,{}).blocking.some(c=>c.field===field),field+' must be fixed before save')
+for(const field of ['email','work_experience.0.company','work_experience.0.start_date','skills.0.name','certifications.0.name']) assert.ok(importReviewPlan(bad,{}).blocking.some(c=>c.field===field),field+' remains in the essential issue grouping')
 const warning={id:'warning',field:'full_name',kind:'check' as const,label:'Name',before:'',after:'',reason:'Please verify extracted name'}
 const uncertain=resumeReviewChecks({...review,changes:[warning]},editor,()=>null)
 const flag=uncertain.find(c=>c.field==='full_name')!
