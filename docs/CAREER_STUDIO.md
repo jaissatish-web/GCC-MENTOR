@@ -1,30 +1,21 @@
-# Career Studio — approved redesign and recovery status
+# Career Studio — internal presentation rebuild
 
-24 October 2026 (Riyadh). Authorized by Satish: option 3, followed by approval of the revised connected journey and “Ok go ahead”. Baseline main: `4f65bc4c8608c3a6661896542bc1256187545d86` (confirmed remotely again in this check).
+24 October 2026 (Riyadh). Approved selected direction: `design-reference/career-studio/approved-direction.png`. Baseline main:4f65bc4. Satish authorized reconstruction and publication after being told this requires tested source, main merge and Vercel release. Review:PR33. Status: implemented and locally built; final verification and required CI precede release.
 
-## Approved scope
-Recompose Home, Profile, resume workspace and text interview/report pages. Light 224px desktop rail; four phone destinations (Home, Resumes, Practice, Profile); existing service drawer retained. Home prioritizes one next action and saved work with contextual readiness. Profile defaults to a summary with one section edited at a time. Resume workspace groups preparation services and keeps all existing tabs/actions. Interview is a focused question/answer surface; report prioritizes score and three grounded feedback items.
+## Resulting experience
+- Light224px desktop navigation,80px tablet rail and four mobile destinations:Home,Resumes,Practice,Profile. Existing complete services/settings/signout/data drawer and published footer remain.
+- Home prioritizes selected resume context, one real next/continue action and saved-work rows. Existing Profile completeness and Gulf preparation remain distinct. Desktop puts readiness/context alongside work; phones show it first. Pending imports retain priority; no-data/error/loading and saved-progress recovery remain.
+- Profile opens a summary, then edits one section. Existing editor state survives returning to the overview. Full14-block/custom editing, visibility, import review, explicit saving, optimistic version checks and invalid-field focus remain. Phone summary descriptions show two lines; editing exposes all content.
+- Resume workspace uses persistent local tabs, a real document thumbnail, preparation service rows and an action disclosure. All four existing tabs, base-resume distinctions, save/edit/export/tracker and prerequisite paths remain.
+- Text interview opens a focused room using existing drafts/answer/finish handlers. Completed reports show actual score, eligible prior comparison and three grounded feedback priorities before the full explorer. Practise again opens existing setup; it never generates on navigation. Voice and sharing behavior remain.
 
-Central typography: existing bundled Inter, 16px body/inputs, 24px phone and 28px desktop page headings, 16px phone gutters, 32px desktop gutters, 48px controls, restrained ocean teal/charcoal/nearwhite. Keep all 14 Profile blocks, existing mounted unsaved edits, import review, explicit saving and version checks. Mockup labels, timestamps, scores and candidate examples are not factual product requirements. Preserve real two-score meanings and report-comparison eligibility; do not introduce auto-save.
+## Shared rules and protected behavior
+Inter from existing bundled assets;16px body/inputs,24px phone and28px desktop H1,16px phone/32px desktop gutters,48px controls,8px radii. Nearwhite/charcoal/ocean teal with amber attention/blue information. Application typography stays in `app/typography.css`; layout/color/spacing configuration remains in `app/ui-system.css`. Studio geometry is scoped in `app/career-studio.css`.
 
-## Protected behavior
-No API, schema, authentication, prompt, credit, scoring, resume-template formatting or export changes. No replacement of real data with example fallbacks. Existing published legal/footer content remains.
+No API/lib/schema/auth/scoring/prompt/credit changes, no sample-data fallbacks, no auto-save introduction, no document-template/export formatting changes. Actual counts/scores/service semantics supersede illustrative mock data. Generated portrait/document art is not shipped as candidate content: actual saved photos and real resume renderer are used; Home uses a standard document icon where summaries contain no document snapshot.
 
-## Current status — release blocked
-A temporary source worktree at `/tmp/gcc-career-studio` was lost when the execution environment restarted. It had not been committed. The git worktree metadata survives, but `git fsck --no-reflogs --unreachable` found no recoverable source objects. A new baseline checkout now exists inside the persistent workspace at `gcc-career-studio`. It contains **no recovered application implementation yet**.
+## Implementation record
+Reconstructed readable typed source against current main after an earlier uncommitted temporary checkout was lost. Checkpoints75952b5,a22c295,c2ea620,9ed5412,d877473,070509f,3aac94f,5fa06fa preserve requirements and code. Root reviewed integrated diffs; protected directories (`app/api`, `lib`, `types`, template components) have no changes. Remote application checkpoint f550a5a06de7de0c06d0f132fc181da262d39610 has the identical tree to local5fa06fa. The compiled fictional review is verification only and is never deployed as production.
 
-The built, fictional-data review survived at `../studio-review`: production-built static pages/assets, a webpack component bundle for the dynamic resume workspace, fictional fixture and review server. Its source paths in bundle comments point to the lost checkout. These are useful recovery/visual evidence, not a source-complete or deployable production change. The review server was restarted and Home successfully re-opened in the cloud browser. It uses test APIs and must never be deployed as the actual application.
-
-Approved visual: `../design-reference/career-studio/approved-direction.png`. A SHA-256 manifest of surviving review files is stored beside it. Keep those files until the implementation is reconstructed and reviewed.
-
-## Historical checks — apply only to the lost checkout
-Prior tool outputs recorded 77/77 repository checks, a production build, 28 responsive/state checks at 320/390/768/1440, mobile typography/public-document isolation, WhatsApp CTA interactions, intake and navigation checks. Profile section/back/save and interview answer submission were exercised using fictional APIs. These checks **do not certify the new baseline checkout**, and their temporary raw logs were lost. An existing preview regression script failed on a stale catalogue expectation (53 versus 63); no template code was changed to fit that assertion. The last report CTA improvement had not received a passing final build before the interruption.
-
-## Next required work
-1. Recover/reconstruct readable typed source from the current main baseline, surviving review and approved target. Checkpoint each coherent change in git within the persistent workspace.
-2. Retain all protected behavior; inspect the actual diff, rerun typecheck/lint/build and required checks.
-3. Compare source and actual rendered pages at matched phone/desktop sizes. Fix report CTA placement; validate narrow navigation labels, long text, empty/error/pending states and document isolation.
-4. Complete `design-qa.md`, open a reviewable PR, pass required CI, and perform the authorized release only after those gates. Do not claim this redesign is on main or live now.
-
-## Resumed implementation and publication authorization
-Satish instructed “So do it” after being told the source must be reconstructed, tested and merged to main for Vercel publication. Rebuild within the approved scope above. Source checkpoints must be committed inside the persistent workspace. Required checks and actual visual QA remain release gates; no bypass. Root owns Home/resume workspace/harness/release. Bounded Profile, interview/report and shell/CSS tasks may be coordinated under AGENTS.md; inspect all integrated diffs.
+## Verification and release
+See project-root `design-qa.md` for source/render comparisons, responsive evidence, fixes and explicit deviations. Required CI and Vercel status must be recorded against the final PR head/merge, separately from synthetic checks. Source/build tests do not certify signed-in production persistence, AI provider output quality or microphone behavior. Live authenticated checks require a session; do not infer them from fictional APIs.
