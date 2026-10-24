@@ -1,3 +1,4 @@
+import { employmentStatusLabel } from '@/lib/employmentStatus'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import { generate } from '@/lib/ai/provider'
 import { extractJsonObject } from '@/lib/ai/extractionPrompt'
@@ -29,7 +30,7 @@ export async function reviewCvClaims(profile: CareerProfileFull, summary: string
     skills: profile.skills.map(s => s.name),
     qualifications: profile.certifications.map(c => c.name),
     education: profile.education.map(e => [e.degree, e.field_of_study, e.institution].filter(Boolean).join(', ')),
-    jobs: profile.work_experience.map(e => ({ id: e.id, title: e.role, company: e.company, location: e.location, start: e.start_date, end: e.end_date, description: e.description, bullets: e.highlights })),
+    jobs: profile.work_experience.map(e => ({ id: e.id, title: e.role, company: e.company, location: e.location, start: e.start_date, end: e.end_date, employmentStatus: employmentStatusLabel(e), description: e.description, bullets: e.highlights })),
   }
   const local = new Set<string>()
   const wholeSource = [profile.professional_summary, ...profile.work_experience.flatMap(e => [e.role, e.description, ...(e.highlights ?? [])])].filter(Boolean).join('\n')

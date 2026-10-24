@@ -1,3 +1,4 @@
+import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 /**
  * Employment gap detection (docs/GCC_READINESS_JOB_MATCH.md §5 "Career" /
  * §7 "employment gaps" among things checkable even without a JD).
@@ -31,6 +32,7 @@ export interface EmploymentGap {
 export interface WorkExperienceForGapCheck {
   start_date: string | null
   end_date: string | null
+  end_date_unconfirmed?: boolean
   company: string
 }
 
@@ -63,6 +65,7 @@ export function detectEmploymentGaps(
 ): EmploymentGap[] {
   const intervals: WorkInterval[] = workExperience
     .map((e): WorkInterval | null => {
+      if (hasUnknownEmploymentEnd(e)) return null
       const start = new Date(e.start_date ?? '')
       const end = e.end_date ? new Date(e.end_date) : new Date()
       if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null

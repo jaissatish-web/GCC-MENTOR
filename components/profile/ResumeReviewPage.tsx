@@ -29,7 +29,7 @@ export interface ResumeReviewData extends ReviewCheckEditor {
   target_company: string
   target_country: string
   skills: Array<{ key: string; name: string }>
-  work_experience: Array<{ key: string; company: string; role: string; start_date: string; end_date: string; location: string; description: string; highlights: string; gcc_country: string }>
+  work_experience: Array<{ key: string; company: string; role: string; start_date: string; end_date: string; end_date_unconfirmed?: boolean; location: string; description: string; highlights: string; gcc_country: string }>
   education: Array<{ key: string; degree: string; institution: string; field_of_study: string; start_year: string; end_year: string }>
   certifications: Array<{ key: string; name: string; issuer: string; issue_date: string; expiry_date: string }>
   additional_information: Array<{ key: string; label: string; value: string }>
@@ -38,7 +38,7 @@ export interface ResumeReviewData extends ReviewCheckEditor {
 export function ResumeReviewPage<T extends ResumeReviewData>({ value, review, existing, busy, error, score, missing, onChange, onConfirm, cannotConfirm = false }: {
   value: T; review: ImportReview; existing: boolean; busy: boolean; error: string | null
   cannotConfirm?: boolean
-  score: number; missing: MissingItem[]; onChange: (next: T) => void; onConfirm: () => void
+  score: number; missing: MissingItem[]; onChange: (next: T) => void; onConfirm: (next: T) => void
 }) {
   const [verified, setVerified] = useState<Record<string, string>>({})
   const [confirmed, setConfirmed] = useState(false)
@@ -76,7 +76,7 @@ export function ResumeReviewPage<T extends ResumeReviewData>({ value, review, ex
       for(const check of checks.filter(c=>c.confirmable&&verified[c.id]===c.value))stored[check.id]=await confirmationDigest(confirmationKey,check.id,check.value)
       localStorage.setItem(confirmationKey,JSON.stringify(stored))
     }catch{/* Saving the profile must not depend on optional browser storage. */}
-    try{onConfirm()}finally{setRemembering(false)}
+    try{onConfirm({ ...value, work_experience: value.work_experience.map(job => ({ ...job, end_date_unconfirmed: !job.end_date && !knownCurrent(job) })) } as T)}finally{setRemembering(false)}
   }
   const byField = new Map(checks.map(c => [c.field, c]))
   const knownCurrent=(job:ResumeReviewData['work_experience'][number])=>verified[`field:work_experience.${value.work_experience.indexOf(job)}.current_status`]===currentRoleFingerprint(job)||verified['current-role:'+job.key]===currentRoleFingerprint(job)||review.currentRoles?.includes(currentRoleFingerprint(job))===true

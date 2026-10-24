@@ -52,6 +52,7 @@ const TS_CHECKS = [
   'verify-import-review.ts',
   'verify-import-review-checks.ts',
   'verify-review-before-profile.ts',
+  'verify-unknown-employment-status.ts',
   'verify-profile-review-navigation.ts',
   'verify-client-import.ts',
   'verify-loose-duties.ts',
@@ -105,6 +106,7 @@ run('verify-linkedin-db.mjs', [join(root, 'scripts', 'verify-linkedin-db.mjs')])
 run('verify-profile-photo-api.mjs', [join(root, 'scripts', 'verify-profile-photo-api.mjs')])
 run('verify-career-profile-resume-api.mjs', [join('scripts', 'verify-career-profile-resume-api.mjs')])
 run('verify-career-intake-api.mjs', [join('scripts', 'verify-career-intake-api.mjs')])
+run('verify-recreation-limit.mjs', [join('scripts', 'verify-recreation-limit.mjs')])
 run('verify-incomplete-profile-save.mjs', [join('scripts', 'verify-incomplete-profile-save.mjs')])
 run('verify-import-review-api.mjs', [join('scripts', 'verify-import-review-api.mjs')])
 run('verify-import-review-db.mjs', [join('scripts', 'verify-import-review-db.mjs')])

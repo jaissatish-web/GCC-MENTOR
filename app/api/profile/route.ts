@@ -216,6 +216,7 @@ function validateWorkExperience(list: unknown): string | null {
     if (item.start_date != null && typeof item.start_date !== 'string') return 'work_experience.start_date'
     if (typeof item.start_date === 'string' && item.start_date.trim() && requireStorableDate(item.start_date)) return 'work_experience.start_date'
     if (optional(item.end_date, 'end_date', (x) => typeof x === 'string')) return 'work_experience.end_date'
+    if (optional(item.end_date_unconfirmed, 'end_date_unconfirmed', x => typeof x === 'boolean')) return 'work_experience.end_date_unconfirmed'
     if (typeof item.sort_order !== 'number') return 'work_experience.sort_order'
     // migration 027 — null/absent = not GCC experience, otherwise must be a
     // real target_country_enum member, same set the DB column accepts.

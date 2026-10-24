@@ -1,3 +1,4 @@
+import { employmentEndLabel, hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 /**
  * Optimizer v3 prompts — founder-approved 2026-10-02 (TEST LAB, not yet wired
  * into /api/optimize).
@@ -130,7 +131,7 @@ export function renderExperience(profile: CareerProfileFull): string {
   lines.push(`Current summary: ${profile.professional_summary?.trim() || '(none)'}`)
   for (const { key, id } of keys) {
     const e = profile.work_experience.find((x) => x.id === id)!
-    lines.push(`[${key}] ${e.role} — ${e.company}${e.location ? ` — ${e.location}` : ''} — ${month(e.start_date)} to ${month(e.end_date)}`)
+    lines.push(`[${key}] ${e.role} — ${e.company}${e.location ? ` — ${e.location}` : ''} — ${(e.start_date ? month(e.start_date) : 'Start date not provided')} to ${employmentEndLabel(e, month, month(null))}`)
     if (e.description) lines.push(`  ${e.description}`)
     for (const h of e.highlights ?? []) lines.push(`  - ${h}`)
     // A job with no duties: nothing to reword (launch audit 2026-10-02).
@@ -183,7 +184,7 @@ export function writerUser(profile: CareerProfileFull, targetTitle: string, jd: 
   const c = lists.c.length ? `   - ${lists.c.join(' · ')}` : '   (none)'
   return `TARGET JOB
 Applying for: ${targetTitle}
-Current title: ${currentTitle(profile)}
+${hasUnknownEmploymentEnd(sortExperienceNewestFirst(profile.work_experience ?? [])[0] ?? {}) ? 'Recorded role title (current status unconfirmed)' : 'Current title'}: ${currentTitle(profile)}
 Years of experience: ${yearsLine(profile)}
 Field: ${lists.fieldLine}
 

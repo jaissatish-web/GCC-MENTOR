@@ -184,6 +184,7 @@ interface EditableWork {
   role: string
   start_date: string
   end_date: string
+  end_date_unconfirmed?: boolean
   location: string
   description: string
   highlights: string
@@ -333,6 +334,7 @@ function ws(o: unknown): EditableWork {
     // blanked anything without a day, which is most of what resumes contain.
     start_date: toMonthInputValue(w.start_date),
     end_date: toMonthInputValue(w.end_date),
+    end_date_unconfirmed: w.end_date_unconfirmed === true,
     location: str(w.location),
     description: str(w.description),
     highlights: Array.isArray(w.highlights) ? (w.highlights as unknown[]).map(str).join('\n') : '',
@@ -522,6 +524,7 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
       role: w.role,
       start_date: w.start_date,
       end_date: optNull(w.end_date),
+      end_date_unconfirmed: !w.end_date && w.end_date_unconfirmed === true,
       location: optNull(w.location),
       description: optNull(w.description),
       highlights:
@@ -1398,6 +1401,7 @@ function ProfileScreen() {
           role: w.role,
           start_date: w.start_date,
           end_date: w.end_date || null,
+          end_date_unconfirmed: w.end_date_unconfirmed,
           location: w.location,
           description: w.description,
           highlights: w.highlights.split('\n'),
@@ -1560,6 +1564,8 @@ function ProfileScreen() {
           if (roles.length === 0) return { status: 'missing', hint: 'Add your jobs, newest first.' }
           if (roles.some((w) => !filled(w.role) || !filled(w.company) || !filled(w.start_date)))
             return { status: 'attention', hint: 'A job is missing its title, company or start date.' }
+          if (roles.some(w => !w.end_date && w.end_date_unconfirmed))
+            return { status: 'attention', hint: 'Confirm whether your role is current or add its end date.' }
           if (roles.some((w) => !filled(w.description) && !filled(w.highlights)))
             return { status: 'attention', hint: 'Add what you did in each job — resumes are written from these lines.' }
           return { status: 'complete', hint: `${roles.length} job${roles.length === 1 ? '' : 's'} with dates and activities.` }
@@ -1604,20 +1610,22 @@ function ProfileScreen() {
     if (!editor) return null
     const work = editor.work_experience.filter((w) => w.role.trim() || w.company.trim())
     const latest = [...work].sort((a, b) => {
-      const aCur = a.end_date.trim() === '' ? 1 : 0
-      const bCur = b.end_date.trim() === '' ? 1 : 0
+      const aCur = !a.end_date_unconfirmed && a.end_date.trim() === '' ? 1 : 0
+      const bCur = !b.end_date_unconfirmed && b.end_date.trim() === '' ? 1 : 0
       if (aCur !== bCur) return bCur - aCur
       return (b.start_date || '').localeCompare(a.start_date || '')
     })[0]
     const countryLabel = (v: string) => GULF_COUNTRIES.find((c) => c.value === v)?.label ?? v
     const gcc = gccExperience(
-      work.map((w) => ({ start_date: w.start_date, end_date: w.end_date || null, location: w.location, gcc_country: w.gcc_country })),
+      work.map((w) => ({ start_date: w.start_date, end_date: w.end_date || null, end_date_unconfirmed: w.end_date_unconfirmed, location: w.location, gcc_country: w.gcc_country })),
       (loc) => gccCountryFromLocation(loc)?.country ?? null,
     )
     const availability = [editor.visa_status, editor.notice_period ? `Notice: ${editor.notice_period}` : ''].filter((x) => x.trim()).join(' · ')
     return {
+      currentRoleUnconfirmed: Boolean(latest?.end_date_unconfirmed && !latest.end_date),
+      experienceIncomplete: work.some(w => !w.end_date && w.end_date_unconfirmed),
       currentTitle: latest ? [latest.role, latest.company].filter((x) => x.trim()).join(' · ') : null,
-      years: totalExperienceYears({ work_experience: work.map((w) => ({ start_date: w.start_date, end_date: w.end_date || null })) } as never),
+      years: totalExperienceYears({ work_experience: work.map((w) => ({ start_date: w.start_date, end_date: w.end_date || null, end_date_unconfirmed: w.end_date_unconfirmed })) } as never),
       gcc: { ...gcc, countries: gcc.countries.map(countryLabel) },
       location: editor.current_location.trim() || null,
       target: editor.target_job_title.trim() || null,
@@ -1810,11 +1818,13 @@ function ProfileScreen() {
   )
 
   const onSubmit = useCallback(
-    async (destination: 'exit' | 'confirm' | 'stay' | 'review') => {
+    async (destination: 'exit' | 'confirm' | 'stay' | 'review', reviewedEditor?: EditorData) => {
       if (!editor || submitting || (reviewingImport && destination !== 'review')) return
+      const saveEditor = reviewedEditor ?? editor
+      if (reviewedEditor) setEditor(reviewedEditor)
       setSaveError(null)
 
-      const missing = requiredMissing(editor)
+      const missing = requiredMissing(saveEditor)
       if (missing.length > 0) {
         // Mark the fields, open the sections holding them, and scroll to the
         // first one. Naming them in a sentence is not enough on a nine-section
@@ -1856,7 +1866,7 @@ function ProfileScreen() {
         const res = await fetch('/api/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...buildPutBody(editor), expected_updated_at: savedVersionRef.current }),
+          body: JSON.stringify({ ...buildPutBody(saveEditor), expected_updated_at: savedVersionRef.current }),
         })
         if (!res.ok) {
           let msg = 'Saving failed. Please try again.'
@@ -1875,7 +1885,7 @@ function ProfileScreen() {
         const savedBody = (await res.json().catch(() => null)) as { updated_at?: string | null } | null
         if (savedBody?.updated_at) savedVersionRef.current = savedBody.updated_at
         // What is now saved — the save bar reads "All changes saved" until the next edit.
-        setSavedBaseline(JSON.stringify(buildPutBody(editor)))
+        setSavedBaseline(JSON.stringify(buildPutBody(saveEditor)))
         // A save succeeded, so the profile now exists — the import panel folds
         // into "Recreate my profile" (2026-09-11).
         setHasSavedProfile(true)
@@ -2063,7 +2073,7 @@ function ProfileScreen() {
       wordingStatus: 'not_needed' as const,
       changes: parseNotes.map((note, i) => ({ id: `pending-note-${i}`, field: note.field, label: 'Please verify', kind: 'check' as const, before: '', after: '', reason: note.message })),
     }
-    return <ResumeReviewPage value={editor} review={review} existing={hasSavedProfile} busy={submitting} error={loadError ?? saveError} cannotConfirm={!!loadError} score={readiness.score} missing={readiness.missing} onChange={next => setEditor(next)} onConfirm={() => { if (!loadError) void onSubmit('review') }} />
+    return <ResumeReviewPage value={editor} review={review} existing={hasSavedProfile} busy={submitting} error={loadError ?? saveError} cannotConfirm={!!loadError} score={readiness.score} missing={readiness.missing} onChange={next => setEditor(next)} onConfirm={next => { if (!loadError) void onSubmit('review', next) }} />
   }
 
   const hasProfile = Boolean(hasSavedProfile || editor.full_name.trim())
@@ -2884,8 +2894,9 @@ function ProfileScreen() {
                 <Input tone="light" label="Employer / your business" placeholder="e.g. Bechtel · use Self-employed if applicable" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   <DateField id={`f_work_start_${w.key}`} label="Start" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
-                  <DateField id={`f_work_end_${w.key}`} label="End" helper="Leave blank if this is your current role." value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value }) }))} />
+                  <DateField id={`f_work_end_${w.key}`} label="End" helper="Leave blank if this is your current role." value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value, end_date_unconfirmed: e.target.value ? false : w.end_date_unconfirmed }) }))} />
                 </div>
+                {w.end_date_unconfirmed && !w.end_date && <div className="rounded-ctl border border-alert bg-alert-soft p-3 text-alert"><p className="type-helper">Current or ended status needs an update. Add the end date above, or confirm this is your current role.</p><button type="button" className={buttonVariants({variant:'secondary',size:'sm'})} onClick={() => setEditor(s => s && ({...s,work_experience:updateList(s.work_experience,w.key,{end_date_unconfirmed:false})}))}>This is my current role</button></div>}
                 <Input tone="light" label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
                 <div className="flex flex-col gap-1.5">
                   <FieldLabel htmlFor={`f_work_gcc_${w.key}`}>Was this role in the Gulf?</FieldLabel>

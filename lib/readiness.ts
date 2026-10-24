@@ -1,3 +1,4 @@
+import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 import { profileTextPresent, validProfileEmail, validProfilePhone } from './profileFieldValidity'
 import type { ReadinessCategory } from '@/types/careerProfile'
 
@@ -21,7 +22,7 @@ export function deriveCategory(profile: ReadinessInput): ReadinessCategory {
   if (entries.length === 0) return profile.career_stage==='experienced' ? 'experienced_not_in_gulf' : 'fresher'
 
   const totalExperienceMs = entries.reduce((sum, e) => {
-    if (!e.start_date) return sum // Unknown dates do not imply years of experience.
+    if (!e.start_date || hasUnknownEmploymentEnd(e)) return sum // Unknown dates do not imply years of experience.
     const start = parseDay(e.start_date ?? '')
     const end = e.end_date ? parseDay(e.end_date) : Date.now()
     const ms = Math.max(0, end - start)
@@ -32,6 +33,7 @@ export function deriveCategory(profile: ReadinessInput): ReadinessCategory {
 
   // Most recent job = the one with the latest end_date.
   const latestEnd = entries.reduce<number | null>((latest, e) => {
+    if (hasUnknownEmploymentEnd(e)) return latest
     const end = e.end_date ? parseDay(e.end_date) : Date.now()
     return latest === null ? end : Math.max(latest, end)
   }, null)
@@ -87,6 +89,7 @@ function listFilled(field: keyof ReadinessInput): FilledCheck {
     if (field === 'work_experience') return v.every(entry => {
       if (!entry || typeof entry !== 'object') return false
       const row = entry as Record<string, unknown>
+      if (hasUnknownEmploymentEnd(row)) return false
       if (typeof row.start_date !== 'string' || !Number.isFinite(Date.parse(row.start_date))) return false
       if (row.end_date && (typeof row.end_date !== 'string' || !Number.isFinite(Date.parse(row.end_date)) || Date.parse(row.end_date) < Date.parse(row.start_date))) return false
       if ('company' in row && (!profileTextPresent(row.company) || !profileTextPresent(row.role))) return false
@@ -215,7 +218,7 @@ export interface ReadinessInput {
   visa_transferable?: unknown
   notice_period?: unknown
   passport_validity_date?: unknown
-  work_experience?: Array<{ start_date: string | null; end_date?: string | null; company?: string; role?: string; description?: string | null; highlights?: string | string[] | null }>
+  work_experience?: Array<{ start_date: string | null; end_date?: string | null; end_date_unconfirmed?: boolean; company?: string; role?: string; description?: string | null; highlights?: string | string[] | null }>
   education?: unknown[]
   certifications?: unknown[]
   skills?: unknown[]
