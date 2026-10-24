@@ -49,9 +49,16 @@ jobs:
       - run: npm run build
       - name: Install browser for typography verification
         run: npx puppeteer browsers install chrome
+      - name: Verify resume PDF compatibility after browser updates
+        run: |
+          node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional
+          node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional --raw
       - name: Verify responsive typography with production CSS
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:mobile
+      - name: Verify scoped internal UI and document boundaries
+        run: |
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:clear-path
       - name: Verify desktop and mobile services navigation
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:workspace-navigation

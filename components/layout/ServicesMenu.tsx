@@ -194,7 +194,7 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
         {bottom ? <><span aria-hidden="true" className="flex size-7 items-center justify-center rounded-lg bg-teal-soft text-teal">{toolsOnly ? <Squares2X2Icon className="size-5" /> : <EllipsisHorizontalIcon className="size-5" />}</span><span>{toolsOnly ? 'Tools' : 'More'}</span></> : <Bars3Icon aria-hidden="true" className="size-6 text-teal" />}
       </button>
 
-      <SideSheet open={open} onClose={close} title={toolsOnly ? 'Preparation tools' : 'All services'} returnFocusTo={triggerRef}>
+      <SideSheet internalUI open={open} onClose={close} title={toolsOnly ? 'Preparation tools' : 'All services'} returnFocusTo={triggerRef}>
         {GROUPS.filter(group => !toolsOnly || ['cv', 'apply', 'professional'].includes(group.label)).map((group) => {
           const rows = group.hrefs.map(itemFor).filter(Boolean) as NavItem[]
           if (rows.length === 0 && !group.withSignOut) return null

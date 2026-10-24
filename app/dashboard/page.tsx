@@ -145,7 +145,7 @@ export default function DashboardPage() {
   const states = snap?.states ?? stageStates('profile', { profileDone: false, cvDone: false, applyDone: false })
 
   return (
-    <div className={`ui-page page-gutter mx-auto flex w-full max-w-[900px] flex-col pb-10 font-redesign-sans ${homeStyles.page}`}>
+    <div className={`ui-page ui-page-default page-gutter mx-auto flex w-full flex-col pb-10 font-redesign-sans ${homeStyles.page}`}>
       <header className={homeStyles.pageHeading}>
         <div className="min-w-0 w-full"><div className={homeStyles.mobileGreeting}><span>{firstName ? `Hello, ${firstName}` : 'Your Gulf career workspace'}</span><time dateTime={clock.toISOString()}>{new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(clock)}</time></div><p className="sr-only">{firstName ? `Good ${greeting()}, ${firstName}` : 'Your Gulf career workspace'}</p><h1>Your career workspace</h1><p>One profile. A plan for every opening.</p></div>
       </header>

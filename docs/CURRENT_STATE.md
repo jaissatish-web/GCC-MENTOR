@@ -31,3 +31,9 @@ For the founder-readable complete service flow and current limits, read [PLATFOR
 
 ## Career Profile update — PROFILE-014, 22 October 2026
 PR #26 implements the [14-block contract](CAREER_PROFILE_BLOCKS.md) using existing parent/child/category storage. All 14 blocks are discoverable; specialist sections are optional and custom sections remain. Original category identities/headings/order/visibility and private preparation data are preserved. Extraction instructions cover specialist information and preserve untied responsibilities separately rather than guessing an employer. WhatsApp controls use existing number storage; no separate not-used declaration is persisted. Client/project/employment/study-status details remain descriptive/category text. No schema migration, scoring arithmetic or other service rewrite. Local typecheck/lint/build and 76 deterministic/disposable-database checks passed; synthetic category interactions passed at 390/1440px. PR #26 is the authoritative release/check/merge record; live authenticated save and live model fidelity are not certified by these tests.
+
+## Clear Path rollout — 24 October 2026, not yet on main
+Internal UI implementation is retained in PR31, application commit5678495; source scope and local test evidence in CLEAR_PATH_ROLLOUT.md. Required CI449 fails existing Zod/Puppeteer dependency audit; no merge/deployment. Production still serves main b319aab. Do not describe Clear Path as live.
+
+## PR31 dependency blocker follow-up — 24 October2026
+The old required audit failure is resolved in source by dependency commit26b4d48. Local production audit0; clean install/typecheck/lint/build/77 checks and198 PDF fixtures passed with bundled Chromium. Final CI and main merge/deployment remain pending; Clear Path is not yet claimed live. See05_SECURITY.md.

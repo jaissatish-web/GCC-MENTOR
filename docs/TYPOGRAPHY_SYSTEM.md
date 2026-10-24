@@ -1,3 +1,24 @@
+# Clear Path internal typography — 24 October 2026
+
+Current internal configuration is the `.app-type.internal-ui` block in `app/typography.css`. It overrides the preserved public baseline below. AppShell and opted-in internal portals use it; public landing/menu and authored documents do not.
+
+| Role | Mobile | Desktop (768px+) |
+|---|---:|---:|
+| H1 | 24px | 28px |
+| H2 | 18px | 20px |
+| H3 | 16px | 16px |
+| H4 | 15px | 15px |
+| H5 | 14px | 14px |
+| H6 | 13px | 13px |
+| Paragraph/reading | 15px | 16px |
+| Label/helper | 14px | 14px |
+| Caption | 12px | 12px |
+| Input | 16px | 16px |
+
+Each heading has its own `--ui-hN-size`. Shared weights/lines and the body aliases live in the same block. Inter remains the existing bundled family. Change code-owned tokens here; there is no new end-user design control panel. Shared spacing/palette/control configuration remains in `app/ui-system.css`; existing mobile/desktop public defaults are retained to protect landing. See [CLEAR_PATH_ROLLOUT.md](CLEAR_PATH_ROLLOUT.md) for scope, tests and release evidence.
+
+## Preserved baseline and historical rationale
+
 # Universal application typography
 
 The visual reference is **How it works popup**. `app/typography.css` owns every application font, size, weight, line-height and letter-spacing setting. Change that file to update the application; do not introduce local scales in page CSS or inline styles.

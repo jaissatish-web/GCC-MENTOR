@@ -87,12 +87,12 @@ try{
    const data=await page.evaluate(()=>{
     const doc='[data-document-preview],#resume-render,.actual-template-orbit-face,[data-typography="document"]'
     const visible=e=>!e.closest(doc)&&e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0
-    const headings=[...document.querySelectorAll('h1,h2,h3')].filter(visible).map(e=>({tag:e.tagName,text:e.textContent.slice(0,70),cardHeading:e.id==='challenges-title'||e.className.includes('editorialTitle'),class:e.className,size:getComputedStyle(e).fontSize,weight:getComputedStyle(e).fontWeight}))
+    const headings=[...document.querySelectorAll('h1,h2,h3')].filter(visible).map(e=>({tag:e.tagName,text:e.textContent.slice(0,70),internal:!!e.closest('.internal-ui'),cardHeading:e.className.includes('editorialTitle'),class:e.className,size:getComputedStyle(e).fontSize,weight:getComputedStyle(e).fontWeight}))
     const fields=[...document.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select')].filter(visible).map(e=>getComputedStyle(e).fontSize)
     return{actual:location.pathname,headings,fields,overflow:document.documentElement.scrollWidth>innerWidth+1,overflowNodes:[...document.querySelectorAll('main *')].filter(e=>visible(e)&&e.getBoundingClientRect().right>innerWidth+1).slice(0,5).map(e=>({tag:e.tagName,class:e.getAttribute('class')}))}
    })
    assert.equal(data.overflow,false,`Overflow ${path}/${width}: ${JSON.stringify(data.overflowNodes)}`)
-   for(const h of data.headings){const size=h.tag==='H1'?24:h.tag==='H2'?(h.cardHeading&&width>=768?16:18):16;assert.equal(h.size,size+'px',`${path}/${width} ${h.tag}: ${h.text} (${h.class})`);assert.equal(h.weight,'600',path)}
+   for(const h of data.headings){const size=h.internal ? (h.tag==='H1'?(width>=768?28:24):h.tag==='H2'?(width>=768?20:18):16) : (h.tag==='H1'?24:h.tag==='H2'?(h.cardHeading&&width>=768?16:18):16);assert.equal(h.size,size+'px',`${path}/${width} ${h.tag}: ${h.text} (${h.class})`);assert.equal(h.weight,'600',path)}
    for(const f of data.fields)assert.equal(f,'16px',`Input readability ${path}/${width}`)
    if(!data.headings.length)console.log(await page.evaluate(()=>document.body.innerText.slice(0,1200)))
    assert.ok(data.headings.length,`No meaningful rendered page ${path}/${width}`)
@@ -102,8 +102,8 @@ try{
     await page.evaluate(()=>{const trigger=[...document.querySelectorAll('.journey-guide-trigger')].find(e=>e.getBoundingClientRect().width>0);if(!trigger)throw new Error('How it works trigger missing');trigger.click()})
     await page.waitForSelector('[role="dialog"]',{visible:true})
     const reference=await page.evaluate(()=>{const dialog=document.querySelector('[role="dialog"]');const style=q=>getComputedStyle(dialog.querySelector(q));return{title:style('h2').fontSize,weight:style('h2').fontWeight,paragraph:style('p').fontSize,card:style('h3').fontSize,overflow:document.documentElement.scrollWidth>innerWidth+1}})
-    assert.equal(reference.title,'18px','Popup heading uses the section role')
-    assert.equal(reference.weight,'600');assert.equal(reference.paragraph,width<640?'15px':'16px');assert.equal(reference.card,'16px');assert.equal(reference.overflow,false)
+    assert.equal(reference.title,width>=768?'20px':'18px','Popup heading uses the section role')
+    assert.equal(reference.weight,'600');assert.equal(reference.paragraph,width<768?'15px':'16px');assert.equal(reference.card,'16px');assert.equal(reference.overflow,false)
     await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>Number.isFinite(a.effect?.getComputedTiming().iterations)).map(a=>a.finished.catch(()=>{}))))
     if(width===390)await page.screenshot({path:'artifacts/page-typography/how-it-works-390.png',fullPage:true})
     await page.evaluate(()=>document.querySelector('[aria-label="Close guide"]').click())
