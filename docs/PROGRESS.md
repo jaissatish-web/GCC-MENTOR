@@ -53,3 +53,5 @@ UI-CLEAR-PATH final local result:132 built static page states +4width Naukri cli
 
 
 DEPENDENCY-PR31 approved, pending: update vulnerable browser dependency chain, verify PDF/export compatibility and required CI, then complete authorized PR31 merge/live verification. No template or business-logic changes.
+
+DEPENDENCY-PR31 implemented: Puppeteer/core25.16.0 → Zod4.6.7. Production audit0, clean install, typecheck/lint/build,77/77 and198 packaged-browser PDF fixtures passed (189 across all63 optimized templates,9 raw representative variants). Existing application PDF renderer/bundled Chromium/templates unchanged. Added representative PDF checks to CI; final required CI and release pending. See05_SECURITY.md.

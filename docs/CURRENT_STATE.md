@@ -34,3 +34,6 @@ PR #26 implements the [14-block contract](CAREER_PROFILE_BLOCKS.md) using existi
 
 ## Clear Path rollout — 24 October 2026, not yet on main
 Internal UI implementation is retained in PR31, application commit5678495; source scope and local test evidence in CLEAR_PATH_ROLLOUT.md. Required CI449 fails existing Zod/Puppeteer dependency audit; no merge/deployment. Production still serves main b319aab. Do not describe Clear Path as live.
+
+## PR31 dependency blocker follow-up — 24 October2026
+The old required audit failure is resolved in source by dependency commit26b4d48. Local production audit0; clean install/typecheck/lint/build/77 checks and198 PDF fixtures passed with bundled Chromium. Final CI and main merge/deployment remain pending; Clear Path is not yet claimed live. See05_SECURITY.md.

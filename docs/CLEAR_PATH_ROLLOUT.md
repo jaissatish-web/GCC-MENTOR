@@ -1,6 +1,6 @@
 # Clear Path internal UI rollout — 24 October 2026
 
-Status: implemented and locally tested; RELEASE BLOCKED by required dependency audit. Not merged or deployed. Baseline: main b319aabff6bd7f3c47327ff09d02821990dfa3c3.
+Status: implemented and locally tested; dependency blocker fixed in26b4d48. Final required CI/release pending. Not yet merged or deployed. Baseline: main b319aabff6bd7f3c47327ff09d02821990dfa3c3.
 
 Satish authorized autonomous implementation, tests, protected PR merge and live verification. No separate preview publication or further release confirmation is required.
 
@@ -49,3 +49,6 @@ NaukriGulf actual client components passed four widths with setup/results/previe
 Main remains `b319aabff6bd7f3c47327ff09d02821990dfa3c3`. Production deployment `dpl_hDxzTnL5eou1kSa7Jr4sDfHF38pH` was READY for that exact existing main commit. No deployment was found for5678495; no merged-commit live verification is claimed. Public live landing rendered; dashboard redirected to login.
 
 **Next action:** resolve the existing dependency audit in a separately scoped compatibility patch, including browser/PDF/export checks; rerun required CI, then merge31 and verify the production deployment/actual authenticated journeys. Keep the temporary PR branch while release is blocked to preserve reviewable work. No separate preview Site was published.
+
+## Authorized dependency repair — 24 October2026
+Satish requested the fix directly. Puppeteer/core25.16.0 resolve patched Zod4.6.7; production audit now0. No browser launcher, template, export formatting, candidate data or service code changes. Local clean install/typecheck/lint/build/77 checks and scoped UI isolation passed. All63 optimized templates with/without photo and long CV passed (189 PDFs); three representative raw templates passed9 PDFs using the exact existing bundled Chromium149. Added those optimized/raw representatives to CI to guard future upgrades. Current old UI-only scope description is extended solely for this authorized dependency compatibility patch. Final required CI, merge and exact production deployment verification pending. Existing developer-tool audit findings and authenticated-live limitations remain; see05_SECURITY.md.
