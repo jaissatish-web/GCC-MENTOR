@@ -3247,3 +3247,6 @@ Founder authorizes ten additional premium visual resume designs only, on a dedic
 
 ## 24 October 2026 — approved Clear Path rollout
 Satish authorized autonomous internal UI implementation, testing, protected merge and live verification. Preserve landing, templates/exports and backend. No separate preview publication. Contract: CLEAR_PATH_ROLLOUT.md.
+
+
+24 October 2026 — Satish explicitly requested fixing the dependency audit blocker. Compatible browser dependency updates and export regression verification are authorized; retain required checks and existing release scope.

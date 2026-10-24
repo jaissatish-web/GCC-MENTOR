@@ -282,3 +282,6 @@ cannot exist. If a refund flow is ever added, it must preserve the invariant too
 When a real payment provider is integrated: `is_paid` set only by verified
 server-side confirmation, never a client callback; webhooks idempotent; card data
 and webhook secrets never logged.
+
+## Dependency release fix — 24 October 2026
+Approved, pending implementation: Satish requested fixing the dependency audit blocking PR31 and completing the previously authorized release. Update Puppeteer/core together to a patched supported release; regenerate the lockfile. Preserve PDF/browser implementation, bundled Chromium unless compatibility requires a separately verified update, all templates, facts, auth, schema, services and UI outside the existing PR. No audit suppression or protection bypass. Acceptance: production audit passes, clean install/typecheck/lint/build/repository CI pass, actual serverless browser PDF/export checks pass, then protected merge and deployment verification. Affected files: package.json, package-lock.json and release documentation. Browser-version compatibility is the main risk; test actual bundled Chromium and current renderPackagePdf paths before release.

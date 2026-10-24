@@ -50,3 +50,6 @@ Approved rollout recorded BEFORE implementation in CLEAR_PATH_ROLLOUT.md. Curren
 UI-CLEAR-PATH implementation: scoped shared type/layout/palette/controls and internal portal markers implemented; new CSS propagation/public-document isolation harness passes. Local77/77, typecheck/lint/build, mobile/drawer/interview/preparation/intake checks pass; final route sweep and CI/release pending. See CLEAR_PATH_ROLLOUT.md for exact scope/evidence/live-auth limitations.
 
 UI-CLEAR-PATH final local result:132 built static page states +4width Naukri client journeys passed, alongside77/77 suite, typecheck/lint/build, CSS/public-document boundaries, drawer, interview, preparation/intake checks. PR31 application head5678495 is reviewable. **Release blocked:** required CI449 fails preexisting Zod advisory through Puppeteer chain at production dependency audit. No runtime/dependency/export changes made to work around it, no bypass/merge. Main/live remain b319aab; live auth unavailable. Next: separately fix dependency compatibility, pass CI, then merge/deploy/verify. Full report CLEAR_PATH_ROLLOUT.md.
+
+
+DEPENDENCY-PR31 approved, pending: update vulnerable browser dependency chain, verify PDF/export compatibility and required CI, then complete authorized PR31 merge/live verification. No template or business-logic changes.
